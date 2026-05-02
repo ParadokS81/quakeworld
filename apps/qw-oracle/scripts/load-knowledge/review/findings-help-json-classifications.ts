@@ -8,7 +8,7 @@
 // help-json-classification (returns non-zero exit when this bucket has
 // any findings). See apps/qw-oracle/scripts/load-knowledge/index.ts.
 
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import type { Finding } from './types.js';
 import { makeFindingId } from './types.js';
 import type { Project } from '../types.js';
@@ -21,16 +21,16 @@ export interface ClassificationEntry {
 
 export type SeedMap = Record<string, ClassificationEntry>;
 
-export function findHelpJsonClassifications(
-  db: Database.Database,
+export async function findHelpJsonClassifications(
+  sql: postgres.Sql,
   project: Project,
   seed: SeedMap,
-): Finding[] {
-  const docOnly = db.prepare(`
+): Promise<Finding[]> {
+  const docOnly = await sql<Array<{ type: string; name: string }>>`
     SELECT type, name FROM entities
-    WHERE project = ? AND source_state = 'doc_only'
+    WHERE project = ${project} AND source_state = 'doc_only'
     ORDER BY type, name
-  `).all(project) as Array<{ type: string; name: string }>;
+  `;
 
   const findings: Finding[] = [];
   for (const row of docOnly) {

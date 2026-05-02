@@ -2,23 +2,23 @@
 //
 // Read-only Layer 1 quality grid. Two probe families:
 //
-//   Family 1 (regression) — pinned invariants that must always hold. Each
+//   Family 1 (regression) -- pinned invariants that must always hold. Each
 //   PASS/FAIL is unambiguous; a FAIL means a fix shipped earlier has been
 //   reintroduced or a new tag has the same shape as a known-bad pattern.
 //
-//   Family 2 (anomaly) — open-ended consistency checks. They surface things
-//   worth a human look. Most output is "fine, ignore" — value is in the rare
+//   Family 2 (anomaly) -- open-ended consistency checks. They surface things
+//   worth a human look. Most output is "fine, ignore" -- value is in the rare
 //   hits. Each anomaly classifies as a new bug class drives a follow-up
 //   regression probe (Family 1 promotion).
 //
 // Adding a probe: write a function returning ProbeResult, register it in
-// REGRESSION_PROBES or ANOMALY_PROBES. Probes are pure read-only SQL — no
+// REGRESSION_PROBES or ANOMALY_PROBES. Probes are pure read-only SQL -- no
 // schema changes, no DB writes, no side effects. The runner is best-effort:
 // a probe that throws is reported as ERROR, the rest still run.
 //
 // Run: npm run load-knowledge -- quality-grid [--project <p>] [--family regression|anomaly|both] [--probe <name>] [--json]
 
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { HEAD_ORDINAL } from './constants.js';
 import type { Project } from './types.js';
 
@@ -37,7 +37,7 @@ export interface ProbeResult {
 }
 
 export interface ProbeContext {
-  db: Database.Database;
+  sql: postgres.Sql;
   project: Project;
 }
 
@@ -45,11 +45,11 @@ export interface Probe {
   name: string;
   family: ProbeFamily;
   description: string;
-  run(ctx: ProbeContext): ProbeResult;
+  run(ctx: ProbeContext): Promise<ProbeResult>;
 }
 
 // ---------------------------------------------------------------------------
-// Family 1 — Regression probes
+// Family 1 -- Regression probes
 // ---------------------------------------------------------------------------
 
 const PER_TYPE_VERSION_TABLE: Record<string, string> = {
@@ -67,20 +67,20 @@ const PER_TYPE_VERSION_TABLE: Record<string, string> = {
 
 // Today's fix: entity.first_seen must equal the version with MIN ordinal
 // across the entity's per-type version table.
-function probeFirstSeenMinOrdinal(ctx: ProbeContext): ProbeResult {
+async function probeFirstSeenMinOrdinal(ctx: ProbeContext): Promise<ProbeResult> {
   const examples: string[] = [];
   let total = 0;
   for (const [type, versionTable] of Object.entries(PER_TYPE_VERSION_TABLE)) {
-    const rows = ctx.db.prepare(`
+    const rows = await ctx.sql<{ name: string; recorded: string; expected: string }[]>`
       SELECT e.name,
              e.first_seen_version AS recorded,
              (SELECT v.version FROM versions v
-              JOIN ${versionTable} xv ON xv.version=v.version AND v.project=e.project
+              JOIN ${ctx.sql(versionTable)} xv ON xv.version=v.version AND v.project=e.project
               WHERE xv.entity_id=e.id ORDER BY v.ordinal ASC LIMIT 1) AS expected
       FROM entities e
-      WHERE e.project=? AND e.type=?
-        AND EXISTS (SELECT 1 FROM ${versionTable} xv WHERE xv.entity_id=e.id)
-    `).all(ctx.project, type) as { name: string; recorded: string; expected: string }[];
+      WHERE e.project=${ctx.project} AND e.type=${type}
+        AND EXISTS (SELECT 1 FROM ${ctx.sql(versionTable)} xv WHERE xv.entity_id=e.id)
+    `;
     for (const r of rows) {
       if (r.recorded !== r.expected) {
         total += 1;
@@ -102,20 +102,20 @@ function probeFirstSeenMinOrdinal(ctx: ProbeContext): ProbeResult {
 }
 
 // Today's fix: entity.last_seen must equal the version with MAX ordinal.
-function probeLastSeenMaxOrdinal(ctx: ProbeContext): ProbeResult {
+async function probeLastSeenMaxOrdinal(ctx: ProbeContext): Promise<ProbeResult> {
   const examples: string[] = [];
   let total = 0;
   for (const [type, versionTable] of Object.entries(PER_TYPE_VERSION_TABLE)) {
-    const rows = ctx.db.prepare(`
+    const rows = await ctx.sql<{ name: string; recorded: string; expected: string }[]>`
       SELECT e.name,
              e.last_seen_version AS recorded,
              (SELECT v.version FROM versions v
-              JOIN ${versionTable} xv ON xv.version=v.version AND v.project=e.project
+              JOIN ${ctx.sql(versionTable)} xv ON xv.version=v.version AND v.project=e.project
               WHERE xv.entity_id=e.id ORDER BY v.ordinal DESC LIMIT 1) AS expected
       FROM entities e
-      WHERE e.project=? AND e.type=?
-        AND EXISTS (SELECT 1 FROM ${versionTable} xv WHERE xv.entity_id=e.id)
-    `).all(ctx.project, type) as { name: string; recorded: string; expected: string }[];
+      WHERE e.project=${ctx.project} AND e.type=${type}
+        AND EXISTS (SELECT 1 FROM ${ctx.sql(versionTable)} xv WHERE xv.entity_id=e.id)
+    `;
     for (const r of rows) {
       if (r.recorded !== r.expected) {
         total += 1;
@@ -137,11 +137,11 @@ function probeLastSeenMaxOrdinal(ctx: ProbeContext): ProbeResult {
 }
 
 // Today's fix: head version row carries the HEAD_ORDINAL sentinel.
-function probeHeadOrdinalSentinel(ctx: ProbeContext): ProbeResult {
-  const rows = ctx.db.prepare(`
+async function probeHeadOrdinalSentinel(ctx: ProbeContext): Promise<ProbeResult> {
+  const rows = await ctx.sql<{ version: string; ordinal: number }[]>`
     SELECT version, ordinal FROM versions
-    WHERE project=? AND version='head' AND ordinal != ?
-  `).all(ctx.project, HEAD_ORDINAL) as { version: string; ordinal: number }[];
+    WHERE project=${ctx.project} AND version='head' AND ordinal != ${HEAD_ORDINAL}
+  `;
   return {
     name: 'F1.head_ordinal_sentinel',
     family: 'regression',
@@ -157,14 +157,14 @@ function probeHeadOrdinalSentinel(ctx: ProbeContext): ProbeResult {
 
 // Item B fix (commit 146cd73): no entity should be doc_only when a same-name
 // peer under another type is source_backed. Help-JSON cross-type orphans.
-function probeCrossTypeOrphans(ctx: ProbeContext): ProbeResult {
-  const rows = ctx.db.prepare(`
+async function probeCrossTypeOrphans(ctx: ProbeContext): Promise<ProbeResult> {
+  const rows = await ctx.sql<{ doc_type: string; name: string; source_type: string }[]>`
     SELECT a.type AS doc_type, a.name, b.type AS source_type
     FROM entities a
     JOIN entities b ON b.project=a.project AND b.name=a.name AND b.type != a.type
-    WHERE a.project=? AND a.source_state='doc_only' AND b.source_state='source_backed'
+    WHERE a.project=${ctx.project} AND a.source_state='doc_only' AND b.source_state='source_backed'
     ORDER BY a.name
-  `).all(ctx.project) as { doc_type: string; name: string; source_type: string }[];
+  `;
   return {
     name: 'F1.cross_type_orphans',
     family: 'regression',
@@ -179,15 +179,15 @@ function probeCrossTypeOrphans(ctx: ProbeContext): ProbeResult {
 // Defensive invariant: every entity must have at least one row in its
 // per-type version table. Bare entity rows (no body) signal a failed insert
 // or an old schema-evolution bug.
-function probeEntityHasVersionRows(ctx: ProbeContext): ProbeResult {
+async function probeEntityHasVersionRows(ctx: ProbeContext): Promise<ProbeResult> {
   const examples: string[] = [];
   let total = 0;
   for (const [type, versionTable] of Object.entries(PER_TYPE_VERSION_TABLE)) {
-    const rows = ctx.db.prepare(`
+    const rows = await ctx.sql<{ name: string }[]>`
       SELECT e.name FROM entities e
-      WHERE e.project=? AND e.type=?
-        AND NOT EXISTS (SELECT 1 FROM ${versionTable} xv WHERE xv.entity_id=e.id)
-    `).all(ctx.project, type) as { name: string }[];
+      WHERE e.project=${ctx.project} AND e.type=${type}
+        AND NOT EXISTS (SELECT 1 FROM ${ctx.sql(versionTable)} xv WHERE xv.entity_id=e.id)
+    `;
     for (const r of rows) {
       total += 1;
       if (examples.length < 5) examples.push(`${type}:${r.name}`);
@@ -205,7 +205,7 @@ function probeEntityHasVersionRows(ctx: ProbeContext): ProbeResult {
 }
 
 // ---------------------------------------------------------------------------
-// Family 2 — Anomaly probes
+// Family 2 -- Anomaly probes
 // ---------------------------------------------------------------------------
 
 // An entity present-then-absent-then-present across consecutive ordinal-
@@ -220,10 +220,10 @@ function probeEntityHasVersionRows(ctx: ProbeContext): ProbeResult {
 // That help-JSON drift is real upstream documentation history, not an
 // extractor anomaly. The probe stays useful for source_backed / source_retired
 // entities, where flicker would still indicate a missed extraction.
-function probeFlickeringPresence(ctx: ProbeContext): ProbeResult {
-  const versions = ctx.db.prepare(`
-    SELECT version, ordinal FROM versions WHERE project=? ORDER BY ordinal
-  `).all(ctx.project) as { version: string; ordinal: number }[];
+async function probeFlickeringPresence(ctx: ProbeContext): Promise<ProbeResult> {
+  const versions = await ctx.sql<{ version: string; ordinal: number }[]>`
+    SELECT version, ordinal FROM versions WHERE project=${ctx.project} ORDER BY ordinal
+  `;
   if (versions.length < 3) {
     return {
       name: 'F2.flickering_presence',
@@ -238,15 +238,17 @@ function probeFlickeringPresence(ctx: ProbeContext): ProbeResult {
   const examples: string[] = [];
   let total = 0;
   for (const [type, versionTable] of Object.entries(PER_TYPE_VERSION_TABLE)) {
-    const rows = ctx.db.prepare(`
+    // Postgres uses STRING_AGG(expr, sep ORDER BY ...) where SQLite used
+    // GROUP_CONCAT(expr, sep ORDER BY ...). Same shape, different name.
+    const rows = await ctx.sql<{ id: number; name: string; pattern: string | null }[]>`
       SELECT e.id, e.name,
-             GROUP_CONCAT(v.version, '|' ORDER BY v.ordinal) AS pattern
+             STRING_AGG(v.version, '|' ORDER BY v.ordinal) AS pattern
       FROM entities e
-      LEFT JOIN ${versionTable} xv ON xv.entity_id=e.id
+      LEFT JOIN ${ctx.sql(versionTable)} xv ON xv.entity_id=e.id
       LEFT JOIN versions v ON v.project=e.project AND v.version=xv.version
-      WHERE e.project=? AND e.type=? AND e.source_state != 'doc_only'
-      GROUP BY e.id
-    `).all(ctx.project, type) as { id: number; name: string; pattern: string | null }[];
+      WHERE e.project=${ctx.project} AND e.type=${type} AND e.source_state != 'doc_only'
+      GROUP BY e.id, e.name
+    `;
     for (const r of rows) {
       if (!r.pattern) continue;
       const seen = new Set(r.pattern.split('|'));
@@ -273,15 +275,15 @@ function probeFlickeringPresence(ctx: ProbeContext): ProbeResult {
 
 // Source_backed cvars whose head-version row has all body fields NULL. Either
 // the extractor populated the name without the body, or there is a join bug.
-function probeEmptyBodyDensity(ctx: ProbeContext): ProbeResult {
-  const rows = ctx.db.prepare(`
+async function probeEmptyBodyDensity(ctx: ProbeContext): Promise<ProbeResult> {
+  const rows = await ctx.sql<{ name: string; version: string }[]>`
     SELECT e.name, cv.version FROM entities e
     JOIN cvar_versions cv ON cv.entity_id=e.id
-    WHERE e.project=? AND e.type='cvar' AND e.source_state='source_backed'
+    WHERE e.project=${ctx.project} AND e.type='cvar' AND e.source_state='source_backed'
       AND cv.help_desc IS NULL AND cv.help_type IS NULL
       AND cv.default_value IS NULL AND cv.flag_names IS NULL
       AND cv.source_file IS NULL
-  `).all(ctx.project) as { name: string; version: string }[];
+  `;
   return {
     name: 'F2.empty_body_density',
     family: 'anomaly',
@@ -301,7 +303,7 @@ function probeEmptyBodyDensity(ctx: ProbeContext): ProbeResult {
 //     versions, gained source registration later; older NULL rows are the
 //     pre-introduction state)
 // Missing citation without either explanation = stale data or extractor regression.
-function probeSourceBackedMissingCitation(ctx: ProbeContext): ProbeResult {
+async function probeSourceBackedMissingCitation(ctx: ProbeContext): Promise<ProbeResult> {
   const examples: string[] = [];
   let total = 0;
   const targets: [string, string][] = [
@@ -316,11 +318,11 @@ function probeSourceBackedMissingCitation(ctx: ProbeContext): ProbeResult {
     ['token_primitive', 'token_primitive_versions'],
   ];
   for (const [type, table] of targets) {
-    const rows = ctx.db.prepare(`
+    const rows = await ctx.sql<{ name: string; version: string }[]>`
       SELECT e.name, xv.version FROM entities e
-      JOIN ${table} xv ON xv.entity_id=e.id
+      JOIN ${ctx.sql(table)} xv ON xv.entity_id=e.id
       JOIN versions vrow ON vrow.project=e.project AND vrow.version=xv.version
-      WHERE e.project=? AND e.type=? AND e.source_state='source_backed'
+      WHERE e.project=${ctx.project} AND e.type=${type} AND e.source_state='source_backed'
         AND (xv.source_file IS NULL OR xv.source_line IS NULL)
         AND NOT EXISTS (
           SELECT 1 FROM source_state_transitions sst
@@ -336,7 +338,7 @@ function probeSourceBackedMissingCitation(ctx: ProbeContext): ProbeResult {
             AND sst.reason='backfill_match'
             AND vrow.ordinal < vbf.ordinal
         )
-    `).all(ctx.project, type) as { name: string; version: string }[];
+    `;
     for (const r of rows) {
       total += 1;
       if (examples.length < 5) examples.push(`${type}:${r.name}@${r.version}`);
@@ -356,12 +358,12 @@ function probeSourceBackedMissingCitation(ctx: ProbeContext): ProbeResult {
 // `+command` / `-command` pairs should be symmetric. An asymmetry usually
 // means the parser caught one half and missed the other (e.g. a press-only
 // macro registered without the matching release).
-function probePairSymmetry(ctx: ProbeContext): ProbeResult {
-  const rows = ctx.db.prepare(`
+async function probePairSymmetry(ctx: ProbeContext): Promise<ProbeResult> {
+  const rows = await ctx.sql<{ name: string }[]>`
     SELECT name FROM entities
-    WHERE project=? AND type='command' AND source_state='source_backed'
+    WHERE project=${ctx.project} AND type='command' AND source_state='source_backed'
       AND (name LIKE '+%' OR name LIKE '-%')
-  `).all(ctx.project) as { name: string }[];
+  `;
   const set = new Set(rows.map(r => r.name));
   const lonely: string[] = [];
   for (const name of set) {
@@ -383,17 +385,17 @@ function probePairSymmetry(ctx: ProbeContext): ProbeResult {
 // Doc_only count broken down by type. Tracks the "extractor missed it"
 // surface across loads. A spike in any bucket means the extractor regressed
 // on its previous coverage of that type's help-JSON entries.
-function probeDocOnlyCrosstab(ctx: ProbeContext): ProbeResult {
-  const rows = ctx.db.prepare(`
-    SELECT type, COUNT(*) AS n FROM entities
-    WHERE project=? AND source_state='doc_only'
+async function probeDocOnlyCrosstab(ctx: ProbeContext): Promise<ProbeResult> {
+  const rows = await ctx.sql<{ type: string; n: number }[]>`
+    SELECT type, COUNT(*)::int AS n FROM entities
+    WHERE project=${ctx.project} AND source_state='doc_only'
     GROUP BY type ORDER BY n DESC
-  `).all(ctx.project) as { type: string; n: number }[];
+  `;
   const total = rows.reduce((s, r) => s + r.n, 0);
   return {
     name: 'F2.doc_only_crosstab',
     family: 'anomaly',
-    description: 'doc_only entity count broken down by type — extractor coverage gauge',
+    description: 'doc_only entity count broken down by type -- extractor coverage gauge',
     status: total === 0 ? 'CLEAN' : 'FOUND',
     count: total,
     summary: total === 0 ? 'no doc_only entities' : `${total} doc_only entities (informational)`,
@@ -405,18 +407,18 @@ function probeDocOnlyCrosstab(ctx: ProbeContext): ProbeResult {
 // across consecutive ordinal-ordered versions. Real defaults can change
 // across releases, but oscillation is almost always extractor non-determinism
 // or a flag-vs-default confusion.
-function probeDefaultValuePingPong(ctx: ProbeContext): ProbeResult {
-  const rows = ctx.db.prepare(`
+async function probeDefaultValuePingPong(ctx: ProbeContext): Promise<ProbeResult> {
+  const rows = await ctx.sql<{ name: string; defaults: string | null; vs: string }[]>`
     SELECT e.name,
-           GROUP_CONCAT(cv.default_value, '|' ORDER BY v.ordinal) AS defaults,
-           GROUP_CONCAT(cv.version, '|' ORDER BY v.ordinal) AS vs
+           STRING_AGG(cv.default_value, '|' ORDER BY v.ordinal) AS defaults,
+           STRING_AGG(cv.version, '|' ORDER BY v.ordinal) AS vs
     FROM entities e
     JOIN cvar_versions cv ON cv.entity_id=e.id
     JOIN versions v ON v.project=e.project AND v.version=cv.version
-    WHERE e.project=? AND e.type='cvar' AND cv.default_value IS NOT NULL
-    GROUP BY e.id
+    WHERE e.project=${ctx.project} AND e.type='cvar' AND cv.default_value IS NOT NULL
+    GROUP BY e.id, e.name
     HAVING COUNT(*) >= 3
-  `).all(ctx.project) as { name: string; defaults: string | null; vs: string }[];
+  `;
   const examples: string[] = [];
   let total = 0;
   for (const r of rows) {
@@ -448,7 +450,7 @@ function probeDefaultValuePingPong(ctx: ProbeContext): ProbeResult {
 }
 
 // ---------------------------------------------------------------------------
-// FTE Family 1 — Regression probes
+// FTE Family 1 -- Regression probes
 //
 // Counts below are load-bearing equality assertions, not cushioned ranges.
 // This probe file is the canonical source-of-truth: bump the expected values
@@ -457,12 +459,12 @@ function probeDefaultValuePingPong(ctx: ProbeContext): ProbeResult {
 // loudly as an extractor regression rather than slipping through a tolerance.
 // ---------------------------------------------------------------------------
 
-function probeFteCvarsCount(ctx: ProbeContext): ProbeResult {
+async function probeFteCvarsCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.cvars_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='cvar'`).get() as { n: number };
-  const n = row.n;
+  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM entities WHERE project='fte' AND type='cvar'`;
+  const n = rows[0]!.n;
   const expected = 2482;
   return {
     name: 'F1.fte.cvars_count',
@@ -475,16 +477,16 @@ function probeFteCvarsCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeFteEngineCvars(ctx: ProbeContext): ProbeResult {
+async function probeFteEngineCvars(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.engine_cvars', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
-    SELECT COUNT(*) AS n FROM cvar_versions cv
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM cvar_versions cv
     JOIN entities e ON cv.entity_id=e.id
     WHERE e.project='fte' AND cv.source_root='engine'
-  `).get() as { n: number };
-  const n = row.n;
+  `;
+  const n = rows[0]!.n;
   const expected = 1397;
   return {
     name: 'F1.fte.engine_cvars',
@@ -497,16 +499,16 @@ function probeFteEngineCvars(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeFtePluginEzhudCvars(ctx: ProbeContext): ProbeResult {
+async function probeFtePluginEzhudCvars(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.plugin_ezhud_cvars', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
-    SELECT COUNT(*) AS n FROM cvar_versions cv
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM cvar_versions cv
     JOIN entities e ON cv.entity_id=e.id
     WHERE e.project='fte' AND cv.source_root='plugin:ezhud'
-  `).get() as { n: number };
-  const n = row.n;
+  `;
+  const n = rows[0]!.n;
   const expected = 1085;
   return {
     name: 'F1.fte.plugin_ezhud_cvars',
@@ -519,12 +521,12 @@ function probeFtePluginEzhudCvars(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeFteCommandsCount(ctx: ProbeContext): ProbeResult {
+async function probeFteCommandsCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.commands_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='command'`).get() as { n: number };
-  const n = row.n;
+  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM entities WHERE project='fte' AND type='command'`;
+  const n = rows[0]!.n;
   const expected = 556;
   return {
     name: 'F1.fte.commands_count',
@@ -537,12 +539,12 @@ function probeFteCommandsCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeFteMacrosCount(ctx: ProbeContext): ProbeResult {
+async function probeFteMacrosCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.macros_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='macro'`).get() as { n: number };
-  const n = row.n;
+  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM entities WHERE project='fte' AND type='macro'`;
+  const n = rows[0]!.n;
   const expected = 67;
   return {
     name: 'F1.fte.macros_count',
@@ -555,12 +557,12 @@ function probeFteMacrosCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeFteCmdlineCount(ctx: ProbeContext): ProbeResult {
+async function probeFteCmdlineCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.cmdline_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='cmdline_param'`).get() as { n: number };
-  const n = row.n;
+  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM entities WHERE project='fte' AND type='cmdline_param'`;
+  const n = rows[0]!.n;
   const expected = 108;
   return {
     name: 'F1.fte.cmdline_count',
@@ -574,25 +576,25 @@ function probeFteCmdlineCount(ctx: ProbeContext): ProbeResult {
 }
 
 // ---------------------------------------------------------------------------
-// FTE Family 2 — Anomaly probes
+// FTE Family 2 -- Anomaly probes
 // ---------------------------------------------------------------------------
 
 // Guard: every fte cvar_versions row must have a non-NULL source_root.
 // A NULL here means the loader failed to set the engine/plugin:ezhud tag.
-function probeFteNoNullSourceRootCvars(ctx: ProbeContext): ProbeResult {
+async function probeFteNoNullSourceRootCvars(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F2.fte.no_null_source_root_cvars', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const rows = ctx.db.prepare(`
+  const rows = await ctx.sql<{ name: string; version: string }[]>`
     SELECT e.name, cv.version FROM cvar_versions cv
     JOIN entities e ON cv.entity_id=e.id
     WHERE e.project='fte' AND cv.source_root IS NULL
     LIMIT 10
-  `).all() as { name: string; version: string }[];
+  `;
   return {
     name: 'F2.fte.no_null_source_root_cvars',
     family: 'anomaly',
-    description: 'fte cvar_versions rows with NULL source_root — loader failed to tag engine/plugin split',
+    description: 'fte cvar_versions rows with NULL source_root -- loader failed to tag engine/plugin split',
     status: rows.length === 0 ? 'CLEAN' : 'FOUND',
     count: rows.length,
     summary: rows.length === 0 ? 'all fte cvar rows have source_root' : `${rows.length} rows with NULL source_root`,
@@ -602,18 +604,18 @@ function probeFteNoNullSourceRootCvars(ctx: ProbeContext): ProbeResult {
 
 // Guard: plugin:ezhud cvar rows must come from files under plugins/ezhud/.
 // A mismatch means a non-ezhud file was incorrectly tagged as plugin:ezhud.
-function probeFtePluginEzhudSourceFilePrefix(ctx: ProbeContext): ProbeResult {
+async function probeFtePluginEzhudSourceFilePrefix(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F2.fte.plugin_ezhud_source_file_prefix', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const rows = ctx.db.prepare(`
+  const rows = await ctx.sql<{ name: string; source_file: string }[]>`
     SELECT e.name, cv.source_file FROM cvar_versions cv
     JOIN entities e ON cv.entity_id=e.id
     WHERE e.project='fte' AND cv.source_root='plugin:ezhud'
       AND cv.source_file IS NOT NULL
       AND cv.source_file NOT LIKE 'plugins/ezhud/%'
     LIMIT 10
-  `).all() as { name: string; source_file: string }[];
+  `;
   return {
     name: 'F2.fte.plugin_ezhud_source_file_prefix',
     family: 'anomaly',
@@ -627,21 +629,21 @@ function probeFtePluginEzhudSourceFilePrefix(ctx: ProbeContext): ProbeResult {
 
 // Guard: engine-tagged cvar rows must not point at plugins/ source files.
 // An engine row with a plugins/ path means the source_root tagging inverted.
-function probeFteEngineNoPluginSourceFiles(ctx: ProbeContext): ProbeResult {
+async function probeFteEngineNoPluginSourceFiles(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F2.fte.engine_no_plugin_source_files', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const rows = ctx.db.prepare(`
+  const rows = await ctx.sql<{ name: string; source_file: string }[]>`
     SELECT e.name, cv.source_file FROM cvar_versions cv
     JOIN entities e ON cv.entity_id=e.id
     WHERE e.project='fte' AND cv.source_root='engine'
       AND cv.source_file LIKE 'plugins/%'
     LIMIT 10
-  `).all() as { name: string; source_file: string }[];
+  `;
   return {
     name: 'F2.fte.engine_no_plugin_source_files',
     family: 'anomaly',
-    description: "engine cvar rows where source_file begins with plugins/ — source_root crossover",
+    description: "engine cvar rows where source_file begins with plugins/ -- source_root crossover",
     status: rows.length === 0 ? 'CLEAN' : 'FOUND',
     count: rows.length,
     summary: rows.length === 0 ? 'no engine rows point at plugin source files' : `${rows.length} engine rows with plugin source_file`,
@@ -650,24 +652,24 @@ function probeFteEngineNoPluginSourceFiles(ctx: ProbeContext): ProbeResult {
 }
 
 // Guard: no fte cvar should have an absurdly long flags_raw (>5 commas).
-// Regression guard for the inflated-flags bug fixed in Task 14 — if flags_raw
+// Regression guard for the inflated-flags bug fixed in Task 14 -- if flags_raw
 // has >5 comma-separated tokens it almost certainly accumulated duplicates.
-function probeFteNoInflatedFlags(ctx: ProbeContext): ProbeResult {
+async function probeFteNoInflatedFlags(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F2.fte.no_inflated_flags', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const rows = ctx.db.prepare(`
+  const rows = await ctx.sql<{ name: string; flags_raw: string }[]>`
     SELECT e.name, cv.flags_raw FROM cvar_versions cv
     JOIN entities e ON cv.entity_id=e.id
     WHERE e.project='fte'
       AND cv.flags_raw IS NOT NULL
       AND length(cv.flags_raw) - length(replace(cv.flags_raw, ',', '')) > 5
     LIMIT 10
-  `).all() as { name: string; flags_raw: string }[];
+  `;
   return {
     name: 'F2.fte.no_inflated_flags',
     family: 'anomaly',
-    description: 'fte cvar_versions rows with >5 commas in flags_raw — regression guard for inflated-flags bug',
+    description: 'fte cvar_versions rows with >5 commas in flags_raw -- regression guard for inflated-flags bug',
     status: rows.length === 0 ? 'CLEAN' : 'FOUND',
     count: rows.length,
     summary: rows.length === 0 ? 'no inflated flags_raw rows' : `${rows.length} rows with >5 commas in flags_raw`,
@@ -676,15 +678,15 @@ function probeFteNoInflatedFlags(ctx: ProbeContext): ProbeResult {
 }
 
 // ---------------------------------------------------------------------------
-// FTE asset probes (Phase 2d-bundle) — F1 count + F2 anomaly
+// FTE asset probes (Phase 2d-bundle) -- F1 count + F2 anomaly
 // ---------------------------------------------------------------------------
 
-function probeFteAssetCategoriesCount(ctx: ProbeContext): ProbeResult {
+async function probeFteAssetCategoriesCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.asset_categories_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM entities WHERE project='fte' AND type='asset_category'`).get() as { n: number };
-  const n = row.n;
+  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM entities WHERE project='fte' AND type='asset_category'`;
+  const n = rows[0]!.n;
   const expected = 28;
   return {
     name: 'F1.fte.asset_categories_count',
@@ -697,12 +699,12 @@ function probeFteAssetCategoriesCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeFteAssetExtensionsCount(ctx: ProbeContext): ProbeResult {
+async function probeFteAssetExtensionsCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.asset_extensions_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM asset_extensions WHERE project='fte'`).get() as { n: number };
-  const n = row.n;
+  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM asset_extensions WHERE project='fte'`;
+  const n = rows[0]!.n;
   const expected = 61;
   return {
     name: 'F1.fte.asset_extensions_count',
@@ -715,12 +717,12 @@ function probeFteAssetExtensionsCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeFteAssetPathRulesCount(ctx: ProbeContext): ProbeResult {
+async function probeFteAssetPathRulesCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.asset_path_rules_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM asset_path_rules WHERE project='fte'`).get() as { n: number };
-  const n = row.n;
+  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM asset_path_rules WHERE project='fte'`;
+  const n = rows[0]!.n;
   const expected = 13;
   return {
     name: 'F1.fte.asset_path_rules_count',
@@ -733,12 +735,12 @@ function probeFteAssetPathRulesCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeFteAssetCvarBindingsCount(ctx: ProbeContext): ProbeResult {
+async function probeFteAssetCvarBindingsCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.asset_cvar_bindings_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM asset_cvar_bindings WHERE project='fte'`).get() as { n: number };
-  const n = row.n;
+  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM asset_cvar_bindings WHERE project='fte'`;
+  const n = rows[0]!.n;
   const expected = 25;
   return {
     name: 'F1.fte.asset_cvar_bindings_count',
@@ -751,12 +753,12 @@ function probeFteAssetCvarBindingsCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeFteAssetLoaderSitesCount(ctx: ProbeContext): ProbeResult {
+async function probeFteAssetLoaderSitesCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.asset_loader_sites_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const row = ctx.db.prepare(`SELECT COUNT(*) AS n FROM asset_loader_sites WHERE project='fte'`).get() as { n: number };
-  const n = row.n;
+  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM asset_loader_sites WHERE project='fte'`;
+  const n = rows[0]!.n;
   const expected = 717;
   return {
     name: 'F1.fte.asset_loader_sites_count',
@@ -771,15 +773,15 @@ function probeFteAssetLoaderSitesCount(ctx: ProbeContext): ProbeResult {
 
 // Guard: every fte loader site must have source_file set. A NULL means
 // the handler emitted a row without a source location, which is malformed.
-function probeFteLoaderSitesHaveSourceFile(ctx: ProbeContext): ProbeResult {
+async function probeFteLoaderSitesHaveSourceFile(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F2.fte.loader_sites_have_source_file', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const rows = ctx.db.prepare(`
+  const rows = await ctx.sql<{ canonical_id: string; function_name: string }[]>`
     SELECT canonical_id, function_name FROM asset_loader_sites
     WHERE project='fte' AND (source_file IS NULL OR source_file = '')
     LIMIT 10
-  `).all() as { canonical_id: string; function_name: string }[];
+  `;
   return {
     name: 'F2.fte.loader_sites_have_source_file',
     family: 'anomaly',
@@ -791,22 +793,23 @@ function probeFteLoaderSitesHaveSourceFile(ctx: ProbeContext): ProbeResult {
   };
 }
 
-// Guard: every fte path_rule must have source_verified=1. The verifier
-// runs at every extract-tag and stamps source_verified=0 when a citation
-// fails to resolve to a function-internal line.
-function probeFtePathRulesAllVerified(ctx: ProbeContext): ProbeResult {
+// Guard: every fte path_rule must have source_verified=true. The verifier
+// runs at every extract-tag and stamps source_verified=false when a citation
+// fails to resolve to a function-internal line. Schema flipped from INTEGER
+// (0/1) to BOOLEAN in the Postgres migration; comparison uses literal `false`.
+async function probeFtePathRulesAllVerified(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F2.fte.path_rules_all_verified', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const rows = ctx.db.prepare(`
+  const rows = await ctx.sql<{ canonical_id: string; source_ref: string }[]>`
     SELECT canonical_id, source_ref FROM asset_path_rules
-    WHERE project='fte' AND source_verified = 0
+    WHERE project='fte' AND source_verified = false
     LIMIT 10
-  `).all() as { canonical_id: string; source_ref: string }[];
+  `;
   return {
     name: 'F2.fte.path_rules_all_verified',
     family: 'anomaly',
-    description: 'fte asset_path_rules rows with source_verified=0',
+    description: 'fte asset_path_rules rows with source_verified=false',
     status: rows.length === 0 ? 'CLEAN' : 'FOUND',
     count: rows.length,
     summary: rows.length === 0 ? 'all fte path_rules verified' : `${rows.length} path_rules unverified`,
@@ -816,16 +819,16 @@ function probeFtePathRulesAllVerified(ctx: ProbeContext): ProbeResult {
 
 // Guard: every fte asset_cvar_bindings row must reference an existing
 // cvar entity. A NULL join means the seed cited a stale cvar name.
-function probeFteCvarBindingsResolve(ctx: ProbeContext): ProbeResult {
+async function probeFteCvarBindingsResolve(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F2.fte.cvar_bindings_resolve', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const rows = ctx.db.prepare(`
+  const rows = await ctx.sql<{ cvar_canonical_id: string }[]>`
     SELECT ab.cvar_canonical_id FROM asset_cvar_bindings ab
     LEFT JOIN entities e ON e.canonical_id = ab.cvar_canonical_id
     WHERE ab.project = 'fte' AND e.id IS NULL
     LIMIT 10
-  `).all() as { cvar_canonical_id: string }[];
+  `;
   return {
     name: 'F2.fte.cvar_bindings_resolve',
     family: 'anomaly',
@@ -841,28 +844,28 @@ function probeFteCvarBindingsResolve(ctx: ProbeContext): ProbeResult {
 // the AST artifact at build-6698 surfaced 134 R_RegisterShader + 16 R_LoadShader
 // = ~150 rows. Threshold conservatively at >=80 to catch a regression where
 // the handler stops emitting shader sites entirely.
-function probeFteShaderLoaderSitesPresent(ctx: ProbeContext): ProbeResult {
+async function probeFteShaderLoaderSitesPresent(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'fte') {
     return { name: 'F2.fte.shader_loader_sites_present', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
-    SELECT COUNT(*) AS n FROM asset_loader_sites
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM asset_loader_sites
     WHERE project='fte' AND function_name IN ('R_RegisterShader','R_LoadShader')
-  `).get() as { n: number };
-  const n = row.n;
+  `;
+  const n = rows[0]!.n;
   return {
     name: 'F2.fte.shader_loader_sites_present',
     family: 'anomaly',
     description: 'fte shader-registration loader sites must remain >=80 (regression guard)',
     status: n >= 80 ? 'CLEAN' : 'FOUND',
     count: n >= 80 ? 0 : 1,
-    summary: n >= 80 ? `${n} shader-registration loader sites` : `only ${n} shader loader sites — expected >=80`,
+    summary: n >= 80 ? `${n} shader-registration loader sites` : `only ${n} shader loader sites -- expected >=80`,
     examples: [],
   };
 }
 
 // ---------------------------------------------------------------------------
-// MVDSV Family 1 — Regression probes
+// MVDSV Family 1 -- Regression probes
 //
 // Counts below are load-bearing equality assertions, not lower-only floors.
 // The values pinned in each probe are today's source-of-truth at HEAD;
@@ -871,15 +874,15 @@ function probeFteShaderLoaderSitesPresent(ctx: ProbeContext): ProbeResult {
 // that any unexpected drift fails loudly as an extractor regression.
 // ---------------------------------------------------------------------------
 
-function probeMvdsvCvarsSourceBackedCount(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvCvarsSourceBackedCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F1.mvdsv.cvars_source_backed_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
-    SELECT COUNT(*) AS n FROM entities
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM entities
     WHERE project='mvdsv' AND type='cvar' AND source_state='source_backed'
-  `).get() as { n: number };
-  const n = row.n;
+  `;
+  const n = rows[0]!.n;
   const expected = 183;
   return {
     name: 'F1.mvdsv.cvars_source_backed_count',
@@ -892,15 +895,15 @@ function probeMvdsvCvarsSourceBackedCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeMvdsvCommandsCount(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvCommandsCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F1.mvdsv.commands_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
-    SELECT COUNT(*) AS n FROM entities
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM entities
     WHERE project='mvdsv' AND type='command' AND source_state='source_backed'
-  `).get() as { n: number };
-  const n = row.n;
+  `;
+  const n = rows[0]!.n;
   const expected = 108;
   return {
     name: 'F1.mvdsv.commands_count',
@@ -913,15 +916,15 @@ function probeMvdsvCommandsCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeMvdsvCmdlineParamsCount(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvCmdlineParamsCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F1.mvdsv.cmdline_params_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
-    SELECT COUNT(*) AS n FROM entities
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM entities
     WHERE project='mvdsv' AND type='cmdline_param' AND source_state='source_backed'
-  `).get() as { n: number };
-  const n = row.n;
+  `;
+  const n = rows[0]!.n;
   const expected = 11;
   return {
     name: 'F1.mvdsv.cmdline_params_count',
@@ -934,15 +937,15 @@ function probeMvdsvCmdlineParamsCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeMvdsvProtocolMessagesCount(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvProtocolMessagesCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F1.mvdsv.protocol_messages_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
-    SELECT COUNT(*) AS n FROM entities
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM entities
     WHERE project='mvdsv' AND type='protocol_message' AND source_state='source_backed'
-  `).get() as { n: number };
-  const n = row.n;
+  `;
+  const n = rows[0]!.n;
   const expected = 105;
   return {
     name: 'F1.mvdsv.protocol_messages_count',
@@ -955,15 +958,15 @@ function probeMvdsvProtocolMessagesCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeMvdsvInfoKeysCount(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvInfoKeysCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F1.mvdsv.info_keys_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
-    SELECT COUNT(*) AS n FROM entities
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM entities
     WHERE project='mvdsv' AND type='info_key' AND source_state='source_backed'
-  `).get() as { n: number };
-  const n = row.n;
+  `;
+  const n = rows[0]!.n;
   // Phase B 2026-04-28: bumped 44 -> 45. The Phase B `<bare>:<scope>` rename
   // recovered the second `*z_ext` registration (userinfo via SVC_DirectConnect)
   // that pre-Phase-B had been collapsed into the serverinfo row by the
@@ -980,15 +983,15 @@ function probeMvdsvInfoKeysCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeMvdsvLogTemplatesCount(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvLogTemplatesCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F1.mvdsv.log_templates_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
-    SELECT COUNT(*) AS n FROM entities
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM entities
     WHERE project='mvdsv' AND type='log_template' AND source_state='source_backed'
-  `).get() as { n: number };
-  const n = row.n;
+  `;
+  const n = rows[0]!.n;
   const expected = 691;
   return {
     name: 'F1.mvdsv.log_templates_count',
@@ -1001,15 +1004,15 @@ function probeMvdsvLogTemplatesCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeMvdsvQcBuiltinsCount(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvQcBuiltinsCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F1.mvdsv.qc_builtins_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
-    SELECT COUNT(*) AS n FROM entities
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM entities
     WHERE project='mvdsv' AND type='qc_builtin' AND source_state='source_backed'
-  `).get() as { n: number };
-  const n = row.n;
+  `;
+  const n = rows[0]!.n;
   // v18 (Phase 2 task 2.4) added `:<table_name>` suffix to qc_builtin canonical
   // names mirroring info_key Phase B's `:<scope>` shape. The audit predicted
   // 93 -> 97 from "cross-scope" recovery, but inspection shows the 4 dropped
@@ -1032,15 +1035,15 @@ function probeMvdsvQcBuiltinsCount(ctx: ProbeContext): ProbeResult {
 // MVDSV ships no help-JSON, so every entity must be source_backed. A non-
 // source_backed row would mean a doc_only / source_retired classification
 // crept in via a cross-type collision or a future help-JSON import.
-function probeMvdsvAllSourceBacked(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvAllSourceBacked(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F1.mvdsv.all_source_backed', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const rows = ctx.db.prepare(`
+  const rows = await ctx.sql<{ type: string; name: string; source_state: string }[]>`
     SELECT type, name, source_state FROM entities
     WHERE project='mvdsv' AND source_state != 'source_backed'
     ORDER BY type, name
-  `).all() as { type: string; name: string; source_state: string }[];
+  `;
   return {
     name: 'F1.mvdsv.all_source_backed',
     family: 'regression',
@@ -1056,16 +1059,16 @@ function probeMvdsvAllSourceBacked(ctx: ProbeContext): ProbeResult {
 // MVDSV server-side fps floor and the default value is hard-coded in the
 // source. A change here means either the default genuinely shifted upstream
 // or the cvar handler regressed on default-value extraction.
-function probeMvdsvMaxfpsDefault77(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvMaxfpsDefault77(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F1.mvdsv.sv_maxfps_default_77', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
+  const rows = await ctx.sql<{ default_value: string | null }[]>`
     SELECT cv.default_value FROM cvar_versions cv
     JOIN entities e ON cv.entity_id=e.id
     WHERE e.project='mvdsv' AND e.name='maxfps' AND cv.version='head'
-  `).get() as { default_value: string | null } | undefined;
-  const got = row?.default_value ?? '<missing>';
+  `;
+  const got = rows[0]?.default_value ?? '<missing>';
   const ok = got === '77';
   return {
     name: 'F1.mvdsv.sv_maxfps_default_77',
@@ -1081,15 +1084,16 @@ function probeMvdsvMaxfpsDefault77(ctx: ProbeContext): ProbeResult {
 // Sanity probe: svc_print at head must be a 'svc' kind with value '8'. This
 // pins the protocol-message handler's value/kind extraction. svc_print=8 is
 // fixed in the QuakeWorld protocol.
-function probeMvdsvSvcPrintValue8(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvSvcPrintValue8(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F1.mvdsv.svc_print_value_8', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
+  const rows = await ctx.sql<{ value: string | null; kind: string }[]>`
     SELECT pv.value, pv.kind FROM protocol_message_versions pv
     JOIN entities e ON pv.entity_id=e.id
     WHERE e.project='mvdsv' AND e.name='svc_print' AND pv.version='head'
-  `).get() as { value: string | null; kind: string } | undefined;
+  `;
+  const row = rows[0];
   const ok = !!row && row.value === '8' && row.kind === 'svc';
   const summary = ok
     ? "svc_print kind='svc' value='8'"
@@ -1108,16 +1112,17 @@ function probeMvdsvSvcPrintValue8(ctx: ProbeContext): ProbeResult {
 // Sanity probe: makevectors qc_builtin at head must live in std_builtins
 // at builtin_index=1. This pins the qc_builtin handler's table_name +
 // builtin_index extraction.
-function probeMvdsvMakevectorsBuiltin1(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvMakevectorsBuiltin1(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F1.mvdsv.makevectors_builtin_1', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
   // v18 (Phase 2 task 2.4): qc_builtin canonical names carry `:<table_name>` suffix.
-  const row = ctx.db.prepare(`
+  const rows = await ctx.sql<{ table_name: string; builtin_index: number }[]>`
     SELECT bv.table_name, bv.builtin_index FROM qc_builtin_versions bv
     JOIN entities e ON bv.entity_id=e.id
     WHERE e.project='mvdsv' AND e.name='makevectors:std_builtins' AND bv.version='head'
-  `).get() as { table_name: string; builtin_index: number } | undefined;
+  `;
+  const row = rows[0];
   const ok = !!row && row.table_name === 'std_builtins' && row.builtin_index === 1;
   const summary = ok
     ? "makevectors table_name='std_builtins' builtin_index=1"
@@ -1134,22 +1139,22 @@ function probeMvdsvMakevectorsBuiltin1(ctx: ProbeContext): ProbeResult {
 }
 
 // ---------------------------------------------------------------------------
-// MVDSV Family 2 — Anomaly probes
+// MVDSV Family 2 -- Anomaly probes
 // ---------------------------------------------------------------------------
 
 // All four channels (broadcast/client/console/system) must be present in
 // log_template_versions. A missing channel means the log-template handler
 // stopped emitting one entire bucket.
-function probeMvdsvLogTemplateChannelsCount(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvLogTemplateChannelsCount(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F2.mvdsv.log_template_channels_count', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const rows = ctx.db.prepare(`
-    SELECT lv.channel, COUNT(*) AS n FROM log_template_versions lv
+  const rows = await ctx.sql<{ channel: string; n: number }[]>`
+    SELECT lv.channel, COUNT(*)::int AS n FROM log_template_versions lv
     JOIN entities e ON lv.entity_id=e.id
     WHERE e.project='mvdsv'
     GROUP BY lv.channel ORDER BY lv.channel
-  `).all() as { channel: string; n: number }[];
+  `;
   const ok = rows.length === 4;
   return {
     name: 'F2.mvdsv.log_template_channels_count',
@@ -1165,16 +1170,16 @@ function probeMvdsvLogTemplateChannelsCount(ctx: ProbeContext): ProbeResult {
 // Distribution gauge for info_key scopes. userinfo and serverinfo are well-
 // populated; localinfo is rare in MVDSV (operator-only). CLEAN if userinfo
 // >25 and serverinfo >=10. Always emit the by-scope counts as informational.
-function probeMvdsvInfoKeyScopesDistribution(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvInfoKeyScopesDistribution(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F2.mvdsv.info_key_scopes_distribution', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const rows = ctx.db.prepare(`
-    SELECT iv.scope, COUNT(DISTINCT e.id) AS n FROM info_key_versions iv
+  const rows = await ctx.sql<{ scope: string; n: number }[]>`
+    SELECT iv.scope, COUNT(DISTINCT e.id)::int AS n FROM info_key_versions iv
     JOIN entities e ON iv.entity_id=e.id
     WHERE e.project='mvdsv'
     GROUP BY iv.scope ORDER BY iv.scope
-  `).all() as { scope: string; n: number }[];
+  `;
   const byScope = new Map(rows.map(r => [r.scope, r.n]));
   const userinfo = byScope.get('userinfo') ?? 0;
   const serverinfo = byScope.get('serverinfo') ?? 0;
@@ -1187,7 +1192,7 @@ function probeMvdsvInfoKeyScopesDistribution(ctx: ProbeContext): ProbeResult {
     count: ok ? 0 : 1,
     summary: ok
       ? `userinfo=${userinfo} serverinfo=${serverinfo} (localinfo=${byScope.get('localinfo') ?? 0})`
-      : `userinfo=${userinfo} serverinfo=${serverinfo} — below floor (need userinfo>25 AND serverinfo>=10)`,
+      : `userinfo=${userinfo} serverinfo=${serverinfo} -- below floor (need userinfo>25 AND serverinfo>=10)`,
     examples: rows.map(r => `${r.scope}: ${r.n}`),
   };
 }
@@ -1200,16 +1205,16 @@ function probeMvdsvInfoKeyScopesDistribution(ctx: ProbeContext): ProbeResult {
 // kind appearing in the DB that's NOT in the expected list means an
 // extractor has emitted an unrecognized classification -- those are the
 // failures to surface.
-function probeMvdsvProtocolMessageKindsDistribution(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvProtocolMessageKindsDistribution(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F2.mvdsv.protocol_message_kinds_distribution', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const rows = ctx.db.prepare(`
-    SELECT pv.kind, COUNT(*) AS n FROM protocol_message_versions pv
+  const rows = await ctx.sql<{ kind: string; n: number }[]>`
+    SELECT pv.kind, COUNT(*)::int AS n FROM protocol_message_versions pv
     JOIN entities e ON pv.entity_id=e.id
     WHERE e.project='mvdsv'
     GROUP BY pv.kind ORDER BY pv.kind
-  `).all() as { kind: string; n: number }[];
+  `;
   const expected = [
     'svc', 'clc', 'nq',
     'pext_fte_bit', 'pext_fte_const', 'pext_fte_alias', 'pext_fte_marker',
@@ -1238,16 +1243,16 @@ function probeMvdsvProtocolMessageKindsDistribution(ctx: ProbeContext): ProbeRes
 // std_builtins, ext_builtins, ext_syscalls. A different distinct count
 // means the qc_builtin handler picked up an unexpected fourth registration
 // table or dropped one of the three.
-function probeMvdsvQcBuiltinTables(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvQcBuiltinTables(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F2.mvdsv.qc_builtin_tables', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const rows = ctx.db.prepare(`
-    SELECT bv.table_name, COUNT(*) AS n FROM qc_builtin_versions bv
+  const rows = await ctx.sql<{ table_name: string; n: number }[]>`
+    SELECT bv.table_name, COUNT(*)::int AS n FROM qc_builtin_versions bv
     JOIN entities e ON bv.entity_id=e.id
     WHERE e.project='mvdsv'
     GROUP BY bv.table_name ORDER BY bv.table_name
-  `).all() as { table_name: string; n: number }[];
+  `;
   const ok = rows.length === 3;
   return {
     name: 'F2.mvdsv.qc_builtin_tables',
@@ -1266,18 +1271,19 @@ function probeMvdsvQcBuiltinTables(ctx: ProbeContext): ProbeResult {
 // CVAR_REGISTER lines in the source. Current rate at HEAD is ~19% (35/183).
 // CLEAN if coverage stays >=15%. A drop means the trailing_comment harvest
 // regressed (e.g., re-tokenization broke comment association).
-function probeMvdsvTrailingCommentCoverageCvars(ctx: ProbeContext): ProbeResult {
+async function probeMvdsvTrailingCommentCoverageCvars(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'mvdsv') {
     return { name: 'F2.mvdsv.trailing_comment_coverage_cvars', family: 'anomaly', description: '', status: 'CLEAN', count: 0, summary: 'skipped (not mvdsv project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
+  const rows = await ctx.sql<{ total: number; with_tc: number }[]>`
     SELECT
-      COUNT(*) AS total,
-      SUM(CASE WHEN cv.trailing_comment IS NOT NULL THEN 1 ELSE 0 END) AS with_tc
+      COUNT(*)::int AS total,
+      SUM(CASE WHEN cv.trailing_comment IS NOT NULL THEN 1 ELSE 0 END)::int AS with_tc
     FROM cvar_versions cv
     JOIN entities e ON cv.entity_id=e.id
     WHERE e.project='mvdsv' AND cv.version='head'
-  `).get() as { total: number; with_tc: number };
+  `;
+  const row = rows[0]!;
   const pct = row.total > 0 ? (row.with_tc / row.total) * 100 : 0;
   const ok = pct >= 15;
   const pctStr = pct.toFixed(1);
@@ -1289,13 +1295,13 @@ function probeMvdsvTrailingCommentCoverageCvars(ctx: ProbeContext): ProbeResult 
     count: ok ? 0 : 1,
     summary: ok
       ? `${row.with_tc}/${row.total} cvars have trailing_comment (${pctStr}%)`
-      : `${row.with_tc}/${row.total} cvars have trailing_comment (${pctStr}%) — below 15% floor`,
+      : `${row.with_tc}/${row.total} cvars have trailing_comment (${pctStr}%) -- below 15% floor`,
     examples: [],
   };
 }
 
 // ---------------------------------------------------------------------------
-// Floor probes (Phase 6, 2026-04-28) — universal mechanical floor
+// Floor probes (Phase 6, 2026-04-28) -- universal mechanical floor
 // ---------------------------------------------------------------------------
 //
 // Every (project, type) entity row gets a count probe + a source_state
@@ -1345,7 +1351,7 @@ export function makeFloorCountProbe(
     name,
     family: 'regression',
     description: `Floor count probe: entities[project=${project}, type=${type}] equals ${expected}.`,
-    run: (ctx: ProbeContext): ProbeResult => {
+    run: async (ctx: ProbeContext): Promise<ProbeResult> => {
       if (ctx.project !== project) {
         return {
           name,
@@ -1357,10 +1363,10 @@ export function makeFloorCountProbe(
           examples: [],
         };
       }
-      const row = ctx.db
-        .prepare('SELECT COUNT(*) AS n FROM entities WHERE project=? AND type=?')
-        .get(project, type) as { n: number };
-      const actual = row.n;
+      const rows = await ctx.sql<{ n: number }[]>`
+        SELECT COUNT(*)::int AS n FROM entities WHERE project=${project} AND type=${type}
+      `;
+      const actual = rows[0]!.n;
       const status: ProbeStatus = actual === expected ? 'PASS' : 'FAIL';
       return {
         name,
@@ -1385,7 +1391,7 @@ export function makeFloorSourceStateProbe(
     name,
     family: 'regression',
     description: `Floor source_state probe: entities[project=${project}, type=${type}] grouped by source_state.`,
-    run: (ctx: ProbeContext): ProbeResult => {
+    run: async (ctx: ProbeContext): Promise<ProbeResult> => {
       if (ctx.project !== project) {
         return {
           name,
@@ -1397,11 +1403,9 @@ export function makeFloorSourceStateProbe(
           examples: [],
         };
       }
-      const rows = ctx.db
-        .prepare(
-          'SELECT source_state, COUNT(*) AS n FROM entities WHERE project=? AND type=? GROUP BY source_state',
-        )
-        .all(project, type) as { source_state: string; n: number }[];
+      const rows = await ctx.sql<{ source_state: string; n: number }[]>`
+        SELECT source_state, COUNT(*)::int AS n FROM entities WHERE project=${project} AND type=${type} GROUP BY source_state
+      `;
       const actual: Record<string, number> = {};
       for (const r of rows) actual[r.source_state] = r.n;
       const expectedKeys = Object.keys(expected).sort().join(',');
@@ -1494,22 +1498,22 @@ const QWCL_FLOOR_PROBES: Probe[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Phase 6 anchor probes (2026-04-28) — per-project load-bearing invariants
+// Phase 6 anchor probes (2026-04-28) -- per-project load-bearing invariants
 // ---------------------------------------------------------------------------
 
-function probeEzquakeGlLightmodePingPong(ctx: ProbeContext): ProbeResult {
+async function probeEzquakeGlLightmodePingPong(ctx: ProbeContext): Promise<ProbeResult> {
   const name = 'F1.ezquake.anchor.gl_lightmode_ping_pong';
   if (ctx.project !== 'ezquake') {
     return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not ezquake project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
-    SELECT COUNT(DISTINCT cv.default_value || ':' || cv.version) AS n
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(DISTINCT cv.default_value || ':' || cv.version)::int AS n
     FROM cvar_versions cv
     JOIN entities e ON cv.entity_id=e.id
     WHERE e.project='ezquake' AND e.name='gl_lightmode'
-  `).get() as { n: number };
+  `;
   const expected = 15;
-  const actual = row.n;
+  const actual = rows[0]!.n;
   return {
     name,
     family: 'regression',
@@ -1521,17 +1525,17 @@ function probeEzquakeGlLightmodePingPong(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeEzquakeDocOnlyCount(ctx: ProbeContext): ProbeResult {
+async function probeEzquakeDocOnlyCount(ctx: ProbeContext): Promise<ProbeResult> {
   const name = 'F1.ezquake.anchor.doc_only_count';
   if (ctx.project !== 'ezquake') {
     return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not ezquake project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
-    SELECT COUNT(*) AS n FROM entities
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM entities
     WHERE project='ezquake' AND source_state='doc_only'
-  `).get() as { n: number };
+  `;
   const expected = 194;
-  const actual = row.n;
+  const actual = rows[0]!.n;
   return {
     name,
     family: 'regression',
@@ -1543,16 +1547,16 @@ function probeEzquakeDocOnlyCount(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeQwclAllSourceBacked(ctx: ProbeContext): ProbeResult {
+async function probeQwclAllSourceBacked(ctx: ProbeContext): Promise<ProbeResult> {
   const name = 'F1.qwcl.anchor.all_source_backed';
   if (ctx.project !== 'qwcl') {
     return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not qwcl project)', examples: [] };
   }
-  const row = ctx.db.prepare(`
-    SELECT COUNT(*) AS n FROM entities
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM entities
     WHERE project='qwcl' AND source_state != 'source_backed'
-  `).get() as { n: number };
-  const actual = row.n;
+  `;
+  const actual = rows[0]!.n;
   return {
     name,
     family: 'regression',
@@ -1564,18 +1568,18 @@ function probeQwclAllSourceBacked(ctx: ProbeContext): ProbeResult {
   };
 }
 
-function probeFteEngineVsPluginEzhudSplit(ctx: ProbeContext): ProbeResult {
+async function probeFteEngineVsPluginEzhudSplit(ctx: ProbeContext): Promise<ProbeResult> {
   const name = 'F1.fte.anchor.engine_vs_plugin_ezhud_split';
   if (ctx.project !== 'fte') {
     return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const rows = ctx.db.prepare(`
-    SELECT cv.source_root, COUNT(*) AS n
+  const rows = await ctx.sql<{ source_root: string; n: number }[]>`
+    SELECT cv.source_root, COUNT(*)::int AS n
     FROM cvar_versions cv
     JOIN entities e ON cv.entity_id=e.id
     WHERE e.project='fte'
     GROUP BY cv.source_root
-  `).all() as { source_root: string; n: number }[];
+  `;
   const counts: Record<string, number> = {};
   for (const r of rows) counts[r.source_root] = r.n;
   const expectedEngine = 1397;
@@ -1629,13 +1633,13 @@ const REGRESSION_PROBES: Probe[] = [
   { name: 'F1.mvdsv.sv_maxfps_default_77', family: 'regression', description: '', run: probeMvdsvMaxfpsDefault77 },
   { name: 'F1.mvdsv.svc_print_value_8', family: 'regression', description: '', run: probeMvdsvSvcPrintValue8 },
   { name: 'F1.mvdsv.makevectors_builtin_1', family: 'regression', description: '', run: probeMvdsvMakevectorsBuiltin1 },
-  // Phase 6 floor probes (added 2026-04-28) — universal mechanical floor
+  // Phase 6 floor probes (added 2026-04-28) -- universal mechanical floor
   // (entity_type x {count, source_state}) across all four projects.
   ...EZQUAKE_FLOOR_PROBES,
   ...FTE_FLOOR_PROBES,
   ...MVDSV_FLOOR_PROBES,
   ...QWCL_FLOOR_PROBES,
-  // Phase 6 anchor probes (added 2026-04-28) — per-project load-bearing invariants.
+  // Phase 6 anchor probes (added 2026-04-28) -- per-project load-bearing invariants.
   { name: 'F1.ezquake.anchor.gl_lightmode_ping_pong', family: 'regression', description: '', run: probeEzquakeGlLightmodePingPong },
   { name: 'F1.ezquake.anchor.doc_only_count', family: 'regression', description: '', run: probeEzquakeDocOnlyCount },
   { name: 'F1.qwcl.anchor.all_source_backed', family: 'regression', description: '', run: probeQwclAllSourceBacked },
@@ -1668,13 +1672,13 @@ const ANOMALY_PROBES: Probe[] = [
 ];
 
 export interface QualityGridOptions {
-  db: Database.Database;
+  sql: postgres.Sql;
   project: Project;
   family?: 'regression' | 'anomaly' | 'both';
   probeFilter?: string;
 }
 
-export function runQualityGrid(options: QualityGridOptions): ProbeResult[] {
+export async function runQualityGrid(options: QualityGridOptions): Promise<ProbeResult[]> {
   const family = options.family ?? 'both';
   const probes: Probe[] = [];
   if (family === 'regression' || family === 'both') probes.push(...REGRESSION_PROBES);
@@ -1682,10 +1686,14 @@ export function runQualityGrid(options: QualityGridOptions): ProbeResult[] {
   const filtered = options.probeFilter
     ? probes.filter(p => p.name === options.probeFilter)
     : probes;
+  // Probes run sequentially: each opens its own queries against the shared
+  // postgres-js Sql handle, and a probe that throws should be reported as
+  // ERROR without aborting the rest. Parallel Promise.all would surface only
+  // the first rejection and lose the per-probe diagnostic.
   const results: ProbeResult[] = [];
   for (const probe of filtered) {
     try {
-      const r = probe.run({ db: options.db, project: options.project });
+      const r = await probe.run({ sql: options.sql, project: options.project });
       results.push(r);
     } catch (err) {
       results.push({
@@ -1718,7 +1726,7 @@ export function formatGridText(results: ProbeResult[]): string {
       const tag = r.status === 'PASS' || r.status === 'CLEAN'
         ? `[${r.status}]`
         : `[${r.status}${r.count ? ` ${r.count}` : ''}]`;
-      lines.push(`${tag} ${r.name} — ${r.summary}`);
+      lines.push(`${tag} ${r.name} -- ${r.summary}`);
       for (const ex of r.examples) lines.push(`    ${ex}`);
     }
     lines.push('');

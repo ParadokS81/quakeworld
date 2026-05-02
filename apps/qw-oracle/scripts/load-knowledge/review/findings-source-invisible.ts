@@ -7,49 +7,52 @@
 //   (b) none of the bullet's commit_urls resolve to a commit_sha present in
 //       change_events or relation_changes for the tag-pair.
 
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import type { Finding } from './types.js';
 import { makeFindingId } from './types.js';
 import type { Project } from '../types.js';
 
-export function findSourceInvisible(
-  db: Database.Database,
+export async function findSourceInvisible(
+  sql: postgres.Sql,
   project: Project,
   fromVersion: string,
   toVersion: string,
-): Finding[] {
+): Promise<Finding[]> {
   // Collect all commit SHAs referenced by the tag-pair's entity + relation diff.
   const tagPairShas = new Set<string>();
-  const entityShas = db.prepare(`
+  const entityShas = await sql<Array<{ commit_sha: string }>>`
     SELECT DISTINCT commit_sha FROM change_events
-    WHERE from_version = ? AND to_version = ?
-  `).all(fromVersion, toVersion) as Array<{ commit_sha: string }>;
+    WHERE from_version = ${fromVersion} AND to_version = ${toVersion}
+  `;
   for (const r of entityShas) tagPairShas.add(r.commit_sha.toLowerCase());
-  const relationShas = db.prepare(`
+  const relationShas = await sql<Array<{ commit_sha: string }>>`
     SELECT DISTINCT commit_sha FROM relation_changes
-    WHERE project = ? AND from_version = ? AND to_version = ?
-  `).all(project, fromVersion, toVersion) as Array<{ commit_sha: string }>;
+    WHERE project = ${project} AND from_version = ${fromVersion} AND to_version = ${toVersion}
+  `;
   for (const r of relationShas) tagPairShas.add(r.commit_sha.toLowerCase());
 
-  // Release notes for toVersion.
-  const noteRows = db.prepare(`
-    SELECT id, section, ordinal, body_md, referenced_entity_ids_json, commit_urls_json
-    FROM release_notes
-    WHERE project = ? AND version = ?
-    ORDER BY section, ordinal
-  `).all(project, toVersion) as Array<{
+  // Release notes for toVersion. The *_json columns are JSONB on Postgres;
+  // postgres-js auto-decodes them to JS values, so referenced_entity_ids_json
+  // arrives as an array (or null) and commit_urls_json as a string array (or
+  // null). No JSON.parse needed.
+  const noteRows = await sql<Array<{
     id: number;
     section: string;
     ordinal: number;
     body_md: string;
-    referenced_entity_ids_json: string | null;
-    commit_urls_json: string | null;
-  }>;
+    referenced_entity_ids_json: number[] | null;
+    commit_urls_json: string[] | null;
+  }>>`
+    SELECT id, section, ordinal, body_md, referenced_entity_ids_json, commit_urls_json
+    FROM release_notes
+    WHERE project = ${project} AND version = ${toVersion}
+    ORDER BY section, ordinal
+  `;
 
   const findings: Finding[] = [];
   for (const r of noteRows) {
     if (r.referenced_entity_ids_json) continue; // (a) fails: has entity ref
-    const urls = r.commit_urls_json ? (JSON.parse(r.commit_urls_json) as string[]) : [];
+    const urls = r.commit_urls_json ?? [];
     const shasFromUrls = urls
       .map((u) => /\/commit\/([a-f0-9]{7,40})/i.exec(u)?.[1]?.toLowerCase())
       .filter((s): s is string => !!s);

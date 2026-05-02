@@ -6,14 +6,14 @@
 // Scope is deliberately restricted to CHANGES in this tag-pair:
 //   - downward confidence movements recorded in relation_changes.
 //
-// Pre-existing low-confidence rows are NOT surfaced here — they'd re-surface
+// Pre-existing low-confidence rows are NOT surfaced here -- they'd re-surface
 // on every pair review for the same row, which violates "one finding per
 // moment of change". New low-confidence rows land in Q1 additions instead,
 // where the user can still choose `classify` as the disposition. A
 // systematic one-off "promote all heuristic sites" pass is a separate
 // cleanup track outside the per-pair review.
 
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import type { Finding } from './types.js';
 import { makeFindingId } from './types.js';
 import type { Project } from '../types.js';
@@ -29,29 +29,29 @@ const CONFIDENCE_ORDER: Record<string, number> = {
   certain: 3,
 };
 
-export function findUnclassified(
-  db: Database.Database,
+export async function findUnclassified(
+  sql: postgres.Sql,
   project: Project,
   fromVersion: string,
   toVersion: string,
-): Finding[] {
+): Promise<Finding[]> {
   const findings: Finding[] = [];
 
-  const movementRows = db.prepare(`
-    SELECT relation_table, row_key_json, old_value, new_value, commit_sha, commit_message_excerpt
-    FROM relation_changes
-    WHERE project = ? AND from_version = ? AND to_version = ?
-      AND change_kind = 'modified'
-      AND field_name = 'confidence'
-    ORDER BY relation_table, row_key_json
-  `).all(project, fromVersion, toVersion) as Array<{
+  const movementRows = await sql<Array<{
     relation_table: string;
     row_key_json: string;
     old_value: string | null;
     new_value: string | null;
     commit_sha: string;
     commit_message_excerpt: string | null;
-  }>;
+  }>>`
+    SELECT relation_table, row_key_json, old_value, new_value, commit_sha, commit_message_excerpt
+    FROM relation_changes
+    WHERE project = ${project} AND from_version = ${fromVersion} AND to_version = ${toVersion}
+      AND change_kind = 'modified'
+      AND field_name = 'confidence'
+    ORDER BY relation_table, row_key_json
+  `;
 
   for (const r of movementRows) {
     const oldOrd = CONFIDENCE_ORDER[r.old_value ?? ''] ?? -1;

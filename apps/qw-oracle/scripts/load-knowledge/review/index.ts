@@ -7,7 +7,7 @@ import { existsSync, readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import * as yaml from 'js-yaml';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { findAdditions } from './findings-additions.js';
 import { findRetirements } from './findings-retirements.js';
 import { findSemanticCrossings } from './findings-semantic-crossings.js';
@@ -43,7 +43,7 @@ function loadHelpJsonSeed(project: Project): SeedMap {
 }
 
 export interface RunReviewOptions {
-  db: Database.Database;
+  sql: postgres.Sql;
   project: Project;
   fromVersion: string;
   toVersion: string;
@@ -53,20 +53,23 @@ export interface RunReviewOptions {
   reviewsDir?: string;
 }
 
-export function runReview(options: RunReviewOptions): ReviewReport {
-  assertPreconditions(options);
+export async function runReview(options: RunReviewOptions): Promise<ReviewReport> {
+  await assertPreconditions(options);
   assertDraftNotFilled(options.outPath, options.force);
 
   const now = new Date().toISOString();
 
   const helpJsonSeed = loadHelpJsonSeed(options.project);
+  // Sequential rather than Promise.all: each finder runs short transactions
+  // through the shared Sql handle, and ordered execution keeps log output
+  // deterministic for the operator (see RunReview output preamble in skill).
   const rawFindings: Finding[] = [
-    ...findAdditions(options.db, options.project, options.fromVersion, options.toVersion),
-    ...findRetirements(options.db, options.project, options.fromVersion, options.toVersion),
-    ...findSemanticCrossings(options.db, options.project, options.fromVersion, options.toVersion),
-    ...findUnclassified(options.db, options.project, options.fromVersion, options.toVersion),
-    ...findSourceInvisible(options.db, options.project, options.fromVersion, options.toVersion),
-    ...findHelpJsonClassifications(options.db, options.project, helpJsonSeed),
+    ...(await findAdditions(options.sql, options.project, options.fromVersion, options.toVersion)),
+    ...(await findRetirements(options.sql, options.project, options.fromVersion, options.toVersion)),
+    ...(await findSemanticCrossings(options.sql, options.project, options.fromVersion, options.toVersion)),
+    ...(await findUnclassified(options.sql, options.project, options.fromVersion, options.toVersion)),
+    ...(await findSourceInvisible(options.sql, options.project, options.fromVersion, options.toVersion)),
+    ...(await findHelpJsonClassifications(options.sql, options.project, helpJsonSeed)),
   ];
 
   const { clusters: rawClusters, findings: clusteredFindings } = detectClusters(rawFindings, {
@@ -83,10 +86,10 @@ export function runReview(options: RunReviewOptions): ReviewReport {
   });
   const clusters = annotatePriorRefs(rawClusters, priorWalks);
 
-  // Semantic pass over source-invisible (§1.2): propose cluster membership
+  // Semantic pass over source-invisible (1.2): propose cluster membership
   // for release-note bullets that lack a mechanical signal.
   const { findings: semanticallyAnnotated } = runSemanticMatch(clusteredFindings, clusters);
-  // Cross-codebase hint (§4): cue-set classifier per finding.
+  // Cross-codebase hint (4): cue-set classifier per finding.
   const findings = annotateCrossCodebase(semanticallyAnnotated);
 
   const counts: ReviewCounts = {
@@ -114,39 +117,39 @@ export function runReview(options: RunReviewOptions): ReviewReport {
   return report;
 }
 
-function assertPreconditions(options: RunReviewOptions): void {
-  const { db, project, fromVersion, toVersion } = options;
+async function assertPreconditions(options: RunReviewOptions): Promise<void> {
+  const { sql, project, fromVersion, toVersion } = options;
 
-  const fromRow = db.prepare(`SELECT 1 FROM versions WHERE project = ? AND version = ?`).get(project, fromVersion);
-  if (!fromRow) {
+  const fromRows = await sql<Array<{ one: number }>>`SELECT 1 AS one FROM versions WHERE project = ${project} AND version = ${fromVersion}`;
+  if (fromRows.length === 0) {
     throw new Error(
       `No versions row for ${project}:${fromVersion}. Run \`extract-tag --version ${fromVersion}\` first.`,
     );
   }
-  const toRow = db.prepare(`SELECT 1 FROM versions WHERE project = ? AND version = ?`).get(project, toVersion);
-  if (!toRow) {
+  const toRows = await sql<Array<{ one: number }>>`SELECT 1 AS one FROM versions WHERE project = ${project} AND version = ${toVersion}`;
+  if (toRows.length === 0) {
     throw new Error(
       `No versions row for ${project}:${toVersion}. Run \`extract-tag --version ${toVersion}\` first.`,
     );
   }
 
-  const ceCount = db.prepare(
-    `SELECT COUNT(*) AS n FROM change_events WHERE from_version = ? AND to_version = ?`,
-  ).get(fromVersion, toVersion) as { n: number };
-  const rcCount = db.prepare(
-    `SELECT COUNT(*) AS n FROM relation_changes WHERE project = ? AND from_version = ? AND to_version = ?`,
-  ).get(project, fromVersion, toVersion) as { n: number };
-  if (ceCount.n === 0 && rcCount.n === 0) {
+  const ceCountRows = await sql<Array<{ n: number }>>`
+    SELECT COUNT(*)::int AS n FROM change_events WHERE from_version = ${fromVersion} AND to_version = ${toVersion}
+  `;
+  const rcCountRows = await sql<Array<{ n: number }>>`
+    SELECT COUNT(*)::int AS n FROM relation_changes WHERE project = ${project} AND from_version = ${fromVersion} AND to_version = ${toVersion}
+  `;
+  if (ceCountRows[0]!.n === 0 && rcCountRows[0]!.n === 0) {
     throw new Error(
       `No change_events or relation_changes for ${project}:${fromVersion}->${toVersion}. ` +
       `Run \`diff --project ${project} --from ${fromVersion} --to ${toVersion}\` first.`,
     );
   }
 
-  const rnCount = db.prepare(
-    `SELECT COUNT(*) AS n FROM release_notes WHERE project = ? AND version = ?`,
-  ).get(project, toVersion) as { n: number };
-  if (rnCount.n === 0) {
+  const rnCountRows = await sql<Array<{ n: number }>>`
+    SELECT COUNT(*)::int AS n FROM release_notes WHERE project = ${project} AND version = ${toVersion}
+  `;
+  if (rnCountRows[0]!.n === 0) {
     throw new Error(
       `No release_notes rows for ${project}:${toVersion}. ` +
       `Run \`release-notes --project ${project} --version ${toVersion} --github-token $GITHUB_TOKEN\` first.`,

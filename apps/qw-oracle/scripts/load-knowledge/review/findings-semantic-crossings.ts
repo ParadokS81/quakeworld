@@ -6,7 +6,7 @@
 // ordinary value drift), while "asset_loader_site load_trigger changed
 // from unknown to on_map_load" DOES.
 
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import type { Finding } from './types.js';
 import { makeFindingId } from './types.js';
 import type { Project } from '../types.js';
@@ -59,28 +59,18 @@ const RELATION_SEMANTIC_FIELDS: Record<string, readonly string[]> = {
   asset_loader_sites: ['reads_category_id', 'load_trigger', 'path_source', 'confidence'],
 };
 
-export function findSemanticCrossings(
-  db: Database.Database,
+export async function findSemanticCrossings(
+  sql: postgres.Sql,
   project: Project,
   fromVersion: string,
   toVersion: string,
-): Finding[] {
+): Promise<Finding[]> {
   const findings: Finding[] = [];
 
-  // Entity-level crossings.
-  const entityPlaceholders = ENTITY_SEMANTIC_FIELDS.map(() => '?').join(',');
-  const entityRows = db.prepare(`
-    SELECT ce.entity_id, ce.field_name, ce.old_value, ce.new_value, ce.commit_sha,
-           ce.commit_message_excerpt, ce.pr_number,
-           e.canonical_id, e.type, e.name
-    FROM change_events ce
-    JOIN entities e ON e.id = ce.entity_id
-    WHERE ce.from_version = ? AND ce.to_version = ?
-      AND ce.change_kind = 'modified'
-      AND e.project = ?
-      AND ce.field_name IN (${entityPlaceholders})
-    ORDER BY e.type, e.name, ce.field_name
-  `).all(fromVersion, toVersion, project, ...ENTITY_SEMANTIC_FIELDS) as Array<{
+  // Entity-level crossings. SQLite-era used IN (?, ?, ...) with a placeholder
+  // count matching the array length; postgres-js handles arrays via
+  // `field = ANY(${arr}::text[])`.
+  const entityRows = await sql<Array<{
     entity_id: number;
     field_name: string;
     old_value: string | null;
@@ -91,7 +81,18 @@ export function findSemanticCrossings(
     canonical_id: string;
     type: string;
     name: string;
-  }>;
+  }>>`
+    SELECT ce.entity_id, ce.field_name, ce.old_value, ce.new_value, ce.commit_sha,
+           ce.commit_message_excerpt, ce.pr_number,
+           e.canonical_id, e.type, e.name
+    FROM change_events ce
+    JOIN entities e ON e.id = ce.entity_id
+    WHERE ce.from_version = ${fromVersion} AND ce.to_version = ${toVersion}
+      AND ce.change_kind = 'modified'
+      AND e.project = ${project}
+      AND ce.field_name = ANY(${ENTITY_SEMANTIC_FIELDS as unknown as string[]}::text[])
+    ORDER BY e.type, e.name, ce.field_name
+  `;
 
   for (const r of entityRows) {
     if (isSchemaExpansion(r.old_value, r.new_value)) continue;
@@ -112,17 +113,7 @@ export function findSemanticCrossings(
   // Relation-level crossings, one per (relation_table, field).
   for (const [table, fields] of Object.entries(RELATION_SEMANTIC_FIELDS)) {
     if (fields.length === 0) continue;
-    const placeholders = fields.map(() => '?').join(',');
-    const relRows = db.prepare(`
-      SELECT relation_table, row_key_json, field_name, old_value, new_value,
-             commit_sha, commit_message_excerpt
-      FROM relation_changes
-      WHERE project = ? AND from_version = ? AND to_version = ?
-        AND change_kind = 'modified'
-        AND relation_table = ?
-        AND field_name IN (${placeholders})
-      ORDER BY row_key_json, field_name
-    `).all(project, fromVersion, toVersion, table, ...fields) as Array<{
+    const relRows = await sql<Array<{
       relation_table: string;
       row_key_json: string;
       field_name: string;
@@ -130,7 +121,16 @@ export function findSemanticCrossings(
       new_value: string | null;
       commit_sha: string;
       commit_message_excerpt: string | null;
-    }>;
+    }>>`
+      SELECT relation_table, row_key_json, field_name, old_value, new_value,
+             commit_sha, commit_message_excerpt
+      FROM relation_changes
+      WHERE project = ${project} AND from_version = ${fromVersion} AND to_version = ${toVersion}
+        AND change_kind = 'modified'
+        AND relation_table = ${table}
+        AND field_name = ANY(${fields as unknown as string[]}::text[])
+      ORDER BY row_key_json, field_name
+    `;
 
     for (const r of relRows) {
       if (isSchemaExpansion(r.old_value, r.new_value)) continue;
