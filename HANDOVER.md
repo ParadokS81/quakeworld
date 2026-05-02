@@ -25,7 +25,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - **matchscheduler doc system reconciliation** — 17-file `apps/matchscheduler/context/` predates monorepo doctrine. Earned its own brainstorm when matchscheduler work next surfaces friction with the existing system. Per docs-redesign spec Plan 2 narrowed scope (2026-04-29).
 
 ### Ongoing arcs
-- [qw-oracle Arc 1 — Postgres + hybrid retrieval](docs/superpowers/plans/2026-05-02-qw-oracle-arc1/README.md) — 8-phase per-phase MD plan. Phase 1 shipped (`610eb4e`); Phases 2-8 drafted and approved. Resume execution at Phase 2 (Layer 1 port — schema generator + loader port + entity-counts regression gate).
+- [qw-oracle Arc 1 — Postgres + hybrid retrieval](docs/superpowers/plans/2026-05-02-qw-oracle-arc1/README.md) — 8-phase per-phase MD plan. Phases 1-3 shipped (Phase 3 lands Layer 2 Discord port on Postgres + tsvector + reply-reference graph; 728,863 messages / 86,423 sessions / 15,489 reply edges in `qw_oracle`). Phases 4-8 drafted and approved. Resume execution at Phase 4 (Layer 3 graph -- concept loader + bidirectional graph + chunker).
 - [Phase 2d-2h: remaining QW knowledge rollout](docs/superpowers/parking/2026-04-18-qw-knowledge-rollout.md) — KTX is the only remaining engine port.
 - [Slipgate Managed Mode pivot](docs/superpowers/parking/2026-04-28-slipgate-managed-mode.md) — **HIGH PRESSURE.** Pass 1+2+3 complete; Pass 4 brainstorm next. V1 = Arcs A+B+D+E+C-minimal.
 - [qw-oracle showcase site + contributor pipeline](docs/superpowers/parking/2026-04-30-qw-oracle-showcase-site-contributor-pipeline.md) — design landed 2026-05-01 (`docs/superpowers/specs/2026-05-01-qw-oracle-showcase-site-design.md`); next step is claude.ai/design mockups, then implementation plan.

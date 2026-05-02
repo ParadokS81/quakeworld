@@ -2,6 +2,31 @@
 
 **Status:** Active development. Schema v18. Four codebases loaded into Layer 1 (ezQuake / FTE / QWCL / MVDSV) plus the `qw` namespace for game content (maps + game mechanics). KTX is the only outstanding port. For chronological ship history see [`docs/arc-history.md`](docs/arc-history.md). For active backlog see `HANDOVER.md` (root).
 
+### Layer 2 status (Arc 1 / Phase 3 -- Postgres + tsvector, Discord-only)
+
+- Authoritative store: Postgres `qw_oracle`, tables `messages`,
+  `discord_channels`, `import_log`, `processing_log`, `sessions`,
+  `message_labels`, `session_search`, `session_references`.
+- tsvector config: `'simple'` (language-agnostic). Discord corpus is
+  mixed-language (Swedish, Russian, German handles and snippets);
+  English stemming would mangle non-English tokens. See decisions.md D7.
+- Platform scope: Discord-only in Arc 1. The `messages.platform`,
+  `sessions.platform`, `session_search.platform`, and `import_log.platform`
+  CHECK constraints lock to `'discord'`. IRC is excluded entirely
+  (decisions.md D9-revised); no IRC importer, no `mirc-logs/` traversal,
+  no IRC tables. Arc 3 reconsiders only if (a) a codepage re-import makes
+  IRC content trustworthy AND (b) operator demand for IRC-era queries
+  emerges; otherwise IRC stays out indefinitely.
+- Layer 2 in v1 is port-only. No segmentation rework, no summarisation,
+  no embeddings. `search_solved_issues` is lexical-only, same shape as
+  before. Arc 3 (separate plan) adds session-summary embeddings and
+  hybrid retrieval over Layer 2.
+- Hygiene tightenings absorbed into the port (decisions.md D18):
+  filter-then-segment session boundaries, nullable `message_labels.session_id`
+  for bot/reaction/system messages, `BOT_COMMAND_PATTERNS` removed (Discord
+  exposes `author_is_bot` reliably), and the `session_references` reply-graph
+  table for Phase 6's cross-session lookup.
+
 ## Documentation index
 
 | When you need... | Read... |

@@ -1,16 +1,23 @@
-// Two readonly handles. Layer 1 (structured engine facts) lives in
-// knowledge.db; Layer 2 (community chat corpus) lives in qw.db. They sit
-// next to each other in apps/qw-oracle/data/. bun:sqlite is used because
-// the native better-sqlite3 binding does not load under Bun.
+// apps/qw-oracle/serve/mcp/src/db.ts
+//
+// Layer 1 (engine + game content) used to live in knowledge.db; Layer 2
+// (community chat corpus) used to live in qw.db. Both have been retired
+// by Arc 1 Phases 2 and 3 respectively. Phase 6 rewires this module to
+// postgres-js. Until then, both exports are tripwires: any property access
+// throws a named error so the failure surfaces clearly instead of as a
+// confusing bun:sqlite file-not-found.
 
-import { Database } from 'bun:sqlite';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import type { Database } from 'bun:sqlite';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+function makeStub(name: string): Database {
+  const message =
+    `MCP DB '${name}' is not yet rewired to Postgres. ` +
+    `Arc 1 Phase 6 (mcp-rewrite) replaces bun:sqlite with postgres-js.`;
+  return new Proxy({} as Database, {
+    get() { throw new Error(message); },
+    apply() { throw new Error(message); },
+  });
+}
 
-// serve/mcp/src -> serve/mcp -> serve -> qw-oracle -> data/
-const DATA_DIR = resolve(__dirname, '..', '..', '..', 'data');
-
-export const knowledgeDb = new Database(resolve(DATA_DIR, 'knowledge.db'), { readonly: true });
-export const corpusDb = new Database(resolve(DATA_DIR, 'qw.db'), { readonly: true });
+export const knowledgeDb = makeStub('knowledge.db');
+export const corpusDb = makeStub('qw.db');
