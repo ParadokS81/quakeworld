@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { db, closeDb } from '../../shared/db.ts';
 import { parseConceptFile, extractBodyConceptLinks } from './parse.ts';
 import { upsertConcept } from './upsert.ts';
+import { embedConceptChunks } from '../embed/embed-chunks.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CONCEPTS_DIR = resolve(__dirname, '..', '..', 'concept-notes');
@@ -51,6 +52,15 @@ export async function loadAllConcepts(): Promise<{ loaded: number; skipped: numb
 if (import.meta.main) {
   try {
     await loadAllConcepts();
+    // Layer 3 chunk embedding pass. Runs OUTSIDE the upsert transaction so a
+    // Voyage outage cannot roll back structured rows. Confined to the CLI
+    // entry block on purpose: helper functions used by tests seed their own
+    // chunk rows and would interfere with the candidate query.
+    try {
+      await embedConceptChunks();
+    } catch (err) {
+      console.error(`[load-concepts] embedConceptChunks threw: ${(err as Error).message}`);
+    }
   } finally {
     await closeDb();
   }

@@ -22,6 +22,7 @@ import { loadVersion } from './load-version.js';
 import { loadAssets } from './load-assets.js';
 import { loadReleaseNotes, projectHasGithubUpstream } from './load-release-notes.js';
 import { buildAssetBundle } from './build-asset-bundle.js';
+import { embedEntitiesPass } from '../embed/embed-entities.ts';
 import type { EntityType, Project } from './types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -376,6 +377,17 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
       githubToken: token,
     });
     releaseNotesLoaded = rn.bulletsInserted;
+  }
+
+  // 6. Layer 1 entity-description embedding pass. Runs OUTSIDE any loader
+  // transaction; structured rows are already committed by step 3 / step 4.
+  // A Voyage outage marks affected rows description_embedding_stale=TRUE
+  // but does not fail the overall extract-tag exit -- lexical search via
+  // description_tsv stays operational either way.
+  try {
+    await embedEntitiesPass();
+  } catch (err) {
+    console.error(`[extract-tag] embedEntitiesPass threw: ${(err as Error).message}`);
   }
 
   return {

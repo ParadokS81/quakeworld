@@ -18,6 +18,9 @@
     "db:psql": "docker compose -f db/docker-compose.dev.yml exec postgres psql -U qworacle -d qw_oracle",
     "migrate": "bun db/migrate.ts",
     "migrate:reset": "bun db/migrate.ts --reset",
+    "embed:entities": "bun scripts/embed/embed-entities.ts",
+    "embed:chunks": "bun scripts/embed/embed-chunks.ts",
+    "verify:embedding-space": "bun scripts/embed/verify-embedding-space.ts",
     "test": "DATABASE_URL=postgresql://qworacle:dev@localhost:5432/qw_oracle_test bun test"
   },
   "dependencies": {

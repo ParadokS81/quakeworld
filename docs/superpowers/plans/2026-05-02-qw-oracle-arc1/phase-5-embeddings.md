@@ -1250,6 +1250,20 @@ Phase 6 inputs: this state, plus the per-tool MCP rewrites it owns. Phase 6 does
 
 No other F-numbered findings touch Phase 5.
 
+## Executor-found amendment (2026-05-03, mid-execution)
+
+**Probe.** Phase 5 executor's first run of `bun test shared/embedding.test.ts` against the live Voyage API returned cosine `0.6846` for the verifier's `(voyage-4-large, input_type='document')` vs `(voyage-4-lite, input_type='query')` cross-call on probe `"weapon scripts"` — well below the 0.85 D8 threshold. A follow-up sanity probe with `input_type='document'` held constant on both calls returned `0.8850` (above threshold). Both probes used the same Voyage API key, the same probe text, and the same DNS path; the only varied input was the second call's `input_type`.
+
+**Why D8's text was insufficient.** D8 specifies the cosine probe (build model vs query model on the same string, threshold 0.85) but is silent on `input_type`. The Phase 5 drafter selected `'document'` for the build call and `'query'` for the query call to mirror production retrieval, which inadvertently confounded two Voyage axes:
+- **Model-size axis** — what D8 actually claims ("voyage-4-large and voyage-4-lite produce comparable vectors").
+- **Input-type axis** — Voyage's intentional task-specific bias designed to make `'document'` and `'query'` vectors *deliberately distant* on the same input so proper-task-paired retrieval ranks better. This is a documented retrieval-quality feature, not vendor drift.
+
+Mixing both axes in one cosine cannot satisfy >=0.85 under healthy v4 behavior; the verifier was structurally guaranteed to fail.
+
+**What the verifier now actually tests.** `verifyEmbeddingSpace` holds `input_type='document'` on both calls. It asserts the model-size shared-space claim cleanly, in isolation. Production code keeps the input_type asymmetry: `embed-entities.ts` and `embed-chunks.ts` use `'document'`, and Phase 6's per-query embedding path will use `'query'`. Whether the asymmetric pairing in production yields adequate retrieval is a Phase 8 eval question, not a Phase 5 startup gate.
+
+**`decisions.md` D8 stamped** with the `2026-05-03` amendment naming this constraint so a future executor (Phase 6 wires the verifier into MCP startup) inherits the right mental model and does not re-litigate the input_type question. The verifier's source code and error message also name the axis under test in case the decisions doc drifts.
+
 ---
 
 ## Verification sub-agent dispatch (drafter runs this AFTER drafting the phase, BEFORE handing back to operator)

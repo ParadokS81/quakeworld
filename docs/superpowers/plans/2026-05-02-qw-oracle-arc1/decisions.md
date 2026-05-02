@@ -132,6 +132,8 @@ Cache this check's result in `oracle_meta` so it runs once per startup, not per 
 
 **Implication:** First Voyage call on startup is a verification call (counts against `embedding_api_log`). Acceptable — runs once per server boot.
 
+**Amendment 2026-05-03 (Phase 5 executor):** Verifier holds `input_type='document'` on both calls; the build/query asymmetry (`'document'` for corpus, `'query'` for runtime queries) is a Voyage-recommended retrieval-quality feature tested at Phase 8 eval time, not at startup. Mixing the model-size axis and the input_type axis in one cosine cannot satisfy the ≥0.85 threshold under healthy v4 behavior — empirical probe `"weapon scripts"` returned 0.6846 cross-asymmetry vs 0.8850 model-size-only, both with the same key. D8's literal text ("voyage-4-large and voyage-4-lite produce comparable vectors") is about model-size space sharing; the verifier now tests that claim cleanly. Production code in `embed-entities.ts` (`'document'`) and the future Phase 6 query path (`'query'`) keep the asymmetry unchanged.
+
 ---
 
 ## D9 (revised 2026-05-02). Layer 2 is Discord-only in Arc 1
