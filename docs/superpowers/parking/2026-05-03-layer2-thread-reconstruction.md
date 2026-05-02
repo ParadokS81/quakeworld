@@ -22,14 +22,16 @@ An LLM with month-long context can produce thread units that respect the actual 
 
 The original Arc 1 plan deferred Layer 2 enrichment (segment / classify / summarise / embed) to Arc 3 per `decisions.md` D5. Specifically, Arc 3 was going to summarize each session and embed the summaries. That's ~86,423 LLM calls over the current corpus.
 
-A monthly-window thread reconstruction approach is roughly equivalent total compute:
+A primer-grounded monthly-window thread reconstruction approach is roughly equivalent total compute:
 
 | Approach | Calls | Total tokens | Sonnet cost |
 |---|---|---|---|
 | Per-session summarize + embed (original Arc 3 plan) | ~86k | ~50M | ~$195 |
-| Monthly-window thread reconstruction + summarize + embed | ~120 | ~36M | ~$110 |
+| Stage 0 glossary bootstrap (5-10 iterations) | ~100-200 | ~5M | ~$5-15 |
+| Stages 1+2+3 monthly thread reconstruction + summarize + embed | ~240 | ~40M | ~$120 |
+| **Total full pipeline (Stages 0+1+2+3)** | **~440** | **~45M** | **~$125-135** |
 
-So this is not "more compute" -- it is the same compute spent on a different unit. The LLM reads the corpus either way; the question is whether it sees timestamp buckets or month-long natural-boundary windows.
+So this is not "more compute" -- it is the same compute spent on a different unit, with a small extra investment ($5-15) in Stage 0 that produces a durable primer asset shared across the whole knowledge service. The LLM reads the corpus either way; the question is whether it sees timestamp buckets or primer-grounded natural-boundary windows.
 
 ## Architecture
 
@@ -65,13 +67,44 @@ CREATE INDEX thread_messages_message ON thread_messages(message_id);
 
 The junction table is many-to-many: a meta-comment that responds to two ongoing topics belongs to both threads. `sessions` (Phase 3) stays unchanged as raw timestamp grouping; threads layer on top. `session_references` (Phase 3 reply graph) coexists -- it carries Discord-native explicit reply structure, while threads carry LLM-derived topic structure.
 
-### Pipeline (two-stage hybrid per chat-disentanglement research)
+### Pipeline (four stages, primer-grounded)
 
-**Stage 1: Within-session disentanglement.** For each session containing more than one chat / link message, an LLM call splits the session into topic-coherent sub-threads. Output per call: thread proposals with member message IDs and a one-sentence topic label. Local, bounded, fits in standard context windows.
+LLMs reading raw QW chat without grounding will treat domain terms (`cl_bob`, `+forward`, `rune timing`, `cmt5`) as unfamiliar tokens. This is one of the dominant failure modes in chat-disentanglement quality. The pipeline therefore starts with an iterative bootstrap that builds a strong domain primer before any production work runs.
+
+**Stage 0: Iterative glossary bootstrap (runs once until convergence).**
+
+Surfaces what an LLM does NOT understand about the corpus, so the operator can fill the gaps before the expensive stages run. Mirrors the operator's existing pattern from `apps/quad/` voice-transcript analyzer work (where iterative LLM-uncertainty-sampling produced the current `packages/qw-knowledge/terminology` glossary).
+
+Loop:
+1. **Seed primer** = `packages/qw-knowledge/terminology` (353 lines, voice-transcript-derived) + top-100 Layer 1 entities by chat-mention count + per-channel character notes (#helpdesk = config debugging; #dev-corner = engine internals; #antilag = competitive gameplay; #quakeworld = general).
+2. **Sample N chat windows** (e.g. 20 windows of 5,000 messages each, distributed across channels and years).
+3. **For each window, prompt LLM:** "Here is a chat window. Here is what you know about QW (the primer). Identify any terms, abbreviations, names, or phrases you cannot clearly interpret. Output: term / best-guess / confidence."
+4. **Operator triages aggregated output:** which are real domain terms (add to primer), which are LLM false alarms (skip), which are people's names / typos / one-offs (skip).
+5. **Re-run** with updated primer.
+6. **Convergence criterion:** stop when fewer than 5% of reported terms are previously-unknown real domain content. The LLM is now mostly false-alarming on edge cases, not actually missing real content.
+
+Primer artifacts persist as a durable file (likely extends `packages/qw-knowledge/terminology`). The primer is shared infrastructure: it benefits future Layer 1 entity descriptions, Layer 3 concept-note authoring, future voice-transcript analysis, and the Layer 2 disentanglement pipeline that motivated all this. Not throwaway scaffolding.
+
+**Cost:** each iteration ~$1-2 in Sonnet compute; 5-10 iterations to convergence = $5-15 total. Plus 30-60 minutes of operator triage per round.
+
+**Stage 1: Within-session disentanglement (primer-grounded).** For each session containing more than one chat / link message, an LLM call (with primer prepended) splits the session into topic-coherent sub-threads. Output per call: thread proposals with member message IDs and a one-sentence topic label. Local, bounded, fits in standard context windows. The primer presence is what differentiates this from the academic benchmarks (none of which prime with domain glossary).
 
 **Stage 2: Cross-session topic merging.** For each within-session thread proposal, embed the topic label using the Phase 5 Voyage pipeline. Cluster threads whose summary embeddings exceed a similarity threshold (e.g. cosine > 0.85) and whose participant sets overlap by at least one author. Merge into thread groups. The final `chat_threads` rows are the merged groups; the resulting cross-session thread can span days or years.
 
-Stage 1 dominates LLM cost. Stage 2 uses cheap embedding ops over a much smaller derived corpus (~100k thread-summary embeddings rather than per-message pairwise classification). The literature has nothing on cross-month topic linkage in chat, but recasting it as embedding-similarity clustering side-steps the missing-precedent problem -- this part is GraphRAG-style community detection, which is a known pattern.
+**Stage 3: Final summary + embed at thread granularity.** Each merged thread gets a final topic summary (LLM with primer) and topic embedding (Voyage). These are what `search_solved_issues` ultimately retrieves against.
+
+Stage 1 dominates LLM cost. Stage 2 uses cheap embedding ops over a much smaller derived corpus (~100k thread-summary embeddings rather than per-message pairwise classification). Stage 3 is a small post-processing pass.
+
+The literature has nothing on cross-month topic linkage in chat, but recasting it as embedding-similarity clustering side-steps the missing-precedent problem -- this part is GraphRAG-style community detection, which is a known pattern.
+
+**Why this 4-stage shape compounds:**
+
+Each stage produces a durable artifact that the next consumes. Decoupled debugging:
+- If Stage 1 quality is poor on the sample test, the diagnosis is the primer -- back to Stage 0.
+- If Stage 2 quality is poor, the diagnosis is the similarity threshold or participant heuristic -- not the primer.
+- If Stage 3 summaries are weak, the diagnosis is the prompt -- the segmentation is fine.
+
+Each stage's output is also independently inspectable. Operator can spot-check Stage 1 thread proposals before paying for Stage 2, etc.
 
 ### Retrieval implications for Phase 6
 
@@ -130,22 +163,24 @@ If the bottleneck turns out to be elsewhere -- e.g. Layer 3 concept gaps, or Lay
 
 ## The sample test (when triggered)
 
-Before committing to a full implementation, run a 50-100 session sample test comparing four retrieval pipelines:
+**Prerequisite:** Stage 0 primer must be bootstrapped to convergence first. Otherwise arms 2 and 3 are evaluating the WRONG hypothesis -- a weak primer producing weak threads, rather than the architecture itself producing weak threads. Bootstrap first, evaluate after.
+
+Once the primer is solid, run a 50-100 session sample test comparing four retrieval pipelines:
 
 | # | Pipeline | Description |
 |---|---|---|
 | 0 | FTS baseline | Phase 3 as-shipped: session tsvector lexical only |
-| 1 | Per-session embed | One summary per timestamp-session; embed summary |
+| 1 | Per-session embed (primer-grounded) | One summary per timestamp-session via primer-grounded LLM; embed summary |
 | 2 | Within-session threads | Stage 1 only; sub-threads at session granularity; embed per-thread summaries |
-| 3 | Full hybrid | Stage 1 + Stage 2 cross-session merging |
+| 3 | Full hybrid | Stages 1+2+3 cross-session merging |
 
-Run all four against 10-15 representative queries from real production `query_log`. Cost: pennies in compute, an afternoon of pipeline scaffolding.
+Run all four against 10-15 representative queries from real production `query_log`. Cost: pennies in compute (Stage 0 already paid), an afternoon of pipeline scaffolding.
 
 Decision criteria:
 
 - If Pipeline 3 beats Pipeline 0 by a margin worth the schema complexity -> fold into Arc 1 as a new phase OR open Arc 3 with this as primary scope.
-- If Pipeline 1 beats Pipeline 3 by enough -> ship Pipeline 1 (simpler, no thread reconstruction).
-- If neither beats Pipeline 0 meaningfully -> bottleneck is elsewhere; this lever does not help. Park indefinitely.
+- If Pipeline 1 beats Pipeline 3 by enough -> ship Pipeline 1 (simpler, no thread reconstruction; primer + per-session embed is itself a meaningful upgrade over FTS-only).
+- If neither beats Pipeline 0 meaningfully -> bottleneck is elsewhere; this lever does not help. Park indefinitely. The primer artifact is still durable; non-thread uses remain (Layer 1 / Layer 3 enrichment).
 
 ## Decision criteria for fold-in vs Arc 3
 
