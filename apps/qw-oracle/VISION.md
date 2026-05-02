@@ -12,6 +12,8 @@ QW Oracle is a **knowledge service**, not a chatbot. It is the data foundation a
 
 The distinction matters. Mistaking the service for one of its outlets causes wrong inferences about what changes affect what. A redesign of the Discord-bot answer format should not touch the Layer 1 schema. A new cvar-extraction pass should not wait on the Discord bot's release cycle. Two different problems, two different layers.
 
+**Mental model.** A chatbot answering a QW question is a librarian; oracle is the library. The LLM (the librarian) hears the user's question, walks the shelves, and assembles the answer. Oracle's job is to keep the library well-stocked with QW-specific content -- source-grounded facts, community testimony, curated explanations -- so the librarian has somewhere good to start. A well-stocked library is a headstart, not a fence: the librarian still owns synthesis, still chooses what to use, and is free to draw on its own training-data knowledge when the library doesn't cover a question. The better-stocked the library, the easier the librarian's job, the better the answer for the human asking.
+
 ## The service shape
 
 Three data layers plus the machinery that fills and serves them.
