@@ -6,7 +6,7 @@
 
 import { describe, expect, test, beforeAll, afterAll } from 'bun:test';
 import postgres from 'postgres';
-import { runMigrations, resetDb } from './migrate.ts';
+import { runMigrations, resetDb } from './migrate.js';
 
 const url = process.env.DATABASE_URL;
 if (!url) throw new Error('DATABASE_URL is not set');

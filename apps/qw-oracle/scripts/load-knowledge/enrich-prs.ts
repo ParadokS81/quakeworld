@@ -4,7 +4,7 @@
 // Groups by commit_sha, calls GitHub once per unique commit, updates all
 // rows sharing that SHA in a single transaction.
 
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { GitHubClient } from './github.js';
 import type { Project } from './types.js';
 
@@ -17,12 +17,11 @@ const PROJECT_REPOS: Record<Project, { owner: string; repo: string } | null> = {
   mvdsv:   { owner: 'QW-Group', repo: 'mvdsv' },
   ktx:     { owner: 'QW-Group', repo: 'ktx' },
   qwcl:    null,
-  // qw is the game-itself namespace; no GitHub repo to enrich against.
   qw:      null,
 };
 
 export interface EnrichOptions {
-  db: Database.Database;
+  sql: postgres.Sql;
   project: Project;
   githubToken: string;
   limit?: number;
@@ -49,36 +48,26 @@ export async function enrichPrs(options: EnrichOptions): Promise<EnrichResult> {
   const gh = new GitHubClient(options.githubToken);
   const guardPct = options.rateLimitGuardPct ?? 10;
 
-  const limitClause = options.limit ? 'LIMIT ?' : '';
-  const query = `
-    SELECT DISTINCT ce.commit_sha
-    FROM change_events ce
-    JOIN entities e ON e.id = ce.entity_id
-    WHERE e.project = ?
-      AND ce.enrichment_source = 'git'
-      AND ce.pr_number IS NULL
-      AND ce.commit_sha <> 'UNKNOWN'
-    ${limitClause}
-  `;
   const commits = options.limit
-    ? options.db.prepare(query).all(options.project, options.limit)
-    : options.db.prepare(query).all(options.project);
-
-  const updateStmt = options.db.prepare(`
-    UPDATE change_events
-    SET pr_number = @pr_number,
-        pr_title = @pr_title,
-        pr_body_excerpt = @pr_body_excerpt,
-        linked_issues_json = @linked_issues_json,
-        enrichment_source = 'github_api'
-    WHERE commit_sha = @commit_sha
-  `);
-
-  const markUnlinkedStmt = options.db.prepare(`
-    UPDATE change_events
-    SET enrichment_source = 'github_api'
-    WHERE commit_sha = @commit_sha
-  `);
+    ? await options.sql<{ commit_sha: string }[]>`
+        SELECT DISTINCT ce.commit_sha
+        FROM change_events ce
+        JOIN entities e ON e.id = ce.entity_id
+        WHERE e.project = ${options.project}
+          AND ce.enrichment_source = 'git'
+          AND ce.pr_number IS NULL
+          AND ce.commit_sha <> 'UNKNOWN'
+        LIMIT ${options.limit}
+      `
+    : await options.sql<{ commit_sha: string }[]>`
+        SELECT DISTINCT ce.commit_sha
+        FROM change_events ce
+        JOIN entities e ON e.id = ce.entity_id
+        WHERE e.project = ${options.project}
+          AND ce.enrichment_source = 'git'
+          AND ce.pr_number IS NULL
+          AND ce.commit_sha <> 'UNKNOWN'
+      `;
 
   let attempted = 0;
   let enriched = 0;
@@ -86,7 +75,7 @@ export async function enrichPrs(options: EnrichOptions): Promise<EnrichResult> {
   let rowsUpdated = 0;
   let paused = false;
 
-  for (const row of commits as Array<{ commit_sha: string }>) {
+  for (const row of commits) {
     attempted += 1;
 
     const rl = gh.getRateLimit();
@@ -98,28 +87,35 @@ export async function enrichPrs(options: EnrichOptions): Promise<EnrichResult> {
     const pr = await gh.getPrsForCommit(repoInfo.owner, repoInfo.repo, row.commit_sha);
 
     if (!pr) {
-      const result = markUnlinkedStmt.run({ commit_sha: row.commit_sha });
-      rowsUpdated += Number(result.changes);
+      const result = await options.sql`
+        UPDATE change_events
+        SET enrichment_source = 'github_api'
+        WHERE commit_sha = ${row.commit_sha}
+      `;
+      rowsUpdated += result.count;
       skipped += 1;
       continue;
     }
 
-    const result = updateStmt.run({
-      commit_sha: row.commit_sha,
-      pr_number: pr.pr_number,
-      pr_title: pr.pr_title,
-      pr_body_excerpt: pr.pr_body.slice(0, 500),
-      linked_issues_json: JSON.stringify(pr.linked_issues),
-    });
-    rowsUpdated += Number(result.changes);
+    const result = await options.sql`
+      UPDATE change_events
+      SET pr_number = ${pr.pr_number},
+          pr_title = ${pr.pr_title},
+          pr_body_excerpt = ${pr.pr_body.slice(0, 500)},
+          linked_issues_json = ${JSON.stringify(pr.linked_issues)},
+          enrichment_source = 'github_api'
+      WHERE commit_sha = ${row.commit_sha}
+    `;
+    rowsUpdated += result.count;
     enriched += 1;
   }
 
-  // Per spec Section 6 schema_meta keyspace: record this run's completion timestamp.
-  options.db.prepare(`
-    INSERT INTO schema_meta (key, value) VALUES ('last_enrichment_run_at', ?)
-    ON CONFLICT(key) DO UPDATE SET value = excluded.value
-  `).run(new Date().toISOString());
+  // oracle_meta is the Postgres-side replacement for SQLite's schema_meta.
+  await options.sql`
+    INSERT INTO oracle_meta (key, value, updated_at)
+    VALUES ('last_enrichment_run_at', ${new Date().toISOString()}, now())
+    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()
+  `;
 
   return {
     commitsAttempted: attempted,

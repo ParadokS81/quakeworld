@@ -27,7 +27,7 @@
 //    resolveBlameForField), but relation tables still lack source_file /
 //    source_line so diffAssetRelations writes commit_sha='UNKNOWN'.
 
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { ulid } from 'ulid';
 import { blameLine, treeHasDirectory } from './git.js';
 import { setEntitySourceState } from './natural-keys.js';
@@ -35,7 +35,7 @@ import { logTransition } from './transitions.js';
 import type { ChangeKind, EntityType, Project } from './types.js';
 
 export interface DiffOptions {
-  db: Database.Database;
+  sql: postgres.Sql;
   project: Project;
   fromVersion: string;
   toVersion: string;
@@ -250,32 +250,33 @@ interface BlameOut {
   commit_message_excerpt: string | null;
 }
 
-export function diffVersions(options: DiffOptions): DiffResult {
+export async function diffVersions(options: DiffOptions): Promise<DiffResult> {
   const extractorRunId = ulid();
   const now = new Date().toISOString();
+  const sql = options.sql;
 
   // Resolve both versions' commit_sha up front so blame anchors at the right
-  // ref rather than hardcoded HEAD.
-  const fromVer = options.db.prepare(`
-    SELECT commit_sha FROM versions WHERE project = ? AND version = ?
-  `).get(options.project, options.fromVersion) as { commit_sha: string } | undefined;
-  const toVer = options.db.prepare(`
-    SELECT commit_sha FROM versions WHERE project = ? AND version = ?
-  `).get(options.project, options.toVersion) as { commit_sha: string } | undefined;
+  // ref rather than hardcoded HEAD. Read-only, can run before opening the txn.
+  const fromVerRows = await sql<{ commit_sha: string }[]>`
+    SELECT commit_sha FROM versions WHERE project = ${options.project} AND version = ${options.fromVersion}
+  `;
+  const toVerRows = await sql<{ commit_sha: string }[]>`
+    SELECT commit_sha FROM versions WHERE project = ${options.project} AND version = ${options.toVersion}
+  `;
 
-  if (!fromVer) {
+  if (fromVerRows.length === 0) {
     throw new Error(
       `No versions row for ${options.project}:${options.fromVersion}. Run load-version first.`
     );
   }
-  if (!toVer) {
+  if (toVerRows.length === 0) {
     throw new Error(
       `No versions row for ${options.project}:${options.toVersion}. Run load-version first.`
     );
   }
 
-  const fromCommitSha = fromVer.commit_sha;
-  const toCommitSha = toVer.commit_sha;
+  const fromCommitSha = fromVerRows[0]!.commit_sha;
+  const toCommitSha = toVerRows[0]!.commit_sha;
   // Resolve src-prefix per side -- ezQuake moved files from repo root into
   // `src/` on 2023-01-05 (between 3.6.1 and 3.6.2). A diff crossing that
   // boundary needs different prefixes on each side, so blame paths resolve
@@ -283,49 +284,10 @@ export function diffVersions(options: DiffOptions): DiffResult {
   const fromSrcPrefix = detectSrcPrefix(options.ezquakeRepoPath, fromCommitSha, options.project);
   const toSrcPrefix = detectSrcPrefix(options.ezquakeRepoPath, toCommitSha, options.project);
 
-  const insertEvent = options.db.prepare(`
-    INSERT OR REPLACE INTO change_events (
-      entity_id, from_version, to_version, change_kind, field_name,
-      old_value, new_value, commit_sha, commit_message_excerpt,
-      enrichment_source, extracted_at
-    ) VALUES (
-      @entity_id, @from_version, @to_version, @change_kind, @field_name,
-      @old_value, @new_value, @commit_sha, @commit_message_excerpt,
-      'git', @extracted_at
-    )
-  `);
-
-  const getSourceStateStmt = options.db.prepare(
-    `SELECT source_state FROM entities WHERE id = ?`
-  );
-
   // Per-(ref, file, line) blame cache. Shared across all type loops because
   // different entity types can share source locations (e.g. a cvar and an
   // hud_element registered at the same site).
   const blameCache = new Map<string, BlameOut>();
-
-  // Preload source_overrides for the toVersion once so per-field blame
-  // lookups during the modification loop hit a Map, not a fresh SQL query.
-  // Keyed by `${entityId}|${fieldName}`.
-  const overridesForToVersion = new Map<string, { source_file: string; source_line: number }>();
-  {
-    const rows = options.db.prepare(`
-      SELECT entity_id, field_name, source_file, source_line
-      FROM source_overrides
-      WHERE version = ?
-    `).all(options.toVersion) as Array<{
-      entity_id: number;
-      field_name: string;
-      source_file: string;
-      source_line: number;
-    }>;
-    for (const r of rows) {
-      overridesForToVersion.set(`${r.entity_id}|${r.field_name}`, {
-        source_file: r.source_file,
-        source_line: r.source_line,
-      });
-    }
-  }
 
   let totalCreations = 0;
   let totalModifications = 0;
@@ -334,26 +296,51 @@ export function diffVersions(options: DiffOptions): DiffResult {
   const perType: DiffTypeStats[] = [];
   const diffResultExtras: { relationStats?: RelationStats[] } = {};
 
-  const txn = options.db.transaction(() => {
-    for (const config of TYPE_DIFF_CONFIGS) {
-      const fromRows = options.db.prepare(`
-        SELECT tv.*, e.id AS entity_id
-        FROM ${config.versionsTable} tv
-        JOIN entities e ON e.id = tv.entity_id
-        WHERE e.project = ? AND e.type = ? AND tv.version = ?
-      `).all(options.project, config.entityType, options.fromVersion) as Row[];
+  await sql.begin(async (tx) => {
+    // Preload source_overrides for the toVersion once so per-field blame
+    // lookups during the modification loop hit a Map, not a fresh SQL query.
+    // Keyed by `${entityId}|${fieldName}`.
+    const overridesForToVersion = new Map<string, { source_file: string; source_line: number }>();
+    {
+      const rows = await tx<Array<{
+        entity_id: number;
+        field_name: string;
+        source_file: string;
+        source_line: number;
+      }>>`
+        SELECT entity_id, field_name, source_file, source_line
+        FROM source_overrides
+        WHERE version = ${options.toVersion}
+      `;
+      for (const r of rows) {
+        overridesForToVersion.set(`${Number(r.entity_id)}|${r.field_name}`, {
+          source_file: r.source_file,
+          source_line: Number(r.source_line),
+        });
+      }
+    }
 
-      const toRows = options.db.prepare(`
+    for (const config of TYPE_DIFF_CONFIGS) {
+      // Bulk SELECT into Map<entity_id, Row> -- the per-field comparison loop
+      // below hits no DB after this point (Map-preload optimisation).
+      const fromRows = await tx<Row[]>`
         SELECT tv.*, e.id AS entity_id
-        FROM ${config.versionsTable} tv
+        FROM ${tx(config.versionsTable)} tv
         JOIN entities e ON e.id = tv.entity_id
-        WHERE e.project = ? AND e.type = ? AND tv.version = ?
-      `).all(options.project, config.entityType, options.toVersion) as Row[];
+        WHERE e.project = ${options.project} AND e.type = ${config.entityType} AND tv.version = ${options.fromVersion}
+      `;
+
+      const toRows = await tx<Row[]>`
+        SELECT tv.*, e.id AS entity_id
+        FROM ${tx(config.versionsTable)} tv
+        JOIN entities e ON e.id = tv.entity_id
+        WHERE e.project = ${options.project} AND e.type = ${config.entityType} AND tv.version = ${options.toVersion}
+      `;
 
       const fromByEntity = new Map<number, Row>();
       const toByEntity = new Map<number, Row>();
-      for (const r of fromRows) fromByEntity.set(r.entity_id, r);
-      for (const r of toRows) toByEntity.set(r.entity_id, r);
+      for (const r of fromRows) fromByEntity.set(Number(r.entity_id), r);
+      for (const r of toRows) toByEntity.set(Number(r.entity_id), r);
 
       const allIds = new Set<number>([...fromByEntity.keys(), ...toByEntity.keys()]);
 
@@ -369,24 +356,34 @@ export function diffVersions(options: DiffOptions): DiffResult {
           const blame = resolveBlame(
             options.ezquakeRepoPath, toCommitSha, toRow, blameCache, toSrcPrefix, config.hasSource,
           );
-          insertEvent.run({
-            entity_id: entityId,
-            from_version: null,
-            to_version: options.toVersion,
-            change_kind: 'created' as ChangeKind,
-            field_name: '',
-            old_value: null,
-            new_value: null,
-            commit_sha: blame.commit_sha,
-            commit_message_excerpt: blame.commit_message_excerpt,
-            extracted_at: now,
-          });
+          await tx`
+            INSERT INTO change_events (
+              entity_id, from_version, to_version, change_kind, field_name,
+              old_value, new_value, commit_sha, commit_message_excerpt,
+              enrichment_source, extracted_at
+            ) VALUES (
+              ${entityId}, ${null}, ${options.toVersion}, ${'created' satisfies ChangeKind}, ${''},
+              ${null}, ${null}, ${blame.commit_sha}, ${blame.commit_message_excerpt},
+              ${'git'}, ${now}
+            )
+            ON CONFLICT (entity_id, to_version, field_name, change_kind) DO UPDATE SET
+              from_version           = EXCLUDED.from_version,
+              old_value              = EXCLUDED.old_value,
+              new_value              = EXCLUDED.new_value,
+              commit_sha             = EXCLUDED.commit_sha,
+              commit_message_excerpt = EXCLUDED.commit_message_excerpt,
+              enrichment_source      = EXCLUDED.enrichment_source,
+              extracted_at           = EXCLUDED.extracted_at
+          `;
           created += 1;
 
-          const prev = getSourceStateStmt.get(entityId) as { source_state: string };
+          const prevRows = await tx<{ source_state: string }[]>`
+            SELECT source_state FROM entities WHERE id = ${entityId}
+          `;
+          const prev = prevRows[0]!;
           if (prev.source_state === 'source_retired') {
-            setEntitySourceState(options.db, entityId, 'source_backed');
-            logTransition(options.db, {
+            await setEntitySourceState(tx, entityId, 'source_backed');
+            await logTransition(tx, {
               entity_id: entityId,
               from_state: 'source_retired',
               to_state: 'source_backed',
@@ -405,22 +402,29 @@ export function diffVersions(options: DiffOptions): DiffResult {
           const blame = resolveBlame(
             options.ezquakeRepoPath, fromCommitSha, fromRow, blameCache, fromSrcPrefix, config.hasSource,
           );
-          insertEvent.run({
-            entity_id: entityId,
-            from_version: options.fromVersion,
-            to_version: options.toVersion,
-            change_kind: 'deleted' as ChangeKind,
-            field_name: '',
-            old_value: null,
-            new_value: null,
-            commit_sha: blame.commit_sha,
-            commit_message_excerpt: blame.commit_message_excerpt,
-            extracted_at: now,
-          });
+          await tx`
+            INSERT INTO change_events (
+              entity_id, from_version, to_version, change_kind, field_name,
+              old_value, new_value, commit_sha, commit_message_excerpt,
+              enrichment_source, extracted_at
+            ) VALUES (
+              ${entityId}, ${options.fromVersion}, ${options.toVersion}, ${'deleted' satisfies ChangeKind}, ${''},
+              ${null}, ${null}, ${blame.commit_sha}, ${blame.commit_message_excerpt},
+              ${'git'}, ${now}
+            )
+            ON CONFLICT (entity_id, to_version, field_name, change_kind) DO UPDATE SET
+              from_version           = EXCLUDED.from_version,
+              old_value              = EXCLUDED.old_value,
+              new_value              = EXCLUDED.new_value,
+              commit_sha             = EXCLUDED.commit_sha,
+              commit_message_excerpt = EXCLUDED.commit_message_excerpt,
+              enrichment_source      = EXCLUDED.enrichment_source,
+              extracted_at           = EXCLUDED.extracted_at
+          `;
           deleted += 1;
 
-          setEntitySourceState(options.db, entityId, 'source_retired');
-          logTransition(options.db, {
+          await setEntitySourceState(tx, entityId, 'source_retired');
+          await logTransition(tx, {
             entity_id: entityId,
             from_state: 'source_backed',
             to_state: 'source_retired',
@@ -441,18 +445,25 @@ export function diffVersions(options: DiffOptions): DiffResult {
               overridesForToVersion, options.ezquakeRepoPath, toCommitSha, toRow, blameCache,
               toSrcPrefix, config.hasSource, entityId, field,
             );
-            insertEvent.run({
-              entity_id: entityId,
-              from_version: options.fromVersion,
-              to_version: options.toVersion,
-              change_kind: 'modified' as ChangeKind,
-              field_name: field,
-              old_value: stringifyOrNull(oldRaw),
-              new_value: stringifyOrNull(newRaw),
-              commit_sha: blame.commit_sha,
-              commit_message_excerpt: blame.commit_message_excerpt,
-              extracted_at: now,
-            });
+            await tx`
+              INSERT INTO change_events (
+                entity_id, from_version, to_version, change_kind, field_name,
+                old_value, new_value, commit_sha, commit_message_excerpt,
+                enrichment_source, extracted_at
+              ) VALUES (
+                ${entityId}, ${options.fromVersion}, ${options.toVersion}, ${'modified' satisfies ChangeKind}, ${field},
+                ${stringifyOrNull(oldRaw)}, ${stringifyOrNull(newRaw)}, ${blame.commit_sha}, ${blame.commit_message_excerpt},
+                ${'git'}, ${now}
+              )
+              ON CONFLICT (entity_id, to_version, field_name, change_kind) DO UPDATE SET
+                from_version           = EXCLUDED.from_version,
+                old_value              = EXCLUDED.old_value,
+                new_value              = EXCLUDED.new_value,
+                commit_sha             = EXCLUDED.commit_sha,
+                commit_message_excerpt = EXCLUDED.commit_message_excerpt,
+                enrichment_source      = EXCLUDED.enrichment_source,
+                extracted_at           = EXCLUDED.extracted_at
+            `;
             modified += 1;
           }
         }
@@ -471,16 +482,14 @@ export function diffVersions(options: DiffOptions): DiffResult {
       });
     }
 
-    const relResult = diffAssetRelations(
-      options.db, options.project, options.fromVersion, options.toVersion, now,
+    const relResult = await diffAssetRelations(
+      tx, options.project, options.fromVersion, options.toVersion, now,
     );
     totalCreations += relResult.totalCreated;
     totalModifications += relResult.totalModified;
     totalDeletions += relResult.totalDeleted;
     diffResultExtras.relationStats = relResult.stats;
   });
-
-  txn();
 
   return {
     extractorRunId,
@@ -496,42 +505,30 @@ export function diffVersions(options: DiffOptions): DiffResult {
   };
 }
 
-function diffAssetRelations(
-  db: Database.Database,
+async function diffAssetRelations(
+  tx: postgres.TransactionSql<{}>,
   project: Project,
   fromVersion: string,
   toVersion: string,
   now: string,
-): { stats: RelationStats[]; totalCreated: number; totalModified: number; totalDeleted: number } {
+): Promise<{ stats: RelationStats[]; totalCreated: number; totalModified: number; totalDeleted: number }> {
   // commit_sha='UNKNOWN' / commit_message_excerpt=NULL are hardcoded
   // intentionally. Relation rows (asset_extensions / _path_rules /
   // _cvar_bindings / _loader_sites) don't yet carry source_file+source_line,
   // so git blame has no anchor. Batch 3 will add loader-site line tracking
   // and retire this stub.
-  const insertRelChange = db.prepare(`
-    INSERT OR REPLACE INTO relation_changes (
-      relation_table, project, from_version, to_version, change_kind,
-      row_key_json, field_name, old_value, new_value,
-      commit_sha, commit_message_excerpt, extracted_at
-    ) VALUES (
-      @relation_table, @project, @from_version, @to_version, @change_kind,
-      @row_key_json, @field_name, @old_value, @new_value,
-      'UNKNOWN', NULL, @extracted_at
-    )
-  `);
-
   const stats: RelationStats[] = [];
   let totalCreated = 0;
   let totalModified = 0;
   let totalDeleted = 0;
 
   for (const config of RELATION_DIFF_CONFIGS) {
-    const fromRows = db.prepare(`
-      SELECT * FROM ${config.table} WHERE project = ? AND version = ?
-    `).all(project, fromVersion) as Array<Record<string, unknown>>;
-    const toRows = db.prepare(`
-      SELECT * FROM ${config.table} WHERE project = ? AND version = ?
-    `).all(project, toVersion) as Array<Record<string, unknown>>;
+    const fromRows = await tx<Array<Record<string, unknown>>>`
+      SELECT * FROM ${tx(config.table)} WHERE project = ${project} AND version = ${fromVersion}
+    `;
+    const toRows = await tx<Array<Record<string, unknown>>>`
+      SELECT * FROM ${tx(config.table)} WHERE project = ${project} AND version = ${toVersion}
+    `;
 
     const keyOf = (row: Record<string, unknown>): string => {
       const obj: Record<string, unknown> = {};
@@ -556,35 +553,47 @@ function diffAssetRelations(
       const toRow = toByKey.get(key);
 
       if (!fromRow && toRow) {
-        insertRelChange.run({
-          relation_table: config.table,
-          project,
-          from_version: fromVersion,
-          to_version: toVersion,
-          change_kind: 'created' as ChangeKind,
-          row_key_json: key,
-          field_name: '',
-          old_value: null,
-          new_value: null,
-          extracted_at: now,
-        });
+        await tx`
+          INSERT INTO relation_changes (
+            relation_table, project, from_version, to_version, change_kind,
+            row_key_json, field_name, old_value, new_value,
+            commit_sha, commit_message_excerpt, extracted_at
+          ) VALUES (
+            ${config.table}, ${project}, ${fromVersion}, ${toVersion}, ${'created' satisfies ChangeKind},
+            ${key}, ${''}, ${null}, ${null},
+            ${'UNKNOWN'}, ${null}, ${now}
+          )
+          ON CONFLICT (relation_table, project, to_version, row_key_json, field_name, change_kind) DO UPDATE SET
+            from_version           = EXCLUDED.from_version,
+            old_value              = EXCLUDED.old_value,
+            new_value              = EXCLUDED.new_value,
+            commit_sha             = EXCLUDED.commit_sha,
+            commit_message_excerpt = EXCLUDED.commit_message_excerpt,
+            extracted_at           = EXCLUDED.extracted_at
+        `;
         created += 1;
         continue;
       }
 
       if (fromRow && !toRow) {
-        insertRelChange.run({
-          relation_table: config.table,
-          project,
-          from_version: fromVersion,
-          to_version: toVersion,
-          change_kind: 'deleted' as ChangeKind,
-          row_key_json: key,
-          field_name: '',
-          old_value: null,
-          new_value: null,
-          extracted_at: now,
-        });
+        await tx`
+          INSERT INTO relation_changes (
+            relation_table, project, from_version, to_version, change_kind,
+            row_key_json, field_name, old_value, new_value,
+            commit_sha, commit_message_excerpt, extracted_at
+          ) VALUES (
+            ${config.table}, ${project}, ${fromVersion}, ${toVersion}, ${'deleted' satisfies ChangeKind},
+            ${key}, ${''}, ${null}, ${null},
+            ${'UNKNOWN'}, ${null}, ${now}
+          )
+          ON CONFLICT (relation_table, project, to_version, row_key_json, field_name, change_kind) DO UPDATE SET
+            from_version           = EXCLUDED.from_version,
+            old_value              = EXCLUDED.old_value,
+            new_value              = EXCLUDED.new_value,
+            commit_sha             = EXCLUDED.commit_sha,
+            commit_message_excerpt = EXCLUDED.commit_message_excerpt,
+            extracted_at           = EXCLUDED.extracted_at
+        `;
         deleted += 1;
         continue;
       }
@@ -592,18 +601,24 @@ function diffAssetRelations(
       if (fromRow && toRow) {
         for (const col of config.diffableColumns) {
           if (!valuesDiffer(fromRow[col], toRow[col])) continue;
-          insertRelChange.run({
-            relation_table: config.table,
-            project,
-            from_version: fromVersion,
-            to_version: toVersion,
-            change_kind: 'modified' as ChangeKind,
-            row_key_json: key,
-            field_name: col,
-            old_value: stringifyOrNull(fromRow[col]),
-            new_value: stringifyOrNull(toRow[col]),
-            extracted_at: now,
-          });
+          await tx`
+            INSERT INTO relation_changes (
+              relation_table, project, from_version, to_version, change_kind,
+              row_key_json, field_name, old_value, new_value,
+              commit_sha, commit_message_excerpt, extracted_at
+            ) VALUES (
+              ${config.table}, ${project}, ${fromVersion}, ${toVersion}, ${'modified' satisfies ChangeKind},
+              ${key}, ${col}, ${stringifyOrNull(fromRow[col])}, ${stringifyOrNull(toRow[col])},
+              ${'UNKNOWN'}, ${null}, ${now}
+            )
+            ON CONFLICT (relation_table, project, to_version, row_key_json, field_name, change_kind) DO UPDATE SET
+              from_version           = EXCLUDED.from_version,
+              old_value              = EXCLUDED.old_value,
+              new_value              = EXCLUDED.new_value,
+              commit_sha             = EXCLUDED.commit_sha,
+              commit_message_excerpt = EXCLUDED.commit_message_excerpt,
+              extracted_at           = EXCLUDED.extracted_at
+          `;
           modified += 1;
         }
       }
@@ -683,15 +698,28 @@ function resolveBlameForField(
   return resolveBlame(ezquakeRepoPath, blameRef, row, cache, sourcePrefix, hasSource);
 }
 
+// Compare two field values for diff purposes. JSONB columns auto-decode to
+// JS objects/arrays via postgres-js; SQLite-era code stored them as strings
+// so plain `String(v)` worked. Now we route non-primitive values through
+// JSON.stringify to preserve diff semantics; primitives keep `String(v)` so
+// numeric/string compare is still cheap.
 function valuesDiffer(a: unknown, b: unknown): boolean {
   const aNull = a == null;
   const bNull = b == null;
   if (aNull && bNull) return false;
   if (aNull !== bNull) return true;
-  return String(a) !== String(b);
+  return canonicalize(a) !== canonicalize(b);
 }
 
+// Likewise: TEXT old_value/new_value columns must store a stable string, not
+// '[object Object]'. Wraps non-primitive values in JSON.stringify.
 function stringifyOrNull(v: unknown): string | null {
   if (v == null) return null;
+  return canonicalize(v);
+}
+
+function canonicalize(v: unknown): string {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'object') return JSON.stringify(v);
   return String(v);
 }

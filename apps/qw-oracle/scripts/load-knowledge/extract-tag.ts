@@ -17,7 +17,7 @@ import { execSync, spawnSync } from 'node:child_process';
 import { existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import type Database from 'better-sqlite3';
+import type postgres from 'postgres';
 import { loadVersion } from './load-version.js';
 import { loadAssets } from './load-assets.js';
 import { loadReleaseNotes, projectHasGithubUpstream } from './load-release-notes.js';
@@ -184,7 +184,7 @@ const LEGACY_EXTRACTORS_FTE: ReadonlyArray<{ script: string; output: string }> =
 const EXTRACTOR_VERSION_DEFAULT = 'clang-ezquake-unified@1.0.0';
 
 export interface ExtractTagOptions {
-  db: Database.Database;
+  sql: postgres.Sql;
   project: Project;
   version: string;
   ordinal: number;
@@ -326,8 +326,8 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
       console.warn(`[extract-tag] missing ${jsonFile}; skipping type=${type}`);
       continue;
     }
-    const result = loadVersion({
-      db: options.db,
+    const result = await loadVersion({
+      sql: options.sql,
       project: options.project,
       version: options.version,
       type,
@@ -352,8 +352,8 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
         `Run build-asset-bundle for ${options.project}:${options.version} before extract-tag.`,
       );
     }
-    assets = loadAssets({
-      db: options.db,
+    assets = await loadAssets({
+      sql: options.sql,
       project: options.project,
       version: options.version,
       jsonPath: bundlePath,
@@ -370,7 +370,7 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
   const token = options.githubToken ?? process.env.GITHUB_TOKEN;
   if (!options.skipReleaseNotes && token && projectHasGithubUpstream(options.project)) {
     const rn = await loadReleaseNotes({
-      db: options.db,
+      sql: options.sql,
       project: options.project,
       version: options.version,
       githubToken: token,

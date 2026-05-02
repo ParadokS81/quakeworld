@@ -1,16 +1,22 @@
-// Uses node:test + tsx because better-sqlite3 is a native Node addon that
-// Bun cannot load. Run with: tsx --test scripts/load-knowledge/load-maps.test.ts
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import Database from 'better-sqlite3';
-import { applySchema } from './schema.js';
+// Integration tests against the qw_oracle_test Postgres database (D13).
+// Run via `bun test` after `DATABASE_URL` is exported. The test runner script
+// in package.json sets DATABASE_URL automatically.
+
+import { describe, it, expect, beforeEach, afterAll } from 'bun:test';
+import postgres from 'postgres';
+import { runMigrations } from '../../db/migrate.js';
 import { loadMapsFromArray, type MapAstRecord } from './load-maps.js';
 
-function newDb(): Database.Database {
-  const db = new Database(':memory:');
-  applySchema(db);
-  return db;
+const url = process.env.DATABASE_URL;
+if (!url) throw new Error('DATABASE_URL is not set');
+if (!url.includes('qw_oracle_test')) {
+  throw new Error(
+    `Refusing to run load-maps.test.ts against a non-test database. ` +
+    `DATABASE_URL must include "qw_oracle_test"; got: ${url}`,
+  );
 }
+
+const sql = postgres(url, { onnotice: () => {} });
 
 const SAMPLE: MapAstRecord = {
   canonical_name: 'dm3',
@@ -42,52 +48,66 @@ const SAMPLE: MapAstRecord = {
 };
 
 describe('loadMapsFromArray', () => {
-  it('inserts a single record', () => {
-    const db = newDb();
-    const result = loadMapsFromArray(db, [SAMPLE]);
-    assert.equal(result.inserted, 1);
-    assert.equal(result.updated, 0);
-    const row = db.prepare(`SELECT canonical_name, display_name, popularity_rank
-                            FROM maps WHERE canonical_name = ?`).get('dm3') as any;
-    assert.equal(row.canonical_name, 'dm3');
-    assert.equal(row.display_name, 'The Abandoned Base');
-    assert.equal(row.popularity_rank, 10);
+  beforeEach(async () => {
+    await runMigrations(sql);
+    await sql`TRUNCATE maps`;
   });
 
-  it('upsert is idempotent and updates an existing row', () => {
-    const db = newDb();
-    loadMapsFromArray(db, [SAMPLE]);
+  afterAll(async () => {
+    await sql.end();
+  });
+
+  it('inserts a single record', async () => {
+    const result = await loadMapsFromArray(sql, [SAMPLE]);
+    expect(result.inserted).toBe(1);
+    expect(result.updated).toBe(0);
+    const rows = await sql<Array<{ canonical_name: string; display_name: string | null; popularity_rank: number | null }>>`
+      SELECT canonical_name, display_name, popularity_rank
+      FROM maps WHERE canonical_name = ${'dm3'}
+    `;
+    expect(rows[0]!.canonical_name).toBe('dm3');
+    expect(rows[0]!.display_name).toBe('The Abandoned Base');
+    expect(rows[0]!.popularity_rank).toBe(10);
+  });
+
+  it('upsert is idempotent and updates an existing row', async () => {
+    await loadMapsFromArray(sql, [SAMPLE]);
     const updated = { ...SAMPLE, popularity_rank: 12, popularity_total: 50000 };
-    const result = loadMapsFromArray(db, [updated]);
-    assert.equal(result.inserted, 0);
-    assert.equal(result.updated, 1);
-    const row = db.prepare(`SELECT popularity_rank, popularity_total
-                            FROM maps WHERE canonical_name = ?`).get('dm3') as any;
-    assert.equal(row.popularity_rank, 12);
-    assert.equal(row.popularity_total, 50000);
+    const result = await loadMapsFromArray(sql, [updated]);
+    expect(result.inserted).toBe(0);
+    expect(result.updated).toBe(1);
+    const rows = await sql<Array<{ popularity_rank: number; popularity_total: number }>>`
+      SELECT popularity_rank, popularity_total
+      FROM maps WHERE canonical_name = ${'dm3'}
+    `;
+    expect(rows[0]!.popularity_rank).toBe(12);
+    expect(rows[0]!.popularity_total).toBe(50000);
   });
 
-  it('JSON columns are stringified arrays/objects', () => {
-    const db = newDb();
-    loadMapsFromArray(db, [SAMPLE]);
-    const row = db.prepare(`SELECT item_summary_json, features_json, inferred_gamemodes_json
-                            FROM maps WHERE canonical_name = ?`).get('dm3') as any;
-    const items = JSON.parse(row.item_summary_json);
-    assert.equal(items.lg, 1);
-    const features = JSON.parse(row.features_json);
-    assert.equal(features.has_water, true);
-    const modes = JSON.parse(row.inferred_gamemodes_json);
-    assert.deepEqual(modes, ['4on4']);
+  it('JSON columns round-trip as JS values (postgres-js auto-decodes JSONB)', async () => {
+    await loadMapsFromArray(sql, [SAMPLE]);
+    const rows = await sql<Array<{
+      item_summary_json: Record<string, number>;
+      features_json: { has_water: boolean; has_lava: boolean; has_slime: boolean; teleporters: number };
+      inferred_gamemodes_json: string[];
+    }>>`
+      SELECT item_summary_json, features_json, inferred_gamemodes_json
+      FROM maps WHERE canonical_name = ${'dm3'}
+    `;
+    expect(rows[0]!.item_summary_json.lg).toBe(1);
+    expect(rows[0]!.features_json.has_water).toBe(true);
+    expect(rows[0]!.inferred_gamemodes_json).toEqual(['4on4']);
   });
 
-  it('NULL popularity columns when stats absent', () => {
-    const db = newDb();
+  it('NULL popularity columns when stats absent', async () => {
     const noPop = { ...SAMPLE, canonical_name: 'unknownmap',
                     popularity_total: null, popularity_by_mode: null, popularity_rank: null };
-    loadMapsFromArray(db, [noPop]);
-    const row = db.prepare(`SELECT popularity_rank, popularity_by_mode_json
-                            FROM maps WHERE canonical_name = ?`).get('unknownmap') as any;
-    assert.equal(row.popularity_rank, null);
-    assert.equal(row.popularity_by_mode_json, null);
+    await loadMapsFromArray(sql, [noPop]);
+    const rows = await sql<Array<{ popularity_rank: number | null; popularity_by_mode_json: unknown }>>`
+      SELECT popularity_rank, popularity_by_mode_json
+      FROM maps WHERE canonical_name = ${'unknownmap'}
+    `;
+    expect(rows[0]!.popularity_rank).toBeNull();
+    expect(rows[0]!.popularity_by_mode_json).toBeNull();
   });
 });
