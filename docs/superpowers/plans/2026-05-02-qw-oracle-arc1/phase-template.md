@@ -150,11 +150,18 @@ The drafter applies the sub-agent's findings to the phase MD before declaring th
 
 ---
 
-## Phase MD length budget
+## Phase MD length
 
-Soft target: 500 lines max per phase MD. Hard limit: 800 lines.
+There is no hard cap. Length follows from the work the phase requires. Phase 2 (schema port for 31 tables + loader port for 17+ adapter files) and Phase 6 (MCP rewrite for 11 tools + new transport + new tools) will be longer than Phase 1 (foundation) or Phase 7 (observability cheatsheet). That's correct.
 
-If a phase exceeds 800 lines, split it into sub-phases (`phase-2a-*.md`, `phase-2b-*.md`) with the same template. Update `README.md` to link both.
+What matters is whether the phase MD reads end-to-end as a coherent unit. Apply judgement at the ~600-1000 line range:
+
+- **Split** if the phase has two natural sub-deliverables that could ship as separate commits (e.g., Phase 2 might split into `phase-2a-schema-port.md` and `phase-2b-loader-port.md` if the schema-only commit is independently runnable). Update `README.md` to link both.
+- **Don't split** if splitting forces shared state or context to be duplicated across files. A 1200-line phase that's one coherent unit beats two 600-line phases that both need the same preamble.
+
+Cutting tasks, hand-waving file lists, or dropping verification to "fit" is the wrong move every time. The whole point of restructuring was to land complete, verifiable plans — length is a side effect, not a constraint.
+
+If the drafter is unsure whether to split, default to NOT splitting and surface the question in the phase's "Open questions" section for operator review.
 
 ---
 

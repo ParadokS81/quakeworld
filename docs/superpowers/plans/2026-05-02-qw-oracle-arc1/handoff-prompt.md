@@ -95,8 +95,10 @@ Concrete authoring rules (from decisions.md):
 - Eval and calibration sets are disjoint (D10). Score out-of-corpus by
   match_quality, not hit count (D11).
 - Embedding-space sanity check at MCP startup (D8).
-- Phase MDs are 500 lines target, 800 hard cap. Split into sub-phases
-  (phase-2a, phase-2b) if it grows past 800.
+- Phase MDs have no hard length cap. Length follows from the work.
+  Don't cut tasks or hand-wave file lists to fit a target. See
+  "Phase MD length" in phase-template.md for split-vs-don't-split
+  guidance — default to not splitting if unsure.
 
 STEP-BY-STEP:
 
