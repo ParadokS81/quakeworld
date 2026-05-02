@@ -1,5 +1,6 @@
 ---
 title: "The .kmap legacy keymap system and its persistence via nQuake"
+summary: "Why .kmap files keep showing up in modern QuakeWorld installs even though ezQuake removed the loader in 2014 - they ship inside nQuake's stale bundle. If you find one, it does nothing."
 slug: kmap-legacy-keymap-system
 topic: asset-lifecycle
 status: draft

@@ -1,5 +1,6 @@
 ---
 title: "Completing legacy FTE protocol extensions in ezQuake 3.6.6"
+summary: "Two FTE protocol extensions ezQuake had carried as half-implementations for a decade got finished in 3.6.6 - and why finishing a long-dormant extension forces a compatibility gate to stop fixed servers desyncing older clients."
 slug: completing-legacy-fte-protocol-extensions
 topic: domain-guide
 status: draft

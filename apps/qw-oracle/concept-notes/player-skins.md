@@ -1,5 +1,6 @@
 ---
 title: "Player skins: identification, visibility, and tracking in QuakeWorld"
+summary: "The full skin and identification system: how to make enemies, teammates, dead bodies, and powerup-carriers visually distinct. Covers the 25+ cvars, force-skin behaviour, and color-mode interactions you usually trip over."
 slug: player-skins
 topic: domain-guide
 status: draft

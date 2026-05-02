@@ -1,5 +1,6 @@
 ---
 title: "QW competitive ruleset anti-script restriction pattern"
+summary: "How competitive rulesets (qcon, smackdown, thunderdome, smackdrive) prevent client-side scripting and timing exploits - including the five new restriction primitives 3.6.6 added to close bypass paths older gates missed."
 slug: ruleset-anti-script-restriction-pattern
 topic: security-policy
 status: draft

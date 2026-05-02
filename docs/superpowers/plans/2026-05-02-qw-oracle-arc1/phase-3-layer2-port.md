@@ -1529,9 +1529,7 @@ Phase 4 inputs: this state, plus the Layer 3 concept-note source files at `apps/
    **Default chosen for now:** INTEGER for these two bookkeeping tables (their max row count is in the hundreds; INTEGER's 2^31 ceiling is safe). Phase 2's BIGINT rule is for tables that may grow into millions over a long deployment; bookkeeping tables don't.
    **Who can resolve:** operator if a future audit calls for uniform BIGINT.
 
-6. **Question:** `messages.platform` is preserved as a column with `CHECK (platform = 'discord')` rather than dropped entirely. D9-revised allowed either shape ("the column is removed entirely if a single-platform contract is cleaner"). Should it be dropped to keep the schema cleaner?
-   **Default chosen for now:** Keep the column. Future Arc 3 reconsideration of IRC after a successful codepage re-import becomes a one-line CHECK widening rather than a schema migration. `sessions.platform` and `session_search.platform` follow for consistency. The cost of the redundant column is one TEXT field per row, always equal to `'discord'`; the value is a low-friction Arc 3 path.
-   **Who can resolve:** operator at any phase boundary. Removal is a `DROP COLUMN` on three tables; cheap. If operator confirms IRC will not return regardless of Arc 3 outcome, dropping the columns plus the CHECK constraints is a 4-line migration.
+6. **Resolved 2026-05-02:** `messages.platform` (and the symmetric columns on `sessions`, `session_search`, `import_log`) is **kept** with `CHECK (platform = 'discord')`. Operator confirmed: Arc 3 reconsideration becomes a one-line `ALTER TABLE ... DROP CONSTRAINT ... ADD CONSTRAINT ... CHECK (platform IN ('discord', 'irc'))`; dropping would force a column-add migration plus a backfill of existing rows in Arc 3 (order of magnitude more work). The redundant-column cost is negligible (4 bytes per row at most), and asymmetric drops vs. `sessions` / `session_search` / `import_log` would be a code smell. No further action - the migration in Task 1 already encodes this.
 
 ## Recovery (if verification fails)
 

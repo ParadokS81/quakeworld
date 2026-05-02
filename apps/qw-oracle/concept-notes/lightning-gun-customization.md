@@ -1,5 +1,6 @@
 ---
 title: "Customizing the Lightning Gun in QuakeWorld"
+summary: "Tune the LG beam the way you want - color, thickness, brightness, fakeshaft prediction - without falling foul of competitive ruleset checks. Maps every visual cvar to what it actually does on screen."
 slug: lightning-gun-customization
 topic: domain-guide
 status: draft

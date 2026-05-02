@@ -1,5 +1,6 @@
 ---
 title: "Engine-internal vs player-facing files in a QuakeWorld install"
+summary: "When tooling explodes a Quake install (pak/pk3 contents, downloaded assets), some files are stuff a player edits and some are stuff the engine reads silently. They look identical on disk; this note is the axis for telling them apart."
 slug: engine-internal-vs-player-facing-files
 topic: classifier-metadata
 status: draft

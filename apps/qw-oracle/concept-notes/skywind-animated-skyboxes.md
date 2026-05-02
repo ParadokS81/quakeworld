@@ -1,5 +1,6 @@
 ---
 title: "Skywind: animated skyboxes ported from IronWail"
+summary: "Skywind animates a skybox by blending its alpha channel against itself to drift clouds. Landed in 3.6.6 ported from IronWail; needs an alpha-channel skybox plus a per-skybox config sidecar to produce anything visible."
 slug: skywind-animated-skyboxes
 topic: domain-guide
 status: draft

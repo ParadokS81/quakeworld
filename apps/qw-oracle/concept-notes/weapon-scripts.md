@@ -1,5 +1,6 @@
 ---
 title: "QuakeWorld weapon scripts: the three practical methods"
+summary: "How to create weapon scripts for manual selection or quickfire. Covers weapon select priorities and settings to not drop weapons in backpack on death."
 slug: weapon-scripts
 topic: domain-guide
 status: draft

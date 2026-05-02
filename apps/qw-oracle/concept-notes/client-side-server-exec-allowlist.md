@@ -1,5 +1,6 @@
 ---
 title: "Client-side server-exec allowlist: guarding the client against hostile servers"
+summary: "Before ezQuake 3.6.6, a hostile server could push arbitrary commands to your client and execute them on your PC - up to and including destructive ones like wiping files. The release introduces three policy cvars and four adjacent fixes that close the surface."
 slug: client-side-server-exec-allowlist
 topic: security-policy
 status: draft
