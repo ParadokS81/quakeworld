@@ -670,11 +670,16 @@ export async function upsertConcept(c: ParsedConcept): Promise<{ slug: string; c
     `;
     const skipChunks = existing.length > 0 && existing[0]!.body_sha256 === c.bodySha256;
 
+    // frontmatter is JSONB. Pass via tx.json(value as never) per the
+    // qw-oracle CLAUDE.md always-on rule: pre-stringifying with
+    // JSON.stringify(...)::jsonb stores a JSONB string scalar (the legacy
+    // SQLite-era TEXT bug Phase 2 fixed). Phase 2/3 code (load-knowledge,
+    // load-chat) all use tx.json(... as never); Phase 4 matches.
     await tx`
       INSERT INTO concepts (slug, title, summary, body, shape, frontmatter, body_sha256, updated_at)
       VALUES (
         ${c.slug}, ${c.title}, ${c.summary}, ${c.body}, ${c.shape},
-        ${JSON.stringify(c.frontmatter)}::jsonb, ${c.bodySha256}, now()
+        ${tx.json(c.frontmatter as never)}, ${c.bodySha256}, now()
       )
       ON CONFLICT (slug) DO UPDATE SET
         title       = EXCLUDED.title,
@@ -1148,12 +1153,22 @@ docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d
 PASS condition: returns at least one slug (e.g. `weapon-scripts`, which has `ezquake:commit:7c328aa4` in its frontmatter at draft time).
 
 ```
-# 10. Bidirectional graph reverse-lookup index works.
+# 9b. F1.jsonb_columns_not_strings regression gate (Phase 4 adds 1 JSONB col).
 docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "
+  SELECT 'concepts.frontmatter' AS probe, COUNT(*) AS bad_rows
+  FROM concepts WHERE jsonb_typeof(frontmatter) = 'string'
+"
+```
+PASS condition: `bad_rows = 0`. If non-zero, the upsert path regressed to pre-stringifying JSONB (the Phase 2 bug pattern). Fix in `scripts/load-concepts/upsert.ts` -- pass JS objects via `tx.json(... as never)`, never `JSON.stringify(...)::jsonb`.
+
+```
+# 10. Bidirectional graph reverse-lookup index exists and is usable.
+docker compose -f db/docker-compose.dev.yml exec -T postgres psql -U qworacle -d qw_oracle -c "
+  SET LOCAL enable_seqscan = OFF;
   EXPLAIN SELECT concept_slug FROM concept_entities WHERE entity_canonical_id = 'ezquake:cvar:cl_weaponpreselect'
 "
 ```
-PASS condition: plan uses `Index Scan using concept_entities_entity` (or `Bitmap Index Scan using concept_entities_entity`); not `Seq Scan`.
+PASS condition: plan uses `Index Scan using concept_entities_entity` (or `Bitmap Index Scan using concept_entities_entity`). `enable_seqscan = OFF` is forced because at Phase 4 row counts (~9 concepts, ~30-50 entity edges) the planner will rationally pick Seq Scan -- the index existing and being usable when forced is what we are verifying. Step 4 already confirmed the index exists; step 10 confirms it is wired correctly enough to be picked under planner pressure.
 
 ```
 # 11. Tests green.
@@ -1248,6 +1263,12 @@ Sub-agent run: 2026-05-02. Findings (under 400 words) reported the following.
 **ADVISORY items:** all confirmatory ("partition rule covers commit/pr/extension - all three present in live frontmatter"; "chunker tests cover both sentence-break and char-window paths"; "FK comments match SQL"; "no F-finding misclaim"; "`import.meta.main` D2-compliant"; "verification SQL parses on PG 16 including `jsonb_path_exists` with `like_regex`"). No changes.
 
 No sub-agent finding contradicts `decisions.md`. Nothing was rejected on D-doc grounds.
+
+**Orchestrator post-approval audit (2026-05-02, before execution):** caught two issues the drafter's sub-agent missed.
+
+- **CRITICAL: JSONB pre-stringify regression in `upsert.ts`.** Original code block had `${JSON.stringify(c.frontmatter)}::jsonb` -- the exact pattern Phase 2's loader fix replaced with `tx.json(... as never)`. The qw-oracle CLAUDE.md always-on rule names this explicitly: "JSONB columns receive JS values, not pre-stringified JSON ... pre-stringifying stores a JSONB string scalar (the legacy SQLite-era TEXT bug)." Phase 2/3 codebases (`load-knowledge`, `load-chat`) all use `tx.json`. Fix applied in upsert.ts code block + a comment naming the rule. Verification block gained a step 9b: `jsonb_typeof(frontmatter) = 'string'` regression gate, mirroring Phase 2's F1 probe.
+
+- **YELLOW: Verification step 10 EXPLAIN flake on tiny tables.** Original PASS condition demanded `Index Scan` and rejected `Seq Scan`. At Phase 4 row counts (~9 concepts, ~30-50 entity edges) the Postgres planner will rationally pick Seq Scan because heap I/O is cheaper than index lookup on a single-page table. Amended step 10 to force `SET LOCAL enable_seqscan = OFF` so the test verifies the index is wired correctly under planner pressure rather than betting on row-count thresholds. Step 4 still verifies the index physically exists.
 
 ---
 
