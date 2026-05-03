@@ -5,7 +5,7 @@
 // dev data.
 
 import { describe, expect, test, beforeEach, afterAll } from 'bun:test';
-import { db, closeDb } from '../../shared/db.ts';
+import { db } from '../../shared/db.ts';
 import { upsertConcept } from './upsert.ts';
 import type { ParsedConcept, ChunkWithHash } from './parse.ts';
 
@@ -53,7 +53,6 @@ describe('upsertConcept', () => {
   });
   afterAll(async () => {
     await db`DELETE FROM concepts WHERE slug = ${SLUG}`;
-    await closeDb();
   });
 
   test('inserts a new concept with chunks, entity-graph, concept-graph rows', async () => {

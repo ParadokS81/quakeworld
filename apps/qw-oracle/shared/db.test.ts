@@ -1,8 +1,8 @@
 // apps/qw-oracle/shared/db.test.ts
 //
 // Integration test - runs against qw_oracle_test (set by the npm test script).
-import { describe, expect, test, afterAll } from 'bun:test';
-import { db, closeDb } from './db.ts';
+import { describe, expect, test } from 'bun:test';
+import { db } from './db.ts';
 
 const url = process.env.DATABASE_URL;
 if (!url || !url.includes('qw_oracle_test')) {
@@ -13,8 +13,6 @@ if (!url || !url.includes('qw_oracle_test')) {
 }
 
 describe('shared db client', () => {
-  afterAll(async () => { await closeDb(); });
-
   test('connects and runs a trivial query', async () => {
     const rows = await db<{ one: number }[]>`SELECT 1::int AS one`;
     expect(rows[0]!.one).toBe(1);
