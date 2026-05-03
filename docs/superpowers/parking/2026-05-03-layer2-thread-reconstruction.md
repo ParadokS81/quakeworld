@@ -127,14 +127,23 @@ For each within-session thread proposal from Stage 2, embed the topic label usin
 
 This stage uses cheap embedding ops over a derived corpus (~tens of thousands of thread summaries rather than per-message pairwise classification). The literature has nothing on cross-month topic linkage in chat, but recasting it as embedding-similarity clustering side-steps the missing-precedent problem -- this part is GraphRAG-style community detection, which is a known pattern.
 
-**Stage 4: Final summary + embed at thread granularity (with status tagging).**
+**Stage 4: Final summary + embed at thread granularity (with status tagging + bucket tagging).**
 
-Each merged thread gets a final topic summary (LLM with primer) and topic embedding (Voyage). The same call also assigns `resolution_status`:
+Each merged thread gets a final topic summary (LLM with primer) and topic embedding (Voyage). The same call also assigns two structural fields:
+
+`resolution_status`:
 - `solved` -- the thread reached a clear conclusion (a fix, a confirmed answer, a working procedure).
 - `unresolved` -- a question or problem was raised and the thread petered out without a clear resolution.
 - `informational` -- a discussion / debate / share-out that did not need to "resolve" (announcements, banter that survived pruning, news).
 
-The summary + embedding are what `search_solved_issues` ultimately retrieves against. The status tag is structural metadata for operator-side analysis, not a retrieval filter.
+`buckets` (added 2026-05-03 per the bucket framework parking doc; cross-ref `2026-05-03-layer3-multidomain-bucket-framework.md`):
+- A multi-tag set drawn from `engine-config / engine-content / visual-customization / system / hardware / peripherals / network / server-side / community`.
+- Stage 4's primer asks sonnet to identify which buckets contributed to the question AND which buckets contributed to the answer.
+- Cross-domain threads (question-buckets ≠ answer-buckets, or the answer spans multiple buckets) are flagged as L3 concept-note candidates by construction.
+
+The summary + embedding are what `search_solved_issues` ultimately retrieves against. Both `resolution_status` and `buckets` are structural metadata for operator-side analysis, not retrieval filters.
+
+**The `buckets` field unifies this work with the showcase-site lockstep flagging architecture** (cross-ref `2026-04-30-qw-oracle-showcase-site-contributor-pipeline.md` "Lockstep flagging architecture" section). Threads tagged with bucket combinations that cross domain boundaries are the source signal that drives L3 concept-note authoring; concept notes inherit the same bucket taxonomy in their frontmatter; the showcase site's wiki entries inherit it from the concept notes. One taxonomy, three surfaces, lockstep contract between them.
 
 **Why this 5-stage shape compounds:**
 

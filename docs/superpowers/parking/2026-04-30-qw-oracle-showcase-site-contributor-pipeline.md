@@ -1,8 +1,65 @@
 # qw-oracle showcase site + contributor pipeline (2026-04-30)
 
 **Added:** 2026-04-30 (consolidated from sidequests "Workstream B: concept-note authoring scaffolding" and "Workstream C: /docs ingest pipeline prep" during HANDOVER triage).
-**Status:** **Active; design landed 2026-05-01.** Trigger (d) fired -- operator committed to building the showcase site. Design captured in `docs/superpowers/specs/2026-05-01-qw-oracle-showcase-site-design.md`. Next step is claude.ai/design mockup pass, then implementation plan.
+**Status:** **Active; design landed 2026-05-01; lockstep architecture added 2026-05-03.** Trigger (d) fired -- operator committed to building the showcase site. Design captured in `docs/superpowers/specs/2026-05-01-qw-oracle-showcase-site-design.md`. Next step is claude.ai/design mockup pass, then implementation plan.
 **Pressure:** Medium. Slipgate Managed Mode arc remains higher pressure; showcase work is paced around it.
+
+## Lockstep flagging architecture (added 2026-05-03)
+
+**Why this section exists.** The original parking doc framed the showcase site as a discoverability + contribution surface paired with the MCP-internal concept-note corpus. The 2026-05-03 Phase 8 eval-set walkthrough surfaced that the public wiki and the MCP concept notes are not just "two surfaces" -- they need to be **operationally coupled** to fight staleness. Without this coupling, the wiki rots like every internet guide (the operator's own framing) and the concept notes drift from the wiki's authoritative claims. This section names the coupling.
+
+The L3 multi-domain expansion sibling parking doc (`2026-05-03-layer3-multidomain-bucket-framework.md`) is the other half of this architecture; this doc owns the staleness machinery, the L3-multidomain doc owns the bucket framework that drives note categorization.
+
+### The bidirectional flag contract
+
+Two surfaces, one source of truth, lockstep flagging:
+
+| Trigger | Flags |
+|---|---|
+| L1 entity changes (renamed, retired, new) | Related concept note + corresponding wiki entry |
+| New L1 entity introduced | Scan all concept notes -- does any note's topic now have a new lever it should mention? (Semantic match, not FK lookup; LLM job.) |
+| Concept note edited | Corresponding wiki entry "review me" |
+| Wiki entry edited | Corresponding concept note "review me" |
+
+The wiki entry is **human-facing** (browsable, link-shareable in Discord, contributor-PR-able). The concept note is **LLM-facing** (terse, structured for retrieval, RRF-friendly). Both express the same underlying claim, in different presentations.
+
+**Surface wording can diverge intentionally.** The wiki needs narrative + screenshots + worked examples for humans. The concept note needs claim density for LLM retrieval. Same authoritative content, two presentations. The lockstep flag enforces "if you change the underlying truth on either surface, you must update the other"; it does NOT enforce "the surfaces must read identically." That's the right contract -- it preserves wording flexibility while guaranteeing factual consistency.
+
+### Domain-aware decay rates
+
+Engine-topics and system-topics decay differently. The flag mechanism handles both, but with different signals:
+
+**Engine-topic notes:** L1-driven flags. When ezQuake retires `vid_renderer 0`, the concept note flags (via the `concept_entities` FK-not-FK pattern already in place since Phase 4), the wiki entry flags (via the lockstep contract). World stable inside QW corpus; signals deterministic.
+
+**System-topic notes:** time-driven flags. The cited L1 entity might never change -- but the *advice* changes when Wayland ships a new release, NVIDIA changes their driver behavior, Microsoft pushes a Windows update. Pragmatic answer: notes carry a `recheck_after` frontmatter field. After that date, the note auto-flags for review. Cadence per topic calibrated to how fast that domain moves (Wayland-related: 6 months; HDR display tech: 12 months; "how to register a USB joystick on Linux": 24 months).
+
+The schema supports both flavors without changes: `frontmatter` is JSONB, takes whatever fields the authoring conventions define.
+
+### The flag queue and who acts on it
+
+**Where flags live:** open question. Three options under consideration:
+
+1. **GitHub Issues** auto-created against the showcase site repo. Pros: visible, contributor-actionable, integrates with existing review-gate mechanism. Cons: requires showcase site repo to exist + bot to create issues.
+2. **A `flagged_concepts` table** in qw-oracle Postgres, surfaced via a new MCP tool (`list_flagged_notes`) or via a public dashboard endpoint. Pros: lives next to the data; queryable. Cons: needs UI work to be useful for non-MCP-consumers.
+3. **`concepts.frontmatter.staleness_status`** field, set by the loader when L1/wiki/time triggers fire. Pros: simplest schema-wise. Cons: harder to discover (not pushed anywhere; operator has to query for it).
+
+Decision deferred until showcase-site implementation phase begins. Likely answer is GitHub Issues for the wiki-side review queue, frontmatter-status for the concept-note-internal staleness state. Both compatible.
+
+**Who acts on the flag:** primary author is the operator + Claude during authoring sessions; community contributors via PR once the showcase site opens to dev-server members (per the original "Audience: dev-server first, public later" section below).
+
+### Connection to the L1 reverse-lookup direction
+
+The "new L1 entity introduced → which concept notes should mention it?" direction is the harder half of the contract. FK lookup handles the reverse (entity-to-note); the forward direction (entity-to-relevant-notes) needs semantic matching.
+
+**Approach:** when a new L1 entity lands (loader detects via `entities.first_seen_version` matching the latest extract), embed the entity's description and run a similarity search against `concept_chunks.embedding`. Concept notes whose chunks score above a threshold are flagged as "potentially affected -- review me." This is one Voyage call per new entity (cheap; happens at extract time) plus one similarity search (free).
+
+This piggybacks on the Phase 5 / Phase 6 embedding infrastructure -- no new pipelines, just a new code path inside the loader.
+
+### Cross-references for this section
+
+- `2026-05-03-layer3-multidomain-bucket-framework.md` -- the bucket framework + recipe-shape-vs-encyclopedia decision that this lockstep architecture serves.
+- `apps/qw-oracle/docs/phase-8-eval-candidates.md` -- the helpdesk scan whose multi-domain failures motivated this whole conversation.
+- Phase 4 schema (`apps/qw-oracle/db/migrations/005_layer3_concepts.sql`) -- already supports the data model required (FK-not-FK on `concept_entities.entity_canonical_id`, JSONB `frontmatter`).
 
 ## What changed at 2026-05-01 (trigger firing)
 
