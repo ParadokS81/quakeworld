@@ -8,20 +8,14 @@ services:
     env_file: .env
     restart: unless-stopped
     ports:
-      - "${HEALTH_PORT:-3000}:3000"
+      # Health endpoint -- bound to localhost so it's only reachable via SSH-then-curl.
+      # Override HEALTH_BIND in .env to a Tailscale IP if you need cross-host probes.
+      - "${HEALTH_BIND:-127.0.0.1}:${HEALTH_PORT:-3000}:3000"
     deploy:
       resources:
         limits:
-          cpus: '4'
+          cpus: '8'
           memory: 8G
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
   mumble:
     image: mumblevoip/mumble-server:latest

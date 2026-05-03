@@ -4,6 +4,14 @@ import { MumbleManager } from './mumble-manager.js';
 import { UserManager } from './user-manager.js';
 import { RosterSync } from './roster-sync.js';
 
+function requireMumblePublicHost(): string {
+  const host = process.env.MUMBLE_PUBLIC_HOST || process.env.MUMBLE_HOST;
+  if (!host) {
+    throw new Error('MUMBLE_PUBLIC_HOST (or MUMBLE_HOST) must be set to activate a Mumble channel');
+  }
+  return host;
+}
+
 export class MumbleConfigListener {
   private unsubscribePending: (() => void) | null = null;
   private unsubscribeDisabling: (() => void) | null = null;
@@ -103,7 +111,7 @@ export class MumbleConfigListener {
         channelId: channel.channelId,
         channelName: channel.channelName,
         channelPath: channel.channelPath,
-        serverAddress: process.env.MUMBLE_PUBLIC_HOST || process.env.MUMBLE_HOST || '83.172.66.214',
+        serverAddress: requireMumblePublicHost(),
         serverPort: parseInt(process.env.MUMBLE_PORT || '64738', 10),
         status: 'active',
         activatedAt: new Date(),
