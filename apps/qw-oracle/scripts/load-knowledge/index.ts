@@ -3,7 +3,7 @@
 // CLI dispatcher: load-knowledge <subcommand> [...args]
 // Subcommands: load-version, diff, enrich, load-assets, release-notes,
 //              extract-tag, prune-cross-type-orphans, review, quality-grid,
-//              build-snapshot, load-maps, load-gameplay
+//              build-snapshot, load-maps, load-gameplay, re-derive
 
 import { parseArgs } from 'util';
 import { dirname, join } from 'path';
@@ -35,6 +35,7 @@ async function main(): Promise<void> {
   if (subcommand === 'build-snapshot')            { await runBuildSnapshot(rest); return; }
   if (subcommand === 'load-maps')                 { await runLoadMaps(rest); return; }
   if (subcommand === 'load-gameplay')             { await runLoadGameplay(rest); return; }
+  if (subcommand === 're-derive')                 { await runReDerive(rest); return; }
 
   if (subcommand === 'full') {
     throw new Error(`subcommand 'full' is out of scope for Phase 2b; run load-version + diff + enrich manually.`);
@@ -83,6 +84,15 @@ Subcommands:
                 Load id1 game-mechanics seed YAML (37 entity defs + 41
                 mechanics) into gameplay_* tables (schema v14). Defaults
                 to scripts/extractors/qw/seeds/id1-gameplay.yaml.
+  re-derive     [--project <p>] [--type <t>]
+                Re-run the derive-entity-description step over existing
+                rows without re-loading from extractor JSON. Use when
+                the derive logic changes (e.g. concat formula updates)
+                and the search corpus needs to be rebuilt. Flips
+                description_embedding_stale=TRUE on every touched row;
+                the next embed-entities pass picks up the changed rows
+                via the description_embedding_sha256 hash check.
+                Defaults to all projects, all derivable types.
 `.trim());
   process.exit(2);
 }
@@ -476,6 +486,53 @@ async function runLoadGameplay(args: string[]): Promise<void> {
     );
     process.exitCode = 1;
   }
+}
+
+async function runReDerive(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      project: { type: 'string' },
+      type: { type: 'string' },
+    },
+  });
+
+  const { deriveEntityDescriptionsForVersion } = await import('./derive-entity-description.js');
+
+  // Find every (project, type, last_seen_version) tuple present in the
+  // current entities table, optionally filtered by --project / --type.
+  // We derive against the version recorded as last_seen_version because
+  // that is the version whose per-version row currently feeds entities.description.
+  const projectClause = values.project ? sql`AND project = ${values.project}` : sql``;
+  const typeClause = values.type ? sql`AND type = ${values.type}` : sql``;
+
+  const tuples = await sql<{ project: Project; type: EntityType; version: string; n: number }[]>`
+    SELECT project, type, last_seen_version AS version, COUNT(*)::int AS n
+    FROM entities
+    WHERE last_seen_version IS NOT NULL
+      ${projectClause}
+      ${typeClause}
+    GROUP BY project, type, last_seen_version
+    ORDER BY project, type, last_seen_version
+  `;
+
+  if (tuples.length === 0) {
+    console.log('re-derive: no matching (project, type, version) tuples — nothing to do');
+    return;
+  }
+
+  console.log(`re-derive: ${tuples.length} (project, type, version) tuples covering ${tuples.reduce((s, t) => s + t.n, 0)} entities`);
+
+  let touched = 0;
+  await sql.begin(async (tx) => {
+    for (const t of tuples) {
+      await deriveEntityDescriptionsForVersion(tx, t.project, t.type, t.version);
+      touched += t.n;
+      console.log(`  ${t.project}/${t.type}@${t.version}: ${t.n} entities`);
+    }
+  });
+
+  console.log(`re-derive: done. ${touched} entities touched. Next embed-entities pass will pick up changed descriptions via hash check.`);
 }
 
 function defaultReviewPath(project: Project, from: string, to: string): string {

@@ -100,6 +100,47 @@ docker compose -f docker-compose.prod.yml up -d mcp
 
 Postgres state survives image redeploys (volume mount); only the MCP container is replaced.
 
+## Routine corpus refresh
+
+Use when corpus content has changed but MCP server code has not. Examples:
+new Layer 3 concept note, re-extracted ezQuake tag, derive-step bug fix, new
+chat session ingest, embedder model bump. The image redeploy section above is
+for code changes; this section is for data changes.
+
+```bash
+# from operator's WSL -- rebuild the corpus locally first
+cd /home/paradoks/projects/quakeworld/apps/qw-oracle
+
+# 1. (if relevant) re-derive descriptions after a derive-step change
+npm run load-knowledge --silent --no-workspaces -- re-derive
+
+# 2. re-embed any rows whose description text changed (hash-skip handles no-ops)
+npm run embed:entities
+
+# 3. dump from the dev container. Default is a full dump for safety;
+#    per-table dumps are an optimisation worth it for big infrequent refreshes.
+docker exec qw-oracle-postgres-dev pg_dump -U qworacle -d qw_oracle \
+  --no-owner --no-acl --clean --if-exists \
+  > /tmp/qw_oracle.sql
+
+# 4. ship to Unraid and restore over the Tailscale link
+scp /tmp/qw_oracle.sql root@100.114.81.91:/tmp/qw_oracle.sql
+ssh root@100.114.81.91 \
+  'docker exec -i qw-oracle-postgres psql -U qworacle -d qw_oracle < /tmp/qw_oracle.sql'
+
+# 5. sanity check from WSL via the Tailscale connection string
+DATABASE_URL=postgresql://qworacle:<prod-password>@100.114.81.91:5432/qw_oracle \
+  bun -e 'import postgres from "postgres"; const sql = postgres(process.env.DATABASE_URL); const r = await sql`SELECT count(*) FROM entities WHERE description IS NOT NULL`; console.log(r); await sql.end()'
+```
+
+No MCP image rebuild is needed -- the server reads live Postgres on each
+query. Open MCP queries during the restore window may briefly see stale rows;
+acceptable while the install has no real users beyond the operator.
+
+For surgical refreshes (single project, single entity type), pass per-table
+flags to pg_dump (`--table=entities --table=cvar_versions --data-only`) and
+restore without `--clean`. Default to the wholesale dump above when in doubt.
+
 ## Operator commands
 
 | Action | Command |

@@ -8,7 +8,13 @@
 //
 // Per-type sources (verified against db/migrations/002_layer1_schema.sql at
 // authoring time):
-//   cvar / command / macro / cmdline_param / hud_element -> help_desc
+//   cvar           -> help_desc + help_remarks + help_values[].description
+//                     (boolean value-names like true/false stripped, numeric
+//                     and enum names kept as `<name>: <description>` to
+//                     preserve mode-targeted query signal)
+//   command        -> help_desc + help_remarks
+//   cmdline_param  -> help_desc + help_remarks
+//   macro / hud_element                                   -> help_desc
 //   asset_category                                        -> description col
 //   ruleset / keyname                                     -> NULL (no help text)
 //   token_primitive / flag_bit / cvar_alias /
@@ -32,9 +38,27 @@ type DeriveFn = (tx: postgres.TransactionSql<{}>, project: Project, version: str
 // elsewhere are not disturbed.
 
 async function deriveCvar(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
+  // help_values is TEXT-typed (legacy SQLite carryover) carrying well-formed
+  // JSON; cast to jsonb to drive jsonb_array_elements. Boolean value-names
+  // are dropped as noise; numeric and enum names are kept as
+  // `<name>: <description>` so queries like "noskins 2" still target the
+  // right per-mode prose. NULLIF + CONCAT_WS handle the cases where any
+  // of the three sources is absent without producing empty separators.
   await tx`
     UPDATE entities SET
-      description = vt.help_desc,
+      description = NULLIF(CONCAT_WS('. ',
+        NULLIF(TRIM(vt.help_desc), ''),
+        NULLIF(TRIM(vt.help_remarks), ''),
+        (SELECT STRING_AGG(
+           CASE
+             WHEN lower(v->>'name') IN ('true','false','yes','no','on','off','*','') THEN v->>'description'
+             ELSE CONCAT(v->>'name', ': ', v->>'description')
+           END,
+           '. ' ORDER BY ordinality
+         )
+         FROM jsonb_array_elements(vt.help_values::jsonb) WITH ORDINALITY AS x(v, ordinality)
+         WHERE v->>'description' IS NOT NULL AND length(trim(v->>'description')) > 0)
+      ), ''),
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM cvar_versions vt
@@ -49,7 +73,10 @@ async function deriveCvar(tx: postgres.TransactionSql<{}>, project: Project, ver
 async function deriveCommand(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   await tx`
     UPDATE entities SET
-      description = vt.help_desc,
+      description = NULLIF(CONCAT_WS('. ',
+        NULLIF(TRIM(vt.help_desc), ''),
+        NULLIF(TRIM(vt.help_remarks), '')
+      ), ''),
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM command_versions vt
@@ -79,7 +106,10 @@ async function deriveMacro(tx: postgres.TransactionSql<{}>, project: Project, ve
 async function deriveCmdlineParam(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   await tx`
     UPDATE entities SET
-      description = vt.help_desc,
+      description = NULLIF(CONCAT_WS('. ',
+        NULLIF(TRIM(vt.help_desc), ''),
+        NULLIF(TRIM(vt.help_remarks), '')
+      ), ''),
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM cmdline_param_versions vt
