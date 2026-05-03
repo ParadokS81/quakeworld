@@ -118,8 +118,7 @@ External services and hosts that multiple apps rely on.
 
 - **QW Hub API** — `https://ncsphkjfominimxztjip.supabase.co/rest/v1/v1_games` (Supabase REST, match history) and `https://d.quake.world/{sha[0:3]}/{sha}.mvd.ktxstats.json` (ktxstats CDN, per-match stats). Read-only, no auth.
 - **Firebase project `matchscheduler-dev`** — Firestore, Storage, Cloud Functions, Auth. Shared between matchscheduler and slipgate-app. Cloud function `discordOAuthExchange` handles Discord OAuth for both.
-- **Unraid server** — Docker host for qw-stats. Reached via Tailscale at `100.114.81.91`.
-- **Xerial's server** — Docker host for quad. Reached via Tailscale (`qwvoice_key` in WSL `~/.ssh/`).
+- **Unraid server** — Docker host for quad and qw-stats. Reached via Tailscale at `100.114.81.91` (SSH alias `unraid`, key `~/.ssh/id_rsa`). Mumble server (co-runs with quad) is publicly reachable at `mumble.slipgate.me:64738` via Cloudflare DNS + home router port-forward.
 - **Deployment details** — the `deploy` skill holds deploy commands, credential locations, and rollback notes per app. Invoke with `/deploy`. Each deployed app also has its own `DEPLOYMENT.md`.
 
 ---

@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Deploy any project to production. Covers MatchScheduler (Firebase), Quad (SSH/Docker to Xerial), QW Stats (SCP/Docker to Unraid), and Slipgate App (Windows build -- workflow TBD). Use when deploying, shipping, pushing to prod, or checking deployment status.
+description: Deploy any project to production. Covers MatchScheduler (Firebase), Quad (SSH/Docker to Unraid), QW Stats (SCP/Docker to Unraid), and Slipgate App (Windows build -- workflow TBD). Use when deploying, shipping, pushing to prod, or checking deployment status.
 ---
 
 # Deploy
@@ -10,7 +10,7 @@ description: Deploy any project to production. Covers MatchScheduler (Firebase),
 | Project | Deploy command | Verify |
 |---------|---------------|--------|
 | matchscheduler | `firebase deploy --only <targets>` | https://matchscheduler-dev.web.app |
-| quad | `ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up'` | Check logs: `ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20'` |
+| quad | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose pull && docker compose up -d'` | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs --tail=20 quad'` |
 | qw-stats | `scp` files + `ssh root@100.114.81.91` rebuild | `curl https://qw-api.poker-affiliate.org/health` |
 | slipgate-app | `bun run tauri build` (Windows) / GitHub Actions | Launch the built .exe |
 
@@ -43,32 +43,41 @@ description: Deploy any project to production. Covers MatchScheduler (Firebase),
 
 For details: `apps/matchscheduler/DEPLOYMENT.md`
 
-## Quad (SSH + Docker)
+## Quad (SSH + Docker, Unraid)
 
 **SAFETY CHECK -- enforced by hook:**
-A Claude Code hook (`scripts/check-quad-recording.sh`) automatically checks the health endpoint before any deploy command to pinnaclepowerhouse. If a recording is active, the command is blocked. No manual check needed -- the hook handles it.
+A Claude Code hook (`scripts/check-quad-recording.sh`) checks the health endpoint before any `docker compose up/down/restart/stop/kill/recreate/rm` command targeting `/mnt/user/appdata/quad` on `unraid`. If a recording is active, the command is blocked. No manual check needed -- the hook handles it.
 
 **Deploy steps:**
 1. Ensure code is committed and pushed to main (GitHub Actions builds the image automatically)
-2. Wait for the GitHub Actions workflow to complete (`gh run list --workflow=quad-docker.yml --limit=1`)
+2. Wait for the GitHub Actions workflow to complete:
+   ```bash
+   gh run watch --exit-status $(gh run list --workflow=quad-docker.yml --limit=1 --json databaseId --jq '.[0].databaseId')
+   ```
 3. Deploy:
    ```bash
-   ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up'
+   ssh unraid 'cd /mnt/user/appdata/quad && docker compose pull && docker compose up -d'
    ```
 4. Verify -- check logs for successful startup:
    ```bash
-   ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20'
+   ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs --tail=20 quad'
+   ssh unraid 'curl -s http://localhost:3000/health'
    ```
 
 **Common operations:**
 | Action | Command |
 |--------|---------|
-| Live logs | `ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad logs -f'` |
-| Status | `ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad ps'` |
-| Restart (no rebuild) | `ssh pinnaclepowerhouse 'sudo qwvoice-ctl /srv/qwvoice/quad restart'` |
-| Edit .env on server | `ssh pinnaclepowerhouse 'nano /srv/qwvoice/quad/.env'` |
+| Live logs | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs -f'` |
+| Status | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose ps'` |
+| Restart (no rebuild) | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose restart'` |
+| Edit .env on server | `ssh unraid 'nano /mnt/user/appdata/quad/.env'` |
 
 Images are pre-built by GitHub Actions and pushed to ghcr.io/paradoks81/quad. Deploy pulls only changed layers (typically a few MB for code changes).
+
+**Unraid notes:**
+- Unraid does not ship `docker compose` by default. The plugin binary is at `/usr/local/lib/docker/cli-plugins/docker-compose` (tmpfs -- does not survive reboots). Re-install after reboot, or set up Compose Manager from Community Apps.
+- Mumble container co-runs alongside the bot. Mumble player endpoint is `mumble.slipgate.me:64738`. The Cloudflare A record is `DNS only` (proxy off), router port-forwards 64738 TCP+UDP to Unraid `192.168.1.205`.
+- No GPU. Whisper transcription auto-falls-back to CPU. If `/process transcribe` is too slow on the `small` model, set `WHISPER_MODEL=base` in `.env`.
 
 For details: `apps/quad/DEPLOYMENT.md`
 
@@ -111,7 +120,7 @@ For details: `apps/slipgate-app/DEPLOYMENT.md`
 
 ### Voice pipeline changes (quad -> matchscheduler)
 1. Update quad processing stages
-2. Deploy quad to Xerial (this section)
+2. Deploy quad to Unraid (this section)
 3. Update matchscheduler storage/firestore rules if schema changed
 4. Update matchscheduler frontend if display changed
 5. Deploy matchscheduler
@@ -136,5 +145,6 @@ For details: `apps/slipgate-app/DEPLOYMENT.md`
 | Discord bot token | `apps/quad/.env` (DISCORD_TOKEN) |
 | Discord OAuth | `apps/matchscheduler/functions/.env` |
 | PostgreSQL password | `apps/qw-stats/.env` |
-| Xerial SSH key | `~/.ssh/id_ed25519` (alias: `pinnaclepowerhouse`) |
-| Unraid SSH key | `~/.ssh/id_rsa` |
+| Unraid SSH key | `~/.ssh/id_rsa` (alias: `unraid`) |
+| Xerial SSH key (legacy, decommission pending) | `~/.ssh/id_ed25519` (alias: `pinnaclepowerhouse`) |
+| Telia router admin (Hyllie home) | local Claude memory: `reference_unraid_telia_router_access.md` (NEVER commit to repo) |

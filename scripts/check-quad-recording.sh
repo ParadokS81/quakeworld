@@ -1,16 +1,20 @@
 #!/bin/bash
 # Pre-deploy safety check: block if Quad bot has an active recording.
-# Used as a Claude Code hook on Bash commands that deploy to pinnaclepowerhouse.
+# Used as a Claude Code hook on Bash commands that deploy to Unraid.
 
-# Only check commands that deploy (pull/up/restart/rebuild)
-if ! echo "$CLAUDE_TOOL_INPUT" | grep -q 'pinnaclepowerhouse'; then
+# Only check commands that deploy/disrupt the quad container.
+# Triggers on docker compose ops in /mnt/user/appdata/quad targeting unraid.
+if ! echo "$CLAUDE_TOOL_INPUT" | grep -q 'unraid'; then
     exit 0
 fi
-if ! echo "$CLAUDE_TOOL_INPUT" | grep -qE 'qwvoice-ctl.*(pull|up|restart|rebuild)'; then
+if ! echo "$CLAUDE_TOOL_INPUT" | grep -q 'mnt/user/appdata/quad'; then
+    exit 0
+fi
+if ! echo "$CLAUDE_TOOL_INPUT" | grep -qE 'docker compose.*(up|down|restart|stop|kill|recreate|rm)'; then
     exit 0
 fi
 
-health=$(ssh pinnaclepowerhouse 'curl -s http://localhost:3000/health' 2>/dev/null)
+health=$(ssh unraid 'curl -s http://localhost:3000/health' 2>/dev/null)
 if [ $? -ne 0 ]; then
     echo "WARNING: Could not reach Quad health endpoint. Proceed with caution." >&2
     exit 0

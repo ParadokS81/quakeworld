@@ -4,136 +4,111 @@
 
 | | |
 |---|---|
-| **Host** | `83.172.66.214` |
-| **Port** | `5555` |
-| **User** | `dave` |
-| **SSH alias** | `pinnaclepowerhouse` (configured in `~/.ssh/config`) |
-| **SSH key** | `~/.ssh/id_ed25519` |
-| **GPU** | NVIDIA RTX 4090 (24GB VRAM) |
-| **Quad directory** | `/srv/qwvoice/quad/` (compose + config + volumes, no source code) |
-| **Recordings** | `/srv/qwvoice/quad/recordings/` (volume-mounted, survives restarts) |
-| **Admin** | Xerial (manages OS-level config, firewall, NVIDIA drivers) |
+| **Host** | Unraid server, Tailscale `100.114.81.91` |
+| **SSH alias** | `unraid` (configured in `~/.ssh/config`) |
+| **SSH key** | `~/.ssh/id_rsa` |
+| **Quad directory** | `/mnt/user/appdata/quad/` (compose + config + volumes, no source code) |
+| **Recordings** | `/mnt/user/appdata/quad/recordings/` (volume-mounted, survives restarts) |
+| **Mumble player endpoint** | `mumble.slipgate.me:64738` (Cloudflare A record `DNS only` → home WAN IP, then router port-forward to Unraid LAN `192.168.1.205:64738`) |
+| **GPU** | None. Whisper transcription falls back to CPU automatically (`device="auto"` in `scripts/transcribe.py`). |
+| **CPU/RAM** | 24-core i7-13700, 62GB RAM. Compose limits the bot to 8 CPU / 8GB. |
 
 ## Pre-deploy Safety Check
 
 **Before ANY deploy, check for active voice recordings:**
 
 ```bash
-ssh pinnaclepowerhouse 'curl -s http://localhost:3000/health'
+ssh unraid 'curl -s http://localhost:3000/health'
 ```
 
-If the response shows `"recording": { "active": true }` -- **STOP. Do not deploy.** A team is currently recording and deploying would interrupt their session.
-
-Note: The health endpoint is only accessible from inside the server (port 3000 is not exposed externally).
+If the response shows `"recording": { "active": true }` -- **STOP. Do not deploy.** A team is currently recording and deploying would interrupt their session. The health endpoint is bound to `127.0.0.1:3000` inside Unraid, so the SSH-then-curl path is the only way in.
 
 Wait for the recording to finish, then re-check before proceeding.
 
-**Automated enforcement:** A Claude Code hook (`scripts/check-quad-recording.sh`) runs automatically before any Bash command that deploys to pinnaclepowerhouse. It checks the health endpoint and blocks the deploy if a recording is active.
+**Automated enforcement:** `scripts/check-quad-recording.sh` (Claude Code hook) checks the health endpoint before any Bash command that runs `docker compose` ops on `/mnt/user/appdata/quad`. Blocks the deploy if a recording is active.
 
 ### SSH Access
 
 ```bash
-ssh pinnaclepowerhouse
+ssh unraid
 # Or explicitly:
-ssh -i ~/.ssh/id_ed25519 -p 5555 dave@83.172.66.214
+ssh -i ~/.ssh/id_rsa root@100.114.81.91
 ```
 
-From Windows/WSL environment, use `wsl bash -c` (NOT `-ic`) for SSH commands:
-```bash
-wsl bash -c "ssh pinnaclepowerhouse 'command here'"
-```
+Tailscale must be active on the local machine.
 
-### Container Management -- qwvoice-ctl
+### Container Management
 
-All Docker operations go through the `qwvoice-ctl` wrapper. No direct `docker` or `docker compose` access.
+Plain `docker compose`. Unraid is operator-controlled, no `qwvoice-ctl`-style wrapper. The legacy Xerial deployment used a sudo-restricted wrapper because the box was shared; on Unraid we are root.
 
-**Syntax:** `sudo qwvoice-ctl <project-dir> <command> [args...]`
-
-| Command | What it does |
-|---------|-------------|
-| `up` | Start services (`docker compose up -d`) |
-| `down` | Stop services (`docker compose down`) |
-| `restart` | Restart services |
-| `rebuild` | Rebuild images and start (`docker compose up -d --build`) |
-| `logs` | View logs (supports `-f` for follow, `--tail N`) |
-| `ps` | Show running services |
-| `pull` | Pull latest images |
-| `prune` | Remove dangling (unused) images |
-
-**Security validation:** `qwvoice-ctl` validates `docker-compose.yml` before executing `up`, `restart`, or `rebuild`. It blocks:
-- Volume mounts outside `/srv/qwvoice/`
-- `privileged: true`
-- `network_mode: "host"`
-- Dangerous capabilities (`SYS_ADMIN`, `SYS_PTRACE`, `ALL`, `NET_ADMIN`, `NET_RAW`, `DAC_OVERRIDE`)
-- `devices:` entries
-
-GPU passthrough via `deploy.resources.reservations.devices` is allowed (our compose file uses this).
-
-### Other Services on the Same Server
-
-| Container | Purpose |
+| Action | Command |
 |---|---|
-| `qwvoice-whisper` | Standalone faster-whisper (legacy, at `/srv/qwvoice/docker/`) |
-| `ollama` | LLM inference server (port 11434) |
+| Start | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose up -d'` |
+| Pull latest image | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose pull'` |
+| Pull + restart (standard deploy) | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose pull && docker compose up -d'` |
+| Stop | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose down'` |
+| Restart (no rebuild) | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose restart'` |
+| Status | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose ps'` |
+| Live logs | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs -f'` |
+| Recent logs | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs --tail=100'` |
+| Clean dangling images | `ssh unraid 'docker image prune -f'` |
+| Edit `.env` on server | `ssh unraid 'nano /mnt/user/appdata/quad/.env'` |
 
-Managed via: `sudo qwvoice-ctl /srv/qwvoice/docker <command>`
+### Compose plugin caveat
+
+Unraid does not ship `docker compose` by default. The plugin binary is installed at `/usr/local/lib/docker/cli-plugins/docker-compose`, which lives on tmpfs and **does not survive a host reboot**. After an Unraid reboot, the bot's containers will keep running (Docker manages them independently of the compose CLI), but you cannot run `docker compose` commands until the binary is re-installed. Two ways to handle:
+
+1. **Recommended:** install the **Compose Manager** plugin from Unraid Community Apps. Persists across reboots.
+2. **Stop-gap:** add a User Scripts entry that re-downloads the binary on boot:
+   ```bash
+   mkdir -p /usr/local/lib/docker/cli-plugins
+   curl -sSL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" \
+     -o /usr/local/lib/docker/cli-plugins/docker-compose
+   chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+   ```
 
 ## Deploy Workflow
 
 ### Standard Update (code changes)
 
+1. Commit and push to `main`. GitHub Actions builds the image automatically and pushes to `ghcr.io/paradoks81/quad`.
+2. Wait for the workflow to finish:
+   ```bash
+   gh run list --workflow=quad-docker.yml --limit=1
+   gh run watch --exit-status $(gh run list --workflow=quad-docker.yml --limit=1 --json databaseId --jq '.[0].databaseId')
+   ```
+3. Deploy:
+   ```bash
+   ssh unraid 'cd /mnt/user/appdata/quad && docker compose pull && docker compose up -d'
+   ```
+4. Verify:
+   ```bash
+   ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs --tail=20 quad'
+   ssh unraid 'curl -s http://localhost:3000/health'
+   ```
+
+Images are pre-built by GitHub Actions and pushed to `ghcr.io/paradoks81/quad`. Deploy pulls only changed layers (typically a few MB for code changes).
+
+### Pre-flight if no recording is active
+
 ```bash
-ssh pinnaclepowerhouse
-cd /srv/qwvoice/quad
-sudo qwvoice-ctl /srv/qwvoice/quad pull
-sudo qwvoice-ctl /srv/qwvoice/quad up
+ssh unraid 'curl -s http://localhost:3000/health' | grep -oE '"active":[^,]*'
+# Expect: "active":false
 ```
 
-Images are built by GitHub Actions and pushed to `ghcr.io/paradoks81/quad`. On a typical deploy, Docker only downloads the changed layers (usually a few MB for code-only changes).
+## File Layout on Unraid
 
-### One-liner from local machine
-
-```bash
-wsl bash -c "ssh pinnaclepowerhouse 'cd /srv/qwvoice/quad && sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up'"
+```
+/mnt/user/appdata/quad/
+├── docker-compose.yml      compose definition (no GPU, CPU-tuned)
+├── .env                    secrets + endpoint config (mode 600)
+├── service-account.json    Firebase admin creds (mode 600)
+├── recordings/             persistent recording output
+├── models/                 Whisper model cache (downloads on first /process transcribe)
+└── mumble-data/            Mumble server state (sqlite + ini), owned by uid 10000:10000
 ```
 
-### First Deploy / Migration from git-based deploy
-
-1. Stop the old container:
-   ```bash
-   sudo qwvoice-ctl /srv/qwvoice/quad down
-   ```
-2. Back up the existing `docker-compose.yml` and replace it with the new version (uses `image:` instead of `build:`).
-3. Create the models directory:
-   ```bash
-   mkdir -p /srv/qwvoice/quad/models
-   ```
-4. Pull and start:
-   ```bash
-   sudo qwvoice-ctl /srv/qwvoice/quad pull
-   sudo qwvoice-ctl /srv/qwvoice/quad up
-   ```
-5. The Whisper model downloads on first `/process transcribe` (~500MB for `small`, takes ~1 min). It's cached in `./models/` and persists across container restarts.
-
-The monorepo source code at `/srv/qwvoice/quad/` is no longer needed after migration. Only these files matter:
-- `docker-compose.yml`
-- `.env`
-- `service-account.json`
-- `recordings/` (volume)
-- `models/` (volume, Whisper model cache)
-- `mumble-data/` (volume)
-
-## Operational Commands
-
-| Scenario | Command |
-|---|---|
-| **Code update** (most common) | `sudo qwvoice-ctl /srv/qwvoice/quad pull && sudo qwvoice-ctl /srv/qwvoice/quad up` |
-| **Only .env changed** | `sudo qwvoice-ctl /srv/qwvoice/quad restart` |
-| **View logs** | `sudo qwvoice-ctl /srv/qwvoice/quad logs -f` |
-| **View recent logs** | `sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=100` |
-| **Stop the bot** | `sudo qwvoice-ctl /srv/qwvoice/quad down` |
-| **Check status** | `sudo qwvoice-ctl /srv/qwvoice/quad ps` |
-| **Clean old images** | `sudo qwvoice-ctl /srv/qwvoice/quad prune` |
+The `mumble-data/` directory must remain owned by uid:gid `10000:10000` because the Mumble container runs as that user and needs read+write on `mumble-server.sqlite`. If you ever copy files into that dir as root, run `chown -R 10000:10000 /mnt/user/appdata/quad/mumble-data` afterward.
 
 ## Architecture Notes
 
@@ -149,64 +124,90 @@ Runtime stage (ghcr.io/paradoks81/quad-base:latest):
   + knowledge YAMLs + scripts + fonts
 ```
 
-Images are built by GitHub Actions and published to `ghcr.io/paradoks81/quad`.
+CUDA libs in the base image are inert on the no-GPU host -- they ship along but never get exercised. Cleaning them out is a future optimization, not load-bearing.
 
 ### Base image
 
-The heavy Python/CUDA dependencies are pre-built into a separate base image (`ghcr.io/paradoks81/quad-base`) to keep code-only deploys fast (~2-3 min instead of 15-30 min).
+Heavy Python + audio dependencies pre-built into a separate base image (`ghcr.io/paradoks81/quad-base`) so code-only deploys are fast (~2-3 min instead of 15-30 min).
 
 - **Base image definition:** `Dockerfile.base`
 - **Rebuild base:** `gh workflow run quad-base-docker.yml` (manual trigger, only when Python deps or system packages change)
 - **Main Dockerfile** uses `FROM ghcr.io/paradoks81/quad-base:latest` for the runtime stage
 
-### What's in the container
+### What's in the runtime container
 
 - **Node.js 22** -- bot runtime
 - **ffmpeg** -- audio splitting for processing module
-- **Python 3 + faster-whisper** -- transcription (GPU-accelerated)
-- **Whisper model** (`small` by default) -- downloaded on first use, cached in `./models/`
+- **Python 3 + faster-whisper** -- transcription. Model auto-detects device; on Unraid this means CPU (~5-10x slower than the old 4090; acceptable since `PROCESSING_TRANSCRIBE=false` by default and transcribe is opt-in).
+- **Whisper model** (`small` by default) -- downloaded on first use, cached in `./models/`. If CPU latency becomes painful, drop `WHISPER_MODEL=base` in `.env` for a smaller/faster model.
 
 ### Volumes
 
 | Mount | Purpose |
 |---|---|
 | `./recordings:/app/recordings` | Recording output. Persists across container restarts. |
-| `./service-account.json:/app/service-account.json:ro` | Firebase credentials for standin module. |
-| `./models:/root/.cache/huggingface/hub` | Whisper model cache. Downloads on first transcription, persists across restarts. |
-| `./mumble-data:/data` | Mumble server state. |
+| `./service-account.json:/app/service-account.json:ro` | Firebase credentials. |
+| `./models:/root/.cache/huggingface/hub` | Whisper model cache. Downloads on first transcription. |
+| `./mumble-data:/data` (mumble service) | Mumble server state. |
 
 ### Environment
 
-Configured via `.env` file (not checked into git). See `.env.example` for all options.
+Configured via `.env`. Not in git. See `.env.example` for the full set.
 
-Key vars for deployment:
+Key vars:
 - `DISCORD_TOKEN` -- bot token (required)
 - `RECORDING_DIR` -- defaults to `./recordings`
-- `WHISPER_MODEL` -- model name for transcription (default: `small`). Downloads to `./models/` on first use.
-- `QUAD_VERSION` -- Docker image tag to pull (default: `latest`)
-- `FIREBASE_SERVICE_ACCOUNT` -- path to service account JSON for standin module
+- `WHISPER_MODEL` -- `tiny`/`base`/`small`/`medium`/`turbo` (default `small`)
+- `QUAD_VERSION` -- Docker image tag to pull (default `latest`)
+- `FIREBASE_SERVICE_ACCOUNT` -- path to service account JSON
+- `MUMBLE_PUBLIC_HOST` -- `mumble.slipgate.me`. **Must be set** -- the bot throws on activation if missing (see `src/modules/mumble/config-listener.ts`).
+- `MUMBLE_HOST` -- internal Docker service name (`mumble`) for the bot's ICE connection
+- `HEALTH_BIND` -- compose default is `127.0.0.1`. Override only if you need cross-host health probes.
 
-### GPU
+## Mumble player endpoint
 
-The `docker-compose.yml` reserves 1 NVIDIA GPU. This is required for GPU-accelerated whisper transcription. The container will fail to start on machines without an NVIDIA GPU.
+Players join Mumble at `mumble.slipgate.me:64738`. Path:
 
-For local development without GPU, create a `docker-compose.override.yml`:
-
-```yaml
-services:
-  quad:
-    deploy:
-      resources:
-        reservations:
-          devices: []
+```
+client                              Cloudflare DNS
+                                    (slipgate.me zone)
+mumble://...mumble.slipgate.me ----------> 78.70.76.77 (home WAN IP)
+                                                  |
+                                                  v
+                                          Telia router (192.168.1.1)
+                                          Port-forward 64738 TCP+UDP
+                                                  |
+                                                  v
+                                          Unraid (192.168.1.205:64738)
+                                                  |
+                                                  v
+                                          mumble-server container
 ```
 
-This file is gitignored.
+The Cloudflare record is **A, "DNS only"** (grey cloud). Do not enable proxy -- Cloudflare's HTTP proxy breaks Mumble's TCP+UDP voice traffic. Home WAN IP is dynamic; if it ever changes, update the A record (check current with `ssh unraid 'curl -s4 ifconfig.me'`).
 
-Prerequisites on the host machine:
-- NVIDIA GPU driver installed
-- NVIDIA Container Toolkit (`nvidia-ctk`)
-- Verify with: `docker run --rm --gpus all nvidia/cuda:12.3.2-base-ubuntu22.04 nvidia-smi`
+Router admin GUI access procedure + credentials are kept in user-local memory, not in this repo (router admin password is not a public-repo artifact).
+
+## Migrating mumbleConfig.serverAddress for existing teams
+
+When `MUMBLE_PUBLIC_HOST` changes (e.g., after a host migration), already-active teams keep the old `serverAddress` in their `mumbleConfig` Firestore docs because `config-listener.ts` only writes that field on the `pending → active` transition. Run the one-shot backfill:
+
+```bash
+# Copy the script into the container
+scp apps/quad/scripts/migrate-mumble-server-address.mjs unraid:/tmp/migrate-mumble.mjs
+ssh unraid 'docker cp /tmp/migrate-mumble.mjs quad-quad-1:/app/migrate-mumble.mjs && rm /tmp/migrate-mumble.mjs'
+
+# Dry run
+ssh unraid 'docker exec -w /app quad-quad-1 node /app/migrate-mumble.mjs'
+
+# Apply
+ssh unraid 'docker exec -w /app quad-quad-1 node /app/migrate-mumble.mjs --apply'
+
+# Cleanup
+ssh unraid 'docker exec quad-quad-1 rm /app/migrate-mumble.mjs'
+```
+
+The script reads `MUMBLE_PUBLIC_HOST` from the container's environment (already loaded via compose's `env_file`), so no extra args needed beyond `--apply`.
 
 ## Local Development
 
@@ -217,39 +218,54 @@ Local development does NOT use Docker. Use the built-in skills:
 
 The bot runs directly on Node.js in WSL, loading `.env` from the project root.
 
-## File Ownership on Server
-
-| Path | Owner | Notes |
-|---|---|---|
-| `/srv/qwvoice/quad/` | `qwvoice` group | Compose config + volumes. `dave` has group write access. |
-| `/srv/qwvoice/quad/.env` | varies | Secrets file |
-| `/srv/qwvoice/quad/recordings/` | `root` | Created by Docker (runs as root inside container) |
-| `/srv/qwvoice/quad/models/` | `root` | Whisper model cache, created by Docker |
-| `/srv/qwvoice/docker/` | `qwvoice` group | Legacy whisper + ollama compose |
-
-The `dave` user is in the `qwvoice` group (gid 1002). New files inherit the group via setgid. If containers create files as root, ask Xerial to fix permissions.
-
 ## Troubleshooting
 
 ### Container won't start
-```bash
-sudo qwvoice-ctl /srv/qwvoice/quad logs      # Check for error messages
-```
 
-### "SECURITY: Compose file blocked due to violations"
-The `docker-compose.yml` contains something `qwvoice-ctl` doesn't allow. Read the error -- it says exactly what's blocked.
+```bash
+ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs quad'
+```
 
 ### Bot is online but not responding to commands
+
 Discord slash commands are registered globally and can take up to 1 hour to propagate. Check logs for "Registered N global command(s)".
 
-### GPU not detected
-Check NVIDIA driver on host: `nvidia-smi`
-
 ### Recordings not appearing
-Check volume mount via logs or SSH into the server and inspect `/srv/qwvoice/quad/recordings/`.
+
+```bash
+ssh unraid 'ls -la /mnt/user/appdata/quad/recordings/'
+ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs quad | grep -i record'
+```
+
+### Mumble server unreachable from outside
+
+Probe in three layers:
+
+```bash
+# 1. DNS resolves to home WAN IP
+nc -zv mumble.slipgate.me 64738
+# 2. Container is listening
+ssh unraid 'ss -tulnp | grep 64738'
+# 3. Router port-forward is alive
+# (if step 2 succeeds but step 1 fails: router rule changed or WAN IP changed)
+```
+
+### Transcription is slow / fails
+
+CPU whisper with the `small` model is ~5-10x slower than the previous 4090 setup but should still complete a 30-min session in a few minutes. If it's painfully slow or OOMs, drop the model size:
+
+```bash
+ssh unraid 'sed -i "s/^WHISPER_MODEL=.*/WHISPER_MODEL=base/" /mnt/user/appdata/quad/.env'
+ssh unraid 'cd /mnt/user/appdata/quad && docker compose restart quad'
+```
 
 ### Disk space
+
 ```bash
-df -h /srv/qwvoice/
-sudo qwvoice-ctl /srv/qwvoice/quad prune     # Remove dangling images
+ssh unraid 'du -sh /mnt/user/appdata/quad/*'
+ssh unraid 'docker image prune -f'
 ```
+
+### `docker compose` command not found after Unraid reboot
+
+The compose plugin is on tmpfs. Re-install (see "Compose plugin caveat" above) or set up the persistent solution.
