@@ -146,5 +146,4 @@ For details: `apps/slipgate-app/DEPLOYMENT.md`
 | Discord OAuth | `apps/matchscheduler/functions/.env` |
 | PostgreSQL password | `apps/qw-stats/.env` |
 | Unraid SSH key | `~/.ssh/id_rsa` (alias: `unraid`) |
-| Xerial SSH key (legacy, decommission pending) | `~/.ssh/id_ed25519` (alias: `pinnaclepowerhouse`) |
 | Telia router admin (Hyllie home) | local Claude memory: `reference_unraid_telia_router_access.md` (NEVER commit to repo) |
