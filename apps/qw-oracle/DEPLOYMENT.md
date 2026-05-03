@@ -107,13 +107,25 @@ Postgres state survives image redeploys (volume mount); only the MCP container i
 | Live MCP logs | `ssh root@100.114.81.91 'docker logs -f qw-oracle-mcp'` |
 | Postgres logs | `ssh root@100.114.81.91 'docker logs -f qw-oracle-postgres'` |
 | Stack status | `ssh root@100.114.81.91 'docker compose -f /mnt/user/appdata/qw-oracle/docker-compose.prod.yml ps'` |
-| Restart MCP only | `ssh root@100.114.81.91 'docker compose -f /mnt/user/appdata/qw-oracle/docker-compose.prod.yml restart mcp'` |
+| Restart MCP (no config change) | `ssh root@100.114.81.91 'docker compose -f /mnt/user/appdata/qw-oracle/docker-compose.prod.yml restart mcp'` |
+| Apply `.env` changes | `ssh root@100.114.81.91 'cd /mnt/user/appdata/qw-oracle && docker compose -f docker-compose.prod.yml up -d mcp'` (NOT `restart` -- see note below) |
 | Tail query_log | `ssh root@100.114.81.91 'docker exec qw-oracle-postgres psql -U qworacle -d qw_oracle -c "SELECT * FROM query_log ORDER BY id DESC LIMIT 10;"'` |
 | Run eval against prod | `bun run eval` from operator WSL with `DATABASE_URL=postgresql://qworacle:<prod-password>@100.114.81.91:5432/qw_oracle` |
+
+## Environment-variable changes
+
+`docker-compose.prod.yml` substitutes `${VAR}` references from `.env` at container-create time, not at start time. That means:
+
+- `docker compose restart mcp` keeps whatever values were baked in when the container was last created. Editing `.env` then running `restart` is a silent no-op.
+- `docker compose up -d mcp` re-evaluates the compose config. If `.env` changed, this detects the diff and recreates the container with the new values.
+
+Use `restart` only for "kick the running process without changing config" (e.g. clearing a wedged D8-cache state). Use `up -d` whenever you've edited `.env`, including after `bun run calibrate` rewrites the threshold values.
 
 ## Troubleshooting
 
 - **`docker compose ps` shows mcp restarting** - check `docker logs qw-oracle-mcp`. Most likely: D8 startup check failed (Voyage build/query divergence) or `DATABASE_URL` cannot reach `postgres` (network name typo).
 - **MCP starts but `/health` returns 502 from Cloudflare** - nginx is up but `mcp` is unreachable on `qworacle-net`. Run `docker network inspect qworacle-net` and confirm both containers are attached.
 - **Voyage call fails at runtime** - check `embedding_api_log` for the per-call error: `psql -U qworacle -d qw_oracle -c "SELECT called_at, source, error FROM embedding_api_log ORDER BY id DESC LIMIT 5"`. Most common: `VOYAGE_API_KEY` is missing or rate-limited.
-- **Eval against prod fails recall@3** - the calibrated thresholds did not transfer cleanly. Re-run `bun run calibrate` against the prod connection string and re-write the values to Unraid `.env`. Task 11 of Phase 8 covers this.
+- **Eval against prod fails recall@3** - the calibrated thresholds did not transfer cleanly. Re-run `bun run calibrate` against the prod connection string, write the values to Unraid `.env`, then `docker compose -f docker-compose.prod.yml up -d mcp` (NOT `restart` -- see "Environment-variable changes" above). Task 11 of Phase 8 covers this.
+
+- **Calibrated thresholds in `.env` but `match_quality` looks wrong** - same root cause as above: the running container kept the old baked values. Recreate via `up -d mcp` and confirm with `docker exec qw-oracle-mcp env | grep MATCH_QUALITY`.
