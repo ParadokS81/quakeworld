@@ -24,7 +24,9 @@
     "embed:entities": "bun scripts/embed/embed-entities.ts",
     "embed:chunks": "bun scripts/embed/embed-chunks.ts",
     "verify:embedding-space": "bun scripts/embed/verify-embedding-space.ts",
-    "test": "DATABASE_URL=postgresql://qworacle:dev@localhost:5432/qw_oracle_test bun test"
+    "test": "DATABASE_URL=postgresql://qworacle:dev@localhost:5432/qw_oracle_test bun test",
+    "eval": "bun eval/eval.ts",
+    "calibrate": "bun eval/calibrate.ts"
   },
   "dependencies": {
     "@qw/version-resolution": "workspace:*",

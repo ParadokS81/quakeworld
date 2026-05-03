@@ -74,6 +74,8 @@ How the apps share domain knowledge through qw-oracle. See root `VISION.md` Sect
 
 Claude Code queries MCP live; slipgate-app reads pre-computed snapshots regenerated on demand by oracle's `build-snapshot` CLI. Future chatbots join as MCP consumers; web services join as snapshot consumers. Extractor fleet (Python + libclang; tree-sitter for KTX) lives at `apps/qw-oracle/scripts/extractors/`. The former `qw-config` package was retired 2026-04-25 (concerns split between oracle extractors and slipgate-app `src/lib/config/`).
 
+**Arc-1 update (2026-05-03):** qw-oracle ships a public MCP at `https://oracle.slipgate.me/mcp` behind Cloudflare Tunnel + per-IP rate limiting; Streamable HTTP transport, Postgres + pgvector + tsvector single-engine across all three layers. Snapshot delta-fetch pipeline lands in Arc 2. See `apps/qw-oracle/docs/arc-history.md` for the full ship log.
+
 ---
 
 ## Shared persistence (Firestore + Storage)

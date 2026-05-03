@@ -3,8 +3,12 @@
 // Streamable HTTP transport for the public-MCP deploy. Sessions are stateful:
 // per the SDK v1.x pattern, each initialize request creates a new Server +
 // transport pair; subsequent requests on the same session reuse the transport.
-// The server binds 127.0.0.1 only - Phase 8's nginx + Cloudflare Tunnel are
-// the public ingress; a leaked public bind would skip CF rate limiting.
+// Binds 0.0.0.0 inside the container so nginx (separate container on the same
+// docker bridge network) can proxy to mcp:3000. The compose `ports:` block
+// controls host exposure - in production we map only nginx to a host port,
+// never mcp; the MCP container is reachable only via the qworacle-net bridge.
+// 127.0.0.1-only would have been wrong: nginx reaches the container via its
+// bridge IP, not via loopback inside it.
 
 import { randomUUID } from 'node:crypto';
 import express, { type Request, type Response } from 'express';
@@ -94,7 +98,7 @@ export function startHttpServer(createServer: () => Server, port: number): void 
     }
   });
 
-  app.listen(port, '127.0.0.1');
+  app.listen(port, '0.0.0.0');
 
   // Graceful shutdown: close every active transport on SIGINT.
   process.on('SIGINT', async () => {

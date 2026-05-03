@@ -52,7 +52,7 @@ async function hydrateSession(
 ): Promise<SessionHit | null> {
   const metaRows = await db<SessionMetaRow[]>`
     SELECT id::text, channel_name, platform, started_at, ended_at,
-           chat_message_count, participants
+           chat_message_count, participants_json AS participants
     FROM sessions
     WHERE id = ${sessionId}::bigint
   `;

@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "query": "how do I scale the scoreboard, scr_scoreboard_scale doesn't exist",
+    "expected_in_corpus": false,
+    "primary_tool": "search_concepts"
+  },
+  {
+    "id": 2,
+    "query": "where do deathmessages show up in the HUD, they disappeared from mine",
+    "expected_in_corpus": true,
+    "primary_tool": "search_concepts"
+  },
+  {
+    "id": 3,
+    "query": "how do I register the qw URL handler so links open in ezquake",
+    "expected_in_corpus": true,
+    "primary_tool": "search_concepts"
+  },
+  {
+    "id": 4,
+    "query": "what is r_lgbloodcolor and what does setting it do",
+    "expected_in_corpus": true,
+    "primary_tool": "search_concepts"
+  },
+  {
+    "id": 5,
+    "query": "how do I make my downloads faster from a server, mine caps at 350 KB/s",
+    "expected_in_corpus": true,
+    "primary_tool": "search_concepts"
+  }
+]

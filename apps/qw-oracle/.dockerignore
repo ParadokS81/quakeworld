@@ -1,0 +1,48 @@
+# apps/qw-oracle/.dockerignore
+# Build context is the MONOREPO ROOT, not apps/qw-oracle/. Patterns are matched
+# against monorepo-root-relative paths.
+
+# Workspace install output - rebuilt inside the image.
+**/node_modules
+
+# SQLite-era data files (retired in Arc 1; Postgres prod data lives on Unraid).
+apps/qw-oracle/data
+apps/qw-oracle/output
+apps/qw-oracle/scripts/extractors/*/output
+
+# Editor / OS noise.
+**/.DS_Store
+**/.vscode
+**/.idea
+
+# Test fixtures and dev artefacts that have no place in the prod image.
+**/*.bak
+**/*.bak-*
+apps/qw-oracle/db/data
+apps/qw-oracle/db/postgres-data
+
+# Other apps - the prod image only carries qw-oracle.
+apps/matchscheduler
+apps/quad
+apps/qw-stats
+apps/slipgate-app
+
+# Documentation and other non-runtime files.
+docs/
+**/CLAUDE.md
+**/VISION.md
+**/OVERVIEW.md
+**/README.md
+**/SCHEMA.md
+**/DEPLOYMENT.md
+**/DEVELOPMENT.md
+**/HANDOVER.md
+
+# Eval files - operator-curated, but they reference tool internals; the prod
+# container does not need them. Run eval/calibrate from the dev workstation
+# against the prod connection string when you do need to.
+apps/qw-oracle/eval
+
+# Git metadata.
+.git
+.github

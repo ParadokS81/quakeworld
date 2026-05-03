@@ -2,7 +2,7 @@
 
 > **Doc type: load-bearing slim.** Three-layer design intent, domain inventory at-a-glance, attestation about parked Layer 2 work, code landmarks, integration boundaries. Catalog content (subcommand tables, MCP tool rosters, schema migration lists, extractor directory trees) lives in source — see the pointers below.
 
-**Lifecycle status:** Active. Layer 1 covers six namespaces (ezQuake / FTE / QWCL / MVDSV engine ports + the `qw` game-content namespace) with KTX as the only outstanding port. Schema at v18. Layer 2 corpus is imported but the processing pipeline on top of it hasn't been touched in weeks (see "Layer 2 — state unknown" below). Most recent shipped arc: zero-debt-before-KTX (2026-04-29) — see `docs/arc-history.md` for the chronological log.
+**Lifecycle status:** Active. Layer 1 covers six namespaces (ezQuake / FTE / QWCL / MVDSV engine ports + the `qw` game-content namespace) with KTX as the only outstanding port. Schema at v18, Postgres dialect, single-engine since Arc 1 (`docs/superpowers/specs/2026-05-01-qw-oracle-database-architecture-design.md`). Layer 2 ported to Postgres + tsvector (Discord-only); enrichment deferred to Arc 3. Public MCP live at `oracle.slipgate.me/mcp`. Most recent shipped arc: postgres-arc1 (2026-05-03) — see `docs/arc-history.md` for the chronological log.
 
 ---
 
@@ -10,9 +10,9 @@
 
 Oracle is the **knowledge service** for the monorepo: three data layers plus the machinery around them. See `VISION.md` for the framing.
 
-**Layer 1** — `data/knowledge.db`. Source-extracted engine facts (15 entity types) plus the `qw` namespace for game content. Engine entities live in the per-version arc model with per-field blame and diff streams. `qw` content lives in flat per-domain tables. Schema at v18 (tracked in `schema_meta`, not PRAGMA). Covered by `SCHEMA.md`.
+**Layer 1** — Postgres `qw_oracle.public.entities` + 15 `*_versions` tables + relation tables (`asset_*`, `release_notes`) + the `qw` namespace (`maps`, `gameplay_*`). Source-extracted engine facts (15 entity types) plus game content. Engine entities live in the per-version arc model with per-field blame and diff streams. `qw` content lives in flat per-domain tables. Schema at v18 (tracked in `oracle_meta`, not PRAGMA). Covered by `SCHEMA.md`. The SQLite era (`data/knowledge.db`) ended with Arc 1.
 
-**Layer 2** — `data/qw.db`. 2.66M community chat messages (1.94M QuakeNet IRC 2005-2016 + 717K Quake.World Discord 2016-present). Raw + FTS5 search index. Processing pipeline incomplete — see "Layer 2 — state unknown" below.
+**Layer 2** — Postgres `qw_oracle.public.messages` + `sessions` + `session_search` + `session_references` + `message_labels` + `discord_channels` + `import_log` + `processing_log`. 728,863 Quake.World Discord messages (2016-present), 86,423 sessions, 15,489 reply edges. tsvector + GIN lexical search via the `search_solved_issues` MCP tool. Discord-only by D9-revised; IRC excluded. Enrichment (segment / classify / summarise / session-summary embeddings) deferred to Arc 3 — see "Layer 2 — ported to Postgres in Arc 1" below.
 
 **Layer 3** — `concept-notes/`. Hand-authored notes synthesizing Layer 1 + Layer 2 into usable guidance. 9 notes plus `README.md` (entry template + 6 recognized shapes), `OPERATIONS.md` (stewardship playbook), `_gap-report.md` (contributor onboarding seed for ezquake.com). `weapon-scripts.md` (2026-04-24) is the first R7 opinionated-best-practice exemplar. The `get_concept_note` MCP tool serves this directory live.
 
@@ -50,20 +50,17 @@ SELECT project, type, COUNT(*) FROM entities GROUP BY project, type;
 
 ---
 
-## Layer 2 — state unknown
+## Layer 2 — ported to Postgres in Arc 1
 
-The corpus is imported into `data/qw.db` and a basic FTS5 search index exists. The processing pipeline on top of it — tier classification, session segmentation, summarization, curation — **hasn't been touched in weeks and has not been audited.** The scripts at `scripts/*.mjs` are what exists, not necessarily what is still in use:
+`messages`, `sessions`, `session_search`, `session_references`, `message_labels`, `discord_channels`, `import_log`, `processing_log` live in Postgres at `qw_oracle.public.*`. Discord-only by D9-revised: the `messages.platform` / `sessions.platform` / `session_search.platform` / `import_log.platform` CHECK constraints lock to `'discord'`; pre-2016 IRC content is excluded (operator decision 2026-05-02). Lexical search uses `to_tsvector('simple', ...)` per D7 to preserve the language-agnostic SQLite FTS5 behaviour the Discord corpus needs (mixed Swedish / Russian / German handles + snippets).
 
-- `import-discord.mjs` / `import-irc.mjs` — raw import from the respective dumps
-- `db.mjs` — Layer 2 schema + connection (legacy `.mjs`, not TypeScript)
-- `build-search-index.mjs` — FTS5 index build
-- `search.mjs` — search CLI
-- `stats.mjs` / `stats-tier1.mjs` — dataset stats
-- `process-tier1.mjs` — early tier-1 classification work
-- `sample-*.mjs` — ad-hoc sampling scripts from design spikes
-- `helpdesk-benchmark.mjs` / `helpdesk-coverage.mjs` — the "can this answer a real question" bench
+The `search_solved_issues` MCP tool serves Layer 2 with the same response shape as the SQLite era; internals are tsvector + GIN indexes, not FTS5.
 
-This list is a file inventory, not a working map. **Before the next Layer 2 push, this section needs its own audit pass** — which scripts are current, which are scratchpads to delete, which compose into a pipeline.
+Hygiene tightenings absorbed into the port (D18): filter-then-segment session boundaries (only `category IN ('chat','link')` advances the gap clock), nullable `message_labels.session_id` for bot/reaction/system rows, `BOT_COMMAND_PATTERNS` removed (Discord exposes `author_is_bot` reliably), and `session_references` reply-graph table for Phase 6's cross-session lookup. Final state: 728,863 messages, 86,423 sessions, 15,489 reply edges.
+
+Layer 2 enrichment — segment / classify / summarise / session-summary embeddings — is deferred to Arc 3. The arc's design starts only after Arc 2 (snapshot delta-fetch) ships.
+
+`data/qw.db` and `data/knowledge.db` are gone. The authoritative store is Postgres only.
 
 ---
 

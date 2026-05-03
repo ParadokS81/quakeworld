@@ -36,6 +36,8 @@
 | Elevator pitch (humans + cold Claude land here first) | `README.md` |
 | Layer 1 data model + per-table shape | `SCHEMA.md` |
 | Dev loops, runners, verifier scripts, prerequisites, gotchas | `DEVELOPMENT.md` |
+| Production deploy runbook (Unraid + nginx + CF Tunnel) | `DEPLOYMENT.md` |
+| Operator observability cheatsheet (query_log + embedding_api_log queries) | `docs/OBSERVABILITY.md` |
 | Schema spec (original design rationale; superseded incrementally by per-arc specs -- see arc history) | `docs/superpowers/specs/2026-04-18-qw-knowledge-extraction-schema.md` (root tree) |
 
 **Start with `OVERVIEW.md` when working in this project -- it's the load-bearing orientation map (parked-with-purpose, design intent, code landmarks, integration boundaries).**
@@ -59,10 +61,9 @@
 
 ## Tech stack
 
-- **TypeScript + Bun** for the Layer 1 loader (`scripts/load-knowledge/`). Schema migrations applied by `db/migrate.ts` from `.sql` files in `db/migrations/`.
-- **TypeScript + Bun** for the Layer 2 chat loader (`scripts/load-chat/`); ports the legacy Discord export through to Postgres via postgres-js.
-- **TypeScript + Bun** for the Layer 3 concept loader (`scripts/load-concepts/`); parses `concept-notes/*.md` via gray-matter and upserts into the 5 Layer 3 tables atomically per slug.
-- **PostgreSQL 16 + pgvector** for Layer 1 + Layer 2 + Layer 3 (`apps/qw-oracle/db/migrations/`); the loader and MCP-Layer-1 paths use **postgres-js**. `better-sqlite3` is still pulled in only by the MCP server (`serve/mcp/`) until Phase 6 of Arc 1 ports it. **ulid** for extractor-run IDs; **js-yaml** for seed ingestion; **gray-matter** for concept-note frontmatter.
+- **TypeScript + Bun** for every script (loader, embed, eval, calibrate, MCP server). Schema migrations applied by `db/migrate.ts` from `.sql` files in `db/migrations/`.
+- **PostgreSQL 16 + pgvector + tsvector** (image: `pgvector/pgvector:pg16`); single engine across Layer 1 / Layer 2 / Layer 3. The MCP server ports off `better-sqlite3` to **postgres-js** at Phase 6.
+- **postgres-js** for DB access; **Voyage v4 series** (`voyage-4-large` build / `voyage-4-lite` query) for embeddings; **@modelcontextprotocol/sdk** + **express** for the MCP server (Streamable HTTP transport behind Cloudflare Tunnel); **ulid** for extractor-run IDs; **js-yaml** for seed ingestion; **gray-matter** for concept-note frontmatter.
 - **Python 3 + libclang 18** for the engine-source extractors (live at `scripts/extractors/<project>/`; shared lib at `scripts/extractors/extractor_lib/`).
 
 ## Always-on rules
@@ -76,4 +77,5 @@
 - **Schema evolution is append-only** -- new schema changes land as a new `db/migrations/<NNN>_<name>.sql` file (run via `bun db/migrate.ts`); never edit an applied migration. Update `SCHEMA.md` alongside. Architecturally-significant changes additionally get a dated spec under root `docs/superpowers/specs/`. Small additive migrations don't need a spec -- `SCHEMA.md` + git history + the `.sql` file's header comment are enough.
 - **JSONB columns receive JS values, not pre-stringified JSON** -- pass the JS array/object directly (or wrap with `tx.json(...)` for postgres-js type compliance); pre-stringifying stores a JSONB string scalar (the legacy SQLite-era TEXT bug). Probe `F1.jsonb_columns_not_strings` is the regression gate.
 - **Tag every generated output** with model + prompt version.
-- **Keep it simple** -- scripts over frameworks; Postgres for Layer 1 + Layer 2 + Layer 3 (post-Phase-4); local-first processing -- minimise API costs, maximise iteration speed.
+- **Authoritative store is Postgres 16 + pgvector + tsvector** -- single-engine across all three layers. The SQLite era ended with Arc 1 (`docs/superpowers/specs/2026-05-01-qw-oracle-database-architecture-design.md`); SQLite remains acceptable only for genuinely-derived artefacts (test fixtures, throwaway POCs).
+- **Keep it simple** -- scripts over frameworks, integration tests over unit tests, hand-rolled SQL migrations over migration frameworks. Local-first processing -- minimise API costs, maximise iteration speed.
