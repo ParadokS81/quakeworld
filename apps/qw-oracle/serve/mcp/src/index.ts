@@ -8,12 +8,17 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import {
+  CallToolRequestSchema,
+  InitializedNotificationSchema,
+  ListToolsRequestSchema,
+} from '@modelcontextprotocol/sdk/types.js';
 
 import { SERVER_VERSION } from './version.ts';
 import { ORIENTATION_INSTRUCTIONS } from './orientation.ts';
 import { db } from './db.ts';
 import { verifyEmbeddingSpace, EMBEDDING_SPACE_THRESHOLD } from '../../../shared/embedding.ts';
+import { dispatchAndLog, setConsumerHint } from './query-log.ts';
 
 import { lookupEntity } from './tools/lookup-entity.ts';
 import { searchEntities } from './tools/search-entities.ts';
@@ -34,6 +39,20 @@ import type { SearchMechanicsArgs } from './tools/search-mechanics.ts';
 import type { SearchGameplayEntitiesArgs } from './tools/search-gameplay-entities.ts';
 
 import { startHttpServer } from './transports/http.ts';
+
+// Compress filter-shaped tool args into a short summary so query_log.query_text
+// stays legible. Returns null for an empty args object; caps at 200 chars.
+function summariseFilterArgs(args: Record<string, unknown>): string | null {
+  const keys = Object.keys(args);
+  if (keys.length === 0) return null;
+  const compact = keys.map((k) => {
+    const v = args[k];
+    if (Array.isArray(v)) return `${k}=[${(v as unknown[]).map(String).join(',')}]`;
+    if (typeof v === 'object' && v !== null) return `${k}=<obj>`;
+    return `${k}=${String(v)}`;
+  }).join(' ');
+  return compact.length > 200 ? compact.slice(0, 197) + '...' : compact;
+}
 
 const ENTITY_TYPE_ENUM: EntityType[] = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset'];
 const VERIFY_TTL_HOURS = parseFloat(process.env.EMBEDDING_VERIFY_TTL_HOURS ?? '24');
@@ -91,50 +110,85 @@ export function createServer(): Server {
     tools: TOOL_LIST,
   }));
 
+  // Capture the consumer's name+version once the MCP handshake completes.
+  // For stdio this is a single-process global; for HTTP/SSE the *last* client
+  // to connect wins (Phase 7 Open question 5; revisit if Phase 8 traffic
+  // shows overlapping concurrent sessions).
+  server.setNotificationHandler(InitializedNotificationSchema, async () => {
+    const info = server.getClientVersion();
+    if (info && typeof info.name === 'string') {
+      const version = typeof info.version === 'string' ? info.version : 'unknown';
+      setConsumerHint(`${info.name}/${version}`);
+    }
+  });
+
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    const { name, arguments: args } = request.params;
-    let response: unknown;
+    const { name, arguments: rawArgs } = request.params;
+    const args = (rawArgs ?? {}) as Record<string, unknown>;
     switch (name) {
       case 'lookup_entity':
-        response = await lookupEntity(args as { name: string; project?: string; type?: EntityType });
-        break;
+        return dispatchAndLog(
+          { tool: 'lookup_entity', queryText: typeof args.name === 'string' ? args.name : null },
+          () => lookupEntity(args as { name: string; project?: string; type?: EntityType }),
+        );
       case 'search_entities':
-        response = await searchEntities(args as { query: string; project?: string; type?: EntityType; limit?: number });
-        break;
-      case 'get_concept_note':
-        response = await getConceptNote(args as { id: string });
-        break;
-      case 'search_solved_issues':
-        response = await searchSolvedIssues(args as { query: string; limit?: number; max_messages_per_session?: number });
-        break;
-      case 'lookup_map':
-        response = await lookupMap(args as { name: string });
-        break;
-      case 'search_maps':
-        response = await searchMaps(args as SearchMapsArgs);
-        break;
-      case 'lookup_gameplay_entity':
-        response = await lookupGameplayEntity(args as { name: string; gameplay_source?: string });
-        break;
-      case 'lookup_mechanic':
-        response = await lookupMechanic(args as { name: string; gameplay_source?: string });
-        break;
-      case 'search_gameplay_entities':
-        response = await searchGameplayEntities(args as SearchGameplayEntitiesArgs);
-        break;
-      case 'search_mechanics':
-        response = await searchMechanics(args as SearchMechanicsArgs);
-        break;
+        return dispatchAndLog(
+          { tool: 'search_entities', queryText: typeof args.query === 'string' ? args.query : null },
+          () => searchEntities(args as { query: string; project?: string; type?: EntityType; limit?: number }),
+        );
       case 'search_concepts':
-        response = await searchConcepts(args as { query: string; limit?: number });
-        break;
+        return dispatchAndLog(
+          { tool: 'search_concepts', queryText: typeof args.query === 'string' ? args.query : null },
+          () => searchConcepts(args as { query: string; limit?: number }),
+        );
+      case 'get_concept_note':
+        return dispatchAndLog(
+          { tool: 'get_concept_note', queryText: typeof args.id === 'string' ? args.id : null },
+          () => getConceptNote(args as { id: string }),
+        );
+      case 'search_solved_issues':
+        return dispatchAndLog(
+          { tool: 'search_solved_issues', queryText: typeof args.query === 'string' ? args.query : null },
+          () => searchSolvedIssues(args as { query: string; limit?: number; max_messages_per_session?: number }),
+        );
+      case 'lookup_map':
+        return dispatchAndLog(
+          { tool: 'lookup_map', queryText: typeof args.name === 'string' ? args.name : null },
+          () => lookupMap(args as { name: string }),
+        );
+      case 'search_maps':
+        return dispatchAndLog(
+          { tool: 'search_maps', queryText: summariseFilterArgs(args) },
+          () => searchMaps(args as SearchMapsArgs),
+        );
+      case 'lookup_gameplay_entity':
+        return dispatchAndLog(
+          { tool: 'lookup_gameplay_entity', queryText: typeof args.name === 'string' ? args.name : null },
+          () => lookupGameplayEntity(args as { name: string; gameplay_source?: string }),
+        );
+      case 'lookup_mechanic':
+        return dispatchAndLog(
+          { tool: 'lookup_mechanic', queryText: typeof args.name === 'string' ? args.name : null },
+          () => lookupMechanic(args as { name: string; gameplay_source?: string }),
+        );
+      case 'search_gameplay_entities':
+        return dispatchAndLog(
+          { tool: 'search_gameplay_entities', queryText: summariseFilterArgs(args) },
+          () => searchGameplayEntities(args as SearchGameplayEntitiesArgs),
+        );
+      case 'search_mechanics':
+        return dispatchAndLog(
+          { tool: 'search_mechanics', queryText: summariseFilterArgs(args) },
+          () => searchMechanics(args as SearchMechanicsArgs),
+        );
       case 'redirect_to_human':
-        response = await redirectToHuman(args as { topic_hint?: string });
-        break;
+        return dispatchAndLog(
+          { tool: 'redirect_to_human', queryText: typeof args.topic_hint === 'string' ? args.topic_hint : null },
+          () => redirectToHuman(args as { topic_hint?: string }),
+        );
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
-    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   });
 
   return server;
