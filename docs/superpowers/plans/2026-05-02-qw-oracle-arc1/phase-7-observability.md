@@ -6,6 +6,22 @@
 > 3. Read the relevant section of `_legacy-monolithic-plan.md` for inspiration only - do NOT copy SQL or code blocks; verify against live source files.
 > 4. After drafting, dispatch the verification sub-agent (see "Verification sub-agent" section below) before declaring the phase MD ready for operator review.
 
+> **Orchestrator pre-execution amendment (2026-05-03).** Six fixes applied against this MD before kicking off the executor, after the orchestrator audit pass against live Phase 6 code:
+>
+> 1. **`query-log.ts` import path.** Plan shipped `import { db } from '../../shared/db.ts'` -- 2 levels up from `serve/mcp/src/` resolves to `serve/shared/` (does not exist). Corrected to `import { db } from './db.ts'`, matching the existing `serve/mcp/src/db.ts` re-export convention used elsewhere at this depth.
+> 2. **`lookupEntity` signature drift.** Plan called `lookupEntity(args, conceptIndex)`. Phase 6 retired the in-memory concept index (`concept-loader.ts` deleted; `lookup-entity.ts:39` is single-arg). Dropped the `conceptIndex` arg in the dispatcher case body.
+> 3. **`searchEntities` signature drift.** Same pattern; dropped trailing `conceptIndex`.
+> 4. **`getConceptNote` signature drift.** Plan called `getConceptNote(args, conceptStore)`; Phase 6 ports it to single-arg postgres-js (`get-concept-note.ts:26`). Dropped `conceptStore`.
+> 5. **`redirect_to_human` arg name.** Plan read `args.topic`; Phase 6 + the inputSchema use `topic_hint` (`index.ts:132`, `redirect-to-human.ts:14`, `index.ts:391` inputSchema). Corrected `queryText` extraction and the type cast.
+> 6. **Verification compose-file paths.** Plan inlined `docker compose -f apps/qw-oracle/db/docker-compose.dev.yml exec -T postgres psql ...`. The package.json `db:psql` script uses `db/docker-compose.dev.yml` (relative to `apps/qw-oracle/`); the inlined verifications would have failed with the path mismatch. Replaced with `bun run --cwd apps/qw-oracle db:psql -- -c "..."` everywhere, matching Task 5's existing style.
+>
+> Plus two lighter amendments:
+>
+> - **OBSERVABILITY.md doc-index home.** Moved the doc-index row from `apps/qw-oracle/CLAUDE.md` (top-level) to `apps/qw-oracle/docs/CLAUDE.md` (the docs subsystem index, sibling to `arc-history.md` / `entity-types.md` / `layer1-extraction-roadmap.md`). Updated the verification grep target and the commit file list.
+> - **Open Question 4 (SDK API) resolved at audit time.** Pinned SDK is `@modelcontextprotocol/sdk@1.29.0`; both `InitializedNotificationSchema` and `server.getClientVersion()` exist. No executor SDK-source-reading needed.
+>
+> Same orchestrator-audit ratchet that caught Phase 4's JSONB pre-stringify regression and Phase 6's path bugs. Executor: read this block, then proceed with Tasks 1-5 as written.
+
 ## Goal
 
 Stand up the `query_log` table, route every MCP tool call through a single dispatcher-level wrapper that records `(tool, query_text, result_count, top_score, match_quality, latency_ms, error, consumer_hint)` for each invocation, capture the consumer identity from the MCP `initialize` handshake, and ship `apps/qw-oracle/docs/OBSERVABILITY.md` - the operator's copy-paste cheatsheet for asking "what failed retrieval", "what's the p95 per tool", "what's the Voyage spend trajectory", and "which queries are concept-note authoring leads". `embedding_api_log` is already in place from Phase 5; this phase wires the *query* side. At phase boundary the MCP server self-monitors: every dispatched tool call lands a row in `query_log` (including dispatch errors), `OBSERVABILITY.md` documents the operator's daily-driver SQL, and the relevant `bun test` suite passes against the test database.
@@ -38,6 +54,7 @@ The parent directories for all four files exist as of 2026-05-02 (`db/migrations
 
 ```
 apps/qw-oracle/serve/mcp/src/index.ts                          # wrap every CallTool case in dispatchAndLog; capture consumer_hint at initialized notification
+apps/qw-oracle/docs/CLAUDE.md                                  # add OBSERVABILITY.md row to docs-subsystem documentation index
 ```
 
 ### Deleted
@@ -103,15 +120,14 @@ CREATE INDEX query_log_match_quality_weak_none
 **Verification.**
 
 ```bash
-docker compose -f db/docker-compose.dev.yml exec -T postgres \
-  psql -U qworacle -d qw_oracle -c "SELECT filename FROM schema_migrations WHERE filename = '007_query_log.sql'"
+bun run --cwd apps/qw-oracle db:psql -- -c "SELECT filename FROM schema_migrations WHERE filename = '007_query_log.sql'"
 ```
 
 PASS condition: one row returned with `filename = 007_query_log.sql`.
 FAIL condition: zero rows (migrator did not pick up the file - check filename ordering / file permissions).
 
-```sql
-\d+ query_log
+```bash
+bun run --cwd apps/qw-oracle db:psql -- -c "\d+ query_log"
 ```
 
 PASS condition: output lists exactly the columns above (`id`, `queried_at`, `tool`, `query_text`, `result_count`, `top_score`, `match_quality`, `latency_ms`, `error`, `consumer_hint`), the three indexes (`query_log_queried_at`, `query_log_tool`, `query_log_match_quality_weak_none`), and the CHECK constraint on `match_quality`.
@@ -141,7 +157,7 @@ FAIL condition: any column or index missing; CHECK constraint absent.
 // HTTP/SSE Phase 6 owns whatever per-session capture it ships and calls the
 // setter accordingly (see Open question 4).
 
-import { db } from '../../shared/db.ts';
+import { db } from './db.ts';
 import type { ToolResponse } from './types.ts';
 
 let currentConsumerHint: string | null = null;
@@ -384,12 +400,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case 'lookup_entity':
       return dispatchAndLog(
         { tool: 'lookup_entity', queryText: typeof args.name === 'string' ? args.name : null },
-        () => lookupEntity(args as { name: string; project?: string; type?: EntityType }, conceptIndex),
+        () => lookupEntity(args as { name: string; project?: string; type?: EntityType }),
       );
     case 'search_entities':
       return dispatchAndLog(
         { tool: 'search_entities', queryText: typeof args.query === 'string' ? args.query : null },
-        () => searchEntities(args as { query: string; project?: string; type?: EntityType; limit?: number }, conceptIndex),
+        () => searchEntities(args as { query: string; project?: string; type?: EntityType; limit?: number }),
       );
     case 'search_concepts':
       return dispatchAndLog(
@@ -399,7 +415,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case 'get_concept_note':
       return dispatchAndLog(
         { tool: 'get_concept_note', queryText: typeof args.id === 'string' ? args.id : null },
-        () => getConceptNote(args as { id: string }, conceptStore),
+        () => getConceptNote(args as { id: string }),
       );
     case 'search_solved_issues':
       return dispatchAndLog(
@@ -438,8 +454,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       );
     case 'redirect_to_human':
       return dispatchAndLog(
-        { tool: 'redirect_to_human', queryText: typeof args.topic === 'string' ? args.topic : null },
-        () => redirectToHuman(args as { topic: string }),
+        { tool: 'redirect_to_human', queryText: typeof args.topic_hint === 'string' ? args.topic_hint : null },
+        () => redirectToHuman(args as { topic_hint?: string }),
       );
     default:
       throw new Error(`Unknown tool: ${name}`);
@@ -650,10 +666,10 @@ For shape-by-shape detail, read the migration files:
 Both tables are append-only for v1. No triggers, no views, no materialised state. SQL above is the entire observability tooling.
 ```
 
-- [ ] In `apps/qw-oracle/CLAUDE.md`, add one row to the documentation-index table that points at the new doc. Keep the existing rows untouched. The added row goes between the "Schema spec" row and any subsystem-scope entries:
+- [ ] In `apps/qw-oracle/docs/CLAUDE.md`, add one row to the documentation-index table that points at the new doc. The docs-subsystem CLAUDE is the natural home (sibling to `arc-history.md`, `entity-types.md`, `layer1-extraction-roadmap.md`); the top-level `apps/qw-oracle/CLAUDE.md` index covers app-wide top docs (README/SCHEMA/OVERVIEW etc.) and does not need a row. Append at the bottom of the existing 3-row table:
 
 ```markdown
-| Operator observability cheatsheet (query_log + embedding_api_log queries) | `docs/OBSERVABILITY.md` |
+| Operator observability cheatsheet (query_log + embedding_api_log queries) | `OBSERVABILITY.md` |
 ```
 
 (If the Phase 6 drafter already added this row, skip the edit.)
@@ -674,7 +690,7 @@ PASS condition: returns 10 (ten `##` section headings: seven query blocks - "Wha
 FAIL condition: returns < 10 - a section was dropped.
 
 ```bash
-grep -c "OBSERVABILITY.md" apps/qw-oracle/CLAUDE.md
+grep -c "OBSERVABILITY.md" apps/qw-oracle/docs/CLAUDE.md
 ```
 
 PASS condition: returns >= 1.
@@ -712,7 +728,7 @@ git add apps/qw-oracle/db/migrations/007_query_log.sql \
         apps/qw-oracle/serve/mcp/src/query-log.test.ts \
         apps/qw-oracle/serve/mcp/src/index.ts \
         apps/qw-oracle/docs/OBSERVABILITY.md \
-        apps/qw-oracle/CLAUDE.md
+        apps/qw-oracle/docs/CLAUDE.md
 git commit -m "qw-oracle: Phase 7 - observability (query_log + dispatcher wrapper + cheatsheet)"
 ```
 
@@ -732,8 +748,7 @@ Run all of these against the dev DB at the end of the phase. Each block is a cop
 ### 1. Migration applied
 
 ```bash
-docker compose -f apps/qw-oracle/db/docker-compose.dev.yml exec -T postgres \
-  psql -U qworacle -d qw_oracle -c "SELECT filename, sha256 FROM schema_migrations WHERE filename = '007_query_log.sql'"
+bun run --cwd apps/qw-oracle db:psql -- -c "SELECT filename, sha256 FROM schema_migrations WHERE filename = '007_query_log.sql'"
 ```
 
 PASS condition: one row, `sha256` non-empty.
@@ -742,8 +757,7 @@ FAIL condition: zero rows.
 ### 2. Table shape correct
 
 ```bash
-docker compose -f apps/qw-oracle/db/docker-compose.dev.yml exec -T postgres \
-  psql -U qworacle -d qw_oracle -c "\d+ query_log"
+bun run --cwd apps/qw-oracle db:psql -- -c "\d+ query_log"
 ```
 
 PASS condition: columns are exactly `id` (BIGSERIAL/`bigint`), `queried_at` (`timestamp with time zone`), `tool` (`text NOT NULL`), `query_text` (`text`), `result_count` (`integer`), `top_score` (`real`), `match_quality` (`text`, nullable, with CHECK), `latency_ms` (`integer`), `error` (`text`), `consumer_hint` (`text`); three indexes (`query_log_queried_at`, `query_log_tool`, `query_log_match_quality_weak_none`); the partial index has the `WHERE match_quality IN ('weak', 'none')` predicate.
@@ -820,8 +834,7 @@ Phase 8 builds on this by:
    **Who can resolve:** operator if/when an incident shows the truncated form is insufficient.
 
 4. **Question:** MCP SDK API for capturing client identity. The current SDK exposes `server.getClientVersion()` after the `initialize` request completes; Phase 6's pinned SDK version may have a different accessor (`server.getClientCapabilities()` returns capabilities but not name; the underlying `_clientVersion` field is private). The handler stub in Task 3 uses `server.getClientVersion()` and falls back to `null` if the call returns `undefined`.
-   **Default chosen for now:** call `server.getClientVersion()` inside the `InitializedNotificationSchema` handler; if the SDK version Phase 6 pinned does not expose this method, the executor reads the SDK source to find the canonical accessor (typically a property hung off `Server.prototype` or accessed via the `connection` object) and substitutes. The wrapper itself is unchanged.
-   **Who can resolve:** Phase 7 executor (5 minutes of SDK source-reading; not a design call).
+   **Resolved 2026-05-03 (orchestrator pre-execution audit):** Pinned SDK is `@modelcontextprotocol/sdk@1.29.0` (see `apps/qw-oracle/serve/mcp/package.json`). Both `InitializedNotificationSchema` (re-exported from `dist/esm/types.js:556`) and `server.getClientVersion()` (`dist/esm/server/index.js:291`) exist. The handler shape in Task 3 works as written; no executor SDK-source-reading needed.
 
 5. **Question:** HTTP/SSE consumer-hint scoping. For stdio, `consumer_hint` is a single global value set once on `initialized`. For HTTP/SSE, every session can be a different client, and the SDK's session-scoping mechanism is what Phase 6 ships. Phase 7's wrapper currently uses one global; under HTTP/SSE that means the *last* client to connect wins.
    **Default chosen for now:** ship with the global. Note in `OBSERVABILITY.md` that under HTTP/SSE the `consumer_hint` is best-effort and may misattribute under concurrent sessions until Phase 6's session-scoping is threaded into `dispatchAndLog`.
