@@ -1,8 +1,70 @@
 # Layer 2 corpus reconstruction -- arc capture
 
 **Captured:** 2026-05-04 by arc-classifier mode D.
-**Status:** captured (awaiting arc-brainstormer pass).
+**Status:** Pass 1 complete (2026-05-04). Pass 2 (stage-by-stage refinement) pending in fresh terminal -- handoff prompt at `docs/superpowers/parking/2026-05-04-layer2-corpus-reconstruction-pass2-handoff.md`.
+**Design spec:** `docs/superpowers/specs/2026-05-04-layer2-corpus-reconstruction-design.md` (source of truth from Pass 1 onward).
 **Trigger to start:** operator-initiated; arc-brainstormer in fresh terminal.
+
+---
+
+## Pass 1 status -- COMPLETE (2026-05-04)
+
+Pass scope: adjacent topics drain. Sub-questions sourced from the "Open questions for the brainstorm" section below plus operator-surfaced gaps during the pass body (Claude-spotted gaps + operator's "anything else?" prompt).
+
+### Locks
+
+| Topic | Lock |
+|---|---|
+| Cross-fork disambiguation | Light L1 inclusion of Dusty's antilag-focused ezQuake/MVDSV/KTX fork plus 1-2 concept notes on when-to-care-about-the-fork. NOT a Stage 4 metadata field. |
+| Time / era awareness | Out of scope for L2 prep. Lives at MCP query-time discretion -- the consumer LLM decides relevance across L1/L2/L3 hits. |
+| Reply edges as Stage 2 signal | Within-chunk explicit-reply pairs go in the same sub-thread. Stage 3 still uses reply-edges as cross-session similarity signal. |
+| Author role hints in primer | Iterative skill-baked role-list. Operator-verified seed list per channel before any production run; analyzer suggests additions per-chunk when someone stands out. Couples to author-trust weighting (Pass 3). |
+| Bucket rubric depth | Empirical discovery via 3-6 month sample run. 9 buckets + multi-tag stand; new buckets or rubric rules added only when patterns make obvious gaps. |
+| Analyzer output format | JSON (Anthropic native structured-output mode). Parser-robust machine-interchange format, not a UX surface. |
+| Abstain path | Per-chunk and per-thread abstain flag with reason. Comprehension uncertainty triggers ABSTAIN; recurring abstentions on same vocabulary drive Stage 0 primer-loop iteration. |
+| Task-confidence score | Deferred for v1. Re-evaluate at sample-test time if Stage 3 merging shows precision problems on close-call threads. |
+| Hygiene #2 / #6 superseded | Confirmed. Stage 2 quiet-hour chunking + Stage 3 cross-session merging supersede #2; reply-graph signal in Stage 3 supersedes #6. HANDOVER cleanup deferred to arc-planner / arc-orchestrator scaffolding. |
+
+### Meta-patterns surfaced
+
+1. **Empirical discovery over top-down rubric.** Author-role-list seeding and bucket-rubric depth are answered by "run on a sample, see what emerges, then commit." This shapes the arc's Phase 0/1 -- the first runs are partly diagnostic, not just productive.
+2. **Prep-work calibration ("bigger brain insurance").** Glossary + L1-lookup + role-list + per-channel character notes are cheap insurance worth investing in; do NOT gold-plate. Operator framing: marginal benefit per primer item is uncertain, but the floor cost is low and the artifacts are durable.
+
+### Carry-forwards (with tracks)
+
+| Item | Track |
+|---|---|
+| Stage 0 primer artifact location (`packages/qw-knowledge/terminology` extension vs new file under qw-oracle) | Pass 2 (Stage 0) |
+| Stage 0 active L1 auto-lookup loop placement | Pass 2 (Stage 0) |
+| Stage 1 heuristic-pruning bootstrap scope (10% sample stratification, banter-signal feature list) | Pass 2 (Stage 1) |
+| Stage 2 chunk-size sweep parameters (500/1500/3000/6000) | Pass 2 (Stage 2) |
+| Stage 2 quiet-hour gap definitions (multi-hour / overnight / weekend) | Pass 2 (Stage 2) |
+| Stage 2 within-chunk reply-edge integration mechanics | Pass 2 (Stage 2) |
+| Stage 3 cosine-similarity threshold + participant-overlap weight + reply-graph edge weight | Pass 2 (Stage 3) |
+| Stage 3 clustering algorithm choice (HDBSCAN / Louvain / etc.) | Pass 2 (Stage 3) |
+| Stage 4 schema confirmation (`chat_threads` + `thread_messages` shape) | Pass 2 (Stage 4) |
+| Stage 4 bucket-tagging integration (single prompt vs separate post-Stage-4 pass) | Pass 2 (Stage 4) |
+| Stage 4 role-list iteration wiring | Pass 2 (Stage 4) |
+| Author trust weighting placement (Stage 4 metadata vs retrieval-time vs both) | Pass 3 |
+| Trigger discipline (Phase-8-gate vs architectural-conviction unblock) | Pass 3 |
+| Pipeline ordering (serialize vs Stage 0 + Stage 1 parallel) | Pass 3 |
+| Cost model refresh (Voyage / Sonnet pricing, corpus growth) | Pass 3 |
+| Sample-test scope (four-pipeline comparison with L3 first-class) | Pass 3 |
+| Phase decomposition (number, boundaries, sample-test as Phase 0 prerequisite) | Pass 4 |
+| Multi-language / config-dumps / re-run idempotency | Pass 2 conditional -- surface only if a specific stage needs them |
+| HANDOVER cleanup of three superseded items | arc-planner / arc-orchestrator scaffolding (post-brainstorm) |
+
+### Drain destinations
+
+- This parking doc (Pass 1 status section).
+- New design spec at `docs/superpowers/specs/2026-05-04-layer2-corpus-reconstruction-design.md` -- seeded with Pass 1 outputs and Pass 2-4 scope placeholders. Source of truth from Pass 1 onward.
+- Fresh-terminal handoff for Pass 2: `docs/superpowers/parking/2026-05-04-layer2-corpus-reconstruction-pass2-handoff.md`.
+
+### Pass plan revisions
+
+None. The four-pass plan stands: Pass 1 (adjacent topics drain, COMPLETE), Pass 2 (stage-by-stage refinement, next), Pass 3 (cross-cutting decisions), Pass 4 (phase decomposition + arc-planner handoff).
+
+---
 
 ## Why this is arc-shaped
 
