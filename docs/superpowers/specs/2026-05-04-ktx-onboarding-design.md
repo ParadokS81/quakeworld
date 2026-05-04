@@ -15,7 +15,9 @@
 - Dusty-ktx fork (separate fork-onboarding arc; will subclass canonical KTX handlers + add tree-sitter for `qcsrc/`).
 - KTX QuakeC client modules (none exist in canonical repo; `dusty-ktx/qcsrc/` is fork-add-on).
 
-**Doctrine fixes deferred to end-of-arc:** OVERVIEW.md / EXTRACTOR-PLAYBOOK.md / extractor CLAUDE.md / extraction-pipeline-vision memory all incorrectly state KTX is QuakeC + tree-sitter. Canonical KTX is pure C; libclang is the right toolchain. Fix as part of arc execution.
+**Doctrine fixes deferred to end-of-arc:**
+- OVERVIEW.md / EXTRACTOR-PLAYBOOK.md / extractor CLAUDE.md / extraction-pipeline-vision memory all incorrectly state KTX is QuakeC + tree-sitter. Canonical KTX is pure C; libclang is the right toolchain. Fix as part of arc execution.
+- `apps/qw-oracle/SCHEMA.md` slim-doc sweep -- the existing HANDOVER followup *"qw-oracle slim-doc Arc 1 refresh sweep"*. Currently flagged as a free-floating doc-hygiene task, but SCHEMA.md staleness is now load-bearing because Pass 3's migration adds a `log_template_versions.channel` value (`'logfile'`) that a future reader walking SCHEMA.md will not see. The sweep MUST run AFTER KTX migration lands (otherwise it documents 4 channels and re-stales the moment KTX ships). End-of-arc is the right sequencing slot.
 
 ---
 
@@ -224,7 +226,70 @@ No new tables. Pure additive migrations.
 
 ## Pass 3 -- Schema impact for first-class types
 
-(Pending; after Pass 1 locks all per-type extraction approaches.)
+### Verification findings (2026-05-04)
+
+Pre-flight verification of Pass 1's accumulated schema-delta claims against the live schema (migration files + dev DB):
+
+- **`entities.project` CHECK** — already includes `'ktx'` per `002_layer1_schema.sql`. Confirmed across all 8 tables that share the `project IN (...)` shape. No widening needed. The Pass 1 "verify during execution" caveat resolves to "no work."
+- **`log_template_versions.channel` CHECK** — currently `('broadcast','client','console','system')` (4 values). Live dev DB confirms only those 4 values are in use today (all from MVDSV). KTX needs `'logfile'` added to admit `log_printf()` emission sites (~28 per Pass 1.7). One CHECK widening.
+- **No new columns** for any of the four first-class entity types. Cvars / commands / info_keys / log_templates all reuse existing `*_versions` table shapes. Pattern 14 canonical-name suffixes (`:frogbot:std`, `:frogbot:editor`, `:userinfo`) ride the existing `entities.canonical_id` field. Multi-site dedup uses the existing `all_call_sites_json` JSONB column already present on `log_template_versions` and `info_key_versions`.
+
+**Total schema delta from Pass 1 first-class types:** one migration, one CHECK widening. Nothing else.
+
+### 3.1 -- Migration content: LOCKED
+
+**Filename:** `apps/qw-oracle/db/migrations/008_ktx_log_template_logfile_channel.sql` (next in lex order; latest committed migration is `007_query_log.sql`).
+
+**SQL:**
+
+```sql
+-- 008_ktx_log_template_logfile_channel.sql
+--
+-- Widen log_template_versions.channel CHECK to admit 'logfile' for KTX's
+-- log_printf() emission API. KTX's existing 3 channels map cleanly to MVDSV's
+-- (G_bprint -> broadcast, G_sprint -> client, G_cprint -> console); the new
+-- 'logfile' channel is unique to KTX's log_printf() (~28 call sites at
+-- canonical KTX 1.46).
+--
+-- Pure additive; no data backfill required (no prior rows with
+-- channel='logfile' exist).
+
+ALTER TABLE log_template_versions
+  DROP CONSTRAINT log_template_versions_channel_check;
+
+ALTER TABLE log_template_versions
+  ADD CONSTRAINT log_template_versions_channel_check
+  CHECK (channel IN ('broadcast','client','console','system','logfile'));
+```
+
+Standard ALTER TABLE DROP CONSTRAINT + ADD CONSTRAINT pattern. The constraint name `log_template_versions_channel_check` is the Postgres-default for inline column CHECK constraints (`<table>_<column>_check`); arc-executor verifies via `\d log_template_versions` before applying.
+
+### 3.2 -- SCHEMA.md treatment: LOCKED (defer + sequenced linkage)
+
+**Decision:** Pass 3 does not touch SCHEMA.md. The doc-currency rewrite is already a queued HANDOVER followup (*"qw-oracle slim-doc Arc 1 refresh sweep"*) covering all three slim docs (README / SCHEMA / OVERVIEW) plus stale tool counts, retired SQLite framing, and post-Phase-6 MCP shape -- a focused pass, not a one-line touch.
+
+**Crucially:** that sweep is now sequenced as an end-of-arc doctrine fix for THIS arc (added to the spec's "Doctrine fixes deferred to end-of-arc" block), because:
+- KTX adds the 5th `log_template_versions.channel` value (`'logfile'`).
+- Doing the sweep BEFORE KTX migration lands would document 4 channels and re-stale immediately.
+- The sweep MUST run after KTX migration ships so it captures the post-KTX shape.
+
+**Why "schema v18 -> v19" framing in the Pass 3 handoff was wrong:** the v18 numbering comes from the SQLite era's `SCHEMA_VERSION` constant in the now-retired `scripts/load-knowledge/schema.ts`. The Postgres migration model (in place since Arc 1 Phase 2) uses lex-ordered filenames + the `schema_migrations` table; no separate numeric version increments per migration. The SCHEMA.md slim-doc sweep will retire the v18 framing alongside the rest of the SQLite-era prose.
+
+### 3.3 -- Out-of-Pass-3 schema considerations: NONE
+
+Pass 1's seven sub-questions all resolved without surfacing new tables or columns. Items that might look schema-shaped but aren't:
+- F1 quality-grid probes for KTX -- verification scaffolding, not schema. Arc-executor adds them per the EXTRACTOR-PLAYBOOK conventions.
+- `PROJECT_VERSION_ALIASES` / loader-dispatch updates for KTX -- code-level wiring in `extract-tag.ts` and the load-* CLIs, not migrations.
+- KTX out-of-scope items (Bucket 3 indexed-family cvars, truly-orphaned k_* drift, dusty-ktx fork) -- documented in OUT_OF_SCOPE.md by arc-executor; no schema slot.
+
+### Pass 3 -- CLOSED
+
+One sub-question landed (3.1, migration content locked) plus one decision on linkage (3.2, SCHEMA.md sweep as end-of-arc obligation). Pass closes faster than the "light pass" framing suggested -- the verification step alone consumed most of the work.
+
+**Carry-forwards:**
+- Migration 008 SQL -> arc-executor writes the file from this spec verbatim during Phase 0 of execution.
+- SCHEMA.md sweep -> end-of-arc work (already in "Doctrine fixes deferred to end-of-arc"); HANDOVER followup updated to name the dependency.
+- Pass 4 (gameplay-content scope) is the next real brainstorming pass.
 
 ## Pass 4 -- Gameplay-content scope + shape decision
 
