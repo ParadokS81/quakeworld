@@ -38,6 +38,7 @@ Subcommands (all routed through `scripts/load-knowledge/index.ts`):
 | `quality-grid` | Run regression + anomaly probes against a project's loaded state |
 | `build-snapshot` | Emit slipgate-shaped JSON into `apps/slipgate-app/src/lib/config/data/` |
 | `prune-cross-type-orphans` | Clean up doc-only entities collided with cross-type source-backed entities |
+| `re-derive` | Rebuild `entities.description` over existing rows after a derive-step change. Flips `description_embedding_stale=TRUE`; the next `embed-entities` pass picks up changed rows via the description-hash check. |
 
 The `--ordinal` flag is auto-resolved from the `versions` table when the (project, version) pair already exists; only net-new tags need to pass it explicitly.
 

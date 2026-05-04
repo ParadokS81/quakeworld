@@ -228,13 +228,13 @@ const TOOL_LIST = [
   {
     name: 'search_entities',
     description:
-      'Substring search for QuakeWorld entities by name or current help-description. Returns the same rich EntityRecord shape as lookup_entity (source_state, version arc, asset relations, linked concept notes). Use when you have a partial name, a topic word ("frag", "crosshair", "lightning"), or want to discover entities related to a concept. Name matches rank above description-only matches.',
+      'Hybrid retrieval (lexical tsvector + semantic pgvector, fused via Reciprocal Rank Fusion) over QuakeWorld Layer 1 entities. Returns the same rich EntityRecord shape as lookup_entity (source_state, version arc, asset relations, linked concept notes). Use for partial names, topic words ("frag", "crosshair", "lightning"), or symptom-form queries ("fps drops when window minimized") -- the semantic half bridges user-vocabulary to upstream-developer-vocabulary even when there is no surface-keyword overlap. Name matches rank above description-only matches.',
     inputSchema: {
       type: 'object',
       properties: {
         query: {
           type: 'string',
-          description: 'Substring to match against entity names and current help text. Case-insensitive.',
+          description: 'Free-text query matched against entity names + concatenated help text (help_desc + help_remarks + per-value descriptions for cvars). Case-insensitive.',
         },
         project: {
           type: 'string',
