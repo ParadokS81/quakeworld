@@ -100,6 +100,20 @@ docker compose -f docker-compose.prod.yml up -d mcp
 
 Postgres state survives image redeploys (volume mount); only the MCP container is replaced.
 
+## Update triggers per codebase
+
+Updates fire on **operator discretion** -- no automation, no cron, no webhooks. The cadence is low enough that operator-poll is sufficient.
+
+| Codebase | Pattern | When to update |
+|---|---|---|
+| ezquake | Tagged + active head | New stable tag upstream, OR head re-walk for in-development tracking |
+| KTX | Tagged + active head | New stable tag upstream, OR head re-walk |
+| MVDSV | Tagged + active head | New stable tag upstream |
+| FTE | Rolling head only (no real tags) | Operator-cadenced head re-walk on whatever schedule feels right |
+| QWCL | Frozen archive (1999 GPL release) | Loaded once at v2.33; never updates |
+
+Authoritative trigger model + per-codebase scope rationale: `docs/superpowers/specs/2026-05-04-oracle-prod-update-lifecycle.md`.
+
 ## Routine corpus refresh
 
 Use when corpus content has changed but MCP server code has not. Examples:
@@ -107,9 +121,24 @@ new Layer 3 concept note, re-extracted ezQuake tag, derive-step bug fix, new
 chat session ingest, embedder model bump. The image redeploy section above is
 for code changes; this section is for data changes.
 
+**One-time setup** (skip if already done):
+
+```bash
+ssh root@100.114.81.91 'mkdir -p /mnt/user/appdata/qw-oracle/dumps'
+```
+
+**Procedure:**
+
 ```bash
 # from operator's WSL -- rebuild the corpus locally first
 cd /home/paradoks/projects/quakeworld/apps/qw-oracle
+
+# 0. (if upstream change) extract a new tag. Pulls source, walks libclang,
+#    loads into dev Postgres, runs embed-entities inline (hash-skip).
+#    Skip this step if you're refreshing existing data without an upstream
+#    pull (e.g., derive-step bug fix only).
+bun scripts/load-knowledge/extract-tag.ts <project> <tag>
+# example: bun scripts/load-knowledge/extract-tag.ts ezquake 3.6.9
 
 # 1. (if relevant) re-derive descriptions after a derive-step change
 npm run load-knowledge --silent --no-workspaces -- re-derive
@@ -123,12 +152,21 @@ docker exec qw-oracle-postgres-dev pg_dump -U qworacle -d qw_oracle \
   --no-owner --no-acl --clean --if-exists \
   > /tmp/qw_oracle.sql
 
-# 4. ship to Unraid and restore over the Tailscale link
+# 4. ship to Unraid
 scp /tmp/qw_oracle.sql root@100.114.81.91:/tmp/qw_oracle.sql
-ssh root@100.114.81.91 \
-  'docker exec -i qw-oracle-postgres psql -U qworacle -d qw_oracle < /tmp/qw_oracle.sql'
 
-# 5. sanity check from WSL via the Tailscale connection string
+# 5. archive previous dump on Unraid; prune to last 5 (Tier 2 rollback insurance)
+ssh root@100.114.81.91 'cd /mnt/user/appdata/qw-oracle/dumps && \
+  cp /tmp/qw_oracle.sql ./qw_oracle-$(date -u +%Y%m%d-%H%M%S).sql && \
+  ls -t qw_oracle-*.sql | tail -n +6 | xargs -r rm'
+
+# 6. restore on prod. Single-transaction (-1) so a mid-restore failure
+#    auto-rolls instead of leaving prod half-applied. With --clean --if-exists
+#    in the dump, DROP statements use IF EXISTS and won't fail.
+ssh root@100.114.81.91 \
+  'docker exec -i qw-oracle-postgres psql -1 -U qworacle -d qw_oracle < /tmp/qw_oracle.sql'
+
+# 7. sanity check from WSL via the Tailscale connection string
 DATABASE_URL=postgresql://qworacle:<prod-password>@100.114.81.91:5432/qw_oracle \
   bun -e 'import postgres from "postgres"; const sql = postgres(process.env.DATABASE_URL); const r = await sql`SELECT count(*) FROM entities WHERE description IS NOT NULL`; console.log(r); await sql.end()'
 ```
@@ -140,6 +178,52 @@ acceptable while the install has no real users beyond the operator.
 For surgical refreshes (single project, single entity type), pass per-table
 flags to pg_dump (`--table=entities --table=cvar_versions --data-only`) and
 restore without `--clean`. Default to the wholesale dump above when in doubt.
+
+**Note on `psql -1`:** if your dump contains statements that cannot run inside
+a transaction (e.g., `CREATE EXTENSION` in some Postgres configurations), `-1`
+will fail. Verify against your dev container before relying on it; if it fails,
+drop the `-1` flag and document the constraint.
+
+**What this procedure does NOT do:**
+- It does NOT regenerate slipgate consumer JSON snapshots. Run
+  `bun scripts/load-knowledge/build-snapshot.ts` separately when slipgate-app
+  needs a refresh. Out-of-band, operator-discretion. The MCP reads Postgres
+  directly and is correct as soon as the restore completes.
+- It does NOT run schema migrations on prod. `bun db/migrate.ts` runs on dev
+  only; new migrations flow to prod through the dump's `schema_migrations`
+  table. See "Migration coordination" in
+  `docs/superpowers/specs/2026-05-04-oracle-prod-update-lifecycle.md`.
+
+## Rollback
+
+Three tiers, layered. **The same procedure that ships a fix rolls back a bad deploy** -- there is no separate rollback button.
+
+**Tier 1 (primary) -- re-promote dev.**
+The dev DB IS canonical truth. Fix on dev (revert the bad commit; re-extract if the loader was wrong), then re-dump and re-restore. Zero new infrastructure. Lead time: minutes (re-dump only) to hours (full re-extraction). Works for: bad data, bad embeddings, leaked test data, schema bugs caught after the fact.
+
+**Tier 2 (insurance) -- previous dump on Unraid.**
+The Routine corpus refresh procedure archives the previous dump to `/mnt/user/appdata/qw-oracle/dumps/` (rolling N=5). To re-restore from a prior dump:
+
+```bash
+ssh root@100.114.81.91 'ls -t /mnt/user/appdata/qw-oracle/dumps/qw_oracle-*.sql | head -5'
+# pick the right one, then:
+ssh root@100.114.81.91 'docker exec -i qw-oracle-postgres psql -1 -U qworacle -d qw_oracle \
+  < /mnt/user/appdata/qw-oracle/dumps/qw_oracle-<timestamp>.sql'
+```
+
+**Tier 2.5 (overnight) -- weekly Synology snapshot.**
+Already in place. The Unraid backup stops the Docker stack and snapshots `/mnt/user/appdata/qw-oracle/` to Synology weekly. Loses up to a week of changes.
+
+```bash
+# stop containers
+ssh root@100.114.81.91 'docker compose -f /mnt/user/appdata/qw-oracle/docker-compose.prod.yml down'
+# restore /mnt/user/appdata/qw-oracle/postgres-data/ from Synology snapshot via Unraid GUI
+# (Apps -> Synology backup -> restore folder -> postgres-data)
+ssh root@100.114.81.91 'docker compose -f /mnt/user/appdata/qw-oracle/docker-compose.prod.yml up -d'
+```
+
+**Tier 3 (true DR) -- GitHub-rebuild path.**
+The whole prod stack is reproducible from (a) the qw-oracle git repo + (b) the upstream codebases that are themselves on GitHub. If Unraid AND dev are gone simultaneously: clone qw-oracle, re-extract every codebase tag-by-tag, rebuild dev DB from scratch, dump, restore. Slow but always available. Voyage cost is negligible (~134k of the 200M lifetime grant per arc-history).
 
 ## Operator commands
 

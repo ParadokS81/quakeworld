@@ -61,6 +61,71 @@ This piggybacks on the Phase 5 / Phase 6 embedding infrastructure -- no new pipe
 - `apps/qw-oracle/docs/phase-8-eval-candidates.md` -- the helpdesk scan whose multi-domain failures motivated this whole conversation.
 - Phase 4 schema (`apps/qw-oracle/db/migrations/005_layer3_concepts.sql`) -- already supports the data model required (FK-not-FK on `concept_entities.entity_canonical_id`, JSONB `frontmatter`).
 
+## Admin panel surface (added 2026-05-04)
+
+**Why this section exists.** Surfaced during Pass 2 of the KTX Onboarding arc-brainstormer (`docs/superpowers/specs/2026-05-04-oracle-prod-update-lifecycle.md`). Operator framed the showcase site as the natural home for an admin/control panel: "showcase what the oracle does + how it works" sits next to "let me kick off a new corpus update from the same surface." Two functions, one site, no need for a separate admin app.
+
+### Scope candidates for the admin surface
+
+- **Per-codebase status overview.** What versions are currently loaded (head + stable tags), last-update timestamp, F1 probe pass/fail counts, embedding state (% rows embedded vs stale).
+- **Initiate-an-update button per codebase.** Operator picks a tag (or "head" for rolling-head codebases), the panel shells out to the canonical pipeline (`extract-tag` -> `re-derive` -> `embed-entities` -> `pg_dump` -> archive-and-rotate -> `psql -1` restore). Live log streaming for the long-running stages.
+- **Voyage spend dashboard.** Token consumption per call source (`loader` / `mcp-query` / `verify`) over time, against the 200M lifetime grant + Tier 1 throughput limits. Already queryable from `embedding_api_log`; the panel surfaces it.
+- **Concept-note staleness queue.** The bidirectional flag contract from the Lockstep architecture section above already implies a queue (option 2: `flagged_concepts` table). Admin panel renders that queue as a worklist.
+- **Eval/calibration runs against prod.** Trigger `bun run eval` or `bun run calibrate` from the panel; render the recall@3 + match_quality threshold output. Already operator-side commands in DEPLOYMENT.md; the panel just lifts them.
+- **Rollback button.** Renders the rolling N=5 dumps in `/mnt/user/appdata/qw-oracle/dumps/`; operator picks one, panel re-restores via `psql -1`.
+
+### Why fold into showcase site rather than build separately
+
+- The showcase site already has the design + hosting decisions made (Firebase Hosting frontend + Unraid + CF Tunnel for MCP backend per 2026-05-01 design). Adding admin routes on top is incremental; building a separate admin app duplicates infra.
+- The two surfaces share an audience implicitly: dev-server members who care enough to see how the oracle works are also the natural pool of "second admins" if that ever happens (operator + 1-2 deputies).
+- Auth model can be tiered cleanly: anonymous read for showcase content, gated write for admin actions (Discord OAuth or invite-link + role check).
+
+### Architecture posture (carries over from prod-update-lifecycle spec)
+
+The prod-update-lifecycle spec (Pass 2) explicitly designs the procedure to be future-script-friendly: each pipeline stage has a clean CLI entry point, state queryable from Postgres, no implicit terminal interaction. The admin panel is the future wrapper that composes those CLIs. **No procedure redesign is needed when this arc unshelves** -- the wrapper just shells out to existing entry points.
+
+Until this arc unshelves, "Claude as collaborator executing DEPLOYMENT.md" plays the wrapper role.
+
+### Trigger to unshelve this section specifically
+
+When showcase-site implementation is far enough along that adding admin routes is a small incremental step rather than a parallel project. Likely after the showcase narrative pages + the contributor flow ship, before the "v1.0 launch" cutline.
+
+---
+
+## Consumer delta-update flow (added 2026-05-04)
+
+**Why this section exists.** Surfaced during Pass 2 (sub-question 2.2) of the KTX Onboarding arc-brainstormer. Operator described the production-shape consumer flow: snapshot lives somewhere central, consumers (slipgate-app today; potentially others tomorrow) pull delta updates automatically. Today's `build-snapshot` writing to `apps/slipgate-app/src/lib/config/data/` is a dev-time convenience that ships snapshots in slipgate-app's git history.
+
+### Scope
+
+- **Central snapshot artifact host.** Where the snapshots live for consumer pull. Candidates: GitHub Releases on a dedicated repo, R2 bucket (matches the future Quake.World platform diagram), the showcase-site server itself.
+- **Delta-update protocol.** What the consumer fetches. Candidates: full snapshot replacement per codebase per version, JSON Patch deltas, content-hash-addressed chunks. Tradeoff: bandwidth vs implementation complexity.
+- **Version negotiation.** How the consumer says "I have version X, give me what's new." HTTP ETag + 304? Manifest with content-hashes? Versioned URL paths?
+- **Slipgate auto-pull integration.** What slipgate-app does on startup / on demand to pull updates. Background sync, prompt-on-launch, manual?
+- **Migration off the dev-time convenience.** When this arc lands, the slipgate consumption path moves from "JSON files in slipgate-app's source tree" to "JSON files fetched from the central host." Slipgate's local cache shape + offline behaviour need designing.
+
+### Why this is its own future arc, not part of Pass 2
+
+Pass 2 explicitly carved this out of scope. Designing the central host + delta protocol + version negotiation requires (a) at least one real consumer beyond slipgate-app to inform the API shape, (b) clarity on whether this consolidates with the future Quake.World platform R2 setup or stays oracle-local, and (c) slipgate-app being closer to having real users so the migration off the dev-time convenience has a real target.
+
+Slipgate-app currently has zero real users; until that changes, the dev-time convenience is the right level of investment.
+
+### Trigger to unshelve
+
+(Earliest of these.)
+
+- A second non-slipgate consumer surfaces and needs snapshot data.
+- Slipgate-app reaches "we're shipping to real users" milestone (per the Slipgate Managed Mode arc).
+- The Quake.World platform R2 setup begins materialising and consolidation makes sense.
+
+### Cross-references
+
+- Pass 2 spec: `docs/superpowers/specs/2026-05-04-oracle-prod-update-lifecycle.md` (sub-question 2.2 lock).
+- Slipgate Managed Mode arc: `docs/superpowers/parking/2026-04-28-slipgate-managed-mode.md`.
+- Quake.World platform diagram: see operator's 2026-05-03 architecture screenshot (R2 for "user content, maps, demos, db backup").
+
+---
+
 ## What changed at 2026-05-01 (trigger firing)
 
 The brainstorm session that fired the trigger landed the design as a five-section narrative site + parallel Layer 2 mining arc for seed topics. Key resolutions of the open questions below:
