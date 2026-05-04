@@ -8,12 +8,12 @@
 
 ## Where things are
 
-The KTX Layer 1 Onboarding arc is brainstorming via the arc-brainstormer skill. Three passes closed:
+The KTX Layer 1 Onboarding arc is brainstorming via the arc-brainstormer skill. Four passes closed:
 - Pass 1 -- CLOSED 2026-05-04. Locked extraction methodology + 4 first-class entity types (cvar / command / info_key / log_template).
 - Pass 2 -- CLOSED 2026-05-04. Locked the prod-MCP update lifecycle (generalised beyond KTX into the canonical Layer 1 update procedure for all codebases). Sibling spec at `docs/superpowers/specs/2026-05-04-oracle-prod-update-lifecycle.md`.
 - Pass 3 -- CLOSED 2026-05-04. Verified Pass 1's schema-delta claims; locked one migration (`008_ktx_log_template_logfile_channel.sql` widening `log_template_versions.channel` CHECK to admit `'logfile'`); SCHEMA.md sweep linked as end-of-arc obligation.
-- **Pass 4 -- NEXT. This handoff opens it.** Gameplay-content scope + shape decision.
-- Pass 5 -- pending. Per-category gameplay-content design.
+- Pass 4 -- CLOSED 2026-05-04. Gameplay-content scope + shape decided. 5 sub-questions locked: group disposition (qw-namespace for A+B, new `match_event` entity type for C); mode taxonomy spine (17-row flat catalog from `um_list[]`); remaining Group A enums (lsType_t / gameType_t SKIP, electType_t / deathType_t IN); Group B struct-arrays (5 IN, 4 OUT); `match_event` row shape + `match_event_versions` table. Total schema impact: 8 CHECK widenings + 1 new table.
+- Pass 5 -- NEXT. Per-category gameplay-content design + extraction-handler shapes.
 
 **Pass 4 scope (from arc-brainstormer original framing):**
 
