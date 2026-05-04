@@ -179,10 +179,13 @@ For surgical refreshes (single project, single entity type), pass per-table
 flags to pg_dump (`--table=entities --table=cvar_versions --data-only`) and
 restore without `--clean`. Default to the wholesale dump above when in doubt.
 
-**Note on `psql -1`:** if your dump contains statements that cannot run inside
-a transaction (e.g., `CREATE EXTENSION` in some Postgres configurations), `-1`
-will fail. Verify against your dev container before relying on it; if it fails,
-drop the `-1` flag and document the constraint.
+**Note on `psql -1`:** verified working 2026-05-04 against dev container at
+schema v18, including `CREATE EXTENSION IF NOT EXISTS vector` (extension
+already present makes it a no-op inside the transaction) and pg_dump 16.13's
+`\restrict` meta-command. If a future migration adds a statement that genuinely
+cannot run inside a transaction, the next dev-side restore will surface the
+error before it reaches prod -- drop `-1` for that procedure and document
+the constraint here.
 
 **What this procedure does NOT do:**
 - It does NOT regenerate slipgate consumer JSON snapshots. Run
