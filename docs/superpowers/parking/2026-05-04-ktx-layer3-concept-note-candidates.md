@@ -23,30 +23,45 @@
 
 ---
 
-## Candidate 2 -- KTX game modes index
+## Candidate 2 -- KTX game modes index (PER-MODE / PER-MUTATOR shape, refined 2026-05-05)
 
-**Surfaced during:** Pass 1.6 conversation (2026-05-04) when operator noted "KTX absorbed many older mods" and listed CTF, arena, wipeout, race, bloodfest, hoonymode, botmode.
+**Surfaced during:** Pass 1.6 conversation (2026-05-04) when operator noted "KTX absorbed many older mods" and listed CTF, arena, wipeout, race, bloodfest, hoonymode, botmode. **Refined Pass 5 wrap-up (2026-05-05):** operator clarified the L3 shape after Vikpe surfaced the "primitives vs presets" architectural framing -- product framing is "human-wiki entry per mode/mutator answering: what is this, how do I start it, what are the rules?" Concise default; only a few warrant longer treatment.
 
-**Scope:** an overview of every game mode KTX supports (~12+), with: how to enable, what the mode does, what cvars / commands are mode-specific, what makes it different from standard match play.
+**Architectural framing** (Vikpe-flagged, operator-confirmed):
+- KTX modes/mutators sit on top of a smaller engine-primitive layer (Vikpe's view: coop / ffa / team are the primitives; everything else is preset).
+- Pass 5's catalog (27 rows) is the user-facing surface; each row's `props_json.game_type` already encodes which primitive it compiles to. Vikpe's framing is preserved as metadata, not as a separate kind taxonomy.
+- The concept-note set REPLACES this single-page index with a per-mode/per-mutator note set. The index can be a top-level concept-note that LISTS the per-mode notes (cross-link hub), or just an OPERATIONS table.
 
-**L1 anchors (will exist post-arc):** UserModes_t enum (15 values), lsType_t enum (9 values), bloodfest_monster_t array (13 monster types), wipeout_spawn_config[], race_score_system_t scoring_systems[], plus mode-specific cvars (k_ctf_*, k_clan_arena_*, etc.) and commands (`race`, `1on1`, `4on4`, `ctf`, etc.).
+**Concept-note set shape** (one note per catalog row, ~27 notes total):
 
-**Modes inventoried by discovery sweep (Leg A + Leg B):**
-- 1on1 / 2on2 / 3on3 / 4on4 / 10on10 (basic team sizes)
-- FFA (deathmatch)
-- CTF (capture the flag)
-- HoonyMode (variant)
-- Blitz2v2 / Blitz4v4 (blitz variant)
-- 2on2on2 / 3on3on3 / 4on4on4 (three-team variants)
-- XonX (generic)
-- Clan Arena (lsCA)
-- Rocket Arena (lsRA)
-- Race
-- Wipeout (lsWO)
-- Bloodfest (sp_monsters.c)
-- Bot mode (frogbot infrastructure)
+Each note follows the concise human-wiki shape:
+- **What is this?** -- one paragraph.
+- **How do I start it?** -- the activation command + cvar + any prereqs.
+- **What are the rules?** -- the relevant cvars / mode-default overlays / behavioral specifics, cited to L1 rows.
+- **Variations / sub-flags** (where applicable, e.g., FreshTeams' 4 sub-cvars).
+- **Wiki cross-references** (where applicable; quakeworld.nu/wiki via `props_json.wiki_ref`).
 
-**Why this matters:** server admins setting up new KTX servers have no central reference for "what modes exist + how do I configure them." Source has the truth but is scattered across `arena.c`, `clan_arena.c`, `race.c`, `sp_monsters.c`, `bot_*.c`, `match.c`, etc.
+Most modes need ~1 page max (1on1, 2on2, ffa, ctf, hoonymode, blitz variants, XonX, three-team variants -- the team-size presets are mostly just "N players, time-based, weapons-stay/dont-stay"). A handful warrant more depth:
+- **Race** -- waypoints / time-trial / scoring systems / settings / multiplayer-vs-solo.
+- **Bloodfest** -- co-op survival / monster waves / boss spawns / how to host.
+- **Clan Arena (ca)** -- round-based, no respawn, 9-round series, k_clan_arena_* cvars.
+- **Wipeout** -- ca variant with limited respawns per round.
+- **CTF** -- hook / runes / team-based spawn / flag mechanics.
+- **HoonyMode + Blitz variants** -- single-frag rounds, spawn-toggle mechanic.
+
+Mutators each get their own note (typically very concise except where mechanics warrant explanation):
+- **LGC** -- lightning gun challenge mode (wiki ref exists).
+- **Instagib** -- one-shot kills, instant gib weapons.
+- **Midair** -- rocket-only midair-kill mode.
+- **Berzerk** -- quad-for-all in final stretch (mechanic worth explaining; operator surfaced k_btime trigger).
+- **Yawnmode** -- "fun mode" (needs source/community research; operator self-flagged unfamiliarity).
+- **KillQuad** -- quad-modification mode (source explains; needs a note).
+- **FreshTeams** -- handicap weapon-respawn mode + 4 sub-flags.
+- **NoSweep** -- dmm1-only weapon-pickup restriction.
+
+**L1 anchors (when extraction lands):** 27 `kind='game_mode'` catalog rows + ~309 `kind='mode_default'` overlay rows + 13 `kind='monster'` (bloodfest) + 3 `kind='score_system'` (race) + the 8 mutator-specific cvars (k_lgcmode, k_instagib, k_midair, k_bzk, k_yawnmode, k_killquad, k_freshteams, k_nosweep). Each concept note cites the catalog row by `canonical_id` + the mode_default rows for "what cvars get set" + supplementary L1 rows for mode-specific content.
+
+**Why this matters (operator framing):** "its basically how we would handle a human readable wiki as well. that a user wants to see 'what kind of modes can i play, oh that looks cool, how do i start that and what are the rules?'" The mode/mutator concept-note set IS the missing KTX user docs. Server admins, new players, and AI-assisted users all benefit. KTX's existing community documentation is poor; this set fills the gap with source-grounded authoritative content.
 
 ---
 
