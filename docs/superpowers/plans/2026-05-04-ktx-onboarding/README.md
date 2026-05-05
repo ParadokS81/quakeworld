@@ -16,9 +16,9 @@
 
 ## Where we are right now
 
-- **Stage:** planning COMPLETE -- all 9 phase MDs approved.
-- **Last action:** 2026-05-05 -- Phase 8 MD approved (~1010 lines; 10-task slim-doc cohort sweep + EXTRACTOR-PLAYBOOK additions + cross-phase carry-forwards + doctrine-fix-survival verification). Sub-agent verification: 2 CRITICAL (both correctly pushed back as false positives -- "## Related" anchor exists at line 800 confirmed via grep; Pattern 10 find-string is unique not line-number-anchored) + 3 SUBSTANTIVE (1 dispositioned via judgment, 2 confirmations) + 5 ADVISORY confirmations. Two narrow improvements applied (Task 2 OVERVIEW.md edits ship explicit before-blocks). D5 amended for migration slot collision (qwiki community arc already shipped 008_community_schema.sql; Phase 1 renumbers at execution time; migration content unchanged). 4 of 5 Phase 8 Open Questions are correctly execution-time defers.
-- **Next action:** orchestrator handoff. Open fresh terminal with `arc-orchestrator` skill; orchestrator dispatches per-phase executor terminals starting with Phase 0. (Recommend: write the orchestrator-handoff parking doc first, mirroring qwiki's pattern at `docs/superpowers/parking/2026-05-04-qwiki-community-reference-orchestrator-handoff.md`.)
+- **Stage:** EXECUTION -- Phase 0 shipped; Phase 1 next.
+- **Last action:** 2026-05-05 -- Phase 0 (doctrine fixes) shipped via arc-executor in fresh terminal (commit `860aaf0d`). Five doctrine sites corrected to libclang/canonical-KTX framing; obsolete TS regex extractor `apps/qw-oracle/scripts/extractors/ktx/commands.ts` deleted (F18); `apps/qw-oracle/scripts/extractors/ktx/OUT_OF_SCOPE.md` created with 7 pre-decided SKIP entries (D13). All 8 phase-boundary verification probes PASS independently re-run by orchestrator. F22 (5th doctrine site) was already in review-findings.md from planning (`08510258`); no mid-execution finding append needed. Three deferred items in Phase 0 Open Questions remain as documented. No mid-execution findings; no decision amendments. Arc-history entry prepended.
+- **Next action:** open fresh terminal for Phase 1 execution (foundation: Pattern 6 cross-header lift + 3 migrations renumbered to next-available slots per D5 amendment + new `gameplay_sources` row for `'ktx'`). Phase 1 executor briefing assembled by orchestrator session.
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
@@ -48,7 +48,7 @@ Phases 2 / 3 / 4 / 5 / 6 are mutually independent at the data level after Phase 
 
 | Phase | Status | MD | Drafter prompt | Deliverable | Runnable state at end |
 |---|---|---|---|---|---|
-| 0 | approved | `phase-0-doctrine-fixes.md` | (drafted; n/a) | KTX-is-libclang doctrine fixes across 5 reference sites (F19 + F22) + delete obsolete `scripts/extractors/ktx/commands.ts` + create OUT_OF_SCOPE.md | Repo doctrine matches reality; obsolete TS regex extractor gone; KTX SKIP catalog established |
+| 0 | shipped | `phase-0-doctrine-fixes.md` | (drafted; n/a) | KTX-is-libclang doctrine fixes across 5 reference sites (F19 + F22) + delete obsolete `scripts/extractors/ktx/commands.ts` + create OUT_OF_SCOPE.md | Repo doctrine matches reality; obsolete TS regex extractor gone; KTX SKIP catalog established |
 | 1 | approved | `phase-1-foundation.md` | `phase-1-drafter-prompt.md` | Pattern 6 cross-header lift in `extractor_lib._source` (depth-1 #include walk; D4 + F16 amended) + migrations 008/009/010 + new `gameplay_sources` row for `'ktx'` | Schema admits all KTX content; cross-header macros resolve for any engine |
 | 2 | approved | `phase-2-pass1-entity-handlers.md` | `phase-2-drafter-prompt.md` | Pass 1 first-class entity handlers (cvars + commands + info_keys + log_templates) + 4 loader wirings + KTX dispatch wiring in `extract-tag.ts` | KTX cvars + commands + info_keys + log_templates queryable in dev DB |
 | 3 | approved | `phase-3-modes-handler.md` | `phase-3-drafter-prompt.md` | `_handler_modes.py` + `load-modes.ts` (game_mode catalog 27 rows + mode_default overlays ~309 rows) | game_mode + mode_default rows queryable; mode-aware queries possible |
