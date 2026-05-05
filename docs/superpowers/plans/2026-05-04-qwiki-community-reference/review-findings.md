@@ -99,6 +99,15 @@ By dependency order Phase 5 runs after Phase 0, so `redirects.json` will be popu
 
 Resolves via: Phase 5 Q1 (executor verifies Phase 0 has shipped). Phase 5 awareness.
 
+**F13 -- L2 reconstruction spec defers primer artifact shape + location to its own Pass 2.**
+Surfaced during Phase 7 drafting. The L2 corpus reconstruction design spec (`docs/superpowers/specs/2026-05-04-layer2-corpus-reconstruction-design.md`) is at Pass 1 close. The Stage 0 "primer artifact location + shape" decision is explicitly deferred to Pass 2 -- the spec does NOT specify a primer JSON shape or output path that Phase 7 must conform to.
+
+Phase 7 ships a sensible default: structured JSON at `apps/qw-oracle/data/l2-primer/<YYYY-MM-DD>.json` with top-level keys `players` / `clans` / `tournaments` / `alias_index` mirroring `community.*` row shape + a denormalized recognition lookup. If L2 Pass 2 specifies a different shape after Phase 7 ships, Phase 7's primer-build script is small enough to refactor or wrap with a thin adapter -- not catastrophic.
+
+**Cross-arc note for the L2 reconstruction planner:** when Pass 2 reaches the primer-shape decision, consult Phase 7's default (`phase-7-l2-primer.md` Task 2 + Task 3) BEFORE proposing alternative shapes. If the default works, lock it; if not, the L2 arc ships an adapter or a primer-rebuild migration.
+
+Resolves via: Phase 7 sensible default; L2 arc Pass 2 confirms or adjusts. Phase 7 + L2 arc cross-reference.
+
 ---
 
 ## Phase ownership of findings
@@ -117,8 +126,9 @@ Resolves via: Phase 5 Q1 (executor verifies Phase 0 has shipped). Phase 5 awaren
 | F10 | Infobox 4on4team is fourth clan template (44 articles / 5.4%); CHECK enum widened in Phase 1 amendment | Phase 1 migration 008 amended; Phase 3 Q2 resolved | 1, 3 |
 | F11 | Actual Category:Clans count is 822, not spec's 829; discrepancy from redirects/talk-page enumeration | Phase 3 V1 PASS condition set to 822 | 3 |
 | F12 | Phase 5 title-matcher Pass 2 depends on Phase 0 redirect refetch shipping first | Phase 5 executor verifies redirects.json non-empty before run | 5 |
+| F13 | L2 spec defers primer artifact shape + location to its own Pass 2; Phase 7 ships sensible default | Phase 7 default + L2 arc Pass 2 confirm/adjust | 7, L2 |
 
-(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05. F9 accrued during Phase 2 drafting + groom pass, 2026-05-05. F10-F11 accrued during Phase 3 drafting, 2026-05-05. F12 accrued during Phase 5 drafting + groom pass, 2026-05-05.)
+(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05. F9 accrued during Phase 2 drafting + groom pass, 2026-05-05. F10-F11 accrued during Phase 3 drafting, 2026-05-05. F12 accrued during Phase 5 drafting + groom pass, 2026-05-05. F13 accrued during Phase 7 drafting + groom pass, 2026-05-05.)
 
 ---
 
