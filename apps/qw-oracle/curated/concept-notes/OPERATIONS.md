@@ -1,6 +1,6 @@
-# Layer 3 Operations -- stewardship playbook for `concept-notes/`
+# Layer 3 Operations -- stewardship playbook for `curated/concept-notes/`
 
-This is the operational playbook for qw-oracle's Layer 3 corpus (the hand-authored concept notes at `apps/qw-oracle/concept-notes/`). It governs how the corpus grows, ages, revises, and sunsets entries -- distinct from the entry template itself (which lives in `README.md` next to this file).
+This is the operational playbook for qw-oracle's Layer 3 corpus (the hand-authored concept notes at `apps/qw-oracle/curated/concept-notes/`). It governs how the corpus grows, ages, revises, and sunsets entries -- distinct from the entry template itself (which lives in `README.md` next to this file).
 
 Living doc. Updated whenever a session surfaces a learning the existing playbook didn't cover. Each change captures the *why*, not just the *what*.
 
@@ -175,7 +175,7 @@ The current `README.md` template has `status: draft | curated | deprecated`. For
 
 ### Archival mechanism
 
-**superseded** notes move to `concept-notes/_archive/` with a terminal `last_updated:` and a `superseded_by:` field. Files are not deleted -- the superseded note may still be useful for understanding the transition history -- but they leave the active MCP set.
+**superseded** notes move to `curated/concept-notes/_archive/` with a terminal `last_updated:` and a `superseded_by:` field. Files are not deleted -- the superseded note may still be useful for understanding the transition history -- but they leave the active MCP set.
 
 **historical** notes stay in the main directory. They're part of the active corpus because they carry current teaching value; their `status: historical` field is what modulates their retrieval.
 

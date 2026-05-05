@@ -1,4 +1,4 @@
-# qw-oracle/concept-notes/
+# qw-oracle/curated/concept-notes/
 
 Layer 3 corpus -- hand-authored notes synthesizing Layer 1 facts and Layer 2 testimony into usable guidance. The MCP `get_concept_note` tool serves this directory live.
 
