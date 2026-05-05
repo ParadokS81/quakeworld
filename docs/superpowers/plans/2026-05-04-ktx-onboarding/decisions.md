@@ -38,6 +38,10 @@ If a phase reveals that a `decisions.md` decision is wrong (rare but possible), 
 
 **Implication:** Each KTX handler is its own file under `apps/qw-oracle/scripts/extractors/ktx/_handler_*.py`, importing only `from extractor_lib._visitor import Visitor` and the per-handler helpers (e.g., `_literal_string`, `_file_macros`, etc.). Read MVDSV's analogous handlers as templates when drafting (they are the closest cross-codebase port in the lineup); do NOT subclass them.
 
+### Amendment 2026-05-05 (Phase 6 drafter source-walk)
+
+`_handler_match_events.py` is the documented carve-out from D3's "Visitor only" rule. Per D6 (handler grouping by walking strategy) and spec section 5.6.c, match_event is XSD-driven (not libclang) and inherits from no parent class -- standalone with duck-typed lifecycle stubs (`setup` / `_parse_xsd` / `_grep_emissions` / `_merge_emissions_into_events` / `finalize`). The carve-out was implicit in D6 (Tier 3 project-private XSD-driven placement); this amendment makes it explicit so phase drafters and future maintainers reading D3 don't read it as universal across all KTX handlers. The four libclang handlers (`_handler_modes.py`, `_handler_gameplay_taxonomies.py`, `_handler_gameplay_tables.py`, plus the four Pass 1 entity handlers) all inherit from Visitor per D3 unchanged.
+
 ---
 
 ## D4. Cross-header Pattern 6 lift to extractor_lib (depth-1 #include walk)

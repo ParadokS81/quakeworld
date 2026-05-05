@@ -241,6 +241,12 @@ Phase 5 ships a handler-private `_DROPITEM_MACRO_FALLBACK = {"H_ROTTEN": 1, "H_M
 
 **Phase ownership:** Phase 6.
 
+**Amendment 2026-05-05 (Phase 6 drafter source-walk):** Two corrections at canonical-1.46 (master HEAD):
+
+1. **Named simpleType count corrected from 5 to 4.** Live `resources/extralog/ktxlog_0.1.xsd` defines 4 named simpleTypes: `maxed_integer` (0-200), `iptype` (IP-pattern), `modetype` (FFA|duel|team), `porttype` (0-65535). F14's anchor description text said "5 distinct simpleTypes" while the body listed 4 explicitly -- internal inconsistency; the 4-count is correct per live source.
+
+2. **Spec 5.6.b regex literal mismatches live source.** Spec's pattern (`log_printf("\t\t\t<EVENT>...` -- single-line literal with 3 \t pairs) matches the LEGACY commented-out emission shape. Live source's 13 active emissions use the multi-line wrapper shape across two concatenated literals (`log_printf("\t\t<event>\n" "\t\t\t<EVENT>...` -- 2 + 3 \t pairs). Phase 6 ships a live-source-faithful multi-line regex that produces F14's locked count of 13 emission sites exactly. The spec 5.6.b regex remains as-written; arc-reviewer's spec-vs-shipped walk will mark this DELIVERED-DIFFERENT-AS-DOCUMENTED. The phase MD documents the deviation rationale with the corrected regex inline; the dual-row design (D10) is unaffected.
+
 ---
 
 ## Spec callouts requiring execution-time vigilance
