@@ -26,7 +26,37 @@ The brainstorm pass produced a design spec (`docs/superpowers/specs/2026-05-04-q
 
 ## Findings
 
-(No findings logged. New entries append below as F1, F2, ...)
+**F1 -- Slug collision count verified at exactly 4.**
+Python analysis of article-list.json against the actual slugify scheme (spaces -> `_`, `/` -> `_`) confirms exactly 4 collisions, all involving `Quakeworld Eternal/<Map>` vs `Quakeworld Eternal <Map>`. The spec's "4 article-pair collisions" claim is accurate. No other collisions exist in the 9178-article corpus.
+Resolves via: Phase 0, Task 2. Phase 0.
+
+**F2 -- Snapshotter script is ad-hoc and not committed; at risk of loss.**
+The full snapshot was produced by `/tmp/qwiki-pilot/full-scrape.py`. This path is in /tmp and will be lost when the originating shell session ends. Phase 0 must commit it (as `scripts/snapshot-wiki/snapshot.py`) before it disappears.
+Resolves via: Phase 0, Task 1. Phase 0.
+
+**F3 -- 503 slash-title articles use single-underscore slugs; only 4 need re-fetch.**
+The original slugify treated `/` identically to ` `, producing single-underscore slugs for all slash-title pages. Of 503 slash-title articles, only 4 collided. The other 499 are stored correctly (no collision partner) under single-underscore slugs. Phase 2/3/4 parsers need a slug-lookup helper that resolves both slug schemes (single-underscore historical, double-underscore for the 4 re-fetched articles).
+Resolves via: Phase 0, Task 2 + manifest note. Phase 0 (Q2 in Open questions for operator decision on full re-fetch).
+
+**F4 -- Redirect bug: arprop='target' is not a valid MediaWiki allredirects property.**
+The original full-scrape.py called `arprop=target|fragment`. The value `target` is not a valid allredirects arprop (valid: `ids`, `title`, `fragment`, `interwiki`). MediaWiki returned an error JSON without a "query" key; the paginated wrapper treated the missing key as an empty list, silently writing `[]` to redirects.json. Correct call: `arprop=ids|title` returns `fromtitle` (source) and `title` (target) for each redirect.
+Resolves via: Phase 0, Task 3. Phase 0.
+
+**F5 -- manifest.json articles_fetched=9178 overcounts by 4.**
+The original script incremented its `fetched` counter for every page written, including the 4 slug-clobbered writes. Actual unique article files: 9174 (confirmed via os.listdir). The manifest count is misleading. Task 5 corrects it.
+Resolves via: Phase 0, Task 5. Phase 0.
+
+**F6 -- Spec DDL is pre-D5-refinement; missing `is_substantive` columns.**
+The spec's "Schema" section (`docs/superpowers/specs/2026-05-04-qwiki-community-reference-design.md`) shows `community.players`, `community.clans`, and `community.tournaments` with `has_note BOOLEAN` and `is_stub BOOLEAN` only. D5 (added during planning) requires `is_substantive BOOLEAN` as a separate flag from `has_note`. Phase 1 migration correctly adds all three booleans. **Drafters of Phase 4 (tournament schema discovery) must treat `decisions.md` as authoritative for column shape, NOT the spec's column lists**. The spec is the scope/intent source of truth; decisions.md is the column-shape source of truth.
+Resolves via: drafter awareness; no migration change required. Phase 4 awareness item.
+
+**F7 -- 129 case-variant article pairs in snapshot are intentionally distinct.**
+Live recon found 129 article pairs that differ only by letter case (e.g., `AGAIN` vs `Again`, `Immortal` vs `IMMORTAL`). These are NOT slug bugs -- the slugify intentionally preserves case, so case-variant titles produce distinct slugs and are stored as separate files. Phase 2/3/4 parsers must treat slugs as case-sensitive distinct identities. Do NOT collapse case-variant pages during stub detection or alias building -- they may be different community entities.
+Resolves via: drafter awareness in Phase 2/3 parsers.
+
+**F8 -- `tournament_results.tournament_slug` is deliberately a soft reference (no FK).**
+Phase 1 migration creates `community.tournament_results.tournament_slug TEXT NULL` with NO `REFERENCES community.tournaments(slug)` clause. Reason: Phase 5 backfill loads cross-link rows from achievements lists BEFORE Phase 4's tournament parser populates `community.tournaments`, so a hard FK would cause insertion failures. The spec's DDL comment "references where matchable" was prose intent, not a SQL constraint. Cross-link integrity is enforced by post-load join queries, not FK constraints.
+Resolves via: Phase 1 migration design; Phase 5 awareness.
 
 ---
 
@@ -34,9 +64,16 @@ The brainstorm pass produced a design spec (`docs/superpowers/specs/2026-05-04-q
 
 | F# | Finding | Resolves via | Phase |
 |----|---------|--------------|-------|
-| -- | -- | -- | -- |
+| F1 | Slug collisions exactly 4 (confirmed) | Phase 0, Task 2 | 0 |
+| F2 | Snapshotter not committed; at risk of loss | Phase 0, Task 1 | 0 |
+| F3 | Slash-title slug scheme mixed (now resolved by refetch-all-503) | Phase 0, Task 2 | 0 |
+| F4 | Redirect bug: invalid arprop='target' caused silent empty result | Phase 0, Task 3 | 0 |
+| F5 | manifest.json articles_fetched overcounts by 4 | Phase 0, Task 5 | 0 |
+| F6 | Spec DDL pre-D5; decisions.md authoritative for column shape | drafter awareness | 4 |
+| F7 | 129 case-variant article pairs intentionally distinct | drafter awareness | 2, 3 |
+| F8 | tournament_results.tournament_slug is soft reference (no FK) | Phase 1 migration; Phase 5 awareness | 1, 5 |
 
-(Empty until findings accrue.)
+(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05.)
 
 ---
 

@@ -179,9 +179,13 @@ This is enforced because the operator runs `docs-check` style validation and the
 
 ## D14. Bun runtime for all scripts (project standard, re-stated)
 
-All scripts run under Bun: parsers, loaders, note-emitters, snapshot-finalize, primer-build. `import.meta.main` guards are valid (Bun-supported). CLI scripts run via `bun scripts/.../index.ts`. Tests use `bun test`.
+All scripts run under Bun: parsers, loaders, note-emitters, primer-build. `import.meta.main` guards are valid (Bun-supported). CLI scripts run via `bun scripts/.../index.ts`. Tests use `bun test`.
 
 Same as Arc 1 D2. Re-stated because this arc adds new scripts under `scripts/load-knowledge/` (or a new `scripts/load-community/` subdir, drafter-decided in Phase 1).
+
+**Amendment 2026-05-05 (Phase 0 drafter):** Wiki snapshotter (`apps/qw-oracle/scripts/snapshot-wiki/snapshot.py`) and its companion fix scripts are **Python**, not Bun. Carve-out rationale: the snapshotter is data-pulling-from-an-external-source shape, identical to the engine extractors at `apps/qw-oracle/scripts/extractors/<project>/` which qw-oracle CLAUDE.md already pins to Python (libclang). Python stdlib `urllib` is the natural fit; no third-party deps; no Bun advantage for I/O-bound HTTP. D14's spirit is "loader pipeline scripts are Bun" -- the snapshotter is upstream of the loader pipeline, alongside extractors. Loader-pipeline scripts (parsers in Phase 2/3/4, cross-link backfill in Phase 5, primer build in Phase 7) remain Bun.
+
+Operator-confirmed 2026-05-05.
 
 ---
 
