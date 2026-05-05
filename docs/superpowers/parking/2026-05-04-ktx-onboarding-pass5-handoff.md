@@ -1,5 +1,7 @@
 # KTX Onboarding -- Pass 5 handoff (fresh terminal)
 
+> **STATUS: Pass 5 CLOSED 2026-05-05.** Arc-brainstormer exits. Five-pass brainstorm complete; spec drained at `docs/superpowers/specs/2026-05-04-ktx-onboarding-design.md`. Arc-planner handoff at `docs/superpowers/parking/2026-05-04-ktx-onboarding-planner-handoff.md`. This document remains for archival reference of the Pass 5 entry conditions.
+
 **For:** the next arc-brainstormer session that opens Pass 5 (per-category gameplay-content design + extraction-handler shapes).
 **Trigger to use this:** operator opens a fresh terminal and pastes this prompt, OR an arc-brainstormer-skill watcher hands off here from Pass 4 close.
 **Date:** 2026-05-04.

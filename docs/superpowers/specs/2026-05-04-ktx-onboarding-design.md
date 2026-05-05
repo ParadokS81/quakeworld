@@ -650,7 +650,808 @@ All five sub-questions locked: 4.1 (group disposition: qw-namespace for A+B, new
 
 ## Pass 5 -- Per-category gameplay-content design
 
-(Pending; given Pass 4's locked shape.)
+### 5.1 -- `race` mode disposition (and bloodfest sibling) -- LOCKED
+
+**Decision:** catalog has **19 rows, not 17**. Race AND bloodfest both sit outside `um_list[]` but ARE mode-shaped (cvar-toggle activation). Both become `kind='game_mode'` catalog rows with divergent `props_json` shape vs the 17 um_list[] peers; the discriminator is a new field `props_json.init_mechanism in {"um_init_function", "cvar_toggle"}`.
+
+**Source-verified facts driving the decision:**
+
+- Race is NOT in `um_list[]`. The catalog at `commands.c:4527-4546` has exactly 17 entries; no race row.
+- The `race` command at `commands.c:695` calls `ToggleRace` (`race.c:242`), which:
+  1. Calls `UserMode(-6)` defensively (substrate-flip to FFA before applying race settings).
+  2. Toggles `cvar k_race` via `cvar_toggle_msg`.
+  3. Calls `apply_race_settings()` which loads literal char[] `race_settings[]` at `race.c:293-309` -- not an `_um_init` function.
+- Runtime gate everywhere is `isRACE()` (~25 call sites in `match.c`), driven by the `k_race` cvar -- not a `current_umode == umRACE` check.
+- Bloodfest has identical shape: `RegisterCvarEx("k_bloodfest", "0")` at `world.c:971`; gated everywhere by `if (k_bloodfest)` (~20 sites in `sp_monsters.c` and friends); not in `um_list[]`. Pass 4.4 already declared `{"mode":"bloodfest"}` as the gate for the 13 monster rows, so bloodfest needs catalog declaration anyway -- otherwise the gate is dangling.
+- Both modes support multiplayer AND solo play (race = waypoint time-trial; bloodfest = co-op monster-wave survival). Architecturally distinct from um_list peers, but mode-shaped from the user's perspective.
+
+**Pass 4 spec correction folded in here:** Pass 4.2 line 345 listed `UM_RACE` in the UM_* enum; the actual symbol per `g_local.h:705` is `UM_RACEMODE` and it's a flag at bit 31, NOT a team-structure value (UM_1ON1...UM_XONX live at bits 0-11 as orthogonal flags; UM_RACEMODE is in the same bitfield-namespace but used as a flag-mask, not a team-structure).
+
+**Catalog row shape** (race + bloodfest):
+
+```
+race row:
+  name              = "race"
+  kind              = "game_mode"
+  value_text        = NULL                    -- no UserModes_t enum entry
+  source_ref        = "race.c:242"            -- ToggleRace
+  props_json = {
+    "init_mechanism":         "cvar_toggle",
+    "activation_cvar":        "k_race",
+    "init_function":          "apply_race_settings",
+    "init_config_string_ref": "race.c:293",   -- literal char[] race_settings[]
+    "team_structure":         "UM_RACEMODE",  -- flag at bit 31, captured for traceability
+    "race_plrs_per_team":     NULL,
+    "user_facing_label":      "Race",
+    "game_type":              "Race",         -- new bucket vs Pass 4.3's Duel|Team|FFA|CTF
+    "playable_solo":          true,
+    "source_xrefs":           ["commands.c:695","race.c:242","race.c:293"]
+  }
+
+bloodfest row:
+  name              = "bloodfest"
+  kind              = "game_mode"
+  value_text        = NULL
+  source_ref        = "world.c:971"           -- k_bloodfest registration
+  props_json = {
+    "init_mechanism":         "cvar_toggle",
+    "activation_cvar":        "k_bloodfest",
+    "init_function":          NULL,           -- no central init; rules scattered in sp_monsters.c
+    "init_config_string_ref": NULL,
+    "team_structure":         NULL,           -- truly orthogonal to um_flags
+    "race_plrs_per_team":     NULL,
+    "user_facing_label":      "Bloodfest",
+    "game_type":              "Survival",     -- another new bucket
+    "playable_solo":          true,
+    "source_xrefs":           ["world.c:971","sp_monsters.c:35-41"]
+  }
+```
+
+The 17 `um_list[]` peers gain `props_json.init_mechanism = "um_init_function"` to discriminate.
+
+**game_type bucket list extended from Pass 4.3's `{Duel, Team, FFA, CTF, Unknown}` to add `Race` and `Survival`.** Final bucket set for catalog rows: `{Duel, Team, FFA, CTF, Race, Survival, Unknown}`.
+
+**Alternatives considered + rejected:**
+- "Document race+bloodfest in OUT_OF_SCOPE.md, leave catalog at 17" -- breaks the `{"mode":"race"}` and `{"mode":"bloodfest"}` gates 4.4 already declared. Either drop the gates (loses queryability) or document gates against undeclared modes (semantic rot). Rejected.
+- "New kind values: `kind='cvar_toggle_mode'` separate from `kind='game_mode'`" -- splits the catalog along an internal axis users don't care about. "What modes does KTX support" should be one query, not a UNION across kinds. Rejected.
+- Recommended shape -- same containment principle 4.2 used for wipeout/ca/4on4 sharing `UM_4ON4` with different `_um_init` per row. Activation mechanics live in `props_json`; catalog row is definitional.
+
+**Pass 4.2 deltas folded in (corrections):**
+- Catalog row count: 17 -> 19.
+- `UM_RACE` reference -> `UM_RACEMODE` (flag at bit 31, not team-structure).
+- `props_json.init_mechanism` field added to catalog row schema (values: `"um_init_function"` for the 17 um_list peers, `"cvar_toggle"` for race + bloodfest).
+- New optional field `playable_solo: bool` on catalog rows (race + bloodfest: true; um_list peers: needs Pass 5.4 spike to confirm per row).
+
+**Schema cost from 5.1:** zero extra widening (still just `'game_mode'` from 4.2). Two more catalog rows. The 4.3 game_type bucket extension is values-in-JSONB, not a CHECK -- no migration cost.
+
+**Pass 4.2 carry-forward "race mode disposition" -> RESOLVED.** Bloodfest discovered as a sibling and resolved together.
+
+#### 5.1 amendment -- gameplay mutators added to the catalog (single-kind two-axis model) -- LOCKED
+
+**Decision:** the catalog stays at `kind='game_mode'` for everything players colloquially call a "mode", but rows are discriminated along TWO orthogonal axes in `props_json`. This adds ~4 mutator rows to the catalog (LGC, instagib, midair, yawnmode), bringing the catalog count from 19 to ~23.
+
+**Rationale (operator-locked framing):** from a normal player's POV everything is a mode -- they all come with their own specific rules. The "is this standalone or stacked" distinction is implementation detail the player doesn't think about. The community framing (everything is "a mode") wins for catalog identity; the architectural distinction lives in sub-classifier fields.
+
+**Two-axis classification on every game_mode row:**
+
+```
+props_json.init_mechanism in {
+  "um_init_string"                  -- 17 um_list[] peers
+  "cvar_toggle_with_init_string"    -- race (literal char[] race_settings[])
+  "cvar_toggle_only"                -- bloodfest + all mutators
+}
+
+props_json.mode_class in {
+  "standalone"                      -- replaces active mode; persists across match
+  "mutator"                         -- stacks on top of active mode; auto-resets
+}
+
+props_json.auto_reset_on_match: bool  -- derivative; true iff mode_class='mutator'
+```
+
+**Discriminator-grid for the catalog rows (revised from 5.1):**
+
+| Row(s) | init_mechanism | mode_class | auto_reset_on_match |
+|---|---|---|---|
+| 17 um_list[] peers (1on1, ca, wipeout, ctf, ...) | um_init_string | standalone | false |
+| race | cvar_toggle_with_init_string | standalone | false |
+| bloodfest | cvar_toggle_only | standalone | false |
+| LGC | cvar_toggle_only | mutator | true |
+| instagib | cvar_toggle_only | mutator | true |
+| midair | cvar_toggle_only | mutator | true |
+| yawnmode | cvar_toggle_only | mutator | true |
+| (others surfaced by 5.4) | cvar_toggle_only | mutator | true |
+
+**Mutator catalog row sketch** (Pass 5.4 finalizes the field set):
+
+```
+LGC row:
+  name              = "lgc"
+  kind              = "game_mode"
+  value_text        = NULL
+  source_ref        = "world.c:1083"           -- k_lgcmode RegisterCvar
+  ruleset_gate_json = {}                        -- catalog rows aren't gated
+  props_json = {
+    "init_mechanism":      "cvar_toggle_only",
+    "mode_class":          "mutator",
+    "auto_reset_on_match": true,
+    "activation_cvar":     "k_lgcmode",
+    "user_facing_label":   "LGC Mode",
+    "community_name":      "LGC",
+    "wiki_ref":            "https://www.quakeworld.nu/wiki/LGC",
+    "auto_reset_call_sites": ["commands.c:7538-7540", "commands.c:7754-7756"],
+    "source_xrefs":        ["world.c:1083","commands.c:7870"]
+  }
+```
+
+`wiki_ref` lives on every catalog row when a community wiki page exists. Local site-rip of quakeworld.nu/wiki provides resilience if the external page goes offline. The README-replacement story prefers external-pointer-with-local-fallback over description-only.
+
+**Mutators have NO `mode_default` overlay rows** -- they don't carry init strings. The mutator catalog row IS the entire L1 surface for the mutator (Layer 3 concept notes will fill in the prose detail of what "LGC mode" actually means in practice -- a deliberate under-coverage at L1 because the source itself doesn't centrally document what each mutator does; it's scattered call-site logic).
+
+**Cumulative Pass 4+5 schema impact (revised from 5.2.c's 10 to 9):**
+- `entities.type` widening: +1 (`'match_event'`).
+- `gameplay_entity_defs.kind` widening: +1 (`'monster'`).
+- `gameplay_mechanics.kind` widenings: +7 (`'game_mode'`, `'election_type'`, `'score_system'`, `'drop_item'`, `'loc_macro'`, `'teamplay_message'`, `'mode_default'`).
+- New table: `match_event_versions`.
+- **Total: 9 CHECK widenings + 1 new table.** (`gameplay_mutator` kind dropped -- folded into `'game_mode'` with sub-classifier fields.)
+
+**Cumulative row impact (per KTX tag, when extraction lands):**
+- ~23 catalog rows (`kind='game_mode'`): 19 standalone + ~4 mutators.
+- ~309 mode_default rows (Pass 5.2.b: common + 17 um_list overlays).
+- 5 election-type rows.
+- ~25 death-rule rows.
+- 13 monster rows + 3 score-system rows + ~20 drop-item rows + 16 loc-macro rows + ~30 teamplay-message rows.
+- 7 match-event entity rows.
+- **Total qw-namespace gameplay additions: ~444 rows. Plus 7 match_event entity rows.**
+
+**Carry-forward to Pass 5.4:** finalize the mutator inventory. Confirm LGC + instagib + midair + yawnmode are the full set; surface any others through a `cvar_toggle_msg` / `RegisterCvar` cross-grep. Concept-note candidate update: each mutator is a strong Layer 3 candidate (no good documentation exists).
+
+
+### 5.2 -- Per-`_um_init` extraction shape
+
+**Pass 5 north-star framing (operator-locked):** the value of KTX gameplay extraction is that the rows BECOME the missing KTX README. Existing community documentation is poor; the source carries the rules, the commands, and the per-mode active-behavior, but they're scattered across many files. The four pillars the rows must answer:
+1. What settings can the server administrator change?
+2. What rules apply under each game mode?
+3. What commands can the player invoke (and which require admin/spectator/player roles)?
+4. What does each command/setting actually DO when its mode is active?
+
+This frame supports aggressive extraction: harvest comments as docstrings (they are the only authoritative documentation that exists), capture per-mode overlays in queryable rows, lean into row count when it improves the README story.
+
+**Spike finding (Pass 4.2 correction):** the `_um_init` columns of `um_list[]` are NOT functions. They are literal `const char[]` config strings. The `usermode` struct field at `g_local.h:711` is named `initstring`. At mode-switch time the apply path is:
+1. `trap_readcmd(common_um_init, ...)` at `commands.c:4787` (54-line baseline, applied to every mode).
+2. `trap_readcmd(um_list[umode].initstring, ...)` at `commands.c:4790` (per-mode overlay).
+3. File-based configs (`configs/usermodes/default.cfg`, `configs/usermodes/<mode>/default.cfg`) -- runtime, NOT in Layer 1 scope.
+
+There is no helper-call resolution to do, no recursion, no depth-N concerns. Each line of each `_um_init` is `<cvar_name> <value>` followed by an optional trailing `// comment`.
+
+**Pass 4 spec corrections folded during 5.2 close:**
+- "Each user-facing mode's `_um_init` function ... via cvar writes + helper calls" -> wrong; they're literal config strings, applied via `trap_readcmd`.
+- `props_json.init_function` (catalog row schema) -> `props_json.initstring_ref` (point to `const char[]` declaration site).
+
+#### 5.2.a -- `common_um_init` scope -- LOCKED
+
+**Decision:** EXTRACT all 54 cvar-set lines from `common_um_init` (`commands.c:4152-4205`) as Layer 1 rows. Gate on `{"mode":"common"}` with `props_json.is_baseline=true`. Trailing-comment harvest into `props_json.comment` (those comments ARE the only documentation).
+
+Rationale (operator north-star):
+- common is the baseline reset for every mode-switch -- without its rows, baseline-value queries ("what's the default k_pow_pickup?") have no L1 answer.
+- 54 rows of commented baseline cvars is a chunk of the "missing README".
+- Concept note "KTX mode-switch sequence" decomposes cleanly: `WHERE ruleset_gate_json->>'mode' IN ('common', '<target>')` returns the apply-order overlay.
+
+Cost: 54 rows. CHECK widening folded into 5.2.c.
+
+**Alternatives rejected:**
+- "Skip common; document in OUT_OF_SCOPE.md" -- loses baseline queryability AND the comment docstrings.
+- "Duplicate common into every mode's row set" -- 17 × 54 = ~900 dup rows; storage waste.
+
+#### 5.2.b -- Granularity: one row per cvar-set vs composite per init-string -- LOCKED
+
+**Decision:** ONE ROW PER CVAR-SET LINE. Each line of `common_um_init` and each line of every `_um_init[]` literal becomes a distinct `gameplay_mechanics` row.
+
+Per-row shape (kind value picked in 5.2.c):
+```
+name              = "<cvar_name>"               -- e.g. "teamplay", "k_membercount", "k_pow"
+kind              = "<picked-in-5.2.c>"
+value_text        = "<literal_value>"           -- e.g. "2", "4", "1"
+value_numeric     = <int|null>                  -- populate when value parses as integer
+source_ref        = "commands.c:<exact_line>"   -- the line in the const char[] body
+ruleset_gate_json = {"mode":"<token>"}          -- "common" for baseline, mode-token for overlay
+props_json = {
+  "comment":          "<trailing // text>",     -- harvested from same source line
+  "apply_order":      1 | 2,                    -- 1=common baseline, 2=per-mode overlay
+  "initstring_array": "<const char[] name>",    -- e.g. "common_um_init", "_2on2_um_init"
+  "is_baseline":      true | false              -- mirrors apply_order==1 for fast filter
+}
+```
+
+**Row-count budget for 5.2 extraction (per KTX tag):**
+- common_um_init: 54 rows.
+- 17 per-mode initstrings × ~15 lines avg: ~255 rows.
+- **Pass 5.2 mode_default total: ~309 rows.**
+
+**Cumulative Pass 4+5 row impact updated** (per KTX tag, when extraction lands):
+- 19 catalog rows (`kind='game_mode'`) -- 17 um_list peers + race + bloodfest.
+- ~309 mode_default rows (Pass 5.2: common + per-mode overlays).
+- 5 election-type rows.
+- ~25 death-rule rows.
+- 13 monster rows.
+- 3 score-system rows + ~20 drop-item rows + 16 loc-macro rows + ~30 teamplay-message rows.
+- 7 match-event entity rows.
+- **Total qw-namespace gameplay additions: ~420 rows. Plus 7 match_event entity rows per KTX tag.**
+
+**Alternative rejected:** composite-per-mode (one JSON-blob row per mode). Would compress to ~18 rows but every consumer query would need a JSON walk; defeats the structured-data shape; per-line comment-as-docstring buried in a blob; per-line source_ref impossible.
+
+**Carry-forward to 5.2.c:** kind value naming. Provisional `'mode_default'` -- 5.2.c locks final.
+
+#### 5.2.c -- Kind value for mode-overlay rows -- LOCKED
+
+**Decision:** new kind value `'mode_default'` on `gameplay_mechanics.kind`. Single CHECK widening covers both common-baseline rows AND per-mode-overlay rows. Apply-order axis lives in `props_json.apply_order`, not in the kind split.
+
+Per-row anchoring:
+- common (baseline) rows: `kind='mode_default'`, `ruleset_gate_json={"mode":"common"}`, `props_json.apply_order=1`, `props_json.is_baseline=true`.
+- per-mode overlay rows: `kind='mode_default'`, `ruleset_gate_json={"mode":"<token>"}`, `props_json.apply_order=2`, `props_json.is_baseline=false`.
+
+Query examples this shape supports:
+- "Show me everything that gets set when entering clan_arena, in apply order":
+  `WHERE kind='mode_default' AND ruleset_gate_json->>'mode' IN ('common','ca') ORDER BY (props_json->>'apply_order')::int, source_ref`
+- "Show every mode where teamplay is set to 4":
+  `WHERE kind='mode_default' AND name='teamplay' AND value_text='4'`
+- "What's the baseline value for k_pow_pickup":
+  `WHERE kind='mode_default' AND name='k_pow_pickup' AND ruleset_gate_json->>'mode'='common'`
+
+**Pass 4+5 cumulative schema impact updated:**
+- `entities.type` widening: `+1` (`'match_event'`).
+- `gameplay_entity_defs.kind` widening: `+1` (`'monster'`).
+- `gameplay_mechanics.kind` widenings: `+7` (`'game_mode'`, `'election_type'`, `'score_system'`, `'drop_item'`, `'loc_macro'`, `'teamplay_message'`, `'mode_default'`).
+- New table: `match_event_versions`.
+- **Total: 9 CHECK widenings + 1 new table.**
+
+**Alternatives rejected:**
+- Two kinds (`'common_baseline'` + `'mode_overlay'`) -- splits along apply-order axis; forces UNION for the natural "what gets set in mode X" query.
+- Reuse `'constant'` -- semantically wrong; collides with id1 baseline constants.
+- Verbose names like `'cvar_default_for_mode'` -- would also have to cover common rows (which aren't "for a mode" -- they're baseline).
+
+#### 5.2.d -- Macro / helper-call resolution depth -- LOCKED
+
+**Decision:** extend Pattern 6 (`extractor_lib._source` -- the same-file `#define` resolver) to walk `#include`d headers at depth-1. Lift the implementation to `extractor_lib`, not the KTX-specific handler -- the resolver becomes available to all current and future engine handlers.
+
+**Pressure point identified:** `common_um_init` (`commands.c:4152-4205`) contains exactly 2 macro-prefixed lines:
+- `LGCMODE_VARIABLE " 0\n"` -- macro defined in `g_local.h:1228` as `"k_lgcmode"`.
+- `TOT_MODE_VARIABLE " 0\n"` -- macro defined in `g_local.h:1236` as `"k_tot_mode"`.
+
+Both are cross-header (defined in `g_local.h`, used in `commands.c`). Today's Pattern 6 only resolves same-file `#define`s; these would silently drop without the lift.
+
+**Why the lift, not a hardcoded allowlist:**
+- Allowlist (2 entries today) silently rots: a future KTX tag introducing a 3rd macro silently drops that line from extraction.
+- Cross-header macro resolution is an explicit deferred limit in EXTRACTOR-PLAYBOOK Pattern 6 ("If this becomes pressure on another engine, extend `_file_macros` population to walk `#include`d headers"). KTX is the first surfaced pressure.
+- Future engines (FTE, MVDSV forks, antilag-mvdsv, unezQuake) all have header-defined cvar-name macros with the same shape -- the lift pays off everywhere.
+- Implementation cost is small: extend `_file_macros` population in `extractor_lib._source` to iterate `#include`d header preprocessor cursors via libclang's `PARSE_DETAILED_PROCESSING_RECORD` flag. One helper change, one test.
+
+**Scope of lift:** depth-1 (walk only direct `#include`s of the current TU, not transitive). Sufficient for KTX. Revisit if a multi-hop case surfaces in a future engine.
+
+**Side effects to flag for arc-planner:**
+- The lift requires `PARSE_DETAILED_PROCESSING_RECORD` on the libclang TU -- may slow parsing slightly. Estimated impact: <5% on file-parse time per ezQuake measurement (the flag is already used in some pipelines for other reasons; not a new cost class).
+- `_file_macros` cache structure widens from `dict[str,str]` (same-file only) to `dict[str,str]` keyed across the TU's include closure. No API change for callers; transparent extension.
+
+**Pass 5.3 implication:** the cross-header resolver lift is a Tier 1 (`extractor_lib`) deliverable. Surfaces in 5.3's handler-architecture decision as a shared-infrastructure prerequisite that lands in Phase 0/1 of arc execution before the gameplay-handlers run.
+
+#### 5.2.e -- Static-config-string apply-order encoding -- RESOLVED IMPLICITLY
+
+The 5.2.b lock (one row per cvar-set line) already encodes apply order via `props_json.apply_order in {1, 2}` and `props_json.is_baseline: bool`. No additional decision needed. File-based configs (`configs/usermodes/default.cfg`, `configs/usermodes/<mode>/default.cfg`) are runtime-loaded operator-modifiable configs, NOT in Layer 1 scope.
+
+#### 5.2 -- CLOSED
+
+All five sub-questions settled: 5.2.a (extract common_um_init as 54 rows gated on `{"mode":"common"}`) -- 5.2.b (one row per cvar-set line, ~309 mode_default rows total) -- 5.2.c (single new kind `'mode_default'`) -- 5.2.d (extend Pattern 6 to walk #included headers, depth-1) -- 5.2.e (apply-order resolved by 5.2.b's row schema).
+
+### 5.3 -- Handler architecture -- LOCKED
+
+**Decision:** four handlers, grouped by walking-strategy (NOT by source-file, NOT by row-shape). Three for libclang-driven extraction + one for XSD-driven extraction.
+
+| Handler | Output filename | Row kinds emitted | Walking strategy |
+|---|---|---|---|
+| `_handler_modes.py` | `ktx-modes-ast.json` | `game_mode` (catalog) + `mode_default` (overlays) | STRING_LITERAL-array walker on `const char[]` initstring declarations in `commands.c`. Parses `<cvar> <value>` lines. Uses extended Pattern 6 (5.2.d) for cross-header macros. |
+| `_handler_gameplay_taxonomies.py` | `ktx-gameplay-taxonomies-ast.json` | `election_type` + `death_rule` | Enum-decl walker on `electType_t` (`progs.h`) and `deathType_t` X-macro (`deathtype.h`). Parallel pattern to MVDSV's `_handler_protocol.py` (Pattern 10 -- TU-root cursor intercept for header-defined macros). |
+| `_handler_gameplay_tables.py` | `ktx-gameplay-tables-ast.json` | `monster` + `score_system` + `drop_item` + `loc_macro` + `teamplay_message` | INIT_LIST_EXPR walker on struct-array literals (Pattern 4) across `sp_monsters.c`, `race.c`, `commands.c`, `teamplay.c`. Plus banner-comment harvest (Pattern 9) for teamplay_message handler-function descriptions. |
+| `_handler_match_events.py` | `ktx-match-events-ast.json` | `match_event` | XSD-driven (Python `xml.etree.ElementTree`) + emission-site grep. Pass 5.6 designs implementation. NOT a libclang handler. |
+
+**Rationale (preserved here as the load-bearing reasoning behind the choice -- operator-flagged: extractor-architecture rationale is consistently under-documented across the 4 shipped engines):**
+
+The choice is between three candidate architectures:
+
+- **Option A (monolithic):** one handler emitting all 8 row kinds. Rejected: god-handler, hard to test, hard for arc-planner to slice for parallel execution, mixes walking strategies.
+
+- **Option B (one handler per row kind):** 10 handlers (one per output filename). Rejected: over-fragments. game_mode catalog rows and mode_default overlay rows both come from walking the same `commands.c` initstring arrays. Splitting forces two TU passes over the same data, two `_seen_in_file` sets, awkward shared state.
+
+- **Option C (group by walking strategy):** the chosen design. Each handler is bounded to one libclang traversal pattern, which makes:
+  - Per-handler unit-of-work easy to reason about (one walker, one pattern class).
+  - Source-file scope per handler clear and small.
+  - arc-planner's slicing decision trivial (one phase per handler if needed; or grouped phases).
+  - Pattern documentation in EXTRACTOR-PLAYBOOK reusable -- each handler exercises one pattern from the catalog.
+
+The grouping principle for future engines: **group handlers by libclang traversal pattern, not by source file or by row kind.** Two row kinds that share a walker belong together; two row kinds in the same source file but using different walkers do NOT belong together.
+
+**Pattern reuse summary:**
+- `extractor_lib._visitor.Visitor` -- base class, all four handlers inherit.
+- Pattern 4 (INIT_LIST_EXPR walks) -- consumed directly by `_handler_gameplay_tables.py`.
+- Pattern 6 (extended in 5.2.d for cross-header `#include`s, depth-1) -- consumed by `_handler_modes.py`.
+- Pattern 9 (function-banner harvest, ported from MVDSV's commands handler) -- consumed by `_handler_gameplay_tables.py` for teamplay_message handler-function descriptions.
+- Pattern 10 (TU-root cursor intercept for MACRO_DEFINITION / enum decls in headers) -- consumed by `_handler_gameplay_taxonomies.py` for the deathtype.h X-macro and progs.h electType_t.
+- New playbook pattern emerging from `_handler_modes.py`: STRING_LITERAL-array walker for parsed-config-string row emission (`<key> <value>\n` line-by-line). Worth landing as Pattern 15 at end-of-arc; reusable for any engine that ships static config strings as `const char[]` literals.
+
+**Loader-side count:** 4 new TS adapters in `apps/qw-oracle/scripts/load-knowledge/`:
+- `load-modes.ts` -- handles game_mode + mode_default rows (single adapter, dispatches on row.kind).
+- `load-gameplay-taxonomies.ts` -- handles election_type + death_rule rows.
+- `load-gameplay-tables.ts` -- handles monster + score_system + drop_item + loc_macro + teamplay_message rows.
+- `load-match-events.ts` -- handles match_event rows (parallel to mvdsv's `load-log-templates.ts` shape).
+
+**End-of-arc obligation (added to spec preamble's deferred-doctrine list):**
+- **Add EXTRACTOR-PLAYBOOK section "Handler-grouping rationale":** captures the Option-A/B/C reasoning above as a reusable design principle for future engine ports. Lists the canonical question ("group handlers by walking pattern, not by source file or row kind") and the grouping examples KTX produced.
+
+**Sidequest candidate (carry-forward, separate from this arc):**
+- **Retroactive extractor-rationale audit:** the 4 already-shipped engine extractors (ezQuake, FTE, QWCL, MVDSV) ship handler organizations whose reasoning is not documented anywhere. The KTX onboarding adds 5.3's rationale to the playbook prospectively, but the historical 4 should also get a one-paragraph rationale-capture each. Operator-flagged in Pass 5.3 turn ("we have so many extractors i dont know if we have documented really how or why we built them the way we did"). Run as a doc-hygiene sidequest after KTX ships.
+
+### 5.4 -- Per-kind props_json finalization -- LOCKED
+
+Source-walked all kinds; field sets locked. Surfaced row-count corrections from Pass 4 sketches; one new sidequest candidate (extended mutator inventory).
+
+#### 5.4.1 -- `game_mode` catalog row schema (final)
+
+```
+name                  TEXT             -- canonical token: "1on1", "ca", "race", "bloodfest", "lgc", ...
+kind                  TEXT             -- always "game_mode"
+value_text            TEXT NULL        -- internal enum spelling for um_list peers ("um2on2"); NULL for cvar-toggle modes
+source_ref            TEXT             -- file:line of definitional declaration
+ruleset_gate_json     JSONB            -- always {} for catalog rows (not gated; they DEFINE modes)
+props_json = {
+  -- Discriminator axis 1: HOW the mode activates
+  "init_mechanism":           "um_init_string" | "cvar_toggle_with_init_string" | "cvar_toggle_only",
+
+  -- Discriminator axis 2: WHAT relationship to active mode
+  "mode_class":               "standalone" | "mutator",
+  "auto_reset_on_match":      bool,           -- mutator subset; auto-clear at match start
+  "auto_reset_call_sites":    [str],          -- where the cvar_set("X","0") sites are; mutator-only
+
+  -- Activation metadata
+  "activation_cvar":          str | null,     -- "k_race", "k_bloodfest", "k_lgcmode", ... (null for um_list peers)
+  "initstring_ref":           str | null,     -- "commands.c:4262" pointing at const char[] declaration
+  "init_function":            str | null,     -- "apply_race_settings" for race; null for others
+
+  -- um_list-specific metadata (null for cvar-toggle rows)
+  "team_structure":           str | null,     -- "UM_2ON2" / "UM_4ON4" / "UM_RACEMODE" / ... / null
+  "race_plrs_per_team":       int | null,     -- col 5 of um_list[]; null when not in um_list
+
+  -- Display + community framing
+  "user_facing_label":        str,            -- "Wipeout" / "Clan Arena" / "LGC Mode"
+  "community_name":           str | null,     -- what players call it informally
+  "wiki_ref":                 str | null,     -- https://www.quakeworld.nu/wiki/<page> when one exists
+  "game_type":                str,            -- "Duel" | "Team" | "FFA" | "CTF" | "Race" | "Survival" | "Mutator" | "Unknown"
+  "playable_solo":            bool,
+
+  -- Provenance
+  "source_xrefs":             [str]           -- file:line list for all related sites
+}
+```
+
+**Final catalog inventory** (per KTX tag, when extraction lands):
+
+| Row | mode_class | init_mechanism | auto_reset | game_type |
+|---|---|---|---|---|
+| 1on1, 2on2, 3on3, 4on4, 10on10, hoonymode, blitz2v2, blitz4v4, 2on2on2, 3on3on3, 4on4on4, XonX, wipeout, ca | standalone | um_init_string | false | Duel\|Team |
+| ffa, tot | standalone | um_init_string | false | FFA |
+| ctf | standalone | um_init_string | false | CTF |
+| race | standalone | cvar_toggle_with_init_string | false | Race |
+| bloodfest | standalone | cvar_toggle_only | false | Survival |
+| lgc | mutator | cvar_toggle_only | true | Mutator |
+| instagib | mutator | cvar_toggle_only | true | Mutator |
+| midair | mutator | cvar_toggle_only | true | Mutator |
+| berzerk | mutator | cvar_toggle_only | false | Mutator |
+| yawnmode | mutator | cvar_toggle_only | false | Mutator |
+| killquad | mutator | cvar_toggle_only | false | Mutator |
+| freshteams | mutator | cvar_toggle_only | false | Mutator |
+| nosweep | mutator | cvar_toggle_only | false | Mutator |
+
+**Total: 27 catalog rows** (17 um_list peers + race + bloodfest + 8 mutators).
+
+**Source-investigation results (3 promotions after wiki silence)** -- the wiki rip didn't surface KillQuad / FreshTeams / NoSweep because they're niche features (not in tournament rules). Source code reveals all three are substantive mutator-shaped modes:
+
+- **KillQuad**: source devs explicitly comment `// killquad mode` (`g_local.h:1026`, `globals.c:25`). Effect: modifies quad-spawn + quad-pickup behavior (`items.c:1892, 1974-1976`; `match.c:946`); forces powerup-1 mode regardless of normal gating (`g_utils.c:1785`). Mutually non-exclusive with berzerk (handled via `&& !k_berzerk` checks).
+- **FreshTeams**: multi-flag system with 4 sub-cvars (`k_freshteams_limit_packs`, `k_freshteams_limit_sweep_ammo`, `k_freshteams_fast_ammo`, `k_freshteams_weapon_time`). Modifies weapon respawn timing + ammo from sweeps (`items.c:809-957`). Rich color-coded redtext label `&c08fFreshTeams&r`. Designed for handicap/unbalanced team play.
+- **NoSweep**: source comment "can't pick up weapons you already have in dmm1" (`world.c:909`). Auto-disables outside dmm1 (`world.c:1775-1777`). Substantive pickup-restriction effect.
+
+**Sub-mutator handling for FreshTeams**: the 4 sub-cvars are captured as `props_json.sub_flags_json: ["k_freshteams_limit_packs", "k_freshteams_limit_sweep_ammo", "k_freshteams_fast_ammo", "k_freshteams_weapon_time"]` on the FreshTeams catalog row -- NOT promoted to sibling mutator rows. Reasoning: they modify FreshTeams behavior, not standalone gameplay modes. Each sub-cvar still surfaces as a standalone Layer 1 `cvar` entity row via Pass 1 extraction (already planned).
+
+**Bar for promotion (validated by this iteration -- methodology lesson):**
+1. Has its own user-facing toggle command (`cvar_toggle_msg`).
+2. Has a distinguishing redtext label (e.g., "KillQuad", "FreshTeams" with color codes).
+3. Modifies gameplay substantively, not just an on/off flag like `k_dis` (discharges) or `k_pow_p` (pent on/off).
+4. Source devs frame it as a mode (in comments) OR community wiki frames it as a mode (in tournament rules).
+
+If 3 of 4 criteria hit -> promote. Discharges / pent / quad / ring-toggle and similar pure-flag toggles fail criterion 3. The 8 mutators all hit 3+ criteria.
+
+**Berzerk validation (cross-check against community wiki rip + source -- methodology lesson worth preserving):**
+
+The Pass 5.4 walk surfaced four cvar-toggle candidates as potential mutators (k_bzk, k_killquad, k_freshteams, k_nosweep). Operator-driven cross-check against the local quakeworld.nu/wiki rip at `/tmp/qwiki-snapshot/articles/` (9173 articles) ran the candidates against tournament-rules pages:
+
+- **Berzerk**: HIT. Multiple tournament-rules pages contain the verbatim line `"No berzerk, midair, instagib or other unusual modes."` (2018 QW Duel Showdown Rules, Get2Gether Rules, D99TenYearDraft Rules, etc.). Community framing puts berzerk as a peer of midair/instagib. **Source mechanism**: `k_bzk` is the enable cvar; at match start `k_berzerktime = cvar("k_btime")`; when match timer crosses `k_btime`, source prints `"BERZERK!!!!\n"` and sets runtime `k_berzerk = 1` for all players (quad-for-all in the final stretch, per `match.c` ~lines 1262, 1618-vicinity, plus the `find_plr` loop). Operator's recollection ("everyone has quad in the last 10/30 seconds") was correct.
+- **KillQuad, FreshTeams, NoSweep**: NO HIT. No mode-framing in wiki tournament-rules pages. EQL Ladder substring matches were unrelated content (e.g., "kill quaded" = a frag event, not the cvar). These stay deferred.
+
+**Decision:** promote `k_bzk` to the catalog as a mutator row (`auto_reset_on_match = false` because the *enable* cvar `k_bzk` persists across matches; only the *runtime state* `k_berzerk` resets at match boundaries). Catalog grows from 23 to 24.
+
+**Methodology lesson** (worth preserving for future engine ports + Layer 3 concept-note authoring): when extraction surfaces candidate mode-shaped cvars whose tournament-rules framing is uncertain, cross-checking against the community wiki rip is high-signal-cheap. "Wiki tournament-rules pages mention this candidate verbatim alongside known modes" is the load-bearing test. The 4-candidate -> 1-promote outcome proved the test discriminates correctly. Worth landing as a `Pre-Commit Discovery Cross-Check` section in EXTRACTOR-PLAYBOOK at end-of-arc; complements the existing Pre-Port Discovery Sweep.
+
+**Sidequest candidate (carry-forward, NARROWED -> RESOLVED here):** `k_killquad` / `k_freshteams` / `k_nosweep` were initially deferred but resolved in-pass via source investigation; promoted to mutator inventory above. The Pass 5.4 promotion bar (4 criteria) is the methodology lesson worth landing in EXTRACTOR-PLAYBOOK.
+
+**New sidequest candidate (operator-flagged in 5.4 close):** **Layer 1 database design audit.** Operator notes no DB-engineering background; Layer 1 schema has grown organically across v1-v18 + KTX-onboarding ahead. Worth a structured audit of:
+- Index coverage vs actual MCP query patterns (are GIN indexes on `ruleset_gate_json` JSONB present? are common-WHERE columns covered?).
+- Storage shape: text columns where ENUMs/numerics would be cheaper; JSONB-everywhere vs relational normalisation pressure points.
+- CHECK constraint sprawl as kind/type values grow (KTX adds 9 widenings; how does that scale across 5+ engines + future content?).
+- pgvector index params for Layer 3 (lists, m, ef_construction tuning).
+- Dead columns / unused fields from the SQLite era's leftover migrations.
+- Implications for the loader scripts and natural-key upserts.
+Tracking: HANDOVER.md backlog under "Ongoing/future arcs" -- run as a separate arc after the KTX onboarding ships, NOT folded into KTX execution. Outcome should be a `docs/superpowers/specs/<date>-qw-oracle-db-audit.md` findings spec + an arc to address any actionable items.
+
+#### 5.4.2 -- `mode_default` row schema (final, per 5.2.b lock)
+
+Already locked. Re-stated for completeness:
+
+```
+name                  TEXT             -- cvar name being set: "teamplay", "k_membercount", "k_pow"
+kind                  TEXT             -- always "mode_default"
+value_text            TEXT             -- string value: "2", "4", "1", ...
+value_numeric         INT NULL         -- populated when value parses as integer
+source_ref            TEXT             -- "commands.c:<exact_line>" inside the const char[] body
+ruleset_gate_json     JSONB            -- {"mode":"common"} or {"mode":"<token>"}
+props_json = {
+  "comment":          str | null,      -- harvested trailing // comment
+  "apply_order":      1 | 2,            -- 1=common baseline, 2=per-mode overlay
+  "initstring_array": str,             -- "common_um_init", "_2on2_um_init", ...
+  "is_baseline":      bool             -- true iff apply_order==1
+}
+```
+
+**Row count: ~309** (54 baseline + ~255 per-mode overlay). The 4 mutators do NOT contribute mode_default rows -- they have no init strings.
+
+#### 5.4.3 -- `election_type` row schema (final)
+
+Source verified at `progs.h:217-225`. Skip `etNone` sentinel.
+
+```
+name                  TEXT             -- "captain", "coach", "admin", "suggest_color", "late_join"
+kind                  TEXT             -- always "election_type"
+value_text            TEXT             -- "etCaptain", "etCoach", "etAdmin", "etSuggestColor", "etLateJoin"
+source_ref            TEXT             -- "progs.h:<line>"
+ruleset_gate_json     JSONB            -- always {} (subsystem-level; available regardless of mode)
+props_json = {
+  "description":           str,        -- short label; harvested from in-source comments / vote.c context
+  "related_commands_json": [str],      -- vote-command names mined from vote.c grep ("electcaptain", "elect_admin", etc.)
+  "required_role":         str         -- "player" | "admin" | "elected_admin" | "any"
+}
+```
+
+**Row count: 5.** Handler walks `electType_t` enum cursor (Pattern 10 -- TU-root cursor intercept on `progs.h`), then cross-references vote.c call sites for `related_commands_json` and `required_role` heuristic.
+
+#### 5.4.4 -- `death_rule` row schema (final)
+
+Source verified at `include/deathtype.h` (X-macro file, 30 entries). Pass 4.3 said 28 values; correction: 30 entries (28 substantive + `dtNONE` + `dtUNKNOWN` sentinels). Skip both sentinels for L1 rows.
+
+Substantive entries: dtAXE, dtSG, dtSSG, dtNG, dtSNG, dtGL, dtRL, dtLG_BEAM, dtLG_DIS, dtLG_DIS_SELF, dtHOOK, dtCHANGELEVEL, dtLAVA_DMG, dtSLIME_DMG, dtWATER_DMG, dtFALL, dtSTOMP, dtTELE1, dtTELE2, dtTELE3, dtTELE4, dtEXPLO_BOX, dtLASER, dtFIREBALL, dtSQUISH, dtTRIGGER_HURT, dtSUICIDE.
+
+Question on `dtCHANGELEVEL`: structural row (fires on map change, not gameplay). Recommend KEEP -- the qw-event-log validation harness needs to recognize the demo event even though it isn't a "kill". Note category as `structural`.
+
+```
+name                  TEXT             -- string token from X-macro: "axe", "ssg", "rl", "lg_dis", "lava", "squish", "suicide"
+kind                  TEXT             -- always "death_rule"
+value_text            TEXT             -- enum tag: "dtAXE", "dtSSG", ...
+source_ref            TEXT             -- "deathtype.h:<line>"
+ruleset_gate_json     JSONB            -- {} by default; per-mode restrictions in props_json instead
+props_json = {
+  "category":           str,           -- "weapon" | "environment" | "telefrag" | "self" | "structural"
+  "id1_baseline":       bool,          -- fires in pure id1 mode (axe/sg/ssg/rl/etc., lava/slime/water, fall, suicide, telefrags)
+  "ktx_extension":      bool,          -- KTX-introduced taxonomy refinement (lg_dis/lg_dis_self distinction, hook, fireball, stomp, explo_box, laser, trigger)
+  "related_weapon":     str | null     -- "rocket_launcher" / "lightning_gun" / null; joinable to id1 gameplay_entity_defs
+}
+```
+
+**Row count: 27** (30 X-macro entries -- dtNONE -- dtUNKNOWN, keep dtCHANGELEVEL).
+
+**qw-event-log validation harness anchor:** these 27 rows are the cross-validation target for the parser's WeaponType enum. The id1_baseline / ktx_extension flags let the harness segment "should fire on id1 demos" vs "only fires on KTX demos."
+
+#### 5.4.5 -- `monster` row schema (final)
+
+Source verified at `sp_monsters.c:60-76` (`bloodfest_monster_array[]`).
+
+```
+name                  TEXT             -- canonical: e.g. "monster_fish", "monster_ogre", "monster_shambler"
+kind                  TEXT             -- always "monster"
+value_text            TEXT NULL        -- the classname; same as name in this case
+source_ref            TEXT             -- "sp_monsters.c:<exact_line>"
+ruleset_gate_json     JSONB            -- always {"mode":"bloodfest"}
+props_json = {
+  "count_per_wave":      int,          -- field 1 of bloodfest_monster_t
+  "count_modifier":      int,          -- field 2: armor_for_kill (Pass 4.4 mis-named -- it's actually armor gained per kill, not a count modifier)
+  "boss_able":           bool,         -- field 3: can spawn as a boss with k_bloodfest_boss_hp_factor multiplier
+  "array_position":      int,          -- 0-12; preserves source-order significance (FISH _MUST_ BE _FIRST_ per source comment)
+  "is_first_required":   bool          -- true only for index 0 (fish hack flagged in source comment)
+}
+```
+
+**Pass 4.4 sketch correction:** the second field of `bloodfest_monster_t` is `armor_for_kill`, not `count_modifier`. The struct definition (`sp_monsters.c:48-52`) carries the canonical names. Field-name-fidelity matters for downstream consumers; lock `armor_for_kill` as the props_json key and document.
+
+```
+props_json (corrected) = {
+  "count_per_wave":      int,          -- bloodfest_monster_t field 1
+  "armor_for_kill":      int,          -- bloodfest_monster_t field 2 (renamed from Pass 4.4's count_modifier)
+  "boss_able":           bool,         -- field 3
+  "array_position":      int,
+  "is_first_required":   bool
+}
+```
+
+**Row count: 13.** Pattern 4 (INIT_LIST_EXPR walk) handles extraction directly.
+
+#### 5.4.6 -- `score_system` row schema (final)
+
+Source verified at `race.c:5137-5145` (struct), `race.c:5148-5160` (array of 3).
+
+```
+name                  TEXT             -- "win_only", "scaled", "formula1" (slugified from .name field)
+kind                  TEXT             -- always "score_system"
+value_text            TEXT             -- the .name field verbatim: "Win Only", "Scaled", "Formula1"
+source_ref            TEXT             -- "race.c:<exact_line>" of the row in scoring_systems[]
+ruleset_gate_json     JSONB            -- always {"mode":"race"}
+props_json = {
+  "positions":           [int],        -- exactly 10 elements; per-position points payouts (Formula1: [25,18,15,12,10,8,6,4,2,1])
+  "completion":          int,          -- field .complete: points for completing the course
+  "beating":             int,          -- field .beating: points per opponent beaten
+  "dnf_penalty":         int,          -- field .dnf_penalty: -1 sentinel = unused
+  "round_max_diff":      int           -- field .round_max_diff: duel early-end threshold
+}
+```
+
+**Validation gate** (lift from F1 quality-grid pattern): every score_system row has exactly 10 elements in `positions`. Loader-side assertion.
+
+**Row count: 3.**
+
+#### 5.4.7 -- `drop_item` row schema (final)
+
+Source verified at `commands.c:9044-9051` (struct), `commands.c:9075-9108` (array). **Row count: 30, not ~20** -- Pass 4.4 undercounted.
+
+`dropitem_spawn_t` has 5 fields: `name`, `classname`, `spawnflags`, `angle`, `spawn` (function pointer). Trailing fields default to 0/NULL when omitted in the array literal.
+
+`#define WEAPON_BIG2 1` is at `commands.c:9053`. `H_ROTTEN` and `H_MEGA` are defined elsewhere in `g_local.h` (need #include resolution -- but they're standard QuakeC item flags; the values matter for runtime pickup logic).
+
+```
+name                  TEXT             -- drop-token: "h15", "h25", "h100", "ga", "ya", "ra", "ssg", "ng", ...
+kind                  TEXT             -- always "drop_item"
+value_text            TEXT NULL        -- spawned classname: "item_health", "weapon_supershotgun", ...
+source_ref            TEXT             -- "commands.c:<exact_line>"
+ruleset_gate_json     JSONB            -- {} (drop-items work universally; no mode gate)
+props_json = {
+  "drop_token":              str,      -- duplicate of name (for clarity in queries / API responses)
+  "spawned_classname":       str,      -- the classname field from the row
+  "spawnflags_raw":          str,      -- raw token: "H_ROTTEN" | "H_MEGA" | "WEAPON_BIG2" | "0" | "1"
+  "spawnflags_value":        int,      -- resolved integer (Pattern 6 + #include walk for H_ROTTEN/H_MEGA from g_local.h)
+  "angle_set":               bool,     -- true iff field 4 is non-zero (most rows: false; flag/spawnpoint rows: true)
+  "spawn_function":          str|null, -- "dropitem_spawn_spawnpoint" for spawnpoint rows; null for normal drop items
+  "related_entity_canonical_id": str|null  -- "qw:gameplay_entity_def:<classname>" join target into id1 baseline (~26 of 30 rows match an id1 baseline row)
+}
+```
+
+**Pass 4.4 schema correction:** added `angle_set` field (boolean derivation of the dropitem_spawn_t.angle field) and `spawn_function` (derivation of the function-pointer slot). Both visible in source array but absent from Pass 4.4 sketch.
+
+**Row count: 30.** Pattern 4 (INIT_LIST_EXPR walk) + Pattern 6 (extended) for `H_ROTTEN`/`H_MEGA`/`WEAPON_BIG2` resolution.
+
+#### 5.4.8 -- `loc_macro` row schema (final)
+
+Source verified at `teamplay.c:1485-1489` (struct), `teamplay.c:1491-1508` (array). **Row count: 15, not 16** -- direct count from source array.
+
+```
+name                  TEXT             -- macro key: "ssg", "ng", "sng", "gl", "rl", "lg", "separator", "ga", "ya", "ra", "quad", "pent", "ring", "suit", "mh"
+kind                  TEXT             -- always "loc_macro"
+value_text            TEXT             -- the expansion: "ssg" / "ng" / "-" / "mega" / etc.
+source_ref            TEXT             -- "teamplay.c:<exact_line>"
+ruleset_gate_json     JSONB            -- {} (universal across modes)
+props_json = {
+  "expansion":            str,         -- duplicate of value_text for clarity
+  "is_identity":          bool,        -- true iff name == value_text (most rows are identity; standout: mh -> mega, separator -> -)
+  "category":             str,         -- "weapon" | "armor" | "powerup" | "health" | "syntactic" (separator)
+  "related_item":         str|null     -- gameplay_entity_def name when applicable: ssg -> "weapon_supershotgun", quad -> "item_artifact_super_damage", null for separator
+}
+```
+
+**Row count: 15.**
+
+#### 5.4.9 -- `teamplay_message` row schema (final)
+
+Source verified at `teamplay.c:1638-1643` (struct), `teamplay.c:1645-1668` (array of 21).
+
+```
+name                  TEXT             -- cmdname field: "yesok", "nocancel", "soon", "waiting", ...
+kind                  TEXT             -- always "teamplay_message"
+value_text            TEXT             -- description field verbatim: "yes/ok", "no/cancel", "item soon", ...
+source_ref            TEXT             -- "teamplay.c:<exact_line>"
+ruleset_gate_json     JSONB            -- {} (universal)
+props_json = {
+  "description":           str,        -- duplicate of value_text for clarity
+  "handler_function":      str,        -- C function name: "TeamplayYesOk", "TeamplayNoCancel", "TeamplayItemSoon", ...
+  "source_ref_handler":    str,        -- file:line of the handler function definition (Pattern 9 banner-comment harvest target)
+  "harvested_description": str|null    -- function-banner description if Pattern 9 harvest succeeds; null otherwise
+}
+```
+
+**Pass 4.4 schema correction:** added `harvested_description` field for Pattern 9 banner-comment harvest output (the actual prose explaining what each teamplay command does, harvested from the function-definition banner-comments). Pattern parallel to MVDSV's command banner harvest (Pattern 9).
+
+**Row count: 21**, not ~30 (Pass 4.4 estimated wide; actual count from source).
+
+#### 5.4.10 -- `match_event` row schema (final, locked in Pass 4.5)
+
+Already finalized in Pass 4.5. Re-stated row counts only:
+
+- 7 entity rows (one per XSD complexType: pick_mapitem, pick_backpack, drop_backpack, pick_powerup, drop_powerup, damage, death).
+- 7 match_event_versions rows per KTX tag.
+- 13 emission call sites populating each row's `emission_call_sites_json`.
+
+#### 5.4 -- closing summary
+
+**Final row counts per KTX tag** (revised from Pass 4 sketch):
+
+| Kind | Count | Source |
+|---|---|---|
+| game_mode catalog | 23 | um_list[] (17) + race + bloodfest + 4 mutators |
+| mode_default overlay | ~309 | common_um_init (54) + 17 per-mode initstrings (~255) |
+| election_type | 5 | electType_t (skip etNone) |
+| death_rule | 27 | deathtype.h X-macro (skip dtNONE / dtUNKNOWN) |
+| monster | 13 | bloodfest_monster_array[] |
+| score_system | 3 | scoring_systems[] |
+| drop_item | 30 | dropitems[] |
+| loc_macro | 15 | locmacros[] |
+| teamplay_message | 21 | messages[] |
+| **qw-namespace gameplay subtotal** | **~446** | |
+| match_event | 7 | XSD types |
+
+**Total qw-namespace gameplay rows: ~446. Plus 7 match_event entity rows.** Compared to Pass 4 close's "~136" headline -- substantial growth driven by 5.2.b's per-line mode_default extraction and the corrected drop_item count.
+
+**Field-set deltas vs Pass 4.4 sketch (locked here):**
+- `monster.props_json`: `count_modifier` -> `armor_for_kill` (source-fidelity to struct field name).
+- `drop_item.props_json`: added `angle_set` and `spawn_function` fields (the 5-field struct, not the 3-field one Pass 4.4 sketched).
+- `teamplay_message.props_json`: added `harvested_description` (Pattern 9 banner harvest).
+- `score_system.props_json`: locked `positions` array length-10 invariant (validation gate).
+- `loc_macro` row count: 16 -> 15 (direct count from source).
+- `teamplay_message` row count: ~30 -> 21 (direct count from source).
+- `drop_item` row count: ~20 -> 30 (Pass 4.4 undercount).
+- `death_rule` row count: ~25 -> 27 (Pass 4.3 estimate refined).
+
+### 5.5 -- Migration files and ordering -- LOCKED
+
+**Decision:** three migration files, semantically split. Land in chronological order during arc execution.
+
+| File | Concern | Schema delta |
+|---|---|---|
+| `008_ktx_log_template_logfile_channel.sql` (Pass 3 drafted, not yet committed) | log_template channel widening | `log_template_versions.channel` CHECK admits `'logfile'` |
+| `009_ktx_match_event_type.sql` | new entity type + per-version table | `entities.type` CHECK admits `'match_event'`; CREATE `match_event_versions` (PK + 2 indexes) |
+| `010_ktx_gameplay_kinds.sql` | gameplay-kind widenings | `gameplay_entity_defs.kind` += `'monster'`; `gameplay_mechanics.kind` += `'game_mode'`, `'election_type'`, `'score_system'`, `'drop_item'`, `'loc_macro'`, `'teamplay_message'`, `'mode_default'` |
+
+**Why split, not bundle:**
+- One mega-migration is harder to read, revert, and reason about.
+- 008 is independent of gameplay work (Pass 1 territory) -- lands first when arc execution starts, doesn't block on gameplay handler readiness.
+- 009 atomically introduces the new entity type + its per-version table. If migration succeeds, loader can write match_event rows; if it fails, no half-state.
+- 010 widens existing kind CHECKs only -- atomic group. Lands when gameplay handlers are ready to emit rows.
+
+**Migrator pattern**: standard PostgreSQL `ALTER TABLE ... DROP CONSTRAINT ... + ADD CONSTRAINT ...` per Pass 3.1 precedent. CHECK constraints don't require table rewrite for additive value-set changes.
+
+**Per-migration validation probes** (post-migration assertions; arc-execution Phase X integration):
+- 008: insert/delete a stub `log_template` row with `channel='logfile'`; success confirms widening.
+- 009: query `pg_constraint` to confirm `'match_event'` is in `entities.type` CHECK; query `information_schema.tables` to confirm `match_event_versions` exists; insert/delete a stub `match_event` entity + version row.
+- 010: insert/delete a stub row of each new kind value (one per: monster, game_mode, election_type, score_system, drop_item, loc_macro, teamplay_message, mode_default); all succeed confirms widenings.
+
+**Ordering constraint:** 008 -> 009 -> 010. They're independent at the data level (could land in any order without breaking constraints) but chronological numbering preserves audit traceability and matches Pass-3 / Pass-4 / Pass-5 work attribution.
+
+**Idempotency:** all three migrations follow the migrator's standard idempotency convention -- re-running on an already-migrated DB is a no-op (the widened CHECKs already admit the new values; the new table already exists; ALTER TABLE ... DROP CONSTRAINT + ADD CONSTRAINT is the canonical pattern). No `IF NOT EXISTS` gymnastics needed.
+
+**End-of-arc obligation** (added to spec preamble's deferred-doctrine list):
+- **SCHEMA.md sweep** -- adds v19/v20/v21 sections (or v19 covering all three if landed in close succession) describing each migration's schema delta with the canonical narrative shape (motivation + delta + interaction with existing schema). Lands AFTER 008/009/010 ship -- otherwise documents 4 channels and re-stales the moment KTX-gameplay ships.
+
+### 5.6 -- match_event handler architecture detail -- LOCKED
+
+Pass 4.5 locked the row shape + the two-stage approach (XSD parse + emission-site grep). 5.6 finalizes implementation specifics.
+
+#### 5.6.a -- XML library
+
+**Decision:** Python stdlib `xml.etree.ElementTree`. NOT `lxml`.
+
+Reasoning:
+- KTX XSD is small (~150 lines, 7 complexTypes); parsing speed is not load-bearing.
+- `xml.etree` ships with Python 3 stdlib -- zero install footprint, zero dependency maintenance.
+- `lxml` is faster + better XPath support, but those advantages don't apply at this scale.
+- Operator preference for stdlib-when-stdlib-suffices (cf. `feedback_best_tool_no_overkill.md` -- the rule cuts both ways: don't pre-reject the better tool on size, but don't pre-accept the heavier tool when stdlib covers the requirement either).
+
+#### 5.6.b -- Emission-site grep
+
+**Decision:** Python `re` regex over a fixed file glob.
+
+- **Glob scope:** `src/items.c`, `src/combat.c`, `src/client.c`, `src/logs.c` -- the four files Pass 4.5 verified contain all 13 emission sites.
+- **Regex pattern:** `log_printf\(\s*"\\\\t\\\\t\\\\t<(\w+)>` -- captures the `event_name` group from the literal XML format string.
+- **Output structure:** `dict[event_name -> [(file, line, containing_function), ...]]`. The handler's `containing_function` heuristic walks backwards from the regex match line to the nearest preceding `^[\w\s\*]+\([^)]*\)\s*\{?$` C function-signature line.
+- **Run mode:** sequential per-file scan, NOT a libclang AST walk. The pattern is regular; AST overhead is unjustified.
+
+#### 5.6.c -- Handler placement + loader
+
+**Decision:**
+
+- **Handler:** `apps/qw-oracle/scripts/extractors/ktx/_handler_match_events.py` -- project-private (Tier 3 per EXTRACTOR-PLAYBOOK three-tier model). Does NOT inherit from `Visitor` (the XSD pattern doesn't fit the libclang Visitor lifecycle). Stands alone with its own `setup` -> `parse_xsd` -> `grep_emissions` -> `merge` -> `finalize` flow.
+- **Output filename:** `ktx-match-events-ast.json`. The `-ast` suffix is retained for filename uniformity across the four KTX handlers, even though this handler is XSD-driven (not AST-driven).
+- **Promote-to-shared trigger:** if a second engine surfaces XSD-defined event types in the future, lift the XSD parser to `extractor_lib._xsd_match_events.py` (Tier 2) and have both projects call it. Until then: stays project-private per Rule of Second Consumer.
+- **Loader:** `apps/qw-oracle/scripts/load-knowledge/load-match-events.ts` -- mirrors `load-log-templates.ts` shape. Handles `attributes_json` JSONB pass-through correctly per `feedback_postgres_js_jsonb_binding.md` (pass JS array/object directly to postgres-js, NEVER pre-stringify; or wrap with `tx.json(...)` for explicit JSONB type).
+
+**Output JSON shape (committed to disk):**
+
+```json
+{
+  "_stats": {"event_types": 7, "emission_sites": 13, "xsd_path": "resources/extralog/ktxlog_0.1.xsd", "xsd_version": "0.1"},
+  "match_events": [
+    {
+      "name": "death",
+      "ast": {
+        "complex_type":            "deathtype",
+        "attributes":              [{"name":"time","type":"xs:decimal","constraint":null}, ...],
+        "xsd_path":                "resources/extralog/ktxlog_0.1.xsd",
+        "xsd_version":             "0.1",
+        "emission_call_sites":     [{"file":"combat.c","line":<n>,"containing_function":"<fn>"}, ...]
+      }
+    },
+    ...
+  ]
+}
+```
+
+#### 5.6 -- CLOSED
+
+All three sub-decisions locked: 5.6.a (`xml.etree.ElementTree` stdlib) -- 5.6.b (Python regex over fixed file glob, 4-file scope) -- 5.6.c (project-private Tier 3 handler + `load-match-events.ts` loader).
+
+---
+
+## Pass 5 -- CLOSED
+
+All six sub-questions settled: 5.1 (race + bloodfest catalog rows; 5.1-amendment surfaced 8-mutator inventory under single-kind two-axis model -- final catalog 27 rows) -- 5.2 (per-`_um_init` extraction shape: `_um_init` arrays are literal `const char[]`; one-row-per-cvar-set; new kind `'mode_default'`; extend Pattern 6 to walk #include'd headers; apply-order encoded in props_json) -- 5.3 (4-handler architecture grouped by walking strategy: `_handler_modes.py` + `_handler_gameplay_taxonomies.py` + `_handler_gameplay_tables.py` + `_handler_match_events.py`) -- 5.4 (per-kind props_json field sets locked across 9 kinds; row-count corrections from Pass 4 sketches; Berzerk + KillQuad + FreshTeams + NoSweep promoted to mutator inventory after wiki-rip + source-investigation) -- 5.5 (3 migration files split semantically: 008/009/010) -- 5.6 (match_event handler implementation specifics).
+
+**Total Pass 4+5 schema impact (final):**
+- `entities.type` widening: +1 (`'match_event'`).
+- `gameplay_entity_defs.kind` widening: +1 (`'monster'`).
+- `gameplay_mechanics.kind` widenings: +7 (`'game_mode'`, `'election_type'`, `'score_system'`, `'drop_item'`, `'loc_macro'`, `'teamplay_message'`, `'mode_default'`).
+- New table: `match_event_versions`.
+- **Total: 9 CHECK widenings + 1 new table.** Three migration files (008/009/010).
+
+**Total row impact (per KTX tag, when extraction lands):**
+- 27 catalog rows (`kind='game_mode'`): 17 um_list + race + bloodfest + 8 mutators.
+- ~309 mode_default rows (54 baseline + ~255 per-mode overlays).
+- 5 election-type rows.
+- 27 death-rule rows.
+- 13 monster rows + 3 score-system rows + 30 drop-item rows + 15 loc-macro rows + 21 teamplay-message rows.
+- 7 match-event entity rows.
+- **Total qw-namespace gameplay rows: ~450. Plus 7 match_event entity rows.** Plus the Pass 1 first-class entity rows (cvar / command / info_key / log_template).
+
+**Carry-forwards to arc-planner / arc-execution:**
+- Three migration files (008/009/010) to draft in Phase 0/1 with their validation probes.
+- Cross-header Pattern 6 extension to `extractor_lib._source` -- shared-infrastructure prerequisite, lands before any KTX gameplay handler runs.
+- Four KTX gameplay-extraction handlers (`_handler_modes.py`, `_handler_gameplay_taxonomies.py`, `_handler_gameplay_tables.py`, `_handler_match_events.py`) plus the existing Pass 1 four-first-class-entity handlers.
+- Four loader adapters in `apps/qw-oracle/scripts/load-knowledge/`: `load-modes.ts`, `load-gameplay-taxonomies.ts`, `load-gameplay-tables.ts`, `load-match-events.ts`.
+- New `gameplay_sources` row for `'ktx'` (data, not schema).
+- Pass 1.7 printf-handler keeps catching XML-shaped log_printfs as `channel='logfile'` log_template rows (intentional dual-row design with match_event rows).
+
+**Carry-forwards to other workstreams:**
+- Layer 3 concept-note candidates (parking doc `2026-05-04-ktx-layer3-concept-note-candidates.md`): #2 (KTX game modes index) and #7 (KTX matchlog format) get rich Layer 1 anchors. Plus 8 new candidate concept notes -- one per mutator (LGC, instagib, midair, berzerk, yawnmode, killquad, freshteams, nosweep) -- each is a strong Layer 3 candidate because no good documentation exists for what each mutator actually does at the player level.
+- qw-event-log validation harness parking doc (`2026-04-XX-qw-event-log-cross-validation.md`) is now **unblocked at the schema level** -- match_event rows give it the Layer 1 anchors it needs once KTX onboarding ships.
+
+**Carry-forwards as new sidequests (HANDOVER.md additions):**
+- **Layer 1 database design audit** (operator-flagged): index coverage, storage shape, CHECK constraint sprawl, pgvector tuning, dead columns, loader-script implications. Run AFTER KTX ships. Tracking added to HANDOVER.md.
+- **Retroactive extractor-rationale audit**: the 4 already-shipped engine extractors (ezQuake / FTE / QWCL / MVDSV) ship handler organizations with no documented rationale. Add one-paragraph rationale-capture per engine. Tracking added to HANDOVER.md (5.3 close).
+- **Candidate non-mutator narrowing**: future Layer 3 / community-research could surface additional mode-shaped cvars that today's 4-criteria bar misses. Re-run when concept-note authoring exposes pressure.
+
+**End-of-arc obligations** (folded into spec preamble's deferred-doctrine list -- arc-execution Phase X-final task):
+- Doctrine fixes -- OVERVIEW.md / EXTRACTOR-PLAYBOOK.md / extractor CLAUDE.md / extraction-pipeline-vision memory all incorrectly state KTX uses tree-sitter. Canonical KTX is pure C; libclang is the right toolchain. Fix as part of arc execution.
+- SCHEMA.md sweep absorbing 008/009/010 plus the existing Arc 1 refresh sweep that's been pending.
+- EXTRACTOR-PLAYBOOK additions: Pre-Port Discovery Sweep section (Pass 1 methodology lesson), Pre-Commit Discovery Cross-Check section (Pass 5.4 wiki-vs-source methodology), Handler-grouping rationale section (Pass 5.3), STRING_LITERAL-array walker as Pattern 15 (Pass 5.3 emerging pattern).
+
+
 
 ---
 
