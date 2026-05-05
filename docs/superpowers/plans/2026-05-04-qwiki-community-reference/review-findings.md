@@ -92,6 +92,13 @@ Trade-off accepted: Postgres treats NULL distinctly per row in UNIQUE indexes, s
 
 Resolves via: Phase 1 migration 008 (amended); Phase 2 Q1 (resolved); Phase 5 awareness (era_seq computed at upsert time from list-position).
 
+**F12 -- Phase 5 title-matcher Pass 2 depends on Phase 0 redirect refetch shipping before Phase 5 runs.**
+Surfaced during Phase 5 drafting. The Phase 5 drafter initially read `redirects.json = []` in the current snapshot and concluded "the wiki has no redirects; alias expansion is permanently inactive." Reframed during groom pass: the empty file is the pre-Phase-0 state (per F4 -- the original snapshotter used invalid `arprop=target` and silently wrote `[]`). Phase 0 Task 3 refetches with `arprop=ids|title` and V4 PASS condition expects ~900-2,700 entries.
+
+By dependency order Phase 5 runs after Phase 0, so `redirects.json` will be populated by then. Phase 5's `title-match.ts` Pass 2 (redirect-alias lookup) is coded to consume the populated file; the CLI logs `redirects loaded: N entries` at startup so the executor can verify Phase 0's data is in place. If by accident Phase 5 runs against an empty `redirects.json`, Pass 2 is simply a no-op for that run -- not catastrophic; pass 1 (exact slug match) and pass 3 (series + year + mode fuzzy) still operate.
+
+Resolves via: Phase 5 Q1 (executor verifies Phase 0 has shipped). Phase 5 awareness.
+
 ---
 
 ## Phase ownership of findings
@@ -109,8 +116,9 @@ Resolves via: Phase 1 migration 008 (amended); Phase 2 Q1 (resolved); Phase 5 aw
 | F9 | player_clan_eras PK redesigned: surrogate id + UNIQUE; year-absent rows representable | Phase 1 migration 008 amended; Phase 2 Q1 resolved | 1, 2, 5 |
 | F10 | Infobox 4on4team is fourth clan template (44 articles / 5.4%); CHECK enum widened in Phase 1 amendment | Phase 1 migration 008 amended; Phase 3 Q2 resolved | 1, 3 |
 | F11 | Actual Category:Clans count is 822, not spec's 829; discrepancy from redirects/talk-page enumeration | Phase 3 V1 PASS condition set to 822 | 3 |
+| F12 | Phase 5 title-matcher Pass 2 depends on Phase 0 redirect refetch shipping first | Phase 5 executor verifies redirects.json non-empty before run | 5 |
 
-(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05. F9 accrued during Phase 2 drafting + groom pass, 2026-05-05. F10-F11 accrued during Phase 3 drafting, 2026-05-05.)
+(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05. F9 accrued during Phase 2 drafting + groom pass, 2026-05-05. F10-F11 accrued during Phase 3 drafting, 2026-05-05. F12 accrued during Phase 5 drafting + groom pass, 2026-05-05.)
 
 ---
 
