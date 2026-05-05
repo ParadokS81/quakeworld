@@ -327,13 +327,27 @@ Per-row schema: `kind='mode_default'`, `name=<cvar_name>`, `value_text=<literal_
 
 **Phase ownership:** Phase 7.
 
+### F22 -- VALIDATION-RUNBOOK.md is a 5th doctrine reference site (discovered during Phase 0 drafting)
+
+**Resolved by:** D2 (KTX is libclang) + Phase 0 corrects all references.
+
+**Evidence -- two additional reference lines beyond the four named in F19 (verified during Phase 0 drafting, 2026-05-05):**
+- `apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md:5` -- "Tree-sitter extractors (KTX) get a separate runbook when KTX ships." Asserts canonical KTX is tree-sitter-based; wrong per D2.
+- `apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md:373` -- "**KTX (tree-sitter).** Different methodology. When KTX ships, write a parallel runbook (`VALIDATION-RUNBOOK-KTX.md`) covering tree-sitter-specific concerns." Wrong attribution; canonical KTX uses this runbook.
+
+**Why discovered late:** F19's evidence section enumerated four reference sites by sweeping `OVERVIEW.md`, `EXTRACTOR-PLAYBOOK.md`, `extractors/CLAUDE.md`, and the user-memory file. VALIDATION-RUNBOOK.md was named in `prerequisites.md` (item: "EXTRACTOR-PLAYBOOK.md and VALIDATION-RUNBOOK.md exist") but not grep-swept for tree-sitter claims. Phase 0 drafter ran the broader grep and surfaced the two lines.
+
+**Action for Phase 0 drafter:** Phase 0 task scope expands to include VALIDATION-RUNBOOK.md edits with the same before/after surgery pattern as the other four sites. F19's "four reference sites" wording is now stale; consider F19 + F22 as the joint doctrine-fix scope. Phase 8 verifies BOTH F19 sites and the F22 site survive the arc.
+
+**Phase ownership:** Phase 0 (fix), Phase 8 (verify).
+
 ---
 
 ## Phase ownership of findings
 
 | Phase | Findings to verify before sign-off |
 |---|---|
-| Phase 0 | F18 (delete TS regex extractor), F19 (doctrine fixes -- four reference sites) |
+| Phase 0 | F18 (delete TS regex extractor), F19 (doctrine fixes -- four reference sites), F22 (VALIDATION-RUNBOOK.md as 5th doctrine site, discovered during Phase 0 drafting) |
 | Phase 1 | F4 (008 migration adds `'logfile'` channel), F15 (cross-header lift before Phase 3 runs), F16 (parse-time impact projection) |
 | Phase 2 | F1 (cvar bucket counts), F2 (command counts + Pattern 14 collisions), F3 (info_key producer-only), F4 (log_template printf counts), F17 (do NOT filter XML-shaped log_printfs) |
 | Phase 3 | F5 (27 catalog rows), F6 (~309 mode_default rows), F15 (Pattern 6 lift dependency confirmed working) |
@@ -341,7 +355,7 @@ Per-row schema: `kind='mode_default'`, `name=<cvar_name>`, `value_text=<literal_
 | Phase 5 | F9 (13 monsters; armor_for_kill name), F10 (3 score_systems; positions length=10 invariant), F11 (30 drop_items; 5-field struct), F12 (15 loc_macros), F13 (21 teamplay_messages; Pattern 9 harvest) |
 | Phase 6 | F14 (7 match_events + 13 emission sites), F17 (also emits emission_call_sites_json; intentional) |
 | Phase 7 | F21 (validation runbook + F1 probes + JSONB regression gate + cross-project audit) |
-| Phase 8 | F19 (doctrine fixes survived; no recursion), F20 (HANDOVER backlog item absorbed), F17 (PLAYBOOK addition for dual-row design) |
+| Phase 8 | F19 (doctrine fixes survived; no recursion), F20 (HANDOVER backlog item absorbed), F17 (PLAYBOOK addition for dual-row design), F22 (VALIDATION-RUNBOOK.md doctrine fix survived) |
 
 ---
 

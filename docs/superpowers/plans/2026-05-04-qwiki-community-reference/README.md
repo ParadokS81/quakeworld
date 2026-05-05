@@ -12,9 +12,9 @@
 
 ## Where we are right now
 
-- **Stage:** planning-drafting (all phase MDs drafted; final operator review pending on Phase 6 + Phase 7).
-- **Last action:** 2026-05-05 -- Phase 7 MD drafted (final phase); committed alongside F13 finding (L2 spec defers primer shape to its own Pass 2; Phase 7 ships sensible default).
-- **Next action:** operator review pass on Phase 6 + Phase 7. Once both approved, planner writes the orchestrator handoff parking doc (`docs/superpowers/parking/2026-05-04-qwiki-community-reference-orchestrator-handoff.md`) and the planning arc is complete.
+- **Stage:** planning COMPLETE. All 8 phase MDs approved. Orchestrator handoff written.
+- **Last action:** 2026-05-05 -- arc plan signed off; orchestrator handoff parking doc written at `docs/superpowers/parking/2026-05-04-qwiki-community-reference-orchestrator-handoff.md`.
+- **Next action:** open a fresh terminal, invoke arc-orchestrator skill, paste the orchestrator handoff. Execution begins.
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
@@ -48,8 +48,8 @@ Phases land in order. Each phase commits a coherent unit (per `decisions.md` D16
 | 3 | approved | `phase-3-clans.md` | (drafted; n/a) | Clans parser (2 branches + fallback) + load 829 rows + emit clan-notes | community.clans populated; curated/clan-notes/ has tuned count |
 | 4 | approved | `phase-4-tournaments.md` | (drafted; n/a) | Pilot (~50 pages, schema discovery) + migration 009 + parser + load + emit tournament-notes | community.tournaments populated; curated/tournament-notes/ has tuned count |
 | 5 | approved | `phase-5-cross-link-backfill.md` | (drafted; n/a) | Parse achievements -> tournament_results; parse clan history -> player_clan_eras; match against community.tournaments / community.clans | Cross-link tables populated; sample queries return expected names |
-| 6 | drafted (awaiting review) | `phase-6-mcp-tools.md` | (drafted; n/a) | search_players / search_clans / search_tournaments / lookup_by_nick / get_*_note tools | MCP server returns community data via per-type tools |
-| 7 | drafted (awaiting review) | `phase-7-l2-primer.md` | (drafted; n/a) | Primer artifact for L2 corpus reconstruction analyzer | Primer recognizes reference players (Milton, ParadokS, etc.) with correct nationality + clan affiliation |
+| 6 | approved | `phase-6-mcp-tools.md` | (drafted; n/a) | search_players / search_clans / search_tournaments / lookup_by_nick / get_*_note tools | MCP server returns community data via per-type tools |
+| 7 | approved | `phase-7-l2-primer.md` | (drafted; n/a) | Primer artifact for L2 corpus reconstruction analyzer | Primer recognizes reference players (Milton, ParadokS, etc.) with correct nationality + clan affiliation |
 
 When a phase MD lands, change `not started` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
 
