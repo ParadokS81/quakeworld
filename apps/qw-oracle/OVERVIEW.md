@@ -30,7 +30,7 @@ The single source of truth for "what does Oracle currently know about?". Update 
 | `fte` | engine | per-version arc | `build-6698` (SHA `35843773`) | Phase 2d-core + Phase 2d-bundle SHIPPED 2026-04-26/27 |
 | `qwcl` | engine | per-version arc | `2.33` (canonical alias for commit `bf4ac42`) | shipped 2026-04-25 (single tag, no asset taxonomy) |
 | `mvdsv` | engine (server) | per-version arc | `head` (`f816d28`, 2026-01-04 snapshot) | Phase 2e SHIPPED 2026-04-27; no client snapshot |
-| `ktx` | engine (mod, QuakeC) | per-version arc | — | not started; tree-sitter spike done; use `py-tree-sitter` (NOT Node `tree-sitter@0.25` which segfaulted on WSL/Node 20) |
+| `ktx` | engine (mod, C) | per-version arc | — | not started; libclang-based (canonical KTX is pure C; dusty-ktx fork's `qcsrc/` is QuakeC and out of scope for canonical onboarding) |
 | `qw` | game content + game mechanics | flat per-domain tables (no version arc) | sentinel `static` | maps + id1 baseline gameplay shipped 2026-04-27 |
 
 For per-namespace entity counts at HEAD, query `entities` directly:
@@ -41,7 +41,7 @@ SELECT project, type, COUNT(*) FROM entities GROUP BY project, type;
 **Deep-time walk floor for ezQuake is `v3.0`** (2016-06-04). Pre-3.0 era is **deliberately de-scoped** per 2026-04-25 chat with infiniti — security framing (pre-3.6 has known attack vectors; Oracle should not surface settings nudging users into vulnerable defaults) plus diminishing-returns. Walk procedure documented in `docs/layer1-extraction-roadmap.md`.
 
 **Still open on Layer 1:**
-- **Phase 2e KTX** — tree-sitter-based; foundations cleaned by zero-debt-before-KTX arc 2026-04-29.
+- **Phase 2e KTX** — libclang-based (canonical KTX is pure C); foundations cleaned by zero-debt-before-KTX arc 2026-04-29; ships under arc plan `docs/superpowers/plans/2026-05-04-ktx-onboarding/`.
 - **Phase 2f historical backfill** beyond ezQuake — FTE / QWCL / MVDSV today are single-version. Multi-version walks must re-extract under post-Phase-6 handlers (HANDOVER: "Cross-extractor Phase 6 residuals — Deep-time-walk re-extract obligation").
 - **Phase 2g MCP tool upgrades** — `version` / `as_of` parameters, `get_entity_history`, version/date filters on `search_entities`.
 - **Phase 2h automation** — scheduled tag-delta job (detect new upstream tag → extract → load → enrich → insert).
@@ -77,7 +77,7 @@ Layer 2 enrichment — segment / classify / summarise / session-summary embeddin
 | Migrate schema (additive — new column on existing table) | `schema.ts` — bump `SCHEMA_VERSION`, add `SCHEMA_V<N>_MIGRATION_SQL`, add `migrateV<N-1>ToV<N>`, extend `applySchema` chain. Pattern at v7. |
 | Migrate schema (CHECK widening on existing column) | `schema.ts` — table rebuild required (SQLite can't ALTER CHECK in place). Pattern at v8 / v10 / v12. Update the v3 `CREATE TABLE` block too so fresh DBs land on the widened CHECK. |
 | Verify a phase ran correctly | `scripts/load-knowledge/e2e-verify.md` |
-| Add a new extractor codebase | `scripts/extractors/<project>/extract.py` (Python + libclang 18 — KTX uses tree-sitter). Cross-engine pattern in `scripts/extractors/EXTRACTOR-PLAYBOOK.md`. Use the `onboard-extractor` user-global skill. |
+| Add a new extractor codebase | `scripts/extractors/<project>/extract.py` (Python + libclang 18; canonical KTX uses libclang too). Cross-engine pattern in `scripts/extractors/EXTRACTOR-PLAYBOOK.md`. Use the `onboard-extractor` user-global skill. |
 | Author or update a Layer 3 concept note | `curated/concept-notes/`. Template at `curated/concept-notes/README.md`; stewardship at `curated/concept-notes/OPERATIONS.md`; gap-report seeds the upstream contributor kit. Use the `guide-rewrite` user-global skill. |
 
 ---

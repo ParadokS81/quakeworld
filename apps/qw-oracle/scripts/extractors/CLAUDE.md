@@ -22,6 +22,6 @@ Per-codebase Layer 1 extractors. Three-tier handler architecture: shared `Visito
 ## Always-on rules
 
 - **Multiprocessing pattern** -- per-TU parses isolate libclang state; orchestration in each `extract.py`.
-- **libclang for C/C++ ports** (ezquake, fte, mvdsv, qwcl); **tree-sitter for KTX** (QuakeC, separate methodology -- not yet onboarded).
+- **libclang for C/C++ ports** (ezquake, fte, mvdsv, qwcl, KTX-canonical); **tree-sitter** is reserved for the dusty-ktx fork's `qcsrc/` (QuakeC), not yet onboarded -- separate methodology / separate runbook.
 - **Three-tier handlers** -- never duplicate cross-engine logic into a per-engine handler; subclass via `extractor_lib`.
 - Use the `onboard-extractor` user-global skill when adding a new codebase, `validate-extractor` for post-ship audits.

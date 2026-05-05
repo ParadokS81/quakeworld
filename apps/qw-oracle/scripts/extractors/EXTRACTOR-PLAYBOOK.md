@@ -1,6 +1,6 @@
 # QW Extractor Playbook
 
-Reusable knowledge for building and operating the static AST extractors that populate QW Oracle Layer 1 (`apps/qw-oracle/data/knowledge.db`). Four projects ship today: ezQuake (15 versions, deep-time walked to v3.0 floor), FTE (build-6698 with engine + ezhud plugin + asset bundle), QWCL (single tag 2.33), MVDSV (head, 2026-01-04 snapshot). KTX is pending and uses tree-sitter rather than libclang -- see `VALIDATION-RUNBOOK.md` Section  "Out of scope" for the parallel-runbook plan. Each engine has its own registration idioms; the architecture, pattern catalog, and porting checklist here are the reusable scaffold.
+Reusable knowledge for building and operating the static AST extractors that populate QW Oracle Layer 1 (`apps/qw-oracle/data/knowledge.db`). Four projects ship today: ezQuake (15 versions, deep-time walked to v3.0 floor), FTE (build-6698 with engine + ezhud plugin + asset bundle), QWCL (single tag 2.33), MVDSV (head, 2026-01-04 snapshot). KTX onboarding is in progress: canonical KTX is pure C and uses libclang like the other four (the dusty-ktx fork adds a `qcsrc/` QuakeC tree, which is out of scope for canonical onboarding -- a separate parallel runbook will land when dusty-ktx ships). Each engine has its own registration idioms; the architecture, pattern catalog, and porting checklist here are the reusable scaffold.
 
 If you are starting a new engine: read the [Porting checklist](#porting-to-a-new-engine) end-to-end before touching code. If you are debugging an existing handler: jump to the [Registration pattern catalog](#registration-pattern-catalog). If you are validating output quality: see `VALIDATION-RUNBOOK.md`.
 
@@ -124,7 +124,7 @@ If subclass overrides exceed ~30% of methods, lift the parent's overridable surf
 
 ### Cross-codebase port pattern (different from fork)
 
-When porting a wholly distinct codebase (FTE was a fresh port from ezQuake; KTX-after-tree-sitter will be another), do NOT inherit from any parent project. Start fresh in `<project>/_handler_*.py`, inherit from `Visitor` only:
+When porting a wholly distinct codebase (FTE was a fresh port from ezQuake; canonical KTX is the next), do NOT inherit from any parent project. Start fresh in `<project>/_handler_*.py`, inherit from `Visitor` only:
 
 ```python
 from extractor_lib._visitor import Visitor
@@ -227,7 +227,7 @@ Cmd_AddLegacyCommand("contrast", v_contrast.name);         // non-literal target
 
 **Handler:** `handler_commands.py::visit_cursor` branches on call spelling. For legacy calls: `handler_fn = None`, and `legacy_alias_of = arg[1]` if arg[1] is a literal, left unset otherwise. The target is preserved as `ast.legacy_alias_of` in the output JSON for downstream provenance; the loader currently ignores unknown ast fields so no schema change is needed.
 
-**Side-effect for other engines:** inventory EVERY `Cmd_Add*` API variant the source uses. FTE has `Cmd_AddCommandD` (description variant); MVDSV may have legacy shims; KTX is QuakeC (completely different -- see Known limits).
+**Side-effect for other engines:** inventory EVERY `Cmd_Add*` API variant the source uses. FTE has `Cmd_AddCommandD` (description variant); MVDSV may have legacy shims; KTX uses its own command-table shape (see KTX onboarding spec at `docs/superpowers/specs/2026-05-04-ktx-onboarding-design.md`).
 
 ### Pattern 6 -- `#define`-resolved string names at call sites
 
@@ -629,7 +629,7 @@ Files `sv_sys_win.c`, `sys_win.c`, and similar `#include <winsock2.h>` / `<mmsys
 
 ### Architectural exclusions (not a bucket)
 
-**QuakeC (.qc) sources:** KTX and dusty-ktx include QuakeC modules. QuakeC is a distinct language; libclang cannot parse it. Requires `py-tree-sitter` with a QuakeC grammar or a dedicated lexer. Architectural decision, not an incremental fix. User-loaded `progs.dat` from mods is fundamentally out of static reach regardless.
+**QuakeC (.qc) sources:** the dusty-ktx fork includes a `qcsrc/` QuakeC tree (canonical KTX is pure C). QuakeC is a distinct language; libclang cannot parse it. Requires `py-tree-sitter` with a QuakeC grammar or a dedicated lexer when dusty-ktx onboarding ships -- separate methodology, separate runbook. User-loaded `progs.dat` from mods is fundamentally out of static reach regardless.
 
 **Game-type defines (FTE):** `HEXEN2`, `Q2CLIENT`, `Q3CLIENT`, etc. are deliberately undefined per Phase 2d Option B QW-only profile. Fixable by adding game-type variants to `clang_config.py` if the QW-only scope proves too narrow.
 
@@ -676,7 +676,7 @@ Before inventorying APIs, decide which path applies. The two paths share the val
 - If subclass overrides exceed ~30% of methods, lift the parent's overridable surface to Tier 2 (`extractor_lib/handler_<family>_<type>.py`) and have both projects subclass that.
 - Skip steps 1-3 below; they're mostly inherited from the parent. Resume at step 4 (handler authoring) for the fork-specific deltas, then skip to step 7 (validation).
 
-**Cross-codebase port (e.g., FTE was a fresh port; future engines like KTX-after-tree-sitter):** start fresh in `<project>/_handler_*.py`. Inherit from `Visitor` only (no parent project import). Steps 1-9 below apply unchanged.
+**Cross-codebase port (e.g., FTE was a fresh port; canonical KTX is the next):** start fresh in `<project>/_handler_*.py`. Inherit from `Visitor` only (no parent project import). Steps 1-9 below apply unchanged.
 
 When in doubt: read the parent and the candidate side-by-side. If the registration APIs and struct shapes match closely, fork. If they diverge fundamentally (different parser, different runtime model, different language), port.
 

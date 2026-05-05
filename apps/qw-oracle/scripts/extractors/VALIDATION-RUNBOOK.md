@@ -2,7 +2,7 @@
 
 The encyclopedic reference for validating Layer 1 extractor output. Companion to `EXTRACTOR-PLAYBOOK.md`: the playbook tells you how to BUILD an extractor; this runbook tells you how to PROVE the extractor's output is correct.
 
-**Scope:** libclang-based extractors (ezQuake, FTE, QWCL, MVDSV today; future ezQuake-family forks like unezQuake; future MVDSV-family forks like antilag-mvdsv). Tree-sitter extractors (KTX) get a separate runbook when KTX ships.
+**Scope:** libclang-based extractors (ezQuake, FTE, QWCL, MVDSV today; canonical KTX onboarding via the KTX onboarding arc; future ezQuake-family forks like unezQuake; future MVDSV-family forks like antilag-mvdsv). Tree-sitter is reserved for the dusty-ktx fork's `qcsrc/` (QuakeC), out of scope for canonical onboarding -- a parallel runbook will land when dusty-ktx ships.
 
 **When to run:**
 - Post-ship validation pass on a freshly landed Layer 1 arc (e.g., the MVDSV Phase 2e validation, 2026-04-28).
@@ -370,7 +370,7 @@ Forks inherit the parent extractor with project-specific tweaks. The validation 
 
 ## Out of scope
 
-- **KTX (tree-sitter).** Different methodology. When KTX ships, write a parallel runbook (`VALIDATION-RUNBOOK-KTX.md`) covering tree-sitter-specific concerns.
+- **dusty-ktx (`qcsrc/` tree-sitter).** Different methodology -- only the `qcsrc/` QuakeC tree, not the canonical KTX C source. When dusty-ktx onboarding ships, write a parallel runbook (`VALIDATION-RUNBOOK-DUSTY-KTX.md`) covering tree-sitter-specific concerns. Canonical KTX is pure C; it uses this runbook (KTX onboarding arc lands in `docs/superpowers/plans/2026-05-04-ktx-onboarding/`).
 - **Layer 2 (chat corpus).** Different validation domain (FTS5, message ID provenance). Not covered here.
 - **Layer 3 (concept notes).** Hand-authored content; review process lives in `curated/concept-notes/OPERATIONS.md`.
 
