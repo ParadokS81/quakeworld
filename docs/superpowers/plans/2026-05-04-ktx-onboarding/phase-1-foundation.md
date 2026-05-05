@@ -678,6 +678,20 @@ After Phase 1 ships, the following hold for Phase 2 (and Phases 3-6 in parallel)
 
 ## Open questions / deferred items
 
+- **Question:** D5 amendment names migration slots 009/010/011 as "expected at execution time." What are the actual slots chosen?
+  **Resolved at execution (2026-05-05):** `ls apps/qw-oracle/db/migrations/ | sort` returned 8 files: 001-007 + 008_community_schema.sql. Next available slot is 009. KTX migrations shipped as:
+  - `009_ktx_log_template_logfile_channel.sql` (channel widening)
+  - `010_ktx_match_event_type.sql` (match_event type + table)
+  - `011_ktx_gameplay_kinds.sql` (gameplay kind widenings)
+  Migration content is unchanged from the phase MD inline blocks; only filenames renumbered.
+
+- **Question (F16 Task 7 timing results):** What was the actual walk-time overhead from `collect_file_macros`?
+  **Resolved at execution (2026-05-05):** Measured on two representative TUs (N=5 each):
+  - `research/repos/ktx/src/commands.c` (230 KB, 279 macros found): parse 61ms vs parse+walk 101ms = +40ms (+66%)
+  - `research/repos/ezquake-source/src/vid_sdl2.c` (60 KB, 5 macros found): parse 80ms vs parse+walk 209ms = +130ms (+163%)
+  Both well above F16's 10% gate. Root cause: 901 depth-1 MACRO_DEFINITION cursors in vid_sdl2.c's 18-header closure -- `get_tokens()` is called for each. Single-pass optimization applied (collapsed two `tu.cursor.get_children()` iterations to one) but overhead remains significant. F16's ">10% warrants operator decision" applies. Context: the extraction is offline; `walk_tu_dispatch` itself costs ~527ms/file. Operator acceptance recommended; principled fix (depth-N lift or hybrid regex approach) is a future-arc revisit.
+  **Who can resolve:** operator -- accept the overhead or initiate a follow-up arc to optimize `collect_file_macros` (e.g., regex-on-source-text hybrid for depth-1 headers instead of cursor walk).
+
 - **Question:** D4 / F16 frame the lift as "adds the PARSE_DETAILED_PROCESSING_RECORD flag," but verification during Phase 1 drafting confirmed the flag is ALREADY in `extractor_lib.clang_config.PARSE_OPTS` (line 172) and has been there since the pipeline's initial libclang setup. The lift does NOT change `PARSE_OPTS`; it consumes the existing flag.
   **Default chosen for now:** Phase 1 ships the lift WITHOUT modifying `PARSE_OPTS` (correctly leveraging the pre-existing flag). Task 7's parse-time probe still runs to measure the additional `collect_file_macros` walk-time cost (which is the only new cost class -- the flag overhead was already paid). The F16 projection (<5% expected; >10% surfaces operator decision) still applies to that walk-time delta.
   **Who can resolve:** operator -- if a clarifying amendment to D4 / F16 is desired (e.g., reframing as "leverages the existing flag" rather than "adds the flag"), append a 2026-05-05 amendment block to D4 and F16.

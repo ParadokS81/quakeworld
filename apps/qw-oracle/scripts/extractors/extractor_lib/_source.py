@@ -182,39 +182,44 @@ def collect_file_macros(tu, target_file_path: str) -> dict[str, str]:
     import sys
     from clang.cindex import CursorKind, TokenKind
 
-    # Build depth-1 file allowlist.
-    # Step 1: include the target file itself.
+    # Single-pass over top-level cursors. Preprocessor cursors are emitted in
+    # source order: an INCLUSION_DIRECTIVE for "g_local.h" at commands.c:21
+    # appears before all MACRO_DEFINITION cursors sourced from g_local.h.
+    # This ordering guarantee lets us build depth1_files on-the-fly as we go.
     depth1_files = {target_file_path}
-
-    # Step 2: walk top-level cursors for INCLUSION_DIRECTIVE cursors whose
-    # location is in the target file. Each one's included file is depth-1.
-    for cursor in tu.cursor.get_children():
-        if cursor.kind != CursorKind.INCLUSION_DIRECTIVE:
-            continue
-        loc = cursor.location
-        if loc.file is None or loc.file.name != target_file_path:
-            continue
-        included = cursor.get_included_file()
-        if included is not None:
-            depth1_files.add(included.name)
-
-    # Step 3: walk MACRO_DEFINITION cursors. Filter to depth-1 files.
     result: dict[str, str] = {}
     found_any_macro_def = False
 
     for cursor in tu.cursor.get_children():
-        if cursor.kind != CursorKind.MACRO_DEFINITION:
+        kind = cursor.kind
+
+        if kind == CursorKind.INCLUSION_DIRECTIVE:
+            loc = cursor.location
+            if loc.file is None or loc.file.name != target_file_path:
+                continue
+            try:
+                included = cursor.get_included_file()
+                if included is not None:
+                    depth1_files.add(included.name)
+            except AssertionError:
+                # clang Python bindings raise AssertionError when the included
+                # file pointer is null (unresolved or system include). Skip.
+                pass
             continue
+
+        if kind != CursorKind.MACRO_DEFINITION:
+            continue
+
         found_any_macro_def = True
         loc = cursor.location
         if loc.file is None or loc.file.name not in depth1_files:
             continue
-        # Collect tokens: first is the macro name; rest are the body.
+
+        # Collect tokens: first is the macro name; second (only) is the body.
+        # len == 1: empty body. len > 2: multi-token (function-like, complex
+        # expression). Both excluded -- only single-string-literal bodies admitted.
         tokens = list(cursor.get_tokens())
         if len(tokens) != 2:
-            # Body must be exactly one token (name + 1 body token).
-            # len(tokens) == 1 means empty macro body; > 2 means multi-token
-            # (function-like params, complex expression, etc.).
             continue
         body_tok = tokens[1]
         if body_tok.kind != TokenKind.LITERAL:
@@ -222,7 +227,6 @@ def collect_file_macros(tu, target_file_path: str) -> dict[str, str]:
         spelling = body_tok.spelling
         if not spelling.startswith('"'):
             continue
-        # Strip outer quotes.
         if len(spelling) >= 2 and spelling[-1] == '"':
             body = spelling[1:-1]
         else:
