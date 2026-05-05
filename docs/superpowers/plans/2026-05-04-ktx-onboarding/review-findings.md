@@ -153,6 +153,8 @@ Per-row schema: `kind='mode_default'`, `name=<cvar_name>`, `value_text=<literal_
 
 **Phase ownership:** Phase 4.
 
+**Amendment 2026-05-05 (Phase 4 drafter source-walk):** The explanation "30 entries (28 substantive + dtNONE + dtUNKNOWN sentinels)" is off by one against canonical-1.46 (master HEAD). Live `include/deathtype.h` contains 29 `DEATHTYPE_X(...)` X-macro lines: 27 substantive + 2 sentinels (dtNONE, dtUNKNOWN). The headline "27 useful rows" anchor stands and is reproduced live; the underlying breakdown corrects from 30 / 28 / 2 to 29 / 27 / 2. The original prose was also internally inconsistent (28 substantive minus 2 sentinels yields 28, not 27); the live progression 27 substantive minus 0 further filters yields 27 useful and is now self-consistent. Phase 4's verification probe 1 asserts death_rule row count = 27. Separately, `related_weapon` canonical names use the underscored id1-baseline form (`rocket_launcher`, `super_shotgun`, `lightning_gun`) per `apps/qw-oracle/seeds/id1-gameplay.yaml`, not the drafter-prompt shorthand -- FK joins target the canonical id, not display labels.
+
 ### F9 -- monster row count = 13; field 2 is `armor_for_kill`, not `count_modifier`
 
 **Resolved by:** D1 + Phase 5 reproduces (Pass 4.4 sketch corrected during Pass 5.4).
