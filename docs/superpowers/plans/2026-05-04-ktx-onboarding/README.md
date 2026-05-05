@@ -17,8 +17,8 @@
 ## Where we are right now
 
 - **Stage:** planning-drafting (per-phase MD drafts in progress).
-- **Last action:** 2026-05-05 -- Phase 0 MD approved (1 ADVISORY, 0 CRITICAL, 0 SUBSTANTIVE; F22 added during drafting -- VALIDATION-RUNBOOK.md is the 5th doctrine site).
-- **Next action:** open fresh terminal, paste contents of `phase-1-drafter-prompt.md`.
+- **Last action:** 2026-05-05 -- Phase 1 MD approved (0 CRITICAL / 0 SUBSTANTIVE / 4 ADVISORY); D4 + F16 amended with dated reframe ("leverages existing PARSE_OPTS flag; lift adds macro-walk only") per Phase 1 drafter source-walk discovery.
+- **Next action:** open fresh terminal, paste contents of `phase-2-drafter-prompt.md`.
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
@@ -49,7 +49,7 @@ Phases 2 / 3 / 4 / 5 / 6 are mutually independent at the data level after Phase 
 | Phase | Status | MD | Drafter prompt | Deliverable | Runnable state at end |
 |---|---|---|---|---|---|
 | 0 | approved | `phase-0-doctrine-fixes.md` | (drafted; n/a) | KTX-is-libclang doctrine fixes across 5 reference sites (F19 + F22) + delete obsolete `scripts/extractors/ktx/commands.ts` + create OUT_OF_SCOPE.md | Repo doctrine matches reality; obsolete TS regex extractor gone; KTX SKIP catalog established |
-| 1 | not started | `phase-1-foundation.md` | `phase-1-drafter-prompt.md` | Pattern 6 cross-header lift in `extractor_lib._source` (depth-1 #include walk) + migrations 008/009/010 + new `gameplay_sources` row for `'ktx'` | Schema admits all KTX content; cross-header macros resolve for any engine |
+| 1 | approved | `phase-1-foundation.md` | `phase-1-drafter-prompt.md` | Pattern 6 cross-header lift in `extractor_lib._source` (depth-1 #include walk; D4 + F16 amended) + migrations 008/009/010 + new `gameplay_sources` row for `'ktx'` | Schema admits all KTX content; cross-header macros resolve for any engine |
 | 2 | not started | `phase-2-pass1-entity-handlers.md` | `phase-2-drafter-prompt.md` | Pass 1 first-class entity handlers (cvars + commands + info_keys + log_templates) + 4 loader wirings + KTX dispatch wiring in `extract-tag.ts` | KTX cvars + commands + info_keys + log_templates queryable in dev DB |
 | 3 | not started | `phase-3-modes-handler.md` | `phase-3-drafter-prompt.md` | `_handler_modes.py` + `load-modes.ts` (game_mode catalog 27 rows + mode_default overlays ~309 rows) | game_mode + mode_default rows queryable; mode-aware queries possible |
 | 4 | not started | `phase-4-taxonomies-handler.md` | `phase-4-drafter-prompt.md` | `_handler_gameplay_taxonomies.py` + `load-gameplay-taxonomies.ts` (election_type 5 + death_rule 27) | election_type + death_rule rows queryable; qw-event-log validation harness anchor available |

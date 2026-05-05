@@ -14,7 +14,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 Per-arc state for arcs currently in flight. Each arc's plan-dir README has a "Where we are right now" block (Stage / Last action / Next action) -- this section lists the headline so you can pick which arc to work on at a glance. Update when stage/next-action changes.
 
-- **KTX Layer 1 Onboarding** -- planning-drafting; Phase 0 approved (F22 added during drafting); next is `phase-1-drafter-prompt.md`. Plan: `docs/superpowers/plans/2026-05-04-ktx-onboarding/README.md` (9 phases total).
+- **KTX Layer 1 Onboarding** -- planning-drafting; Phase 1 approved (D4 + F16 amended -- PARSE_OPTS flag already on; lift adds macro-walk only); next is `phase-2-drafter-prompt.md`. Plan: `docs/superpowers/plans/2026-05-04-ktx-onboarding/README.md` (9 phases total).
 - **QWiki community-reference** -- planning COMPLETE; all 8 phase MDs approved; orchestrator handoff written at `docs/superpowers/parking/2026-05-04-qwiki-community-reference-orchestrator-handoff.md`. Next is opening a fresh terminal with arc-orchestrator skill. Plan: `docs/superpowers/plans/2026-05-04-qwiki-community-reference/README.md`.
 
 When an arc finishes its planning stage and moves to implementation, the entry stays here with stage updated to "implementing." When an arc ships, delete the entry; the retrospective lives in the project's `arc-history.md`.

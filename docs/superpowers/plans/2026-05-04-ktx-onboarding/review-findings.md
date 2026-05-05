@@ -242,12 +242,14 @@ Per-row schema: `kind='mode_default'`, `name=<cvar_name>`, `value_text=<literal_
 
 **Resolved by:** D4 (acceptable cost).
 
-**Evidence:**
+**Evidence (original framing):**
 - `PARSE_DETAILED_PROCESSING_RECORD` flag adds <5% on file-parse time per ezQuake measurement.
 - Not a new cost class (the flag is already used in some pipelines).
 - API change for callers: transparent (no signature changes; `_file_macros` cache widens internally).
 
 **Action for Phase 1 drafter:** include a sanity-check probe (parse one ezQuake TU pre-lift and post-lift; confirm parse-time delta within projection). Flag if >10% (would warrant operator decision).
+
+**Amendment 2026-05-05 (Phase 1 drafter source-walk):** The flag is already in `clang_config.PARSE_OPTS` (line 172) and has been since the existing Pattern 6 shipped. Phase 1 does NOT modify PARSE_OPTS. The probe target reframes accordingly: measure only the additional `collect_file_macros` walk-time delta (post-parse work over depth-1 #include closure). Parse-time component stays at baseline by definition. The <10% gate still applies, applied to the macro-walk delta. Pairs with the D4 amendment of the same date.
 
 **Phase ownership:** Phase 1.
 

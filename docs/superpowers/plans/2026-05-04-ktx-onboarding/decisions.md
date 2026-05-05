@@ -52,6 +52,16 @@ If a phase reveals that a `decisions.md` decision is wrong (rare but possible), 
 - Adds `PARSE_DETAILED_PROCESSING_RECORD` flag on the libclang TU. Estimated impact <5% on file-parse time per ezQuake measurement; not a new cost class.
 - The lift is shared infrastructure, not KTX-specific. No KTX-named branches in `extractor_lib`.
 
+### Amendment 2026-05-05 (Phase 1 drafter source-walk)
+
+The original "adds `PARSE_DETAILED_PROCESSING_RECORD` flag" framing is incorrect. The flag is already in `apps/qw-oracle/scripts/extractors/extractor_lib/clang_config.py:172` (`PARSE_OPTS`) and has been since the existing Pattern 6 same-file resolver shipped. Today's pipelines already pay for the parse-detail records.
+
+The lift's actual mechanism: add a post-parse walk over the depth-1 `#include` closure that collects macros from already-recorded preprocessor cursors, widening the `_file_macros` cache. The flag stays unchanged; PARSE_OPTS is not modified by Phase 1.
+
+Cost class shifts from "added parse-time flag impact" to "post-parse macro-walk impact" -- strictly cheaper than the original projection. F16's <10% gate stays in place as a sanity check on the macro-walk delta; the parse-time component is now zero by definition (flag already on).
+
+Do not revert this amendment: Phase 1's lift implementation is correct as drafted; the amendment exists so D4's prose matches what shipped. F16 carries the matching amendment.
+
 ---
 
 ## D5. Three migration files split semantically -- 008 / 009 / 010
