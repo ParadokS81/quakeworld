@@ -10,6 +10,15 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 
 ## Open items
 
+### Active arcs (in-flight; pickup-from-cold dashboard)
+
+Per-arc state for arcs currently in flight. Each arc's plan-dir README has a "Where we are right now" block (Stage / Last action / Next action) -- this section lists the headline so you can pick which arc to work on at a glance. Update when stage/next-action changes.
+
+- **KTX Layer 1 Onboarding** -- planning-drafting; Phase 0 drafted (awaiting review); next is `phase-1-drafter-prompt.md`. Plan: `docs/superpowers/plans/2026-05-04-ktx-onboarding/README.md` (9 phases total).
+- **QWiki community-reference** -- planning-drafting; Phase 6 drafted (awaiting review, uncommitted); next is `phase-7-drafter-prompt.md` (last phase). Plan: `docs/superpowers/plans/2026-05-04-qwiki-community-reference/README.md` (8 phases total).
+
+When an arc finishes its planning stage and moves to implementation, the entry stays here with stage updated to "implementing." When an arc ships, delete the entry; the retrospective lives in the project's `arc-history.md`.
+
 ### Small followups
 - [Synthesis-report numerical-claim provenance gap](#synthesis-report-numerical-claim-provenance-gap-2026-04-29) — discipline note for future validation arcs; no retroactive fix.
 - **Phase 8 eval q5/q8 L3 authoring leads** — Phase 8 eval surfaced two vague-NL Linux/Windows symptom queries that have no L3 concept-note coverage: q5 "screen brightness flickering on Windows after closing ezquake" (HDR + Windows display tech) and q8 "Linux stutters with sys_highpriority and CPU affinity set" (Linux + NVIDIA performance baseline). Both are recipe-shape candidates per the L3 multi-domain framework parking doc. Authored alongside Arc 3 unshelving; bucket-tagged per `docs/superpowers/parking/2026-05-03-layer3-multidomain-bucket-framework.md` (system + engine-config for q5, system + hardware + engine-config for q8). Linked from the broader 6-candidate authoring queue in that parking doc.
@@ -57,7 +66,7 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
 - [Memory system consolidation](docs/superpowers/parking/2026-04-29-memory-system-consolidation.md) — **watching.** File count flat at 2026-04-29 post-trim baseline (~77); inflow controls in place via docs-check Phase 1 Step 5 + arc-history.md routing. Calendar check ~2026-05-20 per parking file trigger #3.
 
 ### Recently opened (this session)
-- [QWiki community-reference layer (players + clans + tournaments)](docs/superpowers/parking/2026-05-04-qwiki-community-reference.md) -- design spec + snapshot landed 2026-05-04. Ready for arc-planner in fresh terminal via `docs/superpowers/parking/2026-05-04-qwiki-community-reference-arcplanner-handoff.md`. Triggered by L2 corpus reconstruction primer need. 8-phase plan; operator estimates "tonight" turnaround.
+- *(QWiki entry promoted to "Active arcs" above; no longer "recently opened.")*
 - **Layer 2 hygiene research** -- sidequest dissolved into Phase 3. Design doc at `docs/superpowers/specs/2026-05-02-layer2-hygiene-design.md` (permanent reference). Four port-time hygiene fixes + reply-reference graph absorbed into Phase 3 via `decisions.md` D18. Micro-session over-segmentation (#2) and reply-chain merging (#6) remain open for a future post-Arc-1 pass; no parking prompt exists for them yet.
 - **New-doc_only-on-next-ezquake-bump alert** — when ezquake-source HEAD advances to a new tag and we re-walk, run `python3 apps/qw-oracle/scripts/classify-help-json.py --project ezquake --propose` from monorepo root. The seed already covers the 193 existing doc_only entries; the CLI will only print proposals for any newly-arrived doc_only names. Operator manually triages or seeds the new entries. No automatic alerting between sessions — Claude only runs when invoked.
 - **Extractor improvement: `COM_CheckParm` bare-call cmdline_param recognition** — observed during help-JSON classification: `-nomouse` was in v3.0 source (`in_sdl2.c`) registered via `COM_CheckParm("-nomouse")` but our libclang extractor only recognizes `CMDLINE_DEF(...)` macros, so it silently became doc_only. Likely more cmdline params hidden by the same pattern. Folding `COM_CheckParm("...")` call sites into the cmdline-param extractor would surface them. Low pressure — bundle with future cmdline-param extractor work.

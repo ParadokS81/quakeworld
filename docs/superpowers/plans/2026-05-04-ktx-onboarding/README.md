@@ -6,11 +6,21 @@
 
 **Goal:** Onboard canonical KTX (https://github.com/QW-Group/ktx) -- the C-language QuakeWorld server modification -- into QW Oracle Layer 1. Includes Pass 1 first-class entity types (cvar / command / info_key / log_template), Pass 5 gameplay-content surface (5 enum taxonomies + 5 struct-array tables + 7 XSD-defined match-event types), three pure-additive migrations, and the cross-header Pattern 6 lift that all future engines benefit from.
 
-**Status:** Planning. Per-phase MDs are drafted by fresh terminals following `handoff-prompt.md`. Each phase MD is verified by a sub-agent before operator review. Phases land in commit order; each phase boundary is operator-reviewed before the next phase begins.
+**Status:** Planning. Per-phase MDs are drafted by fresh terminals following the per-phase drafter prompts (`phase-N-drafter-prompt.md`). Each phase MD is verified by a sub-agent before operator review. Phases land in commit order; each phase boundary is operator-reviewed before the next phase begins.
 
 **Total schema impact:** 9 CHECK widenings + 1 new table (`match_event_versions`), split across migrations 008 / 009 / 010.
 
 **Total row impact (per KTX tag):** Pass 1 first-class entity rows (cvars / commands / info_keys / log_templates -- counts in spec) + ~450 qw-namespace gameplay rows + 7 match_event entity rows.
+
+---
+
+## Where we are right now
+
+- **Stage:** planning-drafting (per-phase MD drafts in progress).
+- **Last action:** 2026-05-05 -- Phase 0 MD drafted; awaiting operator review.
+- **Next action:** review `phase-0-doctrine-fixes.md`, mark approved in phase index, then open fresh terminal and paste contents of `phase-1-drafter-prompt.md`.
+
+Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
 ---
 
@@ -36,17 +46,17 @@ Phases land in order. Each phase commits a coherent unit (per `decisions.md` D16
 
 Phases 2 / 3 / 4 / 5 / 6 are mutually independent at the data level after Phase 1 lands the foundation; they CAN draft in parallel (orchestrator decides).
 
-| Phase | Status | MD | Deliverable | Runnable state at end |
-|---|---|---|---|---|
-| 0 | not started | `phase-0-doctrine-fixes.md` | KTX-is-libclang doctrine fixes across 4 reference sites + delete obsolete `scripts/extractors/ktx/commands.ts` | Repo doctrine matches reality; obsolete TS regex extractor gone |
-| 1 | not started | `phase-1-foundation.md` | Pattern 6 cross-header lift in `extractor_lib._source` (depth-1 #include walk) + migrations 008/009/010 + new `gameplay_sources` row for `'ktx'` | Schema admits all KTX content; cross-header macros resolve for any engine |
-| 2 | not started | `phase-2-pass1-entity-handlers.md` | Pass 1 first-class entity handlers (cvars + commands + info_keys + log_templates) + 4 loader wirings + KTX dispatch wiring in `extract-tag.ts` | KTX cvars + commands + info_keys + log_templates queryable in dev DB |
-| 3 | not started | `phase-3-modes-handler.md` | `_handler_modes.py` + `load-modes.ts` (game_mode catalog 27 rows + mode_default overlays ~309 rows) | game_mode + mode_default rows queryable; mode-aware queries possible |
-| 4 | not started | `phase-4-taxonomies-handler.md` | `_handler_gameplay_taxonomies.py` + `load-gameplay-taxonomies.ts` (election_type 5 + death_rule 27) | election_type + death_rule rows queryable; qw-event-log validation harness anchor available |
-| 5 | not started | `phase-5-tables-handler.md` | `_handler_gameplay_tables.py` + `load-gameplay-tables.ts` (monster 13 + score_system 3 + drop_item 30 + loc_macro 15 + teamplay_message 21) | All 5 Group-B struct-array kinds queryable |
-| 6 | not started | `phase-6-match-event-handler.md` | `_handler_match_events.py` (XSD-driven; not libclang) + `load-match-events.ts` (7 entity rows + 13 emission sites) | match_event entity type populated; qw-event-log validation harness fully unblocked at schema level |
-| 7 | not started | `phase-7-validation.md` | F1 quality-grid probes for all KTX kinds + JSONB-binding regression gate + validation runbook + cross-project audit | KTX onboarding has same auditability as the 4 prior engines |
-| 8 | not started | `phase-8-end-of-arc-docs.md` | SCHEMA.md slim-doc Arc 1 refresh sweep (absorbs HANDOVER backlog item) + EXTRACTOR-PLAYBOOK additions (Pre-Port Discovery Sweep + Pre-Commit Discovery Cross-Check + Handler-grouping rationale + Pattern 15 STRING_LITERAL-array walker) | Docs caught up; arc done |
+| Phase | Status | MD | Drafter prompt | Deliverable | Runnable state at end |
+|---|---|---|---|---|---|
+| 0 | drafted (awaiting review) | `phase-0-doctrine-fixes.md` | (drafted; n/a) | KTX-is-libclang doctrine fixes across 4 reference sites + delete obsolete `scripts/extractors/ktx/commands.ts` | Repo doctrine matches reality; obsolete TS regex extractor gone |
+| 1 | not started | `phase-1-foundation.md` | `phase-1-drafter-prompt.md` | Pattern 6 cross-header lift in `extractor_lib._source` (depth-1 #include walk) + migrations 008/009/010 + new `gameplay_sources` row for `'ktx'` | Schema admits all KTX content; cross-header macros resolve for any engine |
+| 2 | not started | `phase-2-pass1-entity-handlers.md` | `phase-2-drafter-prompt.md` | Pass 1 first-class entity handlers (cvars + commands + info_keys + log_templates) + 4 loader wirings + KTX dispatch wiring in `extract-tag.ts` | KTX cvars + commands + info_keys + log_templates queryable in dev DB |
+| 3 | not started | `phase-3-modes-handler.md` | `phase-3-drafter-prompt.md` | `_handler_modes.py` + `load-modes.ts` (game_mode catalog 27 rows + mode_default overlays ~309 rows) | game_mode + mode_default rows queryable; mode-aware queries possible |
+| 4 | not started | `phase-4-taxonomies-handler.md` | `phase-4-drafter-prompt.md` | `_handler_gameplay_taxonomies.py` + `load-gameplay-taxonomies.ts` (election_type 5 + death_rule 27) | election_type + death_rule rows queryable; qw-event-log validation harness anchor available |
+| 5 | not started | `phase-5-tables-handler.md` | `phase-5-drafter-prompt.md` | `_handler_gameplay_tables.py` + `load-gameplay-tables.ts` (monster 13 + score_system 3 + drop_item 30 + loc_macro 15 + teamplay_message 21) | All 5 Group-B struct-array kinds queryable |
+| 6 | not started | `phase-6-match-event-handler.md` | `phase-6-drafter-prompt.md` | `_handler_match_events.py` (XSD-driven; not libclang) + `load-match-events.ts` (7 entity rows + 13 emission sites) | match_event entity type populated; qw-event-log validation harness fully unblocked at schema level |
+| 7 | not started | `phase-7-validation.md` | `phase-7-drafter-prompt.md` | F1 quality-grid probes for all KTX kinds + JSONB-binding regression gate + validation runbook + cross-project audit | KTX onboarding has same auditability as the 4 prior engines |
+| 8 | not started | `phase-8-end-of-arc-docs.md` | `phase-8-drafter-prompt.md` | SCHEMA.md slim-doc Arc 1 refresh sweep (absorbs HANDOVER backlog item) + EXTRACTOR-PLAYBOOK additions (Pre-Port Discovery Sweep + Pre-Commit Discovery Cross-Check + Handler-grouping rationale + Pattern 15 STRING_LITERAL-array walker) | Docs caught up; arc done |
 
 When a phase MD lands, change `not started` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
 
@@ -144,8 +154,8 @@ If a phase drifts into one of these, that's a scope creep -- flag it.
 
 ## Operator quick-reference
 
-- **Kicking off a fresh phase-drafting session:** open a new terminal, paste the contents of `handoff-prompt.md` as the first message, naming the phase number to draft.
-- **Reviewing a drafted phase:** read the phase MD top-to-bottom, run the verification queries listed at the bottom, eyeball the file lists / SQL / source-walked count anchors, sign off.
+- **Kicking off a fresh phase-drafting session:** open a new terminal, paste the contents of the relevant `phase-N-drafter-prompt.md` (pre-rendered per-phase prompt; no edits needed). Phase 0 is already drafted; start with `phase-1-drafter-prompt.md` if you're picking up after Phase 0 review.
+- **Reviewing a drafted phase:** read the phase MD top-to-bottom, run the verification queries listed at the bottom, eyeball the file lists / SQL / source-walked count anchors, sign off. Update the phase index "Status" column AND the "Where we are right now" lines at top of this README.
 - **A finding resolves but conflicts with a decision:** the decision wins; reject the finding with a one-line rationale in the phase MD's "Open questions" section. If the decision itself is wrong, amend `decisions.md` with a dated block before re-running the phase draft.
 - **A new finding emerges during phase drafting:** append to `review-findings.md` with a sequential F-number and tag which phase resolves it.
 - **A spec commitment turns out to be wrong during phase drafting:** halt and surface to operator; the spec is locked per D1 but amendments via the operator's explicit decision are possible. The amendment lands in the spec's relevant pass section + a `decisions.md` amendment block.

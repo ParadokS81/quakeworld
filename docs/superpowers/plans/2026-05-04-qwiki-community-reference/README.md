@@ -6,7 +6,17 @@
 
 **Snapshot:** `apps/qw-oracle/data/wiki-snapshots/2026-05-04/` (51 MB raw; 9,173 articles + 767 templates + 324 categories captured 2026-05-04 from quakeworld.nu MediaWiki 1.35.10 API).
 
-**Status:** Planning. Per-phase MDs drafted by fresh terminals following `handoff-prompt.md`. Each phase MD verified by a sub-agent before operator review. Phases land in commit order; each phase boundary is operator-reviewed before the next phase begins.
+**Status:** Planning. Per-phase MDs drafted by fresh terminals following the per-phase drafter prompts (currently only `phase-7-drafter-prompt.md` since Phases 0-6 are already drafted). Each phase MD verified by a sub-agent before operator review. Phases land in commit order; each phase boundary is operator-reviewed before the next phase begins.
+
+---
+
+## Where we are right now
+
+- **Stage:** planning-drafting (one phase MD remaining).
+- **Last action:** 2026-05-05 -- Phase 6 MD drafted; awaiting operator review (uncommitted on disk at `phase-6-mcp-tools.md`).
+- **Next action:** finish reviewing Phase 6, mark approved in phase index, commit, then open fresh terminal and paste contents of `phase-7-drafter-prompt.md`. After Phase 7 is approved, the planning arc is complete; next move is the orchestrator handoff parking doc + opening an arc-orchestrator session.
+
+Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
 ---
 
@@ -30,16 +40,16 @@ If you're the fresh terminal that's about to draft a phase, also read:
 
 Phases land in order. Each phase commits a coherent unit (per `decisions.md` D16). Operator reviews at phase boundaries before the next phase starts.
 
-| Phase | Status | MD | Deliverable | Runnable state at end |
-|---|---|---|---|---|
-| 0 | not started | `phase-0-snapshot-finalize.md` | Slug-collision fix + redirect refetch + commit-policy decision | Snapshot is trustworthy; future arcs can build on it |
-| 1 | not started | `phase-1-curated-rename.md` | curated/ folder rename + community schema migration (008) | Existing concept-note retrieval still works; community tables exist and empty |
-| 2 | not started | `phase-2-players.md` | Players parser (3 template branches + fallback) + load 5,903 rows + emit player-notes | community.players populated; curated/player-notes/ has tuned count of substantive content-rich notes |
-| 3 | not started | `phase-3-clans.md` | Clans parser (2 branches + fallback) + load 829 rows + emit clan-notes | community.clans populated; curated/clan-notes/ has tuned count |
-| 4 | not started | `phase-4-tournaments.md` | Pilot (~50 pages, schema discovery) + migration 009 + parser + load + emit tournament-notes | community.tournaments populated; curated/tournament-notes/ has tuned count |
-| 5 | not started | `phase-5-cross-link-backfill.md` | Parse achievements -> tournament_results; parse clan history -> player_clan_eras; match against community.tournaments / community.clans | Cross-link tables populated; sample queries return expected names |
-| 6 | not started | `phase-6-mcp-tools.md` | search_players / search_clans / search_tournaments / lookup_by_nick / get_*_note tools | MCP server returns community data via per-type tools |
-| 7 | not started | `phase-7-l2-primer.md` | Primer artifact for L2 corpus reconstruction analyzer | Primer recognizes reference players (Milton, ParadokS, etc.) with correct nationality + clan affiliation |
+| Phase | Status | MD | Drafter prompt | Deliverable | Runnable state at end |
+|---|---|---|---|---|---|
+| 0 | approved | `phase-0-snapshot-finalize.md` | (drafted; n/a) | Slug-collision fix + redirect refetch + commit-policy decision | Snapshot is trustworthy; future arcs can build on it |
+| 1 | approved | `phase-1-curated-rename.md` | (drafted; n/a) | curated/ folder rename + community schema migration (008) | Existing concept-note retrieval still works; community tables exist and empty |
+| 2 | approved | `phase-2-players.md` | (drafted; n/a) | Players parser (3 template branches + fallback) + load 5,903 rows + emit player-notes | community.players populated; curated/player-notes/ has tuned count of substantive content-rich notes |
+| 3 | approved | `phase-3-clans.md` | (drafted; n/a) | Clans parser (2 branches + fallback) + load 829 rows + emit clan-notes | community.clans populated; curated/clan-notes/ has tuned count |
+| 4 | approved | `phase-4-tournaments.md` | (drafted; n/a) | Pilot (~50 pages, schema discovery) + migration 009 + parser + load + emit tournament-notes | community.tournaments populated; curated/tournament-notes/ has tuned count |
+| 5 | approved | `phase-5-cross-link-backfill.md` | (drafted; n/a) | Parse achievements -> tournament_results; parse clan history -> player_clan_eras; match against community.tournaments / community.clans | Cross-link tables populated; sample queries return expected names |
+| 6 | drafted (awaiting review) | `phase-6-mcp-tools.md` | (drafted; n/a) | search_players / search_clans / search_tournaments / lookup_by_nick / get_*_note tools | MCP server returns community data via per-type tools |
+| 7 | not started | `phase-7-l2-primer.md` | `phase-7-drafter-prompt.md` | Primer artifact for L2 corpus reconstruction analyzer | Primer recognizes reference players (Milton, ParadokS, etc.) with correct nationality + clan affiliation |
 
 When a phase MD lands, change `not started` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
 
@@ -79,8 +89,8 @@ The split is structural, not just cosmetic. See `decisions.md` D16 (phase atomic
 
 ## Operator quick-reference
 
-- **Kicking off a fresh phase-drafting session:** open a new terminal, paste the contents of `handoff-prompt.md` as the first message, naming the phase number to draft.
-- **Reviewing a drafted phase:** read the phase MD top-to-bottom, run the verification queries listed at the bottom, eyeball the file lists and SQL, sign off.
+- **Kicking off a fresh phase-drafting session:** open a new terminal, paste the contents of the relevant `phase-N-drafter-prompt.md` (pre-rendered per-phase prompt; no edits needed). Phases 0-6 are already drafted; only `phase-7-drafter-prompt.md` remains. If a phase MD needs re-drafting, fall back to the master `handoff-prompt.md` template with PHASE_NUMBER substituted.
+- **Reviewing a drafted phase:** read the phase MD top-to-bottom, run the verification queries listed at the bottom, eyeball the file lists and SQL, sign off. Update the phase index "Status" column AND the "Where we are right now" lines at top of this README.
 - **A finding resolves but conflicts with a decision:** the decision wins; reject the finding with a one-line rationale in the phase MD's "Open questions" section. If the decision itself is wrong, amend `decisions.md` before re-running the phase draft.
 - **A new finding emerges during phase drafting:** append to `review-findings.md` with a sequential F-number and tag which phase resolves it.
 
