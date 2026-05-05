@@ -185,6 +185,8 @@ Same as Arc 1 D2. Re-stated because this arc adds new scripts under `scripts/loa
 
 **Amendment 2026-05-05 (Phase 0 drafter):** Wiki snapshotter (`apps/qw-oracle/scripts/snapshot-wiki/snapshot.py`) and its companion fix scripts are **Python**, not Bun. Carve-out rationale: the snapshotter is data-pulling-from-an-external-source shape, identical to the engine extractors at `apps/qw-oracle/scripts/extractors/<project>/` which qw-oracle CLAUDE.md already pins to Python (libclang). Python stdlib `urllib` is the natural fit; no third-party deps; no Bun advantage for I/O-bound HTTP. D14's spirit is "loader pipeline scripts are Bun" -- the snapshotter is upstream of the loader pipeline, alongside extractors. Loader-pipeline scripts (parsers in Phase 2/3/4, cross-link backfill in Phase 5, primer build in Phase 7) remain Bun.
 
+**Carve-out scope sharpening 2026-05-05 (Phase 4 drafter):** the Python carve-out applies ONLY to the snapshotter and engine extractors. Per-phase one-off scripts (stratification helpers, ad-hoc selection scripts, anything written for a single phase to set up its own work) stay Bun. The test: if the script lives under `scripts/extractors/` or `scripts/snapshot-wiki/` it can be Python; everywhere else (including `scripts/load-community/<phase>/`) is Bun.
+
 Operator-confirmed 2026-05-05.
 
 ---

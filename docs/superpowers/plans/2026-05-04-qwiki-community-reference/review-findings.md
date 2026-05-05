@@ -58,6 +58,31 @@ Resolves via: drafter awareness in Phase 2/3 parsers.
 Phase 1 migration creates `community.tournament_results.tournament_slug TEXT NULL` with NO `REFERENCES community.tournaments(slug)` clause. Reason: Phase 5 backfill loads cross-link rows from achievements lists BEFORE Phase 4's tournament parser populates `community.tournaments`, so a hard FK would cause insertion failures. The spec's DDL comment "references where matchable" was prose intent, not a SQL constraint. Cross-link integrity is enforced by post-load join queries, not FK constraints.
 Resolves via: Phase 1 migration design; Phase 5 awareness.
 
+**F10 -- `{{Infobox 4on4team}}` is an undocumented fourth clan template variant (44 articles / 5.4% of clans).**
+Live recon of Category:Clans articles in the 2026-05-04 snapshot found 44 articles using
+`{{Infobox 4on4team}}` -- this template is not mentioned in the spec's "two template branches +
+Infobox clan rare" framing. Field names differ from Clan-info: `team` (prefix), `flag` (2-letter
+ISO directly, not demonym), `created` (year or "YYYY, Month" format), `irc-channel` (hyphenated
+key), `founder` (may contain nested `{{player|Nick|flag=xx}}` templates). No disbanded field.
+
+**Resolution applied 2026-05-05 (BEFORE Phase 1 executes):** Phase 1 migration 008 amended to
+widen `community.clans.source_template` CHECK enum from
+`('infobox_clan', 'clan_info', 'bullet_prose', 'none')` to
+`('infobox_clan', 'clan_info', 'infobox_4on4team', 'bullet_prose', 'none')`. Phase 3 parser
+writes the value directly. No coercion shim, no migration 010, no two-step deploy. Same pattern
+as F9 (catch-and-amend Phase 1 schema before execution).
+
+Resolves via: Phase 1 migration 008 (amended); Phase 3 Q2 (resolved-by-Phase-1-amendment).
+
+**F11 -- Actual Category:Clans count is 822 in the snapshot, not the spec's stated 829.**
+Live recon counted 822 article files tagged `Category:Clans` in the 2026-05-04 snapshot. The
+spec's 829 figure was likely from article-list.json enumeration which may include redirects or
+talk pages not stored as article-content files. The 7-article discrepancy does not indicate a
+snapshot defect -- the file-system count is the ground truth for loader input. Phase 3 V1 PASS
+condition is set to 822. Phase 0 executor can verify by cross-referencing article-list.json with
+actual file count if desired.
+Resolves via: Phase 3 V1 (822 accepted as accurate). Phase 3.
+
 **F9 -- `player_clan_eras` PK redesign: surrogate id + UNIQUE; year-absent rows representable.**
 Surfaced during Phase 2 drafting (Phase 2 Q1). The original Phase 1 migration set PK `(player_slug, clan_title, start_year)` which forced `start_year NOT NULL`. The Phase 2 parser, faithful to wiki source, produces year-absent rows for bullet-list Clan-history sections (ParadokS-style). These would have failed Phase 5 INSERT.
 
@@ -82,8 +107,10 @@ Resolves via: Phase 1 migration 008 (amended); Phase 2 Q1 (resolved); Phase 5 aw
 | F7 | 129 case-variant article pairs intentionally distinct | drafter awareness | 2, 3 |
 | F8 | tournament_results.tournament_slug is soft reference (no FK) | Phase 1 migration; Phase 5 awareness | 1, 5 |
 | F9 | player_clan_eras PK redesigned: surrogate id + UNIQUE; year-absent rows representable | Phase 1 migration 008 amended; Phase 2 Q1 resolved | 1, 2, 5 |
+| F10 | Infobox 4on4team is fourth clan template (44 articles / 5.4%); CHECK enum widened in Phase 1 amendment | Phase 1 migration 008 amended; Phase 3 Q2 resolved | 1, 3 |
+| F11 | Actual Category:Clans count is 822, not spec's 829; discrepancy from redirects/talk-page enumeration | Phase 3 V1 PASS condition set to 822 | 3 |
 
-(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05. F9 accrued during Phase 2 drafting + groom pass, 2026-05-05.)
+(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05. F9 accrued during Phase 2 drafting + groom pass, 2026-05-05. F10-F11 accrued during Phase 3 drafting, 2026-05-05.)
 
 ---
 

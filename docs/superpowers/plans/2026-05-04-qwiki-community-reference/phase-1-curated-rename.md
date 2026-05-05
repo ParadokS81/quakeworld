@@ -371,6 +371,7 @@ CREATE TABLE community.clans (
   source_template   TEXT
                       CHECK (source_template IS NULL
                              OR source_template IN ('infobox_clan', 'clan_info',
+                                                    'infobox_4on4team',
                                                     'bullet_prose', 'none')),
   source_categories TEXT[],
   wiki_revision_id  BIGINT,
