@@ -58,6 +58,15 @@ Resolves via: drafter awareness in Phase 2/3 parsers.
 Phase 1 migration creates `community.tournament_results.tournament_slug TEXT NULL` with NO `REFERENCES community.tournaments(slug)` clause. Reason: Phase 5 backfill loads cross-link rows from achievements lists BEFORE Phase 4's tournament parser populates `community.tournaments`, so a hard FK would cause insertion failures. The spec's DDL comment "references where matchable" was prose intent, not a SQL constraint. Cross-link integrity is enforced by post-load join queries, not FK constraints.
 Resolves via: Phase 1 migration design; Phase 5 awareness.
 
+**F9 -- `player_clan_eras` PK redesign: surrogate id + UNIQUE; year-absent rows representable.**
+Surfaced during Phase 2 drafting (Phase 2 Q1). The original Phase 1 migration set PK `(player_slug, clan_title, start_year)` which forced `start_year NOT NULL`. The Phase 2 parser, faithful to wiki source, produces year-absent rows for bullet-list Clan-history sections (ParadokS-style). These would have failed Phase 5 INSERT.
+
+**Resolution applied to Phase 1 BEFORE execution** (so no migration 010 is needed): switched to surrogate `id BIGSERIAL PRIMARY KEY`, nullable `start_year`, added `era_seq INT` for list-order preservation across re-loads, added `UNIQUE (player_slug, clan_title, start_year, source)` for idempotency. Year-known rows dedupe deterministically; year-absent rows are uncommon and Phase 5 truncates-and-rebuilds the table per re-run regardless. Bullet-list clan eras (ParadokS, Crit, the older Player-info pages) keep recognition signal.
+
+Trade-off accepted: Postgres treats NULL distinctly per row in UNIQUE indexes, so a re-run could in theory duplicate year-absent rows for the same (player, clan, source). In practice Phase 5 truncates-and-rebuilds, so this is harmless. If a future arc switches to incremental upsert, revisit with a `COALESCE(start_year, -1)`-based unique index.
+
+Resolves via: Phase 1 migration 008 (amended); Phase 2 Q1 (resolved); Phase 5 awareness (era_seq computed at upsert time from list-position).
+
 ---
 
 ## Phase ownership of findings
@@ -72,8 +81,9 @@ Resolves via: Phase 1 migration design; Phase 5 awareness.
 | F6 | Spec DDL pre-D5; decisions.md authoritative for column shape | drafter awareness | 4 |
 | F7 | 129 case-variant article pairs intentionally distinct | drafter awareness | 2, 3 |
 | F8 | tournament_results.tournament_slug is soft reference (no FK) | Phase 1 migration; Phase 5 awareness | 1, 5 |
+| F9 | player_clan_eras PK redesigned: surrogate id + UNIQUE; year-absent rows representable | Phase 1 migration 008 amended; Phase 2 Q1 resolved | 1, 2, 5 |
 
-(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05.)
+(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05. F9 accrued during Phase 2 drafting + groom pass, 2026-05-05.)
 
 ---
 

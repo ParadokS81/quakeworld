@@ -405,25 +405,35 @@ CREATE TABLE community.tournaments (
 -- clan history sections (Phase 5 backfill). clan_slug is nullable when the
 -- referenced clan does not resolve to a community.clans row (unrecognized
 -- clan name preserved in clan_title). source column per D10.
--- start_year is part of PK; NULL start_year is not allowed on PK columns.
--- Per Postgres convention a NOT NULL constraint on the PK column is implicit;
--- adding explicit NOT NULL here for readability.
+--
+-- PK is a surrogate id (BIGSERIAL). start_year is nullable: bullet-list
+-- Clan-history sections (ParadokS-style) routinely lack year information;
+-- the parser produces those rows faithfully and the schema accepts them.
+-- era_seq preserves source-list order for year-absent rows so the rendered
+-- timeline is stable across re-loads. Idempotency on re-load is enforced by
+-- the UNIQUE constraint over (player_slug, clan_title, start_year, source) --
+-- year-known rows dedupe deterministically; year-absent rows are uncommon
+-- and Phase 5 truncates-and-rebuilds the table per re-run regardless.
 -- ---------------------------------------------------------------------------
 CREATE TABLE community.player_clan_eras (
+  id           BIGSERIAL PRIMARY KEY,
   player_slug  TEXT NOT NULL REFERENCES community.players (slug),
   clan_slug    TEXT,
   clan_title   TEXT NOT NULL,
-  start_year   INT NOT NULL,
+  start_year   INT,
   end_year     INT,
+  era_seq      INT,
   source       TEXT NOT NULL
                  CHECK (source IN ('wiki_TH', 'wiki_bullet',
                                    'tournament-archive', 'manual')),
-  PRIMARY KEY (player_slug, clan_title, start_year)
+  UNIQUE (player_slug, clan_title, start_year, source)
 );
 
+CREATE INDEX community_player_clan_eras_player_slug ON community.player_clan_eras (player_slug);
 CREATE INDEX community_player_clan_eras_clan_slug   ON community.player_clan_eras (clan_slug)
   WHERE clan_slug IS NOT NULL;
-CREATE INDEX community_player_clan_eras_start_year  ON community.player_clan_eras (start_year);
+CREATE INDEX community_player_clan_eras_start_year  ON community.player_clan_eras (start_year)
+  WHERE start_year IS NOT NULL;
 
 -- ---------------------------------------------------------------------------
 -- community.tournament_results
@@ -690,16 +700,15 @@ FAIL: ENOENT error or loaded = 0.
   ships. Do not defer past Phase 1 completion -- any guide-rewrite invocation after Phase 1
   would write to a non-existent path.
 
-**Q3. start_year NOT NULL on community.player_clan_eras PK.**
-- **Question:** The spec's DDL for `player_clan_eras` shows `start_year int` without NOT
-  NULL. The composite PK `(player_slug, clan_title, start_year)` requires all three
-  columns to be non-null (Postgres PK columns are implicitly NOT NULL). The migration adds
-  explicit `NOT NULL` on `start_year` for clarity. If a player's clan history has no
-  year information, the row cannot be inserted.
-- **Default chosen for now:** `start_year INT NOT NULL` in migration 008. Phase 5 backfill
-  must handle year-absent TH rows by either substituting a sentinel year or skipping the
-  row (Phase 5 decision).
-- **Who can resolve:** Phase 5 drafter. Surfaced here so Phase 5 is aware.
+**Q3. start_year NOT NULL on community.player_clan_eras PK. RESOLVED 2026-05-05.**
+- **Original question:** Composite PK `(player_slug, clan_title, start_year)` forced
+  `start_year NOT NULL`, blocking insertion of year-absent bullet-list clan-history rows.
+- **Resolution:** Surfaced during Phase 2 drafting (Phase 2 Q1). Phase 1 schema
+  amended before execution: surrogate PK `id BIGSERIAL`, nullable `start_year`, new
+  `era_seq INT` for list-order preservation, `UNIQUE (player_slug, clan_title, start_year,
+  source)` for idempotency. Year-absent rows (ParadokS-style flat bullet lists) now insert
+  faithfully. No Phase 5 migration needed; no parser filtering required. See
+  `review-findings.md` F9 for full evidence trail.
 
 **Q4. community.clans status CHECK values.**
 - **Question:** The spec schema does not list allowed `status` values for clans (unlike
