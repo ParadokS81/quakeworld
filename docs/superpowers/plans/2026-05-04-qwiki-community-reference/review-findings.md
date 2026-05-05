@@ -181,6 +181,19 @@ Surfaced during Phase 1 T2 path-reference sweep. The phase MD's T2 listed updati
 
 Resolves via: future arc-planner phase MDs do NOT propose comment edits in applied migration files. D15's "append-only" semantics extend to the file's hash, not just its functional SQL. The comment in 005 is permanently a historical record of the pre-rename path; new schema arcs may add a "see 008 for current path" pointer in the relevant CLAUDE.md instead. Procedural lesson; no functional impact.
 
+**F28 -- Phase 3 wrap-up docs cite `is_substantive=397` for clans; live cold audit returns 688. Doc-transcription error (T8 calibration trial number transcribed instead of post-tune ship value); code and DB are in sync.**
+Surfaced during orchestrator session #2 cold-verify, 2026-05-05 (post-orchestrator-handoff at 21:53). README "Where we are right now", arc-history Phase 3 entry, and the orchestrator-resume parking doc all cite `is_substantive=397` for clans. Live cold audit (`SELECT count(*) FILTER (WHERE is_substantive) FROM community.clans`) returns **688**. Reflog shows zero DB-touching activity between Phase 3 ship (commit 2a467645 at 21:37) and the cold audit; working tree clean; `flags.ts` and `parse.ts` have only the Phase 3 ship commit.
+
+Audit trail: `flags.ts:36` at HEAD implements `substantiveSignals >= 2` per D6 spec. Bucketing live clans by persisted-D6-signal density (4 of 5 signals are persisted; the 5th `narrative_byte_length>=500B` lives in the parser only) reveals that **397 is the count under a `>=3 of 5` threshold** (273 with 3 persisted + 121 with 4 persisted + ~3 narrative-fired-from-2-bucket = ~397). The wrap-up docs are internally inconsistent: the "19 V3 stub-with-note outliers" count is only consistent with `>=2 of 5` (a `>=3 of 5` threshold would push that count past 200), so the docs paired the `>=2`-derived outlier number with a `>=3`-derived substantive number. Most likely scenario: at T8 the executor demonstrated threshold sensitivity by running both `>=2` (=688) and `>=3` (=397); the spec's `>=2` was committed and the DB was loaded under `>=2`; the wrap-up doc transcription captured the `>=3` trial number into final docs.
+
+Cross-check via the 4 visually-verified stub clans from the operator's end-of-Phase-3 audit (Frag_Messengers, Imperial_Icemarines, Masters_of_Fire, KMFC): all four show `is_substantive=FALSE, has_note=FALSE` in live DB, consistent with the post-tune `>=2 of 5` ship state and the Option 2 + F27 27a stub-template strip fixes.
+
+**Resolution applied 2026-05-05 (orchestrator session #2):** doc-correct README + arc-history + resume handoff from `397 -> 688`. No DB intervention, no code change. Captured here as a doc-transcription error class adjacent to F23 (which was a runtime DB drift class).
+
+**Procedural lesson:** orchestrator cold audit at session-boundary catches doc-transcription errors as well as runtime drift. Cross-check internal consistency of wrap-up numbers (substantive count vs outlier count vs has_note count) when verifying. F23's "always re-run V probes cold" discipline applies to phase wrap-up docs themselves, not just the DB.
+
+Resolves via: orchestrator session #2 doc correction (this finding). No code or DB change.
+
 ---
 
 ## Phase ownership of findings
@@ -214,8 +227,9 @@ Resolves via: future arc-planner phase MDs do NOT propose comment edits in appli
 | F25 | Phase 3 fixture-article misclassification: Firing_Squad + Slackers have buried Clan-info templates; tests revised to match parser reality + Xband added as bullet_prose fixture | Phase 3 inline test revision | 3 |
 | F26 | D6 5-signal heuristic omits achievements_count; rich-achievements/sparse-infobox clans (and players) flagged is_substantive=false; future tuning candidate (add 6th signal or replace narrative_prose with achievements) | future tuning arc | 3 (advisory; future improvement) |
 | F27 | HTML comments interrupt extractSectionBody trailing-meta-trim; orphan `[[Category:...]]` lines survive in section bodies; Phase 3 local fix (27a) applied; broader shared fix (27b) deferred | Phase 3 inline 27a; future small arc for 27b | 3 (27a applied; 27b deferred) |
+| F28 | Phase 3 wrap-up docs cite is_substantive=397; live DB returns 688; doc-transcription error (T8 `>=3 of 5` trial value transcribed instead of post-tune `>=2 of 5` ship value); code + DB are in sync | orchestrator session #2 doc correction (README + arc-history + resume handoff `397 -> 688`) | 3 (advisory; doc-only) |
 
-(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05. F9 accrued during Phase 2 drafting + groom pass, 2026-05-05. F10-F11 accrued during Phase 3 drafting, 2026-05-05. F12 accrued during Phase 5 drafting + groom pass, 2026-05-05. F13 accrued during Phase 7 drafting + groom pass, 2026-05-05. F14-F17 accrued during Phase 0 execution, 2026-05-05. F18-F20 accrued during Phase 1 execution, 2026-05-05. F21-F22 accrued during Phase 2 execution, 2026-05-05. F23-F24 accrued during Phase 2 reconciliation, 2026-05-05. F25-F27 accrued during Phase 3 execution, 2026-05-05.)
+(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05. F9 accrued during Phase 2 drafting + groom pass, 2026-05-05. F10-F11 accrued during Phase 3 drafting, 2026-05-05. F12 accrued during Phase 5 drafting + groom pass, 2026-05-05. F13 accrued during Phase 7 drafting + groom pass, 2026-05-05. F14-F17 accrued during Phase 0 execution, 2026-05-05. F18-F20 accrued during Phase 1 execution, 2026-05-05. F21-F22 accrued during Phase 2 execution, 2026-05-05. F23-F24 accrued during Phase 2 reconciliation, 2026-05-05. F25-F27 accrued during Phase 3 execution, 2026-05-05. F28 accrued during orchestrator session #2 cold-verify, 2026-05-05.)
 
 ---
 

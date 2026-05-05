@@ -29,7 +29,7 @@ Orchestrator session #1 drove Phases 0 through 3 to ship state. Session #2 picks
 **Live DB state (verified cold via `docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle`):**
 
 - `community.players`: 5,900 rows / is_substantive=2,008 / has_note=571 / source_template player_info=2867, bullet_prose=2543, infobox_player=475, none=15. `.devil` row present (F17). Vo0 row present (F21).
-- `community.clans`: 822 rows / is_substantive=397 / has_note=350 / source_template clan_info=450, bullet_prose=326, infobox_4on4team=44, infobox_clan=2, none=0.
+- `community.clans`: 822 rows / is_substantive=**688** (D6 `>=2 of 5`; corrected from original 397 via F28 at orchestrator session #2 boundary -- 397 was a T8 `>=3 of 5` calibration-trial value transcribed in error, not the ship state) / has_note=350 / source_template clan_info=450, bullet_prose=326, infobox_4on4team=44, infobox_clan=2, none=0.
 - `community.tournaments`: 0 rows (Phase 4 populates).
 - `community.player_clan_eras`: 0 rows (Phase 5 populates).
 - `community.tournament_results`: 0 rows (Phase 5 populates).
@@ -43,7 +43,7 @@ Orchestrator session #1 drove Phases 0 through 3 to ship state. Session #2 picks
 
 **Snapshot:** `apps/qw-oracle/data/wiki-snapshots/2026-05-04/` -- 9,178 article files, 767 templates, 2,337 redirects (refetched per F4/F14), uniform `__` slug scheme, committed to git (Path A locked per Phase 0 D12 decision).
 
-## Active findings ledger (F1-F27)
+## Active findings ledger (F1-F28)
 
 `docs/superpowers/plans/2026-05-04-qwiki-community-reference/review-findings.md` is the source of truth. Key findings to carry forward:
 
@@ -59,6 +59,7 @@ Orchestrator session #1 drove Phases 0 through 3 to ship state. Session #2 picks
 | F24 | drafter discipline | Phase MD V-probe expected values prone to spec drift from parser rules. Verify expected values at critical-review time, not by trusting MD. |
 | F26 | future tuning arc | D6 5-signal heuristic omits achievements_count; deferred. Doesn't block Phase 4. |
 | F27 | 27a applied; 27b deferred | Local fix in clans/parse.ts; broader shared/wiki-text.ts fix deferred to future small arc. Doesn't block Phase 4. |
+| F28 | doc-correction applied | Phase 3 wrap-up doc-transcription error caught at orchestrator session #2 cold-verify (`is_substantive=397 -> 688`; T8 `>=3 of 5` trial value had been transcribed in place of `>=2 of 5` ship value). Sharpens F23 lesson: cold-verify also catches doc-transcription drift, not just runtime DB drift. Doesn't block Phase 4. |
 
 Other findings (F1-F5, F7, F9-F11, F14-F22, F25) are phase-historical and resolved in their respective phases.
 
