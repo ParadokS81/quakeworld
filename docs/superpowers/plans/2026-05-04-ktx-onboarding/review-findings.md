@@ -168,6 +168,8 @@ Per-row schema: `kind='mode_default'`, `name=<cvar_name>`, `value_text=<literal_
 
 **Phase ownership:** Phase 5.
 
+**Amendment 2026-05-05 (Phase 5 drafter source-walk):** F9's `armor_for_kill` field name is itself an off-by-one against canonical-1.46 (master HEAD). Live `bloodfest_monster_t` struct (`sp_monsters.c:48-52`) carries `hp_for_kill` (per-kill HP bonus to player), not `armor_for_kill`. F9 was already amended once during Pass 5.4 (`count_modifier` -> `armor_for_kill`); this second amendment lands the source-faithful name per D9. `props_json.hp_for_kill` is the locked field; semantic is "HP awarded to player per kill," not armor -- Layer 3 concept-note authors documenting bloodfest mechanics should reference HP rewards. Phase 5's verification probe asserts `props_json -> 'hp_for_kill'` is non-null for all 13 rows. Soft watch: two source-walks have produced two different field names for the same struct; if Phase 7 validation surfaces a THIRD name, that's a corruption signal worth spot-checking the source-walk discipline.
+
 ### F10 -- score_system row count = 3; positions array length = 10 invariant
 
 **Resolved by:** D1 + Phase 5 reproduces; loader-side validation gate.
@@ -193,6 +195,14 @@ Per-row schema: `kind='mode_default'`, `name=<cvar_name>`, `value_text=<literal_
 - Per-row: `kind='drop_item'`, `props_json={drop_token, spawned_classname, spawnflags_raw, spawnflags_value, angle_set, spawn_function, related_entity_canonical_id}`.
 
 **Phase ownership:** Phase 5.
+
+**Amendment 2026-05-05 (Phase 5 drafter source-walk):** Two corrections at canonical-1.46 (master HEAD):
+
+1. **Count drift 30 -> 31.** Live source has 31 entries (was 30 at Pass 5.4 source-walk). New entry `{ "sp_sp", "info_player_start", ... }` added in the period between Pass 5.4 and Phase 5 drafting. Phase 5's verification probe asserts drop_item count = 31; tests reproduce the 31-row inventory.
+
+2. **Macro depth correction.** `H_ROTTEN` and `H_MEGA` are defined in `include/g_consts.h:241-242`, NOT in `g_local.h` as F11 originally claimed. Resolution path for the consumer (`commands.c:9075-9108`) is depth-2: `commands.c` includes `g_local.h`, which includes `g_consts.h`. Phase 1's D4 lift walks depth-1 only, so `H_ROTTEN` / `H_MEGA` do NOT auto-resolve at extraction time. `WEAPON_BIG2` at `commands.c:9053` is depth-0 (same-file) and resolves via the pre-lift Pattern 6.
+
+Phase 5 ships a handler-private `_DROPITEM_MACRO_FALLBACK = {"H_ROTTEN": 1, "H_MEGA": 2}` as the tactical workaround -- frozen-keyed dict (raises KeyError if a future macro is referenced but missing) preserves failure-loud-not-silent. The principled long-term fix is a D4 depth-N amendment (lift the lift); parked as a future-arc revisit per D4's own "Revisit if a multi-hop case surfaces" caveat. KTX is the first surfaced multi-hop case.
 
 ### F12 -- loc_macro row count = 15 (Pass 4.4 estimate 16 was wrong)
 
