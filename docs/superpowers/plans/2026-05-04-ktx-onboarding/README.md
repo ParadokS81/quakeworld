@@ -8,7 +8,7 @@
 
 **Status:** Planning. Per-phase MDs are drafted by fresh terminals following the per-phase drafter prompts (`phase-N-drafter-prompt.md`). Each phase MD is verified by a sub-agent before operator review. Phases land in commit order; each phase boundary is operator-reviewed before the next phase begins.
 
-**Total schema impact:** 9 CHECK widenings + 1 new table (`match_event_versions`), split across migrations 008 / 009 / 010.
+**Total schema impact:** 10 CHECK widenings + 1 new table (`match_event_versions`), split across migrations 008 / 009 / 010. Per-value enumeration: 1 (`log_template_versions.channel` += `'logfile'`) + 1 (`entities.type` += `'match_event'`) + 1 (`gameplay_entity_defs.kind` += `'monster'`) + 7 (`gameplay_mechanics.kind` += `'game_mode'`, `'election_type'`, `'score_system'`, `'drop_item'`, `'loc_macro'`, `'teamplay_message'`, `'mode_default'`) = 10. Earlier scaffolding said "9" -- that was a meta-count error caught during Phase 7 drafting.
 
 **Total row impact (per KTX tag):** Pass 1 first-class entity rows (cvars / commands / info_keys / log_templates -- counts in spec) + ~450 qw-namespace gameplay rows + 7 match_event entity rows.
 
@@ -17,8 +17,8 @@
 ## Where we are right now
 
 - **Stage:** planning-drafting (per-phase MD drafts in progress).
-- **Last action:** 2026-05-05 -- Phase 6 MD approved (~1138 lines; F14 anchors reproduced -- 7 complexTypes / 13 emission sites with exact 6+1+1+1+1+2+1 distribution). D3 amended with explicit match_event Visitor carve-out (per D6 placement; XSD-driven standalone class with duck-typed stubs). F14 amended for simpleType count 5 -> 4 + spec 5.6.b regex literal deviation (legacy single-line vs live multi-line wrapper shape; phase MD ships live-source-faithful regex; arc-reviewer will mark DELIVERED-DIFFERENT-AS-DOCUMENTED). Sub-agent verification: 1 confirmed CRITICAL applied + 1 sub-agent error correctly pushed back + 3 SUBSTANTIVE applied + 2 ADVISORY applied/acknowledged.
-- **Next action:** open fresh terminal, paste contents of `phase-7-drafter-prompt.md`.
+- **Last action:** 2026-05-05 -- Phase 7 MD approved (~1272 lines; 19 KTX-specific F1 probes + JSONB regression gate + idempotency probe + 10-widening per-migration probes + KTX VALIDATION-RUNBOOK section + 5-engine cross-project audit). Sub-agent verification: 2 CRITICAL + 5 SUBSTANTIVE + 4 ADVISORY all applied. Two real bugs caught: idempotency script's broken WHERE clause (dead-code OR + suppressed-error fragility) rewritten to three explicit table sets; CHECK widening meta-count corrected 9 -> 10 across phase MD. README banner fix: "Total schema impact" line corrected 9 -> 10 widenings. Four Open Questions all defer-to-execution (migration filenames pending Phase 1 ship, log_template count pending Phase 2 load, mode_default equality semantics pending Phase 3 load, audit report date placeholder).
+- **Next action:** open fresh terminal, paste contents of `phase-8-drafter-prompt.md`.
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
@@ -55,7 +55,7 @@ Phases 2 / 3 / 4 / 5 / 6 are mutually independent at the data level after Phase 
 | 4 | approved | `phase-4-taxonomies-handler.md` | `phase-4-drafter-prompt.md` | `_handler_gameplay_taxonomies.py` + `load-gameplay-taxonomies.ts` (election_type 5 + death_rule 27) | election_type + death_rule rows queryable; qw-event-log validation harness anchor available |
 | 5 | approved | `phase-5-tables-handler.md` | `phase-5-drafter-prompt.md` | `_handler_gameplay_tables.py` + `load-gameplay-tables.ts` (monster 13 + score_system 3 + drop_item 31 + loc_macro 15 + teamplay_message 21) | All 5 Group-B struct-array kinds queryable |
 | 6 | approved | `phase-6-match-event-handler.md` | `phase-6-drafter-prompt.md` | `_handler_match_events.py` (XSD-driven; not libclang) + `load-match-events.ts` (7 entity rows + 13 emission sites) | match_event entity type populated; qw-event-log validation harness fully unblocked at schema level |
-| 7 | not started | `phase-7-validation.md` | `phase-7-drafter-prompt.md` | F1 quality-grid probes for all KTX kinds + JSONB-binding regression gate + validation runbook + cross-project audit | KTX onboarding has same auditability as the 4 prior engines |
+| 7 | approved | `phase-7-validation.md` | `phase-7-drafter-prompt.md` | F1 quality-grid probes for all KTX kinds + JSONB-binding regression gate + validation runbook + cross-project audit | KTX onboarding has same auditability as the 4 prior engines |
 | 8 | not started | `phase-8-end-of-arc-docs.md` | `phase-8-drafter-prompt.md` | SCHEMA.md slim-doc Arc 1 refresh sweep (absorbs HANDOVER backlog item) + EXTRACTOR-PLAYBOOK additions (Pre-Port Discovery Sweep + Pre-Commit Discovery Cross-Check + Handler-grouping rationale + Pattern 15 STRING_LITERAL-array walker) | Docs caught up; arc done |
 
 When a phase MD lands, change `not started` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
