@@ -17,8 +17,8 @@
 ## Where we are right now
 
 - **Stage:** planning-drafting (per-phase MD drafts in progress).
-- **Last action:** 2026-05-05 -- Phase 1 MD approved (0 CRITICAL / 0 SUBSTANTIVE / 4 ADVISORY); D4 + F16 amended with dated reframe ("leverages existing PARSE_OPTS flag; lift adds macro-walk only") per Phase 1 drafter source-walk discovery.
-- **Next action:** open fresh terminal, paste contents of `phase-2-drafter-prompt.md`.
+- **Last action:** 2026-05-05 -- Phase 2 MD approved (~2200 lines; 3 CRITICAL all dispositioned -- qwprot-path defect fixed in draft, two prerequisite-sequencing flags surfaced as Open Questions); F1 / F2 / F3 / F4 / F17 amended with live-source counts from drafter source-walk (Pattern 14 rationale reframed as defensive API-surface marker per D7 -- live std-vs-editor collisions = 0).
+- **Next action:** open fresh terminal, paste contents of `phase-3-drafter-prompt.md`.
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
@@ -50,7 +50,7 @@ Phases 2 / 3 / 4 / 5 / 6 are mutually independent at the data level after Phase 
 |---|---|---|---|---|---|
 | 0 | approved | `phase-0-doctrine-fixes.md` | (drafted; n/a) | KTX-is-libclang doctrine fixes across 5 reference sites (F19 + F22) + delete obsolete `scripts/extractors/ktx/commands.ts` + create OUT_OF_SCOPE.md | Repo doctrine matches reality; obsolete TS regex extractor gone; KTX SKIP catalog established |
 | 1 | approved | `phase-1-foundation.md` | `phase-1-drafter-prompt.md` | Pattern 6 cross-header lift in `extractor_lib._source` (depth-1 #include walk; D4 + F16 amended) + migrations 008/009/010 + new `gameplay_sources` row for `'ktx'` | Schema admits all KTX content; cross-header macros resolve for any engine |
-| 2 | not started | `phase-2-pass1-entity-handlers.md` | `phase-2-drafter-prompt.md` | Pass 1 first-class entity handlers (cvars + commands + info_keys + log_templates) + 4 loader wirings + KTX dispatch wiring in `extract-tag.ts` | KTX cvars + commands + info_keys + log_templates queryable in dev DB |
+| 2 | approved | `phase-2-pass1-entity-handlers.md` | `phase-2-drafter-prompt.md` | Pass 1 first-class entity handlers (cvars + commands + info_keys + log_templates) + 4 loader wirings + KTX dispatch wiring in `extract-tag.ts` | KTX cvars + commands + info_keys + log_templates queryable in dev DB |
 | 3 | not started | `phase-3-modes-handler.md` | `phase-3-drafter-prompt.md` | `_handler_modes.py` + `load-modes.ts` (game_mode catalog 27 rows + mode_default overlays ~309 rows) | game_mode + mode_default rows queryable; mode-aware queries possible |
 | 4 | not started | `phase-4-taxonomies-handler.md` | `phase-4-drafter-prompt.md` | `_handler_gameplay_taxonomies.py` + `load-gameplay-taxonomies.ts` (election_type 5 + death_rule 27) | election_type + death_rule rows queryable; qw-event-log validation harness anchor available |
 | 5 | not started | `phase-5-tables-handler.md` | `phase-5-drafter-prompt.md` | `_handler_gameplay_tables.py` + `load-gameplay-tables.ts` (monster 13 + score_system 3 + drop_item 30 + loc_macro 15 + teamplay_message 21) | All 5 Group-B struct-array kinds queryable |

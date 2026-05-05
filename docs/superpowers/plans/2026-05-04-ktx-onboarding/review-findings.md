@@ -36,6 +36,8 @@ While drafting each phase MD:
 
 **Phase ownership:** Phase 2.
 
+**Amendment 2026-05-05 (Phase 2 drafter source-walk):** The "API split: ~205 RegisterCvarEx / ~50 RegisterCvar" sub-anchor is INVERTED relative to canonical-1.46 (master HEAD). Live source shows 181 RegisterCvar (no-default) + 114 RegisterCvarEx (with-default) = 295 raw call sites; ratio 1.6:1, not 4:1. The "192 unique k_-prefixed cvars" sub-anchor stands. Implication: `default_value IS NULL` is the COMMON case in KTX cvars (~61%), not the rare diagnostic the original framing suggested -- Layer 3 concept-note authors and consumers reading the column should treat NULL as the default, not the exception. Phase 2's verification probe asserts cvar count >= 192; the API split itself is captured in `_stats.by_api` for the audit trail.
+
 ### F2 -- KTX command counts across three target tables
 
 **Resolved by:** D1 + D7 (Pattern 14 suffix) + Phase 2 reproduces.
@@ -55,6 +57,8 @@ While drafting each phase MD:
 
 **Phase ownership:** Phase 2.
 
+**Amendment 2026-05-05 (Phase 2 drafter source-walk):** Two anchors require correction at canonical-1.46 (master HEAD): `std_commands` count 39 -> 14, std-vs-editor collisions 25 -> 0. The main `cmd_t cmds[]` 317-unique-entry sub-anchor stands -- live shows ~371 raw `{ "..." }` lines with conditional-compilation duplicates; dedup at handler time produces 317 unique. Pattern 14 RATIONALE REFRAMES: with 0 live collisions, the `:frogbot:std` and `:frogbot:editor` suffixes are no longer collision-prevention; they are defensive API-surface markers per D7. D7 stays locked: the suffix scheme is applied unconditionally to make sub-namespaces queryable and to future-proof against any tag introducing collisions. Phase 2's verification probe 4 asserts frogbot_count >= 39 (= 14 std + 25 editor live).
+
 ### F3 -- KTX info_key producer-emitted counts
 
 **Resolved by:** D1 + Phase 2 reproduces.
@@ -65,6 +69,8 @@ While drafting each phase MD:
 - Canonical shape: `<bare>:userinfo` (Pattern 14).
 
 **Phase ownership:** Phase 2.
+
+**Amendment 2026-05-05 (Phase 2 drafter source-walk):** Star-key count corrected at canonical-1.46 (master HEAD): unique star-keys 5-6 -> 7 (`*at`, `*is`, `*ml`, `*mm`, `*mp`, `*mt`, `*mu`); write sites 38 -> 36. The producer-only emission rule and the `:userinfo` Pattern 14 suffix per D7 are unchanged. Phase 2's verification probe asserts info_key count >= 5; both 7 and any future growth satisfy.
 
 ### F4 -- KTX log_template printf-shape counts
 
@@ -82,6 +88,8 @@ While drafting each phase MD:
 **Total emission sites:** 1794. Estimated unique format strings after per-file dedup: 1500-2000. 
 
 **Phase ownership:** Phase 1 (008 migration), Phase 2 (handler).
+
+**Amendment 2026-05-05 (Phase 2 drafter source-walk):** Per-API call-site counts drift modestly at canonical-1.46 (master HEAD); within accepted tolerance: G_bprint 655 -> 681, G_sprint 1068 -> 1071, G_cprint 43 unchanged, log_printf 28 unchanged. Total 1794 -> 1823. The unique-format-string-after-dedup metric (1500-2000) is the load-bearing anchor and is unaffected by per-API drift. Phase 2 verification asserts log_template count >= 1000; threshold semantics hold across both number sets. No reframe needed; recorded for audit-trail accuracy.
 
 ### F5 -- game_mode catalog row count = 27
 
@@ -267,6 +275,8 @@ Per-row schema: `kind='mode_default'`, `name=<cvar_name>`, `value_text=<literal_
 **Action for Phase 8 drafter:** EXTRACTOR-PLAYBOOK addition includes a "Dual-row design for log_template + match_event" note explaining why future maintainers should not deduplicate.
 
 **Phase ownership:** Phase 2 (preserves), Phase 6 (also emits), Phase 8 (documents).
+
+**Amendment 2026-05-05 (Phase 2 drafter source-walk):** The "13 XML-shaped log_printf emission sites" anchor doesn't match canonical-1.46 (master HEAD) under any single regex. Live source produces 7 sites under the tight innermost-event pattern (`log_printf("\t\t\t<EVENT_NAME>...`) and 24 sites under a broader XML-emission pattern (any indented `<...` payload, including wrappers). F14's "13 emission call sites" anchor (Phase 6 territory) reflects per-XSD-complexType emission groupings (6 pick_mapitem + 1 each for pick_powerup / drop_powerup / pick_backpack / drop_backpack + 2 damage + 1 death), not raw printf call sites; the two facets are distinct. The dual-row design holds regardless: every XML-shaped log_printf call site lands as a `log_template_versions` row with channel='logfile' (D10). Phase 2's "do NOT filter XML-shaped log_printfs" rule stands; verification probe 5 asserts >= 7 channel='logfile' rows whose format string starts with `\t\t\t<`.
 
 ### F18 -- Obsolete TS regex extractor at scripts/extractors/ktx/commands.ts
 
