@@ -12,9 +12,9 @@
 
 ## Where we are right now
 
-- **Stage:** planning COMPLETE. All 8 phase MDs approved. Orchestrator handoff written.
-- **Last action:** 2026-05-05 -- arc plan signed off; orchestrator handoff parking doc written at `docs/superpowers/parking/2026-05-04-qwiki-community-reference-orchestrator-handoff.md`.
-- **Next action:** open a fresh terminal, invoke arc-orchestrator skill, paste the orchestrator handoff. Execution begins.
+- **Stage:** Phases 0-2 SHIPPED. Phases 3-7 pending.
+- **Last action:** 2026-05-05 -- Phase 2 shipped; V1-V11 PASS; F21-F22 accrued. 5,900 players loaded; 571 notes emitted; `is_substantive=2,008`; `has_note` v1 rule tuned (quotes >= 5 chars; HTML-comment stripping for threshold accuracy); Vo0 recovered via expanded isPlayerArticle filter; 138 tests pass.
+- **Next action:** orchestrator drafts Phase 3 executor prompt; operator opens fresh terminal; arc-executor skill drives Phase 3 (clans parser + load 822 rows + emit clan-notes).
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
@@ -42,9 +42,9 @@ Phases land in order. Each phase commits a coherent unit (per `decisions.md` D16
 
 | Phase | Status | MD | Drafter prompt | Deliverable | Runnable state at end |
 |---|---|---|---|---|---|
-| 0 | approved | `phase-0-snapshot-finalize.md` | (drafted; n/a) | Slug-collision fix + redirect refetch + commit-policy decision | Snapshot is trustworthy; future arcs can build on it |
-| 1 | approved | `phase-1-curated-rename.md` | (drafted; n/a) | curated/ folder rename + community schema migration (008) | Existing concept-note retrieval still works; community tables exist and empty |
-| 2 | approved | `phase-2-players.md` | (drafted; n/a) | Players parser (3 template branches + fallback) + load 5,903 rows + emit player-notes | community.players populated; curated/player-notes/ has tuned count of substantive content-rich notes |
+| 0 | shipped | `phase-0-snapshot-finalize.md` | (drafted; n/a) | Slug-collision fix + redirect refetch + commit-policy decision | Snapshot is trustworthy; future arcs can build on it |
+| 1 | shipped | `phase-1-curated-rename.md` | (drafted; n/a) | curated/ folder rename + community schema migration (008) | Existing concept-note retrieval still works; community tables exist and empty |
+| 2 | shipped | `phase-2-players.md` | (drafted; n/a) | Players parser (3 template branches + fallback) + load 5,903 rows + emit player-notes | community.players populated; curated/player-notes/ has tuned count of substantive content-rich notes |
 | 3 | approved | `phase-3-clans.md` | (drafted; n/a) | Clans parser (2 branches + fallback) + load 829 rows + emit clan-notes | community.clans populated; curated/clan-notes/ has tuned count |
 | 4 | approved | `phase-4-tournaments.md` | (drafted; n/a) | Pilot (~50 pages, schema discovery) + migration 009 + parser + load + emit tournament-notes | community.tournaments populated; curated/tournament-notes/ has tuned count |
 | 5 | approved | `phase-5-cross-link-backfill.md` | (drafted; n/a) | Parse achievements -> tournament_results; parse clan history -> player_clan_eras; match against community.tournaments / community.clans | Cross-link tables populated; sample queries return expected names |

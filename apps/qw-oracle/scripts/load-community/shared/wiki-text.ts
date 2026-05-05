@@ -169,6 +169,18 @@ export function extractSectionBody(wikitext: string, headingTitle: string): stri
 
   // Collect lines until the next heading of the same or higher level.
   const nextHeadingRe = /^(=+)\s/;
+  // Strip Category: lines, [[Category:...]] wikilinks, and __MAGIC__ words that
+  // appear after the last real section heading in wiki articles. They are article
+  // metadata, not section content, but trail the last section body with no
+  // following heading to terminate the extraction.
+  // Also strip HTML comments from the body so that commented-out templates don't
+  // inflate section length metrics used for has_note / D7 threshold checks.
+  const isTrailingMeta = (line: string): boolean => {
+    const t = line.trim();
+    return /^__\w+__$/.test(t)
+      || /^\[\[Category:/i.test(t)
+      || /^Category:/i.test(t);
+  };
   const bodyLines: string[] = [];
   for (let i = startLine + 1; i < lines.length; i++) {
     const m = nextHeadingRe.exec(lines[i]!);
@@ -176,7 +188,16 @@ export function extractSectionBody(wikitext: string, headingTitle: string): stri
     bodyLines.push(lines[i]!);
   }
 
-  return bodyLines.join('\n');
+  // Trim trailing meta lines.
+  let end = bodyLines.length;
+  while (end > 0 && (isTrailingMeta(bodyLines[end - 1]!) || bodyLines[end - 1]!.trim() === '')) {
+    end--;
+  }
+
+  const bodyRaw = bodyLines.slice(0, end).join('\n');
+  // Strip HTML comments (may span multiple lines). Compressed-out templates are
+  // not real content; stripping here keeps length metrics clean for D6/D7 checks.
+  return bodyRaw.replace(/<!--[\s\S]*?-->/g, '');
 }
 
 // ---------------------------------------------------------------------------

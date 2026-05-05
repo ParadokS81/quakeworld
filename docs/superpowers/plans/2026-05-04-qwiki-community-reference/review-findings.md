@@ -108,6 +108,49 @@ Phase 7 ships a sensible default: structured JSON at `apps/qw-oracle/data/l2-pri
 
 Resolves via: Phase 7 sensible default; L2 arc Pass 2 confirms or adjusts. Phase 7 + L2 arc cross-reference.
 
+**F14 -- snapshot.py `enumerate_redirects` bug: MW 1.35.10 `allredirects` does not return `fromtitle` with `arprop=ids|title`.**
+Surfaced during Phase 0 execution. The original `arprop=ids|title` approach (drafted in Phase 0 MD as the fix for F4's broken `arprop=target`) assumed `fromtitle` would be in the response. On quakeworld.nu MediaWiki 1.35.10 the `allredirects` API returns only `fromid` (source pageid), not `fromtitle` -- evidence: `{'fromid': 6321, 'ns': 0, 'title': '-Molle-'}`. The fallback chain `src = r.get("fromtitle") or r.get("from") or r.get("title")` set `src = title` (the target), the `if src != tgt` guard then dropped every row, producing `[]` -- the same silent-empty-result shape as the original F4 bug. Fix shipped inline at execution time as a two-step approach: enumerate redirect source pages via `allpages?apfilterredir=redirects`, then batch-resolve each source to its target via `query?redirects=1`. The Phase 0 T3 subagent independently discovered the same issue and used the same fix.
+
+Resolves via: Phase 0 inline fix (commit 296efc67). `snapshot.py` is now correct for any future re-scrape.
+
+**F15 -- V3a probe (`ls | grep -c "__"`) is miscalibrated; expected 503, returned 553.**
+Surfaced during Phase 0 V3 verification. The snapshot directory contains ~50 non-slash-title articles whose slugs contain `__` from non-slash special-character replacements -- e.g., `Nemocn___Ryt____i.json` derived from a title with multiple non-alphanumeric characters that the slugify rule replaces individually. V3a's `ls | grep -c "__"` therefore reports a count higher than the 503 slash-title articles. The V3b Python probe (which counts only `__` files whose titles actually contain `/`) is the accurate gate and PASSed at exactly 503.
+
+Resolves via: future re-runs treat V3a as advisory or remove from phase MD; V3b is the structural gate. Captured here so the V3a calibration question doesn't resurface as a defect.
+
+**F16 -- 26 slash-title articles have legitimately empty `wikitext` (verified live).**
+Surfaced during Phase 0 V3b verification. 26 of the 503 refetched slash-title articles return valid `pageid` + `revid` but empty `wikitext`. Examples: `MSKLAN2003/4on4(Playoffs)`, `Polish Duel Championship 3/Division 1` through `Division 5`. Confirmed against live API -- these tournament sub-pages exist as titled redirects/stubs with no body content on the wiki. Not a fetch defect.
+
+Resolves via: Phase 2/3/4 parsers must handle empty wikitext gracefully. The two-threshold model (D5) already covers this -- empty wikitext produces `is_substantive=false` and `has_note=false`, which is the correct row shape.
+
+**F17 -- `.devil.json` is a hidden file; `ls | wc -l` undercounts the articles directory by 1.**
+Surfaced during Phase 0 verification. One wiki article is titled `.devil`; its slug is `.devil.json`. On Linux, `ls` without `-a` skips dotfiles, so `ls apps/qw-oracle/data/wiki-snapshots/2026-05-04/articles/ | wc -l` returns 9177 instead of the actual 9178. `find -name "*.json" | wc -l` and Python `Path.iterdir()` correctly count 9178.
+
+Resolves via: future phase verification probes that count files use `find -name "*.json" | wc -l` or Python iterdir() instead of `ls | wc -l`. Phase 2/3/4 awareness item -- their parser-loop iteration must use a directory-walk that includes dotfiles.
+
+**F18 -- Phase 1 V3 probe `grep -r "concept-notes" --include="*.ts" | grep -v "curated/concept-notes"` is miscalibrated; expects "no output" but legitimately returns 6 lines.**
+Surfaced during Phase 1 V3 verification. The probe filters out `curated/concept-notes` literal but does not filter (a) the `CONCEPT_LINK_RE` backward-compat regex literal in `parse.ts:26` which contains `curated\/` (escaped slash, not literal `curated/`); (b) intentional backward-compat test strings in `parse.test.ts:65,66,76,86` that exercise the legacy `concept-notes/` form; (c) `CONCEPTS_DIR = resolve('curated', 'concept-notes')` in `index.ts:18` (the directory name segment, not a stale path prefix). All six lines are correct, intentional, and not stale. The probe's PASS condition reads as FAIL to a cold verifier.
+
+Resolves via: future phase MDs use a tighter V3 probe (e.g., `grep -rn "apps/qw-oracle/concept-notes" --include="*.ts"` for stale absolute paths only, or `| grep -v parse.test.ts` to exclude backward-compat test strings). Phase 1's structural correctness is verified via tsc + load-concepts smoke (V7 + V8). No re-execution needed.
+
+**F19 -- Phase 1 V8 PASS condition says "skipped 3" but actual is "skipped 4"; off-by-one in the phase MD.**
+Surfaced during Phase 1 V8 verification. The phase MD's expected output names `OPERATIONS.md`, `README.md`, `_gap-report.md` as the three skipped files. Actual loader output is "skipped 4" because `CLAUDE.md` (in `concept-notes/` since before the rename) also has no `slug:` frontmatter and is correctly skipped. The phase MD undercounted by 1. Loaded N=9 satisfies the >= 9 gate; no functional issue.
+
+Resolves via: phase MD's PASS condition should have said "skipped 4". No re-execution needed; the gate is N >= 9 which is the meaningful signal.
+
+**F21 -- Actual Category:Players count is 5,900 in the snapshot (with Vo0 recovered), not spec's 5,903.**
+Spec estimated 5,903 players; actual Category:Players article count is 5,896. One additional article (Vo0) was in `Category:Dutch Players` only (wiki editorial omission -- all other 170 Dutch players are in both categories). After expanding `isPlayerArticle` to also accept nationality sub-categories (`/^Category:.+ Players$/`), final loaded count is 5,900. The 3-article discrepancy from 5,903 is unexplained (likely redirects or talk pages counted in the original estimate). Same class of issue as F11 (clans: 822 vs 829). Phase 2 V1 PASS condition adjusts to accept any count in the 5,800-6,100 range.
+Resolves via: Phase 2 execution (isPlayerArticle expanded inline). Phase 2.
+
+**F22 -- 13 `none`-branch articles; ~5 have bogus `real_name` values from fallback parser; advisory only.**
+15 articles fall to the `none` branch after Phase 2 execution. Of these, ~3 use `* '''Label''': value` format (colon AFTER closing triple-tick, e.g. `* '''Real name''': Anton`) which is not matched by bullet-prose detection (needs 2/3 patterns). Five articles have bogus `real_name` values (`'Real name'`, `'Nationality:'`) where the `parseProseFallbackBranch` incorrectly captures the label text. These are low-severity: 15 rows out of 5,900 (0.25%); row data is usable for recognition except for the bogus `real_name`. The operator classified as advisory (future cleanup arc; not Phase 2 or Phase 3 scope).
+Resolves via: future cleanup arc or Phase 5 polish pass. Phase 2 (advisory capture).
+
+**F20 -- D15 (append-only migrations) applies to the entire file, not just functional SQL; comment edits also fail the migrator's SHA256 hash check.**
+Surfaced during Phase 1 T2 path-reference sweep. The phase MD's T2 listed updating a header comment in `005_layer3_concepts.sql` from `concept-notes/*.md` to `curated/concept-notes/*.md`. Executing that edit caused `bun apps/qw-oracle/db/migrate.ts` to throw `Error: Migration 005_layer3_concepts.sql was modified after it was applied` because the runner stores SHA256 of the entire file in `schema_migrations.sha256` and re-checks on every run. The executor reverted the edit; live SHA256 now matches the DB hash (`d45171ae...`). The 005 comment retains the historical pre-rename path, which is correct for an applied migration.
+
+Resolves via: future arc-planner phase MDs do NOT propose comment edits in applied migration files. D15's "append-only" semantics extend to the file's hash, not just its functional SQL. The comment in 005 is permanently a historical record of the pre-rename path; new schema arcs may add a "see 008 for current path" pointer in the relevant CLAUDE.md instead. Procedural lesson; no functional impact.
+
 ---
 
 ## Phase ownership of findings
@@ -127,8 +170,17 @@ Resolves via: Phase 7 sensible default; L2 arc Pass 2 confirms or adjusts. Phase
 | F11 | Actual Category:Clans count is 822, not spec's 829; discrepancy from redirects/talk-page enumeration | Phase 3 V1 PASS condition set to 822 | 3 |
 | F12 | Phase 5 title-matcher Pass 2 depends on Phase 0 redirect refetch shipping first | Phase 5 executor verifies redirects.json non-empty before run | 5 |
 | F13 | L2 spec defers primer artifact shape + location to its own Pass 2; Phase 7 ships sensible default | Phase 7 default + L2 arc Pass 2 confirm/adjust | 7, L2 |
+| F14 | snapshot.py redirect-enumeration bug; allredirects on MW 1.35.10 returns only fromid not fromtitle; fixed via two-step allpages+batch-query approach (commit 296efc67) | Phase 0 inline fix | 0 |
+| F15 | V3a probe miscalibration (553 vs 503); ~50 non-slash-title files have `__` slugs from other special-char replacements; V3b is the accurate gate | Phase 0 V3b PASS | 0 |
+| F16 | 26 slash-title articles have legitimately empty wikitext (verified live); D5 two-threshold model handles natively (`is_substantive=false`, `has_note=false`) | Phase 2/3/4 awareness | 2, 3, 4 |
+| F17 | `.devil.json` is a hidden file; `ls | wc -l` undercounts by 1; phase verification + parser-loop directory walks use `find -name "*.json"` or Python `iterdir()` | Phase 2/3/4 awareness | 2, 3, 4 |
+| F18 | Phase 1 V3 probe miscalibrated; expects "no output" but legitimately returns 6 lines (regex literal + backward-compat test strings + CONCEPTS_DIR resolve segment) | future phase MDs use tighter V3 probe | 1 |
+| F19 | Phase 1 V8 PASS condition off-by-one ("skipped 3" vs actual "skipped 4"); CLAUDE.md is also skipped (no slug frontmatter) | N>=9 gate is the meaningful signal | 1 |
+| F20 | D15 append-only applies to entire migration file (hash-checked), not just functional SQL; comment edits fail migrator | future phase MDs avoid editing applied migration files | all future arcs |
+| F21 | Actual Category:Players count 5,900 (not spec's 5,903); Vo0 was only in Category:Dutch Players (wiki omission); isPlayerArticle expanded to accept nationality sub-categories | Phase 2 execution (inline fix) | 2 |
+| F22 | 13 none-branch articles; ~5 have bogus real_name from fallback parser; `* '''Label''': value` colon-after-triple-tick format missed by detection; advisory only (future cleanup) | future cleanup arc | 2 (advisory) |
 
-(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05. F9 accrued during Phase 2 drafting + groom pass, 2026-05-05. F10-F11 accrued during Phase 3 drafting, 2026-05-05. F12 accrued during Phase 5 drafting + groom pass, 2026-05-05. F13 accrued during Phase 7 drafting + groom pass, 2026-05-05.)
+(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05. F9 accrued during Phase 2 drafting + groom pass, 2026-05-05. F10-F11 accrued during Phase 3 drafting, 2026-05-05. F12 accrued during Phase 5 drafting + groom pass, 2026-05-05. F13 accrued during Phase 7 drafting + groom pass, 2026-05-05. F14-F17 accrued during Phase 0 execution, 2026-05-05. F18-F20 accrued during Phase 1 execution, 2026-05-05. F21-F22 accrued during Phase 2 execution, 2026-05-05.)
 
 ---
 

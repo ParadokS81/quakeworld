@@ -823,6 +823,8 @@ Note: `source` CHECK values on cross-link tables (`player_clan_eras`, `tournamen
 
 One row per known QW player. Populated by the wiki scraper from QWiki player articles.
 
+**Live counts (Phase 2, snapshot 2026-05-04):** 5,896 rows; 570 markdown notes under `curated/player-notes/`; 2,004 `is_substantive=TRUE`.
+
 | Column | Type | Notes |
 |---|---|---|
 | `slug` | TEXT PK | URL-safe identifier derived from article title |

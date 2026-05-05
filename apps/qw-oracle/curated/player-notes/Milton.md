@@ -1,0 +1,247 @@
+---
+slug: Milton
+title: Milton
+type: player
+display_name: Milton
+real_name: Joni Sivula
+aliases: []
+nationality: Finnish
+nationality_iso: fi
+current_clan: Black Book
+active_year_start: 1997
+active_year_end: 
+status: Active
+community_roles: []
+source_template: infobox_player
+wiki_revision_id: 79062
+wiki_fetched_at: 2026-01-07T22:54:15Z
+---
+
+Joni "Milton" Sivula, hailing from Finland, is one of the most decorated and highly praised Quakeworld players in the community. Since 2004 he has been a dominating force in 1on1 and, with {{Flag/fi}} The Viper Squad, had a 5 year winning streak in 4on4 tournaments. In 2016 Milton and {{Flag/no}} Rikoll teamed up to form {{Flag/eu}} Ragnarök, taking the 20th Anniversary Tournament by storm. Dropping only one map on the way to victory, Milton now has more gold to his name than Fort Knox, and he's keeping his position just as heavily guarded.
+
+## Information
+
+{{Mouse settings table
+|brand=Roccat
+|model=Burst Pro |desc=
+|dpi=1600
+|sensitivity=50
+|windows=
+|inverted=
+|zoom=
+|yaw=0.001
+|acceleration=none
+|rawinput=yes
+|polling=1000
+|pad-brand=GMB Gaming
+|pad-model= |pad-desc=
+}}
+
+{{crosshair table
+|crosshair=4
+|color|r=0 |g=255 |b=0
+|size=0.5
+|alpha=1
+}}
+
+==Achievements==
+{{Achievement table/intro}}
+{{Achievement|year=2026|place=1|event=QHLAN2026|additional=2on2|mode=2on2|flag=sefi|team=Unholy Alliance|prize=}}
+{{Achievement|year=2025|place=2|event=The Big 4|mode=4on4|flag=eu|team=Black Book|prize=}}
+{{Achievement|year=2025|place=2|event=Sunday Spawnfraggin 19|additional=|mode=4on4|flag=eu|team=Black Book|prize=}}
+{{Achievement|year=2025|place=1|event=Draft Masters 2|mode=4on4|flag=eu|team=Milton's Mutants|prize=}}
+{{Achievement|year=2025|place=2|event=EQL Season 23|mode=4on4|flag=eu|team=Black Book|prize=}}
+{{Achievement|year=2025|place=1|event=Kombat 2on2 5|mode=2on2|flag=fi|team=Poisonous and Venomous|prize=}}
+{{Achievement|year=2025|place=1|event=EQL cup 5|mode=4on4|flag=eu|team=Black Book|prize=}}
+{{Achievement|year=2025|place=1|event=Quakeworld Eternal/Dm2|mode=4on4|flag=eu|team=Black Book|prize=}}
+{{Achievement|year=2025|place=1|event=QWSL|mode=4on4|flag=eu|team=Black Book|prize=}}
+{{Achievement|year=2024|place=1|event=EQL Season 22|mode=4on4|flag=eu|team=Black Book|prize=}}
+{{Achievement|year=2024|place=1|event=Kombat DMM4|mode=DMM4 1on1|flag=|team=|prize=}}
+{{Achievement|year=2024|place=1|event=Quakeworld Eternal/Schloss|mode=4on4|flag=eu|team=Black Book|prize=}}
+{{Achievement|year=2024|place=1|event=Draft Masters|mode=4on4|flag=eu|team=Milton's Hellions|prize=}}
+{{Achievement|year=2024|place=1|event=Qenya War Tournament 3|mode=4on4|flag=eu|team=Milton's Mutants|prize=}}
+{{Achievement|year=2024|place=1|event=EQL cup 3|mode=4on4|flag=sefi|team=Bennett|prize=}}
+{{Achievement|year=2024|place=1|event=Ownage Cup|mode=DMM4 1on1|flag=|team=|prize=}}
+{{Achievement|year=2024|place=1|event=QHLAN2024|additional=2on2|mode=2on2|flag=sefi|team=Unholy Alliance|prize=€446}}
+{{Achievement|year=2023|place=1|event=EQL cup|mode=4on4|flag=sefi|team=Commando|prize=}}
+{{Achievement|year=2023|place=1|event=D99TenYearDraft|mode=4on4|flag=eu|team=Milton's Unholy Horde of Chaos and Darkness|prize=}}
+{{Achievement|year=2023|place=1|event=Qlan War Tournament 5|mode=4on4|flag=sefi|team=Commando|prize=}}
+{{Achievement|year=2023|place=1|event=Kombat FFA 4|mode=FFA|flag=|team=|prize=}}
+{{Achievement|year=2023|place=1|event=Qlan War Tournament 4|mode=4on4|flag=sefi|team=Commando|prize=}}
+{{Achievement|year=2023|place=1|event=Qlan War Elite|mode=4on4|flag=sefi|team=Commando|prize=}}
+{{Achievement|year=2023|place=1|event=Qlan War Tournament 3|mode=4on4|flag=eu|team=Commodores|prize=}}
+{{Achievement|year=2023|place=1|event=Time 2 Hammer Season 4|mode=2on2|flag=fi|team=Poisonous and Venomous|prize=}}
+{{Achievement|year=2023|place=1|event=Multi-LAN Quake Weekend 2023|mode=DMM4 1on1|flag=|team=|prize=}}
+{{Achievement|year=2022|place=1|event=GetQuad! Draft 6|mode=4on4|flag=fi|team=Milton's Mutants|prize=}}
+{{Achievement|year=2022|place=1|event=Kombat FFA 3|mode=FFA|flag=|team=|prize=}}
+{{Achievement|year=2022|place=1|event=QHLAN2022|additional=4on4|mode=4on4|flag=sefi|team=Commando|prize=}}
+{{Achievement|year=2022|place=1|event=QHLAN2022|additional=2on2|mode=2on2|flag=fi|team=Poisonous and Venomous|prize=}}
+{{Achievement|year=2022|place=1|event=Qenya War Tournament 1|mode=4on4|flag=sefi|team=Commando|prize=}}
+{{Achievement|year=2022|place=1|event=Qlan War Tournament 2|mode=4on4|flag=sefi|team=Commando|prize=}}
+{{Achievement|year=2022|place=1|event=CTF Showdown|mode=CTF|flag=fi|team=Creature Condors|prize=}}
+{{Achievement|year=2022|place=1|event=Qlan War Tournament 1|mode=4on4|flag=sefi|team=Commando|prize=}}
+{{Achievement|year=2022|place=1|event=Time 2 Hammer Season 3|mode=2on2|flag=fi|team=The Terminator Predators|prize=}}
+{{Achievement|year=2022|place=1|event=Kombat 2on2on2|mode=2on2on2|flag=fi|team=The Terminator Predators|prize=}}
+{{Achievement|year=2022|place=1|event=Kombat 2on2 3|mode=2on2|flag=fi|team=Poisonous and Venomous|prize=}}
+{{Achievement|year=2022|place=1|event=Organ Grinder 9
+|mode=4on4|flag=eu|team=666|prize=}}
+{{Achievement|year=2022|place=2|event=Kombat FFA 2|mode=FFA|flag=|team=|prize=€300}}
+{{Achievement|year=2021|place=1|event=Sdcup5|mode=1on1|flag=|team=|prize=$500}}
+{{Achievement|year=2021|place=2|event=GetQuad! Draft 5|mode=4on4|flag=fi|team=Milton's Mutants|prize={{Abbr|₮|Tether cryptocurrency (₮)}}800}}
+{{Achievement|year=2021|place=1|event=Kombat End|mode=DMM4 1on1|flag=|team=|prize=}}
+{{Achievement|year=2021|place=1|event=Sdcup4|mode=DMM4|flag=|team=|prize=$200}}
+{{Achievement|year=2021|place=1|event=The Great Quakeholio Tournament 4|mode=FFA / 1on1|flag=|team=|prize=$12000}} 
+{{Achievement|year=2021|place=1|event=Ride My Rocket 2on2 Tour 1|mode=2on2|flag=sefi|team=Unholy Alliance|prize=}}
+{{Achievement|year=2021|place=1|event=Money for nothin and gibs for free|mode=2on2|flag=sefi|team=Unholy Alliance|prize=$1500}}
+{{Achievement|year=2020|place=2|event=GetQuad! Nations Cup|mode=4on4|flag=fi|team=Finland|prize=}}
+{{Achievement|year=2020|place=1|event=QuakeWorld AllStars 2020
+|mode=4on4|flag=eu|team=666|prize=}}
+{{Achievement|year=2020|place=1|event=AYE AYE Surprise 2on2 Cup
+|mode=2on2|flag=fi|team=Hell|prize=}}
+{{Achievement|year=2020|place=1|event=GetQuad! Draft|additional=Season 3, Div 1|mode=4on4|flag=eu|team=Milton's Mutants|prize=}}
+{{Achievement|year=2020|place=1|event=GetQuad! Draft|additional=Season 3, Open Division | mode=4on4|flag=eu|team=Nautilus' Ninjas|prize=}}
+{{Achievement|year=2020|place=1|event=GetQuad! Kenya Invitational | mode=4on4|flag=eu|team=Milton's Mutants|prize=}}
+{{Achievement|year=2019|place=1|event=QHLAN2019|additional=4on4|mode=4on4|flag=eu|team=Milton's Mutants|prize=}}
+{{Achievement|year=2019|place=1|event=QHLAN2019|additional=2on2|mode=2on2|flag=fi|team=HENU|prize=}}
+{{Achievement|year=2019|place=1|event=GetQuad! Draft|additional=Season 1, Div 1|mode=4on4|flag=fi|team=Milton's Mutants|prize=}}
+{{Achievement|year=2018|place=2|event=Get2Gether|mode=2on2|flag=fi|team=HENU|prize=}}
+{{Achievement|year=2017|place=1|event=QHLAN2017|additional=1on1|mode=1on1|flag=|team=|prize=$750}} 
+{{Achievement|year=2017|place=1|event=QHLAN2017|additional=2on2|mode=2on2|flag=eu|team=Ragnarök|prize=$250}}
+{{Achievement|year=2017|place=2|event=QHLAN2017|additional=4on4|mode=4on4|flag=eu|team=666|prize=}}
+{{Achievement|year=2016|place=1|event=QuakeCon 2016|mode=2on2|flag=eu|team=Ragnarök|prize=$12000}}
+{{Achievement|year=2016|place=1|event=QW 4V4 TDM All Stars Show Match #2|mode=4on4|flag=eu|team=666|prize=}}
+{{Achievement|year=2016|place=1|event=QuakeCon 2016/True Damage International 2|mode=2on2|flag=eu|team=Ragnarök|prize=}}
+{{Achievement|year=2016|place=1|event=QuakeCon 2016/True Damage International 1|mode=2on2|flag=eu|team=Ragnarök|prize=}}
+{{Achievement|year=2016|place=1|event=Sunday Spawnfraggin THE END|mode=DMM4 1on1|flag=|team=|prize=}}
+{{Achievement|year=2015|place=1|event=EQL Season 20|additional=+ fragrank winner|mode=4on4|flag=eu|team=Fragomatic|prize=}}
+{{Achievement|year=2015|place=1|event=QW 4V4 TDM All Stars Show Match #1|mode=4on4|flag=eu|team=666|prize=}}
+{{Achievement|year=2015|place=1|event=EQL Season 19|additional=+ fragrank winner|mode=4on4|flag=eu|team=Fragomatic|prize=}}
+{{Achievement|year=2013|place=1|event=EQL Season 17|additional=+ fragrank winner|mode=4on4|flag=fi|team=The Viper Squad|prize=}}
+{{Achievement|year=2013|place=2|event=EQL Season 16|additional=+ fragrank winner|mode=4on4|flag=fi|team=The Viper Squad|prize=}}
+{{Achievement|year=2013|place=1|event=Qwenya Season 2|mode=2on2|flag=fi|team=Maga|prize=}}
+{{Achievement|year=2013|place=1|event=Salvation Season 3|additional=+ fragrank winner|mode=4on4|flag=eu|team=Milton's Militia|prize=}}
+{{Achievement|year=2012|place=2|event=Salvation Season 2|additional=+ fragrank winner|mode=4on4|flag=eu|team=Milton's Militia|prize=}}
+{{Achievement|year=2012|place=1|event=Hymn of Hope: September Edition|mode=2on2|flag=fi|team=Maga|prize=}}
+{{Achievement|year=2012|place=2|event=EQL Season 15|mode=4on4|flag=eu|team=ParamedicS|prize=}}
+{{Achievement|year=2012|place=1|event=HoonyMode one-day beta-test tournament|mode=1on1|flag=|team=|prize=AMD Radeon graphics card}}
+{{Achievement|year=2012|place=1|event=Salvation Season 1|additional=+ fragrank winner|mode=4on4|flag=eu|team=Milton's Militia|prize=}}
+{{Achievement|year=2011|place=1|event=EQL Season 14|mode=4on4|flag=eu|team=Fragomatic|prize=}}
+{{Achievement|year=2011|place=1|event=DM2 candy challenge #2 against Kippo|mode=1on1|flag=|team=|prize=A bag of candies}}
+{{Achievement|year=2010|place=1|event=EQL Season 12|additional=+ fragrank winner|mode=4on4|flag=fi|team=The Viper Squad|prize=}}
+{{Achievement|year=2010|place=1|event=QHLAN 14|additional=1on1|mode=1on1|flag=fi|team=The Viper Squad|prize=}}
+{{Achievement|year=2010|place=2|event=QHLAN 14|additional=4on4|mode=4on4|flag=fi|team=The Viper Squad|prize=}}
+{{Achievement|year=2010|place=3|event=QHLAN 14|additional=2on2|mode=2on2|flag=fi|team=The Viper Squad|prize=}}
+{{Achievement|year=2010|place=1|event=DM2 candy challenge #1 against Kippo|mode=1on1|flag=|team=|prize=A bag of candies}}
+{{Achievement|year=2010|place=1|event=Duel4Tickets|mode=1on1|flag=|team=|prize=QHLAN 14 ticket}}
+{{Achievement|year=2010|place=1|event=Ownage 3|mode=1on1|flag=|team=|prize=}}
+{{Achievement|year=2010|place=1|event=EQL Season 11|additional=+ fragrank winner|mode=4on4|flag=fi|team=The Viper Squad|prize=}}
+{{Achievement|year=2010|place=2|event=Clanwarz Poland Cup of the Sith|additional=(playoffs)|mode=4on4|flag=eu|team=Satan's Soldiers|prize=}}
+{{Achievement|year=2010|place=1|event=Clanwarz Poland Division of the Sith |additional=(season)|mode=4on4|flag=eu|team=Satan's Soldiers|prize=}}
+{{Achievement|year=2010|place=1|event=EQL Season 10|additional=+ fragrank winner|mode=4on4|flag=fi|team=The Viper Squad|prize=}}
+{{Achievement|year=2009|place=1|event=EQL Season 9|additional=+ fragrank winner|mode=4on4|flag=fi|team=The Viper Squad|prize=}}
+{{Achievement|year=2009|place=1|event=Quake Nations Cup|mode=4on4|flag=fi|team=Finland|prize=}}
+{{Achievement|year=2008|place=1|event=EQL Season 8|additional=+ fragrank winner|mode=4on4|flag=fi|team=The Viper Squad|prize=}}
+{{Achievement|year=2008|place=1|event=CHTV Challenge 1 against Reppie|mode=1on1|flag=|team=|prize=}}
+{{Achievement|year=2008|place=2|event=EQL Season 7|additional=+ fragrank winner|mode=4on4|flag=fi|team=The Viper Squad|prize=}}
+{{Achievement|year=2008|place=1|event=Quake Nations Cup|mode=4on4|flag=fi|team=Finland|prize=}}
+{{Achievement|year=2008|place=1|event=EQL Season 6|mode=4on4|flag=fi|team=The Viper Squad|prize=}}
+{{Achievement|year=2006|place=3-4|event=EQL Season 2|mode=4on4|flag=fi|team=The Viper Squad|prize=}}
+{{Achievement|year=2006|place=1|event=NQR Season 9 Gold Cup Standard|mode=4on4|flag=fi|team=Satanic Slaughter Clan|prize=}}
+{{Achievement|year=2005|place=1|event=NQR Season 8 |additional=Division 2|mode=4on4|flag=fi|team=Satanic Slaughter Clan|prize=}}
+{{Achievement|year=2005|place=1|event=NQR Ladder Season 1|mode=4on4|flag=fi|team=Satanic Slaughter Clan|prize=}}
+{{Achievement|year=2004|place=1|event=Duelmania.fi Season 1|mode=1on1|flag=|team=|prize=}}
+{{Achievement|year=2004|place=1|event=QuakeWorld Nations Cup|mode=10on10|flag=fi|team=Finland|prize=}}
+{{Achievement|year=2004|place=1|event=Duelmania 3|mode=1on1|flag=|team=|prize=}}
+{{Achievement|year=2004|place=3|event=NQR Season 6 Silver Cup|mode=4on4|flag=fi|team=Satanic Slaughter Clan|prize=}}
+{{Achievement|year=2003|place=2|event=NQR CMT Season 2|mode=4on4|flag=fi|team=Satanic Slaughter Clan|prize=}}
+{{Achievement table/outro}}
+
+===Warzon Trophy Holder===
+{{PrizepoolWZ
+|number=1
+|width=
+|playerwidth=108
+|p1=Milton |f1=fi |m1=QHLAN14
+}}
+
+==Media==
+{{box|start|padding=1.4em|max-width=1400px}}
+[YouTube video](https://youtube.com/watch?v=6lVW7WGwj7s)
+{{box|break|padding=1.4em}}
+[YouTube video](https://youtube.com/watch?v=LWU2QVM9-tE)
+{{box|break|padding=1.4em}}
+[YouTube video](https://youtube.com/watch?v=NLPFebjZJi4)
+{{box|break|padding=1.4em}}
+[YouTube video](https://youtube.com/watch?v=MGgo-mtEoEE)
+{{box|break|padding=1.4em}}
+[YouTube video](https://youtube.com/watch?v=TjoFnWyFyZ4)
+{{box|break|padding=1.4em}}
+[YouTube video](https://youtube.com/watch?v=p4H0g66xu2M)
+{{box|end}}
+
+==Gallery==
+<gallery mode="packed-hover" heights="200px">
+File:QuakeCon2016 stage ragnarok.jpg
+File:Qhlan2017 Milton2.jpg
+File:Qhlan2017 Rikoll Milton.jpg
+</gallery>
+
+==Quotes==
+"pelia saatana"
+
+==Trivia==
+Creator of the map <code>kenya.bsp</code>.
+
+## Quotes
+
+"pelia saatana"
+
+==Trivia==
+Creator of the map <code>kenya.bsp</code>.
+
+## Trivia
+
+Creator of the map <code>kenya.bsp</code>.
+
+## Media
+
+{{box|start|padding=1.4em|max-width=1400px}}
+[YouTube video](https://youtube.com/watch?v=6lVW7WGwj7s)
+{{box|break|padding=1.4em}}
+[YouTube video](https://youtube.com/watch?v=LWU2QVM9-tE)
+{{box|break|padding=1.4em}}
+[YouTube video](https://youtube.com/watch?v=NLPFebjZJi4)
+{{box|break|padding=1.4em}}
+[YouTube video](https://youtube.com/watch?v=MGgo-mtEoEE)
+{{box|break|padding=1.4em}}
+[YouTube video](https://youtube.com/watch?v=TjoFnWyFyZ4)
+{{box|break|padding=1.4em}}
+[YouTube video](https://youtube.com/watch?v=p4H0g66xu2M)
+{{box|end}}
+
+==Gallery==
+<gallery mode="packed-hover" heights="200px">
+File:QuakeCon2016 stage ragnarok.jpg
+File:Qhlan2017 Milton2.jpg
+File:Qhlan2017 Rikoll Milton.jpg
+</gallery>
+
+==Quotes==
+"pelia saatana"
+
+==Trivia==
+Creator of the map <code>kenya.bsp</code>.
+
+## Gallery
+
+<gallery mode="packed-hover" heights="200px">
+File:QuakeCon2016 stage ragnarok.jpg
+File:Qhlan2017 Milton2.jpg
+File:Qhlan2017 Rikoll Milton.jpg
+</gallery>
+
+==Quotes==
+"pelia saatana"
+
+==Trivia==
+Creator of the map <code>kenya.bsp</code>.
