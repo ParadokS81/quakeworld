@@ -1,0 +1,115 @@
+---
+slug: Clan_MalFunction
+title: Clan MalFunction
+type: clan
+prefix: cmf
+nationality: Finnish
+nationality_iso: fi
+founded_year: 1997
+founded_month: 
+founded_day: 
+founded_by: 
+disbanded: 
+status: unknown
+irc_channel: cmf
+irc_network: Quakenet
+website: 
+source_template: clan_info
+wiki_revision_id: 3796
+wiki_fetched_at: 2015-01-26T19:08:14Z
+---
+
+Finnish Clan MalFunction are known for their play-for-fun attitude and relatively consistant performance since their inception.
+
+## History
+
+: '''''Note:''' Unfortunately this is all what's left of the huge cMF-history I once wrote. -Vertigo''
+===1996-1997: Beginning===
+Everything began at Tampere, Finland. Few friends found Quake and formed a team called Clan MalFunction. First members were Mineral, Triton, Pagan and Ares (later known as Element). These four dudes were all HPW's and played mostly practises against other finnish HPW squads back then. The first clanmatch was played against cHL (Clan Hell Legion) which was considered as one of the best finnish HPW clans. Result was quite clear 322-155 after E1M2 and DM2. A four man squad wasn't enough to keep activity up and thanks to legendary Like the Gods of The Sun leader Diabolos, cMF decided join LGoTS. These four cMF guys were top players in LGoTS and perhaps because of them LGoTS did lose their homemap E1M2 only once, against legendary finnish clan Finnish Allied Quakers. Mineral was considered as one of the best DM2 duelplayers at the time.
+
+===1997-1998: LGoTS shuts down: cMF's next steps===
+Like the Gods of The Sun shuts down few months after because clan leader Diabolos doesnt have enough time to run the whole business by himself. cMF guys are homeless just a few days, when the ex-LGoTS players decide to form another clan called Alpha Centauri. Main players in this group were FFA-lord NetAngel, Mineral, Element, Vertigo and Snapcase (also known as Tonik). After few weeks of successful practises and few victorious matches this clan suddenly faces the same problem as LGoTS: no one takes care of the clan's managament, so everything collapses again. Although some players played few matches in other clans, something still attaches cMF's players. Mineral retires from DopE, one of the top10 clans at that time, and resurrects cMF with Element 21.4.1998. Other players in cMF's second coming were Triton, Pagan, NetAngel (from LGoTS), Snapcase (from LGoTS) and Raptor (from LGoTS).
+
+===cMF's long journey begins===
+cMF's second official clanwar is against Clan Cola. A newbie clan, which was an easy opponent for this experienced group. With Element-Raptor-Mineral team Clan Cola gets crushed clearly 514-6. The summer of '98 was very active time for cMF, including matches against Fury (Mooniz, Simply, Sissna), Galaxy (Zolo, haZard, Lame), The Viper Squad (Ihminen, Blaze), The Forsaken (Demandred, Lanfear), DopE (Acid, Manson, Edge) and Complex (Puzler, Karhu, Fluid). All very big names in Finland's QW scene. Although cMF lost almost every match against these big clans, they had great teamspirit and thanks to few years of experience, they knew what they were able to do. Win. Few new members were taken in to make the team stronger and more active. Dr.Amurei (known as Amu nowadays) joined quick after cMF's resurrection and few others were tested but not taken in for longer time (Lacrits and Flanker). I joined when DopE broke down and cMF felt a home for me straight when I joined. First big victory was against tVS, which was considered as oldtimers back then (at the year 1998!!!) and another big was against Nordic Brutal, which friends cMF guys have always been. 1998 was time for official clanmatches, not many tourneys (if any?) existed. cMF played 38 matches between 4.5.1998 and 30.12.1998 getting 22W-16L score in total. cMF was this active mostly thanks to good new players, which were taken in. Archi from KarmaPoliisit, Raiccu from FoB and Damage from BioZ brought alot of new skill and enthusiasm to the oldtimers squad.
+
+===1999: Jump to one level up===
+1999 first match was against No Problem! - the clan which is known to be one of the best Finnish clans ever (Puzler, Acid, Preda, Fluid, Maga). cMF's course was going straight up and NP! was at the top, really intresting match back then. In DM3 cMF was almost able to win NP!, but not quite. NP! won by 1 frag but the score was almost a victory for cMF's team - the first time cMF dudes showed to themselves and all others that cMF has the skill to give anyone a great challenge. Second round was much more clearer but it didnt matter - cMF had jumped one level up once again. After getting this score cMF had 13 games long winning streak, including mostly the old fightmates from the finnish mid-class. There was one match above others, SLQL Advanced division final match against The Forsaken. SLQL was perhaps the best finnish QW tourney ever, atleast it's idea. There was four divisions for different skilled clans: Pro/Advanced/Novice/Newbies and perhaps for HPW's, too. Dont remember it quite, whetever. It was the first time when cMF really won something in any league. Advanced division victory came clearly by 282 frags.
+
+===Zetor, Medieval Spawns, NP!, Z===
+Although cMF had won SLQL Advanced division and got some good scores in practices, no-one didnt still expect anything from this "We frag for fun" -group. Even the players in cMF hadnt the slightest clue how high skilled game they really could play. It didn't too long when they found it out. After being beaten an another upcoming clan, Zetor, cMF faced the one of the biggest International clans at that time: MVS. Medieval Spawns were a group which contained awful alot of legends. Akke was the head of MVS and with all other Spawns he had built up a superb QW team. cMF suprised everybody against MVS, even themselves. The first match against MVS was the biggest thing, cMF managed to win MVS by one frag in the first round and MVS were shocked. When cMF guys were stunned and trying to understand the score, MVS had built up a really big conflict. After messy evening we decided to take a rematch from 0-0 situation (??:) and there MVS won 2-0, but after getting only 50 frag victory from DM3! MVS played very defensively with minimum risks and there I saw first time that some elite clan takes cMF seriously. After getting this good score against really famous team it was easy to face finnish top3 clan NP! once again. Our guys trusted into their skills and made NP! guys sweat. cMF-NP! match is perhaps one of the least respected matches in finnish QW scene history. The score was absolutely unique: 305-310 defeat! After 2 rounds! NP! won the first dm3 by one frag and the second dm3 by four frags. The most exciting game I've ever seen. Sadly, there's no demos available. After NP! we were ready to face Zetor again. Zetor was climbed up in Scandinavian charts and they were very famous thanks to good scores in Villains. Although cMF had got plenty of great scores in a short time, there was two big moments still to come. cMF-Zetor matches were always really spectacular ones especially from a finn's POV and these two clans faced eachothers in The Liiga match at 25.2.1999. This time everything went smoothly for cMF and Zetors got gibbed straight 2-0! This was the second last QW match which Zetor ever lost (the last one was against Euthanasia in Villains finals, the last QW match for ZR atm). Second big momemnt at the start of 1999 was the game against Z. We managed to keep the same fighting spirit up as we had had against ZR, MVS and NP! Z, the best finnish clan ever, had a really much to do against us, but their superb routine was just too much. They won by 100 frags.
+
+===Too much for such a short time?===
+cMF's motto has always been "we frag for fun", but thanks to highly enthusiastic new leader Vertigo cMF's playing turned a bit too serious. Everything had been going very smoothly for a long time and cMF had taken a place in the 'elite' clans, but still we were newcomers and few good scores in matches didn't actually count much. They could've easily been luckyshots. Next step was to keep our level high. After few weeks of break we faced Galaxy, which should've been somewhat easy match for us (regarding to latest scores against the BEST clans). We were a bit too much confident to our own skills in this match and GLX won both rounds with a really small margins. Summer was coming and we had had a really long active perioid, including plenty of good scores, but the playing team was tired. We had quite alot of pressures of winning the next match against Zetor and practice break didnt really help the situation. We got totally crushed by them and we decided to take a break from Quake.
+
+===cMF goes Villains!===
+After two months of complete inactivity we started playing again. Villains' second season was starting and we started to gather practice minutes with a good pace. cMF joined into NQR just to get some official matches played before Villains. Our first lineup was something like Eonwe, Fifi, Amu, Wedge, NetAngel & Ele at the time. We were somewhat rusty after the summer vacation, but anyway Villains started quite well for us. First match was played against UK giant Denial and we managed to win it after a real thriller. In E1M2 we had to hide the last few minutes to get the 2-1 victory :). Next match was against Zetor, which didnt have any vacations behind and they were in titanic shape, so the score wasnt any surprise for anyone: 0-2 loss. Following Villains matches went a bit better and we went into the quarterfinals against Flaming Fist. We had been praccing and playing now for 2 months after the summer break and cMF was in it's prime again! Everyone in our squad knew that we could beat FF in this match. First round was FF's homemap DM2, which they won after a tight fight only by 14 frags. E1M2 was our pick, we had got good scores in it lately and it had turned out to be our homemap. First E1M2 was a draw. Second one went to FF only by 15 frags gap! It was too close, just too close! Atleast we got 2nd position in our 'warmup' tourney, NQR.
+
+===Finnish 10 best clans meets in TopTen league===
+When Villains season was becoming to end, some Finnish organizers put up a league called TopTen. It included all the best Finnish clans despite Zetor, which ended their QW career after losing to [E] in Villains finals. Although it had the best teams included, I dont remember much of the league itself. Perhaps because one of our matches turned out to be my personal QW-highlight of life. It was match against Z, the best finnish QW clan ever. It was played in my first lan event, everyone had 13ms - conditions were outstanding. We hadnt had much of luck in the lan, we had lost TopTen match against CFF and all lan tourney matches went really badly. Official match against Z was the last chance to get positive feeling from this lan, and oh boy, we wanted to win it! Z won the first map, our homemap e1m2, by 27 frags. Although we lost it, I didn't feel depressed at all: I knew somehow that we're going to win the next one. I just knew. We had awful alot of power in DM2, Z got fullstart but it didnt matter: we turned map around. We yelled messages to eachothers, not in angry way, we were just so excited of that high-class QW game we played at the moment. After we got the control in DM2, we didnt lose it again - dm2 score was 166-110. DM2 is my personal favourite and that particular DM2 round is my highlight of all times. Dm3 we played in a rapture and although Z got great start once again, we trusted into our skills and managed to overtake the control once again. Legendary words back then were: "Ollaan me tästä ennenki noustu" which is something like "we've risen from this situation before" - so why couldnt we do it again? :) We really did rise. DM3 score was 135-117 and we had made it! Clan MalFunction was the first Finnish clan which could beat the champions, clan Z. And we're the only one still. We met Z again in the finals and it was played over internet. Z won it after 4 rounds (one DM3 was drawn, because dama slept with fishes 1s before the end..grr!). Z's routine was just too great for us and we couldnt beat them twice in a row. Anyway, second position in this great league was ours, CFF placed third.
+
+===Villains2 and cMF's big chance===
+After being dropped in Villains quarterfinals last time, our goal was plainly a victory from this one. We started with a nice victory from Chopstick Ninjas, then we lost against Euthanasia, won Orkney and got into playoffs. Our playing squad had been changed a bit from first Villains season, now we had Peksi, Past and Dama as new active members. First playoffs match was against Firing Squad, which was quite unknown opponent for us, so we didnt have any pressures in this match and got a nice victory by 208 frags. Our semifinal opponent was CAPSLOCK. They were in their prime at the time and we had changed our 4-man team just before...but despite that, our spirit was high and we went in to win this match. We just didnt win. Capslock gave us a great challenge and after losing DM3, they managed to win DM2 and E1M2. Final place was this time so near, one of the biggest dissapointments ever it might be for cMF. After CAPS match we decided to take another break from QW. We had been really active for 5 months, played 39 matches - 31 victories. Great phase in cMF's history.
+
+===Old cMF crew goes to history - new age of cMF begins===
+Our old crew was something like NetAngel, Vertigo, Raptor, Mineral, Element, Eonwe, Archi & Raiccu and so on. Most of them had retired and new players had been taken in to replace them. The 'New age' players were: Damage, Dare, Jester, Past, Peksi Fifi, Mooniz and Acid, who played with us only the first season of Smackdown. At the time when our crew changed completely, Villains was shut down and a new league came to replace it's place as the best international online QW-tourney: Smackdown. This little time between Villains and Smackdown was important for cMF, in many ways. New team got time to practise and get into a decent shape before facing Smackdown and The Liiga challenges. Our teamplay managed to get tight enough before these two leagues started and cMF was ready for action again! Some people thought back then that this new group couldnt get as good scores as the old team, but they were wrong. Gladly. :)
+
+===Next challenges were Smackdown and The Liiga season 2===
+We got quite intresting group for the first Smackdown season. Quadaver, BadBoys and Frag eXecutors were completely unknown, someone told us that BB were Polish champions, but that was all we knew of these three. Other two clans were more than familiar for us: Tribe of Tjernobyl and Euthanasia. Meanwhile in Finland a guy called Moonman started The Liiga second season and of course cMF was in. There were many new Finnish clans to play against, mostly newbie ones, but still it was intresting to face new teams. First matches in both leagues went quite smoothly, we had good time and got victories. Perhaps we lost a bit our touch when playing against 'easier' clans, because in a Smackdown match against Euthanasia we were completely lost. We knew that [E] is in a good condition but we trusted too much into our own skills , which actually were rusty. Euthanasia got a rather easy 2-0 victory from us. This defeat didnt help our situation a bit. Although we had over a week time to prac for a match against ToT, we didnt found our game. Match against ToT turned out to be really tight one, there was plenty of writings where all 'wise' men told that cMF doesnt have a chance against ToT. They were wrong. We fought really hard after losing the first round and got 2-1 victory over them and the 2nd place of the starting group. In The Liiga we didnt lose a round in group matches. So we managed to get nicely into playoffs in both leagues - just to face Cute in first playoffs matches in both leagues! In SD playoffs we won over [C] really clearly with 351 frags, but in TL Cute gave us more hard times, but still we won it 2-0. It was quite boring to meet them twice in a row and im sure they thought the same :).
+
+===Smackdown and The Liiga playoffs===
+After [E] match disaster we had practiced quite a lot and played matches against good clans, so our teamplay seemed to be working again. ToT was our next opponent in Smackdown playoffs and we wanted to show them that we're better than in the first match against them. In DM3 ToT was completely lost and we got a rather easy victory 241-73 in frags, but in E1M2 ToT began to fight back really hard. First 10 minutes of E1M2 was ToT's control, they were leading and we were almost too much behind. Then our quadrunner Amu started his show and map turned upside down. When our other dudes got into the game aswell, cMF got another victory! In TL we faced BadKarma in semifinal and crushed them totally.
+
+## Achievements
+
+* SLQL Champions in Advanced division 1999
+* 3rd position in TeamPlayers league
+* 3rd position in The Liiga, Season 1
+* 2nd position in NQL Elite division, Season 2.
+* Quarterfinalists in Villains Season 1
+* 2nd position in TopTen league.
+** 1. Z
+** 2. CMF
+** 3. CFF
+* 1st position in The Forsaken lanV QW TEAM competition @Otaniemi
+* Semifinalists in Villains Season 2
+* Semifinalists in Smackdown Season 1
+* 2nd position in Mitream lanparty QW TEAM competition
+* 2nd position in The Liiga, Season 2.
+** 1. tVS
+** 2. CMF
+* Semifinalists in Smackdown Season 2
+* 4th place in QWSM Season 1
+* 2001 - 1st in NQR Season 1 - (Match report of semi final vs HellFire)
+* Semifinalists in Smackdown Season 3
+* Winners in Smackdown Season 4
+* 2002 - 3rd in NQR Season 2 - (Match report of losers final vs Hard Guns Crew)
+* 1st position in Lan Herwood
+* 2002 - 2nd in NQR Season 3 - (Match report of final vs Lege Artis)
+* Semifinalists in Smackdown season 5
+* Semifinalists in Custom Map Tourney
+* Champions in QWSM Season 2
+* 2nd position in Clanbase 1
+* 2003 - 2nd in NQR Season 4 - (Match report of final vs Slackers)
+* 2nd position in Clanbase 2
+* 2004 - 3rd (tie) in NQR Season 5 - (Match report of semifinal vs Disorder)
+* 2004 - Champions in NQR Season 7 - (Match report of final vs Slackers)
+* 2005 - 5th place (tie) in NQR Season 8
+* 2006 - 5th place in EQL Season 2
+* 2006 - Semifinalists EQL Season 3
+* 2006 - Champions in NQR Season 9
+* 2006 - 7th place in EQL Season 4
+* 2007 - Semifinalists in EQL Season 5 (Match report of semifinal vs Slackers)
+* 2007 - 2nd place in NQR Season 10 Gold Cup (Match report of final vs Dota Allstar Guys)
+* 2008 - Quarterfinalists in EQL Season 6
+* 2008 - Quarterfinalists in NQR Season 11
+* 2008 - 5th place in EQL Season 7
+* 2008 - Semifinalists in EQL Season 8
+* 2009 - Semifinalists in EQL Season 9
+* 2011 - Semifinalists in EQL Season 13
+
+## External links
+
+{{chtv|name=cmf}}
+* [http://own-age.com/vids/video.aspx?id=4601 Quakeworld Malfunctioned, made by Pez] (QuakeWorld movie)
+* [http://qwdrama.quakeworld.nu/2006/06/07/cmf-4-champions/ CMF interview at qwdrama (2006-06-07)]

@@ -883,6 +883,8 @@ One row per known QW clan. Populated by the wiki scraper from QWiki clan article
 
 Indexes: `status`, `nationality_iso`, partial on `is_substantive WHERE is_substantive = TRUE`.
 
+Populated by Phase 3 clan loader (`scripts/load-community/clans/index.ts`). Row count: 822 (Category:Clans articles in 2026-05-04 snapshot). Distribution: clan_info 450, bullet_prose 326, infobox_4on4team 44, infobox_clan 2, none 0. Clan notes emitted to `curated/clan-notes/`; tuned count 350 (Phase 3 T8 review: Option 2 boilerplate-strip on `external_links_section` template lines, then F27 follow-up extends the strip to standalone `[[Category:...]]` lines that survive `extractSectionBody` trailing-meta-trim when interrupted by HTML comments).
+
 ### `community.tournaments`
 
 Placeholder-only per D9. Tournament-specific columns land in migration 009 after Phase 4 pilot surfaces template variants.

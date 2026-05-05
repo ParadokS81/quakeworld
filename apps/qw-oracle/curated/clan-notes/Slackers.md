@@ -1,0 +1,109 @@
+---
+slug: Slackers
+title: Slackers
+type: clan
+prefix: "]sr["
+nationality: European
+nationality_iso: eu
+founded_year: 2001
+founded_month: 7
+founded_day: 4
+founded_by: Goljat and ParadokS
+disbanded: 
+status: unknown
+irc_channel: slackers
+irc_network: QuakeNet
+website: "http://www.slackers.dk"
+source_template: clan_info
+wiki_revision_id: 78351
+wiki_fetched_at: 2025-11-28T11:32:30Z
+---
+
+Diehard div1 clan formed from Euthanasia's Goljat and ParadokS. Famous for "SR Luck".
+
+## History
+
+After Smackdown Season 2 ended, which Euthanasia won by WO in the final, versus Flaming Fist, Image:flag_fi.gif Goljat and Image:flag_dk.gif ParadokS decided it was time for change. What the exact reason for this was is unknown but in the past there had been some incidents with the Euthanasia leader Hixen. The four main players of Euthanasia also formed the first Slackers team, the two founders together with Image:flag_fi.gif vana and Image:flag_se.gif DARKL0RD, there was one addition in the form of Image:flag_se.gif brutal.
+
+Before SD NEU Season 3 started DARKL0RD went inactive, probably army duties. Brutal decided to join dag, aKKe and primus, because Flaming Fist also quit, in Orkney Clan. Slackers found a good fourth player in Image:flag_se.gif Xalibur and with those four they went on to win SD3 beatin Lithium in the final. After this season Image:flag_se.gif Striker and Space were recruited from Da Imperial Executors, they won QHLAN 3 but Space left quickly after this when Lege Artis was founded. Shortly after Slackers was eliminated from SD4 by Clan MalFunction, Striker also joined Lege Artis. 
+
+Where Euthanasia's main rival was Flaming Fist the same happened when (some of) their old members formed Slackers and Lege Artis. There was a very intense rivalry between the two teams, they didn't play practice games for a number of years, if ever. Lege Artis, especially slime, made several pictures where Slackers members' were portrayed in insulting ways. Mainly Paradoks was targeted by their slander. 
+
+This was the time where vana quit playing and for the new seasons, SD5 and NQR3, even though he did make an appearance in the SD5 semi vs Tribe of Tjernobyl, and Gamer was added to the team who took his place mostly. While they lost the semifinal of NQR3 to cMF with close figures, they did manage to win SD5 against their rivals Lege Artis, it has to be noted that LA starplayer dag didn't play but the old members space and striker did.
+
+At the start of 2003 image:flag_fi.gif Hib joined and here started a very successful era for Slackers winning NQR CMT Season 1, Clanbase Fall 2003, NQR4, 5 and 6. During this very finnish period the legendary starting lineup featured  image:flag_dk.gif ParadokS, image:flag_fi.gif Goljat, image:flag_fi.gif Gamer and image:flag_fi.gif Hib. In debates on the best 4on4 team ever this lineup is often brought up. Some of the finals they played were extremely close. The fifth map in the NQR4 final where they battled with Clan MalFunction was 2 frags difference and in the NQR5 final against Disorder on fifth map 6 frags separated the teams. 
+
+Image:flag_se.gif Xalibur's spot in the first team was taken by Hib, in the first season he managed to play nearly half the games, after this he stayed as a backup player, playing a few officials up to and including NQR Season 7. From NQR3 to NQR5 Image:flag_fi.gif Slebe played from time to time, maybe mostly remembered because of his high scores on dm6 in SD5. One of the best aimers and duelers in europe, Image:flag_se.gif UL, joined the team for a six month period in 2003, he didn't have too much 4on4 experience but he learned fast and played well, but he decided to leave during NQR Season 5, he was followed up by Image:flag_fi.gif Xamp. During this period they only lost the QHLAN 6 final to cMF where Hib was missing and Xamp played instead,  he was an active member during NQR6 but wasn't part of their first lineup, after the season he quit and played poker instead. 
+
+During this period quake was very active and it were often the same teams who came out on top to challenge Slackers for the title. As mentioned before Lege Artis was the main rival not only outside the game but also a very strong one inside the game, so was Disorder, a team where some LA members played when LA didn't compete. The finals of Clanbase Fall 2003, NQR4 and QHLAN6 and the NQR CMT1 semi final all featured Slackers and cMF which maybe made them the most important competition for the team. One can't forget Firing Squad, they were one of the top teams during this period, often reaching semi finals. Slackers became the enemy they would always underperform against or just weren't good enough to beat. SR knocked them out of the playoffs in SD5, NQR4, NQR5, QHLAN6, NQR6 and beat them in the NQR CMT1 final. At QHLAN6, where SR missed Hib, FS did beat SR, in the winners bracket, for the first time in years, but in the LB finals SR got their revenge.
+
+When competitions, NQR7, started again after the summer of 2004 only ParadokS returned as a stable factor in the team as Gamer left to revive his old team KOFF. Hib, Goljat and Xalibur played some games but weren't very active. ParadokS recruited oldschool player and friend Image:flag_dk.gif CrazyMac and also two swedes coming from Divines, Xerial and Circle. NQR Season 7 was the last big QW season, after this World of Warcraft and the big Qw.nu crash left the scene a lot smaller than it was before. In this hard competition the new Slackers did a very good job and reached the finals after beating then rivals Lege Artis in the semi final. In the final we saw Hib make an appearance again but despite the teams' efforts they couldn't stop cMF from taking the title. Shortly after they beat LA again in the semi final but lost the NQR ICC final to Firing Squad by 1 frag on the deciding map. In the final we saw Paradoks, Hib, Goljat and Xerial, only missing Gamer from the team that won so many competitions.
+
+After these competitions Hib, Xalibur and Circle stopped playing all together or for SR and before EQL Season 1 started they also lost Xerial. They did recruit image:flag_se.gif Javve before Xerial quit, in EQL1 they played with Paradoks, Crazymac, Goljat and Javve but the activity wasn't very high. After this unsuccesful season in which they didn't reach the playoffs, they didn't play all possible games either, they decided the time had come to call it quits. Slackers was no more.
+
+For only four months Slackers was nothing more than a memory. This changed start 2006 when ParadokS joined Leftovers, a team that reached the semi final of EQL Season 2. The lineup of Leftovers was a reasonably new one and when they lost one of their key players, Cage, they were looking for a replacement which they found in the form of Paradoks. It didn't take long before they called themselves Slackers, this ensured the comeback of the team. The initial lineup was Paradoks with image:flag_nl.gif murdoc, image:flag_nl.gif dragon, image:flag_pl.gif insane, image:flag_se.gif krab, image:flag_se.gif seese, image:flag_se.gif goblin who all were in leftovers before ParadokS joined. For a numbers of years ParadokS, murdoc, dragon and insane played as the main team of Slackers and did very well in different competitions. Seese and Goblin turned out to be not very reliable players and it didn't take long before we didn't see them playing (for Slackers) anymore. Javve, who  joined Slackers just before they quit playing rejoined now the name was back. He was always very active for a limited period of time and then dissapeared just to return again. His last active period was in 2010, sometimes he didn't play for years.
+
+The first competition the new Slackers team played was NQR Season 9 where they reached the finals but lost to cMF, after this they won EQL 3 and 4. They played together with the same four players for a reasonably long time in the most important games while krab was their usual fifth man who got quite a lot of playing minutes, but the regular four, Paradoks, Murdoc, Insane and Dragon were always fielded in the playoff games. Over time both Dragon and Insane became less active and near the end of EQL 4 the first real recruitment took place when image:flag_se.gif pascal joined. 
+At QHLAN 10 Xalibur teamed up again with SR who had five players present, the others being ParadokS, Pascal, Krab and Murdoc, they won the 4on4 tournament, beating a strong Firing Squad in the semi final. In the first half of 2007 we mostly saw Paradoks, Murdoc, Insane, Dragon and Pascal play, most notably in EQL Season 5 and NQR Season 10 even though pascal only played one game in EQL5. Slackers did well but in both competitions, reaching the semi and final but lost to Dota Allstar Guys twice. Not all of the players had complete focus on quake because of poker and other games.
+
+In EQL 5 we also saw the first appearance of Slackers 2, a team that ParadokS and Murdoc started. Because he didn't get much playing time in the first team anymore and to teach the other players well krab joined Slackers 2, this team was completed by image:flag_hu.gif zero, image:flag_se.gif Åke Vader, image:flag_se.gif TheEvilDog, image:flag_nl.gif Mja and image:flag_pl.gif cpe. They reached the final of division 2 which they lost, maybe because Åke Vader and krab were missing.
+
+During the summer of 2007, about a month before the regular season image:flag_se.gif Martin joined Slackers. Åke Vader had left Slackers 2 due to inactivity and there had been little to no pracs. At this stage a new idea came up, creating two even division one teams. The initial idea was to have ParadokS, Murdoc, Insane and Krab in one team and Martin, Pascal, Dragon and Zero in the other. After a few weeks and not too many pracs from both teams Martin and Pascal decided to revive Fragomatic. The original teams were restored but the idea of having two division 1 teams remained. After some hard work ParadokS managed to convince Striker to come back to Slackers but to join the second team. In EQL Season 6 we saw ParadokS, Murdoc, Dragon, Insane and Javve playing for Slackers and Striker, Krab, Zero, TheEvilDog and Purity for Slackers 2. Especially just before but also at the start of the season division 1 was more active and stronger than it had been for a few years featuring, besides the two SR teams, strong times such as tVS, f0m, FS, cMF and KOFF. Halfway the season though the activity completely died from basically all teams, the eQL site went down, admin sassa said the playoffs would be held during QHLAN 11 but no information was given at all so nothing happened.
+
+The playoffs were held a few months late and Slackers had to give Firing Squad a walkover in the semi final while Slackers 2 lost their semi final to later winners The Viper Squad. The activity among both the division 1 players as a whole and the Slackers teams didn't return to the level it was before. ParadokS, Dragon and Insane played poker, especially insane hadn't been very focussed on 4on4 but more on duels and 2on2 in the later stages. Insane last appearance was in NQR Season 11, Dragon played one game in EQL Season 7 and one map in NQR11 which was his last official in SR colors. Javve also stopped playing during this time, so did Slackers 2 player Striker.
+
+Because so many players quit it was decided that both teams would merge into a single division 1 team, image:flag_se.gif Mille joined the team too at this time. In NQR11 which ran in spring 2008 Murdoc, Mille, Insane and Zero played most games. In EQL7 (summer 2008), we saw Paradoks, Krab and Murdoc play most games, Zero, Mille, Dragon, Purity and Mja also played some. Most of the players only played officials, there wasn't a set in stone best team and activity wasn't very high but they won the season nevertheless, receiving a walkover in the final though. 
+
+The next season, EQL8, Slackers didn't even sign up because ParadokS was busy with poker and Murdoc, Zero and Krab were playing other games. All the other players who had played a game here and there during the last few tournaments weren't very active or quit all together (for example Insane, Dragon, Mille, Mja, Purity).
+
+In 2009, with EQL Season 9 we saw Slackers back in action with a clear team this time, ParadokS, Murdoc, Zero, Krab and Mille but the last quit halfway the season. A good season ended in the semi final when they lost 3-2 to Druidz. The season after, EQL Season 10, they lost ParadokS completely to poker, he only played two maps, in the final of the season, leaving Murdoc, Krab and Zero to play all the other games with changing fourth players. Those players were TheEvilDog, who was in SR2 before but rejoined just now, and image:flag_se.gif Dimman joined. Purity and Mja played some games, most notably the semifinal where they beat Fragomatic. The final was lost to The Viper Squad who were dominating the scene winning their third eQL title, not even losing a single map this time.
+
+ParadokS played close to every map in EQL Season 11, the core remained Murdoc, Zero and Krab, except for those four who formed the main team, dimman and TheEvilDog played most, but they weren't the only ones, we even saw a short comeback by javve. During the regular season they came in second to The Viper Squad. tVS didn't lose a map in the regular season, SR managed to win a dm3 in the final but couldn't do more. 
+
+For the first time in a while we saw a serious change in the lineup once EQL Season 12 started in the fall of 2010. The reasonably new player image:flag_se.gif en_karl joined the ranks while krab took a step back. Halfway the season we also saw image:flag_se.gif Striker return for the second time. ParadokS, Murdoc and Zero were in good company as they cruised through their best season in years. While on of The Viper Squad's main players, XantoM, became less active, Slackers focus completely shifted to quake, unlike before when games such as CoD4 were played a lot. A highlight was the win on QHLAN 14 where Slackers managed to beat The Viper Squad in the 4on4 finals, the latter was on full strenght with image:flag_se.gif XantoM, image:flag_fi.gif Milton, Ihminen, blAze and Diki while Slackers had Paradoks, Murdoc, Zero and En_karl present.
+
+In EQL Season 12 itself they managed to beat tVS once again, this time tVS missed XantoM and fielded Diki instead though but this win ensured that SR ended as first in the group, losing only two maps during the whole season. In the final tVS showed their skill while the game wasn't as good as others were for Slackers, winning dm2 but losing 3-1 in the series.
+
+At the end of the year 2010 they decided to revive Slackers 2, only days before the qualification rounds for EQL Pro the new second team failed to qualify for the main tournament. In EQL Pro itself Slackers, with the same lineup as the season before, beat Fusion and Suddendeath in the playoff to ensure another victory.
+
+After this season en_karl went back to his old clan TeamKillers. By now Striker was fully back in shape, he only played dm2 in most official games before EQL Season 13, but claimed a spot for himself playing as good as he ever did while we saw krab return as their fifth player. In the regular season they only lost one map, a dm3 to Fusion and won many games with large margins, especially on dm2 the addition of Striker was a huge boost. In the semifinal the opponent was Fusion with a stronger lineup than in the regular season, among others they fielded ex-Slackers Martin and Pascal and blAze from The Viper Squad, Fusion could only win the first dm3. The final opponent, also with a better lineup than in the regular season, was Suddendeath who fielded, Reppie, Razor, Mawe and Bps. Even though they, maybe surprisingly, won dm2 ParadokS, Murdoc, Zero and Striker managed to win the tournament for Slackers.
+
+Slackers 2 missed the playoffs due to some controversial decisions by the admin team, after this the team was rebuild. Krab went back to lead the second team since he didn't get much playing time in the first team anymore and TheEvilDog rejoined the second team, they formed the new Slackers 2 with niw and Kloze.
+
+## Achievements
+
+* 2001 - 1st in SD NEU Season 3 - (Match report of the final)
+* 2002 - 1st in QHLAN 3
+* 2002 - 5th (tie) in SD EU Season 4 - (Match report of quarter final)
+* 2002 - 3rd (tie) in NQR Season 3 - (Match report of semi final)
+* 2002 - 1st in SD EU Season 5 - (Match report of final)
+* 2003 - 1st in NQR CMT Season 1
+* 2003 - 1st in NQR Season 4 - (Match report of final)
+* 2003 - 1st in NQR Season 5 - (Match report of final)
+* 2003 - 1st in Clanbase Fall 2003
+* 2004 - 2nd in QHLAN 6
+* 2004 - 1st in NQR Season 6 (Match report of final)
+* 2005 - 3rd (tie) in QHLAN 8
+* 2005 - 2nd in NQR Season 7 (Match report of final)
+* 2005 - 2nd in NQR Invitational Classic Cup (Match report of final)
+* 2005 - 7th in EQL Season 1
+* 2006 - 2nd in NQR Season 9
+* 2006 - 1st in EQL Season 3
+* 2006 - 1st in EQL Season 4 - (Match report of final)
+* 2007 - 1st in QHLAN 10
+* 2007 - 3rd (tie) in NQR Season 10 - (Match report of semi final)
+* 2007 - 2nd in EQL Season 5 - (Match report of final)
+* 2008 - 3rd (tie) in EQL Season 6
+* 2008 - 5th (tie) in NQR Season 11
+* 2008 - 1st in EQL Season 7
+* 2009 - 3rd (tie) in EQL Season 9
+* 2009 - 2nd in EQL Season 10
+* 2010 - 2nd in EQL Season 11
+* 2010 - 1st in QHLAN14 4on4
+* 2010 - 2nd in EQL Season 12
+* 2011 - 1st in EQL Pro
+* 2011 - 1st in EQL Season 13
+* 2011 - 1st in QHLAN15 4on4 Gold
+* 2011 - 2nd in EQL Season 14
+* 2012 - 1st in EQL Season 15
+* 2025 - 1st in EQL Season 23

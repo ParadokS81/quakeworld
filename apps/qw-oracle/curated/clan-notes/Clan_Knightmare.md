@@ -1,0 +1,69 @@
+---
+slug: Clan_Knightmare
+title: Clan Knightmare
+type: clan
+prefix: "]km["
+nationality: American
+nationality_iso: us
+founded_year: 1996
+founded_month: 
+founded_day: 
+founded_by: 
+disbanded: 
+status: unknown
+irc_channel: 
+irc_network: 
+website: 
+source_template: clan_info
+wiki_revision_id: 15804
+wiki_fetched_at: 2007-08-13T15:22:47Z
+---
+
+American clan who can also be found in other games such Quake 3 & 4.
+
+## History
+
+: '''''Note:''' The original article [http://www.esreality.com/?a=post&id=1125394 A Decade of Knightmares] is written by watcha.''
+
+===Qtest and NetQuake===
+I am not a writer. 
+With that said, today, June 22, 1996 marks a special day for many in this community. It was the day that the first episode of Quake went shareware allowing you to play roughly a 4th of the way through the game. It was also a day of great anticipation, as a little file called 'QTest.zip' had been leaked on the net, and some luck souls were able to play over local networks. I on the other hand had marveled at the skins of the models that were within the .pak file. I recall being really let down when I discovered there was no big red dragon in the final game (the model and skin for it were in the qtest pak file, but never appeared in the game). 
+
+In any case, I now look back on that finding it hard to believe that it is 10 years ago already. I was 14, and had been an avid player of both Doom games, Wolf, and another game on the Mac called Glider Pro.
+
+In any case, tomorrow also marks a very special day that I hold near and dear. It is the day that Clan Knightmare turns 10 -- it was 10 years ago that 4 real life friends from Alabama decided that instead of fragging each other, they should work together and frag (or telefrag) others. Upon discovering the official 'Clan List', they later added a 5th member so that they would be able to register as an official clan. The fellas soon started to recruit a few other like minded individuals that put forth the same commitment and attitude that defined the clan.
+
+Clan Knightmare played both CTF, and TDM but during the Netquake era was probably most known for its involvement in the ClanRing 2 Tourney (see [http://web.archive.org/web/19980126030535/http://www.mpog.com/clanring/history/%22%3Ehere%3C/a%3E] ).
+
+From this point Clan Knightmare played in a few other smaller leagues, even at one point merging with Clan Postal to form Postal-Knightmare for one league (this lasted a month at the most).
+
+===QuakeWorld===
+Eventually some members of ]km[ had downloaded a little mod called 'QuakeWorld' and began playing that. Before long the members that had downloaded QuakeWorld had fallen in love with its non-iceskating feeling (something that hpbs/hpws from that era know all to well). The ]km[ CTF division continued to play in Netquake up until early 1999. Shout outs to Clan GIB, Ruthless Bastards, Clan Unforgiven. and Dyscrepency!
+
+Quakeworld opened new doors for the ]km[ members that played, and was where Clan Knightmare, in coordination with The Stone Clan hosted its own online tourney called SKiT (Stone Knightmare Invitiational Tourney). Clan Knightmare also participated in the Quakeworld Invitational League (QIL) and Quakeworld Invitation League 2 (QIL2). At first ]km[ suffered regular beatings from some clans that had been playing QW longer, but the members enjoyed playing eventually becoming the clan that issued beatings to others. At one point, ]km[ was likely within the top 5 QW clans in the Americas. Other clans I recall seeing on the infamous DROW servers included - DROW, doppelganger (.dg.), Negative Burn (nB), r3volution (r3v), Dark Requiem (]DR[), Silent Service (ss), Silver Surfers, red abyss ([ra]), clan crossbones ([:x]), Versus (.vs.), the Stone clan (tSc), on a stick/dopplestick (/oas), Fire In The Hole (FiTH), Evil Genius (EG), Masters of Pummeling (MOP), Clan Zogar (zgr!), Deathstalkers (|ds|). I know there are a lot more, and forgiven me for not being able to recall them all.
+
+Clan Knightmare had two QW teams, hpb and lpb. Both known for being highly skilled, but more known for being good, honest individuals that liked to have fun no matter what. Most of the demos that were on SHOD are long lost, but one that manages to still be available is the demo of Wombat scoring 128 frags in a teamgame. Quakeworld was a great game, extremely fun, and will probably be my fondest memory of online gaming.
+
+===Quake 3===
+Quake 3 IHV was all the rage when it hit the net in March 1999. Initially ]km[ was slow at adopting the game, but eventually switched over after an official Test version was released. Sadly, early on, ]km[ was NOT invited to QIL3, which was a huge letdown to some of the players that had played for ]km[ in QIL and QIL2. However, we pushed forward, and eventually with time and occasional practice we got better. ]km[ participated in the Teamplay.net ladder, OGL (hah), and a few tournies (Kickoff, Showdown, Ressurection 1 and 2, and of course KIT 1 and KIT 2). 
+
+Always being overlooked, and underrated Clan Knightmare was not going to be forgotten without a fight. As a team, ]km[ was likely top 6 or 7 in NA, but always seemed to fair better and be known for dueling. 
+
+The CPL eventually decided to drop Q3 and pick up CS, ]km[ was temporialy banned from CPL and CAL for questioning these actions. This has since always left a bad taste in my mouth, but is water under the bridge at this point. There was a hidden diamond in this stone -- it was one of the primary reasons behind ]km[gaijin starting and [http://www.methosq.com Methos] hosting KIT (Knightmare Invitational League) and KIT2, which both proved to be successful with the Quake 3 community.
+
+===Other Games===
+Not to be forgotten, Clan Knightmare also dabbled in CS on the side, but eventually made its way back to the CPL thanks to the LAN team that was assembled in Florida. Sadly, Team 3D ended that run winning 18 - 12. The team has also played Return to Castle Wolfenstein where they faced mTw from QuakeCon, losing the game, but having fun all the way. We also tried our hand at UT2K3, UT2K4 Onslaught, and Battlefield 2, all fun games, but we were never were able to build enough interest within the clan.
+
+====MMORPGS====
+After the Q3 community started lacking decent tournies and leagues, ]km[ dabbled in a few MMOs, mainly Shadowbane (where we owned a city complete w/ the tree of life), and World of Warcraft (on Burning Legion/Arthas). 
+
+====Quake 4====
+And then there was finally Quake 4, the game that was going to bring the old quake communities back together for one final bloody showdown! We were so hyped we had enough for 2 teams, every one was playing and was excited! Everything was going pretty strong until Christmas break of 2005, it was then that a majority of ]km[ went home from college OR was busy playing 'Santa' for the kids. Regular practice and general interest in Quake 4 began to dwindle, as evident by both of the groups performance in AmeriCup 2. Now a few of us do the occasional duel in Quake 4, but the rest of us split our time between WoW/Gunbound/Quakeworld and Warsow.
+
+Having said that, ]km[ has been active in the Quake series, in some form or another, since the day it was formed and is as tight as ever. So on to my point...
+
+Happy 10th Bithday ]km[!!!
+
+## External links
+
+* [http://www.esreality.com/?a=post&id=1125394 Original 'History' by watcha], used in this article

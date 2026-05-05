@@ -8,7 +8,7 @@ Layer 3 community-reference loader. Walks `apps/qw-oracle/data/wiki-snapshots/<d
 - `shared/wiki-types.ts` -- shared TypeScript shapes (ParsedTH, ParsedAchievement, ClanHistoryEntry, etc.) used by all three per-type parsers.
 - `shared/iso-country.ts` -- nationality string -> 2-letter ISO code lookup table.
 - `players/` -- Phase 2 player loader (parse, flags, upsert, emit-note, CLI).
-- `clans/` -- Phase 3 clan loader (added in Phase 3).
+- `clans/` -- Phase 3 clan loader (parse, flags, upsert, emit-note, CLI).
 - `tournaments/` -- Phase 4 tournament loader (added in Phase 4).
 
 ## Loader pattern (per type)
