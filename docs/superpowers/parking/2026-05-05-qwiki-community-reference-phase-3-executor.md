@@ -2,7 +2,11 @@
 
 **Use as the literal first message in a fresh `claude` terminal opened in `/home/paradoks/projects/quakeworld/`.** This terminal runs the `arc-executor` skill cold against Phase 3.
 
-Phases 0-2 shipped 2026-05-05. community.players populated (5,900 rows, 571 notes). Phase 3 is the clan extraction pipeline: four-branch parser + load 822 rows into community.clans + emit tuned count of clan notes to curated/clan-notes/. No new migration needed.
+Phases 0-2 shipped 2026-05-05 (Phase 2 reconciled at commit a0e3ec67 after silent DB drift; V1-V11 PASS cold). community.players populated (5,900 rows, 571 notes, 2,008 substantive). Phase 3 is the clan extraction pipeline: four-branch parser + load 822 rows into community.clans + emit tuned count of clan notes to curated/clan-notes/. No new migration needed.
+
+**Two procedural lessons from Phase 2 to keep in mind during Phase 3 execution:**
+- **F23 -- silent DB drift.** If you find yourself in a state where intermediate runs may have left the DB partially populated, prefer `TRUNCATE community.clans CASCADE` + fresh run over UPSERT-on-existing-state. Each fresh run produces a coherent state; partial-run-on-partial-state is the failure mode.
+- **F24 -- V-probe expected values.** Verify any V-probe expected status / template values during critical-review by running the parser against a sample first, not by trusting the phase MD's hand-written expectations. If a probe expects `status='unknown'` for a known-Quit clan and the parser correctly produces `status='Disbanded'`, the parser wins.
 
 ---
 
@@ -18,9 +22,9 @@ Working directory: `/home/paradoks/projects/quakeworld` (main tree, branch `main
 
 ## Recommended model + effort for the executor terminal
 
-**Sonnet medium** for this Phase 3 terminal.
+**Sonnet MAX** for this Phase 3 terminal.
 
-Rationale: Phase 3 is simpler than Phase 2. The four-branch clan parser has fewer fields, no achievement template parsing, no active-year priority, no community-roles extraction -- simpler than the player parser. The subagent-output audit at task boundaries still needs care, but the reasoning density is lower than Phase 2's heaviest tasks. Subagent dispatches follow the execution-mode annotations in the phase MD (all Sonnet medium).
+Rationale: same as Phase 2 -- the executor terminal owns critical-review, subagent dispatch, verification audit, and the T8 operator-in-the-loop gate. Phase 3's parser is mechanically simpler than Phase 2's (no achievements, no active-year priority, no community-roles extraction), but the judgment-density of the executor's wrapper work is the same. Operator memory `feedback_model_effort_range.md` puts judgment-dense + multi-file work at Sonnet MAX (Phases 0/1/2 ran Sonnet MAX); do NOT downgrade to medium. Subagent dispatches within Phase 3 stay at Sonnet medium per the phase MD's per-task execution-mode annotations.
 
 Subagent dispatches within Phase 3 (per phase MD execution-mode annotations):
 - **T2 parse.ts (four-branch clan parser)**: Sonnet medium

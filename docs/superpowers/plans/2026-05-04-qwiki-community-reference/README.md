@@ -12,9 +12,9 @@
 
 ## Where we are right now
 
-- **Stage:** Phases 0-2 SHIPPED. Phases 3-7 pending.
-- **Last action:** 2026-05-05 -- Phase 2 shipped; V1-V11 PASS; F21-F22 accrued. 5,900 players loaded; 571 notes emitted; `is_substantive=2,008`; `has_note` v1 rule tuned (quotes >= 5 chars; HTML-comment stripping for threshold accuracy); Vo0 recovered via expanded isPlayerArticle filter; 138 tests pass.
-- **Next action:** orchestrator drafts Phase 3 executor prompt; operator opens fresh terminal; arc-executor skill drives Phase 3 (clans parser + load 822 rows + emit clan-notes).
+- **Stage:** Phases 0-3 SHIPPED. Phases 4-7 pending.
+- **Last action:** 2026-05-05 -- Phase 3 shipped (commit 2a467645). V1-V9 PASS cold (V3 hard-zero gate FAILs at 19 stub-with-note rows; remaining 19 are legitimate D5 "Not substantive, has note" Flaming_Fist-class outliers and would flip to is_substantive=true if F26 achievements-as-6th-signal landed; operator-known and accepted). True final counts: 822 rows / 397 is_substantive / 350 has_note files = 350 has_note rows; source_template clan_info=450 / bullet_prose=326 / infobox_4on4team=44 / infobox_clan=2 / none=0. T8 ran two bounded edits (Option 2 strip `{{chtv}}`+`{{clan-stub}}` -> 430; F27 27a strip standalone `[[Category:...]]` -> 350). F25 (fixture misclassification) + F26 (achievements signal deferred) + F27 (HTML-comment trim, 27a applied / 27b deferred) accrued. Orphan commit 7a53d957 (parallel KTX terminal sweep) reset out of lineage; KTX work cleanly re-committed at 7acbd83e.
+- **Next action:** orchestrator session #1 wrapped at ~400k context per `feedback_orchestrator_terminal_pattern.md` smell-zone discipline. Fresh orchestrator terminal picks up from `docs/superpowers/parking/2026-05-05-qwiki-community-reference-orchestrator-resume.md`. Phase 4 executor prompt needs to be drafted by the new orchestrator (not yet written).
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
@@ -45,7 +45,7 @@ Phases land in order. Each phase commits a coherent unit (per `decisions.md` D16
 | 0 | shipped | `phase-0-snapshot-finalize.md` | (drafted; n/a) | Slug-collision fix + redirect refetch + commit-policy decision | Snapshot is trustworthy; future arcs can build on it |
 | 1 | shipped | `phase-1-curated-rename.md` | (drafted; n/a) | curated/ folder rename + community schema migration (008) | Existing concept-note retrieval still works; community tables exist and empty |
 | 2 | shipped | `phase-2-players.md` | (drafted; n/a) | Players parser (3 template branches + fallback) + load 5,903 rows + emit player-notes | community.players populated; curated/player-notes/ has tuned count of substantive content-rich notes |
-| 3 | approved | `phase-3-clans.md` | (drafted; n/a) | Clans parser (2 branches + fallback) + load 829 rows + emit clan-notes | community.clans populated; curated/clan-notes/ has tuned count |
+| 3 | shipped | `phase-3-clans.md` | (drafted; n/a) | Clans parser (2 branches + fallback) + load 829 rows + emit clan-notes | community.clans populated; curated/clan-notes/ has tuned count |
 | 4 | approved | `phase-4-tournaments.md` | (drafted; n/a) | Pilot (~50 pages, schema discovery) + migration 009 + parser + load + emit tournament-notes | community.tournaments populated; curated/tournament-notes/ has tuned count |
 | 5 | approved | `phase-5-cross-link-backfill.md` | (drafted; n/a) | Parse achievements -> tournament_results; parse clan history -> player_clan_eras; match against community.tournaments / community.clans | Cross-link tables populated; sample queries return expected names |
 | 6 | approved | `phase-6-mcp-tools.md` | (drafted; n/a) | search_players / search_clans / search_tournaments / lookup_by_nick / get_*_note tools | MCP server returns community data via per-type tools |
