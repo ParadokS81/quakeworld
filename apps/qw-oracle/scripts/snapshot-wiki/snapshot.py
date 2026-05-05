@@ -104,28 +104,45 @@ def enumerate_articles() -> list[dict]:
 def enumerate_redirects() -> list[dict]:
     """List all redirect pages and their targets.
 
-    Uses allredirects with arprop=ids|title (valid values). The API returns:
-      - title: the TARGET page title
-      - ar_from: pageid of the redirect source
-      - fromtitle: title of the redirect source (with arprop=ids)
+    Two-step approach required for MediaWiki 1.35 on quakeworld.nu:
+    allredirects with arprop=ids|title returns only fromid (not fromtitle),
+    so source titles are not directly available from that endpoint.
 
-    This gives us source->target mapping for nick-recognition alias building.
+    Step 1: enumerate all redirect source page titles via allpages
+            (apfilterredir=redirects).
+    Step 2: batch-resolve each source title to its target via query?redirects=1,
+            which returns {"from": source_title, "to": target_title} pairs.
     """
     print("Step 2: enumerate redirects ...")
-    rows = paginated({
+    source_rows = paginated({
         "action": "query",
-        "list": "allredirects",
-        "arnamespace": 0,
-        "arprop": "ids|title",
-        "arlimit": "max",
-    }, "allredirects")
+        "list": "allpages",
+        "apnamespace": 0,
+        "apfilterredir": "redirects",
+        "aplimit": "max",
+    }, "allpages")
+    source_titles = [r["title"] for r in source_rows]
+    print(f"  {len(source_titles)} redirect source pages found")
+
     result = []
-    for r in rows:
-        src = r.get("fromtitle") or r.get("from") or r.get("title")
-        tgt = r.get("title")
-        if src and tgt and src != tgt:
-            result.append({"from": src, "to": tgt})
-    print(f"  {len(result)} redirects")
+    batch = 50
+    for i in range(0, len(source_titles), batch):
+        chunk = source_titles[i : i + batch]
+        d = api_get({
+            "action": "query",
+            "titles": "|".join(chunk),
+            "redirects": "1",
+        })
+        if "error" in d:
+            raise RuntimeError(f"API error: {d['error']}")
+        for rdr in (d.get("query") or {}).get("redirects") or []:
+            src = rdr.get("from")
+            tgt = rdr.get("to")
+            if src and tgt and src != tgt:
+                result.append({"from": src, "to": tgt})
+        time.sleep(RATE_DELAY)
+
+    print(f"  {len(result)} redirects resolved")
     return result
 
 
