@@ -21,14 +21,6 @@ from extractor_lib._resolve import resolve_fn_ref  # noqa: E402
 from extractor_lib._source import literal_string, strip_array_and_qualifiers  # noqa: E402
 
 
-# `#define NAME "string literal"` — used to resolve Cmd_AddCommand calls whose
-# first arg is a macro identifier (e.g. vid_sdl2.c:1873
-# `Cmd_AddCommand(CVAR_RELOAD_GFX_COMMAND, ...)` where line 144 has
-# `#define CVAR_RELOAD_GFX_COMMAND "vid_reload"`).
-_DEFINE_STRING_RE = re.compile(
-    r'^\s*#\s*define\s+([A-Z_][A-Z0-9_]+)\s+"([^"\n]*)"',
-    re.MULTILINE,
-)
 _MACRO_IDENT_RE = re.compile(r'^[A-Z_][A-Z0-9_]+$')
 
 
@@ -199,12 +191,6 @@ class CommandsEzquakeHandler(Visitor):
         # (in finalize).
         self._seen_in_file: set[str] = set()
         self._rows: list[dict] = []
-        # Per-file `#define NAME "literal"` map for identifier-arg resolution
-        # at Cmd_AddCommand call sites (P6: vid_reload).
-        src_text = source_bytes.decode("utf-8", errors="replace")
-        self._file_macros: dict[str, str] = {
-            m.group(1): m.group(2) for m in _DEFINE_STRING_RE.finditer(src_text)
-        }
 
     def enter_function(self, cursor, variant: str) -> None:
         self._func_stack.append(cursor.spelling or "?")
@@ -240,7 +226,7 @@ class CommandsEzquakeHandler(Visitor):
                 "utf-8", errors="replace"
             ).strip()
             if _MACRO_IDENT_RE.match(raw):
-                name = self._file_macros.get(raw)
+                name = self.file_macros.get(raw)
         if not name or name in self._seen_in_file:
             return
         if sp == "Cmd_AddCommand":

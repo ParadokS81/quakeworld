@@ -35,6 +35,7 @@ class Visitor:
 
     source_path: Path = None  # type: ignore
     source_bytes: bytes = b""
+    file_macros: dict[str, str] = {}
 
     # OPTIONAL setup(*, ezq_repo: Path, ezq_src: Path) -> None
     # Checked via hasattr by the driver. One-time init (e.g. parse
@@ -108,6 +109,10 @@ def walk_tu_dispatch(
     """
     for v in visitors:
         v.current_source_root = source_root
+    from extractor_lib._source import collect_file_macros as _collect_file_macros
+    _fm = _collect_file_macros(tu, target_path_str)
+    for v in visitors:
+        v.file_macros = _fm
     def recurse(node):
         # Target-file filter. loc.file is None for preprocessor/built-in
         # cursors (harmless to descend into -- their children either also

@@ -156,3 +156,87 @@ def concat_string_literals_compact(tokens: list[str]) -> Optional[str]:
     body = "".join(parts)
     body = body.replace("\\n", " ").replace("\\t", " ").replace('\\"', '"')
     return body
+
+
+# ---------------------------------------------------------------------------
+# Pattern 6 -- depth-1 #include closure macro collector (D4)
+# ---------------------------------------------------------------------------
+
+def collect_file_macros(tu, target_file_path: str) -> dict[str, str]:
+    """Walk the depth-1 #include closure of target_file_path and collect
+    string-literal #define macros.
+
+    Returns dict[macro_name, string_body] where string_body has outer quotes
+    stripped. Excludes function-like macros, integer/hex constants, and any
+    macro whose body is not exactly one string-literal token.
+
+    Scope is depth-1 only: macros in the target file itself plus macros in
+    files that the target file directly #includes. Transitive includes are
+    excluded (D4 -- depth-N revisit parked for a future arc).
+
+    Requires that tu was parsed with PARSE_DETAILED_PROCESSING_RECORD (already
+    the default in extractor_lib.clang_config.PARSE_OPTS). Returns {} with a
+    stderr warning if no MACRO_DEFINITION cursors are found (flag absent or
+    empty TU).
+    """
+    import sys
+    from clang.cindex import CursorKind, TokenKind
+
+    # Build depth-1 file allowlist.
+    # Step 1: include the target file itself.
+    depth1_files = {target_file_path}
+
+    # Step 2: walk top-level cursors for INCLUSION_DIRECTIVE cursors whose
+    # location is in the target file. Each one's included file is depth-1.
+    for cursor in tu.cursor.get_children():
+        if cursor.kind != CursorKind.INCLUSION_DIRECTIVE:
+            continue
+        loc = cursor.location
+        if loc.file is None or loc.file.name != target_file_path:
+            continue
+        included = cursor.get_included_file()
+        if included is not None:
+            depth1_files.add(included.name)
+
+    # Step 3: walk MACRO_DEFINITION cursors. Filter to depth-1 files.
+    result: dict[str, str] = {}
+    found_any_macro_def = False
+
+    for cursor in tu.cursor.get_children():
+        if cursor.kind != CursorKind.MACRO_DEFINITION:
+            continue
+        found_any_macro_def = True
+        loc = cursor.location
+        if loc.file is None or loc.file.name not in depth1_files:
+            continue
+        # Collect tokens: first is the macro name; rest are the body.
+        tokens = list(cursor.get_tokens())
+        if len(tokens) != 2:
+            # Body must be exactly one token (name + 1 body token).
+            # len(tokens) == 1 means empty macro body; > 2 means multi-token
+            # (function-like params, complex expression, etc.).
+            continue
+        body_tok = tokens[1]
+        if body_tok.kind != TokenKind.LITERAL:
+            continue
+        spelling = body_tok.spelling
+        if not spelling.startswith('"'):
+            continue
+        # Strip outer quotes.
+        if len(spelling) >= 2 and spelling[-1] == '"':
+            body = spelling[1:-1]
+        else:
+            continue
+        name = tokens[0].spelling
+        if name not in result:
+            result[name] = body
+
+    if not found_any_macro_def:
+        print(
+            f"collect_file_macros: no MACRO_DEFINITION cursors found for "
+            f"{target_file_path!r}. Ensure tu was parsed with "
+            f"PARSE_DETAILED_PROCESSING_RECORD.",
+            file=sys.stderr,
+        )
+
+    return result
