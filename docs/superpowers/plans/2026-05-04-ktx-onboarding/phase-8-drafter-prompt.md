@@ -30,9 +30,12 @@ REQUIRED READING (read all before drafting):
      in PLAYBOOK), D10 (dual-row design -- Phase 8 documents in PLAYBOOK),
      D18 (execution modes -- Phase 8 is mostly inline), D20 (git workflow).
 3. docs/superpowers/plans/2026-05-04-ktx-onboarding/review-findings.md
-   - Findings touching Phase 8: F19 (doctrine fixes survived; no
-     recursion), F20 (HANDOVER backlog item absorbed), F17 (PLAYBOOK
-     addition for dual-row design).
+   - Findings touching Phase 8: F17 (PLAYBOOK addition for dual-row
+     design), F19 (doctrine fixes survived; no recursion -- F19's 4
+     original sites), F20 (HANDOVER backlog item absorbed), F22 (5th
+     doctrine site VALIDATION-RUNBOOK.md added during Phase 0; Phase
+     8 verifies its doctrine fix also survived). F19 + F22 are joint
+     scope -- 5 reference sites total, not 4.
 4. docs/superpowers/plans/2026-05-04-ktx-onboarding/phase-template.md
 5. docs/superpowers/plans/2026-05-04-ktx-onboarding/phase-0-doctrine-fixes.md
    - Phase 0 made the original doctrine fixes; Phase 8 verifies they
@@ -60,12 +63,20 @@ REQUIRED READING (read all before drafting):
 
 PHASE-SPECIFIC RECON (run before drafting):
 
-a. Verify Phase 0's doctrine fixes survived (F19):
+a. Verify Phase 0's doctrine fixes survived (F19 + F22 -- 5 sites total):
    grep -rn 'tree-sitter\\|tree_sitter' apps/qw-oracle/OVERVIEW.md \\
                                        apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md \\
-                                       apps/qw-oracle/scripts/extractors/CLAUDE.md
+                                       apps/qw-oracle/scripts/extractors/CLAUDE.md \\
+                                       apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md
    - Should return zero hits in KTX context (only references to
      tree-sitter for dusty-ktx fork or unrelated reasons).
+   - F22 (added during Phase 0 drafting) brought the count from 4 to 5
+     reference sites; VALIDATION-RUNBOOK.md is the 5th. The 4th
+     original site (the user-memory file
+     project_extraction_pipeline_vision.md) lives outside the repo at
+     /home/paradoks/.claude/projects/.../memory/ -- if doctrine
+     survival is in question, verify separately, but normal Phase 8
+     scope is the 4 in-repo files above.
 
 b. Identify SCHEMA.md references that need updating:
    grep -n 'log_template_versions\\.channel\\|channel.*broadcast.*client.*console.*system' \\
@@ -83,7 +94,11 @@ c. Identify all changes the SCHEMA.md sweep needs to capture:
    - Runtime claim (Node 20+ / Bun -> Bun-only per D2 of Arc 1).
    - Schema-version framing (v18 from SQLite era; Postgres uses
      migration filenames + schema_migrations table).
-   - All 9 CHECK widenings + 1 new table from this arc (008/009/010).
+   - All 10 CHECK widenings + 1 new table from this arc (008/009/010).
+     Per-value enumeration: 1 channel + 1 entity type + 1
+     gameplay_entity_defs.kind + 7 gameplay_mechanics.kind. (Earlier
+     scaffolding said 9 -- meta-count error caught during Phase 7
+     drafting.)
 
 d. Identify EXTRACTOR-PLAYBOOK insertion points for the 4 new sections:
    - "Pre-Port Discovery Sweep" -- the 3-leg sweep methodology
@@ -97,9 +112,22 @@ d. Identify EXTRACTOR-PLAYBOOK insertion points for the 4 new sections:
      Insertion: near the handler conventions section.
    - "Pattern 15: STRING_LITERAL-array walker" -- new pattern from
      Pass 5.3. Insertion: at the end of the Pattern catalog.
+   - "Pattern 10 ENUM_DECL widening" -- Phase 4 carry-forward. Current
+     PLAYBOOK scopes Pattern 10 to MACRO_DEFINITION; Phase 4 widens
+     applicability to ENUM_DECL via the same TU-root mechanic (single
+     handler walks both cursor kinds). Insertion: under existing
+     Pattern 10 entry as a widening note.
    - Plus a "Dual-row design for log_template + match_event" note
      (per D10 / F17). Insertion: near Pattern 5 / log_template
      discussion.
+   - Cross-phase carry-forward sweep: read each prior phase MD's
+     "Open questions / deferred items" section for any "Phase 8
+     PLAYBOOK amendment" or "Phase 8 lands" deferrals that haven't
+     been captured here. Phase 4 explicitly defers Pattern 10 + a
+     Pattern 16 reference to Phase 8; Phase 6 may have additional
+     match_event / Visitor-carve-out documentation that benefits
+     from a PLAYBOOK note. Surface anything found in the phase MD's
+     Open Questions if scope-uncertain.
 
 DRAFT THE PHASE:
 
@@ -143,8 +171,11 @@ Step 3: Draft phase-8-end-of-arc-docs.md. Each task ships full
 Step 4: Dispatch verification sub-agent (Sonnet medium, Explore).
         Particularly verify: all sweep targets identified; new
         sections positioned correctly in PLAYBOOK; HANDOVER bullet
-        absorption recorded; doctrine-fix verification covers all 4
-        original reference sites + any docs created during the arc.
+        absorption recorded; doctrine-fix verification covers all 5
+        reference sites (F19's 4 + F22's VALIDATION-RUNBOOK.md) + any
+        docs created during the arc; per-phase Open-Questions-deferred
+        PLAYBOOK obligations are addressed (Phase 4 Pattern 10 / 16
+        carry-forwards; any others surfaced).
 
 Step 5: Apply sub-agent findings.
 
