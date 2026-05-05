@@ -1,4 +1,10 @@
-# Phase 4 executor prompt -- QWiki community-reference arc
+# Phase 4 executor prompt -- QWiki community-reference arc -- SUPERSEDED
+
+> **SUPERSEDED 2026-05-05** at the T2 operator review gate. Do NOT execute this prompt as-is. The Phase 4 design pivoted from deterministic 4-branch parser to LLM-with-checklist extraction (D4 amendment pending design pass). Players + clans stay deterministic; tournaments only get the LLM treatment. See the side-quest brainstorm handoff:
+>
+> `docs/superpowers/parking/2026-05-05-qwiki-phase-4-llm-extraction-sidequest.md`
+>
+> The side-quest's deliverable is a redrafted Phase 4 MD using the LLM-extraction path. Once design converges, a new executor parking doc will be drafted by orchestrator session #3 to replace this one. This document is preserved as historical record of the deterministic-path plan -- the three-halt structure (HALT 1 column-list / HALT 2 has_note tuning / HALT 3 phase-boundary V-probes) and the F23/F24/F27/F28 lessons baked in below remain relevant reference material for the redrafted plan.
 
 **Use as the literal first message in a fresh `claude` terminal opened in `/home/paradoks/projects/quakeworld/`.** This terminal runs the `arc-executor` skill cold against Phase 4.
 

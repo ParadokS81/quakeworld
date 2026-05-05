@@ -194,6 +194,17 @@ Cross-check via the 4 visually-verified stub clans from the operator's end-of-Ph
 
 Resolves via: orchestrator session #2 doc correction (this finding). No code or DB change.
 
+**F29 -- Phase 3 missed 24+ Infobox 4on4team articles because they have empty `categories` arrays in the snapshot; `isClanArticle` filter is category-driven and falls through.**
+Surfaced during Phase 4 T2 review pass, 2026-05-05 (orchestrator session #2). Operator's screenshot spot-check on `FAgomatic` (a QHLAN15 4on4 LAN-roster team page) returned 0 rows from `SELECT * FROM community.clans WHERE slug='FAgomatic'`. Cold investigation: snapshot has 73 articles containing `{{Infobox 4on4team` in wikitext; Phase 3 loaded 44; the 29 missing have either empty categories or non-clan categories. Of the missing, 24 have `categories=[]` entirely. Sample missing slugs: `Bps__Badboys`, `InQ`, `Peppes_Bodega`, `Warriors_0f_Darkness`, `Diehumans_Cult`, `Black_Book`, `Necronomicon`, `Milton_s_Mutants`, `Nidweyr_s_Neanderthals`, `ELAK`.
+
+`Black_Book` is significant: it's Milton's current clan per Phase 2 player emit-note frontmatter (`current_clan: Black Book`). Player rows reference Black Book by clan title but no `community.clans` row exists for it. Same for `Milton_s_Mutants`, `ELAK`, etc. -- real persistent QW clans, not just ephemeral LAN rosters.
+
+**Resolution path:** Phase 3.5 small followup arc OR inline patch before Phase 5. Recommended fix is a one-line broadening of `isClanArticle` in `apps/qw-oracle/scripts/load-community/clans/index.ts` to ALSO accept articles whose wikitext contains `{{Infobox 4on4team` regardless of category presence. Re-run loader (idempotent UPSERT). Roughly +24 rows appear; spot-check `Black_Book` / `FAgomatic` post-load.
+
+**Why this matters for Phase 5:** Phase 5 cross-link backfill JOINs achievements + clan-history rows against `community.clans.slug`. Players whose `current_clan: Black Book` resolve to no clan row produce orphaned cross-link rows (or null `clan_slug` joins). Closing F29 before Phase 5 avoids that gap.
+
+Resolves via: future Phase 3.5 patch (one-line `isClanArticle` broadening + re-run loader); OR Phase 5 awareness with operator decision on tolerable orphan rate. Phase 3 advisory; not a Phase 4 blocker.
+
 ---
 
 ## Phase ownership of findings
@@ -228,8 +239,9 @@ Resolves via: orchestrator session #2 doc correction (this finding). No code or 
 | F26 | D6 5-signal heuristic omits achievements_count; rich-achievements/sparse-infobox clans (and players) flagged is_substantive=false; future tuning candidate (add 6th signal or replace narrative_prose with achievements) | future tuning arc | 3 (advisory; future improvement) |
 | F27 | HTML comments interrupt extractSectionBody trailing-meta-trim; orphan `[[Category:...]]` lines survive in section bodies; Phase 3 local fix (27a) applied; broader shared fix (27b) deferred | Phase 3 inline 27a; future small arc for 27b | 3 (27a applied; 27b deferred) |
 | F28 | Phase 3 wrap-up docs cite is_substantive=397; live DB returns 688; doc-transcription error (T8 `>=3 of 5` trial value transcribed instead of post-tune `>=2 of 5` ship value); code + DB are in sync | orchestrator session #2 doc correction (README + arc-history + resume handoff `397 -> 688`) | 3 (advisory; doc-only) |
+| F29 | Phase 3 missed 24+ Infobox 4on4team articles with empty categories (Black_Book, Milton_s_Mutants, FAgomatic, ELAK, etc.); `isClanArticle` filter is category-driven; matters for Phase 5 cross-link (orphaned `current_clan` references) | future Phase 3.5 patch (one-line `isClanArticle` broadening); OR Phase 5 awareness | 3 (advisory; future Phase 3.5) |
 
-(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05. F9 accrued during Phase 2 drafting + groom pass, 2026-05-05. F10-F11 accrued during Phase 3 drafting, 2026-05-05. F12 accrued during Phase 5 drafting + groom pass, 2026-05-05. F13 accrued during Phase 7 drafting + groom pass, 2026-05-05. F14-F17 accrued during Phase 0 execution, 2026-05-05. F18-F20 accrued during Phase 1 execution, 2026-05-05. F21-F22 accrued during Phase 2 execution, 2026-05-05. F23-F24 accrued during Phase 2 reconciliation, 2026-05-05. F25-F27 accrued during Phase 3 execution, 2026-05-05. F28 accrued during orchestrator session #2 cold-verify, 2026-05-05.)
+(F1-F5 accrued during Phase 0 drafting, 2026-05-05. F6-F8 accrued during planner groom pass, 2026-05-05. F9 accrued during Phase 2 drafting + groom pass, 2026-05-05. F10-F11 accrued during Phase 3 drafting, 2026-05-05. F12 accrued during Phase 5 drafting + groom pass, 2026-05-05. F13 accrued during Phase 7 drafting + groom pass, 2026-05-05. F14-F17 accrued during Phase 0 execution, 2026-05-05. F18-F20 accrued during Phase 1 execution, 2026-05-05. F21-F22 accrued during Phase 2 execution, 2026-05-05. F23-F24 accrued during Phase 2 reconciliation, 2026-05-05. F25-F27 accrued during Phase 3 execution, 2026-05-05. F28 accrued during orchestrator session #2 cold-verify, 2026-05-05. F29 accrued during Phase 4 T2 review pass, 2026-05-05.)
 
 ---
 
