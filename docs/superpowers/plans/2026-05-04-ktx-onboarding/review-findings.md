@@ -277,6 +277,25 @@ Phase 5 ships a handler-private `_DROPITEM_MACRO_FALLBACK = {"H_ROTTEN": 1, "H_M
 
 **Amendment 2026-05-05 (Phase 1 drafter source-walk):** The flag is already in `clang_config.PARSE_OPTS` (line 172) and has been since the existing Pattern 6 shipped. Phase 1 does NOT modify PARSE_OPTS. The probe target reframes accordingly: measure only the additional `collect_file_macros` walk-time delta (post-parse work over depth-1 #include closure). Parse-time component stays at baseline by definition. The <10% gate still applies, applied to the macro-walk delta. Pairs with the D4 amendment of the same date.
 
+**Amendment 2026-05-06 (Phase 1 perf follow-on -- diagnostic, no code change):** Phase 1 closed DONE_WITH_CONCERNS with walk-time overhead 66-163% above the <10% gate (KTX `commands.c` +40ms / 66%; ezQuake `vid_sdl2.c` +130ms / 163%). Operator chose option (b) -- in-arc scope-narrowing follow-on commit before Phase 2 starts. The follow-on hypothesised the cost driver was `cursor.get_tokens()` paid for all ~901 depth-1 `MACRO_DEFINITION` cursors on `vid_sdl2.c`, and proposed an iteration-time string-literal filter (peek `cursor.extent` source bytes; only call `get_tokens()` for macros whose body starts with `"`).
+
+Diagnostic results: **the hypothesis was wrong.** Source-extent peek implementation passed all 4 pytest tests but produced no measurable speedup (vid_sdl2.c median 123ms baseline -> 133ms with peek; within noise / slightly worse). Stage decomposition (5 runs each, median) on `vid_sdl2.c`:
+
+| Stage | Median | Delta | What |
+|---|---|---|---|
+| iterate top-level cursors + access `.kind` | 50.7ms | -- | 23,706 top cursors |
+| + filter to `MACRO_DEFINITION` (9,563 hits) | 48.4ms | -2.3 | kind filter is cheap |
+| + access `cursor.location` (9,137 macros with file) | 99.7ms | +51.3 | **dominant cost** |
+| + access `cursor.spelling` | 110.4ms | +10.7 | secondary cost |
+| + extent + byte-find peek (901 depth-1 macros) | 125.7ms | +15.3 | peek overhead |
+| + `get_tokens()` for the 5 string-bodied macros | 133.0ms | +7.3 | get_tokens on the 5 hits |
+
+The cost driver is libclang's per-cursor metadata access (`cursor.location`, `cursor.spelling`) over the ~9,137 `MACRO_DEFINITION` cursors the depth-1 filter must inspect to identify the 901 in-closure cursors. `get_tokens()` for the original 901 cursors costs ~10-15ms total; eliminating it entirely would save at most that much. The peek-then-tokens shape adds equivalent overhead in spelling+extent+byte-find, netting zero. Post-revert measurement (2026-05-06): vid_sdl2.c median 121.7ms / 5 macros, commands.c median 37.9ms / 279 macros -- back at Phase 1 baseline.
+
+**Disposition:** revert the follow-on optimisation (no benefit, added complexity); _source.py unchanged from Phase 1's shipped state. Accept the depth-1 walk-time overhead as inherent to the libclang per-cursor attribute model under `PARSE_DETAILED_PROCESSING_RECORD`. Engineering rationale for acceptance: extractor pipeline is offline (per-tag drag is the cost class, not interactive latency); 130ms / 40ms per TU multiplied across the per-codebase TU count is order-of-seconds total per tag, well inside the operator's offline budget. The <10% gate in F16's original framing was over-tight given the actual cost model.
+
+**Carry-forward for any future depth-N lift attempt:** the savings opportunity is NOT in `get_tokens()` filter relocation; it is in reducing the count of `cursor.location` accesses (e.g., narrower `tu.cursor.get_children()` traversal scope; alternative libclang APIs that pre-filter by file). D4's "Revisit if a multi-hop case surfaces in a future engine" caveat already parks the depth-N revisit; this amendment adds the cost-driver finding so a future arc doesn't repeat the filter-relocation experiment.
+
 **Phase ownership:** Phase 1.
 
 ### F17 -- Pass 1.7 printf-handler intentionally catches XML-shaped log_printfs
