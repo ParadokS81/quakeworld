@@ -11,7 +11,7 @@
 //   3. shared entity-prefix + ≥1 shared member entity-ref — strong
 //   4. shared topic / concept-note slug (when prior dispositioned to
 //      concept-note) — medium. Implemented indirectly via skill-side
-//      §3 scope-tracking, which already walks the concept-notes
+//      §3 scope-tracking, which already walks the curated/concept-notes
 //      directory; re-deriving it here would duplicate that work.
 //
 // For the 3.6.5 -> 3.6.6 regression, no priors exist and this module is

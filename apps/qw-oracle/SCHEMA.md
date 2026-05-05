@@ -26,7 +26,7 @@ Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
 | Change tracking | `change_events`, `relation_changes`, `source_overrides` |
 | Audit | `source_state_transitions`, `schema_meta` |
 
-**Total: 31 tables at schema v18.** Migration chain (high-level): v1-v8 build the engine-entity arc; v9 adds `source_retired_at_version` to transitions reason CHECK; v10 widens project CHECK across 8 tables for QWCL; v11 adds `source_root` (FTE plugin distinction); v12 adds `cvar_alias` + `cvar_alias_versions`; v13 adds `maps` (`qw` namespace); v14 adds `gameplay_*` tables (`qw` namespace); v15 adds the four MVDSV-introduced entity types; v16 widens the `protocol_message` kind CHECK from 6 to 13 values (`pext_fte` / `pext_mvd` subdivide by macro-body shape); v17 reshapes `info_key` canonical names + cvar normalization; v18 reshapes `qc_builtin` canonical names. See `docs/arc-history.md` for per-arc context.
+**Total: 36 tables at schema v18 (31 L1 engine + 5 community).** Migration chain (high-level): v1-v8 build the engine-entity arc; v9 adds `source_retired_at_version` to transitions reason CHECK; v10 widens project CHECK across 8 tables for QWCL; v11 adds `source_root` (FTE plugin distinction); v12 adds `cvar_alias` + `cvar_alias_versions`; v13 adds `maps` (`qw` namespace); v14 adds `gameplay_*` tables (`qw` namespace); v15 adds the four MVDSV-introduced entity types; v16 widens the `protocol_message` kind CHECK from 6 to 13 values (`pext_fte` / `pext_mvd` subdivide by macro-body shape); v17 reshapes `info_key` canonical names + cvar normalization; v18 reshapes `qc_builtin` canonical names. See `docs/arc-history.md` for per-arc context.
 
 ---
 
@@ -806,3 +806,139 @@ The migration step is a single line in `migrateV16ToV17`. No FK rebuild, no `INS
 - CLI entry point: `scripts/load-knowledge/index.ts`
 - Verification queries per phase: `scripts/load-knowledge/e2e-verify.md`
 - Per-migration specs: see each section above.
+
+---
+
+## Community schema
+
+Separate schema from L1 (D2: different lifecycle -- L1 regenerates from engine-source extractions; community is durable curated reference refreshed on wiki re-scrape or human edit). Five tables. All migrations for this schema are append-only under `db/migrations/` (next: 008).
+
+Tables: `community.players`, `community.clans`, `community.tournaments`, `community.player_clan_eras`, `community.tournament_results`.
+
+Note: `community.tournaments` is placeholder-only pending Phase 4 pilot (D9). Tournament-specific columns (year, mode, format, prize_pool, organizer, dates, status) land in migration 009 after pilot surfaces template variants.
+
+Note: `source` CHECK values on cross-link tables (`player_clan_eras`, `tournament_results`) are fixed per D10.
+
+### `community.players`
+
+One row per known QW player. Populated by the wiki scraper from QWiki player articles.
+
+| Column | Type | Notes |
+|---|---|---|
+| `slug` | TEXT PK | URL-safe identifier derived from article title |
+| `title` | TEXT NOT NULL | Article title as scraped |
+| `display_name` | TEXT | Primary in-game name |
+| `aliases` | TEXT[] | Additional known names |
+| `real_name` | TEXT | |
+| `nationality` | TEXT | Display string (e.g. "Sweden") |
+| `nationality_iso` | TEXT | ISO 3166-1 alpha-2 code (e.g. "SE") |
+| `current_clan` | TEXT | Current clan name |
+| `active_year_start` | INT | |
+| `active_year_end` | INT | NULL = still active |
+| `status` | TEXT | CHECK: Active / Retired / Inactive / Quit / unknown or NULL |
+| `community_roles` | TEXT[] | e.g. caster, admin, developer |
+| `has_note` | BOOLEAN NOT NULL DEFAULT FALSE | Layer 3 concept note exists for this player |
+| `is_substantive` | BOOLEAN NOT NULL DEFAULT FALSE | Article has meaningful content beyond stubs |
+| `is_stub` | BOOLEAN NOT NULL DEFAULT TRUE | Article is a stub |
+| `source_template` | TEXT | CHECK: infobox_player / player_info / bullet_prose / none or NULL |
+| `source_categories` | TEXT[] | QWiki categories the article belongs to |
+| `wiki_revision_id` | BIGINT | QWiki revision ID at time of scrape |
+| `wiki_fetched_at` | TIMESTAMPTZ | When this row was last refreshed from the wiki |
+
+**No FKs.**
+
+Indexes: `status`, `nationality_iso`, partial on `is_substantive WHERE is_substantive = TRUE`.
+
+### `community.clans`
+
+One row per known QW clan. Populated by the wiki scraper from QWiki clan articles.
+
+| Column | Type | Notes |
+|---|---|---|
+| `slug` | TEXT PK | URL-safe identifier derived from article title |
+| `title` | TEXT NOT NULL | Article title as scraped |
+| `prefix` | TEXT | Clan tag / prefix (e.g. "ae.") |
+| `nationality` | TEXT | Display string |
+| `nationality_iso` | TEXT | ISO 3166-1 alpha-2 code |
+| `founded_year` | INT | |
+| `founded_month` | INT | |
+| `founded_day` | INT | |
+| `founded_by` | TEXT | Founding member(s) |
+| `disbanded` | TEXT | Free-form disbandment note or date |
+| `status` | TEXT | CHECK: Active / Inactive / Disbanded / unknown or NULL |
+| `irc_channel` | TEXT | |
+| `irc_network` | TEXT | |
+| `website` | TEXT | |
+| `has_note` | BOOLEAN NOT NULL DEFAULT FALSE | Layer 3 concept note exists for this clan |
+| `is_substantive` | BOOLEAN NOT NULL DEFAULT FALSE | Article has meaningful content beyond stubs |
+| `is_stub` | BOOLEAN NOT NULL DEFAULT TRUE | Article is a stub |
+| `source_template` | TEXT | CHECK: infobox_clan / clan_info / infobox_4on4team / bullet_prose / none or NULL |
+| `source_categories` | TEXT[] | QWiki categories the article belongs to |
+| `wiki_revision_id` | BIGINT | QWiki revision ID at time of scrape |
+| `wiki_fetched_at` | TIMESTAMPTZ | When this row was last refreshed from the wiki |
+
+**No FKs.**
+
+Indexes: `status`, `nationality_iso`, partial on `is_substantive WHERE is_substantive = TRUE`.
+
+### `community.tournaments`
+
+Placeholder-only per D9. Tournament-specific columns land in migration 009 after Phase 4 pilot surfaces template variants.
+
+| Column | Type | Notes |
+|---|---|---|
+| `slug` | TEXT PK | URL-safe identifier derived from article title |
+| `title` | TEXT NOT NULL | Article title as scraped |
+| `has_note` | BOOLEAN NOT NULL DEFAULT FALSE | Layer 3 concept note exists for this tournament |
+| `is_substantive` | BOOLEAN NOT NULL DEFAULT FALSE | |
+| `is_stub` | BOOLEAN NOT NULL DEFAULT TRUE | |
+| `source_template` | TEXT | Template name observed on the article |
+| `source_categories` | TEXT[] | QWiki categories the article belongs to |
+| `wiki_revision_id` | BIGINT | |
+| `wiki_fetched_at` | TIMESTAMPTZ | |
+
+**No FKs. No indexes (placeholder table).**
+
+### `community.player_clan_eras`
+
+One row per player-clan membership span. Surrogate PK because requiring `start_year NOT NULL` as part of a composite PK would block year-absent bullet-list rows (F9).
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | BIGSERIAL PK | Surrogate -- see note above |
+| `player_slug` | TEXT NOT NULL | FK to `community.players(slug)` |
+| `clan_slug` | TEXT | Nullable -- unrecognized clan names are preserved in `clan_title` |
+| `clan_title` | TEXT NOT NULL | Clan name as it appears in the article |
+| `start_year` | INT | Nullable -- bullet-list clan history sections often lack year information |
+| `end_year` | INT | |
+| `era_seq` | INT | List-order preservation for year-absent rows |
+| `source` | TEXT NOT NULL | CHECK: wiki_TH / wiki_bullet / tournament-archive / manual |
+
+**FK:** `player_slug REFERENCES community.players(slug)`.
+
+**UNIQUE:** `(player_slug, clan_title, start_year, source)` -- idempotency on re-load.
+
+Indexes: `player_slug`, partial `clan_slug WHERE clan_slug IS NOT NULL`, partial `start_year WHERE start_year IS NOT NULL`.
+
+### `community.tournament_results`
+
+One row per player tournament result. Soft reference to `community.tournaments` (no FK) because Phase 5 backfill loads cross-link rows before Phase 4 populates `community.tournaments`, so a hard FK would cause insertion failures (F8).
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | BIGSERIAL PK | Surrogate |
+| `player_slug` | TEXT NOT NULL | FK to `community.players(slug)` |
+| `tournament_slug` | TEXT | Nullable soft reference -- no FK; see note above |
+| `tournament_title` | TEXT NOT NULL | Tournament name as it appears in the article |
+| `year` | INT | |
+| `place` | TEXT | e.g. "1st", "Top 8" |
+| `mode` | TEXT | e.g. "1on1", "4on4" |
+| `team` | TEXT | Team name if applicable |
+| `team_flag` | TEXT | Country code for team flag |
+| `source` | TEXT NOT NULL | CHECK: wiki_achievement / wiki_TH / tournament-archive / manual |
+
+**FK:** `player_slug REFERENCES community.players(slug)`.
+
+**No FK on `tournament_slug`** -- soft reference; Phase 5 backfill loads cross-link rows before Phase 4 populates `community.tournaments`, so a hard FK would cause insertion failures (F8).
+
+Indexes: `player_slug`, partial `tournament_slug WHERE tournament_slug IS NOT NULL`, `year`.

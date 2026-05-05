@@ -1,6 +1,6 @@
 // apps/qw-oracle/scripts/load-concepts/index.ts
 //
-// CLI dispatcher. Walks concept-notes/*.md, parses, runs body-link drift check,
+// CLI dispatcher. Walks curated/concept-notes/*.md, parses, runs body-link drift check,
 // upserts each, prints a summary.
 //
 // Bun-native (D2). Uses import.meta.main so the module is also importable from
@@ -15,7 +15,7 @@ import { upsertConcept } from './upsert.ts';
 import { embedConceptChunks } from '../embed/embed-chunks.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const CONCEPTS_DIR = resolve(__dirname, '..', '..', 'concept-notes');
+const CONCEPTS_DIR = resolve(__dirname, '..', '..', 'curated', 'concept-notes');
 
 export async function loadAllConcepts(): Promise<{ loaded: number; skipped: number; warnings: number }> {
   const files = readdirSync(CONCEPTS_DIR).filter((f) => f.endsWith('.md'));

@@ -46,7 +46,7 @@
 
 | Subfolder | Entry doc | What's there |
 |---|---|---|
-| `concept-notes/` | `concept-notes/CLAUDE.md` | Layer 3 corpus + authoring conventions + stewardship playbook |
+| `curated/` | `curated/concept-notes/CLAUDE.md` | Layer 3 curated knowledge layer: concept-notes/ (existing), player-notes/, clan-notes/, tournament-notes/ (new this arc) |
 | `docs/` | `docs/CLAUDE.md` | App-wide Layer 3 refs (entity-types, extraction roadmap) + arc-history |
 | `scripts/extractors/` | `scripts/extractors/CLAUDE.md` | Per-codebase Layer 1 extractors + PLAYBOOK + RUNBOOK |
 | `scripts/load-knowledge/` | `scripts/load-knowledge/CLAUDE.md` | Layer 1 loader: schema, adapters, dispatcher, diff/blame, snapshots |

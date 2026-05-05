@@ -21,9 +21,9 @@ import { chunkMarkdown, sha256, type Chunk } from '../../shared/chunking.ts';
 const EXTERNAL_REF_PREFIXES: ReadonlySet<string> = new Set(['commit', 'pr', 'extension']);
 
 // Body-link patterns the drift check recognises:
-//   [text](concept-notes/<slug>.md)   - relative from the app root
-//   [text](<slug>.md)                  - sibling reference within concept-notes/
-const CONCEPT_LINK_RE = /\(\s*(?:concept-notes\/)?([a-z0-9][a-z0-9-]*)\.md\s*(?:#[^)]*)?\)/g;
+//   [text](curated/concept-notes/<slug>.md)   - relative from the app root
+//   [text](<slug>.md)                          - sibling reference within curated/concept-notes/
+const CONCEPT_LINK_RE = /\(\s*(?:(?:curated\/)?concept-notes\/)?([a-z0-9][a-z0-9-]*)\.md\s*(?:#[^)]*)?\)/g;
 
 export interface ChunkWithHash extends Chunk {
   sha256: string;

@@ -1,6 +1,6 @@
 # scripts/load-concepts/
 
-Layer 3 loader. Walks `apps/qw-oracle/concept-notes/*.md`, parses each into a normalised `ParsedConcept`, and upserts into Postgres atomically per slug. The MCP `get_concept_note` tool reads `concepts` / `concept_chunks` / `concept_entities` / `concept_concepts` after Phase 6 cuts over.
+Layer 3 loader. Walks `apps/qw-oracle/curated/concept-notes/*.md`, parses each into a normalised `ParsedConcept`, and upserts into Postgres atomically per slug. The MCP `get_concept_note` tool reads `concepts` / `concept_chunks` / `concept_entities` / `concept_concepts` after Phase 6 cuts over.
 
 ## Files
 
@@ -17,7 +17,7 @@ The partition rule is "3-part canonical_id where parts[1] is NOT in `{commit, pr
 
 ## Body-link drift check
 
-Loader pre-flight: any markdown link in a body that points at a concept slug (`[text](concept-notes/<slug>.md)` or `[text](<slug>.md)`) emits a warning if that slug is not in the note's `related_concepts:` frontmatter. No current note carries `related_concepts:`, so the warning fires once per cross-link until operator backfills.
+Loader pre-flight: any markdown link in a body that points at a concept slug (`[text](curated/concept-notes/<slug>.md)`, `[text](concept-notes/<slug>.md)` (legacy), or `[text](<slug>.md)`) emits a warning if that slug is not in the note's `related_concepts:` frontmatter. No current note carries `related_concepts:`, so the warning fires once per cross-link until operator backfills.
 
 ## Always-on rules
 

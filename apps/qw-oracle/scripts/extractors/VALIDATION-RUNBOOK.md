@@ -372,7 +372,7 @@ Forks inherit the parent extractor with project-specific tweaks. The validation 
 
 - **KTX (tree-sitter).** Different methodology. When KTX ships, write a parallel runbook (`VALIDATION-RUNBOOK-KTX.md`) covering tree-sitter-specific concerns.
 - **Layer 2 (chat corpus).** Different validation domain (FTS5, message ID provenance). Not covered here.
-- **Layer 3 (concept notes).** Hand-authored content; review process lives in `concept-notes/OPERATIONS.md`.
+- **Layer 3 (concept notes).** Hand-authored content; review process lives in `curated/concept-notes/OPERATIONS.md`.
 
 ---
 

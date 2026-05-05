@@ -64,7 +64,7 @@ How the apps share domain knowledge through qw-oracle. See root `VISION.md` Sect
 |  Layer 2  qw.db            |    +---------------+   |  JSON snapshots in         |
 |    2.66M chat + FTS5       |                        |  apps/slipgate-app/src/    |
 |                            |    +---------------+   |    lib/config/data/        |
-|  Layer 3  concept-notes/   |--->| build-snapshot|-->|                            |
+|  Layer 3  curated/         |--->| build-snapshot|-->|                            |
 |    9 notes + stewardship   |    |     CLI       |   |  quad chatbot    (future)  |
 |                            |    +---------------+   |  slipgate web    (future)  |
 |  (backstage) extractors,   |                        |  community chatbot         |

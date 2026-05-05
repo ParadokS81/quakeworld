@@ -360,7 +360,7 @@ FROM asset_extensions
 WHERE verification_status != 'ast_verified';
 ```
 
-At ezQuake head this returns 2 rows: `.kmap` (`orphaned_historical` - loader subsystem removed in commit `46b5046`, 2014-01-12; files persist via the nQuake bundle - full story in `apps/qw-oracle/concept-notes/kmap-legacy-keymap-system.md`) and `.dll` (`seed_only_no_ast_support` - intentional cross-engine signal, FTE-only construct that ezQuake does not load).
+At ezQuake head this returns 2 rows: `.kmap` (`orphaned_historical` - loader subsystem removed in commit `46b5046`, 2014-01-12; files persist via the nQuake bundle - full story in `apps/qw-oracle/curated/concept-notes/kmap-legacy-keymap-system.md`) and `.dll` (`seed_only_no_ast_support` - intentional cross-engine signal, FTE-only construct that ezQuake does not load).
 
 The seven speculative extensions audited 2026-04-22 (`.log`, `.loc`, `.lit`, `.xml`, `.dat`, `.spr`, `.qwz`) all stamp **ast_verified**. Four are confirmed by DB rows; three (`.log`, `.xml`, `.spr`) are verified via grep-cited source evidence where the loader uses a wrapper not on the extractor's `LOADER_FUNCTIONS` watchlist.
 

@@ -86,6 +86,12 @@ describe('extractBodyConceptLinks', () => {
     const body = 'Read [a](concept-notes/alpha.md) and [b](beta.md).';
     expect(extractBodyConceptLinks(body).sort()).toEqual(['alpha', 'beta']);
   });
+
+  test('matches [text](curated/concept-notes/<slug>.md) pattern', () => {
+    const body = 'See [weapon scripts](curated/concept-notes/weapon-scripts.md) for the full story.';
+    const links = extractBodyConceptLinks(body);
+    expect(links).toEqual(['weapon-scripts']);
+  });
 });
 
 describe('parseConceptFile', () => {

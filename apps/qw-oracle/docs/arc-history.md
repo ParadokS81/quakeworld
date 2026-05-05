@@ -6,6 +6,14 @@ For current state, see `OVERVIEW.md` (living map) and `HANDOVER.md` (active back
 
 ---
 
+## 2026-05-05 -- QWiki community-reference arc -- IN EXECUTION (Phase 0 shipped)
+
+QWiki community-reference arc adds Layer 3 community-knowledge (~5,903 players + 822 clans + ~700 tournaments) as typed `curated/<type>-notes/` folders + Postgres `community.*` schema with two-output model per entity (every entity gets a row; only content-rich entries get markdown notes). Eight phases (Phase 0 snapshot finalize -> Phase 7 L2 primer artifact). Spec: `docs/superpowers/specs/2026-05-04-qwiki-community-reference-design.md`. Plan: `docs/superpowers/plans/2026-05-04-qwiki-community-reference/`. Execution driven by arc-orchestrator (this session) + arc-executor (per-phase fresh terminals).
+
+- **Phase 0 (2026-05-05): snapshot finalize.** Committed wiki snapshotter (`apps/qw-oracle/scripts/snapshot-wiki/snapshot.py`) as a permanent Python tool (D14 amendment carved out the snapshotter alongside engine extractors); refetched all 503 slash-title articles with double-underscore slugs (operator-confirmed corpus-wide uniformity over the original 4-collision-victim minimal fix); cleaned up 499 stale single-underscore files; preserved the 4 collision-victim spaceless-title files. Refetched redirects with `arprop=ids|title` -- this surfaced **F14**: MW 1.35.10's `allredirects` does NOT return `fromtitle` (only `fromid`); fixed inline with a two-step `allpages?apfilterredir=redirects` + `query?redirects=1` approach; Phase 0 T3 subagent independently arrived at the same fix. 2,337 redirects loaded after the patch (vs 0 in the broken pre-fix state). Snapshot committed to git (Path A locked, 9,950 files tracked). Manifest re-locked with `phase0_fixes` block. Three additional findings captured: **F15** (V3a probe `ls | grep -c "__"` returns 553 not 503 due to ~50 non-slash files with `__` slugs from other special-char replacements -- V3b is the accurate gate); **F16** (26 slash-title articles have legitimately empty wikitext; tournament sub-pages -- D5 two-threshold model handles natively); **F17** (`.devil.json` is a hidden file; future phase probes use `find -name "*.json"` or Python `iterdir()` instead of `ls | wc -l`). Three commits: af888e45 (snapshotter), 296efc67 (redirect-enumeration fix), 408938c1 (snapshot commit).
+
+---
+
 ## 2026-05-03 -- Arc 1 SHIP -- Postgres + hybrid retrieval, public MCP live
 
 Arc 1 closed end-to-end. Single-engine Postgres 16 + pgvector + tsvector across all three layers; hybrid retrieval (RRF over lexical + semantic) on `search_entities` and the new `search_concepts`; bidirectional concept graph; `redirect_to_human` tool; Streamable HTTP transport behind Cloudflare Tunnel; **public MCP live at `https://oracle.slipgate.me/mcp`** with per-IP rate limit (60/min) at the CF zone, no app-level auth. Image at `ghcr.io/paradoks81/qw-oracle-mcp:0.4.0` (and `:latest`); Unraid stack (`pgvector/pgvector:pg16` + MCP container + nginx) on `qworacle-net` bridge with persistent state at `/mnt/user/appdata/qw-oracle/`. Eight phases shipped:
@@ -159,7 +167,7 @@ Audit of 269 doc_only ezquake entities reduced to 194 across 7 shipped fixes (si
 
 ## 2026-04-25 -- Layer 3 concept notes bootstrap
 
-`concept-notes/` directory established with template (`README.md`) + stewardship playbook (`OPERATIONS.md`). Provenance frontmatter schema, two-path curation framing (community-curated imports vs newly-earned authoring), 6 recognized note shapes, tiered voice table. Four note bodies landed during the 3.6.5->3.6.6 shakedown walk: `client-side-server-exec-allowlist`, `skywind-animated-skyboxes`, `completing-legacy-fte-protocol-extensions`, `ruleset-anti-script-restriction-pattern`. Concept-notes count: 6 (now 9 with subsequent additions).
+`curated/concept-notes/` directory established with template (`README.md`) + stewardship playbook (`OPERATIONS.md`). Provenance frontmatter schema, two-path curation framing (community-curated imports vs newly-earned authoring), 6 recognized note shapes, tiered voice table. Four note bodies landed during the 3.6.5->3.6.6 shakedown walk: `client-side-server-exec-allowlist`, `skywind-animated-skyboxes`, `completing-legacy-fte-protocol-extensions`, `ruleset-anti-script-restriction-pattern`. Concept-notes count: 6 (now 9 with subsequent additions).
 
 ## 2026-04-23 -- Extraction-review skill + CLI
 
