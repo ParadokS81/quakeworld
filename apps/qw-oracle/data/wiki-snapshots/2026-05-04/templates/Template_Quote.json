@@ -1,0 +1,1 @@
+{"title": "Template:Quote", "pageid": 8081, "revid": 33272, "timestamp": "2017-04-23T19:28:32Z", "wikitext": "<blockquote class=\"templatequote\">\n<div>{{{text|{{{1|}}}}}}</div>\n{{#if:{{{2|}}}|<div class=\"templatequotecite\">&nbsp;&nbsp;&nbsp;&nbsp;&#8212;&nbsp;{{{sign|{{{2|}}}}}}</div>}}\n</blockquote>", "categories": []}

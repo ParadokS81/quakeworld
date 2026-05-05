@@ -1,0 +1,1 @@
+{"title": "Template:Player3", "pageid": 11747, "revid": 36649, "timestamp": "2018-09-21T08:54:11Z", "wikitext": "{| colspan=\"2\" \n!{{player|{{{1}}}|Flag={{{2}}}|{{{3}}}}}\n!{{#if:{{{3|}}}|{{{3|{{{3}}}}}}|{{abbr|TBD|To Be Decided}}}}\n|}", "categories": []}

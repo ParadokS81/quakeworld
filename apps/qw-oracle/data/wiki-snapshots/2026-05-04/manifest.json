@@ -1,0 +1,27 @@
+{
+  "snapshot_started": "2026-05-04T20:02:42.753290+00:00",
+  "snapshot_finished": "2026-05-04T20:05:42.854742+00:00",
+  "source": "https://www.quakeworld.nu",
+  "api": "https://www.quakeworld.nu/w/api.php",
+  "mediawiki_version": "1.35.10",
+  "counts": {
+    "articles_listed": 9178,
+    "articles_fetched": 9178,
+    "articles_failed": 0,
+    "templates_listed": 768,
+    "templates_fetched": 767,
+    "templates_failed": 0,
+    "redirects": 2337,
+    "categories": 324
+  },
+  "failed_articles": [],
+  "failed_templates": [],
+  "phase0_fixes": {
+    "slug_collisions_resolved": 4,
+    "slash_titles_refetched_count": 503,
+    "stale_single_underscore_files_deleted": 499,
+    "collision_victim_files_preserved": 4,
+    "redirect_fix": "arprop corrected from target|fragment to ids|title; two-step source-title resolution used",
+    "slugify_notes": "Spaces -> _, forward slashes -> __. Uniform across the 2026-05-04 snapshot post-Phase-0; downstream parsers can derive slugs deterministically with no helper required."
+  }
+}

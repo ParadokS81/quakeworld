@@ -1,0 +1,1 @@
+{"title": "Template:Flatlist", "pageid": 32, "revid": 42118, "timestamp": "2020-10-08T10:19:58Z", "wikitext": "<div class=\"hlist\" style=\"margin-left:{{{indent|0}}}em;{{{style|}}}\">{{#if:{{{1|}}}|<nowiki />\n{{{1}}}\n</div>}}<noinclude></div>\n{{documentation}}\n</noinclude>", "categories": []}

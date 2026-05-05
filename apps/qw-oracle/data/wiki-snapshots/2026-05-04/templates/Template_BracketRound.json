@@ -1,0 +1,1 @@
+{"title": "Template:BracketRound", "pageid": 12303, "revid": 43352, "timestamp": "2021-01-25T09:00:59Z", "wikitext": "<includeonly>{{#vardefineecho:bracketheader|{{{1|}}}}}{{#vardefine:matchround|{{#explode:{{{1|}}}|(|0}}}}</includeonly><noinclude>{{documentation}}[[Category:Templates]]</noinclude>", "categories": ["Category:Templates"]}
