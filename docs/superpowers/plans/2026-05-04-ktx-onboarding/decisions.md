@@ -85,6 +85,18 @@ Do not revert this amendment: Phase 1's lift implementation is correct as drafte
 - Pass 3 already drafted 008's content; verify against the spec at execution time. 009 + 010 are first drafted in Phase 1.
 - Standard PostgreSQL `ALTER TABLE ... DROP CONSTRAINT ... + ADD CONSTRAINT ...` per the Pass-3 / Phase-2 / Phase-7 precedent. CHECK constraints don't require table rewrite for additive value-set changes.
 
+### Amendment 2026-05-05 (Phase 8 drafter source-walk -- migration slot collision)
+
+The named filename slots `008` / `009` / `010` collide with the parallel qwiki community-reference arc's `008_community_schema.sql` (already shipped) and likely subsequent qwiki migrations. Phase 1 of the KTX arc renumbers to the next-available slots at execution time -- expected `009` / `010` / `011` or later depending on qwiki's remaining work.
+
+The migration CONTENT is unchanged (CHECK widenings, new `match_event_versions` table, gameplay-kind additions per the original D5 table). Only the FILENAME numbering is stale. Phase 1 executor:
+
+1. Runs `ls apps/qw-oracle/db/migrations/ | sort` at start-of-phase to find the next-available slot.
+2. Renames the three migration files to consecutive available slots, preserving order (channel widening first, match_event next, gameplay kinds last).
+3. Updates SCHEMA.md / VALIDATION-RUNBOOK.md / phase MDs that reference the filenames (Phase 8's slim-doc sweep references migrations abstractly to insulate against this -- intentional).
+
+Phase 8's `phase-8-end-of-arc-docs.md` Open Question #1 captures the same; this D5 amendment is the audit-trail anchor.
+
 ---
 
 ## D6. Handler grouping by walking strategy, not source file or row kind

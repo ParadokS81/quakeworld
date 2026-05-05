@@ -16,9 +16,9 @@
 
 ## Where we are right now
 
-- **Stage:** planning-drafting (per-phase MD drafts in progress).
-- **Last action:** 2026-05-05 -- Phase 7 MD approved (~1272 lines; 19 KTX-specific F1 probes + JSONB regression gate + idempotency probe + 10-widening per-migration probes + KTX VALIDATION-RUNBOOK section + 5-engine cross-project audit). Sub-agent verification: 2 CRITICAL + 5 SUBSTANTIVE + 4 ADVISORY all applied. Two real bugs caught: idempotency script's broken WHERE clause (dead-code OR + suppressed-error fragility) rewritten to three explicit table sets; CHECK widening meta-count corrected 9 -> 10 across phase MD. README banner fix: "Total schema impact" line corrected 9 -> 10 widenings. Four Open Questions all defer-to-execution (migration filenames pending Phase 1 ship, log_template count pending Phase 2 load, mode_default equality semantics pending Phase 3 load, audit report date placeholder).
-- **Next action:** open fresh terminal, paste contents of `phase-8-drafter-prompt.md`.
+- **Stage:** planning COMPLETE -- all 9 phase MDs approved.
+- **Last action:** 2026-05-05 -- Phase 8 MD approved (~1010 lines; 10-task slim-doc cohort sweep + EXTRACTOR-PLAYBOOK additions + cross-phase carry-forwards + doctrine-fix-survival verification). Sub-agent verification: 2 CRITICAL (both correctly pushed back as false positives -- "## Related" anchor exists at line 800 confirmed via grep; Pattern 10 find-string is unique not line-number-anchored) + 3 SUBSTANTIVE (1 dispositioned via judgment, 2 confirmations) + 5 ADVISORY confirmations. Two narrow improvements applied (Task 2 OVERVIEW.md edits ship explicit before-blocks). D5 amended for migration slot collision (qwiki community arc already shipped 008_community_schema.sql; Phase 1 renumbers at execution time; migration content unchanged). 4 of 5 Phase 8 Open Questions are correctly execution-time defers.
+- **Next action:** orchestrator handoff. Open fresh terminal with `arc-orchestrator` skill; orchestrator dispatches per-phase executor terminals starting with Phase 0. (Recommend: write the orchestrator-handoff parking doc first, mirroring qwiki's pattern at `docs/superpowers/parking/2026-05-04-qwiki-community-reference-orchestrator-handoff.md`.)
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
@@ -56,7 +56,7 @@ Phases 2 / 3 / 4 / 5 / 6 are mutually independent at the data level after Phase 
 | 5 | approved | `phase-5-tables-handler.md` | `phase-5-drafter-prompt.md` | `_handler_gameplay_tables.py` + `load-gameplay-tables.ts` (monster 13 + score_system 3 + drop_item 31 + loc_macro 15 + teamplay_message 21) | All 5 Group-B struct-array kinds queryable |
 | 6 | approved | `phase-6-match-event-handler.md` | `phase-6-drafter-prompt.md` | `_handler_match_events.py` (XSD-driven; not libclang) + `load-match-events.ts` (7 entity rows + 13 emission sites) | match_event entity type populated; qw-event-log validation harness fully unblocked at schema level |
 | 7 | approved | `phase-7-validation.md` | `phase-7-drafter-prompt.md` | F1 quality-grid probes for all KTX kinds + JSONB-binding regression gate + validation runbook + cross-project audit | KTX onboarding has same auditability as the 4 prior engines |
-| 8 | not started | `phase-8-end-of-arc-docs.md` | `phase-8-drafter-prompt.md` | SCHEMA.md slim-doc Arc 1 refresh sweep (absorbs HANDOVER backlog item) + EXTRACTOR-PLAYBOOK additions (Pre-Port Discovery Sweep + Pre-Commit Discovery Cross-Check + Handler-grouping rationale + Pattern 15 STRING_LITERAL-array walker) | Docs caught up; arc done |
+| 8 | approved | `phase-8-end-of-arc-docs.md` | `phase-8-drafter-prompt.md` | SCHEMA.md slim-doc Arc 1 refresh sweep (absorbs HANDOVER backlog item) + EXTRACTOR-PLAYBOOK additions (Pre-Port Discovery Sweep + Pre-Commit Discovery Cross-Check + Handler-grouping rationale + Pattern 15 STRING_LITERAL-array walker + Pattern 10 ENUM_DECL widening + dual-row design note) | Docs caught up; arc done |
 
 When a phase MD lands, change `not started` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
 
