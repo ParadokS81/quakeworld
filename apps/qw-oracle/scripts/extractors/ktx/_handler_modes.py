@@ -57,6 +57,29 @@ into props_json.comment; comments on a separate line are NOT harvested.
 Source-fidelity tokens (D9): "ca" not "clan_arena", "tot" not
 "tribe_of_tjernobyl", "lgc" not "LGC Mode". Source enum spellings
 (umCA, um2on2, umLGCMODE) live in value_text for traceability.
+
+F25 resolution: all cross-file state previously kept on self.*
+accumulators is now emitted as typed pseudo-rows from end_file(),
+then re-assembled inside finalize(all_rows=..., repo_root=...) from
+the all_rows PARAMETER (not from self). This makes the handler
+parallel-safe under multiprocessing.Pool fork-pool execution.
+
+Pseudo-row _kind values:
+  _mode_default          -- real mode_default row (carries name, kind,
+                            value_text, ruleset_gate_json, props_json)
+  _meta_activation_cvar  -- {"cvar_name": str, "source_ref": str}
+  _meta_toggle_cmd       -- {"mutator_key": str, "source_ref": str,
+                            "priority": int}  (0=cmds fallback, 1=authoritative)
+  _meta_auto_reset       -- {"mutator_key": str, "source_ref": str}
+  _meta_um_list_row      -- {"token": str, "source_ref": str}
+  _meta_um_list_label_raw -- {"token": str, "label_raw": str}
+  _meta_um_init_decl     -- {"array_name": str, "decl_line": int}
+  _meta_race_ref         -- {"ref_kind": "toggle"|"apply"|"settings_decl",
+                            "source_ref": str}
+  _meta_unresolved_macro_line -- stats payload dict (append-only)
+  _meta_skipped_line     -- stats payload dict (append-only)
+  _meta_by_array_stat    -- {"array_name": str, "line_count": int,
+                            "macros_resolved": int, "macros_unresolved": int}
 """
 from __future__ import annotations
 
@@ -372,46 +395,32 @@ class KtxModesHandler(Visitor):
 
     Cross-codebase port (D3) -- inherits from Visitor only. No parent-
     project subclass.
+
+    F25 design: all cross-file state is emitted as typed pseudo-rows
+    from end_file() so the driver merges them into all_rows. finalize()
+    reads from the all_rows parameter, not from self. This makes the
+    handler parallel-safe under multiprocessing.Pool fork-pool execution.
     """
     name = HANDLER_NAME
     output_filename = OUTPUT_FILENAME
 
     def setup(self, *, ktx_repo: Path, ktx_src: Path) -> None:
+        """One-time init. Fires in the parent process pre-fork.
+
+        Stores repo paths only. No cross-file accumulators on self --
+        all cross-file state travels through end_file() pseudo-rows
+        and is re-assembled in finalize() from all_rows.
+        """
         self._repo_root = ktx_repo
         self._src_root = ktx_src
-
-        # Cross-file accumulators. Initialized here (parent process,
-        # pre-fork) so finalize can read them after all files have been
-        # walked. KTX is single-variant, single TU per file, no cross-
-        # file race.
-        self._catalog_um_rows: list = []
-        self._catalog_extra_rows: list = []
-        self._mode_default_rows: list = []
-
-        # Source-ref accumulators. Filled during per-file visits;
-        # consumed at finalize when emitting catalog rows.
-        self._activation_cvar_refs: dict = {}
-        self._toggle_cmd_refs: dict = {}
-        self._auto_reset_call_sites: dict = {}
-        self._um_list_row_refs: dict = {}        # mode_token -> "commands.c:<row-line>"
-        self._um_list_label_raw: dict = {}       # mode_token -> raw col-2 string
-        self._um_init_decl_lines: dict = {}      # array_name -> int line of VAR_DECL
-        self._race_toggle_ref: Optional[str] = None
-        self._race_apply_ref: Optional[str] = None
-        self._race_settings_decl_ref: Optional[str] = None
-
-        # Stats. Emitted in finalize for audit.
-        self._stats: dict = {
-            "unresolved_macro_lines": [],
-            "skipped_lines": [],
-            "by_array": {},
-        }
 
     def start_file(self, *, source_path: Path, source_bytes: bytes) -> None:
         super().start_file(source_path=source_path, source_bytes=source_bytes)
         self._source_basename = source_path.name
         # Per-file dedup safeguard against cursor-traversal re-emission.
         self._seen_arrays_this_file: set = set()
+        # Per-file row accumulator. Cleared and returned by end_file().
+        self._rows: list[dict] = []
 
     def visit_cursor(self, cursor, variant: str) -> None:
         # Source-file allowlist. The driver hands us every src/*.c .
@@ -473,11 +482,13 @@ class KtxModesHandler(Visitor):
         loc = cursor.location
         if loc.file is None:
             return
-        # Record the registration-site location for the activation cvar.
-        # First-wins; identical name from a duplicate cursor traversal
-        # leaves the original ref intact.
-        if cvar_name not in self._activation_cvar_refs:
-            self._activation_cvar_refs[cvar_name] = f"world.c:{loc.line}"
+        # Emit pseudo-row for this activation cvar registration site.
+        # finalize() applies first-wins per cvar_name.
+        self._rows.append({
+            "_kind": "_meta_activation_cvar",
+            "cvar_name": cvar_name,
+            "source_ref": f"world.c:{loc.line}",
+        })
 
     def _visit_race_c(self, cursor) -> None:
         kind = cursor.kind
@@ -488,23 +499,37 @@ class KtxModesHandler(Visitor):
             loc = cursor.location
             if loc.file is None:
                 return
-            if spelling == "ToggleRace" and self._race_toggle_ref is None:
-                self._race_toggle_ref = f"race.c:{loc.line}"
-            elif spelling == "apply_race_settings" and self._race_apply_ref is None:
-                self._race_apply_ref = f"race.c:{loc.line}"
+            if spelling == "ToggleRace":
+                self._rows.append({
+                    "_kind": "_meta_race_ref",
+                    "ref_kind": "toggle",
+                    "source_ref": f"race.c:{loc.line}",
+                })
+            elif spelling == "apply_race_settings":
+                self._rows.append({
+                    "_kind": "_meta_race_ref",
+                    "ref_kind": "apply",
+                    "source_ref": f"race.c:{loc.line}",
+                })
             return
         if kind == CursorKind.VAR_DECL:
-            if cursor.spelling == "race_settings" and self._race_settings_decl_ref is None:
+            if cursor.spelling == "race_settings":
                 loc = cursor.location
                 if loc.file is None:
                     return
-                self._race_settings_decl_ref = f"race.c:{loc.line}"
+                self._rows.append({
+                    "_kind": "_meta_race_ref",
+                    "ref_kind": "settings_decl",
+                    "source_ref": f"race.c:{loc.line}",
+                })
 
     # ---- commands.c specific extractors ------------------------------------
 
     def _extract_um_init_array(self, cursor, array_name: str) -> None:
         """Walk the post-`=` token stream of a const char[] declaration,
-        emitting one mode_default row per parsed cvar-set line.
+        emitting one _mode_default pseudo-row per parsed cvar-set line
+        and one _meta_um_init_decl pseudo-row for the array's declaration
+        line.
 
         Two token shapes are admitted:
           - LITERAL `"k_pow_pickup 0\\n"` (single token, parse the whole
@@ -521,8 +546,12 @@ class KtxModesHandler(Visitor):
         loc = cursor.location
         if loc.file is None:
             return
-        # Stash the declaration line for source_xrefs lookup at finalize.
-        self._um_init_decl_lines[array_name] = loc.line
+        # Emit declaration-line pseudo-row for source_xrefs lookup in finalize.
+        self._rows.append({
+            "_kind": "_meta_um_init_decl",
+            "array_name": array_name,
+            "decl_line": loc.line,
+        })
 
         # Mode token gate: "common" for common_um_init; user-facing token
         # for per-mode arrays via inverse lookup of UM_INIT_ARRAY_NAMES.
@@ -564,7 +593,8 @@ class KtxModesHandler(Visitor):
                     if macro_body is None:
                         # Macro lookup failed -- defensive marker for
                         # rot detection per Phase 7's F1 quality probe.
-                        self._stats["unresolved_macro_lines"].append({
+                        self._rows.append({
+                            "_kind": "_meta_unresolved_macro_line",
                             "source_ref": f"commands.c:{ident_line}",
                             "identifier": ident,
                             "reason": "macro lookup failed",
@@ -584,7 +614,8 @@ class KtxModesHandler(Visitor):
                     line_text = macro_body + " " + literal_payload
                     parsed = _split_kv(line_text)
                     if parsed is None:
-                        self._stats["skipped_lines"].append({
+                        self._rows.append({
+                            "_kind": "_meta_skipped_line",
                             "source_ref": f"commands.c:{ident_line}",
                             "raw": line_text,
                             "reason": "kv split failed (macro+literal)",
@@ -598,7 +629,7 @@ class KtxModesHandler(Visitor):
                         self.source_bytes,
                         next_tok.extent.end.offset,
                     )
-                    self._mode_default_rows.append(self._make_mode_default_row(
+                    self._rows.append(self._make_mode_default_row(
                         name=name_val,
                         value=value_val,
                         line_number=next_tok.location.line,
@@ -613,7 +644,8 @@ class KtxModesHandler(Visitor):
                     continue
                 # Stray identifier (no following literal) -- skip but
                 # log to stats for audit.
-                self._stats["skipped_lines"].append({
+                self._rows.append({
+                    "_kind": "_meta_skipped_line",
                     "source_ref": f"commands.c:{ident_line}",
                     "raw": ident,
                     "reason": "identifier without trailing literal",
@@ -628,7 +660,8 @@ class KtxModesHandler(Visitor):
                 parsed = _split_kv(line_text)
                 if parsed is None:
                     # All-whitespace or empty literal -- skipped per spec.
-                    self._stats["skipped_lines"].append({
+                    self._rows.append({
+                        "_kind": "_meta_skipped_line",
                         "source_ref": f"commands.c:{tok.location.line}",
                         "raw": line_text,
                         "reason": "kv split failed (literal)",
@@ -641,7 +674,7 @@ class KtxModesHandler(Visitor):
                     self.source_bytes,
                     tok.extent.end.offset,
                 )
-                self._mode_default_rows.append(self._make_mode_default_row(
+                self._rows.append(self._make_mode_default_row(
                     name=name_val,
                     value=value_val,
                     line_number=tok.location.line,
@@ -657,11 +690,14 @@ class KtxModesHandler(Visitor):
 
             i += 1
 
-        self._stats["by_array"][array_name] = {
+        # Emit per-array stats pseudo-row.
+        self._rows.append({
+            "_kind": "_meta_by_array_stat",
+            "array_name": array_name,
             "line_count": line_count,
             "macros_resolved": macros_resolved,
             "macros_unresolved": macros_unresolved,
-        }
+        })
 
     def _make_mode_default_row(
         self,
@@ -675,8 +711,8 @@ class KtxModesHandler(Visitor):
         array_name: str,
         comment: Optional[str],
     ) -> dict:
-        """Build one mode_default row. Numeric coercion: int(value) when
-        value parses as a (possibly-negative) integer literal, else None.
+        """Build one _mode_default pseudo-row. Numeric coercion: int(value)
+        when value parses as a (possibly-negative) integer literal, else None.
         Floats are not coerced (the source uses bare ints in cvar_init
         lines almost exclusively; the few floats live as text)."""
         value_numeric: Optional[int] = None
@@ -687,6 +723,7 @@ class KtxModesHandler(Visitor):
             except ValueError:
                 value_numeric = None
         return {
+            "_kind": "_mode_default",
             "name": name,
             "kind": "mode_default",
             "value_text": value,
@@ -703,9 +740,8 @@ class KtxModesHandler(Visitor):
 
     def _extract_um_list(self, cursor) -> None:
         """Walk um_list[] = { {<token>, <label>, <init_arr>, ...}, ... }.
-        For each row, record the row's source line (the inner INIT_LIST_EXPR
-        location) and the raw col-2 label string into the per-mode lookup
-        dicts."""
+        For each row, emit a _meta_um_list_row pseudo-row (source line) and
+        a _meta_um_list_label_raw pseudo-row (raw col-2 label string)."""
         outer = None
         for child in cursor.get_children():
             if child.kind == CursorKind.INIT_LIST_EXPR:
@@ -731,16 +767,22 @@ class KtxModesHandler(Visitor):
                 continue
             label_raw = literal_string(fields[1], self.source_bytes)
             row_line = init.location.line
-            if token not in self._um_list_row_refs:
-                self._um_list_row_refs[token] = f"commands.c:{row_line}"
-            if token not in self._um_list_label_raw and label_raw is not None:
-                self._um_list_label_raw[token] = label_raw
+            self._rows.append({
+                "_kind": "_meta_um_list_row",
+                "token": token,
+                "source_ref": f"commands.c:{row_line}",
+            })
+            self._rows.append({
+                "_kind": "_meta_um_list_label_raw",
+                "token": token,
+                "label_raw": label_raw,
+            })
 
     def _extract_cmds_table(self, cursor) -> None:
-        """Walk cmds[] for toggle-command rows; seed _toggle_cmd_refs as
-        the lower-authority fallback for each mutator + race. The
-        cvar_toggle_msg walker overwrites these with the more
-        authoritative call-site location when one exists."""
+        """Walk cmds[] for toggle-command rows; emit _meta_toggle_cmd
+        pseudo-rows with priority=0 (cmds[] fallback). The cvar_toggle_msg
+        walker emits priority=1 rows (authoritative). finalize() keeps the
+        highest priority per mutator_key, first-wins within same priority."""
         outer = None
         for child in cursor.get_children():
             if child.kind == CursorKind.INIT_LIST_EXPR:
@@ -767,16 +809,20 @@ class KtxModesHandler(Visitor):
             if mutator_key is None:
                 continue
             row_line = init.location.line
-            if mutator_key not in self._toggle_cmd_refs:
-                self._toggle_cmd_refs[mutator_key] = f"commands.c:{row_line}"
+            self._rows.append({
+                "_kind": "_meta_toggle_cmd",
+                "mutator_key": mutator_key,
+                "source_ref": f"commands.c:{row_line}",
+                "priority": 0,
+            })
 
     def _extract_cvar_toggle_msg(self, cursor) -> None:
         """Inspect arg[1] of cvar_toggle_msg(self, <cvar>, <label>):
         if it's a STRING_LITERAL whose value matches a tracked activation
         cvar, or a DECL_REF_EXPR pointing at LGCMODE_VARIABLE /
-        TOT_MODE_VARIABLE (resolves via self.file_macros), record the
-        call-expr source_ref into _toggle_cmd_refs (overwrites the
-        cmds[] fallback)."""
+        TOT_MODE_VARIABLE (resolves via self.file_macros), emit a
+        _meta_toggle_cmd pseudo-row with priority=1 (authoritative,
+        overwrites the cmds[] fallback in finalize)."""
         args = list(cursor.get_arguments())
         if len(args) < 2:
             return
@@ -801,17 +847,20 @@ class KtxModesHandler(Visitor):
         loc = cursor.location
         if loc.file is None:
             return
-        # cvar_toggle_msg is the more authoritative source -- always
-        # overwrite the cmds[] fallback when we find one.
-        self._toggle_cmd_refs[mutator_key] = f"commands.c:{loc.line}"
+        # priority=1: authoritative cvar_toggle_msg call site.
+        self._rows.append({
+            "_kind": "_meta_toggle_cmd",
+            "mutator_key": mutator_key,
+            "source_ref": f"commands.c:{loc.line}",
+            "priority": 1,
+        })
 
     def _extract_cvar_set_zero(self, cursor) -> None:
         """Match cvar_set(<cvar>, "0") calls in commands.c. arg[0] may be
         a STRING_LITERAL (e.g. "k_midair") or a DECL_REF_EXPR pointing at
         LGCMODE_VARIABLE (resolves via self.file_macros). When the cvar
         is one of the auto-reset markers (k_lgcmode / k_instagib /
-        k_midair), record the call-site location into
-        _auto_reset_call_sites for the corresponding mutator key."""
+        k_midair), emit a _meta_auto_reset pseudo-row for the mutator key."""
         args = list(cursor.get_arguments())
         if len(args) < 2:
             return
@@ -833,84 +882,165 @@ class KtxModesHandler(Visitor):
         loc = cursor.location
         if loc.file is None:
             return
-        ref = f"commands.c:{loc.line}"
-        bucket = self._auto_reset_call_sites.setdefault(mutator_key, [])
-        if ref not in bucket:
-            bucket.append(ref)
+        self._rows.append({
+            "_kind": "_meta_auto_reset",
+            "mutator_key": mutator_key,
+            "source_ref": f"commands.c:{loc.line}",
+        })
 
-    # ---- finalize -----------------------------------------------------------
+    # ---- end_file + finalize -----------------------------------------------
 
-    def end_file(self) -> list:
-        # All accumulators live on self across files; finalize reads
-        # them directly. Return [] so the driver's all_rows merge is a
-        # no-op for this handler.
-        return []
+    def end_file(self) -> list[dict]:
+        """Return per-file pseudo-rows and real mode_default rows, then reset.
 
-    def finalize(self, *, all_rows: list, repo_root: Path) -> dict:
-        # Build catalog rows from the per-file scans.
-        self._emit_um_list_catalog_rows()
-        self._emit_extra_catalog_rows()
+        All cross-file state travels through these rows into all_rows so
+        finalize() can re-assemble it from the parameter rather than from
+        self. This is the F25 fix: workers emit, parent assembles.
+        """
+        rows = self._rows
+        self._rows = []
+        self._seen_arrays_this_file = set()
+        return rows
 
-        # Optional seed-augmentation merge. Seed file is operator-
-        # authored; absent file is fine (handler defaults stand).
-        seed_count = self._apply_seed_overrides(repo_root)
+    def finalize(self, *, all_rows, repo_root: Path) -> dict:
+        """Assemble and return the final modes payload.
 
-        # Dedup checks. Catalog: name uniqueness. Overlay: (name,
-        # mode-gate) uniqueness within a single mode.
-        catalog_seen: set = set()
-        for row in self._catalog_um_rows + self._catalog_extra_rows:
-            n = row["name"]
-            if n in catalog_seen:
-                raise RuntimeError(
-                    f"KtxModesHandler: duplicate catalog row name {n!r}; "
-                    "the source-walk is producing more than one row per "
-                    "mode -- investigate before shipping."
-                )
-            catalog_seen.add(n)
+        all_rows is the driver-merged collection of all rows returned by
+        end_file() across all files. If the driver passes a dict keyed by
+        handler name (test fixture shape), extract the relevant slice.
 
-        overlay_seen: set = set()
-        for row in self._mode_default_rows:
-            key = (row["name"], row["ruleset_gate_json"].get("mode"))
-            if key in overlay_seen:
-                raise RuntimeError(
-                    f"KtxModesHandler: duplicate mode_default row "
-                    f"{key!r}; one mode's overlay is registering the "
-                    "same cvar twice -- investigate before shipping."
-                )
-            overlay_seen.add(key)
+        Steps:
+          1. Partition all_rows by _kind.
+          2. Re-assemble cross-file ref dicts from pseudo-rows
+             (first-wins / priority / append semantics per kind).
+          3. Build catalog rows from module constants + re-assembled refs.
+          4. Apply optional seed overrides.
+          5. Dedup checks (catalog name uniqueness, overlay (name,mode) uniqueness).
+          6. Return final payload dict.
 
-        return {
-            "groups": {"game_mode": "catalog", "mode_default": "overlay"},
-            "game_modes": self._catalog_um_rows + self._catalog_extra_rows,
-            "mode_defaults": self._mode_default_rows,
-            "_stats": {
-                "catalog_count": (
-                    len(self._catalog_um_rows) + len(self._catalog_extra_rows)
-                ),
-                "mode_default_count": len(self._mode_default_rows),
-                "by_array": self._stats["by_array"],
-                "unresolved_macro_lines": self._stats["unresolved_macro_lines"],
-                "skipped_lines": self._stats["skipped_lines"],
-                "auto_reset_call_sites_used": {
-                    k: len(v) for k, v in self._auto_reset_call_sites.items()
-                },
-                "seed_augmentations_applied": seed_count,
-            },
+        F25 design note: reads all_rows from the parameter, not from self,
+        so parallel and serial extraction produce identical output.
+        """
+        # Defensive: handle both flat-list (driver shape) and dict (test
+        # fixture shape). Mirrors gameplay_tables' finalize() pattern.
+        if isinstance(all_rows, dict):
+            rows: list[dict] = all_rows.get(self.name, [])
+        else:
+            rows = list(all_rows)
+
+        # ---- partition pseudo-rows by _kind --------------------------------
+
+        mode_default_rows: list[dict] = []
+
+        # Cross-file ref dicts (first-wins semantics unless noted).
+        activation_cvar_refs: dict[str, str] = {}     # cvar_name -> source_ref
+        toggle_cmd_refs: dict[str, tuple[str, int]] = {}  # mutator_key -> (source_ref, priority)
+        auto_reset_call_sites: dict[str, list[str]] = {}  # mutator_key -> [source_ref, ...]
+        um_list_row_refs: dict[str, str] = {}          # token -> source_ref (first-wins)
+        um_list_label_raw: dict[str, str] = {}         # token -> label_raw (first-non-None-wins)
+        um_init_decl_lines: dict[str, int] = {}        # array_name -> decl_line (first-wins)
+        race_refs: dict[str, str] = {}                 # ref_kind -> source_ref (first-wins)
+        unresolved_macro_lines: list[dict] = []        # append-only
+        skipped_lines: list[dict] = []                 # append-only
+        by_array: dict[str, dict] = {}                 # array_name -> stats (first-wins)
+
+        for r in rows:
+            k = r.get("_kind")
+
+            if k == "_mode_default":
+                # Strip the internal _kind key before adding to the output list.
+                mode_default_rows.append({
+                    key: val for key, val in r.items() if key != "_kind"
+                })
+
+            elif k == "_meta_activation_cvar":
+                cvar_name = r["cvar_name"]
+                if cvar_name not in activation_cvar_refs:
+                    activation_cvar_refs[cvar_name] = r["source_ref"]
+
+            elif k == "_meta_toggle_cmd":
+                mkey = r["mutator_key"]
+                prio = r["priority"]
+                existing = toggle_cmd_refs.get(mkey)
+                if existing is None:
+                    toggle_cmd_refs[mkey] = (r["source_ref"], prio)
+                else:
+                    # Keep highest priority; first-wins within same priority.
+                    if prio > existing[1]:
+                        toggle_cmd_refs[mkey] = (r["source_ref"], prio)
+
+            elif k == "_meta_auto_reset":
+                mkey = r["mutator_key"]
+                ref = r["source_ref"]
+                bucket = auto_reset_call_sites.setdefault(mkey, [])
+                if ref not in bucket:
+                    bucket.append(ref)
+
+            elif k == "_meta_um_list_row":
+                token = r["token"]
+                if token not in um_list_row_refs:
+                    um_list_row_refs[token] = r["source_ref"]
+
+            elif k == "_meta_um_list_label_raw":
+                token = r["token"]
+                label_raw = r.get("label_raw")
+                if token not in um_list_label_raw and label_raw is not None:
+                    um_list_label_raw[token] = label_raw
+
+            elif k == "_meta_um_init_decl":
+                array_name = r["array_name"]
+                if array_name not in um_init_decl_lines:
+                    um_init_decl_lines[array_name] = r["decl_line"]
+
+            elif k == "_meta_race_ref":
+                ref_kind = r["ref_kind"]
+                if ref_kind not in race_refs:
+                    race_refs[ref_kind] = r["source_ref"]
+
+            elif k == "_meta_unresolved_macro_line":
+                unresolved_macro_lines.append({
+                    key: val for key, val in r.items() if key != "_kind"
+                })
+
+            elif k == "_meta_skipped_line":
+                skipped_lines.append({
+                    key: val for key, val in r.items() if key != "_kind"
+                })
+
+            elif k == "_meta_by_array_stat":
+                array_name = r["array_name"]
+                if array_name not in by_array:
+                    by_array[array_name] = {
+                        "line_count":        r["line_count"],
+                        "macros_resolved":   r["macros_resolved"],
+                        "macros_unresolved": r["macros_unresolved"],
+                    }
+
+        # Flatten toggle_cmd_refs to source_ref only (drop the priority sentinel).
+        toggle_cmd_ref_strs: dict[str, str] = {
+            mkey: ref_prio[0] for mkey, ref_prio in toggle_cmd_refs.items()
         }
 
-    def _emit_um_list_catalog_rows(self) -> None:
-        """Build one game_mode catalog row per um_list[] peer (17 rows).
-        D11 axis values: init_mechanism=um_init_string,
-        mode_class=standalone, auto_reset_on_match=False."""
+        # Race ref convenience aliases.
+        race_toggle   = race_refs.get("toggle", "")
+        race_apply    = race_refs.get("apply", "")
+        race_settings = race_refs.get("settings_decl", "")
+
+        # ---- build catalog rows ----------------------------------------
+
+        catalog_um_rows: list[dict] = []
+        catalog_extra_rows: list[dict] = []
+
+        # 17 um_list peers (um_init_string | standalone).
         for token in UM_LIST_ENUMS:
             array_name = UM_INIT_ARRAY_NAMES[token]
-            decl_line = self._um_init_decl_lines.get(array_name)
+            decl_line = um_init_decl_lines.get(array_name)
             initstring_ref = (
                 f"commands.c:{decl_line}" if decl_line is not None else ""
             )
-            row_ref = self._um_list_row_refs.get(token, "")
-            label_raw = self._um_list_label_raw.get(token, "")
-            self._catalog_um_rows.append({
+            row_ref   = um_list_row_refs.get(token, "")
+            label_raw = um_list_label_raw.get(token, "")
+            catalog_um_rows.append({
                 "name": token,
                 "kind": "game_mode",
                 "value_text": UM_LIST_ENUMS[token],
@@ -938,16 +1068,10 @@ class KtxModesHandler(Visitor):
                 },
             })
 
-    def _emit_extra_catalog_rows(self) -> None:
-        """Build the 10 non-um_list catalog rows: race, bloodfest, and
-        the 8 mutators."""
         # race -- cvar_toggle_with_init_string | standalone
-        race_toggle = self._race_toggle_ref or ""
-        race_apply = self._race_apply_ref or ""
-        race_settings = self._race_settings_decl_ref or ""
-        race_act = self._activation_cvar_refs.get("k_race", "")
-        race_cmd = self._toggle_cmd_refs.get("race", "")
-        self._catalog_extra_rows.append({
+        race_act = activation_cvar_refs.get("k_race", "")
+        race_cmd = toggle_cmd_ref_strs.get("race", "")
+        catalog_extra_rows.append({
             "name": "race",
             "kind": "game_mode",
             "value_text": None,
@@ -976,8 +1100,8 @@ class KtxModesHandler(Visitor):
         })
 
         # bloodfest -- cvar_toggle_only | standalone
-        bf_act = self._activation_cvar_refs.get("k_bloodfest", "")
-        self._catalog_extra_rows.append({
+        bf_act = activation_cvar_refs.get("k_bloodfest", "")
+        catalog_extra_rows.append({
             "name": "bloodfest",
             "kind": "game_mode",
             "value_text": None,
@@ -1006,8 +1130,8 @@ class KtxModesHandler(Visitor):
 
         # 8 mutators -- cvar_toggle_only | mutator
         for mutator_key, activation_cvar in MUTATORS.items():
-            act_ref = self._activation_cvar_refs.get(activation_cvar, "")
-            cmd_ref = self._toggle_cmd_refs.get(mutator_key, "")
+            act_ref  = activation_cvar_refs.get(activation_cvar, "")
+            cmd_ref  = toggle_cmd_ref_strs.get(mutator_key, "")
             auto_reset = MUTATOR_AUTO_RESET[mutator_key]
             sub_flags = None
             if mutator_key == "freshteams":
@@ -1017,7 +1141,7 @@ class KtxModesHandler(Visitor):
                     "k_freshteams_fast_ammo",
                     "k_freshteams_weapon_time",
                 ]
-            self._catalog_extra_rows.append({
+            catalog_extra_rows.append({
                 "name": mutator_key,
                 "kind": "game_mode",
                 "value_text": None,
@@ -1040,7 +1164,7 @@ class KtxModesHandler(Visitor):
                     "game_type": "Mutator",
                     "playable_solo": False,
                     "auto_reset_call_sites": (
-                        self._auto_reset_call_sites.get(mutator_key, [])
+                        auto_reset_call_sites.get(mutator_key, [])
                     ),
                     "sub_flags_json": sub_flags,
                     "source_xrefs": [
@@ -1049,12 +1173,74 @@ class KtxModesHandler(Visitor):
                 },
             })
 
-    def _apply_seed_overrides(self, repo_root: Path) -> int:
+        # ---- optional seed-augmentation merge ------------------------------
+
+        seed_count = self._apply_seed_overrides(
+            repo_root, catalog_um_rows, catalog_extra_rows
+        )
+
+        # ---- dedup checks (load-bearing safety; raises on violation) -------
+
+        # Catalog: name uniqueness (RuntimeError on duplicate -- preserves
+        # original strict semantics).
+        catalog_seen: set = set()
+        for row in catalog_um_rows + catalog_extra_rows:
+            n = row["name"]
+            if n in catalog_seen:
+                raise RuntimeError(
+                    f"KtxModesHandler: duplicate catalog row name {n!r}; "
+                    "the source-walk is producing more than one row per "
+                    "mode -- investigate before shipping."
+                )
+            catalog_seen.add(n)
+
+        # Overlay: (name, mode-gate) uniqueness (RuntimeError on duplicate).
+        overlay_seen: set = set()
+        for row in mode_default_rows:
+            key = (row["name"], row["ruleset_gate_json"].get("mode"))
+            if key in overlay_seen:
+                raise RuntimeError(
+                    f"KtxModesHandler: duplicate mode_default row "
+                    f"{key!r}; one mode's overlay is registering the "
+                    "same cvar twice -- investigate before shipping."
+                )
+            overlay_seen.add(key)
+
+        return {
+            "groups": {"game_mode": "catalog", "mode_default": "overlay"},
+            "game_modes": catalog_um_rows + catalog_extra_rows,
+            "mode_defaults": mode_default_rows,
+            "_stats": {
+                "catalog_count": (
+                    len(catalog_um_rows) + len(catalog_extra_rows)
+                ),
+                "mode_default_count": len(mode_default_rows),
+                "by_array": by_array,
+                "unresolved_macro_lines": unresolved_macro_lines,
+                "skipped_lines": skipped_lines,
+                "auto_reset_call_sites_used": {
+                    k: len(v) for k, v in auto_reset_call_sites.items()
+                },
+                "seed_augmentations_applied": seed_count,
+            },
+        }
+
+    def _apply_seed_overrides(
+        self,
+        repo_root: Path,
+        catalog_um_rows: list[dict],
+        catalog_extra_rows: list[dict],
+    ) -> int:
         """Read the optional modes-augment.yaml seed and overlay
         community_name / wiki_ref / user_facing_label / playable_solo
         onto matching catalog rows. Seed file is optional; absent file
         leaves handler defaults intact (return 0). Bad YAML raises so
-        the run fails loudly rather than silently dropping seed data."""
+        the run fails loudly rather than silently dropping seed data.
+
+        Takes the two catalog lists as parameters (not self attributes)
+        so this method works correctly in finalize() where the lists are
+        local variables rather than instance state.
+        """
         # The seed lives under apps/qw-oracle/scripts/extractors/ktx/
         # seeds/. The handler itself is at .../ktx/_handler_modes.py,
         # so HERE is .../ktx and seeds is HERE/seeds.
@@ -1083,7 +1269,7 @@ class KtxModesHandler(Visitor):
             return 0
         # Build catalog index by name for O(1) lookup.
         by_name: dict = {}
-        for row in self._catalog_um_rows + self._catalog_extra_rows:
+        for row in catalog_um_rows + catalog_extra_rows:
             by_name[row["name"]] = row
         applied = 0
         for entry in modes_list:

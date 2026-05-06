@@ -432,7 +432,23 @@ The handler design (state-on-self + `end_file()` returns []) is functional in si
 
 Phase 3 ships option (a-prime): the workaround. The principled refactor is parked.
 
-**Phase ownership:** Phase 3 (discovered and worked-around during execution; future-arc revisit).
+**Amendment 2026-05-06 (Phase 5.5 disposition closure):** Disposition resolved via Option (a) Pattern 13 emission retrofit, shipped as Phase 5.5. The principled fix landed in-arc rather than parked, on the back of Phase 5's evidence: gameplay_tables handler shipped Pattern 13 emission (`_kind="_fn_def"` typed pseudo-rows from `end_file()`) first-attempt with no shape resistance, parallel-safe by structure under `--workers 12`. With Pattern 13 now demonstrated as a clean two-consumer arc-pattern (Phase 2 commands handler + Phase 5 tables handler), modes was the architectural outlier; orchestrator session #3 + operator agreed (2026-05-06) to retrofit while the precedent context was freshest.
+
+**Pre-fix state (re-anchoring the Phase 3 evidence):** parallel `--workers 4` produced `mode_defaults count: 0`; serial `--workers 1` produced `mode_defaults count: 317`. Catalog rows (27) survived because they were built in `finalize()` from module-level constants, masking the bug at the handler-output level.
+
+**Post-fix state:** `_handler_modes.py` refactored so all 11 cross-file accumulators (`_mode_default_rows`, `_activation_cvar_refs`, `_toggle_cmd_refs`, `_auto_reset_call_sites`, `_um_list_row_refs`, `_um_list_label_raw`, `_um_init_decl_lines`, `_race_toggle_ref` / `_race_apply_ref` / `_race_settings_decl_ref`, `_stats` sub-keys) emit as typed pseudo-rows from `end_file()` (`_kind` in `{_mode_default, _meta_activation_cvar, _meta_toggle_cmd, _meta_auto_reset, _meta_um_list_row, _meta_um_list_label_raw, _meta_um_init_decl, _meta_race_ref, _meta_unresolved_macro_line, _meta_skipped_line, _meta_by_array_stat}`); `finalize(all_rows=...)` partitions by `_kind`, re-assembles cross-file ref dicts from the meta rows, builds catalog rows from module constants + re-assembled refs, drops meta rows from output. The F25 serial guard in `extract.py` lines ~302-310 was removed; `--workers 12` now applies uniformly to modes-inclusive runs. Parallel-vs-serial regression gate (`test_parallel_serial_equivalence` in `tests/test_handler_modes.py`) asserts identical output across `--workers 1` and `--workers 4` runs and PASSes; the test self-skips while the F25 guard is present (defensive against partial rollback).
+
+**Verification (2026-05-06 post-fix):**
+- pytest 7/7 PASS (6 existing + 1 new parallel-vs-serial equivalence gate).
+- End-to-end `extract.py --handlers modes --workers 12`: 2.3s on 108 .c files; output JSON has `game_modes_count=27`, `mode_defaults_count=317`, `unresolved_macros=[]`, `by_array=18`. Identical to serial baseline.
+- Dev DB post-load: `gameplay_mechanics` rows for `gameplay_source_id='ktx'`: game_mode=27 + mode_default=317 (UNCHANGED; D15 idempotency holds).
+- F1 JSONB gate: `ruleset_gate_json` and `props_json` both `jsonb_typeof = 'object'` for all 344 modes rows; 0 violations (D14 holds).
+
+**Phase 5.5 commit:** to be filled in by orchestrator session post-commit (chicken-and-egg: the executor cannot reference its own commit hash from inside the same commit; the orchestrator's housekeeping commit backfills, mirroring the Phase 4 pattern at `cb46fd85` and Phase 5 at `c0cb89a3`).
+
+**Carry-forward:** any future libclang handler with cross-file refs MUST use Pattern 13 emission per Phase 2 + Phase 5 + Phase 5.5 precedent. No per-handler instance-state aggregation in fork-pool architectures. Phase 8 EXTRACTOR-PLAYBOOK addition will document this as the canonical convention; the alternative `Visitor.parallel_safe: bool = True` attribute path proposed in the original F25 future-arc options is REJECTED -- gating opt-out as a per-handler bool would normalise the broken state-on-self design and recreate the divergence between handlers that this Phase 5.5 retrofit eliminates.
+
+**Phase ownership:** Phase 3 (discovered and worked-around during execution); Phase 5.5 (principled fix shipped via Pattern 13 retrofit).
 
 ---
 
