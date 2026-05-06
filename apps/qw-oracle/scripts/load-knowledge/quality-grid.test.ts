@@ -3,7 +3,7 @@
 import { describe, it, expect, beforeEach, afterAll } from 'bun:test';
 import postgres from 'postgres';
 import { runMigrations } from '../../db/migrate.js';
-import { makeFloorCountProbe, makeFloorSourceStateProbe } from './quality-grid.js';
+import { makeFloorCountProbe, makeFloorSourceStateProbe, makeGameplayKindProbe } from './quality-grid.js';
 
 const url = process.env.DATABASE_URL;
 if (!url) throw new Error('DATABASE_URL is not set');
@@ -75,7 +75,6 @@ describe('makeFloorCountProbe', () => {
 
 describe('makeFloorSourceStateProbe', () => {
   beforeEach(async () => { await seed(); });
-  afterAll(async () => { await sql.end(); });
 
   it('returns PASS when source_state distribution matches', async () => {
     const probe = makeFloorSourceStateProbe('fte', 'cvar', { source_backed: 2 });
@@ -93,5 +92,23 @@ describe('makeFloorSourceStateProbe', () => {
     const probe = makeFloorSourceStateProbe('fte', 'cvar', { source_backed: 2 });
     expect(probe.name).toBe('F1.fte.floor.cvar_source_state');
     expect(probe.family).toBe('regression');
+  });
+});
+
+describe('makeGameplayKindProbe', () => {
+  beforeEach(async () => { await seed(); });
+  afterAll(async () => { await sql.end(); });
+
+  it('uses canonical probe name', () => {
+    const probe = makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'game_mode', 27);
+    expect(probe.name).toBe('F1.ktx.gameplay_kind.game_mode_count');
+    expect(probe.family).toBe('regression');
+  });
+
+  it('skips when project does not match the probe gameplay_source_id', async () => {
+    const probe = makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'game_mode', 27);
+    const result = await probe.run({ sql, project: 'fte' });
+    expect(result.status).toBe('PASS');
+    expect(result.summary).toMatch(/skipped/);
   });
 });

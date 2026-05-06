@@ -368,6 +368,200 @@ Forks inherit the parent extractor with project-specific tweaks. The validation 
 
 ---
 
+## KTX-specific validation
+
+KTX is a libclang-based cross-codebase port (per `docs/superpowers/plans/2026-05-04-ktx-onboarding/decisions.md` D2 + D3) -- not a fork. Extraction methodology mirrors ezQuake / FTE / QWCL / MVDSV (Sections 1-8 above apply); the differences below capture KTX-specific surfaces.
+
+### Per-kind row counts
+
+KTX exposes 14 kinds across the entities-table types and the qw-namespace gameplay tables. Counts are locked anchors per `docs/superpowers/plans/2026-05-04-ktx-onboarding/review-findings.md` (F1-F14); listed values are LIVE counts at Phase 6 ship (commit `e0133248`):
+
+**Entities-table types (canonical-1.46 master HEAD):**
+
+| Kind | Live count | Anchor | F1 probe |
+|---|---:|---|---|
+| cvar | 260 | F1 (192 k_-prefixed + ~68 non-k_ literal-name per Exhaustive Mapping Rule) | F1.ktx.floor.cvar_count + F1.ktx.floor.cvar_source_state |
+| command | 358 | F2 amended (319 cmds[] + 14 std + 25 editor) | F1.ktx.floor.command_count + F1.ktx.floor.command_source_state |
+| info_key | 7 | F3 amended (7 star-keys) | F1.ktx.floor.info_key_count + F1.ktx.floor.info_key_source_state |
+| log_template | 1195 | F4 (1500-2000 unique format strings; live below band) | F1.ktx.floor.log_template_count + F1.ktx.floor.log_template_source_state |
+| match_event | 7 | F14 (one per XSD event_name) | F1.ktx.floor.match_event_count + F1.ktx.floor.match_event_source_state + F1.ktx.anchor.match_event_count_7_with_attributes |
+
+**Gameplay-table kinds (`gameplay_source_id='ktx'`):**
+
+| Kind | Table | Live count | Anchor | F1 probe |
+|---|---|---:|---|---|
+| monster | gameplay_entity_defs | 13 | F9 amended (hp_for_kill source-faithful) | F1.ktx.gameplay_kind.monster_count + F1.ktx.anchor.monsters_have_hp_for_kill + F1.ktx.anchor.fish_first_in_monsters |
+| game_mode | gameplay_mechanics | 27 | F5 (17 um_list peers + race + bloodfest + 8 mutators) | F1.ktx.gameplay_kind.game_mode_count |
+| mode_default | gameplay_mechanics | 317 | F6 (~309 estimate; Phase 3 + 5.5 retrofit confirmed 317 across parallel + serial runs) | F1.ktx.gameplay_kind.mode_default_count |
+| election_type | gameplay_mechanics | 5 | F7 (skip etNone sentinel) | F1.ktx.gameplay_kind.election_type_count |
+| death_rule | gameplay_mechanics | 27 | F8 (skip dtNONE / dtUNKNOWN) | F1.ktx.gameplay_kind.death_rule_count |
+| score_system | gameplay_mechanics | 3 | F10 (positions length=10 invariant) | F1.ktx.gameplay_kind.score_system_count + F1.ktx.anchor.score_system_positions_length_10 |
+| drop_item | gameplay_mechanics | 31 | F11 amended (was 30; sp_sp added) | F1.ktx.gameplay_kind.drop_item_count |
+| loc_macro | gameplay_mechanics | 15 | F12 | F1.ktx.gameplay_kind.loc_macro_count |
+| teamplay_message | gameplay_mechanics | 21 | F13 (Pattern 9 banner harvest 0% per F27) | F1.ktx.gameplay_kind.teamplay_message_count |
+
+Run probe family on the dev DB after every KTX extract:
+
+```bash
+npm --prefix apps/qw-oracle --no-workspaces run load-knowledge -- quality-grid --project ktx --family both
+```
+
+PASS condition: every `F1.ktx.*` probe returns PASS; F2 anomaly probes either CLEAN or carry a tracked HANDOVER deferral.
+
+### JSONB-binding regression gate
+
+D14 + F21: every JSONB column written by a KTX loader passes its JS value directly (or wrapped with `tx.json(...)`) -- no `JSON.stringify(...)` followed by TEXT bind. The regression gate `F1.jsonb_columns_not_strings` runs cross-project with KTX-relevant target columns:
+
+- `match_event_versions.attributes_json`
+- `match_event_versions.emission_call_sites_json`
+- `gameplay_mechanics.props_json`
+- `gameplay_mechanics.ruleset_gate_json`
+- `gameplay_entity_defs.props_json`
+- `gameplay_entity_defs.ruleset_gate_json`
+- `log_template_versions.all_call_sites_json` (Pass 1 reuse; KTX rows must respect)
+
+A FAIL means a KTX loader regressed to the legacy SQLite-era TEXT-with-stringify pattern. Diagnose by:
+
+1. Run `SELECT table_name, column_name, COUNT(*) FROM (...)` for each target with `jsonb_typeof(col)='string'`; identify the offending loader.
+2. Inspect the loader's `tx.json(...)` / direct-JS-value usage; fix the binding pattern.
+3. Re-run the loader; re-run the probe.
+
+### Idempotency
+
+Per D15, every KTX loader is idempotent by construction. Re-run `extract-tag --project ktx --version <head> --ordinal <head_ordinal> --force` and confirm zero row-count delta + zero content-hash drift across all KTX-scoped tables (entities, cvar_versions, command_versions, info_key_versions, log_template_versions, match_event_versions, gameplay_mechanics, gameplay_entity_defs).
+
+Operator runs the probe via:
+
+```bash
+bash apps/qw-oracle/scripts/extractors/ktx/idempotency-ktx.sh
+```
+
+Exit 0 = idempotent. Exit 1 + diff output = drift; see Recovery (Section 7-style adapted for KTX) below.
+
+### Per-migration validation probes
+
+Three migrations land KTX schema deltas at `apps/qw-oracle/db/migrations/`:
+
+- `009_ktx_log_template_logfile_channel.sql` -- `log_template_versions.channel` CHECK admits `'logfile'`.
+- `010_ktx_match_event_type.sql` -- `entities.type` CHECK admits `'match_event'`; CREATE TABLE `match_event_versions` (PK + 2 indexes).
+- `011_ktx_gameplay_kinds.sql` -- `gameplay_entity_defs.kind` += `'monster'`; `gameplay_mechanics.kind` += `'game_mode'`, `'election_type'`, `'score_system'`, `'drop_item'`, `'loc_macro'`, `'teamplay_message'`, `'mode_default'` (death_rule was already in the enum pre-KTX; not a KTX delta).
+
+Each migration's CHECK widening and table/index existence is verified by the SQL probes below.
+
+**Migration `009_ktx_log_template_logfile_channel.sql` (admits `'logfile'` channel):**
+
+```sql
+-- Positive insert: 'logfile' admitted.
+BEGIN;
+INSERT INTO entities (project, type, name, canonical_id, source_state, first_seen_version, last_seen_version, created_at, updated_at)
+  VALUES ('ktx', 'log_template', 'STUB_LF_POS', 'ktx:log_template:STUB_LF_POS', 'source_backed', 'head', 'head', NOW(), NOW())
+  RETURNING id;  -- :id1
+INSERT INTO log_template_versions (entity_id, version, channel, format_string, source_file, source_line, all_call_sites_json)
+  VALUES (:id1, 'head', 'logfile', 'STUB', 'stub.c', 1, '[]'::jsonb);
+-- PASS: both inserts succeed.
+ROLLBACK;
+
+-- Negative shape: 'nonexistent_channel' rejected.
+BEGIN;
+INSERT INTO entities (project, type, name, canonical_id, source_state, first_seen_version, last_seen_version, created_at, updated_at)
+  VALUES ('ktx', 'log_template', 'STUB_LF_NEG', 'ktx:log_template:STUB_LF_NEG', 'source_backed', 'head', 'head', NOW(), NOW())
+  RETURNING id;  -- :id1
+INSERT INTO log_template_versions (entity_id, version, channel, format_string, source_file, source_line, all_call_sites_json)
+  VALUES (:id1, 'head', 'nonexistent_channel', 'STUB', 'stub.c', 1, '[]'::jsonb);
+-- PASS: second insert raises CHECK violation.
+ROLLBACK;
+```
+
+**Migration `010_ktx_match_event_type.sql` (admits `'match_event'` entity type + creates `match_event_versions`):**
+
+```sql
+-- Table exists.
+SELECT to_regclass('match_event_versions') IS NOT NULL AS exists;
+-- PASS: returns t.
+
+-- 2 indexes exist (idx_match_event_versions_complex_type + idx_match_event_versions_xsd_version).
+SELECT indexname FROM pg_indexes
+WHERE tablename='match_event_versions'
+ORDER BY indexname;
+-- PASS: returns 2 indexnames matching the migration content.
+
+-- Positive insert: type='match_event' admitted; paired versions row inserts.
+BEGIN;
+INSERT INTO entities (project, type, name, canonical_id, source_state, first_seen_version, last_seen_version, created_at, updated_at)
+  VALUES ('ktx', 'match_event', 'STUB_ME_POS', 'ktx:match_event:STUB_ME_POS', 'source_backed', 'head', 'head', NOW(), NOW())
+  RETURNING id;  -- :id1
+INSERT INTO match_event_versions (entity_id, version, complex_type, xsd_version, attributes_json, emission_call_sites_json)
+  VALUES (:id1, 'head', 'pick_mapitem', '0.1', '[{"name":"item_name","type":"xs:string","constraint":null}]'::jsonb, '[]'::jsonb);
+-- PASS: both inserts succeed.
+ROLLBACK;
+
+-- Negative shape: type='nonexistent_type' rejected.
+BEGIN;
+INSERT INTO entities (project, type, name, canonical_id, source_state, first_seen_version, last_seen_version, created_at, updated_at)
+  VALUES ('ktx', 'nonexistent_type', 'STUB_ME_NEG', 'ktx:nonexistent_type:STUB_ME_NEG', 'source_backed', 'head', 'head', NOW(), NOW());
+-- PASS: insert raises CHECK violation.
+ROLLBACK;
+```
+
+**Migration `011_ktx_gameplay_kinds.sql` (admits 1 + 7 new kind values):**
+
+```sql
+-- Pre-flight: gameplay_sources['ktx'] row exists (Phase 1 obligation).
+SELECT id FROM gameplay_sources WHERE id='ktx';
+-- PASS: returns 1 row.
+
+-- Positive inserts: 1 monster row in gameplay_entity_defs.
+BEGIN;
+INSERT INTO gameplay_entity_defs (gameplay_source_id, kind, name, ruleset_gate_json, props_json)
+  VALUES ('ktx', 'monster', 'STUB_MONSTER', '{}'::jsonb, '{}'::jsonb);
+-- PASS: insert succeeds.
+ROLLBACK;
+
+-- Positive inserts: 7 stub rows for new gameplay_mechanics.kind values.
+DO $$
+DECLARE k text;
+BEGIN
+  FOR k IN VALUES ('game_mode'),('mode_default'),('election_type'),('score_system'),('drop_item'),('loc_macro'),('teamplay_message')
+  LOOP
+    BEGIN
+      INSERT INTO gameplay_mechanics (gameplay_source_id, kind, name, ruleset_gate_json, props_json)
+        VALUES ('ktx', k, 'STUB_'||k, '{}'::jsonb, '{}'::jsonb);
+      RAISE NOTICE 'OK: %', k;
+    EXCEPTION WHEN OTHERS THEN
+      RAISE NOTICE 'FAIL: %', k;
+    END;
+  END LOOP;
+  ROLLBACK;
+END $$;
+-- PASS: 7 NOTICE OK lines.
+
+-- Negative shape: kind='nonexistent_kind' rejected in both tables.
+BEGIN;
+INSERT INTO gameplay_entity_defs (gameplay_source_id, kind, name, ruleset_gate_json, props_json)
+  VALUES ('ktx', 'nonexistent_kind', 'STUB_ED_NEG', '{}'::jsonb, '{}'::jsonb);
+-- PASS: insert raises CHECK violation.
+ROLLBACK;
+
+BEGIN;
+INSERT INTO gameplay_mechanics (gameplay_source_id, kind, name, ruleset_gate_json, props_json)
+  VALUES ('ktx', 'nonexistent_kind', 'STUB_GM_NEG', '{}'::jsonb, '{}'::jsonb);
+-- PASS: insert raises CHECK violation.
+ROLLBACK;
+```
+
+### Cross-project audit (KTX-aware)
+
+Run Section 4.4 (cross-project sibling-handler shape audit) with KTX added to the lineup. Five projects now: ezquake, fte, qwcl, mvdsv, ktx. Per D3, KTX handlers inherit only from `Visitor`; KTX is a port, not a fork. Verify:
+
+- KTX `_handler_*.py` files extend `Visitor` only (per D3 + D6 -- match_events handler is the documented carve-out per the 2026-05-05 D3 amendment).
+- No KTX handler subclasses an ezQuake / FTE / MVDSV / QWCL handler.
+- Per-pattern lift candidates (Pattern 6 cross-header lift in `extractor_lib._source` from Phase 1; any new helpers introduced) are correctly placed in `extractor_lib/`, not duplicated under `ktx/`.
+- `load-version.ts` transition-scan exclusion list reconciles against the full per-type versions table inventory: tables WITHOUT a `source_file` column (`asset_category_versions`, `match_event_versions`) MUST be in the exclusion list; tables WITH a `source_file` column MUST NOT be excluded. Future entity types with non-C-source truth grow this list (per F28).
+
+Cross-project audit report at `docs/superpowers/reviews/2026-05-XX-ktx-onboarding-cross-project-audit.md`. The report documents the 5-engine lineup post-KTX, surfaces any new shape divergences, and confirms no prior-engine probe regressions.
+
+---
+
 ## Out of scope
 
 - **dusty-ktx (`qcsrc/` tree-sitter).** Different methodology -- only the `qcsrc/` QuakeC tree, not the canonical KTX C source. When dusty-ktx onboarding ships, write a parallel runbook (`VALIDATION-RUNBOOK-DUSTY-KTX.md`) covering tree-sitter-specific concerns. Canonical KTX is pure C; it uses this runbook (KTX onboarding arc lands in `docs/superpowers/plans/2026-05-04-ktx-onboarding/`).
@@ -379,3 +573,5 @@ Forks inherit the parent extractor with project-specific tweaks. The validation 
 ## Revision history
 
 - 2026-04-28: Initial draft. Methodology captured from MVDSV Phase 2e validation pass (2026-04-28) which found 4 important issues and 1 critical (info_key cross-scope silent drop). Codified as the post-ship discipline going forward.
+- 2026-05-05: F22 doctrine corrections at lines 5 + 373 -- canonical KTX is libclang-based; tree-sitter framing reserved for the dusty-ktx fork. Landed via Phase 0 of the KTX onboarding arc.
+- 2026-05-06: KTX-specific validation section added (Phase 7 of KTX onboarding arc). Per-kind row counts (14 kinds across entities + gameplay tables), JSONB regression cross-reference, idempotency probe pointer, per-migration validation probes inline (009/010/011), cross-project audit pointer. F1 quality-grid probes for KTX kinds shipped at `apps/qw-oracle/scripts/load-knowledge/quality-grid.ts`.

@@ -211,7 +211,9 @@ async function probeEntityHasVersionRows(ctx: ProbeContext): Promise<ProbeResult
 // intended structure. Failure here means a loader regressed to the legacy
 // SQLite-era TEXT-with-stringify pattern. The probe runs cross-project on a
 // single anchor (ezquake) so it doesn't quadruple-count when invoked per
-// project; other-project runs no-op.
+// project; other-project runs no-op. Phase 7 (KTX onboarding) extends the
+// target list with match_event_versions.{attributes_json,emission_call_sites_json}
+// + gameplay_{mechanics,entity_defs}.props_json (D14 + F21).
 async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResult> {
   if (ctx.project !== 'ezquake') {
     return {
@@ -238,6 +240,10 @@ async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResult> {
     { table: 'release_notes', column: 'author_handles_json' },
     { table: 'gameplay_entity_defs', column: 'ruleset_gate_json' },
     { table: 'gameplay_mechanics', column: 'ruleset_gate_json' },
+    { table: 'match_event_versions', column: 'attributes_json' },
+    { table: 'match_event_versions', column: 'emission_call_sites_json' },
+    { table: 'gameplay_mechanics', column: 'props_json' },
+    { table: 'gameplay_entity_defs', column: 'props_json' },
   ];
   const examples: string[] = [];
   let total = 0;
@@ -1383,7 +1389,9 @@ async function probeMvdsvTrailingCommentCoverageCvars(ctx: ProbeContext): Promis
 //   mvdsv:   cmdline_param=11, command=108, cvar=183, info_key=45,
 //            log_template=691, protocol_message=105, qc_builtin=93  (7 types)
 //   qwcl:    cmdline_param=72, command=121, cvar=187  (3 types)
-//   total: 26 (project, type) pairs -> 52 floor probes (count + source_state).
+//   ktx:     command=358, cvar=260, info_key=7, log_template=1195,
+//            match_event=7  (5 types)
+//   total: 31 (project, type) pairs -> 62 floor probes (count + source_state).
 //
 // Source_state distributions captured from:
 //   sqlite3 "$DB" "SELECT project, type, source_state, COUNT(*) FROM entities
@@ -1494,6 +1502,52 @@ export function makeFloorSourceStateProbe(
   };
 }
 
+export function makeGameplayKindProbe(
+  gameplay_source_id: string,
+  table: 'gameplay_entity_defs' | 'gameplay_mechanics',
+  kind: string,
+  expected: number,
+): Probe {
+  const name = `F1.${gameplay_source_id}.gameplay_kind.${kind}_count`;
+  return {
+    name,
+    family: 'regression',
+    description: `Gameplay-kind probe: ${table}[gameplay_source_id=${gameplay_source_id}, kind=${kind}] equals ${expected}.`,
+    run: async (ctx: ProbeContext): Promise<ProbeResult> => {
+      // Gameplay rows are project-scoped via gameplay_source_id; we want this
+      // probe to run when ctx.project matches gameplay_source_id semantically.
+      // Runs only under ctx.project === gameplay_source_id to avoid duplicate
+      // execution per project.
+      if (ctx.project !== gameplay_source_id) {
+        return {
+          name,
+          family: 'regression',
+          description: '',
+          status: 'PASS',
+          count: 0,
+          summary: `skipped (not ${gameplay_source_id} project)`,
+          examples: [],
+        };
+      }
+      const rows = await ctx.sql<{ n: number }[]>`
+        SELECT COUNT(*)::int AS n FROM ${ctx.sql(table)}
+        WHERE gameplay_source_id=${gameplay_source_id} AND kind=${kind}
+      `;
+      const actual = rows[0]!.n;
+      const status: ProbeStatus = actual === expected ? 'PASS' : 'FAIL';
+      return {
+        name,
+        family: 'regression',
+        description: '',
+        status,
+        count: actual,
+        summary: `${kind}: actual=${actual}, expected=${expected}`,
+        examples: [],
+      };
+    },
+  };
+}
+
 const EZQUAKE_FLOOR_PROBES: Probe[] = [
   makeFloorCountProbe('ezquake', 'asset_category', 26),
   makeFloorSourceStateProbe('ezquake', 'asset_category', { source_backed: 26 }),
@@ -1556,6 +1610,45 @@ const QWCL_FLOOR_PROBES: Probe[] = [
   makeFloorSourceStateProbe('qwcl', 'command', { source_backed: 121 }),
   makeFloorCountProbe('qwcl', 'cvar', 187),
   makeFloorSourceStateProbe('qwcl', 'cvar', { source_backed: 187 }),
+];
+
+const KTX_FLOOR_PROBES: Probe[] = [
+  // Phase 7 (KTX onboarding) -- Pass 1 entity-table types (Phase 2) +
+  // Pass 4.5 match_event (Phase 6). Counts are LIVE values at Phase 6
+  // ship (commit e0133248), not the F1-F4 + F14 floor anchors -- the
+  // anchors are floors; live counts include source-walked drift since
+  // Pass 5 (e.g., cvar 260 = 192 k_-prefixed + 68 non-k_ literal-name
+  // per Phase 2 Exhaustive Mapping Rule). Equality assertion against
+  // post-Phase-6 snapshot per the post-v17 probe convention; bump the
+  // expected value when KTX source legitimately gains/loses entries
+  // (verified by source-walk).
+  makeFloorCountProbe('ktx', 'cvar', 260),
+  makeFloorSourceStateProbe('ktx', 'cvar', { source_backed: 260 }),
+  makeFloorCountProbe('ktx', 'command', 358),
+  makeFloorSourceStateProbe('ktx', 'command', { source_backed: 358 }),
+  makeFloorCountProbe('ktx', 'info_key', 7),
+  makeFloorSourceStateProbe('ktx', 'info_key', { source_backed: 7 }),
+  makeFloorCountProbe('ktx', 'log_template', 1195),
+  makeFloorSourceStateProbe('ktx', 'log_template', { source_backed: 1195 }),
+  makeFloorCountProbe('ktx', 'match_event', 7),
+  makeFloorSourceStateProbe('ktx', 'match_event', { source_backed: 7 }),
+];
+
+const KTX_GAMEPLAY_KIND_PROBES: Probe[] = [
+  // Phase 7 (KTX onboarding) -- per-kind equality probes for the gameplay
+  // tables. Counts are LIVE values at Phase 6 ship; mode_default=317 is the
+  // shipped count (F6 had ~309 estimate; Phase 3 + Phase 5.5 retrofit
+  // confirmed 317 across parallel + serial runs). Bump expected when KTX
+  // source legitimately gains/loses entries (verified by source-walk).
+  makeGameplayKindProbe('ktx', 'gameplay_entity_defs', 'monster', 13),
+  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'game_mode', 27),
+  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'mode_default', 317),
+  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'election_type', 5),
+  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'death_rule', 27),
+  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'score_system', 3),
+  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'drop_item', 31),
+  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'loc_macro', 15),
+  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'teamplay_message', 21),
 ];
 
 // ---------------------------------------------------------------------------
@@ -1659,6 +1752,140 @@ async function probeFteEngineVsPluginEzhudSplit(ctx: ProbeContext): Promise<Prob
   };
 }
 
+async function probeKtxScoreSystemPositionsLength10(ctx: ProbeContext): Promise<ProbeResult> {
+  const name = 'F1.ktx.anchor.score_system_positions_length_10';
+  if (ctx.project !== 'ktx') {
+    return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not ktx project)', examples: [] };
+  }
+  const rows = await ctx.sql<{ name: string; n: number }[]>`
+    SELECT name, jsonb_array_length(props_json -> 'positions')::int AS n
+    FROM gameplay_mechanics
+    WHERE gameplay_source_id='ktx' AND kind='score_system'
+  `;
+  const violations = rows.filter(r => r.n !== 10);
+  return {
+    name,
+    family: 'regression',
+    description: 'every KTX score_system row has positions array length=10 (F10 invariant)',
+    status: violations.length === 0 ? 'PASS' : 'FAIL',
+    count: violations.length,
+    summary: violations.length === 0 ? `all ${rows.length} score_system rows have positions length=10` : `${violations.length} violations`,
+    examples: violations.slice(0, 5).map(r => `${r.name}: positions length=${r.n}`),
+  };
+}
+
+async function probeKtxMonstersHaveHpForKill(ctx: ProbeContext): Promise<ProbeResult> {
+  const name = 'F1.ktx.anchor.monsters_have_hp_for_kill';
+  if (ctx.project !== 'ktx') {
+    return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not ktx project)', examples: [] };
+  }
+  const rows = await ctx.sql<{ name: string }[]>`
+    SELECT name FROM gameplay_entity_defs
+    WHERE gameplay_source_id='ktx' AND kind='monster'
+      AND (props_json -> 'hp_for_kill') IS NULL
+  `;
+  return {
+    name,
+    family: 'regression',
+    description: 'every KTX monster row has props_json.hp_for_kill non-NULL (F9 amended source-faithful field name)',
+    status: rows.length === 0 ? 'PASS' : 'FAIL',
+    count: rows.length,
+    summary: rows.length === 0 ? 'all monster rows carry hp_for_kill' : `${rows.length} monster rows missing hp_for_kill`,
+    examples: rows.slice(0, 5).map(r => r.name),
+  };
+}
+
+async function probeKtxFishFirstInMonsters(ctx: ProbeContext): Promise<ProbeResult> {
+  const name = 'F1.ktx.anchor.fish_first_in_monsters';
+  if (ctx.project !== 'ktx') {
+    return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not ktx project)', examples: [] };
+  }
+  const rows = await ctx.sql<{ array_position: string | null; is_first_required: string | null }[]>`
+    SELECT (props_json ->> 'array_position') AS array_position,
+           (props_json ->> 'is_first_required') AS is_first_required
+    FROM gameplay_entity_defs
+    WHERE gameplay_source_id='ktx' AND kind='monster' AND name='monster_fish'
+  `;
+  const row = rows[0];
+  const ok = !!row && row.array_position === '0' && row.is_first_required === 'true';
+  const summary = ok
+    ? "fish is first (array_position=0, is_first_required=true)"
+    : `fish row got array_position='${row?.array_position ?? '<missing>'}' is_first_required='${row?.is_first_required ?? '<missing>'}'`;
+  return {
+    name,
+    family: 'regression',
+    description: 'monster_fish row is at array_position=0 AND is_first_required=true (sp_monsters.c source comment "FISH _MUST_ BE _FIRST_"; QC classname is monster_fish)',
+    status: ok ? 'PASS' : 'FAIL',
+    count: ok ? 0 : 1,
+    summary,
+    examples: [],
+  };
+}
+
+async function probeKtxMatchEventCount7WithAttributes(ctx: ProbeContext): Promise<ProbeResult> {
+  const name = 'F1.ktx.anchor.match_event_count_7_with_attributes';
+  if (ctx.project !== 'ktx') {
+    return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not ktx project)', examples: [] };
+  }
+  const rows = await ctx.sql<{
+    entity_count: number;
+    versions_with_attrs: number;
+    versions_with_sites: number;
+  }[]>`
+    SELECT
+      (SELECT COUNT(*)::int FROM entities WHERE project='ktx' AND type='match_event') AS entity_count,
+      (SELECT COUNT(*)::int FROM match_event_versions
+        WHERE attributes_json IS NOT NULL AND jsonb_typeof(attributes_json)='array') AS versions_with_attrs,
+      (SELECT COUNT(*)::int FROM match_event_versions
+        WHERE emission_call_sites_json IS NOT NULL AND jsonb_typeof(emission_call_sites_json)='array') AS versions_with_sites
+  `;
+  const r = rows[0]!;
+  const ok = r.entity_count === 7 && r.versions_with_attrs >= 7 && r.versions_with_sites >= 7;
+  return {
+    name,
+    family: 'regression',
+    description: 'KTX match_event count=7 (F14 anchor) AND every match_event_versions row has attributes_json (array) + emission_call_sites_json (array) (D14 JSONB shape; attributes_json stores array of attribute descriptors)',
+    status: ok ? 'PASS' : 'FAIL',
+    count: ok ? 0 : 1,
+    summary: `entities=${r.entity_count} (expected 7), versions with attrs object=${r.versions_with_attrs} (>=7), versions with sites array=${r.versions_with_sites} (>=7)`,
+    examples: [],
+  };
+}
+
+async function probeKtxDualRowLogTemplateMatchEvent(ctx: ProbeContext): Promise<ProbeResult> {
+  const name = 'F1.ktx.anchor.dual_row_design_log_template_match_event';
+  if (ctx.project !== 'ktx') {
+    return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not ktx project)', examples: [] };
+  }
+  // Per D10 + F17: every match_event has >=1 log_template peer with
+  // channel='logfile' AND format_string carrying XML markup. Live KTX
+  // log_printf format strings are FULL multi-line concatenated literals
+  // (`\t\t<event>\n\t\t\t<damage>\n...`); the per-event tab-prefix shape
+  // varies (some open with `\t\t<event>`, some with `\t<events>`, some
+  // with `<ktxlog ...>`). The dual-row invariant is: at least 7 KTX
+  // logfile rows contain XML-tag content. F23/F27 pattern: design holds,
+  // probe wording adapted from "tab-prefix matches" to "XML markup
+  // present". F17 amendment 2026-05-06 captures the relaxation.
+  const rows = await ctx.sql<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM log_template_versions lv
+    JOIN entities e ON lv.entity_id=e.id
+    WHERE e.project='ktx' AND e.type='log_template'
+      AND lv.channel='logfile'
+      AND lv.format_string LIKE '%<%>%'
+  `;
+  const n = rows[0]!.n;
+  const ok = n >= 7;
+  return {
+    name,
+    family: 'regression',
+    description: 'dual-row design holds: at least 7 KTX log_template rows with channel=logfile + XML markup (D10 + F17; F17 amendment 2026-05-06 relaxes prefix-shape to XML-tag-content)',
+    status: ok ? 'PASS' : 'FAIL',
+    count: n,
+    summary: ok ? `${n} dual-row peers present` : `only ${n} dual-row peers (expected >=7)`,
+    examples: [],
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Registry + runner
 // ---------------------------------------------------------------------------
@@ -1701,11 +1928,20 @@ const REGRESSION_PROBES: Probe[] = [
   ...FTE_FLOOR_PROBES,
   ...MVDSV_FLOOR_PROBES,
   ...QWCL_FLOOR_PROBES,
+  ...KTX_FLOOR_PROBES,
+  ...KTX_GAMEPLAY_KIND_PROBES,
   // Phase 6 anchor probes (added 2026-04-28) -- per-project load-bearing invariants.
   { name: 'F1.ezquake.anchor.gl_lightmode_ping_pong', family: 'regression', description: '', run: probeEzquakeGlLightmodePingPong },
   { name: 'F1.ezquake.anchor.doc_only_count', family: 'regression', description: '', run: probeEzquakeDocOnlyCount },
   { name: 'F1.qwcl.anchor.all_source_backed', family: 'regression', description: '', run: probeQwclAllSourceBacked },
   { name: 'F1.fte.anchor.engine_vs_plugin_ezhud_split', family: 'regression', description: '', run: probeFteEngineVsPluginEzhudSplit },
+  // KTX anchor probes (added 2026-05-06) -- per-project load-bearing invariants
+  // for KTX onboarding (F5-F14 anchors + D10 dual-row design + D14 JSONB shape).
+  { name: 'F1.ktx.anchor.score_system_positions_length_10', family: 'regression', description: '', run: probeKtxScoreSystemPositionsLength10 },
+  { name: 'F1.ktx.anchor.monsters_have_hp_for_kill', family: 'regression', description: '', run: probeKtxMonstersHaveHpForKill },
+  { name: 'F1.ktx.anchor.fish_first_in_monsters', family: 'regression', description: '', run: probeKtxFishFirstInMonsters },
+  { name: 'F1.ktx.anchor.match_event_count_7_with_attributes', family: 'regression', description: '', run: probeKtxMatchEventCount7WithAttributes },
+  { name: 'F1.ktx.anchor.dual_row_design_log_template_match_event', family: 'regression', description: '', run: probeKtxDualRowLogTemplateMatchEvent },
 ];
 
 const ANOMALY_PROBES: Probe[] = [

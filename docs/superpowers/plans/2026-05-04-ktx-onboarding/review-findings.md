@@ -509,6 +509,26 @@ Phase 8 EXTRACTOR-PLAYBOOK addition candidate: "Pattern 9 (banner harvest) cover
 
 ---
 
+### F29 -- Phase 7 MD anchor probe-spec drifts (discovered during Phase 7 execution)
+
+**Resolved by:** Probes shipped with corrected predicates inline; handler/data correctness confirmed; Phase 8 PLAYBOOK note candidate for "anchor probe drafter must verify against live data, not paraphrase the spec."
+
+**Evidence (2026-05-06):** Phase 7 MD's Task 3 anchor probe specifications drifted from live dev DB shape on three predicates. All three are probe-wording calibration drift; the underlying handler / D10 / D14 / F9 / F14 / F17 invariants hold. Direct precedent: F23 (Phase 2 probe 5 tab-depth) + F27 (Pattern 9 banner-coverage).
+
+1. **Anchor 3 (`fish_first_in_monsters`) -- monster name shape.** Phase 7 MD specified `WHERE name='fish'` against `gameplay_entity_defs`. Live KTX rows store the full id1-classname form (`monster_fish`, `monster_ogre`, `monster_demon1`, `monster_shambler`, `monster_knight`, ...). Phase 7 MD's predicate returned 0 rows; corrected to `WHERE name='monster_fish'` at executor time. The F9 `array_position=0 AND is_first_required=true` invariant holds against the corrected row.
+
+2. **Anchor 4 (`match_event_count_7_with_attributes`) -- attributes_json shape.** Phase 7 MD specified `jsonb_typeof(attributes_json)='object'`. Live rows hold a JSONB **array** of attribute-descriptor objects (`[{"name":"time","type":"xs:decimal","constraint":null}, ...]`); per-event lengths span 4-8 per F14's "Per-event attribute counts: pick_mapitem=4, backpack-events=7, powerup-events=4, damage=8, death=8" anchor. The array-of-objects shape matches F14's intent (countable attribute slots); the MD's `'object'` predicate was a wording slip. Corrected to `jsonb_typeof(attributes_json)='array'` at executor time. D14 JSONB integrity intent preserved (no string scalars).
+
+3. **Anchor 5 (`dual_row_design_log_template_match_event`) -- format_string prefix shape.** Phase 7 MD specified `format_string LIKE E'\t\t\t<%'` (three-tab opener). Live KTX log_printf format strings are the FULL multi-line concatenated literals; the actual openers vary by wrapper level (`\t\t<event>\n`, `\t<events>\n`, `\t<match_info>\n`, `</ktxlog>\n`, `<ktxlog xmlns:xsi=...>\n`, etc.). The MD's three-tab prefix matches 0 rows. Live: 16 KTX channel='logfile' rows total; 15 contain XML-tag content. Corrected predicate to `format_string LIKE '%<%>%'` (XML markup anywhere); 15 of 16 rows match; >= 7 invariant holds. D10/F17 dual-row design holds.
+
+**Common cause:** Phase 7 MD's anchor probes were drafted from spec / source-walk projections rather than live dev DB shape. The same source-walk discipline that Pass 5 codified (per F9/F11/F12/F13 amendments and the "phase MD drafters MUST source-walk during draft" commendation in this file) applies to anchor probe drafters: verify probe predicates against live data BEFORE shipping, not against spec paraphrase.
+
+**Disposition:** All three Phase 7 anchor probes ship with corrected predicates and PASS at boundary verification. F-prose preservation: F9 / F14 / F17 anchors and amendments unchanged; F29 captures the Phase 7 MD probe-wording drift as a sibling finding (not an amendment to those existing findings, since the underlying anchors / handler / data are unaffected). Phase 8 EXTRACTOR-PLAYBOOK candidate: "Anchor probe authors verify predicates against live dev DB before shipping; spec paraphrase is the most common drift source."
+
+**Phase ownership:** Phase 7 (discovered and corrected inline during execution); Phase 8 (PLAYBOOK note candidate joining F23 / F27 / F29 as the third instance of the same probe-spec-drift class).
+
+---
+
 ## Phase ownership of findings
 
 | Phase | Findings to verify before sign-off |
@@ -520,8 +540,8 @@ Phase 8 EXTRACTOR-PLAYBOOK addition candidate: "Pattern 9 (banner harvest) cover
 | Phase 4 | F7 (5 election_type rows; skip etNone), F8 (27 death_rule rows; skip dtNONE/dtUNKNOWN; keep dtCHANGELEVEL) |
 | Phase 5 | F9 (13 monsters; hp_for_kill amendment), F10 (3 score_systems; positions length=10 invariant), F11 (31 drop_items amended; H_ROTTEN/H_MEGA/WEAPON_BIG2 fallback per F26 second amendment), F12 (15 loc_macros), F13 (21 teamplay_messages; Pattern 9 harvest with 0% coverage per F27), F26 (collect_file_macros string-literal-only -- inline fix), F27 (Pattern 9 banner-coverage probe calibration -- inline rationale) |
 | Phase 6 | F14 (7 match_events + 13 emission sites; third 2026-05-06 amendment for complexType-vs-event terminology), F17 (also emits emission_call_sites_json; intentional), F28 (non-Visitor handler infrastructure gaps -- drained inline) |
-| Phase 7 | F21 (validation runbook + F1 probes + JSONB regression gate + cross-project audit), F28 (cross-project audit probe -- exclusion-list-vs-per-type-versions-table reconciliation) |
-| Phase 8 | F19 (doctrine fixes survived; no recursion), F20 (HANDOVER backlog item absorbed), F17 (PLAYBOOK addition for dual-row design), F22 (VALIDATION-RUNBOOK.md doctrine fix survived), F26 (PLAYBOOK note candidate for Pattern 6 string-literal scope), F27 (PLAYBOOK note candidate for Pattern 9 coverage variability), F28 (PLAYBOOK note candidate for non-Visitor / non-libclang handler patterns -- full lifecycle stub list + transition-scan exclusion convention) |
+| Phase 7 | F21 (validation runbook + F1 probes + JSONB regression gate + cross-project audit), F28 (cross-project audit probe -- exclusion-list-vs-per-type-versions-table reconciliation), F29 (Phase 7 MD anchor probe-spec drifts -- corrected inline) |
+| Phase 8 | F19 (doctrine fixes survived; no recursion), F20 (HANDOVER backlog item absorbed), F17 (PLAYBOOK addition for dual-row design), F22 (VALIDATION-RUNBOOK.md doctrine fix survived), F26 (PLAYBOOK note candidate for Pattern 6 string-literal scope), F27 (PLAYBOOK note candidate for Pattern 9 coverage variability), F28 (PLAYBOOK note candidate for non-Visitor / non-libclang handler patterns -- full lifecycle stub list + transition-scan exclusion convention), F29 (PLAYBOOK note candidate for anchor probe live-data verification discipline) |
 
 ---
 
