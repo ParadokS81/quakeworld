@@ -1,8 +1,8 @@
 # Slipgate Managed Mode -- Brainstorm Pass 5 Ratifications (PARTIAL)
 
-> **Captured 2026-05-05.** Bridge document between the Pass 5 brainstorm session and the canonical drain pass. **PARTIAL: 5.1 complete; 5.2 (Launch UX) and 5.3 (Manifest backup UX) pending.** This doc is a save point — append remaining sub-questions in a future session, then drain Pass 4 + Pass 5 together.
+> **Captured 2026-05-05; 5.2 appended 2026-05-06.** Bridge document between the Pass 5 brainstorm session and the canonical drain pass. **PARTIAL: 5.1 + 5.2 complete; 5.3 (Manifest backup UX) pending.** This doc is a save point — append 5.3 in a future session, then drain Pass 4 + Pass 5 together.
 >
-> **Status:** 5.1 brainstorm complete; 5.2 + 5.3 not yet started; drain pending.
+> **Status:** 5.1 + 5.2 brainstorm complete; 5.3 not yet started; drain pending.
 >
 > **Companion docs:**
 > - Vision: `docs/superpowers/specs/2026-04-28-slipgate-managed-mode-vision.md`
@@ -19,8 +19,8 @@
 
 Three sub-questions:
 
-- **5.1** Runtime swap class taxonomy + engine IPC scope -- **COMPLETE**
-- **5.2** Launch UX (multi-instance launch, gamedir picker, default-launch-target, primary/active interaction) -- **PENDING**
+- **5.1** Runtime swap class taxonomy + engine IPC scope -- **COMPLETE 2026-05-05**
+- **5.2** Launch UX (app-open behavior, profile-switch, engine-launch, gamedir-model amendment, engine-exit, multi-instance) -- **COMPLETE 2026-05-06**
 - **5.3** Manifest backup UX (backup state surface, backup targets, restore flow) -- **PENDING**
 
 ---
@@ -165,6 +165,81 @@ Cvar-level drift detection itself works for both engines (parser is engine-agnos
 
 ---
 
+## 5.2 -- Launch UX
+
+### Mental model recalibration
+
+5.2 brainstorm reframed slipgate's role: the app primarily controls the quakedir; engine launch is one button among many, not the primary surface. Most app interactions don't involve booting the engine. This collapsed an over-engineered "launch pipeline" proposal into a simpler scenario-driven model with five distinct surfaces (app-open / profile-switch / engine-launch / engine-exit / app-close).
+
+Operator framing: "an app that i use to control my quakedir basically. once i have installed/imported my quake setup ... next time i open my app, thats it. if i goto my quake it just shows the browse mode and i can browse around."
+
+### Locked decisions: app-open behavior
+
+- **Default surface on app open:** last view in Browse mode of active profile. No engine auto-launch.
+- **Active profile persists across slipgate sessions** via `active_profile_id` in `profile-roles.json` (Pass 3.2 already locked the field; this confirms persistence semantic). Closing slipgate while on a fork -> reopening on the fork. Forks are not session-scoped.
+- **Drift detection on app open is non-blocking.** If active profile is a fork with parent-drift available, slipgate runs drift detection in the background. If drift exists, a small non-intrusive UI indicator surfaces ("Drift from main: X cvars, Y assets -- review"). User reviews when ready; never blocks daily flow.
+- If active is primary or fork-without-drift: no indicator, no prompt.
+
+### Locked decisions: profile-switch behavior
+
+- **Drift detection on profile switch is blocking.** When user picks a different profile from the profile manager and the new active is a fork with drift, drift prompt fires HERE -- at the moment of intentional context change. User reviews/imports/skips before switch completes.
+- Switching to primary or to a fork-without-drift: instant switch; tree rematerializes to match new active manifest; UI updates.
+- Active profile updates persistently.
+
+### Locked decisions: engine-launch behavior
+
+- **Engine launch is a separate gesture from app-open.** User explicitly clicks Launch (or hits hotkey).
+- **Drift on engine launch:** if drift indicator was visible from app-open and user has not reviewed, light one-liner prompt -- "Pending drift from main. [Review now] [Skip and launch]". Not the full drift dialog; just two buttons.
+- **Default gamedir is always `qw`.** No picker; no `+gamedir` command-line arg in V1. ezQuake handles server-pushed gamedir changes natively at runtime (auto-download into mod-cache; Pass 3.3 bucket 4 + Pass 3.4 Case 3 capture/swap territory).
+- **Launch-prep step:** copy `user-asset:config` role entries from blob to tree (per-role materialization mode, Pass 5.1b). Configs are KB; trivial cost.
+- **Engine command-line:** working-dir = `<data-root>/active-tree/`. No additional args V1.
+- Slipgate connects to mailslot once engine is ready.
+
+### Locked decisions: gamedir model amendment (Pass 1 anchor item 3)
+
+5.2 brainstorm uncovered a wrong mental-model assumption baked into Pass 1 anchor item 3 ("Launcher offers a per-launch gamedir picker when length > 1"). The picker is wrong UX for QW.
+
+**How QW gamedirs actually work** (operator's correction, 2026-05-06):
+- Engine starts with default gamedir (`qw`).
+- When client joins a server, the server tells the client which gamedir is required; engine switches automatically.
+- Files for the new gamedir auto-download on the fly if missing.
+- User does NOT pre-select gamedir at launch in normal play.
+- Pre-selecting a gamedir is ONLY relevant for offline single-player mods / expansions (hipnotic, rogue, Painkeep, custom SP). Niche use case; mostly served by FTE single-player community.
+
+**V1 amendments to Pass 1 anchor item 3:**
+- **`declared_gamedirs` field stays as manifest metadata** -- but its meaning is "what gamedirs does this profile have content for" (so library mod-content materializes into the right places when a server later pushes a gamedir change), NOT "what gamedir to launch with."
+- **Per-launch gamedir picker is dropped** from V1 entirely. Likely V1+ scope as well; gamedir UX as a prominent surface waits for the future mod-browser arc.
+- **Pass 5.1b "gamedir change -> Class 3"** interpretation refined: applies only to RARE user-initiated cases (user switches profiles where new profile's primary gamedir differs and they want to start in that gamedir for offline SP play). Common case (server pushes gamedir change at runtime) is engine-native; slipgate doesn't intervene.
+
+### Locked decisions: engine-exit behavior (downstream of Pass 3.4)
+
+- Stage 2 capture/swap pipeline fires immediately on engine exit.
+- If slipgate UI in focus: cleanup notification surfaces immediately in slipgate.
+- If slipgate in tray: tray icon badges; cleanup notification queues for next slipgate-focus.
+- Auto-mode opt-in (Pass 3.4) skips cleanup prompt for high-confidence + integrity-pass entries.
+
+### Locked decisions: app-close behavior
+
+- Active profile persists (no auto-reset to primary).
+- Pending drift remains pending; re-checks on next slipgate open.
+- `.pending-swap.json` state persists for any uncaptured engine writes.
+- Capture/swap doesn't auto-fire on slipgate close (engine isn't running anyway; pipeline stages on engine-exit, not slipgate-close).
+
+### Locked decisions: multi-instance + auto-launch
+
+- **Multi-instance V1 = single-instance only.** Launching while engine already runs prompts "Engine is already running for profile <X>. [Bring to focus] [Quit and relaunch] [Cancel]". Multi-instance with concurrent active trees is V1+ substrate work (would need multi-tree support).
+- **Auto-launch engine on app-open: no by default.** V1+ opt-in for power users.
+
+### Affected canonical docs (5.2)
+
+- **Architecture spec Pre-Pass anchor block:** update Pass 5 status to "5.1 + 5.2 COMPLETE 2026-05-06; 5.3 pending."
+- **Architecture spec anchor item 3 (`declared_gamedirs`):** amend -- field stays as manifest metadata for "gamedirs this profile has content for"; per-launch picker dropped from V1; server-pushed gamedir handling clarified as engine-native runtime behavior.
+- **Architecture spec Engine integration / Launch UX:** add the five-scenario walkthrough (app-open / profile-switch / engine-launch / engine-exit / app-close) as the canonical mental model. Note non-blocking-on-app-open drift + blocking-on-profile-switch drift + light-prompt-on-engine-launch drift as the three drift-trigger points.
+- **Architecture spec Active vs Launched:** confirm `active_profile_id` is durably persisted across slipgate sessions (no session-scoped reset).
+- **Architecture spec Open architectural questions:** mark Pass 5.2 resolved.
+
+---
+
 ## Pass 5 carry-forwards
 
 ### V1+ refinements within slipgate Managed Mode arcs
@@ -198,10 +273,12 @@ Read in this order:
 
 ### Step 2 -- Architecture spec body edits
 
-Pass 4 + Pass 5 (5.1) edits are summarized above. Cross-section consistency to watch for:
+Pass 4 + Pass 5 (5.1 + 5.2) edits are summarized above. Cross-section consistency to watch for:
 - Pass 1 anchor item 1 amendment (per-role materialization mode) cascades to materializer description in Storage Layout + Primitive operations.
+- Pass 1 anchor item 3 amendment (drop per-launch gamedir picker; field stays as metadata) cascades to Engine integration + Manifest as Profile.
 - Pass 3.2 amendment (drift detection) cascades to Manifest as Profile schema, fork primitive, clone modal docs.
 - Pass 5 (5.1) full taxonomy replaces Pass 1 anchor item 5 placeholder; affects Engine integration section + Slipgate self-knowledge surface (ninth table).
+- Pass 5 (5.2) Launch UX scenario walkthrough lands in Engine integration; non-blocking-on-app-open + blocking-on-profile-switch + light-prompt-on-engine-launch drift triggers cross-reference Pass 3.2's drift detection mechanics.
 
 ### Step 3 -- Roadmap edits
 
@@ -237,6 +314,8 @@ After drain (or in parallel if context budget allows), append 5.2 (Launch UX) an
 
 ## Provenance
 
-This doc is the partial output of a Pass 5 brainstorm session on 2026-05-05. The 5.1 portion brainstormed extensively, generating substrate amendments back into Pass 1 + Pass 3.2 plus a new Pass 5 surface (reload-cost registry). Two subagent verification passes anchored the brainstorm: (1) ezQuake `cfg_save` write semantics confirming truncate-write through hardlinks corrupts blobs (`src/config_manager.c:826` etc.); (2) ezQuake runtime asset-reload semantics across `vid_restart` / `s_restart` / `gamedir` / `exec` / `cfg_load` / `fs_restart` / `skins` / `loadcharset` / `loadsky` / `hud_recalculate` / `vid_reload`. Both verifications grounded design decisions in primary-source evidence rather than speculation, per the operator's verification-discipline preference.
+This doc is the partial output of a multi-session Pass 5 brainstorm. **5.1 (2026-05-05)** brainstormed extensively, generating substrate amendments back into Pass 1 + Pass 3.2 plus a new Pass 5 surface (reload-cost registry). Two subagent verification passes anchored 5.1: (1) ezQuake `cfg_save` write semantics confirming truncate-write through hardlinks corrupts blobs (`src/config_manager.c:826` etc.); (2) ezQuake runtime asset-reload semantics across `vid_restart` / `s_restart` / `gamedir` / `exec` / `cfg_load` / `fs_restart` / `skins` / `loadcharset` / `loadsky` / `hud_recalculate` / `vid_reload`. Both verifications grounded design decisions in primary-source evidence rather than speculation, per the operator's verification-discipline preference.
 
-5.2 + 5.3 remain pending. Resumed-session work should append to this doc rather than starting a new bridge doc.
+**5.2 (2026-05-06)** reframed launch UX around the operator's mental model of slipgate as a quakedir manager (not an engine-launch ceremony). Five distinct surfaces locked (app-open / profile-switch / engine-launch / engine-exit / app-close); drift-detection trigger points differentiated per surface; gamedir mental-model corrected (Pass 1 anchor item 3 amended -- per-launch picker dropped, field stays as metadata); auto-launch + multi-instance deferred to V1+.
+
+5.3 remains pending. Resumed-session work should append to this doc rather than starting a new bridge doc.
