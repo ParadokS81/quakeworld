@@ -454,20 +454,20 @@ Each migration's CHECK widening and table/index existence is verified by the SQL
 -- Positive insert: 'logfile' admitted.
 BEGIN;
 INSERT INTO entities (project, type, name, canonical_id, source_state, first_seen_version, last_seen_version, created_at, updated_at)
-  VALUES ('ktx', 'log_template', 'STUB_LF_POS', 'ktx:log_template:STUB_LF_POS', 'source_backed', 'head', 'head', NOW(), NOW())
-  RETURNING id;  -- :id1
-INSERT INTO log_template_versions (entity_id, version, channel, format_string, source_file, source_line, all_call_sites_json)
-  VALUES (:id1, 'head', 'logfile', 'STUB', 'stub.c', 1, '[]'::jsonb);
+  VALUES ('ktx', 'log_template', 'STUB_LF_POS', 'ktx:log_template:STUB_LF_POS', 'source_backed', 'head', 'head', NOW(), NOW());
+INSERT INTO log_template_versions (entity_id, version, channel, format_string, format_string_normalized, source_file, source_line, all_call_sites_json, extracted_at)
+  SELECT id, 'head', 'logfile', 'STUB', 'stub', 'stub.c', 1, '[]'::jsonb, NOW()
+  FROM entities WHERE name='STUB_LF_POS' AND project='ktx';
 -- PASS: both inserts succeed.
 ROLLBACK;
 
 -- Negative shape: 'nonexistent_channel' rejected.
 BEGIN;
 INSERT INTO entities (project, type, name, canonical_id, source_state, first_seen_version, last_seen_version, created_at, updated_at)
-  VALUES ('ktx', 'log_template', 'STUB_LF_NEG', 'ktx:log_template:STUB_LF_NEG', 'source_backed', 'head', 'head', NOW(), NOW())
-  RETURNING id;  -- :id1
-INSERT INTO log_template_versions (entity_id, version, channel, format_string, source_file, source_line, all_call_sites_json)
-  VALUES (:id1, 'head', 'nonexistent_channel', 'STUB', 'stub.c', 1, '[]'::jsonb);
+  VALUES ('ktx', 'log_template', 'STUB_LF_NEG', 'ktx:log_template:STUB_LF_NEG', 'source_backed', 'head', 'head', NOW(), NOW());
+INSERT INTO log_template_versions (entity_id, version, channel, format_string, format_string_normalized, source_file, source_line, all_call_sites_json, extracted_at)
+  SELECT id, 'head', 'nonexistent_channel', 'STUB', 'stub', 'stub.c', 1, '[]'::jsonb, NOW()
+  FROM entities WHERE name='STUB_LF_NEG' AND project='ktx';
 -- PASS: second insert raises CHECK violation.
 ROLLBACK;
 ```
@@ -479,19 +479,19 @@ ROLLBACK;
 SELECT to_regclass('match_event_versions') IS NOT NULL AS exists;
 -- PASS: returns t.
 
--- 2 indexes exist (idx_match_event_versions_complex_type + idx_match_event_versions_xsd_version).
+-- 3 indexes exist: PK index + idx_match_event_versions_complex_type + idx_match_event_versions_xsd_version.
 SELECT indexname FROM pg_indexes
 WHERE tablename='match_event_versions'
 ORDER BY indexname;
--- PASS: returns 2 indexnames matching the migration content.
+-- PASS: returns 3 indexnames (the implicit PK index plus the 2 named indexes from the migration).
 
 -- Positive insert: type='match_event' admitted; paired versions row inserts.
 BEGIN;
 INSERT INTO entities (project, type, name, canonical_id, source_state, first_seen_version, last_seen_version, created_at, updated_at)
-  VALUES ('ktx', 'match_event', 'STUB_ME_POS', 'ktx:match_event:STUB_ME_POS', 'source_backed', 'head', 'head', NOW(), NOW())
-  RETURNING id;  -- :id1
-INSERT INTO match_event_versions (entity_id, version, complex_type, xsd_version, attributes_json, emission_call_sites_json)
-  VALUES (:id1, 'head', 'pick_mapitem', '0.1', '[{"name":"item_name","type":"xs:string","constraint":null}]'::jsonb, '[]'::jsonb);
+  VALUES ('ktx', 'match_event', 'STUB_ME_POS', 'ktx:match_event:STUB_ME_POS', 'source_backed', 'head', 'head', NOW(), NOW());
+INSERT INTO match_event_versions (entity_id, version, event_name, complex_type, xsd_path, attributes_json, extracted_at)
+  SELECT id, 'head', 'pick_mapitem', 'mapitemtype', 'resources/extralog/ktxlog_0.1.xsd', '[{"name":"item_name","type":"xs:string","constraint":null}]'::jsonb, NOW()
+  FROM entities WHERE name='STUB_ME_POS' AND project='ktx';
 -- PASS: both inserts succeed.
 ROLLBACK;
 
@@ -512,39 +512,41 @@ SELECT id FROM gameplay_sources WHERE id='ktx';
 
 -- Positive inserts: 1 monster row in gameplay_entity_defs.
 BEGIN;
-INSERT INTO gameplay_entity_defs (gameplay_source_id, kind, name, ruleset_gate_json, props_json)
-  VALUES ('ktx', 'monster', 'STUB_MONSTER', '{}'::jsonb, '{}'::jsonb);
+INSERT INTO gameplay_entity_defs (gameplay_source_id, kind, name, source_ref, ruleset_gate_json, props_json)
+  VALUES ('ktx', 'monster', 'STUB_MONSTER', 'stub.c:1', '{}'::jsonb, '{}'::jsonb);
 -- PASS: insert succeeds.
 ROLLBACK;
 
 -- Positive inserts: 7 stub rows for new gameplay_mechanics.kind values.
+-- Note: nested DO + ROLLBACK is invalid; use a savepoint loop instead.
+BEGIN;
 DO $$
 DECLARE k text;
 BEGIN
   FOR k IN VALUES ('game_mode'),('mode_default'),('election_type'),('score_system'),('drop_item'),('loc_macro'),('teamplay_message')
   LOOP
     BEGIN
-      INSERT INTO gameplay_mechanics (gameplay_source_id, kind, name, ruleset_gate_json, props_json)
-        VALUES ('ktx', k, 'STUB_'||k, '{}'::jsonb, '{}'::jsonb);
+      INSERT INTO gameplay_mechanics (gameplay_source_id, kind, name, source_ref, ruleset_gate_json, props_json)
+        VALUES ('ktx', k, 'STUB_'||k, 'stub.c:1', '{}'::jsonb, '{}'::jsonb);
       RAISE NOTICE 'OK: %', k;
     EXCEPTION WHEN OTHERS THEN
       RAISE NOTICE 'FAIL: %', k;
     END;
   END LOOP;
-  ROLLBACK;
 END $$;
 -- PASS: 7 NOTICE OK lines.
+ROLLBACK;
 
 -- Negative shape: kind='nonexistent_kind' rejected in both tables.
 BEGIN;
-INSERT INTO gameplay_entity_defs (gameplay_source_id, kind, name, ruleset_gate_json, props_json)
-  VALUES ('ktx', 'nonexistent_kind', 'STUB_ED_NEG', '{}'::jsonb, '{}'::jsonb);
+INSERT INTO gameplay_entity_defs (gameplay_source_id, kind, name, source_ref, ruleset_gate_json, props_json)
+  VALUES ('ktx', 'nonexistent_kind', 'STUB_ED_NEG', 'stub.c:1', '{}'::jsonb, '{}'::jsonb);
 -- PASS: insert raises CHECK violation.
 ROLLBACK;
 
 BEGIN;
-INSERT INTO gameplay_mechanics (gameplay_source_id, kind, name, ruleset_gate_json, props_json)
-  VALUES ('ktx', 'nonexistent_kind', 'STUB_GM_NEG', '{}'::jsonb, '{}'::jsonb);
+INSERT INTO gameplay_mechanics (gameplay_source_id, kind, name, source_ref, ruleset_gate_json, props_json)
+  VALUES ('ktx', 'nonexistent_kind', 'STUB_GM_NEG', 'stub.c:1', '{}'::jsonb, '{}'::jsonb);
 -- PASS: insert raises CHECK violation.
 ROLLBACK;
 ```
