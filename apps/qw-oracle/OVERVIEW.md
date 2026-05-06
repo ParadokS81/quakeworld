@@ -30,7 +30,7 @@ The single source of truth for "what does Oracle currently know about?". Update 
 | `fte` | engine | per-version arc | `build-6698` (SHA `35843773`) | Phase 2d-core + Phase 2d-bundle SHIPPED 2026-04-26/27 |
 | `qwcl` | engine | per-version arc | `2.33` (canonical alias for commit `bf4ac42`) | shipped 2026-04-25 (single tag, no asset taxonomy) |
 | `mvdsv` | engine (server) | per-version arc | `head` (`f816d28`, 2026-01-04 snapshot) | Phase 2e SHIPPED 2026-04-27; no client snapshot |
-| `ktx` | engine (mod, C) | per-version arc | — | not started; libclang-based (canonical KTX is pure C; dusty-ktx fork's `qcsrc/` is QuakeC and out of scope for canonical onboarding) |
+| `ktx` | engine (mod, C) | per-version arc | `1.46` | shipped 2026-05-06 (KTX onboarding arc); cvars + commands + info_keys + log_templates + game_mode catalog + mode_default overlays + election_type + death_rule + monster + score_system + drop_item + loc_macro + teamplay_message + match_event entity type |
 | `qw` | game content + game mechanics | flat per-domain tables (no version arc) | sentinel `static` | maps + id1 baseline gameplay shipped 2026-04-27 |
 
 For per-namespace entity counts at HEAD, query `entities` directly:
@@ -41,7 +41,7 @@ SELECT project, type, COUNT(*) FROM entities GROUP BY project, type;
 **Deep-time walk floor for ezQuake is `v3.0`** (2016-06-04). Pre-3.0 era is **deliberately de-scoped** per 2026-04-25 chat with infiniti — security framing (pre-3.6 has known attack vectors; Oracle should not surface settings nudging users into vulnerable defaults) plus diminishing-returns. Walk procedure documented in `docs/layer1-extraction-roadmap.md`.
 
 **Still open on Layer 1:**
-- **Phase 2e KTX** — libclang-based (canonical KTX is pure C); foundations cleaned by zero-debt-before-KTX arc 2026-04-29; ships under arc plan `docs/superpowers/plans/2026-05-04-ktx-onboarding/`.
+- (KTX onboarding shipped via the 2026-05-04 KTX onboarding arc; see `docs/arc-history.md` for the chronological ship log.)
 - **Phase 2f historical backfill** beyond ezQuake — FTE / QWCL / MVDSV today are single-version. Multi-version walks must re-extract under post-Phase-6 handlers (HANDOVER: "Cross-extractor Phase 6 residuals — Deep-time-walk re-extract obligation").
 - **Phase 2g MCP tool upgrades** — `version` / `as_of` parameters, `get_entity_history`, version/date filters on `search_entities`.
 - **Phase 2h automation** — scheduled tag-delta job (detect new upstream tag → extract → load → enrich → insert).
@@ -64,33 +64,33 @@ Layer 2 enrichment — segment / classify / summarise / session-summary embeddin
 
 ---
 
-## Code landmarks — where to find things
+## Code landmarks - where to find things
 
 | If you want to... | Look at... |
 |---|---|
-| Add a new entity type | `scripts/load-knowledge/schema.ts` (new `*_versions` table + CHECK widening) → `types.ts` (row interface) → `natural-keys.ts` (upsert helper) → new `load-<type>.ts` adapter → `load-version.ts` (register in dispatcher) → `diff-versions.ts` (`TYPE_DIFF_CONFIGS` entry) |
-| Change how diff blame is resolved | `scripts/load-knowledge/diff-versions.ts` — the Map preload + override-lookup hot loop |
-| Add per-field blame for a new type | Extractor emits `field_source_lines` payload → adapter calls `upsertSourceOverride` with `override_kind` |
-| Tune the regression drop-guard | `scripts/load-knowledge/load-version.ts` — the `dropGuard` check |
+| Add a new entity type | Author a new migration in `db/migrations/<NNN>_<name>.sql` (new `*_versions` table + CHECK widening) -> `scripts/load-knowledge/types.ts` (row interface) -> `scripts/load-knowledge/natural-keys.ts` (upsert helper) -> new `scripts/load-knowledge/load-<type>.ts` adapter -> `scripts/load-knowledge/load-version.ts` (register in dispatcher) -> `scripts/load-knowledge/diff-versions.ts` (`TYPE_DIFF_CONFIGS` entry) |
+| Change how diff blame is resolved | `scripts/load-knowledge/diff-versions.ts` -- the Map preload + override-lookup hot loop |
+| Add per-field blame for a new type | Extractor emits `field_source_lines` payload -> adapter calls `upsertSourceOverride` with `override_kind` |
+| Tune the regression drop-guard | `scripts/load-knowledge/load-version.ts` -- the `dropGuard` check |
 | Add a loader CLI subcommand | `scripts/load-knowledge/index.ts` (the dispatcher is the source of truth for what's wired) |
-| Add an MCP tool | `serve/mcp/src/tools/<name>.ts` + register in `src/index.ts`. The 10 current tools live there. |
-| Migrate schema (additive — new column on existing table) | `schema.ts` — bump `SCHEMA_VERSION`, add `SCHEMA_V<N>_MIGRATION_SQL`, add `migrateV<N-1>ToV<N>`, extend `applySchema` chain. Pattern at v7. |
-| Migrate schema (CHECK widening on existing column) | `schema.ts` — table rebuild required (SQLite can't ALTER CHECK in place). Pattern at v8 / v10 / v12. Update the v3 `CREATE TABLE` block too so fresh DBs land on the widened CHECK. |
+| Add an MCP tool | `serve/mcp/src/tools/<name>.ts` + register in `src/index.ts`. The 12 current tools live there. |
+| Migrate schema (additive -- new column on existing table) | New migration file in `db/migrations/<NNN>_<name>.sql`; apply with `bun db/migrate.ts`. Pure-additive `ALTER TABLE ADD COLUMN` is the simplest case. Update `SCHEMA.md` alongside. |
+| Migrate schema (CHECK widening on existing column) | New migration file under `db/migrations/`. PostgreSQL `ALTER TABLE ... DROP CONSTRAINT ... + ADD CONSTRAINT ...` -- no table rebuild required for additive value-set changes (the SQLite-era table-rebuild pattern is gone). |
 | Verify a phase ran correctly | `scripts/load-knowledge/e2e-verify.md` |
-| Add a new extractor codebase | `scripts/extractors/<project>/extract.py` (Python + libclang 18; canonical KTX uses libclang too). Cross-engine pattern in `scripts/extractors/EXTRACTOR-PLAYBOOK.md`. Use the `onboard-extractor` user-global skill. |
+| Add a new extractor codebase | `scripts/extractors/<project>/extract.py` (Python + libclang 18; canonical KTX uses libclang too -- only dusty-ktx fork's `qcsrc/` would need tree-sitter when that arc lands). Cross-engine pattern in `scripts/extractors/EXTRACTOR-PLAYBOOK.md`. Use the `onboard-extractor` user-global skill. |
 | Author or update a Layer 3 concept note | `curated/concept-notes/`. Template at `curated/concept-notes/README.md`; stewardship at `curated/concept-notes/OPERATIONS.md`; gap-report seeds the upstream contributor kit. Use the `guide-rewrite` user-global skill. |
 
 ---
 
 ## Design intent — invariants that aren't grep-able
 
-**Two-DB split is intentional.** `knowledge.db` is regenerable from source; `qw.db` is regenerable from raw import dumps. Neither is committed. The split keeps Layer 1's per-version arc model from cross-pollinating the Layer 2 corpus's "raw is immutable" rule.
+**Layer 1 vs Layer 2 lifecycle is intentional.** Layer 1 (engine entities + `qw` namespace) regenerates from source via the extractor pipeline; Layer 2 (Discord corpus) regenerates from raw import dumps. Both layers live in the single Postgres dev DB (`qw_oracle`); the lifecycle separation is enforced by which loader writes which schema, not by separate DB files. The split keeps Layer 1's per-version arc model from cross-pollinating the Layer 2 corpus's "raw is immutable" rule.
 
 **Per-version arc model is for engine entities only.** The `qw` namespace skips the entire arc (no `entities` row, no per-version snapshot, no `project` column on `qw`-namespace tables, sentinel version `static`). Game content doesn't change with engine versions; engine ports do.
 
 **`source_state` is biographical-by-design.** Entity-level `source_state` captures "ever was source-backed at some loaded version" — per-version `source_file` is current-state. Documented at `scripts/load-knowledge/load-version.ts:580-585` and aligns with the source-truth-dichotomy memory (`memory/project_qw_oracle_source_truth.md`). Consumers reading entity-level state without checking the per-version transition log will misclassify retired entities; that's a CONSUMER-side concern (slipgate), not an extractor bug.
 
-**Snapshot distribution is the slipgate consumer interface.** `build-snapshot --project <p>` reads `knowledge.db` and emits slipgate-shaped JSON into `apps/slipgate-app/src/lib/config/data/`. Per-record shape: original slipgate fields + 5 enrichment fields (source_state, first_seen_version, last_seen_version, optional default_history, optional retired_at_version). `mvdsv` is intentionally NOT snapshotted (server-side; slipgate is the client). Output filenames documented in `serve/mcp/` consumers and `e2e-verify.md`.
+**Snapshot distribution is the slipgate consumer interface.** `build-snapshot --project <p>` reads the Postgres dev DB and emits slipgate-shaped JSON into `apps/slipgate-app/src/lib/config/data/`. Per-record shape: original slipgate fields + 5 enrichment fields (source_state, first_seen_version, last_seen_version, optional default_history, optional retired_at_version). `mvdsv` is intentionally NOT snapshotted (server-side; slipgate is the client); KTX is server-only too and not snapshotted to slipgate. Output filenames documented in `serve/mcp/` consumers and `e2e-verify.md`.
 
 **MCP librarian volunteers cross-references.** v0.2.0 rewrite (2026-04-25) made one tool call return rich records — entity + source_state + version arc + asset relations + linked concept notes — instead of forcing follow-up calls. Voice-neutral; consumer voice and orchestration recipes live in each consumer's surface.
 
@@ -105,8 +105,7 @@ Layer 2 enrichment — segment / classify / summarise / session-summary embeddin
 - GitHub API for release bodies + PR enrichment
 
 **Produces:**
-- `data/knowledge.db` (Layer 1, gitignored)
-- `data/qw.db` (Layer 2, gitignored)
+- Postgres rows in `qw_oracle.public.*` (Layer 1 + Layer 2 + Layer 3 -- the Postgres dev DB is the authoritative store; the SQLite era of `data/knowledge.db` + `data/qw.db` ended with Arc 1)
 - Slipgate-consumer snapshots at `apps/slipgate-app/src/lib/config/data/*.json` (committed)
 
 **Consumed by:**
@@ -131,4 +130,4 @@ Layer 2 enrichment — segment / classify / summarise / session-summary embeddin
 
 ---
 
-*Last slimmed: 2026-04-29 per docs-system-redesign spec Plan 2 (litmus test applied; subcommand / MCP tool / migration / extractor-tree catalogs cut as grep-reproducible; per-namespace counts replaced with one SQL probe; Layer 2 attestation preserved verbatim; design-intent paragraphs added).*
+*Last slimmed: 2026-04-29 per docs-system-redesign spec Plan 2; 2026-05-06 Phase 8 KTX onboarding sweep (Postgres path scrub in Code landmarks + Produces + design-intent; KTX shipped row in Layer 1 inventory; "Still open on Layer 1" KTX line cleared).*

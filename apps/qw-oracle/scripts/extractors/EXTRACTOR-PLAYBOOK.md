@@ -146,6 +146,52 @@ The fork case (subclass parent) and the cross-codebase port case (subclass `Visi
 
 ---
 
+## Handler-grouping rationale
+
+When a new engine introduces multiple new entity types or sub-types, the question "should this be one mega-handler, one handler per type, or some grouping in between?" surfaces. The KTX onboarding arc's Pass 5.3 explored three options and locked the rule: **group handlers by walking strategy, not by source file or row kind**.
+
+The rule states: two row kinds that share a libclang traversal pattern belong in the same handler; two row kinds that live in the same source file but use different walkers do NOT belong together. The walking strategy IS the handler's identity.
+
+Worked example from KTX (per arc decisions D6):
+
+| Handler | Output filename | Row kinds emitted | Walking strategy |
+|---|---|---|---|
+| `_handler_modes.py` | `ktx-modes-ast.json` | `game_mode` (catalog) + `mode_default` (overlays) | STRING_LITERAL-array walker on `const char[]` initstring declarations in `commands.c` (uses extended Pattern 6) |
+| `_handler_gameplay_taxonomies.py` | `ktx-gameplay-taxonomies-ast.json` | `election_type` + `death_rule` | Enum-decl walker (Pattern 10) on `electType_t` (`progs.h`) and `deathType_t` X-macro (`deathtype.h`) |
+| `_handler_gameplay_tables.py` | `ktx-gameplay-tables-ast.json` | `monster` + `score_system` + `drop_item` + `loc_macro` + `teamplay_message` | INIT_LIST_EXPR walker (Pattern 4) on struct-array literals + Pattern 9 banner-comment harvest for teamplay_message handler-function descriptions |
+| `_handler_match_events.py` | `ktx-match-events-ast.json` | `match_event` | XSD parse (Python `xml.etree.ElementTree`) + emission-site grep (NOT a libclang handler) |
+
+Three options were tested at brainstorm time:
+- **Option A: one mega-handler.** All KTX gameplay content in one Python file, internally branched on type. Rejected: the file size (10+ kinds, 5+ source files, 4+ walking strategies) would crowd the handler past the readability point; per-row-kind unit testing becomes harder.
+- **Option B: one handler per row kind.** 10 separate handler files, one per kind. Rejected: handlers that share a walker (e.g., the four struct-array-init kinds in `_handler_gameplay_tables.py`) would duplicate dispatch logic; per-kind output filenames balloon the load-knowledge dispatch table; the per-handler unit-of-work becomes too small to be coherent.
+- **Option C: group by walking strategy.** Per-handler unit-of-work clear, source-file scope per handler small, slicing trivial, pattern documentation reusable. SHIPPED.
+
+Why this matters for future engine ports: the Option C grouping makes phase-MD slicing for cross-codebase ports trivial -- one phase per handler-strategy class. The KTX onboarding arc sliced its gameplay-content phases (3 / 4 / 5 / 6) along exactly this axis. Future ports should look for the same grouping signal: "what walking strategies does this engine demand?" answers "how should the handler files split?"
+
+Cross-references:
+- Walker-strategy pattern catalog: see "Registration pattern catalog" below for Patterns 4, 6, 9, 10, 15 -- the four walker shapes the KTX handlers used.
+- Tier 3 placement convention: per the three-tier handler architecture, all four KTX handlers live as project-private files under `<project>/_handler_*.py`. The XSD-driven `_handler_match_events.py` is the lone carve-out from D3's "inherit from Visitor" rule -- standalone with duck-typed lifecycle stubs since XSD parsing is not libclang traversal.
+
+---
+
+## Pre-Port Discovery Sweep
+
+Before writing handler code for a new engine, run a three-leg discovery sweep to scope what exists, what overlaps existing engines, and what differs. The sweep is the brainstorm Pass-1 deliverable for any cross-codebase port; KTX onboarding (2026-05-04 arc, Pass 1 of the brainstorm) earned the methodology.
+
+Three legs:
+
+1. **Source registry leg.** Inventory the registration APIs in use (the standard `grep -rhEo 'Cvar_[A-Za-z]+'` / `Cmd_Add[A-Za-z]*` / etc. -- see "1. Inventory the registration APIs" in the porting checklist below). Map each API to one of the existing patterns (1-15) or surface a new pattern. Walk the major source files top-to-bottom, noting struct-array tables, enum declarations, X-macro files, XSD schemas, and other static-data shapes the engine carries. Output: a per-engine "what shapes do we see" inventory.
+
+2. **Committed-config leg.** If the engine ships example configs (`resources/example-configs/<engine>/`, `presets/`, `cfg/`), grep for cvar / command names referenced in those configs. Cross-check against the source registry leg's name set. Discrepancies fall into three categories: source-only (extracted, no config use -- expected for many cvars), config-only with naming-pattern match (Bucket 3 indexed-family like KTX `k_motd*` / `k_ml_*` -- sprintf-built at runtime; document in `OUT_OF_SCOPE.md`), config-only with no source match (truly orphaned drift; flag for upstream PR consideration). KTX's Pass 1.1 found: 119 unique k_* in configs, 100 source-overlap, 15 Bucket-3 family, 4 truly orphaned.
+
+3. **Runtime-evidence leg.** If the engine produces runtime output (`cvarlist` / `cmdlist` dumps from a live binary, telemetry logs, OR archived community dumps like Ciscon's MVDSV 1.20-dev cvarlist), use that as a third independent name source. Cross-check with legs 1 + 2. The runtime leg catches what static analysis misses (Bucket 2 dynamic registrations, sprintf-built names, runtime-synthesized HUD aliases). The cross-engine intersection also surfaces "this name appears in MVDSV runtime but not in our source-registry leg" findings -- usually a missed registration API or a preprocessor-guarded path.
+
+Treat the three-leg sweep as a sequencing prerequisite, not an optional first-week activity. Skipping Leg 2 invites Bucket-3 family cvars to ship as "first-class extraction failures" and burn cycles in Phase N+1 cleanup; skipping Leg 3 misses dynamically registered names and over-promises extractor coverage. The MVDSV onboarding (Phase 2e) and KTX onboarding (this arc) both ran the three-leg pattern explicitly.
+
+Output of the sweep is the input to "Section 0a -- Is this a fork or a cross-codebase port?" -- the inventory clarifies whether the new engine's API surface overlaps a parent project enough to fork, or whether the divergence demands a fresh port.
+
+---
+
 ## Registration pattern catalog
 
 The eight classes of source constructs the ezQuake extractors handle. When porting to a new engine, inventory the registration APIs in use and map each to a pattern here; anything unmapped is either a new pattern (needs a new handler branch) or deferred until pressure.
@@ -301,21 +347,37 @@ void SV_Logfile_f(void) { ... }
 
 **Why this matters:** MVDSV ships no help-JSON. Without any description-side data, every command would have `description=NULL`. Banner harvest is the only mechanical way to recover doc strings from MVDSV source.
 
-### Pattern 10 -- TU-root cursor intercept for MACRO_DEFINITION
+### Pattern 10 -- TU-root cursor intercept for header-defined declarations (MACRO_DEFINITION + ENUM_DECL)
 
-**Source example:**
+**Source examples:**
 ```c
-// in src/qwprot/src/protocol.h:
+// in src/qwprot/src/protocol.h (MACRO_DEFINITION):
 #define svc_print           8
 #define svc_centerprint     26
 #define FTE_PEXT_HLBSP      0x00000001
+
+// in include/g_local.h (ENUM_DECL):
+typedef enum {
+    etNone = 0,
+    etCaptain,
+    etCoach,
+    etAdmin,
+    etSuggestColor,
+    etLateJoin,
+} electType_t;
 ```
 
-**Detection:** by default `walk_tu_dispatch` filters cursors whose `location.file != target_path_str` to keep handlers focused on the current TU. But `MACRO_DEFINITION` cursors hang off the TU root and live in headers, not the TU's .c file. To extract `#define` constants, intercept the TU root cursor specifically and do a one-shot `cursor.get_children()` scan for `CursorKind.MACRO_DEFINITION` cursors, including those whose `location.file` points to allowed header paths (e.g. `src/qwprot/src/protocol.h`).
+**Detection:** by default `walk_tu_dispatch` filters cursors whose `location.file != target_path_str` to keep handlers focused on the current TU. But `MACRO_DEFINITION` and `ENUM_DECL` cursors hang off the TU root and live in headers, not the TU's .c file. To extract them, intercept the TU root cursor specifically and do a one-shot `cursor.get_children()` scan for the desired cursor kinds, including those whose `location.file` points to allowed header paths (e.g. `src/qwprot/src/protocol.h`, `include/g_local.h`).
 
-**Handler:** MVDSV `_handler_protocol_messages.py`. Header-bytes caching ensures trailing-comment harvest from headers different than the current TU root file works without re-reading.
+**Handlers:**
+- MVDSV `_handler_protocol_messages.py` -- `MACRO_DEFINITION` walker for protocol byte constants.
+- KTX `_handler_gameplay_taxonomies.py` -- `ENUM_DECL` walker for `electType_t` (Stage 1; emits 5 `election_type` rows after skipping the `etNone` sentinel).
 
-**When you need this:** entity types whose source representation is a `#define` constant rather than a function call. Protocol messages, packet flags, info_key constants, anything where the literal value is the entity.
+Header-bytes caching ensures trailing-comment harvest from headers different than the current TU root file works without re-reading.
+
+**When you need this:** entity types whose source representation is a header-defined declaration rather than a function call. Protocol messages, packet flags, info_key constants, election-type enums, taxonomic-enum tables -- anything where the literal value or enumerated identifier IS the entity.
+
+**Widening note (Phase 4 carry-forward of the KTX onboarding arc):** the original Pattern 10 was scoped to `MACRO_DEFINITION` only (MVDSV protocol_message handler). Phase 4 of the KTX onboarding arc reused the same TU-root intercept mechanic on `CursorKind.ENUM_DECL`. The same handler-private intercept code reuses cleanly across both cursor kinds; the widening is a one-line `if cursor.kind in (CursorKind.MACRO_DEFINITION, CursorKind.ENUM_DECL):` guard, not a separate handler. Future ports that need `STRUCT_DECL` or `TYPEDEF_DECL` from headers can extend the same guard further.
 
 ### Pattern 11 -- Table-array recovery through `UNEXPOSED_EXPR` wrappers
 
@@ -384,6 +446,199 @@ for (i = 0; i < num_logs; i++)
 **Where it applies:** any entity type where the same identifier can register with semantically distinct scopes/contexts. Apply when the AST extractor produces N rows and the loader inserts <N entities without a deletion explanation. Migration shape: backfill existing rows via one-shot `UPDATE entities ... SET name = name || ':' || (SELECT scope FROM <type>_versions ...) WHERE project=? AND type=? AND name NOT LIKE '%:%'`.
 
 **Known follow-up trigger:** 4 mvdsv qc_builtin names (`cvar_string`, `precache_model`, `precache_sound`, `precache_file`) register in both `std_builtins` and `ext_builtins` and are silently dropped today (the `[load-version] dropped duplicate name` warning surfaces them at load time). Same architectural shape; the same suffix fix would extend cleanly when qc_builtin gets next attention.
+
+### Pattern 15 -- STRING_LITERAL-array walker for engine-named initstring tables
+
+**Source example:**
+```c
+// KTX commands.c:4156 (inside common_um_init):
+static char common_um_init[] =
+    "k_yawnmode 0\n"
+    "k_freshteams 0\n"
+    "k_lgcmode 0\n"
+    "k_killquad 0\n"
+    // ... ~50 more lines, each a literal "<cvar_name> <value>\n" tuple
+;
+
+// KTX commands.c (per-mode initstrings):
+static char _2on2_um_init[] =
+    "k_clan 1\n"
+    "deathmatch 3\n"
+    "timelimit 10\n"
+    // ... ~15 more lines per mode
+;
+```
+
+**Detection:** `VAR_DECL` whose type is `char[]` (with optional `const` / `static` qualifiers) and whose initializer is a single `STRING_LITERAL` cursor (libclang collapses the adjacent C string-literal concatenation into one cursor). The literal's text body is a multi-line newline-delimited tuple stream: each line is `<token> <value>` -- the engine's own "compact config-line list" shape.
+
+**Handler walker:**
+1. On a `VAR_DECL` whose name matches the per-mode-initstring pattern (`<token>_um_init`, `common_um_init`, `race_settings`, etc.), pull the `STRING_LITERAL` child cursor.
+2. Read the literal's source text via `_read_extent` + `_unescape_c_string` (the standard cvar-handler convenience helpers).
+3. Split on `\n`. For each non-empty line, split on first whitespace into `<token> <value>`. Emit one `mode_default` row per line.
+4. Trailing-comment harvest: each line MAY have a trailing `// ...` comment that documents the cvar-set's intent. Capture as `props_json.comment` for the row.
+5. Macro-prefixed lines: a few lines start with an identifier rather than a literal cvar name (e.g., `LGCMODE_VARIABLE " 0\n"` in KTX `common_um_init`). Resolve the identifier via the handler's `_file_macros` cache (Pattern 6, extended to depth-1 #include closure per the KTX onboarding arc's D4 lift). After resolution, the macro substitutes for the cvar name; emit the row as if the literal name had been written directly.
+
+**KTX usage (per arc D6):** `_handler_modes.py` walks `common_um_init` (54 baseline rows), the 17 per-mode `<token>_um_init` arrays (~255 overlay rows total), and the `race_settings` initstring. Total: ~309 `mode_default` rows.
+
+**Add a new initstring array name:** add the array's identifier to the handler's known-array set; the walker handles it without further code changes. Keep the array's `apply_order` (1=baseline, 2=overlay) declared per-array to preserve the apply-order semantics in `props_json`.
+
+**Why this is its own pattern (not a reuse of Pattern 4):** Pattern 4 walks `INIT_LIST_EXPR` for struct-literal arrays; the entries are typed C structs with field-by-field semantics. Pattern 15 walks a single `STRING_LITERAL` whose body IS the data -- one literal expanded into N rows by string parsing. The cursor kind, the unit-of-work-per-cursor, and the parsing approach all differ. Documenting them separately keeps the pattern catalog precise.
+
+**Cross-engine outlook:** any engine that uses "compact config-line list" string literals as a config-init mechanism is a Pattern 15 candidate. Common in older C codebases that predate per-cvar registration APIs. KTX is the first surfaced consumer; future engines (especially older Q1-era forks) may surface more.
+
+### Pattern 16 -- X-macro file parse for declaration tables whose user-facing tokens are erased by preprocessor expansion
+
+**Source example:**
+```c
+// in include/deathtype.h:
+// X-macro file: each DEATHTYPE_X invocation declares one death-type entry.
+// The X-macro is expanded by the consumer with its own DEATHTYPE_X definition.
+DEATHTYPE_X(dtNONE,           "<none>",           "structural",   IDENTITY,    NULL)
+DEATHTYPE_X(dtUNKNOWN,        "<unknown>",        "structural",   IDENTITY,    NULL)
+DEATHTYPE_X(dtSHOTGUN,        "shotgun",          "weapon",       IDENTITY,    "shotgun")
+DEATHTYPE_X(dtSUPER_SHOTGUN,  "super shotgun",    "weapon",       IDENTITY,    "super_shotgun")
+// ... 25 more entries
+```
+
+**Trigger:** the file is structured as `X(...)` lines where `X` is a placeholder macro the consumer redefines per use case. libclang sees only the X-macro consumer's expansion -- the consumer-side `#define DEATHTYPE_X(...) ...` controls what the lines turn into. The user-facing tokens (`dtSHOTGUN`, `"shotgun"`, etc.) live ONLY in the source file; libclang's AST sees the consumer's expansion (a function table, an enum, a switch, etc.), not the original tokens.
+
+**Detection:** the X-macro file pattern is identifiable by:
+- Filename convention (`*type.h`, `*kinds.h`, `*-list.h` with all `X(...)` lines).
+- Body contains repeated `IDENTIFIER(args, ...)` lines where IDENTIFIER is consistent.
+- Comments often note "X-macro file" or "expanded by consumer."
+
+**Handler approach:** SKIP libclang for these files. Read the file's bytes directly via `Path.read_text()`, line-iterate, regex-match the X-macro line shape (`re.compile(r'^\s*' + re.escape(MACRO_NAME) + r'\s*\(([^)]+)\)\s*$', re.MULTILINE)`), and parse the comma-separated arguments per row.
+
+**Handler:** KTX `_handler_gameplay_taxonomies.py::_parse_deathtype_h()` -- Stage 2 of the taxonomies handler. Reads `include/deathtype.h`, regex-matches the 29 `DEATHTYPE_X(...)` lines, skips the `dtNONE` and `dtUNKNOWN` sentinels, emits 27 `death_rule` rows.
+
+**Why this is its own pattern (not a reuse of Pattern 10):** Pattern 10 intercepts `MACRO_DEFINITION` / `ENUM_DECL` cursors via libclang TU-root walk. X-macro files don't expose the per-line tokens to libclang AT ALL -- the tokens are erased by preprocessor expansion. The only way to recover them is to read the source file bytes directly. The cursor-walk machinery doesn't apply.
+
+**When you need this:** any engine that uses X-macro files as a static-data registration mechanism. Common in C codebases for enumerable taxonomies (death types, weapon types, network protocol opcodes, etc.) where the consumer wants to enumerate the values multiple times in different ways without duplicating the canonical list.
+
+**Cross-engine outlook:** KTX is the first surfaced consumer in the Layer 1 lineup. Future engines (especially older Q1-era forks that lean on X-macros for taxonomy declarations) may surface more. The handler approach is engine-agnostic: read file, regex-match, parse. No libclang involvement.
+
+**Caveat:** the X-macro file pattern means the per-line `source_file` / `source_line` citation IS the X-macro file itself, not the consumer expansion site. That's correct -- the canonical source of truth for "where is this death-rule defined?" is the X-macro file. Consumer expansion sites are infrastructure (a switch statement that dispatches on the death-type, an obit-string lookup table, etc.); they're rendering, not data.
+
+---
+
+### Dual-row design: log_template + match_event (D10 / F17 of the KTX onboarding arc)
+
+Some emission sites populate TWO entity-type rows by design, capturing complementary facets. KTX's `log_printf` XML-shaped emissions are the canonical case: each emission populates BOTH a `log_template_versions` row (via the Pass-1 printf-handler under `_handler_log_templates.py`, channel='logfile') AND a `match_event_versions` row (via the XSD-driven `_handler_match_events.py`, complex_type from the XSD).
+
+- `log_template_versions` captures **per-call-site truth**: the verbatim format string passed to the print call, the file/line citation, the channel discriminator. One row per registration site.
+- `match_event_versions` captures **per-event-type truth**: the XSD-defined attribute schema, the XSD version, the rolled-up list of every emission call site for this event type. One row per XSD complexType.
+
+KTX's 13 XML-shaped `log_printf` call sites map to 13 `log_template_versions` rows + 7 `match_event_versions` rows (per F14: 6 pick_mapitem + 1 each for pick_powerup / drop_powerup / pick_backpack / drop_backpack + 2 damage + 1 death). The duplication is intentional.
+
+**Do NOT deduplicate.** A future maintainer reading the dual rows is likely to think "this looks redundant" and try to add a filter to `_handler_log_templates.py` that skips XML-shaped log_printf calls. That would lose the per-call-site format string truth. The duplicate IS the design.
+
+**When this pattern recurs:** any engine where one emission site has both per-call-site provenance (file/line/format) AND per-type schema (XSD, JSON Schema, protobuf message). The dual-row design preserves both facets without forcing one consumer to walk into the other.
+
+**Cross-reference:** decisions.md D10 of the KTX onboarding arc (`docs/superpowers/plans/2026-05-04-ktx-onboarding/decisions.md`) carries the lock + rationale; F17 of the same arc's review-findings carries the audit trail.
+
+---
+
+## Cross-arc doctrine notes (KTX onboarding arc)
+
+Pattern-adjacent doctrine surfaced during the KTX onboarding arc's Phases 3 / 5 / 5.5 / 6 / 7. Each note refines a pattern's applicability or codifies a cross-handler invariant the arc earned. Future-engine ports consume these alongside the per-pattern entries.
+
+### F25 -- Pattern 13 emission as the cross-arc parallel-safety invariant (Phase 5.5)
+
+**Rule:** any future libclang handler with cross-file refs MUST use Pattern 13 emission. No per-handler instance-state aggregation in fork-pool architectures.
+
+**Why:** Phase 3 of the KTX onboarding arc shipped a modes handler (`_handler_modes.py`) that accumulated cross-file refs on `self._*` instance state and joined them in `finalize()`. Under `multiprocessing.Pool` fork-pool execution, each worker gets its own copy of the handler instance via fork, populates state in the worker, and returns rows via `end_file()`. The parent's instance state is NEVER populated. Parent's `finalize()` then ran against an empty instance and emitted 0 mode_default rows under `--workers >1`. Phase 3 worked around with a serial-mode guard in `extract.py`. Phase 5.5 retrofitted the principled fix: typed pseudo-row emission from `end_file()` (`_kind` in `{_mode_default, _meta_activation_cvar, ...}`) so cross-file refs flow through `all_rows` rather than instance state. Parallel-vs-serial diff is now empty; 3.3x speedup on 12-core extraction.
+
+**Rejected alternative:** the original F25 future-arc options included a `Visitor.parallel_safe: bool = True` attribute that `extract.py` would read to gate the serial fallback. REJECTED at Phase 5.5 disposition closure -- gating opt-out as a per-handler bool would normalise the broken state-on-self design and recreate the divergence between handlers that the Pattern 13 retrofit eliminates.
+
+**Three-consumer arc-pattern:** Pattern 13 was first shipped by MVDSV's `_handler_commands.py` (cross-file `_cmd` + `_fn_def` joins for banner harvest). Phase 2 of KTX reused it for the same purpose. Phase 5 (KTX `_handler_gameplay_tables.py`) shipped Pattern 13 first-attempt with no shape resistance for teamplay_message handler-function joins. Phase 5.5 retrofitted modes to the same pattern. Three KTX handlers + the original MVDSV consumer = the canonical four-consumer-baseline that promotes Pattern 13 from "bespoke trick" to "cross-arc invariant."
+
+**Cross-reference:** F25 of `docs/superpowers/plans/2026-05-04-ktx-onboarding/review-findings.md` carries the discovery + Phase 5.5 disposition-closure amendment.
+
+### F26 -- Pattern 6 cross-header lift is string-literal-only by design (Phase 5)
+
+**Rule:** the `extractor_lib._source.collect_file_macros` lift (Pattern 6, depth-1 cross-header) collects ONLY `#define IDENT "string"` macros. Function-like macros, integer / hex constants, and any macro whose body is not exactly one string-literal token are explicitly excluded.
+
+**Why:** Phase 1 of the KTX onboarding arc shipped Pattern 6 cross-header against modes' need (KTX `LGCMODE_VARIABLE " 0\n"` macros, where the macro body IS a string literal used in initstring concatenation). Token-kind filter at `_source.py` lines 167-171 + 225-229 enforces "string-literal-token only." Phase 5 of the same arc surfaced KTX `WEAPON_BIG2 1` (integer body, depth-0 same-file) which the lift does NOT collect -- caught by pytest `test_drop_item_sh40_weapon_big2`. Live runtime probe against KTX `commands.c` TU confirms: `'WEAPON_BIG2' in file_macros: False`, `'LGCMODE_VARIABLE' in file_macros: True`.
+
+**Handler-private fallback for integer macros:** when a handler needs integer-macro resolution, ship a frozen-keyed dict (e.g., KTX `_DROPITEM_MACRO_FALLBACK = {"H_ROTTEN": 1, "H_MEGA": 2, "WEAPON_BIG2": 1}`). Frozen dict semantics preserve fail-loud-not-silent behaviour: KeyError if a future tag references a missing macro.
+
+**Lift-on-demand for the third consumer:** if a future engine surfaces a third consumer needing integer-macro resolution, evaluate Rule of Second Consumer + a sibling `collect_file_int_macros(tu, target_file_path)` helper returning `dict[str, int]`. Until the third consumer arrives, handler-private fallback dicts are the convention.
+
+**Cross-reference:** F26 of `docs/superpowers/plans/2026-05-04-ktx-onboarding/review-findings.md` carries the Phase 5 discovery + disposition.
+
+### F27 -- Pattern 9 banner-coverage varies per source-file commenting convention (Phase 5)
+
+**Rule:** Pattern 9 (function-banner harvest) coverage is best-effort; per-source-file commenting style determines how much harvests. Future engine consumers should NOT assume banner blocks exist; design tests + probes for best-effort harvest.
+
+**Coverage observed in the four-engine baseline:**
+- MVDSV `sv_ccmds.c`: ~28% coverage. Doom-style `/* ===== */` banner blocks common.
+- KTX `teamplay.c`: 0% coverage. Source has zero `/* === */` blocks; uses `// Cmd_AddCommand("tp_msgkillme", TP_Msg_KillMe_f);` line-comment style instead. Eight of 21 teamplay_message handlers are macro-expanded via `TEAMPLAY_BASIC(FunctionName, Text)` and have no banner block by construction.
+
+**Probe authoring discipline:** Pattern 9 probes that assert `with_banner > 0` are calibrated against MVDSV-shape source. Against KTX-shape source they fail by design. Probe wording should reflect "report `with_harvested_description` count and surface as Layer 3 concept-note signal -- if low, the source's preferred docstring style is not Doom-style banner; harvest a different shape (line-comment-above-function) for that file."
+
+**Cross-reference:** F27 of `docs/superpowers/plans/2026-05-04-ktx-onboarding/review-findings.md` carries the Phase 5 discovery + handler-correctness confirmation.
+
+### F29 -- Anchor probe live-data verification discipline (Phase 7)
+
+**Rule:** anchor probe authors verify predicates against live dev DB before shipping; spec paraphrase is the most common drift source.
+
+**Why:** Phase 7's quality-grid F1 anchor probes drifted from live data on three predicates that the executor caught at boundary verification:
+1. Anchor `fish_first_in_monsters`: spec said `WHERE name='fish'`; live KTX rows store full id1-classname (`monster_fish`). Corrected predicate.
+2. Anchor `match_event_count_7_with_attributes`: spec said `jsonb_typeof(attributes_json)='object'`; live rows hold a JSONB array of attribute-descriptor objects. Corrected to `'array'`.
+3. Anchor `dual_row_design_log_template_match_event`: spec said `format_string LIKE E'\t\t\t<%'` (three-tab opener); live KTX log_printf format strings have varied XML wrapper-level prefixes (two-tab `\t\t<event>\n`, one-tab `\t<events>\n`, etc.). Corrected to `LIKE '%<%>%'` (XML markup anywhere).
+
+**Common cause:** Phase 7 MD's anchor probes were drafted from spec / source-walk projections rather than live dev DB shape. The same source-walk discipline that Pass 5 codified for handler authoring (per F9/F11/F12/F13 amendments) applies to anchor probe authoring: verify probe predicates against live data BEFORE shipping, not against spec paraphrase.
+
+**Joins F23 + F27 as third instance:** F23 (Phase 2 probe 5 tab-depth), F27 (Pattern 9 banner-coverage), F29 (Phase 7 anchor probes) all instances of the same probe-spec-drift class. The recurrence pattern is durable enough to warrant its own playbook entry.
+
+**Cross-reference:** F29 of `docs/superpowers/plans/2026-05-04-ktx-onboarding/review-findings.md` carries the Phase 7 anchor-probe corrections + the F23/F27/F29 sibling-class observation.
+
+---
+
+## Non-Visitor / non-libclang handler infrastructure (XSD / JSON manifest / YAML schema handlers)
+
+Most Layer 1 handlers extend `extractor_lib._visitor.Visitor` and walk libclang TUs. A small minority don't -- they parse a non-C source-of-truth (XSD schema, JSON manifest, YAML config) and emit rows into the same dispatch infrastructure. KTX's `_handler_match_events.py` is the canonical case (per the KTX onboarding arc's D3 amendment 2026-05-05 + spec 5.6.c): XSD-driven, standalone with duck-typed Visitor lifecycle stubs.
+
+When a future engine surfaces a similar non-Visitor / non-libclang handler need, two infrastructure conventions apply.
+
+### Required lifecycle stubs (full 7-method list)
+
+`extractor_lib._visitor.walk_tu_dispatch` calls 7 lifecycle methods on every visitor. A non-Visitor handler must duck-type all 7 (no-ops are fine for handlers that don't need libclang traversal):
+
+```python
+class XsdDrivenHandler:
+    name = "<handler_name>"
+    output_filename = "<project>-<type>-ast.json"
+
+    def setup(self, repo_root, source_root):
+        # Pre-fork eager work: parse XSD / JSON / YAML, populate handler state.
+        ...
+
+    # Visitor lifecycle stubs (called by walk_tu_dispatch -- duck-typed).
+    def start_file(self, source_path, source_bytes): pass
+    def end_file(self): return []
+    def enter_function(self, cursor, variant): pass
+    def exit_function(self, cursor, variant): pass
+    def enter_compound(self, cursor, variant): pass
+    def exit_compound(self, cursor, variant): pass
+    def visit_cursor(self, cursor, variant): pass
+
+    def finalize(self, all_rows, repo_root):
+        # Post-fork merge: assemble rows from setup() state, return JSON-shaped dict.
+        ...
+```
+
+**Common gotcha:** drop ANY of the 7 lifecycle methods and `walk_tu_dispatch` crashes mid-walk on the first compound statement (or first function, etc.). The KTX `_handler_match_events.py` initially shipped 5 stubs; the missing `enter_compound` / `exit_compound` were caught at integration time and drained inline (per F28 of the KTX onboarding arc).
+
+### Transition-scan exclusion convention (load-version.ts)
+
+`apps/qw-oracle/scripts/load-knowledge/load-version.ts` runs a state-transition scan that selects `vrow.source_file` from each per-type versions table. Handlers whose source-of-truth is NOT a C source file (XSD, JSON manifest, asset bundle, YAML schema) populate a different column instead -- e.g., `match_event_versions.xsd_path`, `asset_category_versions` (no source_file column at all). Trying to read `source_file` against these tables fails the SELECT.
+
+**Convention:** add the entity type to the `load-version.ts` transition-scan exclusion list. Today's list: `options.type !== 'asset_category' && options.type !== 'match_event'`. Future entity types with non-C-source truth grow the list.
+
+**Cross-arc verification gate:** Phase 7's cross-project audit reconciles the exclusion list against the full per-type versions table inventory: tables WITHOUT a `source_file` column MUST be in the exclusion list; tables WITH a `source_file` column MUST NOT be excluded. Any drift between the two surfaces as a finding.
+
+**Cross-reference:** F28 of `docs/superpowers/plans/2026-05-04-ktx-onboarding/review-findings.md` carries the Phase 6 discovery + Phase 7 audit confirmation.
 
 ---
 
@@ -547,6 +802,37 @@ sqlite3 -json apps/qw-oracle/data/knowledge.db "
 For each row, `sed -n '${source_line-1},${source_line+1}p' source/${source_file}` and eyeball. All four fields (default, flags, on_change, trailing_comment) should match the literal `cvar_t` init. For HUD-synthesized rows the `source_line` points at the `HUD_Register` call -- verify positional-arg defaults against the specific call.
 
 ezQuake 2026-04-25 results: 20/20 fields accurate. No systematic misparse.
+
+---
+
+## Pre-Commit Discovery Cross-Check
+
+After extraction has converged but before committing the new engine's first ship, run a wiki-versus-source cross-check on any candidate roster the brainstorm produced. The cross-check methodology is the KTX onboarding arc's Pass 5.4 deliverable -- the discipline that caught Pass-4 sketch errors and discriminated the "candidate mutator" set down to the right shipping inventory.
+
+Procedure:
+
+1. **Gather candidate inventory.** From the brainstorm, list every name-shape candidate (mutators, modes, taxonomies, struct-array entries) the design pass nominated. Format: `<token> | <source-claim> | <wiki-claim>`. Source-claim cells come from the source-registry leg of the Pre-Port Discovery Sweep; wiki-claim cells come from the community wiki rip (QWiki, ezQuake docs, MVDSV manual, etc. -- whatever the engine's contributor community maintains).
+
+2. **Source-walk each candidate.** Open the source file the candidate names. Confirm: registration site present, struct-array entry present, value-set entry present -- whatever the candidate's shape requires. Note count. Note field names. Note adjacent context (#ifdef guards, conditional compilation paths, deprecation comments).
+
+3. **Wiki-walk each candidate.** Open the wiki page or canonical community reference. Confirm: name spelling matches, semantic description matches, gating conditions match. Note any wiki-only attributes that don't appear in source (often Layer 3 candidates -- player-facing labels, community nicknames).
+
+4. **Discriminate.** For each candidate, classify:
+   - **Promote** (both legs agree; ship as a Layer 1 row): the canonical case.
+   - **Demote** (source absence; wiki claims a name with no registration site): document in `OUT_OF_SCOPE.md` with the wiki citation, OR park as a future-arc candidate, OR flag as upstream wiki drift.
+   - **Defer** (semantic ambiguity; source shape unclear without operator decision): surface to operator, do NOT ship until resolved.
+   - **Reframe** (both legs disagree on facet, e.g., source has a struct field named `count_modifier` but Pass-4 sketch wrote `armor_for_kill` and live source actually carries `hp_for_kill` -- the two-amendment KTX case): land an amendment to the relevant `review-findings.md` anchor with the source-faithful name, then ship.
+
+KTX's Pass 5.4 ran the cross-check on 4 mutator candidates discovered via the wiki rip vs. the source registry leg's list. Discrimination outcome: 1 promotion (`berzerk`), 3 demotions to `OUT_OF_SCOPE.md` (none of the other 3 had source registration). Without the cross-check, 3 spurious mutator rows would have shipped as "first-class entities" backed by no source registration -- silent data quality regression.
+
+Cross-validation oracles by engine:
+- **ezQuake**: ezquake.com/docs guide pages + `help_*.json` files in repo + community Discord history.
+- **MVDSV**: Ciscon's MVDSV 1.20-dev cvarlist dump (archived) + the MVDSV manual page on QWiki.
+- **FTE**: FTE wiki + `console.cfg` defaults + plugin-side configs.
+- **QWCL**: 1996-vintage Quake reference materials + `progs.dat` documentation.
+- **KTX**: QWiki `Server_modifications#KTX` page + the `resources/example-configs/ktx/` checked-in configs + community match logs.
+
+Treat the cross-check as a phase-boundary verification step, not an optional polish pass. The discrimination it forces (Promote / Demote / Defer / Reframe) is the same discipline the F-anchor amendment system in `review-findings.md` enforces during phase drafting -- both exist to catch the gap between sketch and source before shipping.
 
 ---
 

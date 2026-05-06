@@ -1,32 +1,34 @@
 # QW Oracle - Layer 1 Schema Reference
 
-Cumulative reference for `apps/qw-oracle/data/knowledge.db`. This is the whole shape at **schema v18**, organized topically (not chronologically). If you want the *why* of a specific migration, see the per-migration spec linked in that section, or `docs/arc-history.md` for the chronological chain. If you want verification queries, see `scripts/load-knowledge/e2e-verify.md`. The authoritative shape is `scripts/load-knowledge/schema.ts`.
+Cumulative reference for the Postgres `qw_oracle` database (Layer 1 + the `qw` game-content namespace + the new KTX additions). Organized topically (not chronologically). If you want the *why* of a specific migration, see the matching `db/migrations/<NNN>_<name>.sql` file's header comment, the per-migration spec linked in that section, or `docs/arc-history.md` for the chronological chain. If you want verification queries, see `scripts/load-knowledge/e2e-verify.md`. The authoritative shape is the live database + the SQL files in `db/migrations/`.
 
-Layer 2 (`data/qw.db`, the chat corpus) is out of scope for this doc.
+Layer 2 (the chat corpus -- Discord-only) is out of scope for this doc; see `OVERVIEW.md` Section "Layer 2" for that surface.
 
-> **Doc-currency note (2026-04-29):** the preamble + table map below reflect the live schema (v18) and the live table inventory (31 tables). The per-table sections that follow document tables back through schema v3 with mostly-current detail; some `Populated by:` paths still reference the pre-2026-04-25 `packages/qw-config/scripts/...` layout, and per-table "Count at head" figures are pre-Phase-6. Body refresh is queued (HANDOVER: "SCHEMA.md doc-style inconsistency" -- scope being broadened in the next pass). Trust schema.ts and the live DB over per-table prose when they conflict.
+> **Doc-currency note (post-KTX-onboarding 2026-05-06):** the preamble + table map below reflect the live Postgres schema after the KTX onboarding arc shipped (which added the `match_event` entity type plus 10 CHECK widenings -- `log_template_versions.channel += 'logfile'`, `entities.type += 'match_event'`, `gameplay_entity_defs.kind += 'monster'`, `gameplay_mechanics.kind += 'game_mode' / 'mode_default' / 'election_type' / 'score_system' / 'drop_item' / 'loc_macro' / 'teamplay_message'`). The per-table sections that follow document tables back through Arc 1 with mostly-current detail; per-table "Count at head" figures and some `Populated by:` paths are pre-KTX. Body refresh is queued (HANDOVER: "SCHEMA.md doc-style inconsistency" -- separate sidequest from the slim-doc sweep). Trust the live DB + the migration files over per-table prose when they conflict.
 
 ## Conventions
 
-- **SQLite** via `better-sqlite3`. Schema lives in `scripts/load-knowledge/schema.ts` as `SCHEMA_V*_ADDITIONS_SQL` blocks plus rebuild blocks for CHECK widening (entities table at v2/v3/v5/v12/v15; asset_loader_sites at v8; source_state_transitions at v9; project CHECK across 8 tables at v10) and additive ALTER TABLE migrations (v7, v11). Fresh DBs stamp the current `SCHEMA_VERSION` directly; older DBs run through `migrateV1ToV2` ... `migrateV17ToV18` in order. The schema version is tracked in the `schema_meta` table, NOT in PRAGMA `user_version` (which stays 0).
-- **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. FTE has only `build-6698`. QWCL has only `2.33` (single-commit repo; canonical label aliased to commit `bf4ac42` via `PROJECT_VERSION_ALIASES` in `extract-tag.ts`). MVDSV has only `head` (2026-01-04 snapshot, `f816d28`). `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx`, `qwcl` (CHECK-constrained; all four are populated today except `ktx`). The `qw` namespace (v13/v14) means "the game itself" -- content that exists outside any engine version arc. The `qw` tables (`maps`, `gameplay_sources`, `gameplay_entity_defs`, `gameplay_mechanics`) have no `project` column; `qw` appears only in the `Project` TS union in `build-snapshot.ts`.
-- **Natural keys** are called out per table. All loader upserts go through `scripts/load-knowledge/natural-keys.ts`; that is the one place idempotent-insert logic lives.
-- **Canonical IDs** are `<project>:<type>:<name>`, lowercased for everything except `token_primitive` (which is case-sensitive -- `$B` blue LED vs `$b` glyph). MVDSV-introduced types carry compound name suffixes for cross-scope disambiguation: `info_key` uses `<bare>:<scope>` (e.g. `*z_ext:serverinfo`); `qc_builtin` uses `<bare>:<table_name>` (v18, mirroring info_key Phase B).
-- **Timestamps** are ISO 8601 strings. `extracted_at` is "most recent extraction for this row" -- overwritten on re-run. Git history of `knowledge.db` is not recoverable from the row itself (it is gitignored).
-- **`source_ref` discipline** - every row that can carry a `source_file` / `source_line` does, even when blame is best-effort. The diff pipeline and MCP tools both consult these.
+- **PostgreSQL 16 + pgvector + tsvector** (image: `pgvector/pgvector:pg16`). Schema is defined by SQL files under `db/migrations/<NNN>_<name>.sql`, applied by `bun db/migrate.ts`. Migration filenames are sequential and append-only -- never edit an applied migration. Architecturally-significant changes additionally get a dated spec under root `docs/superpowers/specs/`. Schema state is tracked in the `schema_migrations` table (filename + applied_at), not in a single integer version counter -- the SQLite-era `SCHEMA_VERSION` model retired with Arc 1.
+- **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. FTE has only `build-6698`. QWCL has only `2.33` (single-commit repo; canonical label aliased to commit `bf4ac42`). MVDSV has only `head` (2026-01-04 snapshot, `f816d28`). KTX uses upstream tags (`1.46` is the latest stable as of 2025-09-14). `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx`, `qwcl` (CHECK-constrained; all five populated post-KTX). The `qw` namespace means "the game itself" -- content that exists outside any engine version arc. The `qw` tables (`maps`, `gameplay_sources`, `gameplay_entity_defs`, `gameplay_mechanics`) have no `project` column; `qw` appears only in the `Project` TS union in `build-snapshot.ts`.
+- **Natural keys** are called out per table. All loader upserts go through `scripts/load-knowledge/natural-keys.ts`; that is the one place idempotent-insert logic lives. Postgres `INSERT ... ON CONFLICT ... DO UPDATE` is the canonical upsert shape.
+- **Canonical IDs** are `<project>:<type>:<name>`, lowercased for everything except `token_primitive` (case-sensitive -- `$B` blue LED vs `$b` glyph). MVDSV-introduced types carry compound name suffixes for cross-scope disambiguation: `info_key` uses `<bare>:<scope>` (e.g. `*z_ext:serverinfo`); `qc_builtin` uses `<bare>:<table_name>`. KTX commands extend the same convention with sub-namespace suffixes: `<name>:frogbot:std` and `<name>:frogbot:editor` for the bot-subcommand tables (per the KTX onboarding arc D7).
+- **JSONB columns receive JS values, not pre-stringified JSON** -- pass the JS array/object directly (or wrap with `tx.json(...)` for postgres-js type compliance); pre-stringifying stores a JSONB string scalar (the legacy SQLite-era TEXT bug). Probe `F1.jsonb_columns_not_strings` is the regression gate; KTX adds per-handler probes per the Phase 7 validation work.
+- **Timestamps** are `TIMESTAMPTZ` columns with ISO 8601 string display. `extracted_at` is "most recent extraction for this row" -- overwritten on re-run.
+- **`source_ref` discipline** -- every row that can carry a `source_file` / `source_line` does, even when blame is best-effort. The diff pipeline and MCP tools both consult these.
 
 ## Table map at a glance
 
 | Group | Tables |
 |---|---|
 | Identity | `versions`, `entities` |
-| Per-type snapshots (engine, per-version arc) | `cvar_versions`, `command_versions`, `macro_versions`, `cmdline_param_versions`, `keyname_versions`, `hud_element_versions`, `ruleset_versions`, `token_primitive_versions`, `asset_category_versions`, `flag_bit_versions`, `cvar_alias_versions`, `protocol_message_versions`, `info_key_versions`, `log_template_versions`, `qc_builtin_versions` |
+| Per-type snapshots (engine, per-version arc) | `cvar_versions`, `command_versions`, `macro_versions`, `cmdline_param_versions`, `keyname_versions`, `hud_element_versions`, `ruleset_versions`, `token_primitive_versions`, `asset_category_versions`, `flag_bit_versions`, `cvar_alias_versions`, `protocol_message_versions`, `info_key_versions`, `log_template_versions`, `qc_builtin_versions`, `match_event_versions` |
 | Relations | `asset_extensions`, `asset_path_rules`, `asset_cvar_bindings`, `asset_loader_sites`, `release_notes` |
 | qw namespace (game content, no version arc) | `maps`, `gameplay_sources`, `gameplay_entity_defs`, `gameplay_mechanics` |
 | Change tracking | `change_events`, `relation_changes`, `source_overrides` |
-| Audit | `source_state_transitions`, `schema_meta` |
+| Audit | `source_state_transitions`, `schema_migrations` |
+| Community (qwiki community-reference arc) | `community.players`, `community.clans`, `community.tournaments`, `community.player_clan_eras`, `community.tournament_results` |
 
-**Total: 36 tables at schema v18 (31 L1 engine + 5 community).** Migration chain (high-level): v1-v8 build the engine-entity arc; v9 adds `source_retired_at_version` to transitions reason CHECK; v10 widens project CHECK across 8 tables for QWCL; v11 adds `source_root` (FTE plugin distinction); v12 adds `cvar_alias` + `cvar_alias_versions`; v13 adds `maps` (`qw` namespace); v14 adds `gameplay_*` tables (`qw` namespace); v15 adds the four MVDSV-introduced entity types; v16 widens the `protocol_message` kind CHECK from 6 to 13 values (`pext_fte` / `pext_mvd` subdivide by macro-body shape); v17 reshapes `info_key` canonical names + cvar normalization; v18 reshapes `qc_builtin` canonical names. See `docs/arc-history.md` for per-arc context.
+**Total: 37 L1 + community tables post-KTX onboarding (32 L1 engine including `match_event_versions` + 5 community).** Migration history is captured per file under `db/migrations/`; high-level chain via the `schema_migrations` table -- no monolithic version counter. The KTX onboarding arc landed three migrations (`009_ktx_log_template_logfile_channel.sql` / `010_ktx_match_event_type.sql` / `011_ktx_gameplay_kinds.sql`, renumbered from D5's original 008/009/010 slot at execution time when the QWiki community-reference arc claimed slot 008): a `log_template_versions.channel` widening adding `'logfile'`, an `entities.type` widening adding `'match_event'` plus the new `match_event_versions` table, and a gameplay-kinds widening adding `'monster'` to `gameplay_entity_defs.kind` and seven new values to `gameplay_mechanics.kind`. See per-section bodies below for shape details.
 
 ---
 
@@ -490,9 +492,9 @@ Adds three flat tables (no `qw_` prefix to match the existing `maps` precedent).
 
 - **`gameplay_sources`** - registry of gameplay sources (`id1` baseline, `ktx` overrides in arc 2, future mods). Stable string ID, display name, source-tree root, free-form notes.
 
-- **`gameplay_entity_defs`** - polymorphic table for game entities. `kind in (item, weapon, projectile)`. Indexable common columns (damage, splash_damage, splash_radius, refire_seconds, respawn_seconds, pickup_amount, max_carry, duration_seconds, classname). `props_json` carries kind-specific fields. `source_ref` is the file:line citation.
+- **`gameplay_entity_defs`** - polymorphic table for game entities. `kind in (item, weapon, projectile, monster)` (the `monster` value added by the KTX onboarding arc's gameplay-kinds migration; KTX `bloodfest_monster_array[]` carries 13 rows under that kind). Indexable common columns (damage, splash_damage, splash_radius, refire_seconds, respawn_seconds, pickup_amount, max_carry, duration_seconds, classname). `props_json` carries kind-specific fields. `source_ref` is the file:line citation.
 
-- **`gameplay_mechanics`** - polymorphic table for game rules. `kind in (constant, env_hazard, player_stat, powerup_behavior, armor_model, death_rule, spawn_rule, dm_mode_rule)`. Indexable common columns (value_numeric, value_text). Same source_ref discipline.
+- **`gameplay_mechanics`** - polymorphic table for game rules. `kind in (constant, env_hazard, player_stat, powerup_behavior, armor_model, death_rule, spawn_rule, dm_mode_rule, game_mode, mode_default, election_type, score_system, drop_item, loc_macro, teamplay_message)` (the seven values from `game_mode` onward added by the KTX onboarding arc; `game_mode` carries 27 catalog rows + `mode_default` carries ~309 per-line overlays + `election_type` 5 + `score_system` 3 + `drop_item` 31 + `loc_macro` 15 + `teamplay_message` 21). Indexable common columns (value_numeric, value_text). Same source_ref discipline. `ruleset_gate_json` is load-bearing for KTX overlays per the arc's D8 single-key gate convention -- e.g. `{"mode":"bloodfest"}` for monster rows, `{"mode":"<token>"}` for per-mode overlays.
 
 Both polymorphic tables share `ruleset_gate_json TEXT NOT NULL DEFAULT '{}'`. The default empty object is used by id1 baseline rows and by KTX rows that apply unconditionally; KTX overrides with mode/yawnmode/dmm gates serialise as JSON like `{"yawn":true,"dm":3}` and join into the same row identity. The `NOT NULL DEFAULT` is load-bearing: SQLite treats NULL columns in unique indexes as distinct, which would defeat upsert idempotency. By keeping the column always non-NULL, `ON CONFLICT (gameplay_source_id, kind, name, ruleset_gate_json) DO UPDATE` works as expected for re-runs.
 
@@ -595,7 +597,7 @@ Index: `idx_info_key_versions_source ON (source_file, source_line)` -- same rati
 CREATE TABLE IF NOT EXISTS log_template_versions (
   entity_id                INTEGER NOT NULL REFERENCES entities(id),
   version                  TEXT NOT NULL,
-  channel                  TEXT NOT NULL CHECK (channel IN ('broadcast','client','console','system')),
+  channel                  TEXT NOT NULL CHECK (channel IN ('broadcast','client','console','system','logfile')),
   format_string            TEXT NOT NULL,
   format_string_normalized TEXT NOT NULL,
   source_file              TEXT,
@@ -620,6 +622,7 @@ Type-specific columns: `channel` (discriminator -- see table below; identifies w
 | `client` | Sent to one specific client (`SV_ClientPrintf`). Per-player feedback -- ruleset rejections, kicked-message reasons, vote prompts. |
 | `console` | Server console / `Con_Printf`. Operator-facing diagnostic output. |
 | `system` | System stdout / `Sys_Printf`. Pre-init or fatal-error output that bypasses the normal console. |
+| `logfile` | Server-side logfile output via `log_printf` (`SV_Write_Log` / KTX `logs.c` channel). The channel KTX's extralog XML emissions ride; the format strings here include the multi-line XML wrapper shape that the dual-row design (D10 of the KTX onboarding arc) bridges to the `match_event_versions` table. |
 
 Indexes: `idx_log_template_versions_source ON (source_file, source_line)` (blame queries) and `idx_log_template_versions_channel ON (channel)` (the qw_event_log validation oracle filters to `channel='broadcast'` to scan obit candidates -- a dedicated index keeps that hot path fast across thousands of templates).
 
@@ -794,6 +797,84 @@ NULL is allowed for v16-era rows that pre-date the column; the next `extract-tag
 The migration step is a single line in `migrateV16ToV17`. No FK rebuild, no `INSERT ... SELECT`, no CHECK changes -- just one `ALTER TABLE`.
 
 - Plan: `docs/superpowers/plans/2026-04-28-mvdsv-phase2e-followups.md` (Phase D).
+
+---
+
+## KTX onboarding arc (2026-05-04): three migrations + `match_event_versions` new table
+
+The KTX onboarding arc (canonical KTX 1.46 onboarded into Layer 1) ships three migration files plus one new entity type with its per-version table. All migrations are pure-additive at the value-set level (CHECK widenings via PostgreSQL `ALTER TABLE ... DROP CONSTRAINT ... + ADD CONSTRAINT ...`). No table rewrites required.
+
+Filename note: D5 of the arc decisions named the migrations `008_ktx_log_template_logfile_channel.sql` / `009_ktx_match_event_type.sql` / `010_ktx_gameplay_kinds.sql`. Phase 1 of the arc renumbered to `009_ktx_log_template_logfile_channel.sql` / `010_ktx_match_event_type.sql` / `011_ktx_gameplay_kinds.sql` at execution time because the QWiki community-reference arc had already taken slot 008 (`008_community_schema.sql`). Refer to the live `db/migrations/` directory for the authoritative filenames; the schema deltas described below are stable regardless of slot assignment.
+
+### Migration A: `log_template_versions.channel` widening (`+= 'logfile'`)
+
+The `log_template_versions.channel` CHECK widens from 4 values (`broadcast` / `client` / `console` / `system`) to 5 (`+= 'logfile'`). KTX's `log_printf` API at `src/logs.c` emits XML-shaped extralog payloads to a server-side logfile channel; pre-KTX engines did not surface this channel. Per F4 of the arc's review-findings: 28 raw `log_printf` call sites; format strings include both bare-text logs and the multi-line XML wrappers the dual-row design (D10) bridges to `match_event_versions`.
+
+### Migration B: `entities.type` widening (`+= 'match_event'`) + new `match_event_versions` table
+
+Adds `'match_event'` as the 16th value of `entities.type`. New per-version table:
+
+```sql
+CREATE TABLE IF NOT EXISTS match_event_versions (
+  entity_id                 INTEGER NOT NULL REFERENCES entities(id),
+  version                   TEXT NOT NULL,
+  complex_type              TEXT NOT NULL,
+  xsd_version               TEXT NOT NULL,
+  attributes_json           JSONB NOT NULL,
+  emission_call_sites_json  JSONB NOT NULL,
+  raw_xsd_hash              TEXT,
+  extracted_at              TIMESTAMPTZ NOT NULL,
+  PRIMARY KEY (entity_id, version)
+);
+CREATE INDEX IF NOT EXISTS idx_match_event_versions_complex_type
+  ON match_event_versions(complex_type);
+CREATE INDEX IF NOT EXISTS idx_match_event_versions_xsd_version
+  ON match_event_versions(xsd_version);
+```
+
+Type-specific columns: `complex_type` (XSD complexType name -- one of `pick_mapitem`, `pick_backpack`, `drop_backpack`, `pick_powerup`, `drop_powerup`, `damage`, `death`); `xsd_version` (the XSD file's namespace version, e.g. `0.1` for `ktxlog_0.1.xsd`); `attributes_json` (per-event attribute schema -- attribute names + types per XSD); `emission_call_sites_json` (full list of `(source_file, source_line, containing_function)` triples where the engine emits this event type via `log_printf`).
+
+Per F14 of the arc's review-findings: 7 entity rows (one per XSD complexType) + 13 emission call sites mapped across `items.c` / `combat.c` / `client.c` / `logs.c`. Per-event attribute counts: `pick_mapitem=4`, backpack-events=7, `pick_powerup`/`drop_powerup`=4, `damage`=8, `death`=8.
+
+Indexes: `idx_match_event_versions_complex_type` (filter by event type) and `idx_match_event_versions_xsd_version` (filter across XSD revisions if KTX ships a `ktxlog_0.2.xsd` later).
+
+### Migration C: `gameplay_*` kind widenings
+
+Two parallel widenings:
+
+- `gameplay_entity_defs.kind` adds `'monster'` (4th value: `item` / `weapon` / `projectile` / `monster`). KTX's `bloodfest_monster_array[]` at `src/sp_monsters.c:60-76` carries 13 rows.
+- `gameplay_mechanics.kind` adds 7 values (`game_mode` / `mode_default` / `election_type` / `score_system` / `drop_item` / `loc_macro` / `teamplay_message`). Per-kind row counts at canonical 1.46:
+  - `game_mode`: 27 catalog rows (17 `um_list[]` peers + race + bloodfest + 8 mutators -- per arc D11 two-axis discriminator).
+  - `mode_default`: ~309 per-line overlays (54 `common_um_init` baseline + ~255 per-mode initstring overlays -- per arc D12 per-line granularity).
+  - `election_type`: 5 rows (skip `etNone` sentinel from the 6-value `electType_t` enum).
+  - `score_system`: 3 rows (Win Only / Scaled / Formula1; positions array length=10 invariant).
+  - `drop_item`: 31 rows from `commands.c:9075-9108`'s `dropitem_spawn_t` array (Pass 5.4 source-walk corrected from spec-time estimate of 30; F11 amendment).
+  - `loc_macro`: 15 rows from `teamplay.c:1491-1508`.
+  - `teamplay_message`: 21 rows from `teamplay.c:1645-1668`, with Pattern 9 banner-comment harvest of handler-function descriptions.
+
+Per-row gate convention (D8): `ruleset_gate_json = {"mode":"<token>"}` (single-key, user-facing token). Catalog rows themselves use `{}` (catalog rows DEFINE modes; they aren't gated by them).
+
+### Migration shape
+
+All three migrations follow the canonical Postgres pattern:
+
+```sql
+ALTER TABLE <table> DROP CONSTRAINT <table>_<column>_check;
+ALTER TABLE <table> ADD CONSTRAINT <table>_<column>_check
+  CHECK (<column> IN (<full new value set>));
+```
+
+Re-run idempotency: each `DROP CONSTRAINT` is wrapped in `IF EXISTS` so re-applying the migration on an already-widened DB is a no-op. The `match_event_versions` table CREATE uses `CREATE TABLE IF NOT EXISTS` to mirror the convention.
+
+### Cross-arc downstream consumers
+
+- The `qw_event_log` parser (`/home/paradoks/projects/qw-event-log-handoff/`) becomes unblocked at the schema level: its WeaponType + obit-string -> cause taxonomies cross-validate against `match_event_versions` (per-event schema) + `log_template_versions` filtered to `channel='logfile'` (per-call-site format strings).
+- Layer 3 concept-note candidates (parked at `docs/superpowers/parking/2026-05-04-ktx-layer3-concept-note-candidates.md`) consume KTX's first-class entity rows + gameplay_mechanics catalog + match_event entity table for the game-modes index, matchlog format, and mutators notes.
+
+### Spec / plan
+
+- Spec: `docs/superpowers/specs/2026-05-04-ktx-onboarding-design.md` (five-pass arc-brainstormer).
+- Plan: `docs/superpowers/plans/2026-05-04-ktx-onboarding/README.md` (9 phases).
 
 ---
 
