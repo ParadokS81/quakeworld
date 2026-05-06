@@ -1,0 +1,5961 @@
+{
+  "groups": {
+    "game_mode": "catalog",
+    "mode_default": "overlay"
+  },
+  "game_modes": [
+    {
+      "name": "1on1",
+      "kind": "game_mode",
+      "value_text": "um1ON1",
+      "source_ref": "commands.c:4528",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4207",
+        "init_function": null,
+        "team_structure": "UM_1ON1",
+        "race_plrs_per_team": 1,
+        "user_facing_label": "1 on 1",
+        "um_list_label_raw": "223 on 223",
+        "community_name": "Duel",
+        "wiki_ref": "https://www.quakeworld.nu/wiki/Duel",
+        "game_type": "Duel",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4528",
+          "commands.c:4207"
+        ]
+      }
+    },
+    {
+      "name": "2on2",
+      "kind": "game_mode",
+      "value_text": "um2ON2",
+      "source_ref": "commands.c:4529",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4262",
+        "init_function": null,
+        "team_structure": "UM_2ON2",
+        "race_plrs_per_team": 2,
+        "user_facing_label": "2 on 2",
+        "um_list_label_raw": "224 on 224",
+        "community_name": "2v2",
+        "wiki_ref": "https://www.quakeworld.nu/wiki/2on2",
+        "game_type": "Team",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4529",
+          "commands.c:4262"
+        ]
+      }
+    },
+    {
+      "name": "3on3",
+      "kind": "game_mode",
+      "value_text": "um3ON3",
+      "source_ref": "commands.c:4530",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4294",
+        "init_function": null,
+        "team_structure": "UM_3ON3",
+        "race_plrs_per_team": 3,
+        "user_facing_label": "3 on 3",
+        "um_list_label_raw": "225 on 225",
+        "community_name": null,
+        "wiki_ref": null,
+        "game_type": "Team",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4530",
+          "commands.c:4294"
+        ]
+      }
+    },
+    {
+      "name": "4on4",
+      "kind": "game_mode",
+      "value_text": "um4ON4",
+      "source_ref": "commands.c:4531",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4346",
+        "init_function": null,
+        "team_structure": "UM_4ON4",
+        "race_plrs_per_team": 4,
+        "user_facing_label": "4 on 4",
+        "um_list_label_raw": "226 on 226",
+        "community_name": "4v4",
+        "wiki_ref": "https://www.quakeworld.nu/wiki/4on4",
+        "game_type": "Team",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4531",
+          "commands.c:4346"
+        ]
+      }
+    },
+    {
+      "name": "10on10",
+      "kind": "game_mode",
+      "value_text": "um10ON10",
+      "source_ref": "commands.c:4532",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4378",
+        "init_function": null,
+        "team_structure": "UM_10ON10",
+        "race_plrs_per_team": 10,
+        "user_facing_label": "10 on 10",
+        "um_list_label_raw": "223222 on 223222",
+        "community_name": "10v10",
+        "wiki_ref": null,
+        "game_type": "Team",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4532",
+          "commands.c:4378"
+        ]
+      }
+    },
+    {
+      "name": "ffa",
+      "kind": "game_mode",
+      "value_text": "umFFA",
+      "source_ref": "commands.c:4533",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4410",
+        "init_function": null,
+        "team_structure": "UM_FFA",
+        "race_plrs_per_team": -1,
+        "user_facing_label": "FFA",
+        "um_list_label_raw": "ffa",
+        "community_name": "FFA",
+        "wiki_ref": "https://www.quakeworld.nu/wiki/FFA",
+        "game_type": "FFA",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4533",
+          "commands.c:4410"
+        ]
+      }
+    },
+    {
+      "name": "ctf",
+      "kind": "game_mode",
+      "value_text": "umCTF",
+      "source_ref": "commands.c:4534",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4429",
+        "init_function": null,
+        "team_structure": "UM_CTF",
+        "race_plrs_per_team": 0,
+        "user_facing_label": "CTF",
+        "um_list_label_raw": "ctf",
+        "community_name": "CTF",
+        "wiki_ref": "https://www.quakeworld.nu/wiki/CTF",
+        "game_type": "CTF",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4534",
+          "commands.c:4429"
+        ]
+      }
+    },
+    {
+      "name": "hoonymode",
+      "kind": "game_mode",
+      "value_text": "umHOONYMODE",
+      "source_ref": "commands.c:4535",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4223",
+        "init_function": null,
+        "team_structure": "UM_1ON1HM",
+        "race_plrs_per_team": 0,
+        "user_facing_label": "HoonyMode",
+        "um_list_label_raw": "HoonyMode",
+        "community_name": "HoonyMode",
+        "wiki_ref": "https://www.quakeworld.nu/wiki/HoonyMode",
+        "game_type": "Duel",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4535",
+          "commands.c:4223"
+        ]
+      }
+    },
+    {
+      "name": "blitz2v2",
+      "kind": "game_mode",
+      "value_text": "umBLITZ2v2",
+      "source_ref": "commands.c:4536",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4243",
+        "init_function": null,
+        "team_structure": "UM_1ON1HM",
+        "race_plrs_per_team": 0,
+        "user_facing_label": "Blitz (2v2)",
+        "um_list_label_raw": "Blitz (2v2)",
+        "community_name": null,
+        "wiki_ref": null,
+        "game_type": "Team",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4536",
+          "commands.c:4243"
+        ]
+      }
+    },
+    {
+      "name": "blitz4v4",
+      "kind": "game_mode",
+      "value_text": "umBLITZ4v4",
+      "source_ref": "commands.c:4537",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4327",
+        "init_function": null,
+        "team_structure": "UM_1ON1HM",
+        "race_plrs_per_team": 0,
+        "user_facing_label": "Blitz (4v4)",
+        "um_list_label_raw": "Blitz (4v4)",
+        "community_name": null,
+        "wiki_ref": null,
+        "game_type": "Team",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4537",
+          "commands.c:4327"
+        ]
+      }
+    },
+    {
+      "name": "2on2on2",
+      "kind": "game_mode",
+      "value_text": "um2ON2ON2",
+      "source_ref": "commands.c:4538",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4278",
+        "init_function": null,
+        "team_structure": "UM_2ON2ON2",
+        "race_plrs_per_team": 0,
+        "user_facing_label": "2 on 2 on 2",
+        "um_list_label_raw": "224 on 224 on 224",
+        "community_name": null,
+        "wiki_ref": null,
+        "game_type": "Team",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4538",
+          "commands.c:4278"
+        ]
+      }
+    },
+    {
+      "name": "3on3on3",
+      "kind": "game_mode",
+      "value_text": "um3ON3ON3",
+      "source_ref": "commands.c:4539",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4310",
+        "init_function": null,
+        "team_structure": "UM_3ON3ON3",
+        "race_plrs_per_team": 0,
+        "user_facing_label": "3 on 3 on 3",
+        "um_list_label_raw": "225 on 225 on 225",
+        "community_name": null,
+        "wiki_ref": null,
+        "game_type": "Team",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4539",
+          "commands.c:4310"
+        ]
+      }
+    },
+    {
+      "name": "4on4on4",
+      "kind": "game_mode",
+      "value_text": "um4ON4ON4",
+      "source_ref": "commands.c:4540",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4362",
+        "init_function": null,
+        "team_structure": "UM_4ON4ON4",
+        "race_plrs_per_team": 0,
+        "user_facing_label": "4 on 4 on 4",
+        "um_list_label_raw": "226 on 226 on 226",
+        "community_name": null,
+        "wiki_ref": null,
+        "game_type": "Team",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4540",
+          "commands.c:4362"
+        ]
+      }
+    },
+    {
+      "name": "XonX",
+      "kind": "game_mode",
+      "value_text": "umXONX",
+      "source_ref": "commands.c:4541",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4394",
+        "init_function": null,
+        "team_structure": "UM_XONX",
+        "race_plrs_per_team": 0,
+        "user_facing_label": "X on X",
+        "um_list_label_raw": "X on X",
+        "community_name": null,
+        "wiki_ref": null,
+        "game_type": "Team",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4541",
+          "commands.c:4394"
+        ]
+      }
+    },
+    {
+      "name": "wipeout",
+      "kind": "game_mode",
+      "value_text": "umWIPEOUT",
+      "source_ref": "commands.c:4542",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4453",
+        "init_function": null,
+        "team_structure": "UM_4ON4",
+        "race_plrs_per_team": 0,
+        "user_facing_label": "Wipeout",
+        "um_list_label_raw": "Wipeout",
+        "community_name": "Wipeout",
+        "wiki_ref": "https://www.quakeworld.nu/wiki/Wipeout",
+        "game_type": "Team",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4542",
+          "commands.c:4453"
+        ]
+      }
+    },
+    {
+      "name": "ca",
+      "kind": "game_mode",
+      "value_text": "umCA",
+      "source_ref": "commands.c:4543",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4478",
+        "init_function": null,
+        "team_structure": "UM_4ON4",
+        "race_plrs_per_team": 0,
+        "user_facing_label": "Clan Arena",
+        "um_list_label_raw": "Clan Arena",
+        "community_name": "Clan Arena",
+        "wiki_ref": "https://www.quakeworld.nu/wiki/Clan_Arena",
+        "game_type": "Team",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4543",
+          "commands.c:4478"
+        ]
+      }
+    },
+    {
+      "name": "tot",
+      "kind": "game_mode",
+      "value_text": "umTOT",
+      "source_ref": "commands.c:4544",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "um_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": null,
+        "initstring_ref": "commands.c:4502",
+        "init_function": null,
+        "team_structure": "UM_FFA",
+        "race_plrs_per_team": 0,
+        "user_facing_label": "Tribe of Tjernobyl",
+        "um_list_label_raw": "Tribe of Tjernobyl",
+        "community_name": null,
+        "wiki_ref": null,
+        "game_type": "FFA",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:4544",
+          "commands.c:4502"
+        ]
+      }
+    },
+    {
+      "name": "race",
+      "kind": "game_mode",
+      "value_text": null,
+      "source_ref": "race.c:242",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "cvar_toggle_with_init_string",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": "k_race",
+        "initstring_ref": "race.c:293",
+        "init_function": "apply_race_settings",
+        "team_structure": "UM_RACEMODE",
+        "race_plrs_per_team": null,
+        "user_facing_label": "Race",
+        "community_name": "Race",
+        "wiki_ref": "https://www.quakeworld.nu/wiki/Race",
+        "game_type": "Race",
+        "playable_solo": true,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "commands.c:695",
+          "race.c:242",
+          "race.c:293",
+          "race.c:323",
+          "world.c:912"
+        ]
+      }
+    },
+    {
+      "name": "bloodfest",
+      "kind": "game_mode",
+      "value_text": null,
+      "source_ref": "world.c:971",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "cvar_toggle_only",
+        "mode_class": "standalone",
+        "auto_reset_on_match": false,
+        "activation_cvar": "k_bloodfest",
+        "initstring_ref": null,
+        "init_function": null,
+        "team_structure": null,
+        "race_plrs_per_team": null,
+        "user_facing_label": "Bloodfest",
+        "community_name": "Bloodfest",
+        "wiki_ref": null,
+        "game_type": "Survival",
+        "playable_solo": true,
+        "auto_reset_call_sites": [],
+        "source_xrefs": [
+          "world.c:971",
+          "sp_monsters.c:35-41"
+        ]
+      }
+    },
+    {
+      "name": "lgc",
+      "kind": "game_mode",
+      "value_text": null,
+      "source_ref": "world.c:1083",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "cvar_toggle_only",
+        "mode_class": "mutator",
+        "auto_reset_on_match": true,
+        "activation_cvar": "k_lgcmode",
+        "initstring_ref": null,
+        "init_function": null,
+        "team_structure": null,
+        "race_plrs_per_team": null,
+        "user_facing_label": "LGC Mode",
+        "community_name": "LGC",
+        "wiki_ref": "https://www.quakeworld.nu/wiki/LGC",
+        "game_type": "Mutator",
+        "playable_solo": false,
+        "auto_reset_call_sites": [
+          "commands.c:7540",
+          "commands.c:7756"
+        ],
+        "sub_flags_json": null,
+        "source_xrefs": [
+          "commands.c:7870",
+          "world.c:1083"
+        ]
+      }
+    },
+    {
+      "name": "instagib",
+      "kind": "game_mode",
+      "value_text": null,
+      "source_ref": "world.c:975",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "cvar_toggle_only",
+        "mode_class": "mutator",
+        "auto_reset_on_match": true,
+        "activation_cvar": "k_instagib",
+        "initstring_ref": null,
+        "init_function": null,
+        "team_structure": null,
+        "race_plrs_per_team": null,
+        "user_facing_label": "Instagib",
+        "community_name": "Instagib",
+        "wiki_ref": "https://www.quakeworld.nu/wiki/Instagib",
+        "game_type": "Mutator",
+        "playable_solo": false,
+        "auto_reset_call_sites": [
+          "commands.c:2883",
+          "commands.c:7535",
+          "commands.c:7856",
+          "commands.c:7924"
+        ],
+        "sub_flags_json": null,
+        "source_xrefs": [
+          "commands.c:955",
+          "world.c:975"
+        ]
+      }
+    },
+    {
+      "name": "midair",
+      "kind": "game_mode",
+      "value_text": null,
+      "source_ref": "world.c:966",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "cvar_toggle_only",
+        "mode_class": "mutator",
+        "auto_reset_on_match": true,
+        "activation_cvar": "k_midair",
+        "initstring_ref": null,
+        "init_function": null,
+        "team_structure": null,
+        "race_plrs_per_team": null,
+        "user_facing_label": "Midair",
+        "community_name": "Midair",
+        "wiki_ref": "https://www.quakeworld.nu/wiki/Midair",
+        "game_type": "Mutator",
+        "playable_solo": false,
+        "auto_reset_call_sites": [
+          "commands.c:2882",
+          "commands.c:7751",
+          "commands.c:7851",
+          "commands.c:7920"
+        ],
+        "sub_flags_json": null,
+        "source_xrefs": [
+          "commands.c:7553",
+          "world.c:966"
+        ]
+      }
+    },
+    {
+      "name": "berzerk",
+      "kind": "game_mode",
+      "value_text": null,
+      "source_ref": "world.c:930",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "cvar_toggle_only",
+        "mode_class": "mutator",
+        "auto_reset_on_match": false,
+        "activation_cvar": "k_bzk",
+        "initstring_ref": null,
+        "init_function": null,
+        "team_structure": null,
+        "race_plrs_per_team": null,
+        "user_facing_label": "Berzerk",
+        "community_name": null,
+        "wiki_ref": null,
+        "game_type": "Mutator",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "sub_flags_json": null,
+        "source_xrefs": [
+          "commands.c:3240",
+          "world.c:930"
+        ]
+      }
+    },
+    {
+      "name": "yawnmode",
+      "kind": "game_mode",
+      "value_text": null,
+      "source_ref": "world.c:1011",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "cvar_toggle_only",
+        "mode_class": "mutator",
+        "auto_reset_on_match": false,
+        "activation_cvar": "k_yawnmode",
+        "initstring_ref": null,
+        "init_function": null,
+        "team_structure": null,
+        "race_plrs_per_team": null,
+        "user_facing_label": "Yawnmode",
+        "community_name": null,
+        "wiki_ref": null,
+        "game_type": "Mutator",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "sub_flags_json": null,
+        "source_xrefs": [
+          "commands.c:8641",
+          "world.c:1011"
+        ]
+      }
+    },
+    {
+      "name": "killquad",
+      "kind": "game_mode",
+      "value_text": null,
+      "source_ref": "world.c:969",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "cvar_toggle_only",
+        "mode_class": "mutator",
+        "auto_reset_on_match": false,
+        "activation_cvar": "k_killquad",
+        "initstring_ref": null,
+        "init_function": null,
+        "team_structure": null,
+        "race_plrs_per_team": null,
+        "user_facing_label": "KillQuad",
+        "community_name": "KillQuad",
+        "wiki_ref": null,
+        "game_type": "Mutator",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "sub_flags_json": null,
+        "source_xrefs": [
+          "commands.c:3121",
+          "world.c:969"
+        ]
+      }
+    },
+    {
+      "name": "freshteams",
+      "kind": "game_mode",
+      "value_text": null,
+      "source_ref": "world.c:894",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "cvar_toggle_only",
+        "mode_class": "mutator",
+        "auto_reset_on_match": false,
+        "activation_cvar": "k_freshteams",
+        "initstring_ref": null,
+        "init_function": null,
+        "team_structure": null,
+        "race_plrs_per_team": null,
+        "user_facing_label": "FreshTeams",
+        "community_name": "FreshTeams",
+        "wiki_ref": null,
+        "game_type": "Mutator",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "sub_flags_json": [
+          "k_freshteams_limit_packs",
+          "k_freshteams_limit_sweep_ammo",
+          "k_freshteams_fast_ammo",
+          "k_freshteams_weapon_time"
+        ],
+        "source_xrefs": [
+          "commands.c:7619",
+          "world.c:894"
+        ]
+      }
+    },
+    {
+      "name": "nosweep",
+      "kind": "game_mode",
+      "value_text": null,
+      "source_ref": "world.c:909",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "init_mechanism": "cvar_toggle_only",
+        "mode_class": "mutator",
+        "auto_reset_on_match": false,
+        "activation_cvar": "k_nosweep",
+        "initstring_ref": null,
+        "init_function": null,
+        "team_structure": null,
+        "race_plrs_per_team": null,
+        "user_facing_label": "NoSweep",
+        "community_name": null,
+        "wiki_ref": null,
+        "game_type": "Mutator",
+        "playable_solo": false,
+        "auto_reset_call_sites": [],
+        "sub_flags_json": null,
+        "source_xrefs": [
+          "commands.c:7711",
+          "world.c:909"
+        ]
+      }
+    }
+  ],
+  "mode_defaults": [
+    {
+      "name": "k_pow_pickup",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4153",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "sv_loadentfiles_dir",
+      "kind": "mode_default",
+      "value_text": "\\\"\\\"",
+      "value_numeric": null,
+      "source_ref": "commands.c:4154",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "sv_antilag",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4155",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "antilag on",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_bloodfest",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4156",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_killquad",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4157",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "pm_airstep",
+      "kind": "mode_default",
+      "value_text": "\\\"\\\"",
+      "value_numeric": null,
+      "source_ref": "commands.c:4158",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "airstep off by default",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "samelevel",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4159",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "change levels off",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "8",
+      "value_numeric": 8,
+      "source_ref": "commands.c:4160",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "maxclients",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_yawnmode",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4161",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "disable SHITMODE by default (c)Renzo",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_instagib",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4162",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "instagib off",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_cg_kb",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4163",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "coilgun kickback in instagib",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_disallow_weapons",
+      "kind": "mode_default",
+      "value_text": "16",
+      "value_numeric": 16,
+      "source_ref": "commands.c:4164",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "disallow gl in dmm4 by default",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "floodprot",
+      "kind": "mode_default",
+      "value_text": "10 1 1",
+      "value_numeric": null,
+      "source_ref": "commands.c:4165",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "10 messages in 1 seconds, 1 second silence",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_fp",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4166",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "floodprot for players",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_fp_spec",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4167",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "floodprot for specs",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "dmm4_invinc_time",
+      "kind": "mode_default",
+      "value_text": "\\\"\\\"",
+      "value_numeric": null,
+      "source_ref": "commands.c:4168",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "reset to default",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_noitems",
+      "kind": "mode_default",
+      "value_text": "\\\"\\\"",
+      "value_numeric": null,
+      "source_ref": "commands.c:4169",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "reset to default",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_clan_arena",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4170",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "disable Clan Arena by default",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_rocketarena",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4171",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "disable Rocket Arena by default",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_race",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4172",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "disable Race by default",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_hoonymode",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4173",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "disable HoonyMode by default",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_freshteams",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4174",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "disable FreshTeams by default",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_nosweep",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4175",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "disable nosweep by default",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_spec_info",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4176",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "allow spectators receive took info during game",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_midair",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4177",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "midair off",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_lgcmode",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4178",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "LGC mode off",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_tot_mode",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4179",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "ToT mode off",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "fraglimit",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4180",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "fraglimit %)",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "dp",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4181",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "drop pack",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "dq",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4182",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "drop quad",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "dr",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4183",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "drop ring",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_frp",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4184",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "fairpacks",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_spectalk",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4185",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "silence",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_dis",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4186",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "discharge on",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_spw",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4187",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "affect spawn type",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_dmgfrags",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4188",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "damage frags off",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_dmm4_gren_mode",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4189",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "dmm4 grenade mode off",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_tp_tele_death",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4190",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "affect frags on team telefrags or not",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_allowcountchange",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4191",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "permissions for upplayers, only real admins",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_maxspectators",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4192",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "some default value",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_ip_list",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4193",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "permissions for iplist, only real admins",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_idletime",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4194",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "idlebot",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4195",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "some unlimited values",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4196",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "some unlimited values",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "64",
+      "value_numeric": 64,
+      "source_ref": "commands.c:4197",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "some unlimited values",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_lockmode",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4198",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "server lockmode",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_pow_q",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4199",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "powerups - quad",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_pow_p",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4200",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "powerups - pent",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_pow_r",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4201",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "powerups - ring",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_pow_s",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4202",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "powerups - suit",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "qtv_sayenabled",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4203",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "default blocking of qtv chat",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "k_bzk",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4204",
+      "ruleset_gate_json": {
+        "mode": "common"
+      },
+      "props_json": {
+        "comment": "berzerk mode off",
+        "apply_order": 1,
+        "initstring_array": "common_um_init",
+        "is_baseline": true
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4208",
+      "ruleset_gate_json": {
+        "mode": "1on1"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_1on1_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4209",
+      "ruleset_gate_json": {
+        "mode": "1on1"
+      },
+      "props_json": {
+        "comment": "duel = two players",
+        "apply_order": 2,
+        "initstring_array": "_1on1_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4210",
+      "ruleset_gate_json": {
+        "mode": "1on1"
+      },
+      "props_json": {
+        "comment": "duel = two players",
+        "apply_order": 2,
+        "initstring_array": "_1on1_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "10",
+      "value_numeric": 10,
+      "source_ref": "commands.c:4211",
+      "ruleset_gate_json": {
+        "mode": "1on1"
+      },
+      "props_json": {
+        "comment": "10 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_1on1_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4212",
+      "ruleset_gate_json": {
+        "mode": "1on1"
+      },
+      "props_json": {
+        "comment": "hurt yourself, no teammates here",
+        "apply_order": 2,
+        "initstring_array": "_1on1_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4213",
+      "ruleset_gate_json": {
+        "mode": "1on1"
+      },
+      "props_json": {
+        "comment": "weapons stay",
+        "apply_order": 2,
+        "initstring_array": "_1on1_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4214",
+      "ruleset_gate_json": {
+        "mode": "1on1"
+      },
+      "props_json": {
+        "comment": "overtime type = time based",
+        "apply_order": 2,
+        "initstring_array": "_1on1_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4215",
+      "ruleset_gate_json": {
+        "mode": "1on1"
+      },
+      "props_json": {
+        "comment": "overtime 3mins",
+        "apply_order": 2,
+        "initstring_array": "_1on1_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4216",
+      "ruleset_gate_json": {
+        "mode": "1on1"
+      },
+      "props_json": {
+        "comment": "powerups",
+        "apply_order": 2,
+        "initstring_array": "_1on1_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4217",
+      "ruleset_gate_json": {
+        "mode": "1on1"
+      },
+      "props_json": {
+        "comment": "no efect in duel",
+        "apply_order": 2,
+        "initstring_array": "_1on1_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4218",
+      "ruleset_gate_json": {
+        "mode": "1on1"
+      },
+      "props_json": {
+        "comment": "no efect in duel",
+        "apply_order": 2,
+        "initstring_array": "_1on1_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4219",
+      "ruleset_gate_json": {
+        "mode": "1on1"
+      },
+      "props_json": {
+        "comment": "no efect in duel",
+        "apply_order": 2,
+        "initstring_array": "_1on1_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4220",
+      "ruleset_gate_json": {
+        "mode": "1on1"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_1on1_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4224",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4225",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "duel = two players",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4226",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "duel = two players",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "fraglimit",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4227",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "hoonymode - every 1 frag we toggle spawns",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4228",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "hoonymode - timelimit 0",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_hoonymode",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4229",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_hoonyrounds",
+      "kind": "mode_default",
+      "value_text": "12",
+      "value_numeric": 12,
+      "source_ref": "commands.c:4230",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "first to seven",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4231",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "hurt yourself, no teammates here",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4232",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "weapons stay",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4233",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "overtime type = time based",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4234",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "overtime 3mins",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4235",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "powerups",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4236",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "no efect in duel",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4237",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "no efect in duel",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4238",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": "no efect in duel",
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4239",
+      "ruleset_gate_json": {
+        "mode": "hoonymode"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_1on1hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4244",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4245",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "2on2 = 4 players",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4246",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "2on2 = 4 players",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4247",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "3 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_hoonyrounds",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4248",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "4 rounds (2 sets of spawns)",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "fraglimit",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4249",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "hoonymode - no fraglimit, time-based",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_hoonymode",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4250",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4251",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "hurt teammates and yourself",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4252",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "weapons stay",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4253",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "time based",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4254",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "overtime 3mins",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4255",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "use powerups",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4256",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "minimum number of players in each team",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4257",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "minimum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4258",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "maximum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4259",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4263",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4264",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "2on2 = 4 players",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4265",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "2on2 = 4 players",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "10",
+      "value_numeric": 10,
+      "source_ref": "commands.c:4266",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "10 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4267",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "hurt teammates and yourself",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4268",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "weapons stay",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4269",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "time based",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4270",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "overtime 3mins",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4271",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "use powerups",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4272",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "minimum number of players in each team",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4273",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "minimum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4274",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "maximum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4275",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4279",
+      "ruleset_gate_json": {
+        "mode": "2on2on2"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_2on2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "6",
+      "value_numeric": 6,
+      "source_ref": "commands.c:4280",
+      "ruleset_gate_json": {
+        "mode": "2on2on2"
+      },
+      "props_json": {
+        "comment": "2on2on2 = 6 players",
+        "apply_order": 2,
+        "initstring_array": "_2on2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "6",
+      "value_numeric": 6,
+      "source_ref": "commands.c:4281",
+      "ruleset_gate_json": {
+        "mode": "2on2on2"
+      },
+      "props_json": {
+        "comment": "2on2on2 = 6 players",
+        "apply_order": 2,
+        "initstring_array": "_2on2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "10",
+      "value_numeric": 10,
+      "source_ref": "commands.c:4282",
+      "ruleset_gate_json": {
+        "mode": "2on2on2"
+      },
+      "props_json": {
+        "comment": "10 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_2on2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4283",
+      "ruleset_gate_json": {
+        "mode": "2on2on2"
+      },
+      "props_json": {
+        "comment": "hurt teammates and yourself",
+        "apply_order": 2,
+        "initstring_array": "_2on2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4284",
+      "ruleset_gate_json": {
+        "mode": "2on2on2"
+      },
+      "props_json": {
+        "comment": "weapons stay",
+        "apply_order": 2,
+        "initstring_array": "_2on2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4285",
+      "ruleset_gate_json": {
+        "mode": "2on2on2"
+      },
+      "props_json": {
+        "comment": "time based",
+        "apply_order": 2,
+        "initstring_array": "_2on2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4286",
+      "ruleset_gate_json": {
+        "mode": "2on2on2"
+      },
+      "props_json": {
+        "comment": "overtime 3mins",
+        "apply_order": 2,
+        "initstring_array": "_2on2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4287",
+      "ruleset_gate_json": {
+        "mode": "2on2on2"
+      },
+      "props_json": {
+        "comment": "use powerups",
+        "apply_order": 2,
+        "initstring_array": "_2on2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4288",
+      "ruleset_gate_json": {
+        "mode": "2on2on2"
+      },
+      "props_json": {
+        "comment": "minimum number of players in each team",
+        "apply_order": 2,
+        "initstring_array": "_2on2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4289",
+      "ruleset_gate_json": {
+        "mode": "2on2on2"
+      },
+      "props_json": {
+        "comment": "minimum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_2on2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4290",
+      "ruleset_gate_json": {
+        "mode": "2on2on2"
+      },
+      "props_json": {
+        "comment": "maximum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_2on2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4291",
+      "ruleset_gate_json": {
+        "mode": "2on2on2"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_2on2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4295",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "6",
+      "value_numeric": 6,
+      "source_ref": "commands.c:4296",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "3on3 = 6 players",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "6",
+      "value_numeric": 6,
+      "source_ref": "commands.c:4297",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "3on3 = 6 players",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "15",
+      "value_numeric": 15,
+      "source_ref": "commands.c:4298",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "15 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4299",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "hurt teammates and yourself",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4300",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "weapons wont stay on pickup",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4301",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "use powerups",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4302",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "minimum number of players in each team",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4303",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "minimum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4304",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "maximum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4305",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "time based",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4306",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "overtime 5mins",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4307",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4311",
+      "ruleset_gate_json": {
+        "mode": "3on3on3"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_3on3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "9",
+      "value_numeric": 9,
+      "source_ref": "commands.c:4312",
+      "ruleset_gate_json": {
+        "mode": "3on3on3"
+      },
+      "props_json": {
+        "comment": "3on3on3 = 9 players",
+        "apply_order": 2,
+        "initstring_array": "_3on3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "9",
+      "value_numeric": 9,
+      "source_ref": "commands.c:4313",
+      "ruleset_gate_json": {
+        "mode": "3on3on3"
+      },
+      "props_json": {
+        "comment": "3on3on3 = 9 players",
+        "apply_order": 2,
+        "initstring_array": "_3on3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "15",
+      "value_numeric": 15,
+      "source_ref": "commands.c:4314",
+      "ruleset_gate_json": {
+        "mode": "3on3on3"
+      },
+      "props_json": {
+        "comment": "15 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_3on3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4315",
+      "ruleset_gate_json": {
+        "mode": "3on3on3"
+      },
+      "props_json": {
+        "comment": "hurt teammates and yourself",
+        "apply_order": 2,
+        "initstring_array": "_3on3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4316",
+      "ruleset_gate_json": {
+        "mode": "3on3on3"
+      },
+      "props_json": {
+        "comment": "weapons wont stay on pickup",
+        "apply_order": 2,
+        "initstring_array": "_3on3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4317",
+      "ruleset_gate_json": {
+        "mode": "3on3on3"
+      },
+      "props_json": {
+        "comment": "use powerups",
+        "apply_order": 2,
+        "initstring_array": "_3on3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4318",
+      "ruleset_gate_json": {
+        "mode": "3on3on3"
+      },
+      "props_json": {
+        "comment": "minimum number of players in each team",
+        "apply_order": 2,
+        "initstring_array": "_3on3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4319",
+      "ruleset_gate_json": {
+        "mode": "3on3on3"
+      },
+      "props_json": {
+        "comment": "minimum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_3on3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4320",
+      "ruleset_gate_json": {
+        "mode": "3on3on3"
+      },
+      "props_json": {
+        "comment": "maximum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_3on3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4321",
+      "ruleset_gate_json": {
+        "mode": "3on3on3"
+      },
+      "props_json": {
+        "comment": "time based",
+        "apply_order": 2,
+        "initstring_array": "_3on3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4322",
+      "ruleset_gate_json": {
+        "mode": "3on3on3"
+      },
+      "props_json": {
+        "comment": "overtime 5mins",
+        "apply_order": 2,
+        "initstring_array": "_3on3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4323",
+      "ruleset_gate_json": {
+        "mode": "3on3on3"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_3on3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4328",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "8",
+      "value_numeric": 8,
+      "source_ref": "commands.c:4329",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "4on4 = 8 players",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "8",
+      "value_numeric": 8,
+      "source_ref": "commands.c:4330",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "4on4 = 8 players",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4331",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "5 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_hoonyrounds",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4332",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "4 rounds (2 sets of spawns)",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "fraglimit",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4333",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "no fraglimit, time-based",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4334",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "hurt teammates and yourself",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4335",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "weapons wont stay on pickup",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_hoonymode",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4336",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4337",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "use powerups",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4338",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "minimum number of players in each team",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4339",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "minimum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4340",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "maximum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4341",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "time based",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4342",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": "overtime 5mins",
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4343",
+      "ruleset_gate_json": {
+        "mode": "blitz4v4"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_4on4hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4347",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "8",
+      "value_numeric": 8,
+      "source_ref": "commands.c:4348",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "4on4 = 8 players",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "8",
+      "value_numeric": 8,
+      "source_ref": "commands.c:4349",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "4on4 = 8 players",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "20",
+      "value_numeric": 20,
+      "source_ref": "commands.c:4350",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "20 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4351",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "hurt teammates and yourself",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4352",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "weapons wont stay on pickup",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4353",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "use powerups",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4354",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "minimum number of players in each team",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4355",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "minimum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4356",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "maximum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4357",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "time based",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4358",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "overtime 5mins",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4359",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4363",
+      "ruleset_gate_json": {
+        "mode": "4on4on4"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_4on4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "12",
+      "value_numeric": 12,
+      "source_ref": "commands.c:4364",
+      "ruleset_gate_json": {
+        "mode": "4on4on4"
+      },
+      "props_json": {
+        "comment": "4on4on4 = 12 players",
+        "apply_order": 2,
+        "initstring_array": "_4on4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "12",
+      "value_numeric": 12,
+      "source_ref": "commands.c:4365",
+      "ruleset_gate_json": {
+        "mode": "4on4on4"
+      },
+      "props_json": {
+        "comment": "4on4on4 = 12 players",
+        "apply_order": 2,
+        "initstring_array": "_4on4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "20",
+      "value_numeric": 20,
+      "source_ref": "commands.c:4366",
+      "ruleset_gate_json": {
+        "mode": "4on4on4"
+      },
+      "props_json": {
+        "comment": "20 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_4on4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4367",
+      "ruleset_gate_json": {
+        "mode": "4on4on4"
+      },
+      "props_json": {
+        "comment": "hurt teammates and yourself",
+        "apply_order": 2,
+        "initstring_array": "_4on4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4368",
+      "ruleset_gate_json": {
+        "mode": "4on4on4"
+      },
+      "props_json": {
+        "comment": "weapons wont stay on pickup",
+        "apply_order": 2,
+        "initstring_array": "_4on4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4369",
+      "ruleset_gate_json": {
+        "mode": "4on4on4"
+      },
+      "props_json": {
+        "comment": "use powerups",
+        "apply_order": 2,
+        "initstring_array": "_4on4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4370",
+      "ruleset_gate_json": {
+        "mode": "4on4on4"
+      },
+      "props_json": {
+        "comment": "minimum number of players in each team",
+        "apply_order": 2,
+        "initstring_array": "_4on4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4371",
+      "ruleset_gate_json": {
+        "mode": "4on4on4"
+      },
+      "props_json": {
+        "comment": "minimum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_4on4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4372",
+      "ruleset_gate_json": {
+        "mode": "4on4on4"
+      },
+      "props_json": {
+        "comment": "maximum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_4on4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4373",
+      "ruleset_gate_json": {
+        "mode": "4on4on4"
+      },
+      "props_json": {
+        "comment": "time based",
+        "apply_order": 2,
+        "initstring_array": "_4on4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4374",
+      "ruleset_gate_json": {
+        "mode": "4on4on4"
+      },
+      "props_json": {
+        "comment": "overtime 5mins",
+        "apply_order": 2,
+        "initstring_array": "_4on4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4375",
+      "ruleset_gate_json": {
+        "mode": "4on4on4"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_4on4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4379",
+      "ruleset_gate_json": {
+        "mode": "10on10"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_10on10_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "20",
+      "value_numeric": 20,
+      "source_ref": "commands.c:4380",
+      "ruleset_gate_json": {
+        "mode": "10on10"
+      },
+      "props_json": {
+        "comment": "10on10 = 20 players",
+        "apply_order": 2,
+        "initstring_array": "_10on10_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "20",
+      "value_numeric": 20,
+      "source_ref": "commands.c:4381",
+      "ruleset_gate_json": {
+        "mode": "10on10"
+      },
+      "props_json": {
+        "comment": "10on10 = 20 players",
+        "apply_order": 2,
+        "initstring_array": "_10on10_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "20",
+      "value_numeric": 20,
+      "source_ref": "commands.c:4382",
+      "ruleset_gate_json": {
+        "mode": "10on10"
+      },
+      "props_json": {
+        "comment": "20 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_10on10_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4383",
+      "ruleset_gate_json": {
+        "mode": "10on10"
+      },
+      "props_json": {
+        "comment": "hurt yourself and teammates",
+        "apply_order": 2,
+        "initstring_array": "_10on10_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4384",
+      "ruleset_gate_json": {
+        "mode": "10on10"
+      },
+      "props_json": {
+        "comment": "wpons dowont stay on pickup",
+        "apply_order": 2,
+        "initstring_array": "_10on10_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4385",
+      "ruleset_gate_json": {
+        "mode": "10on10"
+      },
+      "props_json": {
+        "comment": "user powerups",
+        "apply_order": 2,
+        "initstring_array": "_10on10_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4386",
+      "ruleset_gate_json": {
+        "mode": "10on10"
+      },
+      "props_json": {
+        "comment": "minimum number of players in each team",
+        "apply_order": 2,
+        "initstring_array": "_10on10_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4387",
+      "ruleset_gate_json": {
+        "mode": "10on10"
+      },
+      "props_json": {
+        "comment": "minimum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_10on10_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4388",
+      "ruleset_gate_json": {
+        "mode": "10on10"
+      },
+      "props_json": {
+        "comment": "maximum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_10on10_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4389",
+      "ruleset_gate_json": {
+        "mode": "10on10"
+      },
+      "props_json": {
+        "comment": "time based",
+        "apply_order": 2,
+        "initstring_array": "_10on10_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4390",
+      "ruleset_gate_json": {
+        "mode": "10on10"
+      },
+      "props_json": {
+        "comment": "overtime 5mins",
+        "apply_order": 2,
+        "initstring_array": "_10on10_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4391",
+      "ruleset_gate_json": {
+        "mode": "10on10"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_10on10_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4395",
+      "ruleset_gate_json": {
+        "mode": "XonX"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_XonX_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "32",
+      "value_numeric": 32,
+      "source_ref": "commands.c:4396",
+      "ruleset_gate_json": {
+        "mode": "XonX"
+      },
+      "props_json": {
+        "comment": "allow up to 32 players",
+        "apply_order": 2,
+        "initstring_array": "_XonX_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "32",
+      "value_numeric": 32,
+      "source_ref": "commands.c:4397",
+      "ruleset_gate_json": {
+        "mode": "XonX"
+      },
+      "props_json": {
+        "comment": "allow up to 32 players",
+        "apply_order": 2,
+        "initstring_array": "_XonX_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "20",
+      "value_numeric": 20,
+      "source_ref": "commands.c:4398",
+      "ruleset_gate_json": {
+        "mode": "XonX"
+      },
+      "props_json": {
+        "comment": "20 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_XonX_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4399",
+      "ruleset_gate_json": {
+        "mode": "XonX"
+      },
+      "props_json": {
+        "comment": "hurt teammates and yourself",
+        "apply_order": 2,
+        "initstring_array": "_XonX_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4400",
+      "ruleset_gate_json": {
+        "mode": "XonX"
+      },
+      "props_json": {
+        "comment": "weapons wont stay on pickup",
+        "apply_order": 2,
+        "initstring_array": "_XonX_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4401",
+      "ruleset_gate_json": {
+        "mode": "XonX"
+      },
+      "props_json": {
+        "comment": "use powerups",
+        "apply_order": 2,
+        "initstring_array": "_XonX_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4402",
+      "ruleset_gate_json": {
+        "mode": "XonX"
+      },
+      "props_json": {
+        "comment": "minimum number of players in each team",
+        "apply_order": 2,
+        "initstring_array": "_XonX_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4403",
+      "ruleset_gate_json": {
+        "mode": "XonX"
+      },
+      "props_json": {
+        "comment": "minimum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_XonX_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4404",
+      "ruleset_gate_json": {
+        "mode": "XonX"
+      },
+      "props_json": {
+        "comment": "maximum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_XonX_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4405",
+      "ruleset_gate_json": {
+        "mode": "XonX"
+      },
+      "props_json": {
+        "comment": "time based",
+        "apply_order": 2,
+        "initstring_array": "_XonX_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4406",
+      "ruleset_gate_json": {
+        "mode": "XonX"
+      },
+      "props_json": {
+        "comment": "overtime 5mins",
+        "apply_order": 2,
+        "initstring_array": "_XonX_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4407",
+      "ruleset_gate_json": {
+        "mode": "XonX"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_XonX_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "26",
+      "value_numeric": 26,
+      "source_ref": "commands.c:4412",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "some limit",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "26",
+      "value_numeric": 26,
+      "source_ref": "commands.c:4413",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "some limit",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "20",
+      "value_numeric": 20,
+      "source_ref": "commands.c:4414",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "some limit",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4415",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "hurt yourself, no teammates",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4416",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "weapons stay",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "dq",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4417",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "drop quad",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "dr",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4418",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "drop ring",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4419",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "use powerups",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4420",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "no effect in ffa",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4421",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "no effect in ffa",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4422",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "no effect in ffa",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4423",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "time based",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4424",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "overtime 5mins",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4425",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_bzk",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4426",
+      "ruleset_gate_json": {
+        "mode": "ffa"
+      },
+      "props_json": {
+        "comment": "berzerk mode on ;)",
+        "apply_order": 2,
+        "initstring_array": "ffa_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "sv_loadentfiles_dir",
+      "kind": "mode_default",
+      "value_text": "ctf",
+      "value_numeric": null,
+      "source_ref": "commands.c:4430",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "pm_airstep",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4431",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4432",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "16",
+      "value_numeric": 16,
+      "source_ref": "commands.c:4433",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "16",
+      "value_numeric": 16,
+      "source_ref": "commands.c:4434",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "10",
+      "value_numeric": 10,
+      "source_ref": "commands.c:4435",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4436",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4437",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_dis",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4438",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": "no out of water discharges in ctf",
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4439",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_spw",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4440",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4441",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4442",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4443",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4444",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4445",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4446",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_ctf_based_spawn",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4447",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": "team based spawn",
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_ctf_hook",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4448",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": "hook off",
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_ctf_runes",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4449",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": "runes off",
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_ctf_ga",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4450",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": "green armor on",
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_clan_arena",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4454",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "enable wipeout",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_clan_arena_rounds",
+      "kind": "mode_default",
+      "value_text": "9",
+      "value_numeric": 9,
+      "source_ref": "commands.c:4455",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "number of rounds in a series",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_clan_arena_max_respawns",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4456",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "number of respawns per round",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4457",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "dp",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4458",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "don't drop packs",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4459",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4460",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4461",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "no time limit",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "8",
+      "value_numeric": 8,
+      "source_ref": "commands.c:4462",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "no more than 8 players in ca/wipeout",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "8",
+      "value_numeric": 8,
+      "source_ref": "commands.c:4463",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "no more than 8 players in ca/wipeout",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4464",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4465",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_spectalk",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4466",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "enable spec talk by default",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4467",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "zero overtime length",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_spw",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4468",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "KT Safety spawns (important for CA)",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_dmgfrags",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4469",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "1 \"frag\" for every 100 damage dealt",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_teamoverlay",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4470",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "enable teamoverlay by default",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4471",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "no minimum team size",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_noitems",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4472",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "no items on the map",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4473",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "minimum number of teams",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4474",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": "maximum number of teams",
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4475",
+      "ruleset_gate_json": {
+        "mode": "wipeout"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "wipeout_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_clan_arena",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4479",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "enable clan arena",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_clan_arena_rounds",
+      "kind": "mode_default",
+      "value_text": "9",
+      "value_numeric": 9,
+      "source_ref": "commands.c:4480",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "number of rounds in a series",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_clan_arena_max_respawns",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4481",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "number of respawns per round",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "dp",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4482",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "don't drop packs",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4483",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4484",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4485",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "no time limit",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "8",
+      "value_numeric": 8,
+      "source_ref": "commands.c:4486",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "no more than 8 players in ca/wipeout",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "8",
+      "value_numeric": 8,
+      "source_ref": "commands.c:4487",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "no more than 8 players in ca/wipeout",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4488",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4489",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_spectalk",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4490",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "enable spec talk by default",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4491",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "zero overtime length",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_spw",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4492",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "KT Safety spawns (important for CA)",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_dmgfrags",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4493",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "1 \"frag\" for every 100 damage dealt",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_teamoverlay",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4494",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "enable teamoverlay by default",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4495",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "no minimum team size",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_noitems",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4496",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "no items on the map",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4497",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4498",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": "maximum number of teams",
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4499",
+      "ruleset_gate_json": {
+        "mode": "ca"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "carena_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4503",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "dmm4_invinc_time",
+      "kind": "mode_default",
+      "value_text": "-1",
+      "value_numeric": -1,
+      "source_ref": "commands.c:4504",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "dq",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4505",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "dr",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4506",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_bzk",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4507",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_disallow_weapons",
+      "kind": "mode_default",
+      "value_text": "80",
+      "value_numeric": 80,
+      "source_ref": "commands.c:4508",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4509",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_fb_enabled",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4510",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_fb_quad_multiplier",
+      "kind": "mode_default",
+      "value_text": "8",
+      "value_numeric": 8,
+      "source_ref": "commands.c:4511",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4512",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4513",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "9",
+      "value_numeric": 9,
+      "source_ref": "commands.c:4514",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4515",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4516",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4517",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4518",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_spw",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4519",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_tot_mode",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4520",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "9",
+      "value_numeric": 9,
+      "source_ref": "commands.c:4521",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4522",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "5",
+      "value_numeric": 5,
+      "source_ref": "commands.c:4523",
+      "ruleset_gate_json": {
+        "mode": "tot"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "tot_um_init",
+        "is_baseline": false
+      }
+    }
+  ],
+  "_stats": {
+    "catalog_count": 27,
+    "mode_default_count": 317,
+    "by_array": {
+      "common_um_init": {
+        "line_count": 52,
+        "macros_resolved": 2,
+        "macros_unresolved": 0
+      },
+      "_1on1_um_init": {
+        "line_count": 13,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "_1on1hm_um_init": {
+        "line_count": 16,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "_2on2hm_um_init": {
+        "line_count": 16,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "_2on2_um_init": {
+        "line_count": 13,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "_2on2on2_um_init": {
+        "line_count": 13,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "_3on3_um_init": {
+        "line_count": 13,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "_3on3on3_um_init": {
+        "line_count": 13,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "_4on4hm_um_init": {
+        "line_count": 16,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "_4on4_um_init": {
+        "line_count": 13,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "_4on4on4_um_init": {
+        "line_count": 13,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "_10on10_um_init": {
+        "line_count": 13,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "_XonX_um_init": {
+        "line_count": 13,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "ffa_um_init": {
+        "line_count": 15,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "ctf_um_init": {
+        "line_count": 21,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "wipeout_um_init": {
+        "line_count": 22,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "carena_um_init": {
+        "line_count": 21,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      },
+      "tot_um_init": {
+        "line_count": 21,
+        "macros_resolved": 0,
+        "macros_unresolved": 0
+      }
+    },
+    "unresolved_macro_lines": [],
+    "skipped_lines": [],
+    "auto_reset_call_sites_used": {
+      "midair": 4,
+      "instagib": 4,
+      "lgc": 2
+    },
+    "seed_augmentations_applied": 16
+  }
+}

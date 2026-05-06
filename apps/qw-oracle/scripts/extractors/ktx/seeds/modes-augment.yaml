@@ -1,0 +1,73 @@
+# KTX modes catalog augmentation (operator-authored).
+# Optional: handler defaults stand for any catalog row not listed here.
+# Schema: list of {name, ...overrides}. Recognized override keys:
+#   community_name      string  -- informal nickname players use
+#                                  ("CA" for ca, "WO" for wipeout, "Tribe of Tjernobyl" for tot)
+#   wiki_ref            string  -- https://www.quakeworld.nu/wiki/<page> when one exists
+#   user_facing_label   string  -- override the handler's default label
+#   playable_solo       bool    -- true if the mode is regularly played 1-player
+#                                  (race + bloodfest are true by default; override here for 1on1 if desired)
+#
+# Source for wiki_refs: site rip + manual cross-check against quakeworld.nu/wiki main page.
+# wiki_ref: null when no wiki page exists for that mode.
+# Phase 3 ships starter content for ~16 mainstream modes; remaining catalog rows
+# stand on handler defaults. Operator may expand this file post-execution; the
+# handler re-runs idempotently on a refreshed seed.
+
+modes:
+  # 17 um_list peers (mainstream subset; rest stand on handler defaults)
+  - name: "1on1"
+    community_name: "Duel"
+    wiki_ref: "https://www.quakeworld.nu/wiki/Duel"
+  - name: "2on2"
+    community_name: "2v2"
+    wiki_ref: "https://www.quakeworld.nu/wiki/2on2"
+  - name: "4on4"
+    community_name: "4v4"
+    wiki_ref: "https://www.quakeworld.nu/wiki/4on4"
+  - name: "ca"
+    community_name: "Clan Arena"
+    wiki_ref: "https://www.quakeworld.nu/wiki/Clan_Arena"
+  - name: "wipeout"
+    community_name: "Wipeout"
+    wiki_ref: "https://www.quakeworld.nu/wiki/Wipeout"
+  - name: "ctf"
+    community_name: "CTF"
+    wiki_ref: "https://www.quakeworld.nu/wiki/CTF"
+  - name: "ffa"
+    community_name: "FFA"
+    wiki_ref: "https://www.quakeworld.nu/wiki/FFA"
+  - name: "10on10"
+    community_name: "10v10"
+    wiki_ref: null
+  - name: "hoonymode"
+    community_name: "HoonyMode"
+    wiki_ref: "https://www.quakeworld.nu/wiki/HoonyMode"
+
+  # 2 cvar-toggle standalones
+  - name: "race"
+    community_name: "Race"
+    wiki_ref: "https://www.quakeworld.nu/wiki/Race"
+    playable_solo: true
+  - name: "bloodfest"
+    community_name: "Bloodfest"
+    wiki_ref: null
+    playable_solo: true
+
+  # 8 mutators (mainstream subset; rest stand on handler defaults)
+  - name: "lgc"
+    community_name: "LGC"
+    wiki_ref: "https://www.quakeworld.nu/wiki/LGC"
+    user_facing_label: "LGC Mode"
+  - name: "instagib"
+    community_name: "Instagib"
+    wiki_ref: "https://www.quakeworld.nu/wiki/Instagib"
+  - name: "midair"
+    community_name: "Midair"
+    wiki_ref: "https://www.quakeworld.nu/wiki/Midair"
+  - name: "killquad"
+    community_name: "KillQuad"
+    wiki_ref: null
+  - name: "freshteams"
+    community_name: "FreshTeams"
+    wiki_ref: null

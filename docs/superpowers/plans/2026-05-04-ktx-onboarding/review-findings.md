@@ -412,6 +412,26 @@ The cost driver is libclang's per-cursor metadata access (`cursor.location`, `cu
 
 ---
 
+### F25 -- Modes handler keeps cross-file refs on instance state; not parallel-safe (discovered during Phase 3 execution)
+
+**Resolved by:** Forced serial execution in `extractors/ktx/extract.py` when modes handler is selected; documented as a future-arc refactor opportunity.
+
+**Evidence (2026-05-06):** Phase 3's `_handler_modes.py` accumulates cross-file refs (commands.c references world.c activation-cvar registrations + race.c function decls; finalize() joins them into catalog rows) on instance state (`self._activation_cvar_refs`, `self._race_toggle_ref`, `self._mode_default_rows`, etc.). Under `multiprocessing.Pool` fork-pool execution (`_run_parallel` in `extract.py`), each worker process gets its own copy of the handler instance via fork, populates state in the worker, and returns rows via `end_file()`. The parent's instance state is NEVER populated. Parent's `finalize()` then runs against an empty instance and emits 27 catalog rows from module-level constants but 0 mode_default rows. Verified: parallel run with `--workers 4` produces `mode_defaults count: 0`; serial run with `--workers 1` produces `mode_defaults count: 317` (F6 anchor).
+
+The handler design (state-on-self + `end_file()` returns []) is functional in single-process flows (smoke tests, pytest fixture, the extract.py `_run_serial` path) but not in `_run_parallel`. Phase 2's KTX handlers (cvars, commands, info_keys, log_templates) are parallel-safe because they have no cross-file refs -- they emit per-file rows from `end_file()` and rely on `finalize()` for cross-file dedup only.
+
+**Workaround in Phase 3:** Added a guard in `apps/qw-oracle/scripts/extractors/ktx/extract.py` immediately after `workers` resolution: `if any(h.name == "modes" for h in handlers) and workers != 1: workers = 1`. Logs a one-liner "[ktx] modes handler keeps cross-file state -- forcing --workers 1 (F25)". Default workers stays 12 for other handler combinations; only modes-inclusive runs go serial. Per-tag KTX extraction takes ~16s serial vs ~5s parallel -- acceptable for the offline pipeline.
+
+**Architectural concern carried forward:** Phase 4's `_handler_gameplay_taxonomies.py` and Phase 5's `_handler_gameplay_tables.py` may surface similar cross-file ref needs (death_rule's `related_weapon` joins; teamplay_message's per-handler banner-comment harvest). If they ship with state-on-self design, they will hit the same parallel-safety gap. Future arc may revisit by:
+1. Refactoring per-handler `end_file()` to emit refs as typed pseudo-rows (e.g. `{"_kind": "_meta_activation_ref", "cvar": ..., "ref": ...}`); finalize separates by `_kind` and joins.
+2. Or adding a `Visitor.parallel_safe: bool = True` attribute that `extract.py` reads to gate the serial fallback.
+
+Phase 3 ships option (a-prime): the workaround. The principled refactor is parked.
+
+**Phase ownership:** Phase 3 (discovered and worked-around during execution; future-arc revisit).
+
+---
+
 ## Phase ownership of findings
 
 | Phase | Findings to verify before sign-off |
@@ -419,7 +439,7 @@ The cost driver is libclang's per-cursor metadata access (`cursor.location`, `cu
 | Phase 0 | F18 (delete TS regex extractor), F19 (doctrine fixes -- four reference sites), F22 (VALIDATION-RUNBOOK.md as 5th doctrine site, discovered during Phase 0 drafting) |
 | Phase 1 | F4 (008 migration adds `'logfile'` channel), F15 (cross-header lift before Phase 3 runs), F16 (parse-time impact projection) |
 | Phase 2 | F1 (cvar bucket counts), F2 (command counts + Pattern 14 collisions), F3 (info_key producer-only), F4 (log_template printf counts), F17 (do NOT filter XML-shaped log_printfs), F23 (probe 5 tab-depth -- corrected inline), F24 (validCommand gap -- fixed inline) |
-| Phase 3 | F5 (27 catalog rows), F6 (~309 mode_default rows), F15 (Pattern 6 lift dependency confirmed working) |
+| Phase 3 | F5 (27 catalog rows), F6 (~309 mode_default rows), F15 (Pattern 6 lift dependency confirmed working), F25 (modes handler not parallel-safe -- worked around with serial-mode guard in extract.py) |
 | Phase 4 | F7 (5 election_type rows; skip etNone), F8 (27 death_rule rows; skip dtNONE/dtUNKNOWN; keep dtCHANGELEVEL) |
 | Phase 5 | F9 (13 monsters; armor_for_kill name), F10 (3 score_systems; positions length=10 invariant), F11 (30 drop_items; 5-field struct), F12 (15 loc_macros), F13 (21 teamplay_messages; Pattern 9 harvest) |
 | Phase 6 | F14 (7 match_events + 13 emission sites), F17 (also emits emission_call_sites_json; intentional) |

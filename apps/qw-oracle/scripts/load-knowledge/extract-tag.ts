@@ -348,6 +348,29 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
     entitiesLoaded[type] = result.entityCount;
   }
 
+  // 3b. KTX modes load (Phase 3 of KTX onboarding arc). After the entity-loader
+  // loop, also load mode_default + game_mode rows from _handler_modes.py's
+  // ktx-modes-ast.json. These rows live in gameplay_mechanics (not entities), so
+  // they're handled outside the entity-loader loop. Idempotent UPSERT; safe to
+  // re-run. existsSync-guarded so the call no-ops on a fresh checkout where the
+  // modes handler hasn't yet been exercised.
+  if (options.project === 'ktx') {
+    const modesJsonPath = join(extractorOutputDir, 'ktx-modes-ast.json');
+    if (existsSync(modesJsonPath)) {
+      const { loadModesFromFile } = await import('./load-modes.js');
+      const modesResult = await loadModesFromFile(options.sql, modesJsonPath);
+      console.log(
+        `[extract-tag] ktx modes loaded: game_mode total=${modesResult.total.game_mode}, ` +
+        `mode_default total=${modesResult.total.mode_default}`,
+      );
+    } else {
+      console.warn(
+        `[extract-tag] ktx-modes-ast.json missing at ${modesJsonPath}; ` +
+        `skipping mode loading. Re-run extract-tag once the modes handler ships if this is unexpected.`,
+      );
+    }
+  }
+
   // 4. Asset bundle. Skipped for projects without one.
   let assets = { extensionsUpserted: 0, pathRulesUpserted: 0, cvarBindingsUpserted: 0, loaderSitesUpserted: 0 };
   if (hasAssetBundle) {

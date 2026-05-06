@@ -35,6 +35,7 @@ async function main(): Promise<void> {
   if (subcommand === 'build-snapshot')            { await runBuildSnapshot(rest); return; }
   if (subcommand === 'load-maps')                 { await runLoadMaps(rest); return; }
   if (subcommand === 'load-gameplay')             { await runLoadGameplay(rest); return; }
+  if (subcommand === 'load-ktx-modes')            { await runLoadKtxModes(rest); return; }
   if (subcommand === 're-derive')                 { await runReDerive(rest); return; }
 
   if (subcommand === 'full') {
@@ -84,6 +85,10 @@ Subcommands:
                 Load id1 game-mechanics seed YAML (37 entity defs + 41
                 mechanics) into gameplay_* tables (schema v14). Defaults
                 to scripts/extractors/qw/seeds/id1-gameplay.yaml.
+  load-ktx-modes [--json <path>]
+                Load KTX modes AST JSON (27 game_mode catalog rows + ~309
+                mode_default overlay rows) into gameplay_mechanics. Defaults
+                to scripts/extractors/ktx/output/ktx-modes-ast.json.
   re-derive     [--project <p>] [--type <t>]
                 Re-run the derive-entity-description step over existing
                 rows without re-loading from extractor JSON. Use when
@@ -485,6 +490,31 @@ async function runLoadGameplay(args: string[]): Promise<void> {
       `Got entities=${r.total.entities} mechanics=${r.total.mechanics}. Investigate the YAML before re-running.`,
     );
     process.exitCode = 1;
+  }
+}
+
+async function runLoadKtxModes(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      json: { type: 'string' },
+    },
+  });
+
+  const jsonPath = values.json ?? join(__dirname, '..', 'extractors', 'ktx', 'output', 'ktx-modes-ast.json');
+  const { loadModesFromFile } = await import('./load-modes.js');
+  const r = await loadModesFromFile(sql, jsonPath);
+  console.log(
+    `load-ktx-modes: game_mode inserted=${r.inserted.game_mode} updated=${r.updated.game_mode} total=${r.total.game_mode}; ` +
+    `mode_default inserted=${r.inserted.mode_default} updated=${r.updated.mode_default} total=${r.total.mode_default}`,
+  );
+
+  if (r.total.game_mode < 27) {
+    console.error(
+      `load-ktx-modes: STOP - catalog count below F5 anchor 27 (got ${r.total.game_mode}). ` +
+      `Re-run extraction; the handler may have failed to emit one or more catalog rows.`,
+    );
+    process.exitCode = 2;
   }
 }
 

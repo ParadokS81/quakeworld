@@ -72,11 +72,13 @@ def collect_handlers(names: str = "all") -> dict:
     from _handler_commands import CommandsKtxHandler
     from _handler_info_keys import InfoKeysKtxHandler
     from _handler_log_templates import LogTemplatesKtxHandler
+    from _handler_modes import KtxModesHandler
     available: dict = {
         "cvars": CvarsKtxHandler(),
         "commands": CommandsKtxHandler(),
         "info_keys": InfoKeysKtxHandler(),
         "log_templates": LogTemplatesKtxHandler(),
+        "modes": KtxModesHandler(),
     }
     if names == "all":
         return available
@@ -290,6 +292,18 @@ def main() -> int:
     workers = args.workers
     if workers == 0:
         workers = os.cpu_count() or 4
+
+    # Modes handler keeps cross-file refs on instance state (commands.c
+    # references world.c activation-cvar registrations and race.c function
+    # decls; finalize joins them into catalog rows). multiprocessing.Pool
+    # fork-pool workers each get their own copy of the handler instance,
+    # so state populated in workers does not survive into the parent's
+    # finalize call. Force serial mode whenever modes is selected, until
+    # the handler is refactored to emit refs through end_file (F25 in
+    # review-findings; future arc).
+    if any(h.name == "modes" for h in handlers) and workers != 1:
+        print("[ktx] modes handler keeps cross-file state -- forcing --workers 1 (F25)")
+        workers = 1
 
     if args.chunk_size > 0:
         chunk_size = args.chunk_size
