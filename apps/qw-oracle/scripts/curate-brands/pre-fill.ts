@@ -47,7 +47,10 @@ function slugify(s: string): string {
 }
 
 function extractField(wikitext: string, field: string): string | null {
-  const re = new RegExp(`\\|\\s*${field}\\s*=\\s*([^\\n|]+)`, 'i');
+  // Match field value up to next newline. Pipes inside [[...]] piped wikilinks
+  // and {{...}} nested templates are preserved (the prior `[^\n|]+` form
+  // truncated at the first pipe and broke `|title=[[X|Display]] Events` cases).
+  const re = new RegExp(`\\|\\s*${field}\\s*=\\s*([^\\n]+)`, 'i');
   const m = wikitext.match(re);
   return m && m[1].trim() ? m[1].trim() : null;
 }
@@ -119,9 +122,10 @@ function parseNavboxMembers(wikitext: string): { label: string; members: string[
 }
 
 function extractTitleWikilink(wikitext: string): { wikilink: string | null; text: string } {
-  const titleMatch = wikitext.match(/\|\s*title\s*=\s*([^\n|]+)/);
-  if (!titleMatch) return { wikilink: null, text: '' };
-  const titleText = titleMatch[1].trim();
+  // Use extractField (line-anchored, pipe-tolerant) so piped wikilinks like
+  // `[[X|Y]] Events` survive instead of being truncated at the inner pipe.
+  const titleText = extractField(wikitext, 'title');
+  if (!titleText) return { wikilink: null, text: '' };
   const wikiMatch = titleText.match(/\[\[([^\]|]+?)(?:\|[^\]]*)?\]\]/);
   return {
     wikilink: wikiMatch ? wikiMatch[1].trim().replace(/ /g, '_') : null,
