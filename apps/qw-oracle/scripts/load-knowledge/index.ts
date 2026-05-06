@@ -37,6 +37,7 @@ async function main(): Promise<void> {
   if (subcommand === 'load-gameplay')             { await runLoadGameplay(rest); return; }
   if (subcommand === 'load-ktx-modes')            { await runLoadKtxModes(rest); return; }
   if (subcommand === 'load-ktx-taxonomies')       { await runLoadKtxTaxonomies(rest); return; }
+  if (subcommand === 'load-ktx-gameplay-tables')  { await runLoadKtxGameplayTables(rest); return; }
   if (subcommand === 're-derive')                 { await runReDerive(rest); return; }
 
   if (subcommand === 'full') {
@@ -94,6 +95,12 @@ Subcommands:
                 Load KTX gameplay-taxonomies AST JSON (5 election_type rows +
                 27 death_rule rows) into gameplay_mechanics. Defaults to
                 scripts/extractors/ktx/output/ktx-gameplay-taxonomies-ast.json.
+  load-ktx-gameplay-tables [--json <path>]
+                Load KTX gameplay-tables AST JSON (13 monster rows ->
+                gameplay_entity_defs; 3 score_system + 31 drop_item +
+                15 loc_macro + 21 teamplay_message rows -> gameplay_mechanics).
+                Defaults to
+                scripts/extractors/ktx/output/ktx-gameplay-tables-ast.json.
   re-derive     [--project <p>] [--type <t>]
                 Re-run the derive-entity-description step over existing
                 rows without re-loading from extractor JSON. Use when
@@ -552,6 +559,41 @@ async function runLoadKtxTaxonomies(args: string[]): Promise<void> {
     console.error(
       `load-ktx-taxonomies: STOP - death_rule count below F8 anchor 27 ` +
       `(got ${r.total.death_rule}). Re-run extraction.`,
+    );
+    process.exitCode = 2;
+  }
+}
+
+async function runLoadKtxGameplayTables(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      json: { type: 'string' },
+    },
+  });
+
+  const jsonPath = values.json ?? join(__dirname, '..', 'extractors', 'ktx', 'output', 'ktx-gameplay-tables-ast.json');
+  const { loadTablesFromFile } = await import('./load-gameplay-tables.js');
+  const r = await loadTablesFromFile(sql, jsonPath);
+  console.log(
+    `load-ktx-gameplay-tables: ` +
+    `monster total=${r.total.monster}, ` +
+    `score_system total=${r.total.score_system}, ` +
+    `drop_item total=${r.total.drop_item}, ` +
+    `loc_macro total=${r.total.loc_macro}, ` +
+    `teamplay_message total=${r.total.teamplay_message}`,
+  );
+
+  const fail: string[] = [];
+  if (r.total.monster < 13) fail.push(`monster=${r.total.monster}<13 (F9)`);
+  if (r.total.score_system < 3) fail.push(`score_system=${r.total.score_system}<3 (F10)`);
+  if (r.total.drop_item < 31) fail.push(`drop_item=${r.total.drop_item}<31 (F11 amended)`);
+  if (r.total.loc_macro < 15) fail.push(`loc_macro=${r.total.loc_macro}<15 (F12)`);
+  if (r.total.teamplay_message < 21) fail.push(`teamplay_message=${r.total.teamplay_message}<21 (F13)`);
+  if (fail.length) {
+    console.error(
+      `load-ktx-gameplay-tables: STOP - count below F-anchors (${fail.join(', ')}). ` +
+      `Re-run extraction.`,
     );
     process.exitCode = 2;
   }

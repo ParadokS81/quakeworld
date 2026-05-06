@@ -204,6 +204,10 @@ Per-row schema: `kind='mode_default'`, `name=<cvar_name>`, `value_text=<literal_
 
 Phase 5 ships a handler-private `_DROPITEM_MACRO_FALLBACK = {"H_ROTTEN": 1, "H_MEGA": 2}` as the tactical workaround -- frozen-keyed dict (raises KeyError if a future macro is referenced but missing) preserves failure-loud-not-silent. The principled long-term fix is a D4 depth-N amendment (lift the lift); parked as a future-arc revisit per D4's own "Revisit if a multi-hop case surfaces" caveat. KTX is the first surfaced multi-hop case.
 
+**Amendment 2026-05-06 (Phase 5 executor source-walk):** The 2026-05-05 amendment claim that `WEAPON_BIG2` at `commands.c:9053` "resolves via the pre-lift Pattern 6" is incorrect. `extractor_lib._source.collect_file_macros` (Phase 1's depth-1 lift, the only Pattern 6 implementation in the tree) explicitly filters non-string-literal macro bodies (lines 167-171 of `_source.py` state "Excludes function-like macros, integer/hex constants, and any macro whose body is not exactly one string-literal token"). KTX modes' string-bodied macros (`LGCMODE_VARIABLE " 0\n"`) still resolve through the lift; KTX integer constants do not. Runtime probe against `commands.c` TU confirms: `'WEAPON_BIG2' in self.file_macros` is False (alongside `H_ROTTEN`, `H_MEGA`); only string-bodied macros like `LGCMODE_VARIABLE` are present.
+
+Disposition shipped: `_DROPITEM_MACRO_FALLBACK` extends to 3 entries `{"H_ROTTEN": 1, "H_MEGA": 2, "WEAPON_BIG2": 1}` -- WEAPON_BIG2 added inline during Phase 5 execution. Frozen-dict semantics preserved. Phase 5 verification probes (test 12, phase-boundary probe 11) assert `sh40 -> 1`. The broader finding (`collect_file_macros` is string-literal-only by design) is captured as F26 below; it has implications beyond Phase 5 for future handlers wanting integer-macro resolution.
+
 ### F12 -- loc_macro row count = 15 (Pass 4.4 estimate 16 was wrong)
 
 **Resolved by:** D1 + Phase 5 reproduces (direct count from source).
@@ -432,6 +436,45 @@ Phase 3 ships option (a-prime): the workaround. The principled refactor is parke
 
 ---
 
+### F26 -- collect_file_macros is string-literal-only by design (discovered during Phase 5 execution)
+
+**Resolved by:** Inline handler fix (extended `_DROPITEM_MACRO_FALLBACK` to include WEAPON_BIG2); EXTRACTOR-PLAYBOOK note candidate for Phase 8.
+
+**Evidence (2026-05-06):** Phase 5's `_handler_gameplay_tables.py` initially trusted the phase MD's claim that `WEAPON_BIG2` (commands.c:9053, integer body `1`) would resolve via `self.file_macros` (Phase 1's depth-1 lift). Pytest `test_drop_item_sh40_weapon_big2` failed with `spawnflags_value=None`. Root cause: `extractor_lib._source.collect_file_macros` (lines 167-171) explicitly states "Excludes function-like macros, integer/hex constants, and any macro whose body is not exactly one string-literal token." Token-kind filter at line 225-229 enforces this: `if body_tok.kind != TokenKind.LITERAL: continue` followed by `if not spelling.startswith('"'): continue`. Runtime probe against `commands.c` TU confirms: `len(file_macros)=279`, `'WEAPON_BIG2' in file_macros: False`, `'LGCMODE_VARIABLE' in file_macros: True`.
+
+The string-literal filter is an intentional Phase 1 design decision -- KTX modes' `LGCMODE_VARIABLE " 0\n"` macros (used in `common_um_init` initstring concatenation) need string-body resolution; integer constants like `WEAPON_BIG2 1` were not the target use-case. Phase 1 shipped against modes' need; the design discussion did not anticipate Phase 5's need for integer-macro resolution.
+
+**Disposition:** Phase 5 ships the tactical fix (`_DROPITEM_MACRO_FALLBACK` extended to 3 entries including WEAPON_BIG2). The principled fix has multiple options:
+- (a) Extend `collect_file_macros` to also collect integer-bodied macros into a separate dict (e.g. `file_int_macros`); handlers consult both. Cost: re-touches Phase 1 infrastructure; affects all engines.
+- (b) Land a sibling helper `collect_file_int_macros(tu, target_file_path)` returning `dict[str, int]`; opt-in for handlers that need it. Cost: minimal infrastructure change; explicit handler opt-in.
+- (c) Accept fallback dicts as the per-handler convention for integer constants; document in EXTRACTOR-PLAYBOOK.
+
+Phase 8 EXTRACTOR-PLAYBOOK addition candidate: "Pattern 6 scope is string-literal macros only; integer/hex constants are handler-private resolution. If a future engine surfaces a third consumer needing integer-macro resolution, evaluate Rule of Second Consumer + Option (b) sibling helper."
+
+**Phase ownership:** Phase 5 (discovered and worked-around during execution); Phase 8 (PLAYBOOK note candidate); future arc (principled lift if a third consumer emerges).
+
+---
+
+### F27 -- Pattern 9 banner-coverage probe assumes /* === */ blocks that KTX teamplay.c doesn't have (discovered during Phase 5 execution)
+
+**Resolved by:** Phase 5 ships handler with Pattern 9 implementation correct; probe 14 wording stale; PLAYBOOK note candidate for Phase 8.
+
+**Evidence (2026-05-06):** Phase 5 phase-boundary probe 14 ("teamplay_message Pattern 9 banner-coverage") asserts `total = 21 AND with_banner > 0` with FAIL condition "with_banner == 0 (Pattern 9 broken)". Live source-walk against `research/repos/ktx/src/teamplay.c` shows ZERO `/* === */` banner blocks anywhere in the file (`grep -cE "^/\* =====" teamplay.c` returns 0). The 21 message handlers split:
+- 8 macro-expanded via `TEAMPLAY_BASIC(FunctionName, Text)` macro at teamplay.c:1450 (yesok / nocancel / soon / waiting / slipped / replace / trick / coming). After preprocessor expansion these are real FUNCTION_DECL definitions; the handler correctly extracts `handler_function="TeamplayYesOk"` etc. (verified by `test_teamplay_yesok_handler_and_banner` PASS). Macro-expanded handlers have no banner block by construction.
+- 13 real `static void Teamplay*` definitions scattered through the file. Source inspection: each is preceded by a `// Cmd_AddCommand ("tp_msgkillme", TP_Msg_KillMe_f);` line comment style, NOT a `/* === Title === */` Doom-style banner block.
+
+Live result: `with_harvested_description: 0` of 21. The Pattern 9 implementation is correct (port from MVDSV's `_handler_commands.py`); the source file simply has no banner blocks to harvest. MVDSV's coverage was 26-28% because MVDSV's sv_ccmds.c uses Doom-style banners; KTX's teamplay.c does not.
+
+**Disposition:** Probe 14's PASS condition `with_banner > 0` is impossible to satisfy against KTX's actual teamplay.c. The handler design is correct; the probe wording assumed source content that doesn't exist. Direct precedent: F23 (Phase MD probe 5 tab-depth calibration off; corrected probe used during execution; handler behavior confirmed correct).
+
+Probe 14 reframe (for arc-history + Phase 8 PLAYBOOK): "report `with_harvested_description` count and surface as Layer 3 concept-note signal -- if low, the source's preferred docstring style is not Doom-style banner; harvest a different shape (line-comment-above-function) for that file." `test_teamplay_yesok_handler_and_banner` was already lenient ("harvested_description may be None") and passed; the test design is sound.
+
+Phase 8 EXTRACTOR-PLAYBOOK addition candidate: "Pattern 9 (banner harvest) coverage varies per source-file commenting convention. MVDSV sv_ccmds.c: ~28% coverage (Doom-style banners common). KTX teamplay.c: 0% coverage (line-comment style). Future engine consumers should not assume banner blocks exist; design tests + probes for best-effort harvest."
+
+**Phase ownership:** Phase 5 (discovered and surfaced during execution); Phase 8 (PLAYBOOK note candidate).
+
+---
+
 ## Phase ownership of findings
 
 | Phase | Findings to verify before sign-off |
@@ -441,10 +484,10 @@ Phase 3 ships option (a-prime): the workaround. The principled refactor is parke
 | Phase 2 | F1 (cvar bucket counts), F2 (command counts + Pattern 14 collisions), F3 (info_key producer-only), F4 (log_template printf counts), F17 (do NOT filter XML-shaped log_printfs), F23 (probe 5 tab-depth -- corrected inline), F24 (validCommand gap -- fixed inline) |
 | Phase 3 | F5 (27 catalog rows), F6 (~309 mode_default rows), F15 (Pattern 6 lift dependency confirmed working), F25 (modes handler not parallel-safe -- worked around with serial-mode guard in extract.py) |
 | Phase 4 | F7 (5 election_type rows; skip etNone), F8 (27 death_rule rows; skip dtNONE/dtUNKNOWN; keep dtCHANGELEVEL) |
-| Phase 5 | F9 (13 monsters; armor_for_kill name), F10 (3 score_systems; positions length=10 invariant), F11 (30 drop_items; 5-field struct), F12 (15 loc_macros), F13 (21 teamplay_messages; Pattern 9 harvest) |
+| Phase 5 | F9 (13 monsters; hp_for_kill amendment), F10 (3 score_systems; positions length=10 invariant), F11 (31 drop_items amended; H_ROTTEN/H_MEGA/WEAPON_BIG2 fallback per F26 second amendment), F12 (15 loc_macros), F13 (21 teamplay_messages; Pattern 9 harvest with 0% coverage per F27), F26 (collect_file_macros string-literal-only -- inline fix), F27 (Pattern 9 banner-coverage probe calibration -- inline rationale) |
 | Phase 6 | F14 (7 match_events + 13 emission sites), F17 (also emits emission_call_sites_json; intentional) |
 | Phase 7 | F21 (validation runbook + F1 probes + JSONB regression gate + cross-project audit) |
-| Phase 8 | F19 (doctrine fixes survived; no recursion), F20 (HANDOVER backlog item absorbed), F17 (PLAYBOOK addition for dual-row design), F22 (VALIDATION-RUNBOOK.md doctrine fix survived) |
+| Phase 8 | F19 (doctrine fixes survived; no recursion), F20 (HANDOVER backlog item absorbed), F17 (PLAYBOOK addition for dual-row design), F22 (VALIDATION-RUNBOOK.md doctrine fix survived), F26 (PLAYBOOK note candidate for Pattern 6 string-literal scope), F27 (PLAYBOOK note candidate for Pattern 9 coverage variability) |
 
 ---
 

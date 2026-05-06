@@ -1,0 +1,1290 @@
+{
+  "monsters": [
+    {
+      "kind": "monster",
+      "name": "monster_army",
+      "value_text": "monster_army",
+      "source_ref": "sp_monsters.c:68",
+      "ruleset_gate_json": {
+        "mode": "bloodfest"
+      },
+      "props_json": {
+        "hp_for_kill": 1,
+        "armor_for_kill": 1,
+        "boss_able": false,
+        "array_position": 5,
+        "is_first_required": false
+      }
+    },
+    {
+      "kind": "monster",
+      "name": "monster_demon1",
+      "value_text": "monster_demon1",
+      "source_ref": "sp_monsters.c:65",
+      "ruleset_gate_json": {
+        "mode": "bloodfest"
+      },
+      "props_json": {
+        "hp_for_kill": 4,
+        "armor_for_kill": 4,
+        "boss_able": false,
+        "array_position": 2,
+        "is_first_required": false
+      }
+    },
+    {
+      "kind": "monster",
+      "name": "monster_dog",
+      "value_text": "monster_dog",
+      "source_ref": "sp_monsters.c:70",
+      "ruleset_gate_json": {
+        "mode": "bloodfest"
+      },
+      "props_json": {
+        "hp_for_kill": 1,
+        "armor_for_kill": 1,
+        "boss_able": false,
+        "array_position": 7,
+        "is_first_required": false
+      }
+    },
+    {
+      "kind": "monster",
+      "name": "monster_enforcer",
+      "value_text": "monster_enforcer",
+      "source_ref": "sp_monsters.c:75",
+      "ruleset_gate_json": {
+        "mode": "bloodfest"
+      },
+      "props_json": {
+        "hp_for_kill": 2,
+        "armor_for_kill": 1,
+        "boss_able": false,
+        "array_position": 12,
+        "is_first_required": false
+      }
+    },
+    {
+      "kind": "monster",
+      "name": "monster_fish",
+      "value_text": "monster_fish",
+      "source_ref": "sp_monsters.c:63",
+      "ruleset_gate_json": {
+        "mode": "bloodfest"
+      },
+      "props_json": {
+        "hp_for_kill": 1,
+        "armor_for_kill": 1,
+        "boss_able": false,
+        "array_position": 0,
+        "is_first_required": true
+      }
+    },
+    {
+      "kind": "monster",
+      "name": "monster_hell_knight",
+      "value_text": "monster_hell_knight",
+      "source_ref": "sp_monsters.c:73",
+      "ruleset_gate_json": {
+        "mode": "bloodfest"
+      },
+      "props_json": {
+        "hp_for_kill": 4,
+        "armor_for_kill": 3,
+        "boss_able": false,
+        "array_position": 10,
+        "is_first_required": false
+      }
+    },
+    {
+      "kind": "monster",
+      "name": "monster_knight",
+      "value_text": "monster_knight",
+      "source_ref": "sp_monsters.c:67",
+      "ruleset_gate_json": {
+        "mode": "bloodfest"
+      },
+      "props_json": {
+        "hp_for_kill": 1,
+        "armor_for_kill": 1,
+        "boss_able": false,
+        "array_position": 4,
+        "is_first_required": false
+      }
+    },
+    {
+      "kind": "monster",
+      "name": "monster_ogre",
+      "value_text": "monster_ogre",
+      "source_ref": "sp_monsters.c:64",
+      "ruleset_gate_json": {
+        "mode": "bloodfest"
+      },
+      "props_json": {
+        "hp_for_kill": 3,
+        "armor_for_kill": 2,
+        "boss_able": false,
+        "array_position": 1,
+        "is_first_required": false
+      }
+    },
+    {
+      "kind": "monster",
+      "name": "monster_shalrath",
+      "value_text": "monster_shalrath",
+      "source_ref": "sp_monsters.c:74",
+      "ruleset_gate_json": {
+        "mode": "bloodfest"
+      },
+      "props_json": {
+        "hp_for_kill": 6,
+        "armor_for_kill": 6,
+        "boss_able": false,
+        "array_position": 11,
+        "is_first_required": false
+      }
+    },
+    {
+      "kind": "monster",
+      "name": "monster_shambler",
+      "value_text": "monster_shambler",
+      "source_ref": "sp_monsters.c:66",
+      "ruleset_gate_json": {
+        "mode": "bloodfest"
+      },
+      "props_json": {
+        "hp_for_kill": 10,
+        "armor_for_kill": 8,
+        "boss_able": true,
+        "array_position": 3,
+        "is_first_required": false
+      }
+    },
+    {
+      "kind": "monster",
+      "name": "monster_tarbaby",
+      "value_text": "monster_tarbaby",
+      "source_ref": "sp_monsters.c:72",
+      "ruleset_gate_json": {
+        "mode": "bloodfest"
+      },
+      "props_json": {
+        "hp_for_kill": 4,
+        "armor_for_kill": 4,
+        "boss_able": false,
+        "array_position": 9,
+        "is_first_required": false
+      }
+    },
+    {
+      "kind": "monster",
+      "name": "monster_wizard",
+      "value_text": "monster_wizard",
+      "source_ref": "sp_monsters.c:69",
+      "ruleset_gate_json": {
+        "mode": "bloodfest"
+      },
+      "props_json": {
+        "hp_for_kill": 2,
+        "armor_for_kill": 2,
+        "boss_able": false,
+        "array_position": 6,
+        "is_first_required": false
+      }
+    },
+    {
+      "kind": "monster",
+      "name": "monster_zombie",
+      "value_text": "monster_zombie",
+      "source_ref": "sp_monsters.c:71",
+      "ruleset_gate_json": {
+        "mode": "bloodfest"
+      },
+      "props_json": {
+        "hp_for_kill": 1,
+        "armor_for_kill": 1,
+        "boss_able": false,
+        "array_position": 8,
+        "is_first_required": false
+      }
+    }
+  ],
+  "score_systems": [
+    {
+      "kind": "score_system",
+      "name": "formula1",
+      "value_text": "Formula1",
+      "source_ref": "race.c:5158",
+      "ruleset_gate_json": {
+        "mode": "race"
+      },
+      "props_json": {
+        "positions": [
+          25,
+          18,
+          15,
+          12,
+          10,
+          8,
+          6,
+          4,
+          2,
+          1
+        ],
+        "completion": 0,
+        "beating": 0,
+        "dnf_penalty": 0,
+        "round_max_diff": 25
+      }
+    },
+    {
+      "kind": "score_system",
+      "name": "scaled",
+      "value_text": "Scaled",
+      "source_ref": "race.c:5155",
+      "ruleset_gate_json": {
+        "mode": "race"
+      },
+      "props_json": {
+        "positions": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "completion": 1,
+        "beating": 1,
+        "dnf_penalty": 0,
+        "round_max_diff": 3
+      }
+    },
+    {
+      "kind": "score_system",
+      "name": "win_only",
+      "value_text": "Win Only",
+      "source_ref": "race.c:5151",
+      "ruleset_gate_json": {
+        "mode": "race"
+      },
+      "props_json": {
+        "positions": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "completion": 0,
+        "beating": 0,
+        "dnf_penalty": 0,
+        "round_max_diff": 1
+      }
+    }
+  ],
+  "drop_items": [
+    {
+      "kind": "drop_item",
+      "name": "ce12",
+      "value_text": "item_cells",
+      "source_ref": "commands.c:9096",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "ce12",
+        "spawned_classname": "item_cells",
+        "spawnflags_raw": "WEAPON_BIG2",
+        "spawnflags_value": 1,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_cells"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "ce6",
+      "value_text": "item_cells",
+      "source_ref": "commands.c:9095",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "ce6",
+        "spawned_classname": "item_cells",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_cells"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "fl_b",
+      "value_text": "item_flag_team2",
+      "source_ref": "commands.c:9102",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "fl_b",
+        "spawned_classname": "item_flag_team2",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": true,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_flag_team2"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "fl_r",
+      "value_text": "item_flag_team1",
+      "source_ref": "commands.c:9101",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "fl_r",
+        "spawned_classname": "item_flag_team1",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": true,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_flag_team1"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "ga",
+      "value_text": "item_armor1",
+      "source_ref": "commands.c:9080",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "ga",
+        "spawned_classname": "item_armor1",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_armor1"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "gl",
+      "value_text": "weapon_grenadelauncher",
+      "source_ref": "commands.c:9086",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "gl",
+        "spawned_classname": "weapon_grenadelauncher",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:weapon_grenadelauncher"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "h100",
+      "value_text": "item_health",
+      "source_ref": "commands.c:9079",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "h100",
+        "spawned_classname": "item_health",
+        "spawnflags_raw": "H_MEGA",
+        "spawnflags_value": 2,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_health"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "h15",
+      "value_text": "item_health",
+      "source_ref": "commands.c:9077",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "h15",
+        "spawned_classname": "item_health",
+        "spawnflags_raw": "H_ROTTEN",
+        "spawnflags_value": 1,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_health"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "h25",
+      "value_text": "item_health",
+      "source_ref": "commands.c:9078",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "h25",
+        "spawned_classname": "item_health",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_health"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "lg",
+      "value_text": "weapon_lightning",
+      "source_ref": "commands.c:9088",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "lg",
+        "spawned_classname": "weapon_lightning",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:weapon_lightning"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "ng",
+      "value_text": "weapon_nailgun",
+      "source_ref": "commands.c:9084",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "ng",
+        "spawned_classname": "weapon_nailgun",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:weapon_nailgun"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "p",
+      "value_text": "item_artifact_invulnerability",
+      "source_ref": "commands.c:9097",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "p",
+        "spawned_classname": "item_artifact_invulnerability",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_artifact_invulnerability"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "q",
+      "value_text": "item_artifact_super_damage",
+      "source_ref": "commands.c:9100",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "q",
+        "spawned_classname": "item_artifact_super_damage",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_artifact_super_damage"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "r",
+      "value_text": "item_artifact_invisibility",
+      "source_ref": "commands.c:9099",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "r",
+        "spawned_classname": "item_artifact_invisibility",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_artifact_invisibility"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "ra",
+      "value_text": "item_armorInv",
+      "source_ref": "commands.c:9082",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "ra",
+        "spawned_classname": "item_armorInv",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_armorInv"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "rl",
+      "value_text": "weapon_rocketlauncher",
+      "source_ref": "commands.c:9087",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "rl",
+        "spawned_classname": "weapon_rocketlauncher",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:weapon_rocketlauncher"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "ro10",
+      "value_text": "item_rockets",
+      "source_ref": "commands.c:9094",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "ro10",
+        "spawned_classname": "item_rockets",
+        "spawnflags_raw": "WEAPON_BIG2",
+        "spawnflags_value": 1,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_rockets"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "ro5",
+      "value_text": "item_rockets",
+      "source_ref": "commands.c:9093",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "ro5",
+        "spawned_classname": "item_rockets",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_rockets"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "s",
+      "value_text": "item_artifact_envirosuit",
+      "source_ref": "commands.c:9098",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "s",
+        "spawned_classname": "item_artifact_envirosuit",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_artifact_envirosuit"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "sh20",
+      "value_text": "item_shells",
+      "source_ref": "commands.c:9089",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "sh20",
+        "spawned_classname": "item_shells",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_shells"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "sh40",
+      "value_text": "item_shells",
+      "source_ref": "commands.c:9090",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "sh40",
+        "spawned_classname": "item_shells",
+        "spawnflags_raw": "WEAPON_BIG2",
+        "spawnflags_value": 1,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_shells"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "sng",
+      "value_text": "weapon_supernailgun",
+      "source_ref": "commands.c:9085",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "sng",
+        "spawned_classname": "weapon_supernailgun",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:weapon_supernailgun"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "sp25",
+      "value_text": "item_spikes",
+      "source_ref": "commands.c:9091",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "sp25",
+        "spawned_classname": "item_spikes",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_spikes"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "sp50",
+      "value_text": "item_spikes",
+      "source_ref": "commands.c:9092",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "sp50",
+        "spawned_classname": "item_spikes",
+        "spawnflags_raw": "WEAPON_BIG2",
+        "spawnflags_value": 1,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_spikes"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "sp_b",
+      "value_text": "info_player_team2",
+      "source_ref": "commands.c:9104",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "sp_b",
+        "spawned_classname": "info_player_team2",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": true,
+        "spawn_function": "dropitem_spawn_spawnpoint",
+        "related_entity_canonical_id": "qw:gameplay_entity_def:info_player_team2"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "sp_cp",
+      "value_text": "info_player_coop",
+      "source_ref": "commands.c:9106",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "sp_cp",
+        "spawned_classname": "info_player_coop",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": true,
+        "spawn_function": "dropitem_spawn_spawnpoint",
+        "related_entity_canonical_id": "qw:gameplay_entity_def:info_player_coop"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "sp_dm",
+      "value_text": "info_player_deathmatch",
+      "source_ref": "commands.c:9105",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "sp_dm",
+        "spawned_classname": "info_player_deathmatch",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": true,
+        "spawn_function": "dropitem_spawn_spawnpoint",
+        "related_entity_canonical_id": "qw:gameplay_entity_def:info_player_deathmatch"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "sp_r",
+      "value_text": "info_player_team1",
+      "source_ref": "commands.c:9103",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "sp_r",
+        "spawned_classname": "info_player_team1",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": true,
+        "spawn_function": "dropitem_spawn_spawnpoint",
+        "related_entity_canonical_id": "qw:gameplay_entity_def:info_player_team1"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "sp_sp",
+      "value_text": "info_player_start",
+      "source_ref": "commands.c:9107",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "sp_sp",
+        "spawned_classname": "info_player_start",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": true,
+        "spawn_function": "dropitem_spawn_spawnpoint",
+        "related_entity_canonical_id": "qw:gameplay_entity_def:info_player_start"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "ssg",
+      "value_text": "weapon_supershotgun",
+      "source_ref": "commands.c:9083",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "ssg",
+        "spawned_classname": "weapon_supershotgun",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:weapon_supershotgun"
+      }
+    },
+    {
+      "kind": "drop_item",
+      "name": "ya",
+      "value_text": "item_armor2",
+      "source_ref": "commands.c:9081",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "drop_token": "ya",
+        "spawned_classname": "item_armor2",
+        "spawnflags_raw": "0",
+        "spawnflags_value": 0,
+        "angle_set": false,
+        "spawn_function": null,
+        "related_entity_canonical_id": "qw:gameplay_entity_def:item_armor2"
+      }
+    }
+  ],
+  "loc_macros": [
+    {
+      "kind": "loc_macro",
+      "name": "ga",
+      "value_text": "ga",
+      "source_ref": "teamplay.c:1500",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "ga",
+        "is_identity": true,
+        "category": "armor",
+        "related_item": "item_armor1"
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "gl",
+      "value_text": "gl",
+      "source_ref": "teamplay.c:1496",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "gl",
+        "is_identity": true,
+        "category": "weapon",
+        "related_item": "weapon_grenadelauncher"
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "lg",
+      "value_text": "lg",
+      "source_ref": "teamplay.c:1498",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "lg",
+        "is_identity": true,
+        "category": "weapon",
+        "related_item": "weapon_lightning"
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "mh",
+      "value_text": "mega",
+      "source_ref": "teamplay.c:1507",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "mega",
+        "is_identity": false,
+        "category": "health",
+        "related_item": "item_health"
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "ng",
+      "value_text": "ng",
+      "source_ref": "teamplay.c:1494",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "ng",
+        "is_identity": true,
+        "category": "weapon",
+        "related_item": "weapon_nailgun"
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "pent",
+      "value_text": "pent",
+      "source_ref": "teamplay.c:1504",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "pent",
+        "is_identity": true,
+        "category": "powerup",
+        "related_item": "item_artifact_invulnerability"
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "quad",
+      "value_text": "quad",
+      "source_ref": "teamplay.c:1503",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "quad",
+        "is_identity": true,
+        "category": "powerup",
+        "related_item": "item_artifact_super_damage"
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "ra",
+      "value_text": "ra",
+      "source_ref": "teamplay.c:1502",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "ra",
+        "is_identity": true,
+        "category": "armor",
+        "related_item": "item_armorInv"
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "ring",
+      "value_text": "ring",
+      "source_ref": "teamplay.c:1505",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "ring",
+        "is_identity": true,
+        "category": "powerup",
+        "related_item": "item_artifact_invisibility"
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "rl",
+      "value_text": "rl",
+      "source_ref": "teamplay.c:1497",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "rl",
+        "is_identity": true,
+        "category": "weapon",
+        "related_item": "weapon_rocketlauncher"
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "separator",
+      "value_text": "-",
+      "source_ref": "teamplay.c:1499",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "-",
+        "is_identity": false,
+        "category": "syntactic",
+        "related_item": null
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "sng",
+      "value_text": "sng",
+      "source_ref": "teamplay.c:1495",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "sng",
+        "is_identity": true,
+        "category": "weapon",
+        "related_item": "weapon_supernailgun"
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "ssg",
+      "value_text": "ssg",
+      "source_ref": "teamplay.c:1493",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "ssg",
+        "is_identity": true,
+        "category": "weapon",
+        "related_item": "weapon_supershotgun"
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "suit",
+      "value_text": "suit",
+      "source_ref": "teamplay.c:1506",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "suit",
+        "is_identity": true,
+        "category": "powerup",
+        "related_item": "item_artifact_envirosuit"
+      }
+    },
+    {
+      "kind": "loc_macro",
+      "name": "ya",
+      "value_text": "ya",
+      "source_ref": "teamplay.c:1501",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "expansion": "ya",
+        "is_identity": true,
+        "category": "armor",
+        "related_item": "item_armor2"
+      }
+    }
+  ],
+  "teamplay_messages": [
+    {
+      "kind": "teamplay_message",
+      "name": "coming",
+      "value_text": "coming",
+      "source_ref": "teamplay.c:1654",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "coming",
+        "handler_function": "TeamplayComing",
+        "source_ref_handler": "teamplay.c:1467",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "enemypwr",
+      "value_text": "enemy powerup",
+      "source_ref": "teamplay.c:1658",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "enemy powerup",
+        "handler_function": "TeamplayEnemyPowerup",
+        "source_ref_handler": "teamplay.c:1126",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "getpent",
+      "value_text": "get pent",
+      "source_ref": "teamplay.c:1656",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "get pent",
+        "handler_function": "TeamplayGetPent",
+        "source_ref_handler": "teamplay.c:1349",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "getquad",
+      "value_text": "get quad",
+      "source_ref": "teamplay.c:1655",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "get quad",
+        "handler_function": "TeamplayGetQuad",
+        "source_ref_handler": "teamplay.c:1328",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "help",
+      "value_text": "area needs help",
+      "source_ref": "teamplay.c:1663",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "area needs help",
+        "handler_function": "TeamplayAreaHelp",
+        "source_ref_handler": "teamplay.c:910",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "kill me",
+      "value_text": "kill me",
+      "source_ref": "teamplay.c:1660",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "kill me",
+        "handler_function": "TeamplayKillMe",
+        "source_ref_handler": "teamplay.c:970",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "lost",
+      "value_text": "area lost",
+      "source_ref": "teamplay.c:1661",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "area lost",
+        "handler_function": "TeamplayAreaLost",
+        "source_ref_handler": "teamplay.c:924",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "need",
+      "value_text": "report needs",
+      "source_ref": "teamplay.c:1664",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "report needs",
+        "handler_function": "TeamplayReportNeeds",
+        "source_ref_handler": "teamplay.c:1041",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "nocancel",
+      "value_text": "no/cancel",
+      "source_ref": "teamplay.c:1648",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "no/cancel",
+        "handler_function": "TeamplayNoCancel",
+        "source_ref_handler": "teamplay.c:1455",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "point",
+      "value_text": "player/item point",
+      "source_ref": "teamplay.c:1667",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "player/item point",
+        "handler_function": "TeamplayPoint",
+        "source_ref_handler": "teamplay.c:1370",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "quaddead",
+      "value_text": "quad dead",
+      "source_ref": "teamplay.c:1657",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "quad dead",
+        "handler_function": "TeamplayQuadDead",
+        "source_ref_handler": "teamplay.c:1305",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "replace",
+      "value_text": "replace me",
+      "source_ref": "teamplay.c:1652",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "replace me",
+        "handler_function": "TeamplayReplace",
+        "source_ref_handler": "teamplay.c:1463",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "report",
+      "value_text": "report status",
+      "source_ref": "teamplay.c:1665",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "report status",
+        "handler_function": "TeamplayReportPersonalStatus",
+        "source_ref_handler": "teamplay.c:802",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "secure",
+      "value_text": "area secure",
+      "source_ref": "teamplay.c:1662",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "area secure",
+        "handler_function": "TeamplayAreaSecure",
+        "source_ref_handler": "teamplay.c:866",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "slipped",
+      "value_text": "enemy slipped",
+      "source_ref": "teamplay.c:1651",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "enemy slipped",
+        "handler_function": "TeamplaySlipped",
+        "source_ref_handler": "teamplay.c:1461",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "soon",
+      "value_text": "item soon",
+      "source_ref": "teamplay.c:1649",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "item soon",
+        "handler_function": "TeamplayItemSoon",
+        "source_ref_handler": "teamplay.c:1457",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "took",
+      "value_text": "item taken",
+      "source_ref": "teamplay.c:1666",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "item taken",
+        "handler_function": "TeamplayReportTaken",
+        "source_ref_handler": "teamplay.c:693",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "trick",
+      "value_text": "trick",
+      "source_ref": "teamplay.c:1653",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "trick",
+        "handler_function": "TeamplayTrick",
+        "source_ref_handler": "teamplay.c:1465",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "waiting",
+      "value_text": "waiting",
+      "source_ref": "teamplay.c:1650",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "waiting",
+        "handler_function": "TeamplayWaiting",
+        "source_ref_handler": "teamplay.c:1459",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "yesok",
+      "value_text": "yes/ok",
+      "source_ref": "teamplay.c:1647",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "yes/ok",
+        "handler_function": "TeamplayYesOk",
+        "source_ref_handler": "teamplay.c:1453",
+        "harvested_description": null
+      }
+    },
+    {
+      "kind": "teamplay_message",
+      "name": "youtake",
+      "value_text": "you take",
+      "source_ref": "teamplay.c:1659",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "you take",
+        "handler_function": "TeamplayYouTake",
+        "source_ref_handler": "teamplay.c:1018",
+        "harvested_description": null
+      }
+    }
+  ],
+  "_stats": {
+    "monster": {
+      "count": 13,
+      "expected": 13
+    },
+    "score_system": {
+      "count": 3,
+      "expected": 3,
+      "positions_length_violations": []
+    },
+    "drop_item": {
+      "count": 31,
+      "expected": 31,
+      "unresolved_macros": []
+    },
+    "loc_macro": {
+      "count": 15,
+      "expected": 15
+    },
+    "teamplay_message": {
+      "count": 21,
+      "expected": 21,
+      "with_harvested_description": 0
+    }
+  }
+}

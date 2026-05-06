@@ -394,6 +394,34 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
     }
   }
 
+  // 3d. KTX gameplay-tables load (Phase 5 of KTX onboarding arc). After
+  // taxonomies, load monster + score_system + drop_item + loc_macro +
+  // teamplay_message rows from _handler_gameplay_tables.py's
+  // ktx-gameplay-tables-ast.json. Cross-table dispatch: monster lands in
+  // gameplay_entity_defs; the other 4 land in gameplay_mechanics. Idempotent
+  // UPSERT; safe to re-run. F10 invariant: every score_system row has
+  // positions.length === 10 (loader-side fail-fast).
+  if (options.project === 'ktx') {
+    const tablesJsonPath = join(extractorOutputDir, 'ktx-gameplay-tables-ast.json');
+    if (existsSync(tablesJsonPath)) {
+      const { loadTablesFromFile } = await import('./load-gameplay-tables.js');
+      const tablesResult = await loadTablesFromFile(options.sql, tablesJsonPath);
+      console.log(
+        `[extract-tag] ktx tables loaded: ` +
+        `monster=${tablesResult.total.monster}, ` +
+        `score_system=${tablesResult.total.score_system}, ` +
+        `drop_item=${tablesResult.total.drop_item}, ` +
+        `loc_macro=${tablesResult.total.loc_macro}, ` +
+        `teamplay_message=${tablesResult.total.teamplay_message}`,
+      );
+    } else {
+      console.warn(
+        `[extract-tag] ktx-gameplay-tables-ast.json missing at ${tablesJsonPath}; ` +
+        `skipping tables loading. Re-run extract-tag once Phase 5 ships if this is unexpected.`,
+      );
+    }
+  }
+
   // 4. Asset bundle. Skipped for projects without one.
   let assets = { extensionsUpserted: 0, pathRulesUpserted: 0, cvarBindingsUpserted: 0, loaderSitesUpserted: 0 };
   if (hasAssetBundle) {

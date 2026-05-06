@@ -74,6 +74,7 @@ def collect_handlers(names: str = "all") -> dict:
     from _handler_log_templates import LogTemplatesKtxHandler
     from _handler_modes import KtxModesHandler
     from _handler_gameplay_taxonomies import KtxGameplayTaxonomiesHandler
+    from _handler_gameplay_tables import KtxGameplayTablesHandler
     available: dict = {
         "cvars": CvarsKtxHandler(),
         "commands": CommandsKtxHandler(),
@@ -81,6 +82,7 @@ def collect_handlers(names: str = "all") -> dict:
         "log_templates": LogTemplatesKtxHandler(),
         "modes": KtxModesHandler(),
         "gameplay_taxonomies": KtxGameplayTaxonomiesHandler(),
+        "gameplay_tables": KtxGameplayTablesHandler(),
     }
     if names == "all":
         return available
