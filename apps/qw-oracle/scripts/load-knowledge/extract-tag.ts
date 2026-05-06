@@ -44,7 +44,7 @@ const PROJECT_EXTRACTOR: Record<Project, string | null> = {
   ezquake: join(EXTRACTORS_ROOT, 'ezquake', 'extract.py'),
   fte: join(EXTRACTORS_ROOT, 'fte', 'extract.py'),
   mvdsv: join(EXTRACTORS_ROOT, 'mvdsv', 'extract.py'),
-  ktx: null,
+  ktx: join(EXTRACTORS_ROOT, 'ktx', 'extract.py'),
   qwcl: join(EXTRACTORS_ROOT, 'qwcl', 'extract.py'),
   qw: null,
 };
@@ -152,7 +152,12 @@ const ENTITY_JSON_FILES: Record<Project, Partial<Record<EntityType, string>>> = 
     log_template:     'mvdsv-log-templates-ast.json',
     qc_builtin:       'mvdsv-qc-builtins-ast.json',
   },
-  ktx:   {},
+  ktx: {
+    cvar:         'ktx-variables-ast.json',
+    command:      'ktx-commands-ast.json',
+    info_key:     'ktx-info-keys-ast.json',
+    log_template: 'ktx-log-templates-ast.json',
+  },
   qw:    {},  // no entity types; maps live in the maps table, not entities
 };
 

@@ -1,0 +1,4981 @@
+{
+  "commands": [
+    {
+      "name": "+scores",
+      "bare_name": "+scores",
+      "ast": {
+        "handler_fn": "Sc_Stats",
+        "source_file": "src/commands.c",
+        "source_line": 891,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show match time and score"
+    },
+    {
+      "name": "+wp_stats",
+      "bare_name": "+wp_stats",
+      "ast": {
+        "handler_fn": "Wp_Stats",
+        "source_file": "src/commands.c",
+        "source_line": 829,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "start print weapon stats"
+    },
+    {
+      "name": "-scores",
+      "bare_name": "-scores",
+      "ast": {
+        "handler_fn": "Sc_Stats",
+        "source_file": "src/commands.c",
+        "source_line": 892,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "-wp_stats",
+      "bare_name": "-wp_stats",
+      "ast": {
+        "handler_fn": "Wp_Stats",
+        "source_file": "src/commands.c",
+        "source_line": 830,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "10fav_go",
+      "bare_name": "10fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 875,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "10on10",
+      "bare_name": "10on10",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 813,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "10 on 10 settings"
+    },
+    {
+      "name": "11fav_go",
+      "bare_name": "11fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 876,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "12fav_go",
+      "bare_name": "12fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 877,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "13fav_go",
+      "bare_name": "13fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 878,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "14fav_go",
+      "bare_name": "14fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 879,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "15fav_go",
+      "bare_name": "15fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 880,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "16fav_go",
+      "bare_name": "16fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 881,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "17fav_go",
+      "bare_name": "17fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 882,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "18fav_go",
+      "bare_name": "18fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 883,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "19fav_go",
+      "bare_name": "19fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 884,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set pov to slot 19"
+    },
+    {
+      "name": "1fav_go",
+      "bare_name": "1fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 866,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set pov to slot  1"
+    },
+    {
+      "name": "1on1",
+      "bare_name": "1on1",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 809,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "duel settings"
+    },
+    {
+      "name": "20fav_go",
+      "bare_name": "20fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 885,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set pov to slot 20"
+    },
+    {
+      "name": "2fav_go",
+      "bare_name": "2fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 867,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set pov to slot  2"
+    },
+    {
+      "name": "2on2",
+      "bare_name": "2on2",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 810,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "2 on 2 settings"
+    },
+    {
+      "name": "2on2on2",
+      "bare_name": "2on2on2",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 819,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "2 on 2 on 2 settings"
+    },
+    {
+      "name": "3fav_go",
+      "bare_name": "3fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 868,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": ".......etc........"
+    },
+    {
+      "name": "3on3",
+      "bare_name": "3on3",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 811,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "3 on 3 settings"
+    },
+    {
+      "name": "3on3on3",
+      "bare_name": "3on3on3",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 820,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "3 on 3 on 3 settings"
+    },
+    {
+      "name": "4fav_go",
+      "bare_name": "4fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 869,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "4on4",
+      "bare_name": "4on4",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 812,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "4 on 4 settings"
+    },
+    {
+      "name": "4on4on4",
+      "bare_name": "4on4on4",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 821,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "4 on 4 on 4 settings"
+    },
+    {
+      "name": "5fav_go",
+      "bare_name": "5fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 870,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "6fav_go",
+      "bare_name": "6fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 871,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "7fav_go",
+      "bare_name": "7fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 872,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "8fav_go",
+      "bare_name": "8fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 873,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "9fav_go",
+      "bare_name": "9fav_go",
+      "ast": {
+        "handler_fn": "xfav_go",
+        "source_file": "src/commands.c",
+        "source_line": 874,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "XonX",
+      "bare_name": "XonX",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 822,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "X on X settings"
+    },
+    {
+      "name": "about",
+      "bare_name": "about",
+      "ast": {
+        "handler_fn": "ShowVersion",
+        "source_file": "src/commands.c",
+        "source_line": 761,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "mod's info"
+    },
+    {
+      "name": "addbot:frogbot:std",
+      "bare_name": "addbot",
+      "ast": {
+        "handler_fn": "FrogbotsAddbot_f",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2318,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Adds a bot. Skill & team optional"
+    },
+    {
+      "name": "addmarker:frogbot:editor",
+      "bare_name": "addmarker",
+      "ast": {
+        "handler_fn": "FrogbotAddMarker",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2334,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Adds a routing marker to the map"
+    },
+    {
+      "name": "addpath:frogbot:editor",
+      "bare_name": "addpath",
+      "ast": {
+        "handler_fn": "FrogbotAddPath",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2337,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Adds a path between markers"
+    },
+    {
+      "name": "admin",
+      "bare_name": "admin",
+      "ast": {
+        "handler_fn": "ReqAdmin",
+        "source_file": "src/commands.c",
+        "source_line": 750,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle admin-mode"
+    },
+    {
+      "name": "agree",
+      "bare_name": "agree",
+      "ast": {
+        "handler_fn": "agree_on_map",
+        "source_file": "src/commands.c",
+        "source_line": 902,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "agree on last map vote"
+    },
+    {
+      "name": "airstep",
+      "bare_name": "airstep",
+      "ast": {
+        "handler_fn": "airstep",
+        "source_file": "src/commands.c",
+        "source_line": 999,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle airstep"
+    },
+    {
+      "name": "anglehint:frogbot:editor",
+      "bare_name": "anglehint",
+      "ast": {
+        "handler_fn": "FrogbotSetAngleHint",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2355,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Sets angle hint for bot path"
+    },
+    {
+      "name": "antilag",
+      "bare_name": "antilag",
+      "ast": {
+        "handler_fn": "antilag",
+        "source_file": "src/commands.c",
+        "source_line": 722,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle antilag"
+    },
+    {
+      "name": "arena",
+      "bare_name": "arena",
+      "ast": {
+        "handler_fn": "ToggleArena",
+        "source_file": "src/commands.c",
+        "source_line": 971,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle rocket arena"
+    },
+    {
+      "name": "auto_pow",
+      "bare_name": "auto_pow",
+      "ast": {
+        "handler_fn": "AutoTrack",
+        "source_file": "src/commands.c",
+        "source_line": 895,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "auto tracking powerups"
+    },
+    {
+      "name": "autotrack",
+      "bare_name": "autotrack",
+      "ast": {
+        "handler_fn": "AutoTrack",
+        "source_file": "src/commands.c",
+        "source_line": 893,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "auto tracking"
+    },
+    {
+      "name": "autotrackktx",
+      "bare_name": "autotrackktx",
+      "ast": {
+        "handler_fn": "AutoTrack",
+        "source_file": "src/commands.c",
+        "source_line": 894,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "auto tracking, ktx version"
+    },
+    {
+      "name": "ban",
+      "bare_name": "ban",
+      "ast": {
+        "handler_fn": "redirect",
+        "source_file": "src/commands.c",
+        "source_line": 975,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "timed ban by uid/nick"
+    },
+    {
+      "name": "banip",
+      "bare_name": "banip",
+      "ast": {
+        "handler_fn": "redirect",
+        "source_file": "src/commands.c",
+        "source_line": 976,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "timed ban by ip"
+    },
+    {
+      "name": "banrem",
+      "bare_name": "banrem",
+      "ast": {
+        "handler_fn": "redirect",
+        "source_file": "src/commands.c",
+        "source_line": 977,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "remove ban / banlist"
+    },
+    {
+      "name": "berzerk",
+      "bare_name": "berzerk",
+      "ast": {
+        "handler_fn": "ToggleBerzerk",
+        "source_file": "src/commands.c",
+        "source_line": 956,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "berzerk settings"
+    },
+    {
+      "name": "blitz2v2",
+      "bare_name": "blitz2v2",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 817,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "Blitz 2v2"
+    },
+    {
+      "name": "blitz4v4",
+      "bare_name": "blitz4v4",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 818,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "Blitz 4v4"
+    },
+    {
+      "name": "botcmd",
+      "bare_name": "botcmd",
+      "ast": {
+        "handler_fn": "FrogbotsCommand",
+        "source_file": "src/commands.c",
+        "source_line": 1047,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "bot configuration"
+    },
+    {
+      "name": "break",
+      "bare_name": "break",
+      "ast": {
+        "handler_fn": "PlayerBreak",
+        "source_file": "src/commands.c",
+        "source_line": 709,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "unready / vote matchend"
+    },
+    {
+      "name": "breakondeath:frogbot:std",
+      "bare_name": "breakondeath",
+      "ast": {
+        "handler_fn": "FrogbotsSetBreakOnDeath",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2326,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Automatically break when you die"
+    },
+    {
+      "name": "callalias",
+      "bare_name": "callalias",
+      "ast": {
+        "handler_fn": "callalias",
+        "source_file": "src/commands.c",
+        "source_line": 993,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "call alias after few secs"
+    },
+    {
+      "name": "cam",
+      "bare_name": "cam",
+      "ast": {
+        "handler_fn": "ShowCamHelp",
+        "source_file": "src/commands.c",
+        "source_line": 840,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "camera help text"
+    },
+    {
+      "name": "captain",
+      "bare_name": "captain",
+      "ast": {
+        "handler_fn": "VoteCaptain",
+        "source_file": "src/commands.c",
+        "source_line": 803,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle captain election"
+    },
+    {
+      "name": "carena",
+      "bare_name": "carena",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 824,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle clan arena"
+    },
+    {
+      "name": "check",
+      "bare_name": "check",
+      "ast": {
+        "handler_fn": "fcheck",
+        "source_file": "src/commands.c",
+        "source_line": 994,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "better f_checks handle"
+    },
+    {
+      "name": "clearmarkerflag:frogbot:editor",
+      "bare_name": "clearmarkerflag",
+      "ast": {
+        "handler_fn": "FrogbotClearMarkerFlag",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2342,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Clears flag on a path between two markers"
+    },
+    {
+      "name": "clearpathflag:frogbot:editor",
+      "bare_name": "clearpathflag",
+      "ast": {
+        "handler_fn": "FrogbotClearPathFlag",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2344,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Clears flag on a path between two markers"
+    },
+    {
+      "name": "cm",
+      "bare_name": "cm",
+      "ast": {
+        "handler_fn": "SelectMap",
+        "source_file": "src/commands.c",
+        "source_line": 698,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "cmdslist_dl",
+      "bare_name": "cmdslist_dl",
+      "ast": {
+        "handler_fn": "cmdslist_dl",
+        "source_file": "src/commands.c",
+        "source_line": 700,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "coach",
+      "bare_name": "coach",
+      "ast": {
+        "handler_fn": "VoteCoach",
+        "source_file": "src/commands.c",
+        "source_line": 804,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle coach election"
+    },
+    {
+      "name": "commands",
+      "bare_name": "commands",
+      "ast": {
+        "handler_fn": "ShowCmds",
+        "source_file": "src/commands.c",
+        "source_line": 702,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show commands list"
+    },
+    {
+      "name": "coop_nm_pu",
+      "bare_name": "coop_nm_pu",
+      "ast": {
+        "handler_fn": "ToggleNewCoopNm",
+        "source_file": "src/commands.c",
+        "source_line": 1042,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "new nightmare mode (pu drops) on/off"
+    },
+    {
+      "name": "ctf",
+      "bare_name": "ctf",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 815,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "CTF settings"
+    },
+    {
+      "name": "ctfbasedspawn",
+      "bare_name": "ctfbasedspawn",
+      "ast": {
+        "handler_fn": "CTFBasedSpawn",
+        "source_file": "src/commands.c",
+        "source_line": 927,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "spawn players on the base (CTF)"
+    },
+    {
+      "name": "deathheight:frogbot:editor",
+      "bare_name": "deathheight",
+      "ast": {
+        "handler_fn": "FrogbotSetDeathHeight",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2356,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Sets the auto-death level for this map"
+    },
+    {
+      "name": "debug:frogbot:std",
+      "bare_name": "debug",
+      "ast": {
+        "handler_fn": "FrogbotsDebug",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2322,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Debugging commands"
+    },
+    {
+      "name": "demomark",
+      "bare_name": "demomark",
+      "ast": {
+        "handler_fn": "DemoMark",
+        "source_file": "src/commands.c",
+        "source_line": 1043,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "put mark in the demo"
+    },
+    {
+      "name": "dinfo",
+      "bare_name": "dinfo",
+      "ast": {
+        "handler_fn": "dinfo",
+        "source_file": "src/commands.c",
+        "source_line": 966,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show demo info"
+    },
+    {
+      "name": "disable:frogbot:std",
+      "bare_name": "disable",
+      "ast": {
+        "handler_fn": "FrogbotsDisable",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2323,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Disable frogbots"
+    },
+    {
+      "name": "discharge",
+      "bare_name": "discharge",
+      "ast": {
+        "handler_fn": "ToggleDischarge",
+        "source_file": "src/commands.c",
+        "source_line": 723,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "underwater discharges"
+    },
+    {
+      "name": "dlist",
+      "bare_name": "dlist",
+      "ast": {
+        "handler_fn": "dlist",
+        "source_file": "src/commands.c",
+        "source_line": 965,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show demo list"
+    },
+    {
+      "name": "dm",
+      "bare_name": "dm",
+      "ast": {
+        "handler_fn": "ShowDMM",
+        "source_file": "src/commands.c",
+        "source_line": 724,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show deathmatch mode"
+    },
+    {
+      "name": "dmgfrags",
+      "bare_name": "dmgfrags",
+      "ast": {
+        "handler_fn": "dmgfrags",
+        "source_file": "src/commands.c",
+        "source_line": 985,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle damage frags"
+    },
+    {
+      "name": "dmm1",
+      "bare_name": "dmm1",
+      "ast": {
+        "handler_fn": "ChangeDM",
+        "source_file": "src/commands.c",
+        "source_line": 725,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set deathmatch mode 1"
+    },
+    {
+      "name": "dmm2",
+      "bare_name": "dmm2",
+      "ast": {
+        "handler_fn": "ChangeDM",
+        "source_file": "src/commands.c",
+        "source_line": 726,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set deathmatch mode 2"
+    },
+    {
+      "name": "dmm3",
+      "bare_name": "dmm3",
+      "ast": {
+        "handler_fn": "ChangeDM",
+        "source_file": "src/commands.c",
+        "source_line": 727,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set deathmatch mode 3"
+    },
+    {
+      "name": "dmm4",
+      "bare_name": "dmm4",
+      "ast": {
+        "handler_fn": "ChangeDM",
+        "source_file": "src/commands.c",
+        "source_line": 728,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set deathmatch mode 4"
+    },
+    {
+      "name": "dmm5",
+      "bare_name": "dmm5",
+      "ast": {
+        "handler_fn": "ChangeDM",
+        "source_file": "src/commands.c",
+        "source_line": 729,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set deathmatch mode 5"
+    },
+    {
+      "name": "downplayers",
+      "bare_name": "downplayers",
+      "ast": {
+        "handler_fn": "downplayers",
+        "source_file": "src/commands.c",
+        "source_line": 981,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "decrease maxclients"
+    },
+    {
+      "name": "downspecs",
+      "bare_name": "downspecs",
+      "ast": {
+        "handler_fn": "downplayers",
+        "source_file": "src/commands.c",
+        "source_line": 983,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "decrease maxspectators"
+    },
+    {
+      "name": "dropitem",
+      "bare_name": "dropitem",
+      "ast": {
+        "handler_fn": "dropitem",
+        "source_file": "src/commands.c",
+        "source_line": 1037,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "droppack",
+      "bare_name": "droppack",
+      "ast": {
+        "handler_fn": "ToggleDropPack",
+        "source_file": "src/commands.c",
+        "source_line": 743,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "drop pack when killed"
+    },
+    {
+      "name": "dropquad",
+      "bare_name": "dropquad",
+      "ast": {
+        "handler_fn": "ToggleDropQuad",
+        "source_file": "src/commands.c",
+        "source_line": 741,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "drop quad when killed"
+    },
+    {
+      "name": "dropring",
+      "bare_name": "dropring",
+      "ast": {
+        "handler_fn": "ToggleDropRing",
+        "source_file": "src/commands.c",
+        "source_line": 742,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "drop ring when killed"
+    },
+    {
+      "name": "dumpent",
+      "bare_name": "dumpent",
+      "ast": {
+        "handler_fn": "dumpent",
+        "source_file": "src/commands.c",
+        "source_line": 1039,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "easyskillmode:frogbot:std",
+      "bare_name": "easyskillmode",
+      "ast": {
+        "handler_fn": "FrogbotsSetEasySkillMode",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2330,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Toggle easy skill mode"
+    },
+    {
+      "name": "effi",
+      "bare_name": "effi",
+      "ast": {
+        "handler_fn": "PlayerStats",
+        "source_file": "src/commands.c",
+        "source_line": 705,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show player efficiencies"
+    },
+    {
+      "name": "elect",
+      "bare_name": "elect",
+      "ast": {
+        "handler_fn": "VoteAdmin",
+        "source_file": "src/commands.c",
+        "source_line": 800,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle admin election"
+    },
+    {
+      "name": "exclusive",
+      "bare_name": "exclusive",
+      "ast": {
+        "handler_fn": "ToggleExclusive",
+        "source_file": "src/commands.c",
+        "source_line": 1000,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle exclusive mode"
+    },
+    {
+      "name": "fairpacks",
+      "bare_name": "fairpacks",
+      "ast": {
+        "handler_fn": "ToggleFairPacks",
+        "source_file": "src/commands.c",
+        "source_line": 758,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "best/last weapon dropped"
+    },
+    {
+      "name": "fallbunny",
+      "bare_name": "fallbunny",
+      "ast": {
+        "handler_fn": "ToggleFallBunny",
+        "source_file": "src/commands.c",
+        "source_line": 735,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle fallbunny"
+    },
+    {
+      "name": "fav10_add",
+      "bare_name": "fav10_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 855,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav11_add",
+      "bare_name": "fav11_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 856,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav12_add",
+      "bare_name": "fav12_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 857,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav13_add",
+      "bare_name": "fav13_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 858,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav14_add",
+      "bare_name": "fav14_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 859,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav15_add",
+      "bare_name": "fav15_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 860,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav16_add",
+      "bare_name": "fav16_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 861,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav17_add",
+      "bare_name": "fav17_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 862,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav18_add",
+      "bare_name": "fav18_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 863,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav19_add",
+      "bare_name": "fav19_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 864,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "add player to slot 19"
+    },
+    {
+      "name": "fav1_add",
+      "bare_name": "fav1_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 846,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "add player to slot  1"
+    },
+    {
+      "name": "fav20_add",
+      "bare_name": "fav20_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 865,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "add player to slot 20"
+    },
+    {
+      "name": "fav2_add",
+      "bare_name": "fav2_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 847,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "add player to slot  2"
+    },
+    {
+      "name": "fav3_add",
+      "bare_name": "fav3_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 848,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "........etc.........."
+    },
+    {
+      "name": "fav4_add",
+      "bare_name": "fav4_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 849,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav5_add",
+      "bare_name": "fav5_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 850,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav6_add",
+      "bare_name": "fav6_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 851,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav7_add",
+      "bare_name": "fav7_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 852,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav8_add",
+      "bare_name": "fav8_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 853,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav9_add",
+      "bare_name": "fav9_add",
+      "ast": {
+        "handler_fn": "favx_add",
+        "source_file": "src/commands.c",
+        "source_line": 854,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "fav_add",
+      "bare_name": "fav_add",
+      "ast": {
+        "handler_fn": "fav_add",
+        "source_file": "src/commands.c",
+        "source_line": 886,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "add player to fav list"
+    },
+    {
+      "name": "fav_all_del",
+      "bare_name": "fav_all_del",
+      "ast": {
+        "handler_fn": "fav_all_del",
+        "source_file": "src/commands.c",
+        "source_line": 888,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "clear fav list"
+    },
+    {
+      "name": "fav_del",
+      "bare_name": "fav_del",
+      "ast": {
+        "handler_fn": "fav_del",
+        "source_file": "src/commands.c",
+        "source_line": 887,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "remove player from fav list"
+    },
+    {
+      "name": "fav_next",
+      "bare_name": "fav_next",
+      "ast": {
+        "handler_fn": "fav_next",
+        "source_file": "src/commands.c",
+        "source_line": 889,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set pov to next fav"
+    },
+    {
+      "name": "fav_show",
+      "bare_name": "fav_show",
+      "ast": {
+        "handler_fn": "fav_show",
+        "source_file": "src/commands.c",
+        "source_line": 890,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show fav list"
+    },
+    {
+      "name": "ffa",
+      "bare_name": "ffa",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 814,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "FFA settings"
+    },
+    {
+      "name": "fill:frogbot:std",
+      "bare_name": "fill",
+      "ast": {
+        "handler_fn": "FrogbotsFillServer",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2319,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Fills the server (max 8 bots at a time)"
+    },
+    {
+      "name": "flagstatus",
+      "bare_name": "flagstatus",
+      "ast": {
+        "handler_fn": "FlagStatus",
+        "source_file": "src/commands.c",
+        "source_line": 924,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show flags status (CTF)"
+    },
+    {
+      "name": "force_spec",
+      "bare_name": "force_spec",
+      "ast": {
+        "handler_fn": "force_spec",
+        "source_file": "src/commands.c",
+        "source_line": 973,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "force spec players"
+    },
+    {
+      "name": "forcebreak",
+      "bare_name": "forcebreak",
+      "ast": {
+        "handler_fn": "AdminForceBreak",
+        "source_file": "src/commands.c",
+        "source_line": 752,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "force match to end"
+    },
+    {
+      "name": "forcemap",
+      "bare_name": "forcemap",
+      "ast": {
+        "handler_fn": "AdminForceMap",
+        "source_file": "src/commands.c",
+        "source_line": 753,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "force change of map"
+    },
+    {
+      "name": "forcestart",
+      "bare_name": "forcestart",
+      "ast": {
+        "handler_fn": "AdminForceStart",
+        "source_file": "src/commands.c",
+        "source_line": 751,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "force match to start"
+    },
+    {
+      "name": "fp",
+      "bare_name": "fp",
+      "ast": {
+        "handler_fn": "fp_toggle",
+        "source_file": "src/commands.c",
+        "source_line": 963,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "change floodprot level for players"
+    },
+    {
+      "name": "fp_spec",
+      "bare_name": "fp_spec",
+      "ast": {
+        "handler_fn": "fp_toggle",
+        "source_file": "src/commands.c",
+        "source_line": 964,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "change floodprot level for specs"
+    },
+    {
+      "name": "fpslist",
+      "bare_name": "fpslist",
+      "ast": {
+        "handler_fn": "fpslist",
+        "source_file": "src/commands.c",
+        "source_line": 844,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "fps list"
+    },
+    {
+      "name": "fragsdown",
+      "bare_name": "fragsdown",
+      "ast": {
+        "handler_fn": "FragsDown",
+        "source_file": "src/commands.c",
+        "source_line": 736,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "-10 fraglimit"
+    },
+    {
+      "name": "fragsup",
+      "bare_name": "fragsup",
+      "ast": {
+        "handler_fn": "FragsUp",
+        "source_file": "src/commands.c",
+        "source_line": 737,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "+10 fraglimit"
+    },
+    {
+      "name": "freeze",
+      "bare_name": "freeze",
+      "ast": {
+        "handler_fn": "ToggleFreeze",
+        "source_file": "src/commands.c",
+        "source_line": 806,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "(un)freeze the map"
+    },
+    {
+      "name": "fresh",
+      "bare_name": "fresh",
+      "ast": {
+        "handler_fn": "ToggleFreshTeams",
+        "source_file": "src/commands.c",
+        "source_line": 950,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "freshteams dmm1 settings"
+    },
+    {
+      "name": "freshguns",
+      "bare_name": "freshguns",
+      "ast": {
+        "handler_fn": "ToggleFreshGuns",
+        "source_file": "src/commands.c",
+        "source_line": 952,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "limit ammo when sweeping weapons"
+    },
+    {
+      "name": "freshpacks",
+      "bare_name": "freshpacks",
+      "ast": {
+        "handler_fn": "ToggleFreshPacks",
+        "source_file": "src/commands.c",
+        "source_line": 951,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "limit ammo in backpacks"
+    },
+    {
+      "name": "freshtime",
+      "bare_name": "freshtime",
+      "ast": {
+        "handler_fn": "ToggleFreshTime",
+        "source_file": "src/commands.c",
+        "source_line": 953,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle weapon time in freshteams"
+    },
+    {
+      "name": "gamemodes",
+      "bare_name": "gamemodes",
+      "ast": {
+        "handler_fn": "ListGameModes",
+        "source_file": "src/commands.c",
+        "source_line": 1062,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "list available game modes"
+    },
+    {
+      "name": "giveme",
+      "bare_name": "giveme",
+      "ast": {
+        "handler_fn": "giveme",
+        "source_file": "src/commands.c",
+        "source_line": 1036,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "goalinfo:frogbot:editor",
+      "bare_name": "goalinfo",
+      "ast": {
+        "handler_fn": "FrogbotGoalInfo",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2352,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Shows goal information for current marker"
+    },
+    {
+      "name": "goalsummary:frogbot:editor",
+      "bare_name": "goalsummary",
+      "ast": {
+        "handler_fn": "FrogbotGoalSummary",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2349,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Show summary of goals"
+    },
+    {
+      "name": "goto:frogbot:editor",
+      "bare_name": "goto",
+      "ast": {
+        "handler_fn": "FrogbotGoto",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2353,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Teleport to a marker #"
+    },
+    {
+      "name": "gren_mode",
+      "bare_name": "gren_mode",
+      "ast": {
+        "handler_fn": "GrenadeMode",
+        "source_file": "src/commands.c",
+        "source_line": 961,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "grenades mode"
+    },
+    {
+      "name": "handicap",
+      "bare_name": "handicap",
+      "ast": {
+        "handler_fn": "handicap",
+        "source_file": "src/commands.c",
+        "source_line": 836,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle handicap level"
+    },
+    {
+      "name": "hdptoggle",
+      "bare_name": "hdptoggle",
+      "ast": {
+        "handler_fn": "hdptoggle",
+        "source_file": "src/commands.c",
+        "source_line": 835,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle allow handicap"
+    },
+    {
+      "name": "health:frogbot:std",
+      "bare_name": "health",
+      "ast": {
+        "handler_fn": "FrogbotsSetHealth",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2324,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Set initial health for the bot"
+    },
+    {
+      "name": "hook_classic",
+      "bare_name": "hook_classic",
+      "ast": {
+        "handler_fn": "hookclassic",
+        "source_file": "src/commands.c",
+        "source_line": 919,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "switch Hook style settings: Classic Hook (CTF)"
+    },
+    {
+      "name": "hook_crhook",
+      "bare_name": "hook_crhook",
+      "ast": {
+        "handler_fn": "hookcrhook",
+        "source_file": "src/commands.c",
+        "source_line": 920,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "switch Hook style settings: crhook (CTF)"
+    },
+    {
+      "name": "hook_fast",
+      "bare_name": "hook_fast",
+      "ast": {
+        "handler_fn": "hookfast",
+        "source_file": "src/commands.c",
+        "source_line": 918,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "switch Hook style settings: Fast Hook (CTF)"
+    },
+    {
+      "name": "hook_smooth",
+      "bare_name": "hook_smooth",
+      "ast": {
+        "handler_fn": "hooksmooth",
+        "source_file": "src/commands.c",
+        "source_line": 917,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "switch Hook style settings: Smooth Hook (CTF)"
+    },
+    {
+      "name": "hoonymode",
+      "bare_name": "hoonymode",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 816,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "HoonyMode settings"
+    },
+    {
+      "name": "info",
+      "bare_name": "info",
+      "ast": {
+        "handler_fn": "cmdinfo",
+        "source_file": "src/commands.c",
+        "source_line": 943,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "info:frogbot:editor",
+      "bare_name": "info",
+      "ast": {
+        "handler_fn": "FrogbotShowInfo",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2346,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Shows information about the current marker"
+    },
+    {
+      "name": "infolock",
+      "bare_name": "infolock",
+      "ast": {
+        "handler_fn": "infolock",
+        "source_file": "src/commands.c",
+        "source_line": 930,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle specinfo perms"
+    },
+    {
+      "name": "infospec",
+      "bare_name": "infospec",
+      "ast": {
+        "handler_fn": "infospec",
+        "source_file": "src/commands.c",
+        "source_line": 931,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle spectator infos"
+    },
+    {
+      "name": "instagib",
+      "bare_name": "instagib",
+      "ast": {
+        "handler_fn": "ToggleInstagib",
+        "source_file": "src/commands.c",
+        "source_line": 955,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "instagib settings"
+    },
+    {
+      "name": "instagib_coilgun_kickback",
+      "bare_name": "instagib_coilgun_kickback",
+      "ast": {
+        "handler_fn": "ToggleCGKickback",
+        "source_file": "src/commands.c",
+        "source_line": 959,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle coilgun kickback in instagib"
+    },
+    {
+      "name": "iplist",
+      "bare_name": "iplist",
+      "ast": {
+        "handler_fn": "iplist",
+        "source_file": "src/commands.c",
+        "source_line": 984,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "list clients ips"
+    },
+    {
+      "name": "itempickupbonus:frogbot:std",
+      "bare_name": "itempickupbonus",
+      "ast": {
+        "handler_fn": "FrogbotsSetItemPickupBonus",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2329,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Toggle item pickup bonus"
+    },
+    {
+      "name": "kick",
+      "bare_name": "kick",
+      "ast": {
+        "handler_fn": "AdminKick",
+        "source_file": "src/commands.c",
+        "source_line": 794,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle kick mode"
+    },
+    {
+      "name": "kill",
+      "bare_name": "kill",
+      "ast": {
+        "handler_fn": "ClientKill",
+        "source_file": "src/commands.c",
+        "source_line": 947,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "invoke suicide"
+    },
+    {
+      "name": "killer",
+      "bare_name": "killer",
+      "ast": {
+        "handler_fn": "SendKillerMsg",
+        "source_file": "src/commands.c",
+        "source_line": 780,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "message to killer"
+    },
+    {
+      "name": "killquad",
+      "bare_name": "killquad",
+      "ast": {
+        "handler_fn": "killquad",
+        "source_file": "src/commands.c",
+        "source_line": 738,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "kill the quad mode"
+    },
+    {
+      "name": "kinfo",
+      "bare_name": "kinfo",
+      "ast": {
+        "handler_fn": "cmdinfo",
+        "source_file": "src/commands.c",
+        "source_line": 940,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set self params for mod"
+    },
+    {
+      "name": "klist",
+      "bare_name": "klist",
+      "ast": {
+        "handler_fn": "klist",
+        "source_file": "src/commands.c",
+        "source_line": 833,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "mod's list of users"
+    },
+    {
+      "name": "ksound1",
+      "bare_name": "ksound1",
+      "ast": {
+        "handler_fn": "TeamSay",
+        "source_file": "src/commands.c",
+        "source_line": 770,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "ksound2",
+      "bare_name": "ksound2",
+      "ast": {
+        "handler_fn": "TeamSay",
+        "source_file": "src/commands.c",
+        "source_line": 771,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "ksound3",
+      "bare_name": "ksound3",
+      "ast": {
+        "handler_fn": "TeamSay",
+        "source_file": "src/commands.c",
+        "source_line": 772,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "ksound4",
+      "bare_name": "ksound4",
+      "ast": {
+        "handler_fn": "TeamSay",
+        "source_file": "src/commands.c",
+        "source_line": 773,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "ksound5",
+      "bare_name": "ksound5",
+      "ast": {
+        "handler_fn": "TeamSay",
+        "source_file": "src/commands.c",
+        "source_line": 774,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "ksound6",
+      "bare_name": "ksound6",
+      "ast": {
+        "handler_fn": "TeamSay",
+        "source_file": "src/commands.c",
+        "source_line": 775,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "kuinfo",
+      "bare_name": "kuinfo",
+      "ast": {
+        "handler_fn": "cmduinfo",
+        "source_file": "src/commands.c",
+        "source_line": 941,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "examine someone params"
+    },
+    {
+      "name": "lastscores",
+      "bare_name": "lastscores",
+      "ast": {
+        "handler_fn": "lastscores",
+        "source_file": "src/commands.c",
+        "source_line": 899,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "print last games scores"
+    },
+    {
+      "name": "lastscoresktx",
+      "bare_name": "lastscoresktx",
+      "ast": {
+        "handler_fn": "lastscores",
+        "source_file": "src/commands.c",
+        "source_line": 900,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "print last games scores"
+    },
+    {
+      "name": "laststats",
+      "bare_name": "laststats",
+      "ast": {
+        "handler_fn": "LastStats",
+        "source_file": "src/commands.c",
+        "source_line": 898,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show endgame stats"
+    },
+    {
+      "name": "latejoin",
+      "bare_name": "latejoin",
+      "ast": {
+        "handler_fn": "latejoin",
+        "source_file": "src/commands.c",
+        "source_line": 838,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "join a team after the game started"
+    },
+    {
+      "name": "lgcmode",
+      "bare_name": "lgcmode",
+      "ast": {
+        "handler_fn": "ToggleLGC",
+        "source_file": "src/commands.c",
+        "source_line": 957,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "lgc mode"
+    },
+    {
+      "name": "list",
+      "bare_name": "list",
+      "ast": {
+        "handler_fn": "ListWhoNot",
+        "source_file": "src/commands.c",
+        "source_line": 715,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "whonot to everyone"
+    },
+    {
+      "name": "lock",
+      "bare_name": "lock",
+      "ast": {
+        "handler_fn": "sv_lock",
+        "source_file": "src/commands.c",
+        "source_line": 967,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "temporary lock server"
+    },
+    {
+      "name": "lockmap",
+      "bare_name": "lockmap",
+      "ast": {
+        "handler_fn": "ToggleMapLock",
+        "source_file": "src/commands.c",
+        "source_line": 756,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "(un)lock current map"
+    },
+    {
+      "name": "lockmode",
+      "bare_name": "lockmode",
+      "ast": {
+        "handler_fn": "ChangeLock",
+        "source_file": "src/commands.c",
+        "source_line": 748,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "change locking mode"
+    },
+    {
+      "name": "mapcycle",
+      "bare_name": "mapcycle",
+      "ast": {
+        "handler_fn": "mapcycle",
+        "source_file": "src/commands.c",
+        "source_line": 996,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "list map cycle"
+    },
+    {
+      "name": "mapinfo:frogbot:editor",
+      "bare_name": "mapinfo",
+      "ast": {
+        "handler_fn": "FrogbotMapInfo",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2351,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Shows information about current map"
+    },
+    {
+      "name": "maps",
+      "bare_name": "maps",
+      "ast": {
+        "handler_fn": "ShowMaps",
+        "source_file": "src/commands.c",
+        "source_line": 749,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "list custom maps"
+    },
+    {
+      "name": "mapslist_dl",
+      "bare_name": "mapslist_dl",
+      "ast": {
+        "handler_fn": "mapslist_dl",
+        "source_file": "src/commands.c",
+        "source_line": 699,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "mctf",
+      "bare_name": "mctf",
+      "ast": {
+        "handler_fn": "mctf",
+        "source_file": "src/commands.c",
+        "source_line": 923,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "disable hook+runes (CTF)"
+    },
+    {
+      "name": "midair",
+      "bare_name": "midair",
+      "ast": {
+        "handler_fn": "ToggleMidair",
+        "source_file": "src/commands.c",
+        "source_line": 948,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "turn midair mode on/off"
+    },
+    {
+      "name": "midair_minheight",
+      "bare_name": "midair_minheight",
+      "ast": {
+        "handler_fn": "SetMidairMinHeight",
+        "source_file": "src/commands.c",
+        "source_line": 949,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "midair minimum frag height"
+    },
+    {
+      "name": "mkick",
+      "bare_name": "mkick",
+      "ast": {
+        "handler_fn": "m_kick",
+        "source_file": "src/commands.c",
+        "source_line": 795,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "multi kick"
+    },
+    {
+      "name": "mmode",
+      "bare_name": "mmode",
+      "ast": {
+        "handler_fn": "mmode",
+        "source_file": "src/commands.c",
+        "source_line": 938,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "switch message mode"
+    },
+    {
+      "name": "moreinfo",
+      "bare_name": "moreinfo",
+      "ast": {
+        "handler_fn": "moreinfo",
+        "source_file": "src/commands.c",
+        "source_line": 932,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "receiving more info"
+    },
+    {
+      "name": "motd",
+      "bare_name": "motd",
+      "ast": {
+        "handler_fn": "motd_show",
+        "source_file": "src/commands.c",
+        "source_line": 929,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show motd"
+    },
+    {
+      "name": "move:frogbot:editor",
+      "bare_name": "move",
+      "ast": {
+        "handler_fn": "FrogbotMoveMarker",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2354,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Moves marker to current position"
+    },
+    {
+      "name": "multi",
+      "bare_name": "multi",
+      "ast": {
+        "handler_fn": "multi",
+        "source_file": "src/commands.c",
+        "source_line": 939,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "change/print multi set"
+    },
+    {
+      "name": "n",
+      "bare_name": "n",
+      "ast": {
+        "handler_fn": "DontKick",
+        "source_file": "src/commands.c",
+        "source_line": 797,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "don't kick"
+    },
+    {
+      "name": "newcomer",
+      "bare_name": "newcomer",
+      "ast": {
+        "handler_fn": "SendNewcomerMsg",
+        "source_file": "src/commands.c",
+        "source_line": 782,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "message to last player joined"
+    },
+    {
+      "name": "next_best",
+      "bare_name": "next_best",
+      "ast": {
+        "handler_fn": "next_best",
+        "source_file": "src/commands.c",
+        "source_line": 896,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set pov to next best player"
+    },
+    {
+      "name": "next_map",
+      "bare_name": "next_map",
+      "ast": {
+        "handler_fn": "PlayerBreak",
+        "source_file": "src/commands.c",
+        "source_line": 995,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "vote for next map"
+    },
+    {
+      "name": "next_pow",
+      "bare_name": "next_pow",
+      "ast": {
+        "handler_fn": "next_pow",
+        "source_file": "src/commands.c",
+        "source_line": 897,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set pov to next powerup"
+    },
+    {
+      "name": "no",
+      "bare_name": "no",
+      "ast": {
+        "handler_fn": "VoteNo",
+        "source_file": "src/commands.c",
+        "source_line": 802,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "withdraws vote"
+    },
+    {
+      "name": "no_gl",
+      "bare_name": "no_gl",
+      "ast": {
+        "handler_fn": "no_gl",
+        "source_file": "src/commands.c",
+        "source_line": 987,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "alias for /noweapon gl"
+    },
+    {
+      "name": "no_lg",
+      "bare_name": "no_lg",
+      "ast": {
+        "handler_fn": "no_lg",
+        "source_file": "src/commands.c",
+        "source_line": 986,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "alias for /noweapon lg"
+    },
+    {
+      "name": "noga",
+      "bare_name": "noga",
+      "ast": {
+        "handler_fn": "noga",
+        "source_file": "src/commands.c",
+        "source_line": 922,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle green armor on spawn (CTF)"
+    },
+    {
+      "name": "nohook",
+      "bare_name": "nohook",
+      "ast": {
+        "handler_fn": "nohook",
+        "source_file": "src/commands.c",
+        "source_line": 916,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle hook (CTF)"
+    },
+    {
+      "name": "noitems",
+      "bare_name": "noitems",
+      "ast": {
+        "handler_fn": "noitems",
+        "source_file": "src/commands.c",
+        "source_line": 1033,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "allow/disallow items in game"
+    },
+    {
+      "name": "norunes",
+      "bare_name": "norunes",
+      "ast": {
+        "handler_fn": "norunes",
+        "source_file": "src/commands.c",
+        "source_line": 921,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle runes (CTF)"
+    },
+    {
+      "name": "nospecs",
+      "bare_name": "nospecs",
+      "ast": {
+        "handler_fn": "nospecs",
+        "source_file": "src/commands.c",
+        "source_line": 1032,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "allow/disallow spectators"
+    },
+    {
+      "name": "nosweep",
+      "bare_name": "nosweep",
+      "ast": {
+        "handler_fn": "ToggleNoSweep",
+        "source_file": "src/commands.c",
+        "source_line": 954,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "restrict players from sweeping weapons"
+    },
+    {
+      "name": "noweapon",
+      "bare_name": "noweapon",
+      "ast": {
+        "handler_fn": "noweapon",
+        "source_file": "src/commands.c",
+        "source_line": 837,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle allow any weapon"
+    },
+    {
+      "name": "options",
+      "bare_name": "options",
+      "ast": {
+        "handler_fn": "ShowOpts",
+        "source_file": "src/commands.c",
+        "source_line": 706,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "match control commands"
+    },
+    {
+      "name": "overtime",
+      "bare_name": "overtime",
+      "ast": {
+        "handler_fn": "ChangeOvertime",
+        "source_file": "src/commands.c",
+        "source_line": 798,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle overtime mode"
+    },
+    {
+      "name": "overtimeup",
+      "bare_name": "overtimeup",
+      "ast": {
+        "handler_fn": "ChangeOvertimeUp",
+        "source_file": "src/commands.c",
+        "source_line": 799,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "change overtime length"
+    },
+    {
+      "name": "pathinfo:frogbot:editor",
+      "bare_name": "pathinfo",
+      "ast": {
+        "handler_fn": "FrogbotPathList",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2347,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Shows information abouts paths to/from current marker"
+    },
+    {
+      "name": "pathlist:frogbot:editor",
+      "bare_name": "pathlist",
+      "ast": {
+        "handler_fn": "FrogbotListPaths",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2358,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Lists paths with flags set"
+    },
+    {
+      "name": "pause",
+      "bare_name": "pause",
+      "ast": {
+        "handler_fn": "TogglePause",
+        "source_file": "src/commands.c",
+        "source_line": 1002,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle pause"
+    },
+    {
+      "name": "pickspawn",
+      "bare_name": "pickspawn",
+      "ast": {
+        "handler_fn": "HM_pick_spawn",
+        "source_file": "src/commands.c",
+        "source_line": 1055,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "nominate hoonymode spawn"
+    },
+    {
+      "name": "pickup",
+      "bare_name": "pickup",
+      "ast": {
+        "handler_fn": "VotePickup",
+        "source_file": "src/commands.c",
+        "source_line": 754,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "vote for pickup game"
+    },
+    {
+      "name": "pos_angles",
+      "bare_name": "pos_angles",
+      "ast": {
+        "handler_fn": "Pos_Set",
+        "source_file": "src/commands.c",
+        "source_line": 910,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set position angles"
+    },
+    {
+      "name": "pos_move",
+      "bare_name": "pos_move",
+      "ast": {
+        "handler_fn": "Pos_Move",
+        "source_file": "src/commands.c",
+        "source_line": 905,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "move to saved position"
+    },
+    {
+      "name": "pos_origin",
+      "bare_name": "pos_origin",
+      "ast": {
+        "handler_fn": "Pos_Set",
+        "source_file": "src/commands.c",
+        "source_line": 909,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set position origin"
+    },
+    {
+      "name": "pos_save",
+      "bare_name": "pos_save",
+      "ast": {
+        "handler_fn": "Pos_Save",
+        "source_file": "src/commands.c",
+        "source_line": 904,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "save current position"
+    },
+    {
+      "name": "pos_show",
+      "bare_name": "pos_show",
+      "ast": {
+        "handler_fn": "Pos_Show",
+        "source_file": "src/commands.c",
+        "source_line": 903,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "info about saved position"
+    },
+    {
+      "name": "powerups",
+      "bare_name": "powerups",
+      "ast": {
+        "handler_fn": "TogglePowerups",
+        "source_file": "src/commands.c",
+        "source_line": 720,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "quad, \\230\\230\\230, ring & suit"
+    },
+    {
+      "name": "powerups_pickup",
+      "bare_name": "powerups_pickup",
+      "ast": {
+        "handler_fn": "TogglePuPickup",
+        "source_file": "src/commands.c",
+        "source_line": 721,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "change powerups pickup policy"
+    },
+    {
+      "name": "practice",
+      "bare_name": "practice",
+      "ast": {
+        "handler_fn": "TogglePractice",
+        "source_file": "src/commands.c",
+        "source_line": 827,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle practice mode"
+    },
+    {
+      "name": "prewar",
+      "bare_name": "prewar",
+      "ast": {
+        "handler_fn": "TogglePreWar",
+        "source_file": "src/commands.c",
+        "source_line": 755,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "playerfire before game"
+    },
+    {
+      "name": "qenemy",
+      "bare_name": "qenemy",
+      "ast": {
+        "handler_fn": "ToggleQEnemy",
+        "source_file": "src/commands.c",
+        "source_line": 785,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "enemy vicinity reporting"
+    },
+    {
+      "name": "qizmo",
+      "bare_name": "qizmo",
+      "ast": {
+        "handler_fn": "ShowQizmo",
+        "source_file": "src/commands.c",
+        "source_line": 777,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "qizmo related commands"
+    },
+    {
+      "name": "qlag",
+      "bare_name": "qlag",
+      "ast": {
+        "handler_fn": "ToggleQLag",
+        "source_file": "src/commands.c",
+        "source_line": 784,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "lag settings"
+    },
+    {
+      "name": "qpoint",
+      "bare_name": "qpoint",
+      "ast": {
+        "handler_fn": "ToggleQPoint",
+        "source_file": "src/commands.c",
+        "source_line": 786,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "point function"
+    },
+    {
+      "name": "quadmultiplier:frogbot:std",
+      "bare_name": "quadmultiplier",
+      "ast": {
+        "handler_fn": "FrogbotsSetQuadMultiplier",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2328,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Set quad damage multiplier"
+    },
+    {
+      "name": "ra_break",
+      "bare_name": "ra_break",
+      "ast": {
+        "handler_fn": "ra_break",
+        "source_file": "src/commands.c",
+        "source_line": 969,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle RA line status"
+    },
+    {
+      "name": "ra_pos",
+      "bare_name": "ra_pos",
+      "ast": {
+        "handler_fn": "ra_PrintPos",
+        "source_file": "src/commands.c",
+        "source_line": 970,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "RA line position"
+    },
+    {
+      "name": "race",
+      "bare_name": "race",
+      "ast": {
+        "handler_fn": "ToggleRace",
+        "source_file": "src/commands.c",
+        "source_line": 695,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle race mode"
+    },
+    {
+      "name": "race_break",
+      "bare_name": "race_break",
+      "ast": {
+        "handler_fn": "r_changestatus",
+        "source_file": "src/commands.c",
+        "source_line": 1005,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "not ready for race"
+    },
+    {
+      "name": "race_break_all",
+      "bare_name": "race_break_all",
+      "ast": {
+        "handler_fn": "r_all_break",
+        "source_file": "src/commands.c",
+        "source_line": 1006,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "force all racers to break"
+    },
+    {
+      "name": "race_cancel",
+      "bare_name": "race_cancel",
+      "ast": {
+        "handler_fn": "r_changestatus",
+        "source_file": "src/commands.c",
+        "source_line": 1008,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "cancel current race, for racer"
+    },
+    {
+      "name": "race_chasecam",
+      "bare_name": "race_chasecam",
+      "ast": {
+        "handler_fn": "r_changefollowstatus",
+        "source_file": "src/commands.c",
+        "source_line": 1022,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle chasecam status"
+    },
+    {
+      "name": "race_chasecam_freelook",
+      "bare_name": "race_chasecam_freelook",
+      "ast": {
+        "handler_fn": "race_chasecam_freelook_change",
+        "source_file": "src/commands.c",
+        "source_line": 1024,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle chasecam freelook"
+    },
+    {
+      "name": "race_chasecam_view",
+      "bare_name": "race_chasecam_view",
+      "ast": {
+        "handler_fn": "race_chasecam_change",
+        "source_file": "src/commands.c",
+        "source_line": 1023,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "cycle between chasecam views"
+    },
+    {
+      "name": "race_countdown_down",
+      "bare_name": "race_countdown_down",
+      "ast": {
+        "handler_fn": "RaceCountdownChange",
+        "source_file": "src/commands.c",
+        "source_line": 697,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "-1 sec race cowntdown time"
+    },
+    {
+      "name": "race_countdown_up",
+      "bare_name": "race_countdown_up",
+      "ast": {
+        "handler_fn": "RaceCountdownChange",
+        "source_file": "src/commands.c",
+        "source_line": 696,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "+1 sec race cowntdown time"
+    },
+    {
+      "name": "race_del_checkpoint",
+      "bare_name": "race_del_checkpoint",
+      "ast": {
+        "handler_fn": "r_cdel",
+        "source_file": "src/commands.c",
+        "source_line": 1016,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "remove race current checkpoint"
+    },
+    {
+      "name": "race_dl_record_demo",
+      "bare_name": "race_dl_record_demo",
+      "ast": {
+        "handler_fn": "race_download_record_demo",
+        "source_file": "src/commands.c",
+        "source_line": 1025,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "download demo for a record"
+    },
+    {
+      "name": "race_hide_players",
+      "bare_name": "race_hide_players",
+      "ast": {
+        "handler_fn": "race_hide_players_toggle",
+        "source_file": "src/commands.c",
+        "source_line": 1030,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle visible players during race"
+    },
+    {
+      "name": "race_match",
+      "bare_name": "race_match",
+      "ast": {
+        "handler_fn": "race_match_toggle",
+        "source_file": "src/commands.c",
+        "source_line": 1028,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle race match mode"
+    },
+    {
+      "name": "race_pacemaker",
+      "bare_name": "race_pacemaker",
+      "ast": {
+        "handler_fn": "race_pacemaker",
+        "source_file": "src/commands.c",
+        "source_line": 1026,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set pacemaker"
+    },
+    {
+      "name": "race_ready",
+      "bare_name": "race_ready",
+      "ast": {
+        "handler_fn": "r_changestatus",
+        "source_file": "src/commands.c",
+        "source_line": 1004,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "ready for race"
+    },
+    {
+      "name": "race_route_clear",
+      "bare_name": "race_route_clear",
+      "ast": {
+        "handler_fn": "r_clear_route",
+        "source_file": "src/commands.c",
+        "source_line": 1021,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "clear current route completely"
+    },
+    {
+      "name": "race_route_switch",
+      "bare_name": "race_route_switch",
+      "ast": {
+        "handler_fn": "r_route",
+        "source_file": "src/commands.c",
+        "source_line": 1020,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "load predefined routes for map"
+    },
+    {
+      "name": "race_scoring",
+      "bare_name": "race_scoring",
+      "ast": {
+        "handler_fn": "race_scoring_system_toggle",
+        "source_file": "src/commands.c",
+        "source_line": 1029,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle between scoring systems"
+    },
+    {
+      "name": "race_set_checkpoint",
+      "bare_name": "race_set_checkpoint",
+      "ast": {
+        "handler_fn": "r_Xset",
+        "source_file": "src/commands.c",
+        "source_line": 1015,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set race checkpoint"
+    },
+    {
+      "name": "race_set_falsestart",
+      "bare_name": "race_set_falsestart",
+      "ast": {
+        "handler_fn": "r_falsestart",
+        "source_file": "src/commands.c",
+        "source_line": 1018,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set race starting mode"
+    },
+    {
+      "name": "race_set_finish",
+      "bare_name": "race_set_finish",
+      "ast": {
+        "handler_fn": "r_Xset",
+        "source_file": "src/commands.c",
+        "source_line": 1014,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set race end checkpoint"
+    },
+    {
+      "name": "race_set_start",
+      "bare_name": "race_set_start",
+      "ast": {
+        "handler_fn": "r_Xset",
+        "source_file": "src/commands.c",
+        "source_line": 1013,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set race start checkpoint"
+    },
+    {
+      "name": "race_set_timeout",
+      "bare_name": "race_set_timeout",
+      "ast": {
+        "handler_fn": "r_timeout",
+        "source_file": "src/commands.c",
+        "source_line": 1017,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set race timeout"
+    },
+    {
+      "name": "race_set_weapon_mode",
+      "bare_name": "race_set_weapon_mode",
+      "ast": {
+        "handler_fn": "r_mode",
+        "source_file": "src/commands.c",
+        "source_line": 1019,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set race weapon mode"
+    },
+    {
+      "name": "race_show_lineup",
+      "bare_name": "race_show_lineup",
+      "ast": {
+        "handler_fn": "race_display_line",
+        "source_file": "src/commands.c",
+        "source_line": 1009,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show current race line-up"
+    },
+    {
+      "name": "race_show_record_details",
+      "bare_name": "race_show_record_details",
+      "ast": {
+        "handler_fn": "display_record_details",
+        "source_file": "src/commands.c",
+        "source_line": 1011,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show details about a record"
+    },
+    {
+      "name": "race_show_route",
+      "bare_name": "race_show_route",
+      "ast": {
+        "handler_fn": "r_print",
+        "source_file": "src/commands.c",
+        "source_line": 1012,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show race route info"
+    },
+    {
+      "name": "race_show_toptimes",
+      "bare_name": "race_show_toptimes",
+      "ast": {
+        "handler_fn": "display_scores",
+        "source_file": "src/commands.c",
+        "source_line": 1010,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show top race times for current map"
+    },
+    {
+      "name": "race_simultaneous",
+      "bare_name": "race_simultaneous",
+      "ast": {
+        "handler_fn": "race_simultaneous_toggle",
+        "source_file": "src/commands.c",
+        "source_line": 1027,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle simultaneous racing"
+    },
+    {
+      "name": "race_toggle",
+      "bare_name": "race_toggle",
+      "ast": {
+        "handler_fn": "r_changestatus",
+        "source_file": "src/commands.c",
+        "source_line": 1007,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle ready status for race"
+    },
+    {
+      "name": "ready",
+      "bare_name": "ready",
+      "ast": {
+        "handler_fn": "PlayerFastReady",
+        "source_file": "src/commands.c",
+        "source_line": 707,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "when you feel ready"
+    },
+    {
+      "name": "removeall:frogbot:std",
+      "bare_name": "removeall",
+      "ast": {
+        "handler_fn": "FrogbotsRemoveAll",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2321,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Removes all bots from server"
+    },
+    {
+      "name": "removeallpaths:frogbot:editor",
+      "bare_name": "removeallpaths",
+      "ast": {
+        "handler_fn": "FrogbotRemoveAllPaths",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2339,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Removes all paths from this marker"
+    },
+    {
+      "name": "removebot:frogbot:std",
+      "bare_name": "removebot",
+      "ast": {
+        "handler_fn": "FrogbotsRemovebot_f",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2320,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Removes a single bot"
+    },
+    {
+      "name": "removeitem",
+      "bare_name": "removeitem",
+      "ast": {
+        "handler_fn": "removeitem",
+        "source_file": "src/commands.c",
+        "source_line": 1038,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "removemarker:frogbot:editor",
+      "bare_name": "removemarker",
+      "ast": {
+        "handler_fn": "FrogbotRemoveMarker",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2335,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Removes a routing marker from the map"
+    },
+    {
+      "name": "removepath:frogbot:editor",
+      "bare_name": "removepath",
+      "ast": {
+        "handler_fn": "FrogbotRemovePath",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2338,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Removes a path between markers"
+    },
+    {
+      "name": "report",
+      "bare_name": "report",
+      "ast": {
+        "handler_fn": "ReportMe",
+        "source_file": "src/commands.c",
+        "source_line": 746,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "simple teamplay report"
+    },
+    {
+      "name": "rjfields:frogbot:editor",
+      "bare_name": "rjfields",
+      "ast": {
+        "handler_fn": "FrogbotSetRocketJumpFields",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2357,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Sets rocket jump fields"
+    },
+    {
+      "name": "rnd",
+      "bare_name": "rnd",
+      "ast": {
+        "handler_fn": "krnd",
+        "source_file": "src/commands.c",
+        "source_line": 901,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "select random value"
+    },
+    {
+      "name": "roundsdown",
+      "bare_name": "roundsdown",
+      "ast": {
+        "handler_fn": "HM_roundsdown",
+        "source_file": "src/commands.c",
+        "source_line": 1057,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "decrease rounds in match"
+    },
+    {
+      "name": "roundsup",
+      "bare_name": "roundsup",
+      "ast": {
+        "handler_fn": "HM_roundsup",
+        "source_file": "src/commands.c",
+        "source_line": 1056,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "increase rounds in match"
+    },
+    {
+      "name": "rpickup",
+      "bare_name": "rpickup",
+      "ast": {
+        "handler_fn": "RandomPickup",
+        "source_file": "src/commands.c",
+        "source_line": 807,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "vote random team pickup"
+    },
+    {
+      "name": "rules",
+      "bare_name": "rules",
+      "ast": {
+        "handler_fn": "ShowRules",
+        "source_file": "src/commands.c",
+        "source_line": 747,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show game rules"
+    },
+    {
+      "name": "s-l",
+      "bare_name": "s-l",
+      "ast": {
+        "handler_fn": "dummy",
+        "source_file": "src/commands.c",
+        "source_line": 934,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "continue last s-p u done"
+    },
+    {
+      "name": "s-m",
+      "bare_name": "s-m",
+      "ast": {
+        "handler_fn": "dummy",
+        "source_file": "src/commands.c",
+        "source_line": 937,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "multi say"
+    },
+    {
+      "name": "s-p",
+      "bare_name": "s-p",
+      "ast": {
+        "handler_fn": "dummy",
+        "source_file": "src/commands.c",
+        "source_line": 933,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "direct player say"
+    },
+    {
+      "name": "s-r",
+      "bare_name": "s-r",
+      "ast": {
+        "handler_fn": "dummy",
+        "source_file": "src/commands.c",
+        "source_line": 935,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "reply to last s-p u got"
+    },
+    {
+      "name": "s-t",
+      "bare_name": "s-t",
+      "ast": {
+        "handler_fn": "dummy",
+        "source_file": "src/commands.c",
+        "source_line": 936,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "say to group of players"
+    },
+    {
+      "name": "save:frogbot:editor",
+      "bare_name": "save",
+      "ast": {
+        "handler_fn": "FrogbotSaveBotFile",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2345,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Saves current routing as a .bot file"
+    },
+    {
+      "name": "savemarker:frogbot:editor",
+      "bare_name": "savemarker",
+      "ast": {
+        "handler_fn": "FrogbotSaveMarker",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2336,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Saves current marker"
+    },
+    {
+      "name": "scores",
+      "bare_name": "scores",
+      "ast": {
+        "handler_fn": "PrintScores",
+        "source_file": "src/commands.c",
+        "source_line": 703,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "print match time/scores"
+    },
+    {
+      "name": "sct_hex",
+      "bare_name": "sct_hex",
+      "ast": {
+        "handler_fn": "ShowCharsetTableHexa",
+        "source_file": "src/commands.c",
+        "source_line": 760,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "Show hexadecimal charset table"
+    },
+    {
+      "name": "sct_oct",
+      "bare_name": "sct_oct",
+      "ast": {
+        "handler_fn": "ShowCharsetTableOctal",
+        "source_file": "src/commands.c",
+        "source_line": 759,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "Show octal charset table"
+    },
+    {
+      "name": "setmarkerflag:frogbot:editor",
+      "bare_name": "setmarkerflag",
+      "ast": {
+        "handler_fn": "FrogbotSetMarkerFlag",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2341,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Flags a single marker"
+    },
+    {
+      "name": "setpathflag:frogbot:editor",
+      "bare_name": "setpathflag",
+      "ast": {
+        "handler_fn": "FrogbotSetPathFlag",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2343,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Flags a path between two markers"
+    },
+    {
+      "name": "setzone:frogbot:editor",
+      "bare_name": "setzone",
+      "ast": {
+        "handler_fn": "FrogbotSetZone",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2340,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Sets a marker's zone #"
+    },
+    {
+      "name": "sh_speed",
+      "bare_name": "sh_speed",
+      "ast": {
+        "handler_fn": "Sh_Speed",
+        "source_file": "src/commands.c",
+        "source_line": 912,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle use show speed"
+    },
+    {
+      "name": "shownick",
+      "bare_name": "shownick",
+      "ast": {
+        "handler_fn": "ShowNick",
+        "source_file": "src/commands.c",
+        "source_line": 762,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "pointed player's info"
+    },
+    {
+      "name": "silence",
+      "bare_name": "silence",
+      "ast": {
+        "handler_fn": "ToggleSpecTalk",
+        "source_file": "src/commands.c",
+        "source_line": 745,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle spectator talk"
+    },
+    {
+      "name": "skill:frogbot:std",
+      "bare_name": "skill",
+      "ast": {
+        "handler_fn": "FrogbotsSetSkill",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2317,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Set skill level for next bot added"
+    },
+    {
+      "name": "slowready",
+      "bare_name": "slowready",
+      "ast": {
+        "handler_fn": "PlayerSlowReady",
+        "source_file": "src/commands.c",
+        "source_line": 708,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "like ready, but don't activate the idlebot"
+    },
+    {
+      "name": "socd",
+      "bare_name": "socd",
+      "ast": {
+        "handler_fn": "socd",
+        "source_file": "src/commands.c",
+        "source_line": 1040,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "cycle between SOCD detection modes"
+    },
+    {
+      "name": "spawn",
+      "bare_name": "spawn",
+      "ast": {
+        "handler_fn": "ToggleRespawns",
+        "source_file": "src/commands.c",
+        "source_line": 717,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle spawn modes"
+    },
+    {
+      "name": "spawn666time",
+      "bare_name": "spawn666time",
+      "ast": {
+        "handler_fn": "Spawn666Time",
+        "source_file": "src/commands.c",
+        "source_line": 1035,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set spawn pent time (dmm4 atm)"
+    },
+    {
+      "name": "spawn_show",
+      "bare_name": "spawn_show",
+      "ast": {
+        "handler_fn": "ToggleSpawnPoints",
+        "source_file": "src/commands.c",
+        "source_line": 718,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle visible spawn points"
+    },
+    {
+      "name": "spawnicide",
+      "bare_name": "spawnicide",
+      "ast": {
+        "handler_fn": "ToggleSpawnicide",
+        "source_file": "src/commands.c",
+        "source_line": 719,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle spawnicide"
+    },
+    {
+      "name": "speed",
+      "bare_name": "speed",
+      "ast": {
+        "handler_fn": "ToggleSpeed",
+        "source_file": "src/commands.c",
+        "source_line": 757,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle sv_maxspeed"
+    },
+    {
+      "name": "stats",
+      "bare_name": "stats",
+      "ast": {
+        "handler_fn": "PlayerStats",
+        "source_file": "src/commands.c",
+        "source_line": 704,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show player stats"
+    },
+    {
+      "name": "status1",
+      "bare_name": "status1",
+      "ast": {
+        "handler_fn": "ModStatus1",
+        "source_file": "src/commands.c",
+        "source_line": 710,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show server settings"
+    },
+    {
+      "name": "status2",
+      "bare_name": "status2",
+      "ast": {
+        "handler_fn": "ModStatus2",
+        "source_file": "src/commands.c",
+        "source_line": 711,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "more server settings"
+    },
+    {
+      "name": "suggestcolor",
+      "bare_name": "suggestcolor",
+      "ast": {
+        "handler_fn": "SuggestColorVote",
+        "source_file": "src/commands.c",
+        "source_line": 805,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle suggest color vote"
+    },
+    {
+      "name": "summary:frogbot:editor",
+      "bare_name": "summary",
+      "ast": {
+        "handler_fn": "FrogbotSummary",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2348,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Shows summary of current map"
+    },
+    {
+      "name": "swapall",
+      "bare_name": "swapall",
+      "ast": {
+        "handler_fn": "SwapAll",
+        "source_file": "src/commands.c",
+        "source_line": 925,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "swap teams for ctf"
+    },
+    {
+      "name": "teamoverlay",
+      "bare_name": "teamoverlay",
+      "ast": {
+        "handler_fn": "teamoverlay",
+        "source_file": "src/commands.c",
+        "source_line": 1034,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "allow/disallow teamoverlay"
+    },
+    {
+      "name": "teleportcap",
+      "bare_name": "teleportcap",
+      "ast": {
+        "handler_fn": "setTeleportCap",
+        "source_file": "src/commands.c",
+        "source_line": 998,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set teleport cap (yawn)"
+    },
+    {
+      "name": "teleteam",
+      "bare_name": "teleteam",
+      "ast": {
+        "handler_fn": "teleteam",
+        "source_file": "src/commands.c",
+        "source_line": 979,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "team telefrag behaviour"
+    },
+    {
+      "name": "time",
+      "bare_name": "time",
+      "ast": {
+        "handler_fn": "sv_time",
+        "source_file": "src/commands.c",
+        "source_line": 960,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "show server time"
+    },
+    {
+      "name": "time10",
+      "bare_name": "time10",
+      "ast": {
+        "handler_fn": "TimeSet",
+        "source_file": "src/commands.c",
+        "source_line": 764,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set timelimit to 10 mins"
+    },
+    {
+      "name": "time15",
+      "bare_name": "time15",
+      "ast": {
+        "handler_fn": "TimeSet",
+        "source_file": "src/commands.c",
+        "source_line": 765,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set timelimit to 15 mins"
+    },
+    {
+      "name": "time20",
+      "bare_name": "time20",
+      "ast": {
+        "handler_fn": "TimeSet",
+        "source_file": "src/commands.c",
+        "source_line": 766,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set timelimit to 20 mins"
+    },
+    {
+      "name": "time25",
+      "bare_name": "time25",
+      "ast": {
+        "handler_fn": "TimeSet",
+        "source_file": "src/commands.c",
+        "source_line": 767,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set timelimit to 25 mins"
+    },
+    {
+      "name": "time30",
+      "bare_name": "time30",
+      "ast": {
+        "handler_fn": "TimeSet",
+        "source_file": "src/commands.c",
+        "source_line": 768,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set timelimit to 30 mins"
+    },
+    {
+      "name": "time5",
+      "bare_name": "time5",
+      "ast": {
+        "handler_fn": "TimeSet",
+        "source_file": "src/commands.c",
+        "source_line": 763,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "set timelimit to 5 mins"
+    },
+    {
+      "name": "timedown",
+      "bare_name": "timedown",
+      "ast": {
+        "handler_fn": "TimeDown",
+        "source_file": "src/commands.c",
+        "source_line": 733,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "-5 mins match time"
+    },
+    {
+      "name": "timedown1",
+      "bare_name": "timedown1",
+      "ast": {
+        "handler_fn": "TimeDown",
+        "source_file": "src/commands.c",
+        "source_line": 731,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "-1 mins match time"
+    },
+    {
+      "name": "timeup",
+      "bare_name": "timeup",
+      "ast": {
+        "handler_fn": "TimeUp",
+        "source_file": "src/commands.c",
+        "source_line": 734,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "+5 mins match time"
+    },
+    {
+      "name": "timeup1",
+      "bare_name": "timeup1",
+      "ast": {
+        "handler_fn": "TimeUp",
+        "source_file": "src/commands.c",
+        "source_line": 732,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "+1 mins match time"
+    },
+    {
+      "name": "tkfjump",
+      "bare_name": "tkfjump",
+      "ast": {
+        "handler_fn": "t_jump",
+        "source_file": "src/commands.c",
+        "source_line": 831,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle allow kfjump"
+    },
+    {
+      "name": "tkrjump",
+      "bare_name": "tkrjump",
+      "ast": {
+        "handler_fn": "t_jump",
+        "source_file": "src/commands.c",
+        "source_line": 832,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle allow krjump"
+    },
+    {
+      "name": "toggleklist",
+      "bare_name": "toggleklist",
+      "ast": {
+        "handler_fn": "toggleklist",
+        "source_file": "src/commands.c",
+        "source_line": 834,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "trackers list"
+    },
+    {
+      "name": "togglequad:frogbot:std",
+      "bare_name": "togglequad",
+      "ast": {
+        "handler_fn": "FrogbotsToggleQuad",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2327,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Toggle quad damage"
+    },
+    {
+      "name": "toggleready",
+      "bare_name": "toggleready",
+      "ast": {
+        "handler_fn": "ToggleReady",
+        "source_file": "src/commands.c",
+        "source_line": 962,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "just toggle ready"
+    },
+    {
+      "name": "toggletracklist",
+      "bare_name": "toggletracklist",
+      "ast": {
+        "handler_fn": "toggletracklist",
+        "source_file": "src/commands.c",
+        "source_line": 843,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "trackers list"
+    },
+    {
+      "name": "tossflag",
+      "bare_name": "tossflag",
+      "ast": {
+        "handler_fn": "TossFlag",
+        "source_file": "src/commands.c",
+        "source_line": 915,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "drop flag (CTF)"
+    },
+    {
+      "name": "tossrune",
+      "bare_name": "tossrune",
+      "ast": {
+        "handler_fn": "TossRune",
+        "source_file": "src/commands.c",
+        "source_line": 914,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "drop rune (CTF)"
+    },
+    {
+      "name": "tot",
+      "bare_name": "tot",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 825,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle Tribe of Tjernobyl mode"
+    },
+    {
+      "name": "totmode",
+      "bare_name": "totmode",
+      "ast": {
+        "handler_fn": "ToggleToT",
+        "source_file": "src/commands.c",
+        "source_line": 958,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle Tribe of Tjernobyl mode"
+    },
+    {
+      "name": "tp",
+      "bare_name": "tp",
+      "ast": {
+        "handler_fn": "ChangeTP",
+        "source_file": "src/commands.c",
+        "source_line": 730,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "change teamplay mode"
+    },
+    {
+      "name": "tpmsg",
+      "bare_name": "tpmsg",
+      "ast": {
+        "handler_fn": "TeamplayMessage",
+        "source_file": "src/commands.c",
+        "source_line": 1052,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "teamplay messages"
+    },
+    {
+      "name": "tracklist",
+      "bare_name": "tracklist",
+      "ast": {
+        "handler_fn": "tracklist",
+        "source_file": "src/commands.c",
+        "source_line": 842,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "trackers list"
+    },
+    {
+      "name": "trx_play",
+      "bare_name": "trx_play",
+      "ast": {
+        "handler_fn": "mv_cmd_playback",
+        "source_file": "src/commands.c",
+        "source_line": 990,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "trick tmp playback"
+    },
+    {
+      "name": "trx_rec",
+      "bare_name": "trx_rec",
+      "ast": {
+        "handler_fn": "mv_cmd_record",
+        "source_file": "src/commands.c",
+        "source_line": 989,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "trick tmp record"
+    },
+    {
+      "name": "trx_stop",
+      "bare_name": "trx_stop",
+      "ast": {
+        "handler_fn": "mv_cmd_stop",
+        "source_file": "src/commands.c",
+        "source_line": 991,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "stop playback/recording"
+    },
+    {
+      "name": "uinfo",
+      "bare_name": "uinfo",
+      "ast": {
+        "handler_fn": "cmduinfo",
+        "source_file": "src/commands.c",
+        "source_line": 944,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "upplayers",
+      "bare_name": "upplayers",
+      "ast": {
+        "handler_fn": "upplayers",
+        "source_file": "src/commands.c",
+        "source_line": 980,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "increase maxclients"
+    },
+    {
+      "name": "upspecs",
+      "bare_name": "upspecs",
+      "ast": {
+        "handler_fn": "upplayers",
+        "source_file": "src/commands.c",
+        "source_line": 982,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "increase maxspectators"
+    },
+    {
+      "name": "victim",
+      "bare_name": "victim",
+      "ast": {
+        "handler_fn": "SendVictimMsg",
+        "source_file": "src/commands.c",
+        "source_line": 781,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "message to victim"
+    },
+    {
+      "name": "votecoop",
+      "bare_name": "votecoop",
+      "ast": {
+        "handler_fn": "votecoop",
+        "source_file": "src/commands.c",
+        "source_line": 1041,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "vote for coop on/off"
+    },
+    {
+      "name": "votemap",
+      "bare_name": "votemap",
+      "ast": {
+        "handler_fn": "VoteMap",
+        "source_file": "src/commands.c",
+        "source_line": 701,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "alternative map vote system"
+    },
+    {
+      "name": "voteprivate",
+      "bare_name": "voteprivate",
+      "ast": {
+        "handler_fn": "private_game_vote",
+        "source_file": "src/commands.c",
+        "source_line": 1060,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "private game (logged in users only)"
+    },
+    {
+      "name": "vwep",
+      "bare_name": "vwep",
+      "ast": {
+        "handler_fn": "ToggleVwep",
+        "source_file": "src/commands.c",
+        "source_line": 1001,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle vweps"
+    },
+    {
+      "name": "weapon:frogbot:std",
+      "bare_name": "weapon",
+      "ast": {
+        "handler_fn": "FrogbotsSetWeapon",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2325,
+        "source_column": 3,
+        "table": "std_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Set which weapon the bot should use"
+    },
+    {
+      "name": "who",
+      "bare_name": "who",
+      "ast": {
+        "handler_fn": "PlayerStatus",
+        "source_file": "src/commands.c",
+        "source_line": 712,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "player teamlist"
+    },
+    {
+      "name": "whonot",
+      "bare_name": "whonot",
+      "ast": {
+        "handler_fn": "PlayerStatusN",
+        "source_file": "src/commands.c",
+        "source_line": 714,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "players not ready"
+    },
+    {
+      "name": "whoskin",
+      "bare_name": "whoskin",
+      "ast": {
+        "handler_fn": "PlayerStatusS",
+        "source_file": "src/commands.c",
+        "source_line": 713,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "player skinlist"
+    },
+    {
+      "name": "whovote",
+      "bare_name": "whovote",
+      "ast": {
+        "handler_fn": "ModStatusVote",
+        "source_file": "src/commands.c",
+        "source_line": 716,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "info on received votes"
+    },
+    {
+      "name": "wipeout",
+      "bare_name": "wipeout",
+      "ast": {
+        "handler_fn": "UserMode",
+        "source_file": "src/commands.c",
+        "source_line": 823,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle wipeout"
+    },
+    {
+      "name": "wp_reset",
+      "bare_name": "wp_reset",
+      "ast": {
+        "handler_fn": "Wp_Reset",
+        "source_file": "src/commands.c",
+        "source_line": 828,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "clear weapon stats"
+    },
+    {
+      "name": "wreg",
+      "bare_name": "wreg",
+      "ast": {
+        "handler_fn": "cmd_wreg",
+        "source_file": "src/commands.c",
+        "source_line": 946,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "register reliable wpns"
+    },
+    {
+      "name": "y",
+      "bare_name": "y",
+      "ast": {
+        "handler_fn": "YesKick",
+        "source_file": "src/commands.c",
+        "source_line": 796,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "yes kick"
+    },
+    {
+      "name": "yawnmode",
+      "bare_name": "yawnmode",
+      "ast": {
+        "handler_fn": "ToggleYawnMode",
+        "source_file": "src/commands.c",
+        "source_line": 997,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "toggle yawnmode"
+    },
+    {
+      "name": "yes",
+      "bare_name": "yes",
+      "ast": {
+        "handler_fn": "VoteYes",
+        "source_file": "src/commands.c",
+        "source_line": 801,
+        "source_column": 2,
+        "table": "cmds",
+        "description_source": "cd_macro",
+        "enclosing_function": null
+      },
+      "desc": "give vote"
+    },
+    {
+      "name": "zonesummary:frogbot:editor",
+      "bare_name": "zonesummary",
+      "ast": {
+        "handler_fn": "FrogbotZoneSummary",
+        "source_file": "src/bot_commands.c",
+        "source_line": 2350,
+        "source_column": 3,
+        "table": "editor_commands",
+        "description_source": "inline",
+        "enclosing_function": null
+      },
+      "desc": "Show summary of zones"
+    }
+  ],
+  "_stats": {
+    "source_total": 358,
+    "function_defs_indexed": 3980,
+    "count": 358,
+    "with_handler": 358,
+    "with_description": 311,
+    "by_table": {
+      "std_commands": 14,
+      "editor_commands": 25,
+      "cmds": 319
+    }
+  }
+}

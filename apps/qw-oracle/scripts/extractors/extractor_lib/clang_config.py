@@ -288,3 +288,43 @@ def clang_args_mvdsv_linux_for(mvdsv_src_dir: str) -> list[str]:
         "-D__linux__",
         "-D__unix__",
     ]
+
+
+# ---------- KTX (canonical -- https://github.com/QW-Group/ktx) ----------
+#
+# Pure C; QuakeC mods (dusty-ktx/qcsrc/) are NOT in scope -- canonical KTX
+# has none. Single-variant TU parse: only one platform-guard #ifdef exists
+# (native_lib.c:14, NO RegisterCvar* inside guarded blocks per Pass 1 spec).
+# BOT_SUPPORT=1 is enabled so bot_commands.c's std_commands[] and
+# editor_commands[] tables compile (Phase 2 _handler_commands.py target).
+#
+# KTX's project-wide headers (g_local.h, progs.h, deathtype.h, ...) live
+# under <ktx_repo>/include/ -- a SIBLING of <ktx_repo>/src/ (NOT a
+# qwprot submodule like MVDSV uses). Verified at canonical 1.46
+# (CMakeLists.txt:143 -- target_include_directories(... PRIVATE "include")).
+# The Phase 1 lift's depth-1 #include walk over collect_file_macros relies
+# on this -I path so g_local.h's LGCMODE_VARIABLE / TOT_MODE_VARIABLE
+# resolve when commands.c is parsed (Phase 3 modes handler dependency).
+
+def clang_args_ktx_for(ktx_src_dir: str) -> list[str]:
+    """KTX server-mod variant. ktx_src_dir is the absolute path to
+    research/repos/ktx/src; project headers live at the sibling
+    research/repos/ktx/include directory.
+
+    Single variant: KTX has no Win / Linux / Apple platform splits. The
+    one platform-guard at native_lib.c:14 wraps non-registration code
+    only (verified by Pass 1 spike).
+
+    BOT_SUPPORT=1 MUST be defined so bot_commands.c's std_commands[] and
+    editor_commands[] (lines 2315 + 2332) are not preprocessed out;
+    Phase 2 _handler_commands.py walks both tables. CMakeLists.txt:149
+    ships -DBOT_SUPPORT=1 in the canonical build.
+    """
+    include_dir = str(pathlib.Path(ktx_src_dir).parent / "include")
+    return [
+        "-x", "c",
+        f"-I{ktx_src_dir}",
+        f"-I{include_dir}",
+        "-w",
+        "-DBOT_SUPPORT=1",
+    ]

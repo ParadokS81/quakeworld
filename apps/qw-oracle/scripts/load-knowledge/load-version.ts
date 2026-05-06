@@ -462,7 +462,8 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
       const validInfoKey = options.type === 'info_key' && INFO_KEY_NAME_RE.test(name);
       const validLogTemplate = options.type === 'log_template' && LOG_TEMPLATE_NAME_RE.test(name);
       const validQcBuiltin = options.type === 'qc_builtin' && /^[a-z0-9_.+\-]+:(std_builtins|ext_builtins|ext_syscalls)$/.test(name);
-      if (!validTokenPrimitive && !validIdentifier && !validInfoKey && !validLogTemplate && !validQcBuiltin) {
+      const validCommand = options.type === 'command' && /^[a-z0-9_.+\-]+:(frogbot:std|frogbot:editor)$/.test(name);
+      if (!validTokenPrimitive && !validIdentifier && !validInfoKey && !validLogTemplate && !validQcBuiltin && !validCommand) {
         console.warn(`[load-version] skipping entity with invalid name: ${nameRaw}`);
         continue;
       }

@@ -1,0 +1,4693 @@
+{
+  "vars": [
+    {
+      "name": "__k_ls",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1036,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_captcolor1",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1024,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_captcolor2",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1026,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_captteam1",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1023,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_captteam2",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1025,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_coachteam1",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1027,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_coachteam2",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1028,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_host",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1032,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_last_cycle_map",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 780,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_last_xonx",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 778,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_lastmap",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 779,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_nospecs",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 785,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_pow_last",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 783,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_team1",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1029,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_team2",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1030,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_team3",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1031,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "_k_worldspawns",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 782,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "add_q_aerowalk",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 945,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_spec_wizard",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 820,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_timing",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 849,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_toggle_practice",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 876,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "demo_scoreslength",
+      "ast": {
+        "default_value": "10",
+        "source_file": "src/world.c",
+        "source_line": 850,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "demo_skip_ktffa_record",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 937,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "demo_tmp_record",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 936,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "dmm4_invinc_time",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 947,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "dp",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 868,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "dq",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 866,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "dr",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 867,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_admincode",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 843,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_admins",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 853,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_allow_vwep",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 874,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_allowcountchange",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 988,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_allowed_free_modes",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 873,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_allowklist",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 861,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_allowtracklist",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 862,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_allowvoteadmin",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 878,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ann",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 943,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_auto_xonx",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 794,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_bloodfest",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 971,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_btime",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 931,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_bzk",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 930,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_cg_kb",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 977,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_clan_arena",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 983,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_clan_arena_max_respawns",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 985,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_clan_arena_rounds",
+      "ast": {
+        "default_value": "9",
+        "source_file": "src/world.c",
+        "source_line": 984,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_classic_shotgun",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 948,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_cmd_fp_count",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 995,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_cmd_fp_disabled",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1000,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_cmd_fp_dontkick",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 999,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_cmd_fp_for",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 997,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_cmd_fp_kick",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 998,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_cmd_fp_per",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 996,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_count",
+      "ast": {
+        "default_value": "10",
+        "source_file": "src/world.c",
+        "source_line": 939,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ctf_based_spawn",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 962,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ctf_custom_models",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 952,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ctf_ga",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 961,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ctf_hook",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 953,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ctf_hookstyle",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 954,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ctf_hurt_items",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 963,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ctf_rune_bounce",
+      "ast": {
+        "default_value": "3",
+        "source_file": "src/world.c",
+        "source_line": 956,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ctf_rune_power_hst",
+      "ast": {
+        "default_value": "2.0",
+        "source_file": "src/world.c",
+        "source_line": 960,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ctf_rune_power_res",
+      "ast": {
+        "default_value": "2.0",
+        "source_file": "src/world.c",
+        "source_line": 958,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ctf_rune_power_rgn",
+      "ast": {
+        "default_value": "2.0",
+        "source_file": "src/world.c",
+        "source_line": 959,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ctf_rune_power_str",
+      "ast": {
+        "default_value": "2.0",
+        "source_file": "src/world.c",
+        "source_line": 957,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ctf_runes",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 955,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_defmap",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 852,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_defmode",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 793,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_demo_mintime",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1005,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_demoname_date",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 938,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_demotxt_format",
+      "ast": {
+        "default_value": "xml",
+        "source_file": "src/world.c",
+        "source_line": 1050,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_dis",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 865,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_disallow_kfjump",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 799,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_disallow_krjump",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 800,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_disallow_weapons",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 802,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_dmgfrags",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 980,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_dmm4_gren_mode",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1006,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_end_tele_spawn",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 839,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_entityfile",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 886,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_exclusive",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 940,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_extralog",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1004,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_extralog_xsd_uri",
+      "ast": {
+        "default_value": "http://mirror.quakeworld.eu/ktx/ktxlog_0.1.xsd",
+        "source_file": "src/world.c",
+        "source_line": 1003,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_exttime",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 855,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fallbunny",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 846,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_aim_accuracy",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 119,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_aim_attack_respawns",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 128,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_aim_lgpref",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 118,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_aim_lookanywhere",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 114,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_aim_pitch_max",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 125,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_aim_pitch_min",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 124,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_aim_pitch_multiplier",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 126,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_aim_pitch_scale",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 127,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_aim_yaw_max",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 121,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_aim_yaw_min",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 120,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_aim_yaw_multiplier",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 122,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_aim_yaw_scale",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 123,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_combatjump",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 147,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_distanceerror",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 150,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_dmm4wiggle",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 144,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_dmm4wiggletoggle",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 146,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_goallookaheadtime",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 115,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_goalpredictionerror",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 116,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_missiledodge",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 148,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_movement",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 142,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_movement_dodgefactor",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 113,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_reactionmovetime",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 130,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_reactiontime",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 129,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_use_rocketjumps",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 143,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_visibility",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 117,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_vol_bot_midair_incr",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 152,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_vol_init",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 134,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_vol_max",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 133,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_vol_min",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 132,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_vol_opp_midair_incr",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 153,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_vol_oppdir_incr",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 140,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_vol_oppvel",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 138,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_vol_oppvel_incr",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 139,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_vol_ownvel",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 136,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_vol_ownvel_incr",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 137,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_vol_pain_incr",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 151,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_vol_reduce",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 135,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fbskill_wiggleframes",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/bot_botimp.c",
+        "source_line": 145,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_force_mapcycle",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 803,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fp",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 1007,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fp_spec",
+      "ast": {
+        "default_value": "3",
+        "source_file": "src/world.c",
+        "source_line": 1008,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_free_mode",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 872,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freeze",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 871,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 894,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_fast_ammo",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 896,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_limit_packs",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 897,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_limit_sweep_ammo",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 902,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_pack_cells",
+      "ast": {
+        "default_value": "10",
+        "source_file": "src/world.c",
+        "source_line": 901,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_pack_nails",
+      "ast": {
+        "default_value": "30",
+        "source_file": "src/world.c",
+        "source_line": 899,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_pack_rockets",
+      "ast": {
+        "default_value": "5",
+        "source_file": "src/world.c",
+        "source_line": 900,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_pack_shells",
+      "ast": {
+        "default_value": "20",
+        "source_file": "src/world.c",
+        "source_line": 898,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_sweep_gl_ammo",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 906,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_sweep_lg_ammo",
+      "ast": {
+        "default_value": "3",
+        "source_file": "src/world.c",
+        "source_line": 908,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_sweep_ng_ammo",
+      "ast": {
+        "default_value": "6",
+        "source_file": "src/world.c",
+        "source_line": 903,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_sweep_rl_ammo",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 907,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_sweep_sng_ammo",
+      "ast": {
+        "default_value": "6",
+        "source_file": "src/world.c",
+        "source_line": 905,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_sweep_ssg_ammo",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 904,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_freshteams_weapon_time",
+      "ast": {
+        "default_value": "20",
+        "source_file": "src/world.c",
+        "source_line": 895,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_frp",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 869,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_highspeed",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 870,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_hoonymode",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 888,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_hoonymode_prevmap",
+      "ast": {
+        "default_value": "",
+        "source_file": "src/world.c",
+        "source_line": 890,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_hoonymode_prevspawns",
+      "ast": {
+        "default_value": "",
+        "source_file": "src/world.c",
+        "source_line": 891,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_hoonyrounds",
+      "ast": {
+        "default_value": "6",
+        "source_file": "src/world.c",
+        "source_line": 889,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_idletime",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 933,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_instagib",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 975,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_instagib_custom_models",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 976,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_ip_list",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 992,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_keepspectalkindemos",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 863,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_killquad",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 969,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_lgcmode",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1083,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_lock_hdp",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 801,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_lockmap",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 845,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 859,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 858,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_lockmode",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 941,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_matchless",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 795,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_matchless_countdown",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 796,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_matchless_max_idle_time",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 797,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 989,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_maxspectators",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 990,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_membercount",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 935,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_midair",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 966,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_midair_minheight",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 967,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_minrate",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 880,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_mode",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 792,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_monster_spawn_time",
+      "ast": {
+        "default_value": "20",
+        "source_file": "src/world.c",
+        "source_line": 1020,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_motd_time",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 841,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_nightmare_pu",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 973,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_nightmare_pu_droprate",
+      "ast": {
+        "default_value": "0.15",
+        "source_file": "src/world.c",
+        "source_line": 974,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_no_fps_physics",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 950,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_no_scoreboard_ghosts",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1081,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_no_vote_map",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 836,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_no_wizard_animation",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 821,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_noframechecks",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 946,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_noitems",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 787,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_nosweep",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 909,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_on_end_f_modified",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 807,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_on_end_f_ruleset",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 808,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_on_end_f_version",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 809,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_on_start_f_modified",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 804,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_on_start_f_ruleset",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 805,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_on_start_f_version",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 806,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_overtime",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 854,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_pause_without_matchtag",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 788,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_pow",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 811,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_pow_check_time",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 817,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_pow_min_players",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 816,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_pow_p",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 813,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_pow_pickup",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 818,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_pow_q",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 812,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_pow_r",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 814,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_pow_s",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 815,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_prewar",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 844,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_privategame",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 1087,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_privategame_allow_specs",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 1090,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_privategame_default",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 1088,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_privategame_force_reconnect",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 1091,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_privategame_voteable",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 1089,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 912,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_autorecord",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 915,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_countdown",
+      "ast": {
+        "default_value": "2",
+        "source_file": "src/world.c",
+        "source_line": 913,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_custom_models",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 914,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_match",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 923,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_match_rounds",
+      "ast": {
+        "default_value": "9",
+        "source_file": "src/world.c",
+        "source_line": 924,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_pace_enabled",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 921,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_pace_headstart",
+      "ast": {
+        "default_value": "0.5",
+        "source_file": "src/world.c",
+        "source_line": 917,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_pace_jumps",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 918,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_pace_legal",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 920,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_pace_resolution",
+      "ast": {
+        "default_value": "2",
+        "source_file": "src/world.c",
+        "source_line": 919,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_route_mapname",
+      "ast": {
+        "default_value": "",
+        "source_file": "src/world.c",
+        "source_line": 927,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_route_number",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 926,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_scoring_system",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 925,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_simultaneous",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 922,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_race_times_per_port",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 916,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_random_maplist",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 790,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_remove_end_hurt",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 877,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_rocketarena",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 979,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_sayteam_to_spec",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 864,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_short_gib",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 942,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_socd",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 1017,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_spawnicide",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 857,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_spec_info",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 965,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_spectalk",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 860,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_spm_color_rgba",
+      "ast": {
+        "default_value": "1.0 1.0 1.0 1.0",
+        "source_file": "src/world.c",
+        "source_line": 885,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_spm_custom_model",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 884,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_spm_glow",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 883,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_spm_show",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 882,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_spw",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 856,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_sready",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 881,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_teamoverlay",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1015,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_teleport_cap",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1012,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_timetop",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 934,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_tot_mode",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1084,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_tp_tele_death",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 981,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_use_matchless_dir",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 798,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_admin",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 824,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_antilag",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 835,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_break",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 823,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_captain",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 825,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_coach",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 826,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_coop",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 833,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_hookstyle",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 834,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_map",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 828,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_nospecs",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 831,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_pickup",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 829,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_privategame",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 837,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_rpickup",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 830,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_suggestcolor",
+      "ast": {
+        "default_value": "51",
+        "source_file": "src/world.c",
+        "source_line": 827,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vp_teamoverlay",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 832,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_vwep",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 875,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_yawnmode",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 1011,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "lock_practice",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 851,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "maxfps",
+      "ast": {
+        "default_value": "77",
+        "source_file": "src/world.c",
+        "source_line": 772,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "srv_practice_mode",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 944,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "timing_players_action",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 848,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "timing_players_time",
+      "ast": {
+        "default_value": null,
+        "source_file": "src/world.c",
+        "source_line": 847,
+        "source_column": 2,
+        "registration_api": "RegisterCvar",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    }
+  ],
+  "_stats": {
+    "source_total": 260,
+    "count": 260,
+    "by_api": {
+      "RegisterCvar": 169,
+      "RegisterCvarEx": 91
+    },
+    "with_default": 91
+  }
+}

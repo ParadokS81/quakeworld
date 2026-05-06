@@ -392,13 +392,33 @@ The cost driver is libclang's per-cursor metadata access (`cursor.location`, `cu
 
 ---
 
+### F23 -- Phase MD probe 5 tab-depth calibration off (discovered during Phase 2 execution)
+
+**Resolved by:** Corrected probe used during execution; handler behavior confirmed correct.
+
+**Evidence (2026-05-06):** Phase MD probe 5 used `startswith("\t\t\t<")` (three tabs) to identify XML-shaped log_printf rows. Live KTX XML emissions concatenate multi-line strings where the first part is `\t\t<event>\n` (two tabs), so the three-tab form never matches -- but this is a probe calibration error, NOT a handler bug. The handler correctly captures all `log_printf` calls per D10/F17. Corrected probe: `jq '[.log_templates[] | select(.ast.channel == "logfile") | select(.ast.format_string | contains("<"))] | length'` returns 15 (>= 7 required). Phase MD probe 5 wording is stale but the underlying design is sound.
+
+**Phase ownership:** Phase 2 (discovered and resolved; note for Phase 8 PLAYBOOK: update probe 5 wording if re-used).
+
+---
+
+### F24 -- `validCommand` gap in `load-version.ts` blocked Pattern 14 KTX command suffixes (discovered during Phase 2 execution)
+
+**Resolved by:** Added `validCommand` predicate to `load-version.ts` during Phase 2 execution. Fixed file committed with Phase 2.
+
+**Evidence (2026-05-06):** Running `extract-tag --project ktx --version head` produced 39 warnings: `[load-version] skipping entity with invalid name: addbot:frogbot:std` (and similar). Root cause: `validIdentifier = /^[a-z0-9_.+\-]+$/` does not allow colons; Pattern 14's D7 suffixes (`<name>:frogbot:std`, `<name>:frogbot:editor`) have two colons. The `validQcBuiltin` regex (`/^[a-z0-9_.+\-]+:(std_builtins|ext_builtins|ext_syscalls)$/`) showed the fix pattern. Added: `const validCommand = options.type === 'command' && /^[a-z0-9_.+\-]+:(frogbot:std|frogbot:editor)$/.test(name);` and extended the rejection condition. Post-fix: command count = 358 (319 bare + 39 frogbot). Note: `:userinfo` suffix for info_keys was NOT blocked because `INFO_KEY_NAME_RE` already allows `*name:scope` patterns; only commands needed the fix.
+
+**Phase ownership:** Phase 2 (discovered and resolved during execution; `load-version.ts` included in the Phase 2 commit).
+
+---
+
 ## Phase ownership of findings
 
 | Phase | Findings to verify before sign-off |
 |---|---|
 | Phase 0 | F18 (delete TS regex extractor), F19 (doctrine fixes -- four reference sites), F22 (VALIDATION-RUNBOOK.md as 5th doctrine site, discovered during Phase 0 drafting) |
 | Phase 1 | F4 (008 migration adds `'logfile'` channel), F15 (cross-header lift before Phase 3 runs), F16 (parse-time impact projection) |
-| Phase 2 | F1 (cvar bucket counts), F2 (command counts + Pattern 14 collisions), F3 (info_key producer-only), F4 (log_template printf counts), F17 (do NOT filter XML-shaped log_printfs) |
+| Phase 2 | F1 (cvar bucket counts), F2 (command counts + Pattern 14 collisions), F3 (info_key producer-only), F4 (log_template printf counts), F17 (do NOT filter XML-shaped log_printfs), F23 (probe 5 tab-depth -- corrected inline), F24 (validCommand gap -- fixed inline) |
 | Phase 3 | F5 (27 catalog rows), F6 (~309 mode_default rows), F15 (Pattern 6 lift dependency confirmed working) |
 | Phase 4 | F7 (5 election_type rows; skip etNone), F8 (27 death_rule rows; skip dtNONE/dtUNKNOWN; keep dtCHANGELEVEL) |
 | Phase 5 | F9 (13 monsters; armor_for_kill name), F10 (3 score_systems; positions length=10 invariant), F11 (30 drop_items; 5-field struct), F12 (15 loc_macros), F13 (21 teamplay_messages; Pattern 9 harvest) |

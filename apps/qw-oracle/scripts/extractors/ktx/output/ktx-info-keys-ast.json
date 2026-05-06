@@ -1,0 +1,191 @@
+{
+  "info_keys": [
+    {
+      "name": "*at:userinfo",
+      "bare_name": "*at",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 6088,
+        "containing_function": "AutoTrack",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 6088,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*is:userinfo",
+      "bare_name": "*is",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/g_userinfo.c",
+        "source_line": 226,
+        "containing_function": "cmdinfo_infoset",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_userinfo.c",
+            "source_line": 226,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*ml:userinfo",
+      "bare_name": "*ml",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/g_cmd.c",
+        "source_line": 1063,
+        "containing_function": "info_sys_mm_update",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1063,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*mm:userinfo",
+      "bare_name": "*mm",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/g_cmd.c",
+        "source_line": 887,
+        "containing_function": "multi_do",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 887,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 982,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1147,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1178,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1191,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1208,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1238,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1248,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*mp:userinfo",
+      "bare_name": "*mp",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/g_cmd.c",
+        "source_line": 1179,
+        "containing_function": "mmode",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1179,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*mt:userinfo",
+      "bare_name": "*mt",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/g_cmd.c",
+        "source_line": 1192,
+        "containing_function": "mmode",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1192,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*mu:userinfo",
+      "bare_name": "*mu",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/g_cmd.c",
+        "source_line": 888,
+        "containing_function": "multi_do",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 888,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 985,
+            "operation": "write"
+          }
+        ]
+      }
+    }
+  ],
+  "_stats": {
+    "source_total_call_sites": 15,
+    "count": 7,
+    "by_scope": {
+      "userinfo": 7
+    }
+  }
+}

@@ -16,5 +16,7 @@ export const HEAD_ORDINAL = 999999;
 // Mirrored by the SQL-level CHECK constraints on info_key_versions.scope and
 // log_template_versions.channel. Keep in sync with the literal CHECK values
 // in db/migrations/002_layer1_schema.sql when adding a new scope/channel.
+// 'logfile' added by migration 009_ktx_log_template_logfile_channel.sql for
+// KTX's log_printf API.
 export const INFO_KEY_SCOPES = ['userinfo', 'serverinfo', 'localinfo'] as const;
-export const LOG_TEMPLATE_CHANNELS = ['broadcast', 'client', 'console', 'system'] as const;
+export const LOG_TEMPLATE_CHANNELS = ['broadcast', 'client', 'console', 'system', 'logfile'] as const;
