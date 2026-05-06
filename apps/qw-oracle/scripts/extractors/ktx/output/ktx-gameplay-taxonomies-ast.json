@@ -1,0 +1,453 @@
+{
+  "election_types": [
+    {
+      "name": "admin",
+      "kind": "election_type",
+      "value_text": "etAdmin",
+      "source_ref": "progs.h:222",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "Election to grant elected-admin privileges",
+        "related_commands_json": [
+          "admin"
+        ],
+        "required_role": "any"
+      }
+    },
+    {
+      "name": "captain",
+      "kind": "election_type",
+      "value_text": "etCaptain",
+      "source_ref": "progs.h:220",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "Player election to designate team captains",
+        "related_commands_json": [
+          "captain"
+        ],
+        "required_role": "player"
+      }
+    },
+    {
+      "name": "coach",
+      "kind": "election_type",
+      "value_text": "etCoach",
+      "source_ref": "progs.h:221",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "Spectator election to designate team coaches",
+        "related_commands_json": [
+          "coach"
+        ],
+        "required_role": "spectator"
+      }
+    },
+    {
+      "name": "late_join",
+      "kind": "election_type",
+      "value_text": "etLateJoin",
+      "source_ref": "progs.h:224",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "Vote to allow a late-joining player into an in-progress match",
+        "related_commands_json": [
+          "latejoin"
+        ],
+        "required_role": "player"
+      }
+    },
+    {
+      "name": "suggest_color",
+      "kind": "election_type",
+      "value_text": "etSuggestColor",
+      "source_ref": "progs.h:223",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "description": "Player vote to suggest a team color change",
+        "related_commands_json": [
+          "suggestcolor"
+        ],
+        "required_role": "player"
+      }
+    }
+  ],
+  "death_rules": [
+    {
+      "name": "axe",
+      "kind": "death_rule",
+      "value_text": "dtAXE",
+      "source_ref": "deathtype.h:2",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "weapon",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": "axe"
+      }
+    },
+    {
+      "name": "sg",
+      "kind": "death_rule",
+      "value_text": "dtSG",
+      "source_ref": "deathtype.h:3",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "weapon",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": "shotgun"
+      }
+    },
+    {
+      "name": "ssg",
+      "kind": "death_rule",
+      "value_text": "dtSSG",
+      "source_ref": "deathtype.h:4",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "weapon",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": "super_shotgun"
+      }
+    },
+    {
+      "name": "ng",
+      "kind": "death_rule",
+      "value_text": "dtNG",
+      "source_ref": "deathtype.h:5",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "weapon",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": "nailgun"
+      }
+    },
+    {
+      "name": "sng",
+      "kind": "death_rule",
+      "value_text": "dtSNG",
+      "source_ref": "deathtype.h:6",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "weapon",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": "super_nailgun"
+      }
+    },
+    {
+      "name": "gl",
+      "kind": "death_rule",
+      "value_text": "dtGL",
+      "source_ref": "deathtype.h:7",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "weapon",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": "grenade_launcher"
+      }
+    },
+    {
+      "name": "rl",
+      "kind": "death_rule",
+      "value_text": "dtRL",
+      "source_ref": "deathtype.h:8",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "weapon",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": "rocket_launcher"
+      }
+    },
+    {
+      "name": "lg_beam",
+      "kind": "death_rule",
+      "value_text": "dtLG_BEAM",
+      "source_ref": "deathtype.h:9",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "weapon",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": "lightning_gun"
+      }
+    },
+    {
+      "name": "lg_dis",
+      "kind": "death_rule",
+      "value_text": "dtLG_DIS",
+      "source_ref": "deathtype.h:10",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "weapon",
+        "id1_baseline": false,
+        "ktx_extension": true,
+        "related_weapon": "lightning_gun"
+      }
+    },
+    {
+      "name": "lg_dis_self",
+      "kind": "death_rule",
+      "value_text": "dtLG_DIS_SELF",
+      "source_ref": "deathtype.h:11",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "self",
+        "id1_baseline": false,
+        "ktx_extension": true,
+        "related_weapon": "lightning_gun"
+      }
+    },
+    {
+      "name": "hook",
+      "kind": "death_rule",
+      "value_text": "dtHOOK",
+      "source_ref": "deathtype.h:12",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "weapon",
+        "id1_baseline": false,
+        "ktx_extension": true,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "changelevel",
+      "kind": "death_rule",
+      "value_text": "dtCHANGELEVEL",
+      "source_ref": "deathtype.h:13",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "structural",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "lava",
+      "kind": "death_rule",
+      "value_text": "dtLAVA_DMG",
+      "source_ref": "deathtype.h:14",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "environment",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "slime",
+      "kind": "death_rule",
+      "value_text": "dtSLIME_DMG",
+      "source_ref": "deathtype.h:15",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "environment",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "water",
+      "kind": "death_rule",
+      "value_text": "dtWATER_DMG",
+      "source_ref": "deathtype.h:16",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "environment",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "fall",
+      "kind": "death_rule",
+      "value_text": "dtFALL",
+      "source_ref": "deathtype.h:17",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "environment",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "stomp",
+      "kind": "death_rule",
+      "value_text": "dtSTOMP",
+      "source_ref": "deathtype.h:18",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "environment",
+        "id1_baseline": false,
+        "ktx_extension": true,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "tele1",
+      "kind": "death_rule",
+      "value_text": "dtTELE1",
+      "source_ref": "deathtype.h:19",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "telefrag",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "tele2",
+      "kind": "death_rule",
+      "value_text": "dtTELE2",
+      "source_ref": "deathtype.h:20",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "telefrag",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "tele3",
+      "kind": "death_rule",
+      "value_text": "dtTELE3",
+      "source_ref": "deathtype.h:21",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "telefrag",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "tele4",
+      "kind": "death_rule",
+      "value_text": "dtTELE4",
+      "source_ref": "deathtype.h:22",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "telefrag",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "explo_box",
+      "kind": "death_rule",
+      "value_text": "dtEXPLO_BOX",
+      "source_ref": "deathtype.h:23",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "environment",
+        "id1_baseline": false,
+        "ktx_extension": true,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "laser",
+      "kind": "death_rule",
+      "value_text": "dtLASER",
+      "source_ref": "deathtype.h:24",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "environment",
+        "id1_baseline": false,
+        "ktx_extension": true,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "fireball",
+      "kind": "death_rule",
+      "value_text": "dtFIREBALL",
+      "source_ref": "deathtype.h:25",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "environment",
+        "id1_baseline": false,
+        "ktx_extension": true,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "squish",
+      "kind": "death_rule",
+      "value_text": "dtSQUISH",
+      "source_ref": "deathtype.h:26",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "environment",
+        "id1_baseline": false,
+        "ktx_extension": true,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "trigger",
+      "kind": "death_rule",
+      "value_text": "dtTRIGGER_HURT",
+      "source_ref": "deathtype.h:27",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "environment",
+        "id1_baseline": false,
+        "ktx_extension": true,
+        "related_weapon": null
+      }
+    },
+    {
+      "name": "suicide",
+      "kind": "death_rule",
+      "value_text": "dtSUICIDE",
+      "source_ref": "deathtype.h:28",
+      "ruleset_gate_json": {},
+      "props_json": {
+        "category": "self",
+        "id1_baseline": true,
+        "ktx_extension": false,
+        "related_weapon": null
+      }
+    }
+  ],
+  "_stats": {
+    "election_type": {
+      "source_total": 5,
+      "count": 5,
+      "expected": 5,
+      "by_required_role": {
+        "any": 1,
+        "player": 3,
+        "spectator": 1
+      }
+    },
+    "death_rule": {
+      "x_macro_lines_total": 29,
+      "skipped_sentinels": 2,
+      "count": 27,
+      "expected": 27,
+      "by_category": {
+        "weapon": 10,
+        "self": 2,
+        "structural": 1,
+        "environment": 10,
+        "telefrag": 4
+      },
+      "unknown_tags": []
+    }
+  }
+}

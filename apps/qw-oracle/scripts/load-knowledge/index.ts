@@ -36,6 +36,7 @@ async function main(): Promise<void> {
   if (subcommand === 'load-maps')                 { await runLoadMaps(rest); return; }
   if (subcommand === 'load-gameplay')             { await runLoadGameplay(rest); return; }
   if (subcommand === 'load-ktx-modes')            { await runLoadKtxModes(rest); return; }
+  if (subcommand === 'load-ktx-taxonomies')       { await runLoadKtxTaxonomies(rest); return; }
   if (subcommand === 're-derive')                 { await runReDerive(rest); return; }
 
   if (subcommand === 'full') {
@@ -89,6 +90,10 @@ Subcommands:
                 Load KTX modes AST JSON (27 game_mode catalog rows + ~309
                 mode_default overlay rows) into gameplay_mechanics. Defaults
                 to scripts/extractors/ktx/output/ktx-modes-ast.json.
+  load-ktx-taxonomies [--json <path>]
+                Load KTX gameplay-taxonomies AST JSON (5 election_type rows +
+                27 death_rule rows) into gameplay_mechanics. Defaults to
+                scripts/extractors/ktx/output/ktx-gameplay-taxonomies-ast.json.
   re-derive     [--project <p>] [--type <t>]
                 Re-run the derive-entity-description step over existing
                 rows without re-loading from extractor JSON. Use when
@@ -513,6 +518,40 @@ async function runLoadKtxModes(args: string[]): Promise<void> {
     console.error(
       `load-ktx-modes: STOP - catalog count below F5 anchor 27 (got ${r.total.game_mode}). ` +
       `Re-run extraction; the handler may have failed to emit one or more catalog rows.`,
+    );
+    process.exitCode = 2;
+  }
+}
+
+async function runLoadKtxTaxonomies(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      json: { type: 'string' },
+    },
+  });
+
+  const jsonPath = values.json ?? join(__dirname, '..', 'extractors', 'ktx', 'output', 'ktx-gameplay-taxonomies-ast.json');
+  const { loadTaxonomiesFromFile } = await import('./load-gameplay-taxonomies.js');
+  const r = await loadTaxonomiesFromFile(sql, jsonPath);
+  console.log(
+    `load-ktx-taxonomies: election_type inserted=${r.inserted.election_type} ` +
+    `updated=${r.updated.election_type} total=${r.total.election_type}; ` +
+    `death_rule inserted=${r.inserted.death_rule} ` +
+    `updated=${r.updated.death_rule} total=${r.total.death_rule}`,
+  );
+
+  if (r.total.election_type < 5) {
+    console.error(
+      `load-ktx-taxonomies: STOP - election_type count below F7 anchor 5 ` +
+      `(got ${r.total.election_type}). Re-run extraction.`,
+    );
+    process.exitCode = 2;
+  }
+  if (r.total.death_rule < 27) {
+    console.error(
+      `load-ktx-taxonomies: STOP - death_rule count below F8 anchor 27 ` +
+      `(got ${r.total.death_rule}). Re-run extraction.`,
     );
     process.exitCode = 2;
   }

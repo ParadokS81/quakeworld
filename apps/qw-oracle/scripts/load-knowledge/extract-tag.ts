@@ -371,6 +371,29 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
     }
   }
 
+  // 3c. KTX taxonomies load (Phase 4 of KTX onboarding arc). After modes, also
+  // load election_type + death_rule rows from _handler_gameplay_taxonomies.py's
+  // ktx-gameplay-taxonomies-ast.json. Same pattern as 3b above. Idempotent
+  // UPSERT; safe to re-run. existsSync-guarded so the call no-ops on a fresh
+  // checkout where the taxonomies handler hasn't yet been exercised.
+  if (options.project === 'ktx') {
+    const taxonomiesJsonPath = join(extractorOutputDir, 'ktx-gameplay-taxonomies-ast.json');
+    if (existsSync(taxonomiesJsonPath)) {
+      const { loadTaxonomiesFromFile } = await import('./load-gameplay-taxonomies.js');
+      const taxonomiesResult = await loadTaxonomiesFromFile(options.sql, taxonomiesJsonPath);
+      console.log(
+        `[extract-tag] ktx taxonomies loaded: ` +
+        `election_type total=${taxonomiesResult.total.election_type}, ` +
+        `death_rule total=${taxonomiesResult.total.death_rule}`,
+      );
+    } else {
+      console.warn(
+        `[extract-tag] ktx-gameplay-taxonomies-ast.json missing at ${taxonomiesJsonPath}; ` +
+        `skipping taxonomies loading. Re-run extract-tag once Phase 4 ships if this is unexpected.`,
+      );
+    }
+  }
+
   // 4. Asset bundle. Skipped for projects without one.
   let assets = { extensionsUpserted: 0, pathRulesUpserted: 0, cvarBindingsUpserted: 0, loaderSitesUpserted: 0 };
   if (hasAssetBundle) {
