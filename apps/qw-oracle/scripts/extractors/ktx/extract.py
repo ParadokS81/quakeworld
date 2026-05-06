@@ -75,6 +75,7 @@ def collect_handlers(names: str = "all") -> dict:
     from _handler_modes import KtxModesHandler
     from _handler_gameplay_taxonomies import KtxGameplayTaxonomiesHandler
     from _handler_gameplay_tables import KtxGameplayTablesHandler
+    from _handler_match_events import KtxMatchEventsHandler
     available: dict = {
         "cvars": CvarsKtxHandler(),
         "commands": CommandsKtxHandler(),
@@ -83,6 +84,10 @@ def collect_handlers(names: str = "all") -> dict:
         "modes": KtxModesHandler(),
         "gameplay_taxonomies": KtxGameplayTaxonomiesHandler(),
         "gameplay_tables": KtxGameplayTablesHandler(),
+        # match_events is the lone XSD-driven handler per D3 amendment
+        # 2026-05-05 -- standalone (no Visitor inheritance), duck-typed
+        # lifecycle stubs for driver compatibility.
+        "match_events": KtxMatchEventsHandler(),
     }
     if names == "all":
         return available

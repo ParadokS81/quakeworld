@@ -37,6 +37,7 @@ import type {
   KeynameVersionRow,
   LogTemplateVersionRow,
   MacroVersionRow,
+  MatchEventVersionRow,
   Project,
   ProtocolMessageVersionRow,
   QcBuiltinVersionRow,
@@ -363,6 +364,40 @@ export async function upsertLogTemplateVersion(tx: postgres.TransactionSql<{}>, 
       source_line              = EXCLUDED.source_line,
       containing_function      = EXCLUDED.containing_function,
       all_call_sites_json      = EXCLUDED.all_call_sites_json,
+      raw_ast_hash             = EXCLUDED.raw_ast_hash,
+      source_root              = EXCLUDED.source_root,
+      extracted_at             = EXCLUDED.extracted_at
+  `;
+}
+
+// Idempotent UPSERT for match_event_versions. PK is (entity_id, version).
+// Both attributes_json and emission_call_sites_json are JSONB columns bound
+// via tx.json(...) per D14 -- never JSON.stringify + TEXT bind. ON CONFLICT
+// DO UPDATE makes re-runs no-ops at the row-content level (D15).
+export async function upsertMatchEventVersion(tx: postgres.TransactionSql<{}>, row: MatchEventVersionRow): Promise<void> {
+  await tx`
+    INSERT INTO match_event_versions (
+      entity_id, version,
+      event_name, complex_type,
+      attributes_json,
+      xsd_path, xsd_version,
+      emission_call_sites_json,
+      raw_ast_hash, source_root, extracted_at
+    ) VALUES (
+      ${row.entity_id}, ${row.version},
+      ${row.event_name}, ${row.complex_type},
+      ${tx.json(row.attributes_json as never)},
+      ${row.xsd_path}, ${row.xsd_version},
+      ${tx.json(row.emission_call_sites_json as never)},
+      ${row.raw_ast_hash}, ${row.source_root}, ${row.extracted_at}
+    )
+    ON CONFLICT (entity_id, version) DO UPDATE SET
+      event_name               = EXCLUDED.event_name,
+      complex_type             = EXCLUDED.complex_type,
+      attributes_json          = EXCLUDED.attributes_json,
+      xsd_path                 = EXCLUDED.xsd_path,
+      xsd_version              = EXCLUDED.xsd_version,
+      emission_call_sites_json = EXCLUDED.emission_call_sites_json,
       raw_ast_hash             = EXCLUDED.raw_ast_hash,
       source_root              = EXCLUDED.source_root,
       extracted_at             = EXCLUDED.extracted_at

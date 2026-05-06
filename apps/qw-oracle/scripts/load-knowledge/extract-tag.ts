@@ -157,6 +157,7 @@ const ENTITY_JSON_FILES: Record<Project, Partial<Record<EntityType, string>>> = 
     command:      'ktx-commands-ast.json',
     info_key:     'ktx-info-keys-ast.json',
     log_template: 'ktx-log-templates-ast.json',
+    match_event:  'ktx-match-events-ast.json',
   },
   qw:    {},  // no entity types; maps live in the maps table, not entities
 };

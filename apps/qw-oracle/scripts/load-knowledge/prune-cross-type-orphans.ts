@@ -40,6 +40,7 @@ const PER_TYPE_VERSION_TABLE: Record<EntityType, string> = {
   info_key:         'info_key_versions',
   log_template:     'log_template_versions',
   qc_builtin:       'qc_builtin_versions',
+  match_event:      'match_event_versions',
 };
 
 export interface PruneCrossTypeOrphansOptions {

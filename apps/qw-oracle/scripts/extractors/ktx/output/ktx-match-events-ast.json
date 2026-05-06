@@ -1,0 +1,446 @@
+{
+  "match_events": [
+    {
+      "name": "damage",
+      "ast": {
+        "event_name": "damage",
+        "complex_type": "damagetype",
+        "attributes": [
+          {
+            "name": "time",
+            "type": "xs:decimal",
+            "constraint": null
+          },
+          {
+            "name": "attacker",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "target",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "type",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "quad",
+            "type": "xs:boolean",
+            "constraint": null
+          },
+          {
+            "name": "splash",
+            "type": "xs:boolean",
+            "constraint": null
+          },
+          {
+            "name": "value",
+            "type": "xs:nonNegativeInteger",
+            "constraint": null
+          },
+          {
+            "name": "armor",
+            "type": "xs:boolean",
+            "constraint": null
+          }
+        ],
+        "xsd_path": "resources/extralog/ktxlog_0.1.xsd",
+        "xsd_version": "0.1",
+        "source_file": "resources/extralog/ktxlog_0.1.xsd",
+        "source_line": 107,
+        "emission_call_sites": [
+          {
+            "source_file": "src/combat.c",
+            "source_line": 857,
+            "containing_function": "T_Damage"
+          },
+          {
+            "source_file": "src/combat.c",
+            "source_line": 979,
+            "containing_function": "T_Damage"
+          }
+        ]
+      }
+    },
+    {
+      "name": "death",
+      "ast": {
+        "event_name": "death",
+        "complex_type": "deathtype",
+        "attributes": [
+          {
+            "name": "time",
+            "type": "xs:decimal",
+            "constraint": null
+          },
+          {
+            "name": "attacker",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "target",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "type",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "quad",
+            "type": "xs:boolean",
+            "constraint": null
+          },
+          {
+            "name": "armorleft",
+            "type": "maxed_integer",
+            "constraint": {
+              "base": "xs:nonNegativeInteger",
+              "min_inclusive": "0",
+              "max_inclusive": "200"
+            }
+          },
+          {
+            "name": "killheight",
+            "type": "xs:nonNegativeInteger",
+            "constraint": null
+          },
+          {
+            "name": "lifetime",
+            "type": "xs:decimal",
+            "constraint": null
+          }
+        ],
+        "xsd_path": "resources/extralog/ktxlog_0.1.xsd",
+        "xsd_version": "0.1",
+        "source_file": "resources/extralog/ktxlog_0.1.xsd",
+        "source_line": 108,
+        "emission_call_sites": [
+          {
+            "source_file": "src/client.c",
+            "source_line": 5089,
+            "containing_function": "ClientObituary"
+          }
+        ]
+      }
+    },
+    {
+      "name": "drop_backpack",
+      "ast": {
+        "event_name": "drop_backpack",
+        "complex_type": "backpacktype",
+        "attributes": [
+          {
+            "name": "time",
+            "type": "xs:decimal",
+            "constraint": null
+          },
+          {
+            "name": "weapon",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "shells",
+            "type": "maxed_integer",
+            "constraint": {
+              "base": "xs:nonNegativeInteger",
+              "min_inclusive": "0",
+              "max_inclusive": "200"
+            }
+          },
+          {
+            "name": "nails",
+            "type": "maxed_integer",
+            "constraint": {
+              "base": "xs:nonNegativeInteger",
+              "min_inclusive": "0",
+              "max_inclusive": "200"
+            }
+          },
+          {
+            "name": "rockets",
+            "type": "maxed_integer",
+            "constraint": {
+              "base": "xs:nonNegativeInteger",
+              "min_inclusive": "0",
+              "max_inclusive": "200"
+            }
+          },
+          {
+            "name": "cells",
+            "type": "maxed_integer",
+            "constraint": {
+              "base": "xs:nonNegativeInteger",
+              "min_inclusive": "0",
+              "max_inclusive": "200"
+            }
+          },
+          {
+            "name": "player",
+            "type": "xs:string",
+            "constraint": null
+          }
+        ],
+        "xsd_path": "resources/extralog/ktxlog_0.1.xsd",
+        "xsd_version": "0.1",
+        "source_file": "resources/extralog/ktxlog_0.1.xsd",
+        "source_line": 104,
+        "emission_call_sites": [
+          {
+            "source_file": "src/items.c",
+            "source_line": 2844,
+            "containing_function": "DropBackpack"
+          }
+        ]
+      }
+    },
+    {
+      "name": "drop_powerup",
+      "ast": {
+        "event_name": "drop_powerup",
+        "complex_type": "poweruptype",
+        "attributes": [
+          {
+            "name": "time",
+            "type": "xs:decimal",
+            "constraint": null
+          },
+          {
+            "name": "item",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "player",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "timeleft",
+            "type": "xs:decimal",
+            "constraint": null
+          }
+        ],
+        "xsd_path": "resources/extralog/ktxlog_0.1.xsd",
+        "xsd_version": "0.1",
+        "source_file": "resources/extralog/ktxlog_0.1.xsd",
+        "source_line": 106,
+        "emission_call_sites": [
+          {
+            "source_file": "src/items.c",
+            "source_line": 1926,
+            "containing_function": "DropPowerup"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pick_backpack",
+      "ast": {
+        "event_name": "pick_backpack",
+        "complex_type": "backpacktype",
+        "attributes": [
+          {
+            "name": "time",
+            "type": "xs:decimal",
+            "constraint": null
+          },
+          {
+            "name": "weapon",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "shells",
+            "type": "maxed_integer",
+            "constraint": {
+              "base": "xs:nonNegativeInteger",
+              "min_inclusive": "0",
+              "max_inclusive": "200"
+            }
+          },
+          {
+            "name": "nails",
+            "type": "maxed_integer",
+            "constraint": {
+              "base": "xs:nonNegativeInteger",
+              "min_inclusive": "0",
+              "max_inclusive": "200"
+            }
+          },
+          {
+            "name": "rockets",
+            "type": "maxed_integer",
+            "constraint": {
+              "base": "xs:nonNegativeInteger",
+              "min_inclusive": "0",
+              "max_inclusive": "200"
+            }
+          },
+          {
+            "name": "cells",
+            "type": "maxed_integer",
+            "constraint": {
+              "base": "xs:nonNegativeInteger",
+              "min_inclusive": "0",
+              "max_inclusive": "200"
+            }
+          },
+          {
+            "name": "player",
+            "type": "xs:string",
+            "constraint": null
+          }
+        ],
+        "xsd_path": "resources/extralog/ktxlog_0.1.xsd",
+        "xsd_version": "0.1",
+        "source_file": "resources/extralog/ktxlog_0.1.xsd",
+        "source_line": 103,
+        "emission_call_sites": [
+          {
+            "source_file": "src/items.c",
+            "source_line": 2545,
+            "containing_function": "BackpackTouch"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pick_mapitem",
+      "ast": {
+        "event_name": "pick_mapitem",
+        "complex_type": "mapitemtype",
+        "attributes": [
+          {
+            "name": "time",
+            "type": "xs:decimal",
+            "constraint": null
+          },
+          {
+            "name": "item",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "player",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "value",
+            "type": "maxed_integer",
+            "constraint": {
+              "base": "xs:nonNegativeInteger",
+              "min_inclusive": "0",
+              "max_inclusive": "200"
+            }
+          }
+        ],
+        "xsd_path": "resources/extralog/ktxlog_0.1.xsd",
+        "xsd_version": "0.1",
+        "source_file": "resources/extralog/ktxlog_0.1.xsd",
+        "source_line": 102,
+        "emission_call_sites": [
+          {
+            "source_file": "src/items.c",
+            "source_line": 219,
+            "containing_function": "T_Heal"
+          },
+          {
+            "source_file": "src/items.c",
+            "source_line": 561,
+            "containing_function": "armor_touch"
+          },
+          {
+            "source_file": "src/items.c",
+            "source_line": 1025,
+            "containing_function": "weapon_touch"
+          },
+          {
+            "source_file": "src/items.c",
+            "source_line": 1301,
+            "containing_function": "ammo_touch"
+          },
+          {
+            "source_file": "src/items.c",
+            "source_line": 1556,
+            "containing_function": "key_touch"
+          },
+          {
+            "source_file": "src/items.c",
+            "source_line": 1720,
+            "containing_function": "sigil_touch"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pick_powerup",
+      "ast": {
+        "event_name": "pick_powerup",
+        "complex_type": "poweruptype",
+        "attributes": [
+          {
+            "name": "time",
+            "type": "xs:decimal",
+            "constraint": null
+          },
+          {
+            "name": "item",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "player",
+            "type": "xs:string",
+            "constraint": null
+          },
+          {
+            "name": "timeleft",
+            "type": "xs:decimal",
+            "constraint": null
+          }
+        ],
+        "xsd_path": "resources/extralog/ktxlog_0.1.xsd",
+        "xsd_version": "0.1",
+        "source_file": "resources/extralog/ktxlog_0.1.xsd",
+        "source_line": 105,
+        "emission_call_sites": [
+          {
+            "source_file": "src/items.c",
+            "source_line": 2233,
+            "containing_function": "powerup_touch"
+          }
+        ]
+      }
+    }
+  ],
+  "_stats": {
+    "xsd_path": "resources/extralog/ktxlog_0.1.xsd",
+    "xsd_version": "0.1",
+    "complex_type_count": 5,
+    "named_simpletype_count": 4,
+    "event_count": 7,
+    "expected_event_count": 7,
+    "emission_site_count": 13,
+    "expected_emission_site_count": 13,
+    "by_event_name": {
+      "pick_mapitem": 6,
+      "drop_powerup": 1,
+      "pick_powerup": 1,
+      "pick_backpack": 1,
+      "drop_backpack": 1,
+      "damage": 2,
+      "death": 1
+    },
+    "unrecognized_files": [],
+    "unrecognized_emissions": [],
+    "events_without_emissions": []
+  }
+}

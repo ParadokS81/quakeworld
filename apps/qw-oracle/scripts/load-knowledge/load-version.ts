@@ -109,6 +109,12 @@ import {
   qcBuiltinIsSourceBacked,
   upsertQcBuiltinRow,
 } from './load-qc-builtins.js';
+import {
+  MATCH_EVENT_PAYLOAD_FIELD,
+  buildMatchEventVersionRow,
+  matchEventIsSourceBacked,
+  upsertMatchEventRow,
+} from './load-match-events.js';
 import { pruneCrossTypeOrphans } from './prune-cross-type-orphans.js';
 import { deriveEntityDescriptionsForVersion } from './derive-entity-description.js';
 import { INFO_KEY_SCOPES, LOG_TEMPLATE_CHANNELS } from './constants.js';
@@ -292,6 +298,13 @@ const ADAPTERS: Record<EntityType, TypeAdapter> = {
     isSourceBacked: qcBuiltinIsSourceBacked,
     buildRow: buildQcBuiltinVersionRow,
     upsertRow: upsertQcBuiltinRow,
+  },
+  match_event: {
+    payloadField: MATCH_EVENT_PAYLOAD_FIELD,
+    versionsTable: 'match_event_versions',
+    isSourceBacked: matchEventIsSourceBacked,
+    buildRow: buildMatchEventVersionRow,
+    upsertRow: upsertMatchEventRow,
   },
 };
 
@@ -569,8 +582,10 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
     //   - non-null -> null  : source_retired_at_version
     //   - null -> non-null  : backfill_match
     // Idempotent on (entity_id, reason, version_context). asset_category
-    // skipped because its versions table has no source_file column.
-    if (options.type !== 'asset_category') {
+    // and match_event skipped because their versions tables have no
+    // source_file column -- match_event uses xsd_path (XSD is source-of-truth);
+    // asset_category lives in the asset bundle without a source_file slot.
+    if (options.type !== 'asset_category' && options.type !== 'match_event') {
       const transitionScan = await tx<Array<{
         entity_id: number;
         entity_name: string;

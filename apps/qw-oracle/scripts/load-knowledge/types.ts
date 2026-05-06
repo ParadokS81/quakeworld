@@ -21,7 +21,8 @@ export type EntityType =
   | 'protocol_message'
   | 'info_key'
   | 'log_template'
-  | 'qc_builtin';
+  | 'qc_builtin'
+  | 'match_event';
 export type SourceState =
   | 'source_backed'
   | 'source_retired'
@@ -351,6 +352,57 @@ export interface LogTemplateEntry {
   ast: LogTemplateAstBlock | null;
 }
 
+// --- Phase 6 KTX: match_event -----------------------------------------------
+// XSD-driven entity type. Source of truth is research/repos/ktx/resources/
+// extralog/ktxlog_0.1.xsd. The Python handler at scripts/extractors/ktx/
+// _handler_match_events.py emits 7 entries (one per <xs:choice> event_name)
+// with attribute schemas + emission call sites. Two JSONB columns on the
+// match_event_versions table: attributes_json (per-attribute schema) and
+// emission_call_sites_json (per-call-site source citations). Bound directly
+// via tx.json(...) per D14 -- never JSON.stringify.
+
+// Per-attribute schema entry inside MatchEventAst.attributes. Mirrors the
+// XSD's <xs:element name="..." type="..."/> shape PLUS the resolved
+// simpleType constraint when type is a named simpleType (maxed_integer,
+// iptype, modetype, porttype). For XSD primitives (xs:decimal, xs:string,
+// xs:nonNegativeInteger, xs:boolean) constraint is null.
+export interface MatchEventAttributeConstraint {
+  base: string | null;
+  min_inclusive?: string;
+  max_inclusive?: string;
+  pattern?: string;
+}
+export interface MatchEventAttribute {
+  name: string;
+  type: string;          // XSD type ref, e.g. 'xs:decimal', 'xs:string', 'maxed_integer'
+  constraint: MatchEventAttributeConstraint | null;
+}
+
+// Per-emission call site. Tracks where in the C source each event type is
+// emitted via log_printf, plus the enclosing C function name per spec
+// 5.6.b's containing_function heuristic.
+export interface MatchEventEmissionSite {
+  source_file: string;
+  source_line: number;
+  containing_function: string | null;
+}
+
+export interface MatchEventAst {
+  event_name: string;            // e.g. 'pick_mapitem'
+  complex_type: string;          // e.g. 'mapitemtype'
+  attributes: MatchEventAttribute[];
+  xsd_path: string;              // repo-relative path to the XSD
+  xsd_version: string;           // e.g. '0.1'
+  source_file: string;           // = xsd_path; the XSD is the source of truth for this entity
+  source_line: number | null;    // line in the XSD where <xs:element name="EVENT_NAME"...> appears
+  emission_call_sites: MatchEventEmissionSite[];
+}
+
+export interface MatchEventEntry {
+  name: string;                  // = ast.event_name
+  ast: MatchEventAst | null;     // null reserved for doc_only rows; in practice unused (XSD is the producer)
+}
+
 // --- Phase 2e MVDSV: qc_builtin ---------------------------------------------
 // QuakeC builtin functions exposed to game-mod progs (std_builtins,
 // ext_builtins, ext_syscalls). table_name is free-form text (no CHECK at
@@ -489,6 +541,32 @@ export interface LogTemplateVersionRow {
   // in v17 (pre-Phase-D rows store NULL); every fresh row carries at least one
   // entry. Schema column is JSONB; postgres-js auto-encodes the array on bind.
   all_call_sites_json: NonNullable<LogTemplateAstBlock['all_call_sites']> | null;
+  raw_ast_hash: string | null;
+  source_root: string | null;
+  extracted_at: string;
+}
+
+export interface MatchEventVersionRow {
+  entity_id: number;
+  version: string;
+  // NOT NULL at the schema level; defensive empty-string fallback for the
+  // doc_only edge case (in practice matchEventIsSourceBacked filters those
+  // out before this builder runs).
+  event_name: string;
+  complex_type: string;
+  // JSONB array of per-attribute schema entries. Bound directly via
+  // tx.json(...) per D14; pre-stringifying creates a JSONB string scalar
+  // (the legacy SQLite-era TEXT bug). Probe F1.jsonb_columns_not_strings
+  // is the regression gate.
+  attributes_json: MatchEventAttribute[];
+  xsd_path: string;
+  xsd_version: string;
+  // JSONB array of per-emission-site source citations. Same D14 binding
+  // rule as attributes_json. Phase 6's dual-row design (D10 / F17): every
+  // emission site here is ALSO captured as a log_template_versions row
+  // with channel='logfile' by Phase 2's printf-handler -- the duplicate
+  // is intentional.
+  emission_call_sites_json: MatchEventEmissionSite[];
   raw_ast_hash: string | null;
   source_root: string | null;
   extracted_at: string;
