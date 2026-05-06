@@ -444,7 +444,7 @@ Phase 3 ships option (a-prime): the workaround. The principled refactor is parke
 - Dev DB post-load: `gameplay_mechanics` rows for `gameplay_source_id='ktx'`: game_mode=27 + mode_default=317 (UNCHANGED; D15 idempotency holds).
 - F1 JSONB gate: `ruleset_gate_json` and `props_json` both `jsonb_typeof = 'object'` for all 344 modes rows; 0 violations (D14 holds).
 
-**Phase 5.5 commit:** to be filled in by orchestrator session post-commit (chicken-and-egg: the executor cannot reference its own commit hash from inside the same commit; the orchestrator's housekeeping commit backfills, mirroring the Phase 4 pattern at `cb46fd85` and Phase 5 at `c0cb89a3`).
+**Phase 5.5 commit:** `44f5b894` (single commit; D16 5-for-5 streak). Orchestrator session #3 verified all 11 boundary probes against live tree + dev DB on 2026-05-06: counts unchanged (27 game_mode + 317 mode_default), F1 JSONB gate clean, F15 cross-header macros still resolve at `commands.c:4178/4179`, F25 guard absent from `extract.py`, parallel-vs-serial diff empty (3.3x speedup: 16.9s -> 5.1s on `--workers 4`), pytest 7/7 PASS cold, ASCII discipline honored, working-tree fence honored.
 
 **Carry-forward:** any future libclang handler with cross-file refs MUST use Pattern 13 emission per Phase 2 + Phase 5 + Phase 5.5 precedent. No per-handler instance-state aggregation in fork-pool architectures. Phase 8 EXTRACTOR-PLAYBOOK addition will document this as the canonical convention; the alternative `Visitor.parallel_safe: bool = True` attribute path proposed in the original F25 future-arc options is REJECTED -- gating opt-out as a per-handler bool would normalise the broken state-on-self design and recreate the divergence between handlers that this Phase 5.5 retrofit eliminates.
 
