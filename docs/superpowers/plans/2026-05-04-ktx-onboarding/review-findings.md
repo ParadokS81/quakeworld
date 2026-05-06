@@ -251,6 +251,8 @@ Disposition shipped: `_DROPITEM_MACRO_FALLBACK` extends to 3 entries `{"H_ROTTEN
 
 2. **Spec 5.6.b regex literal mismatches live source.** Spec's pattern (`log_printf("\t\t\t<EVENT>...` -- single-line literal with 3 \t pairs) matches the LEGACY commented-out emission shape. Live source's 13 active emissions use the multi-line wrapper shape across two concatenated literals (`log_printf("\t\t<event>\n" "\t\t\t<EVENT>...` -- 2 + 3 \t pairs). Phase 6 ships a live-source-faithful multi-line regex that produces F14's locked count of 13 emission sites exactly. The spec 5.6.b regex remains as-written; arc-reviewer's spec-vs-shipped walk will mark this DELIVERED-DIFFERENT-AS-DOCUMENTED. The phase MD documents the deviation rationale with the corrected regex inline; the dual-row design (D10) is unaffected.
 
+**Amendment 2026-05-06 (Phase 6 executor source-walk):** F14's anchor body line "7 complexTypes (pick_mapitem, pick_backpack, drop_backpack, pick_powerup, drop_powerup, damage, death) sharing 5 distinct simpleTypes" mislabels the parenthetical: those 7 names are EVENT names declared in the XSD's `<xs:choice>`, not complexType names. Live `resources/extralog/ktxlog_0.1.xsd` defines 5 named complexTypes: `damagetype`, `deathtype`, `backpacktype` (shared by pick_backpack + drop_backpack), `poweruptype` (shared by pick_powerup + drop_powerup), `mapitemtype`. The 7 events map onto 5 complexTypes via the share pattern. Phase 6's handler tracks both axes correctly (`_stats.event_count = 7`, `_stats.complex_type_count = 5`); only F14's prose was sloppy. The 4-named-simpleType count from the 2026-05-05 amendment is unaffected (still 4: `maxed_integer`, `iptype`, `modetype`, `porttype`). The 13-emission-site anchor is unaffected. Phase 6 verification probe 4 asserts `event_count = expected_event_count = 7` and `emission_site_count = 13`; both passed against live source.
+
 ---
 
 ## Spec callouts requiring execution-time vigilance
@@ -491,6 +493,22 @@ Phase 8 EXTRACTOR-PLAYBOOK addition candidate: "Pattern 9 (banner harvest) cover
 
 ---
 
+### F28 -- Non-Visitor handler infrastructure gaps surfaced (discovered during Phase 6 execution)
+
+**Resolved by:** Phase 6 inline drains (transition-scan exclusion + full lifecycle stub list); Phase 8 EXTRACTOR-PLAYBOOK note for non-Visitor / non-libclang handler patterns.
+
+**Evidence (2026-05-06):** match_event is the first KTX handler that does NOT inherit from `Visitor` and does NOT use libclang (D3 amendment 2026-05-05 carve-out; spec 5.6.c). Two infrastructure gaps surfaced during Phase 6 execution that the phase MD didn't anticipate:
+
+1. **`load-version.ts` transition-scan assumes `source_file` column on every per-type versions table.** `apps/qw-oracle/scripts/load-knowledge/load-version.ts` (around line 587) selects `vrow.source_file` from `${tx(adapter.versionsTable)}` for state-transition detection (source_retired_at_version / backfill_match). `match_event_versions` has NO `source_file` column -- it uses `xsd_path` because the XSD is the source-of-truth (not a C source file). `asset_category_versions` already had the same exclusion for the same reason (asset bundle without source_file slot). Drained inline: exclusion list extended to `options.type !== 'asset_category' && options.type !== 'match_event'`. Future entity types with non-C-source truth (XSD, JSON manifest, YAML schema, etc.) hit the same gap; the exclusion list grows as the surface area widens.
+
+2. **`walk_tu_dispatch` calls 7 lifecycle methods, not the 5 the phase MD listed.** Phase 6 MD Task 1 (lines 415-438) listed 5 duck-typed stubs (`start_file` / `enter_function` / `exit_function` / `visit_cursor` / `end_file`); `extractor_lib._visitor.walk_tu_dispatch` actually calls 7 (also `enter_compound` and `exit_compound` on COMPOUND_STMT cursors). Without those two, the handler crashes mid-walk on the first compound statement. Drained inline: handler ships 7 stubs total. The full required list for non-Visitor handlers: `start_file` / `end_file` / `enter_function` / `exit_function` / `enter_compound` / `exit_compound` / `visit_cursor`. Plus `setup` and `finalize` which fire pre/post the per-TU loop.
+
+**Disposition:** Phase 6 ships both tactical fixes inline; Phase 8 EXTRACTOR-PLAYBOOK addition documents the full non-Visitor handler infrastructure pattern so future arcs (e.g., a JSON-manifest-driven handler or an XSD handler in a different engine) reproduce the shape without re-discovery. Phase 7's cross-project audit can probe the transition-scan exclusion list against the full per-type versions table inventory as a regression gate against future drift.
+
+**Phase ownership:** Phase 6 (discovered and worked-around inline during execution); Phase 7 (cross-project audit probe candidate -- exclusion-list-vs-per-type-versions-table reconciliation as new entity types land); Phase 8 (PLAYBOOK note candidate for non-Visitor / non-libclang handler patterns including full lifecycle stub list + transition-scan exclusion convention).
+
+---
+
 ## Phase ownership of findings
 
 | Phase | Findings to verify before sign-off |
@@ -501,9 +519,9 @@ Phase 8 EXTRACTOR-PLAYBOOK addition candidate: "Pattern 9 (banner harvest) cover
 | Phase 3 | F5 (27 catalog rows), F6 (~309 mode_default rows), F15 (Pattern 6 lift dependency confirmed working), F25 (modes handler not parallel-safe -- worked around with serial-mode guard in extract.py) |
 | Phase 4 | F7 (5 election_type rows; skip etNone), F8 (27 death_rule rows; skip dtNONE/dtUNKNOWN; keep dtCHANGELEVEL) |
 | Phase 5 | F9 (13 monsters; hp_for_kill amendment), F10 (3 score_systems; positions length=10 invariant), F11 (31 drop_items amended; H_ROTTEN/H_MEGA/WEAPON_BIG2 fallback per F26 second amendment), F12 (15 loc_macros), F13 (21 teamplay_messages; Pattern 9 harvest with 0% coverage per F27), F26 (collect_file_macros string-literal-only -- inline fix), F27 (Pattern 9 banner-coverage probe calibration -- inline rationale) |
-| Phase 6 | F14 (7 match_events + 13 emission sites), F17 (also emits emission_call_sites_json; intentional) |
-| Phase 7 | F21 (validation runbook + F1 probes + JSONB regression gate + cross-project audit) |
-| Phase 8 | F19 (doctrine fixes survived; no recursion), F20 (HANDOVER backlog item absorbed), F17 (PLAYBOOK addition for dual-row design), F22 (VALIDATION-RUNBOOK.md doctrine fix survived), F26 (PLAYBOOK note candidate for Pattern 6 string-literal scope), F27 (PLAYBOOK note candidate for Pattern 9 coverage variability) |
+| Phase 6 | F14 (7 match_events + 13 emission sites; third 2026-05-06 amendment for complexType-vs-event terminology), F17 (also emits emission_call_sites_json; intentional), F28 (non-Visitor handler infrastructure gaps -- drained inline) |
+| Phase 7 | F21 (validation runbook + F1 probes + JSONB regression gate + cross-project audit), F28 (cross-project audit probe -- exclusion-list-vs-per-type-versions-table reconciliation) |
+| Phase 8 | F19 (doctrine fixes survived; no recursion), F20 (HANDOVER backlog item absorbed), F17 (PLAYBOOK addition for dual-row design), F22 (VALIDATION-RUNBOOK.md doctrine fix survived), F26 (PLAYBOOK note candidate for Pattern 6 string-literal scope), F27 (PLAYBOOK note candidate for Pattern 9 coverage variability), F28 (PLAYBOOK note candidate for non-Visitor / non-libclang handler patterns -- full lifecycle stub list + transition-scan exclusion convention) |
 
 ---
 
