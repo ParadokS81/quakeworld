@@ -45,11 +45,16 @@
 //                     arc; not yet emitted by any deriver).
 //   'synthesized'  -- AI/operator-authored narrative not present in source
 //                     or external curation. Audit signal.
-// deriveCvar writes 'help_json' / 'source_inline' based on which column won
-// + project. deriveMatchEvent writes 'synthesized'. Other derivers do not
-// yet write description_origin -- migration 012's backfill set their values
-// once and they remain valid as long as their text source columns don't
-// change. Wiring the remaining derivers is a small-followup arc.
+// All 13 derivers write description_origin every time they UPDATE; the
+// label tracks the source columns the description came from on each
+// re-derive, so adding a fallback branch (the way deriveCvar gained
+// trailing_comment) automatically updates the label without a separate
+// migration. Project-aware derivers (cvar/command/cmdline_param/macro/
+// hud_element) emit 'help_json' for ezquake/FTE source-of-help-JSON paths
+// and 'source_inline' otherwise; pure-template derivers (token_primitive/
+// flag_bit/cvar_alias/protocol_message/info_key/log_template/qc_builtin)
+// always emit 'source_inline'; deriveAssetCategory always emits 'help_json'
+// (curated YAML); deriveMatchEvent always emits 'synthesized'.
 
 import type postgres from 'postgres';
 import type { EntityType, Project } from './types.js';
@@ -122,6 +127,11 @@ async function deriveCommand(tx: postgres.TransactionSql<{}>, project: Project, 
         NULLIF(TRIM(vt.help_desc), ''),
         NULLIF(TRIM(vt.help_remarks), '')
       ), ''),
+      description_origin = CASE
+        WHEN NULLIF(TRIM(vt.help_desc), '') IS NULL AND NULLIF(TRIM(vt.help_remarks), '') IS NULL THEN NULL
+        WHEN entities.project IN ('ezquake', 'fte') THEN 'help_json'
+        ELSE 'source_inline'
+      END,
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM command_versions vt
@@ -137,6 +147,11 @@ async function deriveMacro(tx: postgres.TransactionSql<{}>, project: Project, ve
   await tx`
     UPDATE entities SET
       description = vt.help_desc,
+      description_origin = CASE
+        WHEN NULLIF(TRIM(vt.help_desc), '') IS NULL THEN NULL
+        WHEN entities.project IN ('ezquake', 'fte') THEN 'help_json'
+        ELSE 'source_inline'
+      END,
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM macro_versions vt
@@ -155,6 +170,11 @@ async function deriveCmdlineParam(tx: postgres.TransactionSql<{}>, project: Proj
         NULLIF(TRIM(vt.help_desc), ''),
         NULLIF(TRIM(vt.help_remarks), '')
       ), ''),
+      description_origin = CASE
+        WHEN NULLIF(TRIM(vt.help_desc), '') IS NULL AND NULLIF(TRIM(vt.help_remarks), '') IS NULL THEN NULL
+        WHEN entities.project IN ('ezquake', 'fte') THEN 'help_json'
+        ELSE 'source_inline'
+      END,
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM cmdline_param_versions vt
@@ -170,6 +190,11 @@ async function deriveHudElement(tx: postgres.TransactionSql<{}>, project: Projec
   await tx`
     UPDATE entities SET
       description = vt.help_desc,
+      description_origin = CASE
+        WHEN NULLIF(TRIM(vt.help_desc), '') IS NULL THEN NULL
+        WHEN entities.project IN ('ezquake', 'fte') THEN 'help_json'
+        ELSE 'source_inline'
+      END,
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM hud_element_versions vt
@@ -182,9 +207,15 @@ async function deriveHudElement(tx: postgres.TransactionSql<{}>, project: Projec
 }
 
 async function deriveAssetCategory(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
+  // Source is the curated YAML bundle (slipgate-side asset metadata) regardless
+  // of project; no source_inline branch needed today.
   await tx`
     UPDATE entities SET
       description = vt.description,
+      description_origin = CASE
+        WHEN NULLIF(TRIM(vt.description), '') IS NULL THEN NULL
+        ELSE 'help_json'
+      END,
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM asset_category_versions vt
@@ -201,6 +232,7 @@ async function deriveTokenPrimitive(tx: postgres.TransactionSql<{}>, project: Pr
   await tx`
     UPDATE entities SET
       description = vt.category || ' token ' || coalesce(vt.form, ''),
+      description_origin = 'source_inline',
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM token_primitive_versions vt
@@ -217,6 +249,7 @@ async function deriveFlagBit(tx: postgres.TransactionSql<{}>, project: Project, 
   await tx`
     UPDATE entities SET
       description = vt.bitmask_family || ' ' || entities.name,
+      description_origin = 'source_inline',
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM flag_bit_versions vt
@@ -237,6 +270,7 @@ async function deriveCvarAlias(tx: postgres.TransactionSql<{}>, project: Project
         'alias of ' || coalesce(vt.target_canonical_id, vt.target_project || ':' || vt.target_kind || ':' || vt.target_name)
         || '; drift status: ' || vt.default_drift_status
         || '; freshness: ' || vt.freshness_state,
+      description_origin = 'source_inline',
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM cvar_alias_versions vt
@@ -256,6 +290,7 @@ async function deriveProtocolMessage(tx: postgres.TransactionSql<{}>, project: P
         vt.kind || ' protocol message: ' || entities.name
         || coalesce('; value ' || vt.value, '')
         || coalesce('; ' || vt.trailing_comment, ''),
+      description_origin = 'source_inline',
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM protocol_message_versions vt
@@ -275,6 +310,7 @@ async function deriveInfoKey(tx: postgres.TransactionSql<{}>, project: Project, 
       description =
         vt.scope || ' info key: ' || regexp_replace(entities.name, ':[a-z]+$', '')
         || coalesce('; ops ' || vt.operations, ''),
+      description_origin = 'source_inline',
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM info_key_versions vt
@@ -291,6 +327,7 @@ async function deriveLogTemplate(tx: postgres.TransactionSql<{}>, project: Proje
   await tx`
     UPDATE entities SET
       description = vt.channel || ' log template: ' || vt.format_string_normalized,
+      description_origin = 'source_inline',
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM log_template_versions vt
@@ -354,6 +391,7 @@ async function deriveQcBuiltin(tx: postgres.TransactionSql<{}>, project: Project
         'qc_builtin ' || vt.table_name || '[' || vt.builtin_index || '] -> ' || vt.handler_fn
         || coalesce('; ' || vt.qc_signature, '')
         || coalesce('; ' || vt.trailing_comment, ''),
+      description_origin = 'source_inline',
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM qc_builtin_versions vt
