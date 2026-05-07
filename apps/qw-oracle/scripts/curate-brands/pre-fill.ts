@@ -326,9 +326,27 @@ for (const navbox of navboxes) {
   for (const m of memberSet) assignedTournaments.add(m);
 }
 
+// Brand-overview pages are not curation units (they're the wiki homepage of
+// the brand bucket itself). Drop them from the tournament inventory; the
+// bucket already carries a `brand_overview_slug` pointer for the wiki link.
+const brandOverviewSlugs = new Set(
+  brandPreFills.map((b) => b.brand_overview_slug).filter((s): s is string => !!s),
+);
+
+// Heuristic: drop supplementary pages that have tournament categories but
+// aren't actual tournaments (Hall of Fame, Map Pool, etc.).
+const SUPPLEMENTARY_RE = /(_hall_of_fame|_map_pool|_records|_archive|_history|_sponsors)$/i;
+
+const cleanedTopLevelTournaments = topLevelTournaments.filter((t) => {
+  if (brandOverviewSlugs.has(t.slug)) return false;
+  if (SUPPLEMENTARY_RE.test(t.slug)) return false;
+  return true;
+});
+const droppedBrandOverview = topLevelTournaments.length - cleanedTopLevelTournaments.length;
+
 // Unassigned = top-level tournament articles not picked up by any navbox.
 // Sub-pages are not curation units (they ride along with their parent).
-const unassigned = topLevelTournaments
+const unassigned = cleanedTopLevelTournaments
   .filter((t) => !assignedTournaments.has(t.slug))
   .map((t) => t.slug);
 
@@ -345,7 +363,7 @@ const output = {
   snapshot: '2026-05-04',
   // Top-level tournament articles only. Sub-pages live in `sub_pages_by_parent`
   // and ride along with their parent in the UI; they are not curation units.
-  tournaments: topLevelTournaments,
+  tournaments: cleanedTopLevelTournaments,
   sub_pages_by_parent: Object.fromEntries(subPagesByParent),
   brands_pre_filled: brandPreFills,
   unassigned,
@@ -365,7 +383,8 @@ console.log(`\nWrote ${OUTPUT}`);
 console.log(`Wrote ${JS_OUTPUT}`);
 console.log('Stats:');
 console.log(`  top-level tournament articles: ${output.tournaments.length}`);
-console.log(`  sub-page articles: ${allTournamentArticles.length - output.tournaments.length}`);
+console.log(`  dropped (brand-overview + supplementary): ${droppedBrandOverview}`);
+console.log(`  sub-page articles: ${allTournamentArticles.length - topLevelTournaments.length}`);
 console.log(`  parents with sub-pages: ${subPagesByParent.size}`);
 console.log(`  brands pre-filled: ${output.brands_pre_filled.length}`);
 console.log(`  tournaments assigned: ${assignedTournaments.size}`);

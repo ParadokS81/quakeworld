@@ -206,21 +206,42 @@ section h2 .count { color: var(--fg-dim); font-weight: normal; margin-left: 8px;
 .brand-card.expanded .brand-card-body { display: block; }
 .format-line { margin-bottom: 8px; }
 .format-line .fl-label { color: var(--fg-dim); font-size: 11px; margin-bottom: 2px; }
-.format-line .fl-members { display: flex; flex-wrap: wrap; gap: 4px; }
-.member-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+.format-line .fl-members { display: flex; flex-direction: column; gap: 3px; }
+.member-row {
   background: var(--bg-3);
   border: 1px solid var(--border);
-  padding: 2px 6px;
   border-radius: 2px;
   font-size: 11px;
+  overflow: hidden;
 }
-.member-chip .remove {
+.member-row .member-head {
+  padding: 4px 8px;
+  display: grid;
+  grid-template-columns: 12px 1fr auto auto auto;
+  gap: 6px;
+  align-items: center;
+}
+.member-row .chevron { color: var(--fg-dim); cursor: pointer; user-select: none; width: 12px; text-align: center; font-size: 10px; }
+.member-row .chevron.empty { visibility: hidden; }
+.member-row.expanded { border-color: var(--accent); }
+.member-row .member-detail {
+  display: none;
+  padding: 4px 12px 6px 26px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-2);
+}
+.member-row.expanded .member-detail { display: block; }
+.member-row .remove {
   cursor: pointer;
   color: var(--bad);
-  margin-left: 2px;
+  font-weight: bold;
+}
+.member-row a.member-link {
+  color: inherit;
+  text-decoration: none;
+}
+.member-row a.member-link:hover {
+  color: var(--accent);
 }
 .promoted-card {
   background: var(--bg-2);
@@ -294,6 +315,8 @@ section h2 .count { color: var(--fg-dim); font-weight: normal; margin-left: 8px;
       <div class="row">
         <input type="checkbox" id="select-all" />
         <label for="select-all" style="font-size:11px;color:var(--fg-dim)">select all visible</label>
+        <input type="checkbox" id="show-assigned" style="margin-left:12px" />
+        <label for="show-assigned" style="font-size:11px;color:var(--fg-dim)">show assigned</label>
         <span style="margin-left:auto;font-size:11px;color:var(--fg-dim)" id="selected-count">0 selected</span>
         <button id="bulk-assign-btn" disabled>Assign selected</button>
       </div>
@@ -419,7 +442,7 @@ let state = (function () {
 })();
 
 let selected = new Set();
-let inventoryExpanded = new Set(); // slugs whose row-detail is open
+let expandedSlugs = new Set(); // slugs whose row-detail is open
 
 function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 function getInventory() { return prefill.tournaments; }
@@ -504,7 +527,7 @@ function renderInventoryRow(t) {
 
   const hasChildren = t.sub_pages && t.sub_pages.length > 0;
   const isAssigned = !!state.assignments[t.slug];
-  const expanded = inventoryExpanded.has(t.slug);
+  const expanded = expandedSlugs.has(t.slug);
 
   const chevron = el('span', {
     class: hasChildren ? 'chevron' : 'chevron empty',
@@ -513,7 +536,7 @@ function renderInventoryRow(t) {
       click: (e) => {
         e.stopPropagation();
         if (!hasChildren) return;
-        if (expanded) inventoryExpanded.delete(t.slug); else inventoryExpanded.add(t.slug);
+        if (expanded) expandedSlugs.delete(t.slug); else expandedSlugs.add(t.slug);
         renderInventory();
       },
     },
@@ -581,12 +604,17 @@ function renderInventoryRow(t) {
 
 function renderInventory() {
   const filter = $('filter').value;
+  const showAssigned = $('show-assigned').checked;
   const list = $('inventory-list');
   const inventory = getInventory();
   const unassigned = getUnassigned();
-  const filtered = inventory.filter((t) => matchesFilter(t, filter));
+  const filtered = inventory.filter((t) => {
+    if (!showAssigned && state.assignments[t.slug]) return false;
+    return matchesFilter(t, filter);
+  });
 
-  $('inventory-count').textContent = `${filtered.length} / ${inventory.length} (${unassigned.length} unassigned)`;
+  const visibleTotal = showAssigned ? inventory.length : unassigned.length;
+  $('inventory-count').textContent = `${filtered.length} / ${visibleTotal}${showAssigned ? '' : ' unassigned'}`;
   list.replaceChildren();
 
   if (filtered.length === 0) {
@@ -597,9 +625,40 @@ function renderInventory() {
   for (const t of filtered) list.appendChild(renderInventoryRow(t));
 }
 
-function makeMemberChip(slug, brandSlug) {
+function makeMemberRow(slug, brandSlug) {
   const t = tournamentIdx.get(slug);
   const titleStr = t ? `${t.title} - year=${t.year} - mode=${t.mode}` : slug;
+  const hasChildren = !!(t && t.sub_pages && t.sub_pages.length > 0);
+  const expanded = expandedSlugs.has(slug);
+
+  const chevron = el('span', {
+    class: hasChildren ? 'chevron' : 'chevron empty',
+    text: expanded ? 'v' : '>',
+    on: {
+      click: (e) => {
+        e.stopPropagation();
+        if (!hasChildren) return;
+        if (expanded) expandedSlugs.delete(slug); else expandedSlugs.add(slug);
+        render();
+      },
+    },
+  });
+
+  const nameLink = el('a', {
+    class: 'member-link',
+    href: wikiUrl(slug),
+    target: '_blank',
+    rel: 'noopener',
+    text: slug,
+    title: titleStr,
+    on: { click: (e) => e.stopPropagation() },
+  });
+
+  const subBadge = hasChildren
+    ? el('span', { style: 'color:var(--fg-dim);font-size:10px', text: `+${t.sub_pages.length} sub` })
+    : el('span');
+  const wikiL = makeWikiLink(slug);
+
   const rm = el('span', {
     class: 'remove',
     text: 'x',
@@ -618,12 +677,29 @@ function makeMemberChip(slug, brandSlug) {
       },
     },
   });
-  const subPageCount = t && t.sub_pages ? t.sub_pages.length : 0;
-  return el('span', { class: 'member-chip', title: titleStr }, [
-    el('a', { href: wikiUrl(slug), target: '_blank', rel: 'noopener', style: 'color:inherit;text-decoration:none', text: slug, on: { click: (e) => e.stopPropagation() } }),
-    subPageCount > 0 ? el('span', { style: 'color:var(--fg-dim);font-size:9px', text: `+${subPageCount}` }) : null,
-    rm,
-  ]);
+
+  const head = el('div', { class: 'member-head' }, [chevron, nameLink, subBadge, wikiL, rm]);
+
+  const detailChildren = [];
+  if (t && t.admin) detailChildren.push(el('div', null, [
+    el('span', { class: 'label', text: 'admin: ' }),
+    el('span', { text: t.admin }),
+  ]));
+  if (t && t.intro_sentence) detailChildren.push(el('div', { class: 'intro' }, [
+    el('div', { class: 'label', text: 'intro' }),
+    el('div', { text: t.intro_sentence }),
+  ]));
+  if (hasChildren) {
+    detailChildren.push(el('div', { class: 'label', text: 'sub-pages' }));
+    detailChildren.push(el('div', { class: 'subpages' }, t.sub_pages.map((s) =>
+      el('span', { class: 'subpage-chip' }, [
+        el('a', { href: wikiUrl(s), target: '_blank', rel: 'noopener', text: subPageSuffix(s) }),
+      ]),
+    )));
+  }
+  const detail = el('div', { class: 'member-detail' }, detailChildren);
+
+  return el('div', { class: `member-row${expanded ? ' expanded' : ''}` }, [head, detail]);
 }
 
 function renderBrandCard(b) {
@@ -678,7 +754,7 @@ function renderBrandCard(b) {
       for (const m of flMembers) seen.add(m);
       const flDiv = el('div', { class: 'format-line' }, [
         el('div', { class: 'fl-label', text: `${fl.label} (${flMembers.length})` }),
-        el('div', { class: 'fl-members' }, flMembers.map((m) => makeMemberChip(m, b.slug))),
+        el('div', { class: 'fl-members' }, flMembers.map((m) => makeMemberRow(m, b.slug))),
       ]);
       body.appendChild(flDiv);
     }
@@ -686,12 +762,12 @@ function renderBrandCard(b) {
     if (orphans.length > 0) {
       const flDiv = el('div', { class: 'format-line' }, [
         el('div', { class: 'fl-label', text: `(unassigned format-line) (${orphans.length})` }),
-        el('div', { class: 'fl-members' }, orphans.map((m) => makeMemberChip(m, b.slug))),
+        el('div', { class: 'fl-members' }, orphans.map((m) => makeMemberRow(m, b.slug))),
       ]);
       body.appendChild(flDiv);
     }
   } else if (b.members.length > 0) {
-    body.appendChild(el('div', { class: 'fl-members' }, b.members.map((m) => makeMemberChip(m, b.slug))));
+    body.appendChild(el('div', { class: 'fl-members' }, b.members.map((m) => makeMemberRow(m, b.slug))));
   } else {
     body.appendChild(el('div', { class: 'empty-state', text: '(no members yet)' }));
   }
@@ -968,11 +1044,20 @@ function openEditBrandModal(brandSlug) {
 }
 
 $('filter').addEventListener('input', renderInventory);
+$('show-assigned').addEventListener('change', renderInventory);
 $('brand-filter').addEventListener('input', renderRoughSorted);
 
-$('select-all').addEventListener('change', (e) => {
+function getVisibleInventory() {
   const filter = $('filter').value;
-  const visible = getInventory().filter((t) => matchesFilter(t, filter));
+  const showAssigned = $('show-assigned').checked;
+  return getInventory().filter((t) => {
+    if (!showAssigned && state.assignments[t.slug]) return false;
+    return matchesFilter(t, filter);
+  });
+}
+
+$('select-all').addEventListener('change', (e) => {
+  const visible = getVisibleInventory();
   if (e.target.checked) for (const t of visible) selected.add(t.slug);
   else for (const t of visible) selected.delete(t.slug);
   render();
@@ -1043,7 +1128,7 @@ $('import-input').addEventListener('change', async (e) => {
     const newState = { brands: newBrands, assignments: parsed.assignments || {} };
     state = migrateState(newState);
     selected.clear();
-    inventoryExpanded.clear();
+    expandedSlugs.clear();
     persist();
     render();
   } catch (err) {
@@ -1059,7 +1144,7 @@ $('reset-btn').addEventListener('click', () => {
   localStorage.removeItem(LEGACY_STORAGE_KEY);
   state = buildInitialState();
   selected.clear();
-  inventoryExpanded.clear();
+  expandedSlugs.clear();
   render();
 });
 
