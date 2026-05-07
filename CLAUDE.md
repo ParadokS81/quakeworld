@@ -99,6 +99,9 @@ The user does not touch git. Claude runs all git operations silently -- no merge
 - The `docs-check` skill's Step 9.5 runs the same 5 checks (plus stale branches and remote-main pull) at session wrap-up. Together SessionStart and docs-check bracket every session so drift gets caught at the start OR at the end, whichever comes first.
 - `src-tauri/` rsync constraint: `.claude/settings.json` has a `PostToolUse` hook that fires `apps/slipgate-app/scripts/sync-rust.sh` whenever `slipgate-app/src-tauri/` is edited, and the script hardcodes `$HOME/projects/quakeworld/apps/slipgate-app`. Slipgate work MUST stay in the main tree. Never relocate slipgate to a worktree without updating both the hook command and the sync script.
 
+**Upstream PRs (outside this monorepo):**
+- For patches to upstream repos (ezquake-source / ktx / mvdsv / fte / anything outside this tree), follow Linux kernel coding-assistants conventions: AI must NOT add `Signed-off-by` -- the operator signs and certifies the DCO. Use `Assisted-by: Claude:<model-id>` for AI attribution instead of the internal `Co-Authored-By:` shape. Issues are exempt from DCO so an informal "Co-authored with Claude Code" footer is acceptable there; the discipline applies to PR commits. Reference: https://docs.kernel.org/process/coding-assistants.html. Detail at memory file `reference_upstream_pr_attribution.md`.
+
 ## WSL development environment
 
 All projects except slipgate-app run in WSL Ubuntu.

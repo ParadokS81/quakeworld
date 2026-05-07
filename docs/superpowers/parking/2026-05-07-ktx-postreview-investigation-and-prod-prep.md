@@ -214,3 +214,85 @@ Once Issues #1-#5 have a settled disposition (#1 + #2 + #3 fixed and merged; #4 
 - If the operator answers a question with a one-line answer, treat it as a hint to keep going, not a complete instruction. Re-anchor on the directive: thorough, not rushed; don't skip anything unless it has higher purpose.
 
 End of post-review investigation handoff. Fresh terminal: start with the three actions above, then proceed in priority order.
+
+---
+
+## Session 1 progress (2026-05-07; appended at session close)
+
+This terminal picked up the post-review work. Captures what shipped vs what's still pending so next session can resume cleanly.
+
+### Issue #1 -- KTX cvar embedding gap: ROOT-CAUSED, fix shape AGREED, implementation NOT YET DONE
+
+Two-bug compound. Wider blast radius than just KTX:
+
+- **Bug A (handler):** `apps/qw-oracle/scripts/extractors/ktx/_handler_cvars.py:169` hardcodes `"trailing_comment": None`. Docstring at line 49 frames as "KTX has no convention" -- false; live source has 75 KTX cvar registrations with trailing comments (sampled `world.c:772-824`). Per `feedback_audit_predictions_not_contracts.md`, this was a contributor-introduced misjudgment; the convention DOES exist, just not on every cvar.
+- **Bug B (deriver):** `derive-entity-description.ts:deriveCvar` reads only `help_desc` / `help_remarks` / `help_values`. Never consults `trailing_comment`. Pre-existing since Arc 1 (deriver authored for ezquake/FTE shape, never extended for code-only engines). MVDSV has been silently zero-coverage since onboarding.
+
+Live cross-engine state (verified via dev DB, 2026-05-07):
+
+| project | total_cvars | with_description | with_help_desc | with_trailing_comment | trailing_only_no_help_desc |
+|---|---|---|---|---|---|
+| ezquake | 2989 | 2223 | 2092 | 150 | 28 |
+| fte | 2482 | 1883 | 1883 | 0 | 0 |
+| ktx | 260 | 0 | 0 | 0 | 0 |
+| mvdsv | 183 | 0 | 0 | 35 | 35 |
+| qwcl | 187 | 0 | 0 | 0 | 0 |
+
+The fix unlocks ~138 cvars across three engines (KTX 75 + MVDSV 35 + ezquake-CODE_ONLY 28). QWCL is NOT covered by this fix -- see borrow arc below.
+
+**Fix shape (operator agreed: fallback-only semantics, NOT additive):**
+
+- **Part A (KTX handler).** Copy MVDSV's `_trailing_comment` helper into `_handler_cvars.py`, anchored on `;` after `RegisterCvar*(...)`. Replace line 169 hardcoded null. ~30-40 LOC. Pattern reference: `apps/qw-oracle/scripts/extractors/mvdsv/_handler_cvars.py:63-114` (anchor changes from `};` to `);`; otherwise identical logic).
+- **Part B (deriver).** Switch `deriveCvar` from `CONCAT_WS` additive to `COALESCE`-style fallback. JSON-derived sources first; trailing_comment only when JSON-side is empty. Effect on ezquake's 122 cvars-with-both: NO change (JSON keeps winning per operator preference). 28 trailing-only ezquake cvars gain new descriptions. ~5-line SQL change.
+- **Single commit per D16:** "fix description coverage gaps for cvars across KTX/MVDSV/ezquake".
+
+**Re-extract impact (projection):**
+- ~75 KTX descriptions new
+- ~35 MVDSV descriptions new
+- ~28 ezquake descriptions new (trailing-only cases)
+- Voyage cost: ~290 short-string embeddings, ~$0.05.
+- Dev-DB-only; rides the same prod dump as the rest of KTX.
+
+**Operator paused before code change.** Implementation is in agreed-shape state, awaiting "go". Next session: re-confirm and implement.
+
+### Side discoveries (filed / captured this session)
+
+1. **Issue #1117 follow-up comment filed.** 28 ezquake CODE_ONLY cvars (the symmetric direction to #1117's prune ask) surfaced as a comment on the existing issue: https://github.com/QW-Group/ezquake-source/issues/1117#issuecomment-4396819673. Pattern: server-side cluster (20 of 28 are sv_*-files), modern additions (2016-2020) still use the inline-comment-only convention -- likely deliberate client-only-doc convention. Body draft committed at `apps/qw-oracle/docs/upstream-prs/ezquake-help-json-coverage-gaps.md`. Awaiting slime's review tonight.
+
+2. **Slime requested actual PR conversion** for #1117. The issue shape has been fine, but slime confirmed via Discord (2026-05-07): "we need to make an actual PR not just an issue". This is a NEW task: build PR(s) from the cleanup digest at `apps/qw-oracle/docs/upstream-prs/ezquake-help-json-cleanup.md`. PR shape (one PR vs three vs other) still awaiting his nightly review. Eventual PR commit uses kernel coding-assistants attribution: `Signed-off-by: David Larsen <david.larsen.1981@gmail.com>` from operator + `Assisted-by: Claude:claude-opus-4-7`. Convention anchored in CLAUDE.md "Upstream PRs (outside this monorepo)" subsection + memory file `reference_upstream_pr_attribution.md` + PreToolUse hook live this session (see below).
+
+3. **QWCL cross-engine description borrow opportunity** -- separate arc, parked at `docs/superpowers/parking/2026-05-07-qwcl-cross-engine-description-borrow.md`. 156 of 187 QWCL cvars (83%) have name-matches with documented ezquake cvars; clean implementation is one column on `cvar_versions` (`description_inherited_canonical_id`) + deriver fallback + backfill script. Ships AFTER the trailing-comment fix per "narrow arc before broad". Open questions in the parking doc: also extend to MVDSV/FTE/KTX where applicable.
+
+4. **Pattern analysis on #1117's "renamed" bucket** revealed three sub-patterns: (A) cosmetic client-side renames (cfg_browser_* -> file_browser_*) where new names have rephrased help-JSON entries; (B) server-side renames (sv_timeout -> timeout) where new names lose help-JSON coverage entirely (CODE_ONLY going forward, with only trailing comments as docs source); (C) semantic merges that look like renames (serverstatus -> status). #1117's prune ask removes drift on (A) safely, but on (B) leaves the renamed cvars with no help-JSON description -- which is the same root pattern as the 28 CODE_ONLY observation in our follow-up comment.
+
+### Hook for upstream-PR convention enforcement (LIVE this session)
+
+`PreToolUse` hook on `Bash` matcher with `if`-filtered entries for `Bash(gh pr create*)` and `Bash(gh pr edit*)`. Both fire `~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh`, exit 2 to block the call and feed the reminder back. Convention: AI does NOT add `Signed-off-by`; operator signs and certifies DCO; use `Assisted-by: Claude:<model-id>`. Hook is project-scoped to this monorepo. Verified by triggering during installation (both `gh pr create --help` and `gh pr edit --help` blocked; `gh pr list` passed through cleanly). The eventual #1117 PR conversion will fire this hook -- apply convention per CLAUDE.md and proceed.
+
+### Still pending from original list (Issues #2 / #3 / #4 / #5 / #6 / #7)
+
+Unchanged; re-read the parking doc body above for shape:
+
+- **#2:** match_event embedding gap (7 rows, no deriver). Operator decision: write `deriveMatchEvent` vs accept name-fallback parallel to ruleset/keyname.
+- **#3:** gameplay_taxonomies parallel-stat fix (D.3.1; <30 LOC per Pattern 13 precedent).
+- **#4:** orientation blob update (operator decision; previous-terminal edit awaiting their call).
+- **#5:** run idempotency-ktx.sh (smoke; this terminal CAN run it via `docker exec`).
+- **#6:** 5 pre-existing ezquake F1 FAILs (deferred per review).
+- **#7:** KTX handler class-name shape inconsistency (cosmetic, deferred).
+
+### Working-tree state at session close
+
+23 uncommitted preserved (operator's MCP-API + qwiki WIP). This session's commits:
+- `084ee28d` (carried in from session 0): KTX post-review investigation handoff parking doc
+- All other session-1 work was committed via the docs-check wrap-up at the END of session 0 (commit `ee834790`); session 1 did NOT mutate the operator-fenced files
+- Session 1 added: comment on #1117 (filed via gh, no local commit), parking doc for borrow arc (uncommitted at session close per "wrap up before context reset" handoff plan)
+
+Note for next session: the borrow arc parking doc + this session-1 progress addendum are uncommitted at handoff time. Wrap them in the next session's first commit if appropriate.
+
+### Next session -- first three actions
+
+1. **Re-read this parking doc end-to-end** (cold pickup) plus the sibling borrow arc parking doc.
+2. **Re-confirm with operator: ready to implement the trailing-comment fix?** Per the agreed fallback-only shape, single commit. Then re-run `extract-tag` (KTX), re-derive, re-embed, F1 grid for KTX + MVDSV + ezquake.
+3. **After trailing-comment fix lands**, decide order for the remaining issues: #2 (match_event), #3 (parallel-stat), #5 (idempotency smoke), #4 (orientation), then prod deploy. The QWCL borrow arc is a separate session/arc per the borrow parking doc.
+
+Hook will fire on any `gh pr create` / `gh pr edit` when the eventual #1117 PR conversion happens -- apply Signed-off-by + Assisted-by per convention and proceed.
