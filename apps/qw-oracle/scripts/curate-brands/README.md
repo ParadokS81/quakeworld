@@ -66,13 +66,17 @@ Pre-fills brand assignments from wiki navbox templates, then surfaces what's lef
 - 309 top-level tournaments unassigned (manual curation candidates)
 - 10 navboxes flagged as "no clean brand-overview match" (operator review at curation time)
 
-## Sub-page detection rule
+## Sub-page detection rules
 
-A sub-page is an article whose slug ends with `__<suffix>` where:
+Two complementary rules nest sibling pages under their parent:
+
+**Rule 1 — `__<metadata-tab-suffix>`** (the wiki's `/Subpage` URL-encoded as `__` in the snapshot). An article qualifies as a sub-page when:
 - the parent slug (everything before the LAST `__`) exists as another article in the snapshot, AND
 - the suffix matches a metadata-tab pattern: `Division_N` / `Group_X` / `Information` / `InfoRules` / `Rules` / `Playoffs` / `standings` / `results` / `Schedule` / `signups` / `Teams` / `players` / `bracket` / `draft`.
 
-This rule preserves real-tournament hierarchical names (`The_Big_4__Season_1`, `Quakeworld_Eternal__Dm3`) as top-level while nesting metadata-tab sub-pages under their parent.
+This preserves real-tournament hierarchical names (`The_Big_4__Season_1`, `Quakeworld_Eternal__Dm3`) as top-level while nesting metadata-tab sub-pages under their parent.
+
+**Rule 2 — `{{Tabs static}}` template.** When an article uses `{{Tabs static |link1=<parent> |link2..linkN=<siblings>|...}}` (the wiki's tabbed-page pattern), `link1` is the parent and the rest are sub-pages. Catches cases like `Kombat_Duel_2` + `Kombat_Duel_2_Monday/Tuesday/Wed/Thu` where the daily pages share a name prefix but are independent articles linked via tabs (no `/Subpage` URL-encoding involved).
 
 ## Reference
 

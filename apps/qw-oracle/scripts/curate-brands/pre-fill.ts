@@ -147,6 +147,29 @@ function extractNavboxRefs(wikitext: string): string[] {
   return [...new Set(matches.map((m) => m[1].trim()))];
 }
 
+// {{Tabs static}} is the wiki's preferred pattern for "this page is one of N
+// sibling tab-pages." Convention: `link1=<parent / Overview slug>`,
+// `link2..linkK=<sibling tab slugs>`. We treat link1 as the parent and the
+// rest as its sub-pages. The same Tabs static block typically appears in all
+// sibling pages with a different `This=` index, so dedup is required.
+function extractTabsStaticLinks(wikitext: string): { parent: string; siblings: string[] } | null {
+  const m = wikitext.match(/\{\{\s*Tabs static\s*([\s\S]*?)\}\}/i);
+  if (!m) return null;
+  const body = m[1];
+  const links: { idx: number; value: string }[] = [];
+  for (const lm of body.matchAll(/\|\s*link(\d+)\s*=\s*([^\n|}]+)/g)) {
+    const idx = parseInt(lm[1], 10);
+    const value = lm[2].trim().replace(/ /g, '_');
+    if (value) links.push({ idx, value });
+  }
+  if (links.length < 2) return null;
+  links.sort((a, b) => a.idx - b.idx);
+  return {
+    parent: links[0].value,
+    siblings: links.slice(1).map((l) => l.value),
+  };
+}
+
 function detectBrandInfobox(wikitext: string): boolean {
   return BRAND_INFOBOX_TEMPLATES.some((t) => wikitext.includes(`{{${t}`));
 }
@@ -207,12 +230,18 @@ console.log('Reading articles...');
 const articleFiles = readdirSync(ARTICLES_DIR).filter((f) => f.endsWith('.json'));
 const articleSet = new Set<string>();
 const allTournamentArticles: any[] = []; // top-level + sub-pages combined
+const tabsStaticDeclarations: { parent: string; siblings: string[] }[] = [];
 
 for (const file of articleFiles) {
   const article = readJson(join(ARTICLES_DIR, file));
   if (!article) continue;
   const slug = file.replace(/\.json$/, '');
   articleSet.add(slug);
+
+  // Collect Tabs static declarations from any article (not just tournament-shape).
+  const tabs = extractTabsStaticLinks(article.wikitext);
+  if (tabs) tabsStaticDeclarations.push(tabs);
+
   const cats = article.categories ?? [];
   let isT = false;
   for (const c of cats) {
@@ -236,31 +265,54 @@ for (const file of articleFiles) {
   });
 }
 console.log(`  ${allTournamentArticles.length} tournament-shape articles found (top-level + sub-pages).`);
+console.log(`  ${tabsStaticDeclarations.length} Tabs-static blocks captured.`);
 
-// Partition top-level vs sub-pages and build the parent->children index.
-// A sub-page is an article whose slug ends with `__<suffix>` where:
-//   (a) `<parent-before-last-__>` exists as another article in the snapshot, AND
-//   (b) `<suffix>` matches a known metadata-tab pattern (Division_N / Information
-//       / Playoffs / Rules / Groups / etc.).
-// This rule preserves real-tournament hierarchical names (`The_Big_4__Season_1`,
-// `Quakeworld_Eternal__Dm3`) as top-level while nesting metadata-tab sub-pages
-// under their parent.
+// Build the parent->children sub-page index from TWO detection rules:
+//
+//   1. URL-encoded `__` slug: an article whose slug ends with `__<suffix>` where
+//      (a) `<parent-before-last-__>` exists as another article in the snapshot,
+//      (b) `<suffix>` matches a known metadata-tab pattern (Division_N /
+//          Information / Playoffs / Rules / Groups / etc.).
+//      This catches the wiki's `/Subpage` convention (URL-encoded as `__`).
+//
+//   2. {{Tabs static}} template: when an article declares
+//      `link1=<parent> link2..linkN=<sibling tab pages>`, the siblings are
+//      sub-pages of `link1`. This catches the wiki's tabbed-page convention
+//      (Kombat_Duel_2 + Kombat_Duel_2_Monday/Tuesday/Wed/Thu) where pages
+//      share a name prefix but are independent articles linked via tabs.
+//
+// Real-tournament hierarchical names (`The_Big_4__Season_1`,
+// `Quakeworld_Eternal__Dm3`) without metadata-tab suffixes stay top-level.
 const METADATA_TAB_RE = /^(division[_-]?[a-z0-9]+|group[_-]?[a-z0-9]*|groups|information|info[_-]?rules?[_-]*|rules?[_-]*|standings?|results?|schedule|signups?|teams?|players?|bracket|draft|playoffs?)$/i;
 const subPagesByParent = new Map<string, string[]>();
-const topLevelTournaments: any[] = [];
+const subPageSlugs = new Set<string>();
+
+function addSubPage(parent: string, child: string) {
+  if (parent === child) return;
+  if (!articleSet.has(parent) || !articleSet.has(child)) return;
+  if (!subPagesByParent.has(parent)) subPagesByParent.set(parent, []);
+  const arr = subPagesByParent.get(parent)!;
+  if (!arr.includes(child)) arr.push(child);
+  subPageSlugs.add(child);
+}
+
+// Rule 1: __<metadata-tab-suffix>
 for (const t of allTournamentArticles) {
   const lastSplit = t.slug.lastIndexOf('__');
-  if (lastSplit > 0) {
-    const parent = t.slug.substring(0, lastSplit);
-    const suffix = t.slug.substring(lastSplit + 2);
-    if (articleSet.has(parent) && METADATA_TAB_RE.test(suffix)) {
-      if (!subPagesByParent.has(parent)) subPagesByParent.set(parent, []);
-      subPagesByParent.get(parent)!.push(t.slug);
-      continue;
-    }
+  if (lastSplit <= 0) continue;
+  const parent = t.slug.substring(0, lastSplit);
+  const suffix = t.slug.substring(lastSplit + 2);
+  if (articleSet.has(parent) && METADATA_TAB_RE.test(suffix)) {
+    addSubPage(parent, t.slug);
   }
-  topLevelTournaments.push(t);
 }
+
+// Rule 2: {{Tabs static}} link1=parent, link2..linkN=siblings
+for (const tabs of tabsStaticDeclarations) {
+  for (const sib of tabs.siblings) addSubPage(tabs.parent, sib);
+}
+
+const topLevelTournaments = allTournamentArticles.filter((t) => !subPageSlugs.has(t.slug));
 
 // Attach sub_pages array to each top-level article (informational; UI nests
 // children under parent on chevron expand).
