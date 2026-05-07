@@ -442,7 +442,8 @@ let state = (function () {
 })();
 
 let selected = new Set();
-let expandedSlugs = new Set(); // slugs whose row-detail is open
+let expandedSlugs = new Set(); // article slugs whose row-detail is open
+let expandedBrands = new Set(); // brand-card slugs whose card body is open
 
 function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 function getInventory() { return prefill.tournaments; }
@@ -703,7 +704,8 @@ function makeMemberRow(slug, brandSlug) {
 }
 
 function renderBrandCard(b) {
-  const card = el('div', { class: `brand-card ${b.type}${b.members.length === 0 ? ' empty' : ''}` });
+  const isExpanded = expandedBrands.has(b.slug);
+  const card = el('div', { class: `brand-card ${b.type}${b.members.length === 0 ? ' empty' : ''}${isExpanded ? ' expanded' : ''}` });
 
   const name = el('div', { class: 'name' }, [
     el('span', { text: b.label }),
@@ -743,7 +745,11 @@ function renderBrandCard(b) {
   const actions = el('div', { class: 'actions' }, [promoteBtn, editBtn, delBtn]);
 
   const head = el('div', { class: 'brand-card-head' }, [mainCol, actions]);
-  head.addEventListener('click', () => card.classList.toggle('expanded'));
+  head.addEventListener('click', () => {
+    if (expandedBrands.has(b.slug)) expandedBrands.delete(b.slug);
+    else expandedBrands.add(b.slug);
+    card.classList.toggle('expanded');
+  });
 
   const body = el('div', { class: 'brand-card-body' });
   if (b.format_lines && b.format_lines.length > 0) {
@@ -1129,6 +1135,7 @@ $('import-input').addEventListener('change', async (e) => {
     state = migrateState(newState);
     selected.clear();
     expandedSlugs.clear();
+    expandedBrands.clear();
     persist();
     render();
   } catch (err) {
@@ -1145,6 +1152,7 @@ $('reset-btn').addEventListener('click', () => {
   state = buildInitialState();
   selected.clear();
   expandedSlugs.clear();
+  expandedBrands.clear();
   render();
 });
 
