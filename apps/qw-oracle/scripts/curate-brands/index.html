@@ -397,6 +397,58 @@ function buildInitialState() {
   return { brands, assignments };
 }
 
+// Merge new pre-fill auto-assignments into existing state. Adds:
+//   - new pre-fill brands not yet in state, with their unassigned members
+//   - new members to existing pre-fill brands when those slugs aren't
+//     currently assigned anywhere
+// Does NOT remove or modify existing operator data. This lets pre-fill.ts
+// improvements (new redirect resolutions, new sub-page rules, etc.) flow
+// into the tool without requiring a state reset.
+function reconcileWithPrefill(s) {
+  let added = 0;
+  for (const pb of prefill.brands_pre_filled) {
+    if (!s.brands[pb.slug]) {
+      const validMembers = pb.members.filter((m) => topLevelSlugs.has(m) && !s.assignments[m]);
+      s.brands[pb.slug] = {
+        slug: pb.slug,
+        label: pb.candidate_label,
+        brand_overview_slug: pb.brand_overview_slug,
+        navbox_slug: pb.navbox_slug,
+        members: validMembers,
+        format_lines: (pb.format_lines || []).map((fl) => ({
+          label: fl.label,
+          member_slugs: fl.member_slugs.filter((m) => validMembers.includes(m)),
+        })).filter((fl) => fl.member_slugs.length > 0),
+        type: pb.brand_overview_slug ? 'pre-filled' : 'synthesized',
+        state: 'rough-sorted',
+      };
+      for (const m of validMembers) s.assignments[m] = pb.slug;
+      added += validMembers.length;
+    } else {
+      const brand = s.brands[pb.slug];
+      for (const m of pb.members) {
+        if (!topLevelSlugs.has(m)) continue;
+        if (s.assignments[m]) continue;
+        if (brand.members.includes(m)) continue;
+        brand.members.push(m);
+        s.assignments[m] = pb.slug;
+        for (const flPb of pb.format_lines || []) {
+          if (!flPb.member_slugs.includes(m)) continue;
+          let fl = brand.format_lines.find((f) => f.label === flPb.label);
+          if (!fl) {
+            fl = { label: flPb.label, member_slugs: [] };
+            brand.format_lines.push(fl);
+          }
+          if (!fl.member_slugs.includes(m)) fl.member_slugs.push(m);
+        }
+        added += 1;
+      }
+    }
+  }
+  if (added > 0) console.info(`[curate-brands] auto-merged ${added} new pre-fill assignments into existing state`);
+  return s;
+}
+
 function migrateState(s) {
   // Drop any assignments whose slug is no longer a top-level curation unit
   // (e.g., it became a sub-page in v2 reclassification).
@@ -428,18 +480,20 @@ let state = (function () {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (parsed.brands && parsed.assignments) return migrateState(parsed);
+      if (parsed.brands && parsed.assignments) return reconcileWithPrefill(migrateState(parsed));
     }
     const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
     if (legacy) {
       const parsed = JSON.parse(legacy);
-      if (parsed.brands && parsed.assignments) return migrateState(parsed);
+      if (parsed.brands && parsed.assignments) return reconcileWithPrefill(migrateState(parsed));
     }
   } catch (e) {
     console.warn('localStorage parse failed', e);
   }
   return buildInitialState();
 })();
+// Persist the reconciled state so the merge sticks across reloads.
+try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
 
 let selected = new Set();
 let expandedSlugs = new Set(); // article slugs whose row-detail is open
