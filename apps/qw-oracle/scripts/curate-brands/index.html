@@ -365,7 +365,15 @@ for (const t of prefill.tournaments) tournamentIdx.set(t.slug, t);
 const topLevelSlugs = new Set(prefill.tournaments.map((t) => t.slug));
 
 function humanSlug(slug) { return slug.replace(/__/g, ' / ').replace(/_/g, ' '); }
-function wikiUrl(slug) { return 'https://www.quakeworld.nu/wiki/' + slug.replace(/__/g, '/'); }
+function wikiUrl(slug) {
+  // The snapshot filename collapses `!`, spaces, and other special chars to `_`,
+  // but the article's title preserves them. When we have the title, build the
+  // URL from it (spaces -> underscores, other chars unchanged) for accuracy.
+  // Falls back to slug-with-__-as-/ when the title isn't available (orphan slugs).
+  const title = prefill.article_titles && prefill.article_titles[slug];
+  if (title) return 'https://www.quakeworld.nu/wiki/' + title.replace(/ /g, '_');
+  return 'https://www.quakeworld.nu/wiki/' + slug.replace(/__/g, '/');
+}
 function subPageSuffix(slug) {
   const idx = slug.lastIndexOf('__');
   return idx >= 0 ? slug.substring(idx + 2).replace(/_/g, ' ') : slug;

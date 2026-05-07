@@ -229,6 +229,7 @@ function resolveSlug(slug: string, articleSet: Set<string>): string | null {
 console.log('Reading articles...');
 const articleFiles = readdirSync(ARTICLES_DIR).filter((f) => f.endsWith('.json'));
 const articleSet = new Set<string>();
+const articleTitles = new Map<string, string>();
 const allTournamentArticles: any[] = []; // top-level + sub-pages combined
 const tabsStaticDeclarations: { parent: string; siblings: string[] }[] = [];
 
@@ -237,6 +238,10 @@ for (const file of articleFiles) {
   if (!article) continue;
   const slug = file.replace(/\.json$/, '');
   articleSet.add(slug);
+  // Snapshot filenames lose distinctness for `!`, `?`, etc. (collapsed to `_`),
+  // but the article's title preserves them. Track the title so the UI can
+  // construct the real wiki URL (e.g., `GetQuad! Draft 1` -> `GetQuad!_Draft_1`).
+  if (article.title) articleTitles.set(slug, article.title);
 
   // Collect Tabs static declarations from any article (not just tournament-shape).
   const tabs = extractTabsStaticLinks(article.wikitext);
@@ -296,12 +301,15 @@ function addSubPage(parent: string, child: string) {
   subPageSlugs.add(child);
 }
 
-// Rule 1: __ split where parent is tournament-shape.
-for (const t of allTournamentArticles) {
-  const lastSplit = t.slug.lastIndexOf('__');
+// Rule 1: __ split where parent is tournament-shape. Iterates ALL articles
+// (not just tournament-shape) -- many real sub-pages have empty categories
+// of their own (e.g., `GetQuad__Draft_3__Coaching`, `GetQuad__Draft_3__Div1`)
+// and would be missed if we only scanned tournament-shape articles.
+for (const slug of articleSet) {
+  const lastSplit = slug.lastIndexOf('__');
   if (lastSplit <= 0) continue;
-  const parent = t.slug.substring(0, lastSplit);
-  if (tournamentShapeSlugs.has(parent)) addSubPage(parent, t.slug);
+  const parent = slug.substring(0, lastSplit);
+  if (tournamentShapeSlugs.has(parent)) addSubPage(parent, slug);
 }
 
 // Rule 2: {{Tabs static}} link1=parent, link2..linkN=siblings.
@@ -418,6 +426,22 @@ const emptyNavboxes = navboxes
   .filter((n) => n.groups.every((g: any) => g.members.length === 0))
   .map((n) => n.slug);
 
+// Only emit titles for slugs the UI will actually link to, to keep the
+// bundle size down (top-level tournaments + sub-pages + brand-overviews +
+// pre-filled bucket members).
+const linkedSlugs = new Set<string>();
+for (const t of cleanedTopLevelTournaments) linkedSlugs.add(t.slug);
+for (const arr of subPagesByParent.values()) for (const s of arr) linkedSlugs.add(s);
+for (const b of brandPreFills) {
+  if (b.brand_overview_slug) linkedSlugs.add(b.brand_overview_slug);
+  for (const m of b.members) linkedSlugs.add(m);
+}
+const linkedTitles: Record<string, string> = {};
+for (const s of linkedSlugs) {
+  const t = articleTitles.get(s);
+  if (t) linkedTitles[s] = t;
+}
+
 const output = {
   generated_at: new Date().toISOString(),
   snapshot: '2026-05-04',
@@ -425,6 +449,9 @@ const output = {
   // and ride along with their parent in the UI; they are not curation units.
   tournaments: cleanedTopLevelTournaments,
   sub_pages_by_parent: Object.fromEntries(subPagesByParent),
+  // slug -> wiki title, used by the UI to build the real wiki URL when the
+  // snapshot filename has lost distinctness from special characters.
+  article_titles: linkedTitles,
   brands_pre_filled: brandPreFills,
   unassigned,
   navboxes_with_no_brand_overview: navboxesWithNoBrandOverview,
