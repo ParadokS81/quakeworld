@@ -347,7 +347,13 @@ for (const navbox of navboxes) {
   const memberSet = new Set<string>();
   const formatLines: any[] = [];
   for (const group of navbox.groups) {
-    const validMembers = group.members.filter((m: string) => articleSet.has(m));
+    // Resolve member slugs through the redirect map -- the wiki frequently
+    // uses display-different-from-target wikilinks like
+    // `[[NQR ICC Season 1|ICC Season 1]]` where `NQR ICC Season 1` is a
+    // redirect to the actual article (`NQR_Invitational_Classic_Cup`).
+    const validMembers = group.members
+      .map((m: string) => resolveSlug(m, articleSet))
+      .filter((m: string | null): m is string => !!m);
     if (validMembers.length > 0) {
       formatLines.push({ label: group.label, member_slugs: validMembers });
       for (const m of validMembers) memberSet.add(m);
