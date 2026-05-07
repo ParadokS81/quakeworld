@@ -45,7 +45,7 @@ cross-file duplicates in finalize):
         "source_line": 845,
         "source_column": 2,
         "registration_api": "RegisterCvarEx",  # provenance for the bucket
-        "trailing_comment": null,    # KTX has no convention; reserve field
+        "trailing_comment": "...",   # `// ...` or `/* ... */` on the call line, else None
       }
     }
 
@@ -73,6 +73,61 @@ from extractor_lib._source import literal_string, read_extent  # noqa: E402
 # extent matches this regex, we look it up in self.file_macros (the
 # Phase 1 lifted depth-1 #include macro map).
 _MACRO_IDENT_RE = re.compile(r"^[A-Z_][A-Z0-9_]+$")
+
+
+def _trailing_comment(source_bytes: bytes, line: int) -> Optional[str]:
+    """Find a trailing `// ...` or `/* ... */` comment on the same line as
+    `line` in source_bytes. If a `//` trailing comment is followed by
+    subsequent lines that are pure `//`-prefixed (after whitespace), those
+    continuation lines are joined with single spaces.
+
+    Anchor: KTX cvars register via call sites (`RegisterCvar(...);` /
+    `RegisterCvarEx(...);`). Primary anchor is `);` (closing of the call
+    statement); defensive fallback is the last `;` (statement terminator)
+    in case `);` is absent.
+
+    Example (world.c:780-781):
+        RegisterCvar("_k_last_cycle_map");  // internal usage, name of last map in map cycle,
+                                            // so we can back to map cycle if someone voted ...
+    -> "internal usage, name of last map in map cycle, so we can back to map cycle if ..."
+
+    Mirrors MVDSV's helper shape (anchor `};` -> `);`); see
+    apps/qw-oracle/scripts/extractors/mvdsv/_handler_cvars.py:_trailing_comment
+    for the parent pattern.
+    """
+    text = source_bytes.decode("utf-8", errors="replace")
+    lines = text.splitlines()
+    if line - 1 < 0 or line - 1 >= len(lines):
+        return None
+    raw = lines[line - 1]
+    close_idx = raw.rfind(");")
+    if close_idx >= 0:
+        tail = raw[close_idx + 2:]
+    else:
+        semi_idx = raw.rfind(";")
+        tail = raw[semi_idx + 1:] if semi_idx >= 0 else raw
+    tail = tail.strip()
+
+    if tail.startswith("//"):
+        comment = tail[2:].strip()
+        # Multi-line continuation: subsequent lines that are pure `//` comment
+        # (after stripping leading whitespace).
+        i = line  # 1-based line; lines[line] is the next line (0-based).
+        while i < len(lines):
+            nxt = lines[i].strip()
+            if nxt.startswith("//"):
+                comment = (comment + " " + nxt[2:].strip()).strip()
+                i += 1
+            else:
+                break
+        return comment or None
+
+    if tail.startswith("/*"):
+        end = tail.find("*/", 2)
+        body = tail[2:end] if end >= 0 else tail[2:]
+        return body.strip() or None
+
+    return None
 
 
 class CvarsKtxHandler(Visitor):
@@ -148,6 +203,7 @@ class CvarsKtxHandler(Visitor):
 
         location = cursor.location
         rel_file = self._relative_source(location.file.name) if location.file else None
+        trailing = _trailing_comment(self.source_bytes, location.line)
 
         self._rows.append({
             "name": name,
@@ -166,7 +222,7 @@ class CvarsKtxHandler(Visitor):
                 "max_bound": None,
                 "storage_class": None,
                 "group_name_in_source": None,
-                "trailing_comment": None,
+                "trailing_comment": trailing,
             },
         })
         self._seen_in_file.add(name)

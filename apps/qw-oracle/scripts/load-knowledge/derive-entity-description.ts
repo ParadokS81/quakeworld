@@ -8,10 +8,15 @@
 //
 // Per-type sources (verified against db/migrations/002_layer1_schema.sql at
 // authoring time):
-//   cvar           -> help_desc + help_remarks + help_values[].description
-//                     (boolean value-names like true/false stripped, numeric
-//                     and enum names kept as `<name>: <description>` to
-//                     preserve mode-targeted query signal)
+//   cvar           -> help_desc + help_remarks + help_values[].description,
+//                     with trailing_comment as a fallback when the three
+//                     JSON-derived sources are all empty (boolean value-names
+//                     like true/false stripped, numeric and enum names kept
+//                     as `<name>: <description>` to preserve mode-targeted
+//                     query signal). The trailing_comment fallback unlocks
+//                     code-only engines (KTX / MVDSV) and code-only ezquake
+//                     cvars whose registration is documented inline rather
+//                     than in help_*.json.
 //   command        -> help_desc + help_remarks
 //   cmdline_param  -> help_desc + help_remarks
 //   macro / hud_element                                   -> help_desc
@@ -44,21 +49,33 @@ async function deriveCvar(tx: postgres.TransactionSql<{}>, project: Project, ver
   // `<name>: <description>` so queries like "noskins 2" still target the
   // right per-mode prose. NULLIF + CONCAT_WS handle the cases where any
   // of the three sources is absent without producing empty separators.
+  //
+  // Fallback: when all three JSON-derived sources are empty (NULLIF returns
+  // NULL), drop down to vt.trailing_comment (`// ...` harvested at extract
+  // time). This unlocks KTX (no help_*.json by design) and MVDSV (same)
+  // plus the ~28 ezquake CODE_ONLY cvars whose registration carries an
+  // inline `//` doc-string but no help_*.json entry. ezquake cvars with
+  // BOTH a JSON description and a trailing comment keep the JSON
+  // description: the operator preferred not to bolt code-comment text
+  // onto cvars that already have curated prose.
   await tx`
     UPDATE entities SET
-      description = NULLIF(CONCAT_WS('. ',
-        NULLIF(TRIM(vt.help_desc), ''),
-        NULLIF(TRIM(vt.help_remarks), ''),
-        (SELECT STRING_AGG(
-           CASE
-             WHEN lower(v->>'name') IN ('true','false','yes','no','on','off','*','') THEN v->>'description'
-             ELSE CONCAT(v->>'name', ': ', v->>'description')
-           END,
-           '. ' ORDER BY ordinality
-         )
-         FROM jsonb_array_elements(vt.help_values::jsonb) WITH ORDINALITY AS x(v, ordinality)
-         WHERE v->>'description' IS NOT NULL AND length(trim(v->>'description')) > 0)
-      ), ''),
+      description = COALESCE(
+        NULLIF(CONCAT_WS('. ',
+          NULLIF(TRIM(vt.help_desc), ''),
+          NULLIF(TRIM(vt.help_remarks), ''),
+          (SELECT STRING_AGG(
+             CASE
+               WHEN lower(v->>'name') IN ('true','false','yes','no','on','off','*','') THEN v->>'description'
+               ELSE CONCAT(v->>'name', ': ', v->>'description')
+             END,
+             '. ' ORDER BY ordinality
+           )
+           FROM jsonb_array_elements(vt.help_values::jsonb) WITH ORDINALITY AS x(v, ordinality)
+           WHERE v->>'description' IS NOT NULL AND length(trim(v->>'description')) > 0)
+        ), ''),
+        NULLIF(TRIM(vt.trailing_comment), '')
+      ),
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM cvar_versions vt
