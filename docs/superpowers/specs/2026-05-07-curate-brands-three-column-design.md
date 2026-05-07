@@ -63,20 +63,23 @@ Working sort. Light schema.
 
 **Bucket data shape:** `{label, member_slugs[], color, notes, created_at}`. No deep schema fields here -- those live on right-column promotion.
 
-### Column 3 (RIGHT) -- processed brands
+### Column 3 (RIGHT) -- promoted buckets (v1 minimal)
 
-Full schema target. State machine.
-
-**Per-card:**
+**v1 ships a placeholder column 3.** A destination for buckets that have been "promoted" from column 2. Per-card v1 surfaces:
 - Bucket label, member count.
-- State badge: `drafted` / `verified` / `committed`.
-- `last_verified_revision` timestamp (snapshot revision the verification was done against).
-- "Wiki-source changed" warning badge when wiki-diff CLI flags a member-article revision bump since last verification.
-- File-path link to brand-note `.md` at `apps/qw-oracle/curated/tournament-brand-notes/<slug>.md`.
+- "Promoted" state badge.
+- File-path link to brand-note `.md` at `apps/qw-oracle/curated/tournament-brand-notes/<slug>.md` (the file may or may not exist yet -- linked optimistically).
 
-**Promotion middle -> right is a state change;** brand-note authoring happens out-of-tool (operator's terminal session with Claude until volunteer-shape arrives in Phase 2). The tool is **tracker**, not **editor**.
+**The full column 3 design is deferred to a separate Phase B workflow brainstorm.** Open questions for that brainstorm (out of scope here):
+- How middle -> right promotion actually works (schema-field form? `.md` authoring affordance? wholly out-of-tool?).
+- Verification states + UX (`drafted` / `verified` / `committed` advancement triggers).
+- Bracket-parser integration for HoF generation.
+- Snapshot-diff staleness warnings on right-pane cards.
+- Volunteer-onboarding shape (does the tool become an authoring environment, or stay tracker-only?).
 
-### State machine per bucket
+The v1 minimal column 3 lets operator see "X buckets promoted" as a visual progress signal without committing to UX choices that are still in design.
+
+### State machine per bucket (v1)
 
 ```
 unsorted (column 1)
@@ -85,16 +88,12 @@ unsorted (column 1)
 rough-sorted (column 2)
    |  promote
    v
-drafted (column 3, .md file exists)
-   |  verify
-   v
-verified (column 3, manually checked against wiki)
-   |  commit
-   v
-committed (column 3, DB-loaded via migration loader)
+promoted (column 3 placeholder)
 ```
 
 State advances are explicit operator actions. No automatic transitions.
+
+The v1 state machine stops at `promoted`. Downstream states (`drafted` / `verified` / `committed`) are Phase B concerns and get designed in the Phase B workflow brainstorm. The state field in `brand-curation-state.json` is open-string-typed so Phase B can extend without a schema break.
 
 ### Sub-page handling
 
@@ -132,7 +131,7 @@ Coarse (revision-level) diff for v1. Section-hash upgrade is YAGNI deferred unti
 
 ## What v1 ships
 
-1. `apps/qw-oracle/scripts/curate-brands/index.html` -- three-column rewrite of the existing single-file vanilla-JS tool.
+1. `apps/qw-oracle/scripts/curate-brands/index.html` -- three-column rewrite of the existing single-file vanilla-JS tool. Columns 1 + 2 fully featured; column 3 minimal placeholder per the column-3 v1 section above.
 2. `apps/qw-oracle/scripts/curate-brands/pre-fill.ts` -- extension to additionally emit:
    - `sub_pages` tree per top-level article (slugs starting with `<parent>__`).
    - `admin` / `organizer` field from infobox.
@@ -142,13 +141,13 @@ Coarse (revision-level) diff for v1. Section-hash upgrade is YAGNI deferred unti
 
 ## What v1 explicitly does NOT ship
 
-- **In-tool brand-note authoring** (markdown editor, schema-fields form). Phase 2 -- when the tool moves to volunteer-onboarding shape.
+- **Full column 3 UX** (schema-field forms, brand-note authoring affordance, verification states, bracket-parser integration, snapshot-diff warnings). Deferred to the Phase B workflow brainstorm + a follow-up build pass.
 - **Drag/drop.** Click-to-assign + bulk-via-filter is sufficient for v1.
 - **Embedding-based new-page suggestion.** Deterministic fallbacks (navbox-match + name-substring-match) catch ~80%.
 - **Section-hash diff.** Coarse revision-level diff is the v1 cut.
 - **`wiki-diff.ts` CLI.** Spec-aware but deferred until first re-snapshot is needed.
 - **Bracket parser / HoF generator.** Phase B work, separate spec.
-- **Brand-note `.md` authoring.** Operator + Claude in terminal until volunteer-shape arrives.
+- **Brand-note `.md` authoring.** Operator + Claude in terminal until volunteer-shape arrives (also gated on Phase B brainstorm).
 - **Migration `012_tournament_brands.sql`.** Deferred until top 5 brands are processed end-to-end (stress-test the schema before committing).
 
 ## Decisions settled during brainstorm
@@ -173,12 +172,14 @@ All nullable. Brand-level HoF derives via JOIN on `brand_slug`.
 
 ## Sequencing
 
-1. **Now (this spec):** review + approve + transition to writing-plans for the v2 build.
-2. **Build pass (separate session):** v2 tool ship -- HTML + pre-fill.ts extension + initial state JSON. Single PR / commit chain.
-3. **Phase A run:** operator drives rough-sort, top-down by brand size. Captures handoff after 5-10 brands rough-sorted to validate the UX.
-4. **Phase B (per brand, separate sessions):** drain into schema -- author brand-note `.md`, capture structured fields, run bracket-parser for HoF when implemented. Top 5 brands end-to-end before migration 012 ships.
-5. **Phase C:** singletons + tail.
-6. **Volunteer handoff:** when Phase B has demonstrated end-to-end on top 5, document the playbook and open up volunteer participation.
+1. **Now (this spec):** review + approve + transition to writing-plans for the v1 build.
+2. **Build pass (separate session):** v1 tool ship -- HTML (columns 1 + 2 full, column 3 placeholder) + pre-fill.ts extension + initial state JSON. Single PR / commit chain.
+3. **Phase A run:** operator drives rough-sort, top-down by brand size. Captures handoff after 5-10 brands rough-sorted to validate the columns 1 + 2 UX in practice.
+4. **Phase B workflow brainstorm (fresh terminal):** design how middle -> right promotion + brand-note authoring + verification + bracket-parser integration actually works as an operator workflow. Output is a follow-up spec amending the column 3 section of this one.
+5. **Column 3 build pass:** ship the full column 3 UX per the Phase B spec.
+6. **Phase B per-brand drain (separate sessions):** top 5 brands end-to-end -- author brand-note `.md`, capture structured fields, run bracket-parser for HoF. Migration 012 ships when all 5 are stable.
+7. **Phase C:** singletons + tail.
+8. **Volunteer handoff:** when Phase B has demonstrated end-to-end on top 5, document the playbook and open up volunteer participation.
 
 ## References
 
