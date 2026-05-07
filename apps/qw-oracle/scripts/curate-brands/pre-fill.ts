@@ -89,6 +89,59 @@ function detectCompetitionType(wikitext: string): string | null {
   return null;
 }
 
+// Cleans common wikilink + {{player|...}} template syntax to plain names.
+// `{{player|name|flag=fi}}` -> `name`; `[[X|Display]]` -> `Display`.
+function cleanWikiNames(s: string): string {
+  return s
+    .replace(/\{\{player\|([^|}]+?)(?:\|[^}]*)?\}\}/gi, '$1')
+    .replace(/\{\{flag\|[^}]+\}\}/gi, '')
+    .replace(/\[\[([^\]|]+?)\|([^\]]+?)\]\]/g, '$2')
+    .replace(/\[\[([^\]]+?)\]\]/g, '$1')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+function extractAdmin(wikitext: string): string | null {
+  for (const field of ['admin', 'admins', 'organizer', 'organiser', 'organizers', 'organisers']) {
+    const v = extractField(wikitext, field);
+    if (v) {
+      const cleaned = cleanWikiNames(v);
+      if (cleaned) return cleaned;
+    }
+  }
+  return null;
+}
+
+// First non-template prose line. Strips template invocations, comments,
+// category links, and section headings, then returns the first non-empty
+// remaining line with wikilinks flattened.
+function extractIntroSentence(wikitext: string): string | null {
+  let text = wikitext;
+  let prev;
+  do {
+    prev = text;
+    text = text.replace(/\{\{[^{}]*?\}\}/gs, '');
+  } while (text !== prev);
+  text = text.replace(/<!--.*?-->/gs, '');
+  text = text.replace(/\[\[Category:[^\]]+\]\]/g, '');
+  text = text.replace(/^==+[^=\n]+==+\s*$/gm, '');
+  for (const raw of text.split('\n')) {
+    const line = raw.trim();
+    if (!line) continue;
+    if (line.startsWith('|') || line.startsWith('}}') || line.startsWith('{{') || line.startsWith('*') || line.startsWith('#')) continue;
+    const cleaned = line
+      .replace(/\[\[([^\]|]+?)\|([^\]]+?)\]\]/g, '$2')
+      .replace(/\[\[([^\]]+?)\]\]/g, '$1')
+      .replace(/'''([^']+)'''/g, '$1')
+      .replace(/''([^']+)''/g, '$1')
+      .replace(/<[^>]+>/g, '');
+    const trimmed = cleaned.trim();
+    if (trimmed.length < 10) continue; // skip stray fragments
+    return trimmed;
+  }
+  return null;
+}
+
 function extractNavboxRefs(wikitext: string): string[] {
   const matches = [...wikitext.matchAll(/\{\{([^}|\n]+?[Nn]avbox[^}|\n]*?)\}\}/g)];
   return [...new Set(matches.map((m) => m[1].trim()))];
@@ -153,7 +206,7 @@ function resolveSlug(slug: string, articleSet: Set<string>): string | null {
 console.log('Reading articles...');
 const articleFiles = readdirSync(ARTICLES_DIR).filter((f) => f.endsWith('.json'));
 const articleSet = new Set<string>();
-const tournamentArticles: any[] = [];
+const allTournamentArticles: any[] = []; // top-level + sub-pages combined
 
 for (const file of articleFiles) {
   const article = readJson(join(ARTICLES_DIR, file));
@@ -169,7 +222,7 @@ for (const file of articleFiles) {
     }
   }
   if (!isT) continue;
-  tournamentArticles.push({
+  allTournamentArticles.push({
     slug,
     title: article.title,
     year: extractYear(article),
@@ -178,9 +231,43 @@ for (const file of articleFiles) {
     competition_type: detectCompetitionType(article.wikitext),
     has_brand_infobox: detectBrandInfobox(article.wikitext),
     navbox_refs: extractNavboxRefs(article.wikitext),
+    admin: extractAdmin(article.wikitext),
+    intro_sentence: extractIntroSentence(article.wikitext),
   });
 }
-console.log(`  ${tournamentArticles.length} tournament-shape articles found.`);
+console.log(`  ${allTournamentArticles.length} tournament-shape articles found (top-level + sub-pages).`);
+
+// Partition top-level vs sub-pages and build the parent->children index.
+// A sub-page is an article whose slug ends with `__<suffix>` where:
+//   (a) `<parent-before-last-__>` exists as another article in the snapshot, AND
+//   (b) `<suffix>` matches a known metadata-tab pattern (Division_N / Information
+//       / Playoffs / Rules / Groups / etc.).
+// This rule preserves real-tournament hierarchical names (`The_Big_4__Season_1`,
+// `Quakeworld_Eternal__Dm3`) as top-level while nesting metadata-tab sub-pages
+// under their parent.
+const METADATA_TAB_RE = /^(division[_-]?[a-z0-9]+|group[_-]?[a-z0-9]*|groups|information|info[_-]?rules?[_-]*|rules?[_-]*|standings?|results?|schedule|signups?|teams?|players?|bracket|draft|playoffs?)$/i;
+const subPagesByParent = new Map<string, string[]>();
+const topLevelTournaments: any[] = [];
+for (const t of allTournamentArticles) {
+  const lastSplit = t.slug.lastIndexOf('__');
+  if (lastSplit > 0) {
+    const parent = t.slug.substring(0, lastSplit);
+    const suffix = t.slug.substring(lastSplit + 2);
+    if (articleSet.has(parent) && METADATA_TAB_RE.test(suffix)) {
+      if (!subPagesByParent.has(parent)) subPagesByParent.set(parent, []);
+      subPagesByParent.get(parent)!.push(t.slug);
+      continue;
+    }
+  }
+  topLevelTournaments.push(t);
+}
+
+// Attach sub_pages array to each top-level article (informational; UI nests
+// children under parent on chevron expand).
+for (const t of topLevelTournaments) {
+  t.sub_pages = subPagesByParent.get(t.slug) ?? [];
+}
+console.log(`  ${topLevelTournaments.length} top-level / ${allTournamentArticles.length - topLevelTournaments.length} sub-pages.`);
 
 console.log('Reading templates...');
 const templateFiles = readdirSync(TEMPLATES_DIR).filter((f) => f.endsWith('.json'));
@@ -239,7 +326,9 @@ for (const navbox of navboxes) {
   for (const m of memberSet) assignedTournaments.add(m);
 }
 
-const unassigned = tournamentArticles
+// Unassigned = top-level tournament articles not picked up by any navbox.
+// Sub-pages are not curation units (they ride along with their parent).
+const unassigned = topLevelTournaments
   .filter((t) => !assignedTournaments.has(t.slug))
   .map((t) => t.slug);
 
@@ -254,7 +343,10 @@ const emptyNavboxes = navboxes
 const output = {
   generated_at: new Date().toISOString(),
   snapshot: '2026-05-04',
-  tournaments: tournamentArticles,
+  // Top-level tournament articles only. Sub-pages live in `sub_pages_by_parent`
+  // and ride along with their parent in the UI; they are not curation units.
+  tournaments: topLevelTournaments,
+  sub_pages_by_parent: Object.fromEntries(subPagesByParent),
   brands_pre_filled: brandPreFills,
   unassigned,
   navboxes_with_no_brand_overview: navboxesWithNoBrandOverview,
@@ -272,9 +364,11 @@ writeFileSync(
 console.log(`\nWrote ${OUTPUT}`);
 console.log(`Wrote ${JS_OUTPUT}`);
 console.log('Stats:');
-console.log(`  total tournament articles: ${output.tournaments.length}`);
+console.log(`  top-level tournament articles: ${output.tournaments.length}`);
+console.log(`  sub-page articles: ${allTournamentArticles.length - output.tournaments.length}`);
+console.log(`  parents with sub-pages: ${subPagesByParent.size}`);
 console.log(`  brands pre-filled: ${output.brands_pre_filled.length}`);
 console.log(`  tournaments assigned: ${assignedTournaments.size}`);
-console.log(`  tournaments unassigned: ${output.unassigned.length}`);
+console.log(`  tournaments unassigned (top-level only): ${output.unassigned.length}`);
 console.log(`  navboxes with no brand overview: ${output.navboxes_with_no_brand_overview.length}`);
 console.log(`  empty navboxes: ${output.empty_navboxes.length}`);

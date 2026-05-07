@@ -16,6 +16,7 @@
   --good: #5fb364;
   --synth: #b58dd0;
   --bad: #d05c5c;
+  --promoted: #4aa3df;
 }
 * { box-sizing: border-box; }
 body {
@@ -53,6 +54,7 @@ button:hover { background: var(--border); }
 button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
 button.primary:hover { background: #5db4ec; }
 button.danger { background: var(--bad); color: #fff; border-color: var(--bad); }
+button.tiny { padding: 2px 6px; font-size: 11px; }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
 input[type="search"], input[type="text"], select {
   background: var(--bg-3);
@@ -69,11 +71,11 @@ input[type="search"]:focus, input[type="text"]:focus, select:focus {
 }
 main {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1.3fr 0.8fr;
   height: calc(100vh - 47px);
 }
-section { overflow: hidden; display: flex; flex-direction: column; }
-section.left { border-right: 1px solid var(--border); }
+section { overflow: hidden; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+section:last-child { border-right: none; }
 section h2 {
   margin: 0;
   padding: 10px 16px;
@@ -94,21 +96,64 @@ section h2 .count { color: var(--fg-dim); font-weight: normal; margin-left: 8px;
 .toolbar .row { display: flex; gap: 6px; align-items: center; }
 .toolbar .row input[type="search"] { flex: 1; }
 .list { overflow-y: auto; flex: 1; padding: 8px; }
+.section-header {
+  font-size: 11px;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 4px 2px 4px;
+  margin-top: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+.section-header .twist { display: inline-block; width: 10px; }
+.section-body.collapsed { display: none; }
 .row-item {
   background: var(--bg-2);
   border: 1px solid var(--border);
   border-radius: 3px;
-  padding: 6px 8px;
   margin-bottom: 4px;
-  cursor: pointer;
-  display: grid;
-  grid-template-columns: 16px 1fr auto;
-  gap: 8px;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
 }
-.row-item:hover { background: var(--bg-3); border-color: var(--accent); }
+.row-item .row-head {
+  padding: 6px 8px;
+  display: grid;
+  grid-template-columns: 14px 14px 1fr auto;
+  gap: 6px;
+  align-items: center;
+  cursor: pointer;
+}
+.row-item .row-head:hover { background: var(--bg-3); }
+.row-item.expanded { border-color: var(--accent); }
+.row-item .chevron { color: var(--fg-dim); cursor: pointer; user-select: none; width: 14px; text-align: center; }
+.row-item .chevron.empty { visibility: hidden; }
 .row-item .meta { color: var(--fg-dim); font-size: 11px; }
 .row-item .badges { display: flex; gap: 4px; flex-wrap: wrap; }
+.row-detail {
+  padding: 6px 14px 8px 34px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  display: none;
+  font-size: 12px;
+}
+.row-item.expanded .row-detail { display: block; }
+.row-detail .label { color: var(--fg-dim); font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 4px; }
+.row-detail .intro { color: var(--fg); margin-top: 2px; line-height: 1.4; }
+.row-detail .subpages { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.subpage-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-size: 10px;
+  color: var(--fg-dim);
+}
+.subpage-chip a { color: var(--fg-dim); text-decoration: none; }
+.subpage-chip a:hover { color: var(--accent); }
 .badge {
   display: inline-block;
   padding: 1px 6px;
@@ -122,7 +167,14 @@ section h2 .count { color: var(--fg-dim); font-weight: normal; margin-left: 8px;
 .badge.mode { background: #2a4a3a; color: #aca; }
 .badge.compt { background: #4a3a2a; color: #cca; }
 .badge.navbox { background: #2a2a4a; color: #aac; }
-.badge.brand-infobox { background: #4a2a4a; color: #caa; }
+.badge.subpages { background: #3a2a4a; color: #cac; }
+.wiki-link {
+  color: var(--fg-dim);
+  text-decoration: none;
+  font-size: 11px;
+  margin-left: 4px;
+}
+.wiki-link:hover { color: var(--accent); }
 .brand-card {
   background: var(--bg-2);
   border: 1px solid var(--border);
@@ -170,6 +222,17 @@ section h2 .count { color: var(--fg-dim); font-weight: normal; margin-left: 8px;
   color: var(--bad);
   margin-left: 2px;
 }
+.promoted-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--promoted);
+  border-radius: 3px;
+  margin-bottom: 6px;
+  padding: 8px 12px;
+}
+.promoted-card .name { font-weight: 600; }
+.promoted-card .meta { color: var(--fg-dim); font-size: 11px; margin-top: 2px; }
+.promoted-card .actions { margin-top: 6px; display: flex; gap: 4px; }
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -212,16 +275,18 @@ section h2 .count { color: var(--fg-dim); font-weight: normal; margin-left: 8px;
     <span><span class="legend-swatch" style="background: var(--good)"></span>wiki brand-page</span>
     <span><span class="legend-swatch" style="background: var(--synth)"></span>synthesized</span>
     <span><span class="legend-swatch" style="background: var(--warn)"></span>empty</span>
+    <span><span class="legend-swatch" style="background: var(--promoted)"></span>promoted</span>
   </div>
   <div class="actions">
+    <button id="import-btn">Import JSON</button>
     <button id="export-btn" class="primary">Export JSON</button>
     <button id="reset-btn" class="danger">Reset state</button>
   </div>
 </header>
 
 <main>
-  <section class="left">
-    <h2>Unassigned <span class="count" id="unassigned-count">0</span></h2>
+  <section class="col1">
+    <h2>Wiki inventory <span class="count" id="inventory-count">0</span></h2>
     <div class="toolbar">
       <div class="row">
         <input type="search" id="filter" placeholder="filter by slug / year / mode / navbox-ref..." />
@@ -230,31 +295,38 @@ section h2 .count { color: var(--fg-dim); font-weight: normal; margin-left: 8px;
         <input type="checkbox" id="select-all" />
         <label for="select-all" style="font-size:11px;color:var(--fg-dim)">select all visible</label>
         <span style="margin-left:auto;font-size:11px;color:var(--fg-dim)" id="selected-count">0 selected</span>
-        <button id="bulk-assign-btn" disabled>Assign selected to brand</button>
+        <button id="bulk-assign-btn" disabled>Assign selected</button>
       </div>
     </div>
-    <div class="list" id="unassigned-list"></div>
+    <div class="list" id="inventory-list"></div>
   </section>
 
-  <section class="right">
-    <h2>Brands <span class="count" id="brands-count">0</span></h2>
+  <section class="col2">
+    <h2>Rough-sorted <span class="count" id="rough-count">0</span></h2>
     <div class="toolbar">
       <div class="row">
-        <input type="search" id="brand-filter" placeholder="filter brands..." />
-        <button id="new-brand-btn">+ New synthesized brand</button>
+        <input type="search" id="brand-filter" placeholder="filter buckets..." />
+        <button id="new-brand-btn">+ New bucket</button>
       </div>
     </div>
-    <div class="list" id="brands-list"></div>
+    <div class="list" id="rough-list"></div>
+  </section>
+
+  <section class="col3">
+    <h2>Promoted <span class="count" id="promoted-count">0</span></h2>
+    <div class="list" id="promoted-list"></div>
   </section>
 </main>
 
+<input type="file" id="import-input" accept="application/json" style="display:none" />
 <div id="modal-mount"></div>
 
 <script src="brand-pre-fill.js"></script>
 <script>
 'use strict';
 
-const STORAGE_KEY = 'qw-brand-curator-state-v1';
+const STORAGE_KEY = 'qw-brand-curator-state-v2';
+const LEGACY_STORAGE_KEY = 'qw-brand-curator-state-v1';
 
 const prefill = window.BRAND_PREFILL;
 if (!prefill) {
@@ -267,23 +339,65 @@ if (!prefill) {
 
 const tournamentIdx = new Map();
 for (const t of prefill.tournaments) tournamentIdx.set(t.slug, t);
+const topLevelSlugs = new Set(prefill.tournaments.map((t) => t.slug));
+
+function humanSlug(slug) { return slug.replace(/__/g, ' / ').replace(/_/g, ' '); }
+function wikiUrl(slug) { return 'https://www.quakeworld.nu/wiki/' + slug.replace(/__/g, '/'); }
+function subPageSuffix(slug) {
+  const idx = slug.lastIndexOf('__');
+  return idx >= 0 ? slug.substring(idx + 2).replace(/_/g, ' ') : slug;
+}
 
 function buildInitialState() {
   const brands = {};
   const assignments = {};
   for (const b of prefill.brands_pre_filled) {
+    // Filter out any pre-filled members that aren't top-level curation units
+    // (in case a navbox listed a sub-page slug).
+    const validMembers = b.members.filter((m) => topLevelSlugs.has(m));
+    const validFormatLines = (b.format_lines || []).map((fl) => ({
+      label: fl.label,
+      member_slugs: fl.member_slugs.filter((m) => topLevelSlugs.has(m)),
+    })).filter((fl) => fl.member_slugs.length > 0);
     brands[b.slug] = {
       slug: b.slug,
       label: b.candidate_label,
       brand_overview_slug: b.brand_overview_slug,
       navbox_slug: b.navbox_slug,
-      members: [...b.members],
-      format_lines: b.format_lines,
+      members: validMembers,
+      format_lines: validFormatLines,
       type: b.brand_overview_slug ? 'pre-filled' : 'synthesized',
+      state: 'rough-sorted',
     };
-    for (const m of b.members) assignments[m] = b.slug;
+    for (const m of validMembers) assignments[m] = b.slug;
   }
   return { brands, assignments };
+}
+
+function migrateState(s) {
+  // Drop any assignments whose slug is no longer a top-level curation unit
+  // (e.g., it became a sub-page in v2 reclassification).
+  const cleanAssignments = {};
+  for (const [slug, brandSlug] of Object.entries(s.assignments || {})) {
+    if (topLevelSlugs.has(slug)) cleanAssignments[slug] = brandSlug;
+  }
+  const cleanBrands = {};
+  for (const [bs, b] of Object.entries(s.brands || {})) {
+    cleanBrands[bs] = {
+      slug: b.slug,
+      label: b.label,
+      brand_overview_slug: b.brand_overview_slug ?? null,
+      navbox_slug: b.navbox_slug ?? null,
+      members: (b.members || []).filter((m) => topLevelSlugs.has(m)),
+      format_lines: (b.format_lines || []).map((fl) => ({
+        label: fl.label,
+        member_slugs: fl.member_slugs.filter((m) => topLevelSlugs.has(m)),
+      })).filter((fl) => fl.member_slugs.length > 0),
+      type: b.type ?? 'synthesized',
+      state: b.state ?? 'rough-sorted',
+    };
+  }
+  return { brands: cleanBrands, assignments: cleanAssignments };
 }
 
 let state = (function () {
@@ -291,7 +405,12 @@ let state = (function () {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (parsed.brands && parsed.assignments) return parsed;
+      if (parsed.brands && parsed.assignments) return migrateState(parsed);
+    }
+    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (legacy) {
+      const parsed = JSON.parse(legacy);
+      if (parsed.brands && parsed.assignments) return migrateState(parsed);
     }
   } catch (e) {
     console.warn('localStorage parse failed', e);
@@ -300,8 +419,10 @@ let state = (function () {
 })();
 
 let selected = new Set();
+let inventoryExpanded = new Set(); // slugs whose row-detail is open
 
 function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function getInventory() { return prefill.tournaments; }
 function getUnassigned() { return prefill.tournaments.filter((t) => !state.assignments[t.slug]); }
 function $(id) { return document.getElementById(id); }
 
@@ -317,7 +438,7 @@ function el(tag, props, children) {
       } else if (k === 'text') e.textContent = v;
       else if (k === 'value') e.value = v;
       else if (k === 'checked') e.checked = v;
-      else if (k === 'placeholder' || k === 'type' || k === 'title' || k === 'href' || k === 'download') e.setAttribute(k, v);
+      else if (k === 'placeholder' || k === 'type' || k === 'title' || k === 'href' || k === 'download' || k === 'target' || k === 'rel') e.setAttribute(k, v);
       else e.setAttribute(k, v);
     }
   }
@@ -334,6 +455,18 @@ function makeBadge(cls, text) {
   return el('span', { class: `badge ${cls}`, text: String(text) });
 }
 
+function makeWikiLink(slug, text) {
+  return el('a', {
+    class: 'wiki-link',
+    href: wikiUrl(slug),
+    target: '_blank',
+    rel: 'noopener',
+    title: 'open on wiki',
+    text: text || 'wiki',
+    on: { click: (e) => e.stopPropagation() },
+  });
+}
+
 function matchesFilter(t, q) {
   if (!q) return true;
   q = q.toLowerCase();
@@ -343,6 +476,7 @@ function matchesFilter(t, q) {
   if (t.mode && t.mode.toLowerCase().includes(q)) return true;
   if (t.competition_type && t.competition_type.toLowerCase().includes(q)) return true;
   if (t.navbox_refs && t.navbox_refs.some((r) => r.toLowerCase().includes(q))) return true;
+  if (t.admin && t.admin.toLowerCase().includes(q)) return true;
   return false;
 }
 
@@ -354,13 +488,105 @@ function brandMatchesFilter(b, q) {
     || (b.brand_overview_slug && b.brand_overview_slug.toLowerCase().includes(q));
 }
 
-function renderUnassigned() {
-  const filter = $('filter').value;
-  const list = $('unassigned-list');
-  const unassigned = getUnassigned();
-  const filtered = unassigned.filter((t) => matchesFilter(t, filter));
+function renderInventoryRow(t) {
+  const cb = el('input', {
+    type: 'checkbox',
+    checked: selected.has(t.slug),
+    on: {
+      click: (e) => e.stopPropagation(),
+      change: (e) => {
+        if (e.target.checked) selected.add(t.slug);
+        else selected.delete(t.slug);
+        updateSelectionUI();
+      },
+    },
+  });
 
-  $('unassigned-count').textContent = `${filtered.length} / ${unassigned.length}`;
+  const hasChildren = t.sub_pages && t.sub_pages.length > 0;
+  const isAssigned = !!state.assignments[t.slug];
+  const expanded = inventoryExpanded.has(t.slug);
+
+  const chevron = el('span', {
+    class: hasChildren ? 'chevron' : 'chevron empty',
+    text: expanded ? 'v' : '>',
+    on: {
+      click: (e) => {
+        e.stopPropagation();
+        if (!hasChildren) return;
+        if (expanded) inventoryExpanded.delete(t.slug); else inventoryExpanded.add(t.slug);
+        renderInventory();
+      },
+    },
+  });
+
+  const slugEl = el('div', { style: 'font-weight:600' }, [
+    el('span', { text: humanSlug(t.slug) }),
+    makeWikiLink(t.slug),
+  ]);
+  const titleText = t.title && t.title !== humanSlug(t.slug) ? t.title : '';
+  const mainCol = el('div', null, [
+    slugEl,
+    titleText ? el('div', { class: 'meta', text: titleText }) : null,
+    isAssigned ? el('div', { class: 'meta', style: 'color:var(--good)', text: `assigned to: ${state.brands[state.assignments[t.slug]]?.label ?? state.assignments[t.slug]}` }) : null,
+  ]);
+
+  const badges = [];
+  if (t.year) badges.push(makeBadge('year', t.year));
+  if (t.mode) badges.push(makeBadge('mode', t.mode));
+  if (t.competition_type) badges.push(makeBadge('compt', t.competition_type));
+  if (hasChildren) badges.push(makeBadge('subpages', `+${t.sub_pages.length} sub`));
+  for (const r of t.navbox_refs || []) {
+    const text = r.replace(/[Nn]avbox/g, '').trim() || r;
+    badges.push(makeBadge('navbox', text));
+  }
+  const badgesEl = el('div', { class: 'badges' }, badges);
+
+  const head = el('div', {
+    class: 'row-head',
+    on: {
+      click: (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'A') return;
+        if (e.target.classList.contains('chevron')) return;
+        openAssignModal([t.slug]);
+      },
+    },
+  }, [chevron, cb, mainCol, badgesEl]);
+
+  const detailChildren = [];
+  if (t.admin) detailChildren.push(el('div', null, [
+    el('span', { class: 'label', text: 'admin: ' }),
+    el('span', { text: t.admin }),
+  ]));
+  if (t.intro_sentence) detailChildren.push(el('div', { class: 'intro' }, [
+    el('div', { class: 'label', text: 'intro' }),
+    el('div', { text: t.intro_sentence }),
+  ]));
+  if (hasChildren) {
+    detailChildren.push(el('div', { class: 'label', text: 'sub-pages' }));
+    detailChildren.push(el('div', { class: 'subpages' }, t.sub_pages.map((s) =>
+      el('span', { class: 'subpage-chip' }, [
+        el('a', { href: wikiUrl(s), target: '_blank', rel: 'noopener', text: subPageSuffix(s) }),
+      ]),
+    )));
+  }
+  const detail = el('div', { class: 'row-detail' }, detailChildren);
+
+  const item = el('div', {
+    class: `row-item${expanded ? ' expanded' : ''}`,
+    dataset: { slug: t.slug },
+  }, [head, detail]);
+
+  return item;
+}
+
+function renderInventory() {
+  const filter = $('filter').value;
+  const list = $('inventory-list');
+  const inventory = getInventory();
+  const unassigned = getUnassigned();
+  const filtered = inventory.filter((t) => matchesFilter(t, filter));
+
+  $('inventory-count').textContent = `${filtered.length} / ${inventory.length} (${unassigned.length} unassigned)`;
   list.replaceChildren();
 
   if (filtered.length === 0) {
@@ -368,138 +594,193 @@ function renderUnassigned() {
     return;
   }
 
-  for (const t of filtered) {
-    const cb = el('input', { type: 'checkbox', checked: selected.has(t.slug) });
-    cb.addEventListener('change', () => {
-      if (cb.checked) selected.add(t.slug); else selected.delete(t.slug);
-      updateSelectionUI();
-    });
-
-    const slugEl = el('div', { style: 'font-weight:600', text: t.slug });
-    const titleText = t.title && t.title !== t.slug.replace(/_/g, ' ') ? t.title : '';
-    const mainCol = el('div', null, [
-      slugEl,
-      titleText ? el('div', { class: 'meta', text: titleText }) : null,
-    ]);
-
-    const badges = [];
-    if (t.year) badges.push(makeBadge('year', t.year));
-    if (t.mode) badges.push(makeBadge('mode', t.mode));
-    if (t.competition_type) badges.push(makeBadge('compt', t.competition_type));
-    if (t.has_brand_infobox) badges.push(makeBadge('brand-infobox', 'brand?'));
-    for (const r of t.navbox_refs || []) {
-      const text = r.replace(/[Nn]avbox/g, '').trim() || r;
-      badges.push(makeBadge('navbox', text));
-    }
-    const badgesEl = el('div', { class: 'badges' }, badges);
-
-    const item = el('div', {
-      class: 'row-item',
-      dataset: { slug: t.slug },
-    }, [cb, mainCol, badgesEl]);
-
-    item.addEventListener('click', (e) => {
-      if (e.target === cb || e.target.tagName === 'INPUT') return;
-      openAssignModal([t.slug]);
-    });
-    list.appendChild(item);
-  }
+  for (const t of filtered) list.appendChild(renderInventoryRow(t));
 }
 
 function makeMemberChip(slug, brandSlug) {
   const t = tournamentIdx.get(slug);
   const titleStr = t ? `${t.title} - year=${t.year} - mode=${t.mode}` : slug;
-  const rm = el('span', { class: 'remove', text: 'X', title: 'remove from brand' });
-  rm.addEventListener('click', (ev) => {
-    ev.stopPropagation();
-    const brand = state.brands[brandSlug];
-    brand.members = brand.members.filter((m) => m !== slug);
-    for (const fl of brand.format_lines) {
-      fl.member_slugs = fl.member_slugs.filter((m) => m !== slug);
-    }
-    delete state.assignments[slug];
-    persist();
-    render();
+  const rm = el('span', {
+    class: 'remove',
+    text: 'x',
+    title: 'remove from bucket',
+    on: {
+      click: (ev) => {
+        ev.stopPropagation();
+        const brand = state.brands[brandSlug];
+        brand.members = brand.members.filter((m) => m !== slug);
+        for (const fl of brand.format_lines) {
+          fl.member_slugs = fl.member_slugs.filter((m) => m !== slug);
+        }
+        delete state.assignments[slug];
+        persist();
+        render();
+      },
+    },
   });
+  const subPageCount = t && t.sub_pages ? t.sub_pages.length : 0;
   return el('span', { class: 'member-chip', title: titleStr }, [
-    el('span', { text: slug }),
+    el('a', { href: wikiUrl(slug), target: '_blank', rel: 'noopener', style: 'color:inherit;text-decoration:none', text: slug, on: { click: (e) => e.stopPropagation() } }),
+    subPageCount > 0 ? el('span', { style: 'color:var(--fg-dim);font-size:9px', text: `+${subPageCount}` }) : null,
     rm,
   ]);
 }
 
-function renderBrands() {
-  const filter = $('brand-filter').value;
-  const list = $('brands-list');
-  const brands = Object.values(state.brands).filter((b) => brandMatchesFilter(b, filter));
-  brands.sort((a, b) => b.members.length - a.members.length || a.label.localeCompare(b.label));
+function renderBrandCard(b) {
+  const card = el('div', { class: `brand-card ${b.type}${b.members.length === 0 ? ' empty' : ''}` });
 
-  $('brands-count').textContent = `${brands.length} / ${Object.keys(state.brands).length}`;
+  const name = el('div', { class: 'name' }, [
+    el('span', { text: b.label }),
+    b.brand_overview_slug ? makeWikiLink(b.brand_overview_slug) : null,
+  ]);
+  let metaText = `${b.members.length} member${b.members.length !== 1 ? 's' : ''}`;
+  if (b.brand_overview_slug) metaText += ` - brand-page: ${b.brand_overview_slug}`;
+  else metaText += ` - synthesized`;
+  if (b.navbox_slug) metaText += ` - navbox: ${b.navbox_slug}`;
+  const meta = el('div', { class: 'meta', text: metaText });
+  const mainCol = el('div', null, [name, meta]);
+
+  const promoteBtn = el('button', { class: 'tiny primary', text: 'promote' });
+  promoteBtn.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    if (b.members.length === 0) {
+      if (!confirm(`Promote empty bucket "${b.label}"?`)) return;
+    }
+    b.state = 'promoted';
+    persist();
+    render();
+  });
+  const editBtn = el('button', { class: 'tiny', text: 'edit' });
+  editBtn.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    openEditBrandModal(b.slug);
+  });
+  const delBtn = el('button', { class: 'tiny danger', text: 'del' });
+  delBtn.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    if (!confirm(`Delete bucket "${b.label}"? Members go back to unassigned.`)) return;
+    for (const m of b.members) delete state.assignments[m];
+    delete state.brands[b.slug];
+    persist();
+    render();
+  });
+  const actions = el('div', { class: 'actions' }, [promoteBtn, editBtn, delBtn]);
+
+  const head = el('div', { class: 'brand-card-head' }, [mainCol, actions]);
+  head.addEventListener('click', () => card.classList.toggle('expanded'));
+
+  const body = el('div', { class: 'brand-card-body' });
+  if (b.format_lines && b.format_lines.length > 0) {
+    const seen = new Set();
+    for (const fl of b.format_lines) {
+      const flMembers = fl.member_slugs.filter((m) => b.members.includes(m));
+      if (flMembers.length === 0) continue;
+      for (const m of flMembers) seen.add(m);
+      const flDiv = el('div', { class: 'format-line' }, [
+        el('div', { class: 'fl-label', text: `${fl.label} (${flMembers.length})` }),
+        el('div', { class: 'fl-members' }, flMembers.map((m) => makeMemberChip(m, b.slug))),
+      ]);
+      body.appendChild(flDiv);
+    }
+    const orphans = b.members.filter((m) => !seen.has(m));
+    if (orphans.length > 0) {
+      const flDiv = el('div', { class: 'format-line' }, [
+        el('div', { class: 'fl-label', text: `(unassigned format-line) (${orphans.length})` }),
+        el('div', { class: 'fl-members' }, orphans.map((m) => makeMemberChip(m, b.slug))),
+      ]);
+      body.appendChild(flDiv);
+    }
+  } else if (b.members.length > 0) {
+    body.appendChild(el('div', { class: 'fl-members' }, b.members.map((m) => makeMemberChip(m, b.slug))));
+  } else {
+    body.appendChild(el('div', { class: 'empty-state', text: '(no members yet)' }));
+  }
+
+  card.appendChild(head);
+  card.appendChild(body);
+  return card;
+}
+
+function renderRoughSorted() {
+  const filter = $('brand-filter').value;
+  const list = $('rough-list');
+  const allBrands = Object.values(state.brands).filter((b) => b.state !== 'promoted');
+  const filtered = allBrands.filter((b) => brandMatchesFilter(b, filter));
+
+  const multi = filtered.filter((b) => b.members.length >= 2).sort(
+    (a, b) => b.members.length - a.members.length || a.label.localeCompare(b.label),
+  );
+  const singletons = filtered.filter((b) => b.members.length < 2).sort(
+    (a, b) => a.label.localeCompare(b.label),
+  );
+
+  $('rough-count').textContent = `${filtered.length} / ${allBrands.length}`;
   list.replaceChildren();
 
-  if (brands.length === 0) {
-    list.appendChild(el('div', { class: 'empty-state', text: 'No brands yet. Click "+ New synthesized brand" or assign tournaments from the left.' }));
+  if (filtered.length === 0) {
+    list.appendChild(el('div', { class: 'empty-state', text: 'No buckets yet. Click "+ New bucket" or assign tournaments from the inventory.' }));
     return;
   }
 
-  for (const b of brands) {
-    const card = el('div', { class: `brand-card ${b.type}${b.members.length === 0 ? ' empty' : ''}` });
+  // Multi-edition section
+  if (multi.length > 0) {
+    list.appendChild(el('div', { class: 'section-header', text: `Multi-edition (${multi.length})` }));
+    const body = el('div');
+    for (const b of multi) body.appendChild(renderBrandCard(b));
+    list.appendChild(body);
+  }
 
-    const name = el('div', { class: 'name', text: b.label });
-    let metaText = `${b.members.length} member${b.members.length !== 1 ? 's' : ''}`;
-    if (b.brand_overview_slug) metaText += ` - brand-page: ${b.brand_overview_slug}`;
-    else metaText += ` - synthesized (no wiki brand-page)`;
-    if (b.navbox_slug) metaText += ` - navbox: ${b.navbox_slug}`;
-    const meta = el('div', { class: 'meta', text: metaText });
-    const mainCol = el('div', null, [name, meta]);
-
-    const editBtn = el('button', { text: 'edit' });
-    editBtn.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-      openEditBrandModal(b.slug);
+  // Singletons section (collapsible)
+  if (singletons.length > 0) {
+    const collapsed = singletons.length > 5; // default collapsed when there are many
+    const header = el('div', { class: 'section-header' }, [
+      el('span', { class: 'twist', text: collapsed ? '>' : 'v' }),
+      el('span', { text: `Singletons (${singletons.length})` }),
+    ]);
+    const body = el('div', { class: collapsed ? 'section-body collapsed' : 'section-body' });
+    for (const b of singletons) body.appendChild(renderBrandCard(b));
+    header.addEventListener('click', () => {
+      body.classList.toggle('collapsed');
+      header.querySelector('.twist').textContent = body.classList.contains('collapsed') ? '>' : 'v';
     });
-    const delBtn = el('button', { class: 'danger', text: 'delete' });
-    delBtn.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-      if (!confirm(`Delete brand "${b.label}"? Members go back to unassigned.`)) return;
-      for (const m of b.members) delete state.assignments[m];
-      delete state.brands[b.slug];
+    list.appendChild(header);
+    list.appendChild(body);
+  }
+}
+
+function renderPromoted() {
+  const list = $('promoted-list');
+  const promoted = Object.values(state.brands).filter((b) => b.state === 'promoted');
+  promoted.sort((a, b) => a.label.localeCompare(b.label));
+
+  $('promoted-count').textContent = String(promoted.length);
+  list.replaceChildren();
+
+  if (promoted.length === 0) {
+    list.appendChild(el('div', { class: 'empty-state', text: 'No promoted buckets yet. Promote a bucket from the middle column when its rough-sort is done.' }));
+    return;
+  }
+
+  for (const b of promoted) {
+    const name = el('div', { class: 'name' }, [
+      el('span', { text: b.label }),
+      b.brand_overview_slug ? makeWikiLink(b.brand_overview_slug) : null,
+    ]);
+    const noteRel = `apps/qw-oracle/curated/tournament-brand-notes/${b.slug}.md`;
+    const meta = el('div', { class: 'meta' }, [
+      el('div', { text: `${b.members.length} member${b.members.length !== 1 ? 's' : ''}` }),
+      el('div', { text: `note: ${noteRel}` }),
+    ]);
+
+    const demoteBtn = el('button', { class: 'tiny', text: 'demote' });
+    demoteBtn.addEventListener('click', () => {
+      b.state = 'rough-sorted';
       persist();
       render();
     });
-    const actions = el('div', { class: 'actions' }, [editBtn, delBtn]);
+    const actions = el('div', { class: 'actions' }, [demoteBtn]);
 
-    const head = el('div', { class: 'brand-card-head' }, [mainCol, actions]);
-    head.addEventListener('click', () => card.classList.toggle('expanded'));
-
-    const body = el('div', { class: 'brand-card-body' });
-    if (b.format_lines && b.format_lines.length > 0) {
-      const seen = new Set();
-      for (const fl of b.format_lines) {
-        const flMembers = fl.member_slugs.filter((m) => b.members.includes(m));
-        if (flMembers.length === 0) continue;
-        for (const m of flMembers) seen.add(m);
-        const flDiv = el('div', { class: 'format-line' }, [
-          el('div', { class: 'fl-label', text: `${fl.label} (${flMembers.length})` }),
-          el('div', { class: 'fl-members' }, flMembers.map((m) => makeMemberChip(m, b.slug))),
-        ]);
-        body.appendChild(flDiv);
-      }
-      const orphans = b.members.filter((m) => !seen.has(m));
-      if (orphans.length > 0) {
-        const flDiv = el('div', { class: 'format-line' }, [
-          el('div', { class: 'fl-label', text: `(unassigned format-line) (${orphans.length})` }),
-          el('div', { class: 'fl-members' }, orphans.map((m) => makeMemberChip(m, b.slug))),
-        ]);
-        body.appendChild(flDiv);
-      }
-    } else if (b.members.length > 0) {
-      body.appendChild(el('div', { class: 'fl-members' }, b.members.map((m) => makeMemberChip(m, b.slug))));
-    } else {
-      body.appendChild(el('div', { class: 'empty-state', text: '(no members yet)' }));
-    }
-
-    card.appendChild(head);
-    card.appendChild(body);
+    const card = el('div', { class: 'promoted-card' }, [name, meta, actions]);
     list.appendChild(card);
   }
 }
@@ -508,8 +789,9 @@ function updateStats() {
   const total = prefill.tournaments.length;
   const assigned = Object.keys(state.assignments).length;
   const brandCount = Object.keys(state.brands).length;
+  const promotedBrands = Object.values(state.brands).filter((b) => b.state === 'promoted').length;
   $('stats').textContent =
-    `${assigned} / ${total} tournaments assigned - ${brandCount} brands - ${total - assigned} unassigned`;
+    `${assigned} / ${total} top-level assigned - ${brandCount} buckets (${promotedBrands} promoted)`;
 }
 
 function updateSelectionUI() {
@@ -518,8 +800,9 @@ function updateSelectionUI() {
 }
 
 function render() {
-  renderUnassigned();
-  renderBrands();
+  renderInventory();
+  renderRoughSorted();
+  renderPromoted();
   updateStats();
   updateSelectionUI();
 }
@@ -528,7 +811,7 @@ function openAssignModal(slugs) {
   const mount = $('modal-mount');
   const overlay = el('div', { class: 'modal-overlay' });
 
-  const title = el('h3', { text: `Assign ${slugs.length} tournament${slugs.length !== 1 ? 's' : ''} to brand` });
+  const title = el('h3', { text: `Assign ${slugs.length} tournament${slugs.length !== 1 ? 's' : ''} to bucket` });
 
   const slugList = el('div', { class: 'slug-list', text: slugs.join(', ') });
   const slugField = el('div', { class: 'field' }, [
@@ -538,18 +821,20 @@ function openAssignModal(slugs) {
 
   const sel = el('select', { style: 'width:100%' });
   sel.appendChild(el('option', { value: '', text: '-- select --' }));
-  const brands = Object.values(state.brands).sort((a, b) => a.label.localeCompare(b.label));
+  const brands = Object.values(state.brands)
+    .filter((b) => b.state !== 'promoted')
+    .sort((a, b) => b.members.length - a.members.length || a.label.localeCompare(b.label));
   for (const b of brands) {
     sel.appendChild(el('option', { value: b.slug, text: `${b.label} (${b.members.length})` }));
   }
   const brandField = el('div', { class: 'field' }, [
-    el('label', { text: 'Existing brand:' }),
+    el('label', { text: 'Existing bucket:' }),
     sel,
   ]);
 
-  const newLabelInput = el('input', { type: 'text', placeholder: 'brand label (e.g., QWSL)', style: 'width:100%' });
+  const newLabelInput = el('input', { type: 'text', placeholder: 'bucket label (e.g., QWSL)', style: 'width:100%' });
   const newField = el('div', { class: 'field' }, [
-    el('label', { text: 'OR create new brand:' }),
+    el('label', { text: 'OR create new bucket:' }),
     newLabelInput,
   ]);
 
@@ -573,7 +858,7 @@ function openAssignModal(slugs) {
     if (newLabel) {
       const newSlug = newLabel.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       if (state.brands[newSlug]) {
-        alert(`Brand "${newSlug}" already exists.`);
+        alert(`Bucket "${newSlug}" already exists.`);
         return;
       }
       state.brands[newSlug] = {
@@ -584,12 +869,13 @@ function openAssignModal(slugs) {
         members: [],
         format_lines: [],
         type: 'synthesized',
+        state: 'rough-sorted',
       };
       targetSlug = newSlug;
     } else if (brandSlug) {
       targetSlug = brandSlug;
     } else {
-      alert('Pick an existing brand or enter a new brand label.');
+      alert('Pick an existing bucket or enter a new bucket label.');
       return;
     }
 
@@ -669,7 +955,7 @@ function openEditBrandModal(brandSlug) {
   });
 
   const modal = el('div', { class: 'modal' }, [
-    el('h3', { text: `Edit brand: ${b.label}` }),
+    el('h3', { text: `Edit bucket: ${b.label}` }),
     el('div', { class: 'field' }, [el('label', { text: 'Label:' }), labelInput]),
     el('div', { class: 'field' }, [el('label', { text: 'Slug:' }), slugInput]),
     el('div', { class: 'field' }, [el('label', { text: 'Brand overview wiki slug (optional):' }), boInput]),
@@ -681,12 +967,12 @@ function openEditBrandModal(brandSlug) {
   labelInput.focus();
 }
 
-$('filter').addEventListener('input', renderUnassigned);
-$('brand-filter').addEventListener('input', renderBrands);
+$('filter').addEventListener('input', renderInventory);
+$('brand-filter').addEventListener('input', renderRoughSorted);
 
 $('select-all').addEventListener('change', (e) => {
   const filter = $('filter').value;
-  const visible = getUnassigned().filter((t) => matchesFilter(t, filter));
+  const visible = getInventory().filter((t) => matchesFilter(t, filter));
   if (e.target.checked) for (const t of visible) selected.add(t.slug);
   else for (const t of visible) selected.delete(t.slug);
   render();
@@ -698,10 +984,10 @@ $('bulk-assign-btn').addEventListener('click', () => {
 });
 
 $('new-brand-btn').addEventListener('click', () => {
-  const label = prompt('New synthesized brand label (e.g., "QWSL"):');
+  const label = prompt('New bucket label (e.g., "QWSL"):');
   if (!label) return;
   const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  if (state.brands[slug]) { alert(`Brand "${slug}" already exists.`); return; }
+  if (state.brands[slug]) { alert(`Bucket "${slug}" already exists.`); return; }
   state.brands[slug] = {
     slug,
     label: label.trim(),
@@ -710,6 +996,7 @@ $('new-brand-btn').addEventListener('click', () => {
     members: [],
     format_lines: [],
     type: 'synthesized',
+    state: 'rough-sorted',
   };
   persist();
   render();
@@ -725,23 +1012,54 @@ $('export-btn').addEventListener('click', () => {
       brand_overview_slug: b.brand_overview_slug,
       navbox_slug: b.navbox_slug,
       type: b.type,
+      state: b.state ?? 'rough-sorted',
       members: b.members,
       format_lines: b.format_lines,
     })),
+    assignments: state.assignments,
     unassigned: getUnassigned().map((t) => t.slug),
   };
   const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = el('a', { href: url, download: `brand-curation-${new Date().toISOString().slice(0, 10)}.json` });
+  const a = el('a', { href: url, download: `brand-curation-state.json` });
   a.click();
   URL.revokeObjectURL(url);
+});
+
+$('import-btn').addEventListener('click', () => $('import-input').click());
+$('import-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    if (!parsed.brands || !Array.isArray(parsed.brands)) {
+      alert('Invalid JSON: missing `brands` array.');
+      return;
+    }
+    if (!confirm('Replace current state with imported JSON? Local edits will be discarded.')) return;
+    const newBrands = {};
+    for (const b of parsed.brands) newBrands[b.slug] = b;
+    const newState = { brands: newBrands, assignments: parsed.assignments || {} };
+    state = migrateState(newState);
+    selected.clear();
+    inventoryExpanded.clear();
+    persist();
+    render();
+  } catch (err) {
+    alert('Failed to parse JSON: ' + err.message);
+  } finally {
+    e.target.value = '';
+  }
 });
 
 $('reset-btn').addEventListener('click', () => {
   if (!confirm('Reset all curation state to fresh pre-fill? This wipes localStorage.')) return;
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(LEGACY_STORAGE_KEY);
   state = buildInitialState();
   selected.clear();
+  inventoryExpanded.clear();
   render();
 });
 

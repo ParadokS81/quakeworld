@@ -1,0 +1,15 @@
+{
+  "_note": "Canonical curation state. Empty on initial commit. After your first session: click 'Export JSON' in the tool and replace this file with the exported content, then commit. The tool falls back to building initial state from brand-pre-fill.json when this file is empty.",
+  "_shape": {
+    "exported_at": "ISO timestamp",
+    "snapshot": "wiki-snapshot-date",
+    "brands": "array of {slug, label, brand_overview_slug, navbox_slug, type, state, members, format_lines}",
+    "assignments": "{slug: brand_slug} map for top-level tournament articles",
+    "unassigned": "array of unassigned slugs (informational; derivable from brands + assignments)"
+  },
+  "exported_at": null,
+  "snapshot": null,
+  "brands": [],
+  "assignments": {},
+  "unassigned": []
+}
