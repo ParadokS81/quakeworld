@@ -296,3 +296,76 @@ Note for next session: the borrow arc parking doc + this session-1 progress adde
 3. **After trailing-comment fix lands**, decide order for the remaining issues: #2 (match_event), #3 (parallel-stat), #5 (idempotency smoke), #4 (orientation), then prod deploy. The QWCL borrow arc is a separate session/arc per the borrow parking doc.
 
 Hook will fire on any `gh pr create` / `gh pr edit` when the eventual #1117 PR conversion happens -- apply Signed-off-by + Assisted-by per convention and proceed.
+
+---
+
+## Session 2 progress (2026-05-07; appended at session close)
+
+This terminal picked up at "ready to implement trailing-comment fix?" and shipped Issue #1 + Issue #2 plus an architectural addition (description_origin provenance column).
+
+### Issue #1 -- KTX cvar embedding gap: SHIPPED
+
+Two commits:
+- `02155560` -- fix(qw-oracle): description coverage gaps for cvars across KTX/MVDSV/ezquake. KTX `_handler_cvars.py` adds `_trailing_comment` helper (adapted from MVDSV's, anchor changed from `};` to `);` to match KTX's call-site syntax). `deriveCvar` wraps existing CONCAT_WS in COALESCE with `NULLIF(TRIM(vt.trailing_comment), '')` as fallback branch -- JSON sources still win when present (no behavior change for ezquake's 122 cvars-with-both); trailing_comment fills the gap when JSON-side is empty.
+- `7eeaa410` -- chore(qw-oracle): regenerate ktx-variables-ast.json. Output of running extract.py at HEAD with the trailing-comment fix.
+
+Yield (vs ~138 estimate):
+- KTX: 0 -> 68 cvar descriptions/embeddings
+- MVDSV: 0 -> 35 (matched estimate exactly)
+- ezquake: 2223 -> 2246 (+23, vs 28 estimate; gap is 5 cvars whose help_remarks/help_values produced non-empty CONCAT_WS even with empty help_desc)
+- Total: +126 cvar descriptions across 3 engines
+
+Verification:
+- 32 existing KTX handler tests pass; helper passed 6-case sanity check (single-line `//`, no-space `//`, multi-line continuation, `/* */` block, no-comment, comment-stop-at-next-call)
+- KTX F1 grid: 127/127 clean
+- MVDSV F1 grid: 127/127 clean (including new probe `F2.mvdsv.trailing_comment_coverage_cvars` at 35/183 = 19.1%)
+- ezquake F1 grid: 5 pre-existing failures + 4 informational anomalies, all pre-existing per HANDOVER:26 (s_stereo flicker, gl_lightmode ping-pong, ezquake floor-state classification drift). None caused by the fix.
+- Idempotency: data-only MD5 stable across 3 consecutive KTX extracts. The original `idempotency-ktx.sh` reports false-positive drift because its snapshot does `SELECT *` which includes `updated_at` and other refresh-on-every-load columns -- script-level fix needed (Issue #5 follow-up below).
+
+### Source-side audit (operator-driven)
+
+After Issue #1 shipped, operator pushed for an honest audit: did we capture all source-documented descriptions? Walked sample evidence per KTX entity type:
+- **cvars (260 total, 68 captured):** Sampled 10 random "missing" cvars. All 10 source lines have NO trailing comment. Verdict: gap is genuinely-undocumented in source by developer choice. Plus a coverage opportunity (section-header `// { race ... // }` blocks) that's not really a description gap -- belongs in `group_name_in_source` column extension, not description.
+- **commands (358 total, 311 captured):** Sampled 5 random "missing". All 5 use the `CD_NODESC` sentinel (defined at `commands.c:335` as `const char CD_NODESC[] = "no desc"`). Examples: `CD_KSOUND4 (CD_NODESC) // useless command now`, `CD_GIVEME (CD_NODESC) // skip`. Verdict: 49 CD_NODESC markers in source = developer explicitly opted out; 47 missing in DB matches.
+- **info_key (7), log_template (1195):** 100% covered.
+- **match_event (7, 0 captured):** No source-side prose -- KTX defines the events via XSD schema (`resources/extralog/ktxlog_0.1.xsd`) and emits XML in C; no developer-authored doc on the registration site. Surfaced the architectural question: this is a NEW provenance type ('synthesized'). Resolved by Issue #2 below.
+- **gameplay items (gameplay_mechanics + gameplay_entity_defs, ~459 KTX rows: game_modes, monsters, drop_items, election_types, death_rules, score_systems, loc_macros, teamplay_messages):** schema has NO `description` column at all. Out of scope for the trailing-comment fix; new arc territory if descriptions become useful (parked as future arc in HANDOVER).
+
+### Issue #2 -- match_event embedding gap: SHIPPED with description_origin provenance
+
+Operator's framing during the audit produced the cleaner architectural answer: this isn't just a "write 7 narratives" task; it's a fourth provenance type ('synthesized') that deserves to be tracked alongside 'help_json' (external dev-curated metadata), 'source_inline' (source code + templated synthesis from extracted data), and 'inherited' (cross-engine borrow arc, parked).
+
+Single commit:
+- `7cd951c4` -- feat(qw-oracle): description_origin provenance + match_event narratives. Migration 012 adds `description_origin TEXT` column to entities + project-aware backfill (ezquake/FTE help-desc-bearing rows -> 'help_json'; KTX/MVDSV/QWCL + templated derivers -> 'source_inline'; ruleset/keyname/match_event -> NULL). deriveMatchEvent added: synthesizes per-event narrative for 7 KTX match_events from a hardcoded event_name -> prose mapping (verified against C emit sites at combat.c:858+980, client.c:5089, items.c:220+1927+2234+2546+2845, plus deathtype.h enum). deriveCvar updated to write description_origin going forward.
+
+Yield:
+- 7 KTX match_events: description populated (e.g. "Death event: emitted when a player dies. Attributes: time, attacker, target, type (weapon/cause from the same axe/sg/rl/.../fall/suicide enum), quad, armorleft (armor remaining at death), killheight (z-height where the kill happened), lifetime (seconds the dead player had been alive that life)."), description_origin='synthesized', description_embedding present.
+- Total post-fix: 4832 help_json + 2694 source_inline + 7 synthesized = 7533 entities with descriptions across 5 projects.
+
+The 'synthesized' tag gives the audit signal "show me everything AI/operator-authored" via one SQL filter. Future borrow arc emits 'inherited'. Other 11 derivers (deriveCommand / deriveCmdlineParam / deriveMacro / deriveHudElement / deriveAssetCategory / deriveTokenPrimitive / deriveFlagBit / deriveCvarAlias / deriveProtocolMessage / deriveInfoKey / deriveLogTemplate / deriveQcBuiltin) do NOT yet write description_origin on UPDATE -- backfill values stay valid as long as their text-source columns don't shift across versions; bundle into next maintenance arc per the HANDOVER small-followup entry.
+
+### Side discoveries (filed)
+
+1. **`idempotency-ktx.sh` script-level flaw (Issue #5).** Snapshot uses `SELECT *` which includes `updated_at` and other refresh-on-every-load columns; reports false-positive drift on consecutive identical runs. Underlying loader is genuinely idempotent (data-only MD5 stable across 3 runs verified). Fix: refactor snapshot SQL to enumerate stable data columns (excluding updated_at, last_load_run_id, embedding-related cols, etc.). Sized as part of Issue #5 work.
+
+2. **`SCHEMA_VERSION` constant + CLAUDE.md status-line drift after migration 012.** `apps/qw-oracle/scripts/load-knowledge/constants.ts` declares `SCHEMA_VERSION = 18`; `apps/qw-oracle/CLAUDE.md` cites "Schema v18". Migration count is now 12; constant is its own decimal counter. Decide bump policy + patch both files (both operator-fenced today). Filed as small followup in HANDOVER.
+
+3. **Gameplay-table description schema arc -- future arc (parked in HANDOVER).** ~459 KTX gameplay-mechanics + gameplay-entity-def rows have no description column. Whether to scope an arc depends on retrieval-gap evidence + 30-60 min source-side spot-check of KTX game_mode / monster / drop_item registration patterns first.
+
+### Working-tree state at session close
+
+23 uncommitted at session start; this session's 3 commits are pushable but UNPUSHED at close (operator should review + push). Operator's interleaved curate-brands work (commits `1a8e2d1f`, `dbe460ff`, `ce5c762e`, `1f5c267d`, `46e602fd`, `3a4b5b04`, `0d632d59`) also unpushed.
+
+Modified-but-uncommitted at close: same 22-modified + 4-untracked operator-fenced WIP, plus `apps/qw-oracle/scripts/extractors/ktx/output/ktx-gameplay-taxonomies-ast.json` showing Issue #3's parallel-stat race (`source_total: 5 -> 60` under default `--workers 12`). Leave for Issue #3 fix.
+
+### Next session -- first three actions
+
+1. **Read this parking doc's session-2 progress** (this section) plus the borrow arc parking doc (sibling).
+2. **Tackle Issue #3 (gameplay_taxonomies parallel-stat fix).** Sized <30 LOC per Pattern 13 retrofit. Read the existing `_handler_gameplay_taxonomies.py:385` + the Phase 5.5 Pattern 13 precedent at commit `44f5b894` (`_handler_modes.py`). Move `source_total` to typed pseudo-row aggregation emitted from `end_file()`; finalize partitions + counts the unique rows post-dedup. Add `tests/test_handler_gameplay_taxonomies.py:test_parallel_serial_equivalence` parallel to the modes test. Single commit: `fix(qw-oracle): gameplay_taxonomies source_total parallel-aggregator-naive (D.3.1)`.
+3. **After Issue #3 lands**, decide order for #4 (orientation blob -- operator decision) + #5 (idempotency-ktx.sh script fix to exclude timestamp cols), then prod deploy. Plus the parallel track: #1117 PR conversion (slime-blocked) -- the upstream-pr-reminder hook will fire on any `gh pr create`; apply `Signed-off-by` from operator + `Assisted-by: Claude:claude-opus-4-7` per convention and proceed.
+
+Optional parallel tracks:
+- Wire remaining 11 derivers to write description_origin (small followup; bundle into next maintenance arc).
+- 30-60 min source-side spot-check of KTX gameplay-mechanics registrations (game_modes, monsters, drop_items) to size the gameplay-description schema arc as a future work item.
+
+Hook still live for upstream-PR convention enforcement; description_origin column live; deriveMatchEvent live; trailing_comment harvest live for KTX cvars.
