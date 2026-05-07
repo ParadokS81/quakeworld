@@ -426,7 +426,7 @@
   ],
   "_stats": {
     "election_type": {
-      "source_total": 5,
+      "source_total": 515,
       "count": 5,
       "expected": 5,
       "by_required_role": {

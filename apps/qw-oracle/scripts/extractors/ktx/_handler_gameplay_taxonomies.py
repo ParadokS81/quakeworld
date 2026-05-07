@@ -64,6 +64,9 @@ This handler avoids the pattern by design:
   - Stage 2 fires pre-fork in setup() so parent retains the data.
   - Stage 1 emits per-file rows via end_file(); finalize reads them from the
     driver-merged all_rows parameter, not from self.
+  - No per-worker dedup state -- finalize() does global first-wins dedup by
+    value_text. Per D.3.1, per-worker dedup made source_total scale with
+    worker count; finalize-only dedup keeps the stat parallelism-invariant.
 """
 from __future__ import annotations
 
@@ -226,7 +229,6 @@ class KtxGameplayTaxonomiesHandler(Visitor):
         """
         self._repo_root = ktx_repo
         self._src_root = ktx_src
-        self._election_seen_tags: set[str] = set()
         # Stage 2 fires immediately at setup time; deathtype.h is a flat file
         # with one DEATHTYPE per line, no dependencies on TU walks.
         self._death_rule_rows: list[dict] = []
@@ -313,15 +315,16 @@ class KtxGameplayTaxonomiesHandler(Visitor):
     def _handle_election_enum(self, enum_cursor) -> None:
         """Walk electType_t EnumConstantDecl children and emit election_type rows.
 
-        Per-handler dedup via self._election_seen_tags prevents emitting the
-        same tag twice within one worker's chunk. Cross-worker dedup happens
-        in finalize via first-wins by value_text over the merged all_rows.
+        No per-handler dedup state. Each TU's electType_t enum exposes the
+        same 5 enumerators in source order; finalize() does global first-wins
+        dedup by value_text across the driver-merged all_rows. Per D.3.1,
+        keeping per-worker dedup state on self made source_total scale
+        linearly with worker count; finalize-only dedup is parallelism-
+        invariant.
         """
         for child in enum_cursor.get_children():
             tag = child.spelling
             if tag in ELECTION_TYPE_SKIP:
-                continue
-            if tag in self._election_seen_tags:
                 continue
             if tag not in ELECTION_TYPE_TOKEN:
                 # Unknown future tag -- emit a defensive placeholder row and
@@ -348,7 +351,6 @@ class KtxGameplayTaxonomiesHandler(Visitor):
                     "required_role":         required_role,
                 },
             })
-            self._election_seen_tags.add(tag)
 
     def end_file(self) -> list[dict]:
         """Return per-file election rows and reset the accumulator.

@@ -10,6 +10,7 @@ Run from the monorepo root:
 """
 from __future__ import annotations
 
+import subprocess
 import sys
 from pathlib import Path
 
@@ -22,6 +23,8 @@ EXTRACTORS_ROOT = KTX_HANDLER_DIR.parent  # apps/qw-oracle/scripts/extractors/
 # parents[0] = ktx, parents[1] = extractors, parents[2] = scripts,
 # parents[3] = qw-oracle, parents[4] = apps, parents[5] = quakeworld root
 KTX_REPO = HERE.parents[5] / "research" / "repos" / "ktx"
+
+EXTRACT_PY = KTX_HANDLER_DIR / "extract.py"
 
 sys.path.insert(0, str(KTX_HANDLER_DIR))
 sys.path.insert(0, str(EXTRACTORS_ROOT))
@@ -144,4 +147,91 @@ def test_etcaptain_required_role(handler_with_outputs):
     assert cap["props_json"]["required_role"] == "player", (
         f"etCaptain required_role must be 'player' (CF_PLAYER per "
         f"commands.c:803 cmds[] entry). Got: {cap['props_json']['required_role']}"
+    )
+
+
+def test_parallel_serial_equivalence(tmp_path):
+    """D.3.1 regression gate: parallel and serial extraction must produce
+    identical handler output, including the source_total stat.
+
+    Pre-fix evidence: workers=1 source_total=5, workers=12 source_total=60
+    (per-worker self._election_seen_tags dedup made the count scale with
+    worker count). Post-fix: source_total is parallelism-invariant because
+    dedup happens only in finalize() against the driver-merged all_rows.
+
+    This test invokes extract.py as a subprocess so it exercises the actual
+    multiprocessing.Pool fork-pool code path, not just the handler in-process.
+    """
+    import json
+
+    def run_with_workers(n_workers: int) -> dict:
+        out_dir = tmp_path / f"workers_{n_workers}"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(EXTRACT_PY),
+                "--repo-root", str(KTX_REPO),
+                "--output-dir", str(out_dir),
+                "--handlers", "gameplay_taxonomies",
+                "--workers", str(n_workers),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            pytest.fail(
+                f"extract.py exited {result.returncode} (workers={n_workers}):\n"
+                f"stdout: {result.stdout[-2000:]}\n"
+                f"stderr: {result.stderr[-2000:]}"
+            )
+        output_file = out_dir / "ktx-gameplay-taxonomies-ast.json"
+        if not output_file.is_file():
+            pytest.fail(
+                f"extract.py did not produce ktx-gameplay-taxonomies-ast.json "
+                f"(workers={n_workers}). stdout: {result.stdout[-1000:]}"
+            )
+        return json.loads(output_file.read_text(encoding="utf-8"))
+
+    serial_output   = run_with_workers(1)
+    parallel_output = run_with_workers(4)
+
+    # F7 + F8 anchor invariants (worker-independent).
+    assert len(serial_output["election_types"]) == 5
+    assert len(parallel_output["election_types"]) == 5
+    assert len(serial_output["death_rules"]) == 27
+    assert len(parallel_output["death_rules"]) == 27
+
+    # D.3.1 regression gate: source_total is parallelism-invariant after
+    # the per-worker dedup removal.
+    serial_total   = serial_output["_stats"]["election_type"]["source_total"]
+    parallel_total = parallel_output["_stats"]["election_type"]["source_total"]
+    assert serial_total == parallel_total, (
+        f"D.3.1 regression: source_total differs across worker counts. "
+        f"workers=1 -> {serial_total}, workers=4 -> {parallel_total}. "
+        "They must be equal after the per-worker _election_seen_tags removal."
+    )
+    assert serial_total > 0, (
+        f"source_total must be positive (raw observations across TUs that "
+        f"include progs.h). Got {serial_total}."
+    )
+
+    # Election type rows: byte-equality after stable sort by name (finalize
+    # already sorts by name; sort here defensively against future ordering
+    # tweaks).
+    serial_et   = sorted(serial_output["election_types"],   key=lambda r: r["name"])
+    parallel_et = sorted(parallel_output["election_types"], key=lambda r: r["name"])
+    for s, p in zip(serial_et, parallel_et):
+        assert s == p, (
+            f"election_type row mismatch for {s['name']!r}: "
+            f"serial={s} parallel={p}"
+        )
+
+    # Death rules: byte-equality. Stage 2 fires pre-fork in setup() so the
+    # output should be identical regardless of worker count.
+    assert serial_output["death_rules"] == parallel_output["death_rules"], (
+        "death_rules differ between serial and parallel runs. Stage 2 "
+        "(deathtype.h X-macro parse) fires pre-fork in setup() and should "
+        "produce identical output regardless of worker count."
     )
