@@ -269,21 +269,21 @@ console.log(`  ${tabsStaticDeclarations.length} Tabs-static blocks captured.`);
 
 // Build the parent->children sub-page index from TWO detection rules:
 //
-//   1. URL-encoded `__` slug: an article whose slug ends with `__<suffix>` where
-//      (a) `<parent-before-last-__>` exists as another article in the snapshot,
-//      (b) `<suffix>` matches a known metadata-tab pattern (Division_N /
-//          Information / Playoffs / Rules / Groups / etc.).
-//      This catches the wiki's `/Subpage` convention (URL-encoded as `__`).
+//   1. URL-encoded `__` slug whose parent is itself a tournament-shape article.
+//      This catches both metadata tabs (`__Information`, `__Playoffs`,
+//      `__Division_1`) and real sub-events (`QHLAN2017__1on1`,
+//      `QW_LAN_Party_Poland_2024__2on2`) of a tournament-shape parent.
+//      Hierarchical names whose parent is NOT tournament-shape stay top-level
+//      (`The_Big_4__Season_1` -- parent `The_Big_4` is a brand-overview page,
+//      not a tournament; `Quakeworld_Eternal__Dm3` -- parent is an umbrella
+//      page, not a tournament).
 //
 //   2. {{Tabs static}} template: when an article declares
 //      `link1=<parent> link2..linkN=<sibling tab pages>`, the siblings are
-//      sub-pages of `link1`. This catches the wiki's tabbed-page convention
+//      sub-pages of `link1`. Catches the wiki's tabbed-page convention
 //      (Kombat_Duel_2 + Kombat_Duel_2_Monday/Tuesday/Wed/Thu) where pages
 //      share a name prefix but are independent articles linked via tabs.
-//
-// Real-tournament hierarchical names (`The_Big_4__Season_1`,
-// `Quakeworld_Eternal__Dm3`) without metadata-tab suffixes stay top-level.
-const METADATA_TAB_RE = /^(division[_-]?[a-z0-9]+|group[_-]?[a-z0-9]*|groups|information|info[_-]?rules?[_-]*|rules?[_-]*|standings?|results?|schedule|signups?|teams?|players?|bracket|draft|playoffs?)$/i;
+const tournamentShapeSlugs = new Set(allTournamentArticles.map((t) => t.slug));
 const subPagesByParent = new Map<string, string[]>();
 const subPageSlugs = new Set<string>();
 
@@ -296,18 +296,15 @@ function addSubPage(parent: string, child: string) {
   subPageSlugs.add(child);
 }
 
-// Rule 1: __<metadata-tab-suffix>
+// Rule 1: __ split where parent is tournament-shape.
 for (const t of allTournamentArticles) {
   const lastSplit = t.slug.lastIndexOf('__');
   if (lastSplit <= 0) continue;
   const parent = t.slug.substring(0, lastSplit);
-  const suffix = t.slug.substring(lastSplit + 2);
-  if (articleSet.has(parent) && METADATA_TAB_RE.test(suffix)) {
-    addSubPage(parent, t.slug);
-  }
+  if (tournamentShapeSlugs.has(parent)) addSubPage(parent, t.slug);
 }
 
-// Rule 2: {{Tabs static}} link1=parent, link2..linkN=siblings
+// Rule 2: {{Tabs static}} link1=parent, link2..linkN=siblings.
 for (const tabs of tabsStaticDeclarations) {
   for (const sib of tabs.siblings) addSubPage(tabs.parent, sib);
 }
@@ -389,8 +386,13 @@ const brandOverviewSlugs = new Set(
 // aren't actual tournaments (Hall of Fame, Map Pool, etc.).
 const SUPPLEMENTARY_RE = /(_hall_of_fame|_map_pool|_records|_archive|_history|_sponsors)$/i;
 
+// Brand-overview pages are dropped UNLESS they have sub-pages -- otherwise
+// those sub-pages would orphan (parent invisible, sub-pages unreachable from
+// inventory). Keeping the parent visible lets the operator expand its
+// chevron and see the sub-pages.
 const cleanedTopLevelTournaments = topLevelTournaments.filter((t) => {
-  if (brandOverviewSlugs.has(t.slug)) return false;
+  const hasSubPages = subPagesByParent.has(t.slug);
+  if (brandOverviewSlugs.has(t.slug) && !hasSubPages) return false;
   if (SUPPLEMENTARY_RE.test(t.slug)) return false;
   return true;
 });

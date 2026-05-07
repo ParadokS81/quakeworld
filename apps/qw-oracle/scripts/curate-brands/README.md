@@ -70,11 +70,7 @@ Pre-fills brand assignments from wiki navbox templates, then surfaces what's lef
 
 Two complementary rules nest sibling pages under their parent:
 
-**Rule 1 — `__<metadata-tab-suffix>`** (the wiki's `/Subpage` URL-encoded as `__` in the snapshot). An article qualifies as a sub-page when:
-- the parent slug (everything before the LAST `__`) exists as another article in the snapshot, AND
-- the suffix matches a metadata-tab pattern: `Division_N` / `Group_X` / `Information` / `InfoRules` / `Rules` / `Playoffs` / `standings` / `results` / `Schedule` / `signups` / `Teams` / `players` / `bracket` / `draft`.
-
-This preserves real-tournament hierarchical names (`The_Big_4__Season_1`, `Quakeworld_Eternal__Dm3`) as top-level while nesting metadata-tab sub-pages under their parent.
+**Rule 1 — `__` URL-encoded subpage where parent is a tournament-shape article.** Catches both metadata tabs (`__Information`, `__Playoffs`, `__Division_1`) AND real sub-events (`QHLAN2017__1on1`, `QW_LAN_Party_Poland_2024__2on2`, `Quakeworld_Eternal__Dm3`) of a tournament parent. Hierarchical names whose parent is NOT tournament-shape stay top-level (`The_Big_4__Season_1` -- parent `The_Big_4` is a brand-overview page, not a tournament).
 
 **Rule 2 — `{{Tabs static}}` template.** When an article uses `{{Tabs static |link1=<parent> |link2..linkN=<siblings>|...}}` (the wiki's tabbed-page pattern), `link1` is the parent and the rest are sub-pages. Catches cases like `Kombat_Duel_2` + `Kombat_Duel_2_Monday/Tuesday/Wed/Thu` where the daily pages share a name prefix but are independent articles linked via tabs (no `/Subpage` URL-encoding involved).
 
