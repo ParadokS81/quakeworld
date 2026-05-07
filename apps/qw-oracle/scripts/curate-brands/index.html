@@ -406,6 +406,7 @@ function buildInitialState() {
 // into the tool without requiring a state reset.
 function reconcileWithPrefill(s) {
   let added = 0;
+  let metaUpdated = 0;
   for (const pb of prefill.brands_pre_filled) {
     if (!s.brands[pb.slug]) {
       const validMembers = pb.members.filter((m) => topLevelSlugs.has(m) && !s.assignments[m]);
@@ -426,6 +427,21 @@ function reconcileWithPrefill(s) {
       added += validMembers.length;
     } else {
       const brand = s.brands[pb.slug];
+
+      // Metadata catch-up: when pre-fill has resolved brand_overview_slug or
+      // navbox_slug that the state's bucket doesn't have yet (e.g., earlier
+      // pre-fill miss that's since been fixed), adopt it. Doesn't override
+      // operator-set values.
+      if (!brand.brand_overview_slug && pb.brand_overview_slug) {
+        brand.brand_overview_slug = pb.brand_overview_slug;
+        if (brand.type === 'synthesized') brand.type = 'pre-filled';
+        metaUpdated += 1;
+      }
+      if (!brand.navbox_slug && pb.navbox_slug) {
+        brand.navbox_slug = pb.navbox_slug;
+        metaUpdated += 1;
+      }
+
       for (const m of pb.members) {
         if (!topLevelSlugs.has(m)) continue;
         if (s.assignments[m]) continue;
@@ -445,7 +461,9 @@ function reconcileWithPrefill(s) {
       }
     }
   }
-  if (added > 0) console.info(`[curate-brands] auto-merged ${added} new pre-fill assignments into existing state`);
+  if (added > 0 || metaUpdated > 0) {
+    console.info(`[curate-brands] reconcile: +${added} member assignments, ${metaUpdated} metadata field(s) updated`);
+  }
   return s;
 }
 
