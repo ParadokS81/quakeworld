@@ -219,10 +219,24 @@ for (const r of redirectsRaw) {
 }
 console.log(`  ${redirectMap.size} redirects loaded.`);
 
+// Snapshot filenames collapse special characters (`!`, `?`, `'`, etc.) to
+// underscore. The wiki preserves them. So a wikilink target like
+// `GetQuad!_Draft` may not be in articleSet directly even though the article
+// exists at `GetQuad__Draft.json`. Try the collapsed form as a fallback.
+function snapshotEncode(slug: string): string {
+  return slug.replace(/[^a-zA-Z0-9_]/g, '_');
+}
+
 function resolveSlug(slug: string, articleSet: Set<string>): string | null {
   if (articleSet.has(slug)) return slug;
   const target = redirectMap.get(slug);
   if (target && articleSet.has(target)) return target;
+  const encoded = snapshotEncode(slug);
+  if (encoded !== slug) {
+    if (articleSet.has(encoded)) return encoded;
+    const encodedTarget = redirectMap.get(encoded);
+    if (encodedTarget && articleSet.has(encodedTarget)) return encodedTarget;
+  }
   return null;
 }
 
@@ -371,10 +385,13 @@ for (const navbox of navboxes) {
   const brandOverviewSlug = navbox.title_wikilink
     ? resolveSlug(navbox.title_wikilink, articleSet)
     : null;
-  const candidateLabel = brandOverviewSlug
-    ? brandOverviewSlug.replace(/_/g, ' ')
-    : navbox.name.replace(/[Nn]avbox/g, '').trim() ||
-      navbox.slug.replace(/_/g, ' ');
+  // Prefer the article's actual wiki title (preserves `!`, `?`, etc.) over
+  // slug-with-_-as-space, which double-spaces collapsed special characters.
+  const brandOverviewTitle = brandOverviewSlug ? articleTitles.get(brandOverviewSlug) : undefined;
+  const candidateLabel = brandOverviewTitle
+    ?? (brandOverviewSlug ? brandOverviewSlug.replace(/_/g, ' ') : null)
+    ?? navbox.name.replace(/[Nn]avbox/g, '').trim()
+    || navbox.slug.replace(/_/g, ' ');
   const brandSlug = brandOverviewSlug
     ? slugify(brandOverviewSlug)
     : slugify(navbox.slug.replace(/[Nn]avbox/g, ''));
