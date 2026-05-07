@@ -15,7 +15,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "current lastscore, really internal mod usage"
       }
     },
     {
@@ -33,7 +33,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal mod usage"
       }
     },
     {
@@ -51,7 +51,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal mod usage"
       }
     },
     {
@@ -69,7 +69,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal mod usage"
       }
     },
     {
@@ -87,7 +87,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal mod usage"
       }
     },
     {
@@ -105,7 +105,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal mod usage"
       }
     },
     {
@@ -123,7 +123,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal mod usage"
       }
     },
     {
@@ -141,7 +141,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal mod usage"
       }
     },
     {
@@ -159,7 +159,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal usage, name of last map in map cycle, so we can back to map cycle if someone voted for map not in map cycle"
       }
     },
     {
@@ -177,7 +177,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal usage, save last XonX command"
       }
     },
     {
@@ -195,7 +195,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal usage, name of last map"
       }
     },
     {
@@ -213,7 +213,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal usage, will reject spectators connection"
       }
     },
     {
@@ -231,7 +231,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal usage, k_pow from last map"
       }
     },
     {
@@ -249,7 +249,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal mod usage"
       }
     },
     {
@@ -267,7 +267,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal mod usage"
       }
     },
     {
@@ -285,7 +285,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal mod usage"
       }
     },
     {
@@ -303,7 +303,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "internal usage, count of maps server spawned"
       }
     },
     {
@@ -681,7 +681,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "switch XonX mode dependant on players + specs count"
       }
     },
     {
@@ -969,7 +969,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "spawn players on the base (red/blue)"
       }
     },
     {
@@ -1041,7 +1041,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "loop through hookstyle settings"
       }
     },
     {
@@ -1239,7 +1239,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "add date to demo name, value is argument for strftime() function"
       }
     },
     {
@@ -1257,7 +1257,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "what format for .txt files"
       }
     },
     {
@@ -1383,7 +1383,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "don't remove end tele spawn"
       }
     },
     {
@@ -1419,7 +1419,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "stores whether players can join when a game is already in progress"
       }
     },
     {
@@ -2193,7 +2193,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "will use mapcycle even when /deathmatch 0"
       }
     },
     {
@@ -2211,7 +2211,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "say floodprot for players"
       }
     },
     {
@@ -2229,7 +2229,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "say floodprot for spectators"
       }
     },
     {
@@ -2301,7 +2301,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "ammo spawn times match weapons"
       }
     },
     {
@@ -2319,7 +2319,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "limit ammo in packs"
       }
     },
     {
@@ -2337,7 +2337,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "limit ammo gained when sweeping a weapon"
       }
     },
     {
@@ -2355,7 +2355,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "max cells in droppacks"
       }
     },
     {
@@ -2373,7 +2373,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "max nails in droppacks"
       }
     },
     {
@@ -2391,7 +2391,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "max rockets in droppacks"
       }
     },
     {
@@ -2409,7 +2409,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "max shells in droppacks"
       }
     },
     {
@@ -2913,7 +2913,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "maximum time user can be idle in matchless mode"
       }
     },
     {
@@ -3075,7 +3075,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "motd time in seconds"
       }
     },
     {
@@ -3165,7 +3165,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "dis allow map voting in matcless mode, also disallow /next_map"
       }
     },
     {
@@ -3183,7 +3183,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "disallow wizard animation"
       }
     },
     {
@@ -3237,7 +3237,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "can't pick up weapons you already have in dmm1 } { race"
       }
     },
     {
@@ -3453,7 +3453,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "pent"
       }
     },
     {
@@ -3471,7 +3471,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "allow multiple pickup of same powerup - off by default"
       }
     },
     {
@@ -3489,7 +3489,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "quad"
       }
     },
     {
@@ -3507,7 +3507,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "ring"
       }
     },
     {
@@ -3525,7 +3525,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "suit"
       }
     },
     {
@@ -3561,7 +3561,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "whether it is currently on or off"
       }
     },
     {
@@ -3579,7 +3579,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "set the server to allow unauthed spectators"
       }
     },
     {
@@ -3597,7 +3597,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "what to set it to when resetting map"
       }
     },
     {
@@ -3615,7 +3615,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "when voting for private game, kick unauthed players"
       }
     },
     {
@@ -3633,7 +3633,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "if set, players can vote for private games (require logins)"
       }
     },
     {
@@ -3939,7 +3939,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "select random map from k_ml_XXX variables."
       }
     },
     {
@@ -3975,7 +3975,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "rocket arena"
       }
     },
     {
@@ -4209,7 +4209,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "q3 like team overlay"
       }
     },
     {
@@ -4299,7 +4299,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "use configs/usermodes/matchless instead of configs/usermodes/ffa in matchless mode"
       }
     },
     {
@@ -4317,7 +4317,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "votes percentage for admin election"
       }
     },
     {
@@ -4335,7 +4335,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "votes percentage for antilag voting"
       }
     },
     {
@@ -4353,7 +4353,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "votes percentage for stopping the match voting"
       }
     },
     {
@@ -4371,7 +4371,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "votes percentage for captain election"
       }
     },
     {
@@ -4389,7 +4389,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "votes percentage for coachs election"
       }
     },
     {
@@ -4407,7 +4407,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "votes percentage for coop voting"
       }
     },
     {
@@ -4425,7 +4425,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "votes percentage for hookstyle voting"
       }
     },
     {
@@ -4443,7 +4443,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "votes percentage for map change voting"
       }
     },
     {
@@ -4461,7 +4461,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "votes percentage for nospecs voting"
       }
     },
     {
@@ -4479,7 +4479,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "votes percentage for pickup voting"
       }
     },
     {
@@ -4497,7 +4497,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "temporarily force logins on the server"
       }
     },
     {
@@ -4515,7 +4515,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "votes percentage for rpickup voting"
       }
     },
     {
@@ -4533,7 +4533,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "votes percentage for color suggestion election"
       }
     },
     {
@@ -4551,7 +4551,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "votes percentage for teamoverlay voting"
       }
     },
     {
@@ -4623,7 +4623,7 @@
         "max_bound": null,
         "storage_class": null,
         "group_name_in_source": null,
-        "trailing_comment": null
+        "trailing_comment": "well, got tired from serverinfo, let it be cvar (mvdsv have it now too so it should just set it)"
       }
     },
     {
