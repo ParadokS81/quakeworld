@@ -405,6 +405,38 @@ function buildInitialState() {
 // improvements (new redirect resolutions, new sub-page rules, etc.) flow
 // into the tool without requiring a state reset.
 function reconcileWithPrefill(s) {
+  // Slug drift handler: when pre-fill changes how it derives a bucket's slug
+  // (e.g., the Hammer Time case -- prior pre-fill used navbox-name slug,
+  // current pre-fill uses brand_overview-name slug after a wikilink fix),
+  // match by navbox_slug instead and rename the existing state bucket.
+  // Also collapses any duplicate buckets that prior reconcile created.
+  let renamed = 0;
+  for (const pb of prefill.brands_pre_filled) {
+    if (!pb.navbox_slug) continue;
+    const matches = Object.values(s.brands).filter((b) => b.navbox_slug === pb.navbox_slug);
+    if (matches.length === 0) continue;
+    if (matches.length === 1 && matches[0].slug === pb.slug) continue;
+    matches.sort((a, b) => b.members.length - a.members.length);
+    const winner = matches[0];
+    for (const loser of matches.slice(1)) {
+      delete s.brands[loser.slug];
+      for (const m of Object.keys(s.assignments)) {
+        if (s.assignments[m] === loser.slug) delete s.assignments[m];
+      }
+    }
+    if (winner.slug !== pb.slug) {
+      const oldSlug = winner.slug;
+      if (s.brands[pb.slug] && s.brands[pb.slug] !== winner) continue;
+      delete s.brands[oldSlug];
+      winner.slug = pb.slug;
+      s.brands[pb.slug] = winner;
+      for (const m of Object.keys(s.assignments)) {
+        if (s.assignments[m] === oldSlug) s.assignments[m] = pb.slug;
+      }
+      renamed += 1;
+    }
+  }
+
   let added = 0;
   let metaUpdated = 0;
   for (const pb of prefill.brands_pre_filled) {
@@ -461,8 +493,8 @@ function reconcileWithPrefill(s) {
       }
     }
   }
-  if (added > 0 || metaUpdated > 0) {
-    console.info(`[curate-brands] reconcile: +${added} member assignments, ${metaUpdated} metadata field(s) updated`);
+  if (added > 0 || metaUpdated > 0 || renamed > 0) {
+    console.info(`[curate-brands] reconcile: +${added} members, ${metaUpdated} metadata, ${renamed} renamed`);
   }
   return s;
 }
