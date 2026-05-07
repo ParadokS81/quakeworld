@@ -25,11 +25,31 @@
 //   token_primitive / flag_bit / cvar_alias /
 //     protocol_message / info_key / log_template /
 //     qc_builtin                                          -> synthesised
+//   match_event                                           -> templated
+//                     narrative + attribute list. Hardcoded 7-entry mapping
+//                     of event_name -> narrative intro; description_origin
+//                     stamped 'synthesized' (audit signal -- KTX has no
+//                     prose convention for log-output formats).
 //
 // Whenever description is recomputed, description_embedding_stale flips to
 // TRUE so Phase 5's embedder knows to re-embed. Phase 5 hash-skips no-op
 // recomputes via description_embedding_sha256, so the simple "always set
 // stale on derive" pattern is safe.
+//
+// description_origin (column added migration 012) tracks provenance:
+//   'help_json'    -- from external dev-curated metadata (help_*.json,
+//                     asset YAML bundle).
+//   'source_inline'-- from source code (trailing comments, struct fields,
+//                     templated synthesis from extracted source data).
+//   'inherited'    -- borrowed pointer (reserved for cross-engine borrow
+//                     arc; not yet emitted by any deriver).
+//   'synthesized'  -- AI/operator-authored narrative not present in source
+//                     or external curation. Audit signal.
+// deriveCvar writes 'help_json' / 'source_inline' based on which column won
+// + project. deriveMatchEvent writes 'synthesized'. Other derivers do not
+// yet write description_origin -- migration 012's backfill set their values
+// once and they remain valid as long as their text source columns don't
+// change. Wiring the remaining derivers is a small-followup arc.
 
 import type postgres from 'postgres';
 import type { EntityType, Project } from './types.js';
@@ -76,6 +96,14 @@ async function deriveCvar(tx: postgres.TransactionSql<{}>, project: Project, ver
         ), ''),
         NULLIF(TRIM(vt.trailing_comment), '')
       ),
+      description_origin = CASE
+        WHEN NULLIF(TRIM(vt.help_desc), '') IS NOT NULL
+          OR NULLIF(TRIM(vt.help_remarks), '') IS NOT NULL
+          OR (vt.help_values IS NOT NULL AND vt.help_values::text NOT IN ('[]', 'null'))
+          THEN CASE WHEN entities.project IN ('ezquake', 'fte') THEN 'help_json' ELSE 'source_inline' END
+        WHEN NULLIF(TRIM(vt.trailing_comment), '') IS NOT NULL THEN 'source_inline'
+        ELSE NULL
+      END,
       description_embedding_stale = TRUE,
       updated_at = now()
     FROM cvar_versions vt
@@ -274,6 +302,50 @@ async function deriveLogTemplate(tx: postgres.TransactionSql<{}>, project: Proje
   `;
 }
 
+async function deriveMatchEvent(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
+  // KTX's match_events are XSD-defined log-output formats. Source carries
+  // no prose -- the C emitters write XML element tags + attribute values to
+  // a log file consumed by downstream parsers, with no developer-authored
+  // doc comment on the registration site. To give Phase 6 retrieval real
+  // signal beyond the bare event name, synthesize a narrative description
+  // from a hardcoded 7-entry mapping (verified against the C emit sites in
+  // combat.c / client.c / items.c at the time of authoring).
+  //
+  // Per-event narratives are intentionally specific (mention the C-side
+  // semantics like "fires twice per hit when armor absorbs", "z-height
+  // where the kill happened") -- if KTX's log format evolves and adds new
+  // attributes, the narratives need a re-pass alongside an XSD diff. The
+  // ELSE branch is a safe fallback for any future event name not covered
+  // here; landing without a narrative is preferable to crashing the load.
+  //
+  // description_origin = 'synthesized' so an audit query (e.g., 'show me
+  // all AI-authored descriptions') can isolate these rows.
+  await tx`
+    UPDATE entities SET
+      description = (
+        CASE entities.name
+          WHEN 'damage' THEN 'Damage event: emitted when a player takes damage. Fires twice per hit when armor absorbs some -- once for the armor-absorbed portion, once for the HP-taken portion. Attributes: time, attacker, target, type (weapon/cause: axe/sg/rl/lg_beam/lava/fall/...), quad, splash, value (damage amount), armor (1 = armor-absorbed emit, 0 = HP-taken emit).'
+          WHEN 'death' THEN 'Death event: emitted when a player dies. Attributes: time, attacker, target, type (weapon/cause from the same axe/sg/rl/.../fall/suicide enum), quad, armorleft (armor remaining at death), killheight (z-height where the kill happened), lifetime (seconds the dead player had been alive that life).'
+          WHEN 'pick_mapitem' THEN 'Pick-mapitem event: emitted when a player picks up a map-spawn item. Attributes: time, item (e.g. health_25, armor1, rl, rockets), player, value (amount: HP gained, armor strength, ammo count).'
+          WHEN 'pick_powerup' THEN 'Pick-powerup event: emitted when a player picks up a powerup (quad/pent/ring/suit). Attributes: time, item (powerup name), player, timeleft (remaining duration on the powerup).'
+          WHEN 'drop_powerup' THEN 'Drop-powerup event: emitted when a player drops an active powerup on death (still time remaining). Attributes: time, item (powerup name), player, timeleft (remaining duration).'
+          WHEN 'pick_backpack' THEN 'Pick-backpack event: emitted when a player picks up a dropped backpack, gaining its weapon and ammo. Attributes: time, weapon (weapon in the pack, if any), shells, nails, rockets, cells, player.'
+          WHEN 'drop_backpack' THEN 'Drop-backpack event: emitted when a player dies and drops a backpack carrying their current weapon and remaining ammo. Attributes: time, weapon, shells, nails, rockets, cells, player.'
+          ELSE entities.name || ' match_event (KTX log-output format).'
+        END
+      ),
+      description_origin = 'synthesized',
+      description_embedding_stale = TRUE,
+      updated_at = now()
+    FROM match_event_versions vt
+    WHERE entities.id = vt.entity_id
+      AND vt.version = entities.last_seen_version
+      AND entities.project = ${project}
+      AND entities.type = 'match_event'
+      AND entities.last_seen_version = ${version}
+  `;
+}
+
 async function deriveQcBuiltin(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   // Form: "qc_builtin <table_name>[<builtin_index>] -> <handler_fn>; <qc_signature>; <trailing_comment>"
   await tx`
@@ -307,6 +379,7 @@ const DERIVE_BY_TYPE: Partial<Record<EntityType, DeriveFn>> = {
   info_key: deriveInfoKey,
   log_template: deriveLogTemplate,
   qc_builtin: deriveQcBuiltin,
+  match_event: deriveMatchEvent,
   // ruleset and keyname have no help text; description stays NULL. Phase 6
   // retrieval falls back to entities.name for these types.
 };
