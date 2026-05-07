@@ -388,9 +388,12 @@ for (const navbox of navboxes) {
   // Prefer the article's actual wiki title (preserves `!`, `?`, etc.) over
   // slug-with-_-as-space, which double-spaces collapsed special characters.
   const brandOverviewTitle = brandOverviewSlug ? articleTitles.get(brandOverviewSlug) : undefined;
-  const candidateLabel = brandOverviewTitle
-    ?? (brandOverviewSlug ? brandOverviewSlug.replace(/_/g, ' ') : null)
-    ?? navbox.name.replace(/[Nn]avbox/g, '').trim()
+  const fromSlug = brandOverviewSlug ? brandOverviewSlug.replace(/_/g, ' ') : null;
+  const fromNavboxName = navbox.name.replace(/[Nn]avbox/g, '').trim();
+  const candidateLabel =
+    brandOverviewTitle
+    || fromSlug
+    || fromNavboxName
     || navbox.slug.replace(/_/g, ' ');
   const brandSlug = brandOverviewSlug
     ? slugify(brandOverviewSlug)
