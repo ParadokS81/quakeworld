@@ -725,6 +725,9 @@ function renderInventory() {
     if (!showAssigned && state.assignments[t.slug]) return false;
     return matchesFilter(t, filter);
   });
+  // Alphabetic by slug (case-insensitive) so prefix clusters (EQL_*, NQR_*,
+  // QHLAN*, etc.) sort together for visual scanning.
+  filtered.sort((a, b) => a.slug.localeCompare(b.slug, undefined, { sensitivity: 'base' }));
 
   const visibleTotal = showAssigned ? inventory.length : unassigned.length;
   $('inventory-count').textContent = `${filtered.length} / ${visibleTotal}${showAssigned ? '' : ' unassigned'}`;
