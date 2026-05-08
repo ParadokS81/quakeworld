@@ -3,7 +3,8 @@
 // CLI dispatcher: load-knowledge <subcommand> [...args]
 // Subcommands: load-version, diff, enrich, load-assets, release-notes,
 //              extract-tag, prune-cross-type-orphans, review, quality-grid,
-//              build-snapshot, load-maps, load-gameplay, re-derive
+//              idempotency, reproducibility-check, build-snapshot,
+//              load-maps, load-gameplay, re-derive
 
 import { parseArgs } from 'util';
 import { dirname, join } from 'path';
@@ -33,6 +34,7 @@ async function main(): Promise<void> {
   if (subcommand === 'prune-cross-type-orphans')  { await runPruneCrossTypeOrphans(rest); return; }
   if (subcommand === 'quality-grid')              { await runQualityGridCli(rest); return; }
   if (subcommand === 'idempotency')               { await runIdempotencyCli(rest); return; }
+  if (subcommand === 'reproducibility-check')     { await runReproducibilityCheckCli(rest); return; }
   if (subcommand === 'build-snapshot')            { await runBuildSnapshot(rest); return; }
   if (subcommand === 'load-maps')                 { await runLoadMaps(rest); return; }
   if (subcommand === 'load-gameplay')             { await runLoadGameplay(rest); return; }
@@ -84,6 +86,13 @@ Subcommands:
                 idempotency probe (D2/D3/D4 from extractor-discipline-
                 catchup arc). Exit 0 = all targeted projects idempotent;
                 exit 1 = drift detected; exit 2 = invalid args.
+  reproducibility-check [--project <p>] [--all] [--workers <n>]
+                [--json] [--help]
+                Re-run extract.py and assert empty git diff on the
+                project's output directory. Packages VALIDATION-RUNBOOK
+                Section 1.1 as runnable. No database required.
+                Exit 0 = reproducible; exit 1 = diff detected or
+                extract.py failed; exit 2 = invalid args.
   build-snapshot --project <p> [--version <v>] [--output <dir>]
                 Read Postgres and emit slipgate-shaped JSON snapshots
                 (one per entity type) into apps/slipgate-app/src/lib/config/data/.
@@ -451,6 +460,11 @@ async function runQualityGridCli(args: string[]): Promise<void> {
 
 async function runIdempotencyCli(args: string[]): Promise<void> {
   const { runIdempotencyCli: run } = await import('./idempotency.js');
+  await run(args);
+}
+
+async function runReproducibilityCheckCli(args: string[]): Promise<void> {
+  const { runReproducibilityCli: run } = await import('./reproducibility-check.js');
   await run(args);
 }
 
