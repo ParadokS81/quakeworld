@@ -6,6 +6,7 @@
 // surfaces first.
 
 import { db } from '../db.ts';
+import type { ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 export type LookupMechanicArgs = {
@@ -25,25 +26,15 @@ export interface GameplayMechanicRow {
   notes: string | null;
 }
 
-interface Meta {
-  tool: string;
-  server_version: string;
-  queried_at: string;
-}
+export type GameplayMechanicResult = Omit<GameplayMechanicRow, 'props_json' | 'ruleset_gate_json'> & {
+  props: Record<string, unknown>;
+  ruleset_gate: Record<string, unknown>;
+};
 
-export type LookupMechanicResponse =
-  | { found: false; message: string; meta: Meta }
-  | {
-      found: true;
-      mechanic: Omit<GameplayMechanicRow, 'props_json' | 'ruleset_gate_json'> & {
-        props: Record<string, unknown>;
-        ruleset_gate: Record<string, unknown>;
-      };
-      meta: Meta;
-    };
+export type LookupMechanicResponse = ToolResponse<GameplayMechanicResult>;
 
 export async function lookupMechanic(args: LookupMechanicArgs): Promise<LookupMechanicResponse> {
-  const meta: Meta = {
+  const meta = {
     tool: 'lookup_mechanic',
     server_version: SERVER_VERSION,
     queried_at: new Date().toISOString(),
@@ -62,19 +53,17 @@ export async function lookupMechanic(args: LookupMechanicArgs): Promise<LookupMe
 
   if (!row) {
     return {
-      found: false,
-      message: `No mechanic named '${args.name}' in source '${source}'.`,
+      results: [],
+      match_quality: 'none',
+      suggested_fallback: `No mechanic named '${args.name}' in source '${source}'. Try search_mechanics with a kind filter or a substring query.`,
       meta,
     };
   }
   const { props_json, ruleset_gate_json, ...rest } = row;
   return {
-    found: true,
-    mechanic: {
-      ...rest,
-      props: props_json,
-      ruleset_gate: ruleset_gate_json,
-    },
+    results: [{ ...rest, props: props_json, ruleset_gate: ruleset_gate_json }],
+    match_quality: 'strong',
+    suggested_fallback: null,
     meta,
   };
 }

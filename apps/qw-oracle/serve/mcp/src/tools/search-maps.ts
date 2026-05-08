@@ -5,6 +5,7 @@
 // than building dynamic JSONB-extract WHERE clauses and binding parameters.
 
 import { db } from '../db.ts';
+import type { ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 const DEFAULT_LIMIT = 25;
@@ -38,11 +39,7 @@ export interface SearchMapsRow {
   items_compact: string;
 }
 
-export interface SearchMapsResponse {
-  results: SearchMapsRow[];
-  count: number;
-  meta: { tool: string; server_version: string; queried_at: string };
-}
+export type SearchMapsResponse = ToolResponse<SearchMapsRow>;
 
 // Fixed display order for items_compact -- mirrors what a player cares about
 // when scanning a map list: armor tier, then powerups, then weapons.
@@ -80,6 +77,11 @@ interface RawRow {
 }
 
 export async function searchMaps(args: SearchMapsArgs): Promise<SearchMapsResponse> {
+  const meta = {
+    tool: 'search_maps',
+    server_version: SERVER_VERSION,
+    queried_at: new Date().toISOString(),
+  };
   const rows = await db<RawRow[]>`
     SELECT canonical_name, display_name, popularity_rank, popularity_total,
            spawn_summary_json, inferred_gamemodes_json, item_summary_json, features_json
@@ -129,13 +131,17 @@ export async function searchMaps(args: SearchMapsArgs): Promise<SearchMapsRespon
     return a.popularity_rank - b.popularity_rank;
   });
 
+  const results = filtered.slice(0, limit);
+  const truncated = filtered.length > limit;
+
   return {
-    results: filtered.slice(0, limit),
-    count:   filtered.length,
-    meta: {
-      tool:           'search_maps',
-      server_version: SERVER_VERSION,
-      queried_at:     new Date().toISOString(),
-    },
+    results,
+    match_quality: results.length > 0 ? 'strong' : 'none',
+    suggested_fallback: results.length === 0
+      ? 'No maps match the given filters. Try broadening the filter set, or call lookup_map with a specific name.'
+      : null,
+    count: filtered.length,
+    truncated,
+    meta,
   };
 }

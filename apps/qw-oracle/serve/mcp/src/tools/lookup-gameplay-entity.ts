@@ -6,6 +6,7 @@
 // surfaces first.
 
 import { db } from '../db.ts';
+import type { ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 export type LookupGameplayEntityArgs = {
@@ -32,25 +33,15 @@ export interface GameplayEntityRow {
   notes: string | null;
 }
 
-interface Meta {
-  tool: string;
-  server_version: string;
-  queried_at: string;
-}
+export type GameplayEntityResult = Omit<GameplayEntityRow, 'props_json' | 'ruleset_gate_json'> & {
+  props: Record<string, unknown>;
+  ruleset_gate: Record<string, unknown>;
+};
 
-export type LookupGameplayEntityResponse =
-  | { found: false; message: string; meta: Meta }
-  | {
-      found: true;
-      entity: Omit<GameplayEntityRow, 'props_json' | 'ruleset_gate_json'> & {
-        props: Record<string, unknown>;
-        ruleset_gate: Record<string, unknown>;
-      };
-      meta: Meta;
-    };
+export type LookupGameplayEntityResponse = ToolResponse<GameplayEntityResult>;
 
 export async function lookupGameplayEntity(args: LookupGameplayEntityArgs): Promise<LookupGameplayEntityResponse> {
-  const meta: Meta = {
+  const meta = {
     tool: 'lookup_gameplay_entity',
     server_version: SERVER_VERSION,
     queried_at: new Date().toISOString(),
@@ -72,19 +63,17 @@ export async function lookupGameplayEntity(args: LookupGameplayEntityArgs): Prom
 
   if (!row) {
     return {
-      found: false,
-      message: `No gameplay entity named '${args.name}' in source '${source}'.`,
+      results: [],
+      match_quality: 'none',
+      suggested_fallback: `No gameplay entity named '${args.name}' in source '${source}'. Try search_gameplay_entities with a kind filter or substring query.`,
       meta,
     };
   }
   const { props_json, ruleset_gate_json, ...rest } = row;
   return {
-    found: true,
-    entity: {
-      ...rest,
-      props: props_json,
-      ruleset_gate: ruleset_gate_json,
-    },
+    results: [{ ...rest, props: props_json, ruleset_gate: ruleset_gate_json }],
+    match_quality: 'strong',
+    suggested_fallback: null,
     meta,
   };
 }

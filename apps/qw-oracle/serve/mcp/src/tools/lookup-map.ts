@@ -4,6 +4,7 @@
 // the legacy *_json string-and-parse pattern from the SQLite era is gone.
 
 import { db } from '../db.ts';
+import type { ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 export interface MapRecordRow {
@@ -28,9 +29,7 @@ export interface MapRecordRow {
   extracted_at: string;
 }
 
-export type LookupMapResponse =
-  | { found: true; record: MapRecordRow; meta: { tool: string; server_version: string; queried_at: string } }
-  | { found: false; name: string; suggestion: string | null; meta: { tool: string; server_version: string; queried_at: string } };
+export type LookupMapResponse = ToolResponse<MapRecordRow>;
 
 interface Args {
   name: string;
@@ -136,7 +135,11 @@ export async function lookupMap(args: Args): Promise<LookupMapResponse> {
   `;
   const row = rows[0];
   if (!row) {
-    return { found: false, name: args.name, suggestion: await suggestClosest(args.name), meta };
+    const suggestion = await suggestClosest(args.name);
+    const fallback = suggestion
+      ? `No map named "${args.name}". Did you mean "${suggestion}"? Or try search_maps with filters.`
+      : `No map named "${args.name}". Try search_maps with filters.`;
+    return { results: [], match_quality: 'none', suggested_fallback: fallback, meta };
   }
-  return { found: true, record: rowToRecord(row), meta };
+  return { results: [rowToRecord(row)], match_quality: 'strong', suggested_fallback: null, meta };
 }

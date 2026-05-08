@@ -52,19 +52,19 @@ describe.skipIf(!HAS_DB)('maps tools (postgres-js)', () => {
 
   test('lookupMap hit', async () => {
     const result = await lookupMap({ name: 'aerowalk' });
-    expect(result.found).toBe(true);
-    if (result.found) expect(result.record.canonical_name).toBe('aerowalk');
+    expect(result.match_quality).toBe('strong');
+    expect(result.results[0]?.canonical_name).toBe('aerowalk');
   });
 
   test('lookupMap is case-insensitive', async () => {
     const result = await lookupMap({ name: 'AeroWalk' });
-    expect(result.found).toBe(true);
+    expect(result.match_quality).toBe('strong');
   });
 
   test('lookupMap miss with close suggestion', async () => {
     const result = await lookupMap({ name: 'aerowak' }); // 1-char typo
-    expect(result.found).toBe(false);
-    if (!result.found) expect(result.suggestion).toBe('aerowalk');
+    expect(result.match_quality).toBe('none');
+    expect(result.suggested_fallback).toContain('aerowalk');
   });
 
   test('searchMaps filter has_lava=true returns dm3 only', async () => {

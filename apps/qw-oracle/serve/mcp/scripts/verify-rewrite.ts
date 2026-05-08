@@ -35,7 +35,7 @@ function check(label: string, ok: boolean, detail?: string) {
 }
 
 const tools = await client.listTools();
-check('listTools returns 10 tools', tools.tools.length === 10, `got ${tools.tools.length}`);
+check('listTools returns 12 tools', tools.tools.length === 12, `got ${tools.tools.length}`);
 
 // 1. Case-fold lookup: the original miss (camelCase input, lowercased storage).
 // Scoped to project=ezquake because the same cvar name now exists in fte too
@@ -148,22 +148,22 @@ check('lookup_entity no-match returns match_quality=none', r8.match_quality === 
   const r = await client.callTool({ name: 'lookup_gameplay_entity', arguments: { name: 'rocket_launcher' } });
   const text = (r.content as Array<{ type: string; text: string }>)[0].text;
   const parsed = JSON.parse(text);
-  check('dispatcher: lookup_gameplay_entity rocket_launcher', parsed.found === true && parsed.entity.damage === 110);
+  check('dispatcher: lookup_gameplay_entity rocket_launcher', parsed.match_quality === 'strong' && parsed.results[0]?.damage === 110);
 }
 {
   const r = await client.callTool({ name: 'lookup_mechanic', arguments: { name: 'lava' } });
   const parsed = JSON.parse((r.content as Array<{ type: string; text: string }>)[0].text);
-  check('dispatcher: lookup_mechanic lava', parsed.found === true && parsed.mechanic.kind === 'env_hazard');
+  check('dispatcher: lookup_mechanic lava', parsed.match_quality === 'strong' && parsed.results[0]?.kind === 'env_hazard');
 }
 {
   const r = await client.callTool({ name: 'search_gameplay_entities', arguments: { kind: 'weapon', has_splash: true } });
   const parsed = JSON.parse((r.content as Array<{ type: string; text: string }>)[0].text);
-  check('dispatcher: search_gameplay_entities splash weapons = 2', parsed.rows.length === 2);
+  check('dispatcher: search_gameplay_entities splash weapons = 2', parsed.results.length === 2);
 }
 {
   const r = await client.callTool({ name: 'search_mechanics', arguments: { kind: 'env_hazard' } });
   const parsed = JSON.parse((r.content as Array<{ type: string; text: string }>)[0].text);
-  check('dispatcher: search_mechanics env_hazard = 7', parsed.rows.length === 7);
+  check('dispatcher: search_mechanics env_hazard = 7', parsed.results.length === 7);
 }
 
 await client.close();

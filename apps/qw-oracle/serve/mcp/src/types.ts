@@ -8,6 +8,9 @@ export interface ToolResponse<T = unknown> {
   results: T[];
   match_quality: MatchQuality;
   suggested_fallback: string | null;
+  // Optional metadata for filter-style tools. Set when meaningful, omit otherwise.
+  count?: number;       // total matches available (may exceed results.length when truncated by limit)
+  truncated?: boolean;  // true when results were clipped by the requested limit
   meta: {
     tool: string;
     server_version: string;

@@ -10,9 +10,9 @@ QW Oracle is a knowledge service for QuakeWorld engine ports, game content, and 
 
 Three layers:
 
-- Layer 1 (engine + game-content facts): cvars, commands, macros, command-line params, rulesets, maps, gameplay mechanics. Use lookup_entity / search_entities / lookup_map / search_maps / lookup_mechanic / search_mechanics / lookup_gameplay_entity / search_gameplay_entities for definitive engine facts.
-- Layer 3 (curated patterns and how-tos): use search_concepts for vague how-to questions. Concept notes synthesise Layer 1 facts into actionable guidance and reference related entities. The returned snippet + summary is the focused signal; call get_concept_note for the full body if the snippet alone is not enough.
+- Layer 1 (engine + game-content facts): cvars, commands, macros, command-line params, rulesets, info_keys, log_templates, match_events, maps, gameplay mechanics. Use lookup_entity / search_entities / lookup_map / search_maps / lookup_mechanic / search_mechanics / lookup_gameplay_entity / search_gameplay_entities for definitive engine facts. Engine projects covered: ezquake, fte, mvdsv, qwcl, ktx. KTX gameplay content uses kind discriminators on lookup_mechanic / search_mechanics: 'game_mode' (mode catalog: 1on1 / ca / wipeout / race / bloodfest / lgc / ...), 'mode_default' (per-cvar settings each mode applies), 'election_type', 'death_rule', 'score_system', 'drop_item', 'loc_macro', 'teamplay_message'; lookup_gameplay_entity / search_gameplay_entities admits 'monster' (bloodfest roster). KTX match-event types (death / damage / pick_mapitem / pick_backpack / drop_backpack / pick_powerup / drop_powerup) are entities.type = 'match_event'.
 - Layer 2 (chat history): use search_solved_issues for "has this been debugged before" questions. Returns raw chat sessions for citation. Discord-only; pre-2016 IRC content is not in this corpus.
+- Layer 3 (curated patterns and how-tos): use search_concepts for vague how-to questions. Concept notes synthesise Layer 1 facts into actionable guidance and reference related entities. The returned snippet + summary is the focused signal; call get_concept_note for the full body if the snippet alone is not enough.
 
 Recommended iteration:
 - Start with search_concepts for how-to / pattern questions ("how do I configure X").

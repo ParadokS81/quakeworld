@@ -13,9 +13,12 @@ import type { EntityRecord, EntityType, ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 const QUERY_MODEL = process.env.EMBEDDING_MODEL_QUERY ?? 'voyage-4-lite';
-// Placeholder thresholds; calibrated by Phase 8 against eval set.
-const STRONG_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_STRONG_THRESHOLD ?? '0.05');
-const WEAK_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_WEAK_THRESHOLD ?? '0.02');
+// Defaults reflect calibration against eval/calibration-queries.json (last
+// sweep 2026-05-06: STRONG=0.02 WEAK=0.005 hit 100% accuracy on the 5-query
+// set). Operator overrides via MATCH_QUALITY_* env vars; recalibrate after
+// any eval-set extension via `bun run calibrate`.
+const STRONG_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_STRONG_THRESHOLD ?? '0.02');
+const WEAK_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_WEAK_THRESHOLD ?? '0.005');
 
 const USER_FACING_TYPES = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset'] as const;
 

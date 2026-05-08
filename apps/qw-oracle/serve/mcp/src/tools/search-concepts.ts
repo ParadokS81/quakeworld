@@ -5,8 +5,9 @@
 // matching chunk via either lexical or semantic, RRF fuses them, and the
 // snippet is post-truncated so the consumer LLM gets a focused signal.
 //
-// match_quality thresholds are placeholders; Phase 8 calibrates against the
-// eval set.
+// Thresholds default to the values calibrated by `bun run calibrate` against
+// eval/calibration-queries.json (D10 disjoint set). Operator overrides via
+// MATCH_QUALITY_* env vars; .env wins over source defaults.
 
 import { db } from '../db.ts';
 import { embedTexts } from '../../../../shared/embedding.ts';
@@ -15,8 +16,10 @@ import type { SearchConceptResult, ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 const QUERY_MODEL = process.env.EMBEDDING_MODEL_QUERY ?? 'voyage-4-lite';
-const STRONG_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_STRONG_THRESHOLD ?? '0.05');
-const WEAK_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_WEAK_THRESHOLD ?? '0.02');
+// Last sweep 2026-05-06: STRONG=0.02 WEAK=0.005 hit 100% accuracy on the
+// 5-query calibration set. Recalibrate after any eval-set extension.
+const STRONG_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_STRONG_THRESHOLD ?? '0.02');
+const WEAK_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_WEAK_THRESHOLD ?? '0.005');
 const SNIPPET_CHARS = 600;
 
 interface Args {

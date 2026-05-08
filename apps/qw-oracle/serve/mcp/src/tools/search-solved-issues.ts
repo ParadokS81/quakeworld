@@ -10,6 +10,18 @@ import { db } from '../db.ts';
 import type { SessionHit, SessionMessage, ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
+// ts_rank thresholds for match_quality bucketing. Placeholders pending eval-set
+// calibration (API_CONTRACTS.md drift #2). Distinct env vars from RRF tools
+// because ts_rank and RRF scores live in different statistical regimes.
+const STRONG_THRESHOLD = parseFloat(process.env.L2_TS_RANK_STRONG_THRESHOLD ?? '0.05');
+const WEAK_THRESHOLD = parseFloat(process.env.L2_TS_RANK_WEAK_THRESHOLD ?? '0.005');
+
+function bucket(rank: number): 'strong' | 'weak' | 'none' {
+  if (rank >= STRONG_THRESHOLD) return 'strong';
+  if (rank >= WEAK_THRESHOLD) return 'weak';
+  return 'none';
+}
+
 interface SearchSolvedIssuesArgs {
   query: string;
   limit?: number;
@@ -134,7 +146,7 @@ export async function searchSolvedIssues(args: SearchSolvedIssuesArgs): Promise<
   }
 
   const matchQuality: 'strong' | 'weak' | 'none' =
-    results.length === 0 ? 'none' : results.length >= 2 ? 'strong' : 'weak';
+    results.length === 0 ? 'none' : bucket(ftsRows[0]?.rank ?? 0);
 
   return {
     results,

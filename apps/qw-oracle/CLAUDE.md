@@ -35,6 +35,7 @@
 | Vision: the knowledge service (Layers 1-3 + MCP + snapshot distribution), active-assistance answer-shape, consumer list | `VISION.md` |
 | Elevator pitch (humans + cold Claude land here first) | `README.md` |
 | Layer 1 data model + per-table shape | `SCHEMA.md` |
+| MCP API contract -- tool surface, response shape, match_quality semantics, new-dataset checklist | `API_CONTRACTS.md` |
 | Dev loops, runners, verifier scripts, prerequisites, gotchas | `DEVELOPMENT.md` |
 | Production deploy runbook (Unraid + nginx + CF Tunnel) | `DEPLOYMENT.md` |
 | Operator observability cheatsheet (query_log + embedding_api_log queries) | `docs/OBSERVABILITY.md` |

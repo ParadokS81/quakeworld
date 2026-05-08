@@ -5,6 +5,7 @@
 // fragments via tagged-template composition.
 
 import { db } from '../db.ts';
+import type { ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 export type SearchMechanicsArgs = {
@@ -23,24 +24,13 @@ export interface SearchMechanicsRow {
   source_ref: string;
 }
 
-interface Meta {
-  tool: string;
-  server_version: string;
-  queried_at: string;
-}
-
-export interface SearchMechanicsResponse {
-  rows: SearchMechanicsRow[];
-  count: number;
-  truncated: boolean;
-  meta: Meta;
-}
+export type SearchMechanicsResponse = ToolResponse<SearchMechanicsRow>;
 
 const MAX_LIMIT = 100;
 const DEFAULT_LIMIT = 50;
 
 export async function searchMechanics(args: SearchMechanicsArgs): Promise<SearchMechanicsResponse> {
-  const meta: Meta = {
+  const meta = {
     tool: 'search_mechanics',
     server_version: SERVER_VERSION,
     queried_at: new Date().toISOString(),
@@ -66,5 +56,14 @@ export async function searchMechanics(args: SearchMechanicsArgs): Promise<Search
   `;
   const truncated = rowsPlusOne.length > limit;
   const rows = rowsPlusOne.slice(0, limit);
-  return { rows, count: rows.length, truncated, meta };
+
+  return {
+    results: rows,
+    match_quality: rows.length > 0 ? 'strong' : 'none',
+    suggested_fallback: rows.length === 0
+      ? `No mechanics match the given filters in source '${source}'. Try broadening the kind filter or removing the substring query.`
+      : null,
+    truncated,
+    meta,
+  };
 }
