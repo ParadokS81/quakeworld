@@ -12,9 +12,9 @@
 
 ## Where we are right now
 
-- **Stage:** SCAFFOLD landed. No phase MDs drafted yet. arc-planner halt point.
-- **Last action:** 2026-05-08 -- arc-planner ran in fresh terminal; produced 6-artifact scaffold (decisions.md / review-findings.md / prerequisites.md / phase-template.md / handoff-prompt.md / this README) after pre-flight reads + slicing analysis. Slicing confirms Pass 2.3 lock-shape: vertical-slice per gate for P1-P4 (each = probe + 5-project audit + commit), linear documentation tail for P5-P7. No pushback issues raised against the locked phase outline.
-- **Next action:** operator reviews scaffold (decisions.md cross-cutting commitments + this README's phase index in particular). Once approved, open fresh `claude` terminal and paste `handoff-prompt.md`'s prompt with `<PHASE_NUMBER>=1` to draft Phase 1 (idempotency probe). Phase 1 is the canonical model gate; its dispatch shape is mirrored by P2-P4.
+- **Stage:** Phase 1 phase MD approved; ready for execution. Phase 2/3/4 drafter prompts available for parallel fan-out.
+- **Last action:** 2026-05-08 -- Phase 1 (idempotency probe) drafted in fresh terminal with sub-agent verification (0 CRITICAL, 0 SUBSTANTIVE, 3 ADVISORY); operator + planner reviewed; one staleness fix-up applied to Task 2 verification text (--help exit code). Phase 1 executor prompt + Phase 2/3/4 drafter prompts generated for parallel paths.
+- **Next action:** open fresh terminal for Phase 1 execution (paste `phase-1-executor-prompt.md` content); optionally fan out Phase 2/3/4 drafting in 3 parallel terminals using their per-phase drafter prompts. Phase 5/6/7 drafter prompts come once Phase 2-4 are drafted.
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
@@ -44,7 +44,7 @@ After Phase 1 lands the canonical dispatch shape, Phases 2 / 3 / 4 are mutually 
 
 | Phase | Status | MD | Deliverable | Runnable state at end |
 |---|---|---|---|---|
-| 1 | not started | `phase-1-idempotency-probe.md` | Universal `scripts/load-knowledge/idempotency.ts` (lifts `idempotency-ktx.sh` to `--project <p>` dispatch); `case 'idempotency':` in `index.ts`; per-project config dict (5 entries); KTX bash version deleted; 5-project catch-up audit findings inline in commit body | `bun run load-knowledge -- idempotency --project <p>` works for all 5 projects; `--all` runs sequentially; KTX-only bash gone |
+| 1 | approved | `phase-1-idempotency-probe.md` | Universal `scripts/load-knowledge/idempotency.ts` (lifts `idempotency-ktx.sh` to `--project <p>` dispatch); `case 'idempotency':` in `index.ts`; per-project config dict (5 entries); KTX bash version deleted; 5-project catch-up audit findings inline in commit body | `bun run load-knowledge -- idempotency --project <p>` works for all 5 projects; `--all` runs sequentially; KTX-only bash gone |
 | 2 | not started | `phase-2-reproducibility-probe.md` | Universal `scripts/load-knowledge/reproducibility-check.ts` (packages VALIDATION-RUNBOOK Section 1.1 as runnable); `case 'reproducibility-check':` in `index.ts`; per-project config dict (source roots, optional `--workers`); 5-project audit findings inline | `bun run load-knowledge -- reproducibility-check --project <p>` re-runs `extract.py` and asserts empty `git diff --stat HEAD` on output |
 | 3 | not started | `phase-3-parallel-serial-tests.md` | Lifted `extractor_lib/tests/parallel_serial_helpers.py` (from KTX-only); per-handler `<project>/tests/test_handler_<name>_parallel_serial.py` files for handlers identified as parallel-aggregation-risky; pytest convention CI-ready by being pytest | `pytest apps/qw-oracle/scripts/extractors/` runs without import error; per-handler equivalence tests pass |
 | 4 | not started | `phase-4-migration-probes.md` | Universal `scripts/load-knowledge/migration-probes.ts` runner + `db/migration-probes.ts` registry mapping migration name -> probe function; probes for 001-012 (retroactive 001-008 + KTX-shipped 009/010/011 + new 012); `case 'migration-probes':` in `index.ts` | `bun run load-knowledge -- migration-probes` runs all probes; `--migration NNN` runs single probe; all 12 migrations pass |
