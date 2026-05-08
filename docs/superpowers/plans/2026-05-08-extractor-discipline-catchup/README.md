@@ -12,9 +12,9 @@
 
 ## Where we are right now
 
-- **Stage:** Phase 1 phase MD approved; ready for execution. Phase 2/3/4 drafter prompts available for parallel fan-out.
-- **Last action:** 2026-05-08 -- Phase 1 (idempotency probe) drafted in fresh terminal with sub-agent verification (0 CRITICAL, 0 SUBSTANTIVE, 3 ADVISORY); operator + planner reviewed; one staleness fix-up applied to Task 2 verification text (--help exit code). Phase 1 executor prompt + Phase 2/3/4 drafter prompts generated for parallel paths.
-- **Next action:** open fresh terminal for Phase 1 execution (paste `phase-1-executor-prompt.md` content); optionally fan out Phase 2/3/4 drafting in 3 parallel terminals using their per-phase drafter prompts. Phase 5/6/7 drafter prompts come once Phase 2-4 are drafted.
+- **Stage:** Phase 1 SHIPPED (commit `f64ef308`); 5-project audit clean in steady state. Phase 2/3/4 drafts in flight; awaiting drafter halts.
+- **Last action:** 2026-05-08 -- Phase 1 executor halted DONE_WITH_CONCERNS. Universal `idempotency.ts` (398 lines) shipped; dispatcher case wired; KTX bash deleted; VALIDATION-RUNBOOK reference rewritten. Catch-up audit: 3/5 PASS first run (ezquake / mvdsv / ktx); FTE+QWCL FAIL->PASS state-fill (rejected per D8 explicit-reject). Three concerns: V6 stdout contamination + V8 grep historical-narration false positives (both amended in phase MD); FTE asset-bundle re-stamp passed to P2 reproducibility scope.
+- **Next action:** await Phase 2/3/4 drafter halts; review each phase MD against scaffold; generate executor prompts on approval. Phase 5/6/7 drafter prompts come once Phase 2-4 are drafted.
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
@@ -44,7 +44,7 @@ After Phase 1 lands the canonical dispatch shape, Phases 2 / 3 / 4 are mutually 
 
 | Phase | Status | MD | Deliverable | Runnable state at end |
 |---|---|---|---|---|
-| 1 | approved | `phase-1-idempotency-probe.md` | Universal `scripts/load-knowledge/idempotency.ts` (lifts `idempotency-ktx.sh` to `--project <p>` dispatch); `case 'idempotency':` in `index.ts`; per-project config dict (5 entries); KTX bash version deleted; 5-project catch-up audit findings inline in commit body | `bun run load-knowledge -- idempotency --project <p>` works for all 5 projects; `--all` runs sequentially; KTX-only bash gone |
+| 1 | shipped (`f64ef308`) | `phase-1-idempotency-probe.md` | Universal `scripts/load-knowledge/idempotency.ts` (lifts `idempotency-ktx.sh` to `--project <p>` dispatch); `case 'idempotency':` in `index.ts`; per-project config dict (5 entries); KTX bash version deleted; 5-project catch-up audit findings inline in commit body | `bun run load-knowledge -- idempotency --project <p>` works for all 5 projects; `--all` runs sequentially; KTX-only bash gone |
 | 2 | not started | `phase-2-reproducibility-probe.md` | Universal `scripts/load-knowledge/reproducibility-check.ts` (packages VALIDATION-RUNBOOK Section 1.1 as runnable); `case 'reproducibility-check':` in `index.ts`; per-project config dict (source roots, optional `--workers`); 5-project audit findings inline | `bun run load-knowledge -- reproducibility-check --project <p>` re-runs `extract.py` and asserts empty `git diff --stat HEAD` on output |
 | 3 | not started | `phase-3-parallel-serial-tests.md` | Lifted `extractor_lib/tests/parallel_serial_helpers.py` (from KTX-only); per-handler `<project>/tests/test_handler_<name>_parallel_serial.py` files for handlers identified as parallel-aggregation-risky; pytest convention CI-ready by being pytest | `pytest apps/qw-oracle/scripts/extractors/` runs without import error; per-handler equivalence tests pass |
 | 4 | not started | `phase-4-migration-probes.md` | Universal `scripts/load-knowledge/migration-probes.ts` runner + `db/migration-probes.ts` registry mapping migration name -> probe function; probes for 001-012 (retroactive 001-008 + KTX-shipped 009/010/011 + new 012); `case 'migration-probes':` in `index.ts` | `bun run load-knowledge -- migration-probes` runs all probes; `--migration NNN` runs single probe; all 12 migrations pass |
