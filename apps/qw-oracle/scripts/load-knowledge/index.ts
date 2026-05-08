@@ -4,7 +4,7 @@
 // Subcommands: load-version, diff, enrich, load-assets, release-notes,
 //              extract-tag, prune-cross-type-orphans, review, quality-grid,
 //              idempotency, reproducibility-check, build-snapshot,
-//              load-maps, load-gameplay, re-derive
+//              load-maps, load-gameplay, re-derive, migration-probes
 
 import { parseArgs } from 'util';
 import { dirname, join } from 'path';
@@ -42,6 +42,7 @@ async function main(): Promise<void> {
   if (subcommand === 'load-ktx-taxonomies')       { await runLoadKtxTaxonomies(rest); return; }
   if (subcommand === 'load-ktx-gameplay-tables')  { await runLoadKtxGameplayTables(rest); return; }
   if (subcommand === 're-derive')                 { await runReDerive(rest); return; }
+  if (subcommand === 'migration-probes')          { await runMigrationProbesCli(rest); return; }
 
   if (subcommand === 'full') {
     throw new Error(`subcommand 'full' is out of scope for Phase 2b; run load-version + diff + enrich manually.`);
@@ -126,6 +127,13 @@ Subcommands:
                 the next embed-entities pass picks up the changed rows
                 via the description_embedding_sha256 hash check.
                 Defaults to all projects, all derivable types.
+  migration-probes [--migration <NNN>] [--json] [--help]
+                Assert each migration's invariants (table/column/index
+                existence, CHECK reachability, seed values). Migrations
+                are global; no --project flag. --migration filters by
+                3-digit prefix (e.g. 009). Omit to run all 12 probes.
+                Exit 0 = all probes PASS; exit 1 = fail;
+                exit 2 = unknown --migration prefix.
 `.trim());
   process.exit(2);
 }
@@ -623,6 +631,11 @@ async function runLoadKtxGameplayTables(args: string[]): Promise<void> {
     );
     process.exitCode = 2;
   }
+}
+
+async function runMigrationProbesCli(args: string[]): Promise<void> {
+  const { runMigrationProbesCli: run } = await import('./migration-probes.js');
+  await run(args);
 }
 
 async function runReDerive(args: string[]): Promise<void> {
