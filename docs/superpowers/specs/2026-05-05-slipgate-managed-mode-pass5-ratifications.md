@@ -1,8 +1,8 @@
 # Slipgate Managed Mode -- Brainstorm Pass 5 Ratifications (PARTIAL)
 
-> **Captured 2026-05-05; 5.2 appended 2026-05-06.** Bridge document between the Pass 5 brainstorm session and the canonical drain pass. **PARTIAL: 5.1 + 5.2 complete; 5.3 (Manifest backup UX) pending.** This doc is a save point — append 5.3 in a future session, then drain Pass 4 + Pass 5 together.
+> **Captured 2026-05-05; 5.2 appended 2026-05-06; 5.3 appended 2026-05-08.** Bridge document between the Pass 5 brainstorm session and the canonical drain pass. **COMPLETE: 5.1 + 5.2 + 5.3 all done. Drain pending in fresh session, batched with Pass 4.**
 >
-> **Status:** 5.1 + 5.2 brainstorm complete; 5.3 not yet started; drain pending.
+> **Status:** Brainstorm complete (5.1 + 5.2 + 5.3). Drain pending in fresh session.
 >
 > **Companion docs:**
 > - Vision: `docs/superpowers/specs/2026-04-28-slipgate-managed-mode-vision.md`
@@ -21,7 +21,7 @@ Three sub-questions:
 
 - **5.1** Runtime swap class taxonomy + engine IPC scope -- **COMPLETE 2026-05-05**
 - **5.2** Launch UX (app-open behavior, profile-switch, engine-launch, gamedir-model amendment, engine-exit, multi-instance) -- **COMPLETE 2026-05-06**
-- **5.3** Manifest backup UX (backup state surface, backup targets, restore flow) -- **PENDING**
+- **5.3** Manifest backup UX (V1 backup targets, backup state surface, restore flow, payload over time, cadence) -- **COMPLETE 2026-05-08**
 
 ---
 
@@ -240,6 +240,124 @@ Operator framing: "an app that i use to control my quakedir basically. once i ha
 
 ---
 
+## 5.3 -- Manifest backup UX
+
+### Pass 5.3 brainstorm shape
+
+Four sub-questions resolved over the 2026-05-08 session, plus a V1 scope confirmation that landed early when the operator pushed back on hub-as-primary-backup (hub doesn't exist yet; cannot rely on it for V1 byte recovery):
+
+- **Pre-5.3a** -- V1 backup targets (resolved: GitHub OAuth + local-external; hub deferred to V2)
+- **5.3a** -- Backup state surface UX placement (resolved: Settings + first-launch + change-count drift-badge)
+- **5.3b** -- Restore flow grammar (resolved: symmetric selector modal)
+- **5.3c** -- Backup payload over time (resolved: snapshot model + include manifest-history/)
+- **5.3d** -- Backup cadence policy (resolved: manual only PoC; auto-flavors V1+)
+
+### V1 scope (locked pre-5.3a): backup targets
+
+| Target | Payload | V2 when hub.quake.world ships |
+|---|---|---|
+| **GitHub OAuth** (primary, cloud) | full warehouse -- manifest + state + configs + ALL blobs + manifest history | payload shrinks back toward "private content only" (sovereignty argument: private-by-definition shouldn't sit on community-hosted infra) |
+| **Local-external** (offline, manual) | full warehouse copy to USB / NAS | unchanged |
+
+**V1 reality check (load-bearing reframe):**
+- Hub doesn't exist yet -> no hub-known-SHA byte recovery on restore.
+- Manifest-only GitHub backup would land a list of SHAs nobody serves. Useless.
+- Therefore GitHub MUST carry the bytes in V1, not just the manifest. GitHub IS the proof-of-concept that demonstrates the content-addressed warehouse model end-to-end.
+
+**Sizing fits** the typical user: ~100MB Quake dir (operator's measured ~130MB textures dir alone) fits in a single GitHub repo without LFS; <= 1GB stays in GitHub's preferred envelope; >1GB users fall back to local-external. Content-addressed blob layout maps cleanly onto git's object store -- blobs are added once and never mutate, manifests change over time, git history captures snapshots naturally.
+
+**V1 -> V2 migration path:**
+- V1 (now): GitHub carries the full warehouse. Hub absent.
+- V2 (when hub.quake.world ships): hub takes over the mass (small payload: manifest + state + configs; hub serves blobs via hub-as-gravitational-center per Pass 3.5). GitHub payload shrinks to private-content-only OR deprecates depending on the privacy-sovereignty story. Local-external unchanged.
+
+### 5.3a -- Backup state surface UX placement
+
+**Locked decisions:**
+
+- **Steady-state surface:** Settings -> Backup pane. Backup is system-maintenance UX, not a daily-product surface. Settings is the semantic home.
+- **Always-visible drift-badge:** slipgate header/footer surfaces "X changes since last backup" (content-delta, NOT time-based). "12 changes since last backup" is a sharper signal than "7 days since last backup" -- meaningful regardless of elapsed days; "0 changes" means no nudge.
+- **First-launch onboarding surface:** when slipgate is installed with no existing data root, the install flow surfaces three branches front-and-center:
+  1. **Install fresh Quake** -- slipgate seeds from scratch (uses existing migration / fresh-start substrate from Pass 1).
+  2. **Restore from backup** -- choose GitHub repo (paste URL / OAuth) or local-external path; clone / copy warehouse; rematerialize active tree.
+  3. **Skip into tool mode** -- slipgate runs as analysis tool (drop-a-zip-and-inspect; no warehouse, no profiles).
+
+**Settings -> Backup pane V1 minimum surface:**
+- Per-target list (GitHub repo URL, local-external path; "Add target" / "Remove target" gestures).
+- Per-target last-backup timestamp + drift-badge with thresholds (defaults: yellow > 7 days OR > N changes; red > 30 days OR > M changes; user-configurable).
+- "Back up now" button per target -> opens selector modal (sixth consumer of Pass 3.2 primitive).
+- "Restore from this target" button per target -> opens selector modal (symmetric grammar; see 5.3b).
+
+**Third slipgate persona surfaced:**
+The "Skip into tool mode" branch surfaces a third slipgate persona distinct from Managed Mode's primary user: an **analysis-tool user** (drop in a zip, inspect contents, check SHA-known status, identify mod fingerprints). Not Managed Mode V1 core, but the install flow accommodates it cleanly. Worth a note in the architecture spec under install flow.
+
+### 5.3b -- Restore flow grammar
+
+**Locked decisions:**
+
+- **Restore uses the same selector modal as backup -- symmetric grammar.** User sees "this backup contains: Configs (200KB), HUD (12MB), Textures (130MB), Private files (3KB)" and ticks what to restore.
+- **Selector modal becomes the sixth consumer** of Pass 3.2's clone-modal-as-V1-selector primitive (BACKUP gesture) AND extends the existing "selective import from another profile" consumer to include "import from backup target" (RESTORE gesture). Could equivalently be framed as the seventh independent consumer; either framing works.
+- **Granular partial restore is supported by default.** User who broke a config can restore yesterday's configs only without bringing back textures or other content.
+- **Modal defaults at backup time tuned to "save their setup"** -- the operator's framing for what the typical user wants protected:
+
+| Section | Default at backup | Reason |
+|---|---|---|
+| Configs | ON | Identity-defining, KB-scale |
+| HUD | ON | Custom HUDs are setup |
+| Player skins | ON | Setup |
+| User-asset textures (custom) | ON (user can deselect) | Setup, but heavy -- may be 100+ MB |
+| User-asset sounds (custom) | ON | Setup, typically small |
+| Scripts (weapon scripts, frag-msg packs, etc.) | ON | Identity-defining |
+| Private files | ON | User chose to keep these |
+| Library (maps / locs / mod-content) | OFF | Recoverable via server auto-download (V1) or hub (V2) |
+| Stock baseline | OFF | Recoverable from user's existing ezQuake install |
+| User-content (demos / screenshots / logs) | OFF | Profile-orthogonal; user opts in |
+
+Typical "setup-only" payload lands at maybe 5-30MB; with custom textures included, ~150MB. Both fit GitHub easily.
+
+### 5.3c -- Backup payload over time
+
+**Locked decisions:**
+
+- **Snapshot model.** Each "Back up now" = git commit with timestamp. Restore can target HEAD (latest) OR any prior commit ("restore from 3 days ago"). Git's native model is snapshots; working with git's grain beats fighting it.
+- **Content-addressed dedup:** blobs are stored once in git's object store regardless of how many backup commits reference them. A 130MB texture stored once stays 130MB across 50 weekly backup commits; repo size grows with manifest changes (small JSON diffs), not blob churn.
+- **Include manifest-history/ in payload.** GitHub backup carries `<data-root>/profiles/<id>/manifest-history/` (Pass 2's 500 config versions / 10 asset snapshots / checkpoints). Slipgate's internal "Versions" UI for configs works on a freshly-restored machine -- the "I broke this 200 versions ago" rollback survives machine swap.
+
+**Reasoning:** Pass 2's retention policy is a load-bearing slipgate promise. Honoring it across machine swaps requires backing up manifest-history/. Byte cost is small (text-shaped JSON, mostly small diffs against parent manifests; dedup-friendly under git).
+
+**Implication:** GitHub backup is a **two-layered time-machine**:
+- Per-backup snapshots via git commits (coarse-grained; one snapshot per backup gesture).
+- Per-config / per-asset-version via included manifest-history/ (fine-grained; matches slipgate's internal versioning).
+
+### 5.3d -- Backup cadence policy
+
+**Locked decisions:**
+
+- **V1 PoC: manual only.** "Back up now" button per target; user triggers when they want.
+- **Drift-badge is the always-visible nudge.** Surfaces "X changes since last backup" (content-delta, not time). Color-graded by threshold (configurable; default green / yellow > 7 days or > N changes / red > 30 days or > M changes).
+- **Click-on-badge or "Back up now" opens the selector modal** (sixth consumer of Pass 3.2 primitive). User sees what would be backed up; deselects heavy or unwanted sections; commits.
+- **Auto-cadences deferred to V1+:**
+  - On-app-close (gotcha: Tauri lifecycle work for graceful-vs-immediate close + background completion of a 150MB push).
+  - Time-based auto (gotcha: Tauri background-scheduling daemon).
+  - On-significant-change (gotcha: smart-trigger logic; footgun risk).
+
+**Reasoning:** PoC ships fastest with one trigger to test (button click; deterministic state; easy to iterate). Drift-badge covers the "user forgot" failure mode without auto-trigger complexity. Auto-cadences earn V1+ scope once the basic loop is proven.
+
+### Affected canonical docs (5.3)
+
+- **Architecture spec Pre-Pass anchor block:** update Pass 5 status to "5.1 + 5.2 + 5.3 COMPLETE 2026-05-08." Mark Pass 5 entirely closed.
+- **Architecture spec NEW section (Backup and Restore UX):** add a top-level section covering V1 targets (GitHub + local-external), payload-vs-target table, snapshot model + manifest-history inclusion, settings-pane minimum surface, drift-badge with change-count, V1 manual-only cadence, V1+ auto-cadence carry-forwards, V2 hub-as-primary migration path. Cross-references Pass 3.2 selector primitive (sixth + symmetric-restore consumer).
+- **Architecture spec Engine integration / install flow:** add three-branch first-launch flow (install fresh / restore / skip-into-tool-mode). Note third slipgate persona (analysis-tool user) surfaced via skip-into-tool-mode branch.
+- **Architecture spec Storage Layout:** no new state files (backup is a target-shaped operation, not a state-storage primitive).
+- **Architecture spec Primitive operations:** extend selector-modal subsection to note backup as sixth consumer + restore as symmetric-grammar seventh consumer (or extension of selective-import-from-another-profile).
+- **Architecture spec Cloud catalog interaction:** note V1 GitHub-as-full-warehouse vs V2 hub-as-primary migration path. Hub-as-gravitational-center triangle stays unchanged; backup adds a parallel path that shrinks when hub takes over.
+- **Architecture spec Open architectural questions:** mark Pass 5.3 resolved. Pass 5 entirely closed. Pass 6 / Arc H pre-impl + L1-alpha/beta/gamma/delta tracks remain open.
+- **Roadmap brainstorm-progress block:** mark Pass 5 COMPLETE 2026-05-08 (replacing PARTIAL).
+- **Roadmap NEW or extended arc:** Backup arc (could be Arc B sub-section or its own arc; arc-planner decides slicing). Key decisions: V1 = GitHub + local-external + manual cadence + symmetric selector modal + snapshot-with-manifest-history payload. V1+ = auto-cadences. V2 = hub-as-primary refactor.
+- **HANDOVER:** update "Slipgate Managed Mode pivot" entry: Pass 5 COMPLETE 2026-05-08; mention V1 = GitHub OAuth + local-external + manual cadence + symmetric selector modal + snapshot-with-manifest-history-included.
+- **Memory:** update `project_slipgate_managed_mode_passes.md` with Pass 5 COMPLETE row and new locked principles (V1 backup targets; symmetric selector modal for backup+restore; snapshot model + include manifest-history/; manual-only V1 cadence + change-count drift-badge; first-launch three-branch flow + third persona).
+
+---
+
 ## Pass 5 carry-forwards
 
 ### V1+ refinements within slipgate Managed Mode arcs
@@ -250,10 +368,17 @@ Operator framing: "an app that i use to control my quakedir basically. once i ha
 - **Mailslot ruleset-gating verification.** Pass 1 anchor item 5 flagged that some commands are gated by active ruleset (MTFL etc.); tournament-context features need verification against ezQuake source via qw-oracle. V1 = no awareness, document the limitation; V1+ = ruleset-gating before sending mailslot commands during a tournament match.
 - **Empirical reload-cost registry growth.** Specific HUD images that don't reload correctly via vid_restart, texture path patterns that need special handling, etc. Content-shaped V1+ work.
 - **Two-way drift (fork -> parent).** V1 is one-directional only. V1+ if user demand surfaces.
+- **Auto-cadence flavors for backup** (on-app-close, weekly auto, on-significant-change). Each adds Tauri lifecycle / scheduling work. V1 ships manual-only PoC; V1+ layers auto-cadences as opt-in toggles per target.
+- **GitHub-as-private-only payload refactor (V2 path).** When hub.quake.world ships and takes over backup-mass, GitHub payload shrinks to private-content-only (private.json + bytes). Sovereignty argument: private-by-definition shouldn't sit on community-hosted infra.
+- **Hub-as-primary-backup migration (V2).** Hub becomes primary backup target with small payload (manifest + state + configs); hub serves blobs via hub-as-gravitational-center. Local-external unchanged. GitHub repurposed (private-only) or deprecated.
+- **GitHub auth mechanic refinement.** V1 ships OAuth-in-Tauri-webview or PAT (arc-planner decides slicing). V1+ adds token rotation, scope minimization (repo-only), 2FA flow polish.
+- **Repo validation and restore-collision UX polish.** V1 ships minimal verification and a simple "warn before overwrite" flow; V1+ adds richer pre-flight (manifest-shape verification, dry-run preview, branch-into-sibling-root option) per real user feedback.
 
 ### Out-of-scope long-term (not Managed Mode arcs)
 
 - **Mod browser.** "One-click install expansion packs / mods to try" -- mostly FTE single-player community use case (hipnotic / rogue / Painkeep / custom singleplayer mods). Adjacent to library content but distinct: catalog-distributed mod packs that install to a new gamedir. Out of scope for Managed Mode V1; could be a future Slipgate arc on top of the existing library + gamedir primitives once FTE support is mature.
+- **Cross-machine sync** (desktop <-> laptop direct sync between two Slipgate installs). Implies multi-tree substrate; conflict resolution; LAN discovery. Could be a future Slipgate arc once V1 + V2 ship.
+- **Cloud-provider-API backup** (S3 / Dropbox / Google Drive / OneDrive). Provider-taxonomy work; doesn't earn V1 or V2 scope. Local-external covers the offline-target case; GitHub covers the cloud case.
 
 ---
 
@@ -264,7 +389,7 @@ A fresh session (or continuation in the current session if context budget allows
 ### Step 1 -- Load context
 
 Read in this order:
-1. This Pass 5 ratifications doc (the 5.1 portion is complete).
+1. This Pass 5 ratifications doc (all sub-questions 5.1 + 5.2 + 5.3 complete).
 2. Pass 4 ratifications doc (`docs/superpowers/specs/2026-05-05-slipgate-managed-mode-pass4-ratifications.md`).
 3. Pass 3 ratifications doc.
 4. Architecture spec.
@@ -273,49 +398,53 @@ Read in this order:
 
 ### Step 2 -- Architecture spec body edits
 
-Pass 4 + Pass 5 (5.1 + 5.2) edits are summarized above. Cross-section consistency to watch for:
+Pass 4 + Pass 5 (5.1 + 5.2 + 5.3) edits are summarized above. Cross-section consistency to watch for:
 - Pass 1 anchor item 1 amendment (per-role materialization mode) cascades to materializer description in Storage Layout + Primitive operations.
 - Pass 1 anchor item 3 amendment (drop per-launch gamedir picker; field stays as metadata) cascades to Engine integration + Manifest as Profile.
 - Pass 3.2 amendment (drift detection) cascades to Manifest as Profile schema, fork primitive, clone modal docs.
 - Pass 5 (5.1) full taxonomy replaces Pass 1 anchor item 5 placeholder; affects Engine integration section + Slipgate self-knowledge surface (ninth table).
 - Pass 5 (5.2) Launch UX scenario walkthrough lands in Engine integration; non-blocking-on-app-open + blocking-on-profile-switch + light-prompt-on-engine-launch drift triggers cross-reference Pass 3.2's drift detection mechanics.
+- Pass 5 (5.3) Backup and Restore UX is a NEW top-level architecture spec section. Cross-references: Pass 3.2 selector primitive (backup as 6th consumer; restore as 7th or extension of selective-import); Pass 3.5 hub-as-gravitational-center (V1->V2 migration path); Pass 1 fresh-install + migration substrate (three-branch first-launch flow). Three slipgate personas surfaced (Managed Mode user / drop-zip-and-analyze tool user / install-flow chooser).
+- Pass 5 (5.3) install flow note (three branches: install fresh / restore / skip-into-tool-mode) lands in Engine integration section under install flow. Surfaces a third slipgate persona (analysis-tool user) via skip-into-tool-mode branch.
 
 ### Step 3 -- Roadmap edits
 
-- Pass 4 + Pass 5 (5.1) marked complete in brainstorm-progress block.
+- Pass 4 + Pass 5 (5.1 + 5.2 + 5.3) marked complete in brainstorm-progress block.
 - Arc B: gains per-role materialization mode (configs copy, others hardlink); gains `last_synced_parent_manifest_sha` field; gains drift detection at fork launch.
-- Arc C-minimal: clone modal grows the drift-import consumer (sixth).
+- Arc C-minimal: clone modal grows the drift-import consumer (sixth) AND the symmetric backup/restore consumers (sixth + seventh, or extension of selective-import-from-another-profile).
 - Arc E: gains the reload-cost registry as a watcher-adjacent surface (slipgate consults it at swap time).
 - New: Class 1/2/3 swap implementation lands in Arc B (or its own sub-arc) using the registry + parser.
-- Arc H: keep mod-browser as a long-term "out of scope; potential future arc" note.
+- New: Backup arc (V1 = GitHub OAuth + local-external + manual cadence + symmetric selector modal + snapshot-with-manifest-history payload). Could be Arc B sub-section or its own arc; arc-planner decides slicing. V1+ adds auto-cadences (on-close / weekly / threshold). V2 refactors to hub-as-primary backup + GitHub-as-private-only.
+- Arc H: keep mod-browser as long-term "out of scope; potential future arc" note. Add cross-machine sync + cloud-provider-API backup as additional out-of-scope future-arc notes.
 
 ### Step 4 -- HANDOVER edits
 
-- Update "Slipgate Managed Mode pivot" entry: mark Pass 4 COMPLETE 2026-05-05 and Pass 5 PARTIAL 2026-05-05 (5.1 done; 5.2 + 5.3 pending).
+- Update "Slipgate Managed Mode pivot" entry: mark Pass 4 COMPLETE 2026-05-05 and Pass 5 COMPLETE 2026-05-08 (5.1 + 5.2 + 5.3 all done). Mention key Pass 5 outcomes: per-role materialization mode + hard-fork-with-drift-detection + reload-cost registry + verified Class 1/2/3 boundaries (5.1); five-scenario launch UX + gamedir model amendment (5.2); V1 backup architecture = GitHub OAuth + local-external + symmetric selector modal + snapshot-with-manifest-history + manual cadence + change-count drift-badge + first-launch three-branch flow (5.3).
 
 ### Step 5 -- Memory edits
 
-- Update `project_slipgate_managed_mode_passes.md`: add Pass 4 row + Pass 5-partial row to the pass-by-pass table; add new locked principles (per-role materialization mode; hard-fork-with-drift-detection; per-role drift granularity; reload-cost registry as ninth self-knowledge table; verified Class 1/2/3 boundaries from ezQuake source-walk).
+- Update `project_slipgate_managed_mode_passes.md`: add Pass 4 row + Pass 5 COMPLETE row to the pass-by-pass table. Add new locked principles:
+  - From 5.1: per-role materialization mode; hard-fork-with-drift-detection; per-role drift granularity; reload-cost registry as ninth self-knowledge table; verified Class 1/2/3 boundaries from ezQuake source-walk.
+  - From 5.2: five-surface launch UX (app-open / profile-switch / engine-launch / engine-exit / app-close); drift-trigger differentiation (non-blocking on app-open, blocking on profile-switch, light-prompt on engine-launch); gamedir mental-model corrected (per-launch picker dropped, declared_gamedirs stays as content-metadata for "what gamedirs profile has content for").
+  - From 5.3: V1 backup targets (GitHub OAuth full-warehouse + local-external; hub-as-primary deferred to V2 because hub doesn't exist yet); symmetric selector-modal grammar for backup AND restore (sixth + seventh consumer of Pass 3.2 primitive); snapshot model + include manifest-history/ for two-layered time-machine; manual-only V1 cadence + change-count drift-badge nudge; first-launch three-branch flow (install fresh / restore / skip-into-tool-mode) surfaces third slipgate persona (analysis-tool user).
 
 ### Step 6 -- Verify and commit
 
 - Read modified architecture spec end-to-end for cross-section consistency.
 - Commit message:
   ```
-  docs(slipgate): drain Managed Mode brainstorm Pass 4 + Pass 5 (5.1) -- per-role materialization, hard-fork-with-drift-detection, reload-cost registry, verified Class 1/2/3 from ezQuake source-walk
+  docs(slipgate): drain Managed Mode brainstorm Pass 4 + Pass 5 (5.1 + 5.2 + 5.3) -- per-role materialization, hard-fork-with-drift-detection, reload-cost registry, verified Class 1/2/3 boundaries, five-surface launch UX, gamedir model amendment, V1 backup architecture (GitHub + local-external + symmetric selector modal + snapshot-with-manifest-history)
   ```
 - Push to origin.
-
-### Step 7 -- Continue Pass 5
-
-After drain (or in parallel if context budget allows), append 5.2 (Launch UX) and 5.3 (Manifest backup UX) sections to this doc and continue the brainstorm.
 
 ---
 
 ## Provenance
 
-This doc is the partial output of a multi-session Pass 5 brainstorm. **5.1 (2026-05-05)** brainstormed extensively, generating substrate amendments back into Pass 1 + Pass 3.2 plus a new Pass 5 surface (reload-cost registry). Two subagent verification passes anchored 5.1: (1) ezQuake `cfg_save` write semantics confirming truncate-write through hardlinks corrupts blobs (`src/config_manager.c:826` etc.); (2) ezQuake runtime asset-reload semantics across `vid_restart` / `s_restart` / `gamedir` / `exec` / `cfg_load` / `fs_restart` / `skins` / `loadcharset` / `loadsky` / `hud_recalculate` / `vid_reload`. Both verifications grounded design decisions in primary-source evidence rather than speculation, per the operator's verification-discipline preference.
+This doc is the output of a multi-session Pass 5 brainstorm. **5.1 (2026-05-05)** brainstormed extensively, generating substrate amendments back into Pass 1 + Pass 3.2 plus a new Pass 5 surface (reload-cost registry). Two subagent verification passes anchored 5.1: (1) ezQuake `cfg_save` write semantics confirming truncate-write through hardlinks corrupts blobs (`src/config_manager.c:826` etc.); (2) ezQuake runtime asset-reload semantics across `vid_restart` / `s_restart` / `gamedir` / `exec` / `cfg_load` / `fs_restart` / `skins` / `loadcharset` / `loadsky` / `hud_recalculate` / `vid_reload`. Both verifications grounded design decisions in primary-source evidence rather than speculation, per the operator's verification-discipline preference.
 
 **5.2 (2026-05-06)** reframed launch UX around the operator's mental model of slipgate as a quakedir manager (not an engine-launch ceremony). Five distinct surfaces locked (app-open / profile-switch / engine-launch / engine-exit / app-close); drift-detection trigger points differentiated per surface; gamedir mental-model corrected (Pass 1 anchor item 3 amended -- per-launch picker dropped, field stays as metadata); auto-launch + multi-instance deferred to V1+.
 
-5.3 remains pending. Resumed-session work should append to this doc rather than starting a new bridge doc.
+**5.3 (2026-05-08)** locked V1 backup architecture in PoC-shape. Key reframes: (1) hub-as-primary-backup deferred to V2 because hub.quake.world doesn't exist yet -- V1 GitHub MUST carry full warehouse bytes, not just manifest, otherwise restore is broken; (2) GitHub OAuth + local-external as the V1 target pair; (3) symmetric selector-modal grammar for backup AND restore (sixth + symmetric-seventh consumer of Pass 3.2 primitive); (4) snapshot model + include manifest-history/ in payload (two-layered time-machine: per-backup git commits coarse, per-config manifest-history fine); (5) manual-only V1 cadence + change-count drift-badge as nudge; auto-cadences deferred to V1+; (6) third slipgate persona (analysis-tool user) surfaced via three-branch first-launch flow (install fresh / restore / skip-into-tool-mode).
+
+Pass 5 entirely complete. Pass 4 + Pass 5 (5.1 + 5.2 + 5.3) drain remains pending in fresh session.
