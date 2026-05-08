@@ -753,3 +753,43 @@ ADVISORY (style / consistency): ...
 
 If a section has no findings, write "(none)".
 ```
+
+---
+
+## Post-execution amendments (2026-05-08)
+
+Phase 2 executor halted DONE_WITH_CONCERNS at commit `2e7808eb`. Deliverables shipped correctly (universal `reproducibility-check.ts` packaging VALIDATION-RUNBOOK Section 1.1 as runnable; dispatcher case wired; `--workers` flag for surfacing latent parallelism-naive aggregations); 5-project catch-up audit clean (all 5 PASS; no real determinism bugs surfaced). Two drain-now fixes shipped during execution; one P1 carry-forward resolved at this gate. Documented here for the audit trail.
+
+### Drain-now fix 1 -- git diff scoping
+
+Original phase MD specified `git diff --stat HEAD` with `-C <outputDir>` to change directory before diffing. That form runs the diff against the ENTIRE repo from the output dir's CWD; on a workspace with any uncommitted tree (the normal dev state), the diff would surface UNRELATED uncommitted changes elsewhere in the repo and false-FAIL the probe.
+
+**Amended invocation:** scope diff to the project's output directory via pathspec:
+
+```
+git diff --stat HEAD -- <config.outputDir>
+```
+
+The `-- <path>` form restricts the diff to that pathspec regardless of CWD. PASS condition: empty stdout AND exit 0. The probe now correctly distinguishes "extractor output drifted" (real determinism bug) from "operator has unrelated uncommitted work" (noise).
+
+### Drain-now fix 2 -- Bun.spawnSync stderr type narrowing
+
+Original phase MD invoked `Bun.spawnSync(...)` with `stderr: 'pipe'` and accessed `extractResult.stderr` directly. Bun's `spawnSync` return type does NOT narrow `stderr` to non-undefined when `stderr: 'pipe'` is passed (the pipe-vs-inherit distinction lives in option-type generics that Bun does not currently enforce in inference). Direct access compiled but was a type-soundness latent.
+
+**Amended access:** optional chaining at the access site:
+
+```
+extractResult.stderr?.toString() ?? ''
+```
+
+Belt-and-suspenders default to empty string when stderr is structurally undefined. Behavior identical at runtime for the `'pipe'` case; type-clean at compile time. No-op for the probe's PASS/FAIL logic.
+
+### Cross-arc concern -- FTE asset-bundle re-stamp (carried from Phase 1; resolved)
+
+Phase 1 flagged that re-running `extract.py` for FTE re-stamps `apps/slipgate-app/src/lib/config/data/fte-asset-bundle.json` (`version: "build-6698"` -> `version: "head"`) and routed the concern to Phase 2 for triage under reproducibility scope.
+
+**Disposition: EXPLICIT REJECT (D8).** Phase 2's audit confirmed the slipgate bundle file is NOT in `apps/qw-oracle/scripts/extractors/fte/output/` -- it is a separate downstream artifact driven by `extract-tag.ts` (TypeScript), not `extract.py` (Python). The reproducibility probe's scope is `extract.py`-driven `output/` only; FTE's `output/` itself is clean across re-runs. The re-stamp behavior is real but lives in a different pipeline and is out of scope for this probe.
+
+**No F-entry added to `review-findings.md`** -- the concern is rejected at this gate. If cross-arc resolution is needed (e.g., `extract-tag` should never re-stamp the slipgate bundle when re-loading the same SHA), a separate arc handles it.
+
+---
