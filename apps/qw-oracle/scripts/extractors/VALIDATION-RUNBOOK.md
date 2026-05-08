@@ -433,7 +433,7 @@ Per D15, every KTX loader is idempotent by construction. Re-run `extract-tag --p
 Operator runs the probe via:
 
 ```bash
-bash apps/qw-oracle/scripts/extractors/ktx/idempotency-ktx.sh
+cd apps/qw-oracle && bun run load-knowledge -- idempotency --project ktx
 ```
 
 Exit 0 = idempotent. Exit 1 + diff output = drift; see Recovery (Section 7-style adapted for KTX) below.

@@ -32,6 +32,7 @@ async function main(): Promise<void> {
   if (subcommand === 'review')                    { await runReviewCli(rest); return; }
   if (subcommand === 'prune-cross-type-orphans')  { await runPruneCrossTypeOrphans(rest); return; }
   if (subcommand === 'quality-grid')              { await runQualityGridCli(rest); return; }
+  if (subcommand === 'idempotency')               { await runIdempotencyCli(rest); return; }
   if (subcommand === 'build-snapshot')            { await runBuildSnapshot(rest); return; }
   if (subcommand === 'load-maps')                 { await runLoadMaps(rest); return; }
   if (subcommand === 'load-gameplay')             { await runLoadGameplay(rest); return; }
@@ -77,6 +78,12 @@ Subcommands:
   quality-grid  --project <p>
                 [--family regression|anomaly|both] [--probe <name>]
                 [--list] [--json]
+  idempotency   [--project <p>] [--all] [--json] [--help]
+                Snapshot Layer 1 rows, re-run extract-tag --version head
+                --force, snapshot again, diff per table. Universal
+                idempotency probe (D2/D3/D4 from extractor-discipline-
+                catchup arc). Exit 0 = all targeted projects idempotent;
+                exit 1 = drift detected; exit 2 = invalid args.
   build-snapshot --project <p> [--version <v>] [--output <dir>]
                 Read Postgres and emit slipgate-shaped JSON snapshots
                 (one per entity type) into apps/slipgate-app/src/lib/config/data/.
@@ -440,6 +447,11 @@ async function runQualityGridCli(args: string[]): Promise<void> {
   }
   const failed = results.some((r) => r.status === 'FAIL' || r.status === 'ERROR');
   process.exitCode = failed ? 1 : 0;
+}
+
+async function runIdempotencyCli(args: string[]): Promise<void> {
+  const { runIdempotencyCli: run } = await import('./idempotency.js');
+  await run(args);
 }
 
 async function runBuildSnapshot(args: string[]): Promise<void> {
