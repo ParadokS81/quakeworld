@@ -19,8 +19,8 @@
 > - **Pass 1 (substrate and storage): COMPLETE 2026-04-28.** Six sub-questions ratified and drained into architecture spec body. Decisions: SHA-only unified blob store with two-char fanout (`<data-root>/blobs/<sha[:2]>/<sha>.bin`); per-blob sidecar metadata (`<sha>.meta.json`); refcount index for GC; pure refactor of `version_warehouse.rs` into generic `content_warehouse.rs` with one-shot data migration; single-process invariant via Tauri single-instance plugin + `<data-root>/.lock` lockfile + single global async mutex; manifest-as-truth GC with tree-consistency-at-rematerialization; lossless-export pledge tests 1+2 in CI from Arc A/B, test 3 from Arc F. Bonus: export-anything-in-any-format primitive generalization, active-vs-launched profile distinction, manifest backup as first-class UX.
 > - **Pass 2 (manifest schema + materializer mechanics + gamedirs + history retention): COMPLETE 2026-04-28.** Five sub-passes ratified and drained into architecture spec body. Decisions: manifest schema (id/name separation, schema_version, canonical-JSON SHA, atomic write + corruption recovery via creation-backup + history + tree-rebuild), entry shape (required sha256/target_path/role; optional size/added_via; registry-based role taxonomy refreshable from catalog; cross-platform path rules; reject duplicate target_paths at write; selectable_subsets dropped from V1; engine_compatibility field dropped -- runtime per-cvar warnings from Layer 1 instead), declared_gamedirs (ordered list, first = primary, picker only when 2+; KTX correction -- KTX is server-side, runs in qw/), atomic materialization (build-new-and-swap via temp tree + atomic rename, trust-existing-tree fast path, watcher self-skip via hash, single mutex + UI busy-state pattern), history retention (living-file-vs-immutable-artifact principle, 500 auto-versions/config, 10 snapshots/asset, checkpoints exempt from prune, two save paths external-watcher-debounce vs internal-save-button, full-manifest storage). Surfaced for Pass 3+: configs-as-living-files vs assets-as-immutable-artifacts (now a principle); seventh bucket candidate `user-library` for shared base content (maps, locs); slipgate self-knowledge surface (cross-cutting bundled-and-refreshable knowledge tables -- asset-roles registry, mod-fingerprint registry, engine-runtime allowlists, known-good stock pak SHAs, classifier heuristics, Layer 1 data); manifest-unfiltered-publish + import-time-filtering principle.
 > - **Pass 3 (classifier + bucket taxonomy refinements + capture/swap pipeline + self-knowledge surface): COMPLETE 2026-04-29.** Five sub-questions ratified and drained into architecture spec body. (3.1) Configs-vs-assets divergence axis -- shared role registry + shared manifest entry shape + role-keyed retention reaffirmed; catalog-metadata-divergence and standalone-shareable-config dual lifecycle pushed to Arc H carry-forwards. (3.2) Bucket six (user-private) collapsed to single flavor (user-marked private) + primary profile concept + clone-modal-as-V1-selector-primitive (five consumers). (3.3) Bucket seven (user-library) V1-ratified: maps + locs + mod-content roles, profile-overrides-library precedence, gamedir-gated materialization, mod-cache-as-inbox / library-as-kept relationship. (3.4) Manifest publish rule (recognized-role profile-content only); five-case watcher dispatch (Case 5 user-private IGNORE); capture/swap two-stage pipeline with `.pending-swap.json` notebook + three swap triggers + Defenses 1-4 against partial-file capture; cleanup notification UX; auto-mode opt-in default OFF; classifier shared between Arc D + Arc E; `link()`-based inode-share at Stage 2. (3.5) Slipgate self-knowledge surface single-class reframed; per-table cadence (8 tables); delta-sync protocol shape; bundled baselines; Knowledge UI minimum; user-override mechanism; two-growth-axes principle; hub-as-gravitational-center triangle + manifest-references-hub-unknown-SHAs placeholder pattern + retroactive enrichment + no-P2P invariant + library separate-catalog-distribution path. Pass 3 brainstorm minutes captured at `docs/superpowers/specs/2026-04-29-slipgate-managed-mode-pass3-ratifications.md`. Carry-forwards into Pass 4 / 5 / 6 / Arc H / qw-oracle scope listed below.
-> - **Pass 4 (watcher contract refinements): scope shrunk by Pass 3.4.** Capture/swap pipeline + Defenses + cleanup UX all landed in Pass 3.4. Pass 4 now carries only refinements: debounce-window tuning + per-extension integrity-check registry growth as Layer 1 grows. Likely a short pass.
-> - **Pass 5 (launch UX + runtime swap classes + manifest backup UX): NOT YET STARTED.** Class 1 / Class 2 / Class 3 swap taxonomy (Pass 1 anchor item 5), mailslot ruleset-gating verification against ezQuake source via qw-oracle, multi-instance launch UX, manifest backup state surface ("last backed up: N days ago, K locations").
+> - **Pass 4 (watcher contract refinements): COMPLETE 2026-05-05.** Two sub-questions ratified and drained into architecture spec body. (4.1) Debounce-window per-extension tuneability -- per-extension `debounce_seconds` + `max_retries` overrides folded into the file-integrity-check registry; escalation-after-N-retries to cleanup notification with explicit user actions (capture-anyway / discard / keep-pending; default N = 3). (4.2) File-integrity-check registry V1 roster (10 strict + 5 permissive + default-row fallback) + tiered row shape (`tier: 'strict' | 'permissive'` discriminator). Pass 4 brainstorm minutes captured at `docs/superpowers/specs/2026-05-05-slipgate-managed-mode-pass4-ratifications.md`.
+> - **Pass 5 (launch UX + runtime swap classes + manifest backup UX): COMPLETE 2026-05-08.** Three sub-questions ratified and drained, with Pass 5 generating substrate amendments back into Pass 1 (anchor items 1 + 3) + Pass 3.2. (5.1) Runtime swap class taxonomy (verified Class 1 / 2 / 3 boundaries from ezQuake source-walk; mailslot-ezQuake-only V1 + FTE-Class-3-fallback; gamedir + stock-pak default-Class-3) + per-role materialization mode (configs copy, others hardlink; ezQuake `cfg_save` truncate-write would corrupt hardlinked blobs) + hard-fork-with-drift-detection (replaces overlay-manifest proposal; per-role drift granularity -- cvar-level for configs via parser+oracle metadata, file-level otherwise) + reload-cost registry as ninth self-knowledge surface table. (5.2) Five-surface launch UX (app-open / profile-switch / engine-launch / engine-exit / app-close) + drift-trigger differentiation (non-blocking on app-open, blocking on profile-switch, light-prompt on engine-launch) + gamedir model amendment (per-launch picker dropped from V1; `declared_gamedirs` stays as content-metadata) + multi-instance V1 = single-instance only. (5.3) V1 backup architecture (GitHub OAuth full-warehouse + local-external as V1 targets; symmetric selector modal for backup AND restore as sixth + seventh consumers of Pass 3.2 primitive; snapshot model + include `manifest-history/` in payload; manual-only V1 cadence + change-count drift-badge nudge; first-launch three-branch flow surfacing third slipgate persona) + V2 hub-as-primary migration path. Pass 5 brainstorm minutes captured at `docs/superpowers/specs/2026-05-05-slipgate-managed-mode-pass5-ratifications.md`. Pass 5 entirely closed.
 > - **Pass 6 (cloud catalog data shape, Arc H pre-implementation brainstorm): NOT YET STARTED.** Standalone-shareable-config dual lifecycle (`spec.cfg` / `demoviewer.cfg` / weapon-script / frag-message / alias bundles); catalog-metadata-divergence configs-vs-assets (two metadata schemas at the catalog layer); library separate catalog-distribution path; submission-flow shape; moderation pipeline.
 > - **L1-alpha / -beta / -gamma / -delta tracks (qw-oracle scope, NOT slipgate Managed Mode arcs)** -- ecosystem-tools registry, cross-format binary fingerprinting (PE / AppImage / ELF / Mach-O), engine helpdoc / data-file recognition, stock asset catalog. Each track is its own qw-oracle-side arc with its own brainstorm + spec + plan. None gates V1; each track-arc lands more Layer 1 data via delta-sync. Tracked in HANDOVER under qw-oracle backlog.
 
@@ -144,21 +144,25 @@ Each arc gets its own brainstorm + spec + plan when it's time to execute. The su
 
 **Scope:** Profile manifest schema (JSON), materializer that maps a manifest to a directory tree using hardlink-or-copy. `Profile` data type in store.ts. CRUD operations (`create_profile`, `update_manifest`, `delete_profile`). Active profile tracking. Tree validation (verify manifest matches materialized state).
 
-**Key design decisions (Pass 1 + Pass 2 + Pass 3 ratified):**
+**Key design decisions (Pass 1 + Pass 2 + Pass 3 + Pass 5 ratified):**
 - Manifests are JSON, KB-scale, canonicalized for deterministic SHA, version-stamped with `parent_manifest_sha`, schema_version field for future migration
 - Materializer modes (Pass 1): `hardlink` (active-tree, single-volume by construction) and `copy` (lossless export). `hardlink_preferred` middle case dropped.
+- **Per-role materialization mode (Pass 5.1):** within `hardlink` mode, `user-asset:config` role uses copy mode (configs are KB-scale; ezQuake `cfg_save` truncate-write through hardlinks would corrupt the content-addressed-store immutable-blob invariant -- verified at `src/config_manager.c:826`/`:981`/`:894`/`:266`); all other roles use hardlink. Export (`copy` mode) unaffected.
 - Atomic materialization (Pass 2.4): build-new-and-swap (temp tree + atomic rename), trust-existing-tree fast path, watcher self-skip via hash, UI busy-state pattern as primary serializer
 - **Private-file preservation pre-swap (Pass 3.2):** before atomic rename, materializer copies `private.json` paths from live tree into temp tree -- private files survive rematerialization
 - Tree path: `<data-root>/profiles/<uuid>/tree/`
-- **Three-role profile pointer (Pass 3.2):** `<data-root>/profile-roles.json` carries `primary_profile_id` + `active_profile_id` + `active_since` (supersedes `active-profile.json`). Primary is durable; active is UI focus; both are independent of launched-state.
+- **Three-role profile pointer (Pass 3.2):** `<data-root>/profile-roles.json` carries `primary_profile_id` + `active_profile_id` + `active_since` (supersedes `active-profile.json`). Primary is durable; active is UI focus and durably persists across slipgate sessions (Pass 5.2); both are independent of launched-state. Multi-instance V1 = single-instance only (Pass 5.2); V1+ for concurrent active trees.
 - **Manifest publish rule (Pass 3.4):** entries are recognized-role profile-content only; user-content / library / private structurally outside.
 - Profile manifests retained as historical chain under `manifest-history/<timestamp>-<sha>.json` (full manifests, no deltas) -- drives Arc G
 - Registry-based role taxonomy refreshable from catalog (no hardcoded enum)
 - **Library manifest at `<data-root>/library/manifest.json` (Pass 3.3):** structurally same schema as profile manifest; library-prefixed roles (`library:map` / `library:loc` / `library:mod-content`); no `declared_gamedirs` field; materializes into each profile's tree per profile's `declared_gamedirs`; profile-overrides-library precedence.
+- **`declared_gamedirs` stays as content-metadata (Pass 5.2):** field meaning is "what gamedirs this profile has content for" (so library `library:mod-content` materializes correctly when a server later pushes a gamedir change), NOT "what gamedir to launch with." Per-launch gamedir picker dropped from V1.
+- **Hard-fork-with-drift-detection (Pass 5.1):** fork manifests carry `last_synced_parent_manifest_sha: string?` field; fork is full-snapshot (Pass 3.2 unchanged); drift detection runs at three trigger points (app-open non-blocking, profile-switch blocking, engine-launch light-prompt). Per-role drift granularity: cvar-level for configs (semantic three-way diff via slipgate's existing parser + oracle cvar metadata), file-level for everything else. Surgical writeback for cvar-level imports bypasses engine `cfg_save`. Clone modal becomes sixth consumer (drift import).
+- **Class 1/2/3 swap implementation (Pass 5.1; could land as Arc B sub-section or its own sub-arc):** uses reload-cost registry (ninth self-knowledge surface table) + slipgate's existing config parser to compute manifest diff, look up reload commands, generate Class 1 delta scripts via `exec <delta-script>` (NOT `cfg_load`; destructive), send via mailslot. Class 1 is ezQuake-only V1; FTE swaps fall back to Class 3 engine restart until FTE-IPC ships V1+.
 
-**Implementation cost estimate:** 4-6 days for profile substrate + 1-2 days for library manifest + materializer extension. The materializer's atomic-swap + trust-existing-tree + private preservation + library-overlay logic + UI busy-state plumbing is the meaty part. Manifest CRUD + validation + corruption recovery is straightforward but needs the migration-registry framing.
+**Implementation cost estimate:** 4-6 days for profile substrate + 1-2 days for library manifest + materializer extension + 1-2 days for per-role mode + drift-detection field. Class 1/2/3 swap implementation is a separable sub-arc (~3-4 days for the parser-driven diff + mailslot push). The materializer's atomic-swap + trust-existing-tree + private preservation + library-overlay logic + per-role mode + UI busy-state plumbing is the meaty part. Manifest CRUD + validation + corruption recovery is straightforward but needs the migration-registry framing.
 
-**No open questions remaining for this arc** -- Pass 2 + Pass 3 ratified the manifest schema, atomic materialization semantics, history retention, profile-roles primitive, library manifest, and publish rule. Implementation can proceed when sequenced.
+**No open questions remaining for this arc** -- Pass 2 + Pass 3 + Pass 5 ratified the manifest schema, atomic materialization semantics, history retention, profile-roles primitive, library manifest, publish rule, per-role mode, drift detection, runtime swap classes. Implementation can proceed when sequenced.
 
 ---
 
@@ -171,11 +175,13 @@ Each arc gets its own brainstorm + spec + plan when it's time to execute. The su
 **C-minimal (V1):**
 - Profiles tab in MyQuake (sibling Domain to Clients/Configs/etc.)
 - List of profiles with primary + active markers (Pass 3.2: primary star icon, active highlight; surfaces "Profile: X star primary | Active: Y" when they differ)
-- Create profile button (basic -- fork from active or fork from primary or import from elsewhere). Uses the **clone modal as V1 selector primitive** (Pass 3.2): one UI primitive shared with Pre-publish review, Selective import (Arc C-full), Pre-extraction overview (Arc D), and Export (Arc F).
-- Switch profile button (with active-process check, like swap_active_version)
+- Create profile button (basic -- fork from active or fork from primary or import from elsewhere). Uses the **clone modal as V1 selector primitive** (Pass 3.2 + Pass 5.1 + Pass 5.3): one UI primitive shared with Pre-publish review, Selective import (Arc C-full), Pre-extraction overview (Arc D), Export (Arc F), drift import from parent (Pass 5.1; sixth consumer), and the symmetric backup + restore pair (Pass 5.3; sixth + seventh consumers).
+- Switch profile button (with active-process check, like swap_active_version). **Drift detection blocking on profile-switch (Pass 5.2):** when target profile is a fork with parent-drift available, drift prompt fires before the switch completes; user reviews / imports / skips.
 - "Make this primary" action with confirmation (Pass 3.2)
 - Delete profile button -- prompt UX with refcount-derived "N assets unique to this profile" + orphaned-private retention (Pass 3.2)
 - Active + primary display in Status bar / app chrome
+- **Drift indicator in header / footer (Pass 5.2):** non-blocking on app-open if active profile is a fork with drift; light-prompt one-liner on engine-launch if drift hasn't been reviewed.
+- **Backup drift-badge in header / footer (Pass 5.3):** "X changes since last backup" content-delta indicator; opens Settings -> Backup pane on click.
 
 **C-full (V1+):**
 - Profile detail view: browse the manifest as an abstraction (assets organized by role + category, source, modification time)
@@ -251,29 +257,29 @@ NO bytes read, NO hashing, NO filesystem mutation during Stage 1. The watcher is
 
 **Stage 2 -- process at safe moment.** Three triggers fire Stage 2: engine-exit (auto), user-invoked Cleanup button, idle-nudge. For each entry the user opts to keep: stable-mtime check, hash, integrity check, `link(tree_path, blob_path)` to share inode, update sidecar + refcount, write manifest entry (library / profile / `private.json` per user choice). Discard route unlinks; "Keep without warehousing" leaves tree alone.
 
-**Key design decisions (Pass 0 + Pass 3.4):**
-- Foreground-only for V1 (Pass 1 confirmed). Pass 4 may revisit background-service if real demand emerges.
-- **Defenses against partial-file capture (Pass 3.4):**
+**Key design decisions (Pass 0 + Pass 3.4 + Pass 4 + Pass 5.1):**
+- Foreground-only for V1 (Pass 1 confirmed). Background-service shape deferred to V1+ if real demand emerges.
+- **Defenses against partial-file capture (Pass 3.4 + Pass 4):**
   - Defense 1: never process during engine session (eliminates the failure class structurally).
-  - Defense 2: stable-mtime check before hashing (default 5s, tuneable).
-  - Defense 3: per-extension integrity-check table (declarative rules: magic bytes + offset/size sanity for `.bsp` / `.wav` / `.pak` / `.tga` / `.png`). Bundled with slipgate; refreshable via self-knowledge surface.
+  - Defense 2: stable-mtime check before hashing (default 5s, tuneable per-extension via registry).
+  - **Defense 3 (Pass 4 V1 roster):** per-extension integrity-check registry (declarative rules + per-extension `debounce_seconds` + `max_retries` overrides). Tiered shape (`tier: 'strict' | 'permissive'` discriminator). V1 ships 10 strict (`.bsp` / `.pak` / `.wav` / `.mdl` / `.spr` / `.tga` / `.png` / `.dem` / `.lmp` / `.lit`) + 5 permissive (`.cfg` / `.txt` / `.loc` / `.ent` / `.rc`) + default-row fallback for unknown extensions. Code-bundled at V1 (per Pass 3.5 self-knowledge surface cadence); V1+ trajectory is oracle-authored delta-sync.
   - Defense 4: mod-fingerprint partial detection ("looks like partial CTF: 47 of 95 expected files").
+- **Escalation when files stay unstable (Pass 4.1):** after `max_retries` Stage 2 invocations with the file still unstable, the entry escalates to a "still unstable after N tries" row in the cleanup notification with explicit user actions (capture-anyway / discard / keep-pending). Default N = 3; per-extension override available in the same registry row.
 - **Cleanup notification UX (Pass 3.4):** unified surface for pending swaps + classifications + promotions. Per-entry actions: Add to library / Add to active profile / Promote to mod-cache / Mark as private / Discard. Bulk actions per category. "Apply selected" runs Stage-2 processing.
 - **Auto-mode opt-in (Pass 3.4):** default OFF. Cleanup-notification UX is the default flow. Opt-in routes high-confidence + integrity-pass entries to classifier-determined destination automatically.
 - **Classifier shared with Arc D (Pass 3.4 invariant):** Arc D and Arc E consume the same `classify(path, bytes) -> ClassifierOutput` function.
-- 10-second debounce for configs (coalesces save-bursts into single record / single manifest version downstream).
+- Per-extension debounce default 5s; coalesces save-bursts into single record / single manifest version downstream. Tuneable per extension via the integrity-check registry (Pass 4.1).
 - Engine-runtime allowlist per-engine (ezQuake / FTE / etc.). Bundled with slipgate; refreshable via self-knowledge surface.
 - Mod-fingerprint registry: bundled-with-slipgate baseline + on-sign-in + on-demand refresh from catalog (Pass 3.5 self-knowledge surface).
+- **Reload-cost registry consumer (Pass 5.1; ninth self-knowledge surface table):** Arc E is watcher-side (capture/swap pipeline); the reload-cost registry is a watcher-adjacent surface that slipgate consults at Class 1/2/3 swap time (see Arc B's Class 1/2/3 swap implementation). Same shape as the file-integrity-check registry (Pass 4) and asset-roles registry (Pass 3.5).
 
-**Implementation cost estimate:** 4-5 days (uses Arc D's classifier; mostly plumbing + policy + cleanup-notification UX).
+**Implementation cost estimate:** 4-5 days (uses Arc D's classifier; mostly plumbing + policy + cleanup-notification UX + Pass 4 integrity-check registry V1 roster as code-bundled data). Pass 4 integrity-check work adds ~0.5 day for the registry shape + 15 V1 rows + escalation rule.
 
 **What's reusable:**
 - `notify-debouncer-mini` already used by config watcher
 - Existing watcher patterns from Phase 3 / 3.5
 
-**Open questions for arc brainstorm (Pass 4 refinement scope only):**
-- Debounce-window tuning (10s default may be wrong; measure under real edit patterns).
-- Per-extension integrity-check rule shape (declarative DSL? Embedded JSON? Lua-style? Tracked under self-knowledge surface).
+**No open questions remaining for this arc** -- Pass 3.4 ratified the capture/swap pipeline + cleanup UX + auto-mode opt-in; Pass 4 ratified the debounce-window tuneability + V1 integrity-check registry roster + escalation rule. Implementation can proceed when sequenced.
 
 ---
 
@@ -344,6 +350,54 @@ NO bytes read, NO hashing, NO filesystem mutation during Stage 1. The watcher is
 - Privacy: public-by-default vs friends-only vs private?
 - Moderation pipeline: auto-accept SHA-deduped vs always-human-review?
 
+**Out-of-scope long-term -- potential future arcs (Pass 5 carry-forwards, NOT Managed Mode arcs):**
+- **Mod browser.** "One-click install expansion packs / mods to try" -- mostly FTE single-player community use case (hipnotic / rogue / Painkeep / custom singleplayer mods). Adjacent to library content but distinct: catalog-distributed mod packs that install to a new gamedir. Out of scope for Managed Mode V1; could be a future Slipgate arc on top of the existing library + gamedir primitives once FTE support is mature.
+- **Cross-machine sync** (desktop <-> laptop direct sync between two Slipgate installs). Implies multi-tree substrate; conflict resolution; LAN discovery. Could be a future Slipgate arc once V1 + V2 ship.
+- **Cloud-provider-API backup** (S3 / Dropbox / Google Drive / OneDrive). Provider-taxonomy work; doesn't earn V1 or V2 scope. Local-external covers the offline-target case; GitHub covers the cloud case in V1.
+
+---
+
+### Backup arc -- V1 backup architecture (Pass 5.3 ratified)
+
+**Status:** Not started. Could land as Arc B sub-section or its own sub-arc; arc-planner decides slicing.
+
+**Scope:** V1 backup architecture in PoC-shape, focusing on demonstrating the content-addressed warehouse model end-to-end via GitHub.
+
+**V1 targets:**
+- **GitHub OAuth** (primary, cloud) -- full warehouse: manifest + state + configs + ALL blobs + manifest history. ~5-30 MB typical "setup-only" payload; ~150 MB with custom textures included.
+- **Local-external** (offline, manual) -- full warehouse copy to USB / NAS.
+
+**Key design decisions (Pass 5.3 ratified):**
+- **GitHub MUST carry the bytes in V1.** Hub doesn't exist yet; manifest-only GitHub backup would land a list of SHAs nobody serves -- useless without hub-as-byte-source. GitHub IS the proof-of-concept that demonstrates the content-addressed warehouse model end-to-end.
+- **Symmetric selector modal for backup AND restore.** Backup is the sixth consumer of Pass 3.2's clone-modal-as-V1-selector primitive (BACKUP gesture); restore is the symmetric seventh consumer (RESTORE gesture). User sees "this would back up: Configs (200 KB), HUD (12 MB), Textures (130 MB), Private files (3 KB)" with role-default toggles tuned to "save their setup."
+- **Snapshot model + include `manifest-history/` in payload.** Each "Back up now" = git commit with timestamp. Restore can target HEAD OR any prior commit ("restore from 3 days ago"). Two-layered time-machine: per-backup git commits coarse + per-config / per-asset-version `manifest-history/` fine. Honors Pass 2's retention policy across machine swaps.
+- **Manual-only V1 cadence + change-count drift-badge nudge.** "Back up now" button per target; user triggers when they want. Drift-badge surfaces "X changes since last backup" (content-delta, NOT time-based) in slipgate header / footer.
+- **Settings -> Backup pane V1 minimum surface:** per-target list, last-backup timestamp + drift-badge with thresholds, "Back up now" + "Restore from this target" buttons (open the selector modal).
+- **First-launch three-branch flow:** install fresh / restore from backup / skip into tool mode. Surfaces a third slipgate persona (analysis-tool user). See Engine integration -- First-launch install flow in architecture spec.
+
+**V1+ refinements (auto-cadences):**
+- On-app-close (Tauri lifecycle work for graceful-vs-immediate close + background completion of a 150 MB push).
+- Time-based auto (Tauri background-scheduling daemon).
+- On-significant-change (smart-trigger logic; footgun risk).
+
+**V2 hub-as-primary migration path:**
+- When hub.quake.world ships, hub takes over backup mass (small payload: manifest + state + configs; hub serves blobs via hub-as-gravitational-center).
+- GitHub payload shrinks to private-content-only (sovereignty argument: private-by-definition shouldn't sit on community-hosted infra) OR deprecates depending on the privacy-sovereignty story.
+- Local-external unchanged.
+- Hub-as-gravitational-center triangle stays intact across V1 -> V2.
+
+**Implementation cost estimate:** ~3-5 days (GitHub OAuth integration + git commit-based snapshot model + symmetric selector modal + drift-badge UI + Settings -> Backup pane). Could be split into two sub-arcs: GitHub backend integration + UX surfaces.
+
+**What's reusable:**
+- Clone modal as V1 selector primitive (Pass 3.2; sixth + seventh consumers added by Pass 5.3)
+- `manifest-history/` already retained per Pass 2.5
+- Discord OAuth flow precedent for GitHub OAuth UX (similar shape)
+
+**Open questions for arc brainstorm (V1+ refinement scope):**
+- Auto-cadence flavors -- on-app-close vs weekly auto vs on-significant-change. Each adds Tauri lifecycle / scheduling work. V1 ships manual-only PoC.
+- GitHub auth mechanic refinement -- V1 ships OAuth-in-Tauri-webview or PAT (arc-planner decides). V1+ adds token rotation, scope minimization (repo-only), 2FA flow polish.
+- Repo validation and restore-collision UX polish -- V1 ships minimal verification and a simple "warn before overwrite" flow; V1+ adds richer pre-flight (manifest-shape verification, dry-run preview, branch-into-sibling-root option).
+
 ---
 
 ## Pre-arc tail items (to wrap before Arc A starts)
@@ -386,19 +440,19 @@ These were previously on the Phase 3.5b/4 backlog. The Managed Mode pivot supers
 
 ---
 
-## Status (as of 2026-04-29)
+## Status (as of 2026-05-08)
 
 | Item | Status |
 |---|---|
-| Vision spec | [OK] Drafted + Pass 1/2/3 status notes drained |
-| Architecture spec | [OK] Drafted + Pass 1/2/3 fully drained into body |
-| Roadmap (this doc) | [OK] Drafted + Pass 1/2/3 progress block updated |
+| Vision spec | [OK] Drafted + Pass 1/2/3/4/5 status notes drained |
+| Architecture spec | [OK] Drafted + Pass 1/2/3/4/5 fully drained into body |
+| Roadmap (this doc) | [OK] Drafted + Pass 1/2/3/4/5 progress block updated |
 | TAIL-1: FTE asset bundle wiring | [OK] Shipped 2026-04-28 (commit 6d6cd1c) |
 | Brainstorm Pass 1 (substrate + storage) | [OK] Complete 2026-04-28 |
 | Brainstorm Pass 2 (manifest + materializer + gamedirs + history) | [OK] Complete 2026-04-28 |
 | Brainstorm Pass 3 (classifier + buckets + capture/swap + self-knowledge) | [OK] Complete 2026-04-29 |
-| Brainstorm Pass 4 (watcher refinements only -- scope shrunk by 3.4) | Not yet started |
-| Brainstorm Pass 5 (launch UX + runtime swap classes + manifest backup UX) | Not yet started |
+| Brainstorm Pass 4 (watcher refinements -- debounce per-extension + integrity-check registry V1 roster) | [OK] Complete 2026-05-05 |
+| Brainstorm Pass 5 (launch UX + runtime swap classes + manifest backup UX) | [OK] Complete 2026-05-08 (5.1 + 5.2 + 5.3 all done) |
 | Brainstorm Pass 6 (Arc H pre-implementation -- catalog data shape) | Not yet started |
 | Arc A: Asset warehouse substrate | Not started |
 | Arc B: Profile manifest + materializer | Not started |
@@ -407,8 +461,9 @@ These were previously on the Phase 3.5b/4 backlog. The Managed Mode pivot supers
 | Arc E: Filesystem watcher | Not started; co-brainstorm with D |
 | Arc F: Lossless export | Not started |
 | Arc G: Version history | Not started |
-| Arc C-full: Full profile UI | ⏳ Not started; V1+ |
-| Arc H: Cloud catalog hookup | ⏳ Not started; V1+ |
+| Backup arc (V1 = GitHub OAuth + local-external + symmetric selector modal + snapshot-with-manifest-history) | Not started; could land as Arc B sub-section or its own sub-arc (Pass 5.3) |
+| Arc C-full: Full profile UI | Not started; V1+ |
+| Arc H: Cloud catalog hookup | Not started; V1+ |
 
 ---
 
