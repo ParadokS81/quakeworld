@@ -12,9 +12,9 @@
 
 ## Where we are right now
 
-- **Stage:** Phase 1 + 2 + 3 + 4 SHIPPED (P4 at commit `9901f308`). Doc/cert phases (P5/P6/P7) drafter prompts queued for generation.
-- **Last action:** 2026-05-08 -- Phase 4 executor shipped clean DONE at `9901f308`. All 12 migration probes PASS on current dev DB; V1-V8 PASS; no drain-now; no HANDOVER. Q1 (012 backfill completeness) resolved at runtime: 0 rows with non-NULL description + NULL origin. Q4 (011 pre-flight) resolved at runtime: `gameplay_sources WHERE id='ktx'` row present. D12 JSONB-binding regression gate (`F1.jsonb_columns_not_strings`) PASS 108/108 on KTX. Phase 3 ship-housekeeping (V6 amendments + F1 HANDOVER pointer) committed earlier in `6429fc90`.
-- **Next action:** Generate Phase 5/6/7 drafter prompts (file-as-prompt shape; CRITICAL ARC ID block; phase-specific scope + reads + recon + step-by-step). P5: VALIDATION-GATES.md + SKILL.md update part 1. P6: audit cadence rule + SKILL.md update part 2. P7: arc-close cert doc.
+- **Stage:** Phase 1 + 2 + 3 + 4 SHIPPED. Phase 5/6/7 drafter prompts ready (`phase-5-drafter-prompt.md`, `phase-6-drafter-prompt.md`, `phase-7-drafter-prompt.md`). Awaiting drafter halts.
+- **Last action:** 2026-05-08 -- Phase 5/6/7 drafter prompts generated (file-as-prompt shape with CRITICAL ARC ID block; phase-specific scope + reads + recon + step-by-step). P5 covers VALIDATION-GATES.md authoring (7 locked sections per Pass 1.2.6) + SKILL.md update part 1 (register-in-config-dict step + validation step expansion). P6 covers audit cadence rule (PLAYBOOK section + HANDOVER tracker + memory cross-link) + SKILL.md update part 2 ("no per-project bash" callout). P7 covers arc-close cert doc consolidating cross-project pass state.
+- **Next action:** Operator fires P5, P6, P7 drafter terminals. P5 + P6 are parallel-safe; P7 references P5+P6 drafts (drafter prompt has IF-check caveats for missing earlier MDs). When each halts, planner reviews and generates corresponding executor prompt.
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
