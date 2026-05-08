@@ -2,7 +2,7 @@ You are executing Phase 5 of the extractor discipline catch-up arc.
 
 CRITICAL ARC IDENTIFICATION: This is the **2026-05-08 extractor-discipline-catchup** arc, NOT the **2026-05-04 KTX onboarding** arc. The two arcs touch related files (the onboard-extractor SKILL.md is shared; both arcs reference EXTRACTOR-PLAYBOOK.md and VALIDATION-RUNBOOK.md). Phase 5 ships THREE doc edits: (1) Create a new producer-side authoring guide at `apps/qw-oracle/scripts/load-knowledge/VALIDATION-GATES.md` with 7 locked sections (Pass 1.2.6); (2) Insert a one-line cross-link from `apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md` to the new doc; (3) Update `~/.claude/skills/onboard-extractor/SKILL.md` with three changes -- insert a new Phase F4.5 section between F4 and F5, replace the existing Phase F5 content with an expanded 4-gate validation, update the Mode P "Phase P3 onward" line. If you see references to "Pattern 6 cross-header lift", "F1-F30 KTX onboarding finding numbers", "modes-handler refactor", "taxonomies handler", "match_event entity types", or any KTX onboarding implementation work, you are in the WRONG arc -- halt immediately and surface to operator. The right reads start with `docs/superpowers/plans/2026-05-08-extractor-discipline-catchup/`.
 
-PHASE 5 SCOPE: Paper-only -- no code, no probes, no DB. The phase ships full file content for VALIDATION-GATES.md inline in the phase MD; the RUNBOOK cross-link is a one-line edit; the SKILL.md edits are three discrete edits with full BEFORE/AFTER content shipped inline. Runnable state at phase end: VALIDATION-GATES.md exists with 7 top-level section headers; cross-link present in RUNBOOK; SKILL.md shows new Phase F4.5 + expanded Phase F5 + updated Mode P3 line under grep.
+PHASE 5 SCOPE: Paper-only -- no code, no probes, no DB. The phase ships four discrete deliverables (all inline, full BEFORE/AFTER content in the phase MD): (1) Create new VALIDATION-GATES.md (7 sections, full file content shipped); (2) one-line cross-link inserted in RUNBOOK; (3) FOUR SKILL.md edits via Edit tool (CHANGE 1 insert F4.5 between F4 and F5; CHANGE 2 replace F5 content; CHANGE 3 update Mode P3 line; CHANGE 4 fix Phase F4 stale `npm --prefix` + `sqlite3` commands -- operator-confirmed drain-now per D7 since the pre-Postgres-era commands are actively broken today); (4) TWO comment-only edits in quality-grid.ts to replace stale `sqlite3 "$DB"` references in floor-probe seed-capture documentation comments (lines ~1379 and ~1397; CHANGE 5a + 5b in Task 4). Runnable state at phase end: VALIDATION-GATES.md exists with 7 top-level section headers; cross-link present in RUNBOOK; SKILL.md shows new F4.5 + expanded F5 + updated Mode P3 + clean F4 (no npm/sqlite3) under grep; quality-grid.ts has zero `sqlite3` references and 2 `psql "$DATABASE_URL"` references.
 
 Working directory: /home/paradoks/projects/quakeworld
 
@@ -89,19 +89,32 @@ Task 2 -- Add cross-link to VALIDATION-RUNBOOK.md:
     2. The single inserted line is: `For gate authoring, see `scripts/load-knowledge/VALIDATION-GATES.md`.` followed by a blank line.
     3. Verify after edit with V3.
 
-Task 3 -- Update SKILL.md (3 discrete changes):
+Task 3 -- Update SKILL.md (4 discrete changes):
   Execution mode: inline.
   Direct ops in this terminal:
     1. Read `/home/paradoks/.claude/skills/onboard-extractor/SKILL.md` using the Read tool with the absolute path. Confirm the file starts with frontmatter `---\nname: onboard-extractor\n...`.
     2. CHANGE 1 -- Insert Phase F4.5 section before `### Phase F5: Validation handoff`. Use the Edit tool; old_string anchors on the closing of Phase F4 + the F5 header line; new_string includes the full F4.5 content from the phase MD's CHANGE 1 INSERT CONTENT block + the F5 header line preserved. NOTE: if Phase 6 has already shipped, the F4 closing area now has the "Anti-pattern" callout block; you must include that callout in your old_string anchor + preserve it in new_string. Read the current state first before crafting old_string.
     3. CHANGE 2 -- Replace Phase F5 section content. Anchor on the full Phase F5 BEFORE block from the phase MD (lines starting `### Phase F5: Validation handoff` through the last line `If the fork has a runtime dump...validation-fixtures/' and running the runbook's Section 2.`). Replace with the AFTER block (5-step validation invoking 4 universal gates).
     4. CHANGE 3 -- Update Mode P "Phase P3 onward" line. Anchor on the full single sentence at line ~299; replace with the new sentence including P4.5.
-    5. ASCII discipline: same as Task 1.
-    6. Verify after each change with V4 + V5.
+    5. CHANGE 4 -- Fix Phase F4's stale npm + sqlite3 commands. Three edit locations within F4 (lines ~189, ~190-191, ~205 in pre-edit numbering):
+       a. CHANGE 4a top: replace `npm --prefix apps/qw-oracle --no-workspaces run load-knowledge -- extract-tag --project <fork> --version <version> --ordinal <next-ordinal>` with `bun --cwd apps/qw-oracle run load-knowledge -- extract-tag --project <fork> --version <version> --ordinal <next-ordinal>` in F4 Step 1.
+       b. CHANGE 4a bottom: replace the two-line `DB=...` env-export + `sqlite3 -header "$DB" "..."` query with a single `psql "$DATABASE_URL" -c "..."` line (full BEFORE/AFTER blocks in the phase MD's CHANGE 4a section).
+       c. CHANGE 4b: replace `npm --prefix apps/qw-oracle --no-workspaces run load-knowledge -- quality-grid --project <fork> --family both` with `bun --cwd apps/qw-oracle run load-knowledge -- quality-grid --project <fork> --family both` in F4 Step 4.
+       Use the Edit tool for each location (3 separate Edit calls). Anchors are unique enough that single-line replaces work.
+    6. ASCII discipline: same as Task 1.
+    7. Verify after each change with V4 + V5 + V7.
+
+Task 4 -- Replace stale sqlite3 references in quality-grid.ts comments (2 discrete changes):
+  Execution mode: inline.
+  Direct ops in this terminal:
+    1. Read `apps/qw-oracle/scripts/load-knowledge/quality-grid.ts` lines ~1370-1410 to confirm the two comment blocks at lines ~1379 and ~1397 still match the phase MD's CHANGE 5a / 5b BEFORE blocks.
+    2. CHANGE 5a -- Replace the 3-line comment block at lines ~1379-1381. BEFORE block (in phase MD): `//   sqlite3 "$DB" "SELECT project, type, COUNT(*) FROM entities` (3 lines). AFTER block: `//   psql "$DATABASE_URL" -c "SELECT project, type, COUNT(*) FROM entities` (3 lines, indentation increased by 6 columns on continuation lines to align under the new prefix).
+    3. CHANGE 5b -- Replace the 3-line comment block at lines ~1397-1399. Same shape: `sqlite3 "$DB"` -> `psql "$DATABASE_URL" -c`; SQL body identical; continuation-line indentation increased by 6.
+    4. Verify after both edits with V8.
 
 VERIFICATION (phase boundary):
 
-Run V1-V6 from the phase MD's Verification section in order. Each ends PASS or FAIL.
+Run V1-V8 from the phase MD's Verification section in order. Each ends PASS or FAIL.
 
 V1: VALIDATION-GATES.md created (`test -f apps/qw-oracle/scripts/load-knowledge/VALIDATION-GATES.md && echo EXISTS`).
 V2: VALIDATION-GATES.md has exactly 7 top-level section headers (`grep -c "^## " apps/qw-oracle/scripts/load-knowledge/VALIDATION-GATES.md` outputs `7`).
@@ -109,8 +122,10 @@ V3: VALIDATION-RUNBOOK.md has the cross-link (`grep -n "VALIDATION-GATES" apps/q
 V4: SKILL.md has Phase F4.5 (`grep -n "F4.5\|config dict" ~/.claude/skills/onboard-extractor/SKILL.md | head -5` returns at least 2 lines).
 V5: SKILL.md F5 expansion references universal gates (`grep -n "idempotency\|reproducibility-check\|migration-probes" ~/.claude/skills/onboard-extractor/SKILL.md | grep "bun run" | head -5` returns at least 2 matching lines).
 V6: VALIDATION-GATES.md parent directory is correct (smoke check).
+V7: SKILL.md Phase F4 has no stale npm/sqlite3/knowledge.db invocations (`grep -n "npm --prefix\|sqlite3\|knowledge.db" ~/.claude/skills/onboard-extractor/SKILL.md` returns 0 matches).
+V8: quality-grid.ts has no stale sqlite3 references AND has 2 psql/DATABASE_URL references in floor-probe comments (`grep -n "sqlite3" apps/qw-oracle/scripts/load-knowledge/quality-grid.ts` returns 0; `grep -c "psql \"\$DATABASE_URL\"" apps/qw-oracle/scripts/load-knowledge/quality-grid.ts` returns `2`).
 
-Per D6: Phase 5 is doc-only -- no catch-up audit run, no gate-surfaced bugs. No F-entries to append. If V1-V6 all PASS, phase is done.
+Per D6: Phase 5 is doc-only -- no catch-up audit run, no gate-surfaced bugs. No F-entries to append. If V1-V8 all PASS, phase is done.
 
 If any V fails AND the phase MD's Recovery section doesn't cover the failure mode, halt with status BLOCKED.
 
@@ -119,9 +134,10 @@ COMMIT + PUSH:
 Stage:
   - apps/qw-oracle/scripts/load-knowledge/VALIDATION-GATES.md (added)
   - apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md (modified)
+  - apps/qw-oracle/scripts/load-knowledge/quality-grid.ts (modified -- comment-only)
   - ~/.claude/skills/onboard-extractor/SKILL.md (modified -- USER-GLOBAL file, NOT in repo, NOT staged via git)
 
-NOTE: SKILL.md lives outside the project repo. The git commit covers only the two repo files (VALIDATION-GATES.md + VALIDATION-RUNBOOK.md); the SKILL.md edit is filesystem-only and persists in the user's home dir. Document the SKILL.md edit in the commit body so the change is traceable.
+NOTE: SKILL.md lives outside the project repo. The git commit covers three repo files (VALIDATION-GATES.md + VALIDATION-RUNBOOK.md + quality-grid.ts); the SKILL.md edit is filesystem-only and persists in the user's home dir. Document the SKILL.md edit in the commit body so the change is traceable.
 
 Commit subject (one line, ASCII, <= 72 chars where possible):
   extractor-discipline-catchup phase 5: validation gates authoring guide
@@ -135,12 +151,23 @@ Commit body shape (HEREDOC):
   VALIDATION-RUNBOOK.md top per D9 (sibling doc, not extension).
 
   D10 skill-update split part 1: ~/.claude/skills/onboard-extractor/
-  SKILL.md updated with new Phase F4.5 section (register-in-config-dict
-  step) + Phase F5 validation-step expansion from one probe to four
-  universal gates (reproducibility / idempotency / parallel-serial pytest
-  / migration-probes conditional). Mode P "Phase P3 onward" line updated
-  to include P4.5. Part 2 (no-per-project-bash callout) shipped in
-  Phase 6 commit a0ee09f7.
+  SKILL.md updated with four changes: new Phase F4.5 section
+  (register-in-config-dict step); Phase F5 validation-step expansion
+  from one probe to four universal gates (reproducibility / idempotency /
+  parallel-serial pytest / migration-probes conditional); Mode P "Phase
+  P3 onward" line updated to include P4.5; Phase F4 stale `npm --prefix`
+  + `sqlite3` commands replaced with `bun --cwd apps/qw-oracle run` +
+  `psql "$DATABASE_URL"` equivalents (drain-now per D7 -- pre-Postgres-era
+  commands actively broken today since npm rejects workspace: deps and
+  data/knowledge.db no longer exists; operator-confirmed audit finding
+  2026-05-08). Part 2 (no-per-project-bash callout) shipped in Phase 6
+  commit a0ee09f7.
+
+  Same audit surfaced two stale `sqlite3 "$DB"` references in
+  apps/qw-oracle/scripts/load-knowledge/quality-grid.ts floor-probe
+  seed-capture comments (lines 1379, 1397). Comment-only fix to
+  `psql "$DATABASE_URL"` form; no logic change; rides this commit
+  per D7 (one logical unit: same SQLite-era doc-drift class).
 
   Section 2 dispatcher template documents the rename syntax
   ({ actualExportName: run }) and grep-verify step for cases where
@@ -149,10 +176,10 @@ Commit body shape (HEREDOC):
   imports { runReproducibilityCli: run }).
 
   SKILL.md edit is to user-global file and is filesystem-only (not in
-  this commit). VALIDATION-GATES.md + VALIDATION-RUNBOOK.md edits are
-  repo-tracked and ship in this commit.
+  this commit). VALIDATION-GATES.md + VALIDATION-RUNBOOK.md +
+  quality-grid.ts edits are repo-tracked and ship in this commit.
 
-  Verification (phase boundary): V1-V6 PASS.
+  Verification (phase boundary): V1-V8 PASS.
 
 Push to origin per D17 (`git push origin main`).
 
@@ -160,11 +187,11 @@ HALT WITH STRUCTURED STATUS:
 
 Reply to the operator with one of:
 
-- DONE: V1-V6 all PASS; phase MD complete; commit pushed; clean tree.
-  Report: commit SHA, V-status summary, confirmation that SKILL.md filesystem edit landed (with grep-verified F4.5 + F5 + Mode P3 line states).
+- DONE: V1-V8 all PASS; phase MD complete; commit pushed; clean tree.
+  Report: commit SHA, V-status summary, confirmation that SKILL.md filesystem edit landed (with grep-verified F4.5 + F5 + Mode P3 + clean F4 line states), and quality-grid.ts comment edits landed (V8 PASS).
 
-- DONE_WITH_CONCERNS: V1-V6 PASS but execution surfaced something unexpected.
-  Report: same as DONE plus the concern + recommendation. Common shapes: (1) Phase 6 already shipped first and the SKILL.md callout had to be preserved during Change 1 insertion; (2) idempotency.ts strip-list shifted between draft time and execution time (Section 4 stale -- planner needs to amend before re-running); (3) reproducibility-check.ts export name shifted (Section 2's rename-syntax example needs updating).
+- DONE_WITH_CONCERNS: V1-V8 PASS but execution surfaced something unexpected.
+  Report: same as DONE plus the concern + recommendation. Common shapes: (1) Phase 6 already shipped first and the SKILL.md callout had to be preserved during CHANGE 1 insertion; (2) idempotency.ts strip-list shifted between draft time and execution time (Section 4 stale -- planner needs to amend before re-running); (3) reproducibility-check.ts export name shifted (Section 2's rename-syntax example needs updating); (4) F4 commands had additional stale forms beyond the three CHANGE 4 locations (e.g. another `sqlite3` invocation surfaced inside Phases F1-F3 that V7 caught -- triage drain-now extension or HANDOVER per D8); (5) quality-grid.ts comment locations shifted (the `// sqlite3` lines moved from ~1379 / ~1397 to different line numbers; CHANGE 5a / 5b anchors still match by content).
 
 - NEEDS_CONTEXT: pre-flight CRITICAL finding OR mid-execution blocker requires operator triage. Common shapes: (1) VALIDATION-GATES.md target path already exists; (2) SKILL.md F5 BEFORE-text doesn't match (skill restructured); (3) live source's strip-list / dispatcher pattern shifted enough that the doc would ship stale.
   Report: the finding + recommended phase MD amendment OR the triage question.

@@ -12,7 +12,7 @@
 
 ## Goal
 
-This phase produces three paper-only deliverables. First: a new producer-side
+This phase produces four paper-only deliverables. First: a new producer-side
 authoring guide at `apps/qw-oracle/scripts/load-knowledge/VALIDATION-GATES.md`
 covering the seven locked sections from Pass 1.2.6 (CLI conventions, F1 dispatch
 mirror, env-var DB config, volatile-column strip, per-project config dict shape,
@@ -21,10 +21,18 @@ from the top of `VALIDATION-RUNBOOK.md` to the new doc (per D9 -- two-doc model,
 clean audience separation). Third: the first half of the onboard-extractor skill
 update (per D10) -- a new Phase F4.5/P4.5 step that teaches "register the new
 project in each universal gate's config dict," plus an expansion of Phase F5/P5
-validation from one probe (re-extract diff) to all four universal gates. No new
-code, no DB writes, no extractor runs. Phase boundary: VALIDATION-GATES.md exists
-with 7 section headers; cross-link is present in RUNBOOK; SKILL.md shows the new
-F4.5 phase and expanded F5 gate set under grep.
+validation from one probe (re-extract diff) to all four universal gates, plus a
+drain-now fix to Phase F4's pre-Postgres-era `npm --prefix` and `sqlite3`
+commands (operator-confirmed audit finding 2026-05-08; commands are actively
+broken today since npm rejects workspace: deps and `data/knowledge.db` no
+longer exists). Fourth: comment-only fix to two stale `sqlite3 "$DB"`
+references in `apps/qw-oracle/scripts/load-knowledge/quality-grid.ts` (lines
+~1379 and ~1397) -- documentation drift in the floor-probe seed-capture
+comments; replaced with `psql "$DATABASE_URL"` form. No new code, no DB writes,
+no extractor runs. Phase boundary: VALIDATION-GATES.md exists with 7 section
+headers; cross-link is present in RUNBOOK; SKILL.md shows new F4.5 phase +
+expanded F5 gate set + clean F4 commands under grep; quality-grid.ts has zero
+remaining `sqlite3` references.
 
 ---
 
@@ -60,7 +68,8 @@ apps/qw-oracle/scripts/load-knowledge/VALIDATION-GATES.md
 
 ```
 apps/qw-oracle/scripts/extractors/VALIDATION-RUNBOOK.md   # one-line cross-link inserted near top (D9)
-~/.claude/skills/onboard-extractor/SKILL.md               # F4.5 step added; F5 validation expanded (D10)
+~/.claude/skills/onboard-extractor/SKILL.md               # F4.5 step added; F5 validation expanded (D10); F4 stale npm + sqlite3 commands replaced with bun --cwd + psql equivalents (drain-now per D7; ADVISORY operator-confirmed 2026-05-08)
+apps/qw-oracle/scripts/load-knowledge/quality-grid.ts     # two stale sqlite3 references in floor-probe seed-capture comments (lines 1379, 1397) replaced with psql "$DATABASE_URL" form -- comment-only edit, no logic change
 ```
 
 ### Deleted
@@ -686,6 +695,108 @@ Phases P3 (load-knowledge wiring), P4 (quality-grid probes), P4.5 (register in u
 END OF CHANGE 3
 
 ---
+CHANGE 4 -- UPDATE Phase F4 stale commands
+
+This change replaces three pre-Postgres-era commands in Phase F4 (Quality-grid probes) that no longer work today:
+- `npm --prefix apps/qw-oracle --no-workspaces run load-knowledge -- ...` -- npm rejects the `workspace:` deps in apps/qw-oracle/package.json with EUNSUPPORTEDPROTOCOL (qw-oracle/CLAUDE.md "Bun is the runtime").
+- `DB=...; sqlite3 -header "$DB" "SELECT ..."` -- the `data/knowledge.db` SQLite file no longer exists; Layer 1 data lives in Postgres since Arc 1 Phase 2 (2026-05-02). Only `.bak` historical backups remain at that path.
+
+Two locations in Phase F4. Edit each with the Edit tool; the BEFORE block on each side is unique enough to anchor without disambiguation.
+
+CHANGE 4a -- Phase F4 Step 1 baseline-counts capture command
+
+BEFORE (one continuous bash codeblock in F4 Step 1):
+
+```
+python3 apps/qw-oracle/scripts/extractors/<fork>/extract.py --workers 12
+npm --prefix apps/qw-oracle --no-workspaces run load-knowledge -- extract-tag --project <fork> --version <version> --ordinal <next-ordinal>
+DB=/home/paradoks/projects/quakeworld/apps/qw-oracle/data/knowledge.db
+sqlite3 -header "$DB" "SELECT type, COUNT(*) FROM entities WHERE project='<fork>' AND source_state='source_backed' GROUP BY type ORDER BY type;"
+```
+
+AFTER:
+
+```
+python3 apps/qw-oracle/scripts/extractors/<fork>/extract.py --workers 12
+bun --cwd apps/qw-oracle run load-knowledge -- extract-tag --project <fork> --version <version> --ordinal <next-ordinal>
+psql "$DATABASE_URL" -c "SELECT type, COUNT(*) FROM entities WHERE project='<fork>' AND source_state='source_backed' GROUP BY type ORDER BY type;"
+```
+
+The `DB=...` env-export line is dropped; `psql` reads `DATABASE_URL` directly. The `bun --cwd apps/qw-oracle` invocation matches the `npm --prefix apps/qw-oracle` cwd-monorepo-root convention the existing F4 uses.
+
+CHANGE 4b -- Phase F4 Step 4 quality-grid run command
+
+BEFORE (one bash codeblock in F4 Step 4):
+
+```
+npm --prefix apps/qw-oracle --no-workspaces run load-knowledge -- quality-grid --project <fork> --family both
+```
+
+AFTER:
+
+```
+bun --cwd apps/qw-oracle run load-knowledge -- quality-grid --project <fork> --family both
+```
+
+---
+END OF CHANGE 4
+
+---
+
+### Task 4: Replace stale sqlite3 references in quality-grid.ts comments
+
+- **Goal:** Replace two stale `sqlite3 "$DB"` references in floor-probe seed-capture documentation comments with the postgres-era `psql "$DATABASE_URL"` form. Comment-only edit; no logic change. Operator-confirmed drain-now (paired with CHANGE 4 in Task 3 since both surface from the same SQLite-era doc-drift audit).
+- **Files:** `apps/qw-oracle/scripts/load-knowledge/quality-grid.ts` (Modified).
+- **Steps:**
+  - [ ] Edit `apps/qw-oracle/scripts/load-knowledge/quality-grid.ts` to replace the comment block at lines ~1379-1381 (count-by-project-and-type capture comment) per CHANGE 5a below.
+  - [ ] Edit the same file to replace the comment block at lines ~1397-1399 (count-by-project-and-type-and-source_state capture comment) per CHANGE 5b below.
+- **Verification:** `grep -n "sqlite3" apps/qw-oracle/scripts/load-knowledge/quality-grid.ts` returns 0 matches; `grep -c "psql \"\$DATABASE_URL\"" apps/qw-oracle/scripts/load-knowledge/quality-grid.ts` returns 2 (V8 below).
+- **Execution mode:** `inline` -- two BEFORE/AFTER comment blocks shipped below; no logic change; no test impact (the comments document seed-capture provenance, not runtime behavior).
+
+---
+CHANGE 5a -- quality-grid.ts L1379-1381 (count-by-project-and-type comment)
+
+BEFORE:
+
+```
+//   sqlite3 "$DB" "SELECT project, type, COUNT(*) FROM entities
+//                  GROUP BY project, type HAVING COUNT(*) > 0
+//                  ORDER BY project, type;"
+```
+
+AFTER:
+
+```
+//   psql "$DATABASE_URL" -c "SELECT project, type, COUNT(*) FROM entities
+//                            GROUP BY project, type HAVING COUNT(*) > 0
+//                            ORDER BY project, type;"
+```
+
+The continuation-line indentation increases by 6 columns to align under the new `psql "$DATABASE_URL" -c "` prefix; the SQL body is identical.
+
+---
+CHANGE 5b -- quality-grid.ts L1397-1399 (count-by-project-and-type-and-source_state comment)
+
+BEFORE:
+
+```
+//   sqlite3 "$DB" "SELECT project, type, source_state, COUNT(*) FROM entities
+//                  GROUP BY project, type, source_state HAVING COUNT(*) > 0
+//                  ORDER BY project, type, source_state;"
+```
+
+AFTER:
+
+```
+//   psql "$DATABASE_URL" -c "SELECT project, type, source_state, COUNT(*) FROM entities
+//                            GROUP BY project, type, source_state HAVING COUNT(*) > 0
+//                            ORDER BY project, type, source_state;"
+```
+
+---
+END OF CHANGE 5
+
+---
 
 ## Verification (phase boundary)
 
@@ -735,6 +846,21 @@ FAIL condition: no match or only 1 match.
 PASS condition: file listed.
 FAIL condition: no such file.
 
+**V7.** SKILL.md Phase F4 has no stale npm or sqlite3 invocations:
+
+    grep -n "npm --prefix\|sqlite3\|knowledge.db" ~/.claude/skills/onboard-extractor/SKILL.md
+
+PASS condition: returns 0 matches.
+FAIL condition: any of the three patterns appears anywhere in SKILL.md (CHANGE 4 missed at least one of the three locations -- L189 / L190-191 / L205 in the BEFORE state).
+
+**V8.** quality-grid.ts has no stale sqlite3 references AND uses psql/postgres-js form in the floor-probe seed-capture comments:
+
+    grep -n "sqlite3" apps/qw-oracle/scripts/load-knowledge/quality-grid.ts
+    grep -c "psql \"\$DATABASE_URL\"" apps/qw-oracle/scripts/load-knowledge/quality-grid.ts
+
+PASS condition: first command returns 0 matches; second command returns `2` (one for each comment block at lines ~1379 and ~1397 post-edit).
+FAIL condition: any sqlite3 invocation reference remains, OR fewer than 2 psql/DATABASE_URL matches.
+
 ---
 
 ## Outputs to next phase
@@ -755,17 +881,19 @@ FAIL condition: no such file.
 
 ## Open questions / deferred items
 
-- **Question:** The live onboard-extractor SKILL.md Phase F4 steps still use
-  `npm --prefix apps/qw-oracle --no-workspaces run load-knowledge` and `sqlite3`
-  (pre-Postgres-era commands predating the Bun + Postgres migration). The
-  new F4.5 and F5 steps inserted by this phase use `bun run load-knowledge`.
-  A reader of the updated skill will see an inconsistency between the stale F4
-  and the current F4.5/F5.
-  **Default chosen for now:** Phase 5 does not touch Phase F4 -- F4 stale
-  commands are out of this phase's scope per D1 (spec is source of truth;
-  Pass 2.2 scopes the three concrete changes only).
-  **Who can resolve:** Phase 6 followup or a separate skill-cleanup task in
-  HANDOVER. Operator decides whether to expand Phase 6 scope to fix F4 as well.
+n/a -- phase scope is fully resolved.
+
+**Resolved 2026-05-08 by operator at planner-review time:** the F4 stale
+commands (sub-agent ADVISORY) were originally punted to "Phase 6 or HANDOVER"
+default. Operator verified that sqlite3 is genuinely retired across qw-oracle
+(Postgres + postgres-js since Arc 1 Phase 2; no `data/knowledge.db` live file;
+no sqlite3/better-sqlite3 deps in package.json) and confirmed the F4 commands
+are actively broken (npm rejects workspace: deps with EUNSUPPORTEDPROTOCOL;
+sqlite3 path no longer exists). Drain-now per D7: fix rides this commit since
+P5 is already editing SKILL.md. CHANGE 4 (three SKILL.md F4 line-edits) added
+to Task 3; Task 4 (two quality-grid.ts comment fixes) added for the related
+documentation drift surfaced by the same audit. V7 + V8 verification probes
+gate the fix.
 
 ---
 
@@ -794,6 +922,18 @@ The insertion target is the line `### Phase F5: Validation handoff`.
 Confirm the Edit tool's old_string matched the current Phase F5 content.
 The expected new F5 content has `bun run load-knowledge -- idempotency` and
 `bun run load-knowledge -- reproducibility-check` in Steps 2 and 1 respectively.
+
+**V7 fails (stale npm/sqlite3/knowledge.db still in SKILL.md):** at least one
+of CHANGE 4a / 4b missed its target. Re-grep to identify which pattern
+remains. Three edit locations were specified in CHANGE 4: F4 Step 1 npm
+invocation (BEFORE/AFTER 4a top half), F4 Step 1 sqlite3 + DB= lines
+(BEFORE/AFTER 4a bottom half -- the two-line edit), F4 Step 4 npm invocation
+(BEFORE/AFTER 4b). Re-run Task 3 Change 4 for whichever target was missed.
+
+**V8 fails (sqlite3 still in quality-grid.ts):** at least one of CHANGE 5a /
+5b missed its target. Re-run Task 4 for the remaining sqlite3 reference.
+Read the file and locate `sqlite3 "$DB"` -- the remaining match is one of the
+two comment blocks at lines ~1379 and ~1397.
 
 ---
 
