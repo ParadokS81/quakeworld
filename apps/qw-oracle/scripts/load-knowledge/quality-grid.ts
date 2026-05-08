@@ -1376,9 +1376,9 @@ async function probeMvdsvTrailingCommentCoverageCvars(ctx: ProbeContext): Promis
 // for unloaded entity types would assert COUNT=0 and PASS forever.
 //
 // Seed values captured 2026-04-28 (post-W3, schema v18) from:
-//   sqlite3 "$DB" "SELECT project, type, COUNT(*) FROM entities
-//                  GROUP BY project, type HAVING COUNT(*) > 0
-//                  ORDER BY project, type;"
+//   psql "$DATABASE_URL" -c "SELECT project, type, COUNT(*) FROM entities
+//                            GROUP BY project, type HAVING COUNT(*) > 0
+//                            ORDER BY project, type;"
 //
 // Per-project entity counts:
 //   ezquake: asset_category=26, cmdline_param=77, command=560, cvar=2989,
@@ -1394,9 +1394,9 @@ async function probeMvdsvTrailingCommentCoverageCvars(ctx: ProbeContext): Promis
 //   total: 31 (project, type) pairs -> 62 floor probes (count + source_state).
 //
 // Source_state distributions captured from:
-//   sqlite3 "$DB" "SELECT project, type, source_state, COUNT(*) FROM entities
-//                  GROUP BY project, type, source_state HAVING COUNT(*) > 0
-//                  ORDER BY project, type, source_state;"
+//   psql "$DATABASE_URL" -c "SELECT project, type, source_state, COUNT(*) FROM entities
+//                            GROUP BY project, type, source_state HAVING COUNT(*) > 0
+//                            ORDER BY project, type, source_state;"
 //
 //   ezquake: cmdline_param  doc_only=2 source_backed=75
 //            command        doc_only=41 source_backed=511 source_retired=8

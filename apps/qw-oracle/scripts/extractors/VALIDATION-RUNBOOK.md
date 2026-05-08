@@ -2,6 +2,8 @@
 
 The encyclopedic reference for validating Layer 1 extractor output. Companion to `EXTRACTOR-PLAYBOOK.md`: the playbook tells you how to BUILD an extractor; this runbook tells you how to PROVE the extractor's output is correct.
 
+For gate authoring, see `scripts/load-knowledge/VALIDATION-GATES.md`.
+
 **Scope:** libclang-based extractors (ezQuake, FTE, QWCL, MVDSV today; canonical KTX onboarding via the KTX onboarding arc; future ezQuake-family forks like unezQuake; future MVDSV-family forks like antilag-mvdsv). Tree-sitter is reserved for the dusty-ktx fork's `qcsrc/` (QuakeC), out of scope for canonical onboarding -- a parallel runbook will land when dusty-ktx ships.
 
 **When to run:**
