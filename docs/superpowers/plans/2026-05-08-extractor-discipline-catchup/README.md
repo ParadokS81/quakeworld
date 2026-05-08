@@ -12,9 +12,9 @@
 
 ## Where we are right now
 
-- **Stage:** Phase 1 + 2 + 3 + 4 SHIPPED. Phase 6 APPROVED (drafter halted; planner-reviewed; executor prompt at `phase-6-executor-prompt.md`). Phase 5 + Phase 7 drafters still in flight.
-- **Last action:** 2026-05-08 -- Phase 6 review pass: phase MD verified against decisions.md (D9/D10/D11/D15/D16) + parking doc Pass 1.2.5/2.2/2.3 + live PLAYBOOK insertion point + HANDOVER last-bullet anchor + SKILL.md F4/F5 boundary + audit-doc + memory cross-link target. Verdict APPROVED; executor prompt generated in file-as-prompt shape (3 inline tasks, no subagent dispatch, V1-V6 verification, ASCII discipline + Phase 5 collision IF-checks in pre-flight).
-- **Next action:** Operator fires P6 executor (`@docs/superpowers/plans/2026-05-08-extractor-discipline-catchup/phase-6-executor-prompt.md` then Esc-then-Enter). Continue waiting for P5 + P7 drafter halts; review each as they land.
+- **Stage:** Phase 1 + 2 + 3 + 4 SHIPPED. Phase 6 APPROVED + executor prompt ready (`phase-6-executor-prompt.md`). Phase 7 APPROVED + executor prompt ready (`phase-7-executor-prompt.md`). Phase 5 phase MD landed; planner-review in flight (cross-checks PASS; verdict trending APPROVED).
+- **Last action:** 2026-05-08 -- Phase 7 review pass: phase MD verified against decisions.md (D6/D8/D13/D15/D16) + parking doc Pass 2.1 + KTX arc-review shape exemplar + 4 phase SHAs in git log + 12 migration filenames + arc-history insertion anchors. Drafter halt: 0 CRITICAL / 0 SUBSTANTIVE / 3 ADVISORY (benign). Planner cross-checks all PASS. Verdict APPROVED with both operator-routed open-question defaults locked: (1) P5 -> P6 -> P7 execution order; (2) 12 migration probe rows kept individual (no grouping). Executor prompt generated with BLOCKING pre-flight P5 + P6 SHA gates so P7 cannot fire until both are shipped to git.
+- **Next action:** Wrap P5 review (planner-side; cross-checks already PASS, executor prompt + commit pending). Operator fires P5 + P6 executors (parallel-safe). Once both shipped, fire P7 executor (BLOCKING gate verifies both commits first). Arc closes after P7 executor commits.
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
@@ -50,7 +50,7 @@ After Phase 1 lands the canonical dispatch shape, Phases 2 / 3 / 4 are mutually 
 | 4 | shipped (`9901f308`) | `phase-4-migration-probes.md` | Universal `scripts/load-knowledge/migration-probes.ts` runner + `db/migration-probes.ts` registry mapping migration name -> probe function; probes for 001-012 (retroactive 001-008 + KTX-shipped 009/010/011 + new 012); `case 'migration-probes':` in `index.ts` | `bun run load-knowledge -- migration-probes` runs all probes; `--migration NNN` runs single probe; all 12 migrations pass |
 | 5 | not started | `phase-5-authoring-guide.md` | New `apps/qw-oracle/scripts/load-knowledge/VALIDATION-GATES.md` (sections 1-7 per Pass 1.2.6); cross-link from VALIDATION-RUNBOOK.md top; SKILL.md update part 1 (new register-in-config-dict step + validation step expansion to 4-5 probes) | New gate authoring is documented; onboarding skill teaches register-in-each-gate pattern |
 | 6 | approved | `phase-6-audit-cadence.md` | EXTRACTOR-PLAYBOOK.md new section on audit cadence trigger set; HANDOVER.md tracking entry; SKILL.md update part 2 (explicit "no per-project bash" callout); cross-link to `feedback_retrofit_later_discipline.md` memory | Cross-project audit cadence rule is documented; onboarding skill prevents per-project bash anti-pattern |
-| 7 | not started | `phase-7-cert-doc.md` | Arc-close cert doc at `docs/superpowers/reviews/<date>-extractor-discipline-catchup-arc-review.md` -- one section per gate recording cross-project pass state (5-project per-gate summary); graduation-readiness artifact | All 5 gates documented as passing across all 5 projects; arc done |
+| 7 | approved | `phase-7-cert-doc.md` | Arc-close cert doc at `docs/superpowers/reviews/<date>-extractor-discipline-catchup-arc-review.md` -- one section per gate recording cross-project pass state (5-project per-gate summary); graduation-readiness artifact | All 5 gates documented as passing across all 5 projects; arc done |
 
 When a phase MD lands, change `not started` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
 
