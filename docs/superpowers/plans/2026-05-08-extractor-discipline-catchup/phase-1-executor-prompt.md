@@ -1,15 +1,6 @@
-# Phase 1 executor prompt -- Extractor discipline catch-up (Idempotency probe)
-
-Open a fresh `claude` terminal in `/home/paradoks/projects/quakeworld/`, copy everything between the BEGIN/END markers below, paste as the first message. Executor halts with structured status when done.
-
-The executor MODIFIES the live codebase (writes idempotency.ts, edits index.ts, deletes the KTX bash script, runs probes against the dev DB, commits, pushes). This is execution, not drafting.
-
----
-
-```
-=== BEGIN PROMPT ===
-
 You are executing Phase 1 of the extractor discipline catch-up arc.
+
+CRITICAL ARC IDENTIFICATION: This is the **2026-05-08 extractor-discipline-catchup** arc, NOT the **2026-05-04 KTX onboarding** arc. The two arcs have similarly-named phase files in adjacent directories. If you see references to "Pattern 6 cross-header lift", "migrations 008/009/010", "ktx_log_template_logfile_channel", or any other KTX onboarding content in your reads, you are in the WRONG arc -- halt immediately and surface to operator. The right reads start with `docs/superpowers/plans/2026-05-08-extractor-discipline-catchup/`.
 
 PHASE 1 SCOPE: Lift the KTX-only bash idempotency probe to a universal
 TypeScript probe under `bun run load-knowledge -- idempotency`. Per-project
@@ -161,6 +152,3 @@ Reply to the operator with one of:
 Do NOT proceed to Phase 2. Do NOT modify decisions.md or scaffold
 artifacts (review-findings.md F-entry additions are fine; structural
 changes are not -- those need explicit operator approval).
-
-=== END PROMPT ===
-```

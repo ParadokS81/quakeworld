@@ -1,13 +1,6 @@
-# Phase 1 drafter prompt -- Extractor discipline catch-up (Idempotency probe)
-
-Open a fresh `claude` terminal in `/home/paradoks/projects/quakeworld/`, copy everything between the BEGIN/END markers below, paste as the first message. Drafter halts when done.
-
----
-
-```
-=== BEGIN PROMPT ===
-
 You are drafting Phase 1 of the extractor discipline catch-up arc.
+
+CRITICAL ARC IDENTIFICATION: This is the **2026-05-08 extractor-discipline-catchup** arc, NOT the **2026-05-04 KTX onboarding** arc. The two arcs have similarly-named phase files in adjacent directories. If your reads start surfacing "Pattern 6 cross-header lift", "migrations 008/009/010", "ktx_log_template_logfile_channel", "Pass 1 entity handlers", or any other KTX onboarding content, you are in the WRONG arc -- halt immediately and surface to operator. The right reads start with `docs/superpowers/plans/2026-05-08-extractor-discipline-catchup/`.
 
 PHASE 1 SCOPE: Universal idempotency probe. Lift
 apps/qw-oracle/scripts/extractors/ktx/idempotency-ktx.sh (KTX-only bash) to
@@ -153,12 +146,3 @@ Step 5: Halt. Reply to the operator with:
 Do NOT proceed to Phase 2. Do NOT execute probes / migrations /
 extractors / loaders. Do NOT modify the live codebase. Drafting is
 paper-only.
-
-=== END PROMPT ===
-```
-
----
-
-## After Phase 1 ships
-
-Once Phase 1 ships (drafted + reviewed + executed + committed), the operator can fan out Phase 2 + Phase 3 + Phase 4 in parallel (each in its own fresh terminal with its own pre-substituted drafter prompt). Phase 5 + Phase 6 + Phase 7 wait for Phase 1-4 drafts to exist (so doc phases reference real conventions). The remaining drafter prompts get generated when Phase 1 is approved.

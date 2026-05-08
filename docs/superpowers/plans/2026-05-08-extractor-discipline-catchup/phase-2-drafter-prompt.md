@@ -1,13 +1,6 @@
-# Phase 2 drafter prompt -- Extractor discipline catch-up (Reproducibility probe)
-
-Open a fresh `claude` terminal in `/home/paradoks/projects/quakeworld/`, copy everything between the BEGIN/END markers below, paste as the first message. Drafter halts when done.
-
----
-
-```
-=== BEGIN PROMPT ===
-
 You are drafting Phase 2 of the extractor discipline catch-up arc.
+
+CRITICAL ARC IDENTIFICATION: This is the **2026-05-08 extractor-discipline-catchup** arc, NOT the **2026-05-04 KTX onboarding** arc. The two arcs have similarly-named phase files in adjacent directories. If your reads start surfacing "modes handler", "Pass 1 entity handlers", "27 catalog rows", "Pattern 6 cross-header lift", or any other KTX onboarding content, you are in the WRONG arc -- halt immediately and surface to operator. The right reads start with `docs/superpowers/plans/2026-05-08-extractor-discipline-catchup/`.
 
 PHASE 2 SCOPE: Universal reproducibility probe. Package VALIDATION-RUNBOOK
 Section 1.1 methodology as runnable: re-run extract.py per project, then
@@ -134,6 +127,3 @@ Step 5: Halt. Reply with:
         - Recommendation: "ready for review" or "needs another pass."
 
 Do NOT proceed to Phase 3. Do NOT execute. Drafting is paper-only.
-
-=== END PROMPT ===
-```
