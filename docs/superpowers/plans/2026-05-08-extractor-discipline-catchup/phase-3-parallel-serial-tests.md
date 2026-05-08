@@ -643,3 +643,27 @@ Sub-agent run: Explore / Sonnet medium. 1 CRITICAL, 1 SUBSTANTIVE, 7 ADVISORY.
 - A5: No unexpected bun/tsx commands in pytest sections.
 - A6: D3 per-handler config shape consistent.
 - A7: No DB interaction introduced.
+
+---
+
+## Post-execution amendments (2026-05-08)
+
+Phase 3 executor halted DONE_WITH_CONCERNS at commit `8f561cba`. Phase 3 deliverables shipped correctly (lifted helper at `extractor_lib/tests/parallel_serial_helpers.py` + export line in `__init__.py`; both KTX tests updated to import the lifted helper; new MVDSV protocol parallel-serial test). V1-V5 PASS, V7 PASS for Phase 3 deliverables; V6 strictly FAILed due to a pre-existing pytest sys.path pollution issue (logged as F1 with HANDOVER track). One V6 strictness amendment + an F1 ledger pointer; documented here for the audit trail.
+
+### V6 strictness amendment
+
+V6's strict PASS condition ("exits 0; summary line shows N tests collected and 0 errors") fails because full-suite `pytest apps/qw-oracle/scripts/extractors/ --collect-only -q` surfaces 3 pre-existing collection errors:
+
+- `fte/tests/test_fte_asset_paths.py` -- `ImportError` resolving `_handler_asset_loader_sites` to ezquake's file (sys.path order pollution when ezquake/fte test dirs both discover in the same session).
+- `qw/tests/test_bsp_parser.py` -- `ModuleNotFoundError: No module named 'tests.test_bsp_parser'` (multiple `tests/` packages in extractors tree cause pytest namespace conflict).
+- `qw/tests/test_pak_extract.py` -- same root cause as `bsp_parser`.
+
+All 15 affected tests collect and pass when run in isolation. Phase 3 added one new `tests/` package (`mvdsv/tests/`) but the underlying root cause (multiple `tests/` package namespaces in one pytest session) pre-existed Phase 3 -- `extractor_lib/tests/__init__.py` already created the namespace conflict before Phase 3.
+
+**Amended PASS condition until F1 lands:** V6 is acceptable with up to 3 pre-existing collection errors (the three above), provided V7 with `--continue-on-collection-errors` confirms all parallel-serial tests PASS. Verify the 3 errors match F1's diagnosis (sys.path / namespace conflict) and not a Phase 3 regression. Once F1 ships, V6 reverts to its original strict shape.
+
+### F1 HANDOVER pointer
+
+Phase 3's V6 finding is recorded as F1 in `review-findings.md` (Severity Low; Track HANDOVER) and as a one-liner in `HANDOVER.md` "Small followups" ("Per-project conftest.py for extractor pytest"). Phase 5 / 6 / 7 do not add new test files to the extractors tree, so deferral is safe through arc close. Fix is needed before the next test-authoring effort touches the extractors tree.
+
+---
