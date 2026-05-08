@@ -1,15 +1,2193 @@
 {
-  "_note": "Canonical curation state. Empty on initial commit. After your first session: click 'Export JSON' in the tool and replace this file with the exported content, then commit. The tool falls back to building initial state from brand-pre-fill.json when this file is empty.",
-  "_shape": {
-    "exported_at": "ISO timestamp",
-    "snapshot": "wiki-snapshot-date",
-    "brands": "array of {slug, label, brand_overview_slug, navbox_slug, type, state, members, format_lines}",
-    "assignments": "{slug: brand_slug} map for top-level tournament articles",
-    "unassigned": "array of unassigned slugs (informational; derivable from brands + assignments)"
+  "exported_at": "2026-05-08T11:17:32.627Z",
+  "snapshot": "2026-05-04",
+  "brands": [
+    {
+      "slug": "european-quake-league",
+      "label": "European Quake League",
+      "brand_overview_slug": "European_Quake_League",
+      "navbox_slug": "EQL_navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "EQL_Season_1",
+        "EQL_Season_2",
+        "EQL_Season_3",
+        "EQL_Season_4",
+        "EQL_Season_5",
+        "EQL_Season_6",
+        "EQL_Season_7",
+        "EQL_Season_8",
+        "EQL_Season_9",
+        "EQL_Season_10",
+        "EQL_Season_11",
+        "EQL_Season_12",
+        "EQL_Season_13",
+        "EQL_Season_14",
+        "EQL_Season_15",
+        "EQL_Season_16",
+        "EQL_Season_17",
+        "EQL_Season_18",
+        "EQL_Season_19",
+        "EQL_Season_20",
+        "EQL_Season_21",
+        "EQL_Season_22",
+        "EQL_Season_23",
+        "EQL_cup",
+        "EQL_cup_2",
+        "EQL_cup_3",
+        "EQL_cup_4",
+        "EQL_cup_5",
+        "EQL_Ladder_1",
+        "EQL_Ladder_2",
+        "EQL_Ladder_3",
+        "EQL_Ladder_4",
+        "EQL_Ladder_5",
+        "EQL_Ladder_6",
+        "European_Quake_League_Season_20",
+        "European_Quake_League_Season_18",
+        "European_Quake_League_Season_21"
+      ],
+      "format_lines": [
+        {
+          "label": "Leagues",
+          "member_slugs": [
+            "EQL_Season_1",
+            "EQL_Season_2",
+            "EQL_Season_3",
+            "EQL_Season_4",
+            "EQL_Season_5",
+            "EQL_Season_6",
+            "EQL_Season_7",
+            "EQL_Season_8",
+            "EQL_Season_9",
+            "EQL_Season_10",
+            "EQL_Season_11",
+            "EQL_Season_12",
+            "EQL_Season_13",
+            "EQL_Season_14",
+            "EQL_Season_15",
+            "EQL_Season_16",
+            "EQL_Season_17",
+            "EQL_Season_18",
+            "EQL_Season_19",
+            "EQL_Season_20",
+            "EQL_Season_21",
+            "EQL_Season_22",
+            "EQL_Season_23"
+          ]
+        },
+        {
+          "label": "Cups",
+          "member_slugs": [
+            "EQL_cup",
+            "EQL_cup_2",
+            "EQL_cup_3",
+            "EQL_cup_4",
+            "EQL_cup_5"
+          ]
+        },
+        {
+          "label": "Ladders",
+          "member_slugs": [
+            "EQL_Ladder_1",
+            "EQL_Ladder_2",
+            "EQL_Ladder_3",
+            "EQL_Ladder_4",
+            "EQL_Ladder_5",
+            "EQL_Ladder_6"
+          ]
+        },
+        {
+          "label": "flagged duplicates",
+          "member_slugs": [
+            "European_Quake_League_Season_20",
+            "European_Quake_League_Season_18",
+            "European_Quake_League_Season_21"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "quakecon",
+      "label": "QuakeCon",
+      "brand_overview_slug": "QuakeCon",
+      "navbox_slug": "QCON_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "QuakeCon_2021",
+        "QuakeCon_2020",
+        "QuakeCon_2017",
+        "QuakeCon_2016"
+      ],
+      "format_lines": [
+        {
+          "label": "[[QuakeCon",
+          "member_slugs": [
+            "QuakeCon_2021",
+            "QuakeCon_2020",
+            "QuakeCon_2017",
+            "QuakeCon_2016"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "one-day-eclipse",
+      "label": "One-day eclipse",
+      "brand_overview_slug": "One-day_eclipse",
+      "navbox_slug": "Eclipse_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "One-day_eclipse_5",
+        "One-day_eclipse_4",
+        "One-day_eclipse_3",
+        "One-day_eclipse_2",
+        "One-day_eclipse_1",
+        "One-day_eclipse_6"
+      ],
+      "format_lines": [
+        {
+          "label": "Upcoming Events",
+          "member_slugs": [
+            "One-day_eclipse_5"
+          ]
+        },
+        {
+          "label": "[[One-day eclipse",
+          "member_slugs": [
+            "One-day_eclipse_4",
+            "One-day_eclipse_3",
+            "One-day_eclipse_2",
+            "One-day_eclipse_1"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "qwar",
+      "label": "QWar",
+      "brand_overview_slug": null,
+      "navbox_slug": "QWar_Navbox",
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Qlan_War_Elite",
+        "Qlan_War_Tournament_1",
+        "Qlan_War_Tournament_2",
+        "Qlan_War_Tournament_3",
+        "Qlan_War_Tournament_4",
+        "Qlan_War_Tournament_5",
+        "Qenya_War_Tournament_1",
+        "Qenya_War_Tournament_2",
+        "Qenya_War_Tournament_3"
+      ],
+      "format_lines": [
+        {
+          "label": "Clan",
+          "member_slugs": [
+            "Qlan_War_Elite",
+            "Qlan_War_Tournament_1",
+            "Qlan_War_Tournament_2",
+            "Qlan_War_Tournament_3",
+            "Qlan_War_Tournament_4",
+            "Qlan_War_Tournament_5"
+          ]
+        },
+        {
+          "label": "Kenya",
+          "member_slugs": [
+            "Qenya_War_Tournament_1",
+            "Qenya_War_Tournament_2",
+            "Qenya_War_Tournament_3"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "salvation-draft-league",
+      "label": "Salvation Draft League",
+      "brand_overview_slug": "Salvation_Draft_League",
+      "navbox_slug": "Salvation_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "Salvation_Season_1"
+      ],
+      "format_lines": [
+        {
+          "label": "Seasons",
+          "member_slugs": [
+            "Salvation_Season_1"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "qwdl",
+      "label": "QWDL",
+      "brand_overview_slug": null,
+      "navbox_slug": "Qwdl_Navbox",
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "QuakeWorld_Duel_League_Season_3",
+        "QuakeWorld_Duel_League_Season_2",
+        "QuakeWorld_Duel_League_Season_1"
+      ],
+      "format_lines": [
+        {
+          "label": "Main Events",
+          "member_slugs": [
+            "QuakeWorld_Duel_League_Season_3",
+            "QuakeWorld_Duel_League_Season_2",
+            "QuakeWorld_Duel_League_Season_1"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "kombat",
+      "label": "Kombat",
+      "brand_overview_slug": "Kombat",
+      "navbox_slug": "Kombat_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "Kombat_2on2_5",
+        "Kombat_2on2_4",
+        "Kombat_2on2_3",
+        "Kombat_2on2_2",
+        "Kombat_2on2_1",
+        "Kombat_Duel_10",
+        "Kombat_Duel_9",
+        "Kombat_Duel_8",
+        "Kombat_Duel_7",
+        "Kombat_Duel_6",
+        "Kombat_Duel_5",
+        "Kombat_Duel_4",
+        "Kombat_Duel_3",
+        "Kombat_Duel_2",
+        "Kombat_Duel_1",
+        "Kombat_League_1",
+        "Kombat_Summer_Duel",
+        "Kombat_FFA_5",
+        "Kombat_FFA_4",
+        "Kombat_FFA_3",
+        "Kombat_FFA_2",
+        "Kombat_FFA",
+        "Kombat_2on2on2",
+        "Kombat_End",
+        "Kombat_DMM4",
+        "Kombat_4on4",
+        "Kombat_4on4_1",
+        "Kombat_Weekly",
+        "Kombat_DM_Heaven",
+        "Kombat_Race_1",
+        "Kombat_Race"
+      ],
+      "format_lines": [
+        {
+          "label": "2on2",
+          "member_slugs": [
+            "Kombat_2on2_5",
+            "Kombat_2on2_4",
+            "Kombat_2on2_3",
+            "Kombat_2on2_2",
+            "Kombat_2on2_1"
+          ]
+        },
+        {
+          "label": "1on1",
+          "member_slugs": [
+            "Kombat_Duel_10",
+            "Kombat_Duel_9",
+            "Kombat_Duel_8",
+            "Kombat_Duel_7",
+            "Kombat_Duel_6",
+            "Kombat_Duel_5",
+            "Kombat_Duel_4",
+            "Kombat_Duel_3",
+            "Kombat_Duel_2",
+            "Kombat_Duel_1",
+            "Kombat_League_1"
+          ]
+        },
+        {
+          "label": "Summer 1on1",
+          "member_slugs": [
+            "Kombat_Summer_Duel"
+          ]
+        },
+        {
+          "label": "FFA",
+          "member_slugs": [
+            "Kombat_FFA_5",
+            "Kombat_FFA_4",
+            "Kombat_FFA_3",
+            "Kombat_FFA_2",
+            "Kombat_FFA"
+          ]
+        },
+        {
+          "label": "Special",
+          "member_slugs": [
+            "Kombat_2on2on2",
+            "Kombat_End",
+            "Kombat_DMM4"
+          ]
+        },
+        {
+          "label": "Ongoing",
+          "member_slugs": [
+            "Kombat_2on2_5"
+          ]
+        },
+        {
+          "label": "upcoming",
+          "member_slugs": [
+            "Kombat_4on4",
+            "Kombat_4on4_1",
+            "Kombat_Weekly",
+            "Kombat_DM_Heaven",
+            "Kombat_Race_1",
+            "Kombat_Race"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "quakeworld-allstars",
+      "label": "QuakeWorld AllStars",
+      "brand_overview_slug": "QuakeWorld_AllStars",
+      "navbox_slug": "Allstars_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "QuakeWorld_AllStars_2015",
+        "QuakeWorld_AllStars_2016",
+        "QuakeWorld_AllStars_2018",
+        "QuakeWorld_AllStars_2020"
+      ],
+      "format_lines": [
+        {
+          "label": "In the past",
+          "member_slugs": [
+            "QuakeWorld_AllStars_2015",
+            "QuakeWorld_AllStars_2016",
+            "QuakeWorld_AllStars_2018",
+            "QuakeWorld_AllStars_2020"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "organ-grinder",
+      "label": "Organ Grinder",
+      "brand_overview_slug": "Organ_Grinder",
+      "navbox_slug": "Organ_Grinder_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "Organ_Grinder_3",
+        "Organ_Grinder_9",
+        "Organ_Harvester"
+      ],
+      "format_lines": [
+        {
+          "label": "Main Events",
+          "member_slugs": [
+            "Organ_Grinder_3",
+            "Organ_Grinder_9"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "quakeworld-eternal",
+      "label": "Quakeworld Eternal",
+      "brand_overview_slug": "Quakeworld_Eternal",
+      "navbox_slug": "Eternal_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "Quakeworld_Eternal_Dm2",
+        "Quakeworld_Eternal_Schloss",
+        "Quakeworld_Eternal_E1m2",
+        "Quakeworld_Eternal_Dm3",
+        "Quakeworld_Eternal"
+      ],
+      "format_lines": [
+        {
+          "label": "Seasons",
+          "member_slugs": [
+            "Quakeworld_Eternal_Dm2",
+            "Quakeworld_Eternal_Schloss",
+            "Quakeworld_Eternal_E1m2",
+            "Quakeworld_Eternal_Dm3"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "draftmasters",
+      "label": "Draftmasters",
+      "brand_overview_slug": null,
+      "navbox_slug": "Draftmasters_navbox",
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Draft_Masters",
+        "Draft_Masters_2"
+      ],
+      "format_lines": [
+        {
+          "label": "Drafts",
+          "member_slugs": [
+            "Draft_Masters",
+            "Draft_Masters_2"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "duelmania",
+      "label": "Duelmania",
+      "brand_overview_slug": "Duelmania",
+      "navbox_slug": "Duelmania_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "Duelmania_1",
+        "Duelmania_2",
+        "Duelmania_3",
+        "Duelmania_4",
+        "Duelmania_True_masters",
+        "Duelmania_QuakeCon_2016",
+        "Duelmania_Reloaded_1",
+        "Duelmania_Reloaded_2",
+        "Duelmania_Reloaded_3",
+        "Duelmania_Reloaded_4",
+        "Duelmania_DownUnder_2019",
+        "Duelmania_DownUnder_2020",
+        "Duelmania_DownUnder_2021",
+        "Duelmania_Worldwide_1",
+        "Duelmania_Worldwide_2",
+        "Duelmania_Pacific_2024"
+      ],
+      "format_lines": [
+        {
+          "label": "Main Events",
+          "member_slugs": [
+            "Duelmania_1",
+            "Duelmania_2",
+            "Duelmania_3",
+            "Duelmania_4",
+            "Duelmania_True_masters",
+            "Duelmania_QuakeCon_2016",
+            "Duelmania_Reloaded_1",
+            "Duelmania_Reloaded_2",
+            "Duelmania_Reloaded_3",
+            "Duelmania_Reloaded_4"
+          ]
+        },
+        {
+          "label": "DownUnder",
+          "member_slugs": [
+            "Duelmania_DownUnder_2019",
+            "Duelmania_DownUnder_2020",
+            "Duelmania_DownUnder_2021"
+          ]
+        },
+        {
+          "label": "Worldwide",
+          "member_slugs": [
+            "Duelmania_Worldwide_1",
+            "Duelmania_Worldwide_2",
+            "Duelmania_Pacific_2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "moscow-quakeworld-lanparty",
+      "label": "Moscow QuakeWorld LANparty",
+      "brand_overview_slug": "Moscow_QuakeWorld_LANparty",
+      "navbox_slug": "MSKLAN_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "MSKLAN1999",
+        "MSKLAN2001",
+        "MSKLAN2002",
+        "MSKLAN2003",
+        "MSKLAN2005",
+        "MSKLAN2006",
+        "MSKLAN2011"
+      ],
+      "format_lines": [
+        {
+          "label": "[[Moscow QuakeWorld LANparty",
+          "member_slugs": [
+            "MSKLAN1999",
+            "MSKLAN2001",
+            "MSKLAN2002",
+            "MSKLAN2003",
+            "MSKLAN2005",
+            "MSKLAN2006",
+            "MSKLAN2011"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "tyumen-quake-association",
+      "label": "Tyumen Quake Association",
+      "brand_overview_slug": "Tyumen_Quake_Association",
+      "navbox_slug": "TQA_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "TQA_-_Revival",
+        "TQA_-_Invasion",
+        "TQA_-_Invasion_2"
+      ],
+      "format_lines": [
+        {
+          "label": "[[TQA",
+          "member_slugs": [
+            "TQA_-_Revival",
+            "TQA_-_Invasion",
+            "TQA_-_Invasion_2"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "ualan",
+      "label": "UALAN",
+      "brand_overview_slug": "UALAN",
+      "navbox_slug": "UALAN_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "UALAN1",
+        "UALAN2",
+        "UALAN3",
+        "UALAN4",
+        "UALAN5"
+      ],
+      "format_lines": [
+        {
+          "label": "[[UALAN",
+          "member_slugs": [
+            "UALAN1",
+            "UALAN2",
+            "UALAN3",
+            "UALAN4",
+            "UALAN5"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "get2gether",
+      "label": "Get2Gether",
+      "brand_overview_slug": "Get2Gether",
+      "navbox_slug": "Get2Gether_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "Get2GetherSE",
+        "Get2Gether"
+      ],
+      "format_lines": [
+        {
+          "label": "In the past",
+          "member_slugs": [
+            "Get2GetherSE",
+            "Get2Gether"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "quakeworld-mix-league",
+      "label": "QuakeWorld MIX League",
+      "brand_overview_slug": "QuakeWorld_MIX_League",
+      "navbox_slug": "MIXLeague_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "QuakeWorld_MIX_League_1",
+        "QuakeWorld_MIX_League_2",
+        "QuakeWorld_MIX_League_3",
+        "QuakeWorld_MIX_League_4",
+        "QuakeWorld_MIX_League_5",
+        "QuakeWorld_MIX_League_6",
+        "QuakeWorld_MIX_League_7",
+        "QuakeWorld_MIX_League_8",
+        "QuakeWorld_MIX_League_OPEN"
+      ],
+      "format_lines": [
+        {
+          "label": "Seasons",
+          "member_slugs": [
+            "QuakeWorld_MIX_League_1",
+            "QuakeWorld_MIX_League_2",
+            "QuakeWorld_MIX_League_3",
+            "QuakeWorld_MIX_League_4",
+            "QuakeWorld_MIX_League_5",
+            "QuakeWorld_MIX_League_6",
+            "QuakeWorld_MIX_League_7",
+            "QuakeWorld_MIX_League_8"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "naql",
+      "label": "NAQL",
+      "brand_overview_slug": null,
+      "navbox_slug": "NAQL_navbox",
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "NAQL_2on2_2",
+        "NAQL_2on2_1"
+      ],
+      "format_lines": [
+        {
+          "label": "Past events",
+          "member_slugs": [
+            "NAQL_2on2_2",
+            "NAQL_2on2_1"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "pivolan",
+      "label": "PivoLAN",
+      "brand_overview_slug": "PivoLAN",
+      "navbox_slug": "PIVOLAN_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "MSK_PivoLAN_2005",
+        "MSK_PivoLAN_2006_(Winter)",
+        "MSK_PivoLAN_2006_(Spring)",
+        "SPB_PivoLAN_2006",
+        "SPB_PivoLAN_2008",
+        "SPB_PivoLAN_2009"
+      ],
+      "format_lines": [
+        {
+          "label": "[[PivoLAN",
+          "member_slugs": [
+            "MSK_PivoLAN_2005",
+            "MSK_PivoLAN_2006_(Winter)",
+            "MSK_PivoLAN_2006_(Spring)",
+            "SPB_PivoLAN_2006",
+            "SPB_PivoLAN_2008",
+            "SPB_PivoLAN_2009"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "qw-lan-party-poland",
+      "label": "QW LAN Party Poland",
+      "brand_overview_slug": "QW_LAN_Party_Poland",
+      "navbox_slug": "QWLAN_PL_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "QW_LAN_Party_Poland_2021",
+        "QW_LAN_Party_Poland_2022",
+        "QW_LAN_Party_Poland_2023",
+        "QW_LAN_Party_Poland_2024",
+        "QW_LAN_Party_Poland_2025",
+        "QW_LAN_Party_Poland_2020"
+      ],
+      "format_lines": [
+        {
+          "label": "[[QW LAN Party Poland",
+          "member_slugs": [
+            "QW_LAN_Party_Poland_2021",
+            "QW_LAN_Party_Poland_2022",
+            "QW_LAN_Party_Poland_2023",
+            "QW_LAN_Party_Poland_2024",
+            "QW_LAN_Party_Poland_2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "qhlan",
+      "label": "QHLAN",
+      "brand_overview_slug": "QHLAN",
+      "navbox_slug": "QHLAN_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "QHLAN2026",
+        "QHLAN2024",
+        "QHLAN2022",
+        "QHLAN2019",
+        "QHLAN2017",
+        "QHLAN_15",
+        "QHLAN_14",
+        "QHLAN_13",
+        "QHLAN_12",
+        "QHLAN_11",
+        "QHLAN_10",
+        "QHLAN_9",
+        "QHLAN_8",
+        "QHLAN_7",
+        "QHLAN_6",
+        "QHLAN_5",
+        "QHLAN_4",
+        "QHLAN_3",
+        "QHLAN_2",
+        "QHLAN_1",
+        "QHLAN2022_CTF",
+        "QHLAN2018",
+        "Duelmania.no",
+        "Duelmania.fi",
+        "Duelmania_DownUnder_2023"
+      ],
+      "format_lines": [
+        {
+          "label": "[[QHLAN",
+          "member_slugs": [
+            "QHLAN2026",
+            "QHLAN2024",
+            "QHLAN2022",
+            "QHLAN2019",
+            "QHLAN2017",
+            "QHLAN_15",
+            "QHLAN_14",
+            "QHLAN_13",
+            "QHLAN_12",
+            "QHLAN_11",
+            "QHLAN_10",
+            "QHLAN_9",
+            "QHLAN_8",
+            "QHLAN_7",
+            "QHLAN_6",
+            "QHLAN_5",
+            "QHLAN_4",
+            "QHLAN_3",
+            "QHLAN_2",
+            "QHLAN_1"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "ownage",
+      "label": "Ownage",
+      "brand_overview_slug": "Ownage",
+      "navbox_slug": "Ownage_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "Ownage_1",
+        "Ownage_2",
+        "Ownage_3",
+        "Ownage_Cup",
+        "Ownage_DMM4_Tour"
+      ],
+      "format_lines": [
+        {
+          "label": "DMM3",
+          "member_slugs": [
+            "Ownage_1",
+            "Ownage_2",
+            "Ownage_3"
+          ]
+        },
+        {
+          "label": "DMM4",
+          "member_slugs": [
+            "Ownage_Cup"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "onemapduel",
+      "label": "Link's Duel Tournament",
+      "brand_overview_slug": null,
+      "navbox_slug": "OnemapDuel_Navbox",
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Aerowalk_Duel_Tournament",
+        "DM2_Duel_Tournament",
+        "DM6_Duel_Tournament",
+        "DM4_Duel_Tournament"
+      ],
+      "format_lines": [
+        {
+          "label": "Events",
+          "member_slugs": [
+            "Aerowalk_Duel_Tournament",
+            "DM2_Duel_Tournament",
+            "DM6_Duel_Tournament",
+            "DM4_Duel_Tournament"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "russian-quakeworld-league",
+      "label": "Russian QuakeWorld League",
+      "brand_overview_slug": "Russian_QuakeWorld_League",
+      "navbox_slug": "RQWL_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "Russian_QuakeWorld_League_Season_19",
+        "Russian_QuakeWorld_League_Season_1",
+        "Russian_QuakeWorld_League_Season_2",
+        "Russian_QuakeWorld_League_Season_3",
+        "Russian_QuakeWorld_League_Season_4",
+        "Russian_QuakeWorld_League_Season_5",
+        "Russian_QuakeWorld_League_Season_6",
+        "Russian_QuakeWorld_League_Season_7",
+        "Russian_QuakeWorld_League_Season_8",
+        "Russian_QuakeWorld_League_Season_9",
+        "Russian_QuakeWorld_League_Season_10",
+        "Russian_QuakeWorld_League_Season_11",
+        "Russian_QuakeWorld_League_Season_12",
+        "Russian_QuakeWorld_League_Season_13",
+        "Russian_QuakeWorld_League_Season_14",
+        "Russian_QuakeWorld_League_Season_15",
+        "Russian_QuakeWorld_League_Season_16",
+        "Russian_QuakeWorld_League_Season_17",
+        "Russian_QuakeWorld_League_Season_18"
+      ],
+      "format_lines": [
+        {
+          "label": "Ongoing Events",
+          "member_slugs": [
+            "Russian_QuakeWorld_League_Season_19"
+          ]
+        },
+        {
+          "label": "In the past",
+          "member_slugs": [
+            "Russian_QuakeWorld_League_Season_1",
+            "Russian_QuakeWorld_League_Season_2",
+            "Russian_QuakeWorld_League_Season_3",
+            "Russian_QuakeWorld_League_Season_4",
+            "Russian_QuakeWorld_League_Season_5",
+            "Russian_QuakeWorld_League_Season_6",
+            "Russian_QuakeWorld_League_Season_7",
+            "Russian_QuakeWorld_League_Season_8",
+            "Russian_QuakeWorld_League_Season_9",
+            "Russian_QuakeWorld_League_Season_10",
+            "Russian_QuakeWorld_League_Season_11",
+            "Russian_QuakeWorld_League_Season_12",
+            "Russian_QuakeWorld_League_Season_13",
+            "Russian_QuakeWorld_League_Season_14",
+            "Russian_QuakeWorld_League_Season_15",
+            "Russian_QuakeWorld_League_Season_16",
+            "Russian_QuakeWorld_League_Season_17",
+            "Russian_QuakeWorld_League_Season_18"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sdcup",
+      "label": "sdCup",
+      "brand_overview_slug": null,
+      "navbox_slug": "Sdcup_Navbox",
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Sdcup1",
+        "Sdcup2",
+        "Sdcup3",
+        "Sdcup4",
+        "Sdcup5"
+      ],
+      "format_lines": [
+        {
+          "label": "Main events",
+          "member_slugs": [
+            "Sdcup1",
+            "Sdcup2",
+            "Sdcup3",
+            "Sdcup4",
+            "Sdcup5"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "polish-duel-championship",
+      "label": "Polish Duel Championship",
+      "brand_overview_slug": "Polish_Duel_Championship",
+      "navbox_slug": "Polish_Duel_Championship",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "Polish_Duel_Season_5",
+        "Polish_Duel_Season_4",
+        "Polish_Duel_Season_3",
+        "Polish_Duel_Season_2",
+        "Polish_Duel_Season_1"
+      ],
+      "format_lines": [
+        {
+          "label": "Events",
+          "member_slugs": [
+            "Polish_Duel_Season_5",
+            "Polish_Duel_Season_4",
+            "Polish_Duel_Season_3",
+            "Polish_Duel_Season_2",
+            "Polish_Duel_Season_1"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "nations-quake-rank",
+      "label": "Nations Quake Rank",
+      "brand_overview_slug": "Nations_Quake_Rank",
+      "navbox_slug": "NQR_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "NQR_Season_1",
+        "NQR_Season_2",
+        "NQR_Season_3",
+        "NQR_Season_4",
+        "NQR_Season_5",
+        "NQR_Season_6",
+        "NQR_Season_7",
+        "NQR_Season_8",
+        "NQR_Season_9",
+        "NQR_Season_10",
+        "NQR_Season_11",
+        "NQR_CMT_Season_1",
+        "NQR_CMT_Season_2",
+        "NQR_Summer_Classic_Cup",
+        "NQR_Summer_Custom_Cup",
+        "NQR_CTF_Season_1",
+        "NQR_Invitational_Classic_Cup",
+        "NQR_North_America_Season_1",
+        "NQR_North_America_Season_2",
+        "NQR_Summercup",
+        "NQR_North_America"
+      ],
+      "format_lines": [
+        {
+          "label": "Main events",
+          "member_slugs": [
+            "NQR_Season_1",
+            "NQR_Season_2",
+            "NQR_Season_3",
+            "NQR_Season_4",
+            "NQR_Season_5",
+            "NQR_Season_6",
+            "NQR_Season_7",
+            "NQR_Season_8",
+            "NQR_Season_9",
+            "NQR_Season_10",
+            "NQR_Season_11"
+          ]
+        },
+        {
+          "label": "Side events",
+          "member_slugs": [
+            "NQR_CMT_Season_1",
+            "NQR_CMT_Season_2",
+            "NQR_Summer_Classic_Cup",
+            "NQR_Summer_Custom_Cup",
+            "NQR_CTF_Season_1",
+            "NQR_Invitational_Classic_Cup",
+            "NQR_North_America_Season_1",
+            "NQR_North_America_Season_2"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "thunderdome",
+      "label": "Thunderdome",
+      "brand_overview_slug": "Thunderdome",
+      "navbox_slug": "Thunderdome_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "Thunderdome_Season_1",
+        "Thunderdome_Season_2",
+        "Thunderdome_Season_3",
+        "Thunderdome_Season_4",
+        "Thunderdome_Season_5",
+        "Thunderdome_Season_6",
+        "Thunderdome_Season_7",
+        "Thunderdome_Season_8",
+        "Thunderdome_Season_9",
+        "Thunderdome_Season_10",
+        "Thunderdome_Season_11",
+        "Thunderdome_Season_12",
+        "Thunderdome_Season_13",
+        "Thunderdome_Season_14",
+        "Thunderdome_Season_15",
+        "Thunderdome_Season_2_NA"
+      ],
+      "format_lines": [
+        {
+          "label": "In the past",
+          "member_slugs": [
+            "Thunderdome_Season_1",
+            "Thunderdome_Season_2",
+            "Thunderdome_Season_3",
+            "Thunderdome_Season_4",
+            "Thunderdome_Season_5",
+            "Thunderdome_Season_6",
+            "Thunderdome_Season_7",
+            "Thunderdome_Season_8",
+            "Thunderdome_Season_9",
+            "Thunderdome_Season_10",
+            "Thunderdome_Season_11",
+            "Thunderdome_Season_12",
+            "Thunderdome_Season_13",
+            "Thunderdome_Season_14",
+            "Thunderdome_Season_15"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "quakeworld-super-league",
+      "label": "QuakeWorld Super League",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "QWSL_Draft",
+        "QWSL_DIV2",
+        "QWSL-TB3__Division_1",
+        "QWSL",
+        "QWSL-TB3__Division_3",
+        "QWSL_TB3",
+        "QWSL-TB3__Division_2",
+        "QWSL-TB3__InfoRules",
+        "QWSL_2",
+        "QWSL-TB3__Playoffs",
+        "QWSL2__InfoRules"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "hammer-time-quakeworld-events",
+      "label": "Hammer Time",
+      "brand_overview_slug": "HAMMER-TIME_QUAKEWORLD_EVENTS",
+      "navbox_slug": "HAMMER-TIME_QUAKEWORLD_LEAGUE",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "Hammer_Time_Season_3",
+        "Hammer_Time_Season_2",
+        "Hammer_Time_Season_1",
+        "Time_2_Hammer_Season_4",
+        "Time_2_Hammer_Season_3",
+        "Time_2_Hammer_Season_2",
+        "Time_2_Hammer_Season_1",
+        "Make_2on2_Great_Again"
+      ],
+      "format_lines": [
+        {
+          "label": "Duel",
+          "member_slugs": [
+            "Hammer_Time_Season_3",
+            "Hammer_Time_Season_2",
+            "Hammer_Time_Season_1"
+          ]
+        },
+        {
+          "label": "2on2",
+          "member_slugs": [
+            "Time_2_Hammer_Season_4",
+            "Time_2_Hammer_Season_3",
+            "Time_2_Hammer_Season_2",
+            "Time_2_Hammer_Season_1",
+            "Make_2on2_Great_Again"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "getquad-draft",
+      "label": "GetQuad! Draft",
+      "brand_overview_slug": "GetQuad__Draft",
+      "navbox_slug": "GetQuad_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "GetQuad__Draft_1",
+        "GetQuad__Draft_2",
+        "GetQuad__Draft_3",
+        "GetQuad__Draft_4",
+        "GetQuad__Draft_5",
+        "GetQuad__Draft_6",
+        "GetQuad__Nations_Cup",
+        "GetQuad__Kenya_Invitational",
+        "GetQuad__Kenya_Invitational_2"
+      ],
+      "format_lines": [
+        {
+          "label": "Main Events",
+          "member_slugs": [
+            "GetQuad__Draft_1",
+            "GetQuad__Draft_2",
+            "GetQuad__Draft_3",
+            "GetQuad__Draft_4",
+            "GetQuad__Draft_5",
+            "GetQuad__Draft_6"
+          ]
+        },
+        {
+          "label": "Nations",
+          "member_slugs": [
+            "GetQuad__Nations_Cup"
+          ]
+        },
+        {
+          "label": "Kenya",
+          "member_slugs": [
+            "GetQuad__Kenya_Invitational",
+            "GetQuad__Kenya_Invitational_2"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "dinosaurus-noobs",
+      "label": "Dinosaurus&Noobs",
+      "brand_overview_slug": "Dinosaurus_Noobs",
+      "navbox_slug": "D_N_Navbox",
+      "type": "pre-filled",
+      "state": "rough-sorted",
+      "members": [
+        "Dinosaurus_Noobs_Season_1",
+        "Dinosaurus_Noobs_Season_2",
+        "Dinosaurus_Noobs_Champions",
+        "Dinosaurus_Noobs_Season_3"
+      ],
+      "format_lines": [
+        {
+          "label": "[[Dinosaurus&Noobs",
+          "member_slugs": [
+            "Dinosaurus_Noobs_Season_1",
+            "Dinosaurus_Noobs_Season_2",
+            "Dinosaurus_Noobs_Champions",
+            "Dinosaurus_Noobs_Season_3"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "mbduel",
+      "label": "MBDUEL",
+      "brand_overview_slug": null,
+      "navbox_slug": "MBDUEL_navbox",
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Mom_s_Basement_Duel_2",
+        "Mom_s_Basement_Duel_1"
+      ],
+      "format_lines": [
+        {
+          "label": "Past events",
+          "member_slugs": [
+            "Mom_s_Basement_Duel_2",
+            "Mom_s_Basement_Duel_1"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "king-of-tuesday-kenya",
+      "label": "King of Tuesday Kenya",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "King_of_Tuesday_Kenya_5",
+        "King_of_Tuesday_Kenya_9",
+        "King_of_Tuesday_Kenya_2",
+        "King_of_Tuesday_Kenya_8",
+        "King_of_Tuesday_Kenya_1",
+        "King_of_Tuesday_Kenya_11",
+        "King_of_Tuesday_Kenya_7",
+        "King_of_Tuesday_Kenya_3",
+        "King_of_Tuesday_Kenya_6",
+        "King_of_Tuesday_Kenya_4",
+        "King_of_Tuesday_Kenya_10",
+        "King_of_Tuesday_Kenya"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "smackdown",
+      "label": "SmackDown",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "SD_Season_2",
+        "SD_NEU_Seasons",
+        "SD_NEU_Season_2",
+        "SD_Season_3",
+        "SD_NEU_Season_1",
+        "SD_AU_Seasons",
+        "SD_Season_1",
+        "SD_SEU_Seasons",
+        "SD_NA_Seasons",
+        "SD_EU_Season_5",
+        "SD_Season_6",
+        "SD_Season_4",
+        "SD_Season_5",
+        "SD_NEU_Season_3",
+        "SD_BR_Seasons",
+        "SD_EU_Season_4",
+        "Challenge_Smackdown",
+        "SD5_NEU_Quarter_LA-RE",
+        "SD5_NEU_Eighth_HF-CB",
+        "SD5_NEU_Eighth_tVS-AQ",
+        "SD5_NEU_Final_SR-LA",
+        "SD5_NEU_Semi_cMF-LA",
+        "SD5_NEU_Eighth_HGC-FS",
+        "SD5_NEU_Eighth_cMF-FU",
+        "SD5_NEU_Eighth_BWL-LA",
+        "SD5_NEU_Quarter_FS-SR",
+        "SD5_NEU_Semi_ToT-SR",
+        "SD5_NEU_Quarter_tVS-cMF",
+        "SD5_NEU_Quarter_HF-ToT",
+        "SD5_NEU_Eighth_TRASH-ToT"
+      ],
+      "format_lines": [
+        {
+          "label": "Match reports SD 5",
+          "member_slugs": [
+            "SD5_NEU_Quarter_LA-RE",
+            "SD5_NEU_Eighth_HF-CB",
+            "SD5_NEU_Eighth_tVS-AQ",
+            "SD5_NEU_Final_SR-LA",
+            "SD5_NEU_Semi_cMF-LA",
+            "SD5_NEU_Eighth_HGC-FS",
+            "SD5_NEU_Eighth_cMF-FU",
+            "SD5_NEU_Eighth_BWL-LA",
+            "SD5_NEU_Quarter_FS-SR",
+            "SD5_NEU_Semi_ToT-SR",
+            "SD5_NEU_Quarter_tVS-cMF",
+            "SD5_NEU_Quarter_HF-ToT",
+            "SD5_NEU_Eighth_TRASH-ToT"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "casual-duel-cup",
+      "label": "Casual Duel Cup",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Casual_Duel_Cup_1",
+        "Casual_Duel_Cup_2",
+        "Casual_Duel_Cup_3"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "free-thursday-kenya",
+      "label": "Free Thursday Kenya",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Free_Thursday_Kenya_7",
+        "Free_Thursday_Kenya_5",
+        "Free_Thursday_Kenya_3",
+        "Free_Thursday_Kenya_2",
+        "Free_Thursday_Kenya",
+        "Free_Thursday_Kenya_9",
+        "Free_Thursday_Kenya_6",
+        "Free_Thursday_Kenya_10",
+        "Free_Thursday_Kenya_8",
+        "Free_Thursday_Kenya_4",
+        "Free_Thursday_Kenya_1"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "quake-nations-cup",
+      "label": "Quake Nations Cup",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "QuakeWorld_Nations_Cup",
+        "Quake_Nations_Cup_2009_Results",
+        "Quake_Nations_Cup_2009",
+        "Quake_Nations_Cup_2008_Results",
+        "Quake_Nations_Cup",
+        "Quake_Nations_Cup_2008"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "ctf-showdown",
+      "label": "CTF Showdown",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "CTF_Showdown_3",
+        "CTF_Showdown_2",
+        "CTF_Showdown"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "hungarian-quakeworld-leagues",
+      "label": "Hungarian QuakeWorld Leagues",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Hungarian_QuakeWorld_Leagues_Season_1_(2on2)",
+        "Hungarian_QuakeWorld_Leagues_Season_3_(1on1)",
+        "Hungarian_QuakeWorld_Leagues_Season_4_(1on1)",
+        "Hungarian_QuakeWorld_Leagues_Season_5_(1on1)",
+        "Hungarian_QuakeWorld_Leagues_Season_2_(1on1)",
+        "Hungarian_QuakeWorld_Leagues_Season_2_(2on2)"
+      ],
+      "format_lines": [
+        {
+          "label": "all broken links - no data",
+          "member_slugs": [
+            "Hungarian_QuakeWorld_Leagues_Season_1_(2on2)",
+            "Hungarian_QuakeWorld_Leagues_Season_3_(1on1)",
+            "Hungarian_QuakeWorld_Leagues_Season_4_(1on1)",
+            "Hungarian_QuakeWorld_Leagues_Season_5_(1on1)",
+            "Hungarian_QuakeWorld_Leagues_Season_2_(1on1)",
+            "Hungarian_QuakeWorld_Leagues_Season_2_(2on2)"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "hymn-of-hope",
+      "label": "Hymn of Hope",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Hymn_of_Hope_May_Edition",
+        "Hymn_of_Hope",
+        "Hymn_of_Hope_Season_1"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "uppsalan",
+      "label": "UppsaLAN",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "UppsaLAN",
+        "UppsaLAN_2"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "ufa",
+      "label": "UFA",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "UFA1",
+        "UFA2"
+      ],
+      "format_lines": [
+        {
+          "label": "Russian LAN party",
+          "member_slugs": [
+            "UFA1",
+            "UFA2"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "besmella",
+      "label": "Besmella",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "BesMella.Custom",
+        "BesMella.Quake_Season_1",
+        "BesMella.Duel",
+        "BesMella.Quake_Season_2"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "eenternal",
+      "label": "EeNternal",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "EeNternal_Fights",
+        "EeNternal_4on4"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "trickery",
+      "label": "Trickery",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Trickery_TDM_League",
+        "Trickery",
+        "Trickery_TDM_League_Season_1",
+        "Trickery_TDM_League_Season_2"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "villains",
+      "label": "Villains",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Villains",
+        "Villains_Season_2",
+        "Villains_Season_1"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "the-big-4",
+      "label": "The Big 4",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "The_Big_4__Season_2",
+        "The_Big_4__Season_1"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "decl",
+      "label": "DeCL",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "DeCL_Season_6",
+        "DeCL_Season_4"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "aye-aye",
+      "label": "AYE AYE",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "AYE_AYE_Monthly_Cup_1",
+        "AYE_AYE_Monthly_Cup_2"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "f-ck-shack",
+      "label": "F CK Shack",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "F_CK_Shack_Invitational_-_Season_1",
+        "F_CK_Shack_2on2_-_Season_1"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "ride-my-rocket",
+      "label": "Ride My Rocket",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Ride_My_Rocket",
+        "Ride_My_Rocket_2on2_Tour_1",
+        "RMR_Season_1",
+        "RMR_Season_2"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "ignition",
+      "label": "Ignition",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Ignition_1",
+        "Ignition_(Leagues)",
+        "Ignition_2",
+        "Ignition_4",
+        "Ignition_3"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "push-it",
+      "label": "Push It",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Push_it",
+        "Push_It_Sweaty1000"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "sunday-spawnfraggin",
+      "label": "Sunday Spawnfraggin",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Sunday_Spawnfraggin_19",
+        "Sunday_Spawnfraggin",
+        "Sunday_Spawnfraggin_18"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "showdown",
+      "label": "Showdown",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "ShowDown",
+        "ShowDown_Season_2"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "quakeworld-summerjam",
+      "label": "QuakeWorld Summerjam",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "QuakeWorld_Summerjam_2005",
+        "QuakeWorld_Summerjam",
+        "QuakeWorld_Summerjam_2007"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "heroes",
+      "label": "Heroes",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "Heroes",
+        "Heroes_Season_2"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "quakeworld-world-championship",
+      "label": "QuakeWorld World Championship",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "QuakeWorld_World_Championships_2005",
+        "QuakeWorld_World_Championships_2004"
+      ],
+      "format_lines": []
+    },
+    {
+      "slug": "lightning-gun-challenge-lgc",
+      "label": "Lightning Gun Challenge LGC",
+      "brand_overview_slug": null,
+      "navbox_slug": null,
+      "type": "synthesized",
+      "state": "rough-sorted",
+      "members": [
+        "LGC"
+      ],
+      "format_lines": []
+    }
+  ],
+  "assignments": {
+    "EQL_Season_1": "european-quake-league",
+    "EQL_Season_2": "european-quake-league",
+    "EQL_Season_3": "european-quake-league",
+    "EQL_Season_4": "european-quake-league",
+    "EQL_Season_5": "european-quake-league",
+    "EQL_Season_6": "european-quake-league",
+    "EQL_Season_7": "european-quake-league",
+    "EQL_Season_8": "european-quake-league",
+    "EQL_Season_9": "european-quake-league",
+    "EQL_Season_10": "european-quake-league",
+    "EQL_Season_11": "european-quake-league",
+    "EQL_Season_12": "european-quake-league",
+    "EQL_Season_13": "european-quake-league",
+    "EQL_Season_14": "european-quake-league",
+    "EQL_Season_15": "european-quake-league",
+    "EQL_Season_16": "european-quake-league",
+    "EQL_Season_17": "european-quake-league",
+    "EQL_Season_18": "european-quake-league",
+    "EQL_Season_19": "european-quake-league",
+    "EQL_Season_20": "european-quake-league",
+    "EQL_Season_21": "european-quake-league",
+    "EQL_Season_22": "european-quake-league",
+    "EQL_Season_23": "european-quake-league",
+    "EQL_cup": "european-quake-league",
+    "EQL_cup_2": "european-quake-league",
+    "EQL_cup_3": "european-quake-league",
+    "EQL_cup_4": "european-quake-league",
+    "EQL_cup_5": "european-quake-league",
+    "EQL_Ladder_1": "european-quake-league",
+    "EQL_Ladder_2": "european-quake-league",
+    "EQL_Ladder_3": "european-quake-league",
+    "EQL_Ladder_4": "european-quake-league",
+    "EQL_Ladder_5": "european-quake-league",
+    "EQL_Ladder_6": "european-quake-league",
+    "QuakeCon_2021": "quakecon",
+    "QuakeCon_2020": "quakecon",
+    "QuakeCon_2017": "quakecon",
+    "QuakeCon_2016": "quakecon",
+    "One-day_eclipse_5": "one-day-eclipse",
+    "One-day_eclipse_4": "one-day-eclipse",
+    "One-day_eclipse_3": "one-day-eclipse",
+    "One-day_eclipse_2": "one-day-eclipse",
+    "One-day_eclipse_1": "one-day-eclipse",
+    "Qlan_War_Elite": "qwar",
+    "Qlan_War_Tournament_1": "qwar",
+    "Qlan_War_Tournament_2": "qwar",
+    "Qlan_War_Tournament_3": "qwar",
+    "Qlan_War_Tournament_4": "qwar",
+    "Qlan_War_Tournament_5": "qwar",
+    "Qenya_War_Tournament_1": "qwar",
+    "Qenya_War_Tournament_2": "qwar",
+    "Qenya_War_Tournament_3": "qwar",
+    "Hammer_Time_Season_3": "hammer-time-quakeworld-events",
+    "Hammer_Time_Season_2": "hammer-time-quakeworld-events",
+    "Hammer_Time_Season_1": "hammer-time-quakeworld-events",
+    "Time_2_Hammer_Season_4": "hammer-time-quakeworld-events",
+    "Time_2_Hammer_Season_3": "hammer-time-quakeworld-events",
+    "Time_2_Hammer_Season_2": "hammer-time-quakeworld-events",
+    "Time_2_Hammer_Season_1": "hammer-time-quakeworld-events",
+    "Make_2on2_Great_Again": "hammer-time-quakeworld-events",
+    "Salvation_Season_1": "salvation-draft-league",
+    "QuakeWorld_Duel_League_Season_3": "qwdl",
+    "QuakeWorld_Duel_League_Season_2": "qwdl",
+    "QuakeWorld_Duel_League_Season_1": "qwdl",
+    "Kombat_2on2_5": "kombat",
+    "Kombat_2on2_4": "kombat",
+    "Kombat_2on2_3": "kombat",
+    "Kombat_2on2_2": "kombat",
+    "Kombat_2on2_1": "kombat",
+    "Kombat_Duel_10": "kombat",
+    "Kombat_Duel_9": "kombat",
+    "Kombat_Duel_8": "kombat",
+    "Kombat_Duel_7": "kombat",
+    "Kombat_Duel_6": "kombat",
+    "Kombat_Duel_5": "kombat",
+    "Kombat_Duel_4": "kombat",
+    "Kombat_Duel_3": "kombat",
+    "Kombat_Duel_2": "kombat",
+    "Kombat_Duel_1": "kombat",
+    "Kombat_League_1": "kombat",
+    "Kombat_Summer_Duel": "kombat",
+    "Kombat_FFA_5": "kombat",
+    "Kombat_FFA_4": "kombat",
+    "Kombat_FFA_3": "kombat",
+    "Kombat_FFA_2": "kombat",
+    "Kombat_FFA": "kombat",
+    "Kombat_2on2on2": "kombat",
+    "Kombat_End": "kombat",
+    "Kombat_DMM4": "kombat",
+    "QuakeWorld_AllStars_2015": "quakeworld-allstars",
+    "QuakeWorld_AllStars_2016": "quakeworld-allstars",
+    "QuakeWorld_AllStars_2018": "quakeworld-allstars",
+    "QuakeWorld_AllStars_2020": "quakeworld-allstars",
+    "Organ_Grinder_3": "organ-grinder",
+    "Organ_Grinder_9": "organ-grinder",
+    "Quakeworld_Eternal_Dm2": "quakeworld-eternal",
+    "Quakeworld_Eternal_Schloss": "quakeworld-eternal",
+    "Quakeworld_Eternal_E1m2": "quakeworld-eternal",
+    "Quakeworld_Eternal_Dm3": "quakeworld-eternal",
+    "Draft_Masters": "draftmasters",
+    "Draft_Masters_2": "draftmasters",
+    "Duelmania_1": "duelmania",
+    "Duelmania_2": "duelmania",
+    "Duelmania_3": "duelmania",
+    "Duelmania_4": "duelmania",
+    "Duelmania_True_masters": "duelmania",
+    "Duelmania_QuakeCon_2016": "duelmania",
+    "Duelmania_Reloaded_1": "duelmania",
+    "Duelmania_Reloaded_2": "duelmania",
+    "Duelmania_Reloaded_3": "duelmania",
+    "Duelmania_Reloaded_4": "duelmania",
+    "Duelmania_DownUnder_2019": "duelmania",
+    "Duelmania_DownUnder_2020": "duelmania",
+    "Duelmania_DownUnder_2021": "duelmania",
+    "Duelmania_Worldwide_1": "duelmania",
+    "Duelmania_Worldwide_2": "duelmania",
+    "Duelmania_Pacific_2024": "duelmania",
+    "MSKLAN1999": "moscow-quakeworld-lanparty",
+    "MSKLAN2001": "moscow-quakeworld-lanparty",
+    "MSKLAN2002": "moscow-quakeworld-lanparty",
+    "MSKLAN2003": "moscow-quakeworld-lanparty",
+    "MSKLAN2005": "moscow-quakeworld-lanparty",
+    "MSKLAN2006": "moscow-quakeworld-lanparty",
+    "MSKLAN2011": "moscow-quakeworld-lanparty",
+    "TQA_-_Revival": "tyumen-quake-association",
+    "TQA_-_Invasion": "tyumen-quake-association",
+    "TQA_-_Invasion_2": "tyumen-quake-association",
+    "UALAN1": "ualan",
+    "UALAN2": "ualan",
+    "UALAN3": "ualan",
+    "UALAN4": "ualan",
+    "UALAN5": "ualan",
+    "Get2GetherSE": "get2gether",
+    "QuakeWorld_MIX_League_1": "quakeworld-mix-league",
+    "QuakeWorld_MIX_League_2": "quakeworld-mix-league",
+    "QuakeWorld_MIX_League_3": "quakeworld-mix-league",
+    "QuakeWorld_MIX_League_4": "quakeworld-mix-league",
+    "QuakeWorld_MIX_League_5": "quakeworld-mix-league",
+    "QuakeWorld_MIX_League_6": "quakeworld-mix-league",
+    "QuakeWorld_MIX_League_7": "quakeworld-mix-league",
+    "QuakeWorld_MIX_League_8": "quakeworld-mix-league",
+    "NAQL_2on2_2": "naql",
+    "NAQL_2on2_1": "naql",
+    "MSK_PivoLAN_2005": "pivolan",
+    "MSK_PivoLAN_2006_(Winter)": "pivolan",
+    "MSK_PivoLAN_2006_(Spring)": "pivolan",
+    "SPB_PivoLAN_2006": "pivolan",
+    "SPB_PivoLAN_2008": "pivolan",
+    "SPB_PivoLAN_2009": "pivolan",
+    "QW_LAN_Party_Poland_2021": "qw-lan-party-poland",
+    "QW_LAN_Party_Poland_2022": "qw-lan-party-poland",
+    "QW_LAN_Party_Poland_2023": "qw-lan-party-poland",
+    "QW_LAN_Party_Poland_2024": "qw-lan-party-poland",
+    "QW_LAN_Party_Poland_2025": "qw-lan-party-poland",
+    "QHLAN2026": "qhlan",
+    "QHLAN2024": "qhlan",
+    "QHLAN2022": "qhlan",
+    "QHLAN2019": "qhlan",
+    "QHLAN2017": "qhlan",
+    "QHLAN_15": "qhlan",
+    "QHLAN_14": "qhlan",
+    "QHLAN_13": "qhlan",
+    "QHLAN_12": "qhlan",
+    "QHLAN_11": "qhlan",
+    "QHLAN_10": "qhlan",
+    "QHLAN_9": "qhlan",
+    "QHLAN_8": "qhlan",
+    "QHLAN_7": "qhlan",
+    "QHLAN_6": "qhlan",
+    "QHLAN_5": "qhlan",
+    "QHLAN_4": "qhlan",
+    "QHLAN_3": "qhlan",
+    "QHLAN_2": "qhlan",
+    "QHLAN_1": "qhlan",
+    "Ownage_1": "ownage",
+    "Ownage_2": "ownage",
+    "Ownage_3": "ownage",
+    "Ownage_Cup": "ownage",
+    "Aerowalk_Duel_Tournament": "onemapduel",
+    "DM2_Duel_Tournament": "onemapduel",
+    "DM6_Duel_Tournament": "onemapduel",
+    "DM4_Duel_Tournament": "onemapduel",
+    "Russian_QuakeWorld_League_Season_19": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_1": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_2": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_3": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_4": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_5": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_6": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_7": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_8": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_9": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_10": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_11": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_12": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_13": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_14": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_15": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_16": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_17": "russian-quakeworld-league",
+    "Russian_QuakeWorld_League_Season_18": "russian-quakeworld-league",
+    "Sdcup1": "sdcup",
+    "Sdcup2": "sdcup",
+    "Sdcup3": "sdcup",
+    "Sdcup4": "sdcup",
+    "Sdcup5": "sdcup",
+    "Polish_Duel_Season_5": "polish-duel-championship",
+    "Polish_Duel_Season_4": "polish-duel-championship",
+    "Polish_Duel_Season_3": "polish-duel-championship",
+    "Polish_Duel_Season_2": "polish-duel-championship",
+    "Polish_Duel_Season_1": "polish-duel-championship",
+    "NQR_Season_1": "nations-quake-rank",
+    "NQR_Season_2": "nations-quake-rank",
+    "NQR_Season_3": "nations-quake-rank",
+    "NQR_Season_4": "nations-quake-rank",
+    "NQR_Season_5": "nations-quake-rank",
+    "NQR_Season_6": "nations-quake-rank",
+    "NQR_Season_7": "nations-quake-rank",
+    "NQR_Season_8": "nations-quake-rank",
+    "NQR_Season_9": "nations-quake-rank",
+    "NQR_Season_10": "nations-quake-rank",
+    "NQR_Season_11": "nations-quake-rank",
+    "NQR_CMT_Season_1": "nations-quake-rank",
+    "NQR_CMT_Season_2": "nations-quake-rank",
+    "NQR_Summer_Classic_Cup": "nations-quake-rank",
+    "NQR_Summer_Custom_Cup": "nations-quake-rank",
+    "NQR_CTF_Season_1": "nations-quake-rank",
+    "Thunderdome_Season_1": "thunderdome",
+    "Thunderdome_Season_2": "thunderdome",
+    "Thunderdome_Season_3": "thunderdome",
+    "Thunderdome_Season_4": "thunderdome",
+    "Thunderdome_Season_5": "thunderdome",
+    "Thunderdome_Season_6": "thunderdome",
+    "Thunderdome_Season_7": "thunderdome",
+    "Thunderdome_Season_8": "thunderdome",
+    "Thunderdome_Season_9": "thunderdome",
+    "Thunderdome_Season_10": "thunderdome",
+    "Thunderdome_Season_11": "thunderdome",
+    "Thunderdome_Season_12": "thunderdome",
+    "Thunderdome_Season_13": "thunderdome",
+    "Thunderdome_Season_14": "thunderdome",
+    "Thunderdome_Season_15": "thunderdome",
+    "Kombat_4on4": "kombat",
+    "Kombat_4on4_1": "kombat",
+    "Kombat_Weekly": "kombat",
+    "Kombat_DM_Heaven": "kombat",
+    "Kombat_Race_1": "kombat",
+    "Kombat_Race": "kombat",
+    "European_Quake_League_Season_20": "european-quake-league",
+    "European_Quake_League_Season_18": "european-quake-league",
+    "European_Quake_League_Season_21": "european-quake-league",
+    "QHLAN2022_CTF": "qhlan",
+    "QHLAN2018": "qhlan",
+    "Duelmania.no": "qhlan",
+    "Duelmania.fi": "qhlan",
+    "Duelmania_DownUnder_2023": "qhlan",
+    "NQR_Invitational_Classic_Cup": "nations-quake-rank",
+    "NQR_North_America_Season_1": "nations-quake-rank",
+    "NQR_North_America_Season_2": "nations-quake-rank",
+    "NQR_Summercup": "nations-quake-rank",
+    "NQR_North_America": "nations-quake-rank",
+    "Thunderdome_Season_2_NA": "thunderdome",
+    "QuakeWorld_MIX_League_OPEN": "quakeworld-mix-league",
+    "One-day_eclipse_6": "one-day-eclipse",
+    "QW_LAN_Party_Poland_2020": "qw-lan-party-poland",
+    "Ownage_DMM4_Tour": "ownage",
+    "Quakeworld_Eternal": "quakeworld-eternal",
+    "Organ_Harvester": "organ-grinder",
+    "QWSL_Draft": "quakeworld-super-league",
+    "QWSL_DIV2": "quakeworld-super-league",
+    "QWSL-TB3__Division_1": "quakeworld-super-league",
+    "QWSL": "quakeworld-super-league",
+    "QWSL-TB3__Division_3": "quakeworld-super-league",
+    "QWSL_TB3": "quakeworld-super-league",
+    "QWSL-TB3__Division_2": "quakeworld-super-league",
+    "QWSL-TB3__InfoRules": "quakeworld-super-league",
+    "QWSL_2": "quakeworld-super-league",
+    "QWSL-TB3__Playoffs": "quakeworld-super-league",
+    "QWSL2__InfoRules": "quakeworld-super-league",
+    "Get2Gether": "get2gether",
+    "GetQuad__Draft_1": "getquad-draft",
+    "GetQuad__Draft_2": "getquad-draft",
+    "GetQuad__Draft_3": "getquad-draft",
+    "GetQuad__Draft_4": "getquad-draft",
+    "GetQuad__Draft_5": "getquad-draft",
+    "GetQuad__Draft_6": "getquad-draft",
+    "GetQuad__Nations_Cup": "getquad-draft",
+    "GetQuad__Kenya_Invitational": "getquad-draft",
+    "GetQuad__Kenya_Invitational_2": "getquad-draft",
+    "Dinosaurus_Noobs_Season_1": "dinosaurus-noobs",
+    "Dinosaurus_Noobs_Season_2": "dinosaurus-noobs",
+    "Dinosaurus_Noobs_Champions": "dinosaurus-noobs",
+    "Dinosaurus_Noobs_Season_3": "dinosaurus-noobs",
+    "Mom_s_Basement_Duel_2": "mbduel",
+    "Mom_s_Basement_Duel_1": "mbduel",
+    "King_of_Tuesday_Kenya_5": "king-of-tuesday-kenya",
+    "King_of_Tuesday_Kenya_9": "king-of-tuesday-kenya",
+    "King_of_Tuesday_Kenya_2": "king-of-tuesday-kenya",
+    "King_of_Tuesday_Kenya_8": "king-of-tuesday-kenya",
+    "King_of_Tuesday_Kenya_1": "king-of-tuesday-kenya",
+    "King_of_Tuesday_Kenya_11": "king-of-tuesday-kenya",
+    "King_of_Tuesday_Kenya_7": "king-of-tuesday-kenya",
+    "King_of_Tuesday_Kenya_3": "king-of-tuesday-kenya",
+    "King_of_Tuesday_Kenya_6": "king-of-tuesday-kenya",
+    "King_of_Tuesday_Kenya_4": "king-of-tuesday-kenya",
+    "King_of_Tuesday_Kenya_10": "king-of-tuesday-kenya",
+    "King_of_Tuesday_Kenya": "king-of-tuesday-kenya",
+    "SD_Season_2": "smackdown",
+    "SD_NEU_Seasons": "smackdown",
+    "SD_NEU_Season_2": "smackdown",
+    "SD_Season_3": "smackdown",
+    "SD_NEU_Season_1": "smackdown",
+    "SD_AU_Seasons": "smackdown",
+    "SD_Season_1": "smackdown",
+    "SD_SEU_Seasons": "smackdown",
+    "SD_NA_Seasons": "smackdown",
+    "SD_EU_Season_5": "smackdown",
+    "SD_Season_6": "smackdown",
+    "SD_Season_4": "smackdown",
+    "SD_Season_5": "smackdown",
+    "SD_NEU_Season_3": "smackdown",
+    "SD_BR_Seasons": "smackdown",
+    "SD_EU_Season_4": "smackdown",
+    "Challenge_Smackdown": "smackdown",
+    "Casual_Duel_Cup_1": "casual-duel-cup",
+    "Casual_Duel_Cup_2": "casual-duel-cup",
+    "Casual_Duel_Cup_3": "casual-duel-cup",
+    "SD5_NEU_Quarter_LA-RE": "smackdown",
+    "SD5_NEU_Eighth_HF-CB": "smackdown",
+    "SD5_NEU_Eighth_tVS-AQ": "smackdown",
+    "SD5_NEU_Final_SR-LA": "smackdown",
+    "SD5_NEU_Semi_cMF-LA": "smackdown",
+    "SD5_NEU_Eighth_HGC-FS": "smackdown",
+    "SD5_NEU_Eighth_cMF-FU": "smackdown",
+    "SD5_NEU_Eighth_BWL-LA": "smackdown",
+    "SD5_NEU_Quarter_FS-SR": "smackdown",
+    "SD5_NEU_Semi_ToT-SR": "smackdown",
+    "SD5_NEU_Quarter_tVS-cMF": "smackdown",
+    "SD5_NEU_Quarter_HF-ToT": "smackdown",
+    "SD5_NEU_Eighth_TRASH-ToT": "smackdown",
+    "Free_Thursday_Kenya_7": "free-thursday-kenya",
+    "Free_Thursday_Kenya_5": "free-thursday-kenya",
+    "Free_Thursday_Kenya_3": "free-thursday-kenya",
+    "Free_Thursday_Kenya_2": "free-thursday-kenya",
+    "Free_Thursday_Kenya": "free-thursday-kenya",
+    "Free_Thursday_Kenya_9": "free-thursday-kenya",
+    "Free_Thursday_Kenya_6": "free-thursday-kenya",
+    "Free_Thursday_Kenya_10": "free-thursday-kenya",
+    "Free_Thursday_Kenya_8": "free-thursday-kenya",
+    "Free_Thursday_Kenya_4": "free-thursday-kenya",
+    "Free_Thursday_Kenya_1": "free-thursday-kenya",
+    "QuakeWorld_Nations_Cup": "quake-nations-cup",
+    "Quake_Nations_Cup_2009_Results": "quake-nations-cup",
+    "Quake_Nations_Cup_2009": "quake-nations-cup",
+    "Quake_Nations_Cup_2008_Results": "quake-nations-cup",
+    "Quake_Nations_Cup": "quake-nations-cup",
+    "Quake_Nations_Cup_2008": "quake-nations-cup",
+    "CTF_Showdown_3": "ctf-showdown",
+    "CTF_Showdown_2": "ctf-showdown",
+    "CTF_Showdown": "ctf-showdown",
+    "Hungarian_QuakeWorld_Leagues_Season_1_(2on2)": "hungarian-quakeworld-leagues",
+    "Hungarian_QuakeWorld_Leagues_Season_3_(1on1)": "hungarian-quakeworld-leagues",
+    "Hungarian_QuakeWorld_Leagues_Season_4_(1on1)": "hungarian-quakeworld-leagues",
+    "Hungarian_QuakeWorld_Leagues_Season_5_(1on1)": "hungarian-quakeworld-leagues",
+    "Hungarian_QuakeWorld_Leagues_Season_2_(1on1)": "hungarian-quakeworld-leagues",
+    "Hungarian_QuakeWorld_Leagues_Season_2_(2on2)": "hungarian-quakeworld-leagues",
+    "Hymn_of_Hope_May_Edition": "hymn-of-hope",
+    "Hymn_of_Hope": "hymn-of-hope",
+    "Hymn_of_Hope_Season_1": "hymn-of-hope",
+    "UppsaLAN": "uppsalan",
+    "UppsaLAN_2": "uppsalan",
+    "UFA1": "ufa",
+    "UFA2": "ufa",
+    "BesMella.Custom": "besmella",
+    "BesMella.Quake_Season_1": "besmella",
+    "BesMella.Duel": "besmella",
+    "BesMella.Quake_Season_2": "besmella",
+    "EeNternal_Fights": "eenternal",
+    "EeNternal_4on4": "eenternal",
+    "Trickery_TDM_League": "trickery",
+    "Trickery": "trickery",
+    "Trickery_TDM_League_Season_1": "trickery",
+    "Trickery_TDM_League_Season_2": "trickery",
+    "Villains": "villains",
+    "Villains_Season_2": "villains",
+    "Villains_Season_1": "villains",
+    "The_Big_4__Season_2": "the-big-4",
+    "The_Big_4__Season_1": "the-big-4",
+    "DeCL_Season_6": "decl",
+    "DeCL_Season_4": "decl",
+    "AYE_AYE_Monthly_Cup_1": "aye-aye",
+    "AYE_AYE_Monthly_Cup_2": "aye-aye",
+    "F_CK_Shack_Invitational_-_Season_1": "f-ck-shack",
+    "F_CK_Shack_2on2_-_Season_1": "f-ck-shack",
+    "Ride_My_Rocket": "ride-my-rocket",
+    "Ride_My_Rocket_2on2_Tour_1": "ride-my-rocket",
+    "Ignition_1": "ignition",
+    "Ignition_(Leagues)": "ignition",
+    "Ignition_2": "ignition",
+    "Ignition_4": "ignition",
+    "Ignition_3": "ignition",
+    "Push_it": "push-it",
+    "Push_It_Sweaty1000": "push-it",
+    "Sunday_Spawnfraggin_19": "sunday-spawnfraggin",
+    "Sunday_Spawnfraggin": "sunday-spawnfraggin",
+    "Sunday_Spawnfraggin_18": "sunday-spawnfraggin",
+    "ShowDown": "showdown",
+    "ShowDown_Season_2": "showdown",
+    "QuakeWorld_Summerjam_2005": "quakeworld-summerjam",
+    "QuakeWorld_Summerjam": "quakeworld-summerjam",
+    "QuakeWorld_Summerjam_2007": "quakeworld-summerjam",
+    "Heroes": "heroes",
+    "Heroes_Season_2": "heroes",
+    "QuakeWorld_World_Championships_2005": "quakeworld-world-championship",
+    "QuakeWorld_World_Championships_2004": "quakeworld-world-championship",
+    "RMR_Season_1": "ride-my-rocket",
+    "RMR_Season_2": "ride-my-rocket",
+    "LGC": "lightning-gun-challenge-lgc"
   },
-  "exported_at": null,
-  "snapshot": null,
-  "brands": [],
-  "assignments": {},
-  "unassigned": []
+  "unassigned": [
+    "The_Endif",
+    "Reverse_Quad_Draft_1",
+    "0wn4g3",
+    "ZTNDM3_Showdown",
+    "A_Frag_in_the_Darkness",
+    "Danish_Quake_League",
+    "OPER.ru_FFA",
+    "Netgamer_Lanmeet",
+    "Qwenya",
+    "Quake_Forever_2008__QuakeWorld",
+    "Qw4ever",
+    "Archive",
+    "QuakeWorld_BR_2on2",
+    "Automatic_for_the_People",
+    "Scandinavian_Mighty_Ones",
+    "Norwegian_Quake_League",
+    "Australian_FFA_Bonanza_1",
+    "BAYA_1on1",
+    "Duel4Tickets",
+    "TEC_Elite_Cup_2023",
+    "Brazilian-shoot-out",
+    "QW.nu_povdmm4",
+    "The_Great_Quakeholio_Tournament_4",
+    "North-European_Clan_League",
+    "Battle4Tickets",
+    "Bernard_Oktoberfest_2008",
+    "QuadDamage_(Czech_Tournament)",
+    "DM2_only",
+    "Australian_DM2_Showdown_1",
+    "Fusion_(League)",
+    "Money_for_nothin_and_gibs_for_free",
+    "FreeFire_tourney",
+    "ClanWarz_Poland",
+    "QWSM",
+    "UK_Rocket_Arena_Championship",
+    "National_team_cups",
+    "True_Gamers_Invitational",
+    "AusQWDuel",
+    "Quake.SPB.RU_challenge_97",
+    "The_Fenris",
+    "Dreamhack_Summer_2017",
+    "National_Challenge_1",
+    "HoonyMode_one-day_beta-test_tournament",
+    "CQE",
+    "Double_Sunday_Kenya",
+    "Chop-Chop-Cup",
+    "D99TenYearDraft",
+    "Quake_FFA___Real_Club_SPB",
+    "Refragged_Classic_Cup_1st_edition",
+    "ESReality_Online_2",
+    "QW2018Teamleague",
+    "ASUS_Spring",
+    "Deathmatch_TV_Season_3__QuakeWorld",
+    "Quake_FFA_January_SPB",
+    "Swedish_Quake_League",
+    "Pacific_DMM4",
+    "Bebenworld",
+    "Quake_SM__97",
+    "SummerCup_2",
+    "AAT",
+    "Dm6mania",
+    "European_Dope_League",
+    "NA_QuakeWorld_Draft_2",
+    "Slide_Challenge",
+    "The_Mean_Tournament",
+    "ONCLE_-98",
+    "CTF-2on2",
+    "Swedish_Online_Championship_One_on_One_League",
+    "UKCL",
+    "Shifter_Exhibition_Tournament",
+    "Ad_Mortem",
+    "NNQL",
+    "Incite_Gaming_League",
+    "UKCML",
+    "Red_Annihilation",
+    "Pigeon_Classic_Charity_Event",
+    "Bravado_Exhibition_Tourney",
+    "Clanbase_Benelux",
+    "QWTF_25th_Year_Anniversary_Cup",
+    "Aerowalkage",
+    "2017_DM_Race_Contest",
+    "Spring_Cup_1999",
+    "Norwegian_Clan_League",
+    "Q1Q3Monsoon_Exhibition_Tournament",
+    "Blitzkrieg_duel",
+    "Endif_QuakeWorld_Tournament",
+    "SKS",
+    "UK_Single_Player_Championship",
+    "Challenge-RU_99",
+    "2018_QW_Duel_Showdown"
+  ]
 }
