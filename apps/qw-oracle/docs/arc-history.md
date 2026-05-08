@@ -6,6 +6,38 @@ For current state, see `OVERVIEW.md` (living map) and `HANDOVER.md` (active back
 
 ---
 
+## 2026-05-08 -- Extractor discipline catch-up -- ARC SHIPPED (Phases 1-7 complete)
+
+Extractor discipline catch-up arc lifts KTX-grade extractor validation discipline
+(idempotency / reproducibility / parallel-vs-serial / per-migration probes) to universal
+coverage across all 5 extraction projects (ezquake / fte / qwcl / mvdsv / ktx),
+retroactively certifies existing projects against the 4 runtime gates, and bakes the
+discipline into the onboarding skill so future codebases inherit by default. Arc spec:
+`docs/superpowers/parking/2026-05-08-extractor-discipline-catchup.md`. Plan:
+`docs/superpowers/plans/2026-05-08-extractor-discipline-catchup/`. Cert doc:
+`docs/superpowers/reviews/2026-05-08-extractor-discipline-catchup-arc-review.md`. Single
+F1 HANDOVER (pytest sys.path pollution in full-suite mode; per-handler tests PASS in
+isolation). KTX-only idempotency-ktx.sh deleted in P1. Next arc: CI setup for qw-oracle
+(wires universal probes into workflow YAML; unblocked once P1-P4 ship).
+
+- **Phase 1 (2026-05-08): idempotency gate -- DONE (f64ef308).** Universal idempotency.ts
+  lifts KTX-only bash. All 5 projects PASS in steady state. DONE_WITH_CONCERNS (V6 stdout
+  contamination + V8 historical-narration grep; both amended in phase MD).
+- **Phase 2 (2026-05-08): reproducibility gate -- DONE (2e7808eb).** reproducibility-check.ts;
+  filesystem-only; all 5 PASS. Two drain-now fixes (git diff scoped to output/; stderr
+  optional chaining) committed inline.
+- **Phase 3 (2026-05-08): parallel-vs-serial gate -- DONE (8f561cba).** parallel_serial_helpers.py
+  lifted to extractor_lib/tests/; mvdsv new test PASS; ktx tests updated PASS;
+  ezquake/fte/qwcl deferred-safe. F1 HANDOVER (sys.path pollution).
+- **Phase 4 (2026-05-08): migration probes gate -- DONE (9901f308).** migration-probes.ts
+  runner + db/migration-probes.ts registry; 12/12 PASS; no findings.
+- **Phase 5: authoring guide + SKILL.md part 1 -- DONE (b2f8a107).** VALIDATION-GATES.md
+  (7 sections) + VALIDATION-RUNBOOK.md cross-link + onboard-extractor SKILL.md update
+  (register-in-config-dict step + validation-step expansion to 4-5 probes).
+- **Phase 6: audit cadence + SKILL.md part 2 -- DONE (aae53d38).** EXTRACTOR-PLAYBOOK.md
+  audit-cadence section + HANDOVER.md tracker entry + SKILL.md no-per-project-bash callout.
+- **Phase 7: cert doc -- DONE.** Arc-close graduation-readiness cert doc. This entry.
+
 ## 2026-05-05 -- KTX Layer 1 Onboarding -- ARC SHIPPED (Phases 0-8 complete)
 
 KTX Layer 1 Onboarding arc adds canonical KTX (https://github.com/QW-Group/ktx) as the 5th codebase in QW Oracle Layer 1. Pass 1 first-class entity surface (cvar / command / info_key / log_template) + Pass 5 gameplay-content surface (game_mode / mode_default / election_type / death_rule / monster / score_system / drop_item / loc_macro / teamplay_message + 7 match_event entity types) + 3 pure-additive migrations + cross-header Pattern 6 lift. Nine phases (0 through 8 plus Phase 5.5 mid-arc retrofit). Spec: `docs/superpowers/specs/2026-05-04-ktx-onboarding-design.md`. Plan: `docs/superpowers/plans/2026-05-04-ktx-onboarding/`. Execution driven by arc-orchestrator (sessions #1-#4) + arc-executor (per-phase fresh terminals). **D16 single-commit-per-phase: 8-for-8 functional streak with two housekeeping asterisks (Phase 1 ship-split + Phase 7 fixture follow-on).** All five doctrine reference sites + arc-touched surface free of KTX-tree-sitter framing post-arc (F19 + F22 verified). HANDOVER backlog item "qw-oracle slim-doc Arc 1 refresh sweep" absorbed and ready for operator deletion. arc-reviewer pass runs in fresh terminal post-arc per skill structural requirement; post-arc handoff at `docs/superpowers/parking/2026-05-07-ktx-onboarding-postarc-handoff.md`.
