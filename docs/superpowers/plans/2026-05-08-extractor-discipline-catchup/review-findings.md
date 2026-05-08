@@ -31,7 +31,24 @@ While executing each phase:
 
 ## Findings
 
-*(none yet -- arc has no prior plan attempt; F-entries accrue during phase drafting / execution as catch-up audits run against the 5 projects.)*
+### F1: Full-suite pytest discovery -- sys.path pollution causes FTE and QW collection errors
+
+**Severity:** Low (no FAIL; only affects collection in full-suite `pytest extractors/` mode)
+
+**Track:** HANDOVER small followup
+
+**Discovered:** Phase 3 execution (2026-05-08) when V6 ran `pytest apps/qw-oracle/scripts/extractors/ --collect-only -q`.
+
+**Evidence:**
+
+- `fte/tests/test_fte_asset_paths.py` -- `ImportError: cannot import name 'AssetLoaderSitesFteHandler' from '_handler_asset_loader_sites' (.../ezquake/_handler_asset_loader_sites.py)`. Root cause: when pytest discovers both ezquake and fte test dirs in the same session, ezquake's handler dir lands in sys.path first; fte's `_handler_asset_loader_sites.py` import resolves to the wrong file.
+- `qw/tests/test_bsp_parser.py` and `test_pak_extract.py` -- `ModuleNotFoundError: No module named 'tests.test_bsp_parser'`. Root cause: multiple `tests/` packages in the extractors tree (`extractor_lib/tests/`, `qw/tests/`, `mvdsv/tests/`) cause pytest to misinterpret the `qw/tests/` package as a sub-module of another `tests` namespace.
+
+**Pre-existing determination:** Both errors occur due to sys.path contamination that predates Phase 3. `extractor_lib/tests/__init__.py` (the `tests` package that creates the namespace conflict) existed before Phase 3 (pre-flight confirmed 0 bytes). Adding `mvdsv/tests/__init__.py` adds a 3rd `tests` package but the root cause (multiple `tests/` package namespaces in one pytest session) was already present. All 15 affected tests collect and pass when run in isolation.
+
+**Impact on Phase 3 deliverables:** None. All 3 Phase 3 parallel-serial tests PASS (verified with `--continue-on-collection-errors`). Phase 3 V7 condition "all parallel-serial tests PASS or SKIP" is met.
+
+**Proposed fix (HANDOVER):** Add per-project `conftest.py` files that insert the project-specific handler dir at index 0 and explicitly exclude the ezquake handler dir. Alternatively, rename each project's test package (`ktx_tests`, `fte_tests`, `qw_tests`, `mvdsv_tests`) to avoid the shared `tests` namespace. Fix deferred -- out of Phase 3 scope; tracked in HANDOVER.
 
 ---
 
@@ -39,7 +56,7 @@ While executing each phase:
 
 | Finding | Phase | Status | Resolution |
 |---|---|---|---|
-| *(none yet)* | -- | -- | -- |
+| F1: Full-suite pytest sys.path pollution (FTE + QW) | Phase 3 (surfaced) | HANDOVER | Per-project conftest.py fix; deferred to separate work item |
 
 When new findings land, append rows here mapping F-number -> phase that resolves it -> status (open / in-progress / resolved) -> short resolution description.
 

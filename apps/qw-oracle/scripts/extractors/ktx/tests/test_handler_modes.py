@@ -43,6 +43,7 @@ Config.set_library_file("libclang-18.so.1")
 from extractor_lib.clang_config import PARSE_OPTS, clang_args_ktx_for  # noqa: E402
 from extractor_lib._visitor import walk_tu_dispatch  # noqa: E402
 from _handler_modes import KtxModesHandler  # noqa: E402
+from extractor_lib.tests import assert_parallel_serial_equivalent  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -190,40 +191,13 @@ def test_parallel_serial_equivalence(tmp_path):
     _f25_guard_active()); once the guard is removed, the test asserts the gate
     holds.
     """
-    import json
-
-    def run_with_workers(n_workers: int) -> dict:
-        out_dir = tmp_path / f"workers_{n_workers}"
-        out_dir.mkdir(parents=True, exist_ok=True)
-        result = subprocess.run(
-            [
-                sys.executable,
-                str(EXTRACT_PY),
-                "--repo-root", str(KTX_REPO),
-                "--output-dir", str(out_dir),
-                "--handlers", "modes",
-                "--workers", str(n_workers),
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if result.returncode != 0:
-            pytest.fail(
-                f"extract.py exited {result.returncode} (workers={n_workers}):\n"
-                f"stdout: {result.stdout[-2000:]}\n"
-                f"stderr: {result.stderr[-2000:]}"
-            )
-        output_file = out_dir / "ktx-modes-ast.json"
-        if not output_file.is_file():
-            pytest.fail(
-                f"extract.py did not produce ktx-modes-ast.json (workers={n_workers}). "
-                f"stdout: {result.stdout[-1000:]}"
-            )
-        return json.loads(output_file.read_text(encoding="utf-8"))
-
-    serial_output   = run_with_workers(1)
-    parallel_output = run_with_workers(4)
+    serial_output, parallel_output = assert_parallel_serial_equivalent(
+        extract_py=EXTRACT_PY,
+        repo_root=KTX_REPO,
+        handler_name="modes",
+        output_filename="ktx-modes-ast.json",
+        tmp_path=tmp_path,
+    )
 
     assert len(serial_output["game_modes"]) == 27, (
         f"serial: expected 27 game_modes; got {len(serial_output['game_modes'])}"
