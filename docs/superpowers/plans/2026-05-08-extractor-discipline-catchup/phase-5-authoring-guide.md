@@ -935,6 +935,16 @@ invocation (BEFORE/AFTER 4a top half), F4 Step 1 sqlite3 + DB= lines
 Read the file and locate `sqlite3 "$DB"` -- the remaining match is one of the
 two comment blocks at lines ~1379 and ~1397.
 
+**V8b grep-quoting gotcha (executor advisory, 2026-05-08):** the V8b probe
+`grep -c "psql \"\$DATABASE_URL\""` is sensitive to shell invocation context.
+Under double-quoted multi-command runs (e.g., HEREDOC bodies, certain shells)
+the inner `\"\$DATABASE_URL\"` can produce a false 0 even when the matches
+are present. If V8b reports 0, re-run with single quotes:
+`grep -c 'psql "$DATABASE_URL"' apps/qw-oracle/scripts/load-knowledge/quality-grid.ts`.
+The single-quoted form sidesteps shell expansion entirely. The probe content
+is correct; only the wrapping quotes need attention. Not a gate bug; not
+tracked in review-findings.md per executor recommendation.
+
 ---
 
 ## Findings resolved by this phase (per review-findings.md)
@@ -1084,3 +1094,39 @@ from the wrapper name, with a verification command and the concrete
 ADVISORY noted in Open questions: Phase F4 stale commands flagged. Operator
 decision whether to expand Phase 6 scope or add a HANDOVER cleanup task.
 Not a decisions.md conflict; no rejection needed.
+
+---
+
+## Post-execution amendments (2026-05-08)
+
+### Phase 6 SKILL.md callout already in place at execution time
+
+Phase 5 + Phase 6 are parallel-safe per Pass 2.3 + decisions.md. Operator
+fired both executors in parallel. Phase 6 committed first
+(`aae53d38`), then Phase 5 (`b2f8a107`). At Phase 5's CHANGE 1 execution
+time, the user-global SKILL.md already carried the Phase 6 "Anti-pattern --
+no per-project bash scripts" callout immediately before
+`### Phase F5: Validation handoff`.
+
+The executor adapted CHANGE 1's `old_string` to anchor on the callout +
+F5 header and preserved the callout in `new_string`. Final ordering:
+F4 -> F4.5 -> Anti-pattern callout -> F5. This matches the spec
+("callout sits between F4.5 and F5"). No correctness impact; execution
+was smooth. The pre-flight gate (g) in the executor prompt anticipated
+this scenario; the executor recognized it correctly.
+
+Halt-report misdiagnosis (informational): Phase 5's executor halt report
+states "P6's SKILL.md edit is filesystem-only (no commit yet)." This is
+incorrect -- P6 committed at `aae53d38` BEFORE P5's run. The misdiagnosis
+did not affect correctness because the executor adapted CHANGE 1
+appropriately based on the live SKILL.md state, not git log state.
+
+### V8b grep-quoting gotcha
+
+V8b's grep probe `grep -c "psql \"\$DATABASE_URL\""` is sensitive to shell
+invocation context. The executor's first-pass run reported 0 matches; a
+re-run with single quotes (`'psql "$DATABASE_URL"'`) confirmed the correct
+count of 2. The probe pattern is correct; only the wrapping quotes need
+attention. Documented in the Recovery section above. Not tracked as an
+F-entry per executor's call (probe-wording issue, not a gate or extractor
+bug).
