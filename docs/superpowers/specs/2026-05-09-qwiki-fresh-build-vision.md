@@ -1,7 +1,7 @@
 ---
-status: brainstorm in progress (Pass 1 of 6 conceptual + N architecture passes downstream)
+status: brainstorm in progress (Passes 1-2 of 6 complete; Pass 3 next)
 arc: 2026-05-09-qwiki-sandbox
-parking: docs/superpowers/parking/2026-05-09-qwiki-sandbox-fresh-build-handoff.md
+parking: docs/superpowers/parking/2026-05-10-qwiki-sandbox-pass3-handoff.md
 supersedes: docs/superpowers/specs/2026-05-09-qwiki-sandbox-architecture.md (modernize-in-place framing, pivoted 2026-05-09)
 ---
 
@@ -12,7 +12,7 @@ Living spec for the qwiki-sandbox arc, fresh-build framing. Drain destination fo
 ## Conceptual passes overview
 
 - Pass 1 -- what wikis are for, generically (COMPLETE)
-- Pass 2 -- current QWiki audit, purpose lens (pending)
+- Pass 2 -- current QWiki audit, purpose lens (COMPLETE)
 - Pass 3 -- ecosystem map: where each kind of knowledge lives (pending)
 - Pass 4 -- wiki's unique role + SHOULD list (pending)
 - Pass 5 -- contributor model + freedom-vs-structure (pending)
@@ -76,9 +76,79 @@ Four failure modes, ordered by how much they apply to QWiki today:
 
 ---
 
-## Pass 2 -- current QWiki audit, purpose lens -- pending
+## Pass 2 -- current QWiki audit, purpose lens -- LOCKED
 
-(To be drained at Pass 2 close.)
+**Scope:** what QWiki is *doing* today (de-facto roles, contributor pattern, machine-readability state). Not implementation. Frame for Pass 3 + Pass 4.
+
+### 2.1 Roles QWiki fills today -- LOCKED
+
+**Alive roles** (currently maintained):
+- **Tournament event coordination + archival** -- `Leagues` 53% touched in last 2 years, `Online_Tournaments` 73%, `Team_Tournaments` 73%, `InfoboxComplete` (the engaged set) 70%. Operator + bps + Alice all confirm this holds the wiki up.
+- **Map descriptions** -- 205 pages, 85% touched in last 5 years. Depth uneven (Dm2 19KB / Dm3 13KB / E1m2 9KB rich; Aerowalk near-stub). 4on4_Maps subcat has 15 entries; 1on1_Maps has 1 -- structural taxonomy is partial.
+- **File/image hosting** -- 7GB+ on disk (corrects earlier 2.8GB which was just `image` table originals). Quietly load-bearing -- every tournament page references images.
+- **InfoboxComplete-tagged subset** -- 444 pages, 70% recently touched. The community quality-line; small but engaged.
+
+**Attempted-but-failing roles:**
+- **Player directory** -- 5,899 pages, 57% explicitly stub-tagged, mostly stale 5+ years. Bursty mass-edit cleanups in country buckets (Russian wave: 750 edits Jan 2025, 84% stub-or-tiny -- bulk dump not curation; Norwegian / Players_with_no_profile_picture similar). Hub V2 obsoletes this role going forward.
+- **Mode + mechanic + tool descriptions** -- `Game_modes` 17, `Tools` 11, `Clients` 11. Genuinely tiny. KTX source links to wiki for mode descriptions: 15 of 27 modes have pages, half are stubs. **The role wikis are uniquely good at, currently failing hardest.** This is the central content gap the new wiki must fill.
+
+**Not-current-but-Pass-4-candidate roles** (operator named explicitly):
+- **Community section** -- interviews, podcasts, columns, written long-form content. Purity columns (280KB) are the legacy artifact. Operator wants this revived. Currently archived rather than curated.
+- **History / timeline visualization** -- LAN events, tournament finals, tech breakthroughs (HUD editor introduction, popular client introductions). Currently MISSING. Strong candidate for unique-role-no-other-site-handles.
+- **ELO** correction -- not encyclopedic; it's a player-elo-rated list. Single-purpose data table that is structurally DB-shaped. Hub V2 territory.
+
+**Pattern:** alive where content shape fits the wiki form (narrative + crosslinks + maintainable) AND contributor motivation is cyclical (tournaments come back each season, so tournament pages come back). Failing where content shape fights the form (records = DB-shaped) OR motivation is one-time (a stub created in 2008, never revisited).
+
+### 2.2 Contributor pattern -- LOCKED
+
+**Concrete pool today** (operator firsthand):
+- **Alice** -- active on later tournaments. Quality contributor. Pass 5 stakeholder.
+- **Link** -- active, undisciplined. Adds pages with weird inconsistent formats. The canonical "what schema constraints prevent" -- in a structured-with-narrative-slots wiki, Link's contribution friction rises but the result stays usable.
+- **Carapace** -- tried EQL cleanup, gave up midway. The canonical *curator-burnout* pattern.
+- **Mystery Russian sweeper** -- bulk-dump pattern, single-month bursts of stubs (84% stub-or-tiny).
+- **Tournament organizers** -- anonymous drive-bys, touch their event pages around the event, then leave.
+
+**The pattern in plain English:** 2-4 active discipline-varied editors + tournament-organizer drive-bys + occasional bulk-import incidents. **NOT 30 people editing organically.** This concretizes the Pass 1 "design for thin-but-active contributor base" implication.
+
+**Tooling implications** (Pass 5 carry-forward):
+- Support sweep-mode curator workflows (the hypothetical "Carapace v2" who doesn't burn out on EQL backfill).
+- Support drive-by structured input (organizer fills a form, page renders).
+- Filter undisciplined random-format edits via schema enforcement (Link's reality).
+
+**Edit-gate mechanism** -- admin-approved-by-invitation (operator was "invited," didn't sign up). Highest-friction gate. Likely contributor to stagnation: Discord pool of ~30-50 latent editors vs ~2-4 active = the gate suppresses conversion.
+
+### 2.3 Wiki as data source -- LOCKED
+
+**Today's QWiki is human-readable but machine-unreadable.** SMW capability is installed; property discipline isn't (InfoboxComplete-444 = ~5% conform). Effectively zero machine-mineable structured data despite the technical capability sitting there.
+
+**The new wiki's data-source value is NOT direct query-target for downstream services.** Wiki and oracle have different formats by design (wiki = human narrative + crosslinks; oracle = curated concept notes for AI synthesis). Wiki content can't directly feed oracle queries.
+
+**It IS dramatically easier-parse upstream.** Structured wiki content is parsable into oracle's `concept-notes/` .md files. Wiki feeds oracle's curation work, not direct queries.
+
+**Author-once-harvest-many** -- the load-bearing principle (operator's words, paraphrased): "Whats the point of just creating it for my oracle.. when i could be creating it for the wiki, and harvesting it with ease after." Author at wiki (canonical narrative source), harvest downstream (oracle, hub, future AI services). Don't duplicate authorship in private .md files.
+
+**Flagship case:** KTX modes -- 27 modes total, only 15 have wiki pages, half of those are stubs. This is the work that would otherwise happen in oracle's `concept-notes/`. Doing it in the wiki means humans + oracle + future hub + future AI services all inherit the work. Pass 6 will firm this up as the canonical extraction-vs-new-build case.
+
+### Pass 2 carry-forwards
+
+To Pass 4 (wiki's unique role + SHOULD list):
+- Revive "community section" role (interviews / podcasts / columns; Purity columns are the legacy artifact).
+- History / timeline visualization role -- strongest candidate for unique-no-other-site role.
+- Scrapable / queryable for AI consumption is a SHOULD-list pillar -- not just human-readable.
+- Tournament page template shape already named by operator: **Description / Rules / Format / Maps / Signups / Results**.
+- **Author-once-harvest-many** as a Pass 4 design pillar.
+- Stakeholder-pitch framing: fresh-build IS "upgrade taken to its logical extreme + URL preservation" -- the upgrade Alice/bps wanted, done thoroughly. Same URLs, modernized substrate, dead weight pruned.
+
+To Pass 5 (contributor model + freedom-vs-structure):
+- **Alice-flexibility reconciliation needs explicit confirmation.** Proposed: schema-bones for the consistent fields (description / rules / format / maps / signups / results), narrative slots inside for the variable parts (weird Frankenstein lineup rotations etc.). Alice keeps flexibility on the parts that vary, gains queryability on the bones.
+- Contributor pool is concrete (Alice / Link / Carapace / mystery sweeper / tournament organizers). Tooling must support sweep-mode + drive-by + filter-undisciplined.
+- Edit-gate is admin-approved-by-invitation today; new wiki uses Discord OAuth + Quad bot auto-provisioning (Pass 1 carry-forward, still standing).
+
+To Pass 6 (content strategy):
+- KTX modes are the flagship "author at wiki" case -- fill 12 missing + clean 8 thin. Reference instance for other underdeveloped-but-attempted roles.
+- Map import policy needs substantial-vs-stub tag per page (depth uneven; Dm2/Dm3/E1m2 substantial, Aerowalk near-stub).
+- ELO is DB-shaped, not wiki-shaped -- abandon-or-hand-off-to-Hub-V2 candidate.
+- Russian-player-bulk-dump precedent: bulk imports without curation create stubs. Whatever import policy we land on must NOT leave that pattern in place.
 
 ## Pass 3 -- ecosystem map -- pending
 
