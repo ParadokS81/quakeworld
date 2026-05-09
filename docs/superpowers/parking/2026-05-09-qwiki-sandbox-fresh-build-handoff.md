@@ -1,5 +1,7 @@
 # QWiki sandbox -- fresh-build pivot handoff
 
+> **STATUS UPDATE 2026-05-09 evening (this session):** Operator pushed back on the A-F pass plan below as implementation-shaped. New conceptual-first plan locked: Pass 1 (generic wiki frame) -> 2 (current QWiki audit) -> 3 (ecosystem map) -> 4 (wiki's unique role + SHOULD list) -> 5 (contributor model) -> 6 (content strategy). Architecture passes downstream. **Pass 1 COMPLETE.** Active drain destination is now `docs/superpowers/specs/2026-05-09-qwiki-fresh-build-vision.md` (NOT the old architecture spec). Pass tracker memory: `project_qwiki_sandbox_passes.md`. The body of this doc below is historical context; the new pass plan + locked decisions live in the vision spec.
+
 **Use as the literal first message in a fresh `claude` terminal opened in `/home/paradoks/projects/quakeworld/`.**
 
 This is the second arc-brainstormer entry point for the qwiki-sandbox arc. The first session (2026-05-09 day) ran arc-classifier (Mode D) + arc-brainstormer Pass 1 (phase-1 local sandbox mechanics, modernize-in-place framing) + a content analysis pass that surfaced data tilting the arc toward fresh-build. Operator decided to pivot. **This session's job: run a new arc-brainstormer pass plan in the fresh-build framing.**
