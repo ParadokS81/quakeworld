@@ -4,11 +4,18 @@ Living map of the project. Updated when state changes.
 
 ## Current phase
 
-**arc-brainstormer Pass 1 COMPLETE** (2026-05-09). 7 sub-questions locked; architecture drained to `docs/superpowers/specs/2026-05-09-qwiki-sandbox-architecture.md`.
+**ARC PIVOTED 2026-05-09 evening.** Reframed from modernize-in-place to fresh-build with selective extract.
 
-Pass 1.5 (production deployment) + Passes 2-5 pending, fresh terminal each. Phase 1 implementation gated on ciscon's config bundle (LocalSettings.php sanitized + extensions/ + skins/), requested 2026-05-09 via Discord.
+Day session ran arc-classifier + Pass 1 (modernize-in-place framing, 7 sub-questions locked) + content analysis pass. Content analysis revealed structural decay (51% stubs, 63% stale 5+ years, player-page-dominated, severed edit attribution). Operator articulated ecosystem-integration vision needing redesigned templates from day 1 -> arc reframed.
 
-Memory tracker: `project_qwiki_sandbox_passes.md`.
+**Next session entry point:** `docs/superpowers/parking/2026-05-09-qwiki-sandbox-fresh-build-handoff.md`.
+
+**Active artifacts:**
+- Content analysis: `docs/research/2026-05-09-qwiki-content-analysis.md`
+- Architecture spec (Pass 1 + pivot): `docs/superpowers/specs/2026-05-09-qwiki-sandbox-architecture.md`
+- Pass tracker: `project_qwiki_sandbox_passes.md` (memory)
+
+**Tooling state:** mariadb container `qwiki-analysis` running locally with imported dump for Pass A / Pass F queries.
 
 - Project folder created at `apps/qwiki-sandbox/`
 - `dumps/qwiki.sql.gz` (87M -> 710M uncompressed, MariaDB 11.8.6 dump, 96 tables; 94 InnoDB / 2 MyISAM, binary charset)

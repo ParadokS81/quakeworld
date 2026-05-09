@@ -253,6 +253,18 @@ Investment now pays back across every later phase.
 
 ---
 
+## Pass 1.5 -- production deployment
+
+**Scope:** take the locally-validated sandbox to Unraid, expose via Cloudflare tunnel at `wiki.slipgate.me`, design the bot observation + mitigation tooling layer.
+
+### 1.5.1 Unraid deployment mechanics -- pending
+### 1.5.2 Cloudflare tunnel + DNS wiring -- pending
+### 1.5.3 Per-environment LocalSettings.local.php split -- pending
+### 1.5.4 Bot observation strategy -- pending
+### 1.5.5 Public exposure timing + WAF / tarpit experimentation venue -- pending
+
+---
+
 ## Pass 1 close (2026-05-09)
 
 **Status:** COMPLETE.
@@ -284,3 +296,48 @@ Pass 1.5 added; Pass 2-5 unchanged in scope.
 - Pass 3 -- phase 4 Page Forms audit + form authoring -- pending
 - Pass 4 -- phase 5 EQL cleanup pilot + ongoing-event form demo -- pending
 - Pass 5 -- phase 6 showcase + cutover proposal -- pending
+
+---
+
+## 2026-05-09 evening: ARC PIVOT -- fresh-build supersedes modernize-in-place
+
+After Pass 1 close, a content analysis pass (`docs/research/2026-05-09-qwiki-content-analysis.md`) ran against the imported dump. Findings tilted the arc framing hard:
+
+- 51% of Main-NS pages are stubs or tiny (<1KB); only 7.4% are substantial articles
+- 63% of pages stale 5+ years; 40% stale 10+ years
+- Player pages dominate (5,903 / 9,179 = 64% of Main NS), 57% community-tagged as stubs
+- Edit attribution severed in dump (`rev_actor = 0` for all 78,377 revisions)
+- The substantial-content tail is narrow but real (Purity's columns at 280KB, tournament season pages 40-100KB, KTX mode pages mostly stubs)
+
+Combined with operator's articulated ecosystem-integration vision (wiki + quake.world + hub + oracle + maps.quake.world + xantom's parsers, integrated via bidirectional citation + auto-population), the arc reframed:
+
+**New scope:** fresh-build with selective extract. Stand up clean MW 1.39 LTS from scratch with template architecture designed for the aggregation-layer pattern from day 1 (auto-pop slots + manual narrative slots + ecosystem-aware citation). Selectively import irreplaceable content from the old dump. Drop player stubs, broken-link debris, legacy template architecture.
+
+### Pass 1 sub-questions: post-pivot status
+
+- **1.1 Dump pre-flight inspection** -- still applicable. The dump structure didn't change.
+- **1.2 Compose stack shape** -- partially obsolete. `mediawiki:1.35` -> `mediawiki:1.39`; otherwise compose pattern survives.
+- **1.3 Image tarball extraction** -- carries forward unchanged. We still want the file/image archive (5,024 files + 178 demos).
+- **1.4 LocalSettings.php strategy** -- obsolete. "Ask ciscon for sanitized version" -> "design fresh for new template architecture."
+- **1.5 Extension + skin acquisition** -- obsolete. "Match live exactly via ciscon's bundle" -> "install latest from extdist + composer; Citizen skin from day 1; LiquiFlow not preserved."
+- **1.6 Dump import procedure** -- partially applicable. The init.d auto-import pattern works; applied to extracted subset SQL, not full dump.
+- **1.7 Render-verification regime** -- reframed. "Identical to live" -> "extracted subset renders properly per the new template architecture."
+
+### Old Pass plan dissolution
+
+- **Pass 1.5** (production deployment) -- carries forward as-is, deferred until fresh stack runs locally.
+- **Pass 2** (1.35 -> 1.39 upgrade choreography) -- DISSOLVES. Fresh-install of 1.39, no upgrade.
+- **Pass 3** (skin/VE swap) -- DISSOLVES. Citizen + VE designed in from day 1.
+- **Pass 4** (Page Forms audit + cleanup) -- partially survives, reframed.
+- **Pass 5** (showcase + cutover) -- survives, reframed pitch.
+
+### New pass plan (sketch -- arc-brainstormer to confirm + refine)
+
+- Pass A -- extraction policy + foundation scope
+- Pass B -- namespace + template architecture (aggregation-layer pattern)
+- Pass C -- Page Forms + SMW property scheme
+- Pass D -- ecosystem integration (citation templates, External Data wiring)
+- Pass E -- quality + discoverability + UX
+- Pass F -- selective import + cutover + deployment
+
+**Next session entry point:** `docs/superpowers/parking/2026-05-09-qwiki-sandbox-fresh-build-handoff.md`.

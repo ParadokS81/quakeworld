@@ -1,5 +1,25 @@
 # QWiki Sandbox -- arc-planning handover
 
+## 2026-05-09 evening: ARC PIVOTED to fresh-build (see new handoff)
+
+After Pass 1 + content analysis, this arc reframed from "modernize the existing wiki in place" to "fresh-build with extract." Reasons:
+
+- Content analysis showed 51% stubs / 63% stale 5+ years / player-page-dominated structure / severed edit attribution
+- Operator articulated ecosystem-integration vision (wiki + quake.world + hub + oracle + maps.quake.world + xantom's parsers, with bidirectional citation + auto-population) needing template architecture redesigned from day 1
+- "Too broken to fix" instinct + ecosystem framing argued for fresh start over retrofit
+
+**Active entry point for next session:** `docs/superpowers/parking/2026-05-09-qwiki-sandbox-fresh-build-handoff.md`.
+
+**Supporting artifacts:**
+
+- `docs/research/2026-05-09-qwiki-content-analysis.md` -- the data driving the decision
+- `docs/superpowers/specs/2026-05-09-qwiki-sandbox-architecture.md` -- Pass 1 close + pivot section
+- Memory: `project_qwiki_sandbox_passes.md` -- pass tracker (rewritten for new framing)
+
+The content below is the **original handover** that framed the arc as modernize-in-place. Preserved for historical context. Read the new handoff first.
+
+---
+
 **Use as the literal first message in a fresh `claude` terminal opened in `/home/paradoks/projects/quakeworld/`.**
 
 The 2026-05-08 evening + 2026-05-09 morning session pivoted hard from Phase B drain workflow design into "modernize QWiki itself." That session produced (a) the qwiki-sandbox project scaffold with full DB dump + image tarball from ciscon, (b) a phase plan sketched in OVERVIEW.md, (c) Discord stakeholder alignment with bps + ciscon, (d) ciscon's tarpit defense insight, and (e) a hook fix as side-quest. **This new session's job: plan the qwiki-sandbox arc properly via arc-classifier → arc-brainstormer → arc-planner.**
