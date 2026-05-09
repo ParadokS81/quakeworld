@@ -4,12 +4,16 @@ Living map of the project. Updated when state changes.
 
 ## Current phase
 
-**Phase 0 -- scaffolding DONE** (2026-05-09). Awaiting arc-classifier → arc-brainstormer → arc-planner in a fresh session per `docs/superpowers/parking/2026-05-09-qwiki-sandbox-arc-planning-handover.md`.
+**arc-brainstormer Pass 1 COMPLETE** (2026-05-09). 7 sub-questions locked; architecture drained to `docs/superpowers/specs/2026-05-09-qwiki-sandbox-architecture.md`.
+
+Pass 1.5 (production deployment) + Passes 2-5 pending, fresh terminal each. Phase 1 implementation gated on ciscon's config bundle (LocalSettings.php sanitized + extensions/ + skins/), requested 2026-05-09 via Discord.
+
+Memory tracker: `project_qwiki_sandbox_passes.md`.
 
 - Project folder created at `apps/qwiki-sandbox/`
-- `dumps/qwiki.sql.gz` (87M, MariaDB dump, 96 tables incl SMW)
+- `dumps/qwiki.sql.gz` (87M -> 710M uncompressed, MariaDB 11.8.6 dump, 96 tables; 94 InnoDB / 2 MyISAM, binary charset)
 - `dumps/wiki-images.tar.gz` (6.4G, 50,150 files incl 178 bonus QW demos)
-- Tarball internal prefix to handle on extract: `mnt/nas-backup/qw3/docker/wiki/images/...`
+- Tarball internal prefix verified: `mnt/nas-backup/qw3/docker/wiki/images/...` -- extract with `--strip-components=5`
 
 ## Phase plan
 
