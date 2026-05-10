@@ -1435,7 +1435,95 @@ Bucket 7 (user-library) content does NOT travel with profile manifests. Library 
 
 ### Hub-knowledge orthogonality
 
-**Manifest entries are hub-knowledge-orthogonal.** A manifest entry's role + target_path + SHA are determined by what slipgate observed in the user's setup, not by what the hub knows about the asset. Metadata richness (author / license / curated category at the catalog) is a separate axis from manifest membership. Configs are hub-thin by design (no per-config catalog metadata model in V1; see Arc H carry-forwards); assets vary by submission state. Slipgate-side functionality does not gate on hub state -- offline manifests work; offline materialization works; hub augments, never blocks.
+**Manifest entries are hub-knowledge-orthogonal.** A manifest entry's role + target_path + SHA are determined by what slipgate observed in the user's setup, not by what the hub knows about the asset. Metadata richness (author / license / curated category at the catalog) is a separate axis from manifest membership. Slipgate-side functionality does not gate on hub state -- offline manifests work; offline materialization works; hub augments, never blocks.
+
+### Catalog data shape (Pass 6 ratified)
+
+Pass 6 closed the open Arc H pre-implementation questions: shareable-config dual lifecycle, configs-vs-assets metadata divergence, and library separate-catalog-distribution path. The locks below collapse those into a single, smaller surface than Pass 3.1 originally sketched.
+
+#### Bundles ARE manifests (Pass 6.1e)
+
+A "bundle" (slackers-teamplay v1.0, weapon-script pack, alias bundle, etc.) is **a manifest at a smaller scope than a profile manifest** -- same primitive, same schema. The catalog stores publishable units as manifests at three sizes:
+
+- **Single-asset publish** (e.g., dm3remix.bsp on its own) = one-entry manifest.
+- **Bundle publish** (slackers-teamplay v1.0 = teamplay.cfg + 6 .loc files + skins.pak) = multi-entry manifest at intermediate size.
+- **Profile publish** (Milton's full setup) = full manifest.
+
+Tags fall out of the existing name + publisher fields ("slackers-teamplay by vikpe" IS effectively the tag). Versioning falls out of name + publisher + publish ordering (v1.0 / v1.1 are two manifests sharing name+author). No separate "tag" or "bundle" object type at the catalog layer.
+
+Operational reasons one-list-beats-N-tags:
+- Bundle integrity is detectable -- "manifest says 8 files, you have 6" is computable. Tags can never tell you if you have all of them.
+- Mixed-content (config + locs + skins in one cohesive thing) is natural; same manifest entry shape works for any role.
+- Single primitive at the data layer; no separate tag store, no separate bundle object type.
+
+#### Single schema across single-assets and bundles (Pass 6.3b)
+
+Pass 3.1's "configs thin / assets rich" framing was wrong. The real divergence isn't configs-vs-assets (a bundle can contain both); it's single-asset entries vs manifest-bundle entries. Both use the same schema.
+
+**Per-file inside any catalog manifest:** `sha256` + `role` + `target_path`. Optional: `size`.
+
+**Per-manifest at publish:**
+
+| Field | Mandatory at publish? | Notes |
+|---|---|---|
+| `name` | Yes | "untitled" is fine, but the field exists |
+| `publisher` | Yes | The hub user account doing the upload |
+| `author` | No | May differ from publisher; often blank in QW community |
+| `description` | No | Often blank |
+| `license` | No | Rarely filled in QW community; hub-side optional, not slipgate-required |
+| `version` + `changelog` | No | Relevant for bundles; one-off single-asset publishes often skip |
+| `engine_compat` | No | User-tagged, not auto-derived (see below) |
+
+Slipgate's UI handles "no description / no author / no license / no engine tag" as the **common case**, not the edge case. Catalog page renders what's there and stays quiet about what isn't.
+
+#### Rich asset metadata is derived/layered (Pass 6.3c)
+
+File-format-specific stuff -- BSP entity counts, image dimensions, sound waveform, perceptual hash -- is NOT in the catalog manifest schema. It's derived data that can come from any of:
+
+- **Local parser at view time.** Click a map; parser runs in background; details appear within ~1s. No API call.
+- **Local cache after first parse.** Slipgate stores parsed details locally; repeat views are instant.
+- **Pre-seeded knowledge bundle.** Popular assets ship with the app; reduces hub API load. New self-knowledge surface table candidate (see Slipgate self-knowledge surface for V1+ extension).
+- **Hub API fetch.** When online, slipgate can pull richer metadata from hub (curated categories, ratings, etc.).
+
+Slipgate-app is free to mix-and-match these strategies and evolve them over time. The catalog only ships the bedrock; everything else layers on top. The local-parse-vs-API split can wait for empirical data (parser speed, hub API latency) at implementation time without blocking schema design.
+
+#### Engine compatibility is user-tagged, not auto-derived (Pass 6.3d)
+
+Auto-determining "this file works with ezQuake / FTE" is rejected -- there's no robust mechanical signal for most asset types. Engine compat is a user-tagged optional field instead. A user marking "I use this with ezQuake" is the real signal; slipgate UI surfaces these tags on catalog pages.
+
+For configs specifically, the planned config converter (cvar carry-over detection between engines) is the future enrichment layer: it can analyze a config and suggest engine tags based on which cvars resolve in each engine's known cvar set (from qw-oracle Layer 1). V1+ enrichment.
+
+#### Lifecycle: "you got a copy, it's yours" (Pass 6.1a)
+
+Catalog entry and downloaded copy diverge after download. No notify, no auto-pull. This is "flavor 1" of three considered -- subscribe-style and fork-style flavors deferred to V1+. Reasoning: matches how QW assets are shared today; subscribe/fork imply notify-and-merge UI not needed at V1.
+
+#### History applies to all configs, not just config.cfg (Pass 6.1b)
+
+Pass 2.5 locked 500-version history for `config.cfg`. Pass 6 extends to ALL configs: `spec.cfg`, `demoviewer.cfg`, weapon scripts, alias bundles, frag-message packs -- anything classified as a config role uses the same 500-deep ring. 500 is a CAP; most configs accumulate 5-10 versions over a profile's lifetime.
+
+Delete UX is two-tier:
+- **"Delete this config"** -- active gone; history retained; blobs may stay around for GC. Default.
+- **"Delete this config AND its history"** -- explicit checkbox; opt-in.
+
+#### Provenance lives in version history, not as a manifest entry field (Pass 6.1d)
+
+Original Pass 3.1 sketch suggested tagging downloaded files with `added_via: catalog-download:<asset-handle>`. Rejected. The manifest entry just carries `{sha256, role, target_path}` (no provenance field). Provenance shows up at display time in the history view: any version whose SHA matches a known catalog entry gets a UI label like "Milton's spec.cfg -- original state."
+
+Recognition happens at display time via hub lookup (or local cache). After edit -> new SHA becomes active; original SHA drops to history (still labeled "original state" in rollback). No special handling at first edit. Eliminates the catalog-handle abstraction (originally considered as `catalog-config:milton-spec-cfg/v3`); catalog stores SHAs only.
+
+For bundle-applied files specifically, slipgate-app keeps a **local download log** (per-user, machine-local, separate from the manifest) that records each download event (bundle sha + name + version + timestamp + file list). Powers the "from bundle X v1.0" meta info in the bundle inspection UI without polluting the shared manifest. Doesn't travel when the user exports a profile.
+
+#### Library uses the same bundle-as-manifest primitive (Pass 6.4 collapse)
+
+Pass 3.3 locked: library has its own publish/share path, catalog-distributed-as-asset-bundle, NOT bundled-into-profile-manifests. Pass 6 confirms the mechanism collapses into bundles=manifests: "share my map collection" = publish a bundle manifest containing `library:map` roles; "import this curated loc set" = download a bundle manifest containing `library:loc` roles. Same primitive; specific roles. No separate library-distribution mechanism needed.
+
+#### Follow is post-hub-V1 (Pass 6.1f)
+
+Following a bundle / a user / a category is a real product axis. When an update lands, the user gets a manifest diff and decides per-file (keep mine / take theirs / merge per file -- reuses the Pass 5.1 drift-detection UX, just pointed at a catalog parent instead of a local one).
+
+V1 of the hub ships browse + download + publish only. Follow is V1+. At V1 there are ~10 users on the hub; "follow" is the wrong feature when there's almost nothing to follow yet. Browse-and-grab is the demo-able flow that proves the catalog works end-to-end.
+
+This nests inside the larger truth: Arc H itself is V1+ for slipgate (V1 ships without any catalog hookup; V1 backup uses GitHub which is dumb storage, no catalog). Pass 6 locked catalog data shape NOW so Arc H has its contracts when the hub starts taking shape.
 
 ### V1 -> V2 backup migration path (Pass 5.3 cross-link)
 
@@ -1447,6 +1535,58 @@ When hub.quake.world ships (V2):
 - Local-external backup unchanged; remains the offline-target answer.
 
 The hub-as-gravitational-center triangle stays unchanged across V1 -> V2; backup is a parallel persistence path that shrinks when hub takes over the byte-recovery role. See Backup and Restore UX -- V1 -> V2 migration path for the detailed shift.
+
+---
+
+## Bundles in slipgate-app (Pass 6.2 ratified)
+
+A downloaded bundle (any catalog manifest the user has pulled but not necessarily applied to a profile) is a first-class object in slipgate-app, with its own UI surface alongside profiles and library.
+
+### Why first-class
+
+Three options were considered for where downloaded bundles live:
+
+1. First-class "downloaded pack" object with its own UI surface.
+2. Profile fragment: "merge into profile" reusing the existing merge primitive.
+3. Library item: extend bucket 7 to include "asset packs" alongside maps/locs/mod-content.
+
+Option 1 locked. Reasons: update tracking is natural (the pack stays a coherent thing across apply events; v1.0 -> v1.1 makes sense); mixed content (cfg + loc + skins) doesn't fit cleanly into bucket 7 alone; bundles are user-visible objects that deserve their own surface, not buried in a manifest detail view.
+
+### Bundle inspection UI
+
+Mirrors the rest of slipgate's browse pattern (left domain list + main content + right meta panel):
+
+- **Left side:** "Bundles" entry expandable to list the user's downloaded bundles.
+- **Click a bundle:** main body shows the bundle's contents browsable like a normal explorer view, scoped to that bundle's files.
+- **Domain filter:** highlighting a domain within the expanded bundle filters main body to just files of that domain (configs / maps / skins / etc.). Optional UX -- overkill for small bundles, useful for big ones.
+- **Right meta panel:** clicking a file in the bundle shows per-file info, including "from bundle X v1.0."
+- **SHA collision case:** if the user already had the same file before downloading the bundle, the meta panel says so. Falls out of content addressing for free.
+- **Per-asset-type detail views** (BSP parser output, image preview, sound waveform, etc.) are V1+ design work; rich asset metadata is layered/derived per the Catalog data shape locks.
+
+### Local download log
+
+Per-user, machine-local data store. Records each bundle download event:
+
+- Bundle manifest sha (the bundle's identity)
+- Bundle name + version
+- Download timestamp
+- File list (with role, target_path, sha for each)
+
+Powers the "from bundle X v1.0" meta info even after files have been distributed into a profile. Doesn't pollute the shared manifest schema (preserves the no-`added_via`-on-manifest-entry lock from Catalog data shape). Survives offline (it's local-only). Doesn't travel when the user exports a profile.
+
+### Apply-bundle-to-profile
+
+When the user applies a downloaded bundle to a profile, the bundle's files distribute into their natural domains in the target profile:
+
+- Configs -> `user-asset:config` role -> profile manifest entries
+- Maps -> `library:map` role -> library manifest entries (Pass 3.3 library-overrides handling applies)
+- Locs -> `library:loc` role -> library manifest entries
+- Skin paks -> `library:mod-content` or `user-asset:skin` per classifier
+- Custom HUD images -> `user-asset:hud` per classifier
+
+The clone-modal-as-V1-selector-primitive (Pass 3.2 + 5.1 + 5.3) handles the apply UI: user can opt into / out of individual files at apply time, same selector grammar as profile import / pre-publish review / pre-extraction overview / drift import / backup-restore.
+
+Bundle identity persists in the local download log so v1.1 updates can re-trigger an apply (drift-prompt for any locally-edited files in the bundle's set; reuses the Pass 5.1 drift-detection UX).
 
 ---
 
@@ -1636,6 +1776,10 @@ Slipgate gets smarter on two independent axes:
 
 These axes operate independently. Code growth doesn't depend on catalog state; catalog growth doesn't depend on code releases. Both contribute to slipgate getting smarter over time, but at different cadences and via different gates.
 
+### Pass 6 carry-forward: tenth-table candidate (popular-asset-parsed-details)
+
+Pass 6.3e identified a future self-knowledge surface table for pre-seeded popular-asset details (top N popular maps' BSP details, popular paks' file lists, etc.). Reduces hub API load and powers fast offline preview for the most-frequently-encountered assets. V1+; same machinery as the other 9 tables (bundled baseline + delta-sync + user overrides).
+
 ---
 
 ## Open architectural questions
@@ -1704,7 +1848,20 @@ Pass 5 (launch UX + runtime swap classes + manifest backup UX) ratified, with su
 - **Gamedir model amendment (5.2; amends Pass 1 anchor item 3)** -- RESOLVED: per-launch gamedir picker dropped from V1; `declared_gamedirs` stays as content-metadata for "what gamedirs this profile has content for." Server-pushed gamedir handling at runtime is engine-native. See Manifest as Profile -- Launcher UX implications + Engine integration -- Launch UX.
 - **V1 backup architecture (5.3; item #5 below)** -- RESOLVED: GitHub OAuth full-warehouse + local-external as V1 targets; symmetric selector modal for backup AND restore (sixth + seventh consumers of Pass 3.2 primitive); snapshot model + include `manifest-history/` in payload (two-layered time-machine); manual-only V1 cadence + change-count drift-badge nudge; first-launch three-branch flow surfaces third slipgate persona (analysis-tool user). V2 hub-as-primary migration path documented. See Backup and Restore UX (NEW top-level section) + Engine integration -- First-launch install flow.
 
-Pass 5 brainstorm minutes captured at `docs/superpowers/specs/2026-05-05-slipgate-managed-mode-pass5-ratifications.md`. Pass 5 entirely closed; Pass 6 / Arc H pre-impl + L1-alpha/beta/gamma/delta tracks remain open.
+Pass 5 brainstorm minutes captured at `docs/superpowers/specs/2026-05-05-slipgate-managed-mode-pass5-ratifications.md`. Pass 5 entirely closed.
+
+### Pass 6 status
+
+Pass 6 (Arc H pre-implementation -- catalog data shape) ratified:
+
+- **Standalone-shareable-config dual lifecycle (6.1; item #7 + #9 below)** -- RESOLVED: catalog-store-SHAs flavor 1 ("you got a copy, it's yours"); subscribe and fork flavors deferred to V1+. All configs (not just `config.cfg`) get the Pass 2.5 500-version history ring. Two-tier delete UX (active gone vs active + history gone). Provenance lives in version history, not as a manifest entry field; recognition at display time via hub lookup. See Cloud catalog interaction -- Catalog data shape.
+- **Bundles ARE manifests (6.1e)** -- RESOLVED: bundles use the same manifest primitive as profiles, scoped smaller. Tags + versioning fall out of name + publisher + publish-ordering. One-list-beats-N-tags operationally (bundle integrity is detectable). See Cloud catalog interaction -- Catalog data shape.
+- **Bundle lifecycle in slipgate-app (6.2)** -- RESOLVED: bundles are first-class objects in slipgate-app with their own UI surface ("Bundles" left-side entry). Browse pattern mirrors the rest of slipgate (left domain list + main content + right meta panel). Local download log carries per-file bundle lineage without polluting the shared manifest schema. Apply-to-profile distributes files into natural domains via the clone modal as V1 selector primitive. See Bundles in slipgate-app.
+- **Catalog metadata divergence collapsed (6.3; item #9 below)** -- RESOLVED: Pass 3.1's "configs thin / assets rich" framing replaced by single-schema-with-optional-fields. Mandatory at publish: name + publisher (plus per-file sha + role + target_path). Author / description / license / version / engine_compat all optional and gracefully missing. Rich asset metadata (BSP details, image dims, perceptual hash, etc.) is derived/layered, not part of the catalog schema. Engine compat is user-tagged, not auto-derived (config converter cvar carry-over detection is the future enrichment layer for configs). See Cloud catalog interaction -- Catalog data shape.
+- **Library separate-catalog-distribution path (6.4)** -- RESOLVED via collapse: library uses the same bundle-as-manifest primitive with `library:*` roles. No separate library-distribution mechanism needed. See Cloud catalog interaction -- Catalog data shape -- Library uses the same bundle-as-manifest primitive.
+- **Follow is post-hub-V1 (6.1f)** -- DEFERRED: Hub V1 ships browse + download + publish only. Follow lands when there's content critical mass to follow. Reuses Pass 5.1 drift-detection UX when it ships.
+
+Pass 6 brainstorm minutes captured at `docs/superpowers/specs/2026-05-11-slipgate-managed-mode-pass6-ratifications.md`. All brainstorm passes (1-6) now CLOSED. Next move: arc-planner for Arc A (asset warehouse substrate).
 
 ### Still open (resolution targeted in later passes)
 
@@ -1720,11 +1877,11 @@ Pass 5 brainstorm minutes captured at `docs/superpowers/specs/2026-05-05-slipgat
 
 6. **Sixth + seventh bucket boundaries** -- RESOLVED: bucket 6 + bucket 7 ratified per Pass 3.2 + Pass 3.3. (Pass 3 closed.)
 
-7. **Configs-as-assets vs art-as-assets distinction** -- PARTIALLY RESOLVED: shared role registry + shared manifest entry shape locked Pass 3.1; catalog-metadata-divergence + standalone-shareable-config dual lifecycle remain Arc H pre-implementation brainstorm (Pass 6).
+7. **Configs-as-assets vs art-as-assets distinction** -- RESOLVED: shared role registry + shared manifest entry shape locked Pass 3.1; Pass 6.3 collapsed the metadata-divergence question into single-schema-with-optional-fields (the real divergence isn't configs-vs-assets, it's single-asset-vs-bundle, and both use the same schema). (Pass 6 closed.)
 
 8. **Slipgate self-knowledge surface architecture** -- RESOLVED: single-class reframed, per-table cadence, delta-sync protocol, Knowledge UI, override mechanism, two-growth-axes. (Pass 3 closed.)
 
-9. **Arc H catalog data shape** (new in Pass 3 carry-forwards) -- standalone-shareable-config dual lifecycle (`spec.cfg` / `demoviewer.cfg` / weapon-script / frag-message / alias bundles); catalog-metadata-divergence configs-vs-assets (two metadata schemas at catalog layer); library separate-catalog-distribution path (already cross-linked from Cloud catalog interaction). All resolved by Arc H pre-implementation brainstorm. (Pass 6.)
+9. **Arc H catalog data shape** (new in Pass 3 carry-forwards) -- RESOLVED: Pass 6 collapsed the surface significantly. Bundles ARE manifests (single primitive at all sizes); catalog metadata is a single optional-heavy schema; library distribution reuses bundle-as-manifest with `library:*` roles; rich asset metadata is derived/layered, not part of the catalog schema; engine compat is user-tagged, not auto-derived; follow is post-hub-V1. See Cloud catalog interaction -- Catalog data shape + Bundles in slipgate-app. (Pass 6 closed.)
 
 10. **L1-alpha / -beta / -gamma / -delta tracks (qw-oracle scope, NOT slipgate Managed Mode arcs)** -- ecosystem-tools registry, cross-format binary fingerprinting, engine helpdoc / data-file recognition, stock asset catalog. Each lands more Layer 1 data via delta-sync; none gate V1. Methodology + per-track shape captured at `docs/superpowers/specs/2026-04-29-slipgate-managed-mode-pass3-ratifications.md`. (qw-oracle roadmap; tracked in HANDOVER under qw-oracle backlog.)
 

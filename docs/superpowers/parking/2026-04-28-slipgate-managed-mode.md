@@ -1,8 +1,8 @@
 # Slipgate Managed Mode pivot -- multi-arc project opened
 
-**Added:** 2026-04-28. **Updated:** 2026-04-29 (Pass 3 complete; drain landed into architecture + vision + roadmap + memory; four L1 expansion tracks split out as separate qw-oracle entries below).
+**Added:** 2026-04-28. **Updated:** 2026-05-11 (Pass 6 complete; ALL brainstorm passes 1-6 now CLOSED; ready for arc-planner handoff to Arc A).
 
-**Status:** Brainstorm Pass 1 + Pass 2 + Pass 3 complete and drained into architecture spec body. Pre-arc tail item TAIL-1 (FTE asset bundle wiring) shipped 2026-04-28 (commit `6d6cd1c`). **Next session: Pass 4 brainstorm** -- scope shrunk by Pass 3.4 (capture/swap pipeline + Defenses + cleanup UX all landed there); Pass 4 now carries only refinements (debounce-window tuning + per-extension integrity-check registry growth). Pass 5 (launch UX + runtime swap classes + manifest backup UX) and Pass 6 (Arc H pre-implementation -- catalog data shape) follow. First implementation arc (A: asset warehouse substrate) follows after brainstorm passes complete.
+**Status:** All brainstorm passes (1 through 6) COMPLETE and drained into architecture spec body. Pre-arc tail item TAIL-1 (FTE asset bundle wiring) shipped 2026-04-28 (commit `6d6cd1c`). **Next session: arc-planner for Arc A (asset warehouse substrate)** -- first implementation arc, smallest scope (1-2 days), good shape to validate the arc-planner / arc-orchestrator / arc-executor workflow before bigger arcs ship.
 
 **Verification first:** Confirm the three new docs exist:
 ```
@@ -102,14 +102,30 @@ Docs-check at next session wrap-up should evaluate each for clean deletion.
 
 ### Recommended next-session sequence
 
-1. **Brainstorm Pass 4 -- watcher contract refinements.** Scope shrunk by Pass 3.4 (capture/swap pipeline + Defenses + cleanup UX all landed there). Pass 4 now covers only debounce-window tuning + per-extension integrity-check registry growth. Likely a short pass.
-2. Brainstorm Pass 5 -- runtime swap class taxonomy (Pass 1 anchor item 5) + multi-instance launch UX + manifest backup UX. Mailslot ruleset-gating verification against ezQuake source via qw-oracle is part of this pass.
-3. Brainstorm Pass 6 / Arc H pre-implementation -- catalog data shape: standalone-shareable-config dual lifecycle, catalog-metadata-divergence configs-vs-assets, library separate-catalog-distribution path. Locks blob-layout contracts before any catalog implementation lands.
-4. Write + execute Arc A (asset warehouse substrate) -- 1-2 days.
-5. Write + execute Arc B (profile manifest + materializer + library manifest + private preservation) -- 4-6 days + 1-2 days for library.
-6. Write + execute Arc D + Arc E in tandem (classifier shared; capture/swap pipeline shipped together).
-7. Write + execute Arc C-minimal (Profiles tab + clone modal as V1 selector primitive + Make-this-primary + delete prompt UX) -- 2-3 days. V1 ships.
-8. F / G / C-full / H follow as time and demand allow.
+All brainstorm passes (1-6) closed. Implementation begins.
+
+1. **arc-planner for Arc A (asset warehouse substrate)** -- 1-2 days estimated. First implementation arc; smallest scope; validates the arc-planner / arc-orchestrator / arc-executor workflow before bigger arcs.
+2. arc-planner for Arc B (profile manifest + materializer + library manifest + private preservation) -- 4-6 days + 1-2 days for library.
+3. arc-planner for Arc D + Arc E in tandem (classifier shared; capture/swap pipeline shipped together).
+4. arc-planner for Arc C-minimal (Profiles tab + clone modal as V1 selector primitive + Make-this-primary + delete prompt UX) -- 2-3 days. V1 ships.
+5. F / G / C-full / H follow as time and demand allow.
+
+### Brainstorm Pass 6 outcomes (drained 2026-05-11)
+
+Four sub-questions resolved. Drained into architecture spec body (`Cloud catalog interaction -- Catalog data shape` subsection + new `Bundles in slipgate-app` top-level section + Open architectural questions Pass 6 status block + tenth-table candidate carry-forward). Pass 6 brainstorm minutes captured at `docs/superpowers/specs/2026-05-11-slipgate-managed-mode-pass6-ratifications.md`.
+
+- **6.1 Standalone-shareable-config dual lifecycle.** Catalog stores SHAs, "you got a copy, it's yours" (flavor 1 of 3); subscribe + fork flavors deferred to V1+. All configs (not just config.cfg) get the Pass 2.5 500-version history ring. Two-tier delete UX. Provenance lives in version history (no `added_via` field on manifest entry); recognition at display time via hub lookup. Bundles ARE manifests (single primitive at all sizes -- profile, bundle, single-asset). Tags + versioning fall out of name + publisher + publish-order. Follow is post-hub-V1 (Hub V2 territory).
+- **6.2 Bundle lifecycle in slipgate-app (NEW sub-question).** Surfaced when 6.3 framing failed (operator had no mental model for hypothetical hub UI). Bundles are first-class objects in slipgate-app with their own UI surface ("Bundles" left-side entry). Browse pattern mirrors the rest of slipgate. Local download log carries per-file bundle lineage without polluting shared manifest schema. Apply-to-profile distributes files into natural domains via the clone-modal-as-V1-selector-primitive.
+- **6.3 Catalog metadata divergence (reframed via collapse).** Pass 3.1's "configs thin / assets rich" framing replaced by single-schema-with-optional-fields. Mandatory at publish: name + publisher + per-file (sha + role + target_path). Author / description / license / version / engine_compat all optional and gracefully missing. Rich asset metadata (BSP details, image dims, perceptual hash) is derived/layered, not part of catalog schema. Engine compat is user-tagged, not auto-derived. Pre-seeded popular-asset details = new self-knowledge surface table candidate (V1+; tenth table).
+- **6.4 Library separate-catalog-distribution path.** Collapsed via 6.1e: library uses the same bundle-as-manifest primitive with `library:*` roles. No separate library-distribution mechanism needed.
+
+**Pass 6 carry-forwards (V1+ refinements within Arc H):**
+- Per-asset-type detail views (BSP parser, image preview, sound waveform). UI design work alongside Arc H V1.
+- Pre-seeded popular-asset details table (10th self-knowledge surface table; V1+).
+- Config converter cvar carry-over detection as engine-tag enrichment for configs (V1+).
+- Hub-side bundle-aware UX (subscription state + notification + diff display) for Hub V2 follow feature.
+- Local download log UX design (data model locked, render is open).
+- Bundle apply selector defaults (which roles default-on / default-off at apply time; V1+ tuning).
 
 ### Pressure
 
