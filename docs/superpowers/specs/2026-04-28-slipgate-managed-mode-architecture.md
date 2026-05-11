@@ -3,36 +3,27 @@
 > **Captured 2026-04-28** alongside the vision spec (`docs/superpowers/specs/2026-04-28-slipgate-managed-mode-vision.md`). This document defines the data model, storage layout, primitive operations, content taxonomy, watcher contract, SHA256 governance, and engine integration that the Managed Mode arc roadmap (`docs/superpowers/plans/2026-04-28-slipgate-managed-mode-roadmap.md`) implements.
 >
 > **Reading order:** Read VISION first for the why. Read this for the how. Read ROADMAP for the when.
-
-> **Update 2026-04-28 (pre-Pass-1 anchor):** Six decisions ratified during the orchestrator briefing extend this document before the Arc A+B brainstorm Pass 1. They are summarized below as anchor points; the body is being revised pass-by-pass to integrate them as brainstorm work crystallizes. Until each pass is drained, where the body and this anchor diverge, the anchor is authoritative.
 >
-> **Pass 1 status: COMPLETE 2026-04-28.** Substrate and storage decisions drained into body -- see Storage Layout (Unified blob store, Layout decisions ratified, Process model, Implementation note), Primitive operations (register/materialize/export updated), Primary/active/launched profiles (Pass 3.2 renamed and added the primary concept), Garbage collection (manifest-as-truth + refcount), Lossless-export pledge protection. Item 1 below is now in body; items 2-6 remain pending later passes.
+> **Brainstorm status (2026-05-11):** ALL 6 brainstorm passes COMPLETE. Pass 1 (substrate / storage) + Pass 2 (manifest schema / materializer / gamedirs / history) + Pass 3 (classifier / buckets / capture-swap / self-knowledge) + Pass 4 (watcher refinements) + Pass 5 (launch UX / runtime swap classes / backup) + Pass 6 (catalog data shape) all drained into the body. The body is now authoritative on every locked decision. Per-pass status retrospectives live in `Open architectural questions` near the end of this document; per-pass brainstorm minutes live as standalone docs (`docs/superpowers/specs/YYYY-MM-DD-slipgate-managed-mode-passN-ratifications.md`).
 >
-> **Pass 2 status: COMPLETE 2026-04-28.** Manifest schema, materializer mechanics, gamedir handling, and history retention drained into body -- see Manifest as Profile (Pass 2 ratified schema, identity, validation, atomic write, declared_gamedirs), Primitive operations `materialize` (atomic swap + trust-existing-tree + UI busy-state + watcher self-skip), Versioning and history (living-file-vs-immutable-artifact principle + checkpoints + retention defaults), Slipgate self-knowledge surface (Pass 2 placeholder; since fully replaced by Pass 3.5 single-class reframe). Item 3 below is now in body. Items 2, 4, 5 remain pending Passes 3+.
+> **Reading guide for cold readers (start here if reading the spec for the first time):**
 >
-> **Pass 3 status: COMPLETE 2026-04-29.** Five sub-questions ratified and drained into body: 3.1 configs-vs-assets divergence axis (reaffirmed Pass 2; Arc H carry-forwards surfaced), 3.2 bucket six (user-private) + primary profile + clone modal as V1 selector primitive, 3.3 bucket seven (user-library) + mod gamedirs + materialization precedence, 3.4 classifier rules + capture/swap pipeline + manifest publish rule, 3.5 slipgate self-knowledge surface (single-class reframed). See Storage Layout (`library/`, `profile-roles.json`, `.pending-swap.json`, `orphaned-private/` + `orphaned-profiles/`), Manifest as Profile (publish-rule four-condition filter), Primary, active, and launched profiles (primary as third concept), Content Taxonomy (bucket 6 single-flavor; bucket 7 V1-ratified library; "other" framing), Materialization (stock -> profile -> library precedence), Filesystem Watcher Contract (five-case + capture/swap pipeline + Defenses 1-4 + cleanup notification UX + auto-mode opt-in), Primitive operations (`link()`-based capture/swap; clone modal with five consumers; Make-this-primary; profile-delete prompt UX), Engine integration (declared_gamedirs gates library), Migration (Arc D + Arc E share classifier invariant), Slipgate self-knowledge surface (per-table cadence; delta-sync protocol; Knowledge UI; user-override; two-growth-axes), Cloud catalog interaction (hub-as-gravitational-center triangle; manifest-references-hub-unknown-SHAs placeholder pattern; retroactive enrichment; no-P2P invariant; library separate catalog-distribution path). Items 2 + 4 below now in body; item 5 remains pending Pass 5. Pass 3 brainstorm minutes captured at `docs/superpowers/specs/2026-04-29-slipgate-managed-mode-pass3-ratifications.md`.
+> 1. `Foundational concepts` -- the data model. Content-addressed storage, manifest as profile, materialization as view, primary/active/launched profile pointers. **Load-bearing.**
+> 2. `Storage layout` -- where things live on disk under `<data-root>`. Process model (single-instance + lockfile).
+> 3. `Content taxonomy` -- the seven content buckets. Determines how files are routed and what happens to them.
+> 4. `Primitive operations` -- the small set of operations everything else builds on. `register` / `materialize` / `fork` / `make_primary` / `delete_profile` / clone modal as V1 selector primitive (seven consumers).
+> 5. `Filesystem watcher contract` -- five-case dispatch + capture/swap pipeline + Defenses against partial-file capture. The largest and most behavior-shaped subsystem.
+> 6. `Engine integration` -- launch UX (five-surface walkthrough), runtime swap classes 1/2/3, mailslot is ezQuake-only V1, first-launch install flow.
+> 7. `Versioning and history` -- living-file vs immutable-artifact, retention defaults, lossless-export pledge, garbage collection.
+> 8. `Migration from external dir` -- how Arc D extracts a user's existing Quake install into the warehouse. Classifier shared with watcher.
+> 9. `Cloud catalog interaction` -- hub-as-gravitational-center, no-P2P, catalog data shape (Pass 6 -- bundles=manifests collapse, single schema, rich metadata as derived/layered, etc.).
+> 10. `Bundles in slipgate-app` -- the first-class downloaded-bundle UI surface (Pass 6.2). Local download log lineage.
+> 11. `Backup and Restore UX` -- V1 GitHub-OAuth + local-external; V2 hub-as-primary migration path.
+> 12. `SHA256 governance` -- identity vs semantic equivalence, submission-time normalization, perceptual-hash as moderation aid only, stock pak handling.
+> 13. `Slipgate self-knowledge surface` -- nine tables (10th candidate Pass 6.3e); single-class delta-sync; "What slipgate knows" UI; two-growth-axes principle.
+> 14. `Open architectural questions` -- pass-by-pass retrospectives (closed-pass status + remaining-open items).
 >
-> **Pass 4 status: COMPLETE 2026-05-05.** Two sub-questions ratified and drained into body: 4.1 debounce-window per-extension tuneability (per-extension `debounce_seconds` + `max_retries` overrides folded into the file-integrity-check registry) + escalation-after-N-retries to cleanup notification ("still unstable after N tries" row with capture-anyway / discard / keep-pending actions); 4.2 file-integrity-check registry V1 roster (10 strict + 5 permissive + default-row fallback) + tiered row shape (`tier: "strict" | "permissive"` discriminator). See Filesystem Watcher Contract (Defenses 1-4 expanded with full V1 roster + escalation rule) + Slipgate self-knowledge surface (file-integrity-check table cadence row notes tiered shape; V1+ trajectory note added). Pass 4 brainstorm minutes captured at `docs/superpowers/specs/2026-05-05-slipgate-managed-mode-pass4-ratifications.md`.
->
-> **Pass 5 status: COMPLETE 2026-05-08.** Three sub-questions ratified and drained, with Pass 5 generating substrate amendments back into Pass 1 (anchor items 1 + 3) + Pass 3.2: 5.1 runtime swap class taxonomy (verified Class 1 / 2 / 3 boundaries from ezQuake source-walk; mailslot-ezQuake-only V1 + FTE-Class-3-fallback; gamedir + stock-pak default-Class-3 in V1) + per-role materialization mode (configs copy, others hardlink; ezQuake `cfg_save` truncate-write through hardlinks would corrupt the content-addressed-store immutable-blob invariant) + hard-fork-with-drift-detection (replaces overlay-manifest proposal; per-role drift granularity -- cvar-level for configs via parser+oracle metadata, file-level otherwise) + reload-cost registry as ninth self-knowledge table; 5.2 five-surface launch UX (app-open / profile-switch / engine-launch / engine-exit / app-close) + drift-trigger differentiation (non-blocking on app-open, blocking on profile-switch, light-prompt on engine-launch) + gamedir model amendment (per-launch picker dropped; `declared_gamedirs` stays as content-metadata for "what gamedirs this profile has content for"); 5.3 V1 backup architecture (GitHub OAuth full-warehouse + local-external + symmetric selector modal for backup AND restore + snapshot-with-manifest-history payload + manual cadence + change-count drift-badge + first-launch three-branch flow surfacing third slipgate persona) + V2 hub-as-primary migration path. See Manifest as Profile (`last_synced_parent_manifest_sha` field on fork manifests + per-role drift granularity), Materialization as view + Primitive operations `materialize` (per-role copy-vs-hardlink mode), Primitive operations `fork` (full-snapshot reaffirmed; drift detection lives in launch UX layer, not fork primitive) + clone modal subsection (sixth + seventh consumers added: drift-import + symmetric backup/restore), Engine integration (NEW launch UX five-scenario walkthrough + Class 1/2/3 swap taxonomy + reload-cost registry + install flow three-branch onboarding), Backup and Restore UX (NEW top-level section), Slipgate self-knowledge surface (ninth row for reload-cost registry), Cloud catalog interaction (V1 GitHub-as-full-warehouse vs V2 hub-as-primary migration path). Pass 5 brainstorm minutes captured at `docs/superpowers/specs/2026-05-05-slipgate-managed-mode-pass5-ratifications.md`. Items 1, 3, and 5 below now in body. Pass 5 entirely closed; Pass 6 / Arc H pre-impl + L1-alpha/beta/gamma/delta tracks remain open.
->
-> 1. **Materializer modes simplify.** Two modes only: `hardlink` (active-tree materialization) and `copy` (lossless export). The `hardlink_preferred` fallback middle case is dropped -- under slipgate-IS-quakedir, active-tree materialization is single-volume by construction. Edge case: data roots on filesystems without hardlink support (FAT32 / exFAT / some network mounts) blocked at install with a precondition check, not silent copy fallback. **DRAINED into Storage Layout + Primitive Operations 2026-04-28. Pass 5.1 amended: materialization mode is per-role -- `user-asset:config` role uses copy mode (configs are KB-scale; ezQuake `cfg_save` truncate-write through hardlinks would corrupt the content-addressed-store immutable-blob invariant); all other roles continue using hardlink. Verified via ezQuake source-walk (`src/config_manager.c:826` `cfg_save`, `:981` `cfg_save_onquit`, `:894` `hud_export`, `:266` `dev_dump_defaults` all use `fopen(path, "w")` truncate-write; default `cfg_backup` is 0). See Materialization as view + Primitive operations `materialize`.**
->
-> 2. **Sixth content-taxonomy bucket: `user-private` (in-tree, unmanaged).** Files in the materialized tree that are NOT in any manifest and NOT classified into the other five buckets, but the user has marked as "respect, don't touch" (private notes, personal subfolders, half-finished experiments). Preserved across rematerialization, not warehoused, not exported, not synced. Tracked via `<data-root>/profiles/<id>/private.json` listing relative paths. (Affects: Content Taxonomy, Filesystem Watcher Contract -- adds a fifth dispatch case "untracked + user-private" alongside the existing four.) **Pass 3 collapsed to single flavor (user-marked private only); auto-uncertain framing dropped. DRAINED into Content Taxonomy + Filesystem Watcher Contract + Primitive operations 2026-04-29.**
->
-> 3. **Manifest gains `declared_gamedirs: string[]`.** Lists the gamedirs the profile expects to materialize ("qw", "painkeep", "hipnotic", etc. -- note: KTX is server-side and runs in `qw/`, not its own gamedir). Launcher offers a per-launch gamedir picker when length > 1. Anchors a future mod/singleplayer/expansion launcher (Painkeep-as-gamedir, hipnotic/rogue expansions) on the same primitive at near-zero cost. **DRAINED into Manifest as Profile 2026-04-28. Pass 5.2 amended: per-launch gamedir picker dropped from V1; `declared_gamedirs` stays as manifest metadata meaning "what gamedirs this profile has content for" (so library `library:mod-content` materializes into the right places when a server later pushes a gamedir change), NOT "what gamedir to launch with." Server-pushed gamedir handling is engine-native runtime behavior (engine starts in `qw`; server tells client to switch on join; auto-download fills missing files). Pre-selecting a gamedir is only relevant for offline single-player mods; mostly served by FTE single-player community (V1+ scope). See Engine integration -- launch UX.**
->
-> 4. **Cloud-SHA-lookup is load-bearing for the classifier long-run.** Arc E (watcher) ships with local-heuristic classification + deferred submission queue for unknown SHAs. Arc H (cloud catalog) augments lookups with catalog metadata when online. Two-way collaboration: user-confirmed classifications flow back as moderated submission candidates. Offline mode keeps full classifier functionality with reduced precision. Implication: Arc H's catalog data shape must be brainstormed alongside Arc A/B/D/E (locked at design time; can still ship as a later implementation arc). (Affects: Cloud Catalog Interaction, Filesystem Watcher Contract.) **Pass 3 drained the hub-as-gravitational-center triangle, manifest-references-hub-unknown-SHAs placeholder pattern, retroactive enrichment flow, and no-P2P invariant into Cloud catalog interaction 2026-04-29. Catalog data-shape brainstorm itself remains Pass 6 / Arc H scope.**
->
-> 5. **Runtime swap class taxonomy.** Class 1: cfg-only swap (HUD, binds, aliases) -- mailslot-driven `exec` / `cfg_load`, no engine restart. Class 2: visual-asset swap (textures, skins, sounds) -- `vid_restart` or next-mapchange, mixed reload-cost per asset category, taxonomy required. Class 3: full profile swap (different stock paks, binaries, gamedirs) -- engine restart required. V1 ships Class 1 deliberate, Class 2 empirical case-by-case, Class 3 default UX = "engine restart required." Mailslot is ezQuake-specific (`\\.\mailslot\ezquake`); FTE IPC TBD. Mailslot ruleset-gating to be verified against ezQuake source via qw-oracle before tournament-context features. (Affects: Engine Integration -- new subsection.) **DRAINED into Engine integration 2026-05-08 via Pass 5.1: verified Class 1 / 2 / 3 boundaries from ezQuake source-walk (Class 1 includes `set` / `bind` / `alias` / `exec <delta-script>` / `skins` / `loadcharset` / `loadsky` / `hud_recalculate`; Class 2 includes `vid_restart` / `s_restart` / mapchange; Class 3 includes engine restart, stock pak swap, and V1 gamedir change). Reload-cost lookup is registry-driven (ninth self-knowledge surface table). Slipgate uses `exec <delta-script>` not `cfg_load` for Class 1 cvar/bind/alias deltas (`cfg_load` is destructive per `LoadConfig_f` at `src/config_manager.c:1041`). Mailslot remains ezQuake-only V1; FTE swaps fall back to Class 3 engine restart until FTE-IPC ships V1+. See Engine integration -- runtime swap classes + Slipgate self-knowledge surface table.**
->
-> 6. **(Roadmap-only)** Brainstorm scope covers the full surface (Arcs A through H), not just V1 substrate. Pre-launch greenfield with no production code and no users means design coherence requires committing to cross-arc contracts up front. V1/V1+ remains the implementation-sequence axis but is no longer the design-scope axis.
->
-> **Pass 5 carry-forwards (for Pass 6 / Arc H / qw-oracle / V1+ refinements):**
-> - **Arc H catalog data shape (Pass 6)** -- standalone-shareable-config dual lifecycle (`spec.cfg`, `demoviewer.cfg`, weapon-script bundles, frag-message packs, alias bundles: catalog-immutable then profile-living; identity pinned at download SHA; per-user edits create downstream SHAs with `added_via: catalog-download:<asset-handle>`); catalog-metadata-divergence configs-vs-assets (configs intrinsically thin -- no author/license/curation across users; assets rich -- author, license, curated category, perceptual-hash neighbors, moderation history -- two metadata schemas at the catalog layer); library separate catalog-distribution path (already cross-linked from Cloud catalog interaction). All resolved by Arc H pre-implementation brainstorm.
-> - **V1+ refinements within slipgate Managed Mode arcs:** ConfigViewer-as-cvar-level-editor (surgical writes to fork's config.cfg from slipgate's UI; bypasses engine `cfg_save`); gamedir live-swap recipe revisit (V1 defaults to Class 3; V1+ if empirical evidence supports `gamedir X; vid_restart; s_restart; reconnect`); FTE-IPC scope (mailslot-equivalent for FTE; would lift FTE swaps from Class 3); mailslot ruleset-gating verification (tournament-context features require gating before sending mailslot commands during a match); empirical reload-cost registry growth (specific HUD images / texture path patterns that don't reload correctly via vid_restart); two-way drift (fork -> parent; V1 is one-directional only); auto-cadence flavors for backup (on-app-close, weekly auto, on-significant-change; each adds Tauri lifecycle / scheduling work; V1 ships manual-only PoC); GitHub-as-private-only payload refactor (V2 path: when hub.quake.world ships, GitHub payload shrinks to private-content-only); hub-as-primary-backup migration (V2: hub becomes primary backup target with small payload; hub serves blobs via hub-as-gravitational-center); GitHub auth mechanic refinement (V1+ adds token rotation, scope minimization, 2FA flow polish); repo validation and restore-collision UX polish.
-> - **Out-of-scope long-term (not Managed Mode arcs):** mod browser (one-click install expansion packs / mods to try; mostly FTE single-player community use case); cross-machine sync (desktop <-> laptop direct sync between two Slipgate installs; implies multi-tree substrate); cloud-provider-API backup (S3 / Dropbox / Google Drive / OneDrive; provider-taxonomy work; doesn't earn V1 or V2 scope -- local-external covers offline-target case, GitHub covers cloud case).
-> - **L1-alpha / L1-beta / L1-gamma / L1-delta tracks (qw-oracle scope, NOT slipgate Managed Mode arcs)** -- ecosystem-tools registry; cross-format binary fingerprinting (PE / AppImage / ELF / Mach-O); engine helpdoc / data-file recognition; stock asset catalog (per-pak file-inside-pak listing). None gate V1; each track-arc lands more data via delta-sync. Methodology + per-track shape captured at `docs/superpowers/specs/2026-04-29-slipgate-managed-mode-pass3-ratifications.md`.
+> Skip on first read: per-pass status retrospectives in `Open architectural questions` (read those when verifying decision lineage). The deferred-V1+ carry-forwards live in `docs/superpowers/specs/2026-05-11-slipgate-managed-mode-review-prep.md`.
 
 ---
 
@@ -79,6 +70,7 @@ Unclassified files never reach a manifest. User-content (demos / screenshots / l
   "updated_at": "2026-04-28T14:33:00Z",
   "parent_manifest_sha": null,
   "last_synced_parent_manifest_sha": null,
+  "forked_from_profile_id": null,
   "declared_gamedirs": ["qw"],
   "entries": [
     {
@@ -91,15 +83,13 @@ Unclassified files never reach a manifest. User-content (demos / screenshots / l
       "sha256": "ghi456...uvw",
       "target_path": "qw/config.cfg",
       "role": "user-asset:config",
-      "size": 12453,
-      "added_via": "migration:initial-extraction"
+      "size": 12453
     },
     {
       "sha256": "jkl789...xyz",
       "target_path": "qw/textures/wads/cs/wall1_2.tga",
       "role": "user-asset:texture",
-      "size": 524288,
-      "added_via": "user-import:drag-drop"
+      "size": 524288
     }
   ]
 }
@@ -128,15 +118,12 @@ The combination of (creation backup) + (manifest history per save) + (catalog ba
 
 **Optional but recommended:** `size` (denormalized blob size; avoids stat for "how big is this profile?" UI).
 
-**Optional:** `added_via` (profile-local provenance string with documented prefixes):
-- `migration:initial-extraction` -- came in during clean-room migration
-- `user-import:drag-drop` / `user-import:file-picker` -- user imported directly
-- `catalog-download:<asset-handle>` -- pulled from cloud catalog
-- `edit:watcher` -- created by the watcher absorbing an in-place edit
-- `fork-from:<profile-id>` -- came along when forking
-- `merge-from:<profile-id>` -- came in via selective merge
+**No `added_via` field (Pass 6.1d).** Earlier Pass 2 drafts proposed `added_via` as an optional profile-local provenance string with documented prefixes (`migration:initial-extraction`, `user-import:drag-drop`, `catalog-download:<asset-handle>`, `edit:watcher`, `fork-from:<profile-id>`, `merge-from:<profile-id>`). Pass 6.1d explicitly REJECTS this field. The manifest entry just carries `{sha256, target_path, role}` (and optional `size`). Provenance is computed at display time:
+- Catalog-download lineage shows up in the version history view via hub lookup ("Milton's spec.cfg -- original state" label on matching SHAs).
+- Bundle-download lineage lives in the per-user local download log (slipgate-app-side; see Bundles in slipgate-app -- Local download log).
+- Migration / user-import / watcher-capture / fork / merge lineage falls out of context where the entry first appeared in history (the manifest creation event itself encodes "this was a migration").
 
-`added_via` is profile-local provenance ("how did this entry land in MY manifest"), distinct from asset-global authorship. Asset authorship/license/credit metadata lives in the catalog and is fetched by SHA at display time.
+This keeps the manifest schema portable (lineage doesn't pollute exports) and eliminates the catalog-handle abstraction (catalog stores SHAs only; no `<asset-handle>` indirection).
 
 **Forbidden in V1:** anything else. Keep entries lean. `selectable_subsets` deferred (the cloning-with-categories UX computes subsets from `role` directly; no DSL needed).
 
@@ -285,7 +272,7 @@ The complete data root structure (Pass 1 ratified):
   .lock                               <- single-process invariant (PID + hostname + timestamp)
   .pending-swap.json                  <- watcher's notebook of paths needing safe-moment processing (Pass 3.4)
   profile-roles.json                  <- primary + active profile pointers (Pass 3.2; supersedes active-profile.json)
-  profile-roles-history.json          <- audit log of role transitions (primary changes, active switches)
+  profile-roles-history.json          <- append-only audit log of role transitions (primary changes, active switches); each entry has timestamp + transition type + from/to profile-id; retention indefinite (small payload). Used for "show me my profile-switch history" UI and for debugging unexpected active-profile state.
 
   blobs/                              <- UNIFIED content-addressed storage; immutable; any content type
     .refcounts.json                   <- cached SHA -> ref-count index for GC; rebuildable from manifest walk
@@ -367,6 +354,12 @@ The complete data root structure (Pass 1 ratified):
 
   release-cache/                      <- Phase 3.5b shipped: GitHub Releases per-channel
     <client>-<channel>.json
+
+  bundles/                            <- downloaded bundles (Pass 6.2) -- catalog manifests pulled but not yet applied to a profile
+    <bundle-sha>/
+      manifest.json                   <- the catalog-published manifest (same schema as profile manifest, smaller scope)
+      meta.json                       <- catalog metadata snapshot at download time (name, publisher, version, etc.)
+    download-log.json                 <- per-user local download log: records each bundle download event (timestamp, bundle sha, name, version, file list with role+target_path+sha for each); powers "from bundle X v1.0" meta info even after files distributed into profiles. Local-only; doesn't travel on profile export.
 
   orphaned-profiles/                  <- deleted profiles' manifests, recoverable for 30 days (Pass 3.2)
     <profile-id>/<timestamp>/
@@ -563,7 +556,7 @@ Shared base content the user explicitly wants persistent across profiles. The ke
 
 **Manifest publishing rule for library content (Pass 3.3):**
 - Library content is profile-orthogonal. It does NOT travel with profile manifests. Sharing your profile shares your profile's manifest only.
-- Library has its own publish/share path (Arc H -- "share my map collection," "import this curated loc set"), catalog-distributed-as-asset-bundle, NOT bundled-into-profile-manifests.
+- Library has its own publish/share path (Arc H -- "share my map collection," "import this curated loc set"). Pass 6.4 collapsed the mechanism: library distribution uses the same bundle-as-manifest primitive as everything else, with `library:*` roles. NOT bundled-into-profile-manifests.
 - Recipients pull profile content; materialize against their OWN library. If library content matches at SHA, materialization works identically; if not, missing maps fall back to engine's auto-download behavior, which fills the gap server-side as normal.
 
 **Hub-side analytics as a byproduct:** "how many users have the same loc set, how many variants exist for `dm3`" fall out for free from SHA frequency aggregates on opt-in sync. Zero extra architecture.
@@ -594,7 +587,7 @@ The classifier consumes:
 
 ## Primitive operations
 
-A small set of operations is sufficient to build every Managed-mode feature. Each is a well-defined Rust function. Pass 3 added `make_primary`, `delete_profile`, and the clone-modal-as-selector primitive on top of the original six (Pass 0: register / materialize / swap_active_profile / launch_profile / export / fork / merge).
+A small set of operations is sufficient to build every Managed-mode feature. Each is a well-defined Rust function. Pass 3 added `make_primary`, `delete_profile`, and the clone-modal-as-selector primitive on top of the original seven (Pass 0: register / materialize / swap_active_profile / launch_profile / export / fork / merge). Pass 5.1 + 5.3 expanded the clone modal's consumer list from five to seven (added drift-import + symmetric backup/restore).
 
 ### `register(bytes) -> sha256` (Pass 0; Pass 3.4 extended)
 
@@ -1431,7 +1424,7 @@ When a user publishes a manifest with previously-unknown SHAs, slipgate-side que
 
 ### Library has a separate catalog-distribution path (Pass 3.3 cross-link)
 
-Bucket 7 (user-library) content does NOT travel with profile manifests. Library has its own publish/share path (Arc H -- "share my map collection," "import this curated loc set"), catalog-distributed-as-asset-bundle, NOT bundled-into-profile-manifests. Recipients pull profile content; materialize against their OWN library; missing library entries fall back to engine's auto-download. See Bucket 7: User-library for the full materialization rule.
+Bucket 7 (user-library) content does NOT travel with profile manifests. Library has its own publish/share path (Arc H -- "share my map collection," "import this curated loc set"). Pass 6.4 collapsed the mechanism: library distribution uses the same bundle-as-manifest primitive as everything else, with `library:*` roles (see Catalog data shape -- Library uses the same bundle-as-manifest primitive). Recipients pull profile content; materialize against their OWN library; missing library entries fall back to engine's auto-download. See Bucket 7: User-library for the full materialization rule.
 
 ### Hub-knowledge orthogonality
 
@@ -1784,6 +1777,8 @@ Pass 6.3e identified a future self-knowledge surface table for pre-seeded popula
 
 ## Open architectural questions
 
+> **Note for cold readers:** despite the section title, most of what's below is per-pass *retrospective* (what each closed pass settled), not actually-open items. The "Still open" subsection at the end is the genuinely-open list. As of 2026-05-11, all 6 brainstorm passes are CLOSED and items 1-9 in "Still open" are RESOLVED; only item 10 (qw-oracle L1 tracks) is genuinely outstanding, and that is qw-oracle scope, not slipgate Managed Mode scope.
+
 ### Pass 1 status
 
 Pass 1 (substrate and storage) ratified the following original-draft questions:
@@ -1821,12 +1816,12 @@ Pass 3 also added decisions outside the original list, all now in body:
 - Primary profile concept (third role pointer alongside active + launched); `profile-roles.json` schema.
 - Capture/swap two-stage pipeline (`.pending-swap.json` notebook + three swap triggers + Defenses 1-4 + cleanup notification UX + auto-mode opt-in).
 - `register` extended with `link()`-based inode-share at Stage 2.
-- `make_primary` + `delete_profile` primitives + clone modal as V1 selector primitive (five consumers).
+- `make_primary` + `delete_profile` primitives + clone modal as V1 selector primitive (five consumers at Pass 3 close; Pass 5.1 added drift-import as the sixth consumer; Pass 5.3 added symmetric backup/restore as the seventh).
 - Hub-as-gravitational-center triangle + manifest-references-hub-unknown-SHAs placeholder pattern + retroactive metadata enrichment + no-P2P invariant + library separate catalog-distribution path + hub-knowledge-orthogonality.
 - `declared_gamedirs` plays a second role: gates library materialization in addition to validating profile-manifest entries.
 - Migration: maps and locs default-extract to library not user-asset; classifier shared with watcher (Arc D + Arc E invariant); pre-extraction overview is the modal-as-selector primitive; migration's natural landing zone is the user's primary by definition.
 
-Pass 3 carry-forwards (now tracked in the pre-Pass anchor block above; not duplicated here): Arc H standalone-shareable-config dual lifecycle + catalog-metadata-divergence configs-vs-assets; Pass 4 watcher refinements (debounce tuning, integrity-check registry); Pass 5 launch UX + runtime swap classes + manifest backup UX; L1-alpha / -beta / -gamma / -delta tracks for qw-oracle scope.
+Pass 3 carry-forwards (all subsequently resolved): Arc H standalone-shareable-config dual lifecycle + catalog-metadata-divergence configs-vs-assets (resolved Pass 6); Pass 4 watcher refinements (resolved Pass 4); Pass 5 launch UX + runtime swap classes + manifest backup UX (resolved Pass 5); L1-alpha / -beta / -gamma / -delta tracks for qw-oracle scope (deferred to qw-oracle roadmap; tracked in HANDOVER).
 
 ### Pass 4 status
 

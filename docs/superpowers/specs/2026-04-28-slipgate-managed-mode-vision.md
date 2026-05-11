@@ -7,7 +7,7 @@
 > **Update 2026-04-28 (pre-Pass-1 anchor):** Three product properties added during orchestrator briefing before the Arc A+B brainstorm:
 >
 > - **Sixth content category -- user-private files.** Slipgate respects user-private content in the materialized tree (private notes, personal folders, half-finished experiments) without warehousing or exporting it. Not all files in the tree are profile content; users can keep personal assets the system leaves alone. (Detailed in architecture spec.)
-> - **Mod / singleplayer / expansion launcher anchored.** Profile manifests declare which gamedirs they expect (`declared_gamedirs`); launcher gains a per-launch gamedir picker. Future-extensible to mod/expansion management without architectural rework. (Detailed in architecture spec.)
+> - **Mod / singleplayer / expansion launcher anchored.** Profile manifests declare which gamedirs they expect (`declared_gamedirs`); the launcher inherits the engine's native server-driven gamedir handling. Future-extensible to mod/expansion management without architectural rework. (Pass 5.2 dropped per-launch gamedir picker from V1; `declared_gamedirs` stays as content-metadata for "what gamedirs this profile has content for," not "what gamedir to launch with." Detailed in architecture spec.)
 > - **Offline-first classifier.** The watcher's asset classifier ships fully functional offline using local heuristics; cloud catalog augments with SHA-keyed lookups when online. User-confirmed unknown-SHA classifications flow back to the catalog as moderated submission candidates. Cloud is opt-in; offline mode never degrades to non-functional. (Detailed in architecture spec.)
 >
 > **Pass 2 status (2026-04-28): COMPLETE.** Manifest schema, materializer mechanics, gamedir handling, and history retention all drained into the architecture spec. Two new product principles surfaced and captured during Pass 2:
@@ -46,7 +46,20 @@
 > - **V1 backup architecture as PoC of content-addressed warehouse (5.3).** Hub doesn't exist yet; V1 GitHub backup MUST carry full warehouse bytes (manifest-only would land a list of SHAs nobody serves). GitHub IS the proof-of-concept that demonstrates the content-addressed warehouse model end-to-end. Symmetric selector modal for backup AND restore (sixth + seventh consumers of the clone modal primitive). Snapshot model + include `manifest-history/` in payload (two-layered time-machine: per-backup git commits coarse + per-config history fine). Manual-only V1 cadence + change-count drift-badge nudge. First-launch three-branch flow (install fresh / restore / skip-into-tool-mode) surfaces a third slipgate persona (analysis-tool user).
 > - **V2 hub-as-primary backup migration path (5.3).** When hub.quake.world ships, hub takes over backup mass (small payload: manifest + state + configs; hub serves blobs); GitHub payload shrinks to private-content-only or deprecates per the privacy-sovereignty story; local-external unchanged. Hub-as-gravitational-center triangle stays intact across V1 -> V2.
 >
-> Pass 5 brainstorm minutes captured at `docs/superpowers/specs/2026-05-05-slipgate-managed-mode-pass5-ratifications.md`. Pass 5 entirely closed; Pass 6 / Arc H pre-impl + L1-alpha/beta/gamma/delta tracks remain open.
+> Pass 5 brainstorm minutes captured at `docs/superpowers/specs/2026-05-05-slipgate-managed-mode-pass5-ratifications.md`. Pass 5 entirely closed.
+>
+> **Pass 6 status (2026-05-11): COMPLETE.** Arc H pre-implementation -- catalog data shape. Four sub-questions resolved with significant collapse:
+>
+> - **Bundles ARE manifests (6.1e).** Single primitive at all sizes -- single-asset publish = one-entry manifest, bundle publish = multi-entry, profile publish = full. Tags + versioning fall out of name + publisher + publish-order. No separate tag store, no separate bundle object type at the catalog layer.
+> - **Single schema across single-assets and bundles (6.3b; collapses Pass 3.1's "configs thin / assets rich" framing).** Mandatory at publish: `name` + `publisher` + per-file (`sha256` + `role` + `target_path`). Optional and gracefully missing: `author`, `description`, `license`, `version`, `changelog`, `engine_compat`. UI handles "no description / no author / no license / no engine tag" as the common case, not the edge case.
+> - **Lifecycle: "you got a copy, it's yours" (6.1a).** Catalog entry and downloaded copy diverge after download. No notify, no auto-pull. Subscribe-style and fork-style flavors deferred to V1+.
+> - **Provenance lives in version history, not on the manifest entry (6.1d).** No `added_via` field on manifest entries. Catalog stores SHAs only; lineage is computed at display time via hub lookup ("Milton's spec.cfg -- original state" label on matching SHAs in rollback view). Bundle-download lineage lives in a per-user local download log.
+> - **Engine compatibility is user-tagged, not auto-derived (6.3d).** No robust mechanical signal for most asset types. Config converter cvar carry-over detection is the future enrichment layer for configs (V1+).
+> - **Library distribution collapses into bundles=manifests (6.4).** "Share my map collection" = publish a bundle manifest containing `library:map` roles. No separate library-distribution mechanism needed.
+> - **Bundles are first-class in slipgate-app (6.2).** Own UI surface ("Bundles" left-side entry); browse pattern mirrors the rest of slipgate (left domain list + main content + right meta panel). Apply-to-profile distributes files into natural domains via the clone modal as V1 selector primitive.
+> - **Follow is post-hub-V1 (6.1f).** Hub V1 ships browse + download + publish only. Follow lands when there's content critical mass.
+>
+> Pass 6 brainstorm minutes captured at `docs/superpowers/specs/2026-05-11-slipgate-managed-mode-pass6-ratifications.md`. **ALL brainstorm passes (1-6) now CLOSED.** Next move: arc-planner for Arc A (asset warehouse substrate). Review-prep doc at `docs/superpowers/specs/2026-05-11-slipgate-managed-mode-review-prep.md`; fresh-eyes review handoff at `docs/superpowers/parking/2026-05-11-slipgate-managed-mode-review-handoff.md`.
 
 ---
 
