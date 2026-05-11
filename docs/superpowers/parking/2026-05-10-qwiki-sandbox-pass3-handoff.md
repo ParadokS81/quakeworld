@@ -1,5 +1,7 @@
 # QWiki sandbox -- Pass 3 handoff (ecosystem map)
 
+**STATUS: CONSUMED 2026-05-11.** Pass 3 ran and locked. Drain landed in `docs/superpowers/specs/2026-05-09-qwiki-fresh-build-vision.md` Pass 3 section. Pass 4 handoff at `docs/superpowers/parking/2026-05-11-qwiki-sandbox-pass4-handoff.md`. This file is retained as historical entry-point.
+
 **Use as the literal first message in a fresh `claude` terminal opened in `/home/paradoks/projects/quakeworld/`.**
 
 This is the third arc-brainstormer entry point for the qwiki-sandbox arc, post-double-pivot. Passes 1-2 closed. Pass 3 is the heavy synthesis pass: for every kind of QW knowledge, where across the ecosystem does it most want to live? **This session's job: open and run Pass 3.**

@@ -1,7 +1,7 @@
 ---
-status: brainstorm in progress (Passes 1-2 of 6 complete; Pass 3 next)
+status: brainstorm in progress (Passes 1-3 of 6 complete; Pass 4 next)
 arc: 2026-05-09-qwiki-sandbox
-parking: docs/superpowers/parking/2026-05-10-qwiki-sandbox-pass3-handoff.md
+parking: docs/superpowers/parking/2026-05-11-qwiki-sandbox-pass4-handoff.md
 supersedes: docs/superpowers/specs/2026-05-09-qwiki-sandbox-architecture.md (modernize-in-place framing, pivoted 2026-05-09)
 ---
 
@@ -13,7 +13,7 @@ Living spec for the qwiki-sandbox arc, fresh-build framing. Drain destination fo
 
 - Pass 1 -- what wikis are for, generically (COMPLETE)
 - Pass 2 -- current QWiki audit, purpose lens (COMPLETE)
-- Pass 3 -- ecosystem map: where each kind of knowledge lives (pending)
+- Pass 3 -- ecosystem map: where each kind of knowledge lives (COMPLETE)
 - Pass 4 -- wiki's unique role + SHOULD list (pending)
 - Pass 5 -- contributor model + freedom-vs-structure (pending)
 - Pass 6 -- content strategy: extract / new-build / abandon (pending)
@@ -150,7 +150,214 @@ To Pass 6 (content strategy):
 - ELO is DB-shaped, not wiki-shaped -- abandon-or-hand-off-to-Hub-V2 candidate.
 - Russian-player-bulk-dump precedent: bulk imports without curation create stubs. Whatever import policy we land on must NOT leave that pattern in place.
 
-## Pass 3 -- ecosystem map -- pending
+## Pass 3 -- ecosystem map -- LOCKED
+
+**Scope:** for every kind of QW knowledge, where across the ecosystem does it most naturally live. Frame for Pass 4 (wiki's unique role + SHOULD list) and Pass 6 (content strategy).
+
+### 3.1 Ecosystem members + scope inventory -- LOCKED
+
+The ecosystem reorganized during this pass from "8 peers" into a federation-with-peers shape: `quake.world` is an umbrella domain hosting most consumer-facing surfaces; Oracle, parsers, Discord, forum sit outside as peers.
+
+#### quake.world federation (consumer-facing portal family)
+
+- **`wiki.quake.world`** -- THIS arc; the new wiki. Integrated visually and navigationally with the rest of the family.
+- **`hub.quake.world`** -- Hub V2 (xantom). Owns today: live-server view with in-browser FTE spec / quick join; replay/playback of any scraped game; match-data API (tournament sites use Hub URLs as canonical match reports). Owns when shipped (gated on demo-parser + matching demos to old EQL/NQR DBs): tournament archive over the 1TB demo trove; structured player + clan profiles derived from match/demo data. Does NOT own and does not aim to own: tournament *creation/running*; narrative/prose content.
+- **`assets.quake.world`** (with `maps.quake.world` as alias resolving to `assets.quake.world/maps`) -- all binary community assets: skins, sounds, configs, HUDs, crosshairs, charsets, textures, **and maps (BSP files)**. Rich interactive surfaces: model viewer with live texturing, map fly-around, wireframe. Primary consumer is direct web users browsing rich pages; slipgate-app is ONE consumer via SHA256-manifest API. Per-asset + per-map narrative absorbs into the rich page's "History" section -- no parallel wiki narrative.
+- **`servers.quake.world`** -- server browser. Functional surface; no knowledge ownership.
+- **`tools.quake.world`** (already exists as link directory) -- functional surface; no knowledge ownership.
+- **`tournaments.quake.world`** -- planned for Phase 2 of vikpe's roadmap (post-Hub-V2's tournament-archive validation). Will own structured tournament management (current + past) and per-tournament narrative as history sections on rich pages.
+- **quake.world frontpage** -- portal/newsfeed aggregator across the family. Owns news/announcements.
+- **Implicit future sub-properties** (named during the pass, not in original handoff list): `players.quake.world` / `clans.quake.world` (or equivalent sections) for the per-player + per-clan rich pages -- "the best clan page a QW clan wants, modular and customizable." These cede the player/clan domains fully when shipped.
+
+#### Peers outside the federation
+
+- **Oracle (qw-oracle)** -- knowledge service. Dual identity: *substrate* (Layer 1 source-extracted engine facts + Layer 2 chat corpus + Layer 3 curated concept-notes + MCP server -- different abstraction layer from consumer surfaces); *planned consumer surfaces inside the family* (chatbot on quake.world frontpage; Discord chatbot mode; slipgate-app help panel; user-pluggable MCP). Wiki relationship: Oracle is *downstream* of wiki content (author-once-harvest-many). Wiki authors canonical narrative; Oracle's curation pipeline harvests into Layer 3 concept-notes; chatbots answer using the harvested + Layer 1/2 substrate. Not competitors.
+- **Xantom's parsers** -- data-extraction pipeline layer. Owns: demo parser, BSP parser, KTX stats extraction. Feeds: hub.quake.world (match data + future tournament archive), assets.quake.world/maps (BSP-derived map data), eventually tournaments.quake.world. **No relationship with the wiki -- by design.** Wiki is human-curated; no auto-pop pipelines feeding wiki content from external structured sources.
+- **Discord** -- live community discussion. Owns: real-time discussion, social presence, bot integrations (Quad voice; future Oracle chatbot). Wiki relationships: contributor-pool source (Discord OAuth + Quad-bot auto-provisioning signup mechanism); future Oracle consumer surface (chatbot mode); source of experimental Layer 2 corpus (downgraded from "important" to "spice on top" -- Layer 1 + Layer 3 are load-bearing, Layer 2 is X-factor). Owns NO wiki knowledge directly.
+- **Forum** -- legacy archive. Not on roadmap, no active development, no planned knowledge-ownership role going forward. Out of scope for this arc.
+- **`maps.quakeworld.nu`** -- existing peer maps archive (folder layout: GPL / CORE / BASE / ALL, with BASE = actively played + tournament-included). Pre-existing; presumably absorbed/superseded by assets.quake.world's maps section when ready.
+- **Old qwiki.nu** -- legacy state. Becomes read-only archive after cutover. Nothing migrated *from* it after cutover. Tarpit infrastructure preserved (ciscon's bot defense). Contributors who want exhaustive history preservation have it here indefinitely.
+
+### 3.2 Knowledge-kinds catalog -- LOCKED
+
+27 kinds across 7 clusters. Several handoff-seeded kinds split into structured + narrative halves because the halves have different owners. New kinds surfaced during the pass: cross-cutting narrative, distribution narrative, editorial images, Layer 3 concept-notes, LAN event content (speculative).
+
+**Cluster A -- Match / event / structured-data:** A1 match-level data (demos/ktxstats/frags/results/replays); A2 tournament structured data (brackets/signups/results/season standings); A3 tournament narrative (Hall-of-Fame writeups, era recaps); A4 live-server/current-game data; A5 LAN event content (speculative future).
+
+**Cluster B -- People + collective:** B6 player profile structured; B7 player profile narrative; B8 clan profile structured; B9 clan profile narrative.
+
+**Cluster C -- Map / asset:** C10 map structured data (BSP-derived); C11 map narrative; C12 customization asset binaries + metadata; C13 per-asset narrative.
+
+**Cluster D -- Engine / client / distribution:** D14 engine facts (cvars/commands/macros/...); D15 distribution narrative (nQuake, ezQuake, FTE, qwfwd, qizmo, MVDSV); D16 game-content facts (id1 maps, baseline mechanics).
+
+**Cluster E -- Permanent wiki narrative:** E17 mode + mutator descriptions (KTX flagship); E18 mechanics / gameplay-physics; E19 history / timeline / era writeups (currently MISSING); E20 cross-cutting narrative; E21 lore / inside jokes / community memory; E22 columns / interviews / podcasts; E23 tutorials / how-tos.
+
+**Cluster F -- Operational / ephemeral:** F24 news / announcements; F25 editorial images (logos/screenshots in articles -- distinct from C12 customization asset binaries).
+
+**Cluster G -- Real-time discussion + AI:** G26 community chat (Discord -> Layer 2 corpus); G27 curated patterns / synthesized guidance (Oracle Layer 3 concept-notes).
+
+### 3.3 Knowledge-kind -> canonical owner -- LOCKED
+
+Three categorical patterns emerged for the wiki's relationship to each kind:
+
+- **Category 1: Domains that fully cede long-term** (transitional Track A only) -- maps + per-asset, clans, players, tournaments. Wiki has no long-term claim on either structured or narrative halves; the federation surface absorbs both. Transitional wiki coverage exists only where it serves dual purpose (Hall-of-Fame for humans + Oracle primer).
+- **Category 2: Domains that stay wiki-resident permanently** (Track B) -- modes, mechanics, distributions, history/timeline, cross-cutting narrative, lore, columns, tutorials.
+- **Category 3: Functional surfaces with no knowledge ownership** -- servers.quake.world, tools.quake.world.
+
+**Routing principle locked: *author at the layer that has long-term ownership.***
+
+| Domain has long-term home at... | Authoring flow |
+|---|---|
+| Wiki (Track B / Category 2) | Human writes wiki page -> Layer 3 concept-note distills downstream |
+| quake.world federation (players/clans/tournaments) | Wiki transitional (Hall-of-Fame, content-rich profiles) -> Layer 3 distills -> cede to federation when shipped |
+| assets.quake.world (maps + per-asset narrative) | **Skip wiki entirely.** Direct Layer 3 .md authoring for the handful of Oracle-primer-worthy entries (~10 maps, half rich-prose). Old wiki existing pages remain archive |
+| Oracle Layer 1 / `qw` namespace | Source-extracted; nothing for humans to author |
+
+**Two-layer authoring is not redundancy:**
+- Wiki page = canonical *human-readable* narrative. Crosslinked, multi-author, edit-in-place. Human audience.
+- Layer 3 concept-note = LLM-readable *synthesis* of wiki + Layer 1 + Layer 2. Curated patterns, structured frontmatter, distilled guidance. AI audience.
+- Voyage embedding indexes both -- Layer 3 as primary search target (curated synthesis), wiki content as supplementary raw-source coverage. Embedding wiki does not replace Layer 3 authoring.
+
+**Full mapping table** (long-term canonical owner + transitional notes):
+
+| # | Kind | Long-term canonical owner | Transitional / notes |
+|---|---|---|---|
+| A1 | Match-level data | hub.quake.world | Canonical today |
+| A2 | Tournament structured data | tournaments.quake.world (Phase 2) | Wiki transitional (Alice's lane); structured-bones-with-narrative-slots |
+| A3 | Tournament narrative | tournaments.quake.world (history on rich pages) | Wiki transitional with Hall-of-Fame consolidation (EQL/NQR/Smackdown one page each, NOT 28 per league) |
+| A4 | Live-server / current-game data | hub.quake.world + servers.quake.world | Canonical today |
+| A5 | LAN event content | TBD | Park as Pass 6 / future arc |
+| B6 | Player profile structured | players section of federation | Wiki transitional, content-rich players only (no stubs) |
+| B7 | Player profile narrative | players section of federation (prose slot) | Wiki transitional, full cede on graduation |
+| B8 | Clan profile structured | clans section of federation | Wiki transitional, content-rich clans only |
+| B9 | Clan profile narrative | clans section of federation (prose slot) | Wiki transitional, full cede on graduation |
+| C10 | Map structured data | assets.quake.world | BSP-parser-derived |
+| C11 | Map narrative | assets.quake.world (history sections) | **NOT new-wiki territory.** Old wiki pages remain archive; Oracle .md authoring for ~10 Oracle-primer-worthy maps |
+| C12 | Customization asset binaries + metadata | assets.quake.world | slipgate is one consumer |
+| C13 | Per-asset narrative | assets.quake.world | Same as C11 -- not new-wiki territory |
+| D14 | Engine facts | Oracle Layer 1 | Source-extracted |
+| D15 | Distribution narrative | **wiki Track B permanent** | The 11 Tools + 11 Clients pages -- distributions don't fit assets.quake.world's per-asset rich-page model |
+| D16 | Game-content facts | Oracle `qw` namespace | BSP-derived |
+| E17 | Mode + mutator descriptions | **wiki Track B permanent** | KTX 27-modes flagship; Oracle Layer 3 harvests |
+| E18 | Mechanics / gameplay-physics | **wiki Track B permanent** | Oracle Layer 3 harvests |
+| E19 | History / timeline / era writeups | **wiki Track B permanent** | Currently MISSING; new wiki fills the gap |
+| E20 | Cross-cutting narrative | **wiki Track B permanent** | Doesn't fit per-entity surfaces |
+| E21 | Lore / inside jokes / community memory | **wiki Track B permanent** | Track B core |
+| E22 | Columns / interviews / podcasts | **wiki Track B permanent** | Purity legacy artifact; revival |
+| E23 | Tutorials / how-tos | **wiki canonical** (Track B); Layer 3 distills patterns | Each imported tutorial reviewed for currency before adoption |
+| F24 | News / announcements | quake.world frontpage portal | Wiki not strong at temporal; no wiki news section |
+| F25 | Editorial images | wiki | Distinct from C12 customization assets |
+| G26 | Community chat | Discord (live) -> Oracle Layer 2 (corpus, experimental) | No wiki role |
+| G27 | Curated patterns / synthesized guidance | Oracle Layer 3 concept-notes | Downstream of wiki + Layer 1 + Layer 2 |
+
+### 3.4 Duplications + bridges -- LOCKED
+
+**Bridges (data flow):**
+
+| Source | Destination | Mechanism | Status |
+|---|---|---|---|
+| Xantom's parsers | hub / assets / future tournaments | Direct pipeline | Live / planned |
+| Wiki Track B pages | Oracle Layer 3 concept-notes | Manual harvest | Future arc -- pipeline doesn't exist |
+| Wiki transitional Cluster B | Oracle Layer 3 concept-notes | Manual harvest | Same future arc |
+| Wiki content | Voyage embedding index | Automated chunk + embed | Future arc |
+| Old wiki | Read-only archive | None | Status quo |
+| Discord chat | Oracle Layer 2 corpus | Existing import pipeline | Live (717K messages) |
+
+**Intentional duplications + sync discipline (under C-prime loose-coupling):**
+
+- **Player/clan/tournament structured fields:** wiki transitional + federation long-term; **NO sync v1**; structured-bones designed sync-shaped for future opt-in. Drift acceptable -- wiki version "gets stale" rather than divergent truth.
+- **Map narrative across old wiki / new Oracle .md / future assets.quake.world history:** manual harvest from old wiki to .md; no sync. Old wiki = archive, .md = canonical for Oracle gap, assets.quake.world history = long-term.
+- **Mode descriptions:** wiki canonical; KTX source code cites wiki URL (URL preservation locked). Bridge, not duplication.
+
+**Sync architecture commitment (deferred):** when (or if) federation surfaces eventually push structured fields into wiki schema-bones, the contract is **federation = source of truth, wiki = mirrored display**. Wiki edits to structured fields discarded on next sync. Prose slots remain wiki-authored. Avoids bidirectional-edit-conflict; capture as architecture carry-forward.
+
+**Accidental duplication risks to prevent at schema level:**
+
+1. Wiki "Map" page-type -- **do not allow.** New wiki has no per-map pages; schema enforces.
+2. Wiki "Asset" page-type -- **do not allow.**
+3. Wiki "News" page-type -- **do not allow.**
+4. Layer 3 concept-notes that copy wiki articles wholesale rather than synthesizing -- prevented by Layer 3 authoring template (`apps/qw-oracle/curated/concept-notes/CLAUDE.md`).
+5. Per-season historical-tournament pages (EQL S1, S2, ...) -- **schema enforces:** tournament-page-type is either "active/upcoming season" or "historical league HoF." No per-season-historical-page.
+
+### 3.5 Gaps -- LOCKED
+
+**Inside the new wiki's scope (Pass 4 SHOULD list input):**
+
+1. History / timeline / era writeups -- Track B / E19; currently MISSING.
+2. Mode + mutator descriptions -- Track B / E17; KTX 27-modes flagship.
+3. Mechanics / gameplay-physics -- Track B / E18.
+4. Distribution narrative refresh -- Track B / D15; revival of 11 Tools + 11 Clients.
+5. Cross-cutting era / scene narrative -- Track B / E20; genuinely absent today.
+6. Tutorials with coordinated coverage -- Track B / E23; each imported tutorial needs manual currency review.
+7. Server admin documentation -- Track B / E18-adjacent. NOT greenfield: `quakeworld.nu/wiki/How_to_server` is current; harvest + review + .md synthesis.
+8. Map authoring / modding scene knowledge -- Track B / E22-adjacent; new authoring.
+9. Demo analysis / notable-demo writeups ("clash of the titans" reports) -- Track B / E20-adjacent. Future possibility, not v1 priority; Pass 4 decides cut.
+10. Tournament Hall-of-Fame consolidation -- Transitional Track A / A3; new authoring from scattered old-wiki seasons.
+
+**Outside the new wiki's scope (other-home / Pass 6 / future-arc flags):**
+
+11. Live tournament creation tool (real one, not bandaid) -- tournaments.quake.world Phase 2; Qwicky-revival possible interim.
+12. Stats analytics / cross-season / ELO / "best player of all time" queries -- Hub V2 enhancement layer.
+13. Asset creator credits + cross-creator scene history -- split: per-asset -> assets.quake.world; scene-history -> wiki (folds into #8 map-authoring cluster).
+14. Public-web beginner onboarding flow ("first hour of QW") -- slipgate-app is the planned entry (replaces decade-old nQuake installer). NOT wiki's job. Out of arc scope.
+15. Hardware / pro player configs / settings comparison -- community-managed; low priority; not wiki.
+16. Streaming / content creator / VOD discovery -- quake.world frontpage (fav-vods channel exists in xantom's dev server); not wiki.
+17. Translations / non-English documentation -- explicit non-goal v1; English-only.
+
+### Pass 3 carry-forwards
+
+**To Pass 4 (wiki's unique role + SHOULD list):**
+
+- **Three-track wiki role model is LOCKED**, generalizing from per-tournament structuring to per-domain routing:
+  - Track A (gap-filler with graduation contract) -- Category 1 domains (clans/players/tournaments). Wiki provisionally owns; designed migration-shaped; full cede when federation surfaces ship.
+  - Track B (irreducibly-wiki) -- Category 2 domains. Wiki permanent; Oracle Layer 3 harvests downstream.
+  - Track C (Oracle primer) -- ecosystem-integration role. Wiki content engineered for embedding harvest. Track C importance elevated: Layer 2 is experimental "spice"; Layer 3 (wiki-fed) is load-bearing.
+- **The wiki's unique-role pitch** falls out of Category 2 + cross-cutting narrative + the embedding-substrate role. Pass 4 should pitch the wiki as: "the canonical home for what wikis are uniquely good at -- prose, crosslinks, multi-author history, narrative across entities -- engineered to also be Oracle's grounding substrate so the AI can make sense of QW community references."
+- **SHOULD list seeds** (from gaps + Category 2):
+  - KTX 27-modes flagship build-out
+  - History/timeline section (currently MISSING)
+  - Mechanics / gameplay-physics build-out
+  - Distribution narrative revival (Tools + Clients refresh)
+  - Cross-cutting era narrative
+  - Tutorials with currency review
+  - Server admin documentation (harvest path)
+  - Map authoring / modding scene (new authoring)
+  - Tournament Hall-of-Fame consolidation (transitional)
+  - Player + clan content-rich pages, no stubs (transitional)
+  - Columns / interviews revival (Purity legacy)
+  - Demo analysis writeups (deferred decision)
+- **Unique-role-no-other-site candidates** to highlight: history/timeline, cross-cutting narrative, demo analysis. Hub V2 + assets.quake.world + tournaments.quake.world cover their structured domains but none of these.
+
+**To Pass 5 (contributor model + freedom-vs-structure):**
+
+- **Stakeholder-messaging concern (narrow-scope pivot vs old-wiki contributors):** the pivot changes the social contract from "preserve everything" to "intentionally narrow scope." Framing strategy to soften without compromising design:
+  - Old wiki doesn't die -- becomes archive. URL preservation already locked. Nothing deleted.
+  - New wiki is "the slice that's irreducibly wiki-shaped," not "a smaller wiki." Pitch: quake.world handles structured/dynamic stuff richer than wiki can; new wiki holds what only wiki can do well, done properly.
+  - Contributor crowd splits naturally: exhaustive-history crowd has old wiki archive; living-community-substrate contributors have new wiki.
+  - Most active old-wiki contributors today (Alice, tournament organizers, mode/mechanic authors) work in domains the new wiki still serves -- not displaced.
+- **Schema-enforcement at page-type level** (carries from 3.4 duplication-prevention list): wiki has no Map / per-Asset / per-Season-Historical-Tournament / News page-types. Schema constrains contributor creativity to prevent stub-farming.
+- **Light-touch + density-over-coverage** is the operating mode: Hall-of-Fame consolidation; content-rich profiles only; abandon stubs aggressively. Sustains the 2-4-active-editor reality from Pass 2.
+- **Discord OAuth + Quad-bot auto-provisioning signup** stays as locked from Pass 1.
+
+**To Pass 6 (content strategy):**
+
+- **Per-domain content strategy per the routing principle:**
+  - Maps + per-asset narrative -> skip wiki, direct Layer 3 .md authoring (~10 maps, half rich-prose). Source: harvest old wiki + create fresh.
+  - Players/clans/tournaments -> wiki transitional with Hall-of-Fame + content-rich-only model; selective import from old wiki + new authoring. Abandon stubs.
+  - Track B domains (modes/mechanics/distributions/history/etc.) -> wiki canonical; new authoring + harvest from old wiki where current.
+- **Manual currency review** mandatory for every tutorial / How_to_server / older Track B article before adoption.
+- **LAN event content (A5)** -- speculative future-arc; not v1 scope.
+- **Demo analysis (gap #9)** -- defer decision; Pass 4 cuts or keeps.
+- **Russian-player-bulk-dump precedent** -- whatever import policy lands must NOT permit recurrence of that pattern (no bulk imports without per-page curation).
+
+**To architecture passes:**
+
+- `wiki.quake.world` integration with the federation: shared theming, cross-property navigation, optional shared auth (Discord OAuth doubles as quake.world-family auth candidate).
+- Schema-bones across Cluster B (player/clan/tournament transitional pages) **designed sync-shaped** even though v1 has no sync wired. Future federation->wiki sync becomes opt-in upgrade, not v1 dependency.
+- Sync contract when (if) shipped: federation = source of truth; wiki = mirrored display for structured fields; prose slots remain wiki-authored.
+- Voyage embedding pipeline + wiki-content harvest path to Layer 3 concept-notes: own future arc downstream of this one.
+- Page-type schema enforcement: no Map / per-Asset / News / per-Season-Historical-Tournament page-types.
+- `maps.quakeworld.nu` folder layout (GPL/CORE/BASE/ALL with BASE = actively played + tournament-included) is prior art worth referencing for assets.quake.world's maps section organization.
 
 ## Pass 4 -- wiki's unique role + SHOULD list -- pending
 
