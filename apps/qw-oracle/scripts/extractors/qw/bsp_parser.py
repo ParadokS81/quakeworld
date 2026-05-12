@@ -271,6 +271,7 @@ def summarize_map(bsp_path: Path) -> dict[str, Any]:
         'spawn_summary': spawn_summary,
         'features': features,
         'wads_referenced': _parse_wads(worldspawn.get('wad')),
+        'textures': textures,
     }
 
 

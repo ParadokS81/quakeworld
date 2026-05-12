@@ -70,6 +70,7 @@ def build_map_record(
         'spawn_summary': summary['spawn_summary'],
         'features': summary['features'],
         'wads_referenced': summary['wads_referenced'],
+        'textures': summary['textures'],
         'inferred_gamemodes': inferred,
         'popularity_total':   stats_entry['total'] if stats_entry else None,
         'popularity_by_mode': stats_entry['by_mode'] if stats_entry else None,
