@@ -785,4 +785,93 @@ When criteria are met: operator adds a `@wiki-contributor` Discord role mapped t
   - `/uninvite_wiki @user` command: symmetric revocation (5.4 implicit).
   - Page-change Discord channel notifications: future nice-to-have, parked (5.1).
 
-## Pass 6 -- content strategy -- pending
+## Pass 6 -- content strategy -- LOCKED 2026-05-12
+
+**Reframe from handoff candidates.** The Pass 6 handoff proposed five sub-questions: per-SHOULD-entry content-source decision / currency criteria / extract mechanism / URL preservation / migration cadence. Operator pushback during the session reshaped Pass 6: per-SHOULD-entry content-source decisions cannot be pre-locked in a brainstorm -- each domain needs its own mini-brainstorm with inventory in hand. Pass 6 instead locks the WORKFLOW that all per-domain mini-arcs follow, the PRIORITY order of those mini-arcs, and the BASELINE substrate they share. The handoff's per-entry decisions and currency criteria defer to per-domain mini-arcs; URL preservation policy was already locked Pass 4 4.6 (infra piece folds into 6.3 baseline); migration cadence becomes 6.2 priority order.
+
+### 6.1 Workflow shape -- LOCKED
+
+**Unit of work = per domain.** Per SHOULD entry (sometimes per sub-page-type within), five steps:
+
+1. **Analyze the old wiki for this domain.** Query the dump or scrape; build inventory with relevant metadata (size / staleness / categories / SMW properties / link health). Also a map-building step -- the operator does not have a full mental model of the wiki per domain; the inventory pass builds it.
+2. **Plan target shape.** Page-types already locked in Pass 4 4.3; per domain confirm bones+slots fit what the inventory reveals.
+3. **Plan migration.** Per-page disposition: extract / new-build / merge / abandon. Brand-curator-style triage backed by a state file.
+4. **Migrate.** Execute per-page; apply Track C disciplines (4.4).
+5. **Verify.** Per-page sign-off against schema + Track C + curator review.
+
+**Backed by per-domain curator tooling.** Same skeleton as the existing brand-curator (`apps/qw-oracle/scripts/curate-brands/`, validated by operator's 88-tournament-page sort with persistent `brand-curation-state.json`): three columns (inventory -> triage -> sign-off), per-item state badges, JSON-sidecar persistence, filter / search. Customized per domain's data shape. Small tools -- hours each, not days. State is checkpointable + diffable + commitable. Pauseable + resumable across sessions is the default, not a hard problem.
+
+**Per-domain, not one mega-tool.** Data shapes diverge wildly (tournament brand-grouping is nothing like substantial-player-filtering or mode-coverage-mapping). Some domains barely need a tool (Modes is mostly new-build -- a simple "page-types-to-author checklist" suffices; Glossary is one page). Only the bigger / extract-heavy domains (HoF leagues, players, clans, distributions, tutorials) need full three-column tooling.
+
+**Manual-vs-scripted dissolves into per-domain.** Brand-curator was manual triage on a scripted-inventory base. Each domain decides its mix during the analyze step. Not a global lock.
+
+**Shape vs implementation.** Pass 6 locks the cycle + tooling-pattern + per-domain unit of work. Architecture-pass settles framework / state format / dump-query layer / specific tool implementation.
+
+### 6.2 Priority order -- LOCKED
+
+**First domain: Modes.** Vertical-slice proof-of-concept that exercises wiki authoring + Layer 3 harvest path + harvested result observable via oracle MCP end-to-end. Aligns with project memory `project_concept_notes_vertical_slice.md` (operator's preferred pitch shape: L1 anchors + L3 substance + observability of the harvested result).
+
+**Why Modes is the right first:**
+
+- 27 pages bounded; completable in meaningful timeframe.
+- Full triage diversity: rich existing / sparse stubs / missing-entirely. Exercises every disposition in one domain.
+- KTX source code already references wiki URLs here -- finishing the domain fixes Pass 2's named pain point.
+- Cross-link dependency on Game Content (mechanics / items / weapons baselines via "Deviations from baseline") is non-blocking -- mode pages can land with red-links that resolve to blue when Game Content ships later.
+- Layer 3 harvest target is concrete: each mode = one concept-note input + multiple atomic sections.
+
+**Subsequent priority order: deferred post-Modes.** The order calcifies after we see what 27 pages actually takes at 2-4 contributors and what harvest looks like in practice. Candidate-next is **Game Content** (baselines close the cross-link loop on Modes' deviations sections), but not Pass-6-locked.
+
+**Pass 4 4.2 priority field remains the durable starting hypothesis** for subsequent ordering (v1 flagship Modes / v1 substantial Game Content + Distributions + HoF + Tutorials / v1.5 Player+Clan substantial / later Community & Lore + Glossary skeleton at v1).
+
+### 6.3 Baseline substrate -- LOCKED
+
+**Cut: baseline = reusable across all future domains. Per-domain mini-arc = domain-specific.** Baseline is the spec for the first architecture pass. Per-domain artifacts (page-type form + Layer B category page + curator tool instance + triage cycle) are downstream mini-arcs.
+
+**Baseline (4 items):**
+
+1. **Wiki substrate.** MW 1.39 LTS + Citizen skin + Page Forms + Semantic MediaWiki + PluggableAuth + Discord OAuth extension + MW groups (`wiki-contributor` / `wiki-curator`) + quality-tag categories (`Needs review` / `Stale` / `Draft`). Implements Pass 5 5.1 + 5.4a wiring.
+
+2. **URL slug discipline.** v1 beta uses same slugs as old wiki for kept pages, so when cutover happens, KTX source refs survive. Actual redirect-from-old-domain infra is cutover-event work, not baseline -- v1 needs only the authoring discipline of "keep the slug." Policy locked in Pass 4 4.6.
+
+3. **Layer 3 harvest path observable end-to-end.** Workflow from wiki section -> `apps/qw-oracle/curated/concept-notes/` already exists per oracle's CLAUDE.md (Pass 5 5.3b's load-bearing curator activity). Baseline verifies that a newly-harvested note surfaces via oracle MCP query, closing the vertical-slice loop.
+
+4. **Hosting.** MW Docker stack on Unraid (php-fpm + nginx + MariaDB + extensions). Cloudflare Tunnel for exposure. TLS via Cloudflare. Restricted URL e.g. `wiki-beta.quake.world` with invite-only access via Discord role. Backup inherited from existing Unraid -> Synology weekly cycle (`/home/paradoks/projects/unRAID/docs/server/backup.md`) -- new containers auto-included since the appdata-backup script tars all of `/mnt/user/appdata/`. Future migration off Unraid to long-term Hetzner+Cloudflare infrastructure (per Quake.World platform architecture wireframe) is a standard MW migration (DB dump + images + extensions); not a baseline lock-in concern.
+
+**Skipped from baseline -- "Generic per-domain-tool framework."** Speculative without seeing what subsequent domains need. The Modes curator gets built as a Modes mini-arc deliverable; later domains crib from it (or reshape per their data). Avoids over-engineering on day 1.
+
+**Modes mini-arc (NOT baseline; downstream):**
+- Mode page-type form + template + Modes Layer B category page
+- Modes curator tool instance (built on top of baseline; pattern cribbed from brand-curator)
+- 27-mode triage + author + Layer 3 harvest cycle
+
+### Pass 6 carry-forwards
+
+**To per-domain mini-arcs (each becomes its own arc-classifier candidate; not Pass 6 scope):**
+
+- Per-page extract / new-build / merge / abandon decisions per domain (handoff's original 6.1 -- deferred).
+- Currency-review criteria per content type (genuinely per-domain; handoff's 6.2 -- deferred).
+- Selective-extract specifics (which dump queries, which curator-tool features) per domain (handoff's 6.3 -- answered at workflow level; specifics per domain).
+- Per-domain page-type form + template + Layer B category page.
+- Per-domain curator tool instance.
+
+**To architecture pass (substrate implementation):**
+
+- Wiki substrate implementation specifics: Docker base image / MariaDB version / MW configuration / Page Forms + SMW version / OAuth extension choice (OpenID Connect vs WSOAuth, per Pass 5 5.1 carry-forward) / Citizen skin configuration including left-rail TOC if desired.
+- URL slug discipline enforcement mechanism (template + form validation).
+- Layer 3 harvest path observability verification test (newly-harvested note -> oracle MCP query result).
+- Hosting deployment: docker-compose file, Cloudflare Tunnel config, Cloudflare DNS+TLS, Discord-role-as-OAuth-claim mapping config.
+- Liquipedia patterns as visual reference for per-page-type template mockups (tabs / brackets / hover-lineup / left-rail TOC). Named, not locked. Liquipedia stack confirmed as MW family (MW + SMW + form-driven editing + heavily customized skin).
+
+**To future architecture concern (not v1 baseline):**
+
+- AI-agent steering: `llms.txt` at wiki root (optional v1 add; well-behaved AI agents bias toward indexed URLs), `MediaWiki:Robots.txt` rules, Cloudflare Worker user-agent steering at edge (`GPTBot` / `ClaudeBot` / `PerplexityBot` detection -> stripped link-only response). Adversarial bot tarpit pattern (ciscon's QWiki playbook, `reference_botload_tarpit_pattern.md`) separate from cooperative steering.
+
+**To downstream events (operational concerns):**
+
+- Subsequent priority order after Modes wraps -- revisited with Modes-mini-arc learnings.
+- Cutover from `wiki-beta.quake.world` to old-wiki URL (Pass 5 5.4b transition gate).
+- Image-tarball migration (`apps/qwiki-sandbox/dumps/wiki-images.tar.gz`, 6.4G) -- per-domain as needed; Modes may need a few screenshots, mass image import deferred.
+- Migration off Unraid to long-term Hetzner+Cloudflare infrastructure -- operational concern when long-term platform ready.
+
+**No conflicts with Pass 1-5 locks.** Pass 6 confirms and operationalizes prior locks; does not reopen them.
+
