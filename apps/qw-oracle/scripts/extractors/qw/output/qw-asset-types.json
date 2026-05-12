@@ -9,7 +9,7 @@
     "total_stock_origin_refs": 362
   },
   "project": "qw",
-  "extracted_at": "2026-05-12T21:37:00+00:00",
+  "extracted_at": "2026-05-12T21:39:00+00:00",
   "asset_types": [
     {
       "asset_type": "conback",
@@ -1650,9 +1650,10 @@
       "corpus_categories": [
         "Maps / Map textures",
         "Textures",
-        "Textures / Sets"
+        "Textures / Sets",
+        "Textures / Lava and Teleport"
       ],
-      "notes": "Filename must match a texture name embedded in the target BSP's texture lump\n(cross-reference qw-bsp-textures.json). Map-scoped path wins over global.\n`#`-prefixed names (e.g. #teleport, #lava) have special semantics per gfx_faq QID 22.\n",
+      "notes": "Filename must match a texture name embedded in the target BSP's texture lump\n(cross-reference qw-bsp-textures.json). Map-scoped path wins over global.\n`#`-prefixed names (#teleport, #lava, ...) install at qw/textures/#<name>.tga or\nper-map qw/textures/<mapname>/#<name>.tga (gfx_faq QID 22).\n",
       "l1_evidence": {
         "ezquake": [
           "ezquake:loader_site:R_LoadPicImage_hud_radar_HUD_NewRadarMap_1",

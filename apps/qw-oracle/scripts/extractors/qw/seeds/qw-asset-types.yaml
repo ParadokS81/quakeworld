@@ -357,10 +357,12 @@ asset_types:
       - "Maps / Map textures"
       - "Textures"
       - "Textures / Sets"
+      - "Textures / Lava and Teleport"
     notes: |
       Filename must match a texture name embedded in the target BSP's texture lump
       (cross-reference qw-bsp-textures.json). Map-scoped path wins over global.
-      `#`-prefixed names (e.g. #teleport, #lava) have special semantics per gfx_faq QID 22.
+      `#`-prefixed names (#teleport, #lava, ...) install at qw/textures/#<name>.tga or
+      per-map qw/textures/<mapname>/#<name>.tga (gfx_faq QID 22).
 
   - asset_type: map_lighting
     description: Colored lighting overlay file (.lit) sidecar to a BSP.
