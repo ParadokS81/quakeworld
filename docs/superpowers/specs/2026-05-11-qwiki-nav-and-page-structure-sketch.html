@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>QWiki nav + page-structure sketch (Pass 4.3 v3)</title>
+<style>
+* { box-sizing: border-box; }
+body { font-family: -apple-system, system-ui, sans-serif; max-width: 1100px; margin: 0 auto; padding: 24px; background: #fafafa; color: #1a1a1a; line-height: 1.55; }
+h1 { color: #1a1a1a; border-bottom: 3px solid #2563eb; padding-bottom: 12px; margin-bottom: 8px; }
+h2 { color: #1a1a1a; margin-top: 36px; padding: 10px 14px; background: #eef2f7; border-left: 4px solid #2563eb; }
+h3 { color: #2563eb; margin-top: 24px; }
+.intro { color: #555; font-size: 0.95em; margin-bottom: 24px; }
+.layer-label { display: inline-block; background: #2563eb; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.82em; font-weight: bold; margin-right: 8px; vertical-align: middle; }
+.layer { background: white; padding: 24px; margin: 24px 0; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+.note { font-size: 0.9em; color: #666; font-style: italic; margin: 0 0 14px; }
+.legend { background: #f5f7fb; padding: 16px 20px; border-radius: 6px; margin: 20px 0; font-size: 0.95em; }
+.legend code { background: #e8eef8; padding: 2px 6px; border-radius: 3px; }
+.bones-tag { display: inline-block; background: #10b981; color: white; font-size: 0.7em; padding: 2px 7px; border-radius: 3px; margin-left: 6px; vertical-align: middle; letter-spacing: 0.02em; }
+.slot-tag { display: inline-block; background: #f59e0b; color: white; font-size: 0.7em; padding: 2px 7px; border-radius: 3px; margin-left: 6px; vertical-align: middle; letter-spacing: 0.02em; }
+.search-bar { display: flex; gap: 0; max-width: 620px; margin: 18px auto 26px; }
+.search-bar input { flex: 1; padding: 11px 16px; border: 1px solid #d8dde8; border-right: none; border-radius: 4px 0 0 4px; font-size: 0.95em; background: #fff; color: #444; }
+.search-bar button { background: #2563eb; color: white; border: none; padding: 11px 28px; border-radius: 0 4px 4px 0; font-size: 0.95em; cursor: pointer; font-weight: 500; }
+.nav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0; }
+.nav-item { background: #f5f7fb; padding: 16px; border-radius: 5px; border: 1px solid #d8dde8; }
+.nav-item h4 { margin: 0 0 4px; color: #2563eb; font-size: 1.05em; }
+.nav-item small { color: #4a5568; font-size: 0.85em; display: block; margin-bottom: 8px; }
+.sub-sections { list-style: none; padding: 0; margin: 8px 0 0; }
+.sub-sections li { padding: 5px 0; font-size: 0.9em; color: #1a1a1a; border-top: 1px solid #e3e7ee; }
+.sub-sections li:first-child { border-top: none; padding-top: 8px; }
+.sub-sections .external { color: #2563eb; font-style: italic; }
+.cat-page { background: #fffbf0; padding: 22px; border: 2px dashed #f59e0b; border-radius: 6px; margin: 16px 0; }
+.cat-page .cat-title { font-size: 1.4em; font-weight: bold; color: #92400e; margin-bottom: 12px; }
+.subcats { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.subcats span { background: #f59e0b; color: white; padding: 5px 11px; border-radius: 3px; font-size: 0.86em; }
+.featured { background: #fff5e6; padding: 12px; margin: 14px 0; border-left: 3px solid #f59e0b; font-size: 0.95em; }
+.page-list { columns: 2; column-gap: 30px; padding: 0; list-style: none; margin: 10px 0; }
+.page-list li { padding: 3px 0; font-size: 0.95em; }
+.page-list .stub { color: #888; }
+.page-mock { background: white; padding: 26px; border: 2px solid #10b981; border-radius: 6px; margin: 16px 0; position: relative; }
+.page-mock h2.page-title { background: none; border: none; padding: 0; margin: 0 0 14px; color: #047857; font-size: 1.7em; }
+.infobox { float: right; width: 280px; background: #f5f7fb; border: 1px solid #d8dde8; padding: 14px; margin: 0 0 18px 18px; font-size: 0.88em; }
+.infobox h5 { margin: 0 0 8px; background: #2563eb; color: white; padding: 7px 10px; margin: -14px -14px 10px; border-radius: 3px 3px 0 0; font-size: 0.92em; }
+.infobox table { width: 100%; }
+.infobox td { padding: 3px 0; vertical-align: top; }
+.infobox td:first-child { color: #666; padding-right: 10px; width: 95px; }
+.deviations { background: #fff5e6; padding: 14px 18px; border-left: 3px solid #f59e0b; margin: 14px 0; }
+.deviations h4 { margin: 0 0 8px; color: #92400e; }
+.deviations ul { margin: 5px 0; padding-left: 22px; }
+.flow-arrow { text-align: center; font-size: 1.6em; color: #2563eb; margin: 8px 0; }
+.test-block { background: #f0fdf4; border-left: 4px solid #10b981; padding: 14px 18px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+hr { border: none; border-top: 1px solid #e5e7eb; margin: 32px 0; }
+.layer-summary { display: grid; grid-template-columns: auto 1fr; gap: 12px 18px; font-size: 0.94em; margin-top: 12px; }
+.layer-summary strong { color: #2563eb; }
+.revision-tag { display: inline-block; background: #047857; color: white; padding: 2px 9px; border-radius: 3px; font-size: 0.78em; margin-left: 8px; vertical-align: middle; }
+</style>
+</head>
+<body>
+
+<h1>QWiki -- nav + page-structure sketch <span class="revision-tag">v3 -- 2026-05-12</span></h1>
+<p class="intro">Pass 4.3 visual companion. Tile names locked: <strong>Game Content</strong> (wiki mechanics + items + weapons + external links to Maps and Customizations) and <strong>The Scene</strong> (Players + Clans + Tournaments transitional cluster). Glossary moved into Community &amp; Lore. Three-layer separation: <strong>Layer A</strong> main-page nav -&gt; <strong>Layer B</strong> category page -&gt; <strong>Layer C</strong> individual page construction. Pass 4.3 settles Layer C only; Layers A + B sketched here for grounding (architecture pass owns them later).</p>
+
+<div class="legend">
+<strong>Tags used in the Layer C mockup:</strong> <span class="bones-tag">bones</span> = structured form field (filled via Page Forms) &nbsp;&nbsp;
+<span class="slot-tag">slot</span> = free-form prose / narrative section (markdown / wikitext)
+</div>
+
+<div class="layer">
+<h2><span class="layer-label">Layer A</span>Main page (Liquipedia-inspired: 6 tiles + integrated search)</h2>
+<p class="note">6 top-level tiles -- matches 6 SHOULD entries 1:1. Each tile shows sub-sections inline. Game Content + The Scene tiles include external links to federation surfaces (Maps + Customizations on assets.quake.world).</p>
+
+<div class="search-bar">
+<input type="text" placeholder="Search the wiki -- modes, players, clients, tournaments..." disabled>
+<button disabled>Search</button>
+</div>
+
+<div class="nav-grid">
+<div class="nav-item">
+<h4>Modes</h4>
+<small>Game modes, mutators, standalone mods (~30+ pages)</small>
+<ul class="sub-sections">
+<li>Duel (1on1)</li>
+<li>Team Deathmatch (2on2 / 4on4)</li>
+<li>Capture the Flag</li>
+<li>Race / Trickjump</li>
+<li>Mutators / Rulesets</li>
+<li>Standalone Mods</li>
+</ul>
+</div>
+<div class="nav-item">
+<h4>Game Content</h4>
+<small>Wiki: mechanics + items + weapons. Linked: maps + customizations (~20-30 wiki pages)</small>
+<ul class="sub-sections">
+<li>Mechanics (rocket jump, bunny hop, ...)</li>
+<li>Items (RA, Quad, Pent, ...)</li>
+<li>Weapons (RL, LG, NG, ...)</li>
+<li class="external">Maps &rarr; maps.quake.world</li>
+<li class="external">Customizations &rarr; assets.quake.world</li>
+</ul>
+</div>
+<div class="nav-item">
+<h4>Distributions</h4>
+<small>Client + server software + server admin (~25-35 pages)</small>
+<ul class="sub-sections">
+<li>Clients (ezQuake, FTE, nQuake)</li>
+<li>Servers (MVDSV + KTX + server admin)</li>
+<li>Proxies (qwfwd, qizmo, qtv)</li>
+</ul>
+</div>
+<div class="nav-item">
+<h4>Tutorials</h4>
+<small>Cross-engine player USAGE guidance (~15-30 pages)</small>
+<ul class="sub-sections">
+<li>Movement drills</li>
+<li>Config + binds</li>
+<li>Demos + playback</li>
+<li>Spectating</li>
+</ul>
+</div>
+<div class="nav-item">
+<h4>The Scene</h4>
+<small>Who we are / play with / our recorded history. Transitional cluster -- graduates to federation later (~100-200 pages)</small>
+<ul class="sub-sections">
+<li>Players</li>
+<li>Clans</li>
+<li>Tournament Hall of Fame</li>
+</ul>
+</div>
+<div class="nav-item">
+<h4>Community &amp; Lore</h4>
+<small>Long-form human content + community memory + glossary (~30-50 pages + glossary)</small>
+<ul class="sub-sections">
+<li>Glossary (canonical QW terms)</li>
+<li>Columns (Purity legacy)</li>
+<li>Interviews</li>
+<li>Podcast index</li>
+<li>Cultural essays + lore</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="flow-arrow">&#8595;</div>
+
+<div class="layer">
+<h2><span class="layer-label">Layer B</span>Category page example: <em>Modes</em></h2>
+<p class="note">Intermediate stage for higher-volume entries (modes / distributions / tutorials / the-scene) where sub-sections need their own landing page. Lower-volume entries (game content, community &amp; lore) may skip Layer B and link sub-page-types directly from Layer A. Architecture-pass decides.</p>
+
+<div class="cat-page">
+<div class="cat-title">Modes</div>
+<p>Game modes, mutators, and standalone mods supported in QuakeWorld. KTX provides most modes natively; standalone mods (Painkeep, Rocket Arena) require their own server software. Every mode page describes rules + format + how it deviates from the <a href="#">Combat Baseline</a> (Game Content -&gt; Mechanics/Items/Weapons).</p>
+
+<h4>Browse by type</h4>
+<div class="subcats">
+<span>Duel (1on1)</span>
+<span>Team Deathmatch</span>
+<span>Capture the Flag</span>
+<span>Race / Trickjump</span>
+<span>Mutators / Rulesets</span>
+<span>Standalone Mods</span>
+<span>Other / Coop / Instagib</span>
+</div>
+
+<div class="featured">
+<strong>Flagship modes:</strong> 1on1 (most-played QW format) - 2on2 TDM (classic team format) - 4on4 TDM (clan format) - CTF + variants - Hoonymode (team-survival)
+</div>
+
+<h4>All modes (full list)</h4>
+<ul class="page-list">
+<li>1on1</li>
+<li>2on2 TDM</li>
+<li>4on4 TDM</li>
+<li>CTF</li>
+<li>CTF Showdown / CTF 2on2</li>
+<li>Race</li>
+<li>Hoonymode</li>
+<li>Coop</li>
+<li>Instagib</li>
+<li>FFA (free-for-all)</li>
+<li>Clan Arena</li>
+<li>Midair</li>
+<li class="stub">Painkeep (standalone mod)</li>
+<li class="stub">Rocket Arena (standalone mod)</li>
+<li class="stub">ClanRing+ (mutator)</li>
+<li>... ~30 entries total</li>
+</ul>
+</div>
+</div>
+
+<div class="flow-arrow">&#8595;</div>
+
+<div class="layer">
+<h2><span class="layer-label">Layer C</span>Individual page example: <em>Hoonymode</em></h2>
+<p class="note">This is the 4.3 scope. Bones (structured form fields) feed the infobox + Deviations and Notable-matches sections; slots (free-form prose) form the rest of the body. Track C disciplines (section-as-atom + self-contained sections + L1/L3 cross-refs + citation discipline) visible throughout.</p>
+
+<div class="page-mock">
+
+<aside class="infobox">
+<h5>Mode info -- bones</h5>
+<table>
+<tr><td>Sub-type:</td><td>KTX mode</td></tr>
+<tr><td>Players:</td><td>2on2 / 3on3 / 4on4</td></tr>
+<tr><td>Format:</td><td>Survival, single life per round</td></tr>
+<tr><td>Win condition:</td><td>Eliminate opposing team</td></tr>
+<tr><td>Map pool:</td><td>Standard TDM maps</td></tr>
+<tr><td>Related modes:</td><td>2on2, 4on4, Coop</td></tr>
+<tr><td>Source:</td><td>KTX since v1.45</td></tr>
+</table>
+</aside>
+
+<h2 class="page-title">Hoonymode</h2>
+
+<h3>Description <span class="slot-tag">slot</span></h3>
+<p>Hoonymode is a team-survival mode where players have a single life per round and the first team to eliminate the opposing team wins. Created by community member "hoony" as a higher-stakes variant of TDM. Built on the standard <a href="#">Game Content baseline</a> with explicit deviations listed below.</p>
+
+<h3>Gameplay strategy <span class="slot-tag">slot</span></h3>
+<p>Because players have one life per round, positioning and timing trump aggressive engagements. Key tactics involve <a href="#">map control</a>, <a href="#">item denial</a>, and <a href="#">audio cue discipline</a>. The single-life rule changes weapon priorities -- <a href="#">LG discharge</a> goes from rare to never-use, and <a href="#">rocket jumping</a> drops sharply as health management becomes paramount.</p>
+
+<div class="deviations">
+<h4>Deviations from <a href="#">Game Content baseline</a> -- bones</h4>
+<ul>
+<li><strong>Respawn:</strong> NONE within a round (single life; baseline = 5s respawn timer)</li>
+<li><strong>Spawn protection:</strong> 3s (baseline = 2s)</li>
+<li><strong>Quad damage:</strong> DISABLED (baseline = enabled, 30s respawn)</li>
+<li><strong>RA respawn:</strong> 25s (baseline = 30s)</li>
+<li><strong>Health regen:</strong> NONE outside MH pickup (baseline = none)</li>
+</ul>
+<p class="note" style="margin-top:8px">Mockup values for illustration -- actual deviations vary by KTX version.</p>
+</div>
+
+<h3>History / origin <span class="slot-tag">slot</span></h3>
+<p>First introduced in KTX <a href="#">v1.45</a> by <a href="#">hoony</a> as a response to community demand for higher-stakes team play. Adopted into competitive rotation at <a href="#">QHLAN 2018</a>; became a regular sideshow at major events. Source: <a href="#">KTX commit history</a> + <a href="#">QHLAN 2018 tournament page</a>.</p>
+
+<h3>Notable matches -- bones</h3>
+<ul>
+<li><a href="https://hub.quake.world/g/12345">QHLAN 2018 Final -- TeamA vs TeamB</a> (epic comeback from 0-3 down)</li>
+<li><a href="https://hub.quake.world/g/12346">EQL S25 sideshow -- ClanX vs ClanY</a> (5-round upset)</li>
+</ul>
+<p class="note">Wiki narrative -&gt; hub by game ID. No per-match wiki page-type (Pass 3 schema enforcement + Pass 4 amendments).</p>
+
+</div>
+</div>
+
+<div class="legend">
+<h3 style="margin-top:0">Track C disciplines visible in the Hoonymode mockup</h3>
+<ol>
+<li><strong>Section-as-atom:</strong> Description / Strategy / History / Deviations / Notable matches each occupy one H3 with one focused topic. Curator can lift any section as a concept-note input atom.</li>
+<li><strong>Self-contained sections:</strong> each section anchors back to Hoonymode (the parent concept) or Game Content baseline (the cross-link anchor) so readers entering at any section get local context.</li>
+<li><strong>L1/L3 cross-refs:</strong> Game Content baseline / map control / item denial / LG discharge / rocket jumping all link to canonical entity pages.</li>
+<li><strong>Citation discipline:</strong> KTX commit history, QHLAN tournament page, hub game IDs provide trace-back for every claim.</li>
+</ol>
+</div>
+
+<hr>
+
+<div class="test-block">
+<h3 style="margin-top:0; color:#047857">Race-vs-Hoonymode generalization test</h3>
+<p>Race is structurally different from Hoonymode (solo, time-trial, no opponents). Does the mode page-type generalize?</p>
+<ul>
+<li><strong>Sub-type field:</strong> "Race" toggles conditional infobox fields (Best times / Max time / Single-player flag instead of Win-condition).</li>
+<li><strong>Deviations-from-baseline:</strong> absorbs the structural diffs (no combat / no items / single player / no respawn timer in the conventional sense).</li>
+<li><strong>Notable runs (instead of notable matches):</strong> still external-link to hub by game ID.</li>
+<li><strong>Slots:</strong> description / strategy / history all still apply.</li>
+</ul>
+<p><strong>Conclusion:</strong> Hoonymode shape generalizes to Race via sub-type-driven conditional bones. The mode page-type works.</p>
+</div>
+
+<div class="test-block" style="background:#fefce8; border-left-color:#ca8a04;">
+<h3 style="margin-top:0; color:#854d0e">What this sketch settles vs. defers</h3>
+<div class="layer-summary">
+<strong>Settles (4.3):</strong> <span>Page-type construction. Bones-as-form-fields, slots-as-prose, Deviations-from-Baseline as structured deltas, external-match-links to hub. Per-page Track C application clear.</span>
+<strong>Defers (architecture pass):</strong> <span>Exact main-page layout (the 6-tile shape captured here is locked direction), exact sub-category structure within higher-volume entries, styling, search interface details, cross-link rendering.</span>
+</div>
+</div>
+
+</body>
+</html>

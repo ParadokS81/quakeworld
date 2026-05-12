@@ -359,7 +359,274 @@ Three categorical patterns emerged for the wiki's relationship to each kind:
 - Page-type schema enforcement: no Map / per-Asset / News / per-Season-Historical-Tournament page-types.
 - `maps.quakeworld.nu` folder layout (GPL/CORE/BASE/ALL with BASE = actively played + tournament-included) is prior art worth referencing for assets.quake.world's maps section organization.
 
-## Pass 4 -- wiki's unique role + SHOULD list -- pending
+## Pass 4 -- wiki's unique role + SHOULD list -- LOCKED
+
+### 4.1 Unique-role pitch -- LOCKED (amended during 4.2 to sync taxonomy)
+
+**The pitch.** The new wiki is the canonical home for **prose, crosslinks, multi-author narrative, and community memory** -- work that has to be written in human language, edited in place, and read across multiple entities at once. The federation's structured surfaces (hub / assets / tournaments / per-player + per-clan rich pages) own per-entity data AND per-entity narrative slots; **the wiki owns narrative that is cross-entity or has no entity-owner** -- modes, mechanics, distributions, scene history, lore, tutorials, columns. It is also Oracle's grounding substrate: pages are authored so the curation pipeline can harvest them into Layer 3 concept notes the AI uses to make sense of QW community references.
+
+**What only the wiki does in this federation:**
+
+- **Mode + mutator + mod descriptions** -- variant-specific narrative (KTX modes flagship; mutators / rulesets; standalone mods like Painkeep / Rocket Arena) for how each variant plays where the structured surface holds only the bracket or the binary.
+- **Combat baseline (mechanics + items + physics)** -- encyclopedic baseline that mode pages reference and deviate from (rocket jumping, item respawn behavior, weapon properties, engine-combat terminology).
+- **Distribution narrative + setup** -- per-distribution wiki pages (ezQuake / FTE / MVDSV / KTX / qwfwd / qizmo / nQuake); each holds narrative + history + install + setup. Wiki-shaped, not assets-shaped (no binary viewer needed).
+- **Tutorials + how-tos** -- cross-engine player-facing USAGE guidance (binds, scripts, movement drills, config, demos); install lives on distribution pages, server ops live on server-admin docs.
+- **Community & Lore** -- columns / interviews / podcasts / inside jokes / traditions / cultural essays; two decades of texture (Purity columns as legacy template).
+- **Oracle grounding substrate (Track C)** -- every wiki page is also Layer 3 input; chunking + dense context + L1/L3 cross-refs built into the authoring norm.
+
+**Cut-axis (load-bearing for 4.2 onward):** "Cross-entity OR has no entity-owner" is the test. Federation entities (matches, tournaments, players, clans, maps, customization assets) have their own rich pages with per-entity narrative slots; wiki narrative scoped to a single federation entity goes on that surface, not the wiki. Wiki narrative spans entities or addresses non-entities (modes, mechanics, distributions, scene-eras, lore).
+
+**Hall-of-Fame note:** explicitly NOT in the permanent unique-role list. Hall-of-Fame is transitional Cat 1 (wiki carries it until tournaments.quake.world Phase 2 subsumes the structured side). Lands in 4.2 SHOULD list as a transitional entry, not in the permanent pitch.
+
+**4.1 amendments log (applied during 4.2 to sync taxonomy):**
+
+- Original "Mode + mechanic + mutator descriptions" bullet **split into two** (modes/mutators/mods vs Combat baseline) to align with 4.2 entry split (#1 modes vs #2 baseline).
+- **Dropped "History + timeline + era writeups"** bullet -- timeline reframed as derived view (parked for 4.5 future arc); era essays scatter across distribution pages (#3), Hall-of-Fame (#4), and Community & Lore (#8).
+- **Dropped "Cross-cutting narrative"** bullet -- no standalone content; routes to #4 Hall-of-Fame (time-anchored events) or #8 Community & Lore (cultural commentary).
+- **Merged "Lore + community memory" + "Columns + interviews + podcasts"** into single **"Community & Lore"** umbrella (matches 4.2 entry #8).
+
+### 4.2 SHOULD list curation -- LOCKED (revised 2026-05-12: 8 -> 6 entries; Server Admin folded into Distributions; Hall-of-Fame + Player/Clan merged into The Scene; Glossary moved from Combat Baseline to Community & Lore; Maps + Customizations as nav-only external links)
+
+**Framework:**
+
+- **Track A (transitional):** wiki provisionally owns; designed for migration when federation surface ships.
+- **Track B (permanent):** wiki canonical; no graduation target.
+- **Priority v1:** launches with substantial content authored.
+- **Priority v1.5:** page-types defined at launch; serious authoring shortly after.
+- **Priority later:** page-types exist; opportunistic authoring as authors emerge.
+- **Depth skeleton:** page-type defined, framework templates ready, no expected v1 fill.
+- **Depth substantial:** serious content depth expected; v1 push for real authoring.
+- **Depth flagship:** canonical demonstration of how the wiki should work; biggest push.
+
+**Cut-axis test:** "cross-entity OR has no entity-owner" (from 4.1).
+
+**SHOULD list (6 entries; matches 6-tile main-page nav 1:1):**
+
+| # | SHOULD entry | Layer A tile name | Track | Priority | Depth |
+|---|---|---|---|---|---|
+| 1 | Modes + mutators + standalone mods (E17) | Modes | B perm | v1 | **flagship** |
+| 2 | Mechanics + items + weapons (E18, glossary moved out) | **Game Content** (+ external Maps + Customizations) | B perm | v1 | substantial |
+| 3 | Distribution narrative + setup + server admin (D15 + E18-adj) | Distributions | B perm | v1 | substantial |
+| 4 | Players + Clans + Tournaments (HoF + content-rich pages) | **The Scene** | A transitional | v1 (HoF) + v1.5 (player/clan) | substantial |
+| 5 | Tutorials + how-tos (E23) | Tutorials | B perm | v1.5 | substantial |
+| 6 | Community & Lore + glossary (E21 + E22 + glossary moved in) | Community & Lore | B perm | mixed (glossary v1 skeleton; rest later) | mixed |
+
+**Per-entry content scope (example pages):**
+
+1. **Modes + mutators + standalone mods (E17) -- v1 flagship; tile "Modes".**
+   - KTX modes: 1on1 / 2on2 / 4on4 / CTF / Hoonymode / Race / Coop / Instagib / TDM variants
+   - Mutators / rulesets: KTX rulesets, custom mutators
+   - Standalone mods: Painkeep / Rocket Arena / ClanRing+ / MidAir
+   - ~30+ pages. KTX 27-modes is the central pain point (15 stubs of 15 existing; 12 missing entirely; source code links here).
+   - Page-type holds: gameplay description + rules + format + weapons + **"Deviations from baseline"** section + external-match-link slots (matches referenced by hub game ID).
+
+2. **Mechanics + items + weapons (E18) -- v1 substantial; tile "Game Content".**
+   - Mechanics: rocket jumping / bunny hopping / strafe jumping / LG discharge / spawn behavior / spawn fragging / damage falloff / powerup stacking / telefragging
+   - Items: RA / YA / GA / MH / Quad / Pent / Ring / Biosuit
+   - Weapons baselines: RL / LG / NG / SNG / SG / SSG / GL / Axe (damage, ammo, range, behavior)
+   - **Glossary moved OUT** to entry #6 Community & Lore.
+   - ~20-30 pages. Load-bearing -- every mode page links into this baseline.
+   - Atomic concept-note shape (Track C: each mechanic / item / weapon = one Layer-3 candidate).
+   - **Tile "Game Content" extends beyond wiki content** to include external nav links: Maps (-> maps.quake.world) + Customizations (-> assets.quake.world). Wiki HOSTS no map or customization pages (Pass 3 §3.4 schema enforces); wiki LINKS to them from nav as federation-corpus visibility.
+
+3. **Distribution narrative + setup + server admin (D15 + E18-adj) -- v1 substantial; tile "Distributions".**
+   - **Two sub-page-types under one entry:**
+     - **Distribution-page** (one per distribution): Clients = ezQuake / FTE / nQuake / qizmo (legacy); Servers = MVDSV / KTX; Proxies = qwfwd / qizmo / qtv / utility tools. Each page = what-it-is + history + install + per-OS setup.
+     - **Server-admin-overview page** (~1-3 cross-tool guides): "Setting up a QW server" umbrella covering MVDSV+KTX+qwfwd configuration, server cvars reference, match-day server prep. Harvest from `quakeworld.nu/wiki/How_to_server`.
+   - ~20-30 distribution pages + ~1-3 server-admin overview pages = ~25-35 total.
+   - **Server Admin folded into this entry** from prior amendment (was standalone entry #6 with overestimated ~10-20 pages; actual scope is small, lives nav-wise under Distributions/Servers).
+   - Currency review per page.
+
+4. **Players + Clans + Tournaments (B6-9 + A3) -- Track A transitional; tile "The Scene".**
+   - Operator framing: "core of the community -- who we are (players), who we play with (clans), our recorded history (tournaments)".
+   - **Three sub-page-types under one entry:**
+     - **HoF-league-page** (~10-15 pages): ONE page per LEAGUE. EQL HoF / NQR HoF / Smackdown HoF / QHLAN HoF / DuelMania HoF / QuakeCon HoF. Page-type holds: league history + notable winners + era recaps + notable matches via hub. **Priority v1 substantial.**
+     - **Player-page** (~50-100 pages): substantial player profiles only -- active or historically-significant. **Priority v1.5 substantial.** Sync-shaped bones for future federation player surface.
+     - **Clan-page** (~50-100 pages): substantial clan profiles only -- active or historically-significant. **Priority v1.5 substantial.** Sync-shaped bones for future federation clan surface.
+   - Aggregate ~100-200 pages (vs old wiki's 5,000+ stubs which are DROPPED entirely).
+   - All three are Cat 1 transitional (graduate to federation surfaces when tournaments.quake.world / players.quake.world / clans.quake.world ship).
+   - Schema enforces: no per-season-historical-tournament pages.
+
+5. **Tutorials + how-tos (E23) -- v1.5 substantial; tile "Tutorials".**
+   - Cross-engine USAGE: configure weapon binds / movement drills (bunny hop / strafe jump practice) / demo recording + playback / config setup (autoexec) / FOV + HUD setup / spectating
+   - NOT install (lives on entry #3 distribution pages); NOT server-side ops (lives on entry #3 server-admin-overview sub-page-type).
+   - ~15-30 pages. Each tutorial currency-reviewed before adoption.
+
+6. **Community & Lore + glossary (E21 + E22 + glossary moved in) -- mixed priority; tile "Community & Lore".**
+   - **Two sub-page-types under one entry:**
+     - **Glossary-page** (1 page, **v1 skeleton**): single umbrella page; terminology as structured H3 sections (frag / spawnfrag / gib / telefrag / doubleshot / etc.). Authored at launch as skeletal reference so other pages can link to canonical terms. Fills out over time. **Moved IN from entry #2 Combat Baseline.**
+     - **Article-page** (~30-50 pages, **later skeleton**): one page-type with format-type metadata (column / interview / podcast-index / cultural-essay / lore-essay). Author-availability bound; no v1 push.
+   - Examples: Glossary / Purity columns archive / "ThresH wins Carmack's Ferrari" / Famous incidents (LG bug of 2009, etc.) / Podcast index / Interview transcripts / Inside jokes + traditions / cultural-history essays (the 2007 renaissance / Russian 4on4 era / etc.).
+
+**Layer A architecture grounding (out of 4.2 scope; sketched in `2026-05-11-qwiki-nav-and-page-structure-sketch.html`):**
+
+6-tile main-page layout matches 6 SHOULD entries 1:1, with integrated header search (Liquipedia-inspired). Tile sub-sections shown inline so the wiki's surface area is visible at a glance. The **Game Content** tile extends entry #2 with external nav links to maps.quake.world and assets.quake.world (Maps + Customizations live on federation surfaces; wiki nav makes them visible as part of the larger ecosystem corpus, but wiki HOSTS no content for them). The **The Scene** tile consolidates entry #4 cluster (Players + Clans + Tournaments; all transitional Cat 1).
+
+Tile sub-sections are nav-design (architecture pass owns final shape); SHOULD-list entries are content-design (Pass 4.2 scope). The 1:1 entry-to-tile mapping is locked direction.
+
+**Design patterns (4.3 holding notes -- operationalized in page-type shape):**
+
+- **Baseline-plus-deviations.** Entry #2 Mechanics+items+weapons pages = single source of truth ("here's how QW works by default"). Entry #1 Mode pages each have a **"Deviations from baseline"** section explicitly naming deltas ("1on1: RA respawns 25s vs baseline 30s; quad disabled"). Benefits: no duplication, mode pages scannable, atomic for Track C harvest, single source of truth for QW basics.
+- **External-match-link slot.** Wiki narrative referencing specific matches LINKS to hub.quake.world via game ID. No per-Match wiki page-type. Mode pages / HoF pages / Player pages / Clan pages include external-match-link slots (game-ID references to hub), not internal match-page slots. Extends Pass 3 §3.4 schema enforcement.
+
+**Cuts captured for 4.5 (explicit non-goals -- to be consolidated in 4.5):**
+
+- **Demo analysis writeups** -- hub.quake.world hosts demos with online replay + KTX stats + screenshots + analysis tools + comments + metadata. Wiki references hub matches by game ID; no per-match wiki narrative.
+- **Map authoring + map-makers' ongoing-project feedback** -- maps.quake.world hosts (with feedback mechanism for map-makers).
+- **Customization-modding (HUDs / skins / crosshairs / sounds / charsets)** -- assets.quake.world hosts (Pass 3 already locked).
+- **History / era writeups as a standalone page-type** -- scattered across entry #3 distribution-page history-sections / entry #4 HoF era recaps / entry #6 cultural essays.
+- **Cross-cutting narrative as a standalone page-type** -- routes to entry #4 (event-shaped) or entry #6 (culture-shaped).
+- **No per-Match wiki page-type** -- extends Pass 3 §3.4 schema enforcement.
+
+**Future arc captured (to be consolidated in 4.5):**
+
+- **Timeline view (derived, filterable).** Architectural surface aggregating content chronologically across tournaments / modes / distributions / client+server tech releases. Pulls from multiple wiki + federation sources. Sparse until content accumulates. Architecture-pass + own arc later when data density supports it. Operator-named vision; kept-on-radar.
+
+**Pass 6 content-strategy holding notes:**
+
+- **Mechanics + items + weapons (#2) is mostly NEW AUTHORING.** Old QWiki doesn't have an encyclopedic QW physics+items+weapons reference. Some atoms (damage values, engine constants) live in Oracle Layer 1; the wiki narrative layer is new-build.
+- **Tutorials (#5) + Distribution narrative + server admin (#3) need per-page CURRENCY REVIEW** -- harvest from old wiki where current, abandon where stale (Russian-bulk-dump precedent disallowed).
+- **HoF sub-shape (#4) needs CONSOLIDATION** -- old wiki had per-season pages; new wiki has one HoF page per league. Selective extraction + new consolidating authoring.
+- **Player + clan content-rich sub-shapes (#4) -- substantial-only IMPORT with new authoring fill.** Drop 5,000 stubs entirely.
+- **Community & Lore + glossary (#6).** Glossary = mostly NEW AUTHORING (skeletal v1 launch, fills over time). Long-form content = mostly LEGACY HARVEST (Purity columns template; other content accrues organically).
+
+### 4.3 Page-type shape per SHOULD entry -- LOCKED
+
+**What this section covers:** at SHAPE level (not full field lists), each SHOULD entry resolves to one or more page-types. **Bones** = structured slots (filled via form). **Narrative slots** = prose blocks (free-form authoring inside the schema). Track C disciplines from 4.4 thread through each shape.
+
+**Page-type-count discipline applied:** minimize page-types where shapes overlap; sub-page-types only where shapes genuinely diverge.
+
+**Visual companion:** `docs/superpowers/specs/2026-05-11-qwiki-nav-and-page-structure-sketch.html` (v3, 2026-05-12) shows Layer A (6-tile nav with locked names Game Content + The Scene), Layer B (Modes category-page example), and Layer C (Hoonymode page mockup) with bones / slots tagged inline. Hoonymode demonstrates the mode page-type shape concretely; Race-vs-Hoonymode generalization test answered (page-type works for Race via sub-type-driven conditional bones).
+
+**Page-type shapes per SHOULD entry:**
+
+**1. Modes + mutators + standalone mods.** One page-type ("mode-page") with sub-type field (mode / mutator / mod) driving conditional sections.
+- Bones: name / sub-type / parent-mode-for-mutator / format (player count / rounds / win conditions) / **deviations-from-baseline** / **notable-games-via-hub-game-id** / cross-links.
+- Narrative slots: description, gameplay strategy, history / origin.
+- Track C: section-as-atom across description / strategy / history / deviations; L1/L3 anchors for weapons + mechanics + items; citations for origin to KTX source / forums / podcasts.
+- Race generalization: sub-type="Race" toggles conditional infobox fields (Best times / Max time / Single-player flag instead of Win-condition); Deviations absorbs structural diffs (no combat / no items / single player); Notable runs replaces Notable matches but still external-links to hub by game ID.
+
+**2. Mechanics + items + weapons (Game Content tile).** Three sub-page-types: mechanic-page / item-page / weapon-baseline-page.
+- Bones: canonical-name / Layer-1-anchor / parameters (engine values from L1) / related-entities.
+- Narrative slots: how-it-works, why-it-matters, interactions.
+- Track C: atomic concept-note input; strict L1 anchors; citations point to engine source via L1.
+- Maps + Customizations are NAV-ONLY external links on the Game Content tile; no wiki page-types.
+
+**3. Distribution narrative + setup + server admin.** Two sub-page-types: distribution-page / server-admin-overview-page.
+- Distribution page bones: name / current-version / source-URL / license / maintainer / supported-OS / changelog-link.
+- Distribution page slots: what-it-is, history, install-walkthrough (per-OS), known-issues, related-distributions.
+- Server-admin-overview page bones: applies-to (which tools / versions) / prerequisites / related-pages.
+- Server-admin-overview page slots: setup walkthrough, configuration (cvars), operational tips, known-issues.
+- Track C: section-as-atom; L1 anchors for cvars + rulesets; citations to release notes / source code / KTX docs.
+
+**4. Players + Clans + Tournaments (The Scene tile).** Three sub-page-types: hof-league-page / player-page / clan-page.
+- **HoF-league-page** bones: league-name / years-active / format / current-status / per-season-champions-roster (structured but on one page) / **notable-matches-via-hub**.
+- HoF-league-page slots: history, notable eras / dominant clans, memorable matches narrative, legacy / current status.
+- **Player-page** bones: name / aliases / country / active-years / clans-history (list) / notable-achievements (HoF + hub links) / cross-links.
+- Player-page slots: bio, history, playstyle, memorable moments.
+- **Clan-page** bones: name / country / active-years / members (list, may be empty) / tournament-history (HoF links) / cross-links.
+- Clan-page slots: bio, history, known-for, memorable moments.
+- **Sync-shaped (Pass 3 (C-prime))** for player + clan bones -- designed for future federation absorption.
+- Track C: structured bones make harvest tractable; narrative is the rich slot.
+
+**5. Tutorials + how-tos.** One page-type ("tutorial-page").
+- Bones: applies-to (clients / versions) / prerequisites / related-tutorials.
+- Narrative slots: what-this-teaches, numbered steps (procedural), troubleshooting, tips / advanced.
+- Track C: section-as-atom (each step = atom); L1 anchors for cvars / commands referenced; citations to source where behavior comes from.
+
+**6. Community & Lore + glossary.** Two sub-page-types: article-page / glossary-page.
+- **Article-page** bones: author / date / subject / format-type (column / interview / podcast-index / cultural-essay / lore-essay) / cross-links.
+- Article-page slots: body (prose).
+- **Glossary-page** is one umbrella page; terminology as structured H3 sections within (term-name / canonical-anchor / cross-refs per section).
+- Glossary-page slots per term: definition + cultural-context.
+- Track C: **looser** schemas for article-page (per Pass 5 tension); **tighter** schema for glossary-page (terms are atomic, harvest-friendly).
+
+**Layer A + B grounding (architecture-pass territory; sketched in nav-structure HTML):**
+
+- 6 main-page tiles match 6 SHOULD entries 1:1; locked tile names: Modes / Game Content / Distributions / The Scene / Tutorials / Community & Lore.
+- Each tile shows its sub-sections inline (Liquipedia-style) -- wiki's surface area visible at a glance.
+- Game Content tile includes external nav links (Maps -> maps.quake.world; Customizations -> assets.quake.world).
+- Lower-volume entries (Game Content's wiki side, Community & Lore) may skip Layer B and link sub-page-types directly from Layer A. Higher-volume entries (Modes, Distributions, Tutorials, The Scene) need Layer B category pages.
+- Exact Layer A styling, Layer B layout, and Layer B / C transitions are architecture-pass decisions.
+
+### 4.4 Track C as design pillar -- LOCKED
+
+**What Track C is.** The wiki is authored such that a human curator can manually distill wiki content into Layer 3 concept-notes with minimal extraction friction. **Quality input for manual curation, not an auto-pipeline.** Concept-notes stay manually authored + reviewed + tested per the existing `apps/qw-oracle/curated/concept-notes/CLAUDE.md` workflow. Voyage embedding (if it happens later) is downstream search/discovery optimization, not a Track C precondition.
+
+**The four authoring disciplines:**
+
+1. **Section-as-atom.** Each H2/H3 section maps to one focused topic. A page covers one concept; sections decompose into atoms. Curator can lift a section as a concept-note topic instead of untangling spaghetti prose.
+2. **Self-contained sections.** A reader entering at any section has enough page-local context to understand it without reading the whole page. Sections re-anchor to the parent concept where relevant. Curator doesn't have to re-read the whole page to extract a section.
+3. **Cross-link to L1/L3 anchors.** When mentioning a cvar / command / mechanic / item / map / engine fact, link to (or canonical-name) the Oracle entity. Curator inherits the resolved references instead of chasing "is this the same cvar as Layer 1?". Broken refs flag for curator triage.
+4. **Citation discipline.** Factual claims cite source (Layer 1 entity, official doc, measured behavior, recorded session, hub game ID). Opinion / speculation clearly marked. Curator inherits the citation chain.
+
+**4.3 operationalization (forward-pointer).** Page-type schemas (4.3) bake the four disciplines into forms / templates / help text. High-curator-value entries (modes, baseline, distributions, server admin, tutorials) get **tighter schemas**; lower-priority entries (community & lore) get **looser slots**. Schema does the heavy lifting so contributors don't need to internalize Track C terminology.
+
+**Pass 5 tension (carry-forward).** Track C structure vs Pass 1's "credentialed-but-not-curatorial on-ramp + low-barrier signup". Strict enforcement bounces drive-by contributors; loose enforcement degrades input quality. Resolution candidates:
+
+- Forms enforce structure for high-curator-value entries (modes / baseline / distributions); looser slots for casual contributions (community & lore).
+- Curator-pass cleans drift after the fact (Carapace-v2 sweep mode from Pass 2).
+- Templates + authoring-help text invite discipline rather than enforce.
+
+Pass 5 settles the enforcement-vs-invitation balance.
+
+**Pass 6 implication.** Track B + Track A transitional entries that feed Layer 3 (modes / baseline / distributions / tutorials / Hall-of-Fame) need authoring that satisfies the four disciplines. Pass 6 content sources (extract from old wiki / new-build) get a discipline review before adoption.
+
+**Pipeline-mechanics arc (deferred / lower-stakes).** If a tooling arc later materializes (curator workflow tools, search interface, draft suggestions, similarity match), it consumes wiki content + Layer 1 + existing Layer 3 corpus. Tools assist, not replace, the curator. Not load-bearing for Track C.
+
+### 4.5 Cuts / explicit non-goals -- LOCKED
+
+**Purpose:** consolidate every "wiki does NOT do this" decision from Pass 4 (and earlier passes) into one place. Sources: Pass 3 §3.4 schema enforcement + Pass 3 §3.5 outside-wiki gap list + Pass 4 amendments captured during 4.1-4.4.
+
+**Schema-enforced page-type exclusions (wiki cannot host these page-types):**
+
+| # | Excluded page-type | Lives where instead | Source |
+|---|---|---|---|
+| 1 | per-Map | maps.quake.world / assets.quake.world | Pass 3 §3.4 |
+| 2 | per-Asset (HUDs, skins, crosshairs, sounds, charsets) | assets.quake.world | Pass 3 §3.4 |
+| 3 | News | quake.world frontpage | Pass 3 §3.4 |
+| 4 | per-Season-Historical-Tournament | one HoF page per league (entry #4 sub-shape), NOT per season | Pass 3 §3.4 |
+| 5 | per-Match | hub.quake.world (game ID linked from wiki) | Pass 4 amendment |
+
+**Content out of wiki scope (lives elsewhere in the ecosystem, or never authored):**
+
+1. **Demo analysis writeups** -- hub.quake.world hosts demos with online replay + KTX stats + screenshots + analysis tools + comments + metadata. Wiki references hub matches by game ID; no per-match wiki narrative. Texts about important games live alongside the demo on hub, not on wiki.
+2. **Map authoring + map-makers' ongoing-project feedback** -- maps.quake.world hosts (with its own feedback mechanism for map-makers in development).
+3. **Customization-modding content** (HUDs / skins / crosshairs / sounds / charsets) -- assets.quake.world hosts (Pass 3 already locked).
+4. **History / era writeups as a standalone page-type** -- scattered across entry #3 distribution-page history-sections / entry #4 HoF era recaps / entry #6 cultural-essay article-pages. No dedicated history page-type.
+5. **Cross-cutting narrative as a standalone page-type** -- routes to entry #4 The Scene (event-shaped narrative) or entry #6 Community & Lore (culture-shaped narrative). No dedicated cross-cutting page-type.
+6. **Live tournament creation tool** (real one, not stopgap) -- tournaments.quake.world Phase 2. Qwicky-revival possible interim outside wiki.
+7. **Stats analytics / cross-season ELO / "best player of all time" queries** -- hub V2 enhancement layer.
+8. **Public-web beginner onboarding flow** ("first hour of QW") -- slipgate-app (replaces decade-old nQuake installer). NOT wiki's job; out of arc scope.
+9. **Hardware / pro-player configs / settings comparison** -- community-managed elsewhere; low priority; NOT wiki.
+10. **Streaming / content creator / VOD discovery** -- quake.world frontpage (fav-vods channel exists in xantom's dev server). NOT wiki.
+11. **Translations / non-English documentation** -- explicit non-goal v1; English-only.
+
+**Future-arc captures (kept on radar; out of v1 scope but documented):**
+
+- **Timeline view (derived, filterable)** -- architectural surface aggregating content chronologically across tournaments / modes / distributions / client+server tech releases. Pulls from multiple wiki + federation sources. Sparse until content accumulates. Operator-named vision (Pass 4 4.2 amendment); architecture-pass + own arc later when data density supports it.
+- **Pipeline-mechanics tooling arc** (deferred / lower-stakes) -- curator workflow tools, search interface, draft suggestions, similarity match. Tools that assist (not replace) the curator. Consumes wiki + Layer 1 + Layer 3 corpus. May or may not materialize.
+
+### 4.6 Stakeholder-pitch framing -- LOCKED
+
+**Purpose:** one-paragraph pitch for cutover communication to old-wiki contributors, plus brief Q&A addressing predictable objections. Carries forward to Pass 5 (contributor model + on-ramp messaging) and to the architecture pass (actual cutover communication adapts the same content per channel).
+
+**The pitch:**
+
+> The new QWiki is the upgrade taken to its logical extreme, with URL preservation locked. Scope deliberately narrows to what wikis are irreducibly good at -- prose, crosslinks, multi-author narrative, community memory. The structured / dynamic stuff (match results, brackets, player profiles, asset binaries, map data) moves to quake.world's federation surfaces (hub / assets / tournaments) where it's done better. The old wiki becomes a read-only archive with URLs preserved indefinitely -- nothing deleted, external code references survive, exhaustive history stays accessible. The new wiki holds modes / mechanics / distributions / tutorials / Hall of Fame / community memory: where prose and crosslinks earn their place.
+
+**Common-objections Q&A:**
+
+- **"Are you deleting my work?"** No. Old wiki is preserved as a read-only archive with URLs intact. Nothing deleted; exhaustive history accessible indefinitely.
+- **"Won't this fragment the community?"** Most active old-wiki contributors (tournament organizers, mode authors, mechanic writers, Alice) work in domains the new wiki still serves. The split is between exhaustive-archivist roles (old wiki archive) and living-substrate roles (new wiki) -- both legitimate.
+- **"Why narrow scope?"** The wiki form was always strongest at prose-and-crosslinks. Structured data fights the form. quake.world's federation surfaces handle structured / dynamic better; the new wiki keeps what only wiki does well, done properly.
+- **"Same URLs as old?"** Yes. Same slugs map to same URLs. KTX source linking to wiki pages still works.
+- **"What about the player pages?"** Substantial, content-rich player profiles preserved (~100-200). The 5,000+ stubs go away -- Hub V2 will produce richer profiles automatically (auto-generated from match data via xantom's parsers).
+
+**Carry-forwards:**
+
+- **To Pass 5 (contributor model):** the pitch's "credentialed-but-not-curatorial on-ramp" framing meets the contributor model. Pass 5 settles on-ramp mechanics (Discord OAuth + Quad-bot auto-provisioning candidate locked from Pass 1) + structure-vs-freedom balance.
+- **To architecture pass (cutover communication):** the pitch + Q&A here is the seed for actual cutover messaging. Adapt to channel (forum post / Discord announcement / email to known contributors). Same content, different framing per audience.
 
 ## Pass 5 -- contributor model + freedom-vs-structure -- pending
 

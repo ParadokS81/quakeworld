@@ -1,5 +1,7 @@
 # QWiki sandbox -- Pass 4 handoff (wiki's unique role + SHOULD list)
 
+> **STATUS: Pass 4 COMPLETE 2026-05-12.** All 6 sub-questions (4.1 through 4.6) locked and drained to `docs/superpowers/specs/2026-05-09-qwiki-fresh-build-vision.md`. Visual companion at `docs/superpowers/specs/2026-05-11-qwiki-nav-and-page-structure-sketch.html` (v3). Next handoff: `docs/superpowers/parking/2026-05-12-qwiki-sandbox-pass5-handoff.md`.
+
 **Use as the literal first message in a fresh `claude` terminal opened in `/home/paradoks/projects/quakeworld/`.**
 
 This is the fourth arc-brainstormer entry point for the qwiki-sandbox arc. Passes 1-3 closed. Pass 4 synthesizes the wiki's *unique slot* in the ecosystem (Pass 3 produced the map; Pass 4 reads the wiki's row off it and names what only the wiki does well) and locks the SHOULD list (kinds of content the wiki should host, with rationale).
