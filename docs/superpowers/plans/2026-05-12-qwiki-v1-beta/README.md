@@ -30,15 +30,18 @@ If you're the fresh terminal that's about to draft a phase, also read:
 
 ## Phase index
 
-**Slicing analysis pending.** The phase index lands here after operator + arc-planner walk slicing options (verification-regime rule + context-budget projection + LLM-default vertical bias). Expected shape: ~4 horizontal substrate phases + ~4-5 vertical Modes phases.
+8 phases: 4 horizontal substrate + 4 vertical Modes. Pattern: horizontal foundation then vertical end-to-end (same shape as qw-oracle Arc 1's Phases 1-5 + 6-8 split).
 
-| Phase | Status | MD | Deliverable | Runnable state at end |
-|---|---|---|---|---|
-| 1 | not started | tbd (phase-1-*.md) | tbd | tbd |
-| 2 | not started | tbd | tbd | tbd |
-| 3 | not started | tbd | tbd | tbd |
-| 4 | not started | tbd | tbd | tbd |
-| ... | ... | ... | ... | ... |
+| # | Status | Shape | Drafter prompt | MD (drafted) | Deliverable | Runnable state at end |
+|---|---|---|---|---|---|---|
+| 1 | not started | substrate | [phase-1-drafter-prompt.md](phase-1-drafter-prompt.md) | tbd (`phase-1-mw-core.md`) | MW 1.39 + MariaDB 10.11 + Citizen on Unraid + Cloudflare Tunnel + `wiki-beta.quake.world` | URL returns HTTP 200; Citizen skin loads; anon edit blocked |
+| 2 | not started | substrate | [phase-2-drafter-prompt.md](phase-2-drafter-prompt.md) | tbd (`phase-2-extensions.md`) | Page Forms + Semantic MediaWiki installed | Special:Version shows extensions; smwadmin clean; test form renders |
+| 3 | not started | substrate | [phase-3-drafter-prompt.md](phase-3-drafter-prompt.md) | tbd (`phase-3-auth-groups.md`) | PluggableAuth + Discord OAuth + `wiki-contributor` / `wiki-curator` + namespace restrictions | Discord login flow works; contributor lands in right group; namespace gates enforce |
+| 4 | not started | substrate | [phase-4-drafter-prompt.md](phase-4-drafter-prompt.md) | tbd (`phase-4-discipline-harvest.md`) | Quality-tag categories + URL slug authoring rule + Layer 3 harvest path verified against test page | Three categories exist; test-page harvest -> oracle MCP returns harvested chunk |
+| 5 | not started | Modes | [phase-5-drafter-prompt.md](phase-5-drafter-prompt.md) | tbd (`phase-5-mode-page-type.md`) | Mode form + template + Modes Layer B category + Track C help-text | Form:Mode renders; test mode page submits with bones+slots; Category:Modes lists it |
+| 6 | not started | Modes | [phase-6-drafter-prompt.md](phase-6-drafter-prompt.md) | tbd (`phase-6-modes-curator.md`) | Modes curator tool at `apps/qwiki-sandbox/scripts/curate-modes/` + smoke triage 3-5 modes | Tool launches; inventory loads; smoke triage pauseable+resumable proven |
+| 7 | not started | Modes | [phase-7-drafter-prompt.md](phase-7-drafter-prompt.md) | tbd (`phase-7-triage-author.md`) | Complete 27-mode triage + flagship modes substantial + non-flagship per disposition | 27 dispositions recorded; flagship-substantial threshold met; skeletons exist for new-build modes |
+| 8 | not started | Modes | [phase-8-drafter-prompt.md](phase-8-drafter-prompt.md) | tbd (`phase-8-harvest-verification.md`) | Harvest flagship modes -> oracle Layer 3 + MCP query verification | N concept-notes loaded; MCP `search_concepts` returns harvested mode content with strong match_quality |
 
 Status progression per phase: `not started` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
 
