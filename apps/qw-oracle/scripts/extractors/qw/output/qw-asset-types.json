@@ -1,0 +1,3472 @@
+{
+  "_stats": {
+    "asset_type_count": 21,
+    "types_with_l1_evidence_ezquake": 15,
+    "types_with_l1_evidence_fte": 13,
+    "types_with_stock_origin": 9,
+    "total_l1_evidence_refs_ezquake": 96,
+    "total_l1_evidence_refs_fte": 243,
+    "total_stock_origin_refs": 362
+  },
+  "project": "qw",
+  "extracted_at": "2026-05-12T21:37:00+00:00",
+  "asset_types": [
+    {
+      "asset_type": "conback",
+      "description": "Console background image displayed before connecting to a server.",
+      "engine_canonical_paths": [
+        "gfx/conback.<ext>"
+      ],
+      "engine_extensions": [
+        ".lmp",
+        ".png",
+        ".tga",
+        ".jpg"
+      ],
+      "filename_constraint": {
+        "kind": "hardcoded",
+        "pattern": "conback.<ext>",
+        "rename_required": true
+      },
+      "user_install_paths": [
+        "qw/gfx/conback.<ext>"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".png",
+          "magic_hex": "89504E470D0A1A0A",
+          "offset": 0
+        },
+        {
+          "ext": ".jpg",
+          "magic_hex": "FFD8FF",
+          "offset": 0
+        },
+        {
+          "ext": ".lmp",
+          "magic_hex": null,
+          "notes": "Raw indexed image; 320x200 stock dimensions."
+        },
+        {
+          "ext": ".tga",
+          "magic_hex": null,
+          "notes": "No magic; structural detection."
+        }
+      ],
+      "corpus_categories": [
+        "Conbacks"
+      ],
+      "notes": "Stock pak0 ships gfx/conback.lmp. Custom overrides install to\nqw/gfx/conback.<ext> and shadow the stock via engine search-path\nprecedence (qw/ wins over id1/), not via file replacement.\n",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_InitConback_1"
+        ],
+        "fte": [
+          "fte:loader_site:R_RegisterCustom_r_2d_R2D_Conback_Callback_1",
+          "fte:loader_site:R_RegisterPic_r_2d_R2D_Conback_Callback_1",
+          "fte:loader_site:R_RegisterPic_r_2d_R2D_Conback_Callback_2",
+          "fte:loader_site:R_RegisterPic_r_2d_R2D_Conback_Callback_3",
+          "fte:loader_site:R_RegisterPic_r_2d_R2D_Conback_Callback_4",
+          "fte:loader_site:R_RegisterShader_r_2d_R2D_Conback_Callback_1"
+        ]
+      },
+      "stock_origins": [
+        {
+          "source": "id1/pak0",
+          "path": "gfx/conback.lmp",
+          "size": 64008,
+          "xxh3_128": "007d2c01d76b456da88ae0fc9ea339ce"
+        }
+      ]
+    },
+    {
+      "asset_type": "charset",
+      "description": "Console text font (charset texture, 16x16 grid of 8x8 glyphs).",
+      "engine_canonical_paths": [
+        "gfx/conchars.lmp",
+        "textures/charsets/<name>"
+      ],
+      "engine_extensions": [
+        ".lmp",
+        ".png",
+        ".tga",
+        ".bmp",
+        ".pcx"
+      ],
+      "filename_constraint": {
+        "kind": "templated",
+        "pattern": "<cvar:gl_consolefont>.<ext>",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/textures/charsets/<name>.<ext>"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".png",
+          "magic_hex": "89504E470D0A1A0A",
+          "offset": 0
+        },
+        {
+          "ext": ".pcx",
+          "magic_hex": "0A",
+          "offset": 0,
+          "notes": "Byte 0=0x0A; byte 1 = version (typically 5)."
+        },
+        {
+          "ext": ".bmp",
+          "magic_hex": "424D",
+          "offset": 0
+        },
+        {
+          "ext": ".tga",
+          "magic_hex": null
+        },
+        {
+          "ext": ".lmp",
+          "magic_hex": null
+        }
+      ],
+      "corpus_categories": [
+        "Charsets",
+        "Charsets / 256x256",
+        "Charsets / 512x512",
+        "Charsets / 1024x1024 or larger"
+      ],
+      "notes": "ezQuake loads via `gl_consolefont <name>` cvar; FTE has a separate mechanism.",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Draw_LoadCharset_1",
+          "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Load_Locale_Charset_1"
+        ],
+        "fte": []
+      },
+      "stock_origins": []
+    },
+    {
+      "asset_type": "crosshair",
+      "description": "HUD crosshair image overlay drawn over the viewport.",
+      "engine_canonical_paths": [
+        "crosshairs/<name>"
+      ],
+      "engine_extensions": [
+        ".png",
+        ".tga",
+        ".pcx"
+      ],
+      "filename_constraint": {
+        "kind": "templated",
+        "pattern": "<cvar:crosshairimage>.<ext>",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/crosshairs/<name>.<ext>"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".png",
+          "magic_hex": "89504E470D0A1A0A",
+          "offset": 0
+        },
+        {
+          "ext": ".pcx",
+          "magic_hex": "0A",
+          "offset": 0
+        },
+        {
+          "ext": ".tga",
+          "magic_hex": null
+        }
+      ],
+      "corpus_categories": [
+        "Crosshairs",
+        "Crosshairs / Transparent"
+      ],
+      "notes": "Engine loads via `crosshairimage <name>` cvar (no extension; engine probes .png/.tga/.pcx).\nNo stock origin -- built-in crosshair glyphs live inside the charset, not a separate file.\n",
+      "l1_evidence": {
+        "ezquake": [],
+        "fte": []
+      },
+      "stock_origins": []
+    },
+    {
+      "asset_type": "palette",
+      "description": "256-color palette for indexed-color rendering (768 bytes, 256 RGB triplets).",
+      "engine_canonical_paths": [
+        "gfx/palette.lmp"
+      ],
+      "engine_extensions": [
+        ".lmp"
+      ],
+      "filename_constraint": {
+        "kind": "hardcoded",
+        "pattern": "palette.lmp",
+        "rename_required": true
+      },
+      "user_install_paths": [
+        "qw/gfx/palette.lmp"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".lmp",
+          "magic_hex": null,
+          "notes": "Exactly 768 bytes of raw RGB data."
+        }
+      ],
+      "corpus_categories": [],
+      "notes": "Stock-only; rarely overridden. Listed for completeness.",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:W_LoadWadFile_r_draw_Draw_Init_1"
+        ],
+        "fte": [
+          "fte:loader_site:COM_LoadFile_wad_W_LoadWadFile_1"
+        ]
+      },
+      "stock_origins": [
+        {
+          "source": "id1/pak0",
+          "path": "gfx/palette.lmp",
+          "size": 768,
+          "xxh3_128": "a2e88bd500c4a45dc1fbf2586ada3378"
+        }
+      ]
+    },
+    {
+      "asset_type": "colormap",
+      "description": "256x64 light/color shift lookup table for software-renderer-era rendering.",
+      "engine_canonical_paths": [
+        "gfx/colormap.lmp"
+      ],
+      "engine_extensions": [
+        ".lmp"
+      ],
+      "filename_constraint": {
+        "kind": "hardcoded",
+        "pattern": "colormap.lmp",
+        "rename_required": true
+      },
+      "user_install_paths": [
+        "qw/gfx/colormap.lmp"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".lmp",
+          "magic_hex": null,
+          "notes": "16,384 bytes (256*64 palette indices)."
+        }
+      ],
+      "corpus_categories": [],
+      "notes": "Stock-only.",
+      "l1_evidence": {
+        "ezquake": [],
+        "fte": []
+      },
+      "stock_origins": [
+        {
+          "source": "id1/pak0",
+          "path": "gfx/colormap.lmp",
+          "size": 16385,
+          "xxh3_128": "8d0b30266ec590da93ef8f41350bdda8"
+        }
+      ]
+    },
+    {
+      "asset_type": "hud_element",
+      "description": "HUD overlay element (numbers, faces, weapon icons) replacing gfx.wad lumps.",
+      "engine_canonical_paths": [
+        "textures/wad/<name>",
+        "textures/wad3/<name>",
+        "textures/halflife/<name>"
+      ],
+      "engine_extensions": [
+        ".png",
+        ".tga",
+        ".jpg"
+      ],
+      "filename_constraint": {
+        "kind": "templated",
+        "pattern": "<wad_lump_name>.<ext>",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/textures/wad/<name>.<ext>"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".png",
+          "magic_hex": "89504E470D0A1A0A",
+          "offset": 0
+        },
+        {
+          "ext": ".jpg",
+          "magic_hex": "FFD8FF",
+          "offset": 0
+        },
+        {
+          "ext": ".tga",
+          "magic_hex": null
+        }
+      ],
+      "corpus_categories": [
+        "HUD",
+        "HUD / Face and Armor",
+        "HUD / Icons",
+        "HUD / Numbers",
+        "HUD / Sets",
+        "HUD / Weapon"
+      ],
+      "notes": "Filename matches the WAD lump name being replaced (num_0, num_1, face1, ...).\nStock HUD elements ship inside id1/gfx.wad; the texture-replacement system\nfinds external override files at textures/wad/<name>.<ext>.\n",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_1",
+          "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_2",
+          "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_3",
+          "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_4",
+          "ezquake:loader_site:Draw_CachePicSafe_cl_screen_SCR_LoadCursorImage_1",
+          "ezquake:loader_site:Draw_CachePicSafe_cl_screen_SCR_LoadCursorImage_2",
+          "ezquake:loader_site:Draw_CachePicSafe_common_draw_Draw_BigFontAvailable_1",
+          "ezquake:loader_site:Draw_CachePicSafe_ez_button_EZ_button_SetHoverImage_1",
+          "ezquake:loader_site:Draw_CachePicSafe_ez_button_EZ_button_SetNormalImage_1",
+          "ezquake:loader_site:Draw_CachePicSafe_ez_button_EZ_button_SetPressedImage_1",
+          "ezquake:loader_site:Draw_CachePicSafe_ez_button_EZ_button_SetToggledHoverImage_1",
+          "ezquake:loader_site:Draw_CachePicSafe_ez_controls_EZ_control_SetBackgroundImage_1",
+          "ezquake:loader_site:Draw_CachePicSafe_hud_262_Hud_Add_f_1",
+          "ezquake:loader_site:Draw_CachePicSafe_hud_groups_SCR_HUD_LoadGroupPic_1",
+          "ezquake:loader_site:Draw_CachePicSafe_r_draw_Draw_CachePic_1",
+          "ezquake:loader_site:Draw_CachePicSafe_r_draw_Draw_ConsoleBackground_1",
+          "ezquake:loader_site:Draw_CachePicSafe_r_draw_OnChange_crosshairimage_1",
+          "ezquake:loader_site:Draw_CachePicSafe_r_draw_charset_R_Draw_CharacterBase_1",
+          "ezquake:loader_site:Draw_CachePicSafe_settings_page_Setting_DrawSkinPreview_1",
+          "ezquake:loader_site:FS_OpenVFS_r_draw_Draw_CachePicSafe_1",
+          "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_1",
+          "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_2",
+          "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_3",
+          "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_4",
+          "ezquake:loader_site:R_LoadPicImage_hud_radar_HUD_NewRadarMap_1",
+          "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CachePicSafe_1",
+          "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CachePicSafe_2",
+          "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CacheWadPic_1",
+          "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CacheWadPic_2",
+          "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_InitConback_1",
+          "ezquake:loader_site:R_LoadPicImage_r_draw_OnChange_scr_conpicture_1",
+          "ezquake:loader_site:R_LoadPicImage_vx_tracker_VX_TrackerInit_1"
+        ],
+        "fte": [
+          "fte:loader_site:FS_FLocateFile_com_mesh_Mod_ParseMD5MeshModel_1",
+          "fte:loader_site:FS_FLocateFile_com_mesh_Mod_ParseMD5MeshModel_2",
+          "fte:loader_site:FS_LoadFile_gl_font_Font_LoadHexen2Conchars_1",
+          "fte:loader_site:FS_LoadFile_m_items_Draw_Hexen2BigFontString_1",
+          "fte:loader_site:FS_LoadFile_m_multi_MSetup_TransDraw_1",
+          "fte:loader_site:FS_LoadFile_m_multi_MSetup_TransDraw_2",
+          "fte:loader_site:FS_LoadFile_m_multi_MSetup_TransDraw_3",
+          "fte:loader_site:FS_OpenVFS_common_COM_CheckRegistered_1",
+          "fte:loader_site:FS_OpenVFS_image_Image_FixupImageSize_2",
+          "fte:loader_site:R_RegisterPic_console_Con_DrawConsoleLines_1",
+          "fte:loader_site:R_RegisterPic_console_Con_DrawConsoleLines_2",
+          "fte:loader_site:R_RegisterPic_console_Con_DrawConsole_1",
+          "fte:loader_site:R_RegisterPic_console_Con_DrawConsole_2",
+          "fte:loader_site:R_RegisterPic_m_download_MD_Download_UpdateStatus_1",
+          "fte:loader_site:R_RegisterPic_m_single_M_Menu_LoadSave_Preview_Draw_1",
+          "fte:loader_site:R_RegisterPic_m_single_M_Menu_LoadSave_Preview_Draw_2",
+          "fte:loader_site:R_RegisterPic_pr_csqc_PR_R_PolygonShader_1",
+          "fte:loader_site:R_RegisterPic_r_2d_R2D_Conback_Callback_1",
+          "fte:loader_site:R_RegisterPic_r_2d_R2D_Conback_Callback_2",
+          "fte:loader_site:R_RegisterPic_r_2d_R2D_Conback_Callback_3",
+          "fte:loader_site:R_RegisterPic_r_2d_R2D_Conback_Callback_4",
+          "fte:loader_site:R_RegisterPic_r_2d_R2D_LoadAtlasedPic_1",
+          "fte:loader_site:R_RegisterPic_r_2d_R2D_SafeCachePic_1"
+        ]
+      },
+      "stock_origins": [
+        {
+          "source": "id1/pak0",
+          "path": "gfx.wad",
+          "size": 112828,
+          "xxh3_128": "4a9a027b2435e37f940bfd13dc652669"
+        }
+      ]
+    },
+    {
+      "asset_type": "wad_file",
+      "description": "WAD2/WAD3 archive containing HUD lumps or map textures.",
+      "engine_canonical_paths": [
+        "<name>.wad"
+      ],
+      "engine_extensions": [
+        ".wad"
+      ],
+      "filename_constraint": {
+        "kind": "free",
+        "pattern": "*.wad",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/<name>.wad"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".wad",
+          "magic_hex": "57414432",
+          "offset": 0,
+          "notes": "\"WAD2\" magic; Quake-style."
+        },
+        {
+          "ext": ".wad",
+          "magic_hex": "57414433",
+          "offset": 0,
+          "notes": "\"WAD3\" magic; Half-Life-style; ezQuake/FTE understand it."
+        }
+      ],
+      "corpus_categories": [
+        "HUD / WADs"
+      ],
+      "notes": "Engine reads WAD files at gamedir root (qw/<name>.wad). Map authors reference them\nvia worldspawn.wad. id1/gfx.wad is the stock HUD wad that hud_element overrides target.\n",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:FS_OpenVFS_fs_FS_InitFilesystem_1",
+          "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_1",
+          "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_2",
+          "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_3",
+          "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_4",
+          "ezquake:loader_site:W_LoadWadFile_r_draw_Draw_Init_1"
+        ],
+        "fte": [
+          "fte:loader_site:COM_LoadFile_wad_W_LoadWadFile_1"
+        ]
+      },
+      "stock_origins": [
+        {
+          "source": "id1/pak0",
+          "path": "gfx.wad",
+          "size": 112828,
+          "xxh3_128": "4a9a027b2435e37f940bfd13dc652669"
+        }
+      ]
+    },
+    {
+      "asset_type": "skybox",
+      "description": "Six-image cubemap (right/left/front/back/up/down) installed into env/.",
+      "engine_canonical_paths": [
+        "env/<skyname>rt.<ext>",
+        "env/<skyname>lf.<ext>",
+        "env/<skyname>ft.<ext>",
+        "env/<skyname>bk.<ext>",
+        "env/<skyname>up.<ext>",
+        "env/<skyname>dn.<ext>"
+      ],
+      "engine_extensions": [
+        ".tga",
+        ".png",
+        ".jpg"
+      ],
+      "filename_constraint": {
+        "kind": "templated",
+        "pattern": "<skyname><suffix>.<ext>",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/env/<skyname><suffix>.<ext>"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".png",
+          "magic_hex": "89504E470D0A1A0A",
+          "offset": 0
+        },
+        {
+          "ext": ".jpg",
+          "magic_hex": "FFD8FF",
+          "offset": 0
+        },
+        {
+          "ext": ".tga",
+          "magic_hex": null
+        }
+      ],
+      "corpus_categories": [
+        "Other / Skyboxes"
+      ],
+      "notes": "Six-file set; suffix conventions vary (_rt vs rt; some engines accept either case).\nSkybox name comes from worldspawn.sky in the BSP, or the sky cvar.\nL1 evidence likely empty -- the skybox loader function may be missing from the\nqw-oracle extractor watchlist (flag for backlog).\n",
+      "l1_evidence": {
+        "ezquake": [],
+        "fte": [
+          "fte:loader_site:R_LoadHiResTexture_gl_warp_R_SetSky_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_warp_R_SetSky_2",
+          "fte:loader_site:R_RegisterShader_gl_warp_R_SetSky_1",
+          "fte:loader_site:R_RegisterShader_gl_warp_R_SetSky_2",
+          "fte:loader_site:R_RegisterShader_gl_warp_R_SetSky_3"
+        ]
+      },
+      "stock_origins": []
+    },
+    {
+      "asset_type": "levelshot",
+      "description": "Map intermission preview image shown at end-of-level / map selection.",
+      "engine_canonical_paths": [
+        "textures/levelshots/<mapname>.<ext>",
+        "levelshots/<mapname>.<ext>"
+      ],
+      "engine_extensions": [
+        ".tga",
+        ".png",
+        ".jpg"
+      ],
+      "filename_constraint": {
+        "kind": "templated",
+        "pattern": "<mapname>.<ext>",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/textures/levelshots/<mapname>.<ext>"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".png",
+          "magic_hex": "89504E470D0A1A0A",
+          "offset": 0
+        },
+        {
+          "ext": ".jpg",
+          "magic_hex": "FFD8FF",
+          "offset": 0
+        },
+        {
+          "ext": ".tga",
+          "magic_hex": null
+        }
+      ],
+      "corpus_categories": [
+        "Other / Levelshots"
+      ],
+      "notes": "ezQuake-specific; filename matches the map's canonical name.",
+      "l1_evidence": {
+        "ezquake": [],
+        "fte": []
+      },
+      "stock_origins": []
+    },
+    {
+      "asset_type": "player_skin",
+      "description": "Player-model skin replacement loaded via teamskin/enemyskin cvars.",
+      "engine_canonical_paths": [
+        "skins/<skinname>.<ext>"
+      ],
+      "engine_extensions": [
+        ".pcx",
+        ".tga",
+        ".png"
+      ],
+      "filename_constraint": {
+        "kind": "templated",
+        "pattern": "<cvar:teamskin|enemyskin>.<ext>",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/skins/<skinname>.<ext>"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".pcx",
+          "magic_hex": "0A",
+          "offset": 0
+        },
+        {
+          "ext": ".tga",
+          "magic_hex": null
+        },
+        {
+          "ext": ".png",
+          "magic_hex": "89504E470D0A1A0A",
+          "offset": 0
+        }
+      ],
+      "corpus_categories": [
+        "Skins",
+        "Skins / Player Model",
+        "Skins / Gib"
+      ],
+      "notes": "Stock player skin (player.mdl skin 0) lives inside id1/progs/player.mdl, not as\na separate file. Replacement is loaded via /teamskin and /enemyskin cvars naming\na file in qw/skins/.\n",
+      "l1_evidence": {
+        "ezquake": [],
+        "fte": [
+          "fte:loader_site:COM_LoadTempFile_renderer_R_ApplyRenderer_Load_1",
+          "fte:loader_site:FS_LoadFile_gl_q2bsp_CM_GetQ2Palette_1"
+        ]
+      },
+      "stock_origins": []
+    },
+    {
+      "asset_type": "model_q1",
+      "description": "Quake-format alias model (.mdl) for players, weapons, monsters, items.",
+      "engine_canonical_paths": [
+        "progs/<name>.mdl"
+      ],
+      "engine_extensions": [
+        ".mdl"
+      ],
+      "filename_constraint": {
+        "kind": "free",
+        "pattern": "*.mdl",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/progs/<name>.mdl"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".mdl",
+          "magic_hex": "4944504F",
+          "offset": 0,
+          "notes": "\"IDPO\" magic; Quake 1 alias model."
+        }
+      ],
+      "corpus_categories": [
+        "Models",
+        "Models / Armor",
+        "Models / Item",
+        "Models / Sets",
+        "Models / Team Fortress",
+        "Models / Weapon"
+      ],
+      "notes": "Stock player/weapon/monster/item models ship in id1/pak0. Embedded skins live\ninside the .mdl file; external skin replacement uses the player_skin or\nmodel_texture mechanism instead.\n",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:Mod_FindName_r_brushmodel_load_Mod_LoadBrushModel_1",
+          "ezquake:loader_site:Mod_FindName_r_model_Mod_ForName_1",
+          "ezquake:loader_site:Mod_FindName_r_model_Mod_TouchModel_1",
+          "ezquake:loader_site:Mod_ForName_cl_nqdemo_NQD_ParseServerData_1",
+          "ezquake:loader_site:Mod_ForName_cl_parse_Model_NextDownload_1",
+          "ezquake:loader_site:Mod_ForName_cl_parse_VWepModel_NextDownload_1",
+          "ezquake:loader_site:Mod_ForName_r_model_Mod_CustomModel_1"
+        ],
+        "fte": [
+          "fte:loader_site:FS_FLocateFile_gl_model_Mod_LoadModelWorker_1",
+          "fte:loader_site:FS_FLocateFile_gl_model_Mod_LoadModelWorker_2",
+          "fte:loader_site:Mod_FindName_cl_parse_CL_LoadModels_1",
+          "fte:loader_site:Mod_FindName_gl_heightmap_Mod_Terrain_Convert_f_1",
+          "fte:loader_site:Mod_FindName_gl_heightmap_Mod_Terrain_Reload_f_1",
+          "fte:loader_site:Mod_FindName_gl_heightmap_Mod_Terrain_Save_f_1",
+          "fte:loader_site:Mod_FindName_gl_heightmap_Terr_ReadV2_1",
+          "fte:loader_site:Mod_FindName_gl_heightmap_Terr_ReformEntitiesLump_1",
+          "fte:loader_site:Mod_FindName_gl_heightmap_Terr_WriteMapFile_1",
+          "fte:loader_site:Mod_FindName_gl_model_Mod_ForName_1",
+          "fte:loader_site:Mod_FindName_gl_model_Mod_LoadBrushModel_1",
+          "fte:loader_site:Mod_FindName_gl_model_Mod_TouchModel_1",
+          "fte:loader_site:Mod_FindName_gl_q2bsp_CM_LoadMap_1",
+          "fte:loader_site:Mod_FindName_pr_cmds_PF_resourcestatus_1",
+          "fte:loader_site:Mod_FindName_pr_cmds_PF_setmodel_Internal_1",
+          "fte:loader_site:Mod_FindName_renderer_R_ApplyRenderer_Load_1",
+          "fte:loader_site:Mod_FindName_renderer_R_ApplyRenderer_Load_2",
+          "fte:loader_site:Mod_FindName_renderer_R_ApplyRenderer_Load_3",
+          "fte:loader_site:Mod_FindName_renderer_R_ApplyRenderer_Load_4",
+          "fte:loader_site:Mod_FindName_renderer_R_ApplyRenderer_Load_5",
+          "fte:loader_site:Mod_FindName_sv_init_SV_ModelIndex_1",
+          "fte:loader_site:Mod_FindName_sv_init_SV_SpawnServer_1",
+          "fte:loader_site:Mod_FindName_svq2_game_PFQ2_setmodel_1",
+          "fte:loader_site:Mod_ForName_cl_ents_CL_LinkViewModel_1",
+          "fte:loader_site:Mod_ForName_cl_parse_CLQ2_UpdateConfigString_1",
+          "fte:loader_site:Mod_ForName_cl_parse_CL_DownloadFinished_1",
+          "fte:loader_site:Mod_ForName_cl_parse_CL_DownloadFinished_2",
+          "fte:loader_site:Mod_ForName_cl_parse_CL_DownloadFinished_3",
+          "fte:loader_site:Mod_ForName_cl_parse_CL_LoadModels_1",
+          "fte:loader_site:Mod_ForName_cl_parse_CL_LoadModels_2",
+          "fte:loader_site:Mod_ForName_cl_parse_CL_LoadModels_3",
+          "fte:loader_site:Mod_ForName_cl_parse_CL_LoadModels_4",
+          "fte:loader_site:Mod_ForName_cl_parse_CL_NewTranslation_1",
+          "fte:loader_site:Mod_ForName_cl_parse_CL_NewTranslation_2",
+          "fte:loader_site:Mod_ForName_cl_parse_CL_ParseModellist_1",
+          "fte:loader_site:Mod_ForName_cl_parse_CL_ParseModellist_2",
+          "fte:loader_site:Mod_ForName_cl_parse_CL_ParsePrecache_1",
+          "fte:loader_site:Mod_ForName_cl_parse_CL_ParseStuffCmd_1",
+          "fte:loader_site:Mod_ForName_cl_tent_CL_AddBeam_1",
+          "fte:loader_site:Mod_ForName_cl_tent_CL_ParseTEnt_1",
+          "fte:loader_site:Mod_ForName_cl_tent_CL_ParseTEnt_2",
+          "fte:loader_site:Mod_ForName_cl_tent_CL_SmokeAndFlash_1",
+          "fte:loader_site:Mod_ForName_cl_tent_CL_SmokeAndFlash_2",
+          "fte:loader_site:Mod_ForName_cl_tent_CL_UpdateBeams_1",
+          "fte:loader_site:Mod_ForName_cl_tent_CL_UpdateBeams_2",
+          "fte:loader_site:Mod_ForName_clq2_ents_CLQ2_AddPacketEntities_1",
+          "fte:loader_site:Mod_ForName_clq2_ents_CLQ2_AddPacketEntities_2",
+          "fte:loader_site:Mod_ForName_clq2_ents_CLQ2_AddPacketEntities_3",
+          "fte:loader_site:Mod_ForName_clq2_ents_CLQ2_AddPacketEntities_4",
+          "fte:loader_site:Mod_ForName_clq2_ents_CLQ2_AddPacketEntities_5",
+          "fte:loader_site:Mod_ForName_console_Con_DrawMouseOver_1",
+          "fte:loader_site:Mod_ForName_gl_heightmap_Terr_AddMesh_1",
+          "fte:loader_site:Mod_ForName_gl_model_Mod_SaveEntFile_f_1",
+          "fte:loader_site:Mod_ForName_gl_model_Mod_ShowEnt_f_1",
+          "fte:loader_site:Mod_ForName_m_options_M_Menu_ModelViewer_f_1",
+          "fte:loader_site:Mod_ForName_m_options_M_ModelViewerDraw_1",
+          "fte:loader_site:Mod_ForName_m_options_M_ModelViewerDraw_2",
+          "fte:loader_site:Mod_ForName_p_script_PScript_RunParticleEffectState_1",
+          "fte:loader_site:Mod_ForName_p_script_P_ParticleTrailSpawn_1",
+          "fte:loader_site:Mod_ForName_pr_cmds_PF_precache_model_Internal_1",
+          "fte:loader_site:Mod_ForName_pr_cmds_PF_setmodel_Internal_1",
+          "fte:loader_site:Mod_ForName_pr_cmds_SVPR_GetCModel_1",
+          "fte:loader_site:Mod_ForName_pr_csqc_CSQC_GetModelForIndex_1",
+          "fte:loader_site:Mod_ForName_pr_csqc_CSQC_Init_1",
+          "fte:loader_site:Mod_ForName_pr_csqc_PF_cl_effect_1",
+          "fte:loader_site:Mod_ForName_pr_csqc_PF_cs_PrecacheModel_Internal_1",
+          "fte:loader_site:Mod_ForName_pr_csqc_PF_cs_PrecacheModel_Internal_2",
+          "fte:loader_site:Mod_ForName_pr_csqc_PF_resourcestatus_1",
+          "fte:loader_site:Mod_ForName_pr_csqc_PF_resourcestatus_2",
+          "fte:loader_site:Mod_ForName_pr_csqc_csqc_setmodel_1",
+          "fte:loader_site:Mod_ForName_pr_menu_CopyMenuEdictToEntity_1",
+          "fte:loader_site:Mod_ForName_pr_menu_PF_m_getmodelindex_1",
+          "fte:loader_site:Mod_ForName_pr_menu_PF_m_precache_model_1",
+          "fte:loader_site:Mod_ForName_pr_menu_PF_m_setmodel_1",
+          "fte:loader_site:Mod_ForName_pr_skelobj_skel_generateragdoll_f_1",
+          "fte:loader_site:Mod_ForName_r_part_R_Clutter_Insert_1",
+          "fte:loader_site:Mod_ForName_renderer_R_ApplyRenderer_Load_1",
+          "fte:loader_site:Mod_ForName_renderer_R_ApplyRenderer_Load_2",
+          "fte:loader_site:Mod_ForName_renderer_R_ApplyRenderer_Load_3",
+          "fte:loader_site:Mod_ForName_renderer_R_ApplyRenderer_Load_4",
+          "fte:loader_site:Mod_ForName_sv_init_SV_SpawnServer_1",
+          "fte:loader_site:Mod_ForName_sv_init_SV_SpawnServer_2",
+          "fte:loader_site:Mod_ForName_sv_init_SV_SpawnServer_3",
+          "fte:loader_site:Mod_ForName_sv_init_SV_SpawnServer_4",
+          "fte:loader_site:Mod_ForName_sv_init_SV_SpawnServer_5",
+          "fte:loader_site:Mod_ForName_sv_init_SV_SpawnServer_6"
+        ]
+      },
+      "stock_origins": [
+        {
+          "source": "id1/pak0",
+          "path": "progs/armor.mdl",
+          "size": 44076,
+          "xxh3_128": "005481d48edc56260e96aabc194b0fdc"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/g_shot.mdl",
+          "size": 32916,
+          "xxh3_128": "a5d7e6c466afd629d6ac245365c30e5c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/g_nail.mdl",
+          "size": 34700,
+          "xxh3_128": "6d4b283f155dd45d0728f5f707027113"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/g_nail2.mdl",
+          "size": 30720,
+          "xxh3_128": "57fe6a0b3c641dc39ffc42247ce0837e"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/g_rock.mdl",
+          "size": 48244,
+          "xxh3_128": "eef5ef3557e3088b0bfa8913e1ba9155"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/g_rock2.mdl",
+          "size": 40756,
+          "xxh3_128": "d016a8dda04b76c6da9ad355924a49f7"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/g_light.mdl",
+          "size": 50276,
+          "xxh3_128": "fd823646dd91b314369dfd05edd5b20a"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/w_s_key.mdl",
+          "size": 7252,
+          "xxh3_128": "453deddfff65ff60560df9c67eb367d7"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/m_s_key.mdl",
+          "size": 12820,
+          "xxh3_128": "f0748f6e6e50c8d50ba5d17e9b17d46e"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/w_g_key.mdl",
+          "size": 7252,
+          "xxh3_128": "32735d7ddb06c52d733f63895e139838"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/m_g_key.mdl",
+          "size": 12820,
+          "xxh3_128": "a9bc09dee99c57b0d2a68a1f62438dea"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/end1.mdl",
+          "size": 20820,
+          "xxh3_128": "f878efbbb1573d7d72417697a912e9e9"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/invulner.mdl",
+          "size": 23920,
+          "xxh3_128": "95f30a307fdac7b299789e6afad25d63"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/suit.mdl",
+          "size": 51236,
+          "xxh3_128": "ccb0b20be6d2d4ef07298b965694c2b3"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/invisibl.mdl",
+          "size": 7092,
+          "xxh3_128": "f7f21f92618117c212d4bd59996c9083"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/quaddama.mdl",
+          "size": 39992,
+          "xxh3_128": "a1a2e7a5f49d0580f919746b017fd6b7"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/player.mdl",
+          "size": 191852,
+          "xxh3_128": "3111e22c196e98f11de2c04cee483d49"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/eyes.mdl",
+          "size": 4372,
+          "xxh3_128": "5c5a998afe856d0ffc43c3e6816ace82"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/h_player.mdl",
+          "size": 14708,
+          "xxh3_128": "7cb1f5507b9d48761adf4ecfd9798fb3"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/gib1.mdl",
+          "size": 5716,
+          "xxh3_128": "f798e22478d6a72368e29e0236538e85"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/gib2.mdl",
+          "size": 16228,
+          "xxh3_128": "6a1dc2c5335ce38877a5bb5ef4c5aa6e"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/gib3.mdl",
+          "size": 22228,
+          "xxh3_128": "8208f103fa535f2c80f7282124222a25"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/v_axe.mdl",
+          "size": 57908,
+          "xxh3_128": "c5b23ff90f3eb7db6b3d17086c73aeaf"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/v_shot.mdl",
+          "size": 43852,
+          "xxh3_128": "184d3911b77e318a6382f3e864613c08"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/v_nail.mdl",
+          "size": 54472,
+          "xxh3_128": "fceafe178a3784b5eac25f3220150141"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/v_rock.mdl",
+          "size": 58548,
+          "xxh3_128": "bf863f75c57fbd166cb8df67167fd36d"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/v_shot2.mdl",
+          "size": 50816,
+          "xxh3_128": "59078b2e02aafd0ef40db012d7623b47"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/v_nail2.mdl",
+          "size": 68732,
+          "xxh3_128": "4632d3fba86fb161ac8a18c784e1ca39"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/v_rock2.mdl",
+          "size": 58188,
+          "xxh3_128": "2f42a2073e579fb655e601fe5a0f6ab6"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/bolt.mdl",
+          "size": 20644,
+          "xxh3_128": "35b5823d5fd95c264a00c2665c74e75c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/bolt2.mdl",
+          "size": 11860,
+          "xxh3_128": "69b1d30a368970e6567e977f58f4fbe3"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/bolt3.mdl",
+          "size": 11860,
+          "xxh3_128": "240f247112f30c0fb5945ca128dc52eb"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/lavaball.mdl",
+          "size": 8788,
+          "xxh3_128": "686b282c695825e25904fefac8fc9530"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/missile.mdl",
+          "size": 57796,
+          "xxh3_128": "d408d6ae12101f239a22c0acda7366d7"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/grenade.mdl",
+          "size": 2244,
+          "xxh3_128": "aebf6e6c4597eb1cb597d437d377deb0"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/spike.mdl",
+          "size": 1684,
+          "xxh3_128": "248302e7348c364468482557b2ba2eca"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/s_spike.mdl",
+          "size": 1684,
+          "xxh3_128": "37ca035e0f62180f0bd7aa95b903b97d"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/backpack.mdl",
+          "size": 19348,
+          "xxh3_128": "39b4e1d96ac2fc1ce756f55f0fdf8064"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/zom_gib.mdl",
+          "size": 10196,
+          "xxh3_128": "a468c2ad7def7bc386bcb9ef617c5732"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/v_light.mdl",
+          "size": 56204,
+          "xxh3_128": "9b06fd8a905309762abca662b2db519c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/flame.mdl",
+          "size": 46364,
+          "xxh3_128": "79133e42939ae27a2358413efeb2bbbe"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/flame2.mdl",
+          "size": 64572,
+          "xxh3_128": "d4767cf3da52012ec0693dc42bb44742"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/ogre.mdl",
+          "size": 162036,
+          "xxh3_128": "f23a063552e057215b21b160af24a1b4"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/h_ogre.mdl",
+          "size": 14900,
+          "xxh3_128": "9c73dfc8eff41be82fe59e71c964694c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/demon.mdl",
+          "size": 102120,
+          "xxh3_128": "f71ca3425d08919680fe27e9851a1311"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/h_demon.mdl",
+          "size": 34884,
+          "xxh3_128": "fc0c3b093135914b1fc7cdf4b41c9750"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/shambler.mdl",
+          "size": 98556,
+          "xxh3_128": "8582ac4e397bf5d0bb8efdfb71362c8c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/s_light.mdl",
+          "size": 27596,
+          "xxh3_128": "c203586226f1dd84c86fcdd2078dcfd3"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/h_shams.mdl",
+          "size": 37060,
+          "xxh3_128": "d67959bdf96d8d08729092f1fdec8024"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/knight.mdl",
+          "size": 101404,
+          "xxh3_128": "143f0c4296fcd9672360c68a4383fb38"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/h_knight.mdl",
+          "size": 7156,
+          "xxh3_128": "fdbdcfdde433c90da7c83debd0424573"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/soldier.mdl",
+          "size": 146288,
+          "xxh3_128": "cb659859228290405e06b975c2c6229d"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/h_guard.mdl",
+          "size": 5428,
+          "xxh3_128": "27d7224b6cb56f3ce85f16086980a46c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/wizard.mdl",
+          "size": 64472,
+          "xxh3_128": "c2bbd4d3e9c2b14498d9b8dcecb1bf8b"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/h_wizard.mdl",
+          "size": 14804,
+          "xxh3_128": "099711d5ae69ef0c1f8615a721895e36"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/w_spike.mdl",
+          "size": 14336,
+          "xxh3_128": "01122a6785c7c674cfe70e3b40e41dc3"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/h_dog.mdl",
+          "size": 24436,
+          "xxh3_128": "7a311f2682eecf6e11da509f57b030e8"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/dog.mdl",
+          "size": 146056,
+          "xxh3_128": "ef6c855a891aea38dd05f1e9505f70e7"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/zombie.mdl",
+          "size": 186084,
+          "xxh3_128": "165ca5e9ca71b38a36ccdc8dddbbc054"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/h_zombie.mdl",
+          "size": 4484,
+          "xxh3_128": "aa3d2a84107b9963f73eadf2dd25e966"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "progs/boss.mdl",
+          "size": 211836,
+          "xxh3_128": "ed1499c2bacb147fd76da7d53582adb7"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/b_s_key.mdl",
+          "size": 5716,
+          "xxh3_128": "bc06fcd6a8fdd7f09107f1213f34812d"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/b_g_key.mdl",
+          "size": 5716,
+          "xxh3_128": "96a79dd43ca9e1952ab4e1e1da2b0af7"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/end2.mdl",
+          "size": 40980,
+          "xxh3_128": "4310b358db2b26b38a76c9fb04d2ba98"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/end3.mdl",
+          "size": 19924,
+          "xxh3_128": "5c589f4553877c4b9ba917075fc02d8c"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/end4.mdl",
+          "size": 26932,
+          "xxh3_128": "7577aca97fb890a4ac54d5861e594a3d"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/teleport.mdl",
+          "size": 13684,
+          "xxh3_128": "8ce7c332a8b202fe4e784ce213a99f1a"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/laser.mdl",
+          "size": 11348,
+          "xxh3_128": "4a2464e37d86d28459f7939cef6094de"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/tarbaby.mdl",
+          "size": 98148,
+          "xxh3_128": "78e8b2483f361e2ae8e46f01f098f224"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/hknight.mdl",
+          "size": 228400,
+          "xxh3_128": "fd4706baf12b93fcbe064d975b485bb2"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/k_spike.mdl",
+          "size": 16756,
+          "xxh3_128": "7feea9c70fe9a848c2c149e45ba157f8"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/h_hellkn.mdl",
+          "size": 16628,
+          "xxh3_128": "2f1e2affd9e77ac8a07f8716dcf32c55"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/fish.mdl",
+          "size": 81900,
+          "xxh3_128": "87fff9c32b53312fd54b24766543ea8c"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/shalrath.mdl",
+          "size": 80648,
+          "xxh3_128": "41b7f35e6b842abd940ac101c0c5b2b7"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/h_shal.mdl",
+          "size": 28036,
+          "xxh3_128": "d682638e794c59f29e25954c74b6decf"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/v_spike.mdl",
+          "size": 13684,
+          "xxh3_128": "8f23889be0f2d16261c043ad40ac253b"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/enforcer.mdl",
+          "size": 160688,
+          "xxh3_128": "d2738a1ba83d8d01d0a4eea0afbdf9de"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/h_mega.mdl",
+          "size": 11828,
+          "xxh3_128": "6c62662b7bfb354a893603879269133b"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "progs/oldone.mdl",
+          "size": 103208,
+          "xxh3_128": "c1098e80f2a4e733a993b1b56d9aae82"
+        }
+      ]
+    },
+    {
+      "asset_type": "model_texture",
+      "description": "Hi-res texture replacement for a .mdl model's skin (worldmodel or viewmodel).",
+      "engine_canonical_paths": [
+        "textures/models/<modelname>.<ext>",
+        "textures/models/<modelname>_<skinindex>.<ext>"
+      ],
+      "engine_extensions": [
+        ".tga",
+        ".png",
+        ".jpg"
+      ],
+      "filename_constraint": {
+        "kind": "templated",
+        "pattern": "<modelname>[_<skinindex>].<ext>",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/textures/models/<modelname>.<ext>"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".png",
+          "magic_hex": "89504E470D0A1A0A",
+          "offset": 0
+        },
+        {
+          "ext": ".jpg",
+          "magic_hex": "FFD8FF",
+          "offset": 0
+        },
+        {
+          "ext": ".tga",
+          "magic_hex": null
+        }
+      ],
+      "corpus_categories": [
+        "Textures / Armor",
+        "Textures / Backpack",
+        "Textures / Team Fortress",
+        "Textures / Weapon"
+      ],
+      "notes": "Replaces the skin baked into a .mdl. Filename matches the model name\n(v_axe -> v_axe.tga, or v_axe_0.tga for skin index 0).\nDistinct from hud_element (HUD overlays) and map_texture (BSP-embedded textures).\n",
+      "l1_evidence": {
+        "ezquake": [],
+        "fte": []
+      },
+      "stock_origins": []
+    },
+    {
+      "asset_type": "map",
+      "description": "BSP map geometry file (.bsp).",
+      "engine_canonical_paths": [
+        "maps/<mapname>.bsp"
+      ],
+      "engine_extensions": [
+        ".bsp"
+      ],
+      "filename_constraint": {
+        "kind": "free",
+        "pattern": "*.bsp",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/maps/<mapname>.bsp"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".bsp",
+          "magic_hex": "1D000000",
+          "offset": 0,
+          "notes": "V29 (Quake 1) int32 = 29."
+        },
+        {
+          "ext": ".bsp",
+          "magic_hex": "42535032",
+          "offset": 0,
+          "notes": "\"BSP2\" (modernized format)."
+        }
+      ],
+      "corpus_categories": [
+        "Maps",
+        "Maps / DMM4"
+      ],
+      "notes": "Stock id1 ships e1m1-e4m8, dm1-dm6, start, end, plus b_*.bsp ammo box \"maps\"\n(technically BSPs; filtered as non-playable). ezQuake L1 doesn't currently\nhave a `map` reads_category_id -- CM_OpenMap's site shows up with cat=null.\n",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:FS_OpenVFS_cmodel_CM_OpenMap_1",
+          "ezquake:loader_site:Mod_FindName_r_brushmodel_load_Mod_LoadBrushModel_1"
+        ],
+        "fte": [
+          "fte:loader_site:FS_FLocateFile_sv_ccmds_SV_Map_f_2",
+          "fte:loader_site:Mod_FindName_gl_model_Mod_LoadBrushModel_1"
+        ]
+      },
+      "stock_origins": [
+        {
+          "source": "id1/pak0",
+          "path": "maps/b_bh10.bsp",
+          "size": 3936,
+          "xxh3_128": "ac1402cc5675cb13936dde9d7458d72f"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/b_bh100.bsp",
+          "size": 8820,
+          "xxh3_128": "116421575c5c83ad6cdf3cbe77725ee6"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/b_bh25.bsp",
+          "size": 8872,
+          "xxh3_128": "5d8c5143ae54199823b8714c6586ca84"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/b_shell1.bsp",
+          "size": 5044,
+          "xxh3_128": "c56f62c4da24dff0206a379eb498f84a"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/b_shell0.bsp",
+          "size": 5044,
+          "xxh3_128": "a8b6dfd207bdb98cd4308c99c568424f"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/b_nail1.bsp",
+          "size": 5044,
+          "xxh3_128": "d6dd3b7fcea148942351c03fe2aa0ef9"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/b_nail0.bsp",
+          "size": 5044,
+          "xxh3_128": "d4aa45e09dd94a07d7ca710c0669fe72"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/b_rock1.bsp",
+          "size": 2944,
+          "xxh3_128": "a1e09fa900943fbfaeaa94a46adef302"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/b_rock0.bsp",
+          "size": 2956,
+          "xxh3_128": "d846600adc68eba216a0fd97a3aff6ab"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/b_batt1.bsp",
+          "size": 4620,
+          "xxh3_128": "de5499e58a587fd6756039688cb9b921"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/b_batt0.bsp",
+          "size": 5044,
+          "xxh3_128": "546174ef4bd2bf39933cc38f09cc36f3"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/b_explob.bsp",
+          "size": 10220,
+          "xxh3_128": "32bac0022f7ee768b22b532ec55ea5f3"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/start.bsp",
+          "size": 1433792,
+          "xxh3_128": "adc5bbe97985f6baaf87e015d8380df9"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/e1m1.bsp",
+          "size": 1365176,
+          "xxh3_128": "6309a2a79883c71c8b3bdf23918bbcad"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/e1m2.bsp",
+          "size": 1332228,
+          "xxh3_128": "e19183baea5eece56b1d5b25635f66a5"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/e1m3.bsp",
+          "size": 1249944,
+          "xxh3_128": "6432db26433769e461b8b55ce14e869b"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/e1m4.bsp",
+          "size": 1411452,
+          "xxh3_128": "0ad7ba47ae5af3a47454d665366e6d9c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/e1m5.bsp",
+          "size": 1324060,
+          "xxh3_128": "fba642c8fba0fe3bb0bda5efc15b0aeb"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/e1m6.bsp",
+          "size": 1065080,
+          "xxh3_128": "8c990e0611925c8638046f08feb45cd7"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/e1m7.bsp",
+          "size": 607420,
+          "xxh3_128": "387c7842f6643a94752c967f53a131b8"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "maps/e1m8.bsp",
+          "size": 924116,
+          "xxh3_128": "b5a66f59a0cb35c885843b48e5437eb3"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/b_exbox2.bsp",
+          "size": 4676,
+          "xxh3_128": "272481a8fd94d115873a79ddadc4e4b8"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e2m1.bsp",
+          "size": 1400104,
+          "xxh3_128": "c7c8916513a5ccc1c6631a0558180602"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e2m2.bsp",
+          "size": 1304244,
+          "xxh3_128": "cb48f88f84fd092e78e54975361c5f96"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e2m3.bsp",
+          "size": 1332084,
+          "xxh3_128": "ed400e86ca113936ca5bcd1083d578cd"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e2m4.bsp",
+          "size": 1298856,
+          "xxh3_128": "7e90250caecf3b7d820041f8e3f9d61e"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e2m5.bsp",
+          "size": 1368444,
+          "xxh3_128": "64b8dcbce1d86631a0369a56e8725e08"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e2m6.bsp",
+          "size": 1227392,
+          "xxh3_128": "ed7b3df2b217d9c8dc662da13b77b1a9"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e2m7.bsp",
+          "size": 1384072,
+          "xxh3_128": "1df0934c0c031937ea5c6bab2d39cdbf"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e3m1.bsp",
+          "size": 1353580,
+          "xxh3_128": "0f612ed254d9b2a475cfb40f61f815db"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e3m2.bsp",
+          "size": 1039524,
+          "xxh3_128": "8c5e80d04d18299b79c52e5fd3e0adca"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e3m3.bsp",
+          "size": 964644,
+          "xxh3_128": "cf8800c617b60255f7d401d156db5ddd"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e3m4.bsp",
+          "size": 1373132,
+          "xxh3_128": "f366a0c71ac147501f904aece804010c"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e3m5.bsp",
+          "size": 1434492,
+          "xxh3_128": "3e78ea03f84dc077c783d21c3be48a8a"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e3m6.bsp",
+          "size": 1387832,
+          "xxh3_128": "ce790fdd36ff4dfc5848151578623a36"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e3m7.bsp",
+          "size": 1072644,
+          "xxh3_128": "6349b26bcfbc716b6d7e6b0462213efe"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e4m1.bsp",
+          "size": 1362668,
+          "xxh3_128": "1b07a931fa5efc94f9e1a498df701f8f"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e4m2.bsp",
+          "size": 1125588,
+          "xxh3_128": "77da91adad6f011277eaf2a8aaf740a6"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e4m3.bsp",
+          "size": 1327056,
+          "xxh3_128": "2209783e3481c66fa320dd1f6da2b01e"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e4m4.bsp",
+          "size": 1314340,
+          "xxh3_128": "cafdf300217414616ec5bb3407ce8313"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e4m5.bsp",
+          "size": 1304524,
+          "xxh3_128": "88b8ae2fe16244780877b9d468515190"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e4m6.bsp",
+          "size": 1199816,
+          "xxh3_128": "b5e92998eb92d7f597ce069ec32f6842"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e4m7.bsp",
+          "size": 1495232,
+          "xxh3_128": "e6b6b7de0b5c5e8e405079cea357cbe2"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/e4m8.bsp",
+          "size": 1124944,
+          "xxh3_128": "4440422349a9980cebdf81c4d2d7f163"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/end.bsp",
+          "size": 467624,
+          "xxh3_128": "85517a845255293b5eff800cb05bd8ef"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/dm1.bsp",
+          "size": 547708,
+          "xxh3_128": "0e95aa0d1de2de5d86eaf8cf8d5dc21e"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/dm2.bsp",
+          "size": 907384,
+          "xxh3_128": "1e0cb13132a94bab6facfb7d2bce565f"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/dm3.bsp",
+          "size": 950200,
+          "xxh3_128": "e5e03cc8aad514c7c3550e956b2536fc"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/dm4.bsp",
+          "size": 354708,
+          "xxh3_128": "19194f3b8b56b0c6109f1751931f9671"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/dm5.bsp",
+          "size": 476836,
+          "xxh3_128": "81eb77c12ce310bdbcf12f702d305621"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "maps/dm6.bsp",
+          "size": 455852,
+          "xxh3_128": "5f06b36844288d6b56feeb9b7aaedb1f"
+        }
+      ]
+    },
+    {
+      "asset_type": "map_texture",
+      "description": "Hi-res texture override for a BSP-embedded texture (map-scoped or global).",
+      "engine_canonical_paths": [
+        "textures/<mapname>/<texname>.<ext>",
+        "textures/<texname>.<ext>"
+      ],
+      "engine_extensions": [
+        ".tga",
+        ".png",
+        ".jpg"
+      ],
+      "filename_constraint": {
+        "kind": "templated",
+        "pattern": "<bsp_texture_name>.<ext>",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/textures/<mapname>/<texname>.<ext>",
+        "qw/textures/<texname>.<ext>"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".png",
+          "magic_hex": "89504E470D0A1A0A",
+          "offset": 0
+        },
+        {
+          "ext": ".jpg",
+          "magic_hex": "FFD8FF",
+          "offset": 0
+        },
+        {
+          "ext": ".tga",
+          "magic_hex": null
+        }
+      ],
+      "corpus_categories": [
+        "Maps / Map textures",
+        "Textures",
+        "Textures / Sets"
+      ],
+      "notes": "Filename must match a texture name embedded in the target BSP's texture lump\n(cross-reference qw-bsp-textures.json). Map-scoped path wins over global.\n`#`-prefixed names (e.g. #teleport, #lava) have special semantics per gfx_faq QID 22.\n",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:R_LoadPicImage_hud_radar_HUD_NewRadarMap_1",
+          "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CachePicSafe_1",
+          "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CachePicSafe_2",
+          "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CacheWadPic_1",
+          "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CacheWadPic_2",
+          "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_InitConback_1",
+          "ezquake:loader_site:R_LoadPicImage_r_draw_OnChange_scr_conpicture_1",
+          "ezquake:loader_site:R_LoadPicImage_vx_tracker_VX_TrackerInit_1"
+        ],
+        "fte": [
+          "fte:loader_site:FS_FLocateFile_cl_parse_Model_CheckDownloads_1",
+          "fte:loader_site:R_LoadHiResTexture_cl_screen_SCR_ImageName_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_font_Font_LoadFont_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_font_Font_LoadReplacementConchars_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_font_Font_LoadReplacementConchars_2",
+          "fte:loader_site:R_LoadHiResTexture_gl_font_Font_LoadReplacementConchars_3",
+          "fte:loader_site:R_LoadHiResTexture_gl_heightmap_Terr_LoadSectionTextures_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_heightmap_Terr_LoadSectionTextures_2",
+          "fte:loader_site:R_LoadHiResTexture_gl_heightmap_Terr_LoadTexture_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_q2bsp_Mod_LoadWall_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_10",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_11",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_12",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_13",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_14",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_15",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_16",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_2",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_3",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_4",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_5",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_6",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_7",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_8",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildDefaultTexnums_9",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildLegacyTexnums_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildLegacyTexnums_2",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildLegacyTexnums_3",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildLegacyTexnums_4",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildLegacyTexnums_5",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildLegacyTexnums_6",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildLegacyTexnums_7",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_R_BuildLegacyTexnums_8",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_Shader_Default2D_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_Shader_Default2D_2",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_Shader_DefaultBSPFlare_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_Shader_FindImage_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_Shader_Finish_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_Shader_ParseSkySides_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_warp_R_SetSky_1",
+          "fte:loader_site:R_LoadHiResTexture_gl_warp_R_SetSky_2",
+          "fte:loader_site:R_LoadHiResTexture_m_items_Draw_Hexen2BigFontString_1",
+          "fte:loader_site:R_LoadHiResTexture_p_script_P_LoadTexture_1",
+          "fte:loader_site:R_LoadHiResTexture_p_script_P_LoadTexture_2",
+          "fte:loader_site:R_LoadHiResTexture_r_2d_R2D_Crosshair_Update_1",
+          "fte:loader_site:R_LoadHiResTexture_r_2d_R2D_Init_1",
+          "fte:loader_site:R_LoadHiResTexture_r_2d_R2D_Init_2",
+          "fte:loader_site:R_LoadHiResTexture_r_2d_R2D_Init_3",
+          "fte:loader_site:R_LoadHiResTexture_r_surf_Surf_NewExternalLightmaps_1",
+          "fte:loader_site:R_LoadHiResTexture_skin_Skin_WorkerLoad_1",
+          "fte:loader_site:R_LoadHiResTexture_skin_Skin_WorkerLoad_2",
+          "fte:loader_site:R_LoadHiResTexture_skin_Skin_WorkerLoad_3",
+          "fte:loader_site:R_LoadHiResTexture_skin_Skin_WorkerLoad_4",
+          "fte:loader_site:R_LoadHiResTexture_skin_Skin_WorkerLoad_5",
+          "fte:loader_site:R_RegisterCustom_clq2_ents_CLQ2_AddPacketEntities_1",
+          "fte:loader_site:R_RegisterCustom_console_Con_DrawConsoleLines_1",
+          "fte:loader_site:R_RegisterCustom_console_Con_DrawMouseOver_1",
+          "fte:loader_site:R_RegisterCustom_gl_alias_Mod_ReadSkinFile_1",
+          "fte:loader_site:R_RegisterCustom_gl_backend_GLBE_RegisterLightShader_1",
+          "fte:loader_site:R_RegisterCustom_gl_heightmap_Terr_Brush_Draw_1",
+          "fte:loader_site:R_RegisterCustom_gl_heightmap_Terr_Brush_Draw_2",
+          "fte:loader_site:R_RegisterCustom_gl_heightmap_Terr_FinishTerrain_1",
+          "fte:loader_site:R_RegisterCustom_gl_heightmap_Terr_LoadSectionTextures_1",
+          "fte:loader_site:R_RegisterCustom_gl_model_ModBrush_LoadGLStuff_1",
+          "fte:loader_site:R_RegisterCustom_gl_model_Mod_FinishTexture_1",
+          "fte:loader_site:R_RegisterCustom_gl_rmain_GLR_RenderView_1",
+          "fte:loader_site:R_RegisterCustom_gl_shader_Mod_RegisterBasicShader_1",
+          "fte:loader_site:R_RegisterCustom_gl_shader_Mod_RegisterBasicShader_2",
+          "fte:loader_site:R_RegisterCustom_gl_shader_Shader_BEMode_1",
+          "fte:loader_site:R_RegisterCustom_gl_shader_Shader_BEMode_2",
+          "fte:loader_site:R_RegisterCustom_m_mp3_Media_BeginNextFilm_1",
+          "fte:loader_site:R_RegisterCustom_m_mp3_Media_PlayVideoWindowed_f_1",
+          "fte:loader_site:R_RegisterCustom_p_script_P_LoadTexture_1",
+          "fte:loader_site:R_RegisterCustom_pr_csqc_PR_R_PolygonShader_1",
+          "fte:loader_site:R_RegisterCustom_pr_menu_PF_CL_is_cached_pic_1",
+          "fte:loader_site:R_RegisterCustom_pr_menu_PF_SubConGetSet_1",
+          "fte:loader_site:R_RegisterCustom_r_2d_R2D_Conback_Callback_1",
+          "fte:loader_site:R_RegisterCustom_r_2d_R2D_SafePicFromWad_1",
+          "fte:loader_site:R_RegisterCustom_vk_init_VK_R_RenderView_1"
+        ]
+      },
+      "stock_origins": []
+    },
+    {
+      "asset_type": "map_lighting",
+      "description": "Colored lighting overlay file (.lit) sidecar to a BSP.",
+      "engine_canonical_paths": [
+        "maps/<mapname>.lit",
+        "maps/lits/<mapname>.lit",
+        "lits/<mapname>.lit"
+      ],
+      "engine_extensions": [
+        ".lit"
+      ],
+      "filename_constraint": {
+        "kind": "templated",
+        "pattern": "<mapname>.lit",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/maps/<mapname>.lit"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".lit",
+          "magic_hex": "514C4954",
+          "offset": 0,
+          "notes": "\"QLIT\" magic; followed by int32 version."
+        }
+      ],
+      "corpus_categories": [],
+      "notes": "Per-face RGB lighting overrides for BSPs; filename matches the BSP basename.",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_1",
+          "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_2",
+          "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_3",
+          "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_4",
+          "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_5"
+        ],
+        "fte": []
+      },
+      "stock_origins": []
+    },
+    {
+      "asset_type": "map_entities",
+      "description": "Override entity file (.ent) replacing a BSP's embedded entity lump.",
+      "engine_canonical_paths": [
+        "maps/<mapname>.ent",
+        "maps/<mapname>/<mapname>.ent"
+      ],
+      "engine_extensions": [
+        ".ent"
+      ],
+      "filename_constraint": {
+        "kind": "templated",
+        "pattern": "<mapname>.ent",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/maps/<mapname>.ent"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".ent",
+          "magic_hex": null,
+          "notes": "Plain text: { \"key\" \"value\" ... } entity dicts."
+        }
+      ],
+      "corpus_categories": [],
+      "notes": "Server-side override for entity placements (item spawns, spawnpoints, etc.)\nwithout re-vis-ing the BSP. ezQuake L1 captures it but with cat=null today.\n",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:FS_LoadHunkFile_sv_init_SV_SpawnServer_1",
+          "ezquake:loader_site:FS_LoadHunkFile_sv_init_SV_SpawnServer_2"
+        ],
+        "fte": [
+          "fte:loader_site:COM_LoadTempFile_sv_init_SV_SpawnServer_1",
+          "fte:loader_site:FS_FLocateFile_sv_init_SV_SpawnServer_1",
+          "fte:loader_site:FS_FLocateFile_sv_init_SV_SpawnServer_2",
+          "fte:loader_site:FS_FLocateFile_sv_init_SV_SpawnServer_3",
+          "fte:loader_site:FS_FLocateFile_sv_init_SV_SpawnServer_4",
+          "fte:loader_site:Mod_FindName_sv_init_SV_SpawnServer_1",
+          "fte:loader_site:Mod_ForName_sv_init_SV_SpawnServer_1",
+          "fte:loader_site:Mod_ForName_sv_init_SV_SpawnServer_2",
+          "fte:loader_site:Mod_ForName_sv_init_SV_SpawnServer_3",
+          "fte:loader_site:Mod_ForName_sv_init_SV_SpawnServer_4",
+          "fte:loader_site:Mod_ForName_sv_init_SV_SpawnServer_5",
+          "fte:loader_site:Mod_ForName_sv_init_SV_SpawnServer_6"
+        ]
+      },
+      "stock_origins": []
+    },
+    {
+      "asset_type": "locfile",
+      "description": "Location marker file (.loc) for teamplay coordinate-to-location lookup.",
+      "engine_canonical_paths": [
+        "locs/<mapname>.loc"
+      ],
+      "engine_extensions": [
+        ".loc"
+      ],
+      "filename_constraint": {
+        "kind": "templated",
+        "pattern": "<mapname>.loc",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/locs/<mapname>.loc",
+        "qw/<mapname>.loc"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".loc",
+          "magic_hex": null,
+          "notes": "Plain text: 'X Y Z \"location name\"' per line."
+        }
+      ],
+      "corpus_categories": [],
+      "notes": "ezQuake teamplay uses these for `%l` macro expansion in chat.",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:TP_LoadLocFile_teamplay_locfiles_TP_LoadLocFile_f_1",
+          "ezquake:loader_site:TP_LoadLocFile_teamplay_locfiles_TP_LocFiles_NewMap_1",
+          "ezquake:loader_site:TP_LoadLocFile_teamplay_locfiles_TP_LocFiles_NewMap_2"
+        ],
+        "fte": [
+          "fte:loader_site:COM_LoadTempFile_zqtp_TP_LoadLocFile_1",
+          "fte:loader_site:TP_LoadLocFile_zqtp_TP_LoadLocFile_f_1",
+          "fte:loader_site:TP_LoadLocFile_zqtp_TP_NewMap_1"
+        ]
+      },
+      "stock_origins": []
+    },
+    {
+      "asset_type": "sound",
+      "description": "Sound effect (.wav for stock; .ogg supported by modern engines).",
+      "engine_canonical_paths": [
+        "sound/<path>/<name>.<ext>"
+      ],
+      "engine_extensions": [
+        ".wav",
+        ".ogg"
+      ],
+      "filename_constraint": {
+        "kind": "templated",
+        "pattern": "sound/<path>/<name>.<ext>",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/sound/<path>/<name>.<ext>"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".wav",
+          "magic_hex": "52494646",
+          "offset": 0,
+          "notes": "\"RIFF\" at 0; \"WAVE\" at byte 8."
+        },
+        {
+          "ext": ".ogg",
+          "magic_hex": "4F676753",
+          "offset": 0,
+          "notes": "\"OggS\" stream marker."
+        }
+      ],
+      "corpus_categories": [
+        "Other / Sounds"
+      ],
+      "notes": "Stock sounds ship in id1/pak0 (weapons/items/ambient). Custom sounds override by\nsame-path matching (qw/sound/weapons/sshotgun.wav shadows stock SSG fire).\n",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:FS_OpenVFS_movie_WAVCaptureStart_1",
+          "ezquake:loader_site:FS_OpenVFS_movie_WAVCaptureStart_2",
+          "ezquake:loader_site:S_PrecacheSound_cl_nqdemo_NQD_ParseServerData_1",
+          "ezquake:loader_site:S_PrecacheSound_cl_parse_Sound_NextDownload_1",
+          "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_1",
+          "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_2",
+          "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_3",
+          "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_4",
+          "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_5",
+          "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_6",
+          "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_7",
+          "ezquake:loader_site:S_PrecacheSound_snd_main_S_LocalSoundWithVol_1",
+          "ezquake:loader_site:S_PrecacheSound_snd_main_S_LocalSound_1",
+          "ezquake:loader_site:S_PrecacheSound_snd_main_S_Play_f_1",
+          "ezquake:loader_site:S_PrecacheSound_snd_main_S_Restart_f_1",
+          "ezquake:loader_site:S_PrecacheSound_snd_main_S_Startup_1",
+          "ezquake:loader_site:S_PrecacheSound_snd_main_S_Startup_2"
+        ],
+        "fte": [
+          "fte:loader_site:COM_LoadFile_fs_FS_LoadMallocFileFlags_1",
+          "fte:loader_site:COM_LoadFile_fs_FS_LoadMallocFile_1",
+          "fte:loader_site:FS_OpenVFS_fs_FS_LoadMallocGroupFile_1"
+        ]
+      },
+      "stock_origins": [
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/r_item1.wav",
+          "size": 6822,
+          "xxh3_128": "268dd93c70355f7bd67bc063997970a8"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/r_item2.wav",
+          "size": 7448,
+          "xxh3_128": "68da84c448207f558d6e55af702399dd"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/health1.wav",
+          "size": 7958,
+          "xxh3_128": "df942c36b0f992e1e74935910e0c5c39"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/medkey.wav",
+          "size": 10020,
+          "xxh3_128": "6a1f0c2974c679d723f49dff680e5071"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/runekey.wav",
+          "size": 14578,
+          "xxh3_128": "4b48a4cb36496e8ad81cbc78e067d649"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/protect.wav",
+          "size": 22536,
+          "xxh3_128": "b197c68974e5ec75b163acbde36fe6b5"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/protect2.wav",
+          "size": 34012,
+          "xxh3_128": "bb4feeb5c15ff1934b59c0039d49b24b"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/protect3.wav",
+          "size": 23364,
+          "xxh3_128": "53e543471d9dcb43227b8f344cfea1a2"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/suit.wav",
+          "size": 15854,
+          "xxh3_128": "1402bf74d95af68926900de14420a8dd"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/suit2.wav",
+          "size": 33254,
+          "xxh3_128": "7bb44d320579e9d99ebbd41b45f19e4a"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/inv1.wav",
+          "size": 13728,
+          "xxh3_128": "0276e1731253cbfcd010aa7886b98f2f"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/inv2.wav",
+          "size": 33216,
+          "xxh3_128": "e5667c3c85c882a36b1646ea77121df0"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/inv3.wav",
+          "size": 33320,
+          "xxh3_128": "3b17cd55727fe40439fa6abb300a7be4"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/damage.wav",
+          "size": 23374,
+          "xxh3_128": "2aaf12c360d0b8e77b5cfe813b58eeea"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/damage2.wav",
+          "size": 33012,
+          "xxh3_128": "64aef69cbcf293ca704aa4d7e39b40a7"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/damage3.wav",
+          "size": 12894,
+          "xxh3_128": "5ca9150c99dc13184714e4f168c1882e"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/r_exp3.wav",
+          "size": 17478,
+          "xxh3_128": "7c3440b27b18e4eb102c3d8417206f70"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/rocket1i.wav",
+          "size": 9660,
+          "xxh3_128": "9967edcba422c80c6b5e1c1a61db659f"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/sgun1.wav",
+          "size": 22992,
+          "xxh3_128": "ac5eac85df0caaa95440c0ef4bb7d216"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/guncock.wav",
+          "size": 14430,
+          "xxh3_128": "452174b1d7ff6dd98c8913a8a6b38376"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/ric1.wav",
+          "size": 4308,
+          "xxh3_128": "9f7ecbe68d251d999a0595561452a9ec"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/ric2.wav",
+          "size": 10838,
+          "xxh3_128": "814514f0b9812fc940ca9f97c08bb979"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/ric3.wav",
+          "size": 12638,
+          "xxh3_128": "504c5bc8e3b5ed20908a107b4278ab67"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/spike2.wav",
+          "size": 12642,
+          "xxh3_128": "98fbd8ee58740ed80074f562c4bdc703"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/tink1.wav",
+          "size": 1252,
+          "xxh3_128": "ba77a1e4731968f03ab226ecd3341bb1"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/grenade.wav",
+          "size": 8364,
+          "xxh3_128": "0657772b2c9947aeadee4c5100916a8a"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/bounce.wav",
+          "size": 5864,
+          "xxh3_128": "37494d1d9f93d57617cd4893a7b803b6"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/shotgn2.wav",
+          "size": 8694,
+          "xxh3_128": "132d2ebc80e8a884100c5c108be9f2d9"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/menu1.wav",
+          "size": 5738,
+          "xxh3_128": "232b3bc61d62d91067c509f1414be2d5"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/menu2.wav",
+          "size": 10672,
+          "xxh3_128": "44e2a1bddf9f5579bd99dabf5fe81a32"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/menu3.wav",
+          "size": 3010,
+          "xxh3_128": "8edbef209e0a7df23a54cbd5ac913d21"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/water1.wav",
+          "size": 55784,
+          "xxh3_128": "3d17f3f32a59505db0baba2e38349525"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/wind2.wav",
+          "size": 28610,
+          "xxh3_128": "502935649d300278ec4800e9572df59b"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/demon/dland2.wav",
+          "size": 4400,
+          "xxh3_128": "86ec57195337bddb960c2bdf6f8a7e76"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/h2ohit1.wav",
+          "size": 12972,
+          "xxh3_128": "41302dda46af785423cc5cd7fbea318c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/itembk2.wav",
+          "size": 9910,
+          "xxh3_128": "ff9d034e5a4a9afb3c1497fcd69291f5"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/plyrjmp8.wav",
+          "size": 3888,
+          "xxh3_128": "26c6ba301945a61e259d201c41767d81"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/land.wav",
+          "size": 2434,
+          "xxh3_128": "557ff7c2fc94a3f65e55278bf7a3d3c8"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/land2.wav",
+          "size": 6204,
+          "xxh3_128": "5fa7e561ac080f0e4755f4f857020714"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/drown1.wav",
+          "size": 8908,
+          "xxh3_128": "13f86ed2fd61d0bb5c91a4ac7ea9ff1d"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/drown2.wav",
+          "size": 3114,
+          "xxh3_128": "fce57d6d7c03dc4f80031197cedd6268"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/gasp1.wav",
+          "size": 8702,
+          "xxh3_128": "b0b1b14e434ab79f95c23d203bfe0593"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/gasp2.wav",
+          "size": 13134,
+          "xxh3_128": "387493ede40bf6f23f1c8d89f049675e"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/h2odeath.wav",
+          "size": 18104,
+          "xxh3_128": "949ebf038d1f93490aeb123b24e8bb54"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/talk.wav",
+          "size": 1810,
+          "xxh3_128": "6a46a303b41c3a7d7e00c95ee2e431f0"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/teledth1.wav",
+          "size": 14414,
+          "xxh3_128": "cee29aad923a45ae89007e7e8595ab1a"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/r_tele1.wav",
+          "size": 8036,
+          "xxh3_128": "935dedf70d5494ae049e694e8c55047b"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/r_tele2.wav",
+          "size": 17324,
+          "xxh3_128": "b2ec455a337a865473d38d05ef7dd33f"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/r_tele3.wav",
+          "size": 18016,
+          "xxh3_128": "2d94bb05d7c7f60adba97e98b6dec7a5"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/r_tele4.wav",
+          "size": 9068,
+          "xxh3_128": "2697013ed5e1e335f87ea32e9d608268"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/r_tele5.wav",
+          "size": 22042,
+          "xxh3_128": "efb0cabfef87837cd4600a3f2eb1a811"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/lock4.wav",
+          "size": 3876,
+          "xxh3_128": "9d07c37e05d30a7fe839dd736c3a3b8d"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/pkup.wav",
+          "size": 5174,
+          "xxh3_128": "a32721f6949ffb824ea9993ffa868169"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/items/armor1.wav",
+          "size": 7714,
+          "xxh3_128": "a1a06bec5c41d36b7ed4c4d8be320d65"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/lhit.wav",
+          "size": 26028,
+          "xxh3_128": "c870b255de498235029b0dede37d800e"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/lstart.wav",
+          "size": 56378,
+          "xxh3_128": "cebfa02e7b2a6d3fd107062581567598"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/power.wav",
+          "size": 19832,
+          "xxh3_128": "039c94fecea3616494280e22de980c38"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/gib.wav",
+          "size": 14424,
+          "xxh3_128": "1d3cc79e990953db9a077a5d246c2fb5"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/udeath.wav",
+          "size": 16082,
+          "xxh3_128": "2ecdf76ff0cc862c1cd24a81e040ba8f"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/tornoff2.wav",
+          "size": 7726,
+          "xxh3_128": "6d7f30a125207055661f6e18b64a008c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/pain1.wav",
+          "size": 3394,
+          "xxh3_128": "3756212a0a42ef2a14a3f26d4a9d154e"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/pain2.wav",
+          "size": 2710,
+          "xxh3_128": "9db30f5f063d4176d18d8c7979799174"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/pain3.wav",
+          "size": 4854,
+          "xxh3_128": "68d70588456585d542284537094cc825"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/pain4.wav",
+          "size": 4840,
+          "xxh3_128": "db801777a2e4ce32cda472f96bc15dcb"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/pain5.wav",
+          "size": 8020,
+          "xxh3_128": "0e3a42f6667b460a2a236137c017a0c9"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/pain6.wav",
+          "size": 5462,
+          "xxh3_128": "31c63661ed81e28792c50dba82bc050c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/death1.wav",
+          "size": 10170,
+          "xxh3_128": "9589829443acaee47d6b394fc582d8ce"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/death2.wav",
+          "size": 8026,
+          "xxh3_128": "c7157f946240c1f5d86adb2f045ebc91"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/death3.wav",
+          "size": 10918,
+          "xxh3_128": "ce992329dff86c6d53962d8b44bd681a"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/death4.wav",
+          "size": 14126,
+          "xxh3_128": "4594a872672e619316c2156d0aa382c5"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/death5.wav",
+          "size": 14946,
+          "xxh3_128": "0b972f094908683e08faacf229fc07e0"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/weapons/ax1.wav",
+          "size": 3308,
+          "xxh3_128": "004c23a7a90cece39b5d5feebbb0a385"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/axhit1.wav",
+          "size": 6906,
+          "xxh3_128": "a8b6daf76dca18ee7281a2ad1577151e"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/axhit2.wav",
+          "size": 2434,
+          "xxh3_128": "eede8377c56b6d06c19b9014835a5959"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/h2ojump.wav",
+          "size": 11438,
+          "xxh3_128": "75dac49183d6347f94e30190dc49bc88"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/slimbrn2.wav",
+          "size": 12468,
+          "xxh3_128": "2eb845e498895e79295b04d91ec655ed"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/inh2o.wav",
+          "size": 11340,
+          "xxh3_128": "aa11ba3b4ea768d4413cb192d557d604"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/inlava.wav",
+          "size": 10958,
+          "xxh3_128": "2c160903f57b28285400c1bcd60d0c0b"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/outwater.wav",
+          "size": 5018,
+          "xxh3_128": "c7d0355318e18c76045440a063602f34"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/lburn1.wav",
+          "size": 6682,
+          "xxh3_128": "e13f1eb3c036bb2780b4848b4601ff99"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/player/lburn2.wav",
+          "size": 6076,
+          "xxh3_128": "885db2eb4d592495ad46ae33eaf36eab"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/water1.wav",
+          "size": 3926,
+          "xxh3_128": "75c298895dcc5d66a52199d65f2a9896"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/water2.wav",
+          "size": 3340,
+          "xxh3_128": "164292bfc387e8a7fee03023b2d9ac4f"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/medtry.wav",
+          "size": 7828,
+          "xxh3_128": "c368de55946104b1f2d628cd23d4a2f8"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/meduse.wav",
+          "size": 10718,
+          "xxh3_128": "51df819d7a2bb75de0a2a7e4872e6fad"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/runetry.wav",
+          "size": 13524,
+          "xxh3_128": "03fef5322cb5d218e0e7dfb7fda5a3ab"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/runeuse.wav",
+          "size": 17364,
+          "xxh3_128": "94a114651ec9496ea73a76422a8eefc4"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/basetry.wav",
+          "size": 10518,
+          "xxh3_128": "1f5a3043b55a04426ac87b3b1bb6a741"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/baseuse.wav",
+          "size": 16486,
+          "xxh3_128": "10c68c543a60d1d0bcc59b49c04fe9d7"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/null.wav",
+          "size": 1244,
+          "xxh3_128": "9fb811bef6977d1f03a1b8f489695721"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/drclos4.wav",
+          "size": 12814,
+          "xxh3_128": "3d98e8281c288227d4cb2607d9a4f0f6"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/doormv1.wav",
+          "size": 14036,
+          "xxh3_128": "7825fc2a2a4bab41e6291ecfed8665c1"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/hydro1.wav",
+          "size": 11094,
+          "xxh3_128": "26774082b98d344ac124dab6b9f54c71"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/hydro2.wav",
+          "size": 10700,
+          "xxh3_128": "034c4fcb73544f8e35bf5fb743da475e"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/stndr1.wav",
+          "size": 12620,
+          "xxh3_128": "c66285b1aba47b97af74e9e36eb6f76a"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/stndr2.wav",
+          "size": 11470,
+          "xxh3_128": "5c84e1ec8823c787b458f53714483712"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/ddoor1.wav",
+          "size": 7738,
+          "xxh3_128": "4bceec3b0e4791c9de5e71bd2145eb2d"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/ddoor2.wav",
+          "size": 5904,
+          "xxh3_128": "bb10c761481d71fda79e5357539674de"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/latch2.wav",
+          "size": 7338,
+          "xxh3_128": "f734e76afe9b9862f35b62dd81a49862"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/winch2.wav",
+          "size": 14872,
+          "xxh3_128": "c6d3535f2838f51ef2140417553afd55"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/airdoor1.wav",
+          "size": 13654,
+          "xxh3_128": "8aecc498f62f0a6a99cf50b823af8442"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/airdoor2.wav",
+          "size": 8594,
+          "xxh3_128": "20226c865bdc4d83aad8476a52e5b7e9"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/basesec1.wav",
+          "size": 13930,
+          "xxh3_128": "531e287921dd4c68da3053e396318481"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/doors/basesec2.wav",
+          "size": 10238,
+          "xxh3_128": "d47bf8c33c64631876ea7eebed6d0c21"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/buttons/airbut1.wav",
+          "size": 10672,
+          "xxh3_128": "c583deeadf3e05e96fb28ea9c76849de"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/buttons/switch21.wav",
+          "size": 6318,
+          "xxh3_128": "4e9cb05ed24060778774f113b48cfc8f"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/buttons/switch02.wav",
+          "size": 3746,
+          "xxh3_128": "f822dac1ab9ab4daf32b5eb2f0299eec"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/buttons/switch04.wav",
+          "size": 3666,
+          "xxh3_128": "dcf15d3d84e7a5cf2d9752c6b39119c1"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/secret.wav",
+          "size": 6610,
+          "xxh3_128": "37e7f0f47d280ecd2ac74e4cb8c902e9"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/misc/trigger1.wav",
+          "size": 20230,
+          "xxh3_128": "95b0aa381370030bddf522da699450da"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/hum1.wav",
+          "size": 40166,
+          "xxh3_128": "b57fa8790e9cb1e34ba522f65a584511"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/windfly.wav",
+          "size": 22140,
+          "xxh3_128": "1c9ee7c77d19fbebc5444dd06b31bb7c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/plats/plat1.wav",
+          "size": 20248,
+          "xxh3_128": "ed13fdcd9f922132a6afc88ef286f777"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/plats/plat2.wav",
+          "size": 7338,
+          "xxh3_128": "bd9272b2682f73fec3387df60c1f39a8"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/plats/medplat1.wav",
+          "size": 16378,
+          "xxh3_128": "db12cb6d0005df872f27f07c3891a7e0"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/plats/medplat2.wav",
+          "size": 7338,
+          "xxh3_128": "a3ac5fbcc125ecc3512f1f2036dfa8f3"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/plats/train2.wav",
+          "size": 5870,
+          "xxh3_128": "b17402107eb16487ff06580504a55056"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/plats/train1.wav",
+          "size": 21430,
+          "xxh3_128": "aae7cf5b349fea9c7abd7c2595fc2ff1"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/fl_hum1.wav",
+          "size": 50154,
+          "xxh3_128": "2d8f40c4c0b8ae90265d5c7068ff6af2"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/buzz1.wav",
+          "size": 36308,
+          "xxh3_128": "d60cc6ca84c7195002e26b4145137428"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/fire1.wav",
+          "size": 24064,
+          "xxh3_128": "2a107950572ab7bf7f8c721bc0a85c80"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/suck1.wav",
+          "size": 110392,
+          "xxh3_128": "63e5f09d6eccff5466a688b7f1f91010"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/drone6.wav",
+          "size": 18522,
+          "xxh3_128": "b59718d149ba79ad43f5de330d9d2d93"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/drip1.wav",
+          "size": 137736,
+          "xxh3_128": "c8f76677f88638593c23d5faaf3e9058"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/comp1.wav",
+          "size": 62734,
+          "xxh3_128": "a04ebd44774f60136774e3f6fa8325c7"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/thunder1.wav",
+          "size": 41492,
+          "xxh3_128": "47a3b223dc55df787246cab796d16f32"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/swamp1.wav",
+          "size": 68524,
+          "xxh3_128": "f71486ca381a946de94fb8d62c8a444c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ambience/swamp2.wav",
+          "size": 68526,
+          "xxh3_128": "e3f0f5034d2e202b1c0481cd2af67754"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ogre/ogdrag.wav",
+          "size": 12396,
+          "xxh3_128": "4a11d6f148d3e9dd953016358a17fdc1"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ogre/ogdth.wav",
+          "size": 13892,
+          "xxh3_128": "ae4f4bf8344d3ef74095304b9acfb665"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ogre/ogidle.wav",
+          "size": 12894,
+          "xxh3_128": "c0f5fc150d10eac6e56d7a81058dd52e"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ogre/ogidle2.wav",
+          "size": 11254,
+          "xxh3_128": "6d6838aafb51a601145d1288bad9c998"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ogre/ogpain1.wav",
+          "size": 7898,
+          "xxh3_128": "e6f55e37792ed0cdaaa07c3f03eabc8d"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ogre/ogsawatk.wav",
+          "size": 16154,
+          "xxh3_128": "b26db996fe943d4df20bd149a3e47277"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/ogre/ogwake.wav",
+          "size": 19356,
+          "xxh3_128": "617a63d09d002badefbfda2d8215dd77"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/demon/ddeath.wav",
+          "size": 9140,
+          "xxh3_128": "df5ce0be3d34569abd34a545b3f855aa"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/demon/dhit2.wav",
+          "size": 7142,
+          "xxh3_128": "419ab94a035a31ff3f5ccc2a970e7bca"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/demon/djump.wav",
+          "size": 8494,
+          "xxh3_128": "daa2da1e928a533b7b2037f1b100e74a"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/demon/dpain1.wav",
+          "size": 6282,
+          "xxh3_128": "e3350d7d6fad611c91e0956f3ae6f737"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/demon/idle1.wav",
+          "size": 9098,
+          "xxh3_128": "dff92b235278a4bcf32321f28b447c3c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/demon/sight2.wav",
+          "size": 8804,
+          "xxh3_128": "d24d40fa171cd31ee6e2ccd2d046a78b"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/shambler/sattck1.wav",
+          "size": 8036,
+          "xxh3_128": "962d8773fffd685b46456e7f6644087d"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/shambler/sboom.wav",
+          "size": 11672,
+          "xxh3_128": "c692d6c338c8c209faf483a80ab53af9"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/shambler/sdeath.wav",
+          "size": 21106,
+          "xxh3_128": "232093124f8764ff2b8addaf217a52f9"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/shambler/shurt2.wav",
+          "size": 4302,
+          "xxh3_128": "d523f406e07090ff4f50a92719791c57"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/shambler/sidle.wav",
+          "size": 5646,
+          "xxh3_128": "96988ee2c7451641836d9e2f5aa98849"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/shambler/ssight.wav",
+          "size": 15420,
+          "xxh3_128": "8bcc400b3ecd07dd6a06aa5a541d7bd9"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/shambler/melee1.wav",
+          "size": 4718,
+          "xxh3_128": "47543ad4bd4be65152b2beee44a87085"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/shambler/melee2.wav",
+          "size": 5966,
+          "xxh3_128": "243d17d00db91704715a0aed34f869d9"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/shambler/smack.wav",
+          "size": 5300,
+          "xxh3_128": "738f94e5ca4122bb9e90f01fa47ac5ab"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/knight/kdeath.wav",
+          "size": 10688,
+          "xxh3_128": "c50c18db0df0dfc0033da291f6bf2af5"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/knight/khurt.wav",
+          "size": 5586,
+          "xxh3_128": "e08d5bdadf24f27fe77eb60f559a248e"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/knight/ksight.wav",
+          "size": 13514,
+          "xxh3_128": "a49f5404eee466be85c18532e74d081f"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/knight/sword1.wav",
+          "size": 2306,
+          "xxh3_128": "599b07b3fa85b6257a78ecbe47ce119a"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/knight/sword2.wav",
+          "size": 2784,
+          "xxh3_128": "7a638c1cac77de2faff0d7ea2343be03"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/knight/idle.wav",
+          "size": 11064,
+          "xxh3_128": "e0de0cee53d85faf697478a9f2b485cd"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/soldier/death1.wav",
+          "size": 8434,
+          "xxh3_128": "f64f21bd86080fe4136042987396a54f"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/soldier/idle.wav",
+          "size": 9802,
+          "xxh3_128": "3c1d884949a6b38a704e22fa46acef90"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/soldier/pain1.wav",
+          "size": 5000,
+          "xxh3_128": "f1f2dd2a8611673c0e8e12ac138e4f60"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/soldier/pain2.wav",
+          "size": 7838,
+          "xxh3_128": "405391ea15f7289c9d9a958b315d9c9f"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/soldier/sattck1.wav",
+          "size": 14302,
+          "xxh3_128": "525ea0480280847210d34d7b1dc775b8"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/soldier/sight1.wav",
+          "size": 12716,
+          "xxh3_128": "90e1d2fb8ced209eecf9559e2bfe543c"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/wizard/hit.wav",
+          "size": 7332,
+          "xxh3_128": "504a0d00bc2d660f939109649f4ebe36"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/wizard/wattack.wav",
+          "size": 25912,
+          "xxh3_128": "09f46afb60b8030633533200b9c02445"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/wizard/wdeath.wav",
+          "size": 20684,
+          "xxh3_128": "eb5603f9fa340d594165c1d2c0e48bd8"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/wizard/widle1.wav",
+          "size": 13464,
+          "xxh3_128": "4cdda08297a25741f327622c48a3104e"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/wizard/widle2.wav",
+          "size": 23094,
+          "xxh3_128": "ec4f079791908a8eff451956a4dc3c54"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/wizard/wpain.wav",
+          "size": 8686,
+          "xxh3_128": "9bd082b4e7540a831246a3e24174e2d7"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/wizard/wsight.wav",
+          "size": 13078,
+          "xxh3_128": "4b826c10d4989234021014372a92446d"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/dog/dattack1.wav",
+          "size": 8154,
+          "xxh3_128": "f8daf0e5d0994a795f07fd2d6e19e32a"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/dog/ddeath.wav",
+          "size": 14912,
+          "xxh3_128": "3da466435406549158d39d691fc5b67a"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/dog/dpain1.wav",
+          "size": 7240,
+          "xxh3_128": "6ac1a9b304144002169ac639f5d54d6f"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/dog/dsight.wav",
+          "size": 6722,
+          "xxh3_128": "d0a006374cde07ae947ce1e6843746d9"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/dog/idle.wav",
+          "size": 6870,
+          "xxh3_128": "92f43f49e010ad8082113b77ce133c14"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/zombie/z_idle.wav",
+          "size": 16734,
+          "xxh3_128": "6098661e5ccf324b6cacfc56dce78d58"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/zombie/z_idle1.wav",
+          "size": 13244,
+          "xxh3_128": "c0ac9d425f18dbcdfabad738416c32fc"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/zombie/z_shot1.wav",
+          "size": 3068,
+          "xxh3_128": "1e2d808c1c1ad9dcea07100fb6bf02ad"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/zombie/z_gib.wav",
+          "size": 16226,
+          "xxh3_128": "9e92f2b1a236d958508b2c87e589e363"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/zombie/z_pain.wav",
+          "size": 12218,
+          "xxh3_128": "434afcce14f15bfb0bc7f6ca7c185d23"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/zombie/z_pain1.wav",
+          "size": 15374,
+          "xxh3_128": "e8e0a491307fe47393ea5865a179eec1"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/zombie/z_fall.wav",
+          "size": 3062,
+          "xxh3_128": "90239436cc12b0ad5e4449625505e4f4"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/zombie/z_miss.wav",
+          "size": 10734,
+          "xxh3_128": "1ea5492b6abe829d63795a1b53d4a6a8"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/zombie/z_hit.wav",
+          "size": 6166,
+          "xxh3_128": "fd9e6bfd4132009a82b5e30eafbe5438"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/zombie/idle_w2.wav",
+          "size": 17192,
+          "xxh3_128": "07d28ece57032ccc777658cccf16d28a"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/boss1/out1.wav",
+          "size": 50344,
+          "xxh3_128": "c04a42c49e619127fbe60d6f5c0a746e"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/boss1/sight1.wav",
+          "size": 24768,
+          "xxh3_128": "ae374e71b83bc12c69f1d9ea35cec6c5"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/boss1/throw.wav",
+          "size": 11526,
+          "xxh3_128": "279c922119814e78963c08bb7dfeb3b8"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/boss1/pain.wav",
+          "size": 17700,
+          "xxh3_128": "967e16e14f9fefd5efdd9008597e0f6a"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/boss1/death.wav",
+          "size": 27600,
+          "xxh3_128": "a481990582c046fbc9baec5a0ed4a481"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "sound/hknight/hit.wav",
+          "size": 6260,
+          "xxh3_128": "f3aa568b83a0f2c421c50ecaadea215e"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/misc/basekey.wav",
+          "size": 5980,
+          "xxh3_128": "f4ea41efb922e90b6ebf4682585694ff"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/enforcer/enfire.wav",
+          "size": 7430,
+          "xxh3_128": "4d54afb512bf8203608a7c8aedcdb5f0"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/enforcer/enfstop.wav",
+          "size": 4360,
+          "xxh3_128": "884e588c3c395d67082d764de19708c0"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/enforcer/sight1.wav",
+          "size": 5870,
+          "xxh3_128": "7552cf95bb15597ea9e346c66e17e750"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/enforcer/sight2.wav",
+          "size": 6574,
+          "xxh3_128": "8451f242b83adedecc5c5f447f756c4d"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/enforcer/sight3.wav",
+          "size": 6158,
+          "xxh3_128": "000855296c702c0bf875827b4a492c31"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/enforcer/sight4.wav",
+          "size": 5166,
+          "xxh3_128": "acb29206deff1b65b6b8e7191ec9346a"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/enforcer/pain1.wav",
+          "size": 5478,
+          "xxh3_128": "3367b13758d1669edddfefe4f5651705"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/enforcer/pain2.wav",
+          "size": 4580,
+          "xxh3_128": "0aa815d06a2051fb6cf404321a5f23bb"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/enforcer/death1.wav",
+          "size": 9290,
+          "xxh3_128": "77597eb557a5889d4bde2a8f32c89068"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/enforcer/idle1.wav",
+          "size": 15810,
+          "xxh3_128": "898c081e630010aa10b3b2df7336edfb"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/blob/death1.wav",
+          "size": 16368,
+          "xxh3_128": "b77a1640662e4d00525dc2e59ce7e1de"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/blob/hit1.wav",
+          "size": 10026,
+          "xxh3_128": "6bf39c5227895559252b36ac7950aeda"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/blob/land1.wav",
+          "size": 9232,
+          "xxh3_128": "64036468e7ede105e484b5bf7e972c88"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/blob/sight1.wav",
+          "size": 7182,
+          "xxh3_128": "8db2c1580a515195558a790cdadfb2cc"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/hknight/attack1.wav",
+          "size": 9808,
+          "xxh3_128": "18ecb5d09f92c1f30f99640329aa2a1b"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/hknight/death1.wav",
+          "size": 8302,
+          "xxh3_128": "4207c3cca2f4e9945148e8f831e9361d"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/hknight/pain1.wav",
+          "size": 7434,
+          "xxh3_128": "2510fe859b806287b1f204eccc925864"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/hknight/sight1.wav",
+          "size": 12714,
+          "xxh3_128": "f97ff08606cd10d11f89d241a7415b48"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/hknight/slash1.wav",
+          "size": 2342,
+          "xxh3_128": "65aa2d7772af1a1b3ba01d5b30d5cd9a"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/hknight/idle.wav",
+          "size": 5056,
+          "xxh3_128": "4a0d88772f5f3058bb4cbaa3f894a10c"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/hknight/grunt.wav",
+          "size": 4876,
+          "xxh3_128": "ccb3b4a19f32111e0fb569132a4913cf"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/fish/death.wav",
+          "size": 40708,
+          "xxh3_128": "d5a79b8f6f04ad0284a7e649cc0ed432"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/fish/bite.wav",
+          "size": 6416,
+          "xxh3_128": "d3385b058b2c6a82f1b04c1a198904ca"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/fish/idle.wav",
+          "size": 51264,
+          "xxh3_128": "d27993fe2b9165d9f1cabd1f142a476b"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/shalrath/attack.wav",
+          "size": 16674,
+          "xxh3_128": "d44fcc38d371fe8b36d992b35a1a9e78"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/shalrath/attack2.wav",
+          "size": 10908,
+          "xxh3_128": "733712899a788d03499b2e596f5d62e1"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/shalrath/death.wav",
+          "size": 9436,
+          "xxh3_128": "2d52d91587df3e06e59e3ee3e748714d"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/shalrath/idle.wav",
+          "size": 16302,
+          "xxh3_128": "f8ce63cb6cb4025e3894a7e439ddc81b"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/shalrath/pain.wav",
+          "size": 9230,
+          "xxh3_128": "d3d44c30def9316f4e189ee8f0d25d58"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/shalrath/sight.wav",
+          "size": 26510,
+          "xxh3_128": "a460f1e4322c6159003bec939209f5f3"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/boss2/death.wav",
+          "size": 253690,
+          "xxh3_128": "594dfebdbbe6c24c27f95236aeadb098"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/boss2/idle.wav",
+          "size": 33306,
+          "xxh3_128": "34009d0880ac95d223a0f1ac8551100f"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/boss2/sight.wav",
+          "size": 225484,
+          "xxh3_128": "b1deebcded6352f37b6eeb6f5d519af7"
+        },
+        {
+          "source": "id1/pak1",
+          "path": "sound/boss2/pop2.wav",
+          "size": 53760,
+          "xxh3_128": "93a49bd2e5ab218867fbd2e08b3c0aff"
+        }
+      ]
+    },
+    {
+      "asset_type": "config",
+      "description": "User-editable config / RC file loaded via /exec.",
+      "engine_canonical_paths": [
+        "<name>.cfg",
+        "<name>.rc"
+      ],
+      "engine_extensions": [
+        ".cfg",
+        ".rc"
+      ],
+      "filename_constraint": {
+        "kind": "free",
+        "pattern": "*.cfg | *.rc",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/<name>.cfg"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".cfg",
+          "magic_hex": null,
+          "notes": "Plain text: cvar/command lines, hash comments."
+        },
+        {
+          "ext": ".rc",
+          "magic_hex": null,
+          "notes": "Same shape as .cfg."
+        }
+      ],
+      "corpus_categories": [
+        "Configs",
+        "Configs / Eyecandy",
+        "Configs / HUD",
+        "Configs / Performance",
+        "Configs / Teamplay"
+      ],
+      "notes": "Stock id1 ships default.cfg + qw/quake.rc. Custom configs install to gamedir root\nand are typically loaded via /exec <name>.cfg from another script (or from quake.rc).\n",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:FS_OpenVFS_config_manager_ResetConfigs_1",
+          "ezquake:loader_site:FS_OpenVFS_host_Host_Init_1"
+        ],
+        "fte": [
+          "fte:loader_site:COM_LoadStackFile_sv_ents_SV_GibFilterInit_1",
+          "fte:loader_site:COM_LoadStackFile_sv_user_SV_FilterImpulseInit_1",
+          "fte:loader_site:COM_WriteFile_p_script_P_ExportBuiltinSet_f_1",
+          "fte:loader_site:FS_FLocateFile_cmd_Cmd_Exec_f_1",
+          "fte:loader_site:FS_FLocateFile_cmd_Cmd_Exec_f_2",
+          "fte:loader_site:FS_FLocateFile_cmd_Cmd_Exec_f_3",
+          "fte:loader_site:FS_FLocateFile_cmd_Cmd_Exec_f_4",
+          "fte:loader_site:FS_FLocateFile_cmd_Cmd_Exec_f_5",
+          "fte:loader_site:FS_FLocateFile_cmd_Cmd_Exec_f_6",
+          "fte:loader_site:FS_FLocateFile_cmd_Cmd_Exec_f_7",
+          "fte:loader_site:FS_FLocateFile_cmd_Cmd_Exec_f_8",
+          "fte:loader_site:FS_LoadFile_p_script_P_LoadParticleSet_1",
+          "fte:loader_site:FS_LoadFile_p_script_P_LoadParticleSet_2",
+          "fte:loader_site:FS_LoadFile_p_script_P_LoadParticleSet_3",
+          "fte:loader_site:FS_OpenReadLocation_cmd_Cmd_Exec_f_1",
+          "fte:loader_site:FS_OpenVFS_cl_main_Host_WriteConfiguration_1",
+          "fte:loader_site:FS_OpenVFS_cmd_Cmd_WriteConfig_f_1",
+          "fte:loader_site:FS_OpenVFS_cmd_Cmd_WriteConfig_f_2",
+          "fte:loader_site:FS_OpenVFS_plugin_Plug_FS_Open_1"
+        ]
+      },
+      "stock_origins": [
+        {
+          "source": "id1/pak0",
+          "path": "default.cfg",
+          "size": 1914,
+          "xxh3_128": "b41e37c6d4dd3d80ab55f422fe771951"
+        },
+        {
+          "source": "id1/pak0",
+          "path": "quake.rc",
+          "size": 293,
+          "xxh3_128": "16fbef6bbb8cb3358b69ace527cd3516"
+        }
+      ]
+    },
+    {
+      "asset_type": "demo",
+      "description": "Recorded gameplay demo (.mvd preferred for QW; .qwd legacy; .dem single-player).",
+      "engine_canonical_paths": [
+        "demos/<name>.<ext>"
+      ],
+      "engine_extensions": [
+        ".mvd",
+        ".qwd",
+        ".dem"
+      ],
+      "filename_constraint": {
+        "kind": "free",
+        "pattern": "*.mvd | *.qwd | *.dem",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/demos/<name>.<ext>"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".mvd",
+          "magic_hex": null,
+          "notes": "ASCII map-name header, then binary message stream."
+        },
+        {
+          "ext": ".qwd",
+          "magic_hex": null,
+          "notes": "Similar shape; different message multiplexing."
+        },
+        {
+          "ext": ".dem",
+          "magic_hex": null,
+          "notes": "NetQuake single-player demo."
+        }
+      ],
+      "corpus_categories": [],
+      "notes": "Out of scope for the gfx.quakeworld.nu corpus; listed for completeness.",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_1",
+          "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_2",
+          "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_3",
+          "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_4",
+          "ezquake:loader_site:FS_OpenVFS_cl_demo_PlayQWZDemo_1",
+          "ezquake:loader_site:PlayQWZDemo_cl_demo_CL_StartDemoCommand_1"
+        ],
+        "fte": []
+      },
+      "stock_origins": []
+    },
+    {
+      "asset_type": "demo_archive",
+      "description": "Compressed demo archive (.qwz Quake-Wizard; .dz dzip).",
+      "engine_canonical_paths": [
+        "demos/<name>.<ext>"
+      ],
+      "engine_extensions": [
+        ".qwz",
+        ".dz"
+      ],
+      "filename_constraint": {
+        "kind": "free",
+        "pattern": "*.qwz | *.dz",
+        "rename_required": false
+      },
+      "user_install_paths": [
+        "qw/demos/<name>.<ext>"
+      ],
+      "format_magic_bytes": [
+        {
+          "ext": ".qwz",
+          "magic_hex": null,
+          "notes": "Container; engines call out to qwz<->mvd transcoder."
+        },
+        {
+          "ext": ".dz",
+          "magic_hex": null,
+          "notes": "dzip container; auto-extracted on playback."
+        }
+      ],
+      "corpus_categories": [],
+      "notes": "Auto-extracted before playback.",
+      "l1_evidence": {
+        "ezquake": [
+          "ezquake:loader_site:FS_OpenVFS_cl_demo_PlayQWZDemo_1",
+          "ezquake:loader_site:PlayQWZDemo_cl_demo_CL_StartDemoCommand_1"
+        ],
+        "fte": []
+      },
+      "stock_origins": []
+    }
+  ]
+}

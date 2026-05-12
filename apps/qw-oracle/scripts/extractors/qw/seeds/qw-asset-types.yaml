@@ -1,0 +1,505 @@
+# Quake Asset Type Catalog -- Seed
+#
+# Each entry defines an engine-relevant asset type plus the hints needed
+# to enrich the entry from L1 loader_sites + the stock pak manifest. The
+# derive_asset_types.py script consumes this file and emits qw-asset-types.json.
+#
+# Field reference
+#   asset_type               Stable slug; primary key.
+#   description              One-line human description.
+#   engine_canonical_paths   Lookup paths the engine searches (template form,
+#                            with <ext>, <name>, <mapname> placeholders).
+#   engine_extensions        File extensions the engine accepts.
+#   filename_constraint:
+#     kind                   hardcoded | templated | free
+#     pattern                For hardcoded: required pattern. For templated:
+#                            describes the templating shape.
+#     rename_required        For hardcoded: importer must rename non-conforming
+#                            filenames before install.
+#   user_install_paths       Where users install custom content (resolves
+#                            engine_canonical_paths through the qw/ gamedir).
+#   format_magic_bytes       Per-extension byte-magic identification.
+#   l1_hint_function_names   Loader function names to match in L1
+#                            loader_sites.{function_name,enclosing_function}.
+#   l1_hint_bare_categories  Bare reads_category_id suffixes (e.g. "texture")
+#                            to match across both engines.
+#   stock_origin_paths       Path patterns (glob-ish) to match against
+#                            qw-stock-paks.json entries.
+#   corpus_categories        DB category breadcrumbs that map to this type.
+#   notes                    Free-text caveats and edge cases.
+
+asset_types:
+
+  - asset_type: conback
+    description: Console background image displayed before connecting to a server.
+    engine_canonical_paths: ["gfx/conback.<ext>"]
+    engine_extensions: [".lmp", ".png", ".tga", ".jpg"]
+    filename_constraint:
+      kind: hardcoded
+      pattern: "conback.<ext>"
+      rename_required: true
+    user_install_paths: ["qw/gfx/conback.<ext>"]
+    format_magic_bytes:
+      - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
+      - { ext: ".jpg", magic_hex: "FFD8FF",           offset: 0 }
+      - { ext: ".lmp", magic_hex: null, notes: "Raw indexed image; 320x200 stock dimensions." }
+      - { ext: ".tga", magic_hex: null, notes: "No magic; structural detection." }
+    l1_hint_function_names: ["Draw_InitConback", "R2D_Conback_Callback"]
+    l1_hint_bare_categories: []
+    stock_origin_paths: ["gfx/conback.lmp"]
+    corpus_categories: ["Conbacks"]
+    notes: |
+      Stock pak0 ships gfx/conback.lmp. Custom overrides install to
+      qw/gfx/conback.<ext> and shadow the stock via engine search-path
+      precedence (qw/ wins over id1/), not via file replacement.
+
+  - asset_type: charset
+    description: Console text font (charset texture, 16x16 grid of 8x8 glyphs).
+    engine_canonical_paths:
+      - "gfx/conchars.lmp"
+      - "textures/charsets/<name>"
+    engine_extensions: [".lmp", ".png", ".tga", ".bmp", ".pcx"]
+    filename_constraint:
+      kind: templated
+      pattern: "<cvar:gl_consolefont>.<ext>"
+      rename_required: false
+    user_install_paths: ["qw/textures/charsets/<name>.<ext>"]
+    format_magic_bytes:
+      - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
+      - { ext: ".pcx", magic_hex: "0A",               offset: 0, notes: "Byte 0=0x0A; byte 1 = version (typically 5)." }
+      - { ext: ".bmp", magic_hex: "424D",             offset: 0 }
+      - { ext: ".tga", magic_hex: null }
+      - { ext: ".lmp", magic_hex: null }
+    l1_hint_function_names: ["R_LoadCharsetImage", "Load_Locale_Charset"]
+    l1_hint_bare_categories: ["charset"]
+    stock_origin_paths: ["gfx/conchars.lmp"]
+    corpus_categories:
+      - "Charsets"
+      - "Charsets / 256x256"
+      - "Charsets / 512x512"
+      - "Charsets / 1024x1024 or larger"
+    notes: ezQuake loads via `gl_consolefont <name>` cvar; FTE has a separate mechanism.
+
+  - asset_type: crosshair
+    description: HUD crosshair image overlay drawn over the viewport.
+    engine_canonical_paths: ["crosshairs/<name>"]
+    engine_extensions: [".png", ".tga", ".pcx"]
+    filename_constraint:
+      kind: templated
+      pattern: "<cvar:crosshairimage>.<ext>"
+      rename_required: false
+    user_install_paths: ["qw/crosshairs/<name>.<ext>"]
+    format_magic_bytes:
+      - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
+      - { ext: ".pcx", magic_hex: "0A",               offset: 0 }
+      - { ext: ".tga", magic_hex: null }
+    l1_hint_function_names: []
+    l1_hint_bare_categories: []
+    stock_origin_paths: []
+    corpus_categories: ["Crosshairs", "Crosshairs / Transparent"]
+    notes: |
+      Engine loads via `crosshairimage <name>` cvar (no extension; engine probes .png/.tga/.pcx).
+      No stock origin -- built-in crosshair glyphs live inside the charset, not a separate file.
+
+  - asset_type: palette
+    description: 256-color palette for indexed-color rendering (768 bytes, 256 RGB triplets).
+    engine_canonical_paths: ["gfx/palette.lmp"]
+    engine_extensions: [".lmp"]
+    filename_constraint:
+      kind: hardcoded
+      pattern: "palette.lmp"
+      rename_required: true
+    user_install_paths: ["qw/gfx/palette.lmp"]
+    format_magic_bytes:
+      - { ext: ".lmp", magic_hex: null, notes: "Exactly 768 bytes of raw RGB data." }
+    l1_hint_function_names: ["Host_InitLocal", "W_LoadWadFile"]
+    l1_hint_bare_categories: []
+    stock_origin_paths: ["gfx/palette.lmp"]
+    corpus_categories: []
+    notes: Stock-only; rarely overridden. Listed for completeness.
+
+  - asset_type: colormap
+    description: 256x64 light/color shift lookup table for software-renderer-era rendering.
+    engine_canonical_paths: ["gfx/colormap.lmp"]
+    engine_extensions: [".lmp"]
+    filename_constraint:
+      kind: hardcoded
+      pattern: "colormap.lmp"
+      rename_required: true
+    user_install_paths: ["qw/gfx/colormap.lmp"]
+    format_magic_bytes:
+      - { ext: ".lmp", magic_hex: null, notes: "16,384 bytes (256*64 palette indices)." }
+    l1_hint_function_names: []
+    l1_hint_bare_categories: []
+    stock_origin_paths: ["gfx/colormap.lmp"]
+    corpus_categories: []
+    notes: Stock-only.
+
+  - asset_type: hud_element
+    description: HUD overlay element (numbers, faces, weapon icons) replacing gfx.wad lumps.
+    engine_canonical_paths:
+      - "textures/wad/<name>"
+      - "textures/wad3/<name>"
+      - "textures/halflife/<name>"
+    engine_extensions: [".png", ".tga", ".jpg"]
+    filename_constraint:
+      kind: templated
+      pattern: "<wad_lump_name>.<ext>"
+      rename_required: false
+    user_install_paths: ["qw/textures/wad/<name>.<ext>"]
+    format_magic_bytes:
+      - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
+      - { ext: ".jpg", magic_hex: "FFD8FF",           offset: 0 }
+      - { ext: ".tga", magic_hex: null }
+    l1_hint_function_names: ["Draw_CachePicSafe", "R_LoadPicImage", "WAD3_LoadWadFile"]
+    l1_hint_bare_categories: ["hud_overlay"]
+    stock_origin_paths: ["gfx.wad"]
+    corpus_categories:
+      - "HUD"
+      - "HUD / Face and Armor"
+      - "HUD / Icons"
+      - "HUD / Numbers"
+      - "HUD / Sets"
+      - "HUD / Weapon"
+    notes: |
+      Filename matches the WAD lump name being replaced (num_0, num_1, face1, ...).
+      Stock HUD elements ship inside id1/gfx.wad; the texture-replacement system
+      finds external override files at textures/wad/<name>.<ext>.
+
+  - asset_type: wad_file
+    description: WAD2/WAD3 archive containing HUD lumps or map textures.
+    engine_canonical_paths: ["<name>.wad"]
+    engine_extensions: [".wad"]
+    filename_constraint:
+      kind: free
+      pattern: "*.wad"
+      rename_required: false
+    user_install_paths: ["qw/<name>.wad"]
+    format_magic_bytes:
+      - { ext: ".wad", magic_hex: "57414432", offset: 0, notes: '"WAD2" magic; Quake-style.' }
+      - { ext: ".wad", magic_hex: "57414433", offset: 0, notes: '"WAD3" magic; Half-Life-style; ezQuake/FTE understand it.' }
+    l1_hint_function_names: ["W_LoadWadFile", "WAD3_LoadWadFile"]
+    l1_hint_bare_categories: ["wad"]
+    stock_origin_paths: ["gfx.wad"]
+    corpus_categories: ["HUD / WADs"]
+    notes: |
+      Engine reads WAD files at gamedir root (qw/<name>.wad). Map authors reference them
+      via worldspawn.wad. id1/gfx.wad is the stock HUD wad that hud_element overrides target.
+
+  - asset_type: skybox
+    description: Six-image cubemap (right/left/front/back/up/down) installed into env/.
+    engine_canonical_paths:
+      - "env/<skyname>rt.<ext>"
+      - "env/<skyname>lf.<ext>"
+      - "env/<skyname>ft.<ext>"
+      - "env/<skyname>bk.<ext>"
+      - "env/<skyname>up.<ext>"
+      - "env/<skyname>dn.<ext>"
+    engine_extensions: [".tga", ".png", ".jpg"]
+    filename_constraint:
+      kind: templated
+      pattern: "<skyname><suffix>.<ext>"
+      rename_required: false
+    user_install_paths: ["qw/env/<skyname><suffix>.<ext>"]
+    format_magic_bytes:
+      - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
+      - { ext: ".jpg", magic_hex: "FFD8FF",           offset: 0 }
+      - { ext: ".tga", magic_hex: null }
+    l1_hint_function_names: ["R_LoadSky", "R_LoadSkys", "R_SetSky"]
+    l1_hint_bare_categories: []
+    stock_origin_paths: []
+    corpus_categories: ["Other / Skyboxes"]
+    notes: |
+      Six-file set; suffix conventions vary (_rt vs rt; some engines accept either case).
+      Skybox name comes from worldspawn.sky in the BSP, or the sky cvar.
+      L1 evidence likely empty -- the skybox loader function may be missing from the
+      qw-oracle extractor watchlist (flag for backlog).
+
+  - asset_type: levelshot
+    description: Map intermission preview image shown at end-of-level / map selection.
+    engine_canonical_paths:
+      - "textures/levelshots/<mapname>.<ext>"
+      - "levelshots/<mapname>.<ext>"
+    engine_extensions: [".tga", ".png", ".jpg"]
+    filename_constraint:
+      kind: templated
+      pattern: "<mapname>.<ext>"
+      rename_required: false
+    user_install_paths: ["qw/textures/levelshots/<mapname>.<ext>"]
+    format_magic_bytes:
+      - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
+      - { ext: ".jpg", magic_hex: "FFD8FF",           offset: 0 }
+      - { ext: ".tga", magic_hex: null }
+    l1_hint_function_names: []
+    l1_hint_bare_categories: []
+    stock_origin_paths: []
+    corpus_categories: ["Other / Levelshots"]
+    notes: ezQuake-specific; filename matches the map's canonical name.
+
+  - asset_type: player_skin
+    description: Player-model skin replacement loaded via teamskin/enemyskin cvars.
+    engine_canonical_paths: ["skins/<skinname>.<ext>"]
+    engine_extensions: [".pcx", ".tga", ".png"]
+    filename_constraint:
+      kind: templated
+      pattern: "<cvar:teamskin|enemyskin>.<ext>"
+      rename_required: false
+    user_install_paths: ["qw/skins/<skinname>.<ext>"]
+    format_magic_bytes:
+      - { ext: ".pcx", magic_hex: "0A",               offset: 0 }
+      - { ext: ".tga", magic_hex: null }
+      - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
+    l1_hint_function_names: []
+    l1_hint_bare_categories: ["skin"]
+    stock_origin_paths: []
+    corpus_categories: ["Skins", "Skins / Player Model", "Skins / Gib"]
+    notes: |
+      Stock player skin (player.mdl skin 0) lives inside id1/progs/player.mdl, not as
+      a separate file. Replacement is loaded via /teamskin and /enemyskin cvars naming
+      a file in qw/skins/.
+
+  - asset_type: model_q1
+    description: Quake-format alias model (.mdl) for players, weapons, monsters, items.
+    engine_canonical_paths: ["progs/<name>.mdl"]
+    engine_extensions: [".mdl"]
+    filename_constraint:
+      kind: free
+      pattern: "*.mdl"
+      rename_required: false
+    user_install_paths: ["qw/progs/<name>.mdl"]
+    format_magic_bytes:
+      - { ext: ".mdl", magic_hex: "4944504F", offset: 0, notes: '"IDPO" magic; Quake 1 alias model.' }
+    l1_hint_function_names: ["Mod_ForName", "Mod_FindName", "Mod_TouchModel", "Mod_LoadAliasModel"]
+    l1_hint_bare_categories: ["model"]
+    stock_origin_paths: ["progs/*.mdl"]
+    corpus_categories:
+      - "Models"
+      - "Models / Armor"
+      - "Models / Item"
+      - "Models / Sets"
+      - "Models / Team Fortress"
+      - "Models / Weapon"
+    notes: |
+      Stock player/weapon/monster/item models ship in id1/pak0. Embedded skins live
+      inside the .mdl file; external skin replacement uses the player_skin or
+      model_texture mechanism instead.
+
+  - asset_type: model_texture
+    description: Hi-res texture replacement for a .mdl model's skin (worldmodel or viewmodel).
+    engine_canonical_paths:
+      - "textures/models/<modelname>.<ext>"
+      - "textures/models/<modelname>_<skinindex>.<ext>"
+    engine_extensions: [".tga", ".png", ".jpg"]
+    filename_constraint:
+      kind: templated
+      pattern: "<modelname>[_<skinindex>].<ext>"
+      rename_required: false
+    user_install_paths: ["qw/textures/models/<modelname>.<ext>"]
+    format_magic_bytes:
+      - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
+      - { ext: ".jpg", magic_hex: "FFD8FF",           offset: 0 }
+      - { ext: ".tga", magic_hex: null }
+    l1_hint_function_names: []
+    l1_hint_bare_categories: []
+    stock_origin_paths: []
+    corpus_categories:
+      - "Textures / Armor"
+      - "Textures / Backpack"
+      - "Textures / Team Fortress"
+      - "Textures / Weapon"
+    notes: |
+      Replaces the skin baked into a .mdl. Filename matches the model name
+      (v_axe -> v_axe.tga, or v_axe_0.tga for skin index 0).
+      Distinct from hud_element (HUD overlays) and map_texture (BSP-embedded textures).
+
+  - asset_type: map
+    description: BSP map geometry file (.bsp).
+    engine_canonical_paths: ["maps/<mapname>.bsp"]
+    engine_extensions: [".bsp"]
+    filename_constraint:
+      kind: free
+      pattern: "*.bsp"
+      rename_required: false
+    user_install_paths: ["qw/maps/<mapname>.bsp"]
+    format_magic_bytes:
+      - { ext: ".bsp", magic_hex: "1D000000", offset: 0, notes: "V29 (Quake 1) int32 = 29." }
+      - { ext: ".bsp", magic_hex: "42535032", offset: 0, notes: '"BSP2" (modernized format).' }
+    l1_hint_function_names: ["CM_OpenMap", "Mod_LoadBrushModel"]
+    l1_hint_bare_categories: ["map"]
+    stock_origin_paths: ["maps/*.bsp"]
+    corpus_categories: ["Maps", "Maps / DMM4"]
+    notes: |
+      Stock id1 ships e1m1-e4m8, dm1-dm6, start, end, plus b_*.bsp ammo box "maps"
+      (technically BSPs; filtered as non-playable). ezQuake L1 doesn't currently
+      have a `map` reads_category_id -- CM_OpenMap's site shows up with cat=null.
+
+  - asset_type: map_texture
+    description: Hi-res texture override for a BSP-embedded texture (map-scoped or global).
+    engine_canonical_paths:
+      - "textures/<mapname>/<texname>.<ext>"
+      - "textures/<texname>.<ext>"
+    engine_extensions: [".tga", ".png", ".jpg"]
+    filename_constraint:
+      kind: templated
+      pattern: "<bsp_texture_name>.<ext>"
+      rename_required: false
+    user_install_paths:
+      - "qw/textures/<mapname>/<texname>.<ext>"
+      - "qw/textures/<texname>.<ext>"
+    format_magic_bytes:
+      - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
+      - { ext: ".jpg", magic_hex: "FFD8FF",           offset: 0 }
+      - { ext: ".tga", magic_hex: null }
+    l1_hint_function_names: []
+    l1_hint_bare_categories: ["texture"]
+    stock_origin_paths: []
+    corpus_categories:
+      - "Maps / Map textures"
+      - "Textures"
+      - "Textures / Sets"
+    notes: |
+      Filename must match a texture name embedded in the target BSP's texture lump
+      (cross-reference qw-bsp-textures.json). Map-scoped path wins over global.
+      `#`-prefixed names (e.g. #teleport, #lava) have special semantics per gfx_faq QID 22.
+
+  - asset_type: map_lighting
+    description: Colored lighting overlay file (.lit) sidecar to a BSP.
+    engine_canonical_paths:
+      - "maps/<mapname>.lit"
+      - "maps/lits/<mapname>.lit"
+      - "lits/<mapname>.lit"
+    engine_extensions: [".lit"]
+    filename_constraint:
+      kind: templated
+      pattern: "<mapname>.lit"
+      rename_required: false
+    user_install_paths: ["qw/maps/<mapname>.lit"]
+    format_magic_bytes:
+      - { ext: ".lit", magic_hex: "514C4954", offset: 0, notes: '"QLIT" magic; followed by int32 version.' }
+    l1_hint_function_names: ["LoadColoredLighting"]
+    l1_hint_bare_categories: ["map_lighting"]
+    stock_origin_paths: []
+    corpus_categories: []
+    notes: Per-face RGB lighting overrides for BSPs; filename matches the BSP basename.
+
+  - asset_type: map_entities
+    description: Override entity file (.ent) replacing a BSP's embedded entity lump.
+    engine_canonical_paths:
+      - "maps/<mapname>.ent"
+      - "maps/<mapname>/<mapname>.ent"
+    engine_extensions: [".ent"]
+    filename_constraint:
+      kind: templated
+      pattern: "<mapname>.ent"
+      rename_required: false
+    user_install_paths: ["qw/maps/<mapname>.ent"]
+    format_magic_bytes:
+      - { ext: ".ent", magic_hex: null, notes: "Plain text: { \"key\" \"value\" ... } entity dicts." }
+    l1_hint_function_names: ["SV_SpawnServer"]
+    l1_hint_bare_categories: []
+    stock_origin_paths: []
+    corpus_categories: []
+    notes: |
+      Server-side override for entity placements (item spawns, spawnpoints, etc.)
+      without re-vis-ing the BSP. ezQuake L1 captures it but with cat=null today.
+
+  - asset_type: locfile
+    description: Location marker file (.loc) for teamplay coordinate-to-location lookup.
+    engine_canonical_paths: ["locs/<mapname>.loc"]
+    engine_extensions: [".loc"]
+    filename_constraint:
+      kind: templated
+      pattern: "<mapname>.loc"
+      rename_required: false
+    user_install_paths:
+      - "qw/locs/<mapname>.loc"
+      - "qw/<mapname>.loc"
+    format_magic_bytes:
+      - { ext: ".loc", magic_hex: null, notes: "Plain text: 'X Y Z \"location name\"' per line." }
+    l1_hint_function_names: ["TP_LoadLocFile"]
+    l1_hint_bare_categories: ["locfile"]
+    stock_origin_paths: []
+    corpus_categories: []
+    notes: ezQuake teamplay uses these for `%l` macro expansion in chat.
+
+  - asset_type: sound
+    description: Sound effect (.wav for stock; .ogg supported by modern engines).
+    engine_canonical_paths: ["sound/<path>/<name>.<ext>"]
+    engine_extensions: [".wav", ".ogg"]
+    filename_constraint:
+      kind: templated
+      pattern: "sound/<path>/<name>.<ext>"
+      rename_required: false
+    user_install_paths: ["qw/sound/<path>/<name>.<ext>"]
+    format_magic_bytes:
+      - { ext: ".wav", magic_hex: "52494646", offset: 0, notes: '"RIFF" at 0; "WAVE" at byte 8.' }
+      - { ext: ".ogg", magic_hex: "4F676753", offset: 0, notes: '"OggS" stream marker.' }
+    l1_hint_function_names: ["S_PrecacheSound", "S_LoadSound"]
+    l1_hint_bare_categories: ["sound"]
+    stock_origin_paths: ["sound/*"]
+    corpus_categories: ["Other / Sounds"]
+    notes: |
+      Stock sounds ship in id1/pak0 (weapons/items/ambient). Custom sounds override by
+      same-path matching (qw/sound/weapons/sshotgun.wav shadows stock SSG fire).
+
+  - asset_type: config
+    description: User-editable config / RC file loaded via /exec.
+    engine_canonical_paths: ["<name>.cfg", "<name>.rc"]
+    engine_extensions: [".cfg", ".rc"]
+    filename_constraint:
+      kind: free
+      pattern: "*.cfg | *.rc"
+      rename_required: false
+    user_install_paths: ["qw/<name>.cfg"]
+    format_magic_bytes:
+      - { ext: ".cfg", magic_hex: null, notes: "Plain text: cvar/command lines, hash comments." }
+      - { ext: ".rc",  magic_hex: null, notes: "Same shape as .cfg." }
+    l1_hint_function_names: ["Cbuf_AddText", "Cbuf_InsertText"]
+    l1_hint_bare_categories: ["config"]
+    stock_origin_paths: ["default.cfg", "quake.rc"]
+    corpus_categories:
+      - "Configs"
+      - "Configs / Eyecandy"
+      - "Configs / HUD"
+      - "Configs / Performance"
+      - "Configs / Teamplay"
+    notes: |
+      Stock id1 ships default.cfg + qw/quake.rc. Custom configs install to gamedir root
+      and are typically loaded via /exec <name>.cfg from another script (or from quake.rc).
+
+  - asset_type: demo
+    description: Recorded gameplay demo (.mvd preferred for QW; .qwd legacy; .dem single-player).
+    engine_canonical_paths: ["demos/<name>.<ext>"]
+    engine_extensions: [".mvd", ".qwd", ".dem"]
+    filename_constraint:
+      kind: free
+      pattern: "*.mvd | *.qwd | *.dem"
+      rename_required: false
+    user_install_paths: ["qw/demos/<name>.<ext>"]
+    format_magic_bytes:
+      - { ext: ".mvd", magic_hex: null, notes: "ASCII map-name header, then binary message stream." }
+      - { ext: ".qwd", magic_hex: null, notes: "Similar shape; different message multiplexing." }
+      - { ext: ".dem", magic_hex: null, notes: "NetQuake single-player demo." }
+    l1_hint_function_names: ["CL_PlayDemo_f", "PlayQWZDemo"]
+    l1_hint_bare_categories: ["demo"]
+    stock_origin_paths: []
+    corpus_categories: []
+    notes: Out of scope for the gfx.quakeworld.nu corpus; listed for completeness.
+
+  - asset_type: demo_archive
+    description: Compressed demo archive (.qwz Quake-Wizard; .dz dzip).
+    engine_canonical_paths: ["demos/<name>.<ext>"]
+    engine_extensions: [".qwz", ".dz"]
+    filename_constraint:
+      kind: free
+      pattern: "*.qwz | *.dz"
+      rename_required: false
+    user_install_paths: ["qw/demos/<name>.<ext>"]
+    format_magic_bytes:
+      - { ext: ".qwz", magic_hex: null, notes: "Container; engines call out to qwz<->mvd transcoder." }
+      - { ext: ".dz",  magic_hex: null, notes: "dzip container; auto-extracted on playback." }
+    l1_hint_function_names: ["PlayQWZDemo"]
+    l1_hint_bare_categories: ["demo_archive"]
+    stock_origin_paths: []
+    corpus_categories: []
+    notes: Auto-extracted before playback.
