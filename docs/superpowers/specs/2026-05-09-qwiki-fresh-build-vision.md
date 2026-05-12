@@ -628,6 +628,161 @@ Pass 5 settles the enforcement-vs-invitation balance.
 - **To Pass 5 (contributor model):** the pitch's "credentialed-but-not-curatorial on-ramp" framing meets the contributor model. Pass 5 settles on-ramp mechanics (Discord OAuth + Quad-bot auto-provisioning candidate locked from Pass 1) + structure-vs-freedom balance.
 - **To architecture pass (cutover communication):** the pitch + Q&A here is the seed for actual cutover messaging. Adapt to channel (forum post / Discord announcement / email to known contributors). Same content, different framing per audience.
 
-## Pass 5 -- contributor model + freedom-vs-structure -- pending
+## Pass 5 -- contributor model + freedom-vs-structure -- LOCKED
+
+**Pass 5 framing.** Pass 1 locked "credentialed-but-not-curatorial low-barrier signup" as the end-state operating point, not v1. **V1 is invite-only beta** -- a handful of trusted contributors test the form-driven authoring flow before broader access opens. The beta-vs-broader phase distinction threads through all of Pass 5; Pass 1's "no admin gating" applies to the broader end state, not the beta. 5.1 settles the on-ramp + gate; 5.2 settles per-page-type edit-gate; 5.3 + 5.4 settle curator + moderation; exit criteria from beta to broader fall out across 5.3 / 5.4.
+
+### 5.1 Signup mechanism + invite gate -- LOCKED
+
+**Auth bridge.** MediaWiki's standard PluggableAuth + a Discord-OAuth-provider extension (OpenID Connect or WSOAuth -- exact pick is architecture-pass). User clicks "Log in with Discord" on the wiki, completes Discord's OAuth dialog, returns with an MW account auto-provisioned. **Quad does NOT provision MW accounts.**
+
+**Gate layer.** MW group membership: users without the `wiki-contributor` group are read-only; members can edit. **Auto-assigned on first login** via Discord-role-as-OAuth-claim: the OAuth extension reads the user's Discord roles from the OAuth response and maps `@wiki-beta` (Discord) -> `wiki-contributor` (MW). No two-step manual promotion.
+
+Discord-role-as-claim chosen over a Quad-managed allowlist API because: operator sees invitees directly in Discord (no separate allowlist state); standard OAuth extension claim-mapping config (no custom MW hook); symmetric revocation (remove role -> edit access falls off on next session).
+
+**Invite command.** Quad's `/invite_wiki @user` -> grants the `@wiki-beta` Discord role + DMs the invitee with the wiki login link. Text-command flow (no admin modal); spiritually matchscheduler-precedent, lighter UX.
+
+**Revocation.** Remove the `@wiki-beta` Discord role; edit access falls off on next OAuth session resync.
+
+**Read access.** Public; no account required to browse. Per Pass 1's wiki-form irreducible offering, public-archive value is preserved.
+
+**Quad's v1 role.** Invite-command surface + invitee DM. Account provisioning delegated to the OAuth extension. Page-change Discord-channel notifications are downstream-nice-to-have, parked for v1.
+
+**Phasing carry-forward.** Beta (v1) = `@wiki-beta` gates edit. Broader (later) = add a wider Discord role (e.g. `@wiki-contributor`) mapped to the same MW group, or loosen further. Exit criterion from beta to broader falls out in 5.3 / 5.4.
+
+**Open question deferred to handoff.** Who's in the v1 beta invite wave -- operator-curated; final list lands when implementation begins. Likely first wave: Alice, the curator role (Carapace-v2 candidate), 1-2 active tournament organizers.
+
+### 5.2 Edit-gate level per page-type -- LOCKED
+
+**Three gate-levels (taxonomy):**
+
+- **Strict-form.** Contributor fills structured fields only; no free-floating wiki-text. The form IS the entire authoring UX. Used where every section is harvest-atomic.
+- **Form + narrative slots.** Contributor fills structured fields AND specific named text-areas (within the same form) accept short prose blocks. Free-form prose lives INSIDE named slots; nothing free-floating. Pass 4 4.3's default "bones + slots" shape.
+- **Free-form + form metadata.** Tiny form for metadata only (author / date / format-type); body is open wiki-text. Used for creative content that resists structuring.
+
+**Per-page-type assignment (12 page-types from Pass 4 4.3):**
+
+| Page-type | Gate level | Reasoning |
+|---|---|---|
+| mode-page | Form + slots | Complex bones (format / deviations / hub-IDs); narrative for description / strategy / history. |
+| mechanic-page | Strict-form | Atomic concept-note input; L1-anchored. |
+| item-page | Strict-form | Atomic; L1-anchored. |
+| weapon-baseline-page | Strict-form | Atomic; L1-anchored. |
+| distribution-page | Form + slots | Per-OS install structured; history / known-issues narrative. |
+| server-admin-overview-page | Form + slots | Setup walkthrough structured; operational tips narrative. |
+| hof-league-page | Form + slots | Per-season-champions roster structured; history / notable matches narrative. |
+| player-page | Form + slots | Sync-shaped bones; bio / history narrative. |
+| clan-page | Form + slots | Sync-shaped bones; bio / history narrative. |
+| tutorial-page | Form + slots | Procedural steps structured; troubleshooting / tips narrative. |
+| article-page | Free-form + metadata | Columns / interviews / essays; format-type metadata only. |
+| glossary-page | Strict-form | Single umbrella; H3-section-per-term needs uniform shape for harvest. |
+
+**Pattern.** 8 form+slots / 3 strict-form (atoms) / 1 free-form (article). High-curator-value entries (modes / atoms / distributions / tutorials / glossary) get tight forms; article-page (cultural content, low Layer-3 weight) stays loose.
+
+**Slot-detail discipline (iterates post-mockup).** Pass 5 locks the gate-LEVEL per page-type. Exact slot names + counts per "form + slots" page-type iterate during architecture pass + early beta authoring. Adding a slot to a "form + slots" page-type is near-zero cost (template parameter + form textarea); discovering missing slots during real authoring is expected and accommodated.
+
+**Reversibility profile:**
+
+- Adding a slot: near-zero cost.
+- Removing a slot: medium-disruptive (loses authored content unless migrated).
+- Changing gate-level (strict <-> form+slots <-> free-form): tolerable at v1 beta scale (handful of pages per type), painful at broader-phase scale (hundreds of pages). **v1 beta is the window to reshape gate-level if it turns out wrong.**
+
+**Track C tension resolved (Pass 4 4.4 carry-forward).** High-curator-value entries get tight forms (strict or form+slots); article-page (low Track C weight) stays free-form. Beta phase tests all gate-levels in parallel since invitees author across page-types from day 1.
+
+### 5.3 Curator workflow -- LOCKED
+
+**Curator role exists, narrower than old-wiki curator work.** Pass 4 4.3 bones+slots + Pass 5 5.2 gate-levels make structural drift mostly impossible at authoring time -- forms reject malformed bones, missing required fields, and prose-in-wrong-place at submission. The curator does NOT detect structural drift; the load-bearing work is content-quality review + Layer 3 harvest + spam/vandalism response.
+
+#### 5.3a Permission level -- LOCKED
+
+**Curator is a separately-permissioned MW role: `wiki-curator` group.** Permissions beyond `wiki-contributor`:
+
+- Delete pages.
+- Protect pages from edit (vandalism response, stable-version lock).
+- Edit restricted pages (forms / templates / categories that `wiki-contributor` cannot touch).
+- Revert to specific revision.
+
+v1 beta scale: 1-2 curators (operator + Carapace-candidate if available). Visible identity matters for community legibility.
+
+Rejected: curator-as-label-only (operator becomes single-point-of-failure for delete / protect / form-fix); curator-with-narrow-rights (under-equipped; forms / templates need curator-editable for 5.2 slot iteration).
+
+#### 5.3b Workflow shape -- LOCKED
+
+**Where work happens.** Wiki UI in browser. Curator logs in, opens `Special:RecentChanges` + `Category:<tag>` pages, does the work directly in the wiki. No external dashboard, no Discord notifications, no email. (MW's Echo / watchlist notification system is architecture-pass-optional, not load-bearing.)
+
+**Cadence.** Continuous-lightweight + periodic-batch.
+
+- **Continuous-lightweight.** Curator scrolls `Special:RecentChanges` as time permits. Catches obvious problems early (spam, vandalism, content that slipped past form validation).
+- **Periodic-batch.** Operator-set cadence (weekly / biweekly fits beta scale). Curator works through `Category:Needs review` queue. Does content review + currency review + Layer 3 harvest.
+
+**Quality-tag system (narrowed; forms handle structural drift):**
+
+| Category | Trigger | Curator action |
+|---|---|---|
+| `Category:Needs review` | Auto-applied on new page creation. | Read page, polish prose, clear tag. v1 main work queue. |
+| `Category:Stale` | Explicit author or curator tag for currency-review backlog. | Currency-review content; update or escalate. |
+| `Category:Draft` | Explicit author flag ("not ready"). | Skip until author removes Draft tag. |
+
+Dropped tags (forms enforce these at authoring time): `Category:Incomplete bones`, `Category:Broken cross-refs`.
+
+**What curators actually do (load-bearing list):**
+
+1. **Content quality review.** Form lets contributor put any prose in named slots; curator reads and polishes (or asks author to rework).
+2. **Cross-page coherence.** Two mode-pages might describe the same KTX ruleset differently. Curator catches and unifies.
+3. **Currency review.** Stale install walkthroughs, outdated cvars in tutorials, deprecated distribution versions. Curator updates on cadence.
+4. **Layer 3 harvest (Track C).** Curator picks matured sections and writes Layer 3 concept-notes in `apps/qw-oracle/curated/concept-notes/` per existing CLAUDE.md workflow. **Out-of-wiki work but central to Track C.** The load-bearing curator activity that doesn't exist in normal wikis.
+5. **Spam / vandalism response.** Delete bad pages, revert vandalism, escalate persistent bad actors to operator (who removes the `@wiki-beta` Discord role).
+6. **Template / form maintenance.** When a slot needs adjusting (per 5.2 iteration), curator edits the form / template definition. Requires `wiki-curator` rights.
+
+**Anti-burnout discipline (Pass 2 carry-forward).** Carapace burned out on the old wiki. Design constraint: curator workload bounded by what's tagged + recent-changes that catch their eye. Curator does NOT chase the entire backlog. Tags re-surface on next cycle; periodic-batch has operator-set time cap; the queue is allowed to grow if curator capacity is low.
+
+### 5.4 Moderation + quality-floor + transition criterion -- LOCKED
+
+**Honest scope.** Most of original 5.4 was already settled by 5.1 / 5.2 / 5.3: schema enforcement (5.2 form gates), curator-pass cleanup (5.3 workflow), quality-flag tags (5.3 Needs review / Stale / Draft), filtering undisciplined edits (5.1 invite gate + 5.2 form gates), bad-actor revocation (5.1 remove Discord role). 5.4 settles two remaining small shape decisions.
+
+#### 5.4a Edit-restriction defaults per MW namespace -- LOCKED
+
+| MW namespace | Edit access | Reasoning |
+|---|---|---|
+| Main (content pages: mode-page, mechanic-page, etc.) | `wiki-contributor` | Where authoring happens. |
+| `Form:` (Page Forms definitions) | `wiki-curator` only | One bad edit breaks every page using the form. |
+| `Template:` (template definitions) | `wiki-curator` only | Structural. |
+| `Category:` (category definitions) | `wiki-curator` only | Category structure is the curator's tool. |
+| `MediaWiki:` (system messages) | sysop only (MW default) | System config. |
+| `User:` / `User_talk:` | self + curator | Own profile, anyone's talk page. |
+| `Talk:` (article discussions) | `wiki-contributor` | Discussion is part of authoring. |
+| `File:` (uploaded images) | `wiki-contributor` | Authors upload screenshots / diagrams; curator can delete. |
+
+#### 5.4b Beta -> broader transition criterion -- LOCKED
+
+Exit criterion from invite-only beta phase (5.1 `@wiki-beta` gate) to broader Discord-pool access:
+
+- **Forms have proven across all 12 page-types.** Each page-type used at least once with no major reshape required mid-authoring.
+- **At least one page authored per page-type without curator hand-holding.** Form is self-explanatory enough for a `wiki-contributor` invitee to complete solo.
+- **No major spam or vandalism incidents during beta.** Gate effectively filtering.
+- **Curator workflow proven sustainable.** Curator hasn't burned out at the chosen cadence.
+- **Operator subjective confidence.** "I'm ready to widen this."
+
+When criteria are met: operator adds a `@wiki-contributor` Discord role mapped to the same `wiki-contributor` MW group. Existing `@wiki-beta` invitees keep access. New people get the broader role. **No hard switchover; both roles coexist.** Future tightening (revoke `@wiki-contributor` if quality degrades) is symmetric.
+
+**Timeline expectation:** no fixed number. Beta runs until forms feel solid. Operator-set.
+
+### Pass 5 carry-forwards
+
+- **To architecture pass:**
+  - Specific OAuth extension choice (OpenID Connect vs WSOAuth) + Discord-role-as-OAuth-claim configuration (5.1).
+  - MW namespace edit-permission config per 5.4a.
+  - Quality-tag template wiring: auto-apply `Category:Needs review` on save; explicit-tag UX for `Category:Stale` / `Category:Draft` (5.3b).
+  - Page Forms slot specifics per page-type (iterate during architecture + early beta authoring) (5.2).
+- **To Pass 6 (content strategy):**
+  - Per-page-type gate-level + form discipline informs what's importable from old wiki (loose old content vs new structured forms) (5.2).
+  - Layer 3 harvest pipeline shape: curator distills wiki sections into concept-notes in `apps/qw-oracle/curated/concept-notes/` (5.3b activity #4).
+- **To implementation handoff:**
+  - V1 beta invite list (operator-curated; Alice, Carapace-candidate, 1-2 tournament organizers) (5.1).
+  - Curator role assignment (operator + Carapace-candidate if available) (5.3a).
+- **To Quad bot work (apps/quad/):**
+  - `/invite_wiki @user` command: grant `@wiki-beta` Discord role + DM invitee with login link (5.1).
+  - `/uninvite_wiki @user` command: symmetric revocation (5.4 implicit).
+  - Page-change Discord channel notifications: future nice-to-have, parked (5.1).
 
 ## Pass 6 -- content strategy -- pending
