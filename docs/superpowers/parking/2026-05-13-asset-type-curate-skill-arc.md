@@ -41,7 +41,7 @@ Three structural insights that drive the skill design. Memory entries written:
    - SPARSE -- minimal evidence everywhere (might be stock-only / non-shareable)
 6. **Output artifacts:**
    - `apps/qw-oracle/docs/asset-curation/<type>-investigation.md` (evidence dump + gap list + status flag)
-   - `apps/qw-oracle/curated/concept-notes/<type>.md` (DRAFT -- operator approves before commit)
+   - `apps/qw-oracle/curated/asset-notes/<type>.md` (DRAFT -- operator approves before commit)
    - Optional: seed-patch suggestion, extractor-gap one-liner for HANDOVER
 
 **Fan-out pattern.** Opus session dispatches 21 sub-agents (Sonnet medium-effort), one per asset_type, in parallel. Each produces investigation.md + draft.md. Opus reads 21 status flags, deep-reads DIVERGENT and L1-GAP reports, approves CONFIDENT drafts after light review, gates L1-GAP findings into the next extractor-capability arc. Cost ~$10-20 total, ~10 min wall-clock.
@@ -65,11 +65,12 @@ Alternatives:
 ## Sequencing
 
 1. **Brainstorm pass** (this handoff's target): confirm skill shape, pick first slice, settle gap-triage flag set, decide on single-vs-composable skill split.
-2. **Build skill** at `~/.claude/skills/asset-type-curate/SKILL.md` per `superpowers:writing-skills` and `skill-creator:skill-creator`.
-3. **First slice dry-run**: invoke skill on the chosen first asset type; refine prompt + output shape from the experience; save the .md template as memory.
-4. **Update memory** `project_asset_type_curate_workflow` with what landed in practice.
-5. **Fan-out**: dispatch sub-agents for remaining 20 asset types via the Opus orchestrator session pattern.
-6. **L1-GAP follow-up arc**: any L1-GAP findings from the fan-out form the next extractor-capability arc (likely candidate: the static-array path-extraction extractor capability surfaced for skybox).
+2. **Scaffold the new L3 dir.** Create `apps/qw-oracle/curated/asset-notes/` with `README.md` + `OPERATIONS.md` patterned on `concept-notes/`. Asset-type notes live in their own bucket parallel to concept-notes/ / player-notes/ / clan-notes/ / tournament-notes/ -- bounded set, consistent template, 1:1 mapping to `qw-asset-types.yaml` entries. The existing `concept-notes/player-skins.md` is asset-type-shaped and should migrate during this step (rename + update MCP `get_concept_note` consumers if any reference the old path).
+3. **Build skill** at `~/.claude/skills/asset-type-curate/SKILL.md` per `superpowers:writing-skills` and `skill-creator:skill-creator`.
+4. **First slice dry-run**: invoke skill on the chosen first asset type; refine prompt + output shape from the experience; save the .md template as memory.
+5. **Update memory** `project_asset_type_curate_workflow` with what landed in practice.
+6. **Fan-out**: dispatch sub-agents for remaining 20 asset types via the Opus orchestrator session pattern.
+7. **L1-GAP follow-up arc**: any L1-GAP findings from the fan-out form the next extractor-capability arc (likely candidate: the static-array path-extraction extractor capability surfaced for skybox).
 
 ## Open questions for the brainstorm
 
@@ -78,6 +79,7 @@ Alternatives:
 - How does the skill handle DIVERGENT status (sources disagree)? Auto-flag for operator review vs propose a synthesis with notes?
 - Does the skill emit seed-patch suggestions inline (in the investigation.md) or as a separate `seed-patches/<type>.yaml` artifact?
 - How does it interact with the existing `guide-rewrite` skill (which handles ezquake.com -> L3 for prose pages)? Distinct, or composed (guide-rewrite as a sub-step within asset-type-curate)?
+- MCP tool routing for the new bucket: does `get_concept_note` extend to look up asset-notes/ too, or does asset-notes/ get its own tool (e.g., `get_asset_note` / `lookup_asset_type`) with a richer envelope (seed YAML + L1 evidence + note prose returned together)? The latter matches the bounded-set shape and Slipgate's classifier query pattern but adds a tool to the MCP surface.
 - Status-flag values -- is the 5-flag set right or should it be split further (e.g., "L1-GAP-handler" vs "L1-GAP-seed" vs "L1-GAP-extractor-capability")?
 - Triage threshold: when should the skill halt-and-report (DIVERGENT) vs proceed-with-notes (DOC-GAP)?
 
