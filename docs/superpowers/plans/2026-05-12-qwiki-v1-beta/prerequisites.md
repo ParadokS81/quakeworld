@@ -47,8 +47,8 @@ These are things the phase drafter may ask about. Pre-decide if you want to shor
 
 - [ ] **OAuth extension choice: OpenID Connect vs WSOAuth.** Both PluggableAuth-compatible providers satisfy D4. Default: OpenID Connect (more standard claim-mapping path).
 - [ ] **Citizen skin left-rail TOC.** Pass 4 mentioned as optional; visual companion HTML v3 includes a sketch. Default: enabled.
-- [ ] **MW image source.** Use the official `mediawiki:1.39` Docker image or build a custom image with extensions pre-installed? Default: official image + extensions mounted via volume + `LocalSettings.php` overlay.
-- [ ] **MariaDB image source.** Default: official `mariadb:10.11`.
+- [ ] **MW image source.** Use the official `mediawiki:1.43-fpm` Docker image or build a custom image with extensions pre-installed? Default: official image + extensions mounted via host bind-mount + `LocalSettings.php` overlay (per Phase 1 Q5 resolution).
+- [ ] **MariaDB image source.** Default: official `mariadb:11.4` (current LTS line per D2 Amendment #2).
 - [ ] **Per-mode-page screenshot inclusion.** Some mode pages need screenshots (game footage / map angles). Default: flagship modes only get hero images; non-flagship modes can have screenshots added post-v1-beta.
 
 ---

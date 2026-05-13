@@ -4,7 +4,7 @@
 
 **Brainstorm handoff:** `docs/superpowers/parking/2026-05-12-qwiki-sandbox-planner-handoff.md`
 
-**Goal:** Stand up a fresh MediaWiki 1.39 LTS substrate on Unraid at `wiki-beta.quake.world` with auth + groups + quality tags + Layer 3 harvest path observable end-to-end (baseline phases), then deliver the Modes domain as a vertical-slice proof (27 mode pages authored, with the Layer 3 harvest path exercised against real content and the harvested concept-note queryable via oracle MCP).
+**Goal:** Stand up a fresh **MediaWiki 1.43 LTS** substrate on Unraid at `wiki-beta.quake.world` (three-container stack: nginx 1.30-alpine + mediawiki:1.43-fpm + mariadb:11.4 + Citizen v3.16.0; per `decisions.md` D2 + Amendment #1 + #2) with auth + groups + quality tags + Layer 3 harvest path observable end-to-end (baseline phases), then deliver the Modes domain as a vertical-slice proof (27 mode pages authored, with the Layer 3 harvest path exercised against real content and the harvested concept-note queryable via oracle MCP).
 
 **Status:** Planning. Slicing analysis pending. Per-phase MDs land in commit order after operator review at each phase boundary.
 
