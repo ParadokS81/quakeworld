@@ -24,9 +24,15 @@ Persistent data and configs live at `/mnt/user/appdata/qwiki-beta/`:
 
 All paths live under `/mnt/user/appdata/qwiki-beta/`, which is on the weekly Unraid -> Synology backup tarball (D3). No named docker volumes are used; this keeps MW source inspectable from the Unraid GUI and recoverable from backup without re-pulling images.
 
+## SSH identity
+
+All deploy commands below use `ssh unraid-deploy` -- a non-root user (`claude-deploy`) in the `docker` group, scoped to `/mnt/user/appdata/qwiki-beta/`. This bounds the blast radius of a bad command to the qwiki-beta tree (recoverable from the weekly Synology backup per D3) instead of the whole Unraid host.
+
+`ssh unraid` (root) is **operator-only**; do NOT use it for the deploy commands below. The one-time setup of `claude-deploy` lives in the unraid project (creates the user, persists across boot via `/boot/config/go`, chowns the qwiki-beta tree, adds the `unraid-deploy` SSH alias to operator's WSL `~/.ssh/config`).
+
 ## Prerequisites
 
-- Tailscale up; `ssh unraid 'echo ok'` returns `ok`.
+- Tailscale up; `ssh unraid-deploy 'echo ok'` returns `ok`.
 - Cloudflare account access to the `quake.world` zone + Tunnel admin.
 - Existing `cloudflared` Tunnel agent running on Unraid (same one fronting `oracle.slipgate.me` for qw-oracle).
 
@@ -35,7 +41,7 @@ All paths live under `/mnt/user/appdata/qwiki-beta/`, which is on the weekly Unr
 1. Create the Unraid appdata directory tree:
 
    ```bash
-   ssh unraid 'mkdir -p /mnt/user/appdata/qwiki-beta/{mariadb-data,mediawiki-data,mediawiki-html,citizen}'
+   ssh unraid-deploy 'mkdir -p /mnt/user/appdata/qwiki-beta/{mariadb-data,mediawiki-data,mediawiki-html,citizen}'
    ```
 
 2. Copy compose + nginx + LocalSettings to Unraid:
@@ -44,13 +50,13 @@ All paths live under `/mnt/user/appdata/qwiki-beta/`, which is on the weekly Unr
    scp apps/qwiki-sandbox/deploy/docker-compose.prod.yml \
        apps/qwiki-sandbox/deploy/nginx.conf \
        apps/qwiki-sandbox/deploy/LocalSettings.php \
-       unraid:/mnt/user/appdata/qwiki-beta/
+       unraid-deploy:/mnt/user/appdata/qwiki-beta/
    ```
 
 3. Author the `.env` on Unraid:
 
    ```bash
-   ssh unraid
+   ssh unraid-deploy
    cd /mnt/user/appdata/qwiki-beta
    nano .env       # paste from apps/qwiki-sandbox/deploy/.env.prod.example, fill secrets
    chmod 600 .env
@@ -63,7 +69,7 @@ All paths live under `/mnt/user/appdata/qwiki-beta/`, which is on the weekly Unr
 4. Clone the Citizen skin at v3.16.0:
 
    ```bash
-   ssh unraid 'cd /mnt/user/appdata/qwiki-beta && \
+   ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
      git clone --branch v3.16.0 --depth 1 \
        https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git citizen'
    ```
@@ -78,7 +84,7 @@ All paths live under `/mnt/user/appdata/qwiki-beta/`, which is on the weekly Unr
    (see "Routine MW image bump procedure" below).
 
    ```bash
-   ssh unraid 'docker pull mediawiki:1.43-fpm && \
+   ssh unraid-deploy 'docker pull mediawiki:1.43-fpm && \
      docker create --name qwiki-mw-extract mediawiki:1.43-fpm && \
      docker cp qwiki-mw-extract:/var/www/html/. /mnt/user/appdata/qwiki-beta/mediawiki-html/ && \
      docker rm qwiki-mw-extract'
@@ -99,7 +105,7 @@ All paths live under `/mnt/user/appdata/qwiki-beta/`, which is on the weekly Unr
    the install.php run will join):
 
    ```bash
-   ssh unraid 'cd /mnt/user/appdata/qwiki-beta && \
+   ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
      docker compose -f docker-compose.prod.yml up -d mariadb && \
      docker compose -f docker-compose.prod.yml ps'
    ```
@@ -117,7 +123,7 @@ All paths live under `/mnt/user/appdata/qwiki-beta/`, which is on the weekly Unr
    --rm), leaving the host-side hand-authored file in place.
 
    ```bash
-   ssh unraid 'cd /mnt/user/appdata/qwiki-beta && \
+   ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
      set -a && . ./.env && set +a && \
      docker run --rm \
        --network qwiki-net \
@@ -140,7 +146,7 @@ All paths live under `/mnt/user/appdata/qwiki-beta/`, which is on the weekly Unr
 8. Start the full three-container stack:
 
    ```bash
-   ssh unraid 'cd /mnt/user/appdata/qwiki-beta && \
+   ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
      docker compose -f docker-compose.prod.yml up -d && \
      docker compose -f docker-compose.prod.yml ps'
    ```
@@ -154,16 +160,16 @@ All paths live under `/mnt/user/appdata/qwiki-beta/`, which is on the weekly Unr
    Sanity-check the nginx config:
 
    ```bash
-   ssh unraid 'docker exec qwiki-nginx nginx -t'
+   ssh unraid-deploy 'docker exec qwiki-nginx nginx -t'
    # Expect: nginx: configuration file /etc/nginx/nginx.conf test is successful
    ```
 
    Local smoke test (from Unraid itself):
 
    ```bash
-   ssh unraid 'curl -sI http://192.168.1.205:8081/'
+   ssh unraid-deploy 'curl -sI http://192.168.1.205:8081/'
    # Expect: HTTP/1.1 301 (redirect from / to /index.php?title=Main_Page).
-   ssh unraid 'curl -sI http://192.168.1.205:8081/index.php?title=Main_Page'
+   ssh unraid-deploy 'curl -sI http://192.168.1.205:8081/index.php?title=Main_Page'
    # Expect: HTTP/1.1 200 OK with Content-Type: text/html.
    ```
 
@@ -194,8 +200,8 @@ All paths live under `/mnt/user/appdata/qwiki-beta/`, which is on the weekly Unr
 
 ```bash
 # from operator's WSL
-scp apps/qwiki-sandbox/deploy/LocalSettings.php unraid:/mnt/user/appdata/qwiki-beta/
-ssh unraid 'cd /mnt/user/appdata/qwiki-beta && \
+scp apps/qwiki-sandbox/deploy/LocalSettings.php unraid-deploy:/mnt/user/appdata/qwiki-beta/
+ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
   docker compose -f docker-compose.prod.yml restart mediawiki'
 ```
 
@@ -206,11 +212,11 @@ new file. nginx is unaffected (no PHP files cached in nginx).
 
 ```bash
 # from operator's WSL
-scp apps/qwiki-sandbox/deploy/nginx.conf unraid:/mnt/user/appdata/qwiki-beta/
+scp apps/qwiki-sandbox/deploy/nginx.conf unraid-deploy:/mnt/user/appdata/qwiki-beta/
 # Validate the new config inside the running container BEFORE restart:
-ssh unraid 'docker exec qwiki-nginx nginx -t' || echo "config invalid; do not restart"
+ssh unraid-deploy 'docker exec qwiki-nginx nginx -t' || echo "config invalid; do not restart"
 # If valid, reload nginx without dropping connections:
-ssh unraid 'docker exec qwiki-nginx nginx -s reload'
+ssh unraid-deploy 'docker exec qwiki-nginx nginx -s reload'
 ```
 
 `nginx -s reload` re-reads the conf in place. If it fails, the old config
@@ -220,8 +226,8 @@ keeps running. For larger changes (e.g., new server block), use
 ## Routine redeploy (compose change)
 
 ```bash
-scp apps/qwiki-sandbox/deploy/docker-compose.prod.yml unraid:/mnt/user/appdata/qwiki-beta/
-ssh unraid 'cd /mnt/user/appdata/qwiki-beta && \
+scp apps/qwiki-sandbox/deploy/docker-compose.prod.yml unraid-deploy:/mnt/user/appdata/qwiki-beta/
+ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
   docker compose -f docker-compose.prod.yml up -d'
 ```
 
@@ -233,7 +239,7 @@ survive.
 Use whenever a new MW patch ships (typically every ~2 months for the 1.43.x LTS line). Refreshes the `mediawiki-html/` bind-mount tree from the new image, preserving the overlay paths (uploads / Citizen / LocalSettings / Phase 2+ extensions).
 
 ```bash
-ssh unraid 'docker pull mediawiki:1.43-fpm && \
+ssh unraid-deploy 'docker pull mediawiki:1.43-fpm && \
   docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml down && \
   rm -rf /tmp/mw-extract && mkdir -p /tmp/mw-extract && \
   docker create --name qwiki-mw-extract mediawiki:1.43-fpm && \
@@ -247,7 +253,7 @@ ssh unraid 'docker pull mediawiki:1.43-fpm && \
 Then run MW's update.php to apply any DB schema migrations the new patch ships:
 
 ```bash
-ssh unraid 'docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick'
+ssh unraid-deploy 'docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick'
 ```
 
 Smoke-check via the V1 / V2 probes from the phase MD's "Verification (phase boundary)" section.
@@ -260,22 +266,22 @@ Smoke-check via the V1 / V2 probes from the phase MD's "Verification (phase boun
 
 | Action | Command |
 |---|---|
-| Live nginx access log | `ssh unraid 'docker logs -f qwiki-nginx'` |
-| Live MW php-fpm log | `ssh unraid 'docker logs -f qwiki-mediawiki'` |
-| MariaDB logs | `ssh unraid 'docker logs -f qwiki-mariadb'` |
-| Stack status | `ssh unraid 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml ps'` |
-| Restart nginx only | `ssh unraid 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml restart nginx'` |
-| Hot-reload nginx config | `ssh unraid 'docker exec qwiki-nginx nginx -s reload'` |
-| Test nginx config | `ssh unraid 'docker exec qwiki-nginx nginx -t'` |
-| Restart MW only | `ssh unraid 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml restart mediawiki'` |
-| MW shell (CLI + maintenance scripts) | `ssh unraid 'docker exec -it qwiki-mediawiki bash'` |
-| MariaDB shell | `ssh unraid 'docker exec -it qwiki-mariadb mariadb -uroot -p qwiki_beta'` |
-| Run MW maintenance script | `ssh unraid 'docker exec qwiki-mediawiki php /var/www/html/maintenance/<script>.php'` |
+| Live nginx access log | `ssh unraid-deploy 'docker logs -f qwiki-nginx'` |
+| Live MW php-fpm log | `ssh unraid-deploy 'docker logs -f qwiki-mediawiki'` |
+| MariaDB logs | `ssh unraid-deploy 'docker logs -f qwiki-mariadb'` |
+| Stack status | `ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml ps'` |
+| Restart nginx only | `ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml restart nginx'` |
+| Hot-reload nginx config | `ssh unraid-deploy 'docker exec qwiki-nginx nginx -s reload'` |
+| Test nginx config | `ssh unraid-deploy 'docker exec qwiki-nginx nginx -t'` |
+| Restart MW only | `ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml restart mediawiki'` |
+| MW shell (CLI + maintenance scripts) | `ssh unraid-deploy 'docker exec -it qwiki-mediawiki bash'` |
+| MariaDB shell | `ssh unraid-deploy 'docker exec -it qwiki-mariadb mariadb -uroot -p qwiki_beta'` |
+| Run MW maintenance script | `ssh unraid-deploy 'docker exec qwiki-mediawiki php /var/www/html/maintenance/<script>.php'` |
 
 ## Troubleshooting
 
 - **`docker compose ps` shows `qwiki-mediawiki` restarting** -- run
-  `ssh unraid 'docker logs qwiki-mediawiki --tail 50'`. Most likely:
+  `ssh unraid-deploy 'docker logs qwiki-mediawiki --tail 50'`. Most likely:
   `LocalSettings.php` PHP syntax error (verify with
   `php -l apps/qwiki-sandbox/deploy/LocalSettings.php` from WSL) or the
   MariaDB volume hasn't initialized yet (let it run for 30 seconds and check
@@ -284,8 +290,8 @@ Smoke-check via the V1 / V2 probes from the phase MD's "Verification (phase boun
 - **`qwiki-nginx` exits or won't start** -- usually an `nginx.conf` syntax
   error.
   ```bash
-  ssh unraid 'docker logs qwiki-nginx --tail 30'
-  ssh unraid 'docker run --rm \
+  ssh unraid-deploy 'docker logs qwiki-nginx --tail 30'
+  ssh unraid-deploy 'docker run --rm \
     -v /mnt/user/appdata/qwiki-beta/nginx.conf:/etc/nginx/conf.d/default.conf:ro \
     nginx:1.30-alpine nginx -t'
   ```
@@ -293,22 +299,22 @@ Smoke-check via the V1 / V2 probes from the phase MD's "Verification (phase boun
 - **CF Tunnel returns 502** -- nginx is unreachable from the tunnel agent's
   network, or nginx is up but mediawiki php-fpm is unreachable on
   qwiki-net. Verify:
-  - `ssh unraid 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml ps'`
+  - `ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml ps'`
     shows `qwiki-nginx` listening on `192.168.1.205:8081->80`.
-  - `ssh unraid 'curl -sI http://192.168.1.205:8081/index.php?title=Main_Page'` returns a 2xx.
+  - `ssh unraid-deploy 'curl -sI http://192.168.1.205:8081/index.php?title=Main_Page'` returns a 2xx.
   - The CF Tunnel public hostname entry matches `http://192.168.1.205:8081` (not
     `https://`, not `127.0.0.1`).
-  - From inside nginx, mediawiki is reachable: `ssh unraid 'docker exec qwiki-nginx wget -qO- http://mediawiki:9000 2>&1 | head -3'` -- fastcgi over TCP doesn't speak HTTP, so wget will error, but the connection error vs name-resolution error tells you whether the network resolves.
+  - From inside nginx, mediawiki is reachable: `ssh unraid-deploy 'docker exec qwiki-nginx wget -qO- http://mediawiki:9000 2>&1 | head -3'` -- fastcgi over TCP doesn't speak HTTP, so wget will error, but the connection error vs name-resolution error tells you whether the network resolves.
 
 - **CF Tunnel returns 504 / nginx times out on fastcgi** -- mediawiki php-fpm
   is unreachable on `mediawiki:9000`. Check `docker network inspect qwiki-net`
   and confirm both `qwiki-nginx` and `qwiki-mediawiki` are attached. Then
-  `ssh unraid 'docker exec qwiki-nginx nslookup mediawiki'` should resolve.
+  `ssh unraid-deploy 'docker exec qwiki-nginx nslookup mediawiki'` should resolve.
 
 - **Main page renders but no Citizen skin** -- the skin volume may not be
   mounted correctly. Verify:
-  - `ssh unraid 'ls /mnt/user/appdata/qwiki-beta/citizen/skin.json'` returns a path.
-  - `ssh unraid 'docker exec qwiki-mediawiki ls /var/www/html/skins/Citizen/skin.json'`
+  - `ssh unraid-deploy 'ls /mnt/user/appdata/qwiki-beta/citizen/skin.json'` returns a path.
+  - `ssh unraid-deploy 'docker exec qwiki-mediawiki ls /var/www/html/skins/Citizen/skin.json'`
     returns the same file via the bind mount.
   - `LocalSettings.php` has `wfLoadSkin( 'Citizen' );` AND `$wgDefaultSkin = "citizen";`.
 
@@ -316,18 +322,21 @@ Smoke-check via the V1 / V2 probes from the phase MD's "Verification (phase boun
   `MARIADB_USER` env created the user already; install.php's
   `--installdbuser/--installdbpass` should still let it run, but if the failure
   reports `Access denied`, drop the qwiki user manually and re-run:
-  `ssh unraid 'docker exec qwiki-mariadb mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" -e "DROP USER \"qwiki\"@\"%\"; FLUSH PRIVILEGES;"'`
+  `ssh unraid-deploy 'docker exec qwiki-mariadb mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" -e "DROP USER \"qwiki\"@\"%\"; FLUSH PRIVILEGES;"'`
 
 - **install.php fails with "already installed"** -- a previous attempt left
   install state on the MariaDB volume. For a fresh first-time install, wipe
   the MariaDB volume:
-  `ssh unraid 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml down && rm -rf /mnt/user/appdata/qwiki-beta/mariadb-data/* && docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml up -d mariadb'`,
+  `ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml down && rm -rf /mnt/user/appdata/qwiki-beta/mariadb-data/* && docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml up -d mariadb'`,
   wait for healthy, then re-run from step 7. (Only safe at first-time deploy;
   this discards the MW DB schema. The mediawiki-html bind-mount tree is not
   affected.)
 
 - **`docker compose` command not found after Unraid reboot** -- compose plugin
   is on tmpfs; reinstall per `apps/quad/DEPLOYMENT.md` "Compose plugin caveat".
+  This is the one situation in this runbook that requires root: operator runs
+  the reinstall via `ssh unraid` (the scoped `claude-deploy` user cannot write
+  to system paths).
 
 ## Backup + recovery
 
