@@ -19,6 +19,14 @@ Decay symptoms:
 - **Query decay** -> garbage parameters, or weak matches arriving as confident answers.
 - **Storage decay** -> predicates can't filter without table scans, or chunk relevance gets diluted by mixing dataset shapes in one index.
 
+### Storage contract: L3 frontmatter discipline
+
+For any L3 sub-bucket with row-shaped data underneath (profile-notes, asset-notes, future structured sub-buckets), the rule is:
+
+> **Frontmatter mirrors the row's stable fields; body carries unique prose / quotes / settings that the row schema cannot represent.**
+
+Source: qwiki-community-reference arc D18 (2026-05-08). The open-drift item #2 below (920 player/clan note files not exposed via MCP) is the cautionary tale of authoring a sub-bucket without this discipline. New sub-buckets in the L3 expansion pattern table inherit this rule by default.
+
 ## Tool catalog (current 12)
 
 Tools are organized by **verb shape**, not by data category. Adding a new data category does not justify a new tool unless the verb is genuinely new.
@@ -110,7 +118,16 @@ L3 originally meant "concept notes." It is now correctly framed as **curated mar
 | player-notes | `curated/player-notes/` | `community.players` + `community.player_clan_eras` + `community.tournament_results` | `search_profiles(type='player')`, `lookup_profile(type='player')`, `get_profile_note(type='player')`, `lookup_by_nick` | Storage shipped (Phase 2: 5,903 rows). Note files: ~570 has_note=true. MCP tools pending (Phase 6). |
 | clan-notes | `curated/clan-notes/` | `community.clans` + `community.player_clan_eras` | same tool surface (`type='clan'`) | Storage shipped (Phase 3: 822 rows). Note files: ~350 has_note=true. MCP tools pending (Phase 6). |
 | tournament-notes | `curated/tournament-notes/` | `community.tournaments` (Phase 1 placeholder; columns added Phase 4) + `community.tournament_results` | same tool surface (`type='tournament'`) | Phase 4 paused on LLM-extraction sidequest (QWiki tournaments are heterogeneous; deterministic parser unsuitable). Resuming as a Haiku scrape pass. |
+| asset-notes | `curated/asset-notes/` | TBD (`concepts` + `concept_chunks` with `type='asset'` discriminator likely) | TBD (`get_concept_note(type='asset')` + `search_concepts(type='asset')` likely; `lookup_asset_type` for richer envelope if proven) | Authoring in flight (asset-type-curate skill arc 2026-05-13); MCP exposure deferred until bucket populated. |
 | era-notes (future) | `curated/era-notes/` | TBD (likely `community.eras`) | TBD (likely extends `search_profiles` with `type='era'`) | Not yet started. |
+
+**L3 sub-shapes (three patterns observed so far):**
+
+- **Free-form synthesis** (concept-notes) -- authored deep, hand-tuned, slug + frontmatter + prose body. Open-ended topics.
+- **Wiki-import biographical** (profile-notes: player / clan / tournament) -- structured rows + optional unique-content body. Bounded sets imported from community wikis.
+- **Engine-data synthesis** (asset-notes) -- bounded set, seed-mirrored frontmatter, prose body for unique content the row schema cannot represent. Bridges L1 facts to L3 narrative.
+
+Future sub-buckets pick the closest sub-shape; new sub-shapes earn their own pattern documentation here when they emerge.
 
 **Decision (Path C):** profiles get a dedicated schema (`community.*`) + a single unified MCP tool surface. Two reasons:
 
