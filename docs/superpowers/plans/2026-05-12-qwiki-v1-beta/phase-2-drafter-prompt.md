@@ -41,13 +41,13 @@ You do NOT execute anything in this session. Drafting is paper-only.
 
 ## Phase-specific recon (before drafting)
 
-a. Use Context7 to pull current Page Forms install docs for MW 1.39. Note: install method (Composer vs git checkout to `extensions/PageForms/`); LocalSettings.php config snippet; any database schema migration required.
+a. Use Context7 to pull current Page Forms install docs for MW 1.43. Per `decisions.md` D2 Amendment #2 (2026-05-13), the substrate is **MW 1.43 LTS** (not 1.39); Page Forms tracks its **REL1_43** branch (no GitHub-tagged releases on the wikimedia mirror; the active commit on REL1_43 was 2026-05-12 at recon time). Install method is `git clone --branch REL1_43 --depth 1 https://github.com/wikimedia/mediawiki-extensions-PageForms.git` into the extension overlay path. Note: LocalSettings.php config snippet (`wfLoadExtension( 'PageForms' );`); any database schema migration required via `maintenance/update.php`.
 
-b. Use Context7 to pull current Semantic MediaWiki install docs for MW 1.39. Note: install method; SMW init via `smwadmin` command vs `maintenance/update.php`; LocalSettings.php config (especially the `enableSemantics()` call timing relative to `require_once` lines); any DB schema migration.
+b. Use Context7 to pull current Semantic MediaWiki install docs for MW 1.43. Per D2 Amendment #2, SMW pins to release **6.0.1** (released 2025-08-26; current stable; MW 1.43 compatible). Note: install method (Composer is the SMW project's recommended path; manual git checkout also works for our bind-mount layout); SMW init via `smwadmin` command vs `maintenance/update.php`; LocalSettings.php config (especially the `enableSemantics()` call timing relative to `require_once` / `wfLoadExtension` lines); any DB schema migration.
 
-c. Identify the MW container's volume mount strategy from Phase 1's MD. Extensions install path (`/var/www/html/extensions/`) and how Phase 1 mounts (volume vs custom image). This affects whether Phase 2's extension install is a runtime operation (curl/git inside container) or a build-time operation (rebuild image).
+c. Identify the MW container's volume mount strategy from Phase 1's MD. Per Phase 1 D2 Amendment #2 + Q5 resolution, the MW source tree is a host bind-mount at `/mnt/user/appdata/qwiki-beta/mediawiki-html/`, with child overlay binds for Citizen / images / LocalSettings. Phase 2 extensions follow the same overlay pattern: bind `/mnt/user/appdata/qwiki-beta/extensions/PageForms/` onto `/var/www/html/extensions/PageForms/` (and similar for SMW + any other Phase 2 extensions), then update the compose file. This makes extensions persist across MW image bumps and inspectable from Unraid GUI.
 
-d. Page Forms + SMW often have version compatibility constraints. Verify the Page Forms version that's compatible with MW 1.39 AND with the SMW version you pick. (Page Forms 5.x is typically compatible with SMW 4.x+ and MW 1.39+.)
+d. Page Forms + SMW have version compatibility constraints. Verify the Page Forms REL1_43 branch is compatible with SMW 6.0.1. (Per D2 Amendment #2 recon: both target MW 1.43 LTS; SMW 6.x is the current stable line and Page Forms REL1_43 is the matching branch.)
 
 e. Note: Page Forms is sometimes called `SemanticForms` historically; the current name is `PageForms`. Don't confuse old docs with new docs.
 

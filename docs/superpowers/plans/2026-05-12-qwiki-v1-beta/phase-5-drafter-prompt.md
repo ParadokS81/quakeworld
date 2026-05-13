@@ -60,7 +60,7 @@ a. Open the visual companion HTML in a browser preview (or read its raw HTML sou
    - "History" slot
    - "External links" slot (with KTX source ref + hub-link slot)
 
-b. Use Context7 to pull current Page Forms `#forminput` + `Form:` namespace conventions for MW 1.39. Note: the difference between `Form:` (the form-editor surface) and `Template:` (the display surface); how `{{{field|...}}}` placeholders work; how to add help-text inline.
+b. Use Context7 to pull current Page Forms `#forminput` + `Form:` namespace conventions for MW 1.43 (per `decisions.md` D2 Amendment #2, the substrate is MW 1.43 LTS; Page Forms is on its REL1_43 branch). Note: the difference between `Form:` (the form-editor surface) and `Template:` (the display surface); how `{{{field|...}}}` placeholders work; how to add help-text inline.
 
 c. Read Pass 4 4.3's Mode page-type spec in the vision doc carefully. Note any specific bones/slots names that differ from the visual companion. The spec wins where they differ.
 

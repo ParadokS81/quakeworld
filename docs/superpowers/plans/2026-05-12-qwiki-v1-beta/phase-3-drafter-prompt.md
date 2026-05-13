@@ -40,9 +40,9 @@ Drafting is paper-only. No execution.
 
 ## Phase-specific recon (before drafting)
 
-a. Use Context7 to pull current PluggableAuth install docs for MW 1.39. Note: install method; LocalSettings.php config; how PluggableAuth interacts with providers.
+a. Use Context7 to pull current PluggableAuth install docs for MW 1.43. Per `decisions.md` D2 Amendment #2 (2026-05-13), the substrate is **MW 1.43 LTS** (not 1.39); PluggableAuth tracks its **REL1_43** branch (no GitHub-tagged releases on the wikimedia mirror; the active commit on REL1_43 was 2026-05-05 at recon time). Install method is `git clone --branch REL1_43 --depth 1 https://github.com/wikimedia/mediawiki-extensions-PluggableAuth.git` into the extension overlay path (`/mnt/user/appdata/qwiki-beta/extensions/PluggableAuth/`, bind-mounted onto `/var/www/html/extensions/PluggableAuth/` per the Phase 2 overlay pattern). Note: LocalSettings.php config; how PluggableAuth interacts with providers.
 
-b. Use Context7 (or web) to pull current Discord OAuth + OpenID Connect provider docs for PluggableAuth. There's typically a `MediaWiki-OpenIDConnect` extension (sometimes via `ext-pluggableauth-oidc`) or `WSOAuth` extension. Both are PluggableAuth providers; both satisfy D4. Default to OpenID Connect (more standard claim-mapping path) unless operator pre-decided otherwise.
+b. Use Context7 (or web) to pull current Discord OAuth + OpenID Connect provider docs for PluggableAuth. The OpenID Connect extension tracks its **REL1_43** branch (active commit 2026-04-16 at recon time; install via `git clone --branch REL1_43 --depth 1 https://github.com/wikimedia/mediawiki-extensions-OpenIDConnect.git`). WSOAuth is the alternative also on REL1_43 if the operator opts out of OIDC. Both are PluggableAuth providers; both satisfy D4. Default to OpenID Connect per `prerequisites.md` (more standard claim-mapping path) unless operator pre-decided otherwise.
 
 c. Identify the OAuth claim-mapping mechanism. For Discord-role-as-claim, the provider needs to fetch the user's Discord guild membership + role list via Discord API (`/users/@me/guilds/<guild_id>/member`). The MW extension's claim-to-group mapping config likely lives in `$wgPluggableAuth_OIDCClaimToMWGroup` or similar (verify exact config var via Context7).
 
