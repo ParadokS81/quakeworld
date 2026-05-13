@@ -94,8 +94,9 @@ Inherited rule from `../concept-notes/README.md`: structure the first ~30 lines 
 | Slug | Asset type | Status |
 |---|---|---|
 | `player_skin` | Player-model skin replacement (file-based load via skin/baseskin/team/enemy cvars) | CONFIDENT (asset-shape trim, 2026-05-13; concept-note partner at `../concept-notes/player-skins.md`) |
+| `skybox` | Six-image cubemap rendered as the world's sky dome (multi-engine, multi-mechanism on FTE) | DIVERGENT (2026-05-13; docs cover ezQuake subset; FTE has 3 load modes; investigation report carries full divergence detail) |
 
-This table populates as the asset-type-curate arc lands -- Phase 2 (skybox first slice) and Phase 3 (20-slug fan-out).
+This table populates as the asset-type-curate arc lands -- Phase 2 (skybox first slice) shipped; Phase 3 (19-slug fan-out) pending.
 
 ## Pointers
 
