@@ -47,7 +47,7 @@
 
 | Subfolder | Entry doc | What's there |
 |---|---|---|
-| `curated/` | `curated/concept-notes/CLAUDE.md` | Layer 3 curated knowledge layer: concept-notes/ (existing), player-notes/, clan-notes/, tournament-notes/ (new this arc) |
+| `curated/` | `curated/concept-notes/CLAUDE.md` | Layer 3 curated knowledge layer: concept-notes/ (existing), player-notes/, clan-notes/, tournament-notes/ (qwiki arc), asset-notes/ (asset-type-curate arc 2026-05-13) |
 | `docs/` | `docs/CLAUDE.md` | App-wide Layer 3 refs (entity-types, extraction roadmap) + arc-history |
 | `scripts/extractors/` | `scripts/extractors/CLAUDE.md` | Per-codebase Layer 1 extractors + PLAYBOOK + RUNBOOK |
 | `scripts/load-knowledge/` | `scripts/load-knowledge/CLAUDE.md` | Layer 1 loader: schema, adapters, dispatcher, diff/blame, snapshots |
