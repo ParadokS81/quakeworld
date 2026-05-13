@@ -6,7 +6,17 @@
 
 **Goal:** Stand up a fresh **MediaWiki 1.43 LTS** substrate on Unraid at `wiki-beta.quake.world` (three-container stack: nginx 1.30-alpine + mediawiki:1.43-fpm + mariadb:11.4 + Citizen v3.16.0; per `decisions.md` D2 + Amendment #1 + #2) with auth + groups + quality tags + Layer 3 harvest path observable end-to-end (baseline phases), then deliver the Modes domain as a vertical-slice proof (27 mode pages authored, with the Layer 3 harvest path exercised against real content and the harvested concept-note queryable via oracle MCP).
 
-**Status:** Planning. Slicing analysis pending. Per-phase MDs land in commit order after operator review at each phase boundary.
+**Status:** Substrate cluster (Phases 1-4) drafted. Phases 1-2 approved 2026-05-13; Phases 3-4 awaiting review (will be approved per-phase as substrate ships). Phase 1 ready for implementation via arc-orchestrator. Phases 5-8 (Modes vertical slice) deferred until substrate ships (operator decision 2026-05-13; rationale: redraft risk from substrate implementation surprises, especially Phase 3 Discord OAuth).
+
+---
+
+## Where we are right now
+
+- **Stage:** Phases 1-4 drafted; Phases 1-2 approved; Phases 3-4 awaiting per-phase approval as substrate ships.
+- **Last action:** 2026-05-13 -- Phase 4 draft landed (664 lines); light-review of Phases 1-4 GREEN; cross-phase coherence verified.
+- **Next action:** Open fresh terminal in `/home/paradoks/projects/quakeworld/`, type `@docs/superpowers/parking/2026-05-13-qwiki-v1-beta-orchestrator-handoff.md` as first message. Arc-orchestrator drives Phase 1 executor dispatch from there.
+
+Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
 ---
 
@@ -36,8 +46,8 @@ If you're the fresh terminal that's about to draft a phase, also read:
 |---|---|---|---|---|---|---|
 | 1 | approved | substrate | [phase-1-drafter-prompt.md](phase-1-drafter-prompt.md) | [phase-1-mw-core.md](phase-1-mw-core.md) | nginx 1.30-alpine + `mediawiki:1.43-fpm` + MariaDB 11.4 LTS + Citizen v3.16.0 on Unraid + Cloudflare Tunnel + `wiki-beta.quake.world` | URL returns HTTP 200; Citizen skin loads; anon edit blocked |
 | 2 | approved | substrate | [phase-2-drafter-prompt.md](phase-2-drafter-prompt.md) | [phase-2-extensions.md](phase-2-extensions.md) | Page Forms + Semantic MediaWiki installed | Special:Version shows extensions; smwadmin clean; test form renders |
-| 3 | not started | substrate | [phase-3-drafter-prompt.md](phase-3-drafter-prompt.md) | tbd (`phase-3-auth-groups.md`) | PluggableAuth + Discord OAuth + `wiki-contributor` / `wiki-curator` + namespace restrictions | Discord login flow works; contributor lands in right group; namespace gates enforce |
-| 4 | not started | substrate | [phase-4-drafter-prompt.md](phase-4-drafter-prompt.md) | tbd (`phase-4-discipline-harvest.md`) | Quality-tag categories + URL slug authoring rule + Layer 3 harvest path verified against test page | Three categories exist; test-page harvest -> oracle MCP returns harvested chunk |
+| 3 | drafted (awaiting review) | substrate | [phase-3-drafter-prompt.md](phase-3-drafter-prompt.md) | [phase-3-auth-groups.md](phase-3-auth-groups.md) | PluggableAuth + Discord OAuth + `wiki-contributor` / `wiki-curator` + namespace restrictions | Discord login flow works; contributor lands in right group; namespace gates enforce |
+| 4 | drafted (awaiting review) | substrate | [phase-4-drafter-prompt.md](phase-4-drafter-prompt.md) | [phase-4-discipline-harvest.md](phase-4-discipline-harvest.md) | Quality-tag categories + URL slug authoring rule + Layer 3 harvest path verified against test page | Three categories exist; test-page harvest -> oracle MCP returns harvested chunk |
 | 5 | not started | Modes | [phase-5-drafter-prompt.md](phase-5-drafter-prompt.md) | tbd (`phase-5-mode-page-type.md`) | Mode form + template + Modes Layer B category + Track C help-text | Form:Mode renders; test mode page submits with bones+slots; Category:Modes lists it |
 | 6 | not started | Modes | [phase-6-drafter-prompt.md](phase-6-drafter-prompt.md) | tbd (`phase-6-modes-curator.md`) | Modes curator tool at `apps/qwiki-sandbox/scripts/curate-modes/` + smoke triage 3-5 modes | Tool launches; inventory loads; smoke triage pauseable+resumable proven |
 | 7 | not started | Modes | [phase-7-drafter-prompt.md](phase-7-drafter-prompt.md) | tbd (`phase-7-triage-author.md`) | Complete 27-mode triage + flagship modes substantial + non-flagship per disposition | 27 dispositions recorded; flagship-substantial threshold met; skeletons exist for new-build modes |
