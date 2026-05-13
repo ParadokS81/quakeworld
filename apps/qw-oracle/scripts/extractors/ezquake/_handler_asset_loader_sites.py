@@ -32,6 +32,7 @@ LOADER_FUNCTIONS: set[str] = {
     "Draw_CachePicSafe",
     "R_LoadPicImage",
     "R_LoadCharsetImage",
+    "R_LoadImagePixels",
     "Mod_ForName",
     "Mod_FindName",
     "S_PrecacheSound",
@@ -100,21 +101,47 @@ EXT_TO_CATEGORY: dict[str, str] = {
 
 GENERIC_LITERAL_CATEGORY = "ezquake:asset_category:other"
 
+# Enclosing-function rules where the *role* of the enclosing context must
+# override the function-name category. Checked BEFORE FUNCTION_TO_CATEGORY in
+# the merge so the role wins. Use sparingly -- only when a generic loader
+# (texture/shader) is being used to serve a more specific asset role.
+ENCLOSING_FN_CATEGORY_OVERRIDES: list[tuple[re.Pattern, str]] = []
+
 ENCLOSING_FN_CATEGORY_RULES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"Demo_File|Demo_f|PlayDemo|CL_Demo|PlayQWZ"), "ezquake:asset_category:demo"),
-    (re.compile(r"Image_Write|Image_Load|_LoadImage|LoadImagePixels|_WriteTGA|_WritePNG|_WriteJPEG|_OpenAPNG"), "ezquake:asset_category:screenshot"),
+    # Screenshot WRITES only. Read-path Image_Load*/LoadImagePixels patterns
+    # were previously folded in here and mistagged texture decoders as
+    # screenshots; they now flow to the texture rule below.
+    (re.compile(r"Image_Write|_WriteTGA|_WritePNG|_WriteJPEG|_OpenAPNG|SCR_ScreenShot"), "ezquake:asset_category:screenshot"),
     (re.compile(r"WAVCapture|_LoadSound|Sound_"), "ezquake:asset_category:sound"),
     (re.compile(r"Skin_"), "ezquake:asset_category:skin"),
     (re.compile(r"LoadCharset|Charset_"), "ezquake:asset_category:charset"),
     (re.compile(r"Model_|LoadModel|LoadBrushModel"), "ezquake:asset_category:model"),
     (re.compile(r"Config_|Cfg_|Exec_f|ReadCfg|LoadConfig"), "ezquake:asset_category:config"),
+    # BSP/map family -- CM_OpenMap opens the .bsp; SV_SpawnServer reads .ent
+    # overrides; CM_LoadPhysicsNormals reads .qpn; R_ReadPointFile_f reads .pts.
+    (re.compile(r"^CM_OpenMap$|^CM_LoadPhysicsNormals$|^SV_SpawnServer$|^R_ReadPointFile_f$"), "ezquake:asset_category:map"),
+    # Skybox loader chain: R_SetSky -> Sky_LoadSkyboxTextures -> R_LoadSkyTexturePixels -> R_LoadImagePixels.
+    # Must come BEFORE the generic texture rule so skybox faces aren't swallowed.
+    (re.compile(r"^R_SetSky$|^Sky_LoadSkyboxTextures$|^R_LoadSkyTexturePixels$"), "ezquake:asset_category:skybox"),
+    # WAD3 (Half-Life-style) wad-file loads.
+    (re.compile(r"^WAD3_LoadWadFile$"), "ezquake:asset_category:wad"),
+    # External hi-res model-skin / brushmodel-texture replacement.
+    (re.compile(r"^Mod_LoadExternalSkin$|^Mod_LoadExternalTexture$"), "ezquake:asset_category:texture"),
+    # HUD-overlay-style image loads (chat icons, particle font).
+    (re.compile(r"^R_InitChatIcons$|^QMB_InitParticles$"), "ezquake:asset_category:hud_overlay"),
+    # Generic texture decoders + texture-load wrappers. Image_Load* are format
+    # decoders (PNG/TGA/JPEG/PCX); R_LoadImagePixels/R_LoadTextureImage/R_LoadPicImage
+    # are wrapper bodies. The pre-existing screenshot regex incorrectly caught
+    # these read-paths until it was narrowed above.
+    (re.compile(r"^Image_Load|^R_LoadImagePixels$|^R_LoadTextureImage$|^R_LoadPicImage$"), "ezquake:asset_category:texture"),
 ]
 
 TRIGGER_RULES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"^(Host_Init|Sys_Init|CL_Init|R_Init|S_Init|Cvar_Init|FS_Init|VID_Init|Com_Init|Con_Init|SV_Init|M_Init)\b"), "startup"),
     (re.compile(r"_Init(?:Module(?:FS)?|Crosshairs|Conback|Charset|Filesystem|Ex)?$"), "startup"),
     (re.compile(r"^(CL_Connect|CL_ConnectionlessPacket|CL_ParseServerData|CL_ParseServerInfo|CL_ProcessServerInfo|CL_NewTranslation|CL_ParseUpdate|Skin_Skins_f|Skin_NextDownload)\b"), "on_connect"),
-    (re.compile(r"^(CL_ParseMapSetup|R_NewMap|Mod_LoadBrushModel|GL_BuildLightmaps|R_LoadSkys|R_SetSky|Sky_NewMap)\b"), "on_map_load"),
+    (re.compile(r"^(CL_ParseMapSetup|R_NewMap|Mod_LoadBrushModel|GL_BuildLightmaps|Sky_LoadSkyboxTextures|R_SetSky|Sky_NewMap)\b"), "on_map_load"),
 ]
 
 DEV_ONLY_RULES: list[re.Pattern] = [
@@ -160,6 +187,15 @@ def _category_from_enclosing(enclosing: Optional[str]) -> Optional[str]:
     if not enclosing:
         return None
     for pat, cat in ENCLOSING_FN_CATEGORY_RULES:
+        if pat.search(enclosing):
+            return cat
+    return None
+
+
+def _category_override_from_enclosing(enclosing: Optional[str]) -> Optional[str]:
+    if not enclosing:
+        return None
+    for pat, cat in ENCLOSING_FN_CATEGORY_OVERRIDES:
         if pat.search(enclosing):
             return cat
     return None
@@ -574,13 +610,14 @@ class AssetLoaderSitesEzquakeHandler(Visitor):
         if parameterization is not None:
             path_template, path_parameters, path_extension, format_function = parameterization
 
+        cat_override = _category_override_from_enclosing(enclosing)
         cat_from_fn = FUNCTION_TO_CATEGORY.get(fn)
         cat_from_ext = _category_from_extension(path_literal) if path_literal else None
         cat_from_enclosing = _category_from_enclosing(enclosing)
         cat_fallback = GENERIC_LITERAL_CATEGORY if (path_source == "literal" and path_literal) else None
-        reads_category_id = cat_from_fn or cat_from_ext or cat_from_enclosing or cat_fallback
+        reads_category_id = cat_override or cat_from_fn or cat_from_ext or cat_from_enclosing or cat_fallback
 
-        has_specific_category = bool(cat_from_fn or cat_from_ext)
+        has_specific_category = bool(cat_override or cat_from_fn or cat_from_ext)
         if path_source == "literal" and has_specific_category:
             confidence = "certain"
         elif reads_category_id or path_source in ("cvar", "computed"):
