@@ -172,7 +172,7 @@ Old-wiki dumps remain at `dumps/` (gitignored) for per-domain extracts.
 See `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/README.md` for the eight-phase index. This directory is touched by Phase 1 (deploy) and Phase 6 (curator tool).
 ```
 
-**Verification.** `head -1 apps/qwiki-sandbox/README.md` returns `# qwiki-sandbox`. `grep -c "nginx.*1\.27\|mediawiki:1\.39-fpm\|mariadb:10\.11" apps/qwiki-sandbox/README.md` returns >= 1.
+**Verification.** `head -1 apps/qwiki-sandbox/README.md` returns `# qwiki-sandbox`. `grep -c "nginx 1\.30-alpine\|mediawiki:1\.43-fpm\|mariadb:11\.4" apps/qwiki-sandbox/README.md` returns >= 1.
 
 ### Task 3 -- Rewrite apps/qwiki-sandbox/OVERVIEW.md to arc-aware living-state
 
@@ -491,7 +491,7 @@ server {
 
 ### Task 6 -- Author apps/qwiki-sandbox/deploy/.env.prod.example
 
-**Goal.** Template for the operator-authored `.env` on Unraid. All secrets are placeholders. The committed `.env.prod.example` is the source of truth for which env vars exist; the real `.env` on Unraid carries the actual values. Same five vars as the Apache draft -- no nginx-specific secrets needed (TLS terminates at CF Tunnel, not nginx).
+**Goal.** Template for the operator-authored `.env` on Unraid. All secrets are placeholders. The committed `.env.prod.example` is the source of truth for which env vars exist; the real `.env` on Unraid carries the actual values. Five vars: four MW secrets + one MariaDB root password. No nginx-specific secrets are needed -- TLS terminates at Cloudflare Tunnel, not at nginx.
 
 **Files.** `apps/qwiki-sandbox/deploy/.env.prod.example`.
 
@@ -536,7 +536,7 @@ MW_ADMIN_PASSWORD=replace-me-with-a-strong-password
 
 ### Task 7 -- Author apps/qwiki-sandbox/deploy/LocalSettings.php
 
-**Goal.** Hand-authored `LocalSettings.php` for MW 1.43, configured for `wiki-beta.quake.world` + Citizen skin + MW-default anonymous-edit restriction. Secrets read via `getenv()` from the Unraid `.env`. This file is committed (no plaintext secrets); the running mediawiki container picks it up via the read-only volume mount declared in Task 4. Same content as the original Apache+PHP draft -- nginx + php-fpm vs Apache + PHP is invisible at the LocalSettings.php level (MW reads the same settings either way).
+**Goal.** Hand-authored `LocalSettings.php` for MW 1.43, configured for `wiki-beta.quake.world` + Citizen skin + MW-default anonymous-edit restriction. Secrets read via `getenv()` from the Unraid `.env`. This file is committed (no plaintext secrets); the running mediawiki container picks it up via the read-only volume mount declared in Task 4. The php-fpm vs mod_php web-server distinction is invisible at the LocalSettings.php level -- MW reads the same settings either way.
 
 **Files.** `apps/qwiki-sandbox/deploy/LocalSettings.php`.
 
@@ -634,9 +634,9 @@ $wgDefaultSkin = "citizen";
 
 # Citizen v3 options. Phase 1 keeps defaults; wiki-specific tuning (left-rail
 # TOC behavior, dark-mode default, search subsystem) lands in subsequent
-# phases as authoring conventions firm up. Note: the v2-era
-# $wgCitizenEnableCommandPalette option was removed in Citizen v3 (search
-# subsystem renamed); the v3 default is already what we want.
+# phases as authoring conventions firm up. Per D2 Amendment #2 we do not set
+# $wgCitizenEnableCommandPalette -- the v3 default enables the command palette,
+# so the v2-era explicit pin is unnecessary.
 
 # --- Permissions ----------------------------------------------------------
 

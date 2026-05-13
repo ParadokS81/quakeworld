@@ -1,6 +1,23 @@
 You are drafting Phase 1 of the qwiki-v1-beta arc (2026-05-12).
 
-## Context update 2026-05-13 -- D2 amendment locks nginx + php-fpm
+## Context update 2026-05-13 -- D2 amendments lock the substrate stack
+
+D2 has been amended **twice on 2026-05-13**. Read both amendment blocks in `decisions.md` D2 in full before drafting -- they are the authoritative source.
+
+**Final version pins (Amendment #2 supersedes Amendment #1):**
+
+| Component | Pin | Note |
+|---|---|---|
+| MediaWiki | `mediawiki:1.43-fpm` | LTS through Dec 2027; PHP 8.3 bundled |
+| MariaDB | `mariadb:11.4` | LTS through May 2029 |
+| nginx | `nginx:1.30-alpine` | Current stable Alpine line |
+| Citizen skin | `v3.16.0` | Released 2026-05-12; v3 requires MW >= 1.43.0 |
+
+Also: **drop `$wgCitizenEnableCommandPalette` from `LocalSettings.php`** -- the option was removed when Citizen v2 -> v3 renamed the search subsystem; the v3 default replaces it.
+
+The narrative below was written against Amendment #1's now-superseded version pins (1.39-fpm / 10.11 / 1.27-alpine / Citizen v2.40.2). Wherever Amendment #1 pins are quoted, substitute the Amendment #2 pins above. The three-container topology + redraft scope are unchanged.
+
+---
 
 A previous Phase 1 draft used Apache + PHP (official `mediawiki:1.39` image, single container). On operator review the read of Pass 6 6.3's parenthetical "(php-fpm + nginx + MariaDB + extensions)" was tightened: it specifies the production-standard composition, not an illustrative sketch. `decisions.md` D2 now carries a 2026-05-13 amendment locking **nginx + php-fpm + MariaDB** as the web-server stack (three containers).
 
@@ -8,7 +25,7 @@ The stale prior draft lives at `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/
 
 **Substantively changed by the amendment:**
 
-- **Task 4 (docker-compose.prod.yml):** three services instead of two. `nginx` (nginx:1.27-alpine or equivalent stable Alpine line) + `mediawiki` (mediawiki:1.39-fpm, the official upstream-maintained php-fpm variant) + `mariadb` (mariadb:10.11). nginx and mediawiki share the `/var/www/html` volume so nginx can serve static assets directly; mediawiki proxies `.php` over fastcgi at port 9000.
+- **Task 4 (docker-compose.prod.yml):** three services instead of two. `nginx` (nginx:1.30-alpine) + `mediawiki` (mediawiki:1.43-fpm, the official upstream-maintained php-fpm variant) + `mariadb` (mariadb:11.4). nginx and mediawiki share the `/var/www/html` volume so nginx can serve static assets directly; mediawiki proxies `.php` over fastcgi at port 9000.
 - **New file `apps/qwiki-sandbox/deploy/nginx.conf`** -- MW-specific fastcgi proxy config + static-asset serving. Standard MW nginx config; reference the MediaWiki manual's "nginx" page via Context7 for the canonical snippets (rewrite rules for short URLs / `/index.php` routing / `images/` direct serve / `LocalSettings.php` protection / `.git` denial).
 - **Task 7 (deploy README):** three-container topology in the topology diagram; nginx.conf in the appdata file list; first-time-deploy adds an nginx-config-place step; operator commands table adds nginx restart and nginx config-test rows.
 - **V4 probe:** lists three healthy containers (`qwiki-nginx`, `qwiki-mediawiki`, `qwiki-mariadb`) not two.
@@ -22,7 +39,7 @@ The stale prior draft lives at `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/
 
 **Additional Context7 recon needed for redraft (beyond the original phase-specific recon):**
 
-- Pull current `mediawiki:1.39-fpm` upstream image docs (`docker pull mediawiki:1.39-fpm` shape; expected entrypoint; port 9000; volume mount for `/var/www/html/`).
+- Pull current `mediawiki:1.43-fpm` upstream image docs (`docker pull mediawiki:1.43-fpm` shape; expected entrypoint; port 9000; volume mount for `/var/www/html/`).
 - Pull canonical MediaWiki nginx configuration (the MW manual page "Manual:Short URL/Nginx" and "Manual:Nginx" cover the rewrite rules + fastcgi pass + static-asset rules).
 - Confirm nginx-fastcgi pass to a separate php-fpm container uses the form `fastcgi_pass mediawiki:9000;` (where `mediawiki` is the docker-compose service name).
 
@@ -45,7 +62,7 @@ If you see those, you are in the wrong arc -- halt.
 
 ## Phase 1 scope
 
-MW core substrate. Stand up a Docker stack on Unraid with MediaWiki 1.39 LTS + MariaDB 10.11 LTS + Citizen skin (vanilla, no extensions yet). Wire Cloudflare Tunnel for `wiki-beta.quake.world`. No auth setup in this phase (Phase 3 wires PluggableAuth + Discord OAuth). MW default `$wgGroupPermissions` is restricted so anonymous edits are denied; read access is public.
+MW core substrate. Stand up a Docker stack on Unraid with MediaWiki 1.43 LTS (`mediawiki:1.43-fpm`) + MariaDB 11.4 LTS + Citizen skin v3.16.0 + nginx 1.30-alpine (vanilla, no extensions yet). Wire Cloudflare Tunnel for `wiki-beta.quake.world`. No auth setup in this phase (Phase 3 wires PluggableAuth + Discord OAuth). MW default `$wgGroupPermissions` is restricted so anonymous edits are denied; read access is public.
 
 Runnable state at phase boundary: `curl -sI https://wiki-beta.quake.world` returns HTTP/2 200 OK; visiting the URL in a browser shows the MW main page rendered with Citizen skin loaded; anonymous edit is blocked (Edit button hidden or returns "you must be logged in").
 
@@ -79,7 +96,7 @@ a. List `apps/qwiki-sandbox/` contents. Confirm no `docker-compose.yml` exists y
 
 b. Look at existing Unraid-hosted Docker apps in the monorepo for precedent on docker-compose shape + Cloudflare Tunnel wiring. `apps/qw-oracle/` has a deployed stack; `apps/qw-stats/` may also be a reference. Read their docker-compose.yml + DEPLOYMENT-related docs.
 
-c. Use Context7 to pull current MediaWiki 1.39 Docker image docs (official `mediawiki:1.39`) + Citizen skin install docs. Note: Citizen is a community skin, not bundled; install via git checkout to `skins/Citizen/`.
+c. Use Context7 to pull current MediaWiki 1.43 Docker image docs (official `mediawiki:1.43-fpm`) + Citizen v3.16.0 skin install docs. Note: Citizen is a community skin, not bundled; install via git checkout to `skins/Citizen/` at the `v3.16.0` tag.
 
 d. Verify the operator's Cloudflare Tunnel route convention (subdomain -> internal Unraid IP:port). Check `/home/paradoks/projects/quakeworld/apps/qw-oracle/` for a deployed precedent OR the existing Tailscale + CF Tunnel pattern.
 
