@@ -105,15 +105,38 @@ EXT_TO_CATEGORY: dict[str, str] = {
 
 GENERIC_LITERAL_CATEGORY = "fte:asset_category:other"
 
+# Enclosing-function rules where the *role* of the enclosing context must
+# override the function-name category. Checked BEFORE FUNCTION_TO_CATEGORY in
+# the merge so the role wins. Use sparingly -- only when a generic loader
+# (texture/shader) is being used to serve a more specific asset role.
+#
+# Skybox loads in FTE: R_SetSky calls R_LoadHiResTexture + R_RegisterShader
+# directly, and the legacy 6-face path runs through Shader_ParseSkySides which
+# also calls R_LoadHiResTexture in a loop. Without an override, the function-
+# name tier wins and these sites read as texture/shader instead of skybox.
+ENCLOSING_FN_CATEGORY_OVERRIDES: list[tuple[re.Pattern, str]] = [
+    (re.compile(r"^R_SetSky$|^Shader_ParseSkySides$"), "fte:asset_category:skybox"),
+]
+
 ENCLOSING_FN_CATEGORY_RULES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"Demo_File|Demo_f|PlayDemo|CL_Demo|CL_PlayDemo"), "fte:asset_category:demo"),
-    (re.compile(r"SCR_ScreenShot|Image_Write|Image_Load|_LoadImage|LoadImagePixels|_WriteTGA|_WritePNG|_WriteJPEG"), "fte:asset_category:screenshot"),
+    # Screenshot WRITES only. Read-path Image_Load*/LoadImagePixels patterns
+    # were previously folded in here and mistagged texture decoders as
+    # screenshots; they now flow to the texture rule below.
+    (re.compile(r"SCR_ScreenShot|Image_Write|_WriteTGA|_WritePNG|_WriteJPEG"), "fte:asset_category:screenshot"),
     (re.compile(r"WAVCapture|_LoadSound|Sound_|S_Load"), "fte:asset_category:sound"),
     (re.compile(r"Skin_|R_LoadSkin"), "fte:asset_category:skin"),
     (re.compile(r"R_RegisterShader|Shader_|R_LoadShader"), "fte:asset_category:shader"),
     (re.compile(r"Model_|LoadModel|LoadBrushModel|Mod_LoadAlias|Mod_LoadSprite"), "fte:asset_category:model"),
     (re.compile(r"Config_|Cfg_|Exec_f|Cmd_Exec|ReadCfg|LoadConfig"), "fte:asset_category:config"),
     (re.compile(r"^FS_LoadPackFile|^COM_LoadPackFile|FS_AddPackage"), "fte:asset_category:pak"),
+    # WAD2/WAD3 archive loads. W_LoadTextureWadFile handles both magic variants
+    # (HL-style WAD3 + Quake-style WAD2); W_LoadWadFile is the legacy palette path.
+    (re.compile(r"^W_LoadTextureWadFile$|^W_LoadWadFile$"), "fte:asset_category:wad"),
+    # Generic texture decoders + texture-load wrappers. Image_Load* are format
+    # decoders; the pre-existing screenshot regex incorrectly caught these
+    # read-paths until it was narrowed above.
+    (re.compile(r"^Image_Load|^LoadImagePixels$"), "fte:asset_category:texture"),
 ]
 
 TRIGGER_RULES: list[tuple[re.Pattern, str]] = [
@@ -166,6 +189,15 @@ def _category_from_enclosing(enclosing: Optional[str]) -> Optional[str]:
     if not enclosing:
         return None
     for pat, cat in ENCLOSING_FN_CATEGORY_RULES:
+        if pat.search(enclosing):
+            return cat
+    return None
+
+
+def _category_override_from_enclosing(enclosing: Optional[str]) -> Optional[str]:
+    if not enclosing:
+        return None
+    for pat, cat in ENCLOSING_FN_CATEGORY_OVERRIDES:
         if pat.search(enclosing):
             return cat
     return None
@@ -554,13 +586,14 @@ class AssetLoaderSitesFteHandler(Visitor):
         if parameterization is not None:
             path_template, path_parameters, path_extension, format_function = parameterization
 
+        cat_override = _category_override_from_enclosing(enclosing)
         cat_from_fn = FUNCTION_TO_CATEGORY.get(fn)
         cat_from_ext = _category_from_extension(path_literal) if path_literal else None
         cat_from_enclosing = _category_from_enclosing(enclosing)
         cat_fallback = GENERIC_LITERAL_CATEGORY if (path_source == "literal" and path_literal) else None
-        reads_category_id = cat_from_fn or cat_from_ext or cat_from_enclosing or cat_fallback
+        reads_category_id = cat_override or cat_from_fn or cat_from_ext or cat_from_enclosing or cat_fallback
 
-        has_specific_category = bool(cat_from_fn or cat_from_ext)
+        has_specific_category = bool(cat_override or cat_from_fn or cat_from_ext)
         if path_source == "literal" and has_specific_category:
             confidence = "certain"
         elif reads_category_id or path_source in ("cvar", "computed"):
