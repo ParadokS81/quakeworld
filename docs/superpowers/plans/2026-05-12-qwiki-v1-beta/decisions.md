@@ -34,6 +34,30 @@ Aligns with Pass 6 6.3 substrate item 4 parenthetical "(php-fpm + nginx + MariaD
 
 **Implication for later phases:** Phase 2 (extensions) and Phase 3 (auth) are MW-application-level concerns -- web-server choice does not affect them. Operator deploys still use `docker compose` against the three-container stack; MW maintenance scripts run via `docker compose exec mediawiki php maintenance/*.php`.
 
+**Amendment 2026-05-13 #2 (Phase 1 recon -- version verification against live sources):**
+
+Same-day live-source verification (Docker Hub registry API + MediaWiki Version_lifecycle page + extension GitHub repos) revealed that the four image/skin tags named in Amendment #1 above are all drifted relative to current best practice. The brainstorm pass + initial Phase 1 amendment both reflected stale training data ("MW 1.39 LTS through Dec 2027" conflates 1.39 with 1.43's actual EOL date). Replacing all four pins with current-stable equivalents:
+
+| Component | Amendment #1 | Amendment #2 (this) | Rationale |
+|---|---|---|---|
+| MediaWiki | `mediawiki:1.39-fpm` | `mediawiki:1.43-fpm` | MW 1.39 LTS is past its formal upstream-support window; the `1.39/` directory was removed from `wikimedia/mediawiki-docker` master. **MW 1.43 is the active LTS through December 2027**. The official `mediawiki:1.43-fpm` image bundles PHP 8.3 (verified against the upstream Dockerfile). |
+| MariaDB | `mariadb:10.11` | `mariadb:11.4` | The `lts` tag on the official MariaDB image now resolves to **11.4** (verified 2026-05-13). 11.4 LTS runs through **May 2029** vs 10.11's February 2028; 15 extra months of upstream support for a one-character tag bump. Wire-protocol + healthcheck-script compatibility with the rest of the stack is unchanged. |
+| nginx | `nginx:1.27-alpine` | `nginx:1.30-alpine` | **1.30** is the current stable Alpine line (released April 2026); the `stable-alpine` tag resolves there now. nginx config syntax for our directives (fastcgi_pass / fastcgi_split_path_info / location regexes) is unchanged. |
+| Citizen skin | `v2.40.2` (last 1.39-compat tag) | `v3.16.0` (released 2026-05-12) | Forced by the MW 1.43 bump -- Citizen v3 explicitly requires `MediaWiki >= 1.43.0` per `skin.json`. v3.16.0 is the current release. **Drop `$wgCitizenEnableCommandPalette` from `LocalSettings.php`** -- the option was removed when Citizen v2 -> v3 renamed the search subsystem; the v3 default replaces it. |
+
+The arc's three-container topology + shared `/var/www/html` named volume pattern from Amendment #1 remain unchanged; only the version pins move.
+
+**MW LTS lifecycle going forward.** MediaWiki ships a new LTS every two years with a one-year overlap window. **1.43 LTS** runs through Dec 2027; **1.47 LTS** arrives ~Nov 2026 and gets ~3 years of support. The expected upgrade cadence is one in-arc MW bump every ~2 years (pg_dump / image tag bump / `maintenance/update.php` / smoke -- standard MW operation, not a substrate rebuild). This is documented as a future-arc concern, not in-scope for qwiki-v1-beta.
+
+**Implication for Phase 1:** Tasks 1-3 (CLAUDE.md / README.md / OVERVIEW.md) update version + topology mentions. Task 4 (`docker-compose.prod.yml`) updates the three image tags. Task 7 (`LocalSettings.php`) drops the obsolete `$wgCitizenEnableCommandPalette` setting. Task 8 (deploy README) updates the Citizen `git clone --branch v3.16.0` step. Task 9 (operator deploy) commit message references the new versions.
+
+**Implication for later phases (carry-forward to drafter prompts):**
+
+- **Phase 2 (extensions).** Page Forms installs from its `REL1_43` branch via `git clone` (no GitHub-tagged releases on the wikimedia mirror; REL1_43 active commit 2026-05-12). Semantic MediaWiki pins to release **6.0.1** (released 2025-08-26; current stable; MW 1.43 compatible).
+- **Phase 3 (auth).** PluggableAuth installs from `REL1_43` branch (active commit 2026-05-05). OpenID Connect extension (operator's `prerequisites.md` default OAuth provider) installs from `REL1_43` branch (active commit 2026-04-16); WSOAuth is the listed alternative also on `REL1_43`.
+
+The MW 1.39 LTS lifecycle gap that triggered this recon (review-findings F1) is closed by this amendment; F1 status moves to RESOLVED with the resolution pointer to this amendment.
+
 ### D3. Hosting + backup inheritance
 
 **Decision:** Docker stack on Unraid (php-fpm + nginx + MariaDB + extensions). Cloudflare Tunnel for exposure. TLS via Cloudflare. Restricted URL `wiki-beta.quake.world`. Backup inherited from the existing Unraid -> Synology weekly cycle (`/home/paradoks/projects/unRAID/docs/server/backup.md`).
