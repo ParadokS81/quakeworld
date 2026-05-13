@@ -1,31 +1,28 @@
 # qwiki-sandbox
 
-Local clone of QWiki for upgrade-and-showcase experimentation.
+Fresh-build MediaWiki 1.43 substrate for the v1-beta successor wiki at `wiki-beta.quake.world`, plus the Modes-mini-arc curator tool home.
 
 ## What this is
 
-Modernization sandbox for the QuakeWorld community wiki at https://www.quakeworld.nu/wiki/.
+The deploy + tooling home for the qwiki-v1-beta arc (`docs/superpowers/plans/2026-05-12-qwiki-v1-beta/`). Pivoted 2026-05-09 from a modernize-in-place clone to a fresh-build successor with selective extract from the old wiki.
 
-Live wiki runs MediaWiki 1.35.10 + PHP 7.4 (both EOL). This sandbox holds the full DB dump + image tarball from ciscon, lets us upgrade in steps, and produces a credible demo/proposal for the live cutover.
+The live wiki at https://www.quakeworld.nu/wiki/ (MediaWiki 1.35.10 + PHP 7.4) is the extraction source; the v1-beta wiki at https://wiki-beta.quake.world is the new substrate. Cutover from beta to the live URL is a future arc (not this one).
 
 ## Status
 
-2026-05-09: Folder scaffolded. SQL dump + image tarball downloading from ciscon's host (`nicotinelounge.com/qw3-abab/`).
+After Phase 1 of the arc ships: a three-container stack (nginx 1.30-alpine + mediawiki:1.43-fpm + mariadb:11.4) + Citizen skin v3.16.0 live at wiki-beta.quake.world. Phase 2 adds Page Forms + Semantic MediaWiki. Phase 3 wires PluggableAuth + Discord OAuth. Phase 4 adds quality-tag categories + verifies the Layer 3 harvest path end-to-end. Phases 5-8 ship the Modes mini-arc.
+
+Old-wiki dumps remain at `dumps/` (gitignored) for per-domain extracts.
 
 ## Files
 
-- `dumps/qwiki.sql.gz` -- full DB dump (gitignored)
-- `dumps/wiki-images.tar.gz` -- uploaded images (gitignored)
-- `docker-compose.yml` -- to come (mariadb + mediawiki)
-- `LocalSettings.php` -- to come
+- `deploy/` -- three-container compose + nginx.conf + LocalSettings.php + deploy runbook (after Phase 1)
+- `scripts/curate-modes/` -- Modes triage curator tool (after Phase 6)
+- `dumps/` -- gitignored, holds ciscon's SQL dump + image tarball (reference)
+- `CLAUDE.md` -- entry-point for Claude sessions touching this directory
+- `VISION.md` -- fresh-build scope; preserves pre-pivot vision in an appendix
+- `OVERVIEW.md` -- arc-phase status + current state
 
 ## Plan
 
-See `CLAUDE.md` for arc framing. Phased upgrade:
-
-1. Import dump to MW 1.35 first, verify rendering matches live wiki
-2. Upgrade to MW 1.39 LTS + PHP 8.x
-3. Citizen skin + VisualEditor + dark mode
-4. Audit existing Page Forms; author missing tournament/brand/player/clan forms
-5. EQL cleanup pilot drain on the sandbox
-6. Showcase to bps/ciscon/Hooraytio/alice
+See `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/README.md` for the eight-phase index. This directory is touched by Phase 1 (deploy) and Phase 6 (curator tool).

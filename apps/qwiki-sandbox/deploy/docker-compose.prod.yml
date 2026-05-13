@@ -1,0 +1,94 @@
+# apps/qwiki-sandbox/deploy/docker-compose.prod.yml
+# Unraid stack for qwiki-v1-beta: nginx 1.30-alpine + MediaWiki 1.43 (fpm)
+# + MariaDB 11.4 LTS. nginx fronts both static-asset serving (from the
+# shared mediawiki-html bind mount) and fastcgi proxying to mediawiki:9000.
+#
+# Operator workflow (see deploy/README.md). All persistent data lives under
+# /mnt/user/appdata/qwiki-beta/, which is on the weekly Unraid -> Synology
+# backup (D3). That includes the MW source tree at mediawiki-html/, which
+# the operator extracts from the mediawiki:1.43-fpm image once at first deploy
+# and refreshes on each MW image bump via the documented procedure in
+# deploy/README.md. No named docker volumes; bind-mounts only.
+
+services:
+  mariadb:
+    image: mariadb:11.4
+    container_name: qwiki-mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: qwiki_beta
+      MARIADB_USER: qwiki
+      MARIADB_PASSWORD: ${MW_DB_PASSWORD}
+    volumes:
+      - /mnt/user/appdata/qwiki-beta/mariadb-data:/var/lib/mysql
+    networks:
+      - qwiki-net
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  mediawiki:
+    image: mediawiki:1.43-fpm
+    container_name: qwiki-mediawiki
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      # Surfaced to LocalSettings.php via getenv(); see deploy/LocalSettings.php.
+      MW_DB_PASSWORD: ${MW_DB_PASSWORD}
+      MW_SECRET_KEY: ${MW_SECRET_KEY}
+      MW_UPGRADE_KEY: ${MW_UPGRADE_KEY}
+    volumes:
+      # Shared MW source tree -- nginx mounts the same host path read-only.
+      # mediawiki-html is populated once at first-time deploy via the
+      # docker-create + docker-cp extraction step in deploy/README.md;
+      # refreshed on each MW image bump via the documented procedure.
+      # Living on /mnt/user/appdata/ means it's inspectable from Unraid GUI
+      # and included in the weekly Synology backup tarball (D3).
+      - /mnt/user/appdata/qwiki-beta/mediawiki-html:/var/www/html
+      # Persistent uploaded images + cache; survives container rebuild.
+      - /mnt/user/appdata/qwiki-beta/mediawiki-data:/var/www/html/images
+      # Citizen skin overlay (git-checked-out v3.16.0 on host); read-only.
+      - /mnt/user/appdata/qwiki-beta/citizen:/var/www/html/skins/Citizen:ro
+      # Hand-authored LocalSettings.php overlay; read-only.
+      - /mnt/user/appdata/qwiki-beta/LocalSettings.php:/var/www/html/LocalSettings.php:ro
+    networks:
+      - qwiki-net
+    # No host port: the only public reachability is via nginx -> Cloudflare
+    # Tunnel. Direct port exposure would skip CF rate limiting and bypass the
+    # nginx static-asset serving + fastcgi entry-point whitelisting.
+
+  nginx:
+    image: nginx:1.30-alpine
+    container_name: qwiki-nginx
+    restart: unless-stopped
+    depends_on:
+      - mediawiki
+    ports:
+      # Bind to the Unraid host's LAN address (192.168.1.205) only -- the
+      # existing Cloudflare Tunnel agent routes wiki-beta.quake.world to this
+      # address from the same Unraid box. Loopback would not be reachable from
+      # the cloudflared container (separate network namespace); 0.0.0.0 would
+      # expose the wiki on the LAN without Cloudflare's edge protection.
+      - "192.168.1.205:8081:80"
+    volumes:
+      # nginx config via conf.d include shape (default.conf replaces the bundled
+      # one). Operator scp's apps/qwiki-sandbox/deploy/nginx.conf here.
+      - /mnt/user/appdata/qwiki-beta/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Same MW source tree as the mediawiki container, read-only.
+      - /mnt/user/appdata/qwiki-beta/mediawiki-html:/var/www/html:ro
+      # Same uploaded-images bind as mediawiki, read-only.
+      - /mnt/user/appdata/qwiki-beta/mediawiki-data:/var/www/html/images:ro
+      # Same Citizen skin overlay, read-only.
+      - /mnt/user/appdata/qwiki-beta/citizen:/var/www/html/skins/Citizen:ro
+    networks:
+      - qwiki-net
+
+networks:
+  qwiki-net:
+    name: qwiki-net
+    driver: bridge

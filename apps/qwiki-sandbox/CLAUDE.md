@@ -1,32 +1,39 @@
-# QWiki Sandbox
+# QWiki Sandbox -- v1-beta substrate + Modes mini-arc
 
-**Status:** Just-spawned (2026-05-09). Holds ciscon's full DB dump + images tarball while we plan a stepwise upgrade-and-showcase arc.
+**Status:** Active development. v1-beta fresh-build MediaWiki substrate (arc `2026-05-12-qwiki-v1-beta`). Houses the deploy artifacts for the new wiki at `wiki-beta.quake.world` and the Modes-mini-arc curator tool that ships later in the arc.
 
-**Goal:** take a local clone of the live QWiki, modernize it stepwise (MW 1.35 -> 1.39 LTS -> modern skin / VisualEditor -> Page Forms compliance), prove the upgrade path works, showcase to bps/ciscon/Hooraytio/alice for an eventual live cutover conversation.
-
-**Why this matters:** the live QWiki runs on MediaWiki 1.35.10 + PHP 7.4 -- both EOL since 2022/2023. AI bot scraping is hitting always-different URIs (quasi-DDoS pattern, per ciscon). Tournament/player/clan pages have inconsistent template usage. A modernized clone proves the upgrade path is feasible, gives us a Page Forms cleanup environment for Phase B drain, and becomes the demo we bring to maintainers.
+**Pivoted 2026-05-09 evening from modernize-in-place to fresh-build.** Old-wiki dump + image tarball under `dumps/` (gitignored) remain reference material for per-domain extracts. The substrate stands up clean (no upgrade-from-1.35 chain); old wiki is extraction source only.
 
 ## Documentation index
 
 | When you need... | Read... |
 |---|---|
-| Quick-start (what's here, how to run) | `README.md` |
-| Vision: scope, success criteria, eventual cutover | `VISION.md` |
-| Living state (current phase + what's done) | `OVERVIEW.md` |
+| Quick-start (what's here, current state) | `README.md` |
+| Vision: fresh-build scope + ecosystem role | `VISION.md` (preserves pre-pivot vision in an appendix) |
+| Living state (current arc phase + deploy status) | `OVERVIEW.md` |
+| Deploy runbook (Unraid + Cloudflare Tunnel + nginx + mediawiki-fpm + MariaDB + Citizen) | `deploy/README.md` (after Phase 1 ships) |
+| Arc plan + decisions + phase MDs | `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/` (repo-root tree) |
+| Modes curator tool (after Phase 6 ships) | `scripts/curate-modes/CLAUDE.md` |
 | Source dumps | `dumps/` (gitignored) |
 
 ## Subsystem scopes
 
-(none yet -- phase 1 will add `docker-compose.yml`, `LocalSettings.php`, etc.)
+| Subfolder | Entry doc | What's there |
+|---|---|---|
+| `deploy/` | `deploy/README.md` (Phase 1) | Three-container compose (nginx + mediawiki-fpm + mariadb) + nginx.conf + LocalSettings.php + env example for Unraid prod stack |
+| `scripts/curate-modes/` | TBD (Phase 6) | Modes triage curator tool, brand-curator pattern |
+| `dumps/` | n/a | Gitignored; ciscon's old-wiki SQL dump + image tarball (reference) |
 
 ## Always-on rules
 
 - `dumps/` is gitignored. SQL dump + image tarball are large; never commit them.
-- This is operator's playground. Don't push edits made here back to live wiki without explicit bps + ciscon alignment.
-- Each phase is a checkpoint -- stop after any phase and the project still has standalone value.
-- LiquiFlow skin + Semantic MediaWiki + Page Forms already exist on the live wiki; the upgrade preserves them, doesn't replace.
+- New-build wiki content is authored in the live wiki (form-driven via Page Forms after Phase 2); not in this repo. This directory is for substrate + tooling, not page content.
+- `LocalSettings.php` in `deploy/` carries secrets via `getenv()` so the file is safe to commit. Real secrets live in `/mnt/user/appdata/qwiki-beta/.env` on Unraid (mode 600, not in repo).
+- The prod stack is three containers: `qwiki-nginx` (CF Tunnel-facing on `192.168.1.205:8081`), `qwiki-mediawiki` (php-fpm at port 9000, internal-net-only), `qwiki-mariadb` (internal-net-only). The MW source tree at `/var/www/html` is a shared host bind-mount from `/mnt/user/appdata/qwiki-beta/mediawiki-html/`, extracted from the mediawiki image at first deploy and refreshed via the documented procedure on each MW image bump.
+- Pre-pivot 6-phase plan (clone -> upgrade -> Citizen -> Page Forms -> EQL drain -> showcase) is NOT the current plan. Current plan: arc at `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/`.
 
 ## Related
 
-- Sister project: `apps/qw-oracle/` (the QW knowledge service that consumes wiki data)
-- Phase B drain workflow brainstorm: `docs/superpowers/parking/2026-05-08-qwiki-phase-4-phase-b-brainstorm-handover.md`
+- Sister project: `apps/qw-oracle/` -- the QW knowledge service that ingests wiki content via the Layer 3 harvest path (verified during Phase 4 of this arc).
+- Arc spec: `docs/superpowers/specs/2026-05-09-qwiki-fresh-build-vision.md` (Passes 1-6 LOCKED 2026-05-12).
+- Operator memory: `project_qwiki_sandbox_passes.md` (pass tracker), `project_qwiki_sandbox_genesis.md` (origin context).
