@@ -1,18 +1,16 @@
 ---
-title: "Player skins: identification, visibility, and tracking in QuakeWorld"
-summary: "The full skin and identification system: how to make enemies, teammates, dead bodies, and powerup-carriers visually distinct. Covers the 25+ cvars, force-skin behaviour, and color-mode interactions you usually trip over."
-slug: player-skins
-topic: domain-guide
-status: draft
-authored_by: qw-oracle
-source_url: https://ezquake.com/docs/player-skins
-imported_from: 6776cba23c64ae059468eac8c6f5e8fb16ca1e5c
-last_imported_at: 2026-04-25
-upstream_status: gap-candidate
-upstream_target: player-skins
-primary_contributors:
-  - "@vikpe"
-  - "@ParadokS"
+slug: player_skin
+asset_type: player_skin
+engine_canonical_paths:
+  ezquake: ["skins/<skinname>.<ext>"]
+  fte: ["skins/<skinname>.<ext>"]
+  qwcl: ["skins/<skinname>.<ext>"]
+  mvdsv: ["skins/<skinname>.<ext>"]
+user_install_paths: ["qw/skins/<skinname>.<ext>"]
+corpus_categories:
+  - "Skins"
+  - "Skins / Player Model"
+  - "Skins / Gib"
 related_entities:
   - ezquake:cvar:skin
   - ezquake:cvar:baseskin
@@ -48,9 +46,14 @@ related_entities:
   - ezquake:command:teamcolor
   - ezquake:command:enemycolor
   - ezquake:flag_bit:fpd_no_force_skin
-scope: engine-specific
-engines_covered: [ezquake]
-last_updated: 2026-04-25
+companion_asset_types: []
+l1_canonical_ids:
+  ezquake:
+    - ezquake:loader_site:R_LoadImagePixels_skin_Skin_PixelsLoad_1
+  fte: []
+status: CONFIDENT
+last_verified: 2026-04-25
+authority_grounds: engine_mechanics
 ---
 
 ## Summary
@@ -223,6 +226,8 @@ The foundational cvars (`baseskin`, `skin`, `noskins`, `allskins`, `gl_nocolors`
 
 The R7 layer covered above -- `enemyforceskins`, `teamforceskins`, `r_enemyskincolor`, `r_teamskincolor`, `r_skincolormode`, the powerup overlays, `cl_name_as_skin` -- is **ezQuake-only**. FTE has the concept in commented-out code at `engine/client/skin.c:80-93` and `engine/client/zqtp.c:74-78` but the cvars are not registered at runtime. A player switching from ezQuake to FTE for the same competitive practice loses the per-player tracking layer entirely.
 
+**L1 categorization note (2026-05-13):** the FTE extractor JSON currently shows two loader sites under `asset_category:skin` -- `FS_LoadFile_gl_q2bsp_CM_GetQ2Palette_1` and `COM_LoadTempFile_renderer_R_ApplyRenderer_Load_1` -- both of which are visibly mis-categorized (Q2 BSP palette + renderer-loader, not player-skin sites). The corresponding ezQuake side has 1 correctly-categorized site (`R_LoadImagePixels_skin_Skin_PixelsLoad_1`) but 4 additional skin-related sites named `Mod_LoadExternalSkin_*` + `Setting_DrawSkinPreview_1` are tagged under other categories. Both gaps are tracked for the next extractor-capability arc; this note's `l1_canonical_ids` carries only the correctly-categorized ezQuake site as honest evidence.
+
 ## Consumer implications
 
 - **Slipgate config viewer** -- the player-skins section is a programmatic-path dominant cluster. The "default vs configured" diff for any modern config will surface `r_enemyskincolor` / `r_skincolormode` / `r_fullbrightskins` / `enemyforceskins` as the load-bearing settings. The four classic palette cvars (`enemytopcolor` / `teamtopcolor` / etc.) are largely vestigial and can render dimmer if not also set.
@@ -256,6 +261,6 @@ The R7 layer covered above -- `enemyforceskins`, `teamforceskins`, `r_enemyskinc
 
 ## Related concept notes
 
-- `ruleset-anti-script-restriction-pattern.md` -- broader pattern for how QW competitive rulesets restrict client-side scripting; `r_fullbrightskins`'s MTFL lock is a small instance of the larger pattern.
-- `lightning-gun-customization.md` -- sister R2+R7 walkthrough for the lightning-gun visual layer (similar ruleset-and-FPD interaction shape, similar progressive-disclosure structure).
+- `../concept-notes/ruleset-anti-script-restriction-pattern.md` -- broader pattern for how QW competitive rulesets restrict client-side scripting; `r_fullbrightskins`'s MTFL lock is a small instance of the larger pattern.
+- `../concept-notes/lightning-gun-customization.md` -- sister R2+R7 walkthrough for the lightning-gun visual layer (similar ruleset-and-FPD interaction shape, similar progressive-disclosure structure).
 - Future: a player-tracking/callout-grammar concept note could absorb `enemyforceskins` mode-3 alongside HUD callout cvars (`f_pent`, `f_quad`, `f_armor` reports). Today the per-player tracking section here covers it adequately.

@@ -51,9 +51,6 @@ check('  - has version arc', typeof e1.first_seen_version === 'string' && typeof
 check('  - has current snapshot object', typeof e1.current === 'object' && e1.current !== null);
 check('  - asset_relations is array', Array.isArray(e1.asset_relations));
 check('  - linked_concepts is array', Array.isArray(e1.linked_concepts));
-check('  - linked to concept:player-skins',
-  (e1.linked_concepts as string[]).includes('concept:player-skins'),
-  `got ${JSON.stringify(e1.linked_concepts)}`);
 
 // 2. Lookup a command
 const r2 = parse(

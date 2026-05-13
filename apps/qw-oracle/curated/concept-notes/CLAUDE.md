@@ -19,4 +19,3 @@ Authoring conventions, frontmatter shape, voice/length tiers, and the human-faci
 | QW competitive ruleset anti-script restriction pattern | `ruleset-anti-script-restriction-pattern.md` |
 | QuakeWorld weapon scripts -- the three practical methods | `weapon-scripts.md` |
 | Customizing the Lightning Gun | `lightning-gun-customization.md` |
-| Player skins: identification, visibility, tracking | `player-skins.md` |
