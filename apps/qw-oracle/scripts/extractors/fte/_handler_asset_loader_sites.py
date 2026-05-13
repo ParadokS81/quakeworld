@@ -116,6 +116,28 @@ GENERIC_LITERAL_CATEGORY = "fte:asset_category:other"
 # name tier wins and these sites read as texture/shader instead of skybox.
 ENCLOSING_FN_CATEGORY_OVERRIDES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"^R_SetSky$|^Shader_ParseSkySides$"), "fte:asset_category:skybox"),
+    # Crosshair image cvar update path: R2D_Crosshair_Update calls
+    # R_LoadHiResTexture(crosshairimage.string, "crosshairs", ...). The
+    # function-name tier would default this to fte:asset_category:texture.
+    (re.compile(r"^R2D_Crosshair_Update$"), "fte:asset_category:crosshair"),
+    # Loading-plaque levelshot: SCR_ImageName builds "levelshots/<mapname>"
+    # in a local buffer and calls R_LoadHiResTexture. Override needed because
+    # the buffer is built via strcpy+COM_FileBase (not sprintf), so the
+    # template-tracing helper can't recover a path_template/path_extension.
+    # The m_single.c M_Menu_LoadSave_Preview_Draw site (R_RegisterPic on
+    # "levelshots/%s") is intentionally NOT overridden here -- the same
+    # function also loads save-game thumbnails ("saves/%s/screeny.tga").
+    (re.compile(r"^SCR_ImageName$"), "fte:asset_category:levelshot"),
+    # model_texture and map_texture in FTE flow through the generic shader
+    # builders R_BuildDefaultTexnums / R_BuildLegacyTexnums (gl_shader.c),
+    # which serve every shader-textured asset (BSP brush, alias model,
+    # particle, lightmap, etc.). There is no enclosing-function signal that
+    # separates "this R_LoadHiResTexture call is a model skin" from "this
+    # one is a brush texture" -- the discrimination happens later inside
+    # Image_LocateHighResTexture via the runtime path-template list. Until
+    # the handler grows path-argument or subpath-argument analysis, both
+    # slugs stay unresolved at the loader-site layer. Flagged in the
+    # 2026-05-13 watchlist-coverage handoff.
 ]
 
 ENCLOSING_FN_CATEGORY_RULES: list[tuple[re.Pattern, str]] = [

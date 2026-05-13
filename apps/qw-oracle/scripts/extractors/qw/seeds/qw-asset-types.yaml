@@ -93,7 +93,9 @@ asset_types:
       - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
       - { ext: ".pcx", magic_hex: "0A",               offset: 0 }
       - { ext: ".tga", magic_hex: null }
-    l1_hint_function_names: []
+    l1_hint_function_names:
+      - "OnChange_crosshairimage"   # ezQuake cvar callback (r_draw.c:192)
+      - "R2D_Crosshair_Update"      # FTE cvar update path (r_2d.c:1847)
     l1_hint_bare_categories: []
     stock_origin_paths: []
     corpus_categories: ["Crosshairs", "Crosshairs / Transparent"]
@@ -245,11 +247,16 @@ asset_types:
       - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
       - { ext: ".jpg", magic_hex: "FFD8FF",           offset: 0 }
       - { ext: ".tga", magic_hex: null }
-    l1_hint_function_names: []
+    l1_hint_function_names:
+      - "Draw_ConsoleBackground"    # ezQuake per-map conback overlay (r_draw.c:1056)
+      - "SCR_ImageName"             # FTE loading-plaque levelshot (cl_screen.c:2449)
     l1_hint_bare_categories: []
     stock_origin_paths: []
     corpus_categories: ["Other / Levelshots"]
-    notes: ezQuake-specific; filename matches the map's canonical name.
+    notes: |
+      Filename matches the map's canonical name. ezQuake uses the levelshot as a
+      per-map console-background overlay (Draw_ConsoleBackground); FTE uses it for
+      the loading-plaque image (SCR_ImageName) and falls back to "maps/<name>".
 
   - asset_type: player_skin
     description: Player-model skin replacement loaded via teamskin/enemyskin cvars.
@@ -314,7 +321,8 @@ asset_types:
       - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
       - { ext: ".jpg", magic_hex: "FFD8FF",           offset: 0 }
       - { ext: ".tga", magic_hex: null }
-    l1_hint_function_names: []
+    l1_hint_function_names:
+      - "Mod_LoadExternalSkin"      # ezQuake hi-res skin loader (r_aliasmodel_skins.c:76)
     l1_hint_bare_categories: []
     stock_origin_paths: []
     corpus_categories:
@@ -326,6 +334,10 @@ asset_types:
       Replaces the skin baked into a .mdl. Filename matches the model name
       (v_axe -> v_axe.tga, or v_axe_0.tga for skin index 0).
       Distinct from hud_element (HUD overlays) and map_texture (BSP-embedded textures).
+      FTE loads these through the generic shader builders (R_BuildDefaultTexnums /
+      R_BuildLegacyTexnums in gl_shader.c), which serve every shader-textured asset;
+      the L1 extractor cannot separate them from generic textures or brush textures
+      at the call-site layer, so no FTE-side hint function names are listed yet.
 
   - asset_type: map
     description: BSP map geometry file (.bsp).
@@ -366,7 +378,8 @@ asset_types:
       - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
       - { ext: ".jpg", magic_hex: "FFD8FF",           offset: 0 }
       - { ext: ".tga", magic_hex: null }
-    l1_hint_function_names: []
+    l1_hint_function_names:
+      - "Mod_LoadExternalTexture"   # ezQuake hi-res brush-texture loader (r_brushmodel_textures.c:75)
     l1_hint_bare_categories: ["texture"]
     stock_origin_paths: []
     corpus_categories:
@@ -379,6 +392,10 @@ asset_types:
       (cross-reference qw-bsp-textures.json). Map-scoped path wins over global.
       `#`-prefixed names (#teleport, #lava, ...) install at qw/textures/#<name>.tga or
       per-map qw/textures/<mapname>/#<name>.tga (gfx_faq QID 22).
+      FTE loads these through the generic shader builders (R_BuildDefaultTexnums /
+      R_BuildLegacyTexnums in gl_shader.c) which serve every shader-textured asset;
+      the L1 extractor cannot separate them from generic textures or model textures
+      at the call-site layer, so no FTE-side hint function names are listed yet.
 
   - asset_type: map_lighting
     description: Colored lighting overlay file (.lit) sidecar to a BSP.

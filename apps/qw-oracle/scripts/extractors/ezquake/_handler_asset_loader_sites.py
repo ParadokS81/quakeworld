@@ -105,7 +105,24 @@ GENERIC_LITERAL_CATEGORY = "ezquake:asset_category:other"
 # override the function-name category. Checked BEFORE FUNCTION_TO_CATEGORY in
 # the merge so the role wins. Use sparingly -- only when a generic loader
 # (texture/shader) is being used to serve a more specific asset role.
-ENCLOSING_FN_CATEGORY_OVERRIDES: list[tuple[re.Pattern, str]] = []
+ENCLOSING_FN_CATEGORY_OVERRIDES: list[tuple[re.Pattern, str]] = [
+    # Crosshair cvar OnChange handler loads crosshairs/<name>.{png,tga,pcx}
+    # via Draw_CachePicSafe; the function-name tier would otherwise tag it as
+    # hud_overlay (Draw_CachePicSafe's default category).
+    (re.compile(r"^OnChange_crosshairimage$"), "ezquake:asset_category:crosshair"),
+    # Per-map console-background overlay drawn from textures/levelshots/<map>.
+    # Single Draw_CachePicSafe call inside Draw_ConsoleBackground; without the
+    # override the site would emit as hud_overlay.
+    (re.compile(r"^Draw_ConsoleBackground$"), "ezquake:asset_category:levelshot"),
+    # Hi-res model-skin replacement: textures/models/<identifier> + textures/<identifier>.
+    # All R_LoadImagePixels sites inside Mod_LoadExternalSkin serve model_texture;
+    # previously folded into the generic "texture" rule below.
+    (re.compile(r"^Mod_LoadExternalSkin$"), "ezquake:asset_category:model_texture"),
+    # Hi-res brush-model texture replacement: textures/<map>/<tex>, textures/<group>/<tex>,
+    # textures/bmodels/<tex>, textures/<tex>. All R_LoadImagePixels sites inside
+    # Mod_LoadExternalTexture serve map_texture; previously folded into "texture".
+    (re.compile(r"^Mod_LoadExternalTexture$"), "ezquake:asset_category:map_texture"),
+]
 
 ENCLOSING_FN_CATEGORY_RULES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"Demo_File|Demo_f|PlayDemo|CL_Demo|PlayQWZ"), "ezquake:asset_category:demo"),
@@ -126,8 +143,6 @@ ENCLOSING_FN_CATEGORY_RULES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"^R_SetSky$|^Sky_LoadSkyboxTextures$|^R_LoadSkyTexturePixels$"), "ezquake:asset_category:skybox"),
     # WAD3 (Half-Life-style) wad-file loads.
     (re.compile(r"^WAD3_LoadWadFile$"), "ezquake:asset_category:wad"),
-    # External hi-res model-skin / brushmodel-texture replacement.
-    (re.compile(r"^Mod_LoadExternalSkin$|^Mod_LoadExternalTexture$"), "ezquake:asset_category:texture"),
     # HUD-overlay-style image loads (chat icons, particle font).
     (re.compile(r"^R_InitChatIcons$|^QMB_InitParticles$"), "ezquake:asset_category:hud_overlay"),
     # Generic texture decoders + texture-load wrappers. Image_Load* are format
