@@ -197,7 +197,12 @@ asset_types:
       # FTE (gl_shader.c Shader_ParseSkySides) additionally accepts:
       - "<skyname>_<suffix>.<ext>"
       - "<skyname><suffix>.<ext>"
+      # FTE single-image modes (R_SetSky equirectangular / native cubemap, gl_warp.c:98,125):
+      - "env/<skyname>.<ext>"
+      - "gfx/env/<skyname>.<ext>"
     engine_extensions: [".tga", ".png", ".jpg"]
+    # FTE single-image modes additionally accept .dds and .ktx (native cubemap formats);
+    # HDR builds may also accept .hdr and .exr for equirectangular sky.
     filename_constraint:
       kind: templated
       pattern: "<skyname><suffix>.<ext>"
@@ -221,6 +226,9 @@ asset_types:
       or the r_skyname cvar (ezQuake). Both engines probe each face across multiple
       directory prefixes -- gfx_faq's "qw/env/" guidance is the recommended single
       install location but is not the only path the engine accepts.
+      ezQuake additionally consumes "gfx/env/<skyname>_wind.cfg" -- a plain-text
+      wind direction/speed config that animates the sky-cloud overlay when
+      r_skywind 1 (default). Companion sub-file, same asset_type.
 
   - asset_type: levelshot
     description: Map intermission preview image shown at end-of-level / map selection.

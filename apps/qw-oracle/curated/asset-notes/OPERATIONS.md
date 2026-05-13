@@ -16,6 +16,17 @@ Living doc. Updated whenever a session surfaces a learning the existing playbook
 
 The asset-notes bucket bridges Layer 1 (extractor-derived loader-site facts) and Layer 3 (curated prose narrative) for the bounded set of QuakeWorld asset_types. The `qw-asset-types.yaml` seed catalogs 21 asset_types as of 2026-05-13; each earns a note.
 
+Asset-notes are **substrate for downstream LLM-composed wiki pages**, not standalone encyclopedia entries. The three-layer feeder model:
+
+- **L1** -- canonical facts (cvars, commands, loader-site IDs, defaults).
+- **L3 asset-note** (this layer) -- file classification + cross-engine install surface + cvar-behavior one-liners + mechanism headlines.
+- **L3 concept-note** (sibling) -- cross-domain synthesis (gameplay context, recipes, ruleset gates) for asset_types that earn one.
+- **Wiki page** (future downstream artifact) -- LLM-composed from the three feeders.
+
+Downstream consumers pull different depth from the same note: MCP retrieval needs cvar behavior + mechanism summary for "how does this work" Q&A; Slipgate asset-detection logic needs file classification only; wiki-page generation needs substrate from all three layers; concept-note authoring uses asset-notes as feeder source. The asset-note serves all of them simultaneously -- the discipline is compress sprawl, keep depth.
+
+See `~/.claude/skills/asset-type-curate/references/asset-note-template.md` "Scope discipline" section for the full keep/compress/move-out rule and length targets per slug shape.
+
 What the bucket is:
 
 - Engine-data synthesis. One note per asset_type, explaining how that type loads, where users install it, what the cross-engine surface looks like, and the edge cases worth knowing.
@@ -50,6 +61,7 @@ Operator role per slug:
 1. **Review investigation** at `../../docs/asset-curation/<slug>-investigation.md` -- status flag justified by evidence? Cross-engine paths captured? Seed-deltas proposed?
 2. **Refine draft inline** when the flag isn't CONFIDENT. The skill writes a draft favoring source-truth (per asset-type-curate spec D4) -- the refinement pass tunes voice and adds operator judgment where evidence is divergent or sparse.
 3. **Commit** investigation + draft together.
+4. **Update `README.md` "Current notes" table** with the new row (slug, asset_type description, status + any qualifier). This is an orchestrator-side step at batch commit time, not a sub-agent step -- avoids merge conflicts when the Phase 3 fan-out runs N slices in parallel.
 
 ### Fan-out
 
