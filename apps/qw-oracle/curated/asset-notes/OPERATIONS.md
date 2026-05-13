@@ -122,6 +122,20 @@ After the extractor arc lands the fix, re-dispatch the L1-GAP slug through the a
 
 ---
 
+## Concept-note partner findings
+
+Parallel to L1-GAP and seed-patch findings, the asset-type-curate skill may surface that an asset_type has cross-domain gameplay implications warranting a concept-note partner in `../concept-notes/`. The investigation report carries a `## Suggested concept-note partner` section when this applies; the orchestrator decides whether to author the concept-note.
+
+Authoring a concept-note partner is NOT in scope for asset-type-curate. The skill flags the candidate; the concept-note authoring follows the standard Path 2 (newly-earned authoring) workflow per `../concept-notes/OPERATIONS.md` Section 2. The two notes cross-reference each other once both exist (see `README.md` Section "Concept-note partners" for the convention).
+
+**Example finding shape (from the player_skin slice 2026-05-13):**
+
+> This asset_type's full gameplay story extends beyond file-loading into: programmatic tinting (`r_*skincolor` / `r_skincolormode` / `r_fullbrightskins`), powerup-carrier visibility (`r_powerupglow` / `r_dynamic` / `gl_flashblend`), per-player tracking (`enemyforceskins` / `teamforceskins`), corpse readability (`cl_deadbodyfilter` / `cl_gibfilter`), ruleset gates (MTFL fullbrightskins lock), FPD bit 256 (`FPD_NO_FORCE_SKIN`). The asset-note covers the `.pcx`/`.tga`/`.png` file loading mechanism; the partner concept-note covers "how a player configures visibility for competitive play" -- a vertical slice across multiple L1 anchors.
+
+The orchestrator can either schedule the concept-note authoring as a follow-up arc task or absorb it into an in-flight Layer 3 effort.
+
+---
+
 ## 6. Companion-asset cross-reference convention
 
 Some asset_types ship as multi-file bundles or pair with companion files of a different asset_type. The frontmatter's optional `companion_asset_types:` field carries the cross-reference.

@@ -15,6 +15,16 @@ Every asset_type in the seed earns a note by virtue of being engine-recognized. 
 
 This is a Path 2 ("authored-here") bucket only -- no Path 1 import lane. The engine itself is the upstream source, not a community guide. See `../concept-notes/OPERATIONS.md` Section 2 for the broader two-path framing across Layer 3.
 
+## Concept-note partners
+
+Some asset_types pair with a concept-note in `../concept-notes/` covering the broader gameplay angle. The asset-note is bounded by the asset_type's engine-data shape (file format, load mechanism, install path, cross-engine differences); the concept-note covers cross-domain context that builds on the asset_type plus adjacent rendering systems, ruleset gates, or recommended recipes.
+
+**Example:** `player_skin.md` (this bucket) covers the .pcx/.tga/.png skin texture file loading mechanism; `../concept-notes/player-skins.md` covers the broader visibility / identification / per-player tracking / corpse readability / recipes / gates walkthrough that uses the skin asset_type plus a dozen adjacent cvars.
+
+**Heuristic:** an asset_type earns a concept-note partner when its full gameplay story requires cross-domain context (other cvars, render systems, ruleset gates) beyond pure asset-loading. Most asset_types don't earn one (charset, conback, levelshot, etc. -- file loads, done). A few earn one: `player_skin` is confirmed; `model_q1` may earn one for custom-model gameplay; `map` may earn one for map-selection workflow. Phase 3 fan-out is expected to surface additional candidates via the asset-type-curate skill's `## Suggested concept-note partner` finding type.
+
+Cross-reference convention: both notes carry a "Related" section pointing at the other.
+
 ## Authoring path
 
 Authoring is driven by the `asset-type-curate` user-global skill (`~/.claude/skills/asset-type-curate/`). One skill invocation per slug.
@@ -83,7 +93,7 @@ Inherited rule from `../concept-notes/README.md`: structure the first ~30 lines 
 
 | Slug | Asset type | Status |
 |---|---|---|
-| `player_skin` | Player-model skin replacement (file-based + programmatic paths) | CONFIDENT (migrated from concept-notes/, 2026-05-13) |
+| `player_skin` | Player-model skin replacement (file-based load via skin/baseskin/team/enemy cvars) | CONFIDENT (asset-shape trim, 2026-05-13; concept-note partner at `../concept-notes/player-skins.md`) |
 
 This table populates as the asset-type-curate arc lands -- Phase 2 (skybox first slice) and Phase 3 (20-slug fan-out).
 
