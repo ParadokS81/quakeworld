@@ -24,6 +24,16 @@ Sources: LOCKED sections of `docs/superpowers/specs/2026-05-09-qwiki-fresh-build
 
 **Implication:** Phase MDs reference these versions directly. The OAuth extension choice (OpenID Connect vs WSOAuth) is a Phase B decision (both are PluggableAuth providers; both satisfy D4). Substitutions require operator approval. Visual Editor is NOT in v1 baseline (defer post-baseline if operator wants it).
 
+**Amendment 2026-05-13 (Phase 1 review):** Web-server composition explicitly locked as **nginx + php-fpm + MariaDB** (three containers). Uses upstream-maintained official Docker images: `nginx:1.27-alpine` (or equivalent stable Alpine line) + `mediawiki:1.39-fpm` + `mariadb:10.11`.
+
+Aligns with Pass 6 6.3 substrate item 4 parenthetical "(php-fpm + nginx + MariaDB + extensions)" which the initial Phase 1 draft read as illustrative; on review the parens were re-read as the locked production-standard composition. nginx+php-fpm is the production-standard MW substrate (Wikipedia, Liquipedia, larger MW farms run this shape). The official `mediawiki:1.39-fpm` image variant is upstream-maintained, so this is not custom integration work -- same upstream-support tier as the Apache-bundled `mediawiki:1.39`.
+
+**Rationale:** Apache+PHP can technically handle QW-wiki-scale load fine, so the choice is not about capacity -- it is about production-standard architecture. Pass 6's intent (per the operator on 2026-05-13) was a reasonably-scalable wiki, not "minimum viable for current contributor count." nginx+php-fpm gives separately-tunable workers, better static-asset handling, and easier future flexibility (caching / rate-limits / CDN at the nginx layer) without a swap arc later.
+
+**Implication for Phase 1:** the initial Apache+PHP draft at `phase-1-mw-core.md` is stale. Phase 1 redrafts Tasks 4 (docker-compose three services) + 7 (deploy README three-container topology + `nginx.conf` in file list) + V4 probe (three healthy containers, not two) + minor edits to Tasks 1-3 (CLAUDE.md / README.md / OVERVIEW.md topology mentions). Tasks 5 (.env.prod.example), 6 (LocalSettings.php), 8 (operator deploy) substantively unchanged. A new file `apps/qwiki-sandbox/deploy/nginx.conf` is required (MW-specific fastcgi proxy config + static-asset serving).
+
+**Implication for later phases:** Phase 2 (extensions) and Phase 3 (auth) are MW-application-level concerns -- web-server choice does not affect them. Operator deploys still use `docker compose` against the three-container stack; MW maintenance scripts run via `docker compose exec mediawiki php maintenance/*.php`.
+
 ### D3. Hosting + backup inheritance
 
 **Decision:** Docker stack on Unraid (php-fpm + nginx + MariaDB + extensions). Cloudflare Tunnel for exposure. TLS via Cloudflare. Restricted URL `wiki-beta.quake.world`. Backup inherited from the existing Unraid -> Synology weekly cycle (`/home/paradoks/projects/unRAID/docs/server/backup.md`).
