@@ -187,14 +187,16 @@ asset_types:
       via worldspawn.wad. id1/gfx.wad is the stock HUD wad that hud_element overrides target.
 
   - asset_type: skybox
-    description: Six-image cubemap (right/left/front/back/up/down) installed into env/.
+    description: Six-image cubemap (right/left/front/back/up/down). Engines probe several path patterns; ezQuake limits to env/ and gfx/env/, FTE additionally accepts bare-root <skyname><suffix>.
     engine_canonical_paths:
-      - "env/<skyname>rt.<ext>"
-      - "env/<skyname>lf.<ext>"
-      - "env/<skyname>ft.<ext>"
-      - "env/<skyname>bk.<ext>"
-      - "env/<skyname>up.<ext>"
-      - "env/<skyname>dn.<ext>"
+      # ezQuake (r_brushmodel_sky.c R_LoadSkyTexturePixels) probes 4 prefix variants per face:
+      - "env/<skyname><suffix>.<ext>"
+      - "env/<skyname>_<suffix>.<ext>"
+      - "gfx/env/<skyname><suffix>.<ext>"
+      - "gfx/env/<skyname>_<suffix>.<ext>"
+      # FTE (gl_shader.c Shader_ParseSkySides) additionally accepts:
+      - "<skyname>_<suffix>.<ext>"
+      - "<skyname><suffix>.<ext>"
     engine_extensions: [".tga", ".png", ".jpg"]
     filename_constraint:
       kind: templated
@@ -205,15 +207,20 @@ asset_types:
       - { ext: ".png", magic_hex: "89504E470D0A1A0A", offset: 0 }
       - { ext: ".jpg", magic_hex: "FFD8FF",           offset: 0 }
       - { ext: ".tga", magic_hex: null }
-    l1_hint_function_names: ["R_LoadSky", "R_LoadSkys", "R_SetSky"]
-    l1_hint_bare_categories: []
+    l1_hint_function_names:
+      - "R_SetSky"                  # entry: ezQuake + FTE
+      - "Sky_LoadSkyboxTextures"    # ezQuake orchestrator (r_brushmodel_sky.c:211)
+      - "R_LoadSkyTexturePixels"    # ezQuake per-face loader (r_brushmodel_sky.c:184)
+      - "Shader_ParseSkySides"      # FTE per-face loader (gl_shader.c:651)
+    l1_hint_bare_categories: ["skybox"]
     stock_origin_paths: []
     corpus_categories: ["Other / Skyboxes"]
     notes: |
-      Six-file set; suffix conventions vary (_rt vs rt; some engines accept either case).
-      Skybox name comes from worldspawn.sky in the BSP, or the sky cvar.
-      L1 evidence likely empty -- the skybox loader function may be missing from the
-      qw-oracle extractor watchlist (flag for backlog).
+      Suffix conventions: {rt,bk,lf,ft,up,dn} with optional underscore separator.
+      Skybox name comes from worldspawn.sky in the BSP, the r_skybox cvar (FTE),
+      or the r_skyname cvar (ezQuake). Both engines probe each face across multiple
+      directory prefixes -- gfx_faq's "qw/env/" guidance is the recommended single
+      install location but is not the only path the engine accepts.
 
   - asset_type: levelshot
     description: Map intermission preview image shown at end-of-level / map selection.
@@ -330,8 +337,9 @@ asset_types:
     corpus_categories: ["Maps", "Maps / DMM4"]
     notes: |
       Stock id1 ships e1m1-e4m8, dm1-dm6, start, end, plus b_*.bsp ammo box "maps"
-      (technically BSPs; filtered as non-playable). ezQuake L1 doesn't currently
-      have a `map` reads_category_id -- CM_OpenMap's site shows up with cat=null.
+      (technically BSPs; filtered as non-playable). ezQuake L1 also surfaces .ent
+      override sites (SV_SpawnServer), .qpn physics-normals (CM_LoadPhysicsNormals),
+      and .pts leak-pointfile (R_ReadPointFile_f) under the same `map` category.
 
   - asset_type: map_texture
     description: Hi-res texture override for a BSP-embedded texture (map-scoped or global).
@@ -403,7 +411,9 @@ asset_types:
     corpus_categories: []
     notes: |
       Server-side override for entity placements (item spawns, spawnpoints, etc.)
-      without re-vis-ing the BSP. ezQuake L1 captures it but with cat=null today.
+      without re-vis-ing the BSP. Both engines tag these sites with the broader
+      `map` category at L1; the asset-type catalog disambiguates via the
+      SV_SpawnServer enclosing function and the .ent path templates.
 
   - asset_type: locfile
     description: Location marker file (.loc) for teamplay coordinate-to-location lookup.

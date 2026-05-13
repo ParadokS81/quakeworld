@@ -1,15 +1,15 @@
 {
   "_stats": {
     "asset_type_count": 21,
-    "types_with_l1_evidence_ezquake": 15,
+    "types_with_l1_evidence_ezquake": 17,
     "types_with_l1_evidence_fte": 13,
     "types_with_stock_origin": 9,
-    "total_l1_evidence_refs_ezquake": 96,
-    "total_l1_evidence_refs_fte": 243,
+    "total_l1_evidence_refs_ezquake": 124,
+    "total_l1_evidence_refs_fte": 244,
     "total_stock_origin_refs": 362
   },
   "project": "qw",
-  "extracted_at": "2026-05-12T21:39:00+00:00",
+  "extracted_at": "2026-05-13T10:05:27+00:00",
   "asset_types": [
     {
       "asset_type": "conback",
@@ -137,7 +137,8 @@
       "l1_evidence": {
         "ezquake": [
           "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Draw_LoadCharset_1",
-          "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Load_Locale_Charset_1"
+          "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Load_Locale_Charset_1",
+          "ezquake:loader_site:R_LoadImagePixels_r_texture_load_R_LoadCharsetImage_1"
         ],
         "fte": []
       },
@@ -343,6 +344,9 @@
           "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_2",
           "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_3",
           "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_4",
+          "ezquake:loader_site:R_LoadImagePixels_r_chaticons_R_InitChatIcons_1",
+          "ezquake:loader_site:R_LoadImagePixels_r_particles_qmb_QMB_InitParticles_1",
+          "ezquake:loader_site:R_LoadImagePixels_r_texture_load_R_LoadPicImage_1",
           "ezquake:loader_site:R_LoadPicImage_hud_radar_HUD_NewRadarMap_1",
           "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CachePicSafe_1",
           "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CachePicSafe_2",
@@ -432,7 +436,9 @@
           "ezquake:loader_site:W_LoadWadFile_r_draw_Draw_Init_1"
         ],
         "fte": [
-          "fte:loader_site:COM_LoadFile_wad_W_LoadWadFile_1"
+          "fte:loader_site:COM_LoadFile_wad_W_LoadWadFile_1",
+          "fte:loader_site:FS_OpenVFS_wad_W_LoadTextureWadFile_1",
+          "fte:loader_site:FS_OpenVFS_wad_W_LoadTextureWadFile_2"
         ]
       },
       "stock_origins": [
@@ -446,14 +452,14 @@
     },
     {
       "asset_type": "skybox",
-      "description": "Six-image cubemap (right/left/front/back/up/down) installed into env/.",
+      "description": "Six-image cubemap (right/left/front/back/up/down). Engines probe several path patterns; ezQuake limits to env/ and gfx/env/, FTE additionally accepts bare-root <skyname><suffix>.",
       "engine_canonical_paths": [
-        "env/<skyname>rt.<ext>",
-        "env/<skyname>lf.<ext>",
-        "env/<skyname>ft.<ext>",
-        "env/<skyname>bk.<ext>",
-        "env/<skyname>up.<ext>",
-        "env/<skyname>dn.<ext>"
+        "env/<skyname><suffix>.<ext>",
+        "env/<skyname>_<suffix>.<ext>",
+        "gfx/env/<skyname><suffix>.<ext>",
+        "gfx/env/<skyname>_<suffix>.<ext>",
+        "<skyname>_<suffix>.<ext>",
+        "<skyname><suffix>.<ext>"
       ],
       "engine_extensions": [
         ".tga",
@@ -487,10 +493,13 @@
       "corpus_categories": [
         "Other / Skyboxes"
       ],
-      "notes": "Six-file set; suffix conventions vary (_rt vs rt; some engines accept either case).\nSkybox name comes from worldspawn.sky in the BSP, or the sky cvar.\nL1 evidence likely empty -- the skybox loader function may be missing from the\nqw-oracle extractor watchlist (flag for backlog).\n",
+      "notes": "Suffix conventions: {rt,bk,lf,ft,up,dn} with optional underscore separator.\nSkybox name comes from worldspawn.sky in the BSP, the r_skybox cvar (FTE),\nor the r_skyname cvar (ezQuake). Both engines probe each face across multiple\ndirectory prefixes -- gfx_faq's \"qw/env/\" guidance is the recommended single\ninstall location but is not the only path the engine accepts.\n",
       "l1_evidence": {
-        "ezquake": [],
+        "ezquake": [
+          "ezquake:loader_site:R_LoadImagePixels_r_brushmodel_sky_R_LoadSkyTexturePixels_1"
+        ],
         "fte": [
+          "fte:loader_site:R_LoadHiResTexture_gl_shader_Shader_ParseSkySides_1",
           "fte:loader_site:R_LoadHiResTexture_gl_warp_R_SetSky_1",
           "fte:loader_site:R_LoadHiResTexture_gl_warp_R_SetSky_2",
           "fte:loader_site:R_RegisterShader_gl_warp_R_SetSky_1",
@@ -588,7 +597,9 @@
       ],
       "notes": "Stock player skin (player.mdl skin 0) lives inside id1/progs/player.mdl, not as\na separate file. Replacement is loaded via /teamskin and /enemyskin cvars naming\na file in qw/skins/.\n",
       "l1_evidence": {
-        "ezquake": [],
+        "ezquake": [
+          "ezquake:loader_site:R_LoadImagePixels_skin_Skin_PixelsLoad_1"
+        ],
         "fte": [
           "fte:loader_site:COM_LoadTempFile_renderer_R_ApplyRenderer_Load_1",
           "fte:loader_site:FS_LoadFile_gl_q2bsp_CM_GetQ2Palette_1"
@@ -1290,10 +1301,14 @@
         "Maps",
         "Maps / DMM4"
       ],
-      "notes": "Stock id1 ships e1m1-e4m8, dm1-dm6, start, end, plus b_*.bsp ammo box \"maps\"\n(technically BSPs; filtered as non-playable). ezQuake L1 doesn't currently\nhave a `map` reads_category_id -- CM_OpenMap's site shows up with cat=null.\n",
+      "notes": "Stock id1 ships e1m1-e4m8, dm1-dm6, start, end, plus b_*.bsp ammo box \"maps\"\n(technically BSPs; filtered as non-playable). ezQuake L1 also surfaces .ent\noverride sites (SV_SpawnServer), .qpn physics-normals (CM_LoadPhysicsNormals),\nand .pts leak-pointfile (R_ReadPointFile_f) under the same `map` category.\n",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:FS_LoadHunkFile_cmodel_CM_LoadPhysicsNormals_1",
+          "ezquake:loader_site:FS_LoadHunkFile_sv_init_SV_SpawnServer_1",
+          "ezquake:loader_site:FS_LoadHunkFile_sv_init_SV_SpawnServer_2",
           "ezquake:loader_site:FS_OpenVFS_cmodel_CM_OpenMap_1",
+          "ezquake:loader_site:FS_OpenVFS_r_part_R_ReadPointFile_f_1",
           "ezquake:loader_site:Mod_FindName_r_brushmodel_load_Mod_LoadBrushModel_1"
         ],
         "fte": [
@@ -1656,6 +1671,24 @@
       "notes": "Filename must match a texture name embedded in the target BSP's texture lump\n(cross-reference qw-bsp-textures.json). Map-scoped path wins over global.\n`#`-prefixed names (#teleport, #lava, ...) install at qw/textures/#<name>.tga or\nper-map qw/textures/<mapname>/#<name>.tga (gfx_faq QID 22).\n",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:FS_OpenVFS_image_Image_LoadJPEG_1",
+          "ezquake:loader_site:FS_OpenVFS_image_Image_LoadPCX_1",
+          "ezquake:loader_site:FS_OpenVFS_image_Image_LoadPNG_All_1",
+          "ezquake:loader_site:FS_OpenVFS_image_Image_LoadTGA_1",
+          "ezquake:loader_site:FS_OpenVFS_r_texture_load_R_LoadImagePixels_1",
+          "ezquake:loader_site:FS_OpenVFS_r_texture_load_R_LoadImagePixels_2",
+          "ezquake:loader_site:FS_OpenVFS_r_texture_load_R_LoadImagePixels_3",
+          "ezquake:loader_site:R_LoadImagePixels_r_aliasmodel_skins_Mod_LoadExternalSkin_1",
+          "ezquake:loader_site:R_LoadImagePixels_r_aliasmodel_skins_Mod_LoadExternalSkin_2",
+          "ezquake:loader_site:R_LoadImagePixels_r_aliasmodel_skins_Mod_LoadExternalSkin_3",
+          "ezquake:loader_site:R_LoadImagePixels_r_brushmodel_textures_Mod_LoadExternalTexture_1",
+          "ezquake:loader_site:R_LoadImagePixels_r_brushmodel_textures_Mod_LoadExternalTexture_2",
+          "ezquake:loader_site:R_LoadImagePixels_r_brushmodel_textures_Mod_LoadExternalTexture_3",
+          "ezquake:loader_site:R_LoadImagePixels_r_brushmodel_textures_Mod_LoadExternalTexture_4",
+          "ezquake:loader_site:R_LoadImagePixels_r_brushmodel_textures_Mod_LoadExternalTexture_5",
+          "ezquake:loader_site:R_LoadImagePixels_r_brushmodel_textures_Mod_LoadExternalTexture_6",
+          "ezquake:loader_site:R_LoadImagePixels_r_texture_load_R_LoadPicImage_1",
+          "ezquake:loader_site:R_LoadImagePixels_r_texture_load_R_LoadTextureImage_1",
           "ezquake:loader_site:R_LoadPicImage_hud_radar_HUD_NewRadarMap_1",
           "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CachePicSafe_1",
           "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CachePicSafe_2",
@@ -1667,6 +1700,7 @@
         ],
         "fte": [
           "fte:loader_site:FS_FLocateFile_cl_parse_Model_CheckDownloads_1",
+          "fte:loader_site:FS_OpenReadLocation_image_Image_LoadHiResTextureWorker_1",
           "fte:loader_site:R_LoadHiResTexture_cl_screen_SCR_ImageName_1",
           "fte:loader_site:R_LoadHiResTexture_gl_font_Font_LoadFont_1",
           "fte:loader_site:R_LoadHiResTexture_gl_font_Font_LoadReplacementConchars_1",
@@ -1705,9 +1739,6 @@
           "fte:loader_site:R_LoadHiResTexture_gl_shader_Shader_DefaultBSPFlare_1",
           "fte:loader_site:R_LoadHiResTexture_gl_shader_Shader_FindImage_1",
           "fte:loader_site:R_LoadHiResTexture_gl_shader_Shader_Finish_1",
-          "fte:loader_site:R_LoadHiResTexture_gl_shader_Shader_ParseSkySides_1",
-          "fte:loader_site:R_LoadHiResTexture_gl_warp_R_SetSky_1",
-          "fte:loader_site:R_LoadHiResTexture_gl_warp_R_SetSky_2",
           "fte:loader_site:R_LoadHiResTexture_m_items_Draw_Hexen2BigFontString_1",
           "fte:loader_site:R_LoadHiResTexture_p_script_P_LoadTexture_1",
           "fte:loader_site:R_LoadHiResTexture_p_script_P_LoadTexture_2",
@@ -1817,7 +1848,7 @@
         }
       ],
       "corpus_categories": [],
-      "notes": "Server-side override for entity placements (item spawns, spawnpoints, etc.)\nwithout re-vis-ing the BSP. ezQuake L1 captures it but with cat=null today.\n",
+      "notes": "Server-side override for entity placements (item spawns, spawnpoints, etc.)\nwithout re-vis-ing the BSP. Both engines tag these sites with the broader\n`map` category at L1; the asset-type catalog disambiguates via the\nSV_SpawnServer enclosing function and the .ent path templates.\n",
       "l1_evidence": {
         "ezquake": [
           "ezquake:loader_site:FS_LoadHunkFile_sv_init_SV_SpawnServer_1",
