@@ -29,7 +29,11 @@ related_entities:
   - ezquake:cvar:r_fastsky
   - ezquake:command:loadsky
   - ezquake:command:skygroup
+  - ezquake:command:skywind
+  - ezquake:command:skywind_save
   - ezquake:command:skywind_load
+  - ezquake:command:skywind_lookdir
+  - ezquake:command:skywind_rotate
   - fte:cvar:r_skybox
   - fte:cvar:r_glsl_skybox_orientation
   - fte:cvar:r_glsl_skybox_autorotate
@@ -141,7 +145,11 @@ Skyboxes are heavyweight relative to other custom content -- six 1024x1024 TGAs 
 
 - **Skygroup overrides cvar (ezQuake).** If the current map matches a skygroup, the group's sky name wins over `r_skyname`. Maps not in any group fall through to the cvar value.
 
-- **Partial face loads (FTE).** The legacy 6-face path accepts a skybox where any one face is valid; missing faces render black. Permissive by design.
+- **Worldspawn override (FTE).** BSP `worldspawn.sky` key provides the default skyname on map load; the `r_skybox` cvar overrides when set. ezQuake doesn't honor `worldspawn.sky` -- it relies on `r_skyname` or skygroup.
+
+- **Partial face loads (FTE).** The legacy 6-face path accepts a skybox where any one face is valid; missing faces render black. Permissive by design. ezQuake rejects the whole skybox if any face fails and falls back to the classic cloud sky.
+
+- **Case-sensitive filesystems.** Filename case-folding is OS-level. Mixed-case bundles (`Overcast_Bk.tga`) load on Windows / macOS but fail on Linux without rename. Prefer lowercase for cross-platform distribution.
 
 - **Tab-completion vs load-time path mismatch (FTE).** `listskyboxes` enumerates `env/`, `gfx/env/`, `textures/env/`, `textures/gfx/env/`. Load-time probing in `R_SetSky` covers only `env/` and `gfx/env/` -- a skybox under `textures/env/` appears in tab-completion but fails to load. Q3-style face suffixes (`px`, `nx`, etc.) are recognized by the enumerator but not by the 6-face loader.
 
