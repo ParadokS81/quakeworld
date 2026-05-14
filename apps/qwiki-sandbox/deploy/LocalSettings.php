@@ -146,3 +146,37 @@ wfLoadExtension( 'PageForms' );
 # the wiki's host (no scheme, no trailing slash).
 wfLoadExtension( 'SemanticMediaWiki' );
 enableSemantics( 'wiki.slipgate.me' );
+
+# --- MW bundled-extension activation surface (Phase 2) --------------------
+#
+# Audit performed 2026-05-14 against /var/www/html/extensions/ (34 bundled).
+# F-finding F6 tracks this audit; future MW LTS arcs inherit this surface.
+#
+# LOAD (active in v1 baseline; universal-need extensions for a
+# template-driven wiki):
+#   ParserFunctions  -- #if / #switch / #ifeq / #expr / #time; required by
+#                       Template:Test and any future page-type template.
+#   Cite             -- footnote support (<ref>...</ref> + <references/>);
+#                       supports D11 #4 citation discipline.
+#   CategoryTree     -- supports Layer B sub-category nav per spec-sketch v3.
+#   TemplateData     -- <templatedata> JSON for template self-documentation;
+#                       supports Phase 5+ page-type template discoverability.
+#
+# SKIP (locked decision against; do NOT load even later):
+#   VisualEditor  -- D2 explicit ("Visual Editor is NOT in v1 baseline").
+#   OATHAuth      -- D4 auth via Discord OAuth supersedes username/password 2FA.
+#   LoginNotify   -- D4 OAuth flow doesn't generate the email-login signals
+#                    this extension watches.
+#   Math          -- QW domain has no math/LaTeX rendering need.
+#   PdfHandler    -- QW domain has no PDF upload pathway.
+#
+# DEFER (not loaded now; revisit when a downstream phase needs it):
+#   AbuseFilter, CiteThisPage, CodeEditor, ConfirmEdit, DiscussionTools, Echo,
+#   Gadgets, ImageMap, InputBox, Interwiki, Linter, MultimediaViewer, Nuke,
+#   PageImages, Poem, ReplaceText, Scribunto, SecureLinkFixer, SpamBlacklist,
+#   SyntaxHighlight_GeSHi, TextExtracts, Thanks, TitleBlacklist, WikiEditor.
+
+wfLoadExtension( 'ParserFunctions' );
+wfLoadExtension( 'Cite' );
+wfLoadExtension( 'CategoryTree' );
+wfLoadExtension( 'TemplateData' );

@@ -14,6 +14,8 @@ Findings accrue here during arc execution -- phase-MD drafting (sub-agent verifi
 | F2 | SUBSTANTIVE | Phase 1 execution-time learnings cluster (install.php GRANT 1133 + 3 minor) | Phase 1 execution (2026-05-13/14) | RESOLVED 2026-05-14 -- `apps/qwiki-sandbox/deploy/README.md` patches in commit `f6d26ee6` (pre-create qwiki@'mariadb' workaround + docker-based wipe recovery + nginx apex redirect scheme fix + Cloudflare One dashboard path correction) |
 | F3 | SUBSTANTIVE | Cross-phase hostname + SSH identity drift in Phase 2/3/4 MDs + prerequisites.md | Phase 1 boundary verification (2026-05-14, orchestrator) | RESOLVED 2026-05-14 -- Option A applied: replace_all retarget across `phase-2-extensions.md` / `phase-3-auth-groups.md` / `phase-4-discipline-harvest.md` + `phase-3-drafter-prompt.md` line 49 + `phase-template.md` examples + `prerequisites.md` line 13 SSH identity update |
 | F4 | SUBSTANTIVE | Composer platform-req mismatch when running composer:latest against MW source | Phase 2 execution (2026-05-14, composer resolve step) | RESOLVED 2026-05-14 -- `apps/qwiki-sandbox/deploy/README.md` + `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/phase-2-extensions.md` amended to add `--ignore-platform-req=ext-calendar --ignore-platform-req=ext-intl` at all three composer-update sites (Phase 2 install step + image-bump procedure + SMW extension-bump section) in both files |
+| F5 | SUBSTANTIVE | Page Forms `Special:FormEdit/<FormName>` (no target) returns HTTP 400 in PF 5.8.1 when the form has no built-in target-prompt input | Phase 2 execution (2026-05-14, V_PF2 step) | RESOLVED 2026-05-14 -- corrected V_PF2 URL to `Special:FormEdit/TestForm/TestPage` (target page in URL path). Form rendered cleanly + submission succeeded. Phase-MD `phase-2-extensions.md` V_PF2 probe + deploy README Phase-2-install step 8 + executor prompt sub-halts retain the no-target URL; future executor prompts inherit the corrected URL form. |
+| F6 | SUBSTANTIVE | Cross-phase audit of MW bundled-extension activation surface (ParserFunctions not loaded, surfaced by Template:Test #if not resolving) | Phase 2 execution (2026-05-14, V_PF2 render check) | RESOLVED 2026-05-14 -- audit performed against `/var/www/html/extensions/` (34 bundled). LOAD: ParserFunctions, Cite, CategoryTree, TemplateData. SKIP: VisualEditor, OATHAuth, LoginNotify, Math, PdfHandler. DEFER: remaining 24. Activation surface captured as durable contract in `apps/qwiki-sandbox/deploy/LocalSettings.php` comments + `phase-2-extensions.md` Task 2 inline content. |
 
 ### F1 -- MW 1.39 LTS is past upstream support window
 
@@ -148,6 +150,61 @@ The composer error message itself names the fix: `--ignore-platform-req=ext-cale
 **Pattern recognition (for post-arc retrospective).** The Phase 2 MD's verification subagent did not catch this. The cross-image composer pattern (composer container against bind-mount whose runtime image differs) is well-known and produces this exact error. Future drafter-subagent prompts should explicitly check for cross-image platform-req mismatches when a composer step appears in a phase MD.
 
 F4 closed.
+
+---
+
+### F5 -- Page Forms FormEdit (no target) returns 400 in PF 5.8.1
+
+**Surfaced during:** Phase 2 execution, 2026-05-14. Caught by the executor (Claude) at V_PF2 step. Operator visited `Special:FormEdit/TestForm` (no target page argument), which returned HTTP 400 with body text "No target page specified." (page heading rendered as "Create TestForm").
+
+**Finding.** The Phase 2 MD's V_PF2 step + the executor prompt's V_PF2 reference both name the URL `Special:FormEdit/TestForm` (no target page in URL path). In Page Forms 5.8.1 (current REL1_43 HEAD as of deploy), this URL returns HTTP 400 when the form definition does not include an explicit target-page-prompt input. The Phase 2 `Form:TestForm` smoke-test form (per `apps/qwiki-sandbox/deploy/test-form/Form-TestForm.wikitext`) has no such input — it's `{{{for template|Test}}}` + two `{{{field|...}}}` + `{{{end template}}}` + `{{{standard input|save|cancel}}}`, nothing more.
+
+Older PF versions auto-rendered a "Page name:" input at the top of `Special:FormEdit/<FormName>` when no target was specified. PF 5.8.1 changed this — without an explicit form-side target-prompt mechanism, the page returns 400.
+
+**Why this is SUBSTANTIVE.** Following the MD's V_PF2 URL literally would produce a 400 every time, blocking phase-boundary verification. The fix is trivial (append target page name to URL path) but discoverable only by reading PF source or experimenting.
+
+**Resolution.** V_PF2 re-run with `Special:FormEdit/TestForm/TestPage` returned 200 + rendered the form cleanly + submission landed `TestPage` with `Test name`, `Test note`, and `Category:Test pages`. The MD V_PF2 probe text + deploy README Phase-2-install step 8 + executor-prompt sub-halt reference all retain the no-target URL as historical record; future executor prompts (Phase 3+, and any re-run of Phase 2) should use the target-in-URL form.
+
+**Cross-phase implications.** Phase 5 (Mode page-type form) inherits this finding directly — the Mode form must EITHER include an explicit target-prompt input in its definition OR Phase 5 V-probes must use the target-in-URL form. Recommend the form-side mechanism (add `{{{info|create title=Mode name}}}` or `{{{info|partial form}}}` patterns to the Mode form) so contributors don't need to construct target URLs manually; this is a Phase 5 design concern.
+
+F5 closed.
+
+---
+
+### F6 -- MW bundled-extension activation surface audit
+
+**Surfaced during:** Phase 2 execution, 2026-05-14. Caught at V_PF2 final render check: `TestPage` showed `{{#if:Phase 2 verification|Test note: Phase 2 verification|}}` as raw wikitext (unparsed), indicating ParserFunctions was not loaded. Root cause: the Phase 2 MD's LocalSettings.php Extensions section loads only Page Forms + Semantic MediaWiki; the 34 MW-bundled extensions (universally available at `/var/www/html/extensions/` per the official `mediawiki:1.43-fpm` image) are all dormant by default — `wfLoadExtension()` is required to activate any of them.
+
+**Finding.** ParserFunctions is bundled but unloaded — the immediate trigger. The broader concern: the activation surface of the 34 bundled extensions had never been audited against `decisions.md` scope. Other gaps could be lurking (e.g., Cite for citation discipline D11 #4; CategoryTree for Layer B nav per spec-sketch v3; TemplateData for Phase 5 template self-documentation). Without an explicit audit, future phases would discover gaps reactively (same shape as this finding) rather than proactively.
+
+**Why this is SUBSTANTIVE.** Phase 5 will ship the Mode page-type template. Any non-trivial wiki template uses `#if`/`#switch`/`#ifeq` — without ParserFunctions loaded, Phase 5 forms would render with raw parser-function syntax visible. The activation-audit pattern needs to be a durable contract, not a Phase-5-rediscovery.
+
+**Resolution.** Audit performed against the bundled extension list (`docker exec qwiki-mediawiki ls /var/www/html/extensions/`). Three-way classification:
+
+- **LOAD (4)** -- active in v1 baseline:
+  - **ParserFunctions** -- universal template primitive (`#if`/`#switch`/`#ifeq`/`#expr`/`#time`); biting us right now.
+  - **Cite** -- footnote support (`<ref>` / `<references/>`); supports D11 #4 citation discipline.
+  - **CategoryTree** -- Layer B sub-category nav per spec-sketch v3.
+  - **TemplateData** -- `<templatedata>` JSON for template self-documentation; supports Phase 5+ page-type template discoverability (operator-overridden from DEFER -> LOAD).
+
+- **SKIP (5)** -- locked decision against; do NOT load even later:
+  - **VisualEditor** -- D2 explicit ("Visual Editor is NOT in v1 baseline").
+  - **OATHAuth** -- D4 auth via Discord OAuth supersedes username/password 2FA.
+  - **LoginNotify** -- D4 OAuth flow doesn't generate the email-login signals.
+  - **Math** -- QW domain has no math/LaTeX rendering need.
+  - **PdfHandler** -- QW domain has no PDF upload pathway.
+
+- **DEFER (24)** -- not loaded now; revisit per phase when needed: AbuseFilter, CiteThisPage, CodeEditor, ConfirmEdit, DiscussionTools, Echo, Gadgets, ImageMap, InputBox, Interwiki, Linter, MultimediaViewer, Nuke, PageImages, Poem, ReplaceText, Scribunto, SecureLinkFixer, SpamBlacklist, SyntaxHighlight_GeSHi, TextExtracts, Thanks, TitleBlacklist, WikiEditor.
+
+The LOAD/SKIP/DEFER decisions are captured as a durable activation contract in `apps/qwiki-sandbox/deploy/LocalSettings.php` comments + `phase-2-extensions.md` Task 2 inline content. Future MW LTS arcs (e.g., 1.43 -> 1.47 upgrade arc) inherit this surface as the starting baseline.
+
+None of the LOAD trio (now quartet) carries DB schema (ParserFunctions, Cite, CategoryTree, TemplateData are wikitext-side only) -- no `update.php` re-run needed. Apply via LocalSettings.php edit + scp + `docker compose restart mediawiki`.
+
+**Cross-phase implications.** Phase 3 (auth) is unaffected by extension scope. Phase 4 (quality-tag categories) inherits CategoryTree for category-tree rendering of `Category:Needs review` / `Category:Stale` / `Category:Draft` listings (no Phase-4 MD revision needed; CategoryTree availability is implicit). Phase 5 (Mode page-type) MUST verify the four LOAD extensions remain active before authoring Mode templates (verification probe: `Special:Version` lists the four extensions). Any DEFER extension that Phase 5+ wants to LOAD: amend this finding's resolution + LocalSettings.php + a new dated entry under D2 Amendments if the activation-surface contract changes.
+
+**Pattern recognition (for post-arc retrospective).** This is the third Phase-2 finding caught at deploy time (F2 install.php, F4 composer platform-req, now F6 bundled-extension activation). The Phase 2 drafter-subagent verification missed all three. Future drafter-subagent prompts should explicitly include: (a) cross-image platform-req mismatches when composer steps appear, (b) cross-MW-version PF URL behavior changes, (c) bundled-vs-loaded extension audit against the phase's smoke-test wikitext content. Memory entry candidate: `reference_mw_bundled_extensions_loading_pattern.md` (orchestrator to author at Phase 2 boundary capture; not auto-written during execution).
+
+F6 closed.
 
 ---
 
