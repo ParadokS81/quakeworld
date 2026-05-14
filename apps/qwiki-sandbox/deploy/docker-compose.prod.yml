@@ -3,17 +3,19 @@
 # + MariaDB 11.4 LTS. nginx fronts both static-asset serving (from the
 # shared mediawiki-html bind mount) and fastcgi proxying to mediawiki:9000.
 #
-# Phase 2 (this revision) adds the Page Forms overlay bind. Semantic
-# MediaWiki is installed via Composer into mediawiki-html/extensions/
-# SemanticMediaWiki/ and does NOT need a new bind (it lives inside the
-# parent mediawiki-html bind-mount).
+# Phase 2 added the Page Forms overlay bind. Phase 3 (this revision) adds
+# the PluggableAuth + OpenIDConnect overlay binds. Semantic MediaWiki is
+# installed via Composer into mediawiki-html/extensions/SemanticMediaWiki/
+# and does NOT need a new bind (it lives inside the parent mediawiki-html
+# bind-mount). OpenIDConnect lives at a sibling host path (overlay-bound)
+# because the ext source itself needs to survive MW image bumps; the
+# OpenIDConnect Composer dependency (jumbojett/openid-connect-php 1.0.2)
+# lives under mediawiki-html/vendor/jumbojett/ and is refreshed by the
+# post-image-bump composer update --no-dev step in deploy/README.md.
 #
 # Operator workflow (see deploy/README.md). All persistent data lives under
 # /mnt/user/appdata/qwiki-beta/, which is on the weekly Unraid -> Synology
-# backup (D3). That includes the MW source tree at mediawiki-html/, which
-# the operator extracts from the mediawiki:1.43-fpm image once at first deploy
-# and refreshes on each MW image bump via the documented procedure in
-# deploy/README.md. No named docker volumes; bind-mounts only.
+# backup (D3). No named docker volumes; bind-mounts only.
 
 services:
   mariadb:
@@ -47,6 +49,11 @@ services:
       MW_DB_PASSWORD: ${MW_DB_PASSWORD}
       MW_SECRET_KEY: ${MW_SECRET_KEY}
       MW_UPGRADE_KEY: ${MW_UPGRADE_KEY}
+      # Phase 3: Discord OAuth credentials + role mapping config.
+      DISCORD_OAUTH_CLIENT_ID: ${DISCORD_OAUTH_CLIENT_ID}
+      DISCORD_OAUTH_CLIENT_SECRET: ${DISCORD_OAUTH_CLIENT_SECRET}
+      DISCORD_GUILD_ID: ${DISCORD_GUILD_ID}
+      DISCORD_WIKI_BETA_ROLE_ID: ${DISCORD_WIKI_BETA_ROLE_ID}
     volumes:
       # Shared MW source tree -- nginx mounts the same host path read-only.
       # mediawiki-html is populated once at first-time deploy via the
@@ -63,6 +70,14 @@ services:
       # read-only. Sibling host path so MW image-bump rsync against
       # mediawiki-html/ doesn't wipe it.
       - /mnt/user/appdata/qwiki-beta/page-forms:/var/www/html/extensions/PageForms:ro
+      # PluggableAuth overlay (Phase 3; git-checked-out REL1_43 on host);
+      # read-only. Sibling host path for the same image-bump-survivability
+      # reason as Page Forms.
+      - /mnt/user/appdata/qwiki-beta/pluggable-auth:/var/www/html/extensions/PluggableAuth:ro
+      # OpenIDConnect overlay (Phase 3; git-checked-out REL1_43 on host);
+      # read-only. The ext's Composer dependency (jumbojett/openid-connect-php)
+      # is composer-installed into mediawiki-html/vendor/ rather than here.
+      - /mnt/user/appdata/qwiki-beta/openid-connect:/var/www/html/extensions/OpenIDConnect:ro
       # Hand-authored LocalSettings.php overlay; read-only.
       - /mnt/user/appdata/qwiki-beta/LocalSettings.php:/var/www/html/LocalSettings.php:ro
     networks:
@@ -99,6 +114,10 @@ services:
       # /(skins|extensions|resources)/.../...static-extensions location
       # block in nginx.conf.
       - /mnt/user/appdata/qwiki-beta/page-forms:/var/www/html/extensions/PageForms:ro
+      # Same PluggableAuth + OpenIDConnect overlays (Phase 3), read-only.
+      # Same static-asset rationale as Page Forms.
+      - /mnt/user/appdata/qwiki-beta/pluggable-auth:/var/www/html/extensions/PluggableAuth:ro
+      - /mnt/user/appdata/qwiki-beta/openid-connect:/var/www/html/extensions/OpenIDConnect:ro
     networks:
       - qwiki-net
 

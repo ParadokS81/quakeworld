@@ -1,5 +1,12 @@
 {
     "require": {
         "mediawiki/semantic-media-wiki": "~6.0.1"
+    },
+    "extra": {
+        "merge-plugin": {
+            "include": [
+                "extensions/OpenIDConnect/composer.json"
+            ]
+        }
     }
 }

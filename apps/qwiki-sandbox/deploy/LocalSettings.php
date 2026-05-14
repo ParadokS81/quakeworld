@@ -8,9 +8,10 @@
 # env_file or environment block); never committed in plaintext here.
 #
 # Phase 1 scope: MW core + Citizen skin only.
-# Phase 2 scope (this revision): + Page Forms + Semantic MediaWiki.
-# Phase 3: + PluggableAuth + Discord OAuth + wiki-contributor / wiki-curator
-# groups + namespace edit restrictions per D4 / D5.
+# Phase 2 scope: + Page Forms + Semantic MediaWiki.
+# Phase 3 scope (this revision): + PluggableAuth + OpenIDConnect (Discord
+# OAuth provider) + wiki-contributor / wiki-curator MW groups + namespace
+# edit restrictions per D4 / D5 + Discord-role-driven group sync hooks.
 # Phase 4: + quality-tag categories per D18.
 
 if ( !defined( 'MEDIAWIKI' ) ) {
@@ -41,9 +42,8 @@ $wgFavicon = "$wgResourceBasePath/favicon.ico";
 
 # --- Email --------------------------------------------------------------------
 
-# Disabled in v1 beta; can be enabled post-Phase-3 if account-recovery emails
-# are needed. PluggableAuth + Discord OAuth (Phase 3) is the primary signup
-# path, so password resets are not load-bearing at v1.
+# Disabled in v1 beta. PluggableAuth + Discord OAuth (Phase 3) is the primary
+# signup path, so password resets are not load-bearing at v1.
 $wgEnableEmail = false;
 $wgEnableUserEmail = false;
 $wgEmergencyContact = "";
@@ -73,9 +73,6 @@ $wgUploadDirectory = "/var/www/html/images";
 
 # --- Skins ----------------------------------------------------------------
 
-# Citizen is the locked skin per D2. Vector + MonoBook + Timeless ship in the
-# base image; loading them too keeps Special:Preferences's skin selector usable
-# during early sanity checks. Citizen remains the default.
 wfLoadSkin( 'Vector' );
 wfLoadSkin( 'MonoBook' );
 wfLoadSkin( 'Timeless' );
@@ -83,26 +80,81 @@ wfLoadSkin( 'Citizen' );
 
 $wgDefaultSkin = "citizen";
 
-# Citizen v3 options. Phase 1 keeps defaults; wiki-specific tuning (left-rail
-# TOC behavior, dark-mode default, search subsystem) lands in subsequent
-# phases as authoring conventions firm up. Note: the v2-era
-# $wgCitizenEnableCommandPalette option was removed in Citizen v3 (search
-# subsystem renamed); the v3 default is already what we want.
-
 # --- Permissions ----------------------------------------------------------
 
-# MW defaults already block anonymous edit ($wgGroupPermissions['*']['edit'] = false
-# is the documented MW 1.43 default). Setting it explicitly here makes the
-# Phase 1 verification probe self-documenting; Phase 3 will introduce
-# wiki-contributor / wiki-curator groups and namespace restrictions (D4 / D5).
+# MW default denies anonymous edit + createaccount; we keep those denials.
+# PluggableAuth requires autocreateaccount on * so the OAuth-driven first-
+# login flow can auto-provision the MW user account (upstream PluggableAuth
+# install docs are explicit on this; otherwise the first login fails with
+# "you do not have permission to create accounts").
 $wgGroupPermissions['*']['createaccount'] = false;
 $wgGroupPermissions['*']['edit'] = false;
 $wgGroupPermissions['*']['createpage'] = false;
 $wgGroupPermissions['*']['createtalk'] = false;
 $wgGroupPermissions['*']['read'] = true;
+$wgGroupPermissions['*']['autocreateaccount'] = true;
 
-# Sysop (the install-time admin user only) keeps the MW defaults so initial
-# wiki-setup edits and namespace administration work via the admin account.
+# Sysop (the install-time admin user) keeps MW defaults so initial wiki
+# setup edits and curator promotion via Special:UserRights work.
+
+# wiki-contributor: standard editor scope -- content + Talk + File + User
+# namespaces. Phase 3 D5 leaves Form / Template / Category curator-only.
+$wgGroupPermissions['wiki-contributor']['read'] = true;
+$wgGroupPermissions['wiki-contributor']['edit'] = true;
+$wgGroupPermissions['wiki-contributor']['createpage'] = true;
+$wgGroupPermissions['wiki-contributor']['createtalk'] = true;
+$wgGroupPermissions['wiki-contributor']['move'] = true;
+$wgGroupPermissions['wiki-contributor']['upload'] = true;
+$wgGroupPermissions['wiki-contributor']['reupload'] = true;
+$wgGroupPermissions['wiki-contributor']['reupload-own'] = true;
+$wgGroupPermissions['wiki-contributor']['minoredit'] = true;
+$wgGroupPermissions['wiki-contributor']['writeapi'] = true;
+$wgGroupPermissions['wiki-contributor']['purge'] = true;
+$wgGroupPermissions['wiki-contributor']['noratelimit'] = false;
+
+# wiki-curator: inherits wiki-contributor rights + curator scope per Pass 5
+# 5.3a + D17. The custom 'edit-curator-namespace' right is paired with
+# $wgNamespaceProtection (below) to gate Form / Template / Category edits.
+$wgGroupPermissions['wiki-curator']['read'] = true;
+$wgGroupPermissions['wiki-curator']['edit'] = true;
+$wgGroupPermissions['wiki-curator']['createpage'] = true;
+$wgGroupPermissions['wiki-curator']['createtalk'] = true;
+$wgGroupPermissions['wiki-curator']['move'] = true;
+$wgGroupPermissions['wiki-curator']['upload'] = true;
+$wgGroupPermissions['wiki-curator']['reupload'] = true;
+$wgGroupPermissions['wiki-curator']['reupload-own'] = true;
+$wgGroupPermissions['wiki-curator']['reupload-shared'] = true;
+$wgGroupPermissions['wiki-curator']['minoredit'] = true;
+$wgGroupPermissions['wiki-curator']['writeapi'] = true;
+$wgGroupPermissions['wiki-curator']['purge'] = true;
+$wgGroupPermissions['wiki-curator']['delete'] = true;
+$wgGroupPermissions['wiki-curator']['undelete'] = true;
+$wgGroupPermissions['wiki-curator']['deletedhistory'] = true;
+$wgGroupPermissions['wiki-curator']['deletedtext'] = true;
+$wgGroupPermissions['wiki-curator']['protect'] = true;
+$wgGroupPermissions['wiki-curator']['rollback'] = true;
+$wgGroupPermissions['wiki-curator']['suppressredirect'] = true;
+$wgGroupPermissions['wiki-curator']['edit-curator-namespace'] = true;
+$wgGroupPermissions['wiki-curator']['noratelimit'] = true;
+
+# Hide group-self-add UX: contributors cannot self-promote; curators cannot
+# self-add to sysop. Operator manages curator promotion via Special:UserRights.
+$wgAddGroups['wiki-curator'] = [];
+$wgRemoveGroups['wiki-curator'] = [];
+
+# Namespace edit restrictions per D5 + Pass 5 5.4a. The 'edit-curator-namespace'
+# right is granted only to wiki-curator (above), so any user without that
+# group is blocked from editing pages in these namespaces even if they have
+# the global 'edit' right.
+$wgNamespaceProtection[NS_TEMPLATE] = [ 'edit-curator-namespace' ];
+$wgNamespaceProtection[NS_TEMPLATE_TALK] = [ 'edit-curator-namespace' ];
+$wgNamespaceProtection[NS_CATEGORY] = [ 'edit-curator-namespace' ];
+$wgNamespaceProtection[NS_CATEGORY_TALK] = [ 'edit-curator-namespace' ];
+# Page Forms namespaces are 106 (NS_FORM) + 107 (NS_FORM_TALK); referenced
+# numerically because Page Forms defines the constants in its own extension
+# load (and the constants are not in scope at config-merge time).
+$wgNamespaceProtection[106] = [ 'edit-curator-namespace' ];
+$wgNamespaceProtection[107] = [ 'edit-curator-namespace' ];
 
 # --- Security keys --------------------------------------------------------
 
@@ -128,22 +180,11 @@ $wgUseCdn = false;
 $wgUsePathInfo = true;
 
 # --- Extensions (Phase 2) -------------------------------------------------
-#
-# Page Forms (REL1_43 branch HEAD at deploy time). Installed via git clone
-# into /mnt/user/appdata/qwiki-beta/page-forms/ on Unraid; overlay-bound
-# onto /var/www/html/extensions/PageForms by docker-compose.prod.yml.
-# Introduces the Form (NS_FORM = 106) and Form_talk namespaces; Phase 3
-# restricts these to the wiki-curator group per D5.
+
+# Page Forms (REL1_43 branch HEAD at deploy time).
 wfLoadExtension( 'PageForms' );
 
-# Semantic MediaWiki 6.0.x. Installed via Composer (composer.local.json at
-# MW root declares mediawiki/semantic-media-wiki ~6.0.1; one-shot
-# `composer update --no-dev` resolves SMW into extensions/SemanticMediaWiki/
-# and its dependencies into vendor/, both under the mediawiki-html parent
-# bind-mount). enableSemantics() activates SMW's hooks, special pages, and
-# semantic namespaces (Property = NS_PROPERTY, Concept = NS_CONCEPT, etc.);
-# the call MUST follow wfLoadExtension( 'SemanticMediaWiki' ) and takes
-# the wiki's host (no scheme, no trailing slash).
+# Semantic MediaWiki 6.0.x (Composer-installed).
 wfLoadExtension( 'SemanticMediaWiki' );
 enableSemantics( 'wiki.slipgate.me' );
 
@@ -180,3 +221,156 @@ wfLoadExtension( 'ParserFunctions' );
 wfLoadExtension( 'Cite' );
 wfLoadExtension( 'CategoryTree' );
 wfLoadExtension( 'TemplateData' );
+
+# --- Extensions (Phase 3) -------------------------------------------------
+
+# PluggableAuth (REL1_43 branch HEAD at deploy time). Provides the
+# AuthManager integration that lets external OAuth providers (here:
+# OpenIDConnect against Discord) auto-provision MW user accounts.
+wfLoadExtension( 'PluggableAuth' );
+
+# OpenIDConnect REL1_43 v8.3.0+. Registers itself as a PluggableAuth plugin
+# via extension.json attributes; the 'plugin' => 'OpenIDConnect' string in
+# $wgPluggableAuth_Config below routes auth attempts to this class.
+# Composer dependency jumbojett/openid-connect-php:1.0.2 lives at
+# mediawiki-html/vendor/jumbojett/ after the deploy-time composer update.
+wfLoadExtension( 'OpenIDConnect' );
+
+# PluggableAuth global flags. Auto-login OFF keeps anonymous browsing
+# possible (D4: read access is public). Local-login OFF removes the
+# username/password form (Discord OAuth is the only auth path).
+# Local-properties OFF means Discord remains source of truth for real-name
+# and email; users cannot override either on the wiki.
+$wgPluggableAuth_EnableAutoLogin = false;
+$wgPluggableAuth_EnableLocalLogin = false;
+$wgPluggableAuth_EnableLocalProperties = false;
+
+# PluggableAuth provider registry. Single entry: 'Discord' (operator-facing
+# button label) -> OpenIDConnect plugin against Discord's OAuth endpoints.
+# Discord doesn't expose .well-known/openid-configuration; manual endpoints
+# go in providerConfig per OpenIDConnect.php's initClient() recon (the call
+# routes through to jumbojett's providerConfigParam() which bypasses
+# discovery). issuerValidator returns true unconditionally because Discord
+# returns an issuer string that doesn't match the providerURL (Discord's
+# id_token sets iss = 'https://discord.com' but the OIDC ext defaults to
+# strict issuer equality with the providerURL).
+$wgPluggableAuth_Config['Discord'] = [
+    'plugin' => 'OpenIDConnect',
+    'data' => [
+        'providerURL' => 'https://discord.com',
+        'clientID' => getenv( 'DISCORD_OAUTH_CLIENT_ID' ) ?: '',
+        'clientsecret' => getenv( 'DISCORD_OAUTH_CLIENT_SECRET' ) ?: '',
+        # Discord OAuth scopes: 'openid' is required so Discord returns a
+        # signed id_token (OpenIDConnect ext reads 'sub' from there);
+        # 'identify' gives username + global avatar; 'guilds.members.read'
+        # gives access to /users/@me/guilds/<guild_id>/member for the
+        # role-membership check.
+        'scope' => 'openid identify guilds.members.read',
+        # Manual OIDC config since Discord lacks .well-known discovery.
+        # Endpoints from https://discord.com/developers/docs/topics/oauth2.
+        'providerConfig' => [
+            'issuer' => 'https://discord.com',
+            'authorization_endpoint' => 'https://discord.com/api/oauth2/authorize',
+            'token_endpoint' => 'https://discord.com/api/oauth2/token',
+            'userinfo_endpoint' => 'https://discord.com/api/users/@me',
+            'jwks_uri' => 'https://discord.com/api/oauth2/keys',
+        ],
+        'issuerValidator' => static function ( $issuer ) {
+            return true;
+        },
+    ],
+];
+
+# --- Discord role sync (Phase 3) ------------------------------------------
+#
+# Discord roles are NOT in the OIDC id_token. PluggableAuth's built-in
+# 'syncall' / 'mapped' GroupSync types both assume claim-driven mapping;
+# neither fits the Discord-API-call shape. We therefore re-check role
+# membership on every login via two MW hooks:
+#   - LocalUserCreated: fires on first OAuth-driven account creation.
+#   - UserLoggedIn: fires on every subsequent login (re-evaluates
+#     role membership; handles role revocation gracefully).
+# Both hooks call the same helper, which is small enough to inline here
+# rather than shipping as a separate file.
+
+$wgHooks['LocalUserCreated'][] = static function ( $user, $autocreated ) {
+    qwikiBetaSyncDiscordRole( $user );
+};
+
+$wgHooks['UserLoggedIn'][] = static function ( $user ) {
+    qwikiBetaSyncDiscordRole( $user );
+};
+
+/**
+ * Sync the wiki-contributor MW group from the user's @wiki-beta Discord
+ * role membership. Reads the OAuth access token PluggableAuth stored at
+ * OpenIDConnect::OIDC_ACCESSTOKEN_SESSION_KEY, calls Discord's
+ * /users/@me/guilds/<guild_id>/member endpoint, and adds or removes the
+ * user from wiki-contributor based on the response's roles[] array.
+ *
+ * Fails silently (no group change) on:
+ *   - missing env config (DISCORD_GUILD_ID / DISCORD_WIKI_BETA_ROLE_ID),
+ *   - missing access token (e.g., non-OAuth login by the sysop user),
+ *   - non-200 from Discord (network error, expired token, user left guild).
+ *
+ * Removing the user from wiki-contributor on a 404 from
+ * /users/@me/guilds/<guild_id>/member matches the spirit of D4's
+ * revocation symmetry: if the user has left the Discord server, they
+ * lose contributor access on next login.
+ */
+function qwikiBetaSyncDiscordRole( $user ): void {
+    $services = \MediaWiki\MediaWikiServices::getInstance();
+    $authManager = $services->getAuthManager();
+    $accessToken = $authManager->getAuthenticationSessionData(
+        \MediaWiki\Extension\OpenIDConnect\OpenIDConnect::OIDC_ACCESSTOKEN_SESSION_KEY
+    );
+    if ( !$accessToken ) {
+        return;
+    }
+
+    $guildId = getenv( 'DISCORD_GUILD_ID' ) ?: '';
+    $betaRoleId = getenv( 'DISCORD_WIKI_BETA_ROLE_ID' ) ?: '';
+    if ( $guildId === '' || $betaRoleId === '' ) {
+        wfDebugLog( 'qwiki-beta',
+            'Discord role sync skipped: DISCORD_GUILD_ID or DISCORD_WIKI_BETA_ROLE_ID missing.' );
+        return;
+    }
+
+    $url = "https://discord.com/api/users/@me/guilds/{$guildId}/member";
+    $ch = curl_init( $url );
+    curl_setopt_array( $ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => [ "Authorization: Bearer {$accessToken}" ],
+        CURLOPT_TIMEOUT => 5,
+        CURLOPT_CONNECTTIMEOUT => 3,
+    ] );
+    $body = curl_exec( $ch );
+    $httpCode = (int)curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+    curl_close( $ch );
+
+    $userGroupManager = $services->getUserGroupManager();
+    $currentGroups = $userGroupManager->getUserGroups( $user );
+    $hasContributor = in_array( 'wiki-contributor', $currentGroups, true );
+
+    if ( $httpCode !== 200 || !is_string( $body ) ) {
+        wfDebugLog( 'qwiki-beta',
+            "Discord role sync: API returned HTTP {$httpCode}; removing wiki-contributor if present." );
+        if ( $hasContributor ) {
+            $userGroupManager->removeUserFromGroup( $user, 'wiki-contributor' );
+        }
+        return;
+    }
+
+    $data = json_decode( $body, true );
+    $roleIds = ( is_array( $data ) && isset( $data['roles'] ) && is_array( $data['roles'] ) )
+        ? $data['roles']
+        : [];
+
+    if ( in_array( $betaRoleId, $roleIds, true ) ) {
+        if ( !$hasContributor ) {
+            $userGroupManager->addUserToGroup( $user, 'wiki-contributor' );
+        }
+    } elseif ( $hasContributor ) {
+        $userGroupManager->removeUserFromGroup( $user, 'wiki-contributor' );
+    }
+}

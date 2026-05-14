@@ -406,6 +406,255 @@ operator-WSL + Unraid SSH pattern as first-time deploy.
     git push origin main
     ```
 
+---
+
+## Phase 3 install -- PluggableAuth + OpenIDConnect + Discord OAuth
+
+Prerequisites (per `prerequisites.md`):
+
+- Discord OAuth app created at https://discord.com/developers/applications
+  with redirect URI `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`.
+  Client ID + Secret captured.
+- `@wiki-beta` Discord role exists in the relevant server; role ID captured.
+- Operator's Discord user ID captured (for first-login self-verification).
+
+Steps (run from operator's WSL unless otherwise noted):
+
+1. **Clone PluggableAuth onto Unraid.**
+
+   ```bash
+   ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
+     git clone --branch REL1_43 --depth 1 \
+       https://github.com/wikimedia/mediawiki-extensions-PluggableAuth.git \
+       pluggable-auth'
+   ```
+
+   Expect a single-shallow clone of REL1_43 (currently PluggableAuth v7.5.0).
+
+2. **Clone OpenIDConnect onto Unraid.**
+
+   ```bash
+   ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
+     git clone --branch REL1_43 --depth 1 \
+       https://github.com/wikimedia/mediawiki-extensions-OpenIDConnect.git \
+       openid-connect'
+   ```
+
+   Expect a single-shallow clone of REL1_43 (currently OpenIDConnect v8.3.0).
+
+3. **Scp the updated config files.**
+
+   ```bash
+   scp apps/qwiki-sandbox/deploy/composer.local.json \
+       apps/qwiki-sandbox/deploy/docker-compose.prod.yml \
+       apps/qwiki-sandbox/deploy/LocalSettings.php \
+       apps/qwiki-sandbox/deploy/.env.prod.example \
+       unraid-deploy:/mnt/user/appdata/qwiki-beta/
+   ```
+
+   Also copy `composer.local.json` into `mediawiki-html/` so composer's
+   merge-plugin finds it:
+
+   ```bash
+   ssh unraid-deploy 'cp /mnt/user/appdata/qwiki-beta/composer.local.json \
+                  /mnt/user/appdata/qwiki-beta/mediawiki-html/composer.local.json'
+   ```
+
+4. **Populate `.env` with Discord credentials.**
+
+   On Unraid, edit `/mnt/user/appdata/qwiki-beta/.env` and fill in:
+
+   - `DISCORD_OAUTH_CLIENT_ID` -- from the Discord developer-portal app's OAuth2 page.
+   - `DISCORD_OAUTH_CLIENT_SECRET` -- same page (reset if previously exposed).
+   - `DISCORD_GUILD_ID` -- right-click your Discord server icon -> Copy Server ID (developer mode required).
+   - `DISCORD_WIKI_BETA_ROLE_ID` -- Server Settings -> Roles -> right-click the `@wiki-beta` role -> Copy Role ID.
+
+   Confirm permissions:
+
+   ```bash
+   ssh unraid-deploy 'ls -la /mnt/user/appdata/qwiki-beta/.env'
+   ```
+
+   Expect `-rw-------` (chmod 600).
+
+5. **Run composer update inside MW root to install jumbojett.**
+
+   Per the Phase 2 pattern, use the one-shot `composer:latest` image
+   bind-mounted to the MW root:
+
+   ```bash
+   ssh unraid-deploy 'docker run --rm \
+     -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app \
+     composer:latest \
+     update --no-dev --no-interaction \
+     --ignore-platform-req=ext-calendar --ignore-platform-req=ext-intl'
+   ```
+
+   Expect output mentioning `jumbojett/openid-connect-php` being installed.
+
+6. **Restart the stack so the new extensions load.**
+
+   ```bash
+   ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml \
+     up -d --force-recreate mediawiki nginx'
+   ```
+
+7. **Run `maintenance/update.php` to create the OpenIDConnect schema tables.**
+
+   ```bash
+   ssh unraid-deploy 'docker exec qwiki-mediawiki \
+     php /var/www/html/maintenance/update.php --quick'
+   ```
+
+   Expect creation messages for `oidc_user` (or similar; OpenIDConnect's
+   schema is documented under its `sql/` directory).
+
+8. **Walk the OAuth flow end-to-end.**
+
+   - Open `https://wiki.slipgate.me` in an incognito browser.
+   - Expect: Citizen skin's user menu shows a "Log in with Discord" button
+     (PluggableAuth replaces the standard Special:UserLogin entrance).
+   - Click the button. Expect: redirect to Discord's OAuth consent screen
+     showing the OAuth app name + requested scopes
+     (openid / identify / guilds.members.read).
+   - Authorize. Expect: redirect back to
+     `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`,
+     then to Main Page, with a session cookie set + the user-menu now
+     showing your Discord username.
+   - Open `Special:UserGroupRights` -> find your username. Expect:
+     `wiki-contributor` group listed (auto-assigned by the LocalUserCreated
+     hook firing on first-login + finding the `@wiki-beta` role in your
+     Discord guild membership).
+
+   If the auto-assignment didn't happen, see Troubleshooting "Discord login
+   succeeds but wiki-contributor group not granted" below.
+
+9. **Promote yourself (or a second test user) to wiki-curator.**
+
+   Via the wiki UI as the existing `Admin` (Phase 1 sysop) user:
+
+   - Navigate to `Special:UserRights`.
+   - Enter the target Discord-OAuth-created username.
+   - Tick `wiki-curator`. Save.
+
+   Verify by editing `Template:Test` (created during Phase 2 smoke probe);
+   the curator-only namespace restriction (D5) means only `wiki-curator` +
+   sysop can edit.
+
+10. **Commit Phase 3 changes to main.**
+
+    ```bash
+    git add apps/qwiki-sandbox/deploy/composer.local.json \
+            apps/qwiki-sandbox/deploy/docker-compose.prod.yml \
+            apps/qwiki-sandbox/deploy/LocalSettings.php \
+            apps/qwiki-sandbox/deploy/.env.prod.example \
+            apps/qwiki-sandbox/deploy/README.md \
+            apps/qwiki-sandbox/OVERVIEW.md
+    git commit -m "phase 3 (qwiki-v1-beta): PluggableAuth + OpenIDConnect (Discord) + wiki-contributor / wiki-curator groups + D5 namespace restrictions"
+    git push origin main
+    ```
+
+### Image bump procedure (amended Phase 3)
+
+Add to the existing Routine MW Image Bump Procedure section a step to
+re-pull the PluggableAuth + OpenIDConnect git-clones whenever a major REL
+branch is moved (e.g., from REL1_43 to REL1_47 when the next MW LTS lands):
+
+```bash
+ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta/pluggable-auth && git pull --depth=1 origin REL1_43'
+ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta/openid-connect && git pull --depth=1 origin REL1_43'
+```
+
+For routine MW patch bumps (1.43.X -> 1.43.Y), the existing rsync
+procedure already preserves these extensions because they live at sibling
+host paths (overlay-bound at runtime) -- nothing extra to do.
+
+### Troubleshooting (Phase 3 additions)
+
+**"Log in with Discord" button doesn't render in the Citizen skin user menu.**
+
+PluggableAuth registers itself with the SkinTemplateNavigation::Universal
+hook to inject the login button. If the button is missing:
+
+- Verify PluggableAuth shows up in `Special:Version`: `ssh unraid-deploy 'curl -s
+  http://192.168.1.205:8081/index.php?title=Special:Version'` and grep
+  for "PluggableAuth".
+- Verify `wfLoadExtension( 'PluggableAuth' );` is present in LocalSettings
+  AND the overlay bind exists: `ssh unraid-deploy 'docker exec qwiki-mediawiki ls
+  /var/www/html/extensions/PluggableAuth/extension.json'`.
+- Restart mediawiki: `ssh unraid-deploy 'docker compose -f
+  /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml restart mediawiki'`.
+
+**Discord OAuth redirect returns "OpenIDConnect: SSL certificate problem"
+or "issuer mismatch" error.**
+
+- SSL cert: typically a stale CA bundle in the mediawiki container. Confirm
+  with `ssh unraid-deploy 'docker exec qwiki-mediawiki curl -sI
+  https://discord.com/api/oauth2/token'`. Expect HTTP 200/405. If TLS
+  errors, the official mediawiki:1.43-fpm image's ca-certificates may need
+  refresh -- pull the latest image patch.
+- Issuer mismatch: the `issuerValidator` callable in
+  `$wgPluggableAuth_Config['Discord']['data']` is responsible for accepting
+  Discord's non-standard issuer string. Confirm it's set to `static function
+  ( $issuer ) { return true; }` in LocalSettings.php. If a stricter
+  validator is wanted, match against `'https://discord.com'`.
+
+**Discord login succeeds but wiki-contributor group not granted.**
+
+Walk the qwikiBetaSyncDiscordRole helper's failure modes in order:
+
+- Confirm env vars are set: `ssh unraid-deploy 'docker exec qwiki-mediawiki env |
+  grep -E "DISCORD_"'`. Expect four lines.
+- Confirm Discord role ID is correct: in Discord (with developer mode),
+  right-click the `@wiki-beta` role and Copy Role ID; cross-check against
+  `.env`'s `DISCORD_WIKI_BETA_ROLE_ID`.
+- Confirm the OAuth scope includes `guilds.members.read`: this is the scope
+  Discord requires to allow `/users/@me/guilds/<id>/member` to return role
+  data; without it the API returns 401. Check the OAuth consent screen
+  when re-authenticating -- it should list "Read your role data in one
+  server".
+- Confirm Discord guild ID is correct: right-click your server icon ->
+  Copy Server ID; cross-check against `.env`'s `DISCORD_GUILD_ID`.
+- Tail MW logs for the hook's debug output: `ssh unraid-deploy 'docker exec
+  qwiki-mediawiki tail -f /tmp/qwiki-beta-debug.log'` (set
+  `$wgDebugLogGroups['qwiki-beta']` to a file path in LocalSettings if
+  the hook's wfDebugLog calls aren't visible).
+- Test the Discord API directly with the user's access token (sysop only;
+  pull from the session table by user_name): the response JSON shows the
+  exact role IDs the API returned. Compare against `DISCORD_WIKI_BETA_ROLE_ID`.
+
+**`Special:UserGroupRights` shows wiki-contributor for the user, but
+they can't edit any page (including Main namespace).**
+
+- Confirm `wiki-contributor` has the `edit` right:
+  `ssh unraid-deploy 'docker exec qwiki-mediawiki grep -A1 "wiki-contributor.*edit" /var/www/html/LocalSettings.php'`.
+  Expect a `... ['edit'] = true;` line.
+- Confirm anonymous `read` is allowed: `ssh unraid-deploy 'docker exec
+  qwiki-mediawiki grep "wgGroupPermissions\['\*'\]\['read'\]" /var/www/html/LocalSettings.php'`.
+  Expect `... = true;`.
+- If editing a Template / Form / Category page returns a permission error,
+  that's intentional per D5; the user needs `wiki-curator` for those
+  namespaces.
+
+**`maintenance/update.php` errors with "class not found" referring to
+OpenIDConnect or PluggableAuth.**
+
+- Composer didn't fully run. Re-run from step 5 of the Phase 3 install:
+  `ssh unraid-deploy 'docker run --rm -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app composer:latest update --no-dev --no-interaction'`.
+- Confirm jumbojett landed: `ssh unraid-deploy 'test -d
+  /mnt/user/appdata/qwiki-beta/mediawiki-html/vendor/jumbojett/openid-connect-php
+  && echo OK'`. If missing, the `composer.local.json` merge wasn't picked
+  up -- confirm the file is at MW root: `ssh unraid-deploy 'cat
+  /mnt/user/appdata/qwiki-beta/mediawiki-html/composer.local.json'`.
+
+**Logout via Special:UserLogout doesn't fully clear the Discord session.**
+
+- This is by design: Discord OAuth tokens persist until the user revokes
+  them via Discord's Authorized Apps settings. The MW session is cleared
+  on logout, but the next login click will skip the consent screen (Discord
+  remembers the prior authorization). To force re-consent, the user can
+  revoke at https://discord.com/settings/authorized-apps and reauthorize.
+
 ## Routine redeploy (LocalSettings change)
 
 ```bash

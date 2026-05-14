@@ -10,9 +10,13 @@ Pre-pivot 6-phase plan (clone -> upgrade -> Citizen -> Page Forms -> EQL drain -
 
 ## Substrate state
 
-After Phase 1 + Phase 2 ship: the three-container Docker stack on Unraid -- `qwiki-nginx` (nginx 1.30-alpine, the CF Tunnel-facing entry point) + `qwiki-mediawiki` (mediawiki:1.43-fpm, php-fpm at port 9000) + `qwiki-mariadb` (mariadb 11.4 LTS) -- plus the Citizen skin v3.16.0 git checkout, Page Forms (REL1_43 branch HEAD, overlay-bound) and Semantic MediaWiki 6.0.x (composer-managed under `mediawiki-html/`). Anonymous read works, anonymous edit blocked; `Special:Version` lists both extensions; `Form:TestForm` + `Template:Test` + main-namespace `TestPage` exist as Phase 2 smoke-test breadcrumbs (deletable at operator discretion). Live at `wiki.slipgate.me` via Cloudflare Tunnel.
+After Phase 3 ships: a three-container Docker stack on Unraid -- `qwiki-nginx` (nginx 1.30-alpine, the CF Tunnel-facing entry point) + `qwiki-mediawiki` (mediawiki:1.43-fpm, php-fpm at port 9000) + `qwiki-mariadb` (mariadb 11.4 LTS) -- plus the Citizen skin v3.16.0 git checkout + Page Forms + Semantic MediaWiki 6.0.x extensions (Phase 2) + PluggableAuth + OpenIDConnect extensions (Phase 3). Live at `wiki.slipgate.me` via Cloudflare Tunnel.
 
-Phases 3 / 4 layer PluggableAuth + Discord OAuth + MW groups, then quality-tag categories + Layer 3 harvest verification.
+Auth: PluggableAuth + OpenIDConnect against Discord OAuth (manual endpoint config; `openid identify guilds.members.read` scopes). The `wiki-contributor` MW group is auto-assigned on every login based on the user's `@wiki-beta` Discord role membership (re-checked via `/users/@me/guilds/<guild_id>/member`); `wiki-curator` is manually assigned by the operator via `Special:UserRights`. Anonymous read is public; anonymous edit blocked.
+
+Namespace restrictions (D5): `Form` / `Form_talk` / `Template` / `Template_talk` / `Category` / `Category_talk` are `wiki-curator`-only (custom `edit-curator-namespace` right paired with `$wgNamespaceProtection`); `Main` / `Talk` / `File` / `File_talk` / `User` / `User_talk` are `wiki-contributor`-editable; `MediaWiki:` is sysop-only (MW default).
+
+Phase 4 layers the quality-tag categories (`Needs review` / `Stale` / `Draft` per D18) + verifies the Layer 3 harvest path end-to-end against a test page.
 
 ## Modes mini-arc state
 
@@ -33,4 +37,4 @@ Phases 5-8 deliver Mode page-type form + curator tool + 27-mode triage + harvest
 
 ## Decisions log
 
-Cross-cutting decisions live in the arc's `decisions.md` (D1-D26, locked 2026-05-12; D2 amended 2026-05-13 to lock nginx + php-fpm + MariaDB composition). No project-internal decisions log; if a phase needs to deviate from a locked decision, the phase MD's "Deviation" section + operator review handles it (per D25).
+Cross-cutting decisions live in the arc's `decisions.md` (D1-D26, locked 2026-05-12; D2 amended 2026-05-13 to lock nginx + php-fpm + MariaDB composition + current-stable image versions). No project-internal decisions log; if a phase needs to deviate from a locked decision, the phase MD's "Deviation" section + operator review handles it (per D25).
