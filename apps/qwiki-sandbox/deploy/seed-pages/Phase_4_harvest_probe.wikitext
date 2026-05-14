@@ -1,0 +1,9 @@
+This is the Phase 4 harvest-probe test page for arc qwiki-v1-beta. It exists to verify the Layer 3 harvest path end-to-end: a wiki section is distilled into a concept-note under <code>apps/qw-oracle/curated/concept-notes/</code>, ingested via the <code>load-concepts</code> pipeline, and made retrievable through the oracle MCP <code>search_concepts</code> tool. The page can be deleted after the phase ships; the harvested concept-note remains as a breadcrumb proving the path works.
+
+== Spectator mode ==
+
+In QuakeWorld, ''spectator mode'' is a non-player connection state in which a client joins a server as an observer rather than a combatant. A spectator can follow a specific player's view via the <code>track</code> command or roam the level freely with a freelook camera. Server admins enable or disable spectator slots per ruleset; some competitive matches admit spectators only after the game has started, while practice servers default to open spectator access.
+
+== Notes ==
+
+The harvested concept-note for this section lives at <code>apps/qw-oracle/curated/concept-notes/test-qwiki-harvest-probe.md</code>. After Phase 4 ships, this wiki page may be deleted at curator discretion; the concept-note remains as the Layer 3 record. If a fuller spectator-mode page is authored under a future Game Content domain mini-arc, both this stub and the concept-note can be superseded by the production content.

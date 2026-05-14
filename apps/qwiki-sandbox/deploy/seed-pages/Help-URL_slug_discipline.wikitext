@@ -1,0 +1,25 @@
+This page documents the URL slug authoring rule for QWiki v1 beta. The rule preserves external references (KTX source comments, forum links, archived Discord and ezquake.com cross-references) across the eventual cutover from <code>wiki.slipgate.me</code> to the canonical wiki URL.
+
+== The rule ==
+
+For pages '''kept from the old wiki''' (extracted via per-domain migration arcs), use '''the same URL slug as the old wiki page'''. The title casing and word order should match the legacy URL even when MediaWiki's automatic capitalization would prefer otherwise.
+
+For '''new-build pages''' (content authored fresh in v1), choose a new slug that follows the page-type form's convention (documented per page-type form during the per-domain mini-arc that ships the form).
+
+== Why ==
+
+KTX source code references wiki URLs directly. ezquake.com/docs cross-references, forum threads, and Discord archives also cite wiki slugs. Preserving the legacy slug means those external references continue to resolve after the v1-beta -> canonical-URL cutover (a future arc, not part of qwiki-v1-beta).
+
+== Enforcement ==
+
+''Phase 4 of arc qwiki-v1-beta ships the rule as authoring discipline only.'' Page-type forms ship in Phase 5 onward and will add slug-validation hooks that warn or block on deviation from the legacy slug when an "extract from old wiki" disposition is selected. v1 beta until then relies on contributor + curator awareness; no automated enforcement at the form layer yet.
+
+== Examples ==
+
+* '''Keep''' (extracted from old wiki, slug = old-wiki slug): a page kept from the old wiki at <code>/wiki/Mid_Air</code> stays at <code>/wiki/Mid_Air</code> on the new wiki.
+* '''New-build''' (slug per page-type convention): a newly-authored Mode page picks its slug from the Mode form's recommendation; subsequent per-domain forms document their own slug conventions.
+
+== Related ==
+
+* [[:Category:Needs review]] -- quality-tag for pages awaiting curator content review.
+* [[:Category:Stale]] -- quality-tag for pages awaiting currency review.

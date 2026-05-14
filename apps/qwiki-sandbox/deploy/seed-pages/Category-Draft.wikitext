@@ -1,0 +1,14 @@
+This category contains pages flagged "not ready for review" per arc qwiki-v1-beta decision D18.
+
+== Trigger ==
+
+Explicit author flag added when a page is actively being drafted and is not yet ready for curator review. Add <code><nowiki>[[Category:Draft]]</nowiki></code> to a page being worked on; remove it when the page is ready.
+
+== Curator action ==
+
+Skip pages in this category. Curator review starts after the author removes the Draft tag (at which point the page typically picks up [[:Category:Needs review]] from the page-type template if not already present).
+
+== Related ==
+
+* [[:Category:Needs review]] -- pages flagged for content review.
+* [[:Category:Stale]] -- pages flagged for currency review.

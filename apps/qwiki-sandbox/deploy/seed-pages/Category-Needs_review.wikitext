@@ -1,0 +1,15 @@
+This category contains pages flagged for curator content review per arc qwiki-v1-beta decision D18.
+
+== Trigger ==
+
+Auto-added to a page on save via the page-type template's <code><nowiki>[[Category:Needs review]]</nowiki></code> include. Phase 5's Mode template is the first page-type template that wires this; subsequent per-domain page-types follow the same pattern. Until a page-type template covers a given page, contributors may add the tag manually for explicit curator review.
+
+== Curator action ==
+
+Read the page, polish prose, verify cross-refs to Layer 1 entities and to other wiki pages, then remove the category. For pages tagged via template include, removal happens when the underlying template is changed or when the curator overrides the include locally; for ad-hoc tags, the curator edits the page wikitext directly.
+
+== Related ==
+
+* [[:Category:Stale]] -- pages flagged for currency review.
+* [[:Category:Draft]] -- pages flagged "not ready for review" by the author.
+* [[Help:URL slug discipline]] -- related curator authoring rule.

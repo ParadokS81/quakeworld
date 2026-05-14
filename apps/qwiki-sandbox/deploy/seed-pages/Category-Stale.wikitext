@@ -1,0 +1,14 @@
+This category contains pages flagged for currency review per arc qwiki-v1-beta decision D18.
+
+== Trigger ==
+
+Explicit author or curator tag added when a page's content has aged beyond confidence. Add <code><nowiki>[[Category:Stale]]</nowiki></code> to a page wikitext (or template) when install walkthroughs reference removed cvars, when distribution versions are outdated, when mode rules have shifted, or when any other content-currency drift is suspected.
+
+== Curator action ==
+
+Currency-review the content against current sources (Layer 1 head-of-tree, current upstream releases, current ruleset state). Update facts in place, escalate to the original author for rework, or merge into a successor page. Remove the category once the page is current.
+
+== Related ==
+
+* [[:Category:Needs review]] -- pages flagged for content review (different curator activity).
+* [[:Category:Draft]] -- pages flagged "not ready for review" by the author.

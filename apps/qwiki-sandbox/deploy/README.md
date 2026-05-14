@@ -791,6 +791,117 @@ ssh unraid-deploy 'docker run --rm \
 | MariaDB shell | `ssh unraid-deploy 'docker exec -it qwiki-mariadb mariadb -uroot -p qwiki_beta'` |
 | Run MW maintenance script | `ssh unraid-deploy 'docker exec qwiki-mediawiki php /var/www/html/maintenance/<script>.php'` |
 
+## Phase 4: quality-tag categories + URL slug doc + Layer 3 harvest-path verification
+
+Phase 4 ships three small deliverables: the three quality-tag categories (`Needs review` / `Stale` / `Draft` per D18), the URL slug authoring rule documentation page (per D6), and an end-to-end verification of the Layer 3 harvest path (per Pass 6 6.3 substrate item 3). No new extensions or Composer changes; the deploy is paste-five-seed-pages + run-the-harvest-probe.
+
+Prerequisite: operator is logged into `https://wiki.slipgate.me` as the Discord-OAuth-provisioned user with `wiki-curator` rights (so `Category:*` pages can be created -- D5 namespace gate). Phase 3 V_AUTH5 promotes the operator's user; if that step was skipped, run it now via `Special:UserRights` as `Admin`.
+
+### Step 1: scp the seed-pages directory to Unraid (optional convenience)
+
+The seed-page bodies are committed under `apps/qwiki-sandbox/deploy/seed-pages/`; they don't need to live on Unraid (they're not consumed by any container), but the operator may scp them for grep/diff convenience:
+
+```bash
+scp -r apps/qwiki-sandbox/deploy/seed-pages \
+  unraid-deploy:/mnt/user/appdata/qwiki-beta/
+```
+
+### Step 2: create the three Category pages via the wiki UI
+
+For each of `Needs review`, `Stale`, `Draft`:
+
+1. In the browser (logged in as the operator's wiki-curator user), visit `https://wiki.slipgate.me/index.php?title=Category:<Name>&action=edit` (substituting the category name; spaces in URLs become underscores).
+2. Paste the body verbatim from `apps/qwiki-sandbox/deploy/seed-pages/Category-<Name>.wikitext` (replacing space with underscore in the filename).
+3. Save with edit summary `Phase 4: create quality-tag category per D18`.
+
+After all three: visit `https://wiki.slipgate.me/index.php?title=Special:Categories`. Confirm all three categories are listed (they appear once they have a body, even if no member pages reference them yet -- MW shows non-empty category pages in `Special:Categories`).
+
+### Step 3: create the Help:URL slug discipline page
+
+1. Visit `https://wiki.slipgate.me/index.php?title=Help:URL_slug_discipline&action=edit`.
+2. Paste the body from `apps/qwiki-sandbox/deploy/seed-pages/Help-URL_slug_discipline.wikitext`.
+3. Save with edit summary `Phase 4: URL slug discipline doc per D6`.
+
+Confirm: visiting `https://wiki.slipgate.me/wiki/Help:URL_slug_discipline` renders the page.
+
+### Step 4: create the harvest probe test page
+
+1. Visit `https://wiki.slipgate.me/index.php?title=Phase_4_harvest_probe&action=edit`.
+2. Paste the body from `apps/qwiki-sandbox/deploy/seed-pages/Phase_4_harvest_probe.wikitext`.
+3. Save with edit summary `Phase 4: harvest probe test page`.
+
+Confirm: visiting `https://wiki.slipgate.me/wiki/Phase_4_harvest_probe` renders the page with the `== Spectator mode ==` section visible.
+
+### Step 5: smoke probe auto-categorization mechanism
+
+Phase 4 does not wire auto-categorization globally -- that's a page-type-template concern starting Phase 5. To confirm the underlying mechanism works:
+
+1. In the browser, edit `https://wiki.slipgate.me/wiki/Phase_4_harvest_probe`.
+2. Add `[[Category:Needs review]]` at the bottom of the wikitext. Save.
+3. Visit `https://wiki.slipgate.me/index.php?title=Category:Needs_review`. Confirm: `Phase 4 harvest probe` appears in the category's member list.
+4. (Optional) Edit the page again, remove the category tag, save. Confirm: the page disappears from the category listing on the next visit.
+
+This proves the MW category mechanism works against the seed pages. Phase 5's Mode template will exercise the same mechanism via template-include.
+
+### Step 6: run the load-concepts pipeline against the new concept-note
+
+The harvested concept-note file `apps/qw-oracle/curated/concept-notes/test-qwiki-harvest-probe.md` is committed in the repo at Phase 4 boundary (authored by the Phase 4 executor's subagent during Task 8). From the operator's WSL terminal in the project root:
+
+```bash
+cd apps/qw-oracle
+bun scripts/load-concepts/index.ts
+```
+
+Expected output: a summary line indicating the new note ingested without warnings; the existing 9 notes either re-ingested or hash-skipped (most should hash-skip since unchanged). No `WARN` lines mentioning `test-qwiki-harvest-probe`. Exit code 0.
+
+### Step 7: query oracle MCP search_concepts to verify retrieval
+
+The oracle MCP server is at `https://oracle.slipgate.me/mcp`. In the operator's Claude Desktop or Claude Code session with the oracle MCP wired:
+
+1. Issue a `search_concepts` query for a phrase that should match the harvested chunk -- e.g. "spectator mode joining server as observer".
+2. Confirm: at least one result returned with `slug: test-qwiki-harvest-probe` and a non-zero `match_quality` (typically `strong` or `moderate` depending on RRF calibration).
+
+If the MCP query interface isn't directly callable from the operator's tooling, the alternative is a `psql` probe against the `qw_oracle` DB:
+
+```bash
+cd apps/qw-oracle
+PSQL_CMD='SELECT slug FROM concepts WHERE slug = '\''test-qwiki-harvest-probe'\'';'
+echo "$PSQL_CMD" | bun run db:psql
+```
+
+(Substitute the actual psql shim from your repo if `db:psql` isn't the name; the live oracle CLAUDE.md names the canonical command.)
+
+### Step 8: commit + push the Phase 4 artifacts
+
+```bash
+git add apps/qwiki-sandbox/deploy/seed-pages/ \
+        apps/qwiki-sandbox/deploy/README.md \
+        apps/qwiki-sandbox/OVERVIEW.md \
+        apps/qw-oracle/curated/concept-notes/test-qwiki-harvest-probe.md \
+        apps/qw-oracle/curated/concept-notes/README.md \
+        docs/superpowers/plans/2026-05-12-qwiki-v1-beta/phase-4-discipline-harvest.md
+git commit -m "phase 4: quality-tag categories + URL slug doc + L3 harvest verification (arc qwiki-v1-beta)"
+git push origin main
+```
+
+(`docs/superpowers/plans/.../phase-4-discipline-harvest.md` is included if the phase MD itself was just-approved + committed in the same window; if the MD landed in an earlier commit, omit from the add list.)
+
+### Troubleshooting -- Phase 4 specific
+
+**Category page edit blocked with "you do not have permission to edit this page".** The operator's wiki user isn't in `wiki-curator`. Promote via `Special:UserRights` as `Admin` (Phase 1 sysop). The Discord-role-sync helper from Phase 3 only manages `wiki-contributor`; `wiki-curator` is manual.
+
+**load-concepts run errors with "no concept-note file found".** Verify the file lives at `apps/qw-oracle/curated/concept-notes/test-qwiki-harvest-probe.md` (the CLI scans that directory only). Verify the frontmatter is parseable YAML (`gray-matter` is strict on indentation + colon spacing).
+
+**load-concepts run errors with `JSONB string scalar` warning or DB constraint.** The `qw_oracle` schema has the `F1.jsonb_columns_not_strings` regression gate. If the note's frontmatter accidentally has a stringified JSON value in a JSONB column, the loader rejects it. Re-run the Task 8 authoring with the canonical YAML shape from `apps/qw-oracle/curated/concept-notes/README.md`.
+
+**MCP search_concepts returns 0 results.** Verify the chunk was embedded -- `bun scripts/load-concepts/index.ts` should also dispatch `embed-chunks.ts` per the loader's index.ts. If embeddings didn't fire (e.g., Voyage API key absent from `.env`), the search falls back to lexical-only. Re-run after ensuring `VOYAGE_API_KEY` is set in `apps/qw-oracle/.env` (operator's existing oracle env should have it from Layer 3 work).
+
+**MCP search_concepts returns the wrong slug.** The RRF score may rank a sibling concept-note higher for an ambiguous query. Try a more distinctive phrase from the harvested chunk; the `Phase 4 harvest probe` source page deliberately includes the word "harvest probe" in the prose for this reason.
+
+**Phase 4 harvest probe wiki page disappears from Category:Needs review.** The tag was removed (deliberately or by edit) -- not a failure. The auto-categorization mechanism doesn't fire here because Phase 4 doesn't ship a page-type template; the smoke test in Step 5 is one-shot.
+
+---
+
 ## Troubleshooting
 
 - **`docker compose ps` shows `qwiki-mediawiki` restarting** -- run
