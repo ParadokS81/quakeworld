@@ -71,23 +71,23 @@ The seed-mirrored fields (`engine_canonical_paths`, `user_install_paths`, `corpu
 
 ## Voice and length
 
-Voice register and length follow `../concept-notes/README.md`'s community-wiki shape, calibrated for the engine-data domain. Brief by default; depth only when the asset_type genuinely earns it ([[feedback_l3_concept_notes_wiki_shape]]).
+Calibrated for the LLM consumer. Asset-notes are bundled with L1 facts at retrieval time -- body owns narrative / cross-engine philosophy / motive-intent; L1 owns exact defaults / source lines / help text. Plain English, citation-anchored, narrative welcome for motive/intent.
 
-| Section | Voice | Length |
+| Section | Voice | Length guideline |
 |---|---|---|
 | Description / What is this asset type | Factual, present tense | 2-4 sentences |
 | How it loads (engine mechanism) | Technical, source-cited | 5-15 lines |
 | Install layout (where users put it) | Imperative; "drop the file at ..." | 3-8 lines |
 | Files involved (multi-file types) | Per-file listing | 5-15 lines |
-| Cross-engine differences | Per-engine breakdown | 10-30 lines (when divergent); skip otherwise |
+| Cross-engine differences | Per-engine breakdown; narrative welcome for mode-priority intent | 10-30 lines (when divergent); skip otherwise |
 | Community conventions / corpus packaging | Descriptive; cite corpus | 5-15 lines |
 | Edge cases | Itemized | 5-20 lines |
 
-Source-derived asset-notes carry high citation density -- `file:line` references to loader functions, format magic bytes from seed, cvar references via `related_entities`. Most notes will land at 60-150 lines. Skybox and player_skin (multi-file, multi-engine, multi-mechanism) sit higher; charset and conback (single-file, single-mechanism) sit lower.
+Total length follows shape; brief slugs run short, multi-file multi-engine slugs run longer. The LLM reads the whole note either way.
 
-### Progressive disclosure for notes over ~80 lines
+### Chunk-first answer for notes over ~80 lines
 
-Inherited rule from `../concept-notes/README.md`: structure the first ~30 lines as a standalone short answer (Description + How it loads + Install layout). Cross-engine deep-dive and edge cases live below. The MCP default-condense returns the opener; depth queries return the full note.
+`search_concepts` returns chunks; the first chunk an LLM sees may be the only one it consumes for common queries. Structure the first ~30 lines (Description + How it loads + Install layout) as a complete "how does this work" answer. Cross-engine deep-dive, divergence detail, and edge cases live below for LLMs that follow up via `get_concept_note` for the full body.
 
 ## Current notes
 

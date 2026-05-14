@@ -23,9 +23,11 @@ Asset-notes are **substrate for downstream LLM-composed wiki pages**, not standa
 - **L3 concept-note** (sibling) -- cross-domain synthesis (gameplay context, recipes, ruleset gates) for asset_types that earn one.
 - **Wiki page** (future downstream artifact) -- LLM-composed from the three feeders.
 
-Downstream consumers pull different depth from the same note: MCP retrieval needs cvar behavior + mechanism summary for "how does this work" Q&A; Slipgate asset-detection logic needs file classification only; wiki-page generation needs substrate from all three layers; concept-note authoring uses asset-notes as feeder source. The asset-note serves all of them simultaneously -- the discipline is compress sprawl, keep depth.
+Downstream consumers pull different depth from the same note: MCP retrieval is multi-hop (LLM matches via `search_concepts`, reads the body, then follows up to L1 via `lookup_entity` using `related_entities` from the frontmatter); Slipgate asset-detection logic needs file classification only; wiki-page generation needs substrate from all three layers; concept-note authoring uses asset-notes as feeder source. The asset-note serves all of them simultaneously -- the discipline is compress sprawl, keep depth.
 
-See `~/.claude/skills/asset-type-curate/references/asset-note-template.md` "Scope discipline" section for the full keep/compress/move-out rule and length targets per slug shape.
+Frontmatter is the join key. Exhaustive `related_entities` and `l1_canonical_ids` matter more than tight body length -- under-listing means the LLM cannot find the follow-up data even when it knows to look.
+
+See `~/.claude/skills/asset-type-curate/references/asset-note-template.md` "Scope discipline" section for the keep/compress/move-out rule and shape-based length guidelines.
 
 What the bucket is:
 
