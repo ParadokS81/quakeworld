@@ -1398,12 +1398,19 @@ async function probeMvdsvTrailingCommentCoverageCvars(ctx: ProbeContext): Promis
 //                            GROUP BY project, type, source_state HAVING COUNT(*) > 0
 //                            ORDER BY project, type, source_state;"
 //
-//   ezquake: cmdline_param  doc_only=2 source_backed=75
-//            command        doc_only=41 source_backed=511 source_retired=8
-//            cvar           doc_only=149 source_backed=2835 source_retired=5
+//   ezquake: cmdline_param  doc_only=1 source_backed=69 source_retired=7
+//            command        doc_only=7 source_backed=495 source_retired=62
+//            cvar           doc_only=52 source_backed=2741 source_retired=204
 //            macro          doc_only=2 source_backed=66
+//            hud_element    source_backed=83 source_retired=2
 //            (others: source_backed only)
 //   fte/mvdsv/qwcl: every type all source_backed.
+//
+// Last re-baselined 2026-05-15 after the entity-state-retreat loader fix
+// (commit 3be4d576). The 154-entity retreat from doc_only->source_retired
+// (114 cvar + 38 command + 2 cmdline_param) + 32 silent source_backed->
+// doc_only reconciliations + natural growth (4 new commands, 8 new cvars,
+// 4 new asset_categories, 2 hud_elements retiring) reshuffled the splits.
 //
 // When an entity-type count legitimately changes (new entities loaded,
 // schema migration shifts row counts, etc.), update both the probe's
@@ -1549,18 +1556,18 @@ export function makeGameplayKindProbe(
 }
 
 const EZQUAKE_FLOOR_PROBES: Probe[] = [
-  makeFloorCountProbe('ezquake', 'asset_category', 26),
-  makeFloorSourceStateProbe('ezquake', 'asset_category', { source_backed: 26 }),
+  makeFloorCountProbe('ezquake', 'asset_category', 30),
+  makeFloorSourceStateProbe('ezquake', 'asset_category', { source_backed: 30 }),
   makeFloorCountProbe('ezquake', 'cmdline_param', 77),
-  makeFloorSourceStateProbe('ezquake', 'cmdline_param', { doc_only: 2, source_backed: 75 }),
-  makeFloorCountProbe('ezquake', 'command', 560),
-  makeFloorSourceStateProbe('ezquake', 'command', { doc_only: 41, source_backed: 511, source_retired: 8 }),
-  makeFloorCountProbe('ezquake', 'cvar', 2989),
-  makeFloorSourceStateProbe('ezquake', 'cvar', { doc_only: 149, source_backed: 2835, source_retired: 5 }),
+  makeFloorSourceStateProbe('ezquake', 'cmdline_param', { doc_only: 1, source_backed: 69, source_retired: 7 }),
+  makeFloorCountProbe('ezquake', 'command', 564),
+  makeFloorSourceStateProbe('ezquake', 'command', { doc_only: 7, source_backed: 495, source_retired: 62 }),
+  makeFloorCountProbe('ezquake', 'cvar', 2997),
+  makeFloorSourceStateProbe('ezquake', 'cvar', { doc_only: 52, source_backed: 2741, source_retired: 204 }),
   makeFloorCountProbe('ezquake', 'flag_bit', 50),
   makeFloorSourceStateProbe('ezquake', 'flag_bit', { source_backed: 50 }),
   makeFloorCountProbe('ezquake', 'hud_element', 85),
-  makeFloorSourceStateProbe('ezquake', 'hud_element', { source_backed: 85 }),
+  makeFloorSourceStateProbe('ezquake', 'hud_element', { source_backed: 83, source_retired: 2 }),
   makeFloorCountProbe('ezquake', 'keyname', 148),
   makeFloorSourceStateProbe('ezquake', 'keyname', { source_backed: 148 }),
   makeFloorCountProbe('ezquake', 'macro', 68),
@@ -1688,7 +1695,7 @@ async function probeEzquakeDocOnlyCount(ctx: ProbeContext): Promise<ProbeResult>
     SELECT COUNT(*)::int AS n FROM entities
     WHERE project='ezquake' AND source_state='doc_only'
   `;
-  const expected = 194;
+  const expected = 62;
   const actual = rows[0]!.n;
   return {
     name,
