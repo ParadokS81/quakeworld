@@ -16,6 +16,7 @@ Findings accrue here during arc execution -- phase-MD drafting (sub-agent verifi
 | F4 | SUBSTANTIVE | Composer platform-req mismatch when running composer:latest against MW source | Phase 2 execution (2026-05-14, composer resolve step) | RESOLVED 2026-05-14 -- `apps/qwiki-sandbox/deploy/README.md` + `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/phase-2-extensions.md` amended to add `--ignore-platform-req=ext-calendar --ignore-platform-req=ext-intl` at all three composer-update sites (Phase 2 install step + image-bump procedure + SMW extension-bump section) in both files |
 | F5 | SUBSTANTIVE | Page Forms `Special:FormEdit/<FormName>` (no target) returns HTTP 400 in PF 5.8.1 when the form has no built-in target-prompt input | Phase 2 execution (2026-05-14, V_PF2 step) | RESOLVED 2026-05-14 -- corrected V_PF2 URL to `Special:FormEdit/TestForm/TestPage` (target page in URL path). Form rendered cleanly + submission succeeded. Phase-MD `phase-2-extensions.md` V_PF2 probe + deploy README Phase-2-install step 8 + executor prompt sub-halts retain the no-target URL; future executor prompts inherit the corrected URL form. |
 | F6 | SUBSTANTIVE | Cross-phase audit of MW bundled-extension activation surface (ParserFunctions not loaded, surfaced by Template:Test #if not resolving) | Phase 2 execution (2026-05-14, V_PF2 render check) | RESOLVED 2026-05-14 -- audit performed against `/var/www/html/extensions/` (34 bundled). LOAD: ParserFunctions, Cite, CategoryTree, TemplateData. SKIP: VisualEditor, OATHAuth, LoginNotify, Math, PdfHandler. DEFER: remaining 24. Activation surface captured as durable contract in `apps/qwiki-sandbox/deploy/LocalSettings.php` comments + `phase-2-extensions.md` Task 2 inline content. |
+| F7 | SUBSTANTIVE | composer merge-plugin can't see overlay-bound OpenIDConnect/composer.json (cross-image bind-mount visibility mismatch) | Phase 3 execution (2026-05-14, Task 7 step 5 composer run) | RESOLVED 2026-05-14 -- `apps/qwiki-sandbox/deploy/composer.local.json` switched from merge-plugin path entry to direct `require` for `jumbojett/openid-connect-php: 1.0.2`. Same upstream-pinned dependency, simpler resolution surface. Phase 3 MD's Task 1 inline content + deploy README Phase 3 install step 5 retain merge-plugin shape as historical record; updated `composer.local.json` is the authoritative paper artifact going forward. |
 
 ### F1 -- MW 1.39 LTS is past upstream support window
 
@@ -205,6 +206,43 @@ None of the LOAD trio (now quartet) carries DB schema (ParserFunctions, Cite, Ca
 **Pattern recognition (for post-arc retrospective).** This is the third Phase-2 finding caught at deploy time (F2 install.php, F4 composer platform-req, now F6 bundled-extension activation). The Phase 2 drafter-subagent verification missed all three. Future drafter-subagent prompts should explicitly include: (a) cross-image platform-req mismatches when composer steps appear, (b) cross-MW-version PF URL behavior changes, (c) bundled-vs-loaded extension audit against the phase's smoke-test wikitext content. Memory entry candidate: `reference_mw_bundled_extensions_loading_pattern.md` (orchestrator to author at Phase 2 boundary capture; not auto-written during execution).
 
 F6 closed.
+
+---
+
+### F7 -- composer merge-plugin can't see overlay-bound OpenIDConnect/composer.json
+
+**Surfaced during:** Phase 3 execution, 2026-05-14. Caught by the executor (Claude) at Task 7 step 5 (composer one-shot against `mediawiki-html/`) -- composer reported "Nothing to install, update or remove" + `vendor/jumbojett/` absent.
+
+**Finding.** The Phase 3 MD's Task 1 composer.local.json uses composer's `merge-plugin` extra with a path-include pointing at `extensions/OpenIDConnect/composer.json`. The intent: at composer-run time, merge-plugin reads OpenIDConnect's `composer.json` (which pins `jumbojett/openid-connect-php: 1.0.2`) and lifts the dep into MW root's resolved set.
+
+The Phase 3 architecture overlay-binds extensions at sibling host paths (`/mnt/user/appdata/qwiki-beta/openid-connect/` -> `/var/www/html/extensions/OpenIDConnect/` :ro) only on the **mediawiki container**. The composer step uses the `composer:latest` Docker image with a bind-mount of `mediawiki-html/` only -- the sibling overlay paths are not visible. So when merge-plugin tries to read `extensions/OpenIDConnect/composer.json` from inside the composer container, the path doesn't exist; merge-plugin silently skips it; jumbojett never enters the resolved dep set.
+
+**Why this is SUBSTANTIVE.** Without `vendor/jumbojett/openid-connect-php` present, the `wfLoadExtension( 'OpenIDConnect' )` call in LocalSettings.php fails at MW boot because OpenIDConnect's PHP source `require`s `jumbojett/openid-connect-php/OpenIDConnectClient.php`. The wiki would 500 on every request post-restart. Phase 3 deploy stalls.
+
+**Same finding shape as F4** (cross-image visibility mismatch). The Phase 2 verifier checklist's check #1 (cross-image composer platform-reqs) was meant to catch this class of issue; bind-mount visibility is a structurally similar problem that the existing checklist phrasing didn't capture. Memory entry `feedback_drafter_subagent_verification_checklist.md` should sharpen check #1 to "cross-image composer dependency resolution -- both platform-reqs AND merge-plugin-visible paths."
+
+**Resolution.** `apps/qwiki-sandbox/deploy/composer.local.json` updated to drop the merge-plugin extra and add `jumbojett/openid-connect-php: 1.0.2` directly to the root `require` block. Functionally equivalent: the same upstream-pinned version of jumbojett resolves into vendor/. Simpler resolution surface: no merge-plugin overhead, no path-visibility dependency, no future-MW-image-bump risk of merge-plugin behavior change.
+
+```json
+{
+    "require": {
+        "mediawiki/semantic-media-wiki": "~6.0.1",
+        "jumbojett/openid-connect-php": "1.0.2"
+    }
+}
+```
+
+After fix: scp updated composer.local.json + cp into mediawiki-html/ + re-run composer (verified jumbojett landed in vendor/ before declaring closed).
+
+**Cross-phase implications.**
+
+- Phase 4 (quality-tag categories) -- no composer use; **NOT affected**.
+- Phase 5+ (Modes vertical slice) -- no composer use beyond extensions that ship their own merge-plugin entries (no such ext currently planned); **NOT affected**.
+- Future MW major-version upgrade arc (e.g., 1.43 -> 1.47 LTS) inherits the simpler composer.local.json shape. If a future extension's composer dependencies cannot be pinned at MW root (e.g., the extension requires version-range pinning that depends on the extension's own composer.json), the merge-plugin shape may need to return -- but only with an architecture that gives composer:latest container visibility into the extension paths (option: run composer inside qwiki-mediawiki container so overlay binds are visible; deferred to post-arc retrospective).
+
+**Pattern recognition (for post-arc retrospective).** Third execution-time composer finding on this arc (F4 platform-reqs, now F7 path-visibility). The Phase 3 drafter-subagent verification did not catch this even though the Phase 2 boundary capture had sharpened the checklist. The class of error -- "the composer container's filesystem view differs from the runtime mediawiki container's filesystem view" -- needs an explicit checklist item, not just inheritance from the F4 fix. Sharpening memory: when drafting MW phase MDs that use composer + extensions installed via sibling-overlay binds, the verifier checklist must include "does the composer container's bind-mount give it visibility into every path referenced from composer.local.json (merge-plugin includes, repository paths, autoload paths)?"
+
+F7 closed.
 
 ---
 
