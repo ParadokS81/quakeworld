@@ -10,7 +10,7 @@ The arc deploys directly to Unraid (no separate local-dev environment); Phase A 
 
 ### Unraid access
 
-- [ ] **Unraid SSH access verified.** From WSL: `ssh unraid 'echo ok'` returns `ok`. Tailscale up. (Already in place for prior arcs.)
+- [ ] **Unraid SSH access verified.** From WSL: `ssh unraid-deploy 'echo ok'` returns `ok` (non-root scoped identity for deploy ops on `/mnt/user/appdata/qwiki-beta/`); `ssh unraid 'echo ok'` returns `ok` for the operator-only root identity (used for compose-plugin reinstall after Unraid reboot only). Tailscale up. (Both identities already in place; `unraid-deploy` was added 2026-05-13 mid-Phase-1.)
 - [ ] **Operator can create directory** at `/mnt/user/appdata/qwiki-beta/` (or whatever subdir Phase A MD locks).
 - [ ] **Existing weekly Unraid -> Synology backup covers `/mnt/user/appdata/`.** Confirmed per `/home/paradoks/projects/unRAID/docs/server/backup.md`; new containers auto-included via the appdata-backup tarball.
 

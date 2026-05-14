@@ -6,15 +6,15 @@
 
 **Goal:** Stand up a fresh **MediaWiki 1.43 LTS** substrate on Unraid at `wiki.slipgate.me` (three-container stack: nginx 1.30-alpine + mediawiki:1.43-fpm + mariadb:11.4 + Citizen v3.16.0; per `decisions.md` D2 + Amendment #1 + #2) with auth + groups + quality tags + Layer 3 harvest path observable end-to-end (baseline phases), then deliver the Modes domain as a vertical-slice proof (27 mode pages authored, with the Layer 3 harvest path exercised against real content and the harvested concept-note queryable via oracle MCP).
 
-**Status:** Substrate cluster (Phases 1-4) drafted. Phases 1-2 approved 2026-05-13; Phases 3-4 awaiting review (will be approved per-phase as substrate ships). Phase 1 ready for implementation via arc-orchestrator. Phases 5-8 (Modes vertical slice) deferred until substrate ships (operator decision 2026-05-13; rationale: redraft risk from substrate implementation surprises, especially Phase 3 Discord OAuth).
+**Status:** Substrate cluster (Phases 1-4) drafted. **Phase 1 SHIPPED 2026-05-14 at https://wiki.slipgate.me** (V1-V5 PASS; D3 amended for URL change; F2 + F3 logged). Phase 2 approved; Phases 3-4 awaiting per-phase approval as substrate ships. Phases 5-8 (Modes vertical slice) deferred until substrate ships (operator decision 2026-05-13; rationale: redraft risk from substrate implementation surprises, especially Phase 3 Discord OAuth).
 
 ---
 
 ## Where we are right now
 
-- **Stage:** Phases 1-4 drafted; Phases 1-2 approved; Phases 3-4 awaiting per-phase approval as substrate ships.
-- **Last action:** 2026-05-13 -- Phase 4 draft landed (664 lines); light-review of Phases 1-4 GREEN; cross-phase coherence verified.
-- **Next action:** Open fresh terminal in `/home/paradoks/projects/quakeworld/`, type `@docs/superpowers/parking/2026-05-13-qwiki-v1-beta-orchestrator-handoff.md` as first message. Arc-orchestrator drives Phase 1 executor dispatch from there.
+- **Stage:** Phase 1 shipped 2026-05-14; Phase 2 approved + queued for executor dispatch (pending F3 resolution); Phases 3-4 awaiting per-phase approval; Phases 5-8 deferred.
+- **Last action:** 2026-05-14 -- Phase 1 substrate live at https://wiki.slipgate.me; V1-V5 PASS verified by orchestrator. D3 amended (URL `wiki-beta.quake.world` -> `wiki.slipgate.me`); F2 (Phase 1 exec-time learnings) RESOLVED via deploy/README.md patches; F3 (cross-phase hostname+SSH drift in Phase 2/3/4 MDs) OPEN -- pending operator decision on retarget pattern.
+- **Next action:** Operator resolves F3 (Option A retarget Phase 2/3/4 MDs vs Option B defer to executor-prompt augmentation). Then arc-orchestrator drafts Phase 2 executor prompt + dispatches fresh terminal.
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
@@ -44,7 +44,7 @@ If you're the fresh terminal that's about to draft a phase, also read:
 
 | # | Status | Shape | Drafter prompt | MD (drafted) | Deliverable | Runnable state at end |
 |---|---|---|---|---|---|---|
-| 1 | approved | substrate | [phase-1-drafter-prompt.md](phase-1-drafter-prompt.md) | [phase-1-mw-core.md](phase-1-mw-core.md) | nginx 1.30-alpine + `mediawiki:1.43-fpm` + MariaDB 11.4 LTS + Citizen v3.16.0 on Unraid + Cloudflare Tunnel + `wiki.slipgate.me` | URL returns HTTP 200; Citizen skin loads; anon edit blocked |
+| 1 | **shipped** | substrate | [phase-1-drafter-prompt.md](phase-1-drafter-prompt.md) | [phase-1-mw-core.md](phase-1-mw-core.md) | nginx 1.30-alpine + `mediawiki:1.43-fpm` + MariaDB 11.4 LTS + Citizen v3.16.0 on Unraid + Cloudflare Tunnel + `wiki.slipgate.me` | LIVE 2026-05-14 -- V1-V5 PASS at https://wiki.slipgate.me |
 | 2 | approved | substrate | [phase-2-drafter-prompt.md](phase-2-drafter-prompt.md) | [phase-2-extensions.md](phase-2-extensions.md) | Page Forms + Semantic MediaWiki installed | Special:Version shows extensions; smwadmin clean; test form renders |
 | 3 | drafted (awaiting review) | substrate | [phase-3-drafter-prompt.md](phase-3-drafter-prompt.md) | [phase-3-auth-groups.md](phase-3-auth-groups.md) | PluggableAuth + Discord OAuth + `wiki-contributor` / `wiki-curator` + namespace restrictions | Discord login flow works; contributor lands in right group; namespace gates enforce |
 | 4 | drafted (awaiting review) | substrate | [phase-4-drafter-prompt.md](phase-4-drafter-prompt.md) | [phase-4-discipline-harvest.md](phase-4-discipline-harvest.md) | Quality-tag categories + URL slug authoring rule + Layer 3 harvest path verified against test page | Three categories exist; test-page harvest -> oracle MCP returns harvested chunk |

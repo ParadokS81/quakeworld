@@ -2,7 +2,7 @@
 
 This arc has no prior monolithic plan. The brainstorm (six conceptual passes 2026-05-09 through 2026-05-12; vision spec at `docs/superpowers/specs/2026-05-09-qwiki-fresh-build-vision.md`) drained directly into this six-artifact scaffold, not via a monolithic plan. As a result, the F-finding ledger is empty at scaffold time.
 
-Findings accrue here during phase-MD drafting if the sub-agent verifier surfaces drift between a draft phase MD and the live state (decisions.md / live source files / prior phase deliverables). Each finding gets a sequential F-number, a severity tag, and a phase pointer.
+Findings accrue here during arc execution -- phase-MD drafting (sub-agent verifier surfaces drift between a draft phase MD and the live state), per-task execution (executor surfaces operational learnings), and phase-boundary verification (orchestrator catches cross-phase drift between shipped state and downstream phase MDs). Each finding gets a sequential F-number, a severity tag, and a phase pointer.
 
 ---
 
@@ -11,6 +11,8 @@ Findings accrue here during phase-MD drafting if the sub-agent verifier surfaces
 | F# | Severity | Title | Surfaced in | Resolved by |
 |---|---|---|---|---|
 | F1 | SUBSTANTIVE | MW 1.39 LTS is past upstream support window | Phase 1 drafting (2026-05-13) | RESOLVED 2026-05-13 -- `decisions.md` D2 Amendment #2 (MW 1.39 -> 1.43 LTS + cascading version bumps) |
+| F2 | SUBSTANTIVE | Phase 1 execution-time learnings cluster (install.php GRANT 1133 + 3 minor) | Phase 1 execution (2026-05-13/14) | RESOLVED 2026-05-14 -- `apps/qwiki-sandbox/deploy/README.md` patches in commit `f6d26ee6` (pre-create qwiki@'mariadb' workaround + docker-based wipe recovery + nginx apex redirect scheme fix + Cloudflare One dashboard path correction) |
+| F3 | SUBSTANTIVE | Cross-phase hostname + SSH identity drift in Phase 2/3/4 MDs + prerequisites.md | Phase 1 boundary verification (2026-05-14, orchestrator) | OPEN -- pending operator decision (Option A retarget MDs in place vs Option B defer to executor prompt augmentation) |
 
 ### F1 -- MW 1.39 LTS is past upstream support window
 
@@ -50,6 +52,64 @@ Findings accrue here during phase-MD drafting if the sub-agent verifier surfaces
 Phase 1 MD redrafted in place at `phase-1-mw-core.md` to reflect the new tags + drop the obsolete `$wgCitizenEnableCommandPalette` LocalSettings option (removed in Citizen v3). Phase 2 + Phase 3 drafter prompts (still to be written) inherit the resolved versions per the amendment's "Implication for later phases" section.
 
 F1 closed.
+
+---
+
+### F2 -- Phase 1 execution-time learnings cluster
+
+**Surfaced during:** Phase 1 execution + post-deploy patching, 2026-05-13/14. Caught by the executor (Claude) during Task 9 deploy on Unraid; resolved before halt-to-orchestrator.
+
+**Finding.** Phase 1's nine tasks shipped clean, but the Task 9 deploy surfaced four operational learnings that the original Phase 1 MD did not anticipate. All four are now baked into `apps/qwiki-sandbox/deploy/README.md` (commit `f6d26ee6` 2026-05-14).
+
+**Sub-findings:**
+
+1. **install.php GRANT error 1133 against MariaDB 11.4.** First-time `install.php` attempt failed at the GRANT step with MariaDB error 1133 (`Can't find any matching row in the user table`). Root cause: the MW 1.43 installer detects the `qwiki` user already created by the MariaDB container's `MARIADB_USER` env, skips `CREATE USER`, then tries to `GRANT ... TO qwiki@<dbserver>` where `<dbserver>` resolves to `qwiki@'mariadb'` -- which doesn't exist (only `qwiki@'%'` was created by the container env). MariaDB 11.4 errors out at the missing-user case (more strict than older MariaDB versions). **Recovery:** wipe `mariadb-data/` via docker-based alpine container (non-root claude-deploy can't `rm -rf` uid-999-owned files), bring MariaDB back up, pre-create `qwiki@'mariadb'` with the same password as `qwiki@'%'`, re-run `install.php`. Now baked into deploy/README.md First-time-deploy step 7 + a new Troubleshooting entry for error 1133.
+
+2. **nginx apex-redirect Location-header scheme.** Original `return 301 /index.php?title=Main_Page;` emitted `http://wiki.slipgate.me/...` in the Location header. Cloudflare Tunnel terminates TLS at the edge, so nginx sees plain HTTP -- and a relative-URL 301 takes the request scheme as the Location scheme. The client relied on CF's auto-https / HSTS to upgrade, but it was visible in the curl V1 chain as `Location: http://...`. **Fix:** explicit scheme: `return 301 https://$host/index.php?title=Main_Page;`. Reloaded in place via `nginx -s reload`; V1 chain now clean. Generic lesson: behind a TLS-terminating proxy, redirects need an explicit `https://` scheme.
+
+3. **Cloudflare dashboard path drift.** Phase 1 MD + deploy/README.md original text directed the operator to `Zero Trust -> Access -> Tunnels` in the Cloudflare dashboard for Task 9 step 9 (Tunnel public-hostname route). Live state: the path is now `Cloudflare One -> Networks -> Tunnels` (Cloudflare rebranded Zero Trust as Cloudflare One; tunnel admin moved to Networks). **Fix:** corrected path in deploy/README.md step 9.
+
+4. **Non-root claude-deploy user cannot `rm -rf` MariaDB data.** During the install.php failure recovery, attempting `rm -rf /mnt/user/appdata/qwiki-beta/mariadb-data/*` as `claude-deploy` (non-root, in docker group) was rejected because the MariaDB container writes data as uid 999 (mysql user inside the container), which the host `claude-deploy` uid 1002 cannot override. **Fix:** docker-based alpine container with the host path bind-mounted runs the wipe as root inside the container. Documented in deploy/README.md Troubleshooting under the "already installed" recovery path.
+
+**Cross-phase implications:**
+
+- Phase 2 (extensions): does not re-run install.php; installs Page Forms via `git clone` + SMW via `composer`. Not affected by sub-finding (1). May benefit from sub-finding (4) discipline (the docker-based-elevated-user pattern is reusable).
+- Phase 3 (auth): same as Phase 2 -- no install.php; not affected by (1). The OAuth flow uses the Cloudflare One dashboard for an unrelated step (Discord OAuth app); sub-finding (3) helps the operator navigate.
+- Phase 4 (quality-tag categories): no Cloudflare config; not affected.
+- Future arcs (MW major-version upgrade, e.g., 1.43 -> 1.47 LTS): sub-finding (1) directly relevant; the upgrade arc should pre-create qwiki@'mariadb' before any installer-shaped command and budget for the recovery procedure.
+
+**Why this is SUBSTANTIVE despite RESOLVED.** The Phase 1 MD as drafted would have shipped buggy behavior had the executor not surfaced + fixed each sub-finding in flight. The resolution is durable (committed to deploy/README.md), so future re-runs of Phase 1's first-time-deploy steps (e.g., disaster recovery, fresh deploy on a new Unraid) will not re-hit these traps.
+
+**Resolution.** Closed 2026-05-14 with commit `f6d26ee6`. All four sub-findings documented in `apps/qwiki-sandbox/deploy/README.md`.
+
+F2 closed.
+
+---
+
+### F3 -- Cross-phase hostname + SSH identity drift in Phase 2/3/4 MDs
+
+**Surfaced during:** Phase 1 boundary verification, 2026-05-14 (orchestrator session). Independent grep against the three downstream phase MDs (`phase-2-extensions.md` / `phase-3-auth-groups.md` / `phase-4-discipline-harvest.md`) revealed they still reference the pre-D3-amendment `wiki-beta.quake.world` URL and the root `ssh unraid` identity in numerous operational sites.
+
+**Finding.** Commit `f6d26ee6` (URL retarget + post-deploy patches) updated the URL in: `apps/qwiki-sandbox/{CLAUDE.md, README.md, OVERVIEW.md, deploy/LocalSettings.php, deploy/README.md}`, `plans/2026-05-12-qwiki-v1-beta/README.md`, `plans/2026-05-12-qwiki-v1-beta/decisions.md` (D3 amendment block), `plans/2026-05-12-qwiki-v1-beta/prerequisites.md` (subdomain + Discord OAuth redirect URI). Commit `21a7b7d1` (SSH identity retarget) updated only `apps/qwiki-sandbox/deploy/README.md`. **Neither commit touched the Phase 2 / Phase 3 / Phase 4 phase MDs**, which still contain ~50 stale references collectively (28+ in Phase 2 MD; 20+ in Phase 3 MD; many in Phase 4 MD including the URL-slug-discipline help-page wikitext that gets authored into the live wiki). `prerequisites.md` line 13 (`ssh unraid 'echo ok'`) is also stale -- it should be `ssh unraid-deploy`.
+
+**Concrete failure modes if not resolved before Phase 2 dispatch:**
+
+- Phase 2 LocalSettings.php fragment shipped to Unraid would set `$wgServer = "https://wiki-beta.quake.world"` (overwriting the in-place Phase 1 fix) and call `enableSemantics( 'wiki-beta.quake.world' )` -- semantic-binding the wiki to a non-existent domain. SMW's `$smwgConfigFileDir` and related state would persist this bad domain across Phase 3 and Phase 4.
+- Phase 2/3/4 deploy commands (`ssh unraid 'docker ...'`) would attempt root SSH against an Unraid host configured for the scoped `unraid-deploy` user; the scoped-user convention's blast-radius bound is undermined.
+- Phase 4 URL-slug-discipline help-page wikitext literally contains the string `wiki-beta.quake.world` as the "current beta URL" the slug rule guards against; this gets stored as wiki content and becomes out-of-date documentation visible to contributors.
+
+**Severity rationale.** SUBSTANTIVE because the drift would ship buggy behavior (broken `enableSemantics()` domain pin + wrong SSH identity) if the executor takes the MD literally. ADVISORY for the help-page content; the cutover-narrative still applies but the URL string is stale.
+
+**Resolution paths (orchestrator-surfaced for operator decision):**
+
+- **Option A:** retarget the literal references in `phase-2-extensions.md`, `phase-3-auth-groups.md`, `phase-4-discipline-harvest.md`, and `prerequisites.md` line 13 now. Bounded mechanical edit (`wiki-beta.quake.world` -> `wiki.slipgate.me`; `ssh unraid '` -> `ssh unraid-deploy '`; `unraid:` -> `unraid-deploy:`). Single commit; Phase 2 MD becomes clean for executor dispatch. Matches the pattern applied to Phase 1's paper artifacts in `f6d26ee6`.
+- **Option B:** leave Phase 2/3/4 MDs as drafted (historical record); bake the URL + SSH-identity substitution into each per-phase executor prompt as an explicit augmentation note. Higher risk that the executor misses a reference at execution time.
+
+Orchestrator recommendation: Option A. Phase MDs are operational documents the executor reads literally and runs commands from; preserving them as historical record would force per-execution mental search-and-replace and risk wiki-state corruption. Option B's "preserve historical record" intent is already served by the git commit history showing the original drafted state.
+
+**Status:** OPEN -- pending operator decision. When resolved, fill in "Resolved by" with the commit hash + Option chosen.
+
+**Cross-phase implications going forward:** if Option A is chosen, Phase 2 + Phase 3 + Phase 4 MDs match deployed state and executor dispatch proceeds normally. If Option B is chosen, each executor prompt at dispatch time includes a "Hostname + SSH retarget" augmentation section (orchestrator augments per-phase as part of executor-prompt prep).
 
 ---
 

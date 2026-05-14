@@ -5,4 +5,5 @@
 # Lines starting with '#' or empty are ignored.
 # Edit this file to clear (delete the line), snooze (push the date), or add new entries.
 
+2026-05-19 | qwiki-v1-beta Phase 1 V6 verification -- ssh unraid-deploy 'ls -t /mnt/remotes/NAS1618_backup/unraid-backup/*.tar.gz | head -1' then tar -tzf <latest> | grep -c qwiki-beta -- expect positive count (weekly Synology backup cron runs Mon 04:00 2026-05-18)
 2026-05-20 | memory verification (parking 2026-04-29-memory-system-consolidation.md) + run /insights and compare against the 2026-04-29 run for workflow-improvement signal
