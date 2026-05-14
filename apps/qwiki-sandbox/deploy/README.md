@@ -413,7 +413,7 @@ operator-WSL + Unraid SSH pattern as first-time deploy.
 Prerequisites (per `prerequisites.md`):
 
 - Discord OAuth app created at https://discord.com/developers/applications
-  with redirect URI `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`.
+  with redirect URI `https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin`.
   Client ID + Secret captured.
 - `@wiki-beta` Discord role exists in the relevant server; role ID captured.
 - Operator's Discord user ID captured (for first-login self-verification).
@@ -518,7 +518,7 @@ Steps (run from operator's WSL unless otherwise noted):
      showing the OAuth app name + requested scopes
      (openid / identify / guilds.members.read).
    - Authorize. Expect: redirect back to
-     `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`,
+     `https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin`,
      then to Main Page, with a session cookie set + the user-menu now
      showing your Discord username.
    - Open `Special:UserGroupRights` -> find your username. Expect:

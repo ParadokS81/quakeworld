@@ -18,7 +18,7 @@ Two framing points that govern the install-shape choices below:
 
 WSOAuth was the listed alternative per `decisions.md` D2 Amendment #2 carry-forward. Verified during recon: WSOAuth has the same Discord limitations (Discord not built-in; requires `$wgOAuthCustomAuthProviders` custom-provider class) and the same `groupsyncs` mechanism. Neither extension offers a turnkey advantage over the other for this specific Discord-roles requirement. We honor the `prerequisites.md` operator pre-decision (OpenIDConnect) for the draft and surface WSOAuth as a fallback in Open Questions if the OpenIDConnect + manual-provider-config approach fails the V_AUTH4 probe.
 
-**Runnable state at phase boundary:** opening `https://wiki.slipgate.me` in an incognito browser shows a "Log in with Discord" button rendered by PluggableAuth in the Citizen skin's user-menu area; clicking it redirects to Discord's OAuth consent screen, authorizing returns to `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin` with a session cookie set + the operator logged in as a MW user; `Special:ListUsers` shows the operator's MW account; `Special:UserRights` / `Special:ListGroupRights` shows the operator's groups include `wiki-contributor` (auto-assigned via the `@wiki-beta` Discord role hook); the operator can edit `Main:TestEditPage` (create + save); the operator CANNOT edit `Template:Test` (the Phase 2 smoke-test template; returns "you do not have permission to edit this page"); after the operator manually promotes a second test user to `wiki-curator` via `Special:UserRights` + that user logs in, the second user CAN edit `Template:Test`.
+**Runnable state at phase boundary:** opening `https://wiki.slipgate.me` in an incognito browser shows a "Log in with Discord" button rendered by PluggableAuth in the Citizen skin's user-menu area; clicking it redirects to Discord's OAuth consent screen, authorizing returns to `https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin` with a session cookie set + the operator logged in as a MW user; `Special:ListUsers` shows the operator's MW account; `Special:UserRights` / `Special:ListGroupRights` shows the operator's groups include `wiki-contributor` (auto-assigned via the `@wiki-beta` Discord role hook); the operator can edit `Main:TestEditPage` (create + save); the operator CANNOT edit `Template:Test` (the Phase 2 smoke-test template; returns "you do not have permission to edit this page"); after the operator manually promotes a second test user to `wiki-curator` via `Special:UserRights` + that user logs in, the second user CAN edit `Template:Test`.
 
 ## Inputs from previous phase
 
@@ -37,7 +37,7 @@ Phase 2 complete:
 
 Operator-side prerequisites for Phase 3 (per `prerequisites.md`):
 
-- Discord OAuth application registered at `https://discord.com/developers/applications`; `Client ID` + `Client Secret` captured; redirect URI configured to `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`.
+- Discord OAuth application registered at `https://discord.com/developers/applications`; `Client ID` + `Client Secret` captured; redirect URI configured to `https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin`.
 - `@wiki-beta` Discord role exists in the relevant Discord server (the server that hosts the contributor pool); role ID captured (Discord developer-mode-enabled right-click on the role -> Copy ID).
 - Operator's Discord user-ID captured for self-verification of the first-login auto-assignment.
 - Tailscale up; `ssh unraid-deploy 'echo ok'` returns `ok`.
@@ -317,7 +317,7 @@ MW_ADMIN_PASSWORD=
 
 # Discord OAuth application credentials. Create the app at
 # https://discord.com/developers/applications. Redirect URI must be
-# https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin
+# https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin
 DISCORD_OAUTH_CLIENT_ID=
 DISCORD_OAUTH_CLIENT_SECRET=
 
@@ -767,7 +767,7 @@ Phase 3 install section to append (after the Phase 2 install closing marker):
 Prerequisites (per `prerequisites.md`):
 
 - Discord OAuth app created at https://discord.com/developers/applications
-  with redirect URI `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`.
+  with redirect URI `https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin`.
   Client ID + Secret captured.
 - `@wiki-beta` Discord role exists in the relevant server; role ID captured.
 - Operator's Discord user ID captured (for first-login self-verification).
@@ -872,7 +872,7 @@ Steps (run from operator's WSL unless otherwise noted):
      showing the OAuth app name + requested scopes
      (openid / identify / guilds.members.read).
    - Authorize. Expect: redirect back to
-     `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`,
+     `https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin`,
      then to Main Page, with a session cookie set + the user-menu now
      showing your Discord username.
    - Open `Special:UserGroupRights` -> find your username. Expect:
@@ -1109,7 +1109,7 @@ Operator walks through the OAuth flow in a fresh incognito browser:
 1. Visit `https://wiki.slipgate.me`.
 2. Confirm: Citizen skin user-menu shows a "Log in with Discord" button.
 3. Click. Confirm: redirect to `discord.com/oauth2/authorize?...` consent screen showing requested scopes (`openid`, `identify`, `guilds.members.read`).
-4. Authorize. Confirm: redirect back to `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`, then to Main Page, with the user-menu now displaying your Discord username.
+4. Authorize. Confirm: redirect back to `https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin`, then to Main Page, with the user-menu now displaying your Discord username.
 5. Visit `Special:UserGroupRights` / find your username. Confirm: `wiki-contributor` group listed.
 
 - **PASS condition:** all five steps succeed; your username appears in `Special:UserGroupRights` with `wiki-contributor` in the groups column.
@@ -1226,7 +1226,7 @@ Per-failure-mode recovery; anticipatable failures only. Unanticipated failures r
   - Verify composer landed jumbojett: `ssh unraid-deploy 'test -d /mnt/user/appdata/qwiki-beta/mediawiki-html/vendor/jumbojett && echo OK'`.
 
 - **V_AUTH3 fails (Discord OAuth redirect errors):**
-  - Most common: redirect URI mismatch. Check the Discord developer-portal app's redirect URI exactly matches `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin` (case-sensitive in the query string).
+  - Most common: redirect URI mismatch. Check the Discord developer-portal app's redirect URI exactly matches `https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin` (case-sensitive in the query string).
   - Second-most: `clientID` / `clientsecret` mismatch. Re-copy from the developer portal into `.env`; ensure no surrounding quotes or whitespace.
   - Third: `issuerValidator` rejects the Discord issuer. Confirm the LocalSettings.php `issuerValidator` callable returns `true` unconditionally.
 

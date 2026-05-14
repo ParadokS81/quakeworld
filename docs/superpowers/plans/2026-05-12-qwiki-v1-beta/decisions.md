@@ -72,7 +72,7 @@ The earlier "Restricted URL `wiki-beta.quake.world`" line above stands as histor
 
 **Implication for Phase 1 (applied during deploy):** LocalSettings.php `$wgServer` updated in place; mediawiki container restarted; V1 phase-boundary probe rerun against `https://wiki.slipgate.me` (PASS). Paper artifacts (apps/qwiki-sandbox/{CLAUDE.md, README.md, OVERVIEW.md, deploy/README.md}) retargeted in the same follow-up commit. The Phase 1 MD itself is not amended retroactively; this decision-level record carries the new URL forward to Phase 2+.
 
-**Implication for later phases:** Phase 3 (Discord OAuth) PluggableAuth redirect URI: use `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin` (the wiki-beta.quake.world variant listed in prerequisites.md is updated in this commit; refresh the Phase 3 drafter prompt accordingly when authored). No impact on Phase 2 extensions (install path is MW-internal, hostname-independent) or Phase 4 quality-tags (category-level, hostname-independent).
+**Implication for later phases:** Phase 3 (Discord OAuth) PluggableAuth redirect URI: use `https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin` (the wiki-beta.quake.world variant listed in prerequisites.md is updated in this commit; refresh the Phase 3 drafter prompt accordingly when authored). No impact on Phase 2 extensions (install path is MW-internal, hostname-independent) or Phase 4 quality-tags (category-level, hostname-independent).
 
 **Implication for future cutover arc:** beta -> broader transition retains the same `wiki.slipgate.me` URL (no rename moment within this arc). When/if the wiki moves to a community-facing zone (e.g., `wiki.quake.world`), that's a separate cutover-event arc, not in scope here.
 

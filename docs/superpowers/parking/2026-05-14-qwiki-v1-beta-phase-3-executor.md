@@ -125,7 +125,7 @@ Pass this checklist into the Task 4 subagent prompt explicitly.
 Phase 3 cannot ship without Discord OAuth prereqs in place. Confirm with operator at session start before doing any work:
 
 1. **Discord OAuth application** registered at `https://discord.com/developers/applications`.
-   - Redirect URI: `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin` (case-sensitive in query-string).
+   - Redirect URI: `https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin` (case-sensitive in query-string).
    - Client ID + Client Secret captured.
 2. **`@wiki-beta` Discord role** exists in the relevant Discord server. Role ID captured (right-click role -> Copy ID with developer mode enabled).
 3. **Operator's Discord user-ID** captured (for self-verification of V_AUTH3 auto-assignment).
@@ -221,7 +221,7 @@ Run these probes BEFORE editing any file:
    ```
 
 4. **Confirm Phase 3 prereqs.** Ask operator to confirm:
-   - Discord OAuth app registered with redirect URI `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`.
+   - Discord OAuth app registered with redirect URI `https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin`.
    - Client ID + Client Secret captured.
    - `@wiki-beta` Discord role exists; role ID captured.
    - Operator's Discord user-ID captured.

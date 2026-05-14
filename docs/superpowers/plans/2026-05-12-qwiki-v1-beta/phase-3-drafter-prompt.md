@@ -46,7 +46,7 @@ b. Use Context7 (or web) to pull current Discord OAuth + OpenID Connect provider
 
 c. Identify the OAuth claim-mapping mechanism. For Discord-role-as-claim, the provider needs to fetch the user's Discord guild membership + role list via Discord API (`/users/@me/guilds/<guild_id>/member`). The MW extension's claim-to-group mapping config likely lives in `$wgPluggableAuth_OIDCClaimToMWGroup` or similar (verify exact config var via Context7).
 
-d. Confirm the Discord OAuth app's redirect URI matches the running MW URL (from Phase 1; retargeted to `wiki.slipgate.me` per D3 Amendment 2026-05-14). Standard PluggableAuth path is `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin` (or `Special:PluggableAuth` -- verify).
+d. Confirm the Discord OAuth app's redirect URI matches the running MW URL (from Phase 1; retargeted to `wiki.slipgate.me` per D3 Amendment 2026-05-14). Standard PluggableAuth path is `https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin` -- path-info form, NOT query-string (MW emits the path-info form when `$wgScriptPath = ""` + `$wgUsePathInfo = true`; verified during Phase 3 execution as F8).
 
 e. Verify MW namespace IDs (Main=0, Talk=1, Template=10, Category=14, Form=106 for Page Forms, etc.) before writing `$wgGroupPermissions` config. Reference MW manual via Context7.
 
