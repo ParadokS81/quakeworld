@@ -4,7 +4,7 @@
 
 ```
 client (any browser)
-  -> https://wiki-beta.quake.world          [Cloudflare Tunnel, TLS]
+  -> https://wiki.slipgate.me                [Cloudflare Tunnel, TLS]
        -> Unraid host (Tailscale: 100.114.81.91, LAN: 192.168.1.205)
             -> qwiki-nginx container (qwiki-net, port 8081 on LAN -> 80 in container)
                  -> qwiki-mediawiki container (qwiki-net, php-fpm on port 9000)
@@ -33,7 +33,7 @@ All deploy commands below use `ssh unraid-deploy` -- a non-root user (`claude-de
 ## Prerequisites
 
 - Tailscale up; `ssh unraid-deploy 'echo ok'` returns `ok`.
-- Cloudflare account access to the `quake.world` zone + Tunnel admin.
+- Cloudflare account access to the `slipgate.me` zone + Tunnel admin.
 - Existing `cloudflared` Tunnel agent running on Unraid (same one fronting `oracle.slipgate.me` for qw-oracle).
 
 ## First-time deploy
@@ -106,20 +106,40 @@ All deploy commands below use `ssh unraid-deploy` -- a non-root user (`claude-de
 
    ```bash
    ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
-     docker compose -f docker-compose.prod.yml up -d mariadb && \
+     docker compose -f docker-compose.prod.yml up -d --wait mariadb && \
      docker compose -f docker-compose.prod.yml ps'
    ```
 
-   Wait until `qwiki-mariadb` shows `State: Up (healthy)`. The healthcheck uses
-   MariaDB's `healthcheck.sh --connect --innodb_initialized` (10s interval).
+   The `--wait` flag blocks until `qwiki-mariadb` shows `State: Up (healthy)`.
+   The healthcheck uses MariaDB's `healthcheck.sh --connect --innodb_initialized`
+   (10s interval).
 
-7. Run install.php to bootstrap the DB schema + initial admin user. We use
-   `docker run` directly here (NOT `docker compose run`) so install.php does
-   not inherit the LocalSettings.php read-only bind mount from the compose
-   service definition -- a bind-mounted read-only LocalSettings.php would
-   make install.php either fail (cannot write) or short-circuit with "already
-   installed". The `--confpath=/tmp` flag tells install.php to write its
-   generated LocalSettings.php into the container's /tmp (which dies with
+7. Pre-create the `qwiki@'mariadb'` user, then run install.php to bootstrap
+   the DB schema + initial admin user.
+
+   The pre-create is a workaround for an MW 1.43 installer behavior. install.php
+   detects that the `qwiki` user already exists at wildcard host (created by
+   MariaDB's container init from `MARIADB_USER` env), skips `CREATE USER`, then
+   tries `GRANT ALL ON qwiki_beta.* TO 'qwiki'@'mariadb'` using the `--dbserver`
+   value as the host portion. MariaDB 11.4 doesn't auto-create on GRANT and
+   errors with 1133 ("Can't find any matching row in the user table"). Pre-
+   creating `qwiki@'mariadb'` with the same password makes the GRANT step succeed.
+   MW's runtime connection uses `qwiki@'%'` (compose-time grants); `qwiki@'mariadb'`
+   exists only to satisfy the installer.
+
+   ```bash
+   ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
+     set -a && . ./.env && set +a && \
+     docker exec -e MYSQL_PWD="$MARIADB_ROOT_PASSWORD" qwiki-mariadb \
+       mariadb -uroot -e "CREATE USER \"qwiki\"@\"mariadb\" IDENTIFIED BY \"$MW_DB_PASSWORD\"; GRANT ALL PRIVILEGES ON qwiki_beta.* TO \"qwiki\"@\"mariadb\";"'
+   ```
+
+   Then run install.php. We use `docker run` directly here (NOT `docker compose run`)
+   so install.php does not inherit the LocalSettings.php read-only bind mount from
+   the compose service definition -- a bind-mounted read-only LocalSettings.php
+   would make install.php either fail (cannot write) or short-circuit with
+   "already installed". The `--confpath=/tmp` flag tells install.php to write
+   its generated LocalSettings.php into the container's /tmp (which dies with
    --rm), leaving the host-side hand-authored file in place.
 
    ```bash
@@ -134,14 +154,17 @@ All deploy commands below use `ssh unraid-deploy` -- a non-root user (`claude-de
          --dbtype=mysql --dbserver=mariadb \
          --dbname=qwiki_beta --dbuser=qwiki --dbpass="$MW_DB_PASSWORD" \
          --installdbuser=root --installdbpass="$MARIADB_ROOT_PASSWORD" \
-         --server="https://wiki-beta.quake.world" --scriptpath="" --lang=en \
+         --server="https://wiki.slipgate.me" --scriptpath="" --lang=en \
          --pass="$MW_ADMIN_PASSWORD" \
          "QuakeWorld Wiki (beta)" "Admin"'
    ```
 
-   Expected output ends with something like `Done.` after a sequence of
-   `Creating tables` / `Populating ...` lines. The DB now has the MW core
-   schema (~58 tables).
+   Expected output ends with "MediaWiki has been successfully installed." after
+   the sequence: Setting up database / Creating tables / Creating database user
+   / Populating default interwiki / Initializing statistics / Generating secret
+   keys / Restoring MediaWiki services / Creating administrator user account /
+   Creating main page with default content. The DB now has the MW core schema
+   (~59 tables).
 
 8. Start the full three-container stack:
 
@@ -168,30 +191,42 @@ All deploy commands below use `ssh unraid-deploy` -- a non-root user (`claude-de
 
    ```bash
    ssh unraid-deploy 'curl -sI http://192.168.1.205:8081/'
-   # Expect: HTTP/1.1 301 (redirect from / to /index.php?title=Main_Page).
+   # Expect: HTTP/1.1 301 (the apex redirect). Location uses https://$host based
+   # on the requesting Host header; for LAN tests $host echoes the LAN IP, which
+   # is not actually served over https -- the redirect target itself is verified
+   # externally via the V1 probe over the Cloudflare Tunnel.
    ssh unraid-deploy 'curl -sI http://192.168.1.205:8081/index.php?title=Main_Page'
    # Expect: HTTP/1.1 200 OK with Content-Type: text/html.
    ```
 
-9. Add the Cloudflare Tunnel route. From the Cloudflare dashboard
-   (`Zero Trust -> Access -> Tunnels`):
+9. Add the Cloudflare Tunnel route. From the Cloudflare One dashboard
+   (`one.dash.cloudflare.com` -> `Networks -> Tunnels`):
 
-   - Pick the existing tunnel that already fronts `oracle.slipgate.me` (or the
-     equivalent Unraid tunnel; check `cloudflared` config if uncertain).
-   - Add a public hostname entry:
-     - Subdomain: `wiki-beta`
-     - Domain: `quake.world`
-     - Service: `http://192.168.1.205:8081`
-   - Save. Cloudflare creates the proxied DNS record automatically.
+   - Pick the existing tunnel that already fronts `oracle.slipgate.me` (or
+     the equivalent Unraid tunnel; check `cloudflared` config if uncertain).
+   - Click **Edit**, go to the **Published application routes** tab, select
+     **Add a published application route**.
+   - Fields:
+     - **Subdomain**: `wiki`
+     - **Domain** (dropdown): `slipgate.me`
+     - **Service Type**: `HTTP`
+     - **Service URL**: `http://192.168.1.205:8081` (the `http://` prefix is
+       correct -- TLS terminates at Cloudflare's edge; nginx is HTTP-only
+       inside qwiki-net).
+   - Leave **Additional application settings** at defaults (HTTP service so
+     `noTLSVerify` doesn't apply; no upstream load balancer so `httpHostHeader`
+     doesn't need tuning).
+   - **Save**. Cloudflare auto-creates the proxied DNS CNAME.
 
 10. Verify externally (from operator's WSL):
 
     ```bash
-    curl -sIL https://wiki-beta.quake.world | head -10
-    # Expect: HTTP/2 301 (from /) then HTTP/2 200 OK (at /index.php?title=Main_Page).
+    curl -sIL https://wiki.slipgate.me | head -10
+    # Expect: HTTP/2 301 (from /, with https:// in Location) then HTTP/2 200 OK
+    # (at /index.php?title=Main_Page).
     ```
 
-    Then open `https://wiki-beta.quake.world` in a browser; expect the MW main
+    Then open `https://wiki.slipgate.me` in a browser; expect the MW main
     page rendered with the Citizen skin. Click "View source" or attempt to edit
     while logged out; expect "you must be logged in" or "you do not have
     permission to edit this page."
@@ -318,19 +353,41 @@ Smoke-check via the V1 / V2 probes from the phase MD's "Verification (phase boun
     returns the same file via the bind mount.
   - `LocalSettings.php` has `wfLoadSkin( 'Citizen' );` AND `$wgDefaultSkin = "citizen";`.
 
-- **install.php fails with "DB user exists"** -- the MariaDB container's
-  `MARIADB_USER` env created the user already; install.php's
-  `--installdbuser/--installdbpass` should still let it run, but if the failure
-  reports `Access denied`, drop the qwiki user manually and re-run:
-  `ssh unraid-deploy 'docker exec qwiki-mariadb mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" -e "DROP USER \"qwiki\"@\"%\"; FLUSH PRIVILEGES;"'`
+- **install.php fails with "Granting permission to user 'qwiki' failed:
+  Error 1133"** -- the installer tried `GRANT ALL ON qwiki_beta.* TO
+  'qwiki'@'mariadb'` but the user with that specific host doesn't exist
+  (only `qwiki@'%'` exists, from MariaDB container init). This means the
+  step 7 pre-create sub-step was skipped or didn't take. Pre-create the
+  user with the same password as `$MW_DB_PASSWORD` from `.env`:
+
+  ```bash
+  ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && set -a && . ./.env && set +a && \
+    docker exec -e MYSQL_PWD="$MARIADB_ROOT_PASSWORD" qwiki-mariadb \
+      mariadb -uroot -e "CREATE USER \"qwiki\"@\"mariadb\" IDENTIFIED BY \"$MW_DB_PASSWORD\"; GRANT ALL PRIVILEGES ON qwiki_beta.* TO \"qwiki\"@\"mariadb\";"'
+  ```
+
+  If the failed install.php run also left a partial schema (~59 tables already
+  in `qwiki_beta`), apply the "already installed" wipe recipe below before
+  re-running step 7's install.php. The MW operation uses `qwiki@'%'` at
+  runtime; `qwiki@'mariadb'` exists only to satisfy the installer's GRANT.
 
 - **install.php fails with "already installed"** -- a previous attempt left
   install state on the MariaDB volume. For a fresh first-time install, wipe
-  the MariaDB volume:
-  `ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml down && rm -rf /mnt/user/appdata/qwiki-beta/mariadb-data/* && docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml up -d mariadb'`,
-  wait for healthy, then re-run from step 7. (Only safe at first-time deploy;
-  this discards the MW DB schema. The mediawiki-html bind-mount tree is not
-  affected.)
+  the MariaDB volume. The MariaDB container writes files as uid 999 inside
+  the container; the host-side `claude-deploy` user can't `rm -rf` them
+  directly. Use a privileged alpine container (root inside the bind mount)
+  to do the wipe:
+
+  ```bash
+  ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml down && \
+    docker run --rm -v /mnt/user/appdata/qwiki-beta/mariadb-data:/data alpine \
+      sh -c "find /data -mindepth 1 -delete" && \
+    docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml up -d --wait mariadb'
+  ```
+
+  Then re-run from step 7 (which includes the pre-create + install.php).
+  Only safe at first-time deploy; this discards the MW DB schema. The
+  mediawiki-html bind-mount tree is not affected.
 
 - **`docker compose` command not found after Unraid reboot** -- compose plugin
   is on tmpfs; reinstall per `apps/quad/DEPLOYMENT.md` "Compose plugin caveat".

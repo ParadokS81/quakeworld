@@ -66,6 +66,16 @@ The MW 1.39 LTS lifecycle gap that triggered this recon (review-findings F1) is 
 
 **Implication:** Phase MDs do NOT scaffold backup infrastructure. They place the wiki container under `/mnt/user/appdata/qwiki-beta/` (subdirectory name finalized in Phase A) so the existing tarball includes it. Cutover from `wiki-beta.quake.world` to old-wiki URL is a future arc (not this one). Migration off Unraid to long-term Hetzner+Cloudflare is a downstream operational concern: standard MW migration (DB dump + images + extensions), no v1 lock-in.
 
+**Amendment 2026-05-14 (Phase 1 deploy):** URL changed from `wiki-beta.quake.world` to `wiki.slipgate.me`. Operator decision during Phase 1 Task 9 step 9 (Cloudflare Tunnel route configuration): the `-beta` suffix and the `quake.world` zone were both dropped. `wiki.slipgate.me` aligns with the sibling `oracle.slipgate.me` convention for Unraid-side internal services on the slipgate.me zone; `quake.world` stays reserved for community-facing federation surfaces (hub, maps, assets, etc.).
+
+The earlier "Restricted URL `wiki-beta.quake.world`" line above stands as historical record; the active URL is `wiki.slipgate.me`. The "beta" deployment phase identity is preserved via `$wgSitename = "QuakeWorld Wiki (beta)"` in LocalSettings.php and access control via Discord-role gating (D19), not via the URL itself.
+
+**Implication for Phase 1 (applied during deploy):** LocalSettings.php `$wgServer` updated in place; mediawiki container restarted; V1 phase-boundary probe rerun against `https://wiki.slipgate.me` (PASS). Paper artifacts (apps/qwiki-sandbox/{CLAUDE.md, README.md, OVERVIEW.md, deploy/README.md}) retargeted in the same follow-up commit. The Phase 1 MD itself is not amended retroactively; this decision-level record carries the new URL forward to Phase 2+.
+
+**Implication for later phases:** Phase 3 (Discord OAuth) PluggableAuth redirect URI: use `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin` (the wiki-beta.quake.world variant listed in prerequisites.md is updated in this commit; refresh the Phase 3 drafter prompt accordingly when authored). No impact on Phase 2 extensions (install path is MW-internal, hostname-independent) or Phase 4 quality-tags (category-level, hostname-independent).
+
+**Implication for future cutover arc:** beta -> broader transition retains the same `wiki.slipgate.me` URL (no rename moment within this arc). When/if the wiki moves to a community-facing zone (e.g., `wiki.quake.world`), that's a separate cutover-event arc, not in scope here.
+
 ### D4. Auth via PluggableAuth + Discord OAuth + MW groups
 
 **Decision:** MediaWiki handles OAuth natively via PluggableAuth + Discord OAuth extension. Quad does NOT provision MW accounts. Two MW groups:

@@ -20,9 +20,9 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 $wgSitename = "QuakeWorld Wiki (beta)";
 $wgMetaNamespace = "QuakeWorld_Wiki";
 
-# The wiki lives at the apex of wiki-beta.quake.world; no /w/ script path.
+# The wiki lives at the apex of wiki.slipgate.me; no /w/ script path.
 $wgScriptPath = "";
-$wgServer = "https://wiki-beta.quake.world";
+$wgServer = "https://wiki.slipgate.me";
 $wgResourceBasePath = $wgScriptPath;
 
 # Make MW trust the X-Forwarded-Proto / X-Forwarded-For headers that

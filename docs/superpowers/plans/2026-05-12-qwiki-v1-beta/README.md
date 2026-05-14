@@ -4,7 +4,7 @@
 
 **Brainstorm handoff:** `docs/superpowers/parking/2026-05-12-qwiki-sandbox-planner-handoff.md`
 
-**Goal:** Stand up a fresh **MediaWiki 1.43 LTS** substrate on Unraid at `wiki-beta.quake.world` (three-container stack: nginx 1.30-alpine + mediawiki:1.43-fpm + mariadb:11.4 + Citizen v3.16.0; per `decisions.md` D2 + Amendment #1 + #2) with auth + groups + quality tags + Layer 3 harvest path observable end-to-end (baseline phases), then deliver the Modes domain as a vertical-slice proof (27 mode pages authored, with the Layer 3 harvest path exercised against real content and the harvested concept-note queryable via oracle MCP).
+**Goal:** Stand up a fresh **MediaWiki 1.43 LTS** substrate on Unraid at `wiki.slipgate.me` (three-container stack: nginx 1.30-alpine + mediawiki:1.43-fpm + mariadb:11.4 + Citizen v3.16.0; per `decisions.md` D2 + Amendment #1 + #2) with auth + groups + quality tags + Layer 3 harvest path observable end-to-end (baseline phases), then deliver the Modes domain as a vertical-slice proof (27 mode pages authored, with the Layer 3 harvest path exercised against real content and the harvested concept-note queryable via oracle MCP).
 
 **Status:** Substrate cluster (Phases 1-4) drafted. Phases 1-2 approved 2026-05-13; Phases 3-4 awaiting review (will be approved per-phase as substrate ships). Phase 1 ready for implementation via arc-orchestrator. Phases 5-8 (Modes vertical slice) deferred until substrate ships (operator decision 2026-05-13; rationale: redraft risk from substrate implementation surprises, especially Phase 3 Discord OAuth).
 
@@ -44,7 +44,7 @@ If you're the fresh terminal that's about to draft a phase, also read:
 
 | # | Status | Shape | Drafter prompt | MD (drafted) | Deliverable | Runnable state at end |
 |---|---|---|---|---|---|---|
-| 1 | approved | substrate | [phase-1-drafter-prompt.md](phase-1-drafter-prompt.md) | [phase-1-mw-core.md](phase-1-mw-core.md) | nginx 1.30-alpine + `mediawiki:1.43-fpm` + MariaDB 11.4 LTS + Citizen v3.16.0 on Unraid + Cloudflare Tunnel + `wiki-beta.quake.world` | URL returns HTTP 200; Citizen skin loads; anon edit blocked |
+| 1 | approved | substrate | [phase-1-drafter-prompt.md](phase-1-drafter-prompt.md) | [phase-1-mw-core.md](phase-1-mw-core.md) | nginx 1.30-alpine + `mediawiki:1.43-fpm` + MariaDB 11.4 LTS + Citizen v3.16.0 on Unraid + Cloudflare Tunnel + `wiki.slipgate.me` | URL returns HTTP 200; Citizen skin loads; anon edit blocked |
 | 2 | approved | substrate | [phase-2-drafter-prompt.md](phase-2-drafter-prompt.md) | [phase-2-extensions.md](phase-2-extensions.md) | Page Forms + Semantic MediaWiki installed | Special:Version shows extensions; smwadmin clean; test form renders |
 | 3 | drafted (awaiting review) | substrate | [phase-3-drafter-prompt.md](phase-3-drafter-prompt.md) | [phase-3-auth-groups.md](phase-3-auth-groups.md) | PluggableAuth + Discord OAuth + `wiki-contributor` / `wiki-curator` + namespace restrictions | Discord login flow works; contributor lands in right group; namespace gates enforce |
 | 4 | drafted (awaiting review) | substrate | [phase-4-drafter-prompt.md](phase-4-drafter-prompt.md) | [phase-4-discipline-harvest.md](phase-4-discipline-harvest.md) | Quality-tag categories + URL slug authoring rule + Layer 3 harvest path verified against test page | Three categories exist; test-page harvest -> oracle MCP returns harvested chunk |
@@ -77,7 +77,7 @@ Per `decisions.md` non-goals section (full list there):
 - **Domains not in scope (each is its own future arc):** Game Content, Distributions, The Scene, Tutorials, Community & Lore.
 - **Infrastructure not in scope:** custom backup scaffolding (inherited), generic per-domain-tool framework (Modes curator is de-facto), Visual Editor (defer post-baseline), AI-agent steering (`llms.txt` / bot tarpit), pipeline-mechanics tooling.
 - **Federation not in scope:** bidirectional sync, the 5 schema-enforced page-type exclusions (per-Map / per-Asset / News / per-Season-Historical / per-Match).
-- **Cutover not in scope:** cutover from `wiki-beta.quake.world` to old-wiki URL, bps cutover negotiation, image-tarball mass migration, subsequent domain priority order.
+- **Cutover not in scope:** cutover from `wiki.slipgate.me` to old-wiki URL, bps cutover negotiation, image-tarball mass migration, subsequent domain priority order.
 
 If a phase drifts into any of these, that's scope creep -- flag it.
 

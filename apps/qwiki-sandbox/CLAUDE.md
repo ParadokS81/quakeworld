@@ -1,6 +1,6 @@
 # QWiki Sandbox -- v1-beta substrate + Modes mini-arc
 
-**Status:** Active development. v1-beta fresh-build MediaWiki substrate (arc `2026-05-12-qwiki-v1-beta`). Houses the deploy artifacts for the new wiki at `wiki-beta.quake.world` and the Modes-mini-arc curator tool that ships later in the arc.
+**Status:** Active development. v1-beta fresh-build MediaWiki substrate (arc `2026-05-12-qwiki-v1-beta`). Houses the deploy artifacts for the new wiki at `wiki.slipgate.me` and the Modes-mini-arc curator tool that ships later in the arc.
 
 **Pivoted 2026-05-09 evening from modernize-in-place to fresh-build.** Old-wiki dump + image tarball under `dumps/` (gitignored) remain reference material for per-domain extracts. The substrate stands up clean (no upgrade-from-1.35 chain); old wiki is extraction source only.
 

@@ -17,12 +17,12 @@ The arc deploys directly to Unraid (no separate local-dev environment); Phase A 
 ### Cloudflare access
 
 - [ ] **Cloudflare account access** to the existing Tunnel + DNS for `quake.world`. (Same auth as qw-oracle Arc 1 prereqs.)
-- [ ] **Operator can add subdomain** `wiki-beta.quake.world` to Cloudflare DNS + Tunnel route. (No DNS change required upfront; happens during Phase A.)
+- [ ] **Operator can add subdomain** `wiki.slipgate.me` to Cloudflare DNS + Tunnel route. (No DNS change required upfront; happens during Phase A.)
 
 ### Discord OAuth + roles
 
 - [ ] **Discord OAuth application registered.** Operator creates a new OAuth app at `https://discord.com/developers/applications` (or reuses an existing Quad-adjacent app if appropriate).
-  - Redirect URI: `https://wiki-beta.quake.world/index.php?title=Special:PluggableAuthLogin` (final URL confirmed during Phase B drafting).
+  - Redirect URI: `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin` (final URL confirmed during Phase B drafting).
   - Capture `Client ID` and `Client Secret`. Both populate the MW `LocalSettings.php` during Phase B.
   - Operator stores credentials securely (env file outside repo); phase MDs reference them by env-var name.
 

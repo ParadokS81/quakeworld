@@ -10,7 +10,7 @@ Pre-pivot 6-phase plan (clone -> upgrade -> Citizen -> Page Forms -> EQL drain -
 
 ## Substrate state
 
-After Phase 1 ships: a three-container Docker stack on Unraid -- `qwiki-nginx` (nginx 1.30-alpine, the CF Tunnel-facing entry point) + `qwiki-mediawiki` (mediawiki:1.43-fpm, php-fpm at port 9000) + `qwiki-mariadb` (mariadb 11.4 LTS) -- plus the Citizen skin v3.16.0 git checkout. Vanilla; no extensions; no auth (anonymous read works, anonymous edit blocked). Live at `wiki-beta.quake.world` via Cloudflare Tunnel.
+After Phase 1 ships: a three-container Docker stack on Unraid -- `qwiki-nginx` (nginx 1.30-alpine, the CF Tunnel-facing entry point) + `qwiki-mediawiki` (mediawiki:1.43-fpm, php-fpm at port 9000) + `qwiki-mariadb` (mariadb 11.4 LTS) -- plus the Citizen skin v3.16.0 git checkout. Vanilla; no extensions; no auth (anonymous read works, anonymous edit blocked). Live at `wiki.slipgate.me` via Cloudflare Tunnel.
 
 Phases 2 / 3 / 4 layer Page Forms + SMW, then PluggableAuth + Discord OAuth + MW groups, then quality-tag categories + Layer 3 harvest verification.
 
