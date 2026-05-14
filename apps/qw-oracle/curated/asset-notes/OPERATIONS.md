@@ -167,6 +167,16 @@ When an asset_type pairs with a different-typed file the engine recognizes as a 
 
 Companion relationships are bidirectional in spirit but unidirectional in storage -- only the "primary" note carries the companion field; the companion note may mention the reverse relationship in prose without a frontmatter field. Pick the primary by which file is more commonly authored standalone.
 
+### Companion typology: trigger vs co-installed
+
+Two sub-shapes of cross-type companion. The `companion_asset_types` field captures the trigger sub-shape only; the co-installed sub-shape is documented in prose without a frontmatter field. The distinction matters because it determines whether the relationship is engine-coupled or community-coupled.
+
+**Trigger companion (use the field).** The primary asset's loading mechanism directly causes the companion to load. Example: BSP map worldspawn's `sky` / `skyname` key push triggers `R_SetSky` at `r_brushmodel_load.c:947` -- the map IS the trigger; the skybox IS the loadable. The companion appears in `companion_asset_types` because the engine-coupled relationship is real and source-verifiable. Confirmed by the 2026-05-14 map calibration (commit `<round-3-slice-commit>`): map.md's `companion_asset_types: [map_texture, map_lighting, map_entities, skybox]`.
+
+**Co-installed companion (prose only, no field).** Two asset types are commonly distributed together (corpus evidence) but loaded by independent mechanisms with no engine-level coupling. Example: locfiles ship in 4/11 map bundles in the qw.nu corpus but are loaded by a separate `Loc_LoadLocations` mechanism unrelated to BSP loading. The packaging convention is real and worth documenting in the body's "Community conventions" or "Files involved" section, but locfile does **not** populate `companion_asset_types` on the map note.
+
+**Test for inclusion.** Ask: does loading the primary asset cause the companion to load (directly, via cvar/key push, or via a downstream init call)? If yes, trigger -- include in `companion_asset_types`. If the relationship is "users tend to ship them together," that's co-installed -- prose-only.
+
 ### When a sub-file is engine-recognized as a distinct loadable
 
 When the engine treats a sub-file as a genuinely-separate asset_type (e.g., `map_lighting` `.lit` files loaded by separate code paths from `map` `.bsp` files), the seed already splits them into separate slugs. That decision is fixed at seed-authoring time -- the asset-notes layer mirrors the seed; it doesn't override it.

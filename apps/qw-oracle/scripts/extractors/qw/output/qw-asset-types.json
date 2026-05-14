@@ -1,15 +1,15 @@
 {
   "_stats": {
     "asset_type_count": 21,
-    "types_with_l1_evidence_ezquake": 17,
-    "types_with_l1_evidence_fte": 13,
+    "types_with_l1_evidence_ezquake": 20,
+    "types_with_l1_evidence_fte": 15,
     "types_with_stock_origin": 9,
-    "total_l1_evidence_refs_ezquake": 124,
+    "total_l1_evidence_refs_ezquake": 344,
     "total_l1_evidence_refs_fte": 244,
     "total_stock_origin_refs": 362
   },
   "project": "qw",
-  "extracted_at": "2026-05-13T10:05:27+00:00",
+  "extracted_at": "2026-05-14T15:56:14+00:00",
   "asset_types": [
     {
       "asset_type": "conback",
@@ -59,6 +59,7 @@
       "notes": "Stock pak0 ships gfx/conback.lmp. Custom overrides install to\nqw/gfx/conback.<ext> and shadow the stock via engine search-path\nprecedence (qw/ wins over id1/), not via file replacement.\n",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:FS_LoadHeapFile_r_draw_Draw_InitConback_1",
           "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_InitConback_1"
         ],
         "fte": [
@@ -136,6 +137,14 @@
       "notes": "ezQuake loads via `gl_consolefont <name>` cvar; FTE has a separate mechanism.",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:Draw_LoadCharset_r_draw_charset_Draw_InitCharset_1",
+          "ezquake:loader_site:Draw_LoadCharset_r_draw_charset_Draw_InitCharset_2",
+          "ezquake:loader_site:Draw_LoadCharset_r_draw_charset_OnChange_gl_consolefont_1",
+          "ezquake:loader_site:Load_LMP_Charset_r_draw_charset_Draw_LoadCharset_1",
+          "ezquake:loader_site:Load_LMP_Charset_r_draw_charset_Load_Locale_Charset_1",
+          "ezquake:loader_site:Load_Locale_Charset_r_draw_charset_Draw_LoadCharset_1",
+          "ezquake:loader_site:Load_Locale_Charset_r_draw_charset_Draw_LoadCharset_2",
+          "ezquake:loader_site:Load_Locale_Charset_r_draw_charset_Draw_LoadCharset_3",
           "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Draw_LoadCharset_1",
           "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Load_Locale_Charset_1",
           "ezquake:loader_site:R_LoadImagePixels_r_texture_load_R_LoadCharsetImage_1"
@@ -185,8 +194,12 @@
       ],
       "notes": "Engine loads via `crosshairimage <name>` cvar (no extension; engine probes .png/.tga/.pcx).\nNo stock origin -- built-in crosshair glyphs live inside the charset, not a separate file.\n",
       "l1_evidence": {
-        "ezquake": [],
-        "fte": []
+        "ezquake": [
+          "ezquake:loader_site:Draw_CachePicSafe_r_draw_OnChange_crosshairimage_1"
+        ],
+        "fte": [
+          "fte:loader_site:R_LoadHiResTexture_r_2d_R2D_Crosshair_Update_1"
+        ]
       },
       "stock_origins": []
     },
@@ -218,6 +231,7 @@
       "notes": "Stock-only; rarely overridden. Listed for completeness.",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:FS_LoadHeapFile_wad_W_LoadWadFile_1",
           "ezquake:loader_site:W_LoadWadFile_r_draw_Draw_Init_1"
         ],
         "fte": [
@@ -277,8 +291,7 @@
       "description": "HUD overlay element (numbers, faces, weapon icons) replacing gfx.wad lumps.",
       "engine_canonical_paths": [
         "textures/wad/<name>",
-        "textures/wad3/<name>",
-        "textures/halflife/<name>"
+        "gfx/<name>"
       ],
       "engine_extensions": [
         ".png",
@@ -315,11 +328,14 @@
         "HUD / Icons",
         "HUD / Numbers",
         "HUD / Sets",
-        "HUD / Weapon"
+        "HUD / Weapon",
+        "HUD / WADs"
       ],
       "notes": "Filename matches the WAD lump name being replaced (num_0, num_1, face1, ...).\nStock HUD elements ship inside id1/gfx.wad; the texture-replacement system\nfinds external override files at textures/wad/<name>.<ext>.\n",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:CL_LoginImageLoad_sbar_OnChange_scr_scoreboard_login_flagfile_1",
+          "ezquake:loader_site:CL_LoginImageLoad_sbar_Sbar_Init_1",
           "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_1",
           "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_2",
           "ezquake:loader_site:Draw_CachePicSafe_Ctrl_ScrollBar_ScrollBars_Init_3",
@@ -339,6 +355,107 @@
           "ezquake:loader_site:Draw_CachePicSafe_r_draw_OnChange_crosshairimage_1",
           "ezquake:loader_site:Draw_CachePicSafe_r_draw_charset_R_Draw_CharacterBase_1",
           "ezquake:loader_site:Draw_CachePicSafe_settings_page_Setting_DrawSkinPreview_1",
+          "ezquake:loader_site:Draw_CachePic_cl_screen_SCR_DrawLoading_1",
+          "ezquake:loader_site:Draw_CachePic_cl_screen_SCR_DrawPause_1",
+          "ezquake:loader_site:Draw_CachePic_menu_M_Load_Draw_1",
+          "ezquake:loader_site:Draw_CachePic_menu_M_Main_Draw_1",
+          "ezquake:loader_site:Draw_CachePic_menu_M_Main_Draw_2",
+          "ezquake:loader_site:Draw_CachePic_menu_M_Main_Draw_3",
+          "ezquake:loader_site:Draw_CachePic_menu_M_Main_Draw_4",
+          "ezquake:loader_site:Draw_CachePic_menu_M_MultiPlayerSub_Draw_1",
+          "ezquake:loader_site:Draw_CachePic_menu_M_MultiPlayerSub_Draw_2",
+          "ezquake:loader_site:Draw_CachePic_menu_M_Save_Draw_1",
+          "ezquake:loader_site:Draw_CachePic_menu_M_SinglePlayer_Draw_1",
+          "ezquake:loader_site:Draw_CachePic_menu_M_SinglePlayer_Draw_2",
+          "ezquake:loader_site:Draw_CachePic_menu_M_SinglePlayer_Draw_3",
+          "ezquake:loader_site:Draw_CachePic_menu_M_SinglePlayer_Draw_4",
+          "ezquake:loader_site:Draw_CachePic_r_draw_Draw_Precache_1",
+          "ezquake:loader_site:Draw_CachePic_r_draw_Draw_TextBox_1",
+          "ezquake:loader_site:Draw_CachePic_r_draw_Draw_TextBox_10",
+          "ezquake:loader_site:Draw_CachePic_r_draw_Draw_TextBox_2",
+          "ezquake:loader_site:Draw_CachePic_r_draw_Draw_TextBox_3",
+          "ezquake:loader_site:Draw_CachePic_r_draw_Draw_TextBox_4",
+          "ezquake:loader_site:Draw_CachePic_r_draw_Draw_TextBox_5",
+          "ezquake:loader_site:Draw_CachePic_r_draw_Draw_TextBox_6",
+          "ezquake:loader_site:Draw_CachePic_r_draw_Draw_TextBox_7",
+          "ezquake:loader_site:Draw_CachePic_r_draw_Draw_TextBox_8",
+          "ezquake:loader_site:Draw_CachePic_r_draw_Draw_TextBox_9",
+          "ezquake:loader_site:Draw_CachePic_sbar_Sbar_DeathmatchOverlay_1",
+          "ezquake:loader_site:Draw_CachePic_sbar_Sbar_FinaleOverlay_1",
+          "ezquake:loader_site:Draw_CachePic_sbar_Sbar_IntermissionOverlay_1",
+          "ezquake:loader_site:Draw_CachePic_sbar_Sbar_IntermissionOverlay_2",
+          "ezquake:loader_site:Draw_CachePic_sbar_Sbar_TeamOverlay_1",
+          "ezquake:loader_site:Draw_CacheWadPic_cl_screen_SCR_Init_1",
+          "ezquake:loader_site:Draw_CacheWadPic_cl_screen_SCR_Init_2",
+          "ezquake:loader_site:Draw_CacheWadPic_cl_screen_SCR_Init_3",
+          "ezquake:loader_site:Draw_CacheWadPic_r_draw_Draw_Init_1",
+          "ezquake:loader_site:Draw_CacheWadPic_r_draw_Draw_Init_2",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_1",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_10",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_11",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_12",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_13",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_14",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_15",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_16",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_17",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_18",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_19",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_2",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_20",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_21",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_22",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_23",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_24",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_25",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_26",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_27",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_28",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_29",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_3",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_30",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_31",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_32",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_33",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_34",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_35",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_36",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_37",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_38",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_39",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_4",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_40",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_41",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_42",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_43",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_44",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_45",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_46",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_47",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_48",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_49",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_5",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_50",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_51",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_52",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_53",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_54",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_55",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_56",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_57",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_58",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_59",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_6",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_60",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_61",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_7",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_8",
+          "ezquake:loader_site:Draw_CacheWadPic_sbar_Sbar_Init_9",
+          "ezquake:loader_site:FS_LoadHeapFile_cl_main_ReloadPaletteAndColormap_1",
+          "ezquake:loader_site:FS_LoadHeapFile_cl_main_ReloadPaletteAndColormap_2",
+          "ezquake:loader_site:FS_LoadHeapFile_r_draw_Draw_InitConback_1",
+          "ezquake:loader_site:FS_LoadTempFile_r_draw_Draw_CachePicSafe_1",
+          "ezquake:loader_site:FS_LoadTempFile_r_draw_charset_Load_LMP_Charset_1",
           "ezquake:loader_site:FS_OpenVFS_r_draw_Draw_CachePicSafe_1",
           "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_1",
           "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_2",
@@ -354,7 +471,15 @@
           "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CacheWadPic_2",
           "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_InitConback_1",
           "ezquake:loader_site:R_LoadPicImage_r_draw_OnChange_scr_conpicture_1",
-          "ezquake:loader_site:R_LoadPicImage_vx_tracker_VX_TrackerInit_1"
+          "ezquake:loader_site:R_LoadPicImage_vx_tracker_VX_TrackerInit_1",
+          "ezquake:loader_site:SCR_HUD_LoadGroupPic_hud_groups_SCR_HUD_Groups_Draw_1",
+          "ezquake:loader_site:SCR_HUD_LoadGroupPic_hud_groups_SCR_HUD_OnChangePic_GroupX_1",
+          "ezquake:loader_site:SCR_LoadCursorImage_cl_screen_SCR_Init_1",
+          "ezquake:loader_site:SCR_LoadCursorImage_hud_editor_HUD_Editor_Init_1",
+          "ezquake:loader_site:SCR_LoadCursorImage_hud_editor_HUD_Editor_Init_2",
+          "ezquake:loader_site:SCR_LoadCursorImage_hud_editor_HUD_Editor_Init_3",
+          "ezquake:loader_site:SCR_LoadCursorImage_hud_editor_HUD_Editor_Init_4",
+          "ezquake:loader_site:WAD3_LoadWadFile_r_brushmodel_load_Mod_ParseWadsFromEntityLump_1"
         ],
         "fte": [
           "fte:loader_site:FS_FLocateFile_com_mesh_Mod_ParseMD5MeshModel_1",
@@ -428,11 +553,13 @@
       "notes": "Engine reads WAD files at gamedir root (qw/<name>.wad). Map authors reference them\nvia worldspawn.wad. id1/gfx.wad is the stock HUD wad that hud_element overrides target.\n",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:FS_LoadHeapFile_wad_W_LoadWadFile_1",
           "ezquake:loader_site:FS_OpenVFS_fs_FS_InitFilesystem_1",
           "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_1",
           "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_2",
           "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_3",
           "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_4",
+          "ezquake:loader_site:WAD3_LoadWadFile_r_brushmodel_load_Mod_ParseWadsFromEntityLump_1",
           "ezquake:loader_site:W_LoadWadFile_r_draw_Draw_Init_1"
         ],
         "fte": [
@@ -459,7 +586,9 @@
         "gfx/env/<skyname><suffix>.<ext>",
         "gfx/env/<skyname>_<suffix>.<ext>",
         "<skyname>_<suffix>.<ext>",
-        "<skyname><suffix>.<ext>"
+        "<skyname><suffix>.<ext>",
+        "env/<skyname>.<ext>",
+        "gfx/env/<skyname>.<ext>"
       ],
       "engine_extensions": [
         ".tga",
@@ -493,10 +622,20 @@
       "corpus_categories": [
         "Other / Skyboxes"
       ],
-      "notes": "Suffix conventions: {rt,bk,lf,ft,up,dn} with optional underscore separator.\nSkybox name comes from worldspawn.sky in the BSP, the r_skybox cvar (FTE),\nor the r_skyname cvar (ezQuake). Both engines probe each face across multiple\ndirectory prefixes -- gfx_faq's \"qw/env/\" guidance is the recommended single\ninstall location but is not the only path the engine accepts.\n",
+      "notes": "Suffix conventions: {rt,bk,lf,ft,up,dn} with optional underscore separator.\nSkybox name comes from worldspawn.sky in the BSP, the r_skybox cvar (FTE),\nor the r_skyname cvar (ezQuake). Both engines probe each face across multiple\ndirectory prefixes -- gfx_faq's \"qw/env/\" guidance is the recommended single\ninstall location but is not the only path the engine accepts.\nezQuake additionally consumes \"gfx/env/<skyname>_wind.cfg\" -- a plain-text\nwind direction/speed config that animates the sky-cloud overlay when\nr_skywind 1 (default). Companion sub-file, same asset_type.\n",
       "l1_evidence": {
         "ezquake": [
-          "ezquake:loader_site:R_LoadImagePixels_r_brushmodel_sky_R_LoadSkyTexturePixels_1"
+          "ezquake:loader_site:FS_LoadTempFile_r_brushmodel_sky_Skywind_Load_f_1",
+          "ezquake:loader_site:Mod_LoadExternalSkyTexture_r_brushmodel_load_R_LoadBrushModelTextures_1",
+          "ezquake:loader_site:R_LoadImagePixels_r_brushmodel_sky_R_LoadSkyTexturePixels_1",
+          "ezquake:loader_site:R_LoadSkyTexturePixels_r_brushmodel_sky_Sky_LoadSkyboxTextures_1",
+          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_1",
+          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_2",
+          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_3",
+          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_4",
+          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_5",
+          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_6",
+          "ezquake:loader_site:Sky_LoadSkyboxTextures_r_brushmodel_sky_R_SetSky_1"
         ],
         "fte": [
           "fte:loader_site:R_LoadHiResTexture_gl_shader_Shader_ParseSkySides_1",
@@ -548,10 +687,14 @@
       "corpus_categories": [
         "Other / Levelshots"
       ],
-      "notes": "ezQuake-specific; filename matches the map's canonical name.",
+      "notes": "Filename matches the map's canonical name. ezQuake uses the levelshot as a\nper-map console-background overlay (Draw_ConsoleBackground); FTE uses it for\nthe loading-plaque image (SCR_ImageName) and falls back to \"maps/<name>\".\n",
       "l1_evidence": {
-        "ezquake": [],
-        "fte": []
+        "ezquake": [
+          "ezquake:loader_site:Draw_CachePicSafe_r_draw_Draw_ConsoleBackground_1"
+        ],
+        "fte": [
+          "fte:loader_site:R_LoadHiResTexture_cl_screen_SCR_ImageName_1"
+        ]
       },
       "stock_origins": []
     },
@@ -598,7 +741,13 @@
       "notes": "Stock player skin (player.mdl skin 0) lives inside id1/progs/player.mdl, not as\na separate file. Replacement is loaded via /teamskin and /enemyskin cvars naming\na file in qw/skins/.\n",
       "l1_evidence": {
         "ezquake": [
-          "ezquake:loader_site:R_LoadImagePixels_skin_Skin_PixelsLoad_1"
+          "ezquake:loader_site:Image_LoadPCX_image_Image_LoadPCX_As32Bit_1",
+          "ezquake:loader_site:Image_LoadPCX_skin_Skin_PixelsLoad_1",
+          "ezquake:loader_site:R_LoadImagePixels_skin_Skin_PixelsLoad_1",
+          "ezquake:loader_site:Skin_Cache_skin_R_TranslatePlayerSkin_1",
+          "ezquake:loader_site:Skin_Cache_skin_Skins_PreCache_1",
+          "ezquake:loader_site:Skin_PixelsLoad_skin_Skin_Cache_1",
+          "ezquake:loader_site:Skin_PixelsLoad_skin_Skin_Cache_2"
         ],
         "fte": [
           "fte:loader_site:COM_LoadTempFile_renderer_R_ApplyRenderer_Load_1",
@@ -643,13 +792,25 @@
       "notes": "Stock player/weapon/monster/item models ship in id1/pak0. Embedded skins live\ninside the .mdl file; external skin replacement uses the player_skin or\nmodel_texture mechanism instead.\n",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:FS_LoadTempFile_r_model_Mod_LoadModel_1",
+          "ezquake:loader_site:FS_LoadTempFile_r_model_Mod_LoadModel_2",
           "ezquake:loader_site:Mod_FindName_r_brushmodel_load_Mod_LoadBrushModel_1",
           "ezquake:loader_site:Mod_FindName_r_model_Mod_ForName_1",
           "ezquake:loader_site:Mod_FindName_r_model_Mod_TouchModel_1",
           "ezquake:loader_site:Mod_ForName_cl_nqdemo_NQD_ParseServerData_1",
           "ezquake:loader_site:Mod_ForName_cl_parse_Model_NextDownload_1",
           "ezquake:loader_site:Mod_ForName_cl_parse_VWepModel_NextDownload_1",
-          "ezquake:loader_site:Mod_ForName_r_model_Mod_CustomModel_1"
+          "ezquake:loader_site:Mod_ForName_r_model_Mod_CustomModel_1",
+          "ezquake:loader_site:Mod_LoadAlias3Model_r_model_Mod_LoadModel_1",
+          "ezquake:loader_site:Mod_LoadAliasModel_r_model_Mod_LoadModel_1",
+          "ezquake:loader_site:Mod_LoadAllSkins_r_aliasmodel_Mod_LoadAliasModel_1",
+          "ezquake:loader_site:Mod_LoadModel_r_model_Mod_Extradata_1",
+          "ezquake:loader_site:Mod_LoadModel_r_model_Mod_ForName_1",
+          "ezquake:loader_site:Mod_LoadModel_r_model_Mod_ReloadModels_1",
+          "ezquake:loader_site:Mod_LoadModel_r_model_Mod_ReloadModels_2",
+          "ezquake:loader_site:Mod_LoadModel_r_model_Mod_ReloadModels_3",
+          "ezquake:loader_site:Mod_LoadSimpleTexture_r_aliasmodel_Mod_LoadAliasModel_1",
+          "ezquake:loader_site:Mod_ReadFlagsFromMD1_r_aliasmodel_md3_Mod_LoadAlias3Model_1"
         ],
         "fte": [
           "fte:loader_site:FS_FLocateFile_gl_model_Mod_LoadModelWorker_1",
@@ -1259,9 +1420,15 @@
         "Textures / Team Fortress",
         "Textures / Weapon"
       ],
-      "notes": "Replaces the skin baked into a .mdl. Filename matches the model name\n(v_axe -> v_axe.tga, or v_axe_0.tga for skin index 0).\nDistinct from hud_element (HUD overlays) and map_texture (BSP-embedded textures).\n",
+      "notes": "Replaces the skin baked into a .mdl. Filename matches the model name\n(v_axe -> v_axe.tga, or v_axe_0.tga for skin index 0).\nDistinct from hud_element (HUD overlays) and map_texture (BSP-embedded textures).\nFTE loads these through the generic shader builders (R_BuildDefaultTexnums /\nR_BuildLegacyTexnums in gl_shader.c), which serve every shader-textured asset;\nthe L1 extractor cannot separate them from generic textures or brush textures\nat the call-site layer, so no FTE-side hint function names are listed yet.\n",
       "l1_evidence": {
-        "ezquake": [],
+        "ezquake": [
+          "ezquake:loader_site:Mod_LoadExternalSkin_r_aliasmodel_skins_Mod_LoadAllSkins_1",
+          "ezquake:loader_site:Mod_LoadExternalSkin_r_aliasmodel_skins_Mod_LoadAllSkins_2",
+          "ezquake:loader_site:R_LoadImagePixels_r_aliasmodel_skins_Mod_LoadExternalSkin_1",
+          "ezquake:loader_site:R_LoadImagePixels_r_aliasmodel_skins_Mod_LoadExternalSkin_2",
+          "ezquake:loader_site:R_LoadImagePixels_r_aliasmodel_skins_Mod_LoadExternalSkin_3"
+        ],
         "fte": []
       },
       "stock_origins": []
@@ -1304,12 +1471,21 @@
       "notes": "Stock id1 ships e1m1-e4m8, dm1-dm6, start, end, plus b_*.bsp ammo box \"maps\"\n(technically BSPs; filtered as non-playable). ezQuake L1 also surfaces .ent\noverride sites (SV_SpawnServer), .qpn physics-normals (CM_LoadPhysicsNormals),\nand .pts leak-pointfile (R_ReadPointFile_f) under the same `map` category.\n",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:CM_LoadMap_cl_nqdemo_NQD_ParseServerData_1",
+          "ezquake:loader_site:CM_LoadMap_cl_parse_Model_NextDownload_1",
+          "ezquake:loader_site:CM_LoadMap_sv_init_SV_SpawnServer_1",
+          "ezquake:loader_site:CM_LoadMap_sv_init_SV_SpawnServer_2",
+          "ezquake:loader_site:CM_LoadPhysicsNormals_cmodel_CM_LoadMap_1",
+          "ezquake:loader_site:CM_OpenMap_cmodel_CM_LoadMap_1",
           "ezquake:loader_site:FS_LoadHunkFile_cmodel_CM_LoadPhysicsNormals_1",
           "ezquake:loader_site:FS_LoadHunkFile_sv_init_SV_SpawnServer_1",
           "ezquake:loader_site:FS_LoadHunkFile_sv_init_SV_SpawnServer_2",
           "ezquake:loader_site:FS_OpenVFS_cmodel_CM_OpenMap_1",
           "ezquake:loader_site:FS_OpenVFS_r_part_R_ReadPointFile_f_1",
-          "ezquake:loader_site:Mod_FindName_r_brushmodel_load_Mod_LoadBrushModel_1"
+          "ezquake:loader_site:Mod_FindName_r_brushmodel_load_Mod_LoadBrushModel_1",
+          "ezquake:loader_site:Mod_LoadBrushModel_r_model_Mod_LoadModel_1",
+          "ezquake:loader_site:Mod_LoadLighting_r_brushmodel_load_Mod_LoadBrushModel_1",
+          "ezquake:loader_site:Mod_LoadTextures_r_brushmodel_load_Mod_LoadBrushModel_1"
         ],
         "fte": [
           "fte:loader_site:FS_FLocateFile_sv_ccmds_SV_Map_f_2",
@@ -1668,7 +1844,7 @@
         "Textures / Sets",
         "Textures / Lava and Teleport"
       ],
-      "notes": "Filename must match a texture name embedded in the target BSP's texture lump\n(cross-reference qw-bsp-textures.json). Map-scoped path wins over global.\n`#`-prefixed names (#teleport, #lava, ...) install at qw/textures/#<name>.tga or\nper-map qw/textures/<mapname>/#<name>.tga (gfx_faq QID 22).\n",
+      "notes": "Filename must match a texture name embedded in the target BSP's texture lump\n(cross-reference qw-bsp-textures.json). Map-scoped path wins over global.\n`#`-prefixed names (#teleport, #lava, ...) install at qw/textures/#<name>.tga or\nper-map qw/textures/<mapname>/#<name>.tga (gfx_faq QID 22).\nFTE loads these through the generic shader builders (R_BuildDefaultTexnums /\nR_BuildLegacyTexnums in gl_shader.c) which serve every shader-textured asset;\nthe L1 extractor cannot separate them from generic textures or model textures\nat the call-site layer, so no FTE-side hint function names are listed yet.\n",
       "l1_evidence": {
         "ezquake": [
           "ezquake:loader_site:FS_OpenVFS_image_Image_LoadJPEG_1",
@@ -1678,9 +1854,16 @@
           "ezquake:loader_site:FS_OpenVFS_r_texture_load_R_LoadImagePixels_1",
           "ezquake:loader_site:FS_OpenVFS_r_texture_load_R_LoadImagePixels_2",
           "ezquake:loader_site:FS_OpenVFS_r_texture_load_R_LoadImagePixels_3",
-          "ezquake:loader_site:R_LoadImagePixels_r_aliasmodel_skins_Mod_LoadExternalSkin_1",
-          "ezquake:loader_site:R_LoadImagePixels_r_aliasmodel_skins_Mod_LoadExternalSkin_2",
-          "ezquake:loader_site:R_LoadImagePixels_r_aliasmodel_skins_Mod_LoadExternalSkin_3",
+          "ezquake:loader_site:Image_LoadJPEG_r_texture_load_R_LoadImagePixels_1",
+          "ezquake:loader_site:Image_LoadPNG_All_image_Image_LoadPNG_1",
+          "ezquake:loader_site:Image_LoadPNG_All_image_Image_LoadPNG_Comments_1",
+          "ezquake:loader_site:Image_LoadPNG_r_texture_load_R_LoadImagePixels_1",
+          "ezquake:loader_site:Image_LoadTGA_r_texture_load_R_LoadImagePixels_1",
+          "ezquake:loader_site:Image_OpenAPNG_movie_Movie_Demo_Capture_f_1",
+          "ezquake:loader_site:Mod_LoadExternalTexture_r_brushmodel_load_R_LoadBrushModelTextures_1",
+          "ezquake:loader_site:QMB_LoadTextureImage_r_particles_qmb_QMB_InitParticles_1",
+          "ezquake:loader_site:QMB_LoadTextureImage_r_particles_qmb_QMB_InitParticles_2",
+          "ezquake:loader_site:QMB_LoadTextureImage_r_particles_qmb_QMB_InitParticles_3",
           "ezquake:loader_site:R_LoadImagePixels_r_brushmodel_textures_Mod_LoadExternalTexture_1",
           "ezquake:loader_site:R_LoadImagePixels_r_brushmodel_textures_Mod_LoadExternalTexture_2",
           "ezquake:loader_site:R_LoadImagePixels_r_brushmodel_textures_Mod_LoadExternalTexture_3",
@@ -1696,12 +1879,38 @@
           "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_CacheWadPic_2",
           "ezquake:loader_site:R_LoadPicImage_r_draw_Draw_InitConback_1",
           "ezquake:loader_site:R_LoadPicImage_r_draw_OnChange_scr_conpicture_1",
-          "ezquake:loader_site:R_LoadPicImage_vx_tracker_VX_TrackerInit_1"
+          "ezquake:loader_site:R_LoadPicImage_vx_tracker_VX_TrackerInit_1",
+          "ezquake:loader_site:R_LoadTextureImage_r_aliasmodel_md3_Mod_LoadAlias3Model_1",
+          "ezquake:loader_site:R_LoadTextureImage_r_aliasmodel_md3_Mod_LoadAlias3Model_2",
+          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_1",
+          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_2",
+          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_3",
+          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_4",
+          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_5",
+          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_6",
+          "ezquake:loader_site:R_LoadTextureImage_r_model_Mod_LoadSimpleTexture_1",
+          "ezquake:loader_site:R_LoadTextureImage_r_model_Mod_LoadSimpleTexture_2",
+          "ezquake:loader_site:R_LoadTextureImage_r_model_Mod_LoadSimpleTexture_3",
+          "ezquake:loader_site:R_LoadTextureImage_r_model_Mod_LoadSimpleTexture_4",
+          "ezquake:loader_site:R_LoadTextureImage_r_particles_qmb_QMB_LoadTextureImage_1",
+          "ezquake:loader_site:R_LoadTextureImage_r_rmisc_R_InitOtherTextures_1",
+          "ezquake:loader_site:R_LoadTextureImage_r_rmisc_R_InitOtherTextures_2",
+          "ezquake:loader_site:R_LoadTextureImage_r_rmisc_R_InitOtherTextures_3",
+          "ezquake:loader_site:R_LoadTextureImage_r_sprites_Mod_LoadExternalSpriteSkin_1",
+          "ezquake:loader_site:R_LoadTextureImage_r_sprites_Mod_LoadExternalSpriteSkin_2",
+          "ezquake:loader_site:R_LoadTextureImage_vx_stuff_InitVXStuff_1",
+          "ezquake:loader_site:R_LoadTextureImage_vx_stuff_InitVXStuff_2",
+          "ezquake:loader_site:R_LoadTextureImage_vx_stuff_InitVXStuff_3",
+          "ezquake:loader_site:R_LoadTextureImage_vx_stuff_InitVXStuff_4",
+          "ezquake:loader_site:R_LoadTextureImage_vx_stuff_InitVXStuff_5",
+          "ezquake:loader_site:R_LoadTextureImage_vx_stuff_InitVXStuff_6",
+          "ezquake:loader_site:R_LoadTextureImage_vx_stuff_InitVXStuff_7",
+          "ezquake:loader_site:R_LoadTextureImage_vx_stuff_InitVXStuff_8",
+          "ezquake:loader_site:R_LoadTextureImage_vx_stuff_InitVXStuff_9"
         ],
         "fte": [
           "fte:loader_site:FS_FLocateFile_cl_parse_Model_CheckDownloads_1",
           "fte:loader_site:FS_OpenReadLocation_image_Image_LoadHiResTextureWorker_1",
-          "fte:loader_site:R_LoadHiResTexture_cl_screen_SCR_ImageName_1",
           "fte:loader_site:R_LoadHiResTexture_gl_font_Font_LoadFont_1",
           "fte:loader_site:R_LoadHiResTexture_gl_font_Font_LoadReplacementConchars_1",
           "fte:loader_site:R_LoadHiResTexture_gl_font_Font_LoadReplacementConchars_2",
@@ -1742,7 +1951,6 @@
           "fte:loader_site:R_LoadHiResTexture_m_items_Draw_Hexen2BigFontString_1",
           "fte:loader_site:R_LoadHiResTexture_p_script_P_LoadTexture_1",
           "fte:loader_site:R_LoadHiResTexture_p_script_P_LoadTexture_2",
-          "fte:loader_site:R_LoadHiResTexture_r_2d_R2D_Crosshair_Update_1",
           "fte:loader_site:R_LoadHiResTexture_r_2d_R2D_Init_1",
           "fte:loader_site:R_LoadHiResTexture_r_2d_R2D_Init_2",
           "fte:loader_site:R_LoadHiResTexture_r_2d_R2D_Init_3",
@@ -1816,7 +2024,9 @@
           "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_2",
           "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_3",
           "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_4",
-          "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_5"
+          "ezquake:loader_site:FS_LoadHunkFile_r_brushmodel_load_LoadColoredLighting_5",
+          "ezquake:loader_site:LoadColoredLighting_r_brushmodel_load_Mod_LoadLighting_1",
+          "ezquake:loader_site:Mod_LoadLighting_r_brushmodel_load_Mod_LoadBrushModel_1"
         ],
         "fte": []
       },
@@ -1851,8 +2061,11 @@
       "notes": "Server-side override for entity placements (item spawns, spawnpoints, etc.)\nwithout re-vis-ing the BSP. Both engines tag these sites with the broader\n`map` category at L1; the asset-type catalog disambiguates via the\nSV_SpawnServer enclosing function and the .ent path templates.\n",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:CM_LoadMap_sv_init_SV_SpawnServer_1",
+          "ezquake:loader_site:CM_LoadMap_sv_init_SV_SpawnServer_2",
           "ezquake:loader_site:FS_LoadHunkFile_sv_init_SV_SpawnServer_1",
-          "ezquake:loader_site:FS_LoadHunkFile_sv_init_SV_SpawnServer_2"
+          "ezquake:loader_site:FS_LoadHunkFile_sv_init_SV_SpawnServer_2",
+          "ezquake:loader_site:PR2_LoadProgs_sv_init_SV_SpawnServer_1"
         ],
         "fte": [
           "fte:loader_site:COM_LoadTempFile_sv_init_SV_SpawnServer_1",
@@ -1900,6 +2113,7 @@
       "notes": "ezQuake teamplay uses these for `%l` macro expansion in chat.",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:FS_LoadHeapFile_teamplay_locfiles_TP_LoadLocFile_1",
           "ezquake:loader_site:TP_LoadLocFile_teamplay_locfiles_TP_LoadLocFile_f_1",
           "ezquake:loader_site:TP_LoadLocFile_teamplay_locfiles_TP_LocFiles_NewMap_1",
           "ezquake:loader_site:TP_LoadLocFile_teamplay_locfiles_TP_LocFiles_NewMap_2"
@@ -1950,8 +2164,13 @@
       "notes": "Stock sounds ship in id1/pak0 (weapons/items/ambient). Custom sounds override by\nsame-path matching (qw/sound/weapons/sshotgun.wav shadows stock SSG fire).\n",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:FS_LoadTempFile_snd_mem_S_LoadSound_1",
           "ezquake:loader_site:FS_OpenVFS_movie_WAVCaptureStart_1",
           "ezquake:loader_site:FS_OpenVFS_movie_WAVCaptureStart_2",
+          "ezquake:loader_site:S_LoadSound_snd_main_S_PrecacheSound_1",
+          "ezquake:loader_site:S_LoadSound_snd_main_S_StartSound_1",
+          "ezquake:loader_site:S_LoadSound_snd_main_S_StaticSound_1",
+          "ezquake:loader_site:S_LoadSound_snd_mix_S_PaintChannels_1",
           "ezquake:loader_site:S_PrecacheSound_cl_nqdemo_NQD_ParseServerData_1",
           "ezquake:loader_site:S_PrecacheSound_cl_parse_Sound_NextDownload_1",
           "ezquake:loader_site:S_PrecacheSound_cl_tent_CL_InitTEnts_1",
@@ -3368,8 +3587,12 @@
       "notes": "Stock id1 ships default.cfg + qw/quake.rc. Custom configs install to gamedir root\nand are typically loaded via /exec <name>.cfg from another script (or from quake.rc).\n",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:FS_LoadHeapFile_cmd_Cmd_Exec_f_1",
+          "ezquake:loader_site:FS_LoadHeapFile_cmd_Cmd_Exec_f_2",
           "ezquake:loader_site:FS_OpenVFS_config_manager_ResetConfigs_1",
-          "ezquake:loader_site:FS_OpenVFS_host_Host_Init_1"
+          "ezquake:loader_site:FS_OpenVFS_host_Host_Init_1",
+          "ezquake:loader_site:LoadFragFile_fragstats_Load_FragFile_f_1",
+          "ezquake:loader_site:LoadFragFile_fragstats_Stats_NewMap_1"
         ],
         "fte": [
           "fte:loader_site:COM_LoadStackFile_sv_ents_SV_GibFilterInit_1",
@@ -3448,6 +3671,9 @@
       "notes": "Out of scope for the gfx.quakeworld.nu corpus; listed for completeness.",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:CL_Open_Demo_File_cl_demo_CL_StartDemoCommand_1",
+          "ezquake:loader_site:CL_Open_Demo_File_cl_demo_CL_StartDemoCommand_2",
+          "ezquake:loader_site:CL_Open_Demo_File_cl_demo_PlayQWZDemo_1",
           "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_1",
           "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_2",
           "ezquake:loader_site:FS_OpenVFS_cl_demo_CL_Open_Demo_File_3",
@@ -3493,6 +3719,7 @@
       "notes": "Auto-extracted before playback.",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:CL_Open_Demo_File_cl_demo_PlayQWZDemo_1",
           "ezquake:loader_site:FS_OpenVFS_cl_demo_PlayQWZDemo_1",
           "ezquake:loader_site:PlayQWZDemo_cl_demo_CL_StartDemoCommand_1"
         ],

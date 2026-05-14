@@ -140,9 +140,12 @@ asset_types:
   - asset_type: hud_element
     description: HUD overlay element (numbers, faces, weapon icons) replacing gfx.wad lumps.
     engine_canonical_paths:
+      # ezQuake Draw_CacheWadPic probes textures/wad/<name> first, then gfx/<name>
+      # (r_draw.c:357-358). textures/wad3/<name> and textures/halflife/<name> are
+      # wad_file search paths in WAD3_LoadWadFile (wad.c:278-279), NOT hud_element
+      # override paths -- moved out 2026-05-14 per Round 3 calibration of hud_element.
       - "textures/wad/<name>"
-      - "textures/wad3/<name>"
-      - "textures/halflife/<name>"
+      - "gfx/<name>"
     engine_extensions: [".png", ".tga", ".jpg"]
     filename_constraint:
       kind: templated
@@ -163,6 +166,7 @@ asset_types:
       - "HUD / Numbers"
       - "HUD / Sets"
       - "HUD / Weapon"
+      - "HUD / WADs"
     notes: |
       Filename matches the WAD lump name being replaced (num_0, num_1, face1, ...).
       Stock HUD elements ship inside id1/gfx.wad; the texture-replacement system
@@ -218,6 +222,8 @@ asset_types:
       - "R_SetSky"                  # entry: ezQuake + FTE
       - "Sky_LoadSkyboxTextures"    # ezQuake orchestrator (r_brushmodel_sky.c:211)
       - "R_LoadSkyTexturePixels"    # ezQuake per-face loader (r_brushmodel_sky.c:184)
+      - "Skywind_Load_f"            # ezQuake _wind.cfg companion loader (r_brushmodel_sky.c:309)
+      - "Mod_LoadExternalSkyTexture" # ezQuake BSP sky-overlay replacement (r_brushmodel_load.c:371)
       - "Shader_ParseSkySides"      # FTE per-face loader (gl_shader.c:651)
     l1_hint_bare_categories: ["skybox"]
     stock_origin_paths: []
