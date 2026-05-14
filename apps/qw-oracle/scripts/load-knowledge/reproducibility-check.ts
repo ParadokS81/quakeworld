@@ -1,9 +1,17 @@
 // apps/qw-oracle/scripts/load-knowledge/reproducibility-check.ts
 //
-// Universal reproducibility probe. Re-runs extract.py for a project,
-// then asserts empty `git diff --stat HEAD` on the project's output
-// directory. Packages VALIDATION-RUNBOOK Section 1.1 methodology as
-// runnable. No database required; filesystem-only.
+// Universal reproducibility probe. Runs extract.py twice and asserts
+// byte-identical output across both runs (sha256 per file). This is the
+// true reproducibility test: re-running an extractor against the same
+// source must produce the same bytes. Packages VALIDATION-RUNBOOK
+// Section 1.1 methodology as runnable. No database required;
+// filesystem-only.
+//
+// History: an earlier shape compared output/ to git HEAD via `git diff`.
+// That conflated "extractor is reproducible" with "output is committed".
+// After a HEAD bump that legitimately changes JSON content, git-diff
+// always reported FAIL even though the extractor itself was deterministic.
+// The dual-run sha256 probe is invariant to whether output is committed.
 //
 // Per docs/superpowers/plans/2026-05-08-extractor-discipline-catchup/
 // decisions.md:
@@ -23,8 +31,10 @@
 //   bun run load-knowledge -- reproducibility-check --help
 
 import { parseArgs } from 'util';
-import { dirname, resolve } from 'path';
+import { createHash } from 'crypto';
+import { dirname, resolve, join } from 'path';
 import { fileURLToPath } from 'url';
+import { readdirSync, readFileSync, statSync } from 'fs';
 
 type ReproducibilityProject = 'ezquake' | 'fte' | 'qwcl' | 'mvdsv' | 'ktx';
 
@@ -93,6 +103,50 @@ interface ReproducibilityResult {
   summary: string;
 }
 
+function hashOutputDir(dir: string): Map<string, string> {
+  // sha256 every *.json (and *.ndjson) directly under dir. Sorted by name
+  // so result is deterministic. Subdirs ignored on purpose: extractor
+  // writes flat output, and subdirs hold diagnostics / fixtures.
+  const hashes = new Map<string, string>();
+  let names: string[];
+  try {
+    names = readdirSync(dir).sort();
+  } catch {
+    return hashes;
+  }
+  for (const name of names) {
+    if (!name.endsWith('.json') && !name.endsWith('.ndjson')) continue;
+    const path = join(dir, name);
+    try {
+      const st = statSync(path);
+      if (!st.isFile()) continue;
+    } catch {
+      continue;
+    }
+    const h = createHash('sha256').update(readFileSync(path)).digest('hex');
+    hashes.set(name, h);
+  }
+  return hashes;
+}
+
+function diffHashes(
+  a: Map<string, string>,
+  b: Map<string, string>,
+): string[] {
+  const changed: string[] = [];
+  const seen = new Set<string>();
+  for (const [name, hash] of a) {
+    seen.add(name);
+    const other = b.get(name);
+    if (other === undefined) changed.push(`${name} (removed on run-2)`);
+    else if (other !== hash) changed.push(name);
+  }
+  for (const [name] of b) {
+    if (!seen.has(name)) changed.push(`${name} (added on run-2)`);
+  }
+  return changed.sort();
+}
+
 // Synchronous via Bun.spawnSync; acceptable for a manual probe (not a
 // hot path; no event loop contention concerns).
 export function runReproducibility(opts: {
@@ -101,8 +155,6 @@ export function runReproducibility(opts: {
 }): ReproducibilityResult {
   const { project, workers } = opts;
   const config = PROJECT_REPRODUCIBILITY_CONFIG[project];
-
-  process.stderr.write(`[reproducibility:${project}] running extract.py...\n`);
 
   const extractArgs: string[] = [
     config.extractPy,
@@ -113,13 +165,18 @@ export function runReproducibility(opts: {
     extractArgs.push('--workers', String(workers));
   }
 
-  let extractResult: ReturnType<typeof Bun.spawnSync>;
-  try {
-    extractResult = Bun.spawnSync(['python3', ...extractArgs], {
+  const runOnce = (label: string): ReturnType<typeof Bun.spawnSync> => {
+    process.stderr.write(`[reproducibility:${project}] running extract.py (${label})...\n`);
+    return Bun.spawnSync(['python3', ...extractArgs], {
       stdin: 'ignore',
       stdout: 'pipe',
       stderr: 'pipe',
     });
+  };
+
+  let run1: ReturnType<typeof Bun.spawnSync>;
+  try {
+    run1 = runOnce('run-1');
   } catch (err) {
     return {
       project,
@@ -129,40 +186,46 @@ export function runReproducibility(opts: {
       summary: `failed to spawn python3: ${err instanceof Error ? err.message : String(err)}`,
     };
   }
-
-  if (!extractResult.success) {
-    const stderrText = extractResult.stderr?.toString('utf8').slice(0, 300) ?? '';
+  if (!run1.success) {
+    const stderrText = run1.stderr?.toString('utf8').slice(0, 300) ?? '';
     return {
       project,
       status: 'FAIL',
-      extractExitCode: extractResult.exitCode,
+      extractExitCode: run1.exitCode,
       diffOutput: '',
-      summary: `extract.py exited ${extractResult.exitCode}: ${stderrText}`,
+      summary: `extract.py exited ${run1.exitCode} on run-1: ${stderrText}`,
     };
   }
 
-  process.stderr.write(`[reproducibility:${project}] checking git diff...\n`);
+  const hashesRun1 = hashOutputDir(config.outputDir);
 
-  // Scope the diff to config.outputDir only (not the whole repo) so that
-  // other uncommitted changes in the working tree don't produce false FAILs.
-  const diffResult = Bun.spawnSync(
-    ['git', 'diff', '--stat', 'HEAD', '--', config.outputDir],
-    { stdin: 'ignore', stdout: 'pipe', stderr: 'pipe' },
-  );
+  const run2 = runOnce('run-2');
+  if (!run2.success) {
+    const stderrText = run2.stderr?.toString('utf8').slice(0, 300) ?? '';
+    return {
+      project,
+      status: 'FAIL',
+      extractExitCode: run2.exitCode,
+      diffOutput: '',
+      summary: `extract.py exited ${run2.exitCode} on run-2: ${stderrText}`,
+    };
+  }
 
-  const diffOutput = diffResult.stdout.toString('utf8').trim();
-  const status: 'PASS' | 'FAIL' = diffOutput === '' ? 'PASS' : 'FAIL';
-  const lineCount = diffOutput === '' ? 0 : diffOutput.split('\n').length;
+  const hashesRun2 = hashOutputDir(config.outputDir);
+  const changed = diffHashes(hashesRun1, hashesRun2);
+
+  const status: 'PASS' | 'FAIL' = changed.length === 0 ? 'PASS' : 'FAIL';
   const summary =
     status === 'PASS'
-      ? 'zero git diff -- extractor output is reproducible'
-      : `non-empty diff: ${lineCount} line(s) of drift detected`;
+      ? `byte-identical across 2 runs (${hashesRun1.size} files)`
+      : `${changed.length} file(s) differ between runs: ${changed.slice(0, 5).join(', ')}` +
+        (changed.length > 5 ? ` (+${changed.length - 5} more)` : '');
 
   return {
     project,
     status,
-    extractExitCode: extractResult.exitCode,
-    diffOutput,
+    extractExitCode: run2.exitCode,
+    diffOutput: changed.join('\n'),
     summary,
   };
 }
@@ -189,8 +252,8 @@ function printHelp(): void {
     `
 load-knowledge -- reproducibility-check [options]
 
-Re-run extract.py for a project and assert empty git diff --stat HEAD on
-the project's output directory. Packages VALIDATION-RUNBOOK Section 1.1
+Run extract.py twice for a project and assert byte-identical output across
+both runs (sha256 per file). Packages VALIDATION-RUNBOOK Section 1.1
 methodology as runnable. No database required; filesystem-only.
 
 Options:
@@ -204,10 +267,10 @@ Options:
   --help          Print this help and exit.
 
 Exit codes:
-  0   all targeted projects reproducible (empty git diff) OR
+  0   all targeted projects reproducible (byte-identical across 2 runs) OR
       --help requested (informational success).
-  1   one or more projects produced a non-empty diff, or extract.py
-      exited non-zero; review output for details.
+  1   one or more projects produced different output between runs, or
+      extract.py exited non-zero; review output for details.
   2   invalid arguments.
 
 No database required -- this probe is filesystem-only.

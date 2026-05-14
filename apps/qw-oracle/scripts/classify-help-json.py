@@ -6,7 +6,8 @@ target a specific upstream codebase. Each project has a hardcoded upstream
 repo path in PROJECT_REPOS below; new projects get a one-line addition there.
 
 Reads:
-  - knowledge.db: list of project=<project> source_state='doc_only' entities
+  - qw_oracle Postgres (via DATABASE_URL or docker exec fallback):
+    project=<project> source_state='doc_only' entities + source_backed names
   - apps/qw-oracle/scripts/extractors/<project>/seeds/help_json_classifications.yaml
     (existing classifications; entries here are skipped -- already classified)
   - research/repos/<project>-source/ (the upstream git clone for blame index)
@@ -31,7 +32,8 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import sqlite3
+import os
+import subprocess
 import sys
 from datetime import date
 from pathlib import Path
@@ -52,7 +54,10 @@ from extractor_lib._help_json_classification import (
 )
 
 
-DB_PATH = REPO_ROOT / "apps/qw-oracle/data/knowledge.db"
+# DATABASE_URL takes precedence; falls back to docker exec on the local
+# dev container at `qw-oracle-postgres-dev` (the canonical dev shape).
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://qworacle:dev@localhost:5432/qw_oracle")
+DOCKER_CONTAINER = "qw-oracle-postgres-dev"
 
 # Per-project upstream repo paths. Currently single-entry: only ezQuake
 # ships a help_*.json file (verified 2026-04-30: research/repos/ezquake-source
@@ -65,6 +70,23 @@ PROJECT_REPOS: dict[str, Path] = {
 }
 
 
+def _run_psql(sql: str) -> str:
+    """Run a SQL query via psql. Tries local DATABASE_URL first, then docker exec."""
+    try:
+        result = subprocess.run(
+            ["psql", DATABASE_URL, "-tA", "-F", "\t", "-c", sql],
+            capture_output=True, text=True, check=True, timeout=30,
+        )
+        return result.stdout
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        result = subprocess.run(
+            ["docker", "exec", "-i", DOCKER_CONTAINER,
+             "psql", "-U", "qworacle", "-d", "qw_oracle", "-tA", "-F", "\t", "-c", sql],
+            capture_output=True, text=True, check=True, timeout=30,
+        )
+        return result.stdout
+
+
 def seed_path_for(project: str) -> Path:
     return (
         REPO_ROOT
@@ -74,27 +96,31 @@ def seed_path_for(project: str) -> Path:
     )
 
 
-def fetch_doc_only_entities(db: sqlite3.Connection, project: str) -> list[tuple[str, str]]:
-    rows = db.execute(
-        """
-        SELECT name, type FROM entities
-        WHERE project = ? AND source_state = 'doc_only'
-        ORDER BY type, name
-        """,
-        (project,),
-    ).fetchall()
-    return [(r[0], r[1]) for r in rows]
+def fetch_doc_only_entities(project: str) -> list[tuple[str, str]]:
+    # Escape single quote in project name defensively (project values are
+    # from a closed enum so this is belt-and-suspenders, not user input).
+    safe_project = project.replace("'", "''")
+    out = _run_psql(
+        f"SELECT name, type FROM entities "
+        f"WHERE project = '{safe_project}' AND source_state = 'doc_only' "
+        f"ORDER BY type, name"
+    )
+    rows: list[tuple[str, str]] = []
+    for line in out.splitlines():
+        if not line.strip():
+            continue
+        parts = line.split("\t")
+        rows.append((parts[0], parts[1]))
+    return rows
 
 
-def fetch_source_backed_names(db: sqlite3.Connection, project: str) -> set[str]:
-    rows = db.execute(
-        """
-        SELECT name FROM entities
-        WHERE project = ? AND source_state = 'source_backed'
-        """,
-        (project,),
-    ).fetchall()
-    return {r[0] for r in rows}
+def fetch_source_backed_names(project: str) -> set[str]:
+    safe_project = project.replace("'", "''")
+    out = _run_psql(
+        f"SELECT name FROM entities "
+        f"WHERE project = '{safe_project}' AND source_state = 'source_backed'"
+    )
+    return {line for line in out.splitlines() if line.strip()}
 
 
 def load_existing_seed(project: str) -> dict[str, dict]:
@@ -140,9 +166,8 @@ def main() -> int:
         print(f"Upstream repo not found at {repo}", file=sys.stderr)
         return 2
 
-    db = sqlite3.connect(DB_PATH)
-    doc_only = fetch_doc_only_entities(db, project)
-    source_backed = fetch_source_backed_names(db, project)
+    doc_only = fetch_doc_only_entities(project)
+    source_backed = fetch_source_backed_names(project)
     existing = load_existing_seed(project)
 
     unclassified = [(n, t) for (n, t) in doc_only if n not in existing]

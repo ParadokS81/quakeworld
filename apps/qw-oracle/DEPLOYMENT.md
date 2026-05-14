@@ -137,8 +137,9 @@ cd /home/paradoks/projects/quakeworld/apps/qw-oracle
 #    loads into dev Postgres, runs embed-entities inline (hash-skip).
 #    Skip this step if you're refreshing existing data without an upstream
 #    pull (e.g., derive-step bug fix only).
-bun scripts/load-knowledge/extract-tag.ts <project> <tag>
-# example: bun scripts/load-knowledge/extract-tag.ts ezquake 3.6.9
+bun scripts/load-knowledge/index.ts extract-tag --project <project> --version <tag>
+# example: bun scripts/load-knowledge/index.ts extract-tag --project ezquake --version 3.6.9
+# head walk: bun scripts/load-knowledge/index.ts extract-tag --project ezquake --version head
 
 # 1. (if relevant) re-derive descriptions after a derive-step change
 npm run load-knowledge --silent --no-workspaces -- re-derive

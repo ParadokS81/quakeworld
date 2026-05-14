@@ -48,7 +48,9 @@ sqlite3 "$DB" "PRAGMA user_version;"  # should equal SCHEMA_VERSION in scripts/l
 
 ### Doc_only budget gate
 
-After every extraction, run `extraction-review` over the latest tag-pair with the gate flag:
+Two shapes, by walk kind:
+
+**Tag-pair walks** (a new upstream tag landed; you walked it and want to compare against the previous tag): run `extraction-review` with the gate flag. Requires `release_notes` rows for the `to` version, which are present for tag walks because GitHub creates a release body when a tag is pushed.
 
 ```bash
 npm --prefix apps/qw-oracle --no-workspaces --silent run load-knowledge -- review \
@@ -56,7 +58,13 @@ npm --prefix apps/qw-oracle --no-workspaces --silent run load-knowledge -- revie
   --fail-on help-json-classification
 ```
 
-The review's `help-json-classification` bucket flags any `doc_only` entity not present in the project's `seeds/help_json_classifications.yaml`. The `--fail-on help-json-classification` flag returns exit code 2 when the bucket has any findings, blocking the snapshot from being merged into slipgate's data dir until each finding is resolved (operator runs `python3 scripts/classify-help-json.py --project <name>` and accepts/edits the proposal, or hand-classifies the entity as `extractor_gap` with a real HANDOVER sidequest reference -- the validator rejects placeholder sidequest strings).
+**Head walks** (refreshing `head` to a newer commit on upstream's default branch, no new tag): the `review` gate cannot run because `head` has no GitHub release body. Use `classify-help-json.py` directly instead — same seed comparison, no release_notes precondition:
+
+```bash
+python3 apps/qw-oracle/scripts/classify-help-json.py --project <name> --propose
+```
+
+Both shapes flag any `doc_only` entity not present in the project's `seeds/help_json_classifications.yaml`. The tag-pair `--fail-on help-json-classification` flag returns exit code 2 when the bucket has any findings, blocking the snapshot from being merged into slipgate's data dir until each finding is resolved. The head-walk script prints proposals to stdout for operator review; rerun with `--apply --confidence-threshold high` to persist high-confidence proposals to the seed.
 
 This converts a recurring class of mystery doc_only entries -- formerly accumulated as backlog with no triage -- into either a classification artifact (cached) or an extractor improvement task (sidequest). New mysteries surface at extraction time, not weeks later.
 
