@@ -89,6 +89,29 @@ Read access is public; no account required to browse.
 
 **Implication:** Phase MDs do NOT scaffold Quad MW-account-provisioning paths. Discord role administration in v1 is manual (operator assigns `@wiki-beta` directly) unless Phase B opts to include the `/invite_wiki` Quad command.
 
+**Amendment 2026-05-14 (Phase 3 deploy -- F9 bot-mode role sync):**
+
+The Phase 3 MD originally specified user-OAuth-token mode for role sync -- the `qwikiBetaSyncDiscordRole` helper would read the user's OAuth access token from the OpenIDConnect session and call `https://discord.com/api/users/@me/guilds/<GUILD_ID>/member` with `Authorization: Bearer <token>`. At deploy time, F9 surfaced: `OIDC_ACCESSTOKEN_SESSION_KEY` does NOT store a raw Bearer-usable access token; it stores the DECODED access-token JWT payload (an array). The user-OAuth-token approach was unimplementable without trapping the raw token at jumbojett-callback time, which jumbojett does not expose externally.
+
+**Switched to bot-mode.** A dedicated `wiki.Quake.World` Discord bot (separate from Quad's existing bot; lives in the same Discord OAuth app as the wiki) provides a long-lived bot token (`DISCORD_BOT_TOKEN`, new env var) that calls `https://discord.com/api/guilds/<DISCORD_GUILD_ID>/members/<sub>` with `Authorization: Bot <DISCORD_BOT_TOKEN>`. The `sub` claim (Discord user ID, reliably stored in MW session via `OIDC_SUBJECT_SESSION_KEY`) is read from session; the bot reads role membership server-side. Same response shape (`{roles: [...], ...}`); same Discord-role-as-MW-group mapping logic.
+
+**Architectural equivalence to D4 original intent:**
+
+- MW still handles OAuth natively via PluggableAuth + OpenIDConnect. ✓
+- Quad bot is uninvolved -- `wiki.Quake.World` is a wiki-owned bot, not Quad. ✓
+- Discord-role-as-OAuth-claim mapping intact (the role check happens after OAuth authenticates the user; the bot is just the role-read transport). ✓
+- `wiki-contributor` auto-assignment on every login still works; revocation also handled (bot sees role removal on next login and removes the MW group). ✓
+- `wiki-curator` manual assignment unchanged. ✓
+
+The amendment ratifies bot-mode as the v1-baseline implementation. Phase 4 + future arcs (Modes vertical slice) inherit this; no further changes to D4 expected unless a future MW LTS upgrade changes OpenIDConnect's session-storage semantics.
+
+**Implication for later phases:**
+
+- Phase 4 (quality-tag categories) does not touch auth; inherits the working bot-mode role-sync as substrate.
+- Phase 5+ (Modes vertical slice) same -- inherits as substrate.
+- Future Discord-OAuth integrations on other slipgate services (hub federation auth, qw-oracle gating) should use bot-mode out of the gate.
+- `apps/qwiki-sandbox/deploy/LocalSettings.php` `qwikiBetaSyncDiscordRole` helper is the canonical reference implementation; `$wgDebugLogGroups['qwiki-beta']` is wired for runtime diagnostics if the role-sync stops working.
+
 ### D5. MW namespace edit restrictions
 
 **Decision:** Form / Template / Category namespaces are `wiki-curator`-only. Main / Talk / File / User editable by `wiki-contributor`. MediaWiki: namespace is sysop only (MW default).
