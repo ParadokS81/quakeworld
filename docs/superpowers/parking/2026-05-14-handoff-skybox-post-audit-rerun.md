@@ -13,6 +13,8 @@ Second calibration pass on skybox. Three rounds of changes since the previous ha
 
 3. **Previous skybox draft cleared** (commit `ff4913ee`): `apps/qw-oracle/curated/asset-notes/skybox.md` and `apps/qw-oracle/docs/asset-curation/skybox-investigation.md` removed for clean re-run. Previous version retrievable for diff via `git show HEAD~:<path>`.
 
+**Supplementary reference:** an extension-coverage audit also ran. Available at `apps/qw-oracle/scripts/audit-loader-discovery/output/ezquake-extension-coverage.md`. Surfaces 33 extensions in ezQuake source not catalogued in the seed (~16 real after filtering format-string noise). Useful as a side-reference during the skill's source-verification step -- shows real new asset-type candidates (`.glsl`, `.json`, `.ent`, `.qvm`, `.ttf`, `.skin`, `.gz`) plus path-prefix install conventions (`progs/` 251 occurrences, `glsl/` 15, etc.).
+
 The fresh terminal opens cold, invokes the patched skill, produces a new skybox draft. Orchestrator terminal compares against the previous version (`HEAD~`) to validate whether the patched skill + expanded L1 produce a tighter, more LLM-feeder-shaped output.
 
 ---
