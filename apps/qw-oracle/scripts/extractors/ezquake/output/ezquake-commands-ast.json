@@ -347,7 +347,7 @@
       "ast": {
         "handler_fn": "S_Voip_Enable_f",
         "source_file": "snd_voip.c",
-        "source_line": 489,
+        "source_line": 488,
         "source_column": 2,
         "enclosing_function": "S_Voip_RegisterCvars",
         "build_variant": "client"
@@ -358,7 +358,7 @@
       "ast": {
         "handler_fn": "SCR_ZoomIn_f",
         "source_file": "cl_screen.c",
-        "source_line": 1131,
+        "source_line": 1137,
         "source_column": 3,
         "enclosing_function": "SCR_Init",
         "build_variant": "client"
@@ -653,7 +653,7 @@
       "ast": {
         "handler_fn": "S_Voip_Disable_f",
         "source_file": "snd_voip.c",
-        "source_line": 490,
+        "source_line": 489,
         "source_column": 2,
         "enclosing_function": "S_Voip_RegisterCvars",
         "build_variant": "client"
@@ -664,7 +664,7 @@
       "ast": {
         "handler_fn": "SCR_ZoomOut_f",
         "source_file": "cl_screen.c",
-        "source_line": 1132,
+        "source_line": 1138,
         "source_column": 3,
         "enclosing_function": "SCR_Init",
         "build_variant": "client"
@@ -767,7 +767,7 @@
       "ast": {
         "handler_fn": "Cmd_Alias_f",
         "source_file": "cmd.c",
-        "source_line": 2511,
+        "source_line": 2535,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -780,7 +780,7 @@
       "ast": {
         "handler_fn": "Cmd_Alias_In_f",
         "source_file": "cmd.c",
-        "source_line": 2525,
+        "source_line": 2549,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -792,7 +792,7 @@
       "ast": {
         "handler_fn": "Cmd_Alias_Out_f",
         "source_file": "cmd.c",
-        "source_line": 2526,
+        "source_line": 2550,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -803,7 +803,7 @@
       "ast": {
         "handler_fn": "Cmd_AliasEdit_f",
         "source_file": "cmd.c",
-        "source_line": 2510,
+        "source_line": 2534,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -815,7 +815,7 @@
       "ast": {
         "handler_fn": "Cmd_AliasList_f",
         "source_file": "cmd.c",
-        "source_line": 2509,
+        "source_line": 2533,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -874,7 +874,7 @@
       "ast": {
         "handler_fn": "CL_Authenticate_f",
         "source_file": "cl_main.c",
-        "source_line": 1968,
+        "source_line": 1973,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -988,7 +988,7 @@
       "ast": {
         "handler_fn": "tmp_calc_fov",
         "source_file": "cl_screen.c",
-        "source_line": 1112,
+        "source_line": 1118,
         "source_column": 3,
         "enclosing_function": "SCR_Init",
         "build_variant": "client"
@@ -1143,7 +1143,7 @@
       "ast": {
         "handler_fn": "CL_Messages_f",
         "source_file": "cl_parse.c",
-        "source_line": 175,
+        "source_line": 176,
         "source_column": 2,
         "enclosing_function": "Cl_Messages_Init",
         "build_variant": "client"
@@ -1192,7 +1192,7 @@
       "ast": {
         "handler_fn": "Cmd_Clipboard_f",
         "source_file": "cmd.c",
-        "source_line": 2523,
+        "source_line": 2547,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -1216,7 +1216,7 @@
       "ast": {
         "handler_fn": "Cmd_CmdList_f",
         "source_file": "cmd.c",
-        "source_line": 2518,
+        "source_line": 2542,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -1228,7 +1228,7 @@
       "ast": {
         "handler_fn": "Cmd_CmdList_re_f",
         "source_file": "cmd.c",
-        "source_line": 2519,
+        "source_line": 2543,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -1349,7 +1349,7 @@
       "ast": {
         "handler_fn": "CL_Connect_f",
         "source_file": "cl_main.c",
-        "source_line": 1999,
+        "source_line": 2004,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -1361,7 +1361,7 @@
       "ast": {
         "handler_fn": "CL_Connect_BestRoute_f",
         "source_file": "cl_main.c",
-        "source_line": 2000,
+        "source_line": 2005,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -1395,7 +1395,7 @@
       "ast": {
         "handler_fn": "Cmd_Cvar_In_f",
         "source_file": "cmd.c",
-        "source_line": 2527,
+        "source_line": 2551,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -1406,7 +1406,7 @@
       "ast": {
         "handler_fn": "Cmd_Cvar_Out_f",
         "source_file": "cmd.c",
-        "source_line": 2528,
+        "source_line": 2552,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -1500,7 +1500,7 @@
       "ast": {
         "handler_fn": "DemoControls_f",
         "source_file": "cl_demo.c",
-        "source_line": 5471,
+        "source_line": 5486,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -1511,7 +1511,7 @@
       "ast": {
         "handler_fn": "CL_Demo_Jump_f",
         "source_file": "cl_demo.c",
-        "source_line": 5467,
+        "source_line": 5482,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -1523,7 +1523,7 @@
       "ast": {
         "handler_fn": "CL_Demo_Jump_End_f",
         "source_file": "cl_demo.c",
-        "source_line": 5470,
+        "source_line": 5485,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -1534,7 +1534,7 @@
       "ast": {
         "handler_fn": "CL_Demo_Jump_Mark_f",
         "source_file": "cl_demo.c",
-        "source_line": 5468,
+        "source_line": 5483,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -1545,7 +1545,7 @@
       "ast": {
         "handler_fn": "CL_Demo_Jump_Status_f",
         "source_file": "cl_demo.c",
-        "source_line": 5469,
+        "source_line": 5484,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -1605,12 +1605,60 @@
       "ast": {
         "handler_fn": "CL_Demo_SetSpeed_f",
         "source_file": "cl_demo.c",
-        "source_line": 5466,
+        "source_line": 5481,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
       },
       "desc": "You can vary the speed of demo playback with the 'demo_setspeed' command.\n'demo_setspeed x' sets the playback speed to x% of normal speed so that 'demo_setspeed 50' is half speed and 'demo_setspeed 300' gives you triple speed."
+    },
+    "demo_voice_info": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "DemoExtensionVoice_Info_f",
+        "source_file": "demo_extension_voice.c",
+        "source_line": 946,
+        "source_column": 2,
+        "enclosing_function": "DemoExtensionVoice_Init",
+        "build_variant": "client"
+      },
+      "desc": "Shows currently loaded demo voice tracks and settings."
+    },
+    "demo_voice_load": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "DemoExtensionVoice_Load_f",
+        "source_file": "demo_extension_voice.c",
+        "source_line": 944,
+        "source_column": 2,
+        "enclosing_function": "DemoExtensionVoice_Init",
+        "build_variant": "client"
+      },
+      "desc": "Loads a synchronized demo voice track."
+    },
+    "demo_voice_unload": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "DemoExtensionVoice_Unload_f",
+        "source_file": "demo_extension_voice.c",
+        "source_line": 945,
+        "source_column": 2,
+        "enclosing_function": "DemoExtensionVoice_Init",
+        "build_variant": "client"
+      },
+      "desc": "Unloads one demo voice track, or all tracks if none is specified."
+    },
+    "demo_voice_volume": {
+      "group-id": "demo",
+      "ast": {
+        "handler_fn": "DemoExtensionVoice_Volume_f",
+        "source_file": "demo_extension_voice.c",
+        "source_line": 947,
+        "source_column": 2,
+        "enclosing_function": "DemoExtensionVoice_Init",
+        "build_variant": "client"
+      },
+      "desc": "Shows or sets track voice volume. See demo_voice_info for numbers."
     },
     "demotimescale": {
       "group-id": "misc",
@@ -1636,16 +1684,6 @@
       },
       "desc": "Prints manual info about given variable or command into the console."
     },
-    "dev_cache_print": {
-      "group-id": "deprecated",
-      "ast": null,
-      "system_generated": true
-    },
-    "dev_cache_report": {
-      "group-id": "deprecated",
-      "ast": null,
-      "system_generated": true
-    },
     "dev_dump_defaults": {
       "group-id": "dev",
       "ast": {
@@ -1662,7 +1700,7 @@
       "ast": {
         "handler_fn": "GL_BenchmarkLightmapFormats",
         "source_file": "cl_main.c",
-        "source_line": 2049,
+        "source_line": 2054,
         "source_column": 3,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -1673,7 +1711,7 @@
       "ast": {
         "handler_fn": "Dev_VidTextureDump",
         "source_file": "cl_main.c",
-        "source_line": 2033,
+        "source_line": 2038,
         "source_column": 3,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -1684,7 +1722,7 @@
       "ast": {
         "handler_fn": "Dev_TextureList",
         "source_file": "cl_main.c",
-        "source_line": 2034,
+        "source_line": 2039,
         "source_column": 3,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -1695,7 +1733,7 @@
       "ast": {
         "handler_fn": "Dev_VidFrameTrace",
         "source_file": "cl_main.c",
-        "source_line": 2032,
+        "source_line": 2037,
         "source_column": 3,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -1723,17 +1761,12 @@
         "build_variant": "client"
       }
     },
-    "dev_hunk_print": {
-      "group-id": "deprecated",
-      "ast": null,
-      "system_generated": true
-    },
     "dev_physicsnormalsave": {
       "group-id": "dev",
       "ast": {
         "handler_fn": "Dev_PhysicsNormalSave",
         "source_file": "cl_main.c",
-        "source_line": 2042,
+        "source_line": 2047,
         "source_column": 3,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -1744,7 +1777,7 @@
       "ast": {
         "handler_fn": "Dev_PhysicsNormalSet",
         "source_file": "cl_main.c",
-        "source_line": 2040,
+        "source_line": 2045,
         "source_column": 3,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -1755,7 +1788,7 @@
       "ast": {
         "handler_fn": "Dev_PhysicsNormalShow",
         "source_file": "cl_main.c",
-        "source_line": 2041,
+        "source_line": 2046,
         "source_column": 3,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -1803,7 +1836,7 @@
       "ast": {
         "handler_fn": "CL_Disconnect_f",
         "source_file": "cl_main.c",
-        "source_line": 1998,
+        "source_line": 2003,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -1815,7 +1848,7 @@
       "ast": {
         "handler_fn": "CL_DNS_f",
         "source_file": "cl_main.c",
-        "source_line": 2017,
+        "source_line": 2022,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -1839,7 +1872,7 @@
       "ast": {
         "handler_fn": "CL_EasyRecord_f",
         "source_file": "cl_demo.c",
-        "source_line": 5464,
+        "source_line": 5479,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -1851,7 +1884,7 @@
       "ast": {
         "handler_fn": "Cmd_Echo_f",
         "source_file": "cmd.c",
-        "source_line": 2508,
+        "source_line": 2532,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -1899,7 +1932,7 @@
       "ast": {
         "handler_fn": "TP_EnemyColor_f",
         "source_file": "teamplay.c",
-        "source_line": 3321,
+        "source_line": 3371,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -1912,7 +1945,7 @@
       "ast": {
         "handler_fn": "Cmd_Eval_f",
         "source_file": "cmd.c",
-        "source_line": 2522,
+        "source_line": 2546,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -1924,7 +1957,7 @@
       "ast": {
         "handler_fn": "Cmd_Exec_f",
         "source_file": "cmd.c",
-        "source_line": 2504,
+        "source_line": 2528,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -2321,7 +2354,7 @@
       "ast": {
         "handler_fn": "CL_Hash_f",
         "source_file": "cl_main.c",
-        "source_line": 2018,
+        "source_line": 2023,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -2535,7 +2568,7 @@
       "ast": {
         "handler_fn": "Cl_Reset_Min_fps_f",
         "source_file": "cl_main.c",
-        "source_line": 2011,
+        "source_line": 2016,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -2569,7 +2602,7 @@
       "ast": {
         "handler_fn": "Cmd_If_f",
         "source_file": "cmd.c",
-        "source_line": 2520,
+        "source_line": 2544,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -2581,7 +2614,7 @@
       "ast": {
         "handler_fn": "Cmd_If_Exists_f",
         "source_file": "cmd.c",
-        "source_line": 2521,
+        "source_line": 2545,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -2708,7 +2741,7 @@
       "ast": {
         "handler_fn": "CL_Join_f",
         "source_file": "cl_main.c",
-        "source_line": 2006,
+        "source_line": 2011,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -2789,7 +2822,8 @@
         "source_column": 2,
         "enclosing_function": "Stats_Init",
         "build_variant": "client"
-      }
+      },
+      "desc": "Loads the specified fragfile."
     },
     "loadas8bit": {
       "group-id": "misc",
@@ -2815,16 +2849,6 @@
       },
       "desc": "You can change your console font from within ezQuake. Put all your charset images in qw/textures/charsets/*.png (and *.tga) and use /loadcharset XXX to load XXX.png (or tga).\n\"/loadcharset original\" will restore the 8bit font in your gfx.wad (this is default).",
       "remarks": "This command is just a 'shortcut' for the new gl_consolefont variable."
-    },
-    "loadfont": {
-      "group-id": "deprecated",
-      "ast": null,
-      "system_generated": true
-    },
-    "loadfragfile": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Loads the specified fragfile."
     },
     "loadloc": {
       "group-id": "misc",
@@ -2953,11 +2977,6 @@
         "build_variant": "client"
       }
     },
-    "locname": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Create a new location in the current spot."
-    },
     "log": {
       "group-id": "misc",
       "ast": {
@@ -3041,7 +3060,7 @@
       "ast": {
         "handler_fn": "Cmd_MacroList_f",
         "source_file": "cmd.c",
-        "source_line": 2537,
+        "source_line": 2561,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -3131,11 +3150,6 @@
       },
       "desc": "This command will display the demos menu."
     },
-    "menu_fps": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "This command will display the fps menu."
-    },
     "menu_help": {
       "group-id": "menu",
       "ast": {
@@ -3147,11 +3161,6 @@
         "build_variant": "client"
       },
       "desc": "This command will display the help menu."
-    },
-    "menu_keys": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "This command will display the keys menu."
     },
     "menu_load": {
       "group-id": "menu",
@@ -3176,16 +3185,6 @@
         "build_variant": "client"
       },
       "desc": "This command will display the main menu."
-    },
-    "menu_mp3_control": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "This command will display the mp3 menu."
-    },
-    "menu_mp3_playlist": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "This command will display the mp3 playlist menu."
     },
     "menu_multiplayer": {
       "group-id": "menu",
@@ -3235,11 +3234,6 @@
       },
       "desc": "This command will display the singleplayer save menu."
     },
-    "menu_setup": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "This command will display the setup menu."
-    },
     "menu_singleplayer": {
       "group-id": "menu",
       "ast": {
@@ -3263,11 +3257,6 @@
         "build_variant": "client"
       },
       "desc": "This command will display the server browser."
-    },
-    "menu_video": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "This command will display the video menu."
     },
     "messagemode": {
       "group-id": "comm",
@@ -3348,81 +3337,6 @@
         "enclosing_function": "HUD_Init",
         "build_variant": "client"
       }
-    },
-    "mp3_fadeout": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Like stop but fades out."
-    },
-    "mp3_fforward": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Fast forward 5seconds."
-    },
-    "mp3_loadplaylist": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Loads the playlist filename.m3u\n\nExample:\nmp3_loadplaylist top10\n - loads top10.m3u."
-    },
-    "mp3_next": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Next song."
-    },
-    "mp3_pause": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Pause mp3."
-    },
-    "mp3_play": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Play mp3."
-    },
-    "mp3_playlist": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Displays playlist. Currently playing track is highlighted."
-    },
-    "mp3_playtrack": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Play track number #num from playlist.\n\nExample:\nmp3_playtrack 5\n - plays track 5 from playlist."
-    },
-    "mp3_prev": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Previous song."
-    },
-    "mp3_repeat": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Repeat playlist."
-    },
-    "mp3_rewind": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Rewind 5seconds."
-    },
-    "mp3_shuffle": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Shuffle mp3s."
-    },
-    "mp3_songinfo": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Displays song title and other info like time elapsed, total time, and whether paused, stopped or playing."
-    },
-    "mp3_startwinamp": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Starts winamp if it is not running."
-    },
-    "mp3_stop": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Stop mp3."
     },
     "mp3_volume": {
       "group-id": "deprecated",
@@ -3514,7 +3428,7 @@
       "ast": {
         "handler_fn": "CL_RecordMvd_f",
         "source_file": "cl_demo.c",
-        "source_line": 5476,
+        "source_line": 5492,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -3525,7 +3439,7 @@
       "ast": {
         "handler_fn": "CL_StopMvd_f",
         "source_file": "cl_demo.c",
-        "source_line": 5477,
+        "source_line": 5493,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -3577,7 +3491,7 @@
       "ast": {
         "handler_fn": "CL_Observe_f",
         "source_file": "cl_main.c",
-        "source_line": 2007,
+        "source_line": 2012,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -3589,7 +3503,7 @@
       "ast": {
         "handler_fn": "CL_Observe_BestRoute_f",
         "source_file": "cl_main.c",
-        "source_line": 2008,
+        "source_line": 2013,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -3711,7 +3625,7 @@
       "ast": {
         "handler_fn": "CL_Play_f",
         "source_file": "cl_demo.c",
-        "source_line": 5461,
+        "source_line": 5476,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -3793,7 +3707,7 @@
       "ast": {
         "handler_fn": "CL_QTVFixUser_f",
         "source_file": "cl_demo.c",
-        "source_line": 5486,
+        "source_line": 5502,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -3815,7 +3729,7 @@
       "ast": {
         "handler_fn": "CL_QTVList_f",
         "source_file": "cl_demo.c",
-        "source_line": 5484,
+        "source_line": 5500,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -3826,16 +3740,11 @@
       "ast": {
         "handler_fn": "CL_QTVList_f",
         "source_file": "cl_demo.c",
-        "source_line": 5483,
+        "source_line": 5499,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
       }
-    },
-    "qtv_reconnect": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Reconnect to last QTV server the client was connected to."
     },
     "qtv_status": {
       "group-id": "misc",
@@ -3864,7 +3773,7 @@
       "ast": {
         "handler_fn": "CL_QTVPlay_f",
         "source_file": "cl_demo.c",
-        "source_line": 5482,
+        "source_line": 5498,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -3875,7 +3784,7 @@
       "ast": {
         "handler_fn": "CL_QTVReconnect_f",
         "source_file": "cl_demo.c",
-        "source_line": 5485,
+        "source_line": 5501,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -3909,7 +3818,7 @@
       "ast": {
         "handler_fn": "CL_QWURL_f",
         "source_file": "cl_main.c",
-        "source_line": 2002,
+        "source_line": 2007,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -4009,7 +3918,7 @@
       "ast": {
         "handler_fn": "CL_Reconnect_f",
         "source_file": "cl_main.c",
-        "source_line": 2019,
+        "source_line": 2024,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -4021,7 +3930,7 @@
       "ast": {
         "handler_fn": "CL_Record_f",
         "source_file": "cl_demo.c",
-        "source_line": 5457,
+        "source_line": 5472,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -4033,7 +3942,7 @@
       "ast": {
         "handler_fn": "CL_Record_f",
         "source_file": "cl_demo.c",
-        "source_line": 5458,
+        "source_line": 5473,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -4044,7 +3953,7 @@
       "ast": {
         "handler_fn": "Sys_RegisterQWURLProtocol_f",
         "source_file": "cl_main.c",
-        "source_line": 2014,
+        "source_line": 2019,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -4330,11 +4239,6 @@
       "ast": null,
       "desc": "HUD element which displays amount of frags made by all the enemies."
     },
-    "score_own": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "HUD element which display your (or the person's you are observing) amount of frags."
-    },
     "score_position": {
       "group-id": "deprecated",
       "ast": null,
@@ -4440,7 +4344,7 @@
       "ast": {
         "handler_fn": "Cmd_Exec_f",
         "source_file": "cmd.c",
-        "source_line": 2506,
+        "source_line": 2530,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -4457,11 +4361,6 @@
         "build_variant": "client"
       },
       "desc": "Reports the current server info."
-    },
-    "serverstatus": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Prints the status of the ezQuake server."
     },
     "set": {
       "group-id": "config",
@@ -4607,7 +4506,7 @@
       "ast": {
         "handler_fn": "SCR_SizeDown_f",
         "source_file": "cl_screen.c",
-        "source_line": 1130,
+        "source_line": 1136,
         "source_column": 3,
         "enclosing_function": "SCR_Init",
         "build_variant": "client"
@@ -4619,7 +4518,7 @@
       "ast": {
         "handler_fn": "SCR_SizeUp_f",
         "source_file": "cl_screen.c",
-        "source_line": 1129,
+        "source_line": 1135,
         "source_column": 3,
         "enclosing_function": "SCR_Init",
         "build_variant": "client"
@@ -4816,7 +4715,7 @@
       "ast": {
         "handler_fn": "CL_Stop_f",
         "source_file": "cl_demo.c",
-        "source_line": 5459,
+        "source_line": 5474,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -4828,7 +4727,7 @@
       "ast": {
         "handler_fn": "CL_Stop_f",
         "source_file": "cl_demo.c",
-        "source_line": 5460,
+        "source_line": 5475,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -5090,33 +4989,12 @@
         "build_variant": "client"
       }
     },
-    "sys_forget_sandbox": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Clears the currently selected sandbox directory. On the next restart, ezQuake will prompt you to select a directory again.",
-      "remarks": "macOS only"
-    },
-    "tcl_eval": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Execute <string> as Tcl code."
-    },
-    "tcl_exec": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Execute a config as Tcl script."
-    },
-    "tcl_proc": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "Execute a Tcl procedure <name> with parameters <parameters>. Procedure must be defined before thru tcl_eval or tcl_exec commands."
-    },
     "tcpconnect": {
       "group-id": "misc",
       "ast": {
         "handler_fn": "CL_TCPConnect_f",
         "source_file": "cl_main.c",
-        "source_line": 2004,
+        "source_line": 2009,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -5128,7 +5006,7 @@
       "ast": {
         "handler_fn": "TP_TeamColor_f",
         "source_file": "teamplay.c",
-        "source_line": 3320,
+        "source_line": 3370,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5151,7 +5029,7 @@
       "ast": {
         "handler_fn": "Cmd_Alias_f",
         "source_file": "cmd.c",
-        "source_line": 2512,
+        "source_line": 2536,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -5163,7 +5041,7 @@
       "ast": {
         "handler_fn": "CL_TimeDemo_f",
         "source_file": "cl_demo.c",
-        "source_line": 5462,
+        "source_line": 5477,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -5175,7 +5053,7 @@
       "ast": {
         "handler_fn": "CL_TimeDemo_f",
         "source_file": "cl_demo.c",
-        "source_line": 5463,
+        "source_line": 5478,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "build_variant": "client"
@@ -5268,7 +5146,7 @@
       "ast": {
         "handler_fn": "Cl_ToggleSpec_f",
         "source_file": "cl_main.c",
-        "source_line": 2009,
+        "source_line": 2014,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "build_variant": "client"
@@ -5279,7 +5157,7 @@
       "ast": {
         "handler_fn": "TP_Msg_Coming_f",
         "source_file": "teamplay.c",
-        "source_line": 3324,
+        "source_line": 3374,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5291,7 +5169,7 @@
       "ast": {
         "handler_fn": "TP_Msg_EnemyPowerup_f",
         "source_file": "teamplay.c",
-        "source_line": 3326,
+        "source_line": 3376,
         "source_column": 5,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5303,7 +5181,7 @@
       "ast": {
         "handler_fn": "TP_Msg_GetPent_f",
         "source_file": "teamplay.c",
-        "source_line": 3332,
+        "source_line": 3382,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5315,7 +5193,7 @@
       "ast": {
         "handler_fn": "TP_Msg_GetQuad_f",
         "source_file": "teamplay.c",
-        "source_line": 3331,
+        "source_line": 3381,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5327,7 +5205,7 @@
       "ast": {
         "handler_fn": "TP_Msg_Help_f",
         "source_file": "teamplay.c",
-        "source_line": 3330,
+        "source_line": 3380,
         "source_column": 5,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5339,7 +5217,7 @@
       "ast": {
         "handler_fn": "TP_Msg_ItemSoon_f",
         "source_file": "teamplay.c",
-        "source_line": 3341,
+        "source_line": 3391,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5350,7 +5228,7 @@
       "ast": {
         "handler_fn": "TP_Msg_KillMe_f",
         "source_file": "teamplay.c",
-        "source_line": 3329,
+        "source_line": 3379,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5361,7 +5239,7 @@
       "ast": {
         "handler_fn": "TP_Msg_Lost_f",
         "source_file": "teamplay.c",
-        "source_line": 3325,
+        "source_line": 3375,
         "source_column": 5,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5373,7 +5251,7 @@
       "ast": {
         "handler_fn": "TP_Msg_Need_f",
         "source_file": "teamplay.c",
-        "source_line": 3337,
+        "source_line": 3387,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5385,7 +5263,7 @@
       "ast": {
         "handler_fn": "TP_Msg_NoCancel_f",
         "source_file": "teamplay.c",
-        "source_line": 3339,
+        "source_line": 3389,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5396,7 +5274,7 @@
       "ast": {
         "handler_fn": "TP_Msg_Point_f",
         "source_file": "teamplay.c",
-        "source_line": 3333,
+        "source_line": 3383,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5409,7 +5287,7 @@
       "ast": {
         "handler_fn": "TP_Msg_QuadDead_f",
         "source_file": "teamplay.c",
-        "source_line": 3327,
+        "source_line": 3377,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5421,7 +5299,7 @@
       "ast": {
         "handler_fn": "TP_Msg_Replace_f",
         "source_file": "teamplay.c",
-        "source_line": 3336,
+        "source_line": 3386,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5433,7 +5311,7 @@
       "ast": {
         "handler_fn": "TP_Msg_Report_f",
         "source_file": "teamplay.c",
-        "source_line": 3323,
+        "source_line": 3373,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5445,7 +5323,7 @@
       "ast": {
         "handler_fn": "TP_Msg_Safe_f",
         "source_file": "teamplay.c",
-        "source_line": 3328,
+        "source_line": 3378,
         "source_column": 5,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5457,7 +5335,7 @@
       "ast": {
         "handler_fn": "TP_Msg_Slipped_f",
         "source_file": "teamplay.c",
-        "source_line": 3343,
+        "source_line": 3393,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5468,7 +5346,7 @@
       "ast": {
         "handler_fn": "TP_Msg_TFConced_f",
         "source_file": "teamplay.c",
-        "source_line": 3345,
+        "source_line": 3395,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5479,7 +5357,7 @@
       "ast": {
         "handler_fn": "TP_Msg_Took_f",
         "source_file": "teamplay.c",
-        "source_line": 3334,
+        "source_line": 3384,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5491,7 +5369,7 @@
       "ast": {
         "handler_fn": "TP_Msg_Trick_f",
         "source_file": "teamplay.c",
-        "source_line": 3335,
+        "source_line": 3385,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5503,7 +5381,7 @@
       "ast": {
         "handler_fn": "TP_Msg_YouTake_f",
         "source_file": "teamplay.c",
-        "source_line": 3340,
+        "source_line": 3390,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5514,7 +5392,7 @@
       "ast": {
         "handler_fn": "TP_Msg_Waiting_f",
         "source_file": "teamplay.c",
-        "source_line": 3342,
+        "source_line": 3392,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5525,7 +5403,7 @@
       "ast": {
         "handler_fn": "TP_Msg_YesOk_f",
         "source_file": "teamplay.c",
-        "source_line": 3338,
+        "source_line": 3388,
         "source_column": 2,
         "enclosing_function": "TP_Init",
         "build_variant": "client"
@@ -5577,11 +5455,6 @@
         "enclosing_function": "CL_InitCam",
         "build_variant": "client"
       }
-    },
-    "track-": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "This means when you are spectating or watching an mvd, keys will automatically be assigned to track certain players.\nSo in a 4v4 8 keys are needed, the first 4 make you track the 4 players in the first team and the last 4 make you track the second team."
     },
     "track1": {
       "group-id": "misc",
@@ -5668,7 +5541,7 @@
       "ast": {
         "handler_fn": "Cmd_UnAlias_f",
         "source_file": "cmd.c",
-        "source_line": 2515,
+        "source_line": 2539,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -5680,7 +5553,7 @@
       "ast": {
         "handler_fn": "Cmd_UnAlias_re_f",
         "source_file": "cmd.c",
-        "source_line": 2516,
+        "source_line": 2540,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -5692,7 +5565,7 @@
       "ast": {
         "handler_fn": "Cmd_UnAliasAll_f",
         "source_file": "cmd.c",
-        "source_line": 2514,
+        "source_line": 2538,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -5906,11 +5779,6 @@
         "build_variant": "client"
       }
     },
-    "vid_forcemode": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "This command will force ezQuake to use a certain video mode."
-    },
     "vid_framebuffer_palette": {
       "group-id": "video",
       "ast": {
@@ -5938,11 +5806,6 @@
         "build_variant": "client"
       },
       "desc": "This command will print out useful information about your video card, GL version, and refresh rate, video mode (width/height resolution and color depth) to console.\nUseful to make sure everything is right, and also to screenshot to show other people."
-    },
-    "vid_minimize": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "This command will minimize the windowed game screen.\nIt was made available because the game takes control over the mouse when it is moved onto the game window thus prohibiting the normal minimization of the game window."
     },
     "vid_modelist": {
       "group-id": "video",
@@ -5979,22 +5842,12 @@
       },
       "desc": "Will restart your video renderer. Needed for some changes to take affect."
     },
-    "vid_testmode": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "This command will switch to the specified video mode for 5-seconds in order to test it."
-    },
-    "vid_windowed": {
-      "group-id": "deprecated",
-      "ast": null,
-      "desc": "This command will switch the a windowed video mode specified in the \"vid_windowed_mode\" variable."
-    },
     "viewalias": {
       "group-id": "misc",
       "ast": {
         "handler_fn": "Cmd_Viewalias_f",
         "source_file": "cmd.c",
-        "source_line": 2513,
+        "source_line": 2537,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -6061,7 +5914,7 @@
       "ast": {
         "handler_fn": "Cmd_Wait_f",
         "source_file": "cmd.c",
-        "source_line": 2517,
+        "source_line": 2541,
         "source_column": 2,
         "enclosing_function": "Cmd_Init",
         "build_variant": "client"
@@ -6117,11 +5970,11 @@
     }
   },
   "_stats": {
-    "source_total": 509,
-    "with_handler": 446,
-    "with_help_desc": 290,
+    "source_total": 513,
+    "with_handler": 450,
+    "with_help_desc": 295,
     "server_build_only": 14,
-    "help_only": 61,
-    "help_only_system_generated": 5
+    "help_only": 22,
+    "help_only_system_generated": 1
   }
 }

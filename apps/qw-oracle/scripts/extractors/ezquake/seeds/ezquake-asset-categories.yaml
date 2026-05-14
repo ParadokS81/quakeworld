@@ -90,3 +90,15 @@ categories:
   - name: plugin
     display_name: "Client Plugin"
     description: "Native plugin DLL (FTE's fteplug_*.dll family). ezQuake does not consume these; surfaced as a cross-client presence signal."
+  - name: palette
+    display_name: "Color Palette"
+    description: "8-bit color palette and colormap data (gfx/palette.lmp, gfx/colormap.lmp). Loaded once at startup by ReloadPaletteAndColormap; required from pak0.pak or the loose id1/ tree."
+  - name: model_texture
+    display_name: "Model Texture"
+    description: "External texture replacement for an alias-model / sprite skin (.mdl / .md3 / .spr companion). Loaded by Mod_LoadExternalSkin / Mod_LoadSimpleTexture / Mod_MD3LoadSkins / Mod_LoadExternalSpriteSkin and friends. Distinct from map_texture to keep BSP surface replacements separate from per-entity model skins."
+  - name: map_texture
+    display_name: "Map Texture"
+    description: "External texture replacement for a BSP brush-model surface. Loaded by Mod_LoadExternalTexture / Mod_LoadTextures / R_LoadBrushModelTextures. Distinct from model_texture so per-map and per-entity replacements can be queried separately."
+  - name: levelshot
+    display_name: "Levelshot Preview"
+    description: "Per-map preview image at textures/levelshots/<mapname>.xxx, drawn by Draw_ConsoleBackground as the console-background overlay when one exists."

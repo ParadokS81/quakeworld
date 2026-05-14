@@ -318,7 +318,7 @@
         "usage_sites": [
           {
             "source_file": "cl_demo.c",
-            "source_line": 5438,
+            "source_line": 5453,
             "source_column": 14,
             "enclosing_function": "CL_Demo_Init",
             "call_form": "COM_CheckParm",
@@ -366,7 +366,7 @@
         "usage_sites": [
           {
             "source_file": "cl_main.c",
-            "source_line": 2031,
+            "source_line": 2036,
             "source_column": 6,
             "enclosing_function": "CL_InitLocal",
             "call_form": "COM_CheckParm",
@@ -374,7 +374,7 @@
           },
           {
             "source_file": "cl_main.c",
-            "source_line": 2039,
+            "source_line": 2044,
             "source_column": 6,
             "enclosing_function": "CL_InitLocal",
             "call_form": "COM_CheckParm",
@@ -473,12 +473,6 @@
         "incomplete"
       ]
     },
-    "-forceTextureReload": {
-      "ast": null,
-      "flags": [
-        "incomplete"
-      ]
-    },
     "-forcetexturereload": {
       "ast": {
         "manifest_enum": "cmdline_param_client_forcetexturereload",
@@ -559,10 +553,6 @@
       "flags": [
         "incomplete"
       ]
-    },
-    "-gl-debug": {
-      "ast": null,
-      "desc": "enables OpenGL debug output.  Must be used in conjunction with -dev"
     },
     "-gl-forward-only-profile": {
       "ast": {
@@ -1004,7 +994,7 @@
         "usage_sites": [
           {
             "source_file": "cl_main.c",
-            "source_line": 1990,
+            "source_line": 1995,
             "source_column": 6,
             "enclosing_function": "CL_InitLocal",
             "call_form": "COM_CheckParm",
@@ -1049,12 +1039,6 @@
         "usage_sites": [],
         "usage_count": 0
       },
-      "flags": [
-        "incomplete"
-      ]
-    },
-    "-nomouse": {
-      "ast": null,
       "flags": [
         "incomplete"
       ]
@@ -1128,7 +1112,7 @@
         "usage_sites": [
           {
             "source_file": "cl_main.c",
-            "source_line": 1982,
+            "source_line": 1987,
             "source_column": 6,
             "enclosing_function": "CL_InitLocal",
             "call_form": "COM_CheckParm",
@@ -1149,7 +1133,7 @@
         "usage_sites": [
           {
             "source_file": "cl_main.c",
-            "source_line": 1982,
+            "source_line": 1987,
             "source_column": 58,
             "enclosing_function": "CL_InitLocal",
             "call_form": "COM_CheckParm",
@@ -2621,7 +2605,8 @@
           }
         ],
         "usage_count": 166
-      }
+      },
+      "desc": "enables OpenGL debug output.  Must be used in conjunction with -dev"
     },
     "-r-dump-shaders": {
       "ast": {
@@ -3312,8 +3297,8 @@
     "manifest_entries": 68,
     "manifest_with_usage": 61,
     "manifest_unused_in_source": 7,
-    "help_only": 4,
+    "help_only": 1,
     "source_only_undeclared": 3,
-    "with_help_desc": 14
+    "with_help_desc": 15
   }
 }

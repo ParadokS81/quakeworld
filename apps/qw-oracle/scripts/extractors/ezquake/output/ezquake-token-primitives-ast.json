@@ -8,7 +8,7 @@
         "category": "literal_escape",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1725
+        "source_line": 1726
       }
     },
     "$(": {
@@ -19,7 +19,7 @@
         "category": "powerup_indicator",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1713
+        "source_line": 1714
       }
     },
     "$)": {
@@ -30,7 +30,7 @@
         "category": "powerup_indicator",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1715
+        "source_line": 1716
       }
     },
     "$,": {
@@ -41,7 +41,7 @@
         "category": "glyph",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1720
+        "source_line": 1721
       }
     },
     "$-": {
@@ -52,7 +52,7 @@
         "category": "glyph",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1718
+        "source_line": 1719
       }
     },
     "$.": {
@@ -63,7 +63,7 @@
         "category": "glyph",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1721
+        "source_line": 1722
       }
     },
     "$0": {
@@ -74,7 +74,7 @@
         "category": "digit_font",
         "case_style": "digit_branch",
         "source_file": "teamplay.c",
-        "source_line": 1728
+        "source_line": 1729
       }
     },
     "$1": {
@@ -85,7 +85,7 @@
         "category": "digit_font",
         "case_style": "digit_branch",
         "source_file": "teamplay.c",
-        "source_line": 1728
+        "source_line": 1729
       }
     },
     "$2": {
@@ -96,7 +96,7 @@
         "category": "digit_font",
         "case_style": "digit_branch",
         "source_file": "teamplay.c",
-        "source_line": 1728
+        "source_line": 1729
       }
     },
     "$3": {
@@ -107,7 +107,7 @@
         "category": "digit_font",
         "case_style": "digit_branch",
         "source_file": "teamplay.c",
-        "source_line": 1728
+        "source_line": 1729
       }
     },
     "$4": {
@@ -118,7 +118,7 @@
         "category": "digit_font",
         "case_style": "digit_branch",
         "source_file": "teamplay.c",
-        "source_line": 1728
+        "source_line": 1729
       }
     },
     "$5": {
@@ -129,7 +129,7 @@
         "category": "digit_font",
         "case_style": "digit_branch",
         "source_file": "teamplay.c",
-        "source_line": 1728
+        "source_line": 1729
       }
     },
     "$6": {
@@ -140,7 +140,7 @@
         "category": "digit_font",
         "case_style": "digit_branch",
         "source_file": "teamplay.c",
-        "source_line": 1728
+        "source_line": 1729
       }
     },
     "$7": {
@@ -151,7 +151,7 @@
         "category": "digit_font",
         "case_style": "digit_branch",
         "source_file": "teamplay.c",
-        "source_line": 1728
+        "source_line": 1729
       }
     },
     "$8": {
@@ -162,7 +162,7 @@
         "category": "digit_font",
         "case_style": "digit_branch",
         "source_file": "teamplay.c",
-        "source_line": 1728
+        "source_line": 1729
       }
     },
     "$9": {
@@ -173,7 +173,7 @@
         "category": "digit_font",
         "case_style": "digit_branch",
         "source_file": "teamplay.c",
-        "source_line": 1728
+        "source_line": 1729
       }
     },
     "$:": {
@@ -184,7 +184,7 @@
         "category": "separator",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1705
+        "source_line": 1706
       }
     },
     "$<": {
@@ -195,7 +195,7 @@
         "category": "glyph",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1717
+        "source_line": 1718
       }
     },
     "$=": {
@@ -206,7 +206,7 @@
         "category": "powerup_indicator",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1714
+        "source_line": 1715
       }
     },
     "$>": {
@@ -217,7 +217,7 @@
         "category": "glyph",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1719
+        "source_line": 1720
       }
     },
     "$B": {
@@ -228,7 +228,7 @@
         "category": "led",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1711
+        "source_line": 1712
       }
     },
     "$G": {
@@ -239,7 +239,7 @@
         "category": "led",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1708
+        "source_line": 1709
       }
     },
     "$R": {
@@ -250,7 +250,7 @@
         "category": "led",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1709
+        "source_line": 1710
       }
     },
     "$W": {
@@ -261,7 +261,7 @@
         "category": "led",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1712
+        "source_line": 1713
       }
     },
     "$Y": {
@@ -272,7 +272,7 @@
         "category": "led",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1710
+        "source_line": 1711
       }
     },
     "$[": {
@@ -283,7 +283,7 @@
         "category": "bracket",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1706
+        "source_line": 1707
       }
     },
     "$\\": {
@@ -294,7 +294,7 @@
         "category": "separator",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1704
+        "source_line": 1705
       }
     },
     "$]": {
@@ -305,7 +305,7 @@
         "category": "bracket",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1707
+        "source_line": 1708
       }
     },
     "$^": {
@@ -316,7 +316,7 @@
         "category": "literal_escape",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1726
+        "source_line": 1727
       }
     },
     "$a": {
@@ -327,7 +327,7 @@
         "category": "powerup_indicator",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1716
+        "source_line": 1717
       }
     },
     "$b": {
@@ -338,7 +338,7 @@
         "category": "glyph",
         "case_style": "single",
         "source_file": "teamplay.c",
-        "source_line": 1722
+        "source_line": 1723
       }
     },
     "$c": {
@@ -349,7 +349,7 @@
         "category": "glyph",
         "case_style": "stacked",
         "source_file": "teamplay.c",
-        "source_line": 1723
+        "source_line": 1724
       }
     },
     "$d": {
@@ -360,7 +360,7 @@
         "category": "glyph",
         "case_style": "stacked",
         "source_file": "teamplay.c",
-        "source_line": 1723
+        "source_line": 1724
       }
     }
   },

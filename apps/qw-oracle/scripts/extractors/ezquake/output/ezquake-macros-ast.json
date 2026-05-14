@@ -4,7 +4,7 @@
       "ast": {
         "handler_fn": "Macro_Ammo",
         "source_file": "teamplay.c",
-        "source_line": 1222,
+        "source_line": 1223,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -19,7 +19,7 @@
       "ast": {
         "handler_fn": "Macro_Armor",
         "source_file": "teamplay.c",
-        "source_line": 1207,
+        "source_line": 1208,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -34,7 +34,7 @@
       "ast": {
         "handler_fn": "Macro_ArmorType",
         "source_file": "teamplay.c",
-        "source_line": 1206,
+        "source_line": 1207,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -55,7 +55,7 @@
       "ast": {
         "handler_fn": "Macro_BestAmmo",
         "source_file": "teamplay.c",
-        "source_line": 1225,
+        "source_line": 1226,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -73,7 +73,7 @@
       "ast": {
         "handler_fn": "Macro_BestWeapon",
         "source_file": "teamplay.c",
-        "source_line": 1224,
+        "source_line": 1225,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -218,7 +218,7 @@
       "ast": {
         "handler_fn": "Macro_Cells",
         "source_file": "teamplay.c",
-        "source_line": 1216,
+        "source_line": 1217,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -233,7 +233,7 @@
       "ast": {
         "handler_fn": "Macro_Colored_Armor_f",
         "source_file": "teamplay.c",
-        "source_line": 1208,
+        "source_line": 1209,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -248,7 +248,7 @@
       "ast": {
         "handler_fn": "Macro_Colored_Powerups_f",
         "source_file": "teamplay.c",
-        "source_line": 1209,
+        "source_line": 1210,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -261,7 +261,7 @@
       "ast": {
         "handler_fn": "Macro_Colored_Short_Powerups_f",
         "source_file": "teamplay.c",
-        "source_line": 1210,
+        "source_line": 1211,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -274,7 +274,7 @@
       "ast": {
         "handler_fn": "CL_Macro_Conheight",
         "source_file": "cl_main.c",
-        "source_line": 2028,
+        "source_line": 2033,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "call_form": "Cmd_AddMacro",
@@ -287,7 +287,7 @@
       "ast": {
         "handler_fn": "CL_Macro_ConnectionType",
         "source_file": "cl_main.c",
-        "source_line": 2021,
+        "source_line": 2026,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "call_form": "Cmd_AddMacro",
@@ -302,7 +302,7 @@
       "ast": {
         "handler_fn": "CL_Macro_Conwidth",
         "source_file": "cl_main.c",
-        "source_line": 2027,
+        "source_line": 2032,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "call_form": "Cmd_AddMacro",
@@ -315,7 +315,7 @@
       "ast": {
         "handler_fn": "Macro_Date",
         "source_file": "teamplay.c",
-        "source_line": 1202,
+        "source_line": 1203,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -330,7 +330,7 @@
       "ast": {
         "handler_fn": "Macro_DateIso",
         "source_file": "teamplay.c",
-        "source_line": 1203,
+        "source_line": 1204,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -343,7 +343,7 @@
       "ast": {
         "handler_fn": "Macro_LastDeath",
         "source_file": "teamplay.c",
-        "source_line": 1230,
+        "source_line": 1231,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -356,7 +356,7 @@
       "ast": {
         "handler_fn": "CL_Macro_DemoLength_f",
         "source_file": "cl_demo.c",
-        "source_line": 5490,
+        "source_line": 5506,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "call_form": "Cmd_AddMacro",
@@ -371,7 +371,7 @@
       "ast": {
         "handler_fn": "CL_Macro_DemoName_f",
         "source_file": "cl_demo.c",
-        "source_line": 5489,
+        "source_line": 5505,
         "source_column": 2,
         "enclosing_function": "CL_Demo_Init",
         "call_form": "Cmd_AddMacro",
@@ -386,7 +386,7 @@
       "ast": {
         "handler_fn": "CL_Macro_Demoplayback",
         "source_file": "cl_main.c",
-        "source_line": 2022,
+        "source_line": 2027,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "call_form": "Cmd_AddMacro",
@@ -401,7 +401,7 @@
       "ast": {
         "handler_fn": "CL_Macro_Demotime",
         "source_file": "cl_main.c",
-        "source_line": 2023,
+        "source_line": 2028,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "call_form": "Cmd_AddMacro",
@@ -414,7 +414,7 @@
       "ast": {
         "handler_fn": "Macro_LastDrop",
         "source_file": "teamplay.c",
-        "source_line": 1242,
+        "source_line": 1243,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -429,7 +429,7 @@
       "ast": {
         "handler_fn": "Macro_LastDropTime",
         "source_file": "teamplay.c",
-        "source_line": 1243,
+        "source_line": 1244,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -444,7 +444,7 @@
       "ast": {
         "handler_fn": "Macro_GameDir",
         "source_file": "teamplay.c",
-        "source_line": 1246,
+        "source_line": 1247,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -459,7 +459,7 @@
       "ast": {
         "handler_fn": "Macro_Health",
         "source_file": "teamplay.c",
-        "source_line": 1205,
+        "source_line": 1206,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -473,7 +473,7 @@
       "ast": {
         "handler_fn": "Macro_Lastip_f",
         "source_file": "teamplay.c",
-        "source_line": 1196,
+        "source_line": 1197,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -486,7 +486,7 @@
       "ast": {
         "handler_fn": "Macro_Last_Location",
         "source_file": "teamplay.c",
-        "source_line": 1252,
+        "source_line": 1253,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -499,7 +499,7 @@
       "ast": {
         "handler_fn": "Macro_LastSeenPowerup",
         "source_file": "teamplay.c",
-        "source_line": 1253,
+        "source_line": 1254,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -512,7 +512,7 @@
       "ast": {
         "handler_fn": "Macro_Latency",
         "source_file": "teamplay.c",
-        "source_line": 1198,
+        "source_line": 1199,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -525,7 +525,7 @@
       "ast": {
         "handler_fn": "Macro_Point_LED",
         "source_file": "teamplay.c",
-        "source_line": 1249,
+        "source_line": 1250,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -538,7 +538,7 @@
       "ast": {
         "handler_fn": "Macro_MyStatus_LED",
         "source_file": "teamplay.c",
-        "source_line": 1250,
+        "source_line": 1251,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -551,7 +551,7 @@
       "ast": {
         "handler_fn": "Macro_Location",
         "source_file": "teamplay.c",
-        "source_line": 1229,
+        "source_line": 1230,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -577,7 +577,7 @@
       "ast": {
         "handler_fn": "CL_Macro_Serverstatus",
         "source_file": "cl_main.c",
-        "source_line": 2025,
+        "source_line": 2030,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "call_form": "Cmd_AddMacro",
@@ -600,18 +600,16 @@
       "teamplay-restricted": true
     },
     "mp3_volume": {
-      "ast": null,
-      "teamplay-restricted": false
+      "ast": null
     },
     "mp3info": {
-      "ast": null,
-      "teamplay-restricted": false
+      "ast": null
     },
     "nails": {
       "ast": {
         "handler_fn": "Macro_Nails",
         "source_file": "teamplay.c",
-        "source_line": 1214,
+        "source_line": 1215,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -626,7 +624,7 @@
       "ast": {
         "handler_fn": "Macro_Need",
         "source_file": "teamplay.c",
-        "source_line": 1240,
+        "source_line": 1241,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -639,7 +637,7 @@
       "ast": {
         "handler_fn": "Macro_Latency",
         "source_file": "teamplay.c",
-        "source_line": 1199,
+        "source_line": 1200,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -652,7 +650,7 @@
       "ast": {
         "handler_fn": "Macro_PointName",
         "source_file": "teamplay.c",
-        "source_line": 1238,
+        "source_line": 1239,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -665,7 +663,7 @@
       "ast": {
         "handler_fn": "Macro_PointNameAtLocation",
         "source_file": "teamplay.c",
-        "source_line": 1236,
+        "source_line": 1237,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -678,7 +676,7 @@
       "ast": {
         "handler_fn": "Macro_PointLocation",
         "source_file": "teamplay.c",
-        "source_line": 1237,
+        "source_line": 1238,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -691,7 +689,7 @@
       "ast": {
         "handler_fn": "Macro_Powerups",
         "source_file": "teamplay.c",
-        "source_line": 1227,
+        "source_line": 1228,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -704,7 +702,7 @@
       "ast": {
         "handler_fn": "Macro_Quote_f",
         "source_file": "teamplay.c",
-        "source_line": 1197,
+        "source_line": 1198,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -718,7 +716,7 @@
       "ast": {
         "handler_fn": "CL_Macro_Rand",
         "source_file": "cl_main.c",
-        "source_line": 2024,
+        "source_line": 2029,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "call_form": "Cmd_AddMacro",
@@ -731,7 +729,7 @@
       "ast": {
         "handler_fn": "Macro_Rockets",
         "source_file": "teamplay.c",
-        "source_line": 1215,
+        "source_line": 1216,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -746,7 +744,7 @@
       "ast": {
         "handler_fn": "CL_Macro_ServerIp",
         "source_file": "cl_main.c",
-        "source_line": 2026,
+        "source_line": 2031,
         "source_column": 2,
         "enclosing_function": "CL_InitLocal",
         "call_form": "Cmd_AddMacro",
@@ -759,7 +757,7 @@
       "ast": {
         "handler_fn": "Macro_Shells",
         "source_file": "teamplay.c",
-        "source_line": 1213,
+        "source_line": 1214,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -774,7 +772,7 @@
       "ast": {
         "handler_fn": "Macro_Team1",
         "source_file": "teamplay.c",
-        "source_line": 1255,
+        "source_line": 1256,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -787,7 +785,7 @@
       "ast": {
         "handler_fn": "Macro_Team2",
         "source_file": "teamplay.c",
-        "source_line": 1256,
+        "source_line": 1257,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -800,7 +798,7 @@
       "ast": {
         "handler_fn": "Macro_TF_Skin",
         "source_file": "teamplay.c",
-        "source_line": 1245,
+        "source_line": 1246,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -813,7 +811,7 @@
       "ast": {
         "handler_fn": "Macro_Time",
         "source_file": "teamplay.c",
-        "source_line": 1201,
+        "source_line": 1202,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -828,7 +826,7 @@
       "ast": {
         "handler_fn": "Macro_TimeStamp",
         "source_file": "teamplay.c",
-        "source_line": 1200,
+        "source_line": 1201,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -841,7 +839,7 @@
       "ast": {
         "handler_fn": "Macro_Took",
         "source_file": "teamplay.c",
-        "source_line": 1234,
+        "source_line": 1235,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -854,7 +852,7 @@
       "ast": {
         "handler_fn": "Macro_TookAtLoc",
         "source_file": "teamplay.c",
-        "source_line": 1232,
+        "source_line": 1233,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -867,7 +865,7 @@
       "ast": {
         "handler_fn": "Macro_TookLoc",
         "source_file": "teamplay.c",
-        "source_line": 1233,
+        "source_line": 1234,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -880,7 +878,7 @@
       "ast": {
         "handler_fn": "Macro_Teamplay_Powerups_f",
         "source_file": "teamplay.c",
-        "source_line": 1211,
+        "source_line": 1212,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",
@@ -898,7 +896,7 @@
       "ast": {
         "handler_fn": "Macro_LastTrigger_Match",
         "source_file": "teamplay.c",
-        "source_line": 1248,
+        "source_line": 1249,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -911,7 +909,7 @@
       "ast": {
         "handler_fn": "Macro_Weapon",
         "source_file": "teamplay.c",
-        "source_line": 1220,
+        "source_line": 1221,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -924,7 +922,7 @@
       "ast": {
         "handler_fn": "Macro_WeaponNum",
         "source_file": "teamplay.c",
-        "source_line": 1218,
+        "source_line": 1219,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacro",
@@ -937,7 +935,7 @@
       "ast": {
         "handler_fn": "Macro_Weapons",
         "source_file": "teamplay.c",
-        "source_line": 1219,
+        "source_line": 1220,
         "source_column": 2,
         "enclosing_function": "TP_AddMacros",
         "call_form": "Cmd_AddMacroEx",

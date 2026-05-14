@@ -272,33 +272,6 @@
     }
   ],
   "vars": {
-    "_vid_default_mode": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the default video mode that the client uses.",
-      "ast": null
-    },
-    "_vid_default_mode_win": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the default video mode that the client uses when windowed.",
-      "ast": null
-    },
-    "_windowed_mouse": {
-      "type": "boolean",
-      "group-id": "28",
-      "values": [
-        {
-          "description": "Disable windowed mouse support so you can use the mouse in other applications.",
-          "name": "false"
-        },
-        {
-          "description": "Enabled windowed mouse support so you can use the mouse in the client.",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
     "allow_download": {
       "type": "boolean",
       "group-id": "43",
@@ -358,23 +331,6 @@
           "name": "1"
         }
       ]
-    },
-    "allow_download_gfx": {
-      "type": "boolean",
-      "group-id": "43",
-      "desc": "Enables downloading files from the server from the gfx directory.",
-      "remarks": "Server-side.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
     },
     "allow_download_maps": {
       "type": "boolean",
@@ -626,7 +582,7 @@
       "ast": {
         "c_ident": "allow_scripts",
         "source_file": "cl_main.c",
-        "source_line": 96,
+        "source_line": 98,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -660,43 +616,6 @@
       "desc": "Not currently used.",
       "ast": null
     },
-    "auth_validate": {
-      "type": "boolean",
-      "group-id": "27",
-      "remarks": "If you have 'auth_warninvalid 1' and someone gives a dirty hash in a version response (because they are using a hacked client that can't work out the right response), the client will print something like\n'Warning Invalid Client: playername (userid)' in your console ('auth_warninvalid 0' is default).",
-      "values": [
-        {
-          "description": "If you don't want your client to validate other ezQuake clients.",
-          "name": "false"
-        },
-        {
-          "description": "Performs the validation (but you need to use 'validate_clients')",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "auth_viewcrc": {
-      "type": "boolean",
-      "group-id": "27",
-      "values": [
-        {
-          "description": "the client hides the authentication CRC in f_version responses.",
-          "name": "false"
-        },
-        {
-          "description": "the client shows you the authentication CRC in f_version responses.",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "auth_warninvalid": {
-      "type": "float",
-      "group-id": "27",
-      "desc": "Check auth_validate.",
-      "ast": null
-    },
     "b_switch": {
       "type": "enum",
       "group-id": "37",
@@ -705,7 +624,7 @@
       "ast": {
         "c_ident": "b_switch",
         "source_file": "cl_main.c",
-        "source_line": 249,
+        "source_line": 251,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO",
@@ -798,21 +717,6 @@
       },
       "desc": "This variable sets the volume of the CD music."
     },
-    "block_switch": {
-      "type": "boolean",
-      "group-id": "31",
-      "values": [
-        {
-          "description": "Do not block task-switching",
-          "name": "false"
-        },
-        {
-          "description": "Block task-switching",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
     "bottomcolor": {
       "type": "enum",
       "group-id": "37",
@@ -821,7 +725,7 @@
       "ast": {
         "c_ident": "bottomcolor",
         "source_file": "cl_main.c",
-        "source_line": 241,
+        "source_line": 243,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO_NO_CFG_RESET",
@@ -1094,138 +998,6 @@
           "name": "true"
         }
       ]
-    },
-    "cfg_browser_democolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the demo entries in the cfg browser.",
-      "ast": null
-    },
-    "cfg_browser_dircolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the dir entries in the cfg browser.",
-      "ast": null
-    },
-    "cfg_browser_interline": {
-      "type": "integer",
-      "group-id": "25",
-      "desc": "Size of the space between entries in the cfg browser.",
-      "ast": null
-    },
-    "cfg_browser_scrollnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle scrolling of the filenames in the cfg browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "cfg_browser_selectedcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the selected entries in the cfg browser.",
-      "ast": null
-    },
-    "cfg_browser_showdate": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the date column in the cfg browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "cfg_browser_showsize": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the file size column in the cfg browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "cfg_browser_showstatus": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the display of the status bar in the cfg browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "cfg_browser_showtime": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the time column in the cfg browse.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "cfg_browser_sortmode": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Sorting mode in the cfg browser. Each number represents one column. Their order represents the priority of the sorting.",
-      "ast": null
-    },
-    "cfg_browser_stripnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle stripping of the filenames in the cfg browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "cfg_browser_zipcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the zip entries in the cfg browser.",
-      "ast": null
     },
     "cfg_legacy_exec": {
       "type": "enum",
@@ -1666,7 +1438,7 @@
       "ast": {
         "c_ident": "cl_backpackfilter",
         "source_file": "cl_main.c",
-        "source_line": 169,
+        "source_line": 171,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -1770,7 +1542,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "When 1, applies the walking bob to the camera's vertical position instead of the weapon model, making the entire view oscillate vertically while the gun stays level."
     },
     "cl_bobup": {
       "type": "float",
@@ -2053,7 +1826,7 @@
       "ast": {
         "c_ident": "cl_chunksperframe",
         "source_file": "cl_main.c",
-        "source_line": 124,
+        "source_line": 126,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -2191,7 +1964,7 @@
       "ast": {
         "c_ident": "cl_cmdline",
         "source_file": "cl_main.c",
-        "source_line": 197,
+        "source_line": 199,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "CVAR_ROM",
@@ -2214,7 +1987,7 @@
       "ast": {
         "c_ident": "cl_confirmquit",
         "source_file": "cl_main.c",
-        "source_line": 181,
+        "source_line": 183,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2287,7 +2060,7 @@
       "ast": {
         "c_ident": "cl_crypt_rcon",
         "source_file": "cl_main.c",
-        "source_line": 99,
+        "source_line": 101,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2340,7 +2113,7 @@
       "ast": {
         "c_ident": "cl_deadbodyfilter",
         "source_file": "cl_main.c",
-        "source_line": 167,
+        "source_line": 169,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2378,7 +2151,7 @@
       "ast": {
         "c_ident": "cl_debug_antilag_ghost",
         "source_file": "cl_main.c",
-        "source_line": 271,
+        "source_line": 273,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2413,7 +2186,7 @@
       "ast": {
         "c_ident": "cl_debug_antilag_lines",
         "source_file": "cl_main.c",
-        "source_line": 273,
+        "source_line": 275,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2434,7 +2207,7 @@
       "ast": {
         "c_ident": "cl_debug_antilag_self",
         "source_file": "cl_main.c",
-        "source_line": 272,
+        "source_line": 274,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2455,7 +2228,7 @@
       "ast": {
         "c_ident": "cl_debug_antilag_send",
         "source_file": "cl_main.c",
-        "source_line": 274,
+        "source_line": 276,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2476,7 +2249,7 @@
       "ast": {
         "c_ident": "cl_debug_antilag_view",
         "source_file": "cl_main.c",
-        "source_line": 270,
+        "source_line": 272,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2503,13 +2276,6 @@
         }
       ]
     },
-    "cl_debug_weapon_send": {
-      "type": "boolean",
-      "group-id": "21",
-      "default": "0",
-      "desc": "Sends information about client-side weapon selection, which is stored in .mvd on supported servers.",
-      "ast": null
-    },
     "cl_debug_weapon_view": {
       "type": "boolean",
       "group-id": "0",
@@ -2518,7 +2284,7 @@
       "ast": {
         "c_ident": "cl_debug_weapon_view",
         "source_file": "cl_main.c",
-        "source_line": 277,
+        "source_line": 279,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2539,7 +2305,7 @@
       "ast": {
         "c_ident": "cl_delay_packet",
         "source_file": "cl_main.c",
-        "source_line": 103,
+        "source_line": 105,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2561,7 +2327,7 @@
       "ast": {
         "c_ident": "cl_delay_packet_dev",
         "source_file": "cl_main.c",
-        "source_line": 105,
+        "source_line": 107,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -2583,7 +2349,7 @@
       "ast": {
         "c_ident": "cl_delay_packet_target",
         "source_file": "cl_main.c",
-        "source_line": 104,
+        "source_line": 106,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -2604,7 +2370,7 @@
       "ast": {
         "c_ident": "cl_demoPingInterval",
         "source_file": "cl_main.c",
-        "source_line": 178,
+        "source_line": 180,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2635,7 +2401,7 @@
       "ast": {
         "c_ident": "cl_demo_qwd_delta",
         "source_file": "cl_demo.c",
-        "source_line": 123,
+        "source_line": 124,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2754,7 +2520,7 @@
       "ast": {
         "c_ident": "cl_demospeed",
         "source_file": "cl_main.c",
-        "source_line": 172,
+        "source_line": 174,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2775,7 +2541,7 @@
       "ast": {
         "c_ident": "cl_demoteamplay",
         "source_file": "cl_main.c",
-        "source_line": 188,
+        "source_line": 190,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -2796,7 +2562,7 @@
       "ast": {
         "c_ident": "cl_earlypackets",
         "source_file": "cl_main.c",
-        "source_line": 190,
+        "source_line": 192,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2827,7 +2593,7 @@
       "ast": {
         "c_ident": "cl_fakename",
         "source_file": "cl_main.c",
-        "source_line": 182,
+        "source_line": 184,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2849,7 +2615,7 @@
       "ast": {
         "c_ident": "cl_fakename_suffix",
         "source_file": "cl_main.c",
-        "source_line": 183,
+        "source_line": 185,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2870,7 +2636,7 @@
       "ast": {
         "c_ident": "cl_fakeshaft",
         "source_file": "cl_main.c",
-        "source_line": 174,
+        "source_line": 176,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2891,7 +2657,7 @@
       "ast": {
         "c_ident": "cl_fakeshaft_extra_updates",
         "source_file": "cl_main.c",
-        "source_line": 175,
+        "source_line": 177,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2921,7 +2687,7 @@
       "ast": {
         "c_ident": "cl_filterdrawviewmodel",
         "source_file": "cl_main.c",
-        "source_line": 177,
+        "source_line": 179,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2942,7 +2708,7 @@
       "ast": {
         "c_ident": "cl_fix_mvd",
         "source_file": "cl_main.c",
-        "source_line": 212,
+        "source_line": 214,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -2974,7 +2740,7 @@
       "ast": {
         "c_ident": "cl_floodprot",
         "source_file": "cl_main.c",
-        "source_line": 194,
+        "source_line": 196,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -3026,7 +2792,7 @@
       "ast": {
         "c_ident": "cl_fp_messages",
         "source_file": "cl_main.c",
-        "source_line": 195,
+        "source_line": 197,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -3047,7 +2813,7 @@
       "ast": {
         "c_ident": "cl_fp_persecond",
         "source_file": "cl_main.c",
-        "source_line": 196,
+        "source_line": 198,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -3216,7 +2982,7 @@
       "ast": {
         "c_ident": "cl_gibfilter",
         "source_file": "cl_main.c",
-        "source_line": 168,
+        "source_line": 170,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -3341,7 +3107,7 @@
       "ast": {
         "c_ident": "cl_hudswap",
         "source_file": "cl_main.c",
-        "source_line": 148,
+        "source_line": 150,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -3403,7 +3169,7 @@
       "ast": {
         "c_ident": "cl_independentPhysics",
         "source_file": "cl_main.c",
-        "source_line": 153,
+        "source_line": 155,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -3471,7 +3237,7 @@
       "ast": {
         "c_ident": "cl_lerp_monsters",
         "source_file": "cl_main.c",
-        "source_line": 211,
+        "source_line": 213,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -3533,7 +3299,7 @@
       "ast": {
         "c_ident": "cl_maxfps",
         "source_file": "cl_main.c",
-        "source_line": 149,
+        "source_line": 151,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -3554,7 +3320,7 @@
       "ast": {
         "c_ident": "cl_maxfps_menu",
         "source_file": "cl_main.c",
-        "source_line": 150,
+        "source_line": 152,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -3575,7 +3341,7 @@
       "ast": {
         "c_ident": "cl_mediaroot",
         "source_file": "cl_main.c",
-        "source_line": 253,
+        "source_line": 255,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -3610,7 +3376,7 @@
       "ast": {
         "c_ident": "cl_model_bobbing",
         "source_file": "cl_main.c",
-        "source_line": 203,
+        "source_line": 205,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -3696,7 +3462,7 @@
       "ast": {
         "c_ident": "cl_muzzleflash",
         "source_file": "cl_main.c",
-        "source_line": 170,
+        "source_line": 172,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -4195,7 +3961,7 @@
       "ast": {
         "c_ident": "cl_newlerp",
         "source_file": "cl_main.c",
-        "source_line": 210,
+        "source_line": 212,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -4283,7 +4049,7 @@
       "ast": {
         "c_ident": "cl_nolerp",
         "source_file": "cl_main.c",
-        "source_line": 204,
+        "source_line": 206,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -4314,7 +4080,7 @@
       "ast": {
         "c_ident": "cl_nolerp_on_entity",
         "source_file": "cl_main.c",
-        "source_line": 208,
+        "source_line": 210,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -4377,7 +4143,7 @@
       "ast": {
         "c_ident": "cl_novweps",
         "source_file": "cl_main.c",
-        "source_line": 221,
+        "source_line": 223,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -4398,7 +4164,7 @@
       "ast": {
         "c_ident": "cl_onload",
         "source_file": "cl_main.c",
-        "source_line": 257,
+        "source_line": 259,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -4528,7 +4294,7 @@
       "ast": {
         "c_ident": "cl_parseWhiteText",
         "source_file": "cl_main.c",
-        "source_line": 176,
+        "source_line": 178,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -4563,7 +4329,7 @@
       "ast": {
         "c_ident": "cl_pext",
         "source_file": "cl_main.c",
-        "source_line": 109,
+        "source_line": 111,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -4584,7 +4350,7 @@
       "ast": {
         "c_ident": "cl_pext_256packetentities",
         "source_file": "cl_main.c",
-        "source_line": 120,
+        "source_line": 122,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -4615,7 +4381,7 @@
       "ast": {
         "c_ident": "cl_pext_alpha",
         "source_file": "cl_main.c",
-        "source_line": 132,
+        "source_line": 134,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -4636,7 +4402,7 @@
       "ast": {
         "c_ident": "cl_pext_chunkeddownloads",
         "source_file": "cl_main.c",
-        "source_line": 123,
+        "source_line": 125,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -4667,7 +4433,7 @@
       "ast": {
         "c_ident": "cl_pext_colourmod",
         "source_file": "cl_main.c",
-        "source_line": 136,
+        "source_line": 138,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -4688,7 +4454,7 @@
       "ast": {
         "c_ident": "cl_pext_floatcoords",
         "source_file": "cl_main.c",
-        "source_line": 128,
+        "source_line": 130,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -4709,7 +4475,7 @@
       "ast": {
         "c_ident": "cl_pext_lagteleport",
         "source_file": "cl_main.c",
-        "source_line": 114,
+        "source_line": 116,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -4741,7 +4507,7 @@
       "ast": {
         "c_ident": "cl_pext_limits",
         "source_file": "cl_main.c",
-        "source_line": 111,
+        "source_line": 113,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -4772,7 +4538,7 @@
       "ast": {
         "c_ident": "cl_pext_other",
         "source_file": "cl_main.c",
-        "source_line": 112,
+        "source_line": 114,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -4803,7 +4569,7 @@
       "ast": {
         "c_ident": "cl_pext_serversideweapon",
         "source_file": "cl_main.c",
-        "source_line": 116,
+        "source_line": 118,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -4813,7 +4579,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "server-side weapon selection"
-      }
+      },
+      "desc": "When 1, requests the MVD PEXT1 server-side weapon selection extension during connect; if the server does not support it, weapon scripts fall back to client-side execution."
     },
     "cl_pext_warndemos": {
       "type": "boolean",
@@ -4823,7 +4590,7 @@
       "ast": {
         "c_ident": "cl_pext_warndemos",
         "source_file": "cl_main.c",
-        "source_line": 113,
+        "source_line": 115,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -4844,7 +4611,7 @@
       "ast": {
         "c_ident": "cl_physfps",
         "source_file": "cl_main.c",
-        "source_line": 151,
+        "source_line": 153,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -4865,7 +4632,7 @@
       "ast": {
         "c_ident": "cl_physfps_spectator",
         "source_file": "cl_main.c",
-        "source_line": 152,
+        "source_line": 154,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5014,7 +4781,7 @@
       "ast": {
         "c_ident": "cl_predict_half",
         "source_file": "cl_main.c",
-        "source_line": 157,
+        "source_line": 159,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5045,7 +4812,7 @@
       "ast": {
         "c_ident": "cl_predict_players",
         "source_file": "cl_main.c",
-        "source_line": 155,
+        "source_line": 157,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5076,7 +4843,7 @@
       "ast": {
         "c_ident": "cl_proxyaddr",
         "source_file": "cl_main.c",
-        "source_line": 199,
+        "source_line": 201,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5098,7 +4865,7 @@
       "ast": {
         "c_ident": "cl_rocket2grenade",
         "source_file": "cl_main.c",
-        "source_line": 171,
+        "source_line": 173,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5149,7 +4916,7 @@
       "ast": {
         "c_ident": "cl_restrictions",
         "source_file": "cl_main.c",
-        "source_line": 192,
+        "source_line": 194,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5380,7 +5147,7 @@
       "ast": {
         "c_ident": "cl_sbar",
         "source_file": "cl_main.c",
-        "source_line": 147,
+        "source_line": 149,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5410,7 +5177,7 @@
       "ast": {
         "c_ident": "cl_shownet",
         "source_file": "cl_main.c",
-        "source_line": 107,
+        "source_line": 109,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5488,7 +5255,7 @@
       "ast": {
         "c_ident": "cl_solid_players",
         "source_file": "cl_main.c",
-        "source_line": 156,
+        "source_line": 158,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5509,7 +5276,7 @@
       "ast": {
         "c_ident": "cl_startupdemo",
         "source_file": "cl_demo.c",
-        "source_line": 121,
+        "source_line": 122,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5536,7 +5303,7 @@
       "ast": {
         "c_ident": "cl_staticsounds",
         "source_file": "cl_main.c",
-        "source_line": 173,
+        "source_line": 175,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5566,7 +5333,7 @@
       "ast": {
         "c_ident": "cl_sv_packetsync",
         "source_file": "cl_main.c",
-        "source_line": 142,
+        "source_line": 144,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -5623,7 +5390,7 @@
       "ast": {
         "c_ident": "cl_timeout",
         "source_file": "cl_main.c",
-        "source_line": 101,
+        "source_line": 103,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5698,7 +5465,7 @@
       "ast": {
         "c_ident": "cl_useproxy",
         "source_file": "cl_main.c",
-        "source_line": 198,
+        "source_line": 200,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5729,7 +5496,7 @@
       "ast": {
         "c_ident": "cl_username",
         "source_file": "cl_main.c",
-        "source_line": 266,
+        "source_line": 268,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "CVAR_QUEUED_TRIGGER",
@@ -5741,7 +5508,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Username for server authentication. Setting this loads a matching .apikey token file and, if connected, sends a login command to the server; clearing it while logged in sends logout."
     },
     "cl_verify_qwprotocol": {
       "type": "enum",
@@ -5751,7 +5519,7 @@
       "ast": {
         "c_ident": "cl_verify_qwprotocol",
         "source_file": "cl_main.c",
-        "source_line": 260,
+        "source_line": 262,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -5780,14 +5548,14 @@
       ]
     },
     "cl_voip_capturingvol": {
-      "type": "float",
+      "type": "integer",
       "group-id": "45",
       "default": "0.5",
       "server-only": false,
       "ast": {
         "c_ident": "cl_voip_capturingvol",
         "source_file": "snd_voip.c",
-        "source_line": 50,
+        "source_line": 49,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -5797,7 +5565,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "Multiplier applied while capturing, to avoid your audio from being heard by others."
-      }
+      },
+      "desc": "Volume multiplier applied while capturing, to avoid your audio from being heard by others."
     },
     "cl_voip_demorecord": {
       "type": "boolean",
@@ -5807,7 +5576,7 @@
       "ast": {
         "c_ident": "cl_voip_demorecord",
         "source_file": "snd_voip.c",
-        "source_line": 53,
+        "source_line": 52,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -5827,7 +5596,7 @@
       "ast": {
         "c_ident": "cl_voip_micamp",
         "source_file": "snd_voip.c",
-        "source_line": 52,
+        "source_line": 51,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -5848,7 +5617,7 @@
       "ast": {
         "c_ident": "cl_voip_play",
         "source_file": "snd_voip.c",
-        "source_line": 51,
+        "source_line": 50,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -5879,7 +5648,7 @@
       "ast": {
         "c_ident": "cl_voip_send",
         "source_file": "snd_voip.c",
-        "source_line": 47,
+        "source_line": 46,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -5915,7 +5684,7 @@
       "ast": {
         "c_ident": "cl_voip_showmeter",
         "source_file": "snd_voip.c",
-        "source_line": 54,
+        "source_line": 53,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -5950,7 +5719,7 @@
       "ast": {
         "c_ident": "cl_voip_showmeter_x",
         "source_file": "snd_voip.c",
-        "source_line": 55,
+        "source_line": 54,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -5972,7 +5741,7 @@
       "ast": {
         "c_ident": "cl_voip_showmeter_y",
         "source_file": "snd_voip.c",
-        "source_line": 56,
+        "source_line": 55,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -5994,7 +5763,7 @@
       "ast": {
         "c_ident": "cl_voip_vad_delay",
         "source_file": "snd_voip.c",
-        "source_line": 49,
+        "source_line": 48,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -6015,7 +5784,7 @@
       "ast": {
         "c_ident": "cl_voip_vad_threshhold",
         "source_file": "snd_voip.c",
-        "source_line": 48,
+        "source_line": 47,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -6079,12 +5848,6 @@
         "trailing_comment": null
       },
       "desc": "If set, the names of script files will be printed to console as they are executed."
-    },
-    "cl_weaponforgetondeath": {
-      "type": "string",
-      "group-id": "0",
-      "default": "0",
-      "ast": null
     },
     "cl_weaponforgetorder": {
       "type": "boolean",
@@ -6236,7 +5999,7 @@
       "ast": {
         "c_ident": "cl_window_caption",
         "source_file": "cl_main.c",
-        "source_line": 200,
+        "source_line": 202,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -6276,7 +6039,7 @@
       "ast": {
         "c_ident": "cl_window_caption_delimiter",
         "source_file": "cl_main.c",
-        "source_line": 201,
+        "source_line": 203,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -6309,7 +6072,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Base URL of the central authentication server used by the client to submit challenge-response login tokens. Read-only; set by the server or compile-time default."
     },
     "cl_yawspeed": {
       "type": "float",
@@ -7542,67 +7306,6 @@
         }
       ]
     },
-    "d_mipcap": {
-      "type": "enum",
-      "group-id": "30",
-      "values": [
-        {
-          "description": "High texture detail.",
-          "name": "0"
-        },
-        {
-          "description": "Medium texture detail.",
-          "name": "1"
-        },
-        {
-          "description": "Low texture detail.",
-          "name": "2"
-        },
-        {
-          "description": "Minimum texture detail.",
-          "name": "3"
-        }
-      ],
-      "ast": null
-    },
-    "d_mipscale": {
-      "type": "enum",
-      "group-id": "30",
-      "values": [
-        {
-          "description": "Full object detail",
-          "name": "0"
-        },
-        {
-          "description": "Some object detail",
-          "name": "1"
-        },
-        {
-          "description": "Medium object detail",
-          "name": "2"
-        },
-        {
-          "description": "Low object detail",
-          "name": "3"
-        }
-      ],
-      "ast": null
-    },
-    "d_subdiv16": {
-      "type": "boolean",
-      "group-id": "30",
-      "values": [
-        {
-          "description": "Precise texture mapping (slower, more accurate).",
-          "name": "false"
-        },
-        {
-          "description": "Perspective correction only every 16 pixels (faster, less accurate).",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
     "deathmatch": {
       "type": "integer",
       "group-id": "43",
@@ -7674,7 +7377,7 @@
       "ast": {
         "c_ident": "demo_autotrack",
         "source_file": "cl_main.c",
-        "source_line": 263,
+        "source_line": 265,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -7706,7 +7409,7 @@
       "ast": {
         "c_ident": "demo_benchmarkdumps",
         "source_file": "cl_demo.c",
-        "source_line": 120,
+        "source_line": 121,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -7729,138 +7432,6 @@
           "name": "true"
         }
       ]
-    },
-    "demo_browser_democolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the demo entries in the demo browser.",
-      "ast": null
-    },
-    "demo_browser_dircolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the dir entries in the demo browser.",
-      "ast": null
-    },
-    "demo_browser_interline": {
-      "type": "integer",
-      "group-id": "25",
-      "desc": "Size of the space between entries in the demo browser.",
-      "ast": null
-    },
-    "demo_browser_scrollnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle scrolling of the filenames in the demo browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "demo_browser_selectedcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the selected entries in the demo browser.",
-      "ast": null
-    },
-    "demo_browser_showdate": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the date column in the demo browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "demo_browser_showsize": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the file size column in the demo browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "demo_browser_showstatus": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the display of the status bar in the demo browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "demo_browser_showtime": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the time column in the demo browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "demo_browser_sortmode": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Sorting mode in the demo browser. Each number represents one column. Their order represents the priority of the sorting.",
-      "ast": null
-    },
-    "demo_browser_stripnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle stripping of the filenames in the demo browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "demo_browser_zipcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the zip entries in the demo browser.",
-      "ast": null
     },
     "demo_capture_background_threads": {
       "type": "integer",
@@ -7999,12 +7570,6 @@
       },
       "desc": "Sets bitrate for captured sound stream when demo_capture_mp3 is set to 1."
     },
-    "demo_capture_quiet": {
-      "type": "boolean",
-      "group-id": "7",
-      "desc": "Stops sound being played during demo capture.",
-      "ast": null
-    },
     "demo_capture_steadycam": {
       "type": "float",
       "group-id": "7",
@@ -8056,7 +7621,7 @@
       "ast": {
         "c_ident": "demo_dir",
         "source_file": "cl_demo.c",
-        "source_line": 119,
+        "source_line": 120,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -8077,7 +7642,7 @@
       "ast": {
         "c_ident": "demo_format",
         "source_file": "cl_demo.c",
-        "source_line": 112,
+        "source_line": 113,
         "source_column": 10,
         "storage_class": "none",
         "flags_raw": "",
@@ -8113,7 +7678,7 @@
       "ast": {
         "c_ident": "demo_getpings",
         "source_file": "cl_main.c",
-        "source_line": 179,
+        "source_line": 181,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -8144,7 +7709,7 @@
       "ast": {
         "c_ident": "demo_jump_rewind",
         "source_file": "cl_demo.c",
-        "source_line": 122,
+        "source_line": 123,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -8166,7 +7731,7 @@
       "ast": {
         "c_ident": "demo_jump_skip_messages",
         "source_file": "cl_demo.c",
-        "source_line": 124,
+        "source_line": 125,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -8241,6 +7806,120 @@
       },
       "desc": "will set the default track name in the demo playlist for mvd demos.\nExample: jogi, will always track the player jogi or versions of it (jogihoogi, angryjogi, etc)."
     },
+    "demo_spawnwarn": {
+      "type": "boolean",
+      "group-id": "40",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "demo_spawnwarn",
+        "source_file": "demo_spawnwarn.c",
+        "source_line": 57,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
+      "desc": "Warns during demo playback when the current POV crosses a deathmatch spawn or teleporter exit.",
+      "values": [
+        {
+          "description": "Disable spawn crossing warnings in demos.",
+          "name": "false"
+        },
+        {
+          "description": "Enable spawn crossing warnings in demos.",
+          "name": "true"
+        }
+      ]
+    },
+    "demo_spawnwarn_text": {
+      "type": "string",
+      "group-id": "40",
+      "default": "you crossed a spawn",
+      "server-only": false,
+      "ast": {
+        "c_ident": "demo_spawnwarn_text",
+        "source_file": "demo_spawnwarn.c",
+        "source_line": 58,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": null,
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
+      "desc": "Sets the centerprint text shown when demo_spawnwarn detects a spawn crossing."
+    },
+    "demo_voice_enable": {
+      "type": "boolean",
+      "group-id": "7",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "demo_voice_enable",
+        "source_file": "demo_extension_voice.c",
+        "source_line": 68,
+        "source_column": 15,
+        "storage_class": "static",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Demo Handling",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
+      "desc": "Toggles synchronized demo voice track playback.",
+      "values": [
+        {
+          "description": "Do not play loaded demo voice tracks.",
+          "name": "false"
+        },
+        {
+          "description": "Play loaded demo voice tracks during normal demo playback.",
+          "name": "true"
+        }
+      ]
+    },
+    "demo_voice_team_filter": {
+      "type": "boolean",
+      "group-id": "7",
+      "default": "1",
+      "server-only": false,
+      "ast": {
+        "c_ident": "demo_voice_team_filter",
+        "source_file": "demo_extension_voice.c",
+        "source_line": 69,
+        "source_column": 15,
+        "storage_class": "static",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Demo Handling",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
+      "desc": "Filters synchronized demo voice tracks by the viewed player's team.",
+      "values": [
+        {
+          "description": "Play all loaded demo voice tracks.",
+          "name": "false"
+        },
+        {
+          "description": "Only play tracks matching the viewed player's team.",
+          "name": "true"
+        }
+      ]
+    },
     "developer": {
       "type": "boolean",
       "group-id": "2",
@@ -8301,7 +7980,7 @@
       "ast": {
         "c_ident": "cl_enemybothskin",
         "source_file": "teamplay.c",
-        "source_line": 69,
+        "source_line": 70,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -8322,7 +8001,7 @@
       "ast": {
         "c_ident": "cl_enemybottomcolor",
         "source_file": "teamplay.c",
-        "source_line": 61,
+        "source_line": 62,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -8458,7 +8137,7 @@
       "ast": {
         "c_ident": "cl_enemypentskin",
         "source_file": "teamplay.c",
-        "source_line": 67,
+        "source_line": 68,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -8479,7 +8158,7 @@
       "ast": {
         "c_ident": "cl_enemyquadskin",
         "source_file": "teamplay.c",
-        "source_line": 65,
+        "source_line": 66,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -8500,7 +8179,7 @@
       "ast": {
         "c_ident": "cl_enemyskin",
         "source_file": "teamplay.c",
-        "source_line": 63,
+        "source_line": 64,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -8521,7 +8200,7 @@
       "ast": {
         "c_ident": "cl_enemytopcolor",
         "source_file": "teamplay.c",
-        "source_line": 60,
+        "source_line": 61,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -8871,7 +8550,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "When disabled (default), archive files in the file browser are always sorted by name regardless of the active sort mode; when enabled, archives follow the same sort criteria as regular files."
     },
     "file_browser_sort_mode": {
       "type": "enum",
@@ -9393,7 +9073,7 @@
       "ast": {
         "c_ident": "gender",
         "source_file": "cl_main.c",
-        "source_line": 251,
+        "source_line": 253,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO",
@@ -13519,100 +13199,6 @@
         "max_bound": null,
         "trailing_comment": null
       }
-    },
-    "help_files_dircolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "The RGB color of directories in the help browser.",
-      "values": [
-        {
-          "description": "Example: \"255 255 255\"",
-          "name": "*"
-        }
-      ],
-      "ast": null
-    },
-    "help_files_filecolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "The RGB color for files in the help browser.",
-      "values": [
-        {
-          "description": "Example: \"255 255 255\"",
-          "name": "*"
-        }
-      ],
-      "ast": null
-    },
-    "help_files_interline": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Adjust interlining of file list in /help filebrowser.",
-      "ast": null
-    },
-    "help_files_scrollnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Should the filenames in the help browser get scrolled if they don't fit when the file is selected?",
-      "values": [
-        {
-          "description": "Don't scroll names",
-          "name": "false"
-        },
-        {
-          "description": "Scroll names",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "help_files_selectedcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "The RGB color of a selected file in the help browser.",
-      "values": [
-        {
-          "description": "Example: \"255 255 255\"",
-          "name": "*"
-        }
-      ],
-      "ast": null
-    },
-    "help_files_showdate": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Shows column displaying file last modification date in /help file browser.",
-      "ast": null
-    },
-    "help_files_showsize": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Shows column displaying file size in /help file browser.",
-      "ast": null
-    },
-    "help_files_showstatus": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Show quick info about selected help file in /help file browser.",
-      "ast": null
-    },
-    "help_files_showtime": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Shows column displaying file last modification time in /help file browser.",
-      "ast": null
-    },
-    "help_files_sortmode": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Switches sorting methods of files /help file browser.",
-      "ast": null
-    },
-    "help_files_stripnames": {
-      "type": "float",
-      "group-id": "25",
-      "desc": "Strips filenames of help files.",
-      "ast": null
     },
     "hostname": {
       "type": "string",
@@ -18652,13 +18238,6 @@
       },
       "desc": "Sets vertical align of fps counter."
     },
-    "hud_fps_decimals": {
-      "type": "integer",
-      "group-id": "29",
-      "desc": "How many decimal number should the FPS HUD element contain.",
-      "remarks": "Code says always three decimals.",
-      "ast": null
-    },
     "hud_fps_draw": {
       "type": "boolean",
       "group-id": "19",
@@ -18770,7 +18349,7 @@
       "ast": {
         "c_ident": "hud_fps_min_reset_interval",
         "source_file": "cl_main.c",
-        "source_line": 159,
+        "source_line": 161,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -20328,7 +19907,7 @@
       "ast": {
         "c_ident": "hud_frametime_max_reset_interval",
         "source_file": "cl_main.c",
-        "source_line": 160,
+        "source_line": 162,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -31048,70 +30627,6 @@
         "trailing_comment": null
       }
     },
-    "hud_mouserate_align_x": {
-      "type": "string",
-      "group-id": "28",
-      "desc": "Vertical alignment of the mouserate HUD element. See the HUD manual for more info.",
-      "ast": null
-    },
-    "hud_mouserate_align_y": {
-      "type": "string",
-      "group-id": "28",
-      "desc": "Vertical alignment of the mouserate HUD element. See the HUD manual for more info.",
-      "ast": null
-    },
-    "hud_mouserate_frame": {
-      "type": "float",
-      "group-id": "28",
-      "desc": "Opacity of the background of the mouserate HUD element.",
-      "ast": null
-    },
-    "hud_mouserate_frame_color": {
-      "type": "string",
-      "group-id": "28",
-      "desc": "Defines the color of the background of the mouserate HUD element. See HUD manual for more info.",
-      "ast": null
-    },
-    "hud_mouserate_order": {
-      "type": "integer",
-      "group-id": "28",
-      "desc": "This defines the order of drawing the HUD elements. That means you can change will be drawn on top of other elements. See HUD manual for more info.",
-      "ast": null
-    },
-    "hud_mouserate_place": {
-      "type": "string",
-      "group-id": "28",
-      "desc": "Placement of the mouserate HUD element. HUD elements can be place into various screen areas or other elements. See HUD manual for more info.",
-      "ast": null
-    },
-    "hud_mouserate_pos_x": {
-      "type": "integer",
-      "group-id": "28",
-      "desc": "Horizontal relative position of the mouserate HUD element.",
-      "ast": null
-    },
-    "hud_mouserate_pos_y": {
-      "type": "integer",
-      "group-id": "28",
-      "desc": "Vertical relative position of the mouserate HUD element.",
-      "ast": null
-    },
-    "hud_mouserate_show": {
-      "type": "boolean",
-      "group-id": "28",
-      "desc": "Visibility of the mouserate HUD element.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
     "hud_name_remove_prefixes": {
       "type": "string",
       "group-id": "19",
@@ -32987,7 +32502,7 @@
       "ast": {
         "c_ident": "hud_performance_average",
         "source_file": "cl_main.c",
-        "source_line": 161,
+        "source_line": 163,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -45154,46 +44669,6 @@
       "desc": "If set, will ignore keyboard events received immediately after regaining focus.  Should stop shortcut keys from firing in-game.",
       "remarks": "X11 systems only."
     },
-    "in_m_os_parameters": {
-      "type": "enum",
-      "group-id": "28",
-      "desc": "Allows you to use your system mouse settings in the client.",
-      "values": [
-        {
-          "description": "Do not keep any of the system mouse settings",
-          "name": "0"
-        },
-        {
-          "description": "Keep acceleration settings",
-          "name": "1"
-        },
-        {
-          "description": "Keep speed settings",
-          "name": "2"
-        },
-        {
-          "description": "Keep both acceleration and speed settings",
-          "name": "3"
-        }
-      ],
-      "ast": null
-    },
-    "in_m_smooth": {
-      "type": "boolean",
-      "group-id": "28",
-      "desc": "Enables advanced mouse smoothing.\nYou have to be using Direct Input for this to work.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
     "in_mmt": {
       "type": "boolean",
       "group-id": "28",
@@ -45207,31 +44682,6 @@
         {
           "description": "Use separate thread for reading mouse data",
           "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "in_mouse": {
-      "type": "enum",
-      "group-id": "28",
-      "desc": "Different types of mouse input\n[OBSOLETE in ezQuake 3.0]",
-      "remarks": "Linux: You have to set in_evdevice to proper value (/dev/input/eventX). Use command in_evdevlist to get the lost of proper values. Also in_mmt makes your mouse more smooth.",
-      "values": [
-        {
-          "description": "Mouse off",
-          "name": "0"
-        },
-        {
-          "description": "Windows: standard mouse; Linux: DGA mouse",
-          "name": "1"
-        },
-        {
-          "description": "Windows: Direct Input; Linux: X Mouse",
-          "name": "2"
-        },
-        {
-          "description": "Windows: Raw Input; Linux: EVDEV mouse",
-          "name": "3"
         }
       ],
       "ast": null
@@ -45270,22 +44720,6 @@
           "name": "true"
         }
       ]
-    },
-    "in_raw_allbuttons": {
-      "type": "boolean",
-      "group-id": "28",
-      "desc": "Forces RAW Input handler to treat more incoming signals as mouse buttons.\nHelps if you cannot get some mouse buttons working in the game.",
-      "values": [
-        {
-          "description": "Only standard set of events is interpreted as mouse buttons",
-          "name": "false"
-        },
-        {
-          "description": "More events are interpreted as mouse buttons",
-          "name": "true"
-        }
-      ],
-      "ast": null
     },
     "in_release_mouse_modes": {
       "type": "enum",
@@ -46251,7 +45685,7 @@
       "ast": {
         "c_ident": "localid",
         "source_file": "cl_main.c",
-        "source_line": 163,
+        "source_line": 165,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -46464,21 +45898,6 @@
       },
       "desc": "This variable toggles mouse input filtering.\nWhen set to \"1\", the values which are received from the mouse's input will first be averaged together and then that value will be used in the game.\nThe reason for this command is that some mice had problems with sending sporadic coordinates which make the input from the mouse jerky, also when using a serial or PS/2 mouse, the Windows operating system will only sample mouse input every 25ms, that is 40 times a second (for USB mice the sample rate is 125 Hz, that is every 8 ms).\nWhen set to \"1\" this variable will smooth out the input but it will cause latency between the movement of the mouse and the actual response in the game.\nWhen using a PS/2 mouse it is thus first recommended to try to increase the sampling rate either by changing it via your mouse driver or by using the ps2rate program which can be downloaded at ps2rate homepage.\nIf you are playing the game at frame rates above 40 FPS and if you can't increase the sampling rate of your PS/2 rate or if you are playing with a serial mouse it is recommended that you enable this toggle."
     },
-    "m_forcewheel": {
-      "type": "boolean",
-      "group-id": "28",
-      "values": [
-        {
-          "description": "Disable.",
-          "name": "false"
-        },
-        {
-          "description": "If you have problems to get MWHEELUP and MWHEELDOWN working set this to 1.",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
     "m_forward": {
       "type": "float",
       "group-id": "11",
@@ -46520,28 +45939,6 @@
         "trailing_comment": null
       },
       "desc": "This variable sets the level of precision when the mouse is used to make the player look up and down while the +mlook command is in effect.\nBy default this variable is set in such a way that moving the mouse forward makes the player look up and moving the mouse backward makes the player look down.\nSome people prefer to have this movement inverted just like it is inverted for airplane controls.\nIf you wish to use this inverted mouse movement then you should set this variable to a negative value (for example \"-0.022\"). It is a matter of preference which movement method is used by players.\nAlso lowering the value for this variable will increase the level of precision when the mouse is used to make the player look up and down.\nThis variable can be used separately from the sensitivity variable to provide greater control over the mouse sensitivity for movement along the pitch. It is advisable to keep the value for this variable constant at 0.022 or -0.022 and instead use the sensitivity variable to change the overall sensitivity of the mouse.\nAlso, some script writers lower the value for this variable along with a lowered value for the fov variable in order to provide more precision when the fov variable is used to zoom."
-    },
-    "m_rate": {
-      "type": "float",
-      "group-id": "28",
-      "desc": "This variable should be set to your mouse rate (in Hz).\nNote: need -m_smooth and -dinput to commandline.",
-      "ast": null
-    },
-    "m_showrate": {
-      "type": "boolean",
-      "group-id": "28",
-      "remarks": "Note: need -m_smooth and -dinput to commandline.",
-      "values": [
-        {
-          "description": "Disable",
-          "name": "false"
-        },
-        {
-          "description": "Print current mouse rate",
-          "name": "true"
-        }
-      ],
-      "ast": null
     },
     "m_side": {
       "type": "float",
@@ -47659,7 +47056,7 @@
       "ast": {
         "c_ident": "msg",
         "source_file": "cl_main.c",
-        "source_line": 246,
+        "source_line": 248,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO",
@@ -47703,7 +47100,7 @@
       "ast": {
         "c_ident": "msg_filter",
         "source_file": "cl_main.c",
-        "source_line": 255,
+        "source_line": 257,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -47741,7 +47138,7 @@
       "ast": {
         "c_ident": "mtu",
         "source_file": "cl_main.c",
-        "source_line": 245,
+        "source_line": 247,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO",
@@ -47755,23 +47152,6 @@
         "trailing_comment": null
       },
       "desc": "Maximum transmission unit size.\nSuggests maximum packet size to server, if supported."
-    },
-    "mumble_enabled": {
-      "type": "boolean",
-      "group-id": "32",
-      "desc": "Turn on mumble positional audio support.",
-      "remarks": "Requires mumble to be loaded before toggling this on.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
     },
     "mvd_autoadd_items": {
       "type": "boolean",
@@ -47791,7 +47171,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "When enabled, automatically registers respawn clocks for all map items found in entity baselines at match start, so the item timer list is populated without requiring manual tracking commands."
     },
     "mvd_autohud": {
       "type": "enum",
@@ -48807,7 +48188,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Controls sort order of the MVD item respawn-clock list: 1 sorts by next spawn time, 0 preserves insertion order (persistent items always appear first regardless)."
     },
     "mvd_status": {
       "type": "boolean",
@@ -48882,22 +48264,6 @@
       },
       "desc": "Adjusts the vertical placement of mvd_status table."
     },
-    "mvd_write_xml": {
-      "type": "boolean",
-      "group-id": "24",
-      "desc": "Enables dumping of XML stats from a MVD.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
     "name": {
       "type": "string",
       "group-id": "37",
@@ -48906,7 +48272,7 @@
       "ast": {
         "c_ident": "name",
         "source_file": "cl_main.c",
-        "source_line": 238,
+        "source_line": 240,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO",
@@ -48951,7 +48317,7 @@
       "ast": {
         "c_ident": "noaim",
         "source_file": "cl_main.c",
-        "source_line": 247,
+        "source_line": 249,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO",
@@ -49289,7 +48655,7 @@
       "ast": {
         "c_ident": "qizmo_dir",
         "source_file": "cl_main.c",
-        "source_line": 184,
+        "source_line": 186,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -49904,7 +49270,7 @@
       "ast": {
         "c_ident": "qwdtools_dir",
         "source_file": "cl_main.c",
-        "source_line": 185,
+        "source_line": 187,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -50623,7 +49989,7 @@
       "ast": {
         "c_ident": "r_drawhud",
         "source_file": "cl_screen.c",
-        "source_line": 128,
+        "source_line": 131,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -50738,7 +50104,7 @@
       "ast": {
         "c_ident": "r_drawvweps",
         "source_file": "cl_main.c",
-        "source_line": 222,
+        "source_line": 224,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -50864,7 +50230,7 @@
       "ast": {
         "c_ident": "r_explosionlight",
         "source_file": "cl_main.c",
-        "source_line": 217,
+        "source_line": 219,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -50899,7 +50265,7 @@
       "ast": {
         "c_ident": "r_explosionlightcolor",
         "source_file": "cl_main.c",
-        "source_line": 216,
+        "source_line": 218,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -50958,7 +50324,7 @@
       "ast": {
         "c_ident": "r_explosiontype",
         "source_file": "cl_main.c",
-        "source_line": 227,
+        "source_line": 229,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -51110,7 +50476,7 @@
       "ast": {
         "c_ident": "r_flagcolor",
         "source_file": "cl_main.c",
-        "source_line": 218,
+        "source_line": 220,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -51566,7 +50932,7 @@
       "ast": {
         "c_ident": "r_grenadetrail",
         "source_file": "cl_main.c",
-        "source_line": 224,
+        "source_line": 226,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -51641,7 +51007,7 @@
       "ast": {
         "c_ident": "r_instagibtrail",
         "source_file": "cl_main.c",
-        "source_line": 226,
+        "source_line": 228,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -51824,7 +51190,7 @@
       "ast": {
         "c_ident": "r_lightdecayrate",
         "source_file": "cl_main.c",
-        "source_line": 230,
+        "source_line": 232,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -51845,7 +51211,7 @@
       "ast": {
         "c_ident": "r_lightflicker",
         "source_file": "cl_main.c",
-        "source_line": 219,
+        "source_line": 221,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -51875,7 +51241,7 @@
       "ast": {
         "c_ident": "r_lightmap_lateupload",
         "source_file": "cl_main.c",
-        "source_line": 231,
+        "source_line": 233,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -51885,7 +51251,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Defers lightmap GPU uploads from the start-of-frame batch to per-surface draw time on the GLC renderer path. May reduce stalls on maps with many dynamic lights by spreading upload cost across the draw call sequence."
     },
     "r_lightmap_packbytexture": {
       "type": "integer",
@@ -51895,7 +51262,7 @@
       "ast": {
         "c_ident": "r_lightmap_packbytexture",
         "source_file": "cl_main.c",
-        "source_line": 232,
+        "source_line": 234,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -51905,7 +51272,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Controls how map surfaces are sorted when packing lightmaps into atlas textures at map load. 0 = no sort; 1 = largest area first; 2 (default) = tallest-first shelf heuristic. Higher values typically produce fewer lightmap textures, reducing texture switches during rendering."
     },
     "r_max_size_1": {
       "type": "enum",
@@ -52138,7 +51506,7 @@
       "ast": {
         "c_ident": "r_powerupglow",
         "source_file": "cl_main.c",
-        "source_line": 220,
+        "source_line": 222,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -52172,7 +51540,7 @@
       "ast": {
         "c_ident": "r_railtrail",
         "source_file": "cl_main.c",
-        "source_line": 225,
+        "source_line": 227,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -52343,7 +51711,7 @@
       "ast": {
         "c_ident": "r_rocketlight",
         "source_file": "cl_main.c",
-        "source_line": 214,
+        "source_line": 216,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -52374,7 +51742,7 @@
       "ast": {
         "c_ident": "r_rocketlightcolor",
         "source_file": "cl_main.c",
-        "source_line": 215,
+        "source_line": 217,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -52429,7 +51797,7 @@
       "ast": {
         "c_ident": "r_rockettrail",
         "source_file": "cl_main.c",
-        "source_line": 223,
+        "source_line": 225,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -52555,7 +51923,7 @@
       "ast": {
         "c_ident": "r_shaftalpha",
         "source_file": "cl_main.c",
-        "source_line": 229,
+        "source_line": 231,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -52964,7 +52332,7 @@
       "ast": {
         "c_ident": "r_telesplash",
         "source_file": "cl_main.c",
-        "source_line": 228,
+        "source_line": 230,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -53020,7 +52388,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Master toggle for the on-screen frag tracker, which displays frag/death/team-kill/pickup notifications with per-event color coding. See r_tracker_frags / r_tracker_streaks / r_tracker_pickups for event filters and r_tracker_color_* for the color palette."
     },
     "r_tracker_align_right": {
       "type": "boolean",
@@ -53514,7 +52883,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Includes item pickups (weapons, armor, powerups) in the frag tracker overlay. Default 0 (pickups hidden); set to 1 to surface pickup notifications alongside frag/death events."
     },
     "r_tracker_positive_enemy_suicide": {
       "type": "integer",
@@ -54052,7 +53422,7 @@
       "ast": {
         "c_ident": "railcolor",
         "source_file": "cl_main.c",
-        "source_line": 250,
+        "source_line": 252,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO",
@@ -54114,7 +53484,7 @@
       "ast": {
         "c_ident": "rate",
         "source_file": "cl_main.c",
-        "source_line": 243,
+        "source_line": 245,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO",
@@ -54137,7 +53507,7 @@
       "ast": {
         "c_ident": "rcon_address",
         "source_file": "cl_main.c",
-        "source_line": 98,
+        "source_line": 100,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -54437,19 +53807,6 @@
       "desc": "Enforces a set of restrictions on the client features.",
       "remarks": "Most commonly used is \"smackdown\""
     },
-    "s_alsa_device": {
-      "type": "string",
-      "group-id": "26",
-      "default": "default",
-      "desc": "Sets which device ALSA will be trying to open (when s_driver is set to alsa).\nIf \"default\" fails it will try \"hw\" and if that fails too, \"plug:hw\" will be tried.",
-      "ast": null
-    },
-    "s_alsa_latency": {
-      "type": "float",
-      "group-id": "26",
-      "desc": "Specifies latency for ALSA.\nIf you got distortion in sound, upper the value a bit.\nIf you experience delays, try lowering this value.",
-      "ast": null
-    },
     "s_alsa_noworkaround": {
       "type": "enum",
       "group-id": "26",
@@ -54532,23 +53889,6 @@
       },
       "desc": "Audio device to use."
     },
-    "s_bits": {
-      "type": "enum",
-      "group-id": "26",
-      "desc": "This defines how many sampling bits should be used, when using 16 bits the interpolation quality will be better.",
-      "remarks": "Linux only.\nUse s_restart after you change it.",
-      "values": [
-        {
-          "description": "16 bit sound.",
-          "name": "16"
-        },
-        {
-          "description": "8 bit sound.",
-          "name": "8"
-        }
-      ],
-      "ast": null
-    },
     "s_chat_custom": {
       "type": "enum",
       "group-id": "3",
@@ -54557,7 +53897,7 @@
       "ast": {
         "c_ident": "cl_chatsound",
         "source_file": "cl_main.c",
-        "source_line": 180,
+        "source_line": 182,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -54608,39 +53948,6 @@
       "desc": "Indicates how large the audio buffer should be, in samples.\nIf 0, ezQuake will choose a sensible default, based on value of s_khz.",
       "remarks": "This is a suggestion only, the driver is free to choose a different value.\nSmaller buffer sizes generally result in lower latency, but higher CPU usage."
     },
-    "s_device": {
-      "type": "string",
-      "group-id": "26",
-      "desc": "Allows you to choose from multiple sound devices.",
-      "remarks": "Linux only.\nUse s_restart after you change it.\n\nFor OSS you should use \"/dev/dsp\", \"/dev/dsp0\", \"/dev/dsp1\", etc.\nFor ALSA use \"default\", \"dmix\", etc.",
-      "values": [
-        {
-          "description": "device name.",
-          "name": "*"
-        }
-      ],
-      "ast": null
-    },
-    "s_driver": {
-      "type": "enum",
-      "group-id": "26",
-      "desc": "Specifices which sounddriver to use: ALSA/OSS or experimental Pulseaudio.",
-      "values": [
-        {
-          "description": "Will use ALSA drivers.",
-          "name": "alsa"
-        },
-        {
-          "description": "Will use OSS drivers.",
-          "name": "oss"
-        },
-        {
-          "description": "Will use experimental Pulseaudio drivers (note: have to be set in all loading configs before starting ezQuake to work!)",
-          "name": "pulse"
-        }
-      ],
-      "ast": null
-    },
     "s_inputdevice": {
       "type": "boolean",
       "group-id": "0",
@@ -54649,7 +53956,7 @@
       "ast": {
         "c_ident": "s_inputdevice",
         "source_file": "snd_voip.c",
-        "source_line": 46,
+        "source_line": 45,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -54782,12 +54089,6 @@
       "desc": "Reduce sound samples down to 8-bit at load time, trading quality for lower memory usage.",
       "remarks": "This used to help with performance on systems with low memory."
     },
-    "s_mixahead": {
-      "type": "float",
-      "group-id": "26",
-      "desc": "Only affects OSS and legacy ALSA:\n\nThis variable defines the delay time for sounds. How low you can set your sound mixahead depends on your FPS, when you set it too low, your sound will start crackling.\nGenerally, with 72 FPS you should be able to use a delay of 0.06 seconds.",
-      "ast": null
-    },
     "s_mm1_file": {
       "type": "string",
       "group-id": "45",
@@ -54872,38 +54173,6 @@
       },
       "desc": "You can specify volume of notification sound for messagemode2 (/messagemode2 or /say_team foo) messages."
     },
-    "s_noalsa": {
-      "type": "enum",
-      "group-id": "26",
-      "desc": "Determinates sound output for linux clients: ALSA or OSS.",
-      "remarks": "If you don't know what is ALSA and OSS - leave it at the default value.",
-      "values": [
-        {
-          "description": "Use ALSA sound output.",
-          "name": "0"
-        },
-        {
-          "description": "Use OSS sound output.",
-          "name": "1"
-        }
-      ],
-      "ast": null
-    },
-    "s_noextraupdate": {
-      "type": "boolean",
-      "group-id": "45",
-      "values": [
-        {
-          "description": "Makes Quake update its sound buffers more often to avoid choppy sound when your fps is really low (20 or worse)",
-          "name": "false"
-        },
-        {
-          "description": "Don't use extra sound updates.\nGives a slight fps boost, but may lead to choppy sound on low-end machines.",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
     "s_nosound": {
       "type": "boolean",
       "group-id": "45",
@@ -54933,13 +54202,6 @@
           "name": "true"
         }
       ]
-    },
-    "s_oss_device": {
-      "type": "string",
-      "group-id": "26",
-      "default": "/dev/dsp",
-      "desc": "Specifies which device OSS will try to open.",
-      "ast": null
     },
     "s_otherchat_file": {
       "type": "string",
@@ -55012,12 +54274,6 @@
           "name": "true"
         }
       ]
-    },
-    "s_pulseaudio_latency": {
-      "type": "float",
-      "group-id": "26",
-      "desc": "Specifies latency for Pulseaudio.\nIf you got distortion in sound, upper the value a bit.\nIf you experience delays, try lowering this value.",
-      "ast": null
     },
     "s_raw_volume": {
       "type": "float",
@@ -55138,23 +54394,6 @@
         "trailing_comment": null
       },
       "desc": "You can specify volume of notification sound for spectator messages."
-    },
-    "s_stereo": {
-      "type": "boolean",
-      "group-id": "26",
-      "desc": "Use stereo or mono sound.",
-      "remarks": "Linux only.\nUse s_restart after you change it.",
-      "values": [
-        {
-          "description": "Mono.",
-          "name": "false"
-        },
-        {
-          "description": "Stereo.",
-          "name": "true"
-        }
-      ],
-      "ast": null
     },
     "s_swapstereo": {
       "type": "boolean",
@@ -55936,22 +55175,6 @@
           "name": "true"
         }
       ]
-    },
-    "sb_showcounters": {
-      "type": "boolean",
-      "group-id": "31",
-      "desc": "This toggles whether ezQuake should display the number of servers or players in the status line.",
-      "values": [
-        {
-          "description": "do not show the server/player counter in the status line.",
-          "name": "false"
-        },
-        {
-          "description": "show the server/player counter in the status line.",
-          "name": "true"
-        }
-      ],
-      "ast": null
     },
     "sb_showfraglimit": {
       "type": "boolean",
@@ -56919,7 +56142,7 @@
         "max_bound": null,
         "trailing_comment": null
       },
-      "desc": "Frag messages will be colored according to your teamcolor/enemycolor settings.",
+      "desc": "Frag messages will be colored according to your teamcolor/enemycolor settings, unless scr_coloredfrags_team or scr_coloredfrags_enemy is set.",
       "remarks": "Needs scr_coloredText 1, cl_parsefrags 1, cl_loadfragfiles 1.",
       "values": [
         {
@@ -56931,6 +56154,81 @@
           "name": "true"
         }
       ]
+    },
+    "scr_coloredfrags_enemy": {
+      "type": "string",
+      "group-id": "40",
+      "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "scr_coloredfrags_enemy",
+        "source_file": "cl_screen.c",
+        "source_line": 119,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Screen Settings",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
+      "desc": "Overrides the enemy player name color used by scr_coloredfrags. Accepts an RGB value.",
+      "remarks": "Use three values from 0 to 255, for example \"255 64 64\". Leave empty to use the enemy/player color from scr_coloredfrags."
+    },
+    "scr_coloredfrags_normalize": {
+      "type": "boolean",
+      "group-id": "40",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "scr_coloredfrags_normalize",
+        "source_file": "cl_screen.c",
+        "source_line": 120,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Screen Settings",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
+      "desc": "Normalizes player names in colored frag messages by translating red chars to white chars.",
+      "values": [
+        {
+          "description": "Normalization off.",
+          "name": "false"
+        },
+        {
+          "description": "Normalization on.",
+          "name": "true"
+        }
+      ]
+    },
+    "scr_coloredfrags_team": {
+      "type": "string",
+      "group-id": "40",
+      "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "scr_coloredfrags_team",
+        "source_file": "cl_screen.c",
+        "source_line": 118,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Screen Settings",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
+      "desc": "Overrides the team player name color used by scr_coloredfrags. Accepts an RGB value.",
+      "remarks": "Use three values from 0 to 255, for example \"64 255 64\". Leave empty to use the team/player color from scr_coloredfrags."
     },
     "scr_compactHud": {
       "type": "enum",
@@ -57148,7 +56446,7 @@
       "ast": {
         "c_ident": "scr_cursor_alpha",
         "source_file": "cl_screen.c",
-        "source_line": 122,
+        "source_line": 125,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -57169,7 +56467,7 @@
       "ast": {
         "c_ident": "scr_cursor_iconoffset_x",
         "source_file": "cl_screen.c",
-        "source_line": 120,
+        "source_line": 123,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -57190,7 +56488,7 @@
       "ast": {
         "c_ident": "scr_cursor_iconoffset_y",
         "source_file": "cl_screen.c",
-        "source_line": 121,
+        "source_line": 124,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -57211,7 +56509,7 @@
       "ast": {
         "c_ident": "scr_cursor_scale",
         "source_file": "cl_screen.c",
-        "source_line": 119,
+        "source_line": 122,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -57253,7 +56551,7 @@
       "ast": {
         "c_ident": "scr_damage_floating",
         "source_file": "cl_screen.c",
-        "source_line": 1183,
+        "source_line": 1189,
         "source_column": 16,
         "storage_class": "static",
         "flags_raw": "",
@@ -57273,7 +56571,7 @@
       "ast": {
         "c_ident": "scr_damage_hitbeep",
         "source_file": "cl_screen.c",
-        "source_line": 1184,
+        "source_line": 1190,
         "source_column": 16,
         "storage_class": "static",
         "flags_raw": "",
@@ -57293,7 +56591,7 @@
       "ast": {
         "c_ident": "scr_damage_offset_ingame",
         "source_file": "cl_screen.c",
-        "source_line": 1187,
+        "source_line": 1193,
         "source_column": 16,
         "storage_class": "static",
         "flags_raw": "",
@@ -57313,7 +56611,7 @@
       "ast": {
         "c_ident": "scr_damage_offset_spectator",
         "source_file": "cl_screen.c",
-        "source_line": 1186,
+        "source_line": 1192,
         "source_column": 16,
         "storage_class": "static",
         "flags_raw": "",
@@ -57333,7 +56631,7 @@
       "ast": {
         "c_ident": "scr_damage_proportional",
         "source_file": "cl_screen.c",
-        "source_line": 1182,
+        "source_line": 1188,
         "source_column": 16,
         "storage_class": "static",
         "flags_raw": "",
@@ -57354,7 +56652,7 @@
       "ast": {
         "c_ident": "scr_damage_scale",
         "source_file": "cl_screen.c",
-        "source_line": 1185,
+        "source_line": 1191,
         "source_column": 16,
         "storage_class": "static",
         "flags_raw": "",
@@ -57450,7 +56748,7 @@
       "ast": {
         "c_ident": "scr_fovmode",
         "source_file": "cl_screen.c",
-        "source_line": 127,
+        "source_line": 130,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -57577,7 +56875,7 @@
       "ast": {
         "c_ident": "scr_notifyalways",
         "source_file": "cl_screen.c",
-        "source_line": 125,
+        "source_line": 128,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -58807,7 +58105,7 @@
       "ast": {
         "c_ident": "scr_showcrosshair",
         "source_file": "cl_screen.c",
-        "source_line": 124,
+        "source_line": 127,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -60153,7 +59451,7 @@
       "ast": {
         "c_ident": "skin",
         "source_file": "cl_main.c",
-        "source_line": 242,
+        "source_line": 244,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO_NO_CFG_RESET",
@@ -60168,138 +59466,6 @@
       },
       "desc": "Sets the skin name for the player."
     },
-    "skin_browser_democolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the demo entries in the skin browser.",
-      "ast": null
-    },
-    "skin_browser_dircolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the dir entries in the skin browser.",
-      "ast": null
-    },
-    "skin_browser_interline": {
-      "type": "integer",
-      "group-id": "25",
-      "desc": "Size of the space between entries in the skin browser.",
-      "ast": null
-    },
-    "skin_browser_scrollnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle scrolling of the filenames in the skin browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "skin_browser_selectedcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the selected entries in the skin browser.",
-      "ast": null
-    },
-    "skin_browser_showdate": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the date column in the skin browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "skin_browser_showsize": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the file size column in the skin browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "skin_browser_showstatus": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the display of the status bar in the skin browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "skin_browser_showtime": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle the time column in the skin browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "skin_browser_sortmode": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Sorting mode in the skin browser.\nEach number represents one column. Their order represents the priority of the sorting.",
-      "ast": null
-    },
-    "skin_browser_stripnames": {
-      "type": "boolean",
-      "group-id": "25",
-      "desc": "Toggle stripping of the filenames in the skin browser.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "ast": null
-    },
-    "skin_browser_zipcolor": {
-      "type": "string",
-      "group-id": "25",
-      "desc": "Color of the zip entries in the skin browser.",
-      "ast": null
-    },
     "spectator": {
       "type": "boolean",
       "group-id": "37",
@@ -60308,7 +59474,7 @@
       "ast": {
         "c_ident": "spectator",
         "source_file": "cl_main.c",
-        "source_line": 236,
+        "source_line": 238,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO_NO_CFG_RESET",
@@ -60484,12 +59650,6 @@
         "max_bound": null,
         "trailing_comment": null
       }
-    },
-    "sv_aim": {
-      "type": "float",
-      "group-id": "43",
-      "desc": "Sets the value for auto-aiming leniency.",
-      "ast": null
     },
     "sv_airaccelerate": {
       "type": "float",
@@ -61156,12 +60316,6 @@
         "trailing_comment": null
       }
     },
-    "sv_fastconnect": {
-      "type": "float",
-      "group-id": "43",
-      "desc": "actually no help.",
-      "ast": null
-    },
     "sv_forcenick": {
       "type": "boolean",
       "group-id": "43",
@@ -61314,21 +60468,6 @@
         "max_bound": null,
         "trailing_comment": "0 - plain passwords; 1 - hashed passwords"
       }
-    },
-    "sv_highchars": {
-      "type": "boolean",
-      "group-id": "43",
-      "values": [
-        {
-          "description": "Disable.",
-          "name": "false"
-        },
-        {
-          "description": "Enable high character color names for players.",
-          "name": "true"
-        }
-      ],
-      "ast": null
     },
     "sv_kicktop": {
       "type": "boolean",
@@ -62421,12 +61560,6 @@
       },
       "desc": "Sets the value that determines how fast the player should come to a complete stop."
     },
-    "sv_timeout": {
-      "type": "float",
-      "group-id": "43",
-      "desc": "Sets the amount of time in seconds before a client is considered disconnected if the server does not receive a packet.",
-      "ast": null
-    },
     "sv_timestamplen": {
       "type": "integer",
       "group-id": "43",
@@ -62653,18 +61786,6 @@
         "max_bound": null,
         "trailing_comment": null
       }
-    },
-    "sw_contrast": {
-      "type": "float",
-      "group-id": "30",
-      "desc": "Change contrast.",
-      "ast": null
-    },
-    "sw_gamma": {
-      "type": "float",
-      "group-id": "30",
-      "desc": "Change gamma.",
-      "ast": null
     },
     "sys_command_line": {
       "type": "string",
@@ -63060,7 +62181,7 @@
       "ast": {
         "c_ident": "team",
         "source_file": "cl_main.c",
-        "source_line": 239,
+        "source_line": 241,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO_NO_CFG_RESET",
@@ -63083,7 +62204,7 @@
       "ast": {
         "c_ident": "cl_teambothskin",
         "source_file": "teamplay.c",
-        "source_line": 68,
+        "source_line": 69,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -63104,7 +62225,7 @@
       "ast": {
         "c_ident": "cl_teambottomcolor",
         "source_file": "teamplay.c",
-        "source_line": 59,
+        "source_line": 60,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -63240,7 +62361,7 @@
       "ast": {
         "c_ident": "cl_teamlock",
         "source_file": "teamplay.c",
-        "source_line": 70,
+        "source_line": 71,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -63275,7 +62396,7 @@
       "ast": {
         "c_ident": "cl_teampentskin",
         "source_file": "teamplay.c",
-        "source_line": 66,
+        "source_line": 67,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -63334,7 +62455,7 @@
       "ast": {
         "c_ident": "cl_teamquadskin",
         "source_file": "teamplay.c",
-        "source_line": 64,
+        "source_line": 65,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -63355,7 +62476,7 @@
       "ast": {
         "c_ident": "cl_teamskin",
         "source_file": "teamplay.c",
-        "source_line": 62,
+        "source_line": 63,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -63376,7 +62497,7 @@
       "ast": {
         "c_ident": "cl_teamtopcolor",
         "source_file": "teamplay.c",
-        "source_line": 58,
+        "source_line": 59,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "",
@@ -63541,7 +62662,7 @@
       "ast": {
         "c_ident": "topcolor",
         "source_file": "cl_main.c",
-        "source_line": 240,
+        "source_line": 242,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO_NO_CFG_RESET",
@@ -63698,7 +62819,7 @@
       "ast": {
         "c_ident": "tp_name_armor",
         "source_file": "teamplay.c",
-        "source_line": 97,
+        "source_line": 98,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63719,7 +62840,7 @@
       "ast": {
         "c_ident": "tp_name_armortype_ga",
         "source_file": "teamplay.c",
-        "source_line": 83,
+        "source_line": 84,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63740,7 +62861,7 @@
       "ast": {
         "c_ident": "tp_name_armortype_ra",
         "source_file": "teamplay.c",
-        "source_line": 81,
+        "source_line": 82,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63761,7 +62882,7 @@
       "ast": {
         "c_ident": "tp_name_armortype_ya",
         "source_file": "teamplay.c",
-        "source_line": 82,
+        "source_line": 83,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63782,7 +62903,7 @@
       "ast": {
         "c_ident": "tp_name_at",
         "source_file": "teamplay.c",
-        "source_line": 115,
+        "source_line": 116,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63803,7 +62924,7 @@
       "ast": {
         "c_ident": "tp_name_axe",
         "source_file": "teamplay.c",
-        "source_line": 72,
+        "source_line": 73,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63824,7 +62945,7 @@
       "ast": {
         "c_ident": "tp_name_backpack",
         "source_file": "teamplay.c",
-        "source_line": 99,
+        "source_line": 100,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63845,7 +62966,7 @@
       "ast": {
         "c_ident": "tp_name_cells",
         "source_file": "teamplay.c",
-        "source_line": 94,
+        "source_line": 95,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63866,7 +62987,7 @@
       "ast": {
         "c_ident": "tp_name_disp",
         "source_file": "teamplay.c",
-        "source_line": 102,
+        "source_line": 103,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63887,7 +63008,7 @@
       "ast": {
         "c_ident": "tp_name_enemy",
         "source_file": "teamplay.c",
-        "source_line": 109,
+        "source_line": 110,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63908,7 +63029,7 @@
       "ast": {
         "c_ident": "tp_name_eyes",
         "source_file": "teamplay.c",
-        "source_line": 110,
+        "source_line": 111,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63935,7 +63056,7 @@
       "ast": {
         "c_ident": "tp_name_filter",
         "source_file": "teamplay.c",
-        "source_line": 103,
+        "source_line": 104,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63956,7 +63077,7 @@
       "ast": {
         "c_ident": "tp_name_flag",
         "source_file": "teamplay.c",
-        "source_line": 100,
+        "source_line": 101,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63977,7 +63098,7 @@
       "ast": {
         "c_ident": "tp_name_ga",
         "source_file": "teamplay.c",
-        "source_line": 86,
+        "source_line": 87,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -63998,7 +63119,7 @@
       "ast": {
         "c_ident": "tp_name_gl",
         "source_file": "teamplay.c",
-        "source_line": 77,
+        "source_line": 78,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64019,7 +63140,7 @@
       "ast": {
         "c_ident": "tp_name_health",
         "source_file": "teamplay.c",
-        "source_line": 96,
+        "source_line": 97,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64040,7 +63161,7 @@
       "ast": {
         "c_ident": "tp_name_lg",
         "source_file": "teamplay.c",
-        "source_line": 79,
+        "source_line": 80,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64061,7 +63182,7 @@
       "ast": {
         "c_ident": "tp_name_mh",
         "source_file": "teamplay.c",
-        "source_line": 95,
+        "source_line": 96,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64082,7 +63203,7 @@
       "ast": {
         "c_ident": "tp_name_nails",
         "source_file": "teamplay.c",
-        "source_line": 92,
+        "source_line": 93,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64103,7 +63224,7 @@
       "ast": {
         "c_ident": "tp_name_ng",
         "source_file": "teamplay.c",
-        "source_line": 75,
+        "source_line": 76,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64124,7 +63245,7 @@
       "ast": {
         "c_ident": "tp_name_none",
         "source_file": "teamplay.c",
-        "source_line": 116,
+        "source_line": 117,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64145,7 +63266,7 @@
       "ast": {
         "c_ident": "tp_name_nothing",
         "source_file": "teamplay.c",
-        "source_line": 113,
+        "source_line": 114,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64166,7 +63287,7 @@
       "ast": {
         "c_ident": "tp_name_pent",
         "source_file": "teamplay.c",
-        "source_line": 88,
+        "source_line": 89,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64187,7 +63308,7 @@
       "ast": {
         "c_ident": "tp_name_pented",
         "source_file": "teamplay.c",
-        "source_line": 112,
+        "source_line": 113,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64208,7 +63329,7 @@
       "ast": {
         "c_ident": "tp_name_quad",
         "source_file": "teamplay.c",
-        "source_line": 87,
+        "source_line": 88,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64229,7 +63350,7 @@
       "ast": {
         "c_ident": "tp_name_quaded",
         "source_file": "teamplay.c",
-        "source_line": 111,
+        "source_line": 112,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64250,7 +63371,7 @@
       "ast": {
         "c_ident": "tp_name_ra",
         "source_file": "teamplay.c",
-        "source_line": 84,
+        "source_line": 85,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64271,7 +63392,7 @@
       "ast": {
         "c_ident": "tp_name_ring",
         "source_file": "teamplay.c",
-        "source_line": 89,
+        "source_line": 90,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64292,7 +63413,7 @@
       "ast": {
         "c_ident": "tp_name_rl",
         "source_file": "teamplay.c",
-        "source_line": 78,
+        "source_line": 79,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64313,7 +63434,7 @@
       "ast": {
         "c_ident": "tp_name_rlg",
         "source_file": "teamplay.c",
-        "source_line": 80,
+        "source_line": 81,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64334,7 +63455,7 @@
       "ast": {
         "c_ident": "tp_name_rockets",
         "source_file": "teamplay.c",
-        "source_line": 93,
+        "source_line": 94,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64355,7 +63476,7 @@
       "ast": {
         "c_ident": "tp_name_rune1",
         "source_file": "teamplay.c",
-        "source_line": 104,
+        "source_line": 105,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64376,7 +63497,7 @@
       "ast": {
         "c_ident": "tp_name_rune2",
         "source_file": "teamplay.c",
-        "source_line": 105,
+        "source_line": 106,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64397,7 +63518,7 @@
       "ast": {
         "c_ident": "tp_name_rune3",
         "source_file": "teamplay.c",
-        "source_line": 106,
+        "source_line": 107,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64418,7 +63539,7 @@
       "ast": {
         "c_ident": "tp_name_rune4",
         "source_file": "teamplay.c",
-        "source_line": 107,
+        "source_line": 108,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64439,7 +63560,7 @@
       "ast": {
         "c_ident": "tp_name_sentry",
         "source_file": "teamplay.c",
-        "source_line": 101,
+        "source_line": 102,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64466,7 +63587,7 @@
       "ast": {
         "c_ident": "tp_name_separator",
         "source_file": "teamplay.c",
-        "source_line": 117,
+        "source_line": 118,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64487,7 +63608,7 @@
       "ast": {
         "c_ident": "tp_name_sg",
         "source_file": "teamplay.c",
-        "source_line": 73,
+        "source_line": 74,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64508,7 +63629,7 @@
       "ast": {
         "c_ident": "tp_name_shells",
         "source_file": "teamplay.c",
-        "source_line": 91,
+        "source_line": 92,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64529,7 +63650,7 @@
       "ast": {
         "c_ident": "tp_name_sng",
         "source_file": "teamplay.c",
-        "source_line": 76,
+        "source_line": 77,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64550,7 +63671,7 @@
       "ast": {
         "c_ident": "tp_name_someplace",
         "source_file": "teamplay.c",
-        "source_line": 114,
+        "source_line": 115,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64571,7 +63692,7 @@
       "ast": {
         "c_ident": "tp_name_ssg",
         "source_file": "teamplay.c",
-        "source_line": 74,
+        "source_line": 75,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64592,7 +63713,7 @@
       "ast": {
         "c_ident": "tp_name_status_blue",
         "source_file": "teamplay.c",
-        "source_line": 123,
+        "source_line": 124,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64613,7 +63734,7 @@
       "ast": {
         "c_ident": "tp_name_status_green",
         "source_file": "teamplay.c",
-        "source_line": 120,
+        "source_line": 121,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64634,7 +63755,7 @@
       "ast": {
         "c_ident": "tp_name_status_red",
         "source_file": "teamplay.c",
-        "source_line": 122,
+        "source_line": 123,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64655,7 +63776,7 @@
       "ast": {
         "c_ident": "tp_name_status_white",
         "source_file": "teamplay.c",
-        "source_line": 124,
+        "source_line": 125,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64677,7 +63798,7 @@
       "ast": {
         "c_ident": "tp_name_status_yellow",
         "source_file": "teamplay.c",
-        "source_line": 121,
+        "source_line": 122,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64698,7 +63819,7 @@
       "ast": {
         "c_ident": "tp_name_suit",
         "source_file": "teamplay.c",
-        "source_line": 90,
+        "source_line": 91,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64719,7 +63840,7 @@
       "ast": {
         "c_ident": "tp_name_teammate",
         "source_file": "teamplay.c",
-        "source_line": 108,
+        "source_line": 109,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64740,7 +63861,7 @@
       "ast": {
         "c_ident": "tp_name_weapon",
         "source_file": "teamplay.c",
-        "source_line": 98,
+        "source_line": 99,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64761,7 +63882,7 @@
       "ast": {
         "c_ident": "tp_name_ya",
         "source_file": "teamplay.c",
-        "source_line": 85,
+        "source_line": 86,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64782,7 +63903,7 @@
       "ast": {
         "c_ident": "tp_need_cells",
         "source_file": "teamplay.c",
-        "source_line": 133,
+        "source_line": 134,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64803,7 +63924,7 @@
       "ast": {
         "c_ident": "tp_need_ga",
         "source_file": "teamplay.c",
-        "source_line": 128,
+        "source_line": 129,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64824,7 +63945,7 @@
       "ast": {
         "c_ident": "tp_need_health",
         "source_file": "teamplay.c",
-        "source_line": 129,
+        "source_line": 130,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64845,7 +63966,7 @@
       "ast": {
         "c_ident": "tp_need_nails",
         "source_file": "teamplay.c",
-        "source_line": 134,
+        "source_line": 135,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64866,7 +63987,7 @@
       "ast": {
         "c_ident": "tp_need_ra",
         "source_file": "teamplay.c",
-        "source_line": 126,
+        "source_line": 127,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64887,7 +64008,7 @@
       "ast": {
         "c_ident": "tp_need_rl",
         "source_file": "teamplay.c",
-        "source_line": 131,
+        "source_line": 132,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64908,7 +64029,7 @@
       "ast": {
         "c_ident": "tp_need_rockets",
         "source_file": "teamplay.c",
-        "source_line": 132,
+        "source_line": 133,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64929,7 +64050,7 @@
       "ast": {
         "c_ident": "tp_need_shells",
         "source_file": "teamplay.c",
-        "source_line": 135,
+        "source_line": 136,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64950,7 +64071,7 @@
       "ast": {
         "c_ident": "tp_need_weapon",
         "source_file": "teamplay.c",
-        "source_line": 130,
+        "source_line": 131,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -64971,7 +64092,7 @@
       "ast": {
         "c_ident": "tp_need_ya",
         "source_file": "teamplay.c",
-        "source_line": 127,
+        "source_line": 128,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -65024,7 +64145,7 @@
       "ast": {
         "c_ident": "tp_pointtimeout",
         "source_file": "teamplay.c",
-        "source_line": 55,
+        "source_line": 56,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -65045,7 +64166,7 @@
       "ast": {
         "c_ident": "tp_poweruptextstyle",
         "source_file": "teamplay.c",
-        "source_line": 56,
+        "source_line": 57,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -65089,6 +64210,38 @@
       },
       "desc": "SoundTrigger like proxys.\nA SoundTrigger must be terminated by either a CR, LF or filter. The .wav extension is not required at the end.\nTrigger is a character before the sound file.\n\nExample:\nfilter #a\nsay_team I'm at %l ~location.wav\"\nsay_team ~location.wav$\\me: I'm at %l #a\"\nsay_team ~location$\\me: I'm at %l #a\"\nsay_team I'm at %l ~location #a\""
     },
+    "tp_tookpriorities": {
+      "type": "boolean",
+      "group-id": "49",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "tp_tookpriorities",
+        "source_file": "teamplay.c",
+        "source_line": 54,
+        "source_column": 8,
+        "storage_class": "none",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Teamplay Communications",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
+      "desc": "Controls whether the last item taken macro (%X or $took) uses the order of tp_took as item pickup priority.",
+      "remarks": "When enabled, earlier items in tp_took have higher priority and can prevent lower priority pickups from replacing $took within tp_tooktimeout.\n\nExample:\ntp_took powerups rl lg ra ya ga mega pack gl sng ng ssg rockets cells nails shells health\ntp_tookpriorities 1",
+      "values": [
+        {
+          "description": "Original, default behavior. The latest pickup replaces the previous one.",
+          "name": "false"
+        },
+        {
+          "description": "Use tp_took order as pickup priority.",
+          "name": "true"
+        }
+      ]
+    },
     "tp_tooktimeout": {
       "type": "float",
       "group-id": "49",
@@ -65097,7 +64250,7 @@
       "ast": {
         "c_ident": "tp_tooktimeout",
         "source_file": "teamplay.c",
-        "source_line": 54,
+        "source_line": 55,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -65148,7 +64301,7 @@
       "ast": {
         "c_ident": "tp_weapon_order",
         "source_file": "teamplay.c",
-        "source_line": 118,
+        "source_line": 119,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -65792,18 +64945,6 @@
       ],
       "ast": null
     },
-    "vid_config_x": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the width of the vid_mode 2 window, the minimum possible value is \"640\".",
-      "ast": null
-    },
-    "vid_config_y": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the width of the vid_mode 2 window, the minimum possible value is \"400\"",
-      "ast": null
-    },
     "vid_conheight": {
       "type": "integer",
       "group-id": "52",
@@ -65880,25 +65021,6 @@
       "desc": "Height of the text layer.",
       "remarks": "Cannot be higher than the height of the current game resolution."
     },
-    "vid_customheight": {
-      "type": "integer",
-      "group-id": "52",
-      "desc": "Screen resolution width for custom screen mode.",
-      "remarks": "vid_mode must be -1.",
-      "ast": null
-    },
-    "vid_customwidth": {
-      "type": "integer",
-      "group-id": "52",
-      "desc": "Screen resolution height for custom screen mode.",
-      "remarks": "vid_mode must be -1.",
-      "ast": null
-    },
-    "vid_depthbits": {
-      "type": "",
-      "group-id": "31",
-      "ast": null
-    },
     "vid_displayfrequency": {
       "type": "integer",
       "group-id": "52",
@@ -65970,23 +65092,6 @@
         "trailing_comment": null
       },
       "desc": "When there is activity in the server, ezQuake's taskbar window will flash.\nActivity includes chat, high priority messages, disconnection from server."
-    },
-    "vid_forcerestoregamma": {
-      "type": "boolean",
-      "group-id": "52",
-      "desc": "Force restore gamma after returning to minimized application.",
-      "remarks": "Might be usefull if you have ATI card.",
-      "values": [
-        {
-          "description": "Old way of restoring gamma.",
-          "name": "false"
-        },
-        {
-          "description": "Force restore in 1 sec.",
-          "name": "true"
-        }
-      ],
-      "ast": null
     },
     "vid_framebuffer": {
       "type": "enum",
@@ -66453,12 +65558,6 @@
         }
       ]
     },
-    "vid_fullscreen_mode": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the full screen video mode that the game will switch to when the \"vid_fullscreen\" command is executed.",
-      "ast": null
-    },
     "vid_gamma_workaround": {
       "type": "boolean",
       "group-id": "52",
@@ -66693,18 +65792,6 @@
       },
       "desc": "If set, ezQuake will minimise when running in fullscreen mode and it loses focus (e.g. alt-tab)."
     },
-    "vid_mode": {
-      "type": "float",
-      "group-id": "23",
-      "desc": "This variables sets the next video mode to be used.\nAny change of this variable will cause the video mode to be changed immediately.",
-      "ast": null
-    },
-    "vid_nopageflip": {
-      "type": "float",
-      "group-id": "23",
-      "desc": "This variable toggles the use of page-flipping during supported video modes.\nBy default the game will allow for page-flipping for video modes that support this feature.\nFor example if a given VESA mode can support page flipping, then it defaults to page-flipped operation.\nA VESA mode can be forced to non-page-flipped operation by setting the \"vid_nopageflip\" variable to \"1\", then setting the mode (note that \"vid_nopageflip\" takes operation on the next, not the current video mode, and note that it then stays in effect permanently, even when the client is exited and restarted, unless it is manually set back to \"0\").\nIf there is not enough memory for two pages in a VESA mode, or if the adapter doesn't support page flipping, then the mode will automatically be nnon-page-flipped.\n\nPage-flipping works by drawing multiple virtual game screens at the same time in the video memory and then switching among them to display the current gamescreen. Page-flipped modes thus use less system memory than non-page-flipped modes, but require more video memory.\nWhen using page-flipping, visual quality may be higher, but performance of the game can change to better or worse, depending on the graphics adapter and other hardware (see the discussion of the Pentium Pro below, for a discussion of why page flipping can be faster but is sometimes much slower on that processor). However in most cases the performance (and thus frame rate) will be increased, but for people with hardware that has problems with page-flipping \"vid_nopageflip 1\" may help.\nThe Pentium Pro is an example for such a hardware: it is an okay client platform (sniff!), but it has one weak spot, it is by default very slow on writes to video memory.\nThis means that in default hardware configurations, you are usually much better off setting \"vid_nopageflip\" to \"1\" if you use VESA modes, so drawing is done to system memory instead of to video memory.\nRemember that you must set the mode after setting \"vid_nopageflip\" to \"1\" in order to get \"vid_nopageflip\" to take effect. \"vid_nopageflip 1\" can sometimes be faster on a Pentium too, but not by nearly as much in general, and it's often slower.",
-      "ast": null
-    },
     "vid_reload_auto": {
       "type": "boolean",
       "group-id": "52",
@@ -66723,7 +65810,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "When 1, graphics cvars (resolution, fullscreen, renderer) automatically trigger a video subsystem restart when changed. When 0, changes are deferred until you run vid_reload manually."
     },
     "vid_renderer": {
       "type": "enum",
@@ -66758,22 +65846,6 @@
           "name": "1"
         }
       ]
-    },
-    "vid_resetonswitch": {
-      "type": "boolean",
-      "group-id": "23",
-      "remarks": "This is a workaround for the bug in some NVidia drivers, when you alt-tab out of ezQuake and the screen gets garbaged.\nWhen enabled, the client will reset your Windows video mode every time you press alt-tab. Note that some NVidia drivers lock up your system completely when you alt-tab: vid_resetonswitch will not help in this case (try starting ezQuake with -dibonly).",
-      "values": [
-        {
-          "description": "Disable.",
-          "name": "false"
-        },
-        {
-          "description": "Enable.",
-          "name": "true"
-        }
-      ],
-      "ast": null
     },
     "vid_showextensions": {
       "type": "boolean",
@@ -66831,27 +65903,6 @@
           "name": "true"
         }
       ]
-    },
-    "vid_stencilbits": {
-      "type": "",
-      "group-id": "31",
-      "ast": null
-    },
-    "vid_stretch_by_2": {
-      "type": "boolean",
-      "group-id": "23",
-      "remarks": "This variable toggles whether in \"vid_mode 2\" the picture should be rendered at half-resolution in each direction and stretched up to the specified size.",
-      "values": [
-        {
-          "description": "Disable.",
-          "name": "false"
-        },
-        {
-          "description": "Enable.",
-          "name": "true"
-        }
-      ],
-      "ast": null
     },
     "vid_usedesktopres": {
       "type": "boolean",
@@ -66976,23 +66027,6 @@
       },
       "desc": "Custom value for experimental vertical synchronization delay reduction.",
       "remarks": "Too low values (0.2 or lower) may significantly decrease FPS and make it not synced with display frequency.\nToo high values (10 and above) may turn off the effect of video lag fix completely.\nUse the lowest value that keeps stable FPS for you."
-    },
-    "vid_wideaspect": {
-      "type": "boolean",
-      "group-id": "52",
-      "desc": "Recalculates screen proportions so that they suit wide-screen displays.\nIf you toggle this variable from 0 to 1, it will recalculate your field of view (fov) and screen proportions (conwidth/conheight ratio) so that the resulting image looks similar on a 16:10 screen as it did on 4:3 screen.",
-      "remarks": "The effect of the variable is only changing values of \"fov\" and \"vid_conheight\" variables when you toggle the value of this variable. The algorithm used to get resulting values is described in the QuakeWorld wiki.",
-      "values": [
-        {
-          "description": "Keep the settings suitable for 4:3 screen.",
-          "name": "false"
-        },
-        {
-          "description": "Recalculate proportions to match 16:10 screens.",
-          "name": "true"
-        }
-      ],
-      "ast": null
     },
     "vid_width": {
       "type": "integer",
@@ -67167,24 +66201,6 @@
         "trailing_comment": null
       },
       "desc": "Width of display when in windowed mode."
-    },
-    "vid_window_x": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the x-axis location of the top left corner of the game window on the desktop.",
-      "ast": null
-    },
-    "vid_window_y": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the y-axis location of the top left corner of the game window on the desktop.",
-      "ast": null
-    },
-    "vid_windowed_mode": {
-      "type": "float",
-      "group-id": "31",
-      "desc": "This variable sets the windowed video mode that the game will switch to when the \"vid_windowed\" command is executed.",
-      "ast": null
     },
     "vid_xpos": {
       "type": "integer",
@@ -67362,7 +66378,7 @@
       "ast": {
         "c_ident": "w_switch",
         "source_file": "cl_main.c",
-        "source_line": 248,
+        "source_line": 250,
         "source_column": 9,
         "storage_class": "none",
         "flags_raw": "CVAR_USERINFO",
@@ -67468,14 +66484,14 @@
     }
   },
   "_stats": {
-    "source_total": 5595,
-    "client": 2571,
+    "source_total": 5603,
+    "client": 2579,
     "server_only": 162,
     "with_flags": 221,
     "with_onchange": 137,
     "with_bounds": 0,
-    "with_group": 2437,
-    "with_help_desc": 1887,
+    "with_group": 2443,
+    "with_help_desc": 1908,
     "flag_histogram": {
       "CVAR_COLOR": 48,
       "CVAR_ROM": 32,
@@ -67501,7 +66517,7 @@
       "bucket4_sdk_blocked": 0,
       "last_validated_against_runtime": "2026-04-26"
     },
-    "help_only": 168
+    "help_only": 54
   },
   "default_overrides": {
     "v_gamma": [
