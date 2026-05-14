@@ -633,10 +633,19 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
             LIMIT 1
           `;
           if (exists.length === 0) {
+            // to_state captures the entity's state at row.version after the
+            // citation flipped null. At HEAD the entity still exists in
+            // help-JSON without source backing -> 'doc_only'. At earlier
+            // versions, retain the historical 'source_retired' semantics
+            // (the entity may have been re-added later, in which case a
+            // separate backfill_match transition fires).
+            const flipToState: SourceState = Number(row.ordinal) === HEAD_ORDINAL
+              ? 'doc_only'
+              : 'source_retired';
             await logTransition(tx, {
               entity_id: Number(row.entity_id),
               from_state: 'source_backed',
-              to_state: 'source_retired',
+              to_state: flipToState,
               reason: 'source_retired_at_version',
               version_context: row.version,
               extractor_run_id: extractorRunId,

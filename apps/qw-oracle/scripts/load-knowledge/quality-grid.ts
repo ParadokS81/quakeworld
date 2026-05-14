@@ -1400,7 +1400,7 @@ async function probeMvdsvTrailingCommentCoverageCvars(ctx: ProbeContext): Promis
 //
 //   ezquake: cmdline_param  doc_only=1 source_backed=69 source_retired=7
 //            command        doc_only=7 source_backed=495 source_retired=62
-//            cvar           doc_only=52 source_backed=2741 source_retired=204
+//            cvar           doc_only=47 source_backed=2741 source_retired=204
 //            macro          doc_only=2 source_backed=66
 //            hud_element    source_backed=83 source_retired=2
 //            (others: source_backed only)
@@ -1562,8 +1562,8 @@ const EZQUAKE_FLOOR_PROBES: Probe[] = [
   makeFloorSourceStateProbe('ezquake', 'cmdline_param', { doc_only: 1, source_backed: 69, source_retired: 7 }),
   makeFloorCountProbe('ezquake', 'command', 564),
   makeFloorSourceStateProbe('ezquake', 'command', { doc_only: 7, source_backed: 495, source_retired: 62 }),
-  makeFloorCountProbe('ezquake', 'cvar', 2997),
-  makeFloorSourceStateProbe('ezquake', 'cvar', { doc_only: 52, source_backed: 2741, source_retired: 204 }),
+  makeFloorCountProbe('ezquake', 'cvar', 2992),
+  makeFloorSourceStateProbe('ezquake', 'cvar', { doc_only: 47, source_backed: 2741, source_retired: 204 }),
   makeFloorCountProbe('ezquake', 'flag_bit', 50),
   makeFloorSourceStateProbe('ezquake', 'flag_bit', { source_backed: 50 }),
   makeFloorCountProbe('ezquake', 'hud_element', 85),
@@ -1695,7 +1695,7 @@ async function probeEzquakeDocOnlyCount(ctx: ProbeContext): Promise<ProbeResult>
     SELECT COUNT(*)::int AS n FROM entities
     WHERE project='ezquake' AND source_state='doc_only'
   `;
-  const expected = 62;
+  const expected = 57;
   const actual = rows[0]!.n;
   return {
     name,

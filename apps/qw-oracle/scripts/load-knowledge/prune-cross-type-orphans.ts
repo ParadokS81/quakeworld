@@ -85,10 +85,14 @@ export async function pruneCrossTypeOrphans(
 
   const ids = orphanRows.map((r) => Number(r.id));
   // Single bulk delete per table using ANY(int[]) is faster than per-row loop
-  // and stays inside the txn.
+  // and stays inside the txn. change_events FKs entity_id; without an
+  // explicit cascade it blocks the entities DELETE for any orphan whose
+  // history was diffed by a prior diff-versions run (surfaced 2026-05-15
+  // after the entity-state-retreat fix exposed scr_weaponstats_* orphans).
   await tx`DELETE FROM ${tx(versionsTable)} WHERE entity_id = ANY(${ids}::bigint[])`;
   await tx`DELETE FROM source_state_transitions WHERE entity_id = ANY(${ids}::bigint[])`;
   await tx`DELETE FROM source_overrides WHERE entity_id = ANY(${ids}::bigint[])`;
+  await tx`DELETE FROM change_events WHERE entity_id = ANY(${ids}::bigint[])`;
   await tx`DELETE FROM entities WHERE id = ANY(${ids}::bigint[])`;
 
   return { type, pruned: ids.length };
