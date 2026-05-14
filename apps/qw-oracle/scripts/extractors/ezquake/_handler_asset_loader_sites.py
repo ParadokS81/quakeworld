@@ -26,20 +26,100 @@ from extractor_lib._source import read_extent, strip_quotes  # noqa: E402
 
 
 LOADER_FUNCTIONS: set[str] = {
+    # FS primitives (generic; categorized by enclosing function or path extension)
     "FS_LoadFile",
+    "FS_LoadHeapFile",          # call-graph audit 2026-05-14: used by config exec, fragfiles, palette reload, locfiles
+    "FS_LoadHunkFile",
+    "FS_LoadTempFile",          # call-graph audit 2026-05-14: used by skywind, sound, model, charset loaders
     "FS_OpenVFS",
     "FS_WriteFile",
+
+    # Pre-existing categorized loaders
     "Draw_CachePicSafe",
-    "R_LoadPicImage",
+    "Mod_FindName",
+    "Mod_ForName",
+    "PlayQWZDemo",
     "R_LoadCharsetImage",
     "R_LoadImagePixels",
-    "Mod_ForName",
-    "Mod_FindName",
+    "R_LoadPicImage",
     "S_PrecacheSound",
-    "W_LoadWadFile",
     "TP_LoadLocFile",
-    "PlayQWZDemo",
-    "FS_LoadHunkFile",
+    "W_LoadWadFile",
+
+    # Sky / skybox (call-graph audit 2026-05-14)
+    "Mod_LoadExternalSkyTexture",
+    "R_LoadSkyTexturePixels",
+    "Sky_LoadSkyboxTextures",
+
+    # Models (call-graph audit 2026-05-14)
+    "Mod_LoadAlias3Model",
+    "Mod_LoadAliasModel",
+    "Mod_LoadAllSkins",
+    "Mod_LoadBrushModel",
+    "Mod_LoadExternalSkin",
+    "Mod_LoadExternalSpriteSkin",
+    "Mod_LoadExternalTexture",
+    "Mod_LoadLighting",
+    "Mod_LoadModel",
+    "Mod_LoadSimpleTexture",
+    "Mod_LoadSpriteFrame",
+    "Mod_LoadTextures",
+    "Mod_MD3LoadSkins",
+    "Mod_ReadFlagsFromMD1",
+    "R_LoadBrushModelTextures",
+
+    # Textures / images (call-graph audit 2026-05-14)
+    "Image_LoadJPEG",
+    "Image_LoadPCX",
+    "Image_LoadPNG",
+    "Image_LoadPNG_All",
+    "Image_LoadTGA",
+    "Image_OpenAPNG",
+    "QMB_LoadTextureImage",
+    "R_LoadTextureImage",
+
+    # Charset (call-graph audit 2026-05-14)
+    "Draw_LoadCharset",
+    "Load_LMP_Charset",
+    "Load_Locale_Charset",
+
+    # Skins -- player (call-graph audit 2026-05-14)
+    "Skin_Cache",
+    "Skin_PixelsLoad",
+
+    # HUD / UI / 2D (call-graph audit 2026-05-14)
+    "CL_LoginImageLoad",
+    "Draw_CachePic",
+    "Draw_CacheWadPic",
+    "SCR_HUD_LoadGroupPic",
+    "SCR_LoadCursorImage",
+
+    # Sound (call-graph audit 2026-05-14)
+    "S_LoadSound",
+
+    # Map / BSP + lighting (call-graph audit 2026-05-14)
+    "CM_LoadMap",
+    "CM_LoadPhysicsNormals",
+    "CM_OpenMap",
+    "LoadColoredLighting",
+
+    # Demo (call-graph audit 2026-05-14)
+    "CL_Open_Demo_File",
+
+    # Archive (call-graph audit 2026-05-14)
+    "WAD3_LoadWadFile",
+
+    # QuakeC / VM (call-graph audit 2026-05-14)
+    "PR1_LoadProgs",
+    "PR2_LoadProgs",
+    "VM_LoadQVM",
+    "VM_LoadSymbols",
+
+    # Palette / colormap (call-graph audit 2026-05-14)
+    "ReloadPaletteAndColormap",
+
+    # Frag stats (call-graph audit 2026-05-14)
+    "LoadFragFile",
 }
 
 # Generic filesystem primitives. When called with a non-literal path and no
@@ -49,22 +129,104 @@ LOADER_FUNCTIONS: set[str] = {
 # skill can distinguish "we know this is FS-layer code" from "novel finding
 # that needs triage."
 GENERIC_FS_PRIMITIVES: set[str] = {
-    "FS_OpenVFS",
     "FS_LoadFile",
+    "FS_LoadHeapFile",
     "FS_LoadHunkFile",
+    "FS_LoadTempFile",
+    "FS_OpenVFS",
     "FS_WriteFile",
 }
 
 FUNCTION_TO_CATEGORY: dict[str, str] = {
-    "S_PrecacheSound": "ezquake:asset_category:sound",
-    "W_LoadWadFile": "ezquake:asset_category:wad",
-    "R_LoadCharsetImage": "ezquake:asset_category:charset",
-    "Mod_ForName": "ezquake:asset_category:model",
-    "Mod_FindName": "ezquake:asset_category:model",
+    # Pre-existing
     "Draw_CachePicSafe": "ezquake:asset_category:hud_overlay",
-    "R_LoadPicImage": "ezquake:asset_category:texture",
-    "TP_LoadLocFile": "ezquake:asset_category:locfile",
+    "Mod_FindName": "ezquake:asset_category:model",
+    "Mod_ForName": "ezquake:asset_category:model",
     "PlayQWZDemo": "ezquake:asset_category:demo_archive",
+    "R_LoadCharsetImage": "ezquake:asset_category:charset",
+    "R_LoadPicImage": "ezquake:asset_category:texture",
+    "S_PrecacheSound": "ezquake:asset_category:sound",
+    "TP_LoadLocFile": "ezquake:asset_category:locfile",
+    "W_LoadWadFile": "ezquake:asset_category:wad",
+
+    # Sky / skybox (call-graph audit 2026-05-14)
+    "Mod_LoadExternalSkyTexture": "ezquake:asset_category:skybox",
+    "R_LoadSkyTexturePixels": "ezquake:asset_category:skybox",
+    "Sky_LoadSkyboxTextures": "ezquake:asset_category:skybox",
+
+    # Models (call-graph audit 2026-05-14)
+    "Mod_LoadAlias3Model": "ezquake:asset_category:model",
+    "Mod_LoadAliasModel": "ezquake:asset_category:model",
+    "Mod_LoadBrushModel": "ezquake:asset_category:map",
+    "Mod_LoadModel": "ezquake:asset_category:model",
+    "Mod_LoadSpriteFrame": "ezquake:asset_category:sprite",
+    "Mod_ReadFlagsFromMD1": "ezquake:asset_category:model",
+
+    # Model textures / skins (call-graph audit 2026-05-14)
+    "Mod_LoadAllSkins": "ezquake:asset_category:model_texture",
+    "Mod_LoadExternalSkin": "ezquake:asset_category:model_texture",
+    "Mod_LoadExternalSpriteSkin": "ezquake:asset_category:model_texture",
+    "Mod_LoadSimpleTexture": "ezquake:asset_category:model_texture",
+    "Mod_MD3LoadSkins": "ezquake:asset_category:model_texture",
+
+    # Map textures / lighting (call-graph audit 2026-05-14)
+    "Mod_LoadExternalTexture": "ezquake:asset_category:map_texture",
+    "Mod_LoadTextures": "ezquake:asset_category:map_texture",
+    "R_LoadBrushModelTextures": "ezquake:asset_category:map_texture",
+    "Mod_LoadLighting": "ezquake:asset_category:map_lighting",
+    "LoadColoredLighting": "ezquake:asset_category:map_lighting",
+
+    # Map / BSP (call-graph audit 2026-05-14)
+    "CM_LoadMap": "ezquake:asset_category:map",
+    "CM_LoadPhysicsNormals": "ezquake:asset_category:map",
+    "CM_OpenMap": "ezquake:asset_category:map",
+
+    # Textures / images (call-graph audit 2026-05-14)
+    "Image_LoadJPEG": "ezquake:asset_category:texture",
+    "Image_LoadPCX": "ezquake:asset_category:skin",
+    "Image_LoadPNG": "ezquake:asset_category:texture",
+    "Image_LoadPNG_All": "ezquake:asset_category:texture",
+    "Image_LoadTGA": "ezquake:asset_category:texture",
+    "Image_OpenAPNG": "ezquake:asset_category:texture",
+    "QMB_LoadTextureImage": "ezquake:asset_category:texture",
+    "R_LoadTextureImage": "ezquake:asset_category:texture",
+
+    # Charset (call-graph audit 2026-05-14)
+    "Draw_LoadCharset": "ezquake:asset_category:charset",
+    "Load_LMP_Charset": "ezquake:asset_category:charset",
+    "Load_Locale_Charset": "ezquake:asset_category:charset",
+
+    # Skins -- player (call-graph audit 2026-05-14)
+    "Skin_Cache": "ezquake:asset_category:skin",
+    "Skin_PixelsLoad": "ezquake:asset_category:skin",
+
+    # HUD / UI / 2D (call-graph audit 2026-05-14)
+    "CL_LoginImageLoad": "ezquake:asset_category:hud_overlay",
+    "Draw_CachePic": "ezquake:asset_category:hud_overlay",
+    "Draw_CacheWadPic": "ezquake:asset_category:hud_overlay",
+    "SCR_HUD_LoadGroupPic": "ezquake:asset_category:hud_overlay",
+    "SCR_LoadCursorImage": "ezquake:asset_category:hud_overlay",
+
+    # Sound (call-graph audit 2026-05-14)
+    "S_LoadSound": "ezquake:asset_category:sound",
+
+    # Demo (call-graph audit 2026-05-14)
+    "CL_Open_Demo_File": "ezquake:asset_category:demo",
+
+    # Archive (call-graph audit 2026-05-14)
+    "WAD3_LoadWadFile": "ezquake:asset_category:wad",
+
+    # QuakeC / VM (call-graph audit 2026-05-14)
+    "PR1_LoadProgs": "ezquake:asset_category:quakec_progs",
+    "PR2_LoadProgs": "ezquake:asset_category:quakec_progs",
+    "VM_LoadQVM": "ezquake:asset_category:quakec_progs",
+    "VM_LoadSymbols": "ezquake:asset_category:quakec_progs",
+
+    # Palette / colormap (call-graph audit 2026-05-14)
+    "ReloadPaletteAndColormap": "ezquake:asset_category:palette",
+
+    # Frag stats (call-graph audit 2026-05-14)
+    "LoadFragFile": "ezquake:asset_category:config",
 }
 
 EXT_TO_CATEGORY: dict[str, str] = {
