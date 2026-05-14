@@ -1,0 +1,24 @@
+<noinclude>
+This is the Phase 2 smoke-test form. Created during the arc qwiki-v1-beta
+substrate verification to confirm Page Forms is loaded, the NS_FORM
+namespace exists, and form submissions create pages via Template:Test.
+
+After Phase 2 phase-boundary verification passes, the operator may delete
+Form:TestForm + Template:Test + the resulting TestPage, OR keep them as
+breadcrumbs. The wikitext is preserved here regardless.
+
+Paste this entire <includeonly>...</includeonly> block (without the
+<noinclude> preamble) into Special:CreatePage at page title "Form:TestForm".
+</noinclude>
+<includeonly>{{{for template|Test}}}
+{| class="formtable"
+! Test name:
+| {{{field|name|input type=text|mandatory|size=40}}}
+|-
+! Test note:
+| {{{field|note|input type=textarea|rows=4|cols=60}}}
+|}
+{{{end template}}}
+
+{{{standard input|save}}} {{{standard input|cancel}}}
+</includeonly>

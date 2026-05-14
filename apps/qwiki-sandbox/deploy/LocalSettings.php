@@ -1,15 +1,17 @@
 <?php
 # apps/qwiki-sandbox/deploy/LocalSettings.php
-# MediaWiki 1.43 LTS configuration for qwiki-v1-beta (wiki-beta.quake.world).
+# MediaWiki 1.43 LTS configuration for qwiki-v1-beta (wiki.slipgate.me).
 # Hand-authored; install.php is run once to bootstrap the DB schema, but its
 # generated LocalSettings.php is discarded in favor of this committed file.
 #
 # Secrets read from the container's environment (populated via docker-compose
 # env_file or environment block); never committed in plaintext here.
 #
-# Phase 1 scope: MW core + Citizen skin only. No extensions (Phase 2), no auth
-# (Phase 3), no quality-tag categories (Phase 4). MW default
-# $wgGroupPermissions['*']['edit'] = false (anonymous edit blocked) is preserved.
+# Phase 1 scope: MW core + Citizen skin only.
+# Phase 2 scope (this revision): + Page Forms + Semantic MediaWiki.
+# Phase 3: + PluggableAuth + Discord OAuth + wiki-contributor / wiki-curator
+# groups + namespace edit restrictions per D4 / D5.
+# Phase 4: + quality-tag categories per D18.
 
 if ( !defined( 'MEDIAWIKI' ) ) {
     exit;
@@ -83,9 +85,9 @@ $wgDefaultSkin = "citizen";
 
 # Citizen v3 options. Phase 1 keeps defaults; wiki-specific tuning (left-rail
 # TOC behavior, dark-mode default, search subsystem) lands in subsequent
-# phases as authoring conventions firm up. Per D2 Amendment #2 we do not set
-# $wgCitizenEnableCommandPalette -- the v3 default enables the command palette,
-# so the v2-era explicit pin is unnecessary.
+# phases as authoring conventions firm up. Note: the v2-era
+# $wgCitizenEnableCommandPalette option was removed in Citizen v3 (search
+# subsystem renamed); the v3 default is already what we want.
 
 # --- Permissions ----------------------------------------------------------
 
@@ -124,3 +126,23 @@ $wgEnotifWatchlist = false;
 # Honor X-Forwarded-For from CF Tunnel + nginx for accurate IP logging.
 $wgUseCdn = false;
 $wgUsePathInfo = true;
+
+# --- Extensions (Phase 2) -------------------------------------------------
+#
+# Page Forms (REL1_43 branch HEAD at deploy time). Installed via git clone
+# into /mnt/user/appdata/qwiki-beta/page-forms/ on Unraid; overlay-bound
+# onto /var/www/html/extensions/PageForms by docker-compose.prod.yml.
+# Introduces the Form (NS_FORM = 106) and Form_talk namespaces; Phase 3
+# restricts these to the wiki-curator group per D5.
+wfLoadExtension( 'PageForms' );
+
+# Semantic MediaWiki 6.0.x. Installed via Composer (composer.local.json at
+# MW root declares mediawiki/semantic-media-wiki ~6.0.1; one-shot
+# `composer update --no-dev` resolves SMW into extensions/SemanticMediaWiki/
+# and its dependencies into vendor/, both under the mediawiki-html parent
+# bind-mount). enableSemantics() activates SMW's hooks, special pages, and
+# semantic namespaces (Property = NS_PROPERTY, Concept = NS_CONCEPT, etc.);
+# the call MUST follow wfLoadExtension( 'SemanticMediaWiki' ) and takes
+# the wiki's host (no scheme, no trailing slash).
+wfLoadExtension( 'SemanticMediaWiki' );
+enableSemantics( 'wiki.slipgate.me' );

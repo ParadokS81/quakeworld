@@ -1,0 +1,9 @@
+<noinclude>
+This is the Phase 2 smoke-test template. Receives the two fields submitted
+by Form:TestForm. Paste this entire body into Special:CreatePage at page
+title "Template:Test".
+</noinclude>'''Test name:''' {{{name|}}}
+
+{{#if:{{{note|}}}|'''Test note:''' {{{note}}}|}}
+
+[[Category:Test pages]]

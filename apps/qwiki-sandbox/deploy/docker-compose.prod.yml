@@ -3,6 +3,11 @@
 # + MariaDB 11.4 LTS. nginx fronts both static-asset serving (from the
 # shared mediawiki-html bind mount) and fastcgi proxying to mediawiki:9000.
 #
+# Phase 2 (this revision) adds the Page Forms overlay bind. Semantic
+# MediaWiki is installed via Composer into mediawiki-html/extensions/
+# SemanticMediaWiki/ and does NOT need a new bind (it lives inside the
+# parent mediawiki-html bind-mount).
+#
 # Operator workflow (see deploy/README.md). All persistent data lives under
 # /mnt/user/appdata/qwiki-beta/, which is on the weekly Unraid -> Synology
 # backup (D3). That includes the MW source tree at mediawiki-html/, which
@@ -54,6 +59,10 @@ services:
       - /mnt/user/appdata/qwiki-beta/mediawiki-data:/var/www/html/images
       # Citizen skin overlay (git-checked-out v3.16.0 on host); read-only.
       - /mnt/user/appdata/qwiki-beta/citizen:/var/www/html/skins/Citizen:ro
+      # Page Forms overlay (Phase 2; git-checked-out REL1_43 on host);
+      # read-only. Sibling host path so MW image-bump rsync against
+      # mediawiki-html/ doesn't wipe it.
+      - /mnt/user/appdata/qwiki-beta/page-forms:/var/www/html/extensions/PageForms:ro
       # Hand-authored LocalSettings.php overlay; read-only.
       - /mnt/user/appdata/qwiki-beta/LocalSettings.php:/var/www/html/LocalSettings.php:ro
     networks:
@@ -70,7 +79,7 @@ services:
       - mediawiki
     ports:
       # Bind to the Unraid host's LAN address (192.168.1.205) only -- the
-      # existing Cloudflare Tunnel agent routes wiki-beta.quake.world to this
+      # existing Cloudflare Tunnel agent routes wiki.slipgate.me to this
       # address from the same Unraid box. Loopback would not be reachable from
       # the cloudflared container (separate network namespace); 0.0.0.0 would
       # expose the wiki on the LAN without Cloudflare's edge protection.
@@ -85,6 +94,11 @@ services:
       - /mnt/user/appdata/qwiki-beta/mediawiki-data:/var/www/html/images:ro
       # Same Citizen skin overlay, read-only.
       - /mnt/user/appdata/qwiki-beta/citizen:/var/www/html/skins/Citizen:ro
+      # Same Page Forms overlay (Phase 2), read-only. Static CSS / JS under
+      # extensions/PageForms/ is served by nginx directly per the
+      # /(skins|extensions|resources)/.../...static-extensions location
+      # block in nginx.conf.
+      - /mnt/user/appdata/qwiki-beta/page-forms:/var/www/html/extensions/PageForms:ro
     networks:
       - qwiki-net
 

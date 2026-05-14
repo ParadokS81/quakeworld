@@ -15,8 +15,9 @@ Persistent data and configs live at `/mnt/user/appdata/qwiki-beta/`:
 
 - `mariadb-data/`             - MariaDB state. Covered by the weekly Unraid -> Synology backup.
 - `mediawiki-data/`           - MW uploaded images + cache (`/var/www/html/images`).
-- `mediawiki-html/`           - MW core source tree (`/var/www/html`). Extracted from `mediawiki:1.43-fpm` at first deploy; refreshed on each MW image bump per the procedure below.
+- `mediawiki-html/`           - MW core source tree (`/var/www/html`). Extracted from `mediawiki:1.43-fpm` at first deploy; refreshed on each MW image bump per the procedure below. Includes `composer.local.json` + `composer.lock` + `extensions/SemanticMediaWiki/` + `vendor/` (composer-managed, Phase 2+).
 - `citizen/`                  - Citizen skin git checkout at v3.16.0 (overlays `/var/www/html/skins/Citizen`).
+- `page-forms/`               - Page Forms git checkout at REL1_43 branch (overlays `/var/www/html/extensions/PageForms`); added in Phase 2.
 - `docker-compose.prod.yml`   - scp'd from `apps/qwiki-sandbox/deploy/`.
 - `nginx.conf`                - scp'd from `apps/qwiki-sandbox/deploy/`.
 - `LocalSettings.php`         - scp'd from `apps/qwiki-sandbox/deploy/`.
@@ -231,6 +232,179 @@ All deploy commands below use `ssh unraid-deploy` -- a non-root user (`claude-de
     while logged out; expect "you must be logged in" or "you do not have
     permission to edit this page."
 
+## Phase 2: install Page Forms + Semantic MediaWiki
+
+Run these steps after Phase 1 first-time-deploy succeeds and after the
+Phase 2 commit (composer.local.json, updated docker-compose.prod.yml,
+updated LocalSettings.php, test-form artifacts) is on `main`. Same
+operator-WSL + Unraid SSH pattern as first-time deploy.
+
+1. Create the Phase 2 sibling appdata directory:
+
+   ```bash
+   ssh unraid-deploy 'mkdir -p /mnt/user/appdata/qwiki-beta/page-forms'
+   ```
+
+2. Git-clone Page Forms at the `REL1_43` branch into the sibling path:
+
+   ```bash
+   ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
+     git clone --branch REL1_43 --depth 1 \
+       https://github.com/wikimedia/mediawiki-extensions-PageForms.git page-forms'
+   ```
+
+   The Wikimedia mirror tracks the canonical Gerrit repo and is the same
+   source the bundled MW Composer ecosystem uses. REL1_43 is the active
+   branch for MW 1.43.x; no GitHub-tagged release exists on this mirror.
+   The `--depth 1` is fine because we do not maintain Page Forms
+   development history locally -- we only need the checkout to bind into
+   the mediawiki container.
+
+3. scp the Phase 2 deploy artifacts (composer.local.json + updated
+   LocalSettings.php + updated docker-compose.prod.yml) to Unraid:
+
+   ```bash
+   # from operator's WSL
+   scp apps/qwiki-sandbox/deploy/composer.local.json \
+       unraid-deploy:/mnt/user/appdata/qwiki-beta/mediawiki-html/
+   scp apps/qwiki-sandbox/deploy/LocalSettings.php \
+       apps/qwiki-sandbox/deploy/docker-compose.prod.yml \
+       unraid-deploy:/mnt/user/appdata/qwiki-beta/
+   ```
+
+   The Phase 2 LocalSettings.php is the file in step 4 below -- before
+   `wfLoadExtension( 'SemanticMediaWiki' )` parses cleanly, SMW source +
+   deps must exist on disk, so the LocalSettings scp happens here but
+   the mediawiki container restart waits until step 5 finishes.
+
+4. Composer-install SMW 6.0.x + its dependencies via a one-shot
+   `composer:latest` container. MW's bundled `composer.json` includes the
+   `composer-merge-plugin`, which picks up `composer.local.json` and
+   merges its `require` section into the resolution graph. The result
+   is: `extensions/SemanticMediaWiki/` populated with SMW source +
+   `vendor/` populated with SMW deps (alongside MW's own vendor entries).
+
+   ```bash
+   ssh unraid-deploy 'docker run --rm \
+     -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app \
+     -w /app composer:latest \
+     composer update --no-dev --no-interaction --no-progress --prefer-dist'
+   ```
+
+   Expected output ends with `Generating optimized autoload files` plus
+   the per-package install lines. Verify SMW landed on disk:
+
+   ```bash
+   ssh unraid-deploy 'ls /mnt/user/appdata/qwiki-beta/mediawiki-html/extensions/SemanticMediaWiki/extension.json && \
+               ls /mnt/user/appdata/qwiki-beta/mediawiki-html/composer.lock'
+   ```
+
+   Both `ls` calls should return paths without error.
+
+5. Bring the updated docker-compose up so the mediawiki + nginx services
+   pick up the new Page Forms bind. The mediawiki container needs a
+   restart anyway to pick up the new LocalSettings.php; a single
+   `up -d` covers both:
+
+   ```bash
+   ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
+     docker compose -f docker-compose.prod.yml up -d && \
+     docker compose -f docker-compose.prod.yml ps'
+   ```
+
+   Wait until all three containers show `Up` (mariadb `(healthy)`). If
+   mediawiki keeps restarting, consult Troubleshooting below.
+
+6. Run MW's `maintenance/update.php` inside the mediawiki container to
+   create the SMW + Page Forms schema tables (`smw_object_ids`,
+   `smw_di_blob`, `smw_di_wikipage`, etc.; plus PF's `pf_forms` etc.):
+
+   ```bash
+   ssh unraid-deploy 'docker exec qwiki-mediawiki \
+     php /var/www/html/maintenance/update.php --quick'
+   ```
+
+   `--quick` skips the 5-second "press control-c to abort" delay. Expect
+   a sequence of `Creating ...` and `... Done` lines, ending with
+   `Done in <N>.<N>s.`. Confirm SMW tables exist:
+
+   ```bash
+   ssh unraid-deploy 'set -a && . /mnt/user/appdata/qwiki-beta/.env && set +a && \
+     docker exec -e MYSQL_PWD="$MARIADB_ROOT_PASSWORD" qwiki-mariadb \
+     mariadb -uroot -N -B -e "USE qwiki_beta; SHOW TABLES LIKE \"smw_%\";"' | wc -l
+   ```
+
+   Expect a count >= 10 (SMW 6.0.x ships ~16 `smw_*` tables; threshold
+   of 10 is the conservative pass condition). The `-N -B` flags suppress
+   mariadb's column-header + ASCII-border formatting so `wc -l` counts
+   table rows only.
+
+7. Drain any SMW jobs that the update queued:
+
+   ```bash
+   ssh unraid-deploy 'docker exec qwiki-mediawiki \
+     php /var/www/html/maintenance/runJobs.php'
+   ```
+
+   Expect exit code 0 and a line like `Job queue is empty.` or
+   `<N> jobs run, <0> failed` (post-Phase-2-install the queue typically
+   starts empty since no pages have semantic annotations yet).
+
+8. Create the smoke-test Form + Template + verify form-driven page
+   creation. Log into the wiki at `https://wiki.slipgate.me` as the
+   `Admin` user from the Phase 1 install.php run (or the rotated
+   password if the operator changed it).
+
+   - Visit `Special:CreatePage` (or paste a URL: `https://wiki.slipgate.me/index.php?title=Special:CreatePage`).
+   - Page title: `Form:TestForm`. Paste the body from
+     `apps/qwiki-sandbox/deploy/test-form/Form-TestForm.wikitext` (the
+     `<includeonly>...</includeonly>` block, without the `<noinclude>`
+     preamble). Save.
+   - Repeat: page title `Template:Test`. Paste the body from
+     `apps/qwiki-sandbox/deploy/test-form/Template-Test.wikitext`
+     (without the `<noinclude>` preamble). Save.
+   - Visit `Special:FormEdit/TestForm`. The form renders with two
+     inputs (Test name + Test note) and a Save / Cancel button row.
+   - Enter "TestPage" as the page title (top input), "Hello QWiki" as
+     Test name, "Phase 2 verification" as Test note. Submit.
+   - MW redirects to `TestPage` in main namespace; the rendered output
+     shows the two fields plus `Category:Test pages` at the bottom.
+   - Visit `Special:Version`. Confirm a "Page Forms" entry (with
+     version string from REL1_43 HEAD) and a "Semantic MediaWiki"
+     entry (with `6.0.x` version string) appear under
+     "Installed extensions".
+
+   If `Special:FormEdit/TestForm` 404s or "no such page" errors,
+   `Form:TestForm` did not save correctly -- recheck the paste body
+   for accidentally-included `<noinclude>` block (the preamble must
+   NOT be pasted; only the `<includeonly>` body).
+
+9. Final job-queue drain (the test-form submission likely enqueued one
+   or two SMW jobs):
+
+   ```bash
+   ssh unraid-deploy 'docker exec qwiki-mediawiki \
+     php /var/www/html/maintenance/runJobs.php'
+   ```
+
+   Expect `<N> jobs run, 0 failed`.
+
+10. Commit + push the Phase 2 artifacts (composer.local.json + the
+    updated compose / LocalSettings / README + the test-form/
+    directory + OVERVIEW.md update) to `main`. Operator-WSL side:
+
+    ```bash
+    # from /home/paradoks/projects/quakeworld
+    git add apps/qwiki-sandbox/deploy/composer.local.json \
+            apps/qwiki-sandbox/deploy/docker-compose.prod.yml \
+            apps/qwiki-sandbox/deploy/LocalSettings.php \
+            apps/qwiki-sandbox/deploy/README.md \
+            apps/qwiki-sandbox/deploy/test-form/ \
+            apps/qwiki-sandbox/OVERVIEW.md
+    git commit -m "phase(qwiki-v1-beta): Phase 2 -- Page Forms REL1_43 + Semantic MediaWiki 6.0.x extensions installed on wiki.slipgate.me"
+    git push origin main
+    ```
+
 ## Routine redeploy (LocalSettings change)
 
 ```bash
@@ -271,7 +445,7 @@ survive.
 
 ## Routine MW image bump procedure
 
-Use whenever a new MW patch ships (typically every ~2 months for the 1.43.x LTS line). Refreshes the `mediawiki-html/` bind-mount tree from the new image, preserving the overlay paths (uploads / Citizen / LocalSettings / Phase 2+ extensions).
+Use whenever a new MW patch ships (typically every ~2 months for the 1.43.x LTS line). Refreshes the `mediawiki-html/` bind-mount tree from the new image, preserving the overlay paths (uploads / Citizen / Page Forms / LocalSettings) AND the composer-managed Phase 2 surface (composer.local.json + composer.lock + extensions/SemanticMediaWiki/ + SMW's deps in vendor/).
 
 ```bash
 ssh unraid-deploy 'docker pull mediawiki:1.43-fpm && \
@@ -280,22 +454,74 @@ ssh unraid-deploy 'docker pull mediawiki:1.43-fpm && \
   docker create --name qwiki-mw-extract mediawiki:1.43-fpm && \
   docker cp qwiki-mw-extract:/var/www/html/. /tmp/mw-extract/ && \
   docker rm qwiki-mw-extract && \
-  rsync -a --delete /tmp/mw-extract/ /mnt/user/appdata/qwiki-beta/mediawiki-html/ && \
+  rsync -a --delete \
+    --exclude composer.local.json \
+    --exclude composer.lock \
+    --exclude extensions/SemanticMediaWiki \
+    /tmp/mw-extract/ /mnt/user/appdata/qwiki-beta/mediawiki-html/ && \
   rm -rf /tmp/mw-extract && \
+  docker run --rm \
+    -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app \
+    -w /app composer:latest \
+    composer update --no-dev --no-interaction --no-progress --prefer-dist && \
   docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml up -d'
 ```
 
-Then run MW's update.php to apply any DB schema migrations the new patch ships:
+Then run MW's update.php to apply any DB schema migrations the new patch (and any auto-bumped SMW patch) ships:
 
 ```bash
 ssh unraid-deploy 'docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick'
 ```
 
-Smoke-check via the V1 / V2 probes from the phase MD's "Verification (phase boundary)" section.
+Drain any SMW jobs the update enqueued:
 
-**Why the rsync indirection (vs `docker cp` directly into mediawiki-html/)?** `docker cp` doesn't delete files removed in the new image; rsync with `--delete` keeps the tree in sync with the image (no stale .php files from the prior patch). The child overlay binds (images/, skins/Citizen/, LocalSettings.php, Phase 2+ extensions/*) live at sibling host paths under `/mnt/user/appdata/qwiki-beta/` so they're untouched by the rsync to `mediawiki-html/`.
+```bash
+ssh unraid-deploy 'docker exec qwiki-mediawiki php /var/www/html/maintenance/runJobs.php'
+```
 
-**MW major-version upgrades (e.g., 1.43 -> 1.47 LTS)** are out of scope for this procedure; they're a separate arc that handles release-notes review, extension-version coordination, schema migration auditing, and pre-upgrade backup snapshotting.
+Smoke-check via the V1 / V2 probes from Phase 1's "Verification (phase boundary)" section plus the Phase 2 V_PF and V_SMW probes.
+
+**Why the rsync excludes?** `--exclude composer.local.json` keeps the Phase 2 SMW require declaration alive across the bump (the upstream image has no `composer.local.json`, so without the exclude the `--delete` flag would remove it). `--exclude composer.lock` keeps the resolved version pinning across the bump; the subsequent `composer update --no-dev` re-resolves from composer.local.json. `--exclude extensions/SemanticMediaWiki` keeps the prior SMW source tree in place until composer overwrites it; this avoids a transient state where SMW is half-removed.
+
+**Why re-run composer after rsync?** The rsync wipes MW's own `vendor/` (replacing it with the new image's vendor) but the Phase 2 SMW Composer deps (`onoi/*`, etc.) are not in MW core's vendor. Re-running `composer update` rebuilds the full dependency graph including SMW + its transitive deps. Idempotent; safe to re-run.
+
+**Why the rsync indirection (vs `docker cp` directly into mediawiki-html/)?** `docker cp` doesn't delete files removed in the new image; rsync with `--delete` keeps the tree in sync with the image (no stale .php files from the prior patch). The child overlay binds (images/, skins/Citizen/, extensions/PageForms via the `page-forms/` sibling, LocalSettings.php) live at sibling host paths under `/mnt/user/appdata/qwiki-beta/` so they're untouched by the rsync to `mediawiki-html/`.
+
+**MW major-version upgrades (e.g., 1.43 -> 1.47 LTS)** are out of scope for this procedure; they're a separate arc that handles release-notes review, extension-version coordination (Page Forms `REL1_47` branch + SMW major-version bump), schema migration auditing, and pre-upgrade backup snapshotting.
+
+## Routine redeploy (extension version bump)
+
+Two flavors: Page Forms (git-clone overlay) and Semantic MediaWiki (Composer).
+
+### Page Forms
+
+Pull the latest commit on the `REL1_43` branch into the sibling host path. The bind-mount picks it up; mediawiki + nginx restart picks up any cached class autoloads.
+
+```bash
+ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta/page-forms && git pull --ff-only && \
+  cd /mnt/user/appdata/qwiki-beta && \
+  docker compose -f docker-compose.prod.yml restart mediawiki && \
+  docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick'
+```
+
+If `git pull` reports a non-fast-forward (the wikimedia mirror force-pushed `REL1_43`, which is rare), inspect upstream history before pulling. For a major-version Page Forms bump (REL1_43 -> REL1_47 etc.), see "MW major-version upgrades" above.
+
+### Semantic MediaWiki
+
+Bump the SMW version pin in `apps/qwiki-sandbox/deploy/composer.local.json` (on operator's WSL), commit, scp the new file to Unraid, re-run composer update + maintenance/update.php + runJobs.
+
+```bash
+# on operator's WSL: edit composer.local.json, commit, push.
+scp apps/qwiki-sandbox/deploy/composer.local.json \
+    unraid-deploy:/mnt/user/appdata/qwiki-beta/mediawiki-html/
+ssh unraid-deploy 'docker run --rm \
+  -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app \
+  -w /app composer:latest \
+  composer update --no-dev --no-interaction --no-progress --prefer-dist && \
+  docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml restart mediawiki && \
+  docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick && \
+  docker exec qwiki-mediawiki php /var/www/html/maintenance/runJobs.php'
+```
 
 ## Operator commands
 
@@ -389,6 +615,36 @@ Smoke-check via the V1 / V2 probes from the phase MD's "Verification (phase boun
   Only safe at first-time deploy; this discards the MW DB schema. The
   mediawiki-html bind-mount tree is not affected.
 
+- **`composer update` fails with "Your requirements could not be resolved"** --
+  common cause is a too-tight version constraint in `composer.local.json` vs
+  what Packagist has published for SMW. Verify the latest tag at
+  `https://packagist.org/packages/mediawiki/semantic-media-wiki` and adjust
+  the constraint (e.g., relax `~6.0.1` to `~6.0` if 6.0.x has churned). Less
+  common: a transient Packagist outage; retry the composer run.
+
+- **`maintenance/update.php` errors with "SemanticMediaWiki: class not found"** --
+  composer did not generate the autoload entries for SMW. Verify
+  `/mnt/user/appdata/qwiki-beta/mediawiki-html/vendor/composer/autoload_classmap.php`
+  contains `SMW\` entries; if not, re-run `composer update --no-dev` and check
+  the output for "Generating optimized autoload files". If the file is empty
+  or missing, delete `vendor/composer/installed.json` + `composer.lock` and
+  re-run.
+
+- **`Special:FormEdit/TestForm` returns "Form does not exist"** -- the
+  `Form:TestForm` page was not saved into the NS_FORM namespace. Verify the
+  namespace was registered: `ssh unraid-deploy 'docker exec qwiki-mediawiki \
+  php /var/www/html/maintenance/run.php showJobs.php'` should not error; the
+  Form namespace appears in `Special:AllPages` namespace dropdown. If
+  NS_FORM is absent, restart mediawiki (the LocalSettings.php
+  `wfLoadExtension( 'PageForms' )` call may not have run after the scp).
+
+- **`Special:Version` lists Page Forms or SMW with an "ERROR" tag** -- check
+  `docker logs qwiki-mediawiki --tail 100` for PHP fatals. Common: PHP
+  extension missing (SMW requires `intl` + `mbstring`; the upstream
+  `mediawiki:1.43-fpm` image bundles both, so this is unlikely). If the log
+  shows a class-not-found, see the "class not found" troubleshooting entry
+  above.
+
 - **`docker compose` command not found after Unraid reboot** -- compose plugin
   is on tmpfs; reinstall per `apps/quad/DEPLOYMENT.md` "Compose plugin caveat".
   This is the one situation in this runbook that requires root: operator runs
@@ -400,15 +656,19 @@ Smoke-check via the V1 / V2 probes from the phase MD's "Verification (phase boun
 - **Backup:** inherited from Unraid -> Synology weekly tarball of `/mnt/user/appdata/`
   per `/home/paradoks/projects/unRAID/docs/server/backup.md`. No bespoke wiring
   required. Everything the stack needs is under `/mnt/user/appdata/qwiki-beta/`
-  (MariaDB data, MW source tree, uploaded images, Citizen, configs); the
-  weekly tarball captures all of it.
+  (MariaDB data including SMW's `smw_*` tables, MW source tree including SMW
+  source + Composer-managed vendor/, uploaded images, Citizen + Page Forms
+  overlays, configs); the weekly tarball captures all of it.
 
 - **Recovery (data loss):** restore `/mnt/user/appdata/qwiki-beta/` from the
   most recent Synology tarball, then bring the stack up. MariaDB state lives
-  in `mariadb-data/`; MW source in `mediawiki-html/`; uploaded images in
-  `mediawiki-data/`; Citizen skin in `citizen/`. Nothing else needs to be
-  re-pulled or re-extracted; the bind-mount layout means everything was in
-  the backup.
+  in `mariadb-data/` (including the `smw_*` tables); MW source in
+  `mediawiki-html/` (including SMW source at `extensions/SemanticMediaWiki/`
+  + SMW deps in `vendor/` + the `composer.local.json` / `composer.lock`
+  pins); uploaded images in `mediawiki-data/`; Citizen skin in `citizen/`;
+  Page Forms checkout in `page-forms/`. Nothing else needs to be re-pulled
+  or re-extracted; the bind-mount layout means everything was in the
+  backup.
 
 - **Recovery (LocalSettings.php damage):** `git checkout HEAD --
   apps/qwiki-sandbox/deploy/LocalSettings.php` in the operator's WSL, then
