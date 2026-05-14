@@ -1781,7 +1781,7 @@
       "source_line": 935,
       "source_column": 13,
       "enclosing_function": "Image_WritePNG",
-      "reads_category_id": "ezquake:asset_category:screenshot",
+      "reads_category_id": null,
       "load_trigger": "on_demand",
       "path_source": "computed",
       "path_literal": "%s",
@@ -1807,12 +1807,12 @@
       "source_line": 937,
       "source_column": 14,
       "enclosing_function": "Image_WritePNG",
-      "reads_category_id": "ezquake:asset_category:screenshot",
+      "reads_category_id": null,
       "load_trigger": "on_demand",
       "path_source": "unknown",
       "path_literal": null,
       "path_cvar_id": null,
-      "confidence": "heuristic",
+      "confidence": "intentionally_generic",
       "dev_only": 0,
       "notes": null,
       "path_template": null,
@@ -1827,7 +1827,7 @@
       "source_line": 991,
       "source_column": 18,
       "enclosing_function": "Image_OpenAPNG",
-      "reads_category_id": "ezquake:asset_category:screenshot",
+      "reads_category_id": null,
       "load_trigger": "on_demand",
       "path_source": "computed",
       "path_literal": "%s",
@@ -1853,12 +1853,12 @@
       "source_line": 993,
       "source_column": 19,
       "enclosing_function": "Image_OpenAPNG",
-      "reads_category_id": "ezquake:asset_category:screenshot",
+      "reads_category_id": null,
       "load_trigger": "on_demand",
       "path_source": "unknown",
       "path_literal": null,
       "path_cvar_id": null,
-      "confidence": "heuristic",
+      "confidence": "intentionally_generic",
       "dev_only": 0,
       "notes": null,
       "path_template": null,
@@ -1893,12 +1893,12 @@
       "source_line": 1373,
       "source_column": 18,
       "enclosing_function": "Image_WriteTGA",
-      "reads_category_id": "ezquake:asset_category:screenshot",
+      "reads_category_id": null,
       "load_trigger": "on_demand",
       "path_source": "unknown",
       "path_literal": null,
       "path_cvar_id": null,
-      "confidence": "heuristic",
+      "confidence": "intentionally_generic",
       "dev_only": 0,
       "notes": null,
       "path_template": null,
@@ -1913,12 +1913,12 @@
       "source_line": 1375,
       "source_column": 19,
       "enclosing_function": "Image_WriteTGA",
-      "reads_category_id": "ezquake:asset_category:screenshot",
+      "reads_category_id": null,
       "load_trigger": "on_demand",
       "path_source": "unknown",
       "path_literal": null,
       "path_cvar_id": null,
-      "confidence": "heuristic",
+      "confidence": "intentionally_generic",
       "dev_only": 0,
       "notes": null,
       "path_template": null,
@@ -1933,7 +1933,7 @@
       "source_line": 1482,
       "source_column": 18,
       "enclosing_function": "Image_WriteJPEG",
-      "reads_category_id": "ezquake:asset_category:screenshot",
+      "reads_category_id": null,
       "load_trigger": "on_demand",
       "path_source": "computed",
       "path_literal": "%s",
@@ -1959,12 +1959,12 @@
       "source_line": 1484,
       "source_column": 19,
       "enclosing_function": "Image_WriteJPEG",
-      "reads_category_id": "ezquake:asset_category:screenshot",
+      "reads_category_id": null,
       "load_trigger": "on_demand",
       "path_source": "unknown",
       "path_literal": null,
       "path_cvar_id": null,
-      "confidence": "heuristic",
+      "confidence": "intentionally_generic",
       "dev_only": 0,
       "notes": null,
       "path_template": null,
@@ -2311,62 +2311,6 @@
       "path_parameters": null,
       "path_extension": null,
       "format_function": null
-    },
-    {
-      "canonical_id": "ezquake:loader_site:Image_OpenAPNG_movie_Movie_Demo_Capture_f_1",
-      "function_name": "Image_OpenAPNG",
-      "source_file": "movie.c",
-      "source_line": 259,
-      "source_column": 20,
-      "enclosing_function": "Movie_Demo_Capture_f",
-      "reads_category_id": "ezquake:asset_category:texture",
-      "load_trigger": "on_demand",
-      "path_source": "computed",
-      "path_literal": "%s/capture_%02d-%02d-%04d_%02d-%02d-%02d/capture.png",
-      "path_cvar_id": null,
-      "confidence": "heuristic",
-      "dev_only": 0,
-      "notes": null,
-      "path_template": "%s/capture_%02d-%02d-%04d_%02d-%02d-%02d/capture.png",
-      "path_parameters": [
-        {
-          "slot": 0,
-          "expression_snippet": "movie_dir.string",
-          "semantic": "cvar_value:movie_dir"
-        },
-        {
-          "slot": 1,
-          "expression_snippet": "movie_start_date.tm_mday",
-          "semantic": "unknown"
-        },
-        {
-          "slot": 2,
-          "expression_snippet": "movie_start_date.tm_mon",
-          "semantic": "unknown"
-        },
-        {
-          "slot": 3,
-          "expression_snippet": "movie_start_date.tm_year",
-          "semantic": "unknown"
-        },
-        {
-          "slot": 4,
-          "expression_snippet": "movie_start_date.tm_hour",
-          "semantic": "unknown"
-        },
-        {
-          "slot": 5,
-          "expression_snippet": "movie_start_date.tm_min",
-          "semantic": "unknown"
-        },
-        {
-          "slot": 6,
-          "expression_snippet": "movie_start_date.tm_sec",
-          "semantic": "unknown"
-        }
-      ],
-      "path_extension": ".png",
-      "format_function": "snprintf"
     },
     {
       "canonical_id": "ezquake:loader_site:FS_OpenVFS_movie_WAVCaptureStart_1",
@@ -8032,7 +7976,7 @@
     }
   ],
   "_stats": {
-    "total_sites": 375,
+    "total_sites": 374,
     "by_function": {
       "Draw_CacheWadPic": 66,
       "FS_OpenVFS": 54,
@@ -8074,7 +8018,6 @@
       "PlayQWZDemo": 1,
       "CM_OpenMap": 1,
       "CM_LoadPhysicsNormals": 1,
-      "Image_OpenAPNG": 1,
       "PR1_LoadProgs": 1,
       "Mod_LoadAllSkins": 1,
       "Mod_MD3LoadSkins": 1,
@@ -8102,18 +8045,18 @@
     },
     "by_confidence": {
       "certain": 109,
-      "heuristic": 235,
-      "intentionally_generic": 31
+      "heuristic": 229,
+      "intentionally_generic": 36
     },
     "by_load_trigger": {
       "startup": 85,
-      "on_demand": 285,
+      "on_demand": 284,
       "on_map_load": 5
     },
     "by_path_source": {
       "literal": 114,
       "unknown": 184,
-      "computed": 75,
+      "computed": 74,
       "cvar": 2
     },
     "dev_only_count": 0

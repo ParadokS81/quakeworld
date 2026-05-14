@@ -29,7 +29,7 @@ If any of those surface in your work, halt immediately and surface to operator.
 
 Before reading anything else, invoke the `arc-executor` skill. It governs your pre-flight, per-task execution per declared mode (inline vs subagent), phase-boundary verification, and structured halt-and-report.
 
-Phase 4 has **9 tasks** of varying shape. Per the phase MD, all 9 are declared `inline` -- Phase 4 is content-shape work (wikitext + markdown + doc edits), not auth/extension/infrastructure synthesis. No subagent dispatch expected.
+Phase 4 has **9 tasks** of varying shape. Per the phase MD, **8 are declared `inline`** (wikitext + markdown + doc edits -- content-shape work, no auth/extension/infrastructure synthesis) and **Task 8 is declared `subagent (Sonnet medium)`** for the Layer 3 concept-note distillation. That one subagent dispatch IS expected per D26 + operator memory `feedback_model_effort_range.md` (Sonnet medium is the reasoning floor for L3 authoring) + `feedback_no_subagents_for_mechanical_edits.md` (subagent dispatch is for content synthesis, not mechanical edits -- L3 distillation qualifies). The phase MD's Task 8 section ships the full subagent dispatch brief inline (around lines 431-453 of `phase-4-discipline-harvest.md`).
 
 ---
 
@@ -135,7 +135,7 @@ Confirm 1-2 at session start; 3-4 are operator-internal (transitively true from 
 - `prerequisites.md` -- operator-side state.
 - `review-findings.md` -- F1-F9 all RESOLVED.
 - `phase-template.md` -- mandatory phase MD shape (reference).
-- `phase-4-discipline-harvest.md` -- **the phase MD you are executing**. ~750 lines, 9 tasks, full file content inlined.
+- `phase-4-discipline-harvest.md` -- **the phase MD you are executing**. ~660 lines, 9 tasks, full file content inlined.
 - `phase-1-mw-core.md` + `phase-2-extensions.md` + `phase-3-auth-groups.md` -- shipped state; reference only.
 
 **Arc spec:** `docs/superpowers/specs/2026-05-09-qwiki-fresh-build-vision.md` (Passes 1-6 LOCKED). Do not reopen.
@@ -172,7 +172,7 @@ Modified:
 3. `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/decisions.md` -- D1-D26 + amendments. Critical: D4 Amendment 2026-05-14 (bot-mode role sync).
 4. `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/review-findings.md` -- F1-F9 context (all RESOLVED).
 5. `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/prerequisites.md` -- confirm Tailscale + wiki-curator state.
-6. `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/phase-4-discipline-harvest.md` -- the plan you execute. ~750 lines.
+6. `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/phase-4-discipline-harvest.md` -- the plan you execute. ~660 lines.
 7. `apps/qwiki-sandbox/deploy/README.md` -- current state (Phase 1+2+3 install sections).
 8. `apps/qw-oracle/curated/concept-notes/README.md` -- the Current notes table you'll extend in Task 6 + the concept-note schema requirements.
 9. `apps/qw-oracle/curated/concept-notes/CLAUDE.md` (if it exists; otherwise the concept-notes/README serves as the L3 authoring discipline reference).
@@ -228,7 +228,7 @@ Report pre-flight outcome at the top of your first response (one short paragraph
 ## Critical rules
 
 - **ASCII only.** No emoji. No em-dash / en-dash -- use ASCII hyphen-minus. Comments explain WHY, not WHAT. (D21.)
-- **All 9 tasks declared `inline`.** Execute directly via Edit / Write / Bash. (D22 / D26.)
+- **8 tasks declared `inline`, 1 task (Task 8) declared `subagent (Sonnet medium)`.** Inline tasks execute directly via Edit / Write / Bash. Task 8 dispatches the L3 distillation subagent with the brief at Phase 4 MD lines ~431-453. (D22 / D26.)
 - **Verification before completion.** Run each task's Verification block immediately after the steps. If a probe FAILs, do NOT proceed to the next task.
 - **Plain English at decision points.** Lead with the plain-English consequence + tradeoff; technical chain only where load-bearing.
 - **One question at a time during interactive scoping.** Don't batch-dump.
@@ -253,8 +253,8 @@ Phase 4 has 9 tasks + halt seams. Natural halt-before points:
 | 6 | inline | Update qw-oracle concept-notes/README table | no |
 | -- | commit | **Commit Tasks 1-6 to main + push** | **yes** -- show operator staged paths + commit message |
 | 7 | operator | Paste 5 seed pages into wiki UI as curator | **yes** -- multi-step operator browser work |
-| 8 | inline | Author qw-oracle concept-note `test-qwiki-harvest-probe.md` | no |
-| -- | commit | **Commit Task 8 (concept-note) to main + push** | **yes** -- separate from paper-artifact commit because concept-note depends on Task 7's wiki content being live |
+| 8 | subagent (Sonnet medium) | Dispatch L3 distillation subagent -> author qw-oracle concept-note `test-qwiki-harvest-probe.md` | no |
+| -- | commit | **Commit Task 8 (concept-note) to main + push** | **yes** -- separate commit because the concept-note lands in qw-oracle's `curated/concept-notes/` tree (different write surface than the qwiki-sandbox paper artifacts); the distillation reads Task 3's seed-page wikitext, so Task 7's wiki render is not a hard prerequisite |
 | 9 | operator | Run load-concepts pipeline + oracle MCP search query | **yes** -- multi-step operator CLI work |
 
 **Commit between Task 6 and Task 7.** Paper artifacts (seed-pages + deploy README + OVERVIEW + concept-notes README) are stable; commit them before the operator-driven wiki work. Suggested commit message (mirror Phase 3 style):
@@ -275,7 +275,7 @@ Task 7 (operator deploy: wiki UI paste) + Task 8 (concept-note authoring) + Task
 Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 ```
 
-**Commit between Task 8 and Task 9.** Concept-note depends on Task 7's wiki content; commit when authored, before operator runs load-concepts.
+**Commit between Task 8 and Task 9.** Concept-note is distilled from `apps/qwiki-sandbox/deploy/seed-pages/Phase_4_harvest_probe.wikitext` (Task 3's output, already committed in the paper-artifact commit). Task 7's live wiki render is the human-readable mirror, not the distillation source -- so Task 8 can run even if Task 7's wiki paste hits a snag. Commit the .md file when Task 8's subagent returns + the file lands cleanly, before operator runs load-concepts in Task 9.
 
 **Task 7 + Task 9 are operator-driven; you cannot do them.** You surface the steps + wait for operator's PASS/FAIL report.
 

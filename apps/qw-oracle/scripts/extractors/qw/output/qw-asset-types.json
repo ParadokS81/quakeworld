@@ -4,12 +4,12 @@
     "types_with_l1_evidence_ezquake": 20,
     "types_with_l1_evidence_fte": 17,
     "types_with_stock_origin": 9,
-    "total_l1_evidence_refs_ezquake": 346,
+    "total_l1_evidence_refs_ezquake": 345,
     "total_l1_evidence_refs_fte": 234,
     "total_stock_origin_refs": 362
   },
   "project": "qw",
-  "extracted_at": "2026-05-14T18:50:44+00:00",
+  "extracted_at": "2026-05-14T19:56:23+00:00",
   "asset_types": [
     {
       "asset_type": "conback",
@@ -1859,7 +1859,6 @@
           "ezquake:loader_site:Image_LoadPNG_All_image_Image_LoadPNG_Comments_1",
           "ezquake:loader_site:Image_LoadPNG_r_texture_load_R_LoadImagePixels_1",
           "ezquake:loader_site:Image_LoadTGA_r_texture_load_R_LoadImagePixels_1",
-          "ezquake:loader_site:Image_OpenAPNG_movie_Movie_Demo_Capture_f_1",
           "ezquake:loader_site:Mod_LoadExternalTexture_r_brushmodel_load_R_LoadBrushModelTextures_1",
           "ezquake:loader_site:QMB_LoadTextureImage_r_particles_qmb_QMB_InitParticles_1",
           "ezquake:loader_site:QMB_LoadTextureImage_r_particles_qmb_QMB_InitParticles_2",

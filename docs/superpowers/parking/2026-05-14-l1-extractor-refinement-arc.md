@@ -32,6 +32,28 @@
 
 ---
 
+## Phase B status (SHIPPED 2026-05-14)
+
+**Closed:** Category 3 (write-path leakage, 15 sites moved to null in both engines). Plus 2 inline scope adds -- both write-function-leakage shape at different extractor tiers:
+- **NF1**: `Image_OpenAPNG` removed from ezQuake `LOADER_FUNCTIONS` + `FUNCTION_TO_CATEGORY`. "wb" movie-capture APNG writer at `image.c:991,993` -- not a loader. Was emitting a phantom texture site via `Movie_Demo_Capture_f`.
+- **NF3**: `.log` removed from ezQuake `EXT_TO_CATEGORY`. Dormant (0 sites); symmetric with the FTE removal.
+
+**Remaining:** Category 4 (FTE charset watchlist gap, Phase C).
+
+**Option chosen:** A (regex-narrow). The screenshot `ENCLOSING_FN_CATEGORY_RULES` regex dropped from both handlers; `.log` `EXT_TO_CATEGORY` entry dropped from both. Affected sites fall through to `null` `reads_category_id` with confidence `intentionally_generic`; downstream consumers (derive, asset-type-curate) skip null categories.
+
+**Net L1 impact:**
+- ezQuake: screenshot -8 / texture -1 (NF1) / null +8; 1 site removed from extraction (Image_OpenAPNG phantom)
+- FTE: screenshot -3 / log -4 / null +7; total unchanged
+
+**Source verification:** worker confirmed all 11 candidate write-function sites + 2 FTE log appends. 3 sites turned out to be `"rb"` existence-check probes inside write-purpose functions (`SCR_ScreenShot_f` / `Log_String:183` / `SV_Fraglogfile_f`) -- fix applies cleanly because category-tier narrowing handles both write-mode and read-probe shapes.
+
+**Derive output:** 21 asset_types post-Phase B differ from Phase A baseline only at `map_texture` ezQuake (-1 site from Image_OpenAPNG phantom removal via NF1).
+
+**NF4 process note:** `SCR_ScreenShot*` prefix in the dropped regex was matching only `SCR_ScreenShot_f` in both engines -- no regression from regex removal.
+
+---
+
 ## Why this arc exists
 
 The asset-type-curate skill's Round 3 calibration plus two follow-on closure passes (oversight audit + L1 vocab alignment audit) surfaced extractor-side findings of 4 distinct fix shapes. The punch list is reorganized below by shape rather than by source-slug -- each category has a coherent fix approach and verification regime.

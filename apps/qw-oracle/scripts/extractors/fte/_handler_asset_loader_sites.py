@@ -93,7 +93,9 @@ EXT_TO_CATEGORY: dict[str, str] = {
     ".jpg":    "fte:asset_category:texture",
     ".jpeg":   "fte:asset_category:texture",
     ".pcx":    "fte:asset_category:skin",
-    ".log":    "fte:asset_category:log",
+    # .log removed 2026-05-14 (refinement arc Phase B). Only catches write-path
+    # FS_OpenVFS inside Log_String / PF_logtext / SV_Fraglogfile_f (2 "ab"
+    # appends + 2 "rb" existence-check probes). No user installs .log files.
     ".loc":    "fte:asset_category:locfile",
     ".lit":    "fte:asset_category:map_lighting",
     ".dat":    "fte:asset_category:quakec_progs",
@@ -176,10 +178,13 @@ ENCLOSING_FN_CATEGORY_OVERRIDES: list[tuple[re.Pattern, str]] = [
 
 ENCLOSING_FN_CATEGORY_RULES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"Demo_File|Demo_f|PlayDemo|CL_Demo|CL_PlayDemo"), "fte:asset_category:demo"),
-    # Screenshot WRITES only. Read-path Image_Load*/LoadImagePixels patterns
-    # were previously folded in here and mistagged texture decoders as
-    # screenshots; they now flow to the texture rule below.
-    (re.compile(r"SCR_ScreenShot|Image_Write|_WriteTGA|_WritePNG|_WriteJPEG"), "fte:asset_category:screenshot"),
+    # Screenshot-writer regex removed 2026-05-14 (refinement arc Phase B). It
+    # caught FS_OpenVFS inside SCR_ScreenShot_f (one "rb" existence-check probe
+    # to find a non-conflicting filename, not a content load) plus
+    # Image_WriteKTXFile / Image_WriteDDSFile -- engine compressed-texture
+    # encoders, not user screenshot writes. All 3 fall through to null with
+    # confidence heuristic/intentionally_generic; downstream consumers skip
+    # null categories.
     (re.compile(r"WAVCapture|_LoadSound|Sound_|S_Load"), "fte:asset_category:sound"),
     (re.compile(r"Skin_|R_LoadSkin"), "fte:asset_category:skin"),
     (re.compile(r"R_RegisterShader|Shader_|R_LoadShader"), "fte:asset_category:shader"),

@@ -74,7 +74,10 @@ LOADER_FUNCTIONS: set[str] = {
     "Image_LoadPNG",
     "Image_LoadPNG_All",
     "Image_LoadTGA",
-    "Image_OpenAPNG",
+    # Image_OpenAPNG removed 2026-05-14 (refinement arc Phase B). It is a
+    # "wb" movie-capture APNG writer at image.c:991,993, not a loader.
+    # Watchlist inclusion was emitting a phantom texture site via
+    # Movie_Demo_Capture_f (path template `%s/capture_.../capture.png`).
     "QMB_LoadTextureImage",
     "R_LoadTextureImage",
 
@@ -187,7 +190,8 @@ FUNCTION_TO_CATEGORY: dict[str, str] = {
     "Image_LoadPNG": "ezquake:asset_category:texture",
     "Image_LoadPNG_All": "ezquake:asset_category:texture",
     "Image_LoadTGA": "ezquake:asset_category:texture",
-    "Image_OpenAPNG": "ezquake:asset_category:texture",
+    # Image_OpenAPNG removed 2026-05-14 (refinement arc Phase B); see note in
+    # LOADER_FUNCTIONS above.
     "QMB_LoadTextureImage": "ezquake:asset_category:texture",
     "R_LoadTextureImage": "ezquake:asset_category:texture",
 
@@ -250,7 +254,8 @@ EXT_TO_CATEGORY: dict[str, str] = {
     ".jpg":  "ezquake:asset_category:texture",
     ".jpeg": "ezquake:asset_category:texture",
     ".pcx":  "ezquake:asset_category:skin",
-    ".log":  "ezquake:asset_category:log",
+    # .log removed 2026-05-14 (refinement arc Phase B). Dormant (0 sites);
+    # symmetric with the FTE removal. No user installs .log files.
     ".loc":  "ezquake:asset_category:locfile",
     ".lit":  "ezquake:asset_category:map_lighting",
     ".xml":  "ezquake:asset_category:help_xml",
@@ -308,10 +313,11 @@ ENCLOSING_FN_CATEGORY_OVERRIDES: list[tuple[re.Pattern, str]] = [
 
 ENCLOSING_FN_CATEGORY_RULES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"Demo_File|Demo_f|PlayDemo|CL_Demo|PlayQWZ"), "ezquake:asset_category:demo"),
-    # Screenshot WRITES only. Read-path Image_Load*/LoadImagePixels patterns
-    # were previously folded in here and mistagged texture decoders as
-    # screenshots; they now flow to the texture rule below.
-    (re.compile(r"Image_Write|_WriteTGA|_WritePNG|_WriteJPEG|_OpenAPNG|SCR_ScreenShot"), "ezquake:asset_category:screenshot"),
+    # Screenshot-writer regex removed 2026-05-14 (refinement arc Phase B). It
+    # caught FS_OpenVFS inside Image_WritePNG / Image_OpenAPNG / Image_WriteTGA /
+    # Image_WriteJPEG -- all "wb" writes, not loader sites by definition.
+    # Sites now fall through to null reads_category_id with confidence
+    # intentionally_generic; downstream consumers skip null categories.
     (re.compile(r"WAVCapture|_LoadSound|Sound_"), "ezquake:asset_category:sound"),
     (re.compile(r"Skin_"), "ezquake:asset_category:skin"),
     (re.compile(r"LoadCharset|Charset_"), "ezquake:asset_category:charset"),
