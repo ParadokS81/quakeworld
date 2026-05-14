@@ -458,7 +458,7 @@ async function main(): Promise<void> {
   if (transport === 'http') {
     const port = parseInt(process.env.MCP_PORT ?? '3000', 10);
     startHttpServer(createServer, port);
-    console.error(`[qw-oracle-mcp] http transport listening on 127.0.0.1:${port}`);
+    console.error(`[qw-oracle-mcp] http transport listening on 0.0.0.0:${port}`);
   } else if (transport === 'stdio') {
     const server = createServer();
     await server.connect(new StdioServerTransport());
