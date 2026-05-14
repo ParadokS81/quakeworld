@@ -16,6 +16,7 @@ import {
   upsertVersion,
 } from './natural-keys.js';
 import { logTransition } from './transitions.js';
+import { HEAD_ORDINAL } from './constants.js';
 import {
   CVAR_PAYLOAD_FIELD,
   buildCvarOverrides,
@@ -165,6 +166,17 @@ export interface LoadVersionResult {
   entityCount: number;
   parseState: 'ok' | 'partial';
   typeMismatchOrphansPruned: number;
+  // Entities whose entity-level (last_seen_version, source_state) was
+  // reconciled against version-row truth. Non-zero on the first walk after
+  // any prune that removed an entity's latest version row (PR-#1120-shape
+  // help-JSON purges, source-side deletions). Should drop to 0 in steady
+  // state. F1.last_seen_max_ordinal is the canonical regression sensor.
+  entitiesRetreated: number;
+  // Entities whose entity row exists but has zero rows in the type's
+  // versions table. Should be 0 in steady state -- pruneCrossTypeOrphans
+  // fully deletes its targets. A non-zero count signals either a partial
+  // walk that crashed mid-flight or a different bug. Investigate.
+  fullyOrphanedEntities: number;
 }
 
 const PARTIAL_DROP_GUARD_RATIO = 0.5;
@@ -665,6 +677,140 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
       }
     }
 
+    // Entity-level state retreat. After all per-type version-row mutations
+    // (staleVersionRows DELETE, per-entity upserts, cross-type orphan
+    // prune, citation-flip scan), reconcile entity-level state with
+    // version-row truth: every entity must have its (last_seen_version,
+    // source_state) reflect the maximum-ordinal version row that still
+    // exists for it. The pre-fix loader only advanced these forward
+    // (upsertEntity) and never retreated them; an entity whose latest
+    // version-row was deleted kept stale state. F1.last_seen_max_ordinal
+    // is the canonical sensor for this drift -- after this block the
+    // probe must report 0 for the (project, type) being loaded.
+    //
+    // Skipped for asset_category / match_event: same exclusion list as
+    // the citation-flip scan above. asset_category has no source_file
+    // column; match_event uses xsd_path (XSD is source-of-truth).
+    let entitiesRetreated = 0;
+    let fullyOrphanedEntities = 0;
+    let retreatTransitionsLogged = 0;
+    if (options.type !== 'asset_category' && options.type !== 'match_event') {
+      const retreatScan = await tx<Array<{
+        entity_id: number;
+        cur_state: SourceState;
+        cur_lsv: string;
+        new_lsv: string | null;
+        new_ord: number | null;
+        new_source_file: string | null;
+      }>>`
+        SELECT e.id AS entity_id,
+               e.source_state AS cur_state,
+               e.last_seen_version AS cur_lsv,
+               latest.new_lsv,
+               latest.new_ord,
+               latest.new_source_file
+        FROM entities e
+        LEFT JOIN LATERAL (
+          SELECT v.version AS new_lsv, v.ordinal AS new_ord, xv.source_file AS new_source_file
+          FROM ${tx(adapter.versionsTable)} xv
+          JOIN versions v ON v.project = e.project AND v.version = xv.version
+          WHERE xv.entity_id = e.id
+          ORDER BY v.ordinal DESC
+          LIMIT 1
+        ) latest ON true
+        WHERE e.project = ${options.project} AND e.type = ${options.type}
+      `;
+
+      for (const r of retreatScan) {
+        const entityId = Number(r.entity_id);
+
+        if (r.new_lsv === null) {
+          // Fully orphaned: entity row exists with no version rows. Should
+          // be impossible in steady state (pruneCrossTypeOrphans fully
+          // deletes; F1.entity_has_version_rows would also fail). Log
+          // loudly and surface in result; do NOT touch the entity row
+          // (separation of concerns from the cross-type orphan pruner).
+          fullyOrphanedEntities += 1;
+          console.warn(
+            `[load-version] fully-orphaned entity: project=${options.project} ` +
+            `type=${options.type} entity_id=${entityId}; ` +
+            `entity row has no rows in ${adapter.versionsTable}. ` +
+            `Skipping retreat -- investigate (partial walk crashed mid-flight, or cross-type orphan pruner failure).`,
+          );
+          continue;
+        }
+
+        // Compute target state from version-row truth.
+        //  - new_ord < HEAD_ORDINAL -> entity is no longer at head -> source_retired
+        //  - else -> entity is at head; source_state follows the row's source_file
+        const newOrd = Number(r.new_ord);
+        let newState: SourceState;
+        if (newOrd < HEAD_ORDINAL) {
+          newState = 'source_retired';
+        } else if (r.new_source_file != null) {
+          newState = 'source_backed';
+        } else {
+          newState = 'doc_only';
+        }
+
+        if (r.cur_lsv === r.new_lsv && r.cur_state === newState) continue;
+
+        await tx`
+          UPDATE entities
+          SET last_seen_version = ${r.new_lsv},
+              source_state = ${newState},
+              updated_at = now()
+          WHERE id = ${entityId}
+        `;
+        entitiesRetreated += 1;
+
+        // Emit a transition only for retreat-into-source_retired: the main
+        // case this block addresses. Other state-change directions are
+        // already covered upstream:
+        //   - doc_only -> source_backed: upsert loop above (backfill_match)
+        //   - source_backed -> doc_only at head: citation-flip scan above
+        //     (source_retired_at_version, per-version annotation)
+        //   - source_retired -> source_backed: diff-versions (re_added)
+        // version_context = options.version (the version we just walked,
+        // which triggered the retreat). Matches diff-versions.ts L431
+        // semantic and gives a stable idempotency key for re-walks.
+        if (newState === 'source_retired' && r.cur_state !== 'source_retired') {
+          const dup = await tx<{ one: number }[]>`
+            SELECT 1 AS one FROM source_state_transitions
+            WHERE entity_id = ${entityId}
+              AND reason = 'removed_from_head'
+              AND version_context = ${options.version}
+            LIMIT 1
+          `;
+          if (dup.length === 0) {
+            await logTransition(tx, {
+              entity_id: entityId,
+              from_state: r.cur_state,
+              to_state: 'source_retired',
+              reason: 'removed_from_head',
+              version_context: options.version,
+              extractor_run_id: extractorRunId,
+            });
+            retreatTransitionsLogged += 1;
+          }
+        }
+      }
+
+      if (entitiesRetreated > 0) {
+        console.log(
+          `[load-version] retreated entity-level state for ${entitiesRetreated} ${options.type} ` +
+          `entities (${retreatTransitionsLogged} removed_from_head transition(s) logged) at ` +
+          `${options.project}@${options.version}.`,
+        );
+      }
+      if (fullyOrphanedEntities > 0) {
+        console.warn(
+          `[load-version] ${fullyOrphanedEntities} fully-orphaned ${options.type} entit${fullyOrphanedEntities === 1 ? 'y' : 'ies'} ` +
+          `at ${options.project} (no rows in ${adapter.versionsTable}); see per-entity warnings above.`,
+        );
+      }
+    }
+
     // oracle_meta is the Postgres-side replacement for SQLite's schema_meta
     // (per Phase 1 migration 001). Same (key, value) shape; updated_at moves
     // forward on every upsert so timestamps survive.
@@ -700,6 +846,8 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
       transitions,
       orphansPruned: orphansPrunedCount,
       dbEntityCount: dbCountRows[0]!.n,
+      entitiesRetreated,
+      fullyOrphanedEntities,
     };
   });
 
@@ -711,6 +859,8 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
     entityCount: result.dbEntityCount,
     parseState: parseStateFinal,
     typeMismatchOrphansPruned: result.orphansPruned,
+    entitiesRetreated: result.entitiesRetreated,
+    fullyOrphanedEntities: result.fullyOrphanedEntities,
   };
 }
 
