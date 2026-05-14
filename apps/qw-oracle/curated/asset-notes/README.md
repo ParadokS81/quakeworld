@@ -95,6 +95,9 @@ Total length follows shape; brief slugs run short, multi-file multi-engine slugs
 |---|---|---|
 | `player_skin` | Player-model skin replacement (file-based load via skin/baseskin/team/enemy cvars) | CONFIDENT (asset-shape trim, 2026-05-13; concept-note partner at `../concept-notes/player-skins.md`) |
 | `skybox` | Six-image cubemap rendered as the world's sky dome (multi-engine, multi-mechanism on FTE) | DIVERGENT (2026-05-14, post-audit re-run; docs cover ezQuake subset; FTE has 3 load modes; investigation surfaces `Mod_LoadExternalSkyTexture` as a 2nd ezQuake mechanism for BSP sky-overlay replacement) |
+| `charset` | Bitmap console font texture (256-glyph 16x16 grid) -- user-replaceable on ezQuake; FTE routes via gl_font.c font system | CONFIDENT (2026-05-14; single-engine user-facing surface; FTE/QWCL/MVDSV documented as not user-facing or server-side) |
+| `hud_element` | Individual 2D HUD images (numbers, faces, weapon icons, ammo/armor) -- WAD-lump override on ezQuake; CSQC-driven on FTE | DIVERGENT (2026-05-14; architectural divergence between ezQuake WAD-override and FTE CSQC HUD; 129 ezQuake L1 sites curated to 8 via one-per-distinct-enclosing-function rule; concept-note partner warranted for HUD configuration workflow) |
+| `map` | BSP geometry file (.bsp) -- central asset in every game session; hub for 4 cross-type companions | DOC-GAP (2026-05-14; no dedicated ezquake-docs page; companions: `map_texture` / `map_lighting` / `map_entities` / `skybox` via worldspawn.sky push; concept-note partner warranted for map-selection workflow) |
 
 This table populates as the asset-type-curate arc lands -- Phase 2 (skybox first slice) shipped; Phase 3 (19-slug fan-out) pending.
 
