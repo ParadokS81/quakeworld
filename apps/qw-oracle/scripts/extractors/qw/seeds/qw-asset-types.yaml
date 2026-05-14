@@ -103,6 +103,11 @@ asset_types:
       Engine loads via `crosshairimage <name>` cvar (no extension; engine probes .png/.tga/.pcx).
       No stock origin -- built-in crosshair glyphs live inside the charset, not a separate file.
 
+      Custom-crosshair definitions companion: ezQuake `customCrosshair_Init` (r_draw.c:222)
+      loads `crosshairs/crosshair.txt` on startup -- a text file mapping cvar values to
+      custom crosshair definitions. Companion sidecar to the image files; not a separate
+      asset_type.
+
   - asset_type: palette
     description: 256-color palette for indexed-color rendering (768 bytes, 256 RGB triplets).
     engine_canonical_paths: ["gfx/palette.lmp"]
@@ -172,6 +177,13 @@ asset_types:
       Stock HUD elements ship inside id1/gfx.wad; the texture-replacement system
       finds external override files at textures/wad/<name>.<ext>.
 
+      The L1 `hud_overlay` asset_category bucket is a deliberate superset of this
+      asset_type -- it also covers chat icons, particle font, login UI, mouse cursor,
+      and HUD group pics (per ezQuake handler ENCLOSING_FN_CATEGORY_RULES). The seed
+      slug `hud_element` correctly aligns with the L1 entity-type vocabulary (see
+      ezquake-hud-elements-ast.json catalog of gfx.wad lump names). The bridge via
+      `l1_hint_bare_categories: [hud_overlay]` is intentional; do not rename.
+
   - asset_type: wad_file
     description: WAD2/WAD3 archive containing HUD lumps or map textures.
     engine_canonical_paths: ["<name>.wad"]
@@ -191,6 +203,10 @@ asset_types:
     notes: |
       Engine reads WAD files at gamedir root (qw/<name>.wad). Map authors reference them
       via worldspawn.wad. id1/gfx.wad is the stock HUD wad that hud_element overrides target.
+
+      L1 emits this asset_category under the engine-internal bucket label `wad`. The
+      seed slug `wad_file` is more user-explicit (clarifies "a .wad archive file" vs
+      "the WAD lump table"); bridge via `l1_hint_bare_categories: [wad]` is intentional.
 
   - asset_type: skybox
     description: Six-image cubemap (right/left/front/back/up/down). Engines probe several path patterns; ezQuake limits to env/ and gfx/env/, FTE additionally accepts bare-root <skyname><suffix>.
@@ -286,6 +302,10 @@ asset_types:
       a separate file. Replacement is loaded via /teamskin and /enemyskin cvars naming
       a file in qw/skins/.
 
+      L1 emits this asset_category under the engine-internal bucket label `skin`
+      (single-word). The seed slug `player_skin` is the user-explicit name for the
+      same asset class; bridge via `l1_hint_bare_categories: [skin]` is intentional.
+
   - asset_type: model_q1
     description: Quake-format alias model (.mdl) for players, weapons, monsters, items.
     engine_canonical_paths: ["progs/<name>.mdl"]
@@ -311,6 +331,13 @@ asset_types:
       Stock player/weapon/monster/item models ship in id1/pak0. Embedded skins live
       inside the .mdl file; external skin replacement uses the player_skin or
       model_texture mechanism instead.
+
+      L1 emits this asset_category under the engine-internal bucket label `model`,
+      which is wider than this seed slug -- it covers .md3 / .md2 / .iqm formats on
+      FTE plus alias-models in general. This seed slug `model_q1` is intentionally
+      narrow to .mdl (IDPO magic) Q1 format. Future support for MD3/MD2/IQM as
+      community asset workflows would be additive new slugs (e.g., `model_md3`),
+      not a rename. Bridge via `l1_hint_bare_categories: [model]` is intentional.
 
   - asset_type: model_texture
     description: Hi-res texture replacement for a .mdl model's skin (worldmodel or viewmodel).

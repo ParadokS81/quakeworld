@@ -1,23 +1,27 @@
 # Side-quest: L1 extractor refinement (asset-loader-sites categorization)
 
-**Type:** small arc (1-2 sessions)
+**Type:** medium arc (2-3 sessions; original sizing was 1-2 but punch list grew through 2 closure passes)
 **Surfaced:** 2026-05-14, during asset-type-curate Round 3 calibration
-**Pressure:** MEDIUM. Not blocking but accumulates -- every future asset-note slice surfaces new L1-CAT-AMBIGUOUS findings until the underlying categorization tiers tighten.
-**Predecessor:** Round 3 calibration commits 3d2a1867 (skybox), 03449c65 (charset/hud_element/map), 45617006 (seed + OPERATIONS corrections)
+**Pressure:** MEDIUM. The arc is the NEXT execution after vocab-alignment closure -- not a parking doc to keep feeding. Once it ships, the punch list zeroes out; future calibration findings route to a fresh post-refinement arc.
+**Predecessor:** Round 3 calibration commits 3d2a1867 (skybox), 03449c65 (charset/hud_element/map), 45617006 (seed + OPERATIONS corrections), plus 2026-05-14 oversight audit additions and the 2026-05-14 L1 vocab alignment audit decision doc (`docs/superpowers/specs/2026-05-14-l1-vocabulary-alignment-decisions.md`).
 
 ---
 
 ## Why this arc exists
 
-The asset-type-curate skill's Round 3 calibration surfaced a consistent pattern: L1 loader-sites are visible to the extractor but routed to the wrong asset_category. Four calibrated slugs surfaced **8+ named miscategorizations** with a small number of distinct fix shapes. The pattern is documented in the skill's `references/status-flag-rubric.md` under the new **L1-CAT-AMBIGUOUS** named enrichment-grade pattern (commit 45617006 patches the rubric).
+The asset-type-curate skill's Round 3 calibration plus two follow-on closure passes (oversight audit + L1 vocab alignment audit) surfaced extractor-side findings of 4 distinct fix shapes. The punch list is reorganized below by shape rather than by source-slug -- each category has a coherent fix approach and verification regime.
 
-Each miscategorization is independently a single-line override fix, but the cluster suggests **tier-level routing precision issues** on FTE's `hud_overlay` category in particular (5 distinct misroutes in one slug). The arc decides per case: per-site override vs tier-level routing revision.
+The pattern is documented in the skill's `references/status-flag-rubric.md` under the **L1-CAT-AMBIGUOUS** named enrichment-grade pattern + the new **Triage heuristics for vocabulary-alignment audits** section (added 2026-05-14 from vocab-audit NF4).
 
 ---
 
-## Punch list (8 named miscategorizations)
+## Punch list (4 fix-shape categories, 17 entries)
 
-### ezQuake (3 cases)
+### Category 1: Misroutes -- extractor sees site, tags wrong category (10 entries)
+
+Each entry is a single-line `ENCLOSING_FN_CATEGORY_OVERRIDES` override or equivalent tier-fix. Verification: re-run extractor, diff site counts per category against pre-fix snapshot.
+
+#### ezQuake (4 cases)
 
 1. **skybox -- `Mod_LoadExternalSkyTexture`** (`r_brushmodel_load.c:371`)
    - Current category: `ezquake:asset_category:skybox`
@@ -43,9 +47,21 @@ Each miscategorization is independently a single-line override fix, but the clus
      ```
    - Or tighten the function-tier rule that catches FS_LoadTempFile so it doesn't default to hud_overlay.
 
-### FTE (5 cases, all under `hud_overlay`)
+4. **config -- `LoadFragFile` mis-routed to `quakec_progs`** (`fragstats.c:235`)
+   *Added 2026-05-14 from vocab-alignment audit Phase 2 case 3.*
+   - Current category: `ezquake:asset_category:quakec_progs` (routed via `.dat` extension)
+   - Intended: `ezquake:asset_category:config`
+   - Source: `LoadFragFile` loads `../ezquake/fragfile.dat` via `FS_LoadHeapFile`. Confirmed at `research/repos/ezquake-source/src/fragstats.c:37`: fragfile.dat is fragstats config text (fuhquake-derived), NOT QC bytecode.
+   - Why the FUNCTION_TO_CATEGORY entry for `LoadFragFile` doesn't catch: that mapping fires when `LoadFragFile` is the *called* function, but the actual loader call inside `LoadFragFile`'s body is `FS_LoadHeapFile`, which routes via EXT_TO_CATEGORY (.dat -> quakec_progs).
+   - Fix shape: add ezQuake override:
+     ```python
+     (re.compile(r"^LoadFragFile$"), "ezquake:asset_category:config"),
+     ```
+   - Expected: 1 site flips from `quakec_progs` to `config`.
 
-The FTE `hud_overlay` category currently catches multiple unrelated loaders. These were surfaced during the hud_element calibration when the runner had to filter 23 FTE sites for the `l1_canonical_ids` field:
+#### FTE (5 cases, all under `hud_overlay`)
+
+The FTE `hud_overlay` category currently catches multiple unrelated loaders. Surfaced during hud_element calibration when filtering 23 FTE sites for `l1_canonical_ids`:
 
 | Enclosing function | Source file | Currently | Should be |
 |---|---|---|---|
@@ -55,21 +71,80 @@ The FTE `hud_overlay` category currently catches multiple unrelated loaders. The
 | `Mod_ParseMD5MeshModel` (sites 1-2) | `com_mesh.c` | hud_overlay | model_texture |
 | `MSetup_TransDraw` (site 2) | `m_multi.c` | hud_overlay | player_skin |
 
-**Question for the arc:** is this a tier-level routing precision issue (FTE's `hud_overlay` tier catches too broadly), or 5 individual override entries? Look at how the categorization decision is made for these specific functions -- if they share a common discriminator that the tier currently ignores, tier-fix is right; if each needs its own override, per-site is right.
+**Question for the arc:** tier-level routing precision issue (FTE's `hud_overlay` tier catches too broadly) or 5 individual override entries? Inspect the categorization logic for these functions -- if they share a common discriminator the tier currently ignores, tier-fix is right; if each needs its own override, per-site is right.
 
 Source: hud_element-investigation.md `## FTE L1 categorization quality issues` section.
 
-### Map (1 case)
+#### Map (1 case)
 
-7. **map -- `Mod_LoadBrushModel`** (FTE, `gl_model.c:5507`)
+10. **map -- `Mod_LoadBrushModel`** (FTE, `gl_model.c:5507`)
     - Current category: `fte:asset_category:model`
     - Intended: `fte:asset_category:map`
-    - Fix shape: add `Mod_LoadBrushModel` to FTE `ENCLOSING_FN_CATEGORY_OVERRIDES`:
+    - Fix shape: add to FTE `ENCLOSING_FN_CATEGORY_OVERRIDES`:
       ```python
       (re.compile(r"^Mod_LoadBrushModel$"), "fte:asset_category:map"),
       ```
     - Expected result: ~5-10 additional `map`-categorized sites in FTE L1 covering BSP load, inline-model registration, and the .ent loader at `gl_model.c:2274-2330`.
     - Source: map-investigation.md `## Extractor gap` section.
+
+---
+
+### Category 2: Console-subsystem reroutes -- engine UI chrome, not HUD overlay (4 sites, 2 new internal categories)
+
+**Decided from vocab-alignment audit (2026-05-14):** these are FTE engine UI sites that load content of engine concern, NOT user-facing asset_types. No seed slugs warranted. Destination: new L1-internal `asset_category` labels chosen over `null` to preserve information for downstream filtering.
+
+| Enclosing function | Source file | Sites | What it loads | New L1 category |
+|---|---|---|---|---|
+| `Con_DrawConsoleLines` | `console.c:2156` | 2 (R_RegisterPic + R2D_SafeCachePic, currently `hud_overlay`) + 2 (R_RegisterShader, currently `shader`) | inline chat-embedded URL renderer (user-supplied URLs in chat lines, rendered via `tiprawimg` / `tiprawimgcube` / `tiprawimgarray`) | `fte:asset_category:inline_chat_url` |
+| `Con_DrawConsole` | `console.c:3079` | 2 (currently `hud_overlay`) | windowed-console `backshader` / `backimage` -- the FTE dev console's own UI background | `fte:asset_category:console_window_ui` |
+
+**Fix shape:** add to FTE `ENCLOSING_FN_CATEGORY_OVERRIDES`:
+```python
+(re.compile(r"^Con_DrawConsoleLines$"), "fte:asset_category:inline_chat_url"),
+(re.compile(r"^Con_DrawConsole$"), "fte:asset_category:console_window_ui"),
+```
+
+**Do NOT** fold either into the seed `conback` slug -- different rendering paths (`Draw_Conback` vs `R_RegisterPic`), different filenames (`gfx/conback.lmp` vs runtime cvar value), different user-vs-engine concern.
+
+Source: hud_element-investigation.md `## Extractor notes` + vocab-alignment decision doc Phase 2 addendum + source verification at `research/repos/fteqw/engine/client/console.c:150-192,3079-3150`.
+
+---
+
+### Category 3: Write-path leakage -- extractor emits on writes (2 fix shapes, 15 sites)
+
+These are NOT loader sites by definition. The extractor's `GENERIC_FS_PRIMITIVES` (FS_OpenVFS) catches both reads and writes; the category rules then bucket writes into nonsensical asset_categories. *Added 2026-05-14 from vocab-alignment audit Phase 2 cases 2 + 5.*
+
+11. **`screenshot` (8 ezQuake + 3 FTE) -- write-path leakage**
+    - ezQuake: all 8 sites are `FS_OpenVFS` inside `Image_WritePNG` / `Image_OpenAPNG` / `Image_WriteTGA` / `Image_WriteJPEG` (image.c:935-1484). All WRITES.
+    - FTE: all 3 sites are `FS_OpenVFS` inside `SCR_ScreenShot_f` / `Image_WriteKTXFile` / `Image_WriteDDSFile`. All WRITES.
+    - Nested issue: `Image_WriteKTXFile` / `Image_WriteDDSFile` in FTE are texture-format encoders (engine compressed-texture writer pipeline), NOT user screenshot writes. The same `Image_Write*` regex prefix catches them.
+    - Fix shape: drop write-path FS_OpenVFS sites from the loader-site extractor, OR partition `screenshot` into reads vs writes. Either way, narrow the regex to exclude write functions.
+    - Source: vocab-alignment decision doc Phase 2 case 2.
+
+12. **`log` (0 ezQuake + 4 FTE) -- write-path leakage; `.log` ext serves no read-path purpose**
+    - FTE: all 4 sites are `FS_OpenVFS` inside `Log_String` (log.c:183, 210) / `PF_logtext` (pr_cmds.c:7738) / `SV_Fraglogfile_f` (sv_ccmds.c:207). All WRITES.
+    - Path templates: `%s.log`, `%s.%i.log`, `frag_%i.log`.
+    - Fix shape: drop `.log` from FTE `EXT_TO_CATEGORY` (handler line 96). It only catches write-path sites which the loader-site extractor shouldn't emit anyway. If write-side capture is intentional (slipgate-app monitoring of log presence), partition into reads/writes inside the handler -- but for current scope, deletion is correct.
+    - Source: vocab-alignment decision doc Phase 2 case 5.
+
+---
+
+### Category 4: Missing watchlist functions -- extractor doesn't see site at all (1 entry)
+
+Different shape from misroutes: the extractor's `LOADER_FUNCTIONS` watchlist / `FUNCTION_TO_CATEGORY` map does not include the function, so L1 carries **zero sites** for the affected slug. *Added 2026-05-14 from oversight audit.*
+
+13. **FTE `charset` -- entire watchlist gap (0 L1 sites today)**
+    - FTE routes charset loading through `engine/gl/gl_font.c` under the general font system. Key functions:
+      - `R_LoadHiResTexture(start, "fonts:charsets", ...)` at `gl_font.c:2629` (image-based charsets, searches `charsets/` and `textures/charsets/`)
+      - `Font_LoadFontLump(f, start)` (WAD-style charset lump loading)
+      - `Font_LoadDefaultConchars()` reading `gfx/conchars.lmp` or `pics/conchars.pcx` (lines 2043, 2048)
+    - None of these are in FTE's `LOADER_FUNCTIONS` watchlist or `FUNCTION_TO_CATEGORY` map.
+    - Result: FTE charset L1 has zero sites; charset.md ships with "FTE: source-verified, no L1 backing" hedges.
+    - Fix shape: add the three functions above to FTE's `LOADER_FUNCTIONS` (with enclosing-function context from `gl_font.c`'s font-loading path) and route to `fte:asset_category:charset` either via `FUNCTION_TO_CATEGORY` or `ENCLOSING_FN_CATEGORY_OVERRIDES`.
+    - Expected result: ~5-10 FTE charset L1 sites; FTE-side asset detection (slipgate-app etc.) gains an L1 anchor.
+    - Source: charset-investigation.md `## Extractor gap -- FTE` section.
+
+**No more additions to this arc.** If Phase 3 fan-out surfaces additional watchlist gaps (likely on wad_file / sound / config / model_q1 / model_texture), they go to a **post-refinement arc**, not back into this one. This arc closes when these 4 categories are resolved.
 
 ---
 
@@ -93,11 +168,20 @@ After all fixes land, re-walk affected slugs through `/asset-type-curate <slug>`
 
 ## Success criteria
 
-- All 8 named miscategorizations resolved (or operator-decided to defer).
-- ezQuake extractor re-run produces a clean diff: only the targeted sites move categories; nothing else shifts.
-- FTE extractor re-run: same.
-- Spot-check: hud_element L1 site count on `hud_overlay` drops by 5 (or those 5 sites move to the correct categories). Map gains 5-10 FTE `map` sites.
-- HANDOVER.md punch-list pointer is removed once arc closes.
+Per category:
+
+**Category 1 (Misroutes, 10 entries):** all resolved (or operator-decided to defer). ezQuake extractor + FTE extractor re-runs produce clean diffs -- only the targeted sites move categories; nothing else shifts. Spot-checks:
+- hud_element L1 `hud_overlay` site count drops by 5 ezQuake + 5 FTE = 10 (or those sites move to correct categories).
+- map L1 gains 5-10 FTE `map` sites.
+- `quakec_progs` loses the 1 `LoadFragFile` site to `config`.
+
+**Category 2 (Console reroutes, 4 sites):** all 4 sites move from `hud_overlay` / `shader` to `inline_chat_url` / `console_window_ui`. New asset_category labels registered in FTE handler.
+
+**Category 3 (Write-path leakage, 15 sites):** `screenshot` and `log` categories no longer carry write-path entries. Either regex narrowed to exclude write functions, or write-path branch dropped entirely from GENERIC_FS_PRIMITIVES handling.
+
+**Category 4 (Watchlist gaps, 1 entry):** FTE charset L1 site count goes from 0 to ~5-10. Charset asset-note's "FTE: source-verified, no L1 backing" hedge becomes obsolete.
+
+**Closure:** HANDOVER.md punch-list pointer removed; arc retires with retrospective in `apps/qw-oracle/docs/arc-history.md`. Re-run of asset-type-curate on skybox + map + charset is optional spot-check (cleaner L1 anchors but existing notes already source-verified).
 
 ---
 
