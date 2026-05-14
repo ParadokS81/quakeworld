@@ -13,6 +13,7 @@ Findings accrue here during arc execution -- phase-MD drafting (sub-agent verifi
 | F1 | SUBSTANTIVE | MW 1.39 LTS is past upstream support window | Phase 1 drafting (2026-05-13) | RESOLVED 2026-05-13 -- `decisions.md` D2 Amendment #2 (MW 1.39 -> 1.43 LTS + cascading version bumps) |
 | F2 | SUBSTANTIVE | Phase 1 execution-time learnings cluster (install.php GRANT 1133 + 3 minor) | Phase 1 execution (2026-05-13/14) | RESOLVED 2026-05-14 -- `apps/qwiki-sandbox/deploy/README.md` patches in commit `f6d26ee6` (pre-create qwiki@'mariadb' workaround + docker-based wipe recovery + nginx apex redirect scheme fix + Cloudflare One dashboard path correction) |
 | F3 | SUBSTANTIVE | Cross-phase hostname + SSH identity drift in Phase 2/3/4 MDs + prerequisites.md | Phase 1 boundary verification (2026-05-14, orchestrator) | RESOLVED 2026-05-14 -- Option A applied: replace_all retarget across `phase-2-extensions.md` / `phase-3-auth-groups.md` / `phase-4-discipline-harvest.md` + `phase-3-drafter-prompt.md` line 49 + `phase-template.md` examples + `prerequisites.md` line 13 SSH identity update |
+| F4 | SUBSTANTIVE | Composer platform-req mismatch when running composer:latest against MW source | Phase 2 execution (2026-05-14, composer resolve step) | RESOLVED 2026-05-14 -- `apps/qwiki-sandbox/deploy/README.md` + `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/phase-2-extensions.md` amended to add `--ignore-platform-req=ext-calendar --ignore-platform-req=ext-intl` at all three composer-update sites (Phase 2 install step + image-bump procedure + SMW extension-bump section) in both files |
 
 ### F1 -- MW 1.39 LTS is past upstream support window
 
@@ -110,6 +111,43 @@ Orchestrator recommendation: Option A. Phase MDs are operational documents the e
 **Status:** RESOLVED 2026-05-14. Operator chose Option A (retarget MDs in place). Substitution patterns applied via replace_all across `phase-2-extensions.md` (17 wiki + 14 ssh + 3 scp targets), `phase-3-auth-groups.md` (20 wiki + 20 ssh + 1 scp), `phase-4-discipline-harvest.md` (16 wiki + 5 ssh + 1 scp + 1 double-quote ssh variant). Also caught: `phase-3-drafter-prompt.md` line 49 (Discord OAuth redirect URI) + `phase-template.md` three illustrative example URLs + `prerequisites.md` line 13 SSH identity precheck. Phase 1 MD + Phase 1 drafter prompt + decisions.md D6/D19/non-goals original text preserved as historical record (D3 amendment block is authoritative for URL going forward).
 
 **Cross-phase implications resolved:** Phase 2/3/4 MDs now match deployed state. Phase 2 executor dispatch can proceed against clean MD. No per-executor-prompt augmentation needed for hostname or SSH identity.
+
+---
+
+### F4 -- Composer platform-req mismatch when running composer:latest against MW source
+
+**Surfaced during:** Phase 2 execution, 2026-05-14. Caught by the executor (Claude) at Task 7 step 4 (composer one-shot against `mediawiki-html/`) -- composer errored at dependency resolution before any filesystem writes.
+
+**Finding.** The Phase 2 deploy command shipped to both `apps/qwiki-sandbox/deploy/README.md` and `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/phase-2-extensions.md` runs `composer update` via the `composer:latest` Docker image bind-mounted against `/mnt/user/appdata/qwiki-beta/mediawiki-html/`. The `composer:latest` image is a minimal Alpine PHP CLI; it does NOT ship with `ext-calendar` or `ext-intl`. MediaWiki's `composer.json` declares both as required PHP extensions. Composer therefore refuses to resolve dependencies and exits with:
+
+```
+Problem 1
+  - Root composer.json requires PHP extension ext-calendar * but it is missing from your system.
+Problem 2
+  - Root composer.json requires PHP extension ext-intl * but it is missing from your system.
+```
+
+The composer error message itself names the fix: `--ignore-platform-req=ext-calendar --ignore-platform-req=ext-intl`. The flags tell composer to resolve dependencies as if those extensions were present (which they ARE at runtime -- the `mediawiki:1.43-fpm` image bundles both extensions; only the `composer:latest` resolver-environment is missing them). The flags do NOT affect the resolved packages or the runtime behavior; they only suppress the resolver-time platform check.
+
+**Why this is SUBSTANTIVE.** The Phase 2 MD as drafted would have broken at deploy step 4 across all future Phase 2 re-runs (e.g., disaster recovery, fresh deploy on a new Unraid). Composer fails fast (no filesystem writes before resolution succeeds), so no state cleanup is needed -- but without the fix the deploy stalls indefinitely.
+
+**Resolution.** Both files amended at three composer-update sites each (six edits total):
+
+- Phase 2 install step (single-line composer command).
+- Image-bump procedure (composer chained with `&& \` between rsync + `docker compose up -d`).
+- SMW extension-bump section (composer chained with `&& \` between scp + `restart mediawiki`).
+
+**Cross-phase implications:**
+
+- Phase 3 (PluggableAuth + Discord OAuth) installs via `git clone`; no composer use; **NOT affected**.
+- Phase 4 (quality-tag categories + wikitext): no composer use; **NOT affected**.
+- Future MW major-version upgrade arc (e.g., 1.43 -> 1.47 LTS) inherits the corrected commands via the deploy README's image-bump procedure (already Phase-2-aware).
+
+**Alternative noted for future-arc consideration (not adopted now):** run composer INSIDE the `qwiki-mediawiki` container if composer is on PATH there (`docker exec qwiki-mediawiki which composer`). The official MW image bundles composer at build-time but may strip it for image size; this is verifiable but not worth investigating during this Phase 2 deploy -- the platform-req-ignore flag fix is two flags per ignore and works cleanly. Flag for the post-arc retrospective if running composer-in-runtime is preferable architecturally.
+
+**Pattern recognition (for post-arc retrospective).** The Phase 2 MD's verification subagent did not catch this. The cross-image composer pattern (composer container against bind-mount whose runtime image differs) is well-known and produces this exact error. Future drafter-subagent prompts should explicitly check for cross-image platform-req mismatches when a composer step appears in a phase MD.
+
+F4 closed.
 
 ---
 

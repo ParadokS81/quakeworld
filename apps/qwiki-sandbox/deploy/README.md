@@ -288,7 +288,8 @@ operator-WSL + Unraid SSH pattern as first-time deploy.
    ssh unraid-deploy 'docker run --rm \
      -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app \
      -w /app composer:latest \
-     composer update --no-dev --no-interaction --no-progress --prefer-dist'
+     composer update --no-dev --no-interaction --no-progress --prefer-dist \
+     --ignore-platform-req=ext-calendar --ignore-platform-req=ext-intl'
    ```
 
    Expected output ends with `Generating optimized autoload files` plus
@@ -463,7 +464,8 @@ ssh unraid-deploy 'docker pull mediawiki:1.43-fpm && \
   docker run --rm \
     -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app \
     -w /app composer:latest \
-    composer update --no-dev --no-interaction --no-progress --prefer-dist && \
+    composer update --no-dev --no-interaction --no-progress --prefer-dist \
+    --ignore-platform-req=ext-calendar --ignore-platform-req=ext-intl && \
   docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml up -d'
 ```
 
@@ -517,7 +519,8 @@ scp apps/qwiki-sandbox/deploy/composer.local.json \
 ssh unraid-deploy 'docker run --rm \
   -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app \
   -w /app composer:latest \
-  composer update --no-dev --no-interaction --no-progress --prefer-dist && \
+  composer update --no-dev --no-interaction --no-progress --prefer-dist \
+  --ignore-platform-req=ext-calendar --ignore-platform-req=ext-intl && \
   docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml restart mediawiki && \
   docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick && \
   docker exec qwiki-mediawiki php /var/www/html/maintenance/runJobs.php'

@@ -584,7 +584,8 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
      ssh unraid-deploy 'docker run --rm \
        -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app \
        -w /app composer:latest \
-       composer update --no-dev --no-interaction --no-progress --prefer-dist'
+       composer update --no-dev --no-interaction --no-progress --prefer-dist \
+       --ignore-platform-req=ext-calendar --ignore-platform-req=ext-intl'
      ```
 
      Expected output ends with `Generating optimized autoload files` plus
@@ -761,7 +762,8 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
     docker run --rm \
       -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app \
       -w /app composer:latest \
-      composer update --no-dev --no-interaction --no-progress --prefer-dist && \
+      composer update --no-dev --no-interaction --no-progress --prefer-dist \
+      --ignore-platform-req=ext-calendar --ignore-platform-req=ext-intl && \
     docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml up -d'
   ```
 
@@ -815,7 +817,8 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
   ssh unraid-deploy 'docker run --rm \
     -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app \
     -w /app composer:latest \
-    composer update --no-dev --no-interaction --no-progress --prefer-dist && \
+    composer update --no-dev --no-interaction --no-progress --prefer-dist \
+    --ignore-platform-req=ext-calendar --ignore-platform-req=ext-intl && \
     docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml restart mediawiki && \
     docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick && \
     docker exec qwiki-mediawiki php /var/www/html/maintenance/runJobs.php'
