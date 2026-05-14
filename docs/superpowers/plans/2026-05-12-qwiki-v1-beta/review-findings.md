@@ -17,6 +17,8 @@ Findings accrue here during arc execution -- phase-MD drafting (sub-agent verifi
 | F5 | SUBSTANTIVE | Page Forms `Special:FormEdit/<FormName>` (no target) returns HTTP 400 in PF 5.8.1 when the form has no built-in target-prompt input | Phase 2 execution (2026-05-14, V_PF2 step) | RESOLVED 2026-05-14 -- corrected V_PF2 URL to `Special:FormEdit/TestForm/TestPage` (target page in URL path). Form rendered cleanly + submission succeeded. Phase-MD `phase-2-extensions.md` V_PF2 probe + deploy README Phase-2-install step 8 + executor prompt sub-halts retain the no-target URL; future executor prompts inherit the corrected URL form. |
 | F6 | SUBSTANTIVE | Cross-phase audit of MW bundled-extension activation surface (ParserFunctions not loaded, surfaced by Template:Test #if not resolving) | Phase 2 execution (2026-05-14, V_PF2 render check) | RESOLVED 2026-05-14 -- audit performed against `/var/www/html/extensions/` (34 bundled). LOAD: ParserFunctions, Cite, CategoryTree, TemplateData. SKIP: VisualEditor, OATHAuth, LoginNotify, Math, PdfHandler. DEFER: remaining 24. Activation surface captured as durable contract in `apps/qwiki-sandbox/deploy/LocalSettings.php` comments + `phase-2-extensions.md` Task 2 inline content. |
 | F7 | SUBSTANTIVE | composer merge-plugin can't see overlay-bound OpenIDConnect/composer.json (cross-image bind-mount visibility mismatch) | Phase 3 execution (2026-05-14, Task 7 step 5 composer run) | RESOLVED 2026-05-14 -- `apps/qwiki-sandbox/deploy/composer.local.json` switched from merge-plugin path entry to direct `require` for `jumbojett/openid-connect-php: 1.0.2`. Same upstream-pinned dependency, simpler resolution surface. Phase 3 MD's Task 1 inline content + deploy README Phase 3 install step 5 retain merge-plugin shape as historical record; updated `composer.local.json` is the authoritative paper artifact going forward. |
+| F8 | SUBSTANTIVE | PluggableAuthLogin redirect URI form mismatch -- MW emits path-info form (`/index.php/Special:PluggableAuthLogin`) but Phase 3 paper artifacts everywhere reference query-string form (`/index.php?title=Special:PluggableAuthLogin`) | Phase 3 execution (2026-05-14, V_AUTH3 Discord OAuth redirect step) | RESOLVED 2026-05-14 -- operator updated Discord developer-portal redirect URI to path-info form. MW's `SpecialPage::getTitleFor( 'PluggableAuthLogin' )->getFullURL()` returns the path-info form because `$wgScriptPath = ""` + `$wgUsePathInfo = true`. Paper artifacts (`prerequisites.md`, `phase-3-auth-groups.md` inline content, `deploy/README.md` install steps, `.env.prod.example` comment, `phase-3-drafter-prompt.md`) all reference query-string form; deferred to a follow-up commit to retarget (functionally equivalent both directions; Discord side accepts whichever is registered). |
+| F9 | SUBSTANTIVE | Phase 3 hook design can't retrieve a Bearer-usable Discord token from MW session -- `OIDC_ACCESSTOKEN_SESSION_KEY` holds the decoded JWT payload (array), not a Bearer string | Phase 3 execution (2026-05-14, V_AUTH3 wiki-contributor auto-assignment step) | RESOLVED 2026-05-14 -- hook switched from user-OAuth-token mode to bot-mode. Reads Discord user ID from `OIDC_SUBJECT_SESSION_KEY` (the `sub` claim, reliably stored as a string), queries the bot-perspective endpoint `/guilds/<id>/members/<sub>` with `Authorization: Bot <token>` instead of `Bearer <token>`. New env var `DISCORD_BOT_TOKEN`; operator reused existing community bot (wiki-dedicated bot in the same guild). `.env.prod.example` + `docker-compose.prod.yml` env block + `LocalSettings.php` qwikiBetaSyncDiscordRole helper updated. Bot tokens don't expire; lookup works post-auth-flow; no fragile refresh-token logic. |
 
 ### F1 -- MW 1.39 LTS is past upstream support window
 
@@ -243,6 +245,77 @@ After fix: scp updated composer.local.json + cp into mediawiki-html/ + re-run co
 **Pattern recognition (for post-arc retrospective).** Third execution-time composer finding on this arc (F4 platform-reqs, now F7 path-visibility). The Phase 3 drafter-subagent verification did not catch this even though the Phase 2 boundary capture had sharpened the checklist. The class of error -- "the composer container's filesystem view differs from the runtime mediawiki container's filesystem view" -- needs an explicit checklist item, not just inheritance from the F4 fix. Sharpening memory: when drafting MW phase MDs that use composer + extensions installed via sibling-overlay binds, the verifier checklist must include "does the composer container's bind-mount give it visibility into every path referenced from composer.local.json (merge-plugin includes, repository paths, autoload paths)?"
 
 F7 closed.
+
+---
+
+### F8 -- PluggableAuthLogin redirect URI form mismatch
+
+**Surfaced during:** Phase 3 execution, 2026-05-14, V_AUTH3 Discord OAuth flow. Operator clicked "Log in with Discord" -> Discord returned "Invalid OAuth2 redirect_uri".
+
+**Finding.** Discord rejected MW's authorize request because the registered redirect URI in the developer portal (`https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`, query-string form) didn't match what OpenIDConnect actually passed in the request. OpenIDConnect builds the redirect URL via `SpecialPage::getTitleFor( 'PluggableAuthLogin' )->getFullURL()` (verified at `/var/www/html/extensions/OpenIDConnect/includes/OpenIDConnect.php` line 310). Direct probe inside the running mediawiki container:
+
+```
+$ docker exec qwiki-mediawiki php -r '...; echo SpecialPage::getTitleFor("PluggableAuthLogin")->getFullURL();'
+https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin
+```
+
+MW emits the **path-info form** (`/index.php/Special:...`) because `$wgScriptPath = ""` + `$wgUsePathInfo = true` -- both load-bearing for Phase 1's URL semantics + nginx-side static-asset routing. Both forms are valid MW URLs (both route to the same Special page); the mismatch is purely literal string comparison on Discord's side.
+
+**Why this is SUBSTANTIVE.** Phase 3 paper artifacts (`prerequisites.md`, `phase-3-auth-groups.md` inline content for `.env.prod.example` comment + multiple bullet references, `deploy/README.md` Phase 3 install prerequisite bullet, `phase-3-drafter-prompt.md`) all reference the query-string form. Any operator running Phase 3 from scratch (e.g., disaster recovery, fresh deploy on a new host) would hit this same error and need to discover the fix.
+
+**Resolution.** Immediate fix: operator updated the Discord developer-portal redirect URI to `https://wiki.slipgate.me/index.php/Special:PluggableAuthLogin` (path-info form). V_AUTH3 OAuth redirect step now PASSes (operator confirmed login lands at the MW wiki post-Discord-consent).
+
+Paper artifacts deferred to a separate follow-up commit (the form was named consistently across multiple docs; one-shot retarget pass via `replace_all` after phase ships clean). Discord-side change is the authoritative state; functionally equivalent to whichever form the docs name as long as both ends agree.
+
+**Cross-phase implications.**
+
+- Phase 4 (quality-tag categories): no Discord OAuth references; **NOT affected**.
+- Future MW-substrate-redeploy arcs (e.g., disaster recovery, MW 1.43 -> 1.47 LTS upgrade): if the operator re-registers the Discord OAuth redirect URI for any reason, must use path-info form. Carry-forward note in the follow-up commit ensures the paper artifacts surface the correct form going forward.
+
+**Pattern recognition (for post-arc retrospective).** Fourth execution-time finding on this arc that the verifier subagent missed (F2 install.php, F4 composer platform-reqs, F6 bundled-ext audit, F7 composer merge-plugin visibility, now F8 URL form). The drafter-subagent-verification-checklist memory should add a fifth check: "for any OAuth / redirect-URL / URL-pattern reference in the phase MD, run the URL-generation probe inside the deployed MW container to verify the actual emitted URL form matches the documented form." This is structurally similar to F5 (PF FormEdit URL semantics across PF versions) -- both are URL-form-assumption failures that only surface at deploy time.
+
+F8 closed (Discord-side fix); paper-artifact retarget tracked as a follow-up.
+
+---
+
+### F9 -- Phase 3 hook design can't retrieve a Bearer-usable Discord token from MW session
+
+**Surfaced during:** Phase 3 execution, 2026-05-14. After F8 was resolved, V_AUTH3 OAuth login succeeded (user auto-provisioned as MW user id=4) but the `qwikiBetaSyncDiscordRole` helper silently failed: the new user was not in the `wiki-contributor` group despite having the `@wiki-beta` Discord role. Direct check of `user_groups` table showed only Admin's groups; the new OAuth user had none.
+
+**Finding.** The Phase 3 MD's qwikiBetaSyncDiscordRole helper assumed `OIDC_ACCESSTOKEN_SESSION_KEY` (the constant the verifier subagent confirmed exists at `OpenIDConnect.php` line 153) stored the raw user OAuth Bearer access token. It does not. Reading the OpenIDConnect source for what's actually stored under each session key:
+
+| Constant | Stored value |
+|---|---|
+| `OIDC_SUBJECT_SESSION_KEY` | The `sub` claim (Discord user ID, string) |
+| `OIDC_ISSUER_SESSION_KEY` | The provider URL (string) |
+| `OIDC_ACCESSTOKEN_SESSION_KEY` | The **decoded** access-token JWT payload (`array`) -- e.g. `['iss' => ..., 'exp' => ..., 'aud' => ..., ...]` |
+| `OIDC_IDTOKEN_SESSION_KEY` | The raw id_token JWT (string; not a Discord REST Bearer) |
+| `OIDC_IDTOKENPAYLOAD_SESSION_KEY` | The decoded id_token payload (array) |
+| `OIDC_REFRESHTOKEN_SESSION_KEY` | Discord refresh token (string) |
+
+The raw user Bearer access token is held only inside the jumbojett client during auth and never written to MW session. Our hook passed the decoded-payload array to curl as the Bearer header (PHP cast `Array` to string, emitting a warning suppressed by fpm); Discord returned 401; our hook treated 401 as "user lost the role" and removed `wiki-contributor` (which was never added). Net effect: every login silently no-ops on the role-sync path.
+
+**Why this is SUBSTANTIVE.** Without F9 resolved, Phase 3's core deliverable (auto-assign `wiki-contributor` based on Discord-role membership per D4) does not work. V_AUTH3 + V_AUTH4 fail. The verifier subagent did confirm the constant existed but did not read carefully enough to catch the storage-shape mismatch -- the source line 153 declares the constant but the storage happens at lines 360-365 where `$accessTokenPayload` (already decoded to array) is what's persisted.
+
+**Resolution.** Hook switched to **bot-mode**:
+
+1. Read the Discord user ID from `OIDC_SUBJECT_SESSION_KEY` (the `sub` claim, reliably stored as a string per line 347 of OpenIDConnect.php).
+2. Query the bot-perspective endpoint `https://discord.com/api/guilds/<DISCORD_GUILD_ID>/members/<sub>` with `Authorization: Bot <DISCORD_BOT_TOKEN>` (not `Bearer`).
+3. Same response shape (`{roles: [...], ...}`) so the role-membership check is identical.
+
+New env var `DISCORD_BOT_TOKEN`. Operator created a wiki-dedicated bot (`wiki.Quake.World`) and invited it to the relevant guild; bot tokens don't expire so this is a one-shot setup. Bot needs no special permissions for the member-read endpoint when querying members with public guild membership.
+
+`apps/qwiki-sandbox/deploy/LocalSettings.php` (qwikiBetaSyncDiscordRole helper rewritten + `$wgDebugLogGroups['qwiki-beta']` wired so subsequent diagnostics surface) + `apps/qwiki-sandbox/deploy/.env.prod.example` (new `DISCORD_BOT_TOKEN` template) + `apps/qwiki-sandbox/deploy/docker-compose.prod.yml` (new env-block entry) all updated.
+
+**Cross-phase implications.**
+
+- Phase 4 (quality-tag categories) does not touch auth; **NOT affected**.
+- Phase 5+ (Modes vertical slice) inherits the bot-mode role-sync as the working baseline. If additional MW-group <-> Discord-role mappings are added later (e.g., separate roles for different domain curators), the same bot-mode pattern extends (one extra env var per role).
+- Future Discord-OAuth integrations on other slipgate services (e.g., hub federation auth, qw-oracle gating) should use bot-mode out of the gate rather than re-discovering F9.
+
+**Pattern recognition (for post-arc retrospective).** Fifth execution-time finding the verifier subagent missed. Across F2/F4/F6/F7/F8/F9, the verifier consistently failed at the "what does this code actually do at runtime" check -- it confirmed names existed but didn't trace what values flowed where. Memory entry `feedback_drafter_subagent_verification_checklist.md` should add a sixth check: "for any session-stored or cross-call-state value the phase code reads, verify the storage shape at write time (not just the constant name) by tracing the actual write callsite in the upstream code." This is the structural lesson from F9.
+
+F9 closed.
 
 ---
 

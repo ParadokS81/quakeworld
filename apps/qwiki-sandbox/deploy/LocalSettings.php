@@ -281,17 +281,29 @@ $wgPluggableAuth_Config['Discord'] = [
     ],
 ];
 
-# --- Discord role sync (Phase 3) ------------------------------------------
+# --- Discord role sync (Phase 3, F9-revised) ------------------------------
 #
-# Discord roles are NOT in the OIDC id_token. PluggableAuth's built-in
-# 'syncall' / 'mapped' GroupSync types both assume claim-driven mapping;
-# neither fits the Discord-API-call shape. We therefore re-check role
-# membership on every login via two MW hooks:
-#   - LocalUserCreated: fires on first OAuth-driven account creation.
-#   - UserLoggedIn: fires on every subsequent login (re-evaluates
-#     role membership; handles role revocation gracefully).
-# Both hooks call the same helper, which is small enough to inline here
-# rather than shipping as a separate file.
+# Discord roles are NOT in the OIDC id_token. We re-check role membership on
+# every login via two MW hooks (LocalUserCreated for first-login,
+# UserLoggedIn for subsequent), both calling the same helper.
+#
+# F9 (2026-05-14): the original Phase 3 design read the user OAuth access
+# token from OIDC_ACCESSTOKEN_SESSION_KEY and called the user-perspective
+# /users/@me/guilds/<id>/member endpoint. That session key actually stores
+# the *decoded JWT payload* (an array), not a Bearer-usable string -- so
+# Discord returned 401 and the hook silently removed wiki-contributor (the
+# user never had it). The raw user access token is not preserved past the
+# OpenIDConnect auth-flow boundary.
+#
+# Fix: bot-mode. Read the Discord user ID from OIDC_SUBJECT_SESSION_KEY
+# (the 'sub' claim) and query the bot-perspective endpoint
+# /guilds/<id>/members/<user_id> with a Discord bot token. Bot tokens don't
+# expire; the lookup works post-auth-flow; no fragile token-refresh logic.
+
+# Debug log for the role-sync helper -- visible at /tmp/qwiki-beta-debug.log
+# inside the mediawiki container; tail with
+#   ssh unraid-deploy 'docker exec qwiki-mediawiki tail -f /tmp/qwiki-beta-debug.log'
+$wgDebugLogGroups['qwiki-beta'] = '/tmp/qwiki-beta-debug.log';
 
 $wgHooks['LocalUserCreated'][] = static function ( $user, $autocreated ) {
     qwikiBetaSyncDiscordRole( $user );
@@ -303,44 +315,49 @@ $wgHooks['UserLoggedIn'][] = static function ( $user ) {
 
 /**
  * Sync the wiki-contributor MW group from the user's @wiki-beta Discord
- * role membership. Reads the OAuth access token PluggableAuth stored at
- * OpenIDConnect::OIDC_ACCESSTOKEN_SESSION_KEY, calls Discord's
- * /users/@me/guilds/<guild_id>/member endpoint, and adds or removes the
+ * role membership. Reads the Discord user ID PluggableAuth/OpenIDConnect
+ * stored as the OIDC 'sub' claim, calls Discord's bot-perspective
+ * /guilds/<guild_id>/members/<user_id> endpoint, and adds or removes the
  * user from wiki-contributor based on the response's roles[] array.
  *
  * Fails silently (no group change) on:
- *   - missing env config (DISCORD_GUILD_ID / DISCORD_WIKI_BETA_ROLE_ID),
- *   - missing access token (e.g., non-OAuth login by the sysop user),
- *   - non-200 from Discord (network error, expired token, user left guild).
+ *   - missing OIDC subject (e.g., non-OAuth login by the sysop user),
+ *   - missing env config (DISCORD_BOT_TOKEN / DISCORD_GUILD_ID /
+ *     DISCORD_WIKI_BETA_ROLE_ID),
+ *   - non-200 from Discord (network error, bot not in guild, user not
+ *     in guild).
  *
  * Removing the user from wiki-contributor on a 404 from
- * /users/@me/guilds/<guild_id>/member matches the spirit of D4's
+ * /guilds/<guild_id>/members/<user_id> matches the spirit of D4's
  * revocation symmetry: if the user has left the Discord server, they
  * lose contributor access on next login.
  */
 function qwikiBetaSyncDiscordRole( $user ): void {
     $services = \MediaWiki\MediaWikiServices::getInstance();
     $authManager = $services->getAuthManager();
-    $accessToken = $authManager->getAuthenticationSessionData(
-        \MediaWiki\Extension\OpenIDConnect\OpenIDConnect::OIDC_ACCESSTOKEN_SESSION_KEY
+    $discordUserId = $authManager->getAuthenticationSessionData(
+        \MediaWiki\Extension\OpenIDConnect\OpenIDConnect::OIDC_SUBJECT_SESSION_KEY
     );
-    if ( !$accessToken ) {
+    if ( !is_string( $discordUserId ) || $discordUserId === '' ) {
+        wfDebugLog( 'qwiki-beta',
+            'Discord role sync skipped: OIDC subject not found in session (non-OAuth login or sysop).' );
         return;
     }
 
+    $botToken = getenv( 'DISCORD_BOT_TOKEN' ) ?: '';
     $guildId = getenv( 'DISCORD_GUILD_ID' ) ?: '';
     $betaRoleId = getenv( 'DISCORD_WIKI_BETA_ROLE_ID' ) ?: '';
-    if ( $guildId === '' || $betaRoleId === '' ) {
+    if ( $botToken === '' || $guildId === '' || $betaRoleId === '' ) {
         wfDebugLog( 'qwiki-beta',
-            'Discord role sync skipped: DISCORD_GUILD_ID or DISCORD_WIKI_BETA_ROLE_ID missing.' );
+            'Discord role sync skipped: DISCORD_BOT_TOKEN / DISCORD_GUILD_ID / DISCORD_WIKI_BETA_ROLE_ID missing.' );
         return;
     }
 
-    $url = "https://discord.com/api/users/@me/guilds/{$guildId}/member";
+    $url = "https://discord.com/api/guilds/{$guildId}/members/{$discordUserId}";
     $ch = curl_init( $url );
     curl_setopt_array( $ch, [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => [ "Authorization: Bearer {$accessToken}" ],
+        CURLOPT_HTTPHEADER => [ "Authorization: Bot {$botToken}" ],
         CURLOPT_TIMEOUT => 5,
         CURLOPT_CONNECTTIMEOUT => 3,
     ] );
@@ -354,7 +371,7 @@ function qwikiBetaSyncDiscordRole( $user ): void {
 
     if ( $httpCode !== 200 || !is_string( $body ) ) {
         wfDebugLog( 'qwiki-beta',
-            "Discord role sync: API returned HTTP {$httpCode}; removing wiki-contributor if present." );
+            "Discord role sync: bot API returned HTTP {$httpCode} for sub {$discordUserId}; removing wiki-contributor if present." );
         if ( $hasContributor ) {
             $userGroupManager->removeUserFromGroup( $user, 'wiki-contributor' );
         }
@@ -368,9 +385,13 @@ function qwikiBetaSyncDiscordRole( $user ): void {
 
     if ( in_array( $betaRoleId, $roleIds, true ) ) {
         if ( !$hasContributor ) {
+            wfDebugLog( 'qwiki-beta',
+                "Discord role sync: sub {$discordUserId} has @wiki-beta; granting wiki-contributor." );
             $userGroupManager->addUserToGroup( $user, 'wiki-contributor' );
         }
     } elseif ( $hasContributor ) {
+        wfDebugLog( 'qwiki-beta',
+            "Discord role sync: sub {$discordUserId} no longer has @wiki-beta; removing wiki-contributor." );
         $userGroupManager->removeUserFromGroup( $user, 'wiki-contributor' );
     }
 }

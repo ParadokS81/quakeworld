@@ -54,6 +54,8 @@ services:
       DISCORD_OAUTH_CLIENT_SECRET: ${DISCORD_OAUTH_CLIENT_SECRET}
       DISCORD_GUILD_ID: ${DISCORD_GUILD_ID}
       DISCORD_WIKI_BETA_ROLE_ID: ${DISCORD_WIKI_BETA_ROLE_ID}
+      # F9-revised 2026-05-14: bot-mode role sync (see LocalSettings.php).
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
     volumes:
       # Shared MW source tree -- nginx mounts the same host path read-only.
       # mediawiki-html is populated once at first-time deploy via the
