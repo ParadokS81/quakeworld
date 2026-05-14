@@ -138,6 +138,40 @@ ENCLOSING_FN_CATEGORY_OVERRIDES: list[tuple[re.Pattern, str]] = [
     # the handler grows path-argument or subpath-argument analysis, both
     # slugs stay unresolved at the loader-site layer. Flagged in the
     # 2026-05-13 watchlist-coverage handoff.
+    #
+    # R2D_Conback_Callback owns the full conback loader chain: gfx/conback,
+    # gfx/menu/conback.lmp, pics/conback.pcx, gfx/conback.lmp, plus a
+    # R_RegisterCustom fallback. All 6 sites are conback variants; without
+    # the override they split across hud_overlay / shader / texture.
+    (re.compile(r"^R2D_Conback_Callback$"), "fte:asset_category:conback"),
+    # Hexen2 conchars rebuilt into the Q1 charset system. Single FS_LoadFile
+    # for gfx/menu/conchars.lmp; .lmp ext otherwise routes to hud_overlay.
+    (re.compile(r"^Font_LoadHexen2Conchars$"), "fte:asset_category:charset"),
+    # MD5 mesh model parser: 2 FS_FLocateFile sites for per-frame .lmp payloads
+    # serving model-skin loading. Without the override the .lmp ext routes to
+    # hud_overlay.
+    (re.compile(r"^Mod_ParseMD5MeshModel$"), "fte:asset_category:model_texture"),
+    # Player-skin preview in multiplayer setup menu: 3 FS_LoadFile sites for
+    # gfx/menu/netp%i.lmp (Hexen2 class portrait), gfx/player/%s.lmp (custom
+    # skin payload), gfx/menuplyr.lmp (default skin payload). All 3 are skin
+    # data; .lmp ext otherwise routes to hud_overlay. L1 bucket is `skin`;
+    # seed slug `player_skin` bridges via l1_hint_bare_categories: ["skin"].
+    (re.compile(r"^MSetup_TransDraw$"), "fte:asset_category:skin"),
+    # BSP brush-model load: Mod_FindName for "*%i:%s" (inline-model registration).
+    # ENCLOSING_FN_CATEGORY_RULES catches LoadBrushModel substring and routes to
+    # model; the role is map, not model.
+    (re.compile(r"^Mod_LoadBrushModel$"), "fte:asset_category:map"),
+    # Inline chat-embedded URL renderer: R_RegisterPic + R_RegisterShader +
+    # R_RegisterCustom sites in Con_DrawConsoleLines fetch user-supplied URLs
+    # embedded in chat-line text (tiprawimg / tiprawimgcube / tiprawimgarray),
+    # not asset-typed file loads. New L1-internal category preserves filtering
+    # information vs routing to null. Decision doc 2026-05-14 Phase 2 addendum.
+    (re.compile(r"^Con_DrawConsoleLines$"), "fte:asset_category:inline_chat_url"),
+    # FTE windowed-console UI chrome: R_RegisterPic loads of backshader /
+    # backimage cvar values for the dev-console window background. Distinct
+    # from gameplay `conback` (different rendering path, different filenames);
+    # NOT folded into the conback slug per decision doc 2026-05-14.
+    (re.compile(r"^Con_DrawConsole$"), "fte:asset_category:console_window_ui"),
 ]
 
 ENCLOSING_FN_CATEGORY_RULES: list[tuple[re.Pattern, str]] = [

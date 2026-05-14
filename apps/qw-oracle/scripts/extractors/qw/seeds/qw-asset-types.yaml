@@ -45,7 +45,7 @@ asset_types:
       - { ext: ".lmp", magic_hex: null, notes: "Raw indexed image; 320x200 stock dimensions." }
       - { ext: ".tga", magic_hex: null, notes: "No magic; structural detection." }
     l1_hint_function_names: ["Draw_InitConback", "R2D_Conback_Callback"]
-    l1_hint_bare_categories: []
+    l1_hint_bare_categories: ["conback"]
     stock_origin_paths: ["gfx/conback.lmp"]
     corpus_categories: ["Conbacks"]
     notes: |
@@ -356,7 +356,7 @@ asset_types:
       - { ext: ".tga", magic_hex: null }
     l1_hint_function_names:
       - "Mod_LoadExternalSkin"      # ezQuake hi-res skin loader (r_aliasmodel_skins.c:76)
-    l1_hint_bare_categories: []
+    l1_hint_bare_categories: ["model_texture"]
     stock_origin_paths: []
     corpus_categories:
       - "Textures / Armor"

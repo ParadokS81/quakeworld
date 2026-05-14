@@ -7,6 +7,31 @@
 
 ---
 
+## Phase A status (SHIPPED 2026-05-14)
+
+**Closed:** Category 1 (10 of 11 entries — see Deferred below) + Category 2 (4 sites, 2 new asset_category labels).
+**Remaining:** Category 3 (write-path leakage, Phase B), Category 4 (FTE charset watchlist gap, Phase C).
+
+**Net L1 impact** (sites rerouted; no new or lost):
+- ezQuake: skybox +7, charset +1, config +2, texture −6, null −2, hud_overlay −1, quakec_progs −1
+- FTE: hud_overlay −14, shader −3, texture −2, model −1; conback +6, inline_chat_url +5, skin +3, model_texture +2, console_window_ui +2, map +1, charset +1
+
+**New FTE L1 asset_category labels registered:** conback, charset, model_texture, inline_chat_url, console_window_ui.
+
+**Seed YAML bridges added (NF3):** `conback` + `model_texture` `l1_hint_bare_categories` now populated. Required for derive to land the new FTE categories under the user-facing slugs (without this, FTE Mod_ParseMD5MeshModel sites stranded).
+
+**FTE 5-case hud_overlay decision:** per-site overrides (not tier-fix). The 5 cases don't share a common discriminator; tier-fix would over-narrow correct hud_overlay routings.
+
+**Deferred (per-site path-template override shape — post-refinement territory):**
+- **Cat 1 entry 7 — M_Menu_LoadSave_Preview_Draw → levelshot:** function has 2 R_RegisterPic sites at different asset types (save-thumbnail `saves/%s/screeny.tga` line 171 vs levelshot `levelshots/%s` line 183). Existing handler comment at `fte/_handler_asset_loader_sites.py:127-130` already flags this. Enclosing-fn override would mistag the thumbnail. Needs a per-site path-template-prefix override tier.
+
+**Open finding (post-refinement; not Phase B/C scope):**
+- **FTE map watchlist gap larger than Cat 1 spec'd:** Mod_LoadBrushModel captured 1 site of expected ~5-10. BSP load + .ent loader sites at `gl_model.c:2274-2330` aren't in `LOADER_FUNCTIONS`. Same fix shape as Category 4 (FTE charset); could fold into Phase C scope if operator chooses, otherwise post-refinement.
+
+**Process note (NF2):** Several site-count claims in the original punch list below were stale by Phase A execution time. Worker verified against live source for each entry. Treat the body below as orientation; ground truth is in the current `*-asset-loader-sites-ast.json` outputs.
+
+---
+
 ## Why this arc exists
 
 The asset-type-curate skill's Round 3 calibration plus two follow-on closure passes (oversight audit + L1 vocab alignment audit) surfaced extractor-side findings of 4 distinct fix shapes. The punch list is reorganized below by shape rather than by source-slug -- each category has a coherent fix approach and verification regime.

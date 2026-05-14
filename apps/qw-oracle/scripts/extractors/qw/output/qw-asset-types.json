@@ -2,14 +2,14 @@
   "_stats": {
     "asset_type_count": 21,
     "types_with_l1_evidence_ezquake": 20,
-    "types_with_l1_evidence_fte": 15,
+    "types_with_l1_evidence_fte": 17,
     "types_with_stock_origin": 9,
-    "total_l1_evidence_refs_ezquake": 344,
-    "total_l1_evidence_refs_fte": 244,
+    "total_l1_evidence_refs_ezquake": 346,
+    "total_l1_evidence_refs_fte": 234,
     "total_stock_origin_refs": 362
   },
   "project": "qw",
-  "extracted_at": "2026-05-14T15:56:14+00:00",
+  "extracted_at": "2026-05-14T18:50:44+00:00",
   "asset_types": [
     {
       "asset_type": "conback",
@@ -140,6 +140,7 @@
           "ezquake:loader_site:Draw_LoadCharset_r_draw_charset_Draw_InitCharset_1",
           "ezquake:loader_site:Draw_LoadCharset_r_draw_charset_Draw_InitCharset_2",
           "ezquake:loader_site:Draw_LoadCharset_r_draw_charset_OnChange_gl_consolefont_1",
+          "ezquake:loader_site:FS_LoadTempFile_r_draw_charset_Load_LMP_Charset_1",
           "ezquake:loader_site:Load_LMP_Charset_r_draw_charset_Draw_LoadCharset_1",
           "ezquake:loader_site:Load_LMP_Charset_r_draw_charset_Load_Locale_Charset_1",
           "ezquake:loader_site:Load_Locale_Charset_r_draw_charset_Draw_LoadCharset_1",
@@ -149,7 +150,9 @@
           "ezquake:loader_site:R_LoadCharsetImage_r_draw_charset_Load_Locale_Charset_1",
           "ezquake:loader_site:R_LoadImagePixels_r_texture_load_R_LoadCharsetImage_1"
         ],
-        "fte": []
+        "fte": [
+          "fte:loader_site:FS_LoadFile_gl_font_Font_LoadHexen2Conchars_1"
+        ]
       },
       "stock_origins": []
     },
@@ -192,7 +195,7 @@
         "Crosshairs",
         "Crosshairs / Transparent"
       ],
-      "notes": "Engine loads via `crosshairimage <name>` cvar (no extension; engine probes .png/.tga/.pcx).\nNo stock origin -- built-in crosshair glyphs live inside the charset, not a separate file.\n",
+      "notes": "Engine loads via `crosshairimage <name>` cvar (no extension; engine probes .png/.tga/.pcx).\nNo stock origin -- built-in crosshair glyphs live inside the charset, not a separate file.\n\nCustom-crosshair definitions companion: ezQuake `customCrosshair_Init` (r_draw.c:222)\nloads `crosshairs/crosshair.txt` on startup -- a text file mapping cvar values to\ncustom crosshair definitions. Companion sidecar to the image files; not a separate\nasset_type.\n",
       "l1_evidence": {
         "ezquake": [
           "ezquake:loader_site:Draw_CachePicSafe_r_draw_OnChange_crosshairimage_1"
@@ -331,7 +334,7 @@
         "HUD / Weapon",
         "HUD / WADs"
       ],
-      "notes": "Filename matches the WAD lump name being replaced (num_0, num_1, face1, ...).\nStock HUD elements ship inside id1/gfx.wad; the texture-replacement system\nfinds external override files at textures/wad/<name>.<ext>.\n",
+      "notes": "Filename matches the WAD lump name being replaced (num_0, num_1, face1, ...).\nStock HUD elements ship inside id1/gfx.wad; the texture-replacement system\nfinds external override files at textures/wad/<name>.<ext>.\n\nThe L1 `hud_overlay` asset_category bucket is a deliberate superset of this\nasset_type -- it also covers chat icons, particle font, login UI, mouse cursor,\nand HUD group pics (per ezQuake handler ENCLOSING_FN_CATEGORY_RULES). The seed\nslug `hud_element` correctly aligns with the L1 entity-type vocabulary (see\nezquake-hud-elements-ast.json catalog of gfx.wad lump names). The bridge via\n`l1_hint_bare_categories: [hud_overlay]` is intentional; do not rename.\n",
       "l1_evidence": {
         "ezquake": [
           "ezquake:loader_site:CL_LoginImageLoad_sbar_OnChange_scr_scoreboard_login_flagfile_1",
@@ -455,7 +458,6 @@
           "ezquake:loader_site:FS_LoadHeapFile_cl_main_ReloadPaletteAndColormap_2",
           "ezquake:loader_site:FS_LoadHeapFile_r_draw_Draw_InitConback_1",
           "ezquake:loader_site:FS_LoadTempFile_r_draw_Draw_CachePicSafe_1",
-          "ezquake:loader_site:FS_LoadTempFile_r_draw_charset_Load_LMP_Charset_1",
           "ezquake:loader_site:FS_OpenVFS_r_draw_Draw_CachePicSafe_1",
           "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_1",
           "ezquake:loader_site:FS_OpenVFS_wad_WAD3_LoadWadFile_2",
@@ -482,27 +484,13 @@
           "ezquake:loader_site:WAD3_LoadWadFile_r_brushmodel_load_Mod_ParseWadsFromEntityLump_1"
         ],
         "fte": [
-          "fte:loader_site:FS_FLocateFile_com_mesh_Mod_ParseMD5MeshModel_1",
-          "fte:loader_site:FS_FLocateFile_com_mesh_Mod_ParseMD5MeshModel_2",
-          "fte:loader_site:FS_LoadFile_gl_font_Font_LoadHexen2Conchars_1",
           "fte:loader_site:FS_LoadFile_m_items_Draw_Hexen2BigFontString_1",
-          "fte:loader_site:FS_LoadFile_m_multi_MSetup_TransDraw_1",
-          "fte:loader_site:FS_LoadFile_m_multi_MSetup_TransDraw_2",
-          "fte:loader_site:FS_LoadFile_m_multi_MSetup_TransDraw_3",
           "fte:loader_site:FS_OpenVFS_common_COM_CheckRegistered_1",
           "fte:loader_site:FS_OpenVFS_image_Image_FixupImageSize_2",
-          "fte:loader_site:R_RegisterPic_console_Con_DrawConsoleLines_1",
-          "fte:loader_site:R_RegisterPic_console_Con_DrawConsoleLines_2",
-          "fte:loader_site:R_RegisterPic_console_Con_DrawConsole_1",
-          "fte:loader_site:R_RegisterPic_console_Con_DrawConsole_2",
           "fte:loader_site:R_RegisterPic_m_download_MD_Download_UpdateStatus_1",
           "fte:loader_site:R_RegisterPic_m_single_M_Menu_LoadSave_Preview_Draw_1",
           "fte:loader_site:R_RegisterPic_m_single_M_Menu_LoadSave_Preview_Draw_2",
           "fte:loader_site:R_RegisterPic_pr_csqc_PR_R_PolygonShader_1",
-          "fte:loader_site:R_RegisterPic_r_2d_R2D_Conback_Callback_1",
-          "fte:loader_site:R_RegisterPic_r_2d_R2D_Conback_Callback_2",
-          "fte:loader_site:R_RegisterPic_r_2d_R2D_Conback_Callback_3",
-          "fte:loader_site:R_RegisterPic_r_2d_R2D_Conback_Callback_4",
           "fte:loader_site:R_RegisterPic_r_2d_R2D_LoadAtlasedPic_1",
           "fte:loader_site:R_RegisterPic_r_2d_R2D_SafeCachePic_1"
         ]
@@ -550,7 +538,7 @@
       "corpus_categories": [
         "HUD / WADs"
       ],
-      "notes": "Engine reads WAD files at gamedir root (qw/<name>.wad). Map authors reference them\nvia worldspawn.wad. id1/gfx.wad is the stock HUD wad that hud_element overrides target.\n",
+      "notes": "Engine reads WAD files at gamedir root (qw/<name>.wad). Map authors reference them\nvia worldspawn.wad. id1/gfx.wad is the stock HUD wad that hud_element overrides target.\n\nL1 emits this asset_category under the engine-internal bucket label `wad`. The\nseed slug `wad_file` is more user-explicit (clarifies \"a .wad archive file\" vs\n\"the WAD lump table\"); bridge via `l1_hint_bare_categories: [wad]` is intentional.\n",
       "l1_evidence": {
         "ezquake": [
           "ezquake:loader_site:FS_LoadHeapFile_wad_W_LoadWadFile_1",
@@ -738,7 +726,7 @@
         "Skins / Player Model",
         "Skins / Gib"
       ],
-      "notes": "Stock player skin (player.mdl skin 0) lives inside id1/progs/player.mdl, not as\na separate file. Replacement is loaded via /teamskin and /enemyskin cvars naming\na file in qw/skins/.\n",
+      "notes": "Stock player skin (player.mdl skin 0) lives inside id1/progs/player.mdl, not as\na separate file. Replacement is loaded via /teamskin and /enemyskin cvars naming\na file in qw/skins/.\n\nL1 emits this asset_category under the engine-internal bucket label `skin`\n(single-word). The seed slug `player_skin` is the user-explicit name for the\nsame asset class; bridge via `l1_hint_bare_categories: [skin]` is intentional.\n",
       "l1_evidence": {
         "ezquake": [
           "ezquake:loader_site:Image_LoadPCX_image_Image_LoadPCX_As32Bit_1",
@@ -751,7 +739,10 @@
         ],
         "fte": [
           "fte:loader_site:COM_LoadTempFile_renderer_R_ApplyRenderer_Load_1",
-          "fte:loader_site:FS_LoadFile_gl_q2bsp_CM_GetQ2Palette_1"
+          "fte:loader_site:FS_LoadFile_gl_q2bsp_CM_GetQ2Palette_1",
+          "fte:loader_site:FS_LoadFile_m_multi_MSetup_TransDraw_1",
+          "fte:loader_site:FS_LoadFile_m_multi_MSetup_TransDraw_2",
+          "fte:loader_site:FS_LoadFile_m_multi_MSetup_TransDraw_3"
         ]
       },
       "stock_origins": []
@@ -789,7 +780,7 @@
         "Models / Team Fortress",
         "Models / Weapon"
       ],
-      "notes": "Stock player/weapon/monster/item models ship in id1/pak0. Embedded skins live\ninside the .mdl file; external skin replacement uses the player_skin or\nmodel_texture mechanism instead.\n",
+      "notes": "Stock player/weapon/monster/item models ship in id1/pak0. Embedded skins live\ninside the .mdl file; external skin replacement uses the player_skin or\nmodel_texture mechanism instead.\n\nL1 emits this asset_category under the engine-internal bucket label `model`,\nwhich is wider than this seed slug -- it covers .md3 / .md2 / .iqm formats on\nFTE plus alias-models in general. This seed slug `model_q1` is intentionally\nnarrow to .mdl (IDPO magic) Q1 format. Future support for MD3/MD2/IQM as\ncommunity asset workflows would be additive new slugs (e.g., `model_md3`),\nnot a rename. Bridge via `l1_hint_bare_categories: [model]` is intentional.\n",
       "l1_evidence": {
         "ezquake": [
           "ezquake:loader_site:FS_LoadTempFile_r_model_Mod_LoadModel_1",
@@ -1423,13 +1414,22 @@
       "notes": "Replaces the skin baked into a .mdl. Filename matches the model name\n(v_axe -> v_axe.tga, or v_axe_0.tga for skin index 0).\nDistinct from hud_element (HUD overlays) and map_texture (BSP-embedded textures).\nFTE loads these through the generic shader builders (R_BuildDefaultTexnums /\nR_BuildLegacyTexnums in gl_shader.c), which serve every shader-textured asset;\nthe L1 extractor cannot separate them from generic textures or brush textures\nat the call-site layer, so no FTE-side hint function names are listed yet.\n",
       "l1_evidence": {
         "ezquake": [
+          "ezquake:loader_site:Mod_LoadAllSkins_r_aliasmodel_Mod_LoadAliasModel_1",
           "ezquake:loader_site:Mod_LoadExternalSkin_r_aliasmodel_skins_Mod_LoadAllSkins_1",
           "ezquake:loader_site:Mod_LoadExternalSkin_r_aliasmodel_skins_Mod_LoadAllSkins_2",
+          "ezquake:loader_site:Mod_LoadExternalSpriteSkin_r_sprites_Mod_LoadSpriteFrame_1",
+          "ezquake:loader_site:Mod_LoadSimpleTexture_r_aliasmodel_Mod_LoadAliasModel_1",
+          "ezquake:loader_site:Mod_LoadSimpleTexture_r_aliasmodel_md3_Mod_LoadAlias3Model_1",
+          "ezquake:loader_site:Mod_LoadSimpleTexture_r_brushmodel_load_R_LoadBrushModelTextures_1",
+          "ezquake:loader_site:Mod_MD3LoadSkins_r_aliasmodel_md3_Mod_LoadAlias3Model_1",
           "ezquake:loader_site:R_LoadImagePixels_r_aliasmodel_skins_Mod_LoadExternalSkin_1",
           "ezquake:loader_site:R_LoadImagePixels_r_aliasmodel_skins_Mod_LoadExternalSkin_2",
           "ezquake:loader_site:R_LoadImagePixels_r_aliasmodel_skins_Mod_LoadExternalSkin_3"
         ],
-        "fte": []
+        "fte": [
+          "fte:loader_site:FS_FLocateFile_com_mesh_Mod_ParseMD5MeshModel_1",
+          "fte:loader_site:FS_FLocateFile_com_mesh_Mod_ParseMD5MeshModel_2"
+        ]
       },
       "stock_origins": []
     },
@@ -1882,12 +1882,6 @@
           "ezquake:loader_site:R_LoadPicImage_vx_tracker_VX_TrackerInit_1",
           "ezquake:loader_site:R_LoadTextureImage_r_aliasmodel_md3_Mod_LoadAlias3Model_1",
           "ezquake:loader_site:R_LoadTextureImage_r_aliasmodel_md3_Mod_LoadAlias3Model_2",
-          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_1",
-          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_2",
-          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_3",
-          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_4",
-          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_5",
-          "ezquake:loader_site:R_LoadTextureImage_r_brushmodel_load_Mod_LoadExternalSkyTexture_6",
           "ezquake:loader_site:R_LoadTextureImage_r_model_Mod_LoadSimpleTexture_1",
           "ezquake:loader_site:R_LoadTextureImage_r_model_Mod_LoadSimpleTexture_2",
           "ezquake:loader_site:R_LoadTextureImage_r_model_Mod_LoadSimpleTexture_3",
@@ -1961,7 +1955,6 @@
           "fte:loader_site:R_LoadHiResTexture_skin_Skin_WorkerLoad_4",
           "fte:loader_site:R_LoadHiResTexture_skin_Skin_WorkerLoad_5",
           "fte:loader_site:R_RegisterCustom_clq2_ents_CLQ2_AddPacketEntities_1",
-          "fte:loader_site:R_RegisterCustom_console_Con_DrawConsoleLines_1",
           "fte:loader_site:R_RegisterCustom_console_Con_DrawMouseOver_1",
           "fte:loader_site:R_RegisterCustom_gl_alias_Mod_ReadSkinFile_1",
           "fte:loader_site:R_RegisterCustom_gl_backend_GLBE_RegisterLightShader_1",
@@ -1982,7 +1975,6 @@
           "fte:loader_site:R_RegisterCustom_pr_csqc_PR_R_PolygonShader_1",
           "fte:loader_site:R_RegisterCustom_pr_menu_PF_CL_is_cached_pic_1",
           "fte:loader_site:R_RegisterCustom_pr_menu_PF_SubConGetSet_1",
-          "fte:loader_site:R_RegisterCustom_r_2d_R2D_Conback_Callback_1",
           "fte:loader_site:R_RegisterCustom_r_2d_R2D_SafePicFromWad_1",
           "fte:loader_site:R_RegisterCustom_vk_init_VK_R_RenderView_1"
         ]
@@ -3589,6 +3581,8 @@
         "ezquake": [
           "ezquake:loader_site:FS_LoadHeapFile_cmd_Cmd_Exec_f_1",
           "ezquake:loader_site:FS_LoadHeapFile_cmd_Cmd_Exec_f_2",
+          "ezquake:loader_site:FS_LoadHeapFile_fragstats_LoadFragFile_1",
+          "ezquake:loader_site:FS_LoadHeapFile_fragstats_LoadFragFile_2",
           "ezquake:loader_site:FS_OpenVFS_config_manager_ResetConfigs_1",
           "ezquake:loader_site:FS_OpenVFS_host_Host_Init_1",
           "ezquake:loader_site:LoadFragFile_fragstats_Load_FragFile_f_1",

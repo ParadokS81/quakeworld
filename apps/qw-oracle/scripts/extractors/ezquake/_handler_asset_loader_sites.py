@@ -284,6 +284,26 @@ ENCLOSING_FN_CATEGORY_OVERRIDES: list[tuple[re.Pattern, str]] = [
     # textures/bmodels/<tex>, textures/<tex>. All R_LoadImagePixels sites inside
     # Mod_LoadExternalTexture serve map_texture; previously folded into "texture".
     (re.compile(r"^Mod_LoadExternalTexture$"), "ezquake:asset_category:map_texture"),
+    # Sky overlay textures from BSP-internal sky-overlay replacements at
+    # textures/<mapname>/<bsp_skytex>_{solid,alpha}.<ext>. The called function is
+    # R_LoadTextureImage which routes to texture via FUNCTION_TO_CATEGORY; the
+    # role (sky overlay) wins. Operator decision per refinement arc 2026-05-14:
+    # keep at skybox (asset-note documents the dual install-layout mechanism).
+    (re.compile(r"^Mod_LoadExternalSkyTexture$"), "ezquake:asset_category:skybox"),
+    # Skywind config loader: gfx/env/<name>/skywind.cfg. FS_LoadTempFile primitive
+    # has no FUNCTION_TO_CATEGORY entry; without the override the site stays null.
+    # Symmetric to the FTE R_SetSky|Shader_ParseSkySides skybox override above.
+    (re.compile(r"^Skywind_Load_f$"), "ezquake:asset_category:skybox"),
+    # LMP charset loader: gfx/<name>.lmp via FS_LoadTempFile. Without the override,
+    # the .lmp extension routes to hud_overlay. Load_LMP_Charset is in
+    # FUNCTION_TO_CATEGORY but that mapping only fires when it is the CALLED
+    # function, not the enclosing context for the FS primitive.
+    (re.compile(r"^Load_LMP_Charset$"), "ezquake:asset_category:charset"),
+    # Frag-stats config: ../ezquake/fragfile.dat via FS_LoadHeapFile. Without
+    # the override, the .dat extension routes to quakec_progs (QuakeC bytecode),
+    # but fragfile.dat is fuhquake-derived fragstats config text, not QC bytecode.
+    # Confirmed at research/repos/ezquake-source/src/fragstats.c:37.
+    (re.compile(r"^LoadFragFile$"), "ezquake:asset_category:config"),
 ]
 
 ENCLOSING_FN_CATEGORY_RULES: list[tuple[re.Pattern, str]] = [
