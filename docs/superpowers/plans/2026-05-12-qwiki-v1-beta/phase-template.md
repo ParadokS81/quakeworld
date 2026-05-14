@@ -20,7 +20,7 @@ One paragraph. What this phase produces and why it's a coherent unit. End with a
 
 What state must exist for this phase to start. Examples:
 
-- "MW substrate running on Unraid + reachable at `https://wiki-beta.quake.world` (Phase A complete)."
+- "MW substrate running on Unraid + reachable at `https://wiki.slipgate.me` (Phase A complete)."
 - "PluggableAuth + Discord OAuth wired + `wiki-contributor` group auto-assignment working (Phase B complete)."
 
 If this is Phase 1 (Phase A), inputs are the items in `prerequisites.md`.
@@ -78,9 +78,9 @@ Copy-paste commands the operator runs at the end of the phase to confirm it land
 
 Examples:
 
-- Smoke probe: `curl -sI https://wiki-beta.quake.world | head -5` -- expect HTTP/2 200 OK.
+- Smoke probe: `curl -sI https://wiki.slipgate.me | head -5` -- expect HTTP/2 200 OK.
 - Database probe: `docker exec qwiki-mariadb mysql -uroot -e "SHOW DATABASES LIKE 'wiki%'"` -- expect `wiki` database exists.
-- MW page render: open `https://wiki-beta.quake.world/wiki/Main_Page` in browser -- expect Citizen skin loaded, 6 nav tiles visible.
+- MW page render: open `https://wiki.slipgate.me/wiki/Main_Page` in browser -- expect Citizen skin loaded, 6 nav tiles visible.
 - Oracle harvest probe (substrate verification): run the documented harvest workflow on a test page, then query oracle MCP -- expect the harvested content returned.
 
 Each verification ends with one of:

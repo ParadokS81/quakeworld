@@ -12,9 +12,9 @@
 
 ## Where we are right now
 
-- **Stage:** Phase 1 shipped 2026-05-14; Phase 2 approved + queued for executor dispatch (pending F3 resolution); Phases 3-4 awaiting per-phase approval; Phases 5-8 deferred.
-- **Last action:** 2026-05-14 -- Phase 1 substrate live at https://wiki.slipgate.me; V1-V5 PASS verified by orchestrator. D3 amended (URL `wiki-beta.quake.world` -> `wiki.slipgate.me`); F2 (Phase 1 exec-time learnings) RESOLVED via deploy/README.md patches; F3 (cross-phase hostname+SSH drift in Phase 2/3/4 MDs) OPEN -- pending operator decision on retarget pattern.
-- **Next action:** Operator resolves F3 (Option A retarget Phase 2/3/4 MDs vs Option B defer to executor-prompt augmentation). Then arc-orchestrator drafts Phase 2 executor prompt + dispatches fresh terminal.
+- **Stage:** Phase 1 shipped 2026-05-14; Phase 2 approved + ready for executor dispatch (F3 retarget complete); Phases 3-4 awaiting per-phase approval; Phases 5-8 deferred.
+- **Last action:** 2026-05-14 -- Phase 1 substrate live at https://wiki.slipgate.me; V1-V5 PASS verified by orchestrator. D3 amended (URL `wiki-beta.quake.world` -> `wiki.slipgate.me`); F2 (Phase 1 exec-time learnings) + F3 (cross-phase hostname+SSH drift in Phase 2/3/4 MDs) both RESOLVED.
+- **Next action:** arc-orchestrator drafts Phase 2 executor prompt at `docs/superpowers/parking/2026-05-14-qwiki-v1-beta-phase-2-executor.md`; operator opens fresh terminal with `@<path>` as first message.
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 

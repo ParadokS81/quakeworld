@@ -8,7 +8,7 @@
 
 ## Goal
 
-Install Page Forms + Semantic MediaWiki onto the MW 1.43 substrate from Phase 1, wire them into `LocalSettings.php`, run the MW + SMW schema-migration commands, and confirm the form pipeline works end-to-end via a single committed smoke-test form. No page-type forms or templates land here -- per D8 + D14, the Mode page-type is Phase 5 work and the other eleven page-types are deferred to future per-domain arcs (D16). What Phase 2 ships is the *substrate*: PF + SMW loaded, semantics enabled at the `wiki-beta.quake.world` domain, the `Form` / `Form_talk` namespaces present, and the SMW jobs queue draining cleanly.
+Install Page Forms + Semantic MediaWiki onto the MW 1.43 substrate from Phase 1, wire them into `LocalSettings.php`, run the MW + SMW schema-migration commands, and confirm the form pipeline works end-to-end via a single committed smoke-test form. No page-type forms or templates land here -- per D8 + D14, the Mode page-type is Phase 5 work and the other eleven page-types are deferred to future per-domain arcs (D16). What Phase 2 ships is the *substrate*: PF + SMW loaded, semantics enabled at the `wiki.slipgate.me` domain, the `Form` / `Form_talk` namespaces present, and the SMW jobs queue draining cleanly.
 
 Two important framing points that govern the install-shape choices below:
 
@@ -25,7 +25,7 @@ Per drafter prompt, D5's namespace-level edit restrictions (Form / Template / Ca
 Phase 1 complete:
 
 - nginx 1.30-alpine + `mediawiki:1.43-fpm` + MariaDB 11.4 LTS three-container stack running on Unraid at `192.168.1.205:8081`.
-- `https://wiki-beta.quake.world` returns the MW main page with Citizen v3.16.0 skin loaded.
+- `https://wiki.slipgate.me` returns the MW main page with Citizen v3.16.0 skin loaded.
 - `qwiki_beta` MariaDB database has the MW 1.43 core schema (~58 tables); admin user `Admin` exists with password from `MW_ADMIN_PASSWORD`.
 - `apps/qwiki-sandbox/deploy/` directory committed to `main` with: `docker-compose.prod.yml` (three-service compose), `nginx.conf` (fastcgi to mediawiki:9000), `LocalSettings.php` (no extensions yet), `.env.prod.example`, `README.md` (first-time deploy + routine redeploy + MW image-bump procedure).
 - `/mnt/user/appdata/qwiki-beta/` populated on Unraid with `mariadb-data/`, `mediawiki-data/`, `mediawiki-html/` (MW core extracted from image), `citizen/` (Citizen skin overlay), plus the scp'd compose / nginx.conf / LocalSettings.php / `.env`.
@@ -34,7 +34,7 @@ Phase 1 complete:
 
 Operator-side prerequisites for Phase 2 (no new prerequisites beyond Phase 1):
 
-- Tailscale up; `ssh unraid 'echo ok'` returns `ok`.
+- Tailscale up; `ssh unraid-deploy 'echo ok'` returns `ok`.
 - Operator's WSL can reach Docker Hub (for the one-shot `composer:latest` pull) -- transitively true since Phase 1 already pulled the upstream MW + nginx + mariadb images via SSH to Unraid.
 - The admin password set during Phase 1 install.php run is still known (used to log in as `Admin` and create the smoke-test form + template at the wiki UI). If the operator has already rotated it via `Special:ChangePassword`, the rotated password is what's needed.
 
@@ -124,7 +124,7 @@ Full file content to write:
 ```php
 <?php
 # apps/qwiki-sandbox/deploy/LocalSettings.php
-# MediaWiki 1.43 LTS configuration for qwiki-v1-beta (wiki-beta.quake.world).
+# MediaWiki 1.43 LTS configuration for qwiki-v1-beta (wiki.slipgate.me).
 # Hand-authored; install.php is run once to bootstrap the DB schema, but its
 # generated LocalSettings.php is discarded in favor of this committed file.
 #
@@ -146,9 +146,9 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 $wgSitename = "QuakeWorld Wiki (beta)";
 $wgMetaNamespace = "QuakeWorld_Wiki";
 
-# The wiki lives at the apex of wiki-beta.quake.world; no /w/ script path.
+# The wiki lives at the apex of wiki.slipgate.me; no /w/ script path.
 $wgScriptPath = "";
-$wgServer = "https://wiki-beta.quake.world";
+$wgServer = "https://wiki.slipgate.me";
 $wgResourceBasePath = $wgScriptPath;
 
 # Make MW trust the X-Forwarded-Proto / X-Forwarded-For headers that
@@ -269,7 +269,7 @@ wfLoadExtension( 'PageForms' );
 # the call MUST follow wfLoadExtension( 'SemanticMediaWiki' ) and takes
 # the wiki's host (no scheme, no trailing slash).
 wfLoadExtension( 'SemanticMediaWiki' );
-enableSemantics( 'wiki-beta.quake.world' );
+enableSemantics( 'wiki.slipgate.me' );
 ```
 
 **Verification.** `test -f apps/qwiki-sandbox/deploy/LocalSettings.php && echo OK` returns `OK`. `php -l apps/qwiki-sandbox/deploy/LocalSettings.php` returns `No syntax errors detected` (WSL has PHP CLI; alternatively defer to the post-scp run on Unraid as the integration check). `grep -c 'wfLoadExtension' apps/qwiki-sandbox/deploy/LocalSettings.php` returns `2` (Page Forms + SMW). `grep -c 'enableSemantics' apps/qwiki-sandbox/deploy/LocalSettings.php` returns `1`.
@@ -370,7 +370,7 @@ services:
       - mediawiki
     ports:
       # Bind to the Unraid host's LAN address (192.168.1.205) only -- the
-      # existing Cloudflare Tunnel agent routes wiki-beta.quake.world to this
+      # existing Cloudflare Tunnel agent routes wiki.slipgate.me to this
       # address from the same Unraid box. Loopback would not be reachable from
       # the cloudflared container (separate network namespace); 0.0.0.0 would
       # expose the wiki on the LAN without Cloudflare's edge protection.
@@ -512,7 +512,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
   **Old string** (the final paragraph of step 10 in First-time deploy plus the section break):
 
   ```
-      Then open `https://wiki-beta.quake.world` in a browser; expect the MW main
+      Then open `https://wiki.slipgate.me` in a browser; expect the MW main
       page rendered with the Citizen skin. Click "View source" or attempt to edit
       while logged out; expect "you must be logged in" or "you do not have
       permission to edit this page."
@@ -523,7 +523,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
   **New string:**
 
   ```
-      Then open `https://wiki-beta.quake.world` in a browser; expect the MW main
+      Then open `https://wiki.slipgate.me` in a browser; expect the MW main
       page rendered with the Citizen skin. Click "View source" or attempt to edit
       while logged out; expect "you must be logged in" or "you do not have
       permission to edit this page."
@@ -538,13 +538,13 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
   1. Create the Phase 2 sibling appdata directory:
 
      ```bash
-     ssh unraid 'mkdir -p /mnt/user/appdata/qwiki-beta/page-forms'
+     ssh unraid-deploy 'mkdir -p /mnt/user/appdata/qwiki-beta/page-forms'
      ```
 
   2. Git-clone Page Forms at the `REL1_43` branch into the sibling path:
 
      ```bash
-     ssh unraid 'cd /mnt/user/appdata/qwiki-beta && \
+     ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
        git clone --branch REL1_43 --depth 1 \
          https://github.com/wikimedia/mediawiki-extensions-PageForms.git page-forms'
      ```
@@ -562,10 +562,10 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
      ```bash
      # from operator's WSL
      scp apps/qwiki-sandbox/deploy/composer.local.json \
-         unraid:/mnt/user/appdata/qwiki-beta/mediawiki-html/
+         unraid-deploy:/mnt/user/appdata/qwiki-beta/mediawiki-html/
      scp apps/qwiki-sandbox/deploy/LocalSettings.php \
          apps/qwiki-sandbox/deploy/docker-compose.prod.yml \
-         unraid:/mnt/user/appdata/qwiki-beta/
+         unraid-deploy:/mnt/user/appdata/qwiki-beta/
      ```
 
      The Phase 2 LocalSettings.php is the file in step 4 below -- before
@@ -581,7 +581,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
      `vendor/` populated with SMW deps (alongside MW's own vendor entries).
 
      ```bash
-     ssh unraid 'docker run --rm \
+     ssh unraid-deploy 'docker run --rm \
        -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app \
        -w /app composer:latest \
        composer update --no-dev --no-interaction --no-progress --prefer-dist'
@@ -591,7 +591,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
      the per-package install lines. Verify SMW landed on disk:
 
      ```bash
-     ssh unraid 'ls /mnt/user/appdata/qwiki-beta/mediawiki-html/extensions/SemanticMediaWiki/extension.json && \
+     ssh unraid-deploy 'ls /mnt/user/appdata/qwiki-beta/mediawiki-html/extensions/SemanticMediaWiki/extension.json && \
                  ls /mnt/user/appdata/qwiki-beta/mediawiki-html/composer.lock'
      ```
 
@@ -603,7 +603,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
      `up -d` covers both:
 
      ```bash
-     ssh unraid 'cd /mnt/user/appdata/qwiki-beta && \
+     ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
        docker compose -f docker-compose.prod.yml up -d && \
        docker compose -f docker-compose.prod.yml ps'
      ```
@@ -616,7 +616,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
      `smw_di_blob`, `smw_di_wikipage`, etc.; plus PF's `pf_forms` etc.):
 
      ```bash
-     ssh unraid 'docker exec qwiki-mediawiki \
+     ssh unraid-deploy 'docker exec qwiki-mediawiki \
        php /var/www/html/maintenance/update.php --quick'
      ```
 
@@ -625,7 +625,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
      `Done in <N>.<N>s.`. Confirm SMW tables exist:
 
      ```bash
-     ssh unraid 'set -a && . /mnt/user/appdata/qwiki-beta/.env && set +a && \
+     ssh unraid-deploy 'set -a && . /mnt/user/appdata/qwiki-beta/.env && set +a && \
        docker exec -e MYSQL_PWD="$MARIADB_ROOT_PASSWORD" qwiki-mariadb \
        mariadb -uroot -N -B -e "USE qwiki_beta; SHOW TABLES LIKE \"smw_%\";"' | wc -l
      ```
@@ -638,7 +638,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
   7. Drain any SMW jobs that the update queued:
 
      ```bash
-     ssh unraid 'docker exec qwiki-mediawiki \
+     ssh unraid-deploy 'docker exec qwiki-mediawiki \
        php /var/www/html/maintenance/runJobs.php'
      ```
 
@@ -647,11 +647,11 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
      starts empty since no pages have semantic annotations yet).
 
   8. Create the smoke-test Form + Template + verify form-driven page
-     creation. Log into the wiki at `https://wiki-beta.quake.world` as the
+     creation. Log into the wiki at `https://wiki.slipgate.me` as the
      `Admin` user from the Phase 1 install.php run (or the rotated
      password if the operator changed it).
 
-     - Visit `Special:CreatePage` (or paste a URL: `https://wiki-beta.quake.world/index.php?title=Special:CreatePage`).
+     - Visit `Special:CreatePage` (or paste a URL: `https://wiki.slipgate.me/index.php?title=Special:CreatePage`).
      - Page title: `Form:TestForm`. Paste the body from
        `apps/qwiki-sandbox/deploy/test-form/Form-TestForm.wikitext` (the
        `<includeonly>...</includeonly>` block, without the `<noinclude>`
@@ -679,7 +679,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
      or two SMW jobs):
 
      ```bash
-     ssh unraid 'docker exec qwiki-mediawiki \
+     ssh unraid-deploy 'docker exec qwiki-mediawiki \
        php /var/www/html/maintenance/runJobs.php'
      ```
 
@@ -697,7 +697,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
               apps/qwiki-sandbox/deploy/README.md \
               apps/qwiki-sandbox/deploy/test-form/ \
               apps/qwiki-sandbox/OVERVIEW.md
-      git commit -m "phase(qwiki-v1-beta): Phase 2 -- Page Forms REL1_43 + Semantic MediaWiki 6.0.x extensions installed on wiki-beta.quake.world"
+      git commit -m "phase(qwiki-v1-beta): Phase 2 -- Page Forms REL1_43 + Semantic MediaWiki 6.0.x extensions installed on wiki.slipgate.me"
       git push origin main
       ```
 
@@ -714,7 +714,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
   Use whenever a new MW patch ships (typically every ~2 months for the 1.43.x LTS line). Refreshes the `mediawiki-html/` bind-mount tree from the new image, preserving the overlay paths (uploads / Citizen / LocalSettings / Phase 2+ extensions).
 
   ```bash
-  ssh unraid 'docker pull mediawiki:1.43-fpm && \
+  ssh unraid-deploy 'docker pull mediawiki:1.43-fpm && \
     docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml down && \
     rm -rf /tmp/mw-extract && mkdir -p /tmp/mw-extract && \
     docker create --name qwiki-mw-extract mediawiki:1.43-fpm && \
@@ -728,7 +728,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
   Then run MW's update.php to apply any DB schema migrations the new patch ships:
 
   ```bash
-  ssh unraid 'docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick'
+  ssh unraid-deploy 'docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick'
   ```
 
   Smoke-check via the V1 / V2 probes from the phase MD's "Verification (phase boundary)" section.
@@ -746,7 +746,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
   Use whenever a new MW patch ships (typically every ~2 months for the 1.43.x LTS line). Refreshes the `mediawiki-html/` bind-mount tree from the new image, preserving the overlay paths (uploads / Citizen / Page Forms / LocalSettings) AND the composer-managed Phase 2 surface (composer.local.json + composer.lock + extensions/SemanticMediaWiki/ + SMW's deps in vendor/).
 
   ```bash
-  ssh unraid 'docker pull mediawiki:1.43-fpm && \
+  ssh unraid-deploy 'docker pull mediawiki:1.43-fpm && \
     docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml down && \
     rm -rf /tmp/mw-extract && mkdir -p /tmp/mw-extract && \
     docker create --name qwiki-mw-extract mediawiki:1.43-fpm && \
@@ -768,13 +768,13 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
   Then run MW's update.php to apply any DB schema migrations the new patch (and any auto-bumped SMW patch) ships:
 
   ```bash
-  ssh unraid 'docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick'
+  ssh unraid-deploy 'docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick'
   ```
 
   Drain any SMW jobs the update enqueued:
 
   ```bash
-  ssh unraid 'docker exec qwiki-mediawiki php /var/www/html/maintenance/runJobs.php'
+  ssh unraid-deploy 'docker exec qwiki-mediawiki php /var/www/html/maintenance/runJobs.php'
   ```
 
   Smoke-check via the V1 / V2 probes from Phase 1's "Verification (phase boundary)" section plus the Phase 2 V_PF and V_SMW probes.
@@ -796,7 +796,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
   Pull the latest commit on the `REL1_43` branch into the sibling host path. The bind-mount picks it up; mediawiki + nginx restart picks up any cached class autoloads.
 
   ```bash
-  ssh unraid 'cd /mnt/user/appdata/qwiki-beta/page-forms && git pull --ff-only && \
+  ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta/page-forms && git pull --ff-only && \
     cd /mnt/user/appdata/qwiki-beta && \
     docker compose -f docker-compose.prod.yml restart mediawiki && \
     docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick'
@@ -811,8 +811,8 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
   ```bash
   # on operator's WSL: edit composer.local.json, commit, push.
   scp apps/qwiki-sandbox/deploy/composer.local.json \
-      unraid:/mnt/user/appdata/qwiki-beta/mediawiki-html/
-  ssh unraid 'docker run --rm \
+      unraid-deploy:/mnt/user/appdata/qwiki-beta/mediawiki-html/
+  ssh unraid-deploy 'docker run --rm \
     -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app \
     -w /app composer:latest \
     composer update --no-dev --no-interaction --no-progress --prefer-dist && \
@@ -851,7 +851,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
 
   - **`Special:FormEdit/TestForm` returns "Form does not exist"** -- the
     `Form:TestForm` page was not saved into the NS_FORM namespace. Verify the
-    namespace was registered: `ssh unraid 'docker exec qwiki-mediawiki \
+    namespace was registered: `ssh unraid-deploy 'docker exec qwiki-mediawiki \
     php /var/www/html/maintenance/run.php showJobs.php'` should not error; the
     Form namespace appears in `Special:AllPages` namespace dropdown. If
     NS_FORM is absent, restart mediawiki (the LocalSettings.php
@@ -937,7 +937,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
   ```
   ## Substrate state
 
-  After Phase 1 ships: a three-container Docker stack on Unraid -- `qwiki-nginx` (nginx 1.30-alpine, the CF Tunnel-facing entry point) + `qwiki-mediawiki` (mediawiki:1.43-fpm, php-fpm at port 9000) + `qwiki-mariadb` (mariadb 11.4 LTS) -- plus the Citizen skin v3.16.0 git checkout. Vanilla; no extensions; no auth (anonymous read works, anonymous edit blocked). Live at `wiki-beta.quake.world` via Cloudflare Tunnel.
+  After Phase 1 ships: a three-container Docker stack on Unraid -- `qwiki-nginx` (nginx 1.30-alpine, the CF Tunnel-facing entry point) + `qwiki-mediawiki` (mediawiki:1.43-fpm, php-fpm at port 9000) + `qwiki-mariadb` (mariadb 11.4 LTS) -- plus the Citizen skin v3.16.0 git checkout. Vanilla; no extensions; no auth (anonymous read works, anonymous edit blocked). Live at `wiki.slipgate.me` via Cloudflare Tunnel.
 
   Phases 2 / 3 / 4 layer Page Forms + SMW, then PluggableAuth + Discord OAuth + MW groups, then quality-tag categories + Layer 3 harvest verification.
   ```
@@ -947,7 +947,7 @@ The executor applies each of the following six Edits to `apps/qwiki-sandbox/depl
   ```
   ## Substrate state
 
-  After Phase 1 + Phase 2 ship: the three-container Docker stack on Unraid -- `qwiki-nginx` (nginx 1.30-alpine, the CF Tunnel-facing entry point) + `qwiki-mediawiki` (mediawiki:1.43-fpm, php-fpm at port 9000) + `qwiki-mariadb` (mariadb 11.4 LTS) -- plus the Citizen skin v3.16.0 git checkout, Page Forms (REL1_43 branch HEAD, overlay-bound) and Semantic MediaWiki 6.0.x (composer-managed under `mediawiki-html/`). Anonymous read works, anonymous edit blocked; `Special:Version` lists both extensions; `Form:TestForm` + `Template:Test` + main-namespace `TestPage` exist as Phase 2 smoke-test breadcrumbs (deletable at operator discretion). Live at `wiki-beta.quake.world` via Cloudflare Tunnel.
+  After Phase 1 + Phase 2 ship: the three-container Docker stack on Unraid -- `qwiki-nginx` (nginx 1.30-alpine, the CF Tunnel-facing entry point) + `qwiki-mediawiki` (mediawiki:1.43-fpm, php-fpm at port 9000) + `qwiki-mariadb` (mariadb 11.4 LTS) -- plus the Citizen skin v3.16.0 git checkout, Page Forms (REL1_43 branch HEAD, overlay-bound) and Semantic MediaWiki 6.0.x (composer-managed under `mediawiki-html/`). Anonymous read works, anonymous edit blocked; `Special:Version` lists both extensions; `Form:TestForm` + `Template:Test` + main-namespace `TestPage` exist as Phase 2 smoke-test breadcrumbs (deletable at operator discretion). Live at `wiki.slipgate.me` via Cloudflare Tunnel.
 
   Phases 3 / 4 layer PluggableAuth + Discord OAuth + MW groups, then quality-tag categories + Layer 3 harvest verification.
   ```
@@ -989,11 +989,11 @@ Copy-paste commands the operator runs at the end of Phase 2. YES/NO answers per 
 Page Forms' `Special:Forms` is a public special page (no login required) that lists all defined forms; reachable iff PF's extension.json registered the page during MW bootstrap. Probe shape returns HTTP 200 when PF is loaded, 404 when the special page is unrecognized.
 
 ```bash
-ssh unraid 'curl -s -o /dev/null -w "%{http_code}\n" \
+ssh unraid-deploy 'curl -s -o /dev/null -w "%{http_code}\n" \
   http://192.168.1.205:8081/index.php?title=Special:Forms'
 ```
 
-Operator-facing confirmation (browser): open `https://wiki-beta.quake.world/index.php?title=Special:Version`, scroll to "Installed extensions", confirm a "Page Forms" entry with version string (typically `5.x.y` for PF on REL1_43; verify against PF release notes if uncertain).
+Operator-facing confirmation (browser): open `https://wiki.slipgate.me/index.php?title=Special:Version`, scroll to "Installed extensions", confirm a "Page Forms" entry with version string (typically `5.x.y` for PF on REL1_43; verify against PF release notes if uncertain).
 
 - **PASS condition:** the curl probe prints `200`, AND the browser page lists "Page Forms" under "Installed extensions".
 - **FAIL condition:** the curl prints `404` (PF special page unregistered), browser page omits Page Forms, OR a PHP fatal appears in `docker logs qwiki-mediawiki --tail 50`.
@@ -1002,7 +1002,7 @@ Operator-facing confirmation (browser): open `https://wiki-beta.quake.world/inde
 
 In a browser logged in as `Admin`:
 
-1. Visit `https://wiki-beta.quake.world/index.php?title=Special:FormEdit/TestForm`.
+1. Visit `https://wiki.slipgate.me/index.php?title=Special:FormEdit/TestForm`.
 2. Enter `TestPage` in the page title field, `Hello QWiki` as Test name, `Phase 2 verification` as Test note. Submit.
 
 - **PASS condition:** the form renders with two visible inputs + Save / Cancel buttons; submission redirects to `/wiki/TestPage`; the rendered page shows `Test name: Hello QWiki`, `Test note: Phase 2 verification`, and `Category:Test pages` at the bottom.
@@ -1015,14 +1015,14 @@ Two probes -- one for extension-registered (HTTP), one for schema-migrated (SQL)
 Extension-registered probe (same shape as V_PF1, against SMW's `Special:Browse` -- the SMW data-browser special page, public-readable, present iff SMW registered hooks during MW bootstrap):
 
 ```bash
-ssh unraid 'curl -s -o /dev/null -w "%{http_code}\n" \
+ssh unraid-deploy 'curl -s -o /dev/null -w "%{http_code}\n" \
   http://192.168.1.205:8081/index.php?title=Special:Browse'
 ```
 
 Schema-migrated probe (SMW core tables exist in qwiki_beta):
 
 ```bash
-ssh unraid 'set -a && . /mnt/user/appdata/qwiki-beta/.env && set +a && \
+ssh unraid-deploy 'set -a && . /mnt/user/appdata/qwiki-beta/.env && set +a && \
   docker exec -e MYSQL_PWD="$MARIADB_ROOT_PASSWORD" qwiki-mariadb \
   mariadb -uroot -N -B -e "USE qwiki_beta; SHOW TABLES LIKE \"smw_%\";"' | wc -l
 ```
@@ -1037,7 +1037,7 @@ Operator-facing confirmation (browser): `Special:Version` lists "Semantic MediaW
 **V_SMW2. SMW jobs queue drains cleanly.**
 
 ```bash
-ssh unraid 'docker exec qwiki-mediawiki \
+ssh unraid-deploy 'docker exec qwiki-mediawiki \
   php /var/www/html/maintenance/runJobs.php; echo "exit=$?"'
 ```
 
@@ -1047,7 +1047,7 @@ ssh unraid 'docker exec qwiki-mediawiki \
 **V_OPS1. All three containers still healthy.**
 
 ```bash
-ssh unraid 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml ps'
+ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml ps'
 ```
 
 - **PASS condition:** `qwiki-nginx`, `qwiki-mediawiki`, `qwiki-mariadb` all `Up`; `qwiki-mariadb` `(healthy)`. The Phase 2 docker-compose bind addition didn't break the stack.
@@ -1060,13 +1060,13 @@ If V_PF1 + V_PF2 + V_SMW1 + V_SMW2 + V_OPS1 all PASS, the phase is green and Pha
 State now true that wasn't before Phase 2:
 
 - Page Forms extension (REL1_43 branch HEAD at deploy time) installed at `/mnt/user/appdata/qwiki-beta/page-forms/` and overlay-bound onto `/var/www/html/extensions/PageForms` in both mediawiki + nginx services. NS_FORM (106) and NS_FORM_TALK (107) namespaces exist; `Special:FormEdit/<FormName>` / `Special:RunQuery/<FormName>` special pages registered.
-- Semantic MediaWiki 6.0.x installed via Composer; SMW source at `/mnt/user/appdata/qwiki-beta/mediawiki-html/extensions/SemanticMediaWiki/`; SMW deps at `/mnt/user/appdata/qwiki-beta/mediawiki-html/vendor/` (alongside MW core's own vendor entries). `enableSemantics()` activated at `wiki-beta.quake.world`. Special pages registered: `Special:SMWAdmin`, `Special:Browse`, `Special:Ask`, `Special:SearchByProperty`, etc. Semantic namespaces registered: `Property:` (102), `Concept:` (108).
+- Semantic MediaWiki 6.0.x installed via Composer; SMW source at `/mnt/user/appdata/qwiki-beta/mediawiki-html/extensions/SemanticMediaWiki/`; SMW deps at `/mnt/user/appdata/qwiki-beta/mediawiki-html/vendor/` (alongside MW core's own vendor entries). `enableSemantics()` activated at `wiki.slipgate.me`. Special pages registered: `Special:SMWAdmin`, `Special:Browse`, `Special:Ask`, `Special:SearchByProperty`, etc. Semantic namespaces registered: `Property:` (102), `Concept:` (108).
 - DB schema migrated by `maintenance/update.php`: ~16 `smw_*` tables present in `qwiki_beta` + `pf_*` tables (Page Forms internal); core MW table count up from ~58 (Phase 1) to ~74-80 (Phase 1 + Phase 2 extension tables).
 - `apps/qwiki-sandbox/deploy/composer.local.json` committed and scp'd to `/mnt/user/appdata/qwiki-beta/mediawiki-html/`; pins SMW to `~6.0.1`.
 - `apps/qwiki-sandbox/deploy/test-form/Form-TestForm.wikitext` + `Template-Test.wikitext` committed as breadcrumb artifacts for Phase 2 smoke-test reproducibility.
 - `apps/qwiki-sandbox/deploy/README.md` extended with Phase 2 install section + Phase-2-aware image-bump procedure + extension-version-bump redeploy section + Troubleshooting additions for composer / SMW / Page Forms errors.
 - `apps/qwiki-sandbox/deploy/docker-compose.prod.yml` extended with the Page Forms overlay bind on mediawiki + nginx services.
-- `apps/qwiki-sandbox/deploy/LocalSettings.php` extended with `wfLoadExtension( 'PageForms' )` + `wfLoadExtension( 'SemanticMediaWiki' )` + `enableSemantics( 'wiki-beta.quake.world' )`.
+- `apps/qwiki-sandbox/deploy/LocalSettings.php` extended with `wfLoadExtension( 'PageForms' )` + `wfLoadExtension( 'SemanticMediaWiki' )` + `enableSemantics( 'wiki.slipgate.me' )`.
 - `apps/qwiki-sandbox/OVERVIEW.md` marks Phase 2 shipped.
 - The wiki has three concrete pages: `Form:TestForm`, `Template:Test`, `TestPage` (main NS). These can be deleted at operator discretion or kept as breadcrumbs; nothing downstream depends on them.
 
@@ -1101,21 +1101,21 @@ Phase 2 does NOT consume any of these prerequisites.
 Per-failure-mode recovery; anticipatable failures only. Unanticipated failures route to operator.
 
 - **V_PF1 fails (Page Forms not in Special:Version):** `extensions/PageForms` doesn't resolve inside the container.
-  - Verify host bind exists: `ssh unraid 'ls /mnt/user/appdata/qwiki-beta/page-forms/extension.json'` returns a path.
-  - Verify container sees it: `ssh unraid 'docker exec qwiki-mediawiki ls /var/www/html/extensions/PageForms/extension.json'`. If this fails but the host path is present, the bind-mount didn't take -- run `docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml up -d --force-recreate mediawiki` and retest.
-  - Verify LocalSettings actually loads PageForms: `ssh unraid 'docker exec qwiki-mediawiki grep wfLoadExtension /var/www/html/LocalSettings.php'`. Expect two lines (PageForms + SemanticMediaWiki).
+  - Verify host bind exists: `ssh unraid-deploy 'ls /mnt/user/appdata/qwiki-beta/page-forms/extension.json'` returns a path.
+  - Verify container sees it: `ssh unraid-deploy 'docker exec qwiki-mediawiki ls /var/www/html/extensions/PageForms/extension.json'`. If this fails but the host path is present, the bind-mount didn't take -- run `docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml up -d --force-recreate mediawiki` and retest.
+  - Verify LocalSettings actually loads PageForms: `ssh unraid-deploy 'docker exec qwiki-mediawiki grep wfLoadExtension /var/www/html/LocalSettings.php'`. Expect two lines (PageForms + SemanticMediaWiki).
 
 - **V_PF2 fails (Special:FormEdit/TestForm 404s):** the Form:TestForm page wasn't saved into NS_FORM. Most likely cause: the operator pasted the `<noinclude>` preamble along with the `<includeonly>` body, leaving the actual form syntax inside a `<noinclude>` block that the parser drops at render time. Fix: re-edit `Form:TestForm`, delete everything, paste ONLY the `<includeonly>...</includeonly>` block (no preamble). Save.
 
 - **V_PF2 fails (form submits but TestPage doesn't render fields):** `Template:Test` wasn't saved or has a syntax error. Visit `Template:Test`, re-paste the body from `apps/qwiki-sandbox/deploy/test-form/Template-Test.wikitext`, save.
 
 - **V_SMW1 fails (SMW absent from Special:Version):** either composer didn't run or LocalSettings doesn't `enableSemantics()`.
-  - Verify composer ran: `ssh unraid 'test -f /mnt/user/appdata/qwiki-beta/mediawiki-html/extensions/SemanticMediaWiki/extension.json && echo OK'` returns `OK`. If not, re-run the composer one-shot from Phase 2 step 4.
-  - Verify LocalSettings: `ssh unraid 'docker exec qwiki-mediawiki grep -c enableSemantics /var/www/html/LocalSettings.php'` returns `1`.
-  - Verify mediawiki restarted: `ssh unraid 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml restart mediawiki'`.
+  - Verify composer ran: `ssh unraid-deploy 'test -f /mnt/user/appdata/qwiki-beta/mediawiki-html/extensions/SemanticMediaWiki/extension.json && echo OK'` returns `OK`. If not, re-run the composer one-shot from Phase 2 step 4.
+  - Verify LocalSettings: `ssh unraid-deploy 'docker exec qwiki-mediawiki grep -c enableSemantics /var/www/html/LocalSettings.php'` returns `1`.
+  - Verify mediawiki restarted: `ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml restart mediawiki'`.
 
 - **V_SMW1 fails (smw_* tables absent):** `maintenance/update.php` didn't run or ran before SMW was loaded.
-  - Re-run: `ssh unraid 'docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick'`. Expect creation messages for `smw_object_ids`, `smw_di_blob`, etc.
+  - Re-run: `ssh unraid-deploy 'docker exec qwiki-mediawiki php /var/www/html/maintenance/update.php --quick'`. Expect creation messages for `smw_object_ids`, `smw_di_blob`, etc.
   - If update.php errors with "class not found", composer's autoload isn't being read -- see Troubleshooting "maintenance/update.php errors with SemanticMediaWiki class not found".
 
 - **V_SMW2 fails (runJobs.php errors / non-zero exit):**

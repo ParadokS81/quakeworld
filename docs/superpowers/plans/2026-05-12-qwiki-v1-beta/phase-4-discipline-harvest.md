@@ -16,13 +16,13 @@ Close out the substrate layer of the qwiki-v1-beta arc with three small but load
 
 This phase does NOT ship the Mode page-type form, the Modes Layer B category page, the Modes curator tool, the form-validation hook for slug discipline, or any Modes content. Those are Phases 5-8 (the vertical Modes mini-arc).
 
-**Runnable state at phase boundary:** visiting `https://wiki-beta.quake.world/index.php?title=Special:Categories` lists `Needs review`, `Stale`, and `Draft` as category pages; clicking each shows the description + trigger + curator-action wikitext from `apps/qwiki-sandbox/deploy/seed-pages/`; visiting `https://wiki-beta.quake.world/wiki/Help:URL_slug_discipline` renders the slug-discipline doc; visiting `https://wiki-beta.quake.world/wiki/Phase_4_harvest_probe` renders the test page with its self-contained section; the file `apps/qw-oracle/curated/concept-notes/test-qwiki-harvest-probe.md` exists in the repo and is committed; the load-concepts CLI run shows the new concept-note ingested without warnings; an oracle MCP `search_concepts` query for the test phrase returns the harvested chunk with non-zero `match_quality`. Three Docker containers (`qwiki-nginx`, `qwiki-mediawiki`, `qwiki-mariadb`) all `Up`; mariadb `(healthy)`.
+**Runnable state at phase boundary:** visiting `https://wiki.slipgate.me/index.php?title=Special:Categories` lists `Needs review`, `Stale`, and `Draft` as category pages; clicking each shows the description + trigger + curator-action wikitext from `apps/qwiki-sandbox/deploy/seed-pages/`; visiting `https://wiki.slipgate.me/wiki/Help:URL_slug_discipline` renders the slug-discipline doc; visiting `https://wiki.slipgate.me/wiki/Phase_4_harvest_probe` renders the test page with its self-contained section; the file `apps/qw-oracle/curated/concept-notes/test-qwiki-harvest-probe.md` exists in the repo and is committed; the load-concepts CLI run shows the new concept-note ingested without warnings; an oracle MCP `search_concepts` query for the test phrase returns the harvested chunk with non-zero `match_quality`. Three Docker containers (`qwiki-nginx`, `qwiki-mediawiki`, `qwiki-mariadb`) all `Up`; mariadb `(healthy)`.
 
 ## Inputs from previous phase
 
 Phase 3 complete:
 
-- Three-container Docker stack on Unraid (`qwiki-nginx`, `qwiki-mediawiki`, `qwiki-mariadb`) live at `https://wiki-beta.quake.world` via Cloudflare Tunnel. Citizen v3.16.0 skin loaded.
+- Three-container Docker stack on Unraid (`qwiki-nginx`, `qwiki-mediawiki`, `qwiki-mariadb`) live at `https://wiki.slipgate.me` via Cloudflare Tunnel. Citizen v3.16.0 skin loaded.
 - Page Forms (REL1_43 branch HEAD) + Semantic MediaWiki 6.0.x installed. `enableSemantics()` active. `Form:TestForm`, `Template:Test`, `TestPage` are Phase 2 smoke-test breadcrumbs (kept; deletable at operator discretion).
 - PluggableAuth (REL1_43 v7.5.0+) + OpenIDConnect (REL1_43 v8.3.0+) installed. Discord OAuth wired via manual `providerConfig` endpoints + `openid identify guilds.members.read` scopes. `jumbojett/openid-connect-php 1.0.2` Composer dep in `vendor/`.
 - Two MW groups defined: `wiki-contributor` (auto-assigned via Discord `@wiki-beta` role on every login through the inline `qwikiBetaSyncDiscordRole()` helper hooked into `LocalUserCreated` + `UserLoggedIn`) and `wiki-curator` (manually assigned via `Special:UserRights`).
@@ -33,7 +33,7 @@ Phase 3 complete:
 
 Operator-side prerequisites for Phase 4 (no new infrastructure prerequisites beyond Phase 3):
 
-- Tailscale up; `ssh unraid 'echo ok'` returns `ok`.
+- Tailscale up; `ssh unraid-deploy 'echo ok'` returns `ok`.
 - Operator is logged into the wiki as the Discord-OAuth-provisioned user. `wiki-curator` rights are required for Task 7's Category page creation (NS_CATEGORY is in D5's curator-only list); the Help page (Task 3) and the main-namespace harvest probe page (Task 7) work with `wiki-contributor` rights alone since Help + Main namespaces are not restricted by D5. Phase 3 V_AUTH5 promotes the operator to `wiki-curator`; if that promotion was skipped, do it now via `Special:UserRights` as `Admin`.
 - Operator has Claude Desktop or Claude Code wired to the oracle MCP server at `https://oracle.slipgate.me/mcp` (per qw-oracle Arc 1 prereq; transitively true if operator has been using oracle MCP queries during recent work). If not wired, the deploy README's Phase 4 section notes the one-time MCP config step.
 - The local WSL operator shell can run `bun apps/qw-oracle/scripts/load-concepts/index.ts` against the live `qw_oracle` Postgres (validated by any recent Layer 1/Layer 3 work). The Bun runtime + `apps/qw-oracle/.env` with `DATABASE_URL` are pre-existing per qw-oracle's own setup; Phase 4 does not provision them.
@@ -166,7 +166,7 @@ Skip pages in this category. Curator review starts after the author removes the 
 Full file content to write:
 
 ```wikitext
-This page documents the URL slug authoring rule for QWiki v1 beta. The rule preserves external references (KTX source comments, forum links, archived Discord and ezquake.com cross-references) across the eventual cutover from <code>wiki-beta.quake.world</code> to the canonical wiki URL.
+This page documents the URL slug authoring rule for QWiki v1 beta. The rule preserves external references (KTX source comments, forum links, archived Discord and ezquake.com cross-references) across the eventual cutover from <code>wiki.slipgate.me</code> to the canonical wiki URL.
 
 == The rule ==
 
@@ -243,7 +243,7 @@ Content block to append:
 
 Phase 4 ships three small deliverables: the three quality-tag categories (`Needs review` / `Stale` / `Draft` per D18), the URL slug authoring rule documentation page (per D6), and an end-to-end verification of the Layer 3 harvest path (per Pass 6 6.3 substrate item 3). No new extensions or Composer changes; the deploy is paste-five-seed-pages + run-the-harvest-probe.
 
-Prerequisite: operator is logged into `https://wiki-beta.quake.world` as the Discord-OAuth-provisioned user with `wiki-curator` rights (so `Category:*` pages can be created -- D5 namespace gate). Phase 3 V_AUTH5 promotes the operator's user; if that step was skipped, run it now via `Special:UserRights` as `Admin`.
+Prerequisite: operator is logged into `https://wiki.slipgate.me` as the Discord-OAuth-provisioned user with `wiki-curator` rights (so `Category:*` pages can be created -- D5 namespace gate). Phase 3 V_AUTH5 promotes the operator's user; if that step was skipped, run it now via `Special:UserRights` as `Admin`.
 
 ### Step 1: scp the seed-pages directory to Unraid (optional convenience)
 
@@ -251,42 +251,42 @@ The seed-page bodies are committed under `apps/qwiki-sandbox/deploy/seed-pages/`
 
 ```bash
 scp -r apps/qwiki-sandbox/deploy/seed-pages \
-  unraid:/mnt/user/appdata/qwiki-beta/
+  unraid-deploy:/mnt/user/appdata/qwiki-beta/
 ```
 
 ### Step 2: create the three Category pages via the wiki UI
 
 For each of `Needs review`, `Stale`, `Draft`:
 
-1. In the browser (logged in as the operator's wiki-curator user), visit `https://wiki-beta.quake.world/index.php?title=Category:<Name>&action=edit` (substituting the category name; spaces in URLs become underscores).
+1. In the browser (logged in as the operator's wiki-curator user), visit `https://wiki.slipgate.me/index.php?title=Category:<Name>&action=edit` (substituting the category name; spaces in URLs become underscores).
 2. Paste the body verbatim from `apps/qwiki-sandbox/deploy/seed-pages/Category-<Name>.wikitext` (replacing space with underscore in the filename).
 3. Save with edit summary `Phase 4: create quality-tag category per D18`.
 
-After all three: visit `https://wiki-beta.quake.world/index.php?title=Special:Categories`. Confirm all three categories are listed (they appear once they have a body, even if no member pages reference them yet -- MW shows non-empty category pages in `Special:Categories`).
+After all three: visit `https://wiki.slipgate.me/index.php?title=Special:Categories`. Confirm all three categories are listed (they appear once they have a body, even if no member pages reference them yet -- MW shows non-empty category pages in `Special:Categories`).
 
 ### Step 3: create the Help:URL slug discipline page
 
-1. Visit `https://wiki-beta.quake.world/index.php?title=Help:URL_slug_discipline&action=edit`.
+1. Visit `https://wiki.slipgate.me/index.php?title=Help:URL_slug_discipline&action=edit`.
 2. Paste the body from `apps/qwiki-sandbox/deploy/seed-pages/Help-URL_slug_discipline.wikitext`.
 3. Save with edit summary `Phase 4: URL slug discipline doc per D6`.
 
-Confirm: visiting `https://wiki-beta.quake.world/wiki/Help:URL_slug_discipline` renders the page.
+Confirm: visiting `https://wiki.slipgate.me/wiki/Help:URL_slug_discipline` renders the page.
 
 ### Step 4: create the harvest probe test page
 
-1. Visit `https://wiki-beta.quake.world/index.php?title=Phase_4_harvest_probe&action=edit`.
+1. Visit `https://wiki.slipgate.me/index.php?title=Phase_4_harvest_probe&action=edit`.
 2. Paste the body from `apps/qwiki-sandbox/deploy/seed-pages/Phase_4_harvest_probe.wikitext`.
 3. Save with edit summary `Phase 4: harvest probe test page`.
 
-Confirm: visiting `https://wiki-beta.quake.world/wiki/Phase_4_harvest_probe` renders the page with the `== Spectator mode ==` section visible.
+Confirm: visiting `https://wiki.slipgate.me/wiki/Phase_4_harvest_probe` renders the page with the `== Spectator mode ==` section visible.
 
 ### Step 5: smoke probe auto-categorization mechanism
 
 Phase 4 does not wire auto-categorization globally -- that's a page-type-template concern starting Phase 5. To confirm the underlying mechanism works:
 
-1. In the browser, edit `https://wiki-beta.quake.world/wiki/Phase_4_harvest_probe`.
+1. In the browser, edit `https://wiki.slipgate.me/wiki/Phase_4_harvest_probe`.
 2. Add `[[Category:Needs review]]` at the bottom of the wikitext. Save.
-3. Visit `https://wiki-beta.quake.world/index.php?title=Category:Needs_review`. Confirm: `Phase 4 harvest probe` appears in the category's member list.
+3. Visit `https://wiki.slipgate.me/index.php?title=Category:Needs_review`. Confirm: `Phase 4 harvest probe` appears in the category's member list.
 4. (Optional) Edit the page again, remove the category tag, save. Confirm: the page disappears from the category listing on the next visit.
 
 This proves the MW category mechanism works against the seed pages. Phase 5's Mode template will exercise the same mechanism via template-include.
@@ -432,7 +432,7 @@ The note is intentionally a small-scope breadcrumb -- not a polished domain-guid
 You are authoring a Layer 3 concept-note for the QW Oracle corpus.
 
 Context: arc qwiki-v1-beta Phase 4 (the substrate-closing phase before the Modes mini-arc).
-The wiki page `Phase 4 harvest probe` at https://wiki-beta.quake.world contains a section
+The wiki page `Phase 4 harvest probe` at https://wiki.slipgate.me contains a section
 `== Spectator mode ==` (source wikitext at apps/qwiki-sandbox/deploy/seed-pages/Phase_4_harvest_probe.wikitext).
 Distill that section into a concept-note at apps/qw-oracle/curated/concept-notes/test-qwiki-harvest-probe.md.
 
@@ -486,13 +486,13 @@ Copy-paste commands the operator runs at the end of Phase 4. YES/NO answers per 
 ```bash
 for c in Needs_review Stale Draft; do
   echo -n "$c: "
-  ssh unraid "curl -s -o /dev/null -w '%{http_code}' \
+  ssh unraid-deploy "curl -s -o /dev/null -w '%{http_code}' \
     http://192.168.1.205:8081/index.php?title=Category:$c"
   echo
 done
 ```
 
-Operator-facing confirmation (browser): open `https://wiki-beta.quake.world/index.php?title=Special:Categories`. Confirm `Needs review`, `Stale`, `Draft` are all listed.
+Operator-facing confirmation (browser): open `https://wiki.slipgate.me/index.php?title=Special:Categories`. Confirm `Needs review`, `Stale`, `Draft` are all listed.
 
 - **PASS condition:** each curl prints `200`, AND `Special:Categories` lists all three category names.
 - **FAIL condition:** any curl prints `404` (category page absent -- redo Step 2 of the Phase 4 deploy README section); or `Special:Categories` omits a category (check the page body landed without surrounding whitespace breaking the wikitext).
@@ -500,11 +500,11 @@ Operator-facing confirmation (browser): open `https://wiki-beta.quake.world/inde
 **V_DOC1. Help:URL slug discipline page exists.**
 
 ```bash
-ssh unraid 'curl -s -o /dev/null -w "%{http_code}\n" \
+ssh unraid-deploy 'curl -s -o /dev/null -w "%{http_code}\n" \
   http://192.168.1.205:8081/index.php?title=Help:URL_slug_discipline'
 ```
 
-Operator-facing confirmation (browser): visit `https://wiki-beta.quake.world/wiki/Help:URL_slug_discipline`. Confirm the page renders with the "The rule" + "Why" + "Enforcement" + "Examples" sections per the seed wikitext.
+Operator-facing confirmation (browser): visit `https://wiki.slipgate.me/wiki/Help:URL_slug_discipline`. Confirm the page renders with the "The rule" + "Why" + "Enforcement" + "Examples" sections per the seed wikitext.
 
 - **PASS condition:** curl prints `200`; browser renders the doc page with at least the "The rule" section visible.
 - **FAIL condition:** curl prints `404` (page absent -- redo Step 3 of the Phase 4 deploy README section); or the page renders but is empty (paste landed without the body content).
@@ -512,15 +512,15 @@ Operator-facing confirmation (browser): visit `https://wiki-beta.quake.world/wik
 **V_HARVEST1. Phase 4 harvest probe wiki page exists + auto-categorization mechanism works.**
 
 ```bash
-ssh unraid 'curl -s -o /dev/null -w "%{http_code}\n" \
+ssh unraid-deploy 'curl -s -o /dev/null -w "%{http_code}\n" \
   http://192.168.1.205:8081/index.php?title=Phase_4_harvest_probe'
 ```
 
 Operator-facing confirmation (browser):
 
-1. Visit `https://wiki-beta.quake.world/wiki/Phase_4_harvest_probe`. Confirm the `== Spectator mode ==` section renders.
+1. Visit `https://wiki.slipgate.me/wiki/Phase_4_harvest_probe`. Confirm the `== Spectator mode ==` section renders.
 2. Edit the page; add `[[Category:Needs review]]` at the bottom; save.
-3. Visit `https://wiki-beta.quake.world/index.php?title=Category:Needs_review`. Confirm `Phase 4 harvest probe` appears in the member list.
+3. Visit `https://wiki.slipgate.me/index.php?title=Category:Needs_review`. Confirm `Phase 4 harvest probe` appears in the member list.
 4. Edit the page again; remove the category tag; save. Visit the category page. Confirm `Phase 4 harvest probe` is gone from the member list.
 
 - **PASS condition:** curl prints `200`; the four-step browser sequence completes (page renders, category member shows up after tagging, member disappears after untagging).
@@ -565,7 +565,7 @@ psql "$(cat apps/qw-oracle/.env | grep ^DATABASE_URL= | cut -d= -f2-)" \
 **V_OPS1. All three containers still healthy.**
 
 ```bash
-ssh unraid 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml ps'
+ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml ps'
 ```
 
 - **PASS condition:** `qwiki-nginx`, `qwiki-mediawiki`, `qwiki-mariadb` all `Up`; `qwiki-mariadb` `(healthy)`.
@@ -640,7 +640,7 @@ Per-failure-mode recovery; anticipatable failures only. Unanticipated failures r
 - **V_HARVEST1 fails (category membership doesn't update after tag):** MW category-link tracking depends on `categorylinks` table + the `LinksUpdate` job. If a `runJobs.php` drain has been skipped, the membership view may lag. Run from operator's WSL:
 
   ```bash
-  ssh unraid 'docker exec qwiki-mediawiki php /var/www/html/maintenance/runJobs.php'
+  ssh unraid-deploy 'docker exec qwiki-mediawiki php /var/www/html/maintenance/runJobs.php'
   ```
 
   Expect `<N> jobs run, 0 failed`. Then revisit the category page.

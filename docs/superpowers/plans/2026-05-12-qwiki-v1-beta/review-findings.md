@@ -12,7 +12,7 @@ Findings accrue here during arc execution -- phase-MD drafting (sub-agent verifi
 |---|---|---|---|---|
 | F1 | SUBSTANTIVE | MW 1.39 LTS is past upstream support window | Phase 1 drafting (2026-05-13) | RESOLVED 2026-05-13 -- `decisions.md` D2 Amendment #2 (MW 1.39 -> 1.43 LTS + cascading version bumps) |
 | F2 | SUBSTANTIVE | Phase 1 execution-time learnings cluster (install.php GRANT 1133 + 3 minor) | Phase 1 execution (2026-05-13/14) | RESOLVED 2026-05-14 -- `apps/qwiki-sandbox/deploy/README.md` patches in commit `f6d26ee6` (pre-create qwiki@'mariadb' workaround + docker-based wipe recovery + nginx apex redirect scheme fix + Cloudflare One dashboard path correction) |
-| F3 | SUBSTANTIVE | Cross-phase hostname + SSH identity drift in Phase 2/3/4 MDs + prerequisites.md | Phase 1 boundary verification (2026-05-14, orchestrator) | OPEN -- pending operator decision (Option A retarget MDs in place vs Option B defer to executor prompt augmentation) |
+| F3 | SUBSTANTIVE | Cross-phase hostname + SSH identity drift in Phase 2/3/4 MDs + prerequisites.md | Phase 1 boundary verification (2026-05-14, orchestrator) | RESOLVED 2026-05-14 -- Option A applied: replace_all retarget across `phase-2-extensions.md` / `phase-3-auth-groups.md` / `phase-4-discipline-harvest.md` + `phase-3-drafter-prompt.md` line 49 + `phase-template.md` examples + `prerequisites.md` line 13 SSH identity update |
 
 ### F1 -- MW 1.39 LTS is past upstream support window
 
@@ -107,9 +107,9 @@ F2 closed.
 
 Orchestrator recommendation: Option A. Phase MDs are operational documents the executor reads literally and runs commands from; preserving them as historical record would force per-execution mental search-and-replace and risk wiki-state corruption. Option B's "preserve historical record" intent is already served by the git commit history showing the original drafted state.
 
-**Status:** OPEN -- pending operator decision. When resolved, fill in "Resolved by" with the commit hash + Option chosen.
+**Status:** RESOLVED 2026-05-14. Operator chose Option A (retarget MDs in place). Substitution patterns applied via replace_all across `phase-2-extensions.md` (17 wiki + 14 ssh + 3 scp targets), `phase-3-auth-groups.md` (20 wiki + 20 ssh + 1 scp), `phase-4-discipline-harvest.md` (16 wiki + 5 ssh + 1 scp + 1 double-quote ssh variant). Also caught: `phase-3-drafter-prompt.md` line 49 (Discord OAuth redirect URI) + `phase-template.md` three illustrative example URLs + `prerequisites.md` line 13 SSH identity precheck. Phase 1 MD + Phase 1 drafter prompt + decisions.md D6/D19/non-goals original text preserved as historical record (D3 amendment block is authoritative for URL going forward).
 
-**Cross-phase implications going forward:** if Option A is chosen, Phase 2 + Phase 3 + Phase 4 MDs match deployed state and executor dispatch proceeds normally. If Option B is chosen, each executor prompt at dispatch time includes a "Hostname + SSH retarget" augmentation section (orchestrator augments per-phase as part of executor-prompt prep).
+**Cross-phase implications resolved:** Phase 2/3/4 MDs now match deployed state. Phase 2 executor dispatch can proceed against clean MD. No per-executor-prompt augmentation needed for hostname or SSH identity.
 
 ---
 

@@ -18,14 +18,14 @@ Two framing points that govern the install-shape choices below:
 
 WSOAuth was the listed alternative per `decisions.md` D2 Amendment #2 carry-forward. Verified during recon: WSOAuth has the same Discord limitations (Discord not built-in; requires `$wgOAuthCustomAuthProviders` custom-provider class) and the same `groupsyncs` mechanism. Neither extension offers a turnkey advantage over the other for this specific Discord-roles requirement. We honor the `prerequisites.md` operator pre-decision (OpenIDConnect) for the draft and surface WSOAuth as a fallback in Open Questions if the OpenIDConnect + manual-provider-config approach fails the V_AUTH4 probe.
 
-**Runnable state at phase boundary:** opening `https://wiki-beta.quake.world` in an incognito browser shows a "Log in with Discord" button rendered by PluggableAuth in the Citizen skin's user-menu area; clicking it redirects to Discord's OAuth consent screen, authorizing returns to `https://wiki-beta.quake.world/index.php?title=Special:PluggableAuthLogin` with a session cookie set + the operator logged in as a MW user; `Special:ListUsers` shows the operator's MW account; `Special:UserRights` / `Special:ListGroupRights` shows the operator's groups include `wiki-contributor` (auto-assigned via the `@wiki-beta` Discord role hook); the operator can edit `Main:TestEditPage` (create + save); the operator CANNOT edit `Template:Test` (the Phase 2 smoke-test template; returns "you do not have permission to edit this page"); after the operator manually promotes a second test user to `wiki-curator` via `Special:UserRights` + that user logs in, the second user CAN edit `Template:Test`.
+**Runnable state at phase boundary:** opening `https://wiki.slipgate.me` in an incognito browser shows a "Log in with Discord" button rendered by PluggableAuth in the Citizen skin's user-menu area; clicking it redirects to Discord's OAuth consent screen, authorizing returns to `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin` with a session cookie set + the operator logged in as a MW user; `Special:ListUsers` shows the operator's MW account; `Special:UserRights` / `Special:ListGroupRights` shows the operator's groups include `wiki-contributor` (auto-assigned via the `@wiki-beta` Discord role hook); the operator can edit `Main:TestEditPage` (create + save); the operator CANNOT edit `Template:Test` (the Phase 2 smoke-test template; returns "you do not have permission to edit this page"); after the operator manually promotes a second test user to `wiki-curator` via `Special:UserRights` + that user logs in, the second user CAN edit `Template:Test`.
 
 ## Inputs from previous phase
 
 Phase 2 complete:
 
 - Page Forms extension (REL1_43 branch HEAD at deploy time) installed at `/mnt/user/appdata/qwiki-beta/page-forms/` and overlay-bound; NS_FORM (106) + NS_FORM_TALK (107) namespaces exist.
-- Semantic MediaWiki 6.0.x installed via Composer; `enableSemantics( 'wiki-beta.quake.world' )` active.
+- Semantic MediaWiki 6.0.x installed via Composer; `enableSemantics( 'wiki.slipgate.me' )` active.
 - `qwiki_beta` MariaDB schema migrated by `maintenance/update.php`; `smw_*` + `pf_*` tables present (total MW table count ~74-80).
 - `apps/qwiki-sandbox/deploy/composer.local.json` committed and scp'd to `/mnt/user/appdata/qwiki-beta/mediawiki-html/`; currently pins SMW only.
 - `apps/qwiki-sandbox/deploy/test-form/` committed (smoke-test form + template wikitext breadcrumbs).
@@ -37,10 +37,10 @@ Phase 2 complete:
 
 Operator-side prerequisites for Phase 3 (per `prerequisites.md`):
 
-- Discord OAuth application registered at `https://discord.com/developers/applications`; `Client ID` + `Client Secret` captured; redirect URI configured to `https://wiki-beta.quake.world/index.php?title=Special:PluggableAuthLogin`.
+- Discord OAuth application registered at `https://discord.com/developers/applications`; `Client ID` + `Client Secret` captured; redirect URI configured to `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`.
 - `@wiki-beta` Discord role exists in the relevant Discord server (the server that hosts the contributor pool); role ID captured (Discord developer-mode-enabled right-click on the role -> Copy ID).
 - Operator's Discord user-ID captured for self-verification of the first-login auto-assignment.
-- Tailscale up; `ssh unraid 'echo ok'` returns `ok`.
+- Tailscale up; `ssh unraid-deploy 'echo ok'` returns `ok`.
 - Operator's WSL can reach Docker Hub (transitively true from Phase 1 + Phase 2).
 - The operator's MW `Admin` user is still accessible (used to manually promote the first `wiki-curator` user via `Special:UserRights` during V_AUTH5; alternatively the operator may promote themselves to `wiki-curator` via the same path after the auto-assigned `wiki-contributor` group lands during V_AUTH3).
 
@@ -228,7 +228,7 @@ services:
       - mediawiki
     ports:
       # Bind to the Unraid host's LAN address (192.168.1.205) only -- the
-      # existing Cloudflare Tunnel agent routes wiki-beta.quake.world to this
+      # existing Cloudflare Tunnel agent routes wiki.slipgate.me to this
       # address from the same Unraid box. Loopback would not be reachable from
       # the cloudflared container (separate network namespace); 0.0.0.0 would
       # expose the wiki on the LAN without Cloudflare's edge protection.
@@ -317,7 +317,7 @@ MW_ADMIN_PASSWORD=
 
 # Discord OAuth application credentials. Create the app at
 # https://discord.com/developers/applications. Redirect URI must be
-# https://wiki-beta.quake.world/index.php?title=Special:PluggableAuthLogin
+# https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin
 DISCORD_OAUTH_CLIENT_ID=
 DISCORD_OAUTH_CLIENT_SECRET=
 
@@ -364,7 +364,7 @@ Full file content to write:
 ```php
 <?php
 # apps/qwiki-sandbox/deploy/LocalSettings.php
-# MediaWiki 1.43 LTS configuration for qwiki-v1-beta (wiki-beta.quake.world).
+# MediaWiki 1.43 LTS configuration for qwiki-v1-beta (wiki.slipgate.me).
 # Hand-authored; install.php is run once to bootstrap the DB schema, but its
 # generated LocalSettings.php is discarded in favor of this committed file.
 #
@@ -387,9 +387,9 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 $wgSitename = "QuakeWorld Wiki (beta)";
 $wgMetaNamespace = "QuakeWorld_Wiki";
 
-# The wiki lives at the apex of wiki-beta.quake.world; no /w/ script path.
+# The wiki lives at the apex of wiki.slipgate.me; no /w/ script path.
 $wgScriptPath = "";
-$wgServer = "https://wiki-beta.quake.world";
+$wgServer = "https://wiki.slipgate.me";
 $wgResourceBasePath = $wgScriptPath;
 
 # Make MW trust the X-Forwarded-Proto / X-Forwarded-For headers that
@@ -550,7 +550,7 @@ wfLoadExtension( 'PageForms' );
 
 # Semantic MediaWiki 6.0.x (Composer-installed).
 wfLoadExtension( 'SemanticMediaWiki' );
-enableSemantics( 'wiki-beta.quake.world' );
+enableSemantics( 'wiki.slipgate.me' );
 
 # --- Extensions (Phase 3) -------------------------------------------------
 
@@ -733,7 +733,7 @@ Phase 3 install section to append (after the Phase 2 install closing marker):
 Prerequisites (per `prerequisites.md`):
 
 - Discord OAuth app created at https://discord.com/developers/applications
-  with redirect URI `https://wiki-beta.quake.world/index.php?title=Special:PluggableAuthLogin`.
+  with redirect URI `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`.
   Client ID + Secret captured.
 - `@wiki-beta` Discord role exists in the relevant server; role ID captured.
 - Operator's Discord user ID captured (for first-login self-verification).
@@ -743,7 +743,7 @@ Steps (run from operator's WSL unless otherwise noted):
 1. **Clone PluggableAuth onto Unraid.**
 
    ```bash
-   ssh unraid 'cd /mnt/user/appdata/qwiki-beta && \
+   ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
      git clone --branch REL1_43 --depth 1 \
        https://github.com/wikimedia/mediawiki-extensions-PluggableAuth.git \
        pluggable-auth'
@@ -754,7 +754,7 @@ Steps (run from operator's WSL unless otherwise noted):
 2. **Clone OpenIDConnect onto Unraid.**
 
    ```bash
-   ssh unraid 'cd /mnt/user/appdata/qwiki-beta && \
+   ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta && \
      git clone --branch REL1_43 --depth 1 \
        https://github.com/wikimedia/mediawiki-extensions-OpenIDConnect.git \
        openid-connect'
@@ -769,14 +769,14 @@ Steps (run from operator's WSL unless otherwise noted):
        apps/qwiki-sandbox/deploy/docker-compose.prod.yml \
        apps/qwiki-sandbox/deploy/LocalSettings.php \
        apps/qwiki-sandbox/deploy/.env.prod.example \
-       unraid:/mnt/user/appdata/qwiki-beta/
+       unraid-deploy:/mnt/user/appdata/qwiki-beta/
    ```
 
    Also copy `composer.local.json` into `mediawiki-html/` so composer's
    merge-plugin finds it:
 
    ```bash
-   ssh unraid 'cp /mnt/user/appdata/qwiki-beta/composer.local.json \
+   ssh unraid-deploy 'cp /mnt/user/appdata/qwiki-beta/composer.local.json \
                   /mnt/user/appdata/qwiki-beta/mediawiki-html/composer.local.json'
    ```
 
@@ -792,7 +792,7 @@ Steps (run from operator's WSL unless otherwise noted):
    Confirm permissions:
 
    ```bash
-   ssh unraid 'ls -la /mnt/user/appdata/qwiki-beta/.env'
+   ssh unraid-deploy 'ls -la /mnt/user/appdata/qwiki-beta/.env'
    ```
 
    Expect `-rw-------` (chmod 600).
@@ -803,7 +803,7 @@ Steps (run from operator's WSL unless otherwise noted):
    bind-mounted to the MW root:
 
    ```bash
-   ssh unraid 'docker run --rm \
+   ssh unraid-deploy 'docker run --rm \
      -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app \
      composer:latest \
      update --no-dev --no-interaction'
@@ -814,14 +814,14 @@ Steps (run from operator's WSL unless otherwise noted):
 6. **Restart the stack so the new extensions load.**
 
    ```bash
-   ssh unraid 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml \
+   ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml \
      up -d --force-recreate mediawiki nginx'
    ```
 
 7. **Run `maintenance/update.php` to create the OpenIDConnect schema tables.**
 
    ```bash
-   ssh unraid 'docker exec qwiki-mediawiki \
+   ssh unraid-deploy 'docker exec qwiki-mediawiki \
      php /var/www/html/maintenance/update.php --quick'
    ```
 
@@ -830,14 +830,14 @@ Steps (run from operator's WSL unless otherwise noted):
 
 8. **Walk the OAuth flow end-to-end.**
 
-   - Open `https://wiki-beta.quake.world` in an incognito browser.
+   - Open `https://wiki.slipgate.me` in an incognito browser.
    - Expect: Citizen skin's user menu shows a "Log in with Discord" button
      (PluggableAuth replaces the standard Special:UserLogin entrance).
    - Click the button. Expect: redirect to Discord's OAuth consent screen
      showing the OAuth app name + requested scopes
      (openid / identify / guilds.members.read).
    - Authorize. Expect: redirect back to
-     `https://wiki-beta.quake.world/index.php?title=Special:PluggableAuthLogin`,
+     `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`,
      then to Main Page, with a session cookie set + the user-menu now
      showing your Discord username.
    - Open `Special:UserGroupRights` -> find your username. Expect:
@@ -880,8 +880,8 @@ re-pull the PluggableAuth + OpenIDConnect git-clones whenever a major REL
 branch is moved (e.g., from REL1_43 to REL1_47 when the next MW LTS lands):
 
 ```bash
-ssh unraid 'cd /mnt/user/appdata/qwiki-beta/pluggable-auth && git pull --depth=1 origin REL1_43'
-ssh unraid 'cd /mnt/user/appdata/qwiki-beta/openid-connect && git pull --depth=1 origin REL1_43'
+ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta/pluggable-auth && git pull --depth=1 origin REL1_43'
+ssh unraid-deploy 'cd /mnt/user/appdata/qwiki-beta/openid-connect && git pull --depth=1 origin REL1_43'
 ```
 
 For routine MW patch bumps (1.43.X -> 1.43.Y), the existing rsync
@@ -895,20 +895,20 @@ host paths (overlay-bound at runtime) -- nothing extra to do.
 PluggableAuth registers itself with the SkinTemplateNavigation::Universal
 hook to inject the login button. If the button is missing:
 
-- Verify PluggableAuth shows up in `Special:Version`: `ssh unraid 'curl -s
+- Verify PluggableAuth shows up in `Special:Version`: `ssh unraid-deploy 'curl -s
   http://192.168.1.205:8081/index.php?title=Special:Version'` and grep
   for "PluggableAuth".
 - Verify `wfLoadExtension( 'PluggableAuth' );` is present in LocalSettings
-  AND the overlay bind exists: `ssh unraid 'docker exec qwiki-mediawiki ls
+  AND the overlay bind exists: `ssh unraid-deploy 'docker exec qwiki-mediawiki ls
   /var/www/html/extensions/PluggableAuth/extension.json'`.
-- Restart mediawiki: `ssh unraid 'docker compose -f
+- Restart mediawiki: `ssh unraid-deploy 'docker compose -f
   /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml restart mediawiki'`.
 
 **Discord OAuth redirect returns "OpenIDConnect: SSL certificate problem"
 or "issuer mismatch" error.**
 
 - SSL cert: typically a stale CA bundle in the mediawiki container. Confirm
-  with `ssh unraid 'docker exec qwiki-mediawiki curl -sI
+  with `ssh unraid-deploy 'docker exec qwiki-mediawiki curl -sI
   https://discord.com/api/oauth2/token'`. Expect HTTP 200/405. If TLS
   errors, the official mediawiki:1.43-fpm image's ca-certificates may need
   refresh -- pull the latest image patch.
@@ -922,7 +922,7 @@ or "issuer mismatch" error.**
 
 Walk the qwikiBetaSyncDiscordRole helper's failure modes in order:
 
-- Confirm env vars are set: `ssh unraid 'docker exec qwiki-mediawiki env |
+- Confirm env vars are set: `ssh unraid-deploy 'docker exec qwiki-mediawiki env |
   grep -E "DISCORD_"'`. Expect four lines.
 - Confirm Discord role ID is correct: in Discord (with developer mode),
   right-click the `@wiki-beta` role and Copy Role ID; cross-check against
@@ -934,7 +934,7 @@ Walk the qwikiBetaSyncDiscordRole helper's failure modes in order:
   server".
 - Confirm Discord guild ID is correct: right-click your server icon ->
   Copy Server ID; cross-check against `.env`'s `DISCORD_GUILD_ID`.
-- Tail MW logs for the hook's debug output: `ssh unraid 'docker exec
+- Tail MW logs for the hook's debug output: `ssh unraid-deploy 'docker exec
   qwiki-mediawiki tail -f /tmp/qwiki-beta-debug.log'` (set
   `$wgDebugLogGroups['qwiki-beta']` to a file path in LocalSettings if
   the hook's wfDebugLog calls aren't visible).
@@ -946,9 +946,9 @@ Walk the qwikiBetaSyncDiscordRole helper's failure modes in order:
 they can't edit any page (including Main namespace).**
 
 - Confirm `wiki-contributor` has the `edit` right:
-  `ssh unraid 'docker exec qwiki-mediawiki grep -A1 "wiki-contributor.*edit" /var/www/html/LocalSettings.php'`.
+  `ssh unraid-deploy 'docker exec qwiki-mediawiki grep -A1 "wiki-contributor.*edit" /var/www/html/LocalSettings.php'`.
   Expect a `... ['edit'] = true;` line.
-- Confirm anonymous `read` is allowed: `ssh unraid 'docker exec
+- Confirm anonymous `read` is allowed: `ssh unraid-deploy 'docker exec
   qwiki-mediawiki grep "wgGroupPermissions\['\*'\]\['read'\]" /var/www/html/LocalSettings.php'`.
   Expect `... = true;`.
 - If editing a Template / Form / Category page returns a permission error,
@@ -959,11 +959,11 @@ they can't edit any page (including Main namespace).**
 OpenIDConnect or PluggableAuth.**
 
 - Composer didn't fully run. Re-run from step 5 of the Phase 3 install:
-  `ssh unraid 'docker run --rm -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app composer:latest update --no-dev --no-interaction'`.
-- Confirm jumbojett landed: `ssh unraid 'test -d
+  `ssh unraid-deploy 'docker run --rm -v /mnt/user/appdata/qwiki-beta/mediawiki-html:/app composer:latest update --no-dev --no-interaction'`.
+- Confirm jumbojett landed: `ssh unraid-deploy 'test -d
   /mnt/user/appdata/qwiki-beta/mediawiki-html/vendor/jumbojett/openid-connect-php
   && echo OK'`. If missing, the `composer.local.json` merge wasn't picked
-  up -- confirm the file is at MW root: `ssh unraid 'cat
+  up -- confirm the file is at MW root: `ssh unraid-deploy 'cat
   /mnt/user/appdata/qwiki-beta/mediawiki-html/composer.local.json'`.
 
 **Logout via Special:UserLogout doesn't fully clear the Discord session.**
@@ -1005,7 +1005,7 @@ Pre-pivot 6-phase plan (clone -> upgrade -> Citizen -> Page Forms -> EQL drain -
 
 ## Substrate state
 
-After Phase 3 ships: a three-container Docker stack on Unraid -- `qwiki-nginx` (nginx 1.30-alpine, the CF Tunnel-facing entry point) + `qwiki-mediawiki` (mediawiki:1.43-fpm, php-fpm at port 9000) + `qwiki-mariadb` (mariadb 11.4 LTS) -- plus the Citizen skin v3.16.0 git checkout + Page Forms + Semantic MediaWiki 6.0.x extensions (Phase 2) + PluggableAuth + OpenIDConnect extensions (Phase 3). Live at `wiki-beta.quake.world` via Cloudflare Tunnel.
+After Phase 3 ships: a three-container Docker stack on Unraid -- `qwiki-nginx` (nginx 1.30-alpine, the CF Tunnel-facing entry point) + `qwiki-mediawiki` (mediawiki:1.43-fpm, php-fpm at port 9000) + `qwiki-mariadb` (mariadb 11.4 LTS) -- plus the Citizen skin v3.16.0 git checkout + Page Forms + Semantic MediaWiki 6.0.x extensions (Phase 2) + PluggableAuth + OpenIDConnect extensions (Phase 3). Live at `wiki.slipgate.me` via Cloudflare Tunnel.
 
 Auth: PluggableAuth + OpenIDConnect against Discord OAuth (manual endpoint config; `openid identify guilds.members.read` scopes). The `wiki-contributor` MW group is auto-assigned on every login based on the user's `@wiki-beta` Discord role membership (re-checked via `/users/@me/guilds/<guild_id>/member`); `wiki-curator` is manually assigned by the operator via `Special:UserRights`. Anonymous read is public; anonymous edit blocked.
 
@@ -1044,11 +1044,11 @@ Copy-paste commands the operator runs at the end of Phase 3. YES/NO answers per 
 **V_AUTH1. PluggableAuth + OpenIDConnect extensions are loaded + registered.**
 
 ```bash
-ssh unraid 'curl -s http://192.168.1.205:8081/index.php?title=Special:Version' \
+ssh unraid-deploy 'curl -s http://192.168.1.205:8081/index.php?title=Special:Version' \
   | grep -E -c "PluggableAuth|OpenID Connect"
 ```
 
-Operator-facing confirmation (browser): open `https://wiki-beta.quake.world/index.php?title=Special:Version`, confirm "PluggableAuth" + "OpenID Connect" appear under "Installed extensions" with their version strings (PluggableAuth 7.5.0+, OpenID Connect 8.3.0+).
+Operator-facing confirmation (browser): open `https://wiki.slipgate.me/index.php?title=Special:Version`, confirm "PluggableAuth" + "OpenID Connect" appear under "Installed extensions" with their version strings (PluggableAuth 7.5.0+, OpenID Connect 8.3.0+).
 
 - **PASS condition:** the grep count is `>= 2`, AND `Special:Version` lists both extensions in the browser.
 - **FAIL condition:** count is `< 2` (one or both extensions failed to load -- consult Troubleshooting "Log in with Discord button doesn't render").
@@ -1058,7 +1058,7 @@ Operator-facing confirmation (browser): open `https://wiki-beta.quake.world/inde
 OpenIDConnect ships a `LoadExtensionSchemaUpdates` hook that creates one table -- `openid_connect` -- mapping `oidc_user` (MW user id) to `oidc_subject` + `oidc_issuer` (verified by reading `sql/mysql/OpenIDConnect.sql` on REL1_43 during recon). Schema-migrated probe:
 
 ```bash
-ssh unraid 'set -a && . /mnt/user/appdata/qwiki-beta/.env && set +a && \
+ssh unraid-deploy 'set -a && . /mnt/user/appdata/qwiki-beta/.env && set +a && \
   docker exec -e MYSQL_PWD="$MARIADB_ROOT_PASSWORD" qwiki-mariadb \
   mariadb -uroot -N -B -e "USE qwiki_beta; SHOW TABLES LIKE \"openid_connect\";"' \
   | wc -l
@@ -1071,10 +1071,10 @@ ssh unraid 'set -a && . /mnt/user/appdata/qwiki-beta/.env && set +a && \
 
 Operator walks through the OAuth flow in a fresh incognito browser:
 
-1. Visit `https://wiki-beta.quake.world`.
+1. Visit `https://wiki.slipgate.me`.
 2. Confirm: Citizen skin user-menu shows a "Log in with Discord" button.
 3. Click. Confirm: redirect to `discord.com/oauth2/authorize?...` consent screen showing requested scopes (`openid`, `identify`, `guilds.members.read`).
-4. Authorize. Confirm: redirect back to `https://wiki-beta.quake.world/index.php?title=Special:PluggableAuthLogin`, then to Main Page, with the user-menu now displaying your Discord username.
+4. Authorize. Confirm: redirect back to `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin`, then to Main Page, with the user-menu now displaying your Discord username.
 5. Visit `Special:UserGroupRights` / find your username. Confirm: `wiki-contributor` group listed.
 
 - **PASS condition:** all five steps succeed; your username appears in `Special:UserGroupRights` with `wiki-contributor` in the groups column.
@@ -1084,8 +1084,8 @@ Operator walks through the OAuth flow in a fresh incognito browser:
 
 While logged in as the auto-assigned wiki-contributor (your Discord-OAuth user):
 
-1. Visit `https://wiki-beta.quake.world/index.php?title=Main:TestEditPage&action=edit`. Save a small edit ("Phase 3 verification"). Confirm: save succeeds; the page renders with your edit.
-2. Visit `https://wiki-beta.quake.world/index.php?title=Template:Test&action=edit` (the Template created during Phase 2 smoke probe). Confirm: edit form is blocked with "you do not have permission to edit this page".
+1. Visit `https://wiki.slipgate.me/index.php?title=Main:TestEditPage&action=edit`. Save a small edit ("Phase 3 verification"). Confirm: save succeeds; the page renders with your edit.
+2. Visit `https://wiki.slipgate.me/index.php?title=Template:Test&action=edit` (the Template created during Phase 2 smoke probe). Confirm: edit form is blocked with "you do not have permission to edit this page".
 
 - **PASS condition:** Main edit succeeds; Template edit blocked with the permission message.
 - **FAIL condition:** Main edit blocked (wiki-contributor isn't getting `edit` right -- check LocalSettings) OR Template edit succeeds (D5 namespace restriction misconfigured -- check `$wgNamespaceProtection[NS_TEMPLATE]` + `edit-curator-namespace` rights).
@@ -1117,7 +1117,7 @@ V_AUTH6 is OPTIONAL for Phase 3 sign-off because it requires the operator to dis
 **V_OPS1. All three containers still healthy.**
 
 ```bash
-ssh unraid 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml ps'
+ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml ps'
 ```
 
 - **PASS condition:** `qwiki-nginx`, `qwiki-mediawiki`, `qwiki-mariadb` all `Up`; `qwiki-mariadb` `(healthy)`. The Phase 3 docker-compose binds didn't break the stack.
@@ -1166,7 +1166,7 @@ Phase 4's inputs match this output set + Phase 4-specific operator prerequisites
 
 - **Question:** The Citizen v3 skin's user-menu integration with PluggableAuth was not directly verified during recon (Citizen-skin documentation is sparse on PluggableAuth integration; the standard PluggableAuth pattern is to inject via the `SkinTemplateNavigation::Universal` hook which Citizen v3 honors per the upstream Citizen changelog). The V_AUTH3 step 2 ("Citizen skin user-menu shows a 'Log in with Discord' button") is the integration test.
   - **Default chosen for now:** assume standard integration works.
-  - **Who can resolve:** operator at V_AUTH3 verification. If the button doesn't render, the fallback is to access `https://wiki-beta.quake.world/index.php?title=Special:UserLogin` directly (PluggableAuth replaces the default UserLogin form) and verify the OAuth path that way; the button rendering is a UX nicety, not a load-bearing requirement.
+  - **Who can resolve:** operator at V_AUTH3 verification. If the button doesn't render, the fallback is to access `https://wiki.slipgate.me/index.php?title=Special:UserLogin` directly (PluggableAuth replaces the default UserLogin form) and verify the OAuth path that way; the button rendering is a UX nicety, not a load-bearing requirement.
 
 - **Question:** Phase 3 grants `$wgGroupPermissions['*']['autocreateaccount'] = true` per upstream PluggableAuth docs. This is more permissive than the Phase 1 + Phase 2 baseline (which left `createaccount` = false for `*`). Practically, `autocreateaccount` only fires during an authenticated OAuth flow (it's the "MW may auto-create a local user record for an externally-authenticated user" right); it does NOT let anonymous users self-register a username/password account.
   - **Default chosen for now:** grant `autocreateaccount` = true per PluggableAuth requirement. The risk surface is narrow.
@@ -1181,17 +1181,17 @@ Phase 4's inputs match this output set + Phase 4-specific operator prerequisites
 Per-failure-mode recovery; anticipatable failures only. Unanticipated failures route to operator.
 
 - **V_AUTH1 fails (PluggableAuth or OpenIDConnect not in Special:Version):**
-  - Verify host bind exists for each: `ssh unraid 'ls /mnt/user/appdata/qwiki-beta/pluggable-auth/extension.json /mnt/user/appdata/qwiki-beta/openid-connect/extension.json'`.
-  - Verify container sees them: `ssh unraid 'docker exec qwiki-mediawiki ls /var/www/html/extensions/PluggableAuth/extension.json /var/www/html/extensions/OpenIDConnect/extension.json'`.
-  - If a bind didn't take after the Phase 3 install: `ssh unraid 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml up -d --force-recreate mediawiki nginx'`.
-  - Verify LocalSettings has both `wfLoadExtension` lines: `ssh unraid 'docker exec qwiki-mediawiki grep -E "wfLoadExtension\\( '\''(PluggableAuth|OpenIDConnect)" /var/www/html/LocalSettings.php'`.
+  - Verify host bind exists for each: `ssh unraid-deploy 'ls /mnt/user/appdata/qwiki-beta/pluggable-auth/extension.json /mnt/user/appdata/qwiki-beta/openid-connect/extension.json'`.
+  - Verify container sees them: `ssh unraid-deploy 'docker exec qwiki-mediawiki ls /var/www/html/extensions/PluggableAuth/extension.json /var/www/html/extensions/OpenIDConnect/extension.json'`.
+  - If a bind didn't take after the Phase 3 install: `ssh unraid-deploy 'docker compose -f /mnt/user/appdata/qwiki-beta/docker-compose.prod.yml up -d --force-recreate mediawiki nginx'`.
+  - Verify LocalSettings has both `wfLoadExtension` lines: `ssh unraid-deploy 'docker exec qwiki-mediawiki grep -E "wfLoadExtension\\( '\''(PluggableAuth|OpenIDConnect)" /var/www/html/LocalSettings.php'`.
 
 - **V_AUTH2 fails (OpenIDConnect schema table absent):**
   - Re-run `maintenance/update.php` (see Troubleshooting "maintenance/update.php errors with class not found" in `deploy/README.md`).
-  - Verify composer landed jumbojett: `ssh unraid 'test -d /mnt/user/appdata/qwiki-beta/mediawiki-html/vendor/jumbojett && echo OK'`.
+  - Verify composer landed jumbojett: `ssh unraid-deploy 'test -d /mnt/user/appdata/qwiki-beta/mediawiki-html/vendor/jumbojett && echo OK'`.
 
 - **V_AUTH3 fails (Discord OAuth redirect errors):**
-  - Most common: redirect URI mismatch. Check the Discord developer-portal app's redirect URI exactly matches `https://wiki-beta.quake.world/index.php?title=Special:PluggableAuthLogin` (case-sensitive in the query string).
+  - Most common: redirect URI mismatch. Check the Discord developer-portal app's redirect URI exactly matches `https://wiki.slipgate.me/index.php?title=Special:PluggableAuthLogin` (case-sensitive in the query string).
   - Second-most: `clientID` / `clientsecret` mismatch. Re-copy from the developer portal into `.env`; ensure no surrounding quotes or whitespace.
   - Third: `issuerValidator` rejects the Discord issuer. Confirm the LocalSettings.php `issuerValidator` callable returns `true` unconditionally.
 
@@ -1202,11 +1202,11 @@ Per-failure-mode recovery; anticipatable failures only. Unanticipated failures r
   - Third: `guilds.members.read` scope not granted (Discord user must re-authorize the OAuth app to upgrade scopes -- revoke at https://discord.com/settings/authorized-apps and reauthorize).
 
 - **V_AUTH4 fails (Main edit blocked):**
-  - `wiki-contributor` group missing `edit` right. Verify: `ssh unraid 'docker exec qwiki-mediawiki grep "wiki-contributor.*'\''edit'\''" /var/www/html/LocalSettings.php'`. Expect `... = true;`.
+  - `wiki-contributor` group missing `edit` right. Verify: `ssh unraid-deploy 'docker exec qwiki-mediawiki grep "wiki-contributor.*'\''edit'\''" /var/www/html/LocalSettings.php'`. Expect `... = true;`.
   - User isn't actually in `wiki-contributor`: re-walk V_AUTH3.
 
 - **V_AUTH4 fails (Template edit succeeds for wiki-contributor):**
-  - `$wgNamespaceProtection[NS_TEMPLATE]` missing or wrong value. Verify: `ssh unraid 'docker exec qwiki-mediawiki grep -A1 "NS_TEMPLATE" /var/www/html/LocalSettings.php'`. Expect `[ 'edit-curator-namespace' ]`.
+  - `$wgNamespaceProtection[NS_TEMPLATE]` missing or wrong value. Verify: `ssh unraid-deploy 'docker exec qwiki-mediawiki grep -A1 "NS_TEMPLATE" /var/www/html/LocalSettings.php'`. Expect `[ 'edit-curator-namespace' ]`.
 
 - **V_AUTH5 fails (wiki-curator can't edit Template):**
   - User's group cache might be stale. Have them logout via `Special:UserLogout` and log back in via Discord OAuth. The MW group cache refresh happens on login.
