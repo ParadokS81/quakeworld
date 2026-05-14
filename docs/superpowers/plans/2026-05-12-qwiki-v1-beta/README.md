@@ -12,9 +12,9 @@
 
 ## Where we are right now
 
-- **Stage:** Phase 1 shipped 2026-05-14; Phase 2 approved + ready for executor dispatch (F3 retarget complete); Phases 3-4 awaiting per-phase approval; Phases 5-8 deferred.
-- **Last action:** 2026-05-14 -- Phase 1 substrate live at https://wiki.slipgate.me; V1-V5 PASS verified by orchestrator. D3 amended (URL `wiki-beta.quake.world` -> `wiki.slipgate.me`); F2 (Phase 1 exec-time learnings) + F3 (cross-phase hostname+SSH drift in Phase 2/3/4 MDs) both RESOLVED.
-- **Next action:** arc-orchestrator drafts Phase 2 executor prompt at `docs/superpowers/parking/2026-05-14-qwiki-v1-beta-phase-2-executor.md`; operator opens fresh terminal with `@<path>` as first message.
+- **Stage:** Phase 1 shipped 2026-05-14; Phase 2 executor prompt drafted + queued for operator dispatch in fresh terminal; Phases 3-4 awaiting per-phase approval; Phases 5-8 deferred.
+- **Last action:** 2026-05-14 -- prior orchestrator session retired at ~350k context after capturing Phase 1 boundary (V1-V5 PASS, F2 + F3 RESOLVED, V6 calendar check queued, Unraid scoping convergence parked) and drafting Phase 2 executor prompt at `docs/superpowers/parking/2026-05-14-qwiki-v1-beta-phase-2-executor.md`. Session-boundary handoff at `docs/superpowers/parking/2026-05-14-qwiki-v1-beta-orchestrator-resume.md`.
+- **Next action:** Operator opens fresh `claude` terminal with `@docs/superpowers/parking/2026-05-14-qwiki-v1-beta-phase-2-executor.md` (Phase 2 execution) + a separate fresh terminal with `@docs/superpowers/parking/2026-05-14-qwiki-v1-beta-orchestrator-resume.md` (new orchestrator to verify Phase 2 boundary when executor halts).
 
 Update these three lines whenever a phase boundary changes state. They are the source of truth for "where am I" when picking the arc back up cold.
 
