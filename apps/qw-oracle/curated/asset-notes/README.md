@@ -99,7 +99,7 @@ Total length follows shape; brief slugs run short, multi-file multi-engine slugs
 | `hud_element` | Individual 2D HUD images (numbers, faces, weapon icons, ammo/armor) -- WAD-lump override on ezQuake; CSQC-driven on FTE | DIVERGENT (2026-05-14; architectural divergence between ezQuake WAD-override and FTE CSQC HUD; 129 ezQuake L1 sites curated to 8 via one-per-distinct-enclosing-function rule; concept-note partner warranted for HUD configuration workflow) |
 | `map` | BSP geometry file (.bsp) -- central asset in every game session; hub for 4 cross-type companions | DOC-GAP (2026-05-14; no dedicated ezquake-docs page; companions: `map_texture` / `map_lighting` / `map_entities` / `skybox` via worldspawn.sky push; concept-note partner warranted for map-selection workflow) |
 
-This table populates as the asset-type-curate arc lands -- Phase 2 (skybox first slice) shipped; Phase 3 (19-slug fan-out) pending.
+This table populates as the asset-type-curate arc lands -- Phase 2 + Round 3 calibration shipped 2026-05-14 (5 slugs across 4 status flags: player_skin / skybox / charset / hud_element / map); Phase 3 fan-out for the remaining 16 slugs queued at `docs/superpowers/parking/2026-05-14-asset-type-phase-3-fanout.md`.
 
 ## Pointers
 
