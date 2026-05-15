@@ -27,10 +27,10 @@ the gathered evidence cohere into a foundation solid enough to build on.
 The output must answer one question:
 
 > Does the evidence across all sources cohere into a foundation solid enough to
-> build a KTX/MVDSV server-config knowledge base in Layer 1 -- covering cvars,
-> commands, and info_keys (setinfo / serverinfo / localinfo) -- and if so, what
-> is the shape, size, and source-map of that foundation; if not, where exactly
-> does it fall short?
+> build a KTX/MVDSV server-config knowledge base in Layer 1 -- covering the full
+> per-engine L1 domain roster each extractor emits (enumerated in Scope below)
+> -- and if so, what is the shape, size, and source-map of that foundation; if
+> not, where exactly does it fall short?
 
 Game-mode concept notes (the docketed 2026-05-09 arc) and the slipgate
 server-config GUI are downstream of this foundation and out of scope here. The
@@ -46,14 +46,37 @@ single-synthesizer.
 Overlap between sources is expected and acceptable. The goal is evidence density
 plus corroboration/conflict detection, not a deduplicated catalogue.
 
-## Scope: foundation layers measured
+## Scope: domains measured
 
-For each of KTX and MVDSV, coverage is measured across the L1 entity types a
-server-config KB needs:
+The authoritative domain roster is whatever each engine's extractor actually
+emits -- the `scripts/extractors/<engine>/_handler_*.py` set -- NOT a
+hand-picked subset. Verified 2026-05-15:
 
-1. **cvars** -- KTX `k_*` plus engine cvars KTX depends on / MVDSV `sv_*` etc.
-2. **commands** -- KTX admin/player commands / MVDSV commands.
-3. **info_keys** -- setinfo / serverinfo / localinfo keys.
+- **KTX (8 domains):** cvars, commands, info_keys, log_templates, match_events,
+  modes, gameplay_tables, gameplay_taxonomies.
+- **MVDSV (7 domains):** cvars, commands, info_keys, cmdline (command-line
+  params), log_templates, protocol, qc_builtins.
+
+For reference ezQuake emits ~10 entity types (cvar, command, macro,
+cmdline_param, keyname, hud_element, ruleset, token_primitive, flag_bit,
+asset_category) per `docs/entity-types.md`. KTX/MVDSV differ because they are
+the server side: no client macros/HUDs, but they add server-mod domains.
+
+`info_keys` has exactly THREE sub-domains, verified in the info_keys handlers:
+**userinfo** (per-client; set via the `setinfo` command), **serverinfo**
+(server-wide, public), **localinfo** (server-side, private). No hidden fourth.
+
+For the findings synthesis the domains split into two tiers:
+
+- **Admin-configurable foundation** -- what a server admin actually sets and
+  what a future GUI / Oracle answer must explain: `cvars`, `commands`,
+  `info_keys`, `cmdline`, plus `modes` (KTX). Doc coverage is measured hardest
+  here.
+- **Structurally-derived domains** -- already extracted from source structure,
+  not hand-configured: `log_templates`, `match_events`, `gameplay_tables`,
+  `gameplay_taxonomies`, `protocol`, `qc_builtins`. The inventory still records
+  their coverage, but the findings doc judges whether they need admin-facing
+  prose at all or are self-sufficient as structured L1 rows.
 
 Plus two synthesis layers the findings doc characterizes (not L1 entities; they
 are the cohesion test):
@@ -70,7 +93,9 @@ Each probe is a read-only subagent producing a report against this FIXED SCHEMA
 (per source, per entity-type where applicable):
 
 - Source path/URL
-- Entity types covered (cvars / commands / info_keys / modes / prose)
+- Domains covered (any of the Scope roster: cvars / commands / info_keys /
+  cmdline / modes / log_templates / match_events / gameplay_tables /
+  gameplay_taxonomies / protocol / qc_builtins / freeform prose)
 - Coverage count: "N of M KTX cvars carry an admin-facing description here"
   (absolute + percent), with the denominator stated (e.g. vs the L1-registered
   KTX cvar set from the cross-cut baseline)
@@ -108,10 +133,21 @@ Probes:
   server/client parity; runtime self-documentation surfaces (`commands`,
   `serverinfo`, `cmdlist`, in-game `k_*` help) -- characterize what they expose;
   execution is optional.
-- **Cross-cut -- Oracle L1 baseline**: query Postgres for current KTX + MVDSV
-  cvar/command/info_key counts and description provenance (source_inline vs
-  synthesized vs help_json). Every coverage number in the inventory is expressed
-  as a delta against what L1 already has, not from zero.
+- **Cross-cut -- Oracle L1 baseline**: first, from each engine's
+  `_handler_*.py` set, enumerate the authoritative domain roster -- the
+  extraction script is the source of truth for "what domains exist", not this
+  spec's snapshot. Then query Postgres for current KTX + MVDSV per-domain entity
+  counts and description provenance (source_inline vs synthesized vs help_json).
+  Every coverage number in the inventory is expressed as a delta against what L1
+  already has, not from zero.
+
+Coverage focus: P1-P5 measure the admin-configurable domains hardest (cvars /
+commands / info_keys / cmdline / modes), since that is where scattered prose
+documentation actually lives. The structurally-derived domains (log_templates /
+match_events / gameplay_* / protocol / qc_builtins) are swept opportunistically
+-- whichever probe's source touches them records what it finds -- and their
+primary assessment is the cross-cut L1 baseline plus the findings doc's judgment
+on whether the structured rows are self-sufficient without prose.
 
 ## Output artifacts
 
