@@ -5586,8 +5586,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "Record VOIP in demo."
-      },
-      "desc": "Record VOIP in demo."
+      }
     },
     "cl_voip_micamp": {
       "type": "integer",
@@ -8307,8 +8306,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "no sv_ prefix? WTF!"
-      },
-      "desc": "no sv_ prefix? WTF!"
+      }
     },
     "file_browser_archive_color": {
       "type": "string",
@@ -46857,8 +46855,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "It actually should be called maxpps (max packets per second)."
-      },
-      "desc": "It actually should be called maxpps (max packets per second)."
+      }
     },
     "maxspectators": {
       "type": "integer",
@@ -47541,8 +47538,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "FIXME: non-ascii chars"
-      },
-      "desc": "FIXME: non-ascii chars"
+      }
     },
     "mvd_info_show_header": {
       "type": "boolean",
@@ -49192,8 +49188,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "allow mod to override GameStarted() logic"
-      },
-      "desc": "allow mod to override GameStarted() logic"
+      }
     },
     "qtv_skipchained": {
       "type": "boolean",
@@ -50004,8 +49999,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "disables hud rendering"
-      },
-      "desc": "disables hud rendering"
+      }
     },
     "r_drawparticles": {
       "type": "boolean",
@@ -53972,8 +53966,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "SDL device to use as microphone"
-      },
-      "desc": "SDL device to use as microphone"
+      }
     },
     "s_khz": {
       "type": "enum",
@@ -56893,7 +56886,6 @@
         "max_bound": null,
         "trailing_comment": "don't hide notification messages in intermission"
       },
-      "desc": "don't hide notification messages in intermission",
       "values": [
         {
           "description": "The notify area is hidden during intermission (chat messages go to console but not to screen)",
@@ -59432,7 +59424,6 @@
         "max_bound": null,
         "trailing_comment": "dont delete this variable - it used by mods"
       },
-      "desc": "dont delete this variable - it used by mods",
       "values": [
         {
           "description": "easy level for singleplaying.",
@@ -59743,8 +59734,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "\"negative\" cvar so it doesn't show on serverinfo for no reason"
-      },
-      "desc": "\"negative\" cvar so it doesn't show on serverinfo for no reason"
+      }
     },
     "sv_antilag_projectiles": {
       "type": "string",
@@ -59865,8 +59855,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "use SHA1 for encryption of rcon_password and using timestamps"
-      },
-      "desc": "use SHA1 for encryption of rcon_password and using timestamps"
+      }
     },
     "sv_cullentities": {
       "type": "",
@@ -60345,8 +60334,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "0 - don't force; 1 - as login;"
-      },
-      "desc": "0 - don't force; 1 - as login;"
+      }
     },
     "sv_forcenqprogs": {
       "type": "boolean",
@@ -60479,8 +60467,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "0 - plain passwords; 1 - hashed passwords"
-      },
-      "desc": "0 - plain passwords; 1 - hashed passwords"
+      }
     },
     "sv_kicktop": {
       "type": "boolean",
@@ -60566,7 +60553,6 @@
         "max_bound": null,
         "trailing_comment": "loads .ent files by default if there"
       },
-      "desc": "loads .ent files by default if there",
       "values": [
         {
           "description": "Disable.",
@@ -60596,8 +60582,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "check for .ent file in maps/sv_loadentfiles_dir first then just maps/"
-      },
-      "desc": "check for .ent file in maps/sv_loadentfiles_dir first then just maps/"
+      }
     },
     "sv_local_addr": {
       "type": "string",
@@ -60659,8 +60644,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "if enabled, login required"
-      },
-      "desc": "if enabled, login required"
+      }
     },
     "sv_login_web": {
       "type": "boolean",
@@ -60680,8 +60664,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "0=local files, 1=auth via website (bans can be in local files), 2=mandatory auth (must have account in local files)"
-      },
-      "desc": "0=local files, 1=auth via website (bans can be in local files), 2=mandatory auth (must have account in local files)"
+      }
     },
     "sv_mapcheck": {
       "type": "boolean",
@@ -61263,8 +61246,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "rcon bandwith limit: requests per second"
-      },
-      "desc": "rcon bandwith limit: requests per second"
+      }
     },
     "sv_reconnectlimit": {
       "type": "boolean",
@@ -61304,8 +61286,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "text shown before \"enter login\""
-      },
-      "desc": "text shown before \"enter login\""
+      }
     },
     "sv_reliable_sound": {
       "type": "boolean",
@@ -61617,8 +61598,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "bliP: 24/9 kickfake to unfake"
-      },
-      "desc": "bliP: 24/9 kickfake to unfake"
+      }
     },
     "sv_use_dns": {
       "type": "boolean",
@@ -61638,8 +61618,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "1 - use DNS lookup in status command, 0 - don't use"
-      },
-      "desc": "1 - use DNS lookup in status command, 0 - don't use"
+      }
     },
     "sv_use_internal_cmd_dl": {
       "type": "",
@@ -62090,8 +62069,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "microseconds."
-      },
-      "desc": "microseconds."
+      }
     },
     "sys_simulation": {
       "type": "boolean",
@@ -62674,8 +62652,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "seconds without any message"
-      },
-      "desc": "seconds without any message"
+      }
     },
     "topcolor": {
       "type": "enum",
@@ -66329,8 +66306,7 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "password for entering as a VIP sepctator"
-      },
-      "desc": "password for entering as a VIP sepctator"
+      }
     },
     "vip_values": {
       "type": "string",
@@ -66516,7 +66492,7 @@
     "with_bounds": 0,
     "with_group": 2443,
     "with_help_desc": 1908,
-    "with_source_comment_desc": 24,
+    "comment_only_no_help_desc": 24,
     "flag_histogram": {
       "CVAR_COLOR": 48,
       "CVAR_ROM": 32,

@@ -525,7 +525,7 @@ class CvarsEzquakeHandler(Visitor):
             "with_bounds": 0,
             "with_group": 0,
             "with_help_desc": 0,
-            "with_source_comment_desc": 0,
+            "comment_only_no_help_desc": 0,
             "flag_histogram": {},
             "_out_of_scope_estimate": out_of_scope_estimate,
         }
@@ -571,17 +571,26 @@ class CvarsEzquakeHandler(Visitor):
                 entry["desc"] = help_entry["desc"]
                 stats["with_help_desc"] += 1
             elif cv["trailing_comment"]:
-                # Source-truth fallback: help-JSON carries no prose for this
-                # cvar, but the developer documented it in a trailing //
-                # comment. ezquake's help-generate runs at runtime and cannot
-                # see comments (compiler-stripped), so a help-JSON omission is
-                # NOT "undocumented" -- the libclang extractor is the only
-                # bridge for that source prose. Promote it instead of emitting
-                # an empty desc (prior behaviour silently under-reported
-                # source documentation; the empty-entries audit then
-                # mis-flagged these as needs_doc).
-                entry["desc"] = cv["trailing_comment"]
-                stats["with_source_comment_desc"] += 1
+                # DO NOT promote the trailing comment into the user-doc `desc`
+                # field. Two-audience model, confirmed by slime (active ezQuake
+                # dev, 2026-05-15): help_*.json is USER documentation (WHAT a
+                # cvar does); the source `// trailing comment` is CODER
+                # rationale (WHY the code is so). They are different-audience
+                # by design, not mirrors -- 97% of ezQuake cvars that carry
+                # both have genuinely different text. The earlier "source-truth
+                # fallback" here laundered coder notes/FIXMEs (e.g.
+                # extralogname -> "no sv_ prefix? WTF!") into the user-doc
+                # field and made derive-entity-description.ts stamp
+                # description_origin='help_json' (curated user doc) for code
+                # comment text -- masking the very gap the help-JSON audit
+                # exists to find. The comment is still preserved in the AST
+                # `trailing_comment` field above; the loader's project-gated
+                # fallback surfaces it as a *source_inline* description for the
+                # code-only engines (KTX/MVDSV/QWCL) that legitimately have no
+                # help-JSON, with honest provenance. See memory
+                # reference_ezquake_dual_doc_model + parking doc
+                # 2026-05-15-l1-extractor-entity-classification-followups.md.
+                stats["comment_only_no_help_desc"] += 1
             if help_entry.get("remarks"):
                 entry["remarks"] = help_entry["remarks"]
             if help_entry.get("values"):
