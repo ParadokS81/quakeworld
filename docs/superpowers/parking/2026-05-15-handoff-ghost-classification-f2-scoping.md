@@ -2,6 +2,8 @@
 
 **Date:** 2026-05-15. **For:** a fresh terminal, cold. **Scope:** two open issues + related consolidation. The L1 description/teamplay data fix that motivated this is DONE and verified — it is context here, not your task.
 
+> **RESOLVED 2026-05-15.** Issue A = verified no-op (`s_stereo` `source_retired` is the intended output of `3be4d576`'s temporal state model; functionally inert -- snapshot + MCP treat it identically to `doc_only`). Issue B = fixed in `9a5a0c2d` (F2.flickering excludes pure help-JSON ghosts by the provenance fact, not the `doc_only` label `3be4d576` invalidated). Commit `291268bd`'s false "live Linux-only cvar, extractor blind" claim = retracted in `fb633ed0` (primary-source git lifecycle: real 2005-2013, purged before v3.0=2016; extractor parses Linux as baseline). Resolution folded into `docs/superpowers/parking/2026-05-15-l1-extractor-entity-classification-followups.md`. Only the `kick_to_ciscon`->nano/slime relabel remains -- a separate help-JSON-audit-workstream item (semantic re-bucketing; vocabulary source unlocated, blind find-replace unsafe), tracked in that convergence doc. This handover is closed; retained for the evidence trail.
+
 ---
 
 ## Where things are (verified this session)
