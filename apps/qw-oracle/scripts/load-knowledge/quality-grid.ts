@@ -280,13 +280,23 @@ async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResult> {
 // Detection: build an ordered presence string per entity, look for "1 0 1"
 // (or longer with gaps in the middle).
 //
-// Doc_only entities are excluded: their version-row presence tracks the
-// upstream help_*.json's own contents, which is hand-curated and can lose
-// then re-add entries (e.g., ezquake `s_stereo` is in 3.1 help_variables.json,
-// dropped 3.2..3.2.3, restored 3.6.0+, never source-defined at any tag).
-// That help-JSON drift is real upstream documentation history, not an
-// extractor anomaly. The probe stays useful for source_backed / source_retired
-// entities, where flicker would still indicate a missed extraction.
+// EXCEPT pure help-JSON ghosts: ezquake documents some cvars in help_*.json
+// with no source definition at any extracted tag. `s_stereo` is the
+// canonical case -- a real Linux/ALSA cvar 2005-2013, purged from source
+// before ezquake v3.0 (2016, our earliest tag), but carried in
+// help_variables.json at 3.1, dropped 3.2.x, restored 3.6.0+. Its flicker
+// is hand-curated help-JSON history, not a missed extraction.
+//
+// Exclude such ghosts by the provenance FACT -- no version row has a
+// source_file -- NOT by source_state label. The 2026-05-15 entity-state-
+// retreat fix (3be4d576) moved never-source-backed ghosts from doc_only to
+// source_retired, so the prior label-only filter (`!= 'doc_only'`) silently
+// re-admitted them (this is exactly how s_stereo started false-positiving).
+// Keep the doc_only filter (unchanged for at-head doc_only rows) AND add a
+// per-type "source_file present at some version" requirement. Skip the
+// source_file clause for asset_category (its versions table has no
+// source_file column -- same exclusion the retreat scan in load-version.ts
+// applies).
 async function probeFlickeringPresence(ctx: ProbeContext): Promise<ProbeResult> {
   const versions = await ctx.sql<{ version: string; ordinal: number }[]>`
     SELECT version, ordinal FROM versions WHERE project=${ctx.project} ORDER BY ordinal
@@ -305,6 +315,13 @@ async function probeFlickeringPresence(ctx: ProbeContext): Promise<ProbeResult> 
   const examples: string[] = [];
   let total = 0;
   for (const [type, versionTable] of Object.entries(PER_TYPE_VERSION_TABLE)) {
+    // Pure help-JSON ghost exclusion (see header comment): keep only
+    // entities that are source_file-backed at some version. asset_category
+    // has no source_file column, so it keeps the state filter alone.
+    const ghostFilter =
+      type === 'asset_category'
+        ? ctx.sql``
+        : ctx.sql`HAVING bool_or(xv.source_file IS NOT NULL)`;
     // Postgres uses STRING_AGG(expr, sep ORDER BY ...) where SQLite used
     // GROUP_CONCAT(expr, sep ORDER BY ...). Same shape, different name.
     const rows = await ctx.sql<{ id: number; name: string; pattern: string | null }[]>`
@@ -315,6 +332,7 @@ async function probeFlickeringPresence(ctx: ProbeContext): Promise<ProbeResult> 
       LEFT JOIN versions v ON v.project=e.project AND v.version=xv.version
       WHERE e.project=${ctx.project} AND e.type=${type} AND e.source_state != 'doc_only'
       GROUP BY e.id, e.name
+      ${ghostFilter}
     `;
     for (const r of rows) {
       if (!r.pattern) continue;
