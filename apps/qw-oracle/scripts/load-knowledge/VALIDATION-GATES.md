@@ -126,6 +126,17 @@ in the extractor-discipline-catchup arc. See `runIdempotencyCli`,
 `runReproducibilityCheckCli`, and `runMigrationProbesCli` in `index.ts` for
 concrete examples.
 
+### Gotcha: version-keyed row-count probes must filter by version
+
+Any probe that does `COUNT(*)` over a version-keyed table (`*_versions`,
+`asset_*`) must add `AND version='head'` (or `cv.version='head'` when joining
+`cvar_versions`). Without it the count multiplies by the number of loaded
+versions: a project with both a tagged build and a `head` alias at the same
+commit_sha (fte, qwcl) reports exactly 2x. Probes that count deduped `entities`
+rows are immune (this is why the ezquake floor probes survive 15 loaded
+versions). Precedent: the mvdsv probes and the seven fte probes both filter
+`version='head'`.
+
 ---
 
 ## 3. Env-var driven DB config

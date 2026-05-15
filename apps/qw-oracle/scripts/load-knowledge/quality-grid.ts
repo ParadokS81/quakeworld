@@ -551,14 +551,14 @@ async function probeFteEngineCvars(ctx: ProbeContext): Promise<ProbeResult> {
   const rows = await ctx.sql<{ n: number }[]>`
     SELECT COUNT(*)::int AS n FROM cvar_versions cv
     JOIN entities e ON cv.entity_id=e.id
-    WHERE e.project='fte' AND cv.source_root='engine'
+    WHERE e.project='fte' AND cv.source_root='engine' AND cv.version='head'
   `;
   const n = rows[0]!.n;
   const expected = 1397;
   return {
     name: 'F1.fte.engine_cvars',
     family: 'regression',
-    description: `fte cvar_versions rows with source_root='engine' equals ${expected}`,
+    description: `fte cvar_versions rows (version=head) with source_root='engine' equals ${expected}`,
     status: n === expected ? 'PASS' : 'FAIL',
     count: n,
     summary: n === expected ? `${n} engine cvar rows` : `${n} engine cvar rows (expected ${expected})`,
@@ -573,14 +573,14 @@ async function probeFtePluginEzhudCvars(ctx: ProbeContext): Promise<ProbeResult>
   const rows = await ctx.sql<{ n: number }[]>`
     SELECT COUNT(*)::int AS n FROM cvar_versions cv
     JOIN entities e ON cv.entity_id=e.id
-    WHERE e.project='fte' AND cv.source_root='plugin:ezhud'
+    WHERE e.project='fte' AND cv.source_root='plugin:ezhud' AND cv.version='head'
   `;
   const n = rows[0]!.n;
   const expected = 1085;
   return {
     name: 'F1.fte.plugin_ezhud_cvars',
     family: 'regression',
-    description: `fte cvar_versions rows with source_root='plugin:ezhud' equals ${expected}`,
+    description: `fte cvar_versions rows (version=head) with source_root='plugin:ezhud' equals ${expected}`,
     status: n === expected ? 'PASS' : 'FAIL',
     count: n,
     summary: n === expected ? `${n} plugin:ezhud cvar rows` : `${n} plugin:ezhud cvar rows (expected ${expected})`,
@@ -770,13 +770,13 @@ async function probeFteAssetExtensionsCount(ctx: ProbeContext): Promise<ProbeRes
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.asset_extensions_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM asset_extensions WHERE project='fte'`;
+  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM asset_extensions WHERE project='fte' AND version='head'`;
   const n = rows[0]!.n;
   const expected = 61;
   return {
     name: 'F1.fte.asset_extensions_count',
     family: 'regression',
-    description: `fte asset_extensions rows equals ${expected}`,
+    description: `fte asset_extensions rows (version=head) equals ${expected}`,
     status: n === expected ? 'PASS' : 'FAIL',
     count: n,
     summary: n === expected ? `${n} asset_extensions` : `${n} asset_extensions (expected ${expected})`,
@@ -788,13 +788,13 @@ async function probeFteAssetPathRulesCount(ctx: ProbeContext): Promise<ProbeResu
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.asset_path_rules_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM asset_path_rules WHERE project='fte'`;
+  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM asset_path_rules WHERE project='fte' AND version='head'`;
   const n = rows[0]!.n;
   const expected = 13;
   return {
     name: 'F1.fte.asset_path_rules_count',
     family: 'regression',
-    description: `fte asset_path_rules rows equals ${expected}`,
+    description: `fte asset_path_rules rows (version=head) equals ${expected}`,
     status: n === expected ? 'PASS' : 'FAIL',
     count: n,
     summary: n === expected ? `${n} asset_path_rules` : `${n} asset_path_rules (expected ${expected})`,
@@ -806,13 +806,13 @@ async function probeFteAssetCvarBindingsCount(ctx: ProbeContext): Promise<ProbeR
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.asset_cvar_bindings_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM asset_cvar_bindings WHERE project='fte'`;
+  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM asset_cvar_bindings WHERE project='fte' AND version='head'`;
   const n = rows[0]!.n;
   const expected = 25;
   return {
     name: 'F1.fte.asset_cvar_bindings_count',
     family: 'regression',
-    description: `fte asset_cvar_bindings rows equals ${expected}`,
+    description: `fte asset_cvar_bindings rows (version=head) equals ${expected}`,
     status: n === expected ? 'PASS' : 'FAIL',
     count: n,
     summary: n === expected ? `${n} asset_cvar_bindings` : `${n} asset_cvar_bindings (expected ${expected})`,
@@ -824,13 +824,13 @@ async function probeFteAssetLoaderSitesCount(ctx: ProbeContext): Promise<ProbeRe
   if (ctx.project !== 'fte') {
     return { name: 'F1.fte.asset_loader_sites_count', family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not fte project)', examples: [] };
   }
-  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM asset_loader_sites WHERE project='fte'`;
+  const rows = await ctx.sql<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM asset_loader_sites WHERE project='fte' AND version='head'`;
   const n = rows[0]!.n;
   const expected = 717;
   return {
     name: 'F1.fte.asset_loader_sites_count',
     family: 'regression',
-    description: `fte asset_loader_sites rows equals ${expected}`,
+    description: `fte asset_loader_sites rows (version=head) equals ${expected}`,
     status: n === expected ? 'PASS' : 'FAIL',
     count: n,
     summary: n === expected ? `${n} asset_loader_sites` : `${n} asset_loader_sites (expected ${expected})`,
@@ -1738,7 +1738,7 @@ async function probeFteEngineVsPluginEzhudSplit(ctx: ProbeContext): Promise<Prob
     SELECT cv.source_root, COUNT(*)::int AS n
     FROM cvar_versions cv
     JOIN entities e ON cv.entity_id=e.id
-    WHERE e.project='fte'
+    WHERE e.project='fte' AND cv.version='head'
     GROUP BY cv.source_root
   `;
   const counts: Record<string, number> = {};
@@ -1751,7 +1751,7 @@ async function probeFteEngineVsPluginEzhudSplit(ctx: ProbeContext): Promise<Prob
   return {
     name,
     family: 'regression',
-    description: `fte cvar_versions split: engine=${expectedEngine} + plugin:ezhud=${expectedPluginEzhud}`,
+    description: `fte cvar_versions split (version=head): engine=${expectedEngine} + plugin:ezhud=${expectedPluginEzhud}`,
     status: ok ? 'PASS' : 'FAIL',
     count: actualEngine + actualPluginEzhud,
     summary: `engine: actual=${actualEngine} expected=${expectedEngine}, plugin:ezhud: actual=${actualPluginEzhud} expected=${expectedPluginEzhud}`,
