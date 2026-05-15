@@ -13,7 +13,7 @@
       },
       "desc": "returns amount of ammo held for currently selected weapon",
       "type": "integer",
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "armor": {
       "ast": {
@@ -28,7 +28,7 @@
       },
       "desc": "returns current armor value",
       "type": "integer",
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "armortype": {
       "ast": {
@@ -43,7 +43,7 @@
       },
       "desc": "returns current armor type",
       "type": "string",
-      "teamplay-restricted": false,
+      "teamplay-restricted": true,
       "related-cvars": [
         "tp_name_armortype_ga",
         "tp_name_armortype_ya",
@@ -64,7 +64,7 @@
       },
       "desc": "returns ammo held for the 'best' weapon",
       "type": "integer",
-      "teamplay-restricted": false,
+      "teamplay-restricted": true,
       "related-cvars": [
         "tp_weapon_order"
       ]
@@ -82,7 +82,7 @@
       },
       "desc": "returns name of best weapon in inventory",
       "type": "string",
-      "teamplay-restricted": false,
+      "teamplay-restricted": true,
       "related-cvars": [
         "tp_weapon_order",
         "tp_name_sg",
@@ -107,7 +107,7 @@
       },
       "desc": "returns current camera angles, in format that can be passed to /cam_angles command.",
       "type": "string",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "cam_angles_pitch": {
       "ast": {
@@ -122,7 +122,7 @@
       },
       "desc": "returns current camera pitch (vertical angle).",
       "type": "float",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "cam_angles_roll": {
       "ast": {
@@ -137,7 +137,7 @@
       },
       "desc": "returns current camera roll (not used).",
       "type": "float",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "cam_angles_yaw": {
       "ast": {
@@ -152,7 +152,7 @@
       },
       "desc": "returns current camera yaw (horizontal angle).",
       "type": "float",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "cam_pos": {
       "ast": {
@@ -167,7 +167,7 @@
       },
       "desc": "returns current camera position, in format that can be passed to /cam_pos command.",
       "type": "string",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "cam_pos_x": {
       "ast": {
@@ -182,7 +182,7 @@
       },
       "desc": "returns one component of current camera position.",
       "type": "float",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "cam_pos_y": {
       "ast": {
@@ -197,7 +197,7 @@
       },
       "desc": "returns one component of current camera position.",
       "type": "float",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "cam_pos_z": {
       "ast": {
@@ -212,7 +212,7 @@
       },
       "desc": "returns one component of current camera position.",
       "type": "float",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "cells": {
       "ast": {
@@ -227,7 +227,7 @@
       },
       "desc": "returns number of cells held, regardless of weapon selected",
       "type": "integer",
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "colored_armor": {
       "ast": {
@@ -242,7 +242,7 @@
       },
       "desc": "returns $armor, surrounded by color codes so it is displayed in &c0b0red&r, &cff0yellow&r, &e00green&r or &cfffwhite&r",
       "type": "string",
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "colored_powerups": {
       "ast": {
@@ -255,7 +255,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "colored_short_powerups": {
       "ast": {
@@ -268,7 +268,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "conheight": {
       "ast": {
@@ -281,7 +281,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "connectiontype": {
       "ast": {
@@ -296,7 +296,7 @@
       },
       "desc": "returns the current type of the connection",
       "type": "string",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "conwidth": {
       "ast": {
@@ -309,7 +309,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "date": {
       "ast": {
@@ -324,7 +324,7 @@
       },
       "desc": "returns the current date in the format <day>.<month>.<year>",
       "type": "string",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "dateiso": {
       "ast": {
@@ -337,7 +337,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "deathloc": {
       "ast": {
@@ -350,7 +350,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "demolength": {
       "ast": {
@@ -365,7 +365,7 @@
       },
       "desc": "returns the expected length of the current demo, in seconds",
       "type": "integer",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "demoname": {
       "ast": {
@@ -380,7 +380,7 @@
       },
       "desc": "returns the name of the current demo, minus extension",
       "type": "string",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "demoplayback": {
       "ast": {
@@ -395,7 +395,7 @@
       },
       "desc": "returns whether or not the client is current watching a demo",
       "type": "boolean",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "demotime": {
       "ast": {
@@ -408,7 +408,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "droploc": {
       "ast": {
@@ -423,7 +423,7 @@
       },
       "desc": "returns the name of the location where the last backpack was dropped by the current player.",
       "type": "string",
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "droptime": {
       "ast": {
@@ -438,7 +438,7 @@
       },
       "desc": "returns the number of seconds since the last backpack was dropped by the current player.",
       "type": "integer",
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "gamedir": {
       "ast": {
@@ -453,7 +453,7 @@
       },
       "desc": "returns the current gamedir, which is often set when a server is running a mod.\ne.g: 'fortress' for Team Fortress mods",
       "type": "string",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "health": {
       "ast": {
@@ -467,7 +467,7 @@
         "build_variant": "client"
       },
       "desc": "the current player's health (0 - 250)",
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "lastip": {
       "ast": {
@@ -480,7 +480,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "lastloc": {
       "ast": {
@@ -493,7 +493,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "lastpowerup": {
       "ast": {
@@ -506,7 +506,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "latency": {
       "ast": {
@@ -519,7 +519,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "ledpoint": {
       "ast": {
@@ -532,7 +532,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "ledstatus": {
       "ast": {
@@ -545,7 +545,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "location": {
       "ast": {
@@ -558,7 +558,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "matchname": {
       "ast": {
@@ -571,7 +571,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "matchstatus": {
       "ast": {
@@ -584,7 +584,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "matchtype": {
       "ast": {
@@ -597,7 +597,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "mp3_volume": {
       "ast": null
@@ -618,7 +618,7 @@
       },
       "desc": "returns number of nails held, regardless of weapon selected",
       "type": "integer",
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "need": {
       "ast": {
@@ -631,7 +631,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "ping": {
       "ast": {
@@ -644,7 +644,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "point": {
       "ast": {
@@ -657,7 +657,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "pointatloc": {
       "ast": {
@@ -670,7 +670,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "pointloc": {
       "ast": {
@@ -683,7 +683,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "powerups": {
       "ast": {
@@ -696,7 +696,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "qt": {
       "ast": {
@@ -710,7 +710,7 @@
         "build_variant": "client"
       },
       "desc": "returns \" - useful to clear cvars in scripts",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "rand": {
       "ast": {
@@ -723,7 +723,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "rockets": {
       "ast": {
@@ -738,7 +738,7 @@
       },
       "desc": "returns number of rockets held, regardless of weapon selected",
       "type": "integer",
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "serverip": {
       "ast": {
@@ -751,7 +751,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "shells": {
       "ast": {
@@ -766,7 +766,7 @@
       },
       "desc": "returns number of shells held, regardless of weapon selected",
       "type": "integer",
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "team1": {
       "ast": {
@@ -779,7 +779,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "team2": {
       "ast": {
@@ -792,7 +792,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "tf_skin": {
       "ast": {
@@ -805,7 +805,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "time": {
       "ast": {
@@ -820,7 +820,7 @@
       },
       "desc": "returns the local time in the format <hours>:<minutes>",
       "type": "string",
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "timestamp": {
       "ast": {
@@ -833,7 +833,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "took": {
       "ast": {
@@ -846,7 +846,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "tookatloc": {
       "ast": {
@@ -859,7 +859,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "tookloc": {
       "ast": {
@@ -872,7 +872,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     },
     "tp_powerups": {
       "ast": {
@@ -887,7 +887,7 @@
       },
       "desc": "$colored_powerups or $colored_short_powerups, depending on value of tp_poweruptextstyle",
       "type": "boolean",
-      "teamplay-restricted": false,
+      "teamplay-restricted": true,
       "related-cvars": [
         "tp_poweruptextstyle"
       ]
@@ -903,7 +903,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "weapon": {
       "ast": {
@@ -916,7 +916,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "weaponnum": {
       "ast": {
@@ -929,7 +929,7 @@
         "teamplay_arg_raw": null,
         "build_variant": "client"
       },
-      "teamplay-restricted": true
+      "teamplay-restricted": false
     },
     "weapons": {
       "ast": {
@@ -942,7 +942,7 @@
         "teamplay_arg_raw": "teamplay",
         "build_variant": "client"
       },
-      "teamplay-restricted": false
+      "teamplay-restricted": true
     }
   },
   "_stats": {
@@ -953,6 +953,7 @@
     "declared_not_implemented": 2,
     "registered_not_declared": 0,
     "with_help_desc": 30,
+    "teamplay_restricted_true": 31,
     "help_only": 0
   }
 }

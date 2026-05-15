@@ -525,6 +525,7 @@ class CvarsEzquakeHandler(Visitor):
             "with_bounds": 0,
             "with_group": 0,
             "with_help_desc": 0,
+            "with_source_comment_desc": 0,
             "flag_histogram": {},
             "_out_of_scope_estimate": out_of_scope_estimate,
         }
@@ -569,6 +570,18 @@ class CvarsEzquakeHandler(Visitor):
             if help_entry.get("desc"):
                 entry["desc"] = help_entry["desc"]
                 stats["with_help_desc"] += 1
+            elif cv["trailing_comment"]:
+                # Source-truth fallback: help-JSON carries no prose for this
+                # cvar, but the developer documented it in a trailing //
+                # comment. ezquake's help-generate runs at runtime and cannot
+                # see comments (compiler-stripped), so a help-JSON omission is
+                # NOT "undocumented" -- the libclang extractor is the only
+                # bridge for that source prose. Promote it instead of emitting
+                # an empty desc (prior behaviour silently under-reported
+                # source documentation; the empty-entries audit then
+                # mis-flagged these as needs_doc).
+                entry["desc"] = cv["trailing_comment"]
+                stats["with_source_comment_desc"] += 1
             if help_entry.get("remarks"):
                 entry["remarks"] = help_entry["remarks"]
             if help_entry.get("values"):

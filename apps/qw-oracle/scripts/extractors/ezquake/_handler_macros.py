@@ -36,6 +36,27 @@ def _resolve_enum_constant(arg_cursor) -> Optional[str]:
     return None
 
 
+def _derive_teamplay_restricted(reg: Optional[dict]) -> Optional[bool]:
+    """Source-truth teamplay-restriction from the macro registration form.
+
+    cmd.c: Cmd_AddMacro() hardcodes MACRO_NORULES (permanently exempt);
+    Cmd_AddMacroEx(id, fn, teamplay) is restricted unless the third arg is
+    MACRO_NORULES. help_macros.json's `teamplay-restricted` is an unreliable
+    `incomplete` placeholder (verified inverted 9/9 at head) -- the AST call
+    form is ground truth. Returns None when there is no source registration
+    (help-only macro) so the caller can fall back to help-JSON as the only
+    remaining signal.
+    """
+    if reg is None:
+        return None
+    if reg.get("call_form") != "Cmd_AddMacroEx":
+        return False  # Cmd_AddMacro -> MACRO_NORULES -> not restricted
+    raw = (reg.get("teamplay_raw") or "").strip()
+    if not raw or raw == "MACRO_NORULES":
+        return False
+    return True
+
+
 class MacrosEzquakeHandler(Visitor):
     """ezQuake macros handler (Pattern 1 detection on Cmd_AddMacro*).
 
@@ -155,6 +176,7 @@ class MacrosEzquakeHandler(Visitor):
             "declared_not_implemented": 0,
             "registered_not_declared": 0,
             "with_help_desc": 0,
+            "teamplay_restricted_true": 0,
             "help_only": 0,
         }
         declared_set = set(self._declared)
@@ -189,7 +211,16 @@ class MacrosEzquakeHandler(Visitor):
                 entry["remarks"] = help_entry["remarks"]
             if help_entry.get("type") is not None:
                 entry["type"] = help_entry["type"]
-            if help_entry.get("teamplay-restricted") is not None:
+            # teamplay-restricted: AST registration form is ground truth;
+            # help_macros.json carries inverted `incomplete` placeholders.
+            tr = _derive_teamplay_restricted(reg)
+            if tr is not None:
+                entry["teamplay-restricted"] = tr
+                if tr:
+                    stats["teamplay_restricted_true"] += 1
+            elif help_entry.get("teamplay-restricted") is not None:
+                # help-only / declared-not-implemented: no AST signal, fall
+                # back to help-JSON as the only remaining (weak) signal.
                 entry["teamplay-restricted"] = help_entry["teamplay-restricted"]
             if help_entry.get("related-cvars") is not None:
                 entry["related-cvars"] = help_entry["related-cvars"]
@@ -216,6 +247,15 @@ class MacrosEzquakeHandler(Visitor):
             }
             if help_entry.get("description"):
                 entry["desc"] = help_entry["description"]
+            # registered-but-undeclared: reg is always present here, so the
+            # AST form is authoritative for teamplay-restriction.
+            tr = _derive_teamplay_restricted(reg)
+            if tr is not None:
+                entry["teamplay-restricted"] = tr
+                if tr:
+                    stats["teamplay_restricted_true"] += 1
+            elif help_entry.get("teamplay-restricted") is not None:
+                entry["teamplay-restricted"] = help_entry["teamplay-restricted"]
             macros_out[name] = entry
 
         for name, hv in help_data.items():
