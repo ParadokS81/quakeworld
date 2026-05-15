@@ -3,6 +3,7 @@
 **Captured:** 2026-05-09 by arc-classifier mode D.
 **Status:** captured (awaiting arc-brainstormer pass).
 **Replaces:** the retired HANDOVER entry "Gameplay-table description schema arc" (mis-scoped 2026-05-07; the gap was always Layer 3, not Layer 1).
+**L1 foundation evidence:** read `docs/superpowers/parking/2026-05-15-ktx-mvdsv-doc-landscape/gap-findings.md` BEFORE authoring mode notes -- it is the verified evidence map for what KTX/MVDSV server-config documentation exists, its quality, and the verdict (foundation solid-enough-with-caveats). The modes structural data (27 game_mode + 317 mode_default already in L1) plus usermodes/wiki prose is the substrate for these notes.
 
 ## Why this is arc-shaped
 
