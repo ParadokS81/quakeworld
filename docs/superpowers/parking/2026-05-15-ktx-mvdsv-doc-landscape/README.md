@@ -1,6 +1,6 @@
 # KTX / MVDSV Server-Doc Landscape -- Investigation Output
 
-**Status:** IN PROGRESS. Spec: `docs/superpowers/specs/2026-05-15-ktx-mvdsv-doc-landscape-investigation-design.md`.
+**Status:** COMPLETE 2026-05-15. Spec: `docs/superpowers/specs/2026-05-15-ktx-mvdsv-doc-landscape-investigation-design.md`.
 
 This folder is the assembled evidence map. Read order: this README (the picture) -> `gap-findings.md` (the verdict) -> individual probes (the evidence).
 
@@ -59,6 +59,11 @@ inverts meaning between the two. `sv_antilag` is in-repo-only -- nQuake's
 omission is an intentional operational choice, not missing data. Any merged L1
 spine must treat config provenance as a first-class field, not collapse sources.
 
-## Verdict (filled in Task 6)
+## Verdict
 
-_The one-line answer to the spec's success criterion lands here, pointing at `gap-findings.md`._
+**Yes -- with caveats.** The admin-configurable tier has a mostly-mechanical,
+structured extraction path for the documented majority and the structural tier
+is already 100% complete in L1; three bounded, named caveats remain (one
+must-quantify-first thread, a concentrated genuine-gap residue, and mandatory
+provenance handling). Full reasoning, tier gap sizes, conflicts, and the
+prioritized thread list: see [`gap-findings.md`](gap-findings.md).
