@@ -10,12 +10,13 @@
 
 ## Goal
 
-For every ezQuake help-JSON entity (cvar / command / macro / cmdline_param) that is alive in current source HEAD AND has no human-written prose, produce one of four verdicts with evidence:
+For every ezQuake help-JSON entity (cvar / command / macro / cmdline_param) that is alive in current source HEAD AND lacks a genuine help-JSON user-doc surface (the corrected predicate in the RESCAN banner above -- `entities.description_origin IS NULL OR <> 'help_json'`), produce one of three verdicts with primary-source evidence:
 
-1. **needs_doc** — entity needs a description; draft one in house style
-2. **no_doc** — name + group + family context is self-sufficient; classify so future audits stop flagging
-3. **family_collapse** — N siblings can share one description on the family head (e.g., `re_trigger_match_0` covers `_1..9`)
-4. **kick_to_ciscon** — meaning genuinely unclear from source, surfaces the question
+1. **needs_doc** -- a player would want to know what this does; draft one in house style. Always carries confidence (high/med/low) + reasoning.
+2. **no_doc** -- no player would ever set this (coder-only, mod-internal, scratch, dead/never-read, obsolete); classify so future audits stop flagging. The reasoning MUST justify why an empty docs.json is correct -- load-bearing: a wrong no_doc permanently buries a real gap. Always carries confidence + reasoning.
+3. **family_collapse** -- N siblings one sentence covers; description on the family head, members point to it.
+
+There is NO escalation verdict. ciscon is QWiki/community, not ezQuake-dev -- there is no one to "kick to". "Meaning unclear from source" is not a verdict: investigate harder (read sites, on_change handler, siblings) until it resolves to needs_doc or no_doc. Genuinely-unanswerable cases become a low-confidence needs_doc with the uncertainty stated explicitly, for operator + Opus-max-reviewer scrutiny -- never a punt, never a pile waiting on a third party. `sv_*` is filtered as SCOPE before the rubric runs (MVDSV's code, documented in MVDSV source); that is a pre-filter, not an escalation.
 
 ## Scope
 
@@ -25,7 +26,7 @@ For every ezQuake help-JSON entity (cvar / command / macro / cmdline_param) that
 | command | `help_commands.json` | 536 | **157** | 12 are `+foo`/`-foo` mirror pairs (one desc covers both) |
 | macro | `help_macros.json` | 68 | **38** | smaller surface; many will be `no_doc` (`$ammo`, `$ping` self-evident) |
 | cmdline_param | `help_cmdline_params.json` | 72 | **56** | 20 are `-no*` negation flags (mostly self-evident) |
-| **Total** | | | **379 raw → ~250 after family collapse** | |
+| **Total** | | | **370 raw (regenerated 2026-05-15) -- ~250 after family collapse** | |
 
 `sv_*` source-file filter: anything in `sv_main.c`, `sv_phys.c`, `sv_demo*.c`, `sv_login*.c`, `sv_sys_*.c` is mvdsv-belonged per operator; ezQuake convention is "client-side gets help-JSON, server-side gets inline comments only" (per `apps/qw-oracle/docs/upstream-prs/ezquake-help-json-coverage-gaps.md`). Convention question is parked there awaiting QW-Group response; don't re-litigate.
 
@@ -73,13 +74,21 @@ Example: `cl_bobhead` → "When enabled, applies weapon-bob motion to the view h
 
 ## Verdict rubric
 
-For each entity, evaluate in order. First-match wins.
+For each entity, evaluate in order: family_collapse -> no_doc -> needs_doc. First-match wins. There is no escalation verdict.
 
-### kick_to_ciscon — flag, don't draft
-- Source has `// FIXME` or `// WTF` style comments (e.g., `extralogname` "no sv_ prefix? WTF!")
-- Behavior depends on undocumented protocol/server interaction Claude can't verify
-- Multiple plausible interpretations from source; picking wrong would mislead users
-- Domain knowledge required (e.g., regex semantics in `re_trigger_match_*`, but see family_collapse below)
+### unclear from source -- NOT a verdict, investigate
+- A `// FIXME` / `// WTF` comment is coder rationale, never user doc and never a reason to punt.
+- Behavior depends on protocol/server interaction: read the on_change handler + call sites. If still unverifiable from the ezQuake tree, it resolves to a low-confidence needs_doc with the ambiguity stated explicitly, OR no_doc if demonstrably not player-facing (registered-but-never-read / dead / orphan).
+- Multiple plausible interpretations: pick the source-grounded one, draft at low confidence, state the ambiguity for operator + Opus-max-reviewer scrutiny.
+- The operator + reviewer pass is the only escalation and it stays inside this workflow. `re_trigger_match_*`-style domain cases route to family_collapse below.
+
+### Tie-breakers (calibration-locked 2026-05-15)
+
+- **Client vs server axis (the no_doc / needs_doc divider).** Decide from SOURCE CONTEXT, not the name or `sv_` prefix: which subsystem registers/reads it (`#ifdef USE_PR2`, SERVERONLY, `pr2_*` / `sv_*` files = server; rendering / input / HUD / netcode the player tweaks = client). Server-related (only matters when hosting / embedded-server / progs) -> no_doc is acceptable. Client-related -> needs_doc. Worked example: `vm_rtChecks` is registered in `pr2_exec.c:51`, read only by the PR2 JIT (`vm.c` is `#ifdef USE_PR2`, server progs) -> server-related -> no_doc. It is NOT `sv_`-prefixed; the call is semantic, not mechanical.
+- **Coin-toss -> document.** If client/server or needs_doc/no_doc is genuinely ambiguous, emit low-confidence needs_doc. Bias is explicit: over-document beats under-document (a wrong no_doc permanently buries a real gap).
+- **Trailing comment is a HINT.** When `trailing_comment` is present it may inform the client/server and needs_doc/no_doc judgment. It is never the `proposed_desc` text and never closes the gap (the locked two-audience principle).
+- **Unregistered + absent-from-help-JSON -> no_doc, never family_collapse** (e.g. `internal0..9`: declared `cvar_t` but never `Cvar_Register`-ed and not in help-JSON -> no console surface to document -> shared no_doc, not a collapsible family).
+- **"Documented" predicate is exact:** a genuine help-JSON `desc` / `remarks` / `values` is non-empty (key is `desc`, NOT `description`). Verdict family heads off this exact predicate so a wrong-key read never mislabels a head as undocumented.
 
 ### family_collapse — one description, N covered
 
@@ -125,7 +134,7 @@ Anything else. ANY of these triggers it:
 - Family is mixed — some siblings documented, this one isn't
 - Naming hints but doesn't explain (`cl_bobhead` — bob+head implies camera, but always-on? on-walk?)
 
-Output: drafted description + confidence (high / medium / low). Low-confidence drafts get a `kick_to_ciscon` companion question.
+Output: drafted description + confidence (high / medium / low) + reasoning (REQUIRED on every verdict). Low-confidence drafts state the ambiguity explicitly in `reasoning` for the Opus-max reviewer + operator -- there is no separate escalation verdict.
 
 ## Per-entity evidence stack (what to gather before verdicting)
 
@@ -203,19 +212,19 @@ Total agent count: ~10-12 sub-agents in parallel waves of 4-6.
 
 ## Output channels
 
-**For /goal autonomous mode (calibration run):** executor agents write YAML rows to `/tmp/audit-batch-<source_file>.yaml` only; the orchestrator session writes the aggregate summary doc. PR-diff and classifications-yaml channels are human-gated post-review — operator triggers them after reviewing the summary. The table below shows the full ambition; autonomous-mode populates only the intermediate YAML + summary-doc layer.
+**For /goal autonomous mode (calibration run):** executor agents write YAML rows to `/tmp/audit-batch-<type>-<source_file>.yaml` only; the orchestrator session writes the aggregate summary doc. An Opus-max reviewer pass then audits every no_doc and every low-confidence row before the operator sees anything. PR-diff and classifications-yaml channels are human-gated post-review. Autonomous mode populates only the intermediate YAML + summary-doc layer.
 
-For each verdict, write to ONE of:
+For each verdict, write to ONE of (three channels; there is no ciscon/escalation channel):
 
 | Verdict | Output channel | Format |
 |---|---|---|
-| `needs_doc` (high conf) | PR-ready diff against `help_*.json` | JSON object with new `desc` field, ready to merge |
-| `needs_doc` (med/low conf) | Github issue body draft for ciscon | Markdown table: name / current / proposed / question |
-| `no_doc` | `apps/qw-oracle/scripts/extractors/ezquake/seeds/help_json_classifications.yaml` append | YAML entry with new classification value (e.g., `self_documenting`, `internal_scratch_register`) |
-| `family_collapse` | Both: PR diff for family-head desc + yaml classifications for siblings | Same as above |
-| `kick_to_ciscon` | Github issue body draft | Markdown question per entity |
+| `needs_doc` (any confidence) | aggregate summary; high-conf also -> PR-ready diff against `help_*.json` (operator-gated) | JSON object with new `desc` field |
+| `no_doc` | classifications-yaml append (operator-gated) + reasoning logged for the reviewer | YAML entry with classification value + the why-empty-is-correct reasoning |
+| `family_collapse` | PR diff for family-head desc + yaml classifications for siblings (operator-gated) | Same as above |
 
-Final aggregate deliverable: one `apps/qw-oracle/docs/upstream-prs/ezquake-help-json-empty-entries.md` (parallel to `coverage-gaps.md`) summarizing all four channels with counts and ready-to-paste content.
+Low-confidence needs_doc and every no_doc are the Opus-max reviewer's audit targets; the reviewer emits agree / disagree-with-why and the operator sees the flagged subset -- not all rows. Upstream routing (ezQuake-native -> nano/slime) is an operator decision after review; `sv_*` never reaches here (scope pre-filter -> MVDSV).
+
+Final aggregate deliverable: one `apps/qw-oracle/docs/upstream-prs/ezquake-help-json-empty-entries.md` summarizing the three channels with counts and ready-to-paste content.
 
 ## Pre-flight: regenerate queues from current HEAD
 
@@ -339,7 +348,7 @@ console.log(`cmdline:  ${clpQueue.length}`);
 await sql.end();
 ```
 
-Reference baseline (2026-05-14): 128 cvars / 157 commands / 38 macros / 56 cmdline. If your fresh run differs by more than ~10%, ezQuake source has shifted significantly — re-validate the rubric against current state.
+Reference baseline (regenerated 2026-05-15): 124 cvars / 154 commands / 38 macros / 54 cmdline. Do NOT accept a fuzzy count tolerance. Reconcile the regenerated queue against the live provenance census (`entities.description_origin`) to 0% unexplained residue, the way Phase A did (every queue entry is `description_origin IS NULL OR <> 'help_json'`; the 124-vs-120 delta was decomposed entity-by-entity: +7 by-design ghosts, -3 benign). A count delta vs an older baseline is expected (HEAD moves) and is not itself a correctness signal; an unreconciled entity is.
 
 Pre-flight checks:
 1. `versions` table has a fresh ezquake `version='head'` row (run loader if stale)
@@ -347,8 +356,8 @@ Pre-flight checks:
 
 ## Pre-flight: locked dials (2026-05-14)
 
-1. **Scope (calibration first):** cvars only for the first /goal run. ~128 entries → ~80 after family collapse. If rubric tuning surfaces during the operator's review pass, fix before commands / macros / cmdline runs.
-2. **Confidence threshold for auto-draft:** draft prose for every `needs_doc` verdict; med/low confidence get a `confidence` tag for the post-hoc review pass. Maximizes raw material for operator review before ciscon submission.
+1. **Scope (calibration first):** cvars only for the first /goal run. ~124 entries -> ~80 after family collapse. If rubric tuning surfaces during the operator's review pass, fix before commands / macros / cmdline runs.
+2. **Confidence + reasoning on every verdict:** draft prose for every `needs_doc` verdict (all confidence levels); EVERY row (needs_doc / no_doc / family_collapse) carries `confidence` + `reasoning`. no_doc reasoning must justify why an empty docs.json is correct. Maximizes signal for the Opus-max reviewer + operator review.
 3. **House style:** terse single-sentence default for cvars (matches existing ezQuake entries). Multi-sentence for commands per the style guide. No upstream-PR-style rationale prose.
 4. **Family collapse aggressiveness:** conservative. Only collapse when family head is already documented or is trivial to draft. Edge cases without a documentable head go to per-entry verdicts.
 5. **Domain-loaded families (`re_trigger_match_*`, `internal*`, `qwm_*`, `qws_*`):** family_collapse verdict with augmented head desc. See worked example 2.
@@ -389,11 +398,11 @@ WAVE STATUS:
   audit_batch_files_present: <K>
   batches_remaining: <M - K>
   aggregate_doc_exists: <true | false>
-  aggregate_counts: needs_doc=<A> no_doc=<B> family_collapse=<C> kick_to_ciscon=<D>
+  aggregate_counts: needs_doc=<A> no_doc=<B> family_collapse=<C>
 STATUS_DONE: <yes | no>
 ```
 
-`STATUS_DONE: yes` requires `batches_remaining == 0` AND `aggregate_doc_exists == true` AND `A + B + C + D >= queue_entries` (family_collapse rows can cover multiple entries, so >=, not ==).
+`STATUS_DONE: yes` requires `batches_remaining == 0` AND `aggregate_doc_exists == true` AND `A + B + C >= queue_entries` (family_collapse rows can cover multiple entries, so >=, not ==). After `STATUS_DONE: yes` the Opus-max reviewer pass runs as a separate gate before operator review -- it is NOT part of the worker /goal completion.
 
 **Idempotency in the dispatch loop:** before dispatching each wave, list `/tmp/audit-batch-*.yaml` and skip any source_file whose batch yaml already exists. Pull the remaining-batch list fresh each turn rather than relying on in-memory state — prevents re-running finished batches if the goal loop re-fires or context compresses mid-run.
 
@@ -431,30 +440,30 @@ For each entity, gather evidence:
 4. Look at 2-3 documented siblings in the same source file for style match
 5. Note the group_name_in_source value
 
-Apply the verdict rubric (kick_to_ciscon → family_collapse → no_doc → needs_doc, first match wins).
+Apply the verdict rubric (family_collapse -> no_doc -> needs_doc, first match wins). There is NO escalation verdict -- "unclear from source" means investigate harder; worst case is a low-confidence needs_doc with the ambiguity stated. See the parking doc "Verdict rubric".
 
-For needs_doc verdicts, draft a description for EVERY confidence level (high, medium, AND low — never skip the draft because confidence is low; flag confidence in the output instead). Match ezQuake house style:
+Draft a description for EVERY needs_doc verdict at every confidence level (high, medium, AND low -- never skip the draft because confidence is low; flag confidence instead). Match ezQuake house style:
 - Single sentence preferred for cvars; multi-sentence for commands
 - Imperative or noun-fragment opening
 - Don't restate type
 - Mention defaults/units only when non-obvious
 - Reference contrasting siblings when behavior overlaps
-- Terse default (no upstream-PR-style rationale prose — dial locked 2026-05-14)
+- Terse default (no upstream-PR-style rationale prose -- dial locked 2026-05-14)
 
-Output as YAML rows in the form:
+EVERY row carries `confidence` and `reasoning`, not just needs_doc. For no_doc the reasoning MUST justify why an empty docs.json is correct (a downstream Opus-max reviewer audits every no_doc and every low-confidence row against this reasoning -- weak or circular reasoning is flagged back). Output as YAML rows:
 
   - name: <entity_name>
     type: cvar  # or command, macro, cmdline_param
-    verdict: needs_doc  # or no_doc, family_collapse, kick_to_ciscon
-    confidence: high  # or medium, low (only for needs_doc)
+    verdict: needs_doc  # or no_doc, family_collapse  (NO escalation verdict)
+    confidence: high  # high | medium | low -- REQUIRED on every verdict
     proposed_desc: |
-      <draft description, OR null for family_collapse member rows>
+      <draft for needs_doc; null for no_doc and for family_collapse member rows>
     reasoning: |
-      <evidence summary, 1-3 lines>
+      <primary-source evidence, 1-3 lines. For no_doc: why no player would ever
+       set this and why leaving docs.json empty is correct. Cite source file:line
+       / read sites. This is what the Opus-max reviewer audits.>
     family_head: <if family_collapse: name of head entity>
-    family_members: [list of all member names — same on every row in the group]
-    ciscon_question: |
-      <if kick_to_ciscon: the specific question>
+    family_members: [list of all member names -- same on every row in the group]
 
 **Family_collapse row rules (tightened post-calibration 2026-05-14 + 2026-05-15):**
 - BEFORE emitting any family_collapse row, apply the shape tests (see parking doc § "family_collapse" for full definitions):
