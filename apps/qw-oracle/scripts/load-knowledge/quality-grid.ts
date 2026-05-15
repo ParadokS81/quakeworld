@@ -1580,8 +1580,8 @@ const EZQUAKE_FLOOR_PROBES: Probe[] = [
   makeFloorSourceStateProbe('ezquake', 'cmdline_param', { doc_only: 1, source_backed: 69, source_retired: 7 }),
   makeFloorCountProbe('ezquake', 'command', 564),
   makeFloorSourceStateProbe('ezquake', 'command', { doc_only: 7, source_backed: 495, source_retired: 62 }),
-  makeFloorCountProbe('ezquake', 'cvar', 2992),
-  makeFloorSourceStateProbe('ezquake', 'cvar', { doc_only: 47, source_backed: 2741, source_retired: 204 }),
+  makeFloorCountProbe('ezquake', 'cvar', 2997),
+  makeFloorSourceStateProbe('ezquake', 'cvar', { doc_only: 47, source_backed: 2741, source_retired: 209 }),
   makeFloorCountProbe('ezquake', 'flag_bit', 50),
   makeFloorSourceStateProbe('ezquake', 'flag_bit', { source_backed: 50 }),
   makeFloorCountProbe('ezquake', 'hud_element', 85),
@@ -1722,6 +1722,41 @@ async function probeEzquakeDocOnlyCount(ctx: ProbeContext): Promise<ProbeResult>
     status: actual === expected ? 'PASS' : 'FAIL',
     count: actual,
     summary: `ezquake doc_only entities: actual=${actual}, expected=${expected}`,
+    examples: [],
+  };
+}
+
+async function probeEzquakeNoCommentPromotion(ctx: ProbeContext): Promise<ProbeResult> {
+  const name = 'F1.ezquake.anchor.no_comment_promotion';
+  if (ctx.project !== 'ezquake') {
+    return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not ezquake project)', examples: [] };
+  }
+  // Two-audience model (slime, 2026-05-15): a source `// trailing comment`
+  // is coder rationale, NOT user documentation; it must never be promoted
+  // into the help-JSON `desc` field. The 2026-05-15 _handler_cvars.py fix
+  // removed that promotion. Post-fix the extractor only sets help_desc from
+  // a genuine upstream help_*.json `desc`, so help_desc byte-identical to
+  // trailing_comment with description_origin='help_json' can only be a
+  // genuine dual-authored upstream mirror. Exactly three exist (cl_voip_*);
+  // a regression of the promotion makes this jump to ~47. See parking doc
+  // 2026-05-15-l1-extractor-entity-classification-followups.md.
+  const rows = await ctx.sql<{ n: number; names: string[] }[]>`
+    SELECT COUNT(DISTINCT e.id)::int AS n,
+           COALESCE(ARRAY_AGG(DISTINCT e.name), '{}') AS names
+    FROM entities e JOIN cvar_versions cv ON cv.entity_id=e.id
+    WHERE e.project='ezquake' AND e.type='cvar'
+      AND e.description_origin='help_json'
+      AND cv.help_desc IS NOT NULL AND cv.help_desc = cv.trailing_comment
+  `;
+  const expected = 3;
+  const actual = rows[0]!.n;
+  return {
+    name,
+    family: 'regression',
+    description: `ezquake cvars with help_desc==trailing_comment AND origin help_json equals ${expected} (genuine upstream mirrors only; > expected means comment-promotion regressed)`,
+    status: actual === expected ? 'PASS' : 'FAIL',
+    count: actual,
+    summary: `ezquake comment-promotion guard: actual=${actual}, expected=${expected} (${(rows[0]!.names || []).slice().sort().join(', ')})`,
     examples: [],
   };
 }
@@ -1958,6 +1993,7 @@ const REGRESSION_PROBES: Probe[] = [
   // Phase 6 anchor probes (added 2026-04-28) -- per-project load-bearing invariants.
   { name: 'F1.ezquake.anchor.gl_lightmode_ping_pong', family: 'regression', description: '', run: probeEzquakeGlLightmodePingPong },
   { name: 'F1.ezquake.anchor.doc_only_count', family: 'regression', description: '', run: probeEzquakeDocOnlyCount },
+  { name: 'F1.ezquake.anchor.no_comment_promotion', family: 'regression', description: '', run: probeEzquakeNoCommentPromotion },
   { name: 'F1.qwcl.anchor.all_source_backed', family: 'regression', description: '', run: probeQwclAllSourceBacked },
   { name: 'F1.fte.anchor.engine_vs_plugin_ezhud_split', family: 'regression', description: '', run: probeFteEngineVsPluginEzhudSplit },
   // KTX anchor probes (added 2026-05-06) -- per-project load-bearing invariants
