@@ -151,18 +151,35 @@ on whether the structured rows are self-sufficient without prose.
 
 ## Output artifacts
 
-1. `docs/superpowers/parking/2026-05-15-ktx-mvdsv-doc-landscape-inventory.md`
-   -- structural inventory: every source, the fixed-schema reports assembled,
-   hard coverage tables per entity type per engine.
-2. `docs/superpowers/parking/2026-05-15-ktx-mvdsv-doc-gap-findings.md`
-   -- synthesis: gap size per foundation layer, source overlaps/conflicts, the
-   "why it is not in the repo" narrative, a prioritized thread list, and the
-   explicit verdict on the success criterion (is the foundation solid enough;
-   recommended shape of an L1 server-config KB arc; what remains for a later
-   community-outreach pass).
+A single parking folder, not flat files:
+`docs/superpowers/parking/2026-05-15-ktx-mvdsv-doc-landscape/`. One file per
+probe so the Phase-1 fan-out writes without collisions and each report is
+independently verifiable. Shape follows the gfx-corpus investigation precedent
+(README index + per-source reports + reusable data manifest + findings).
 
-Both docs are self-pointed-to from the HANDOVER docket and cross-reference the
-existing KTX game-mode concept-note parking doc.
+- `README.md` -- the assembled landscape and entry point: cross-source coverage
+  tables per domain per engine, the "see the picture at a glance" view, and a
+  nav index to every file below. The HANDOVER docket points here.
+- `probe-0-l1-baseline.md` -- cross-cut: the authoritative domain roster
+  enumerated from each engine's `_handler_*.py` set, plus current L1 per-domain
+  entity counts and description provenance. The denominator every other probe
+  cites.
+- `probe-1-ktx-in-repo.md`, `probe-2-mvdsv-in-repo.md`,
+  `probe-3-nquake-distfiles.md`, `probe-4-wiki-corpus.md`,
+  `probe-5-dangling-threads.md` -- one fixed-schema report per source class
+  (P1-P5 in Source decomposition).
+- `coverage.ndjson` -- machine-readable, one record per (engine, domain,
+  source) with coverage count, format, and extractability verdict. Makes the
+  evidence reusable by the downstream L1-spine arc / slipgate GUI / Oracle
+  without re-parsing prose. Mirrors the gfx-corpus `pass2-manifest.ndjson`.
+- `gap-findings.md` -- the Phase-2 synthesis: gap size per domain tier, source
+  overlaps/conflicts, the "why it is not in the repo" narrative, a prioritized
+  thread list, and the explicit verdict on the success criterion (is the
+  foundation solid enough; recommended shape of an L1 server-config KB arc;
+  what remains for a later community-outreach pass).
+
+The folder README is pointed to from the HANDOVER docket and cross-references
+the existing KTX game-mode concept-note parking doc.
 
 ## Sizing and non-goals
 
