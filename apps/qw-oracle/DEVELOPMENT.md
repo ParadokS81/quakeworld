@@ -90,18 +90,21 @@ bun run scripts/verify-gameplay.ts           # tier-1 in-process gameplay-tool v
 
 The server reads the `qw_oracle` Postgres DB (container `qw-oracle-postgres-dev`) read-only; it must be restarted to pick up loader changes.
 
-## Layer 2 corpus (legacy .mjs)
+## Layer 2 corpus (Discord chat)
 
-Lives at `scripts/import-*.mjs` and `scripts/*.mjs`. Plain Node, no TypeScript. Imports the IRC + Discord chat corpus into `data/qw.db`.
+Lives at `scripts/load-chat/` -- TypeScript, run under Bun, Postgres + tsvector since Arc 1 Phase 3 (2026-05-02; the pre-port `.mjs` / SQLite `data/qw.db` pipeline was deleted in commit `3825dbeb`). Discord-only -- IRC is excluded entirely (`decisions.md` D9-revised). The canonical 6-step pipeline order + idempotency rules live in `scripts/load-chat/CLAUDE.md`.
 
 ```bash
-# From apps/qw-oracle/
-npm run import:discord
-npm run import:irc
-npm run stats
+# From apps/qw-oracle/ -- ongoing catchup loop (idempotent at every step)
+npm run load-chat:discord             # ingest apps/quad/exports/*.json
+npm run load-chat:sessions            # classify + filter-then-segment
+npm run load-chat:session-references  # cross-session reply edges
+npm run load-chat:search-index        # rebuild session_search (tsvector)
+# one-shot bootstrap only: `npm run load-chat:seed-channels`, then
+# `bun scripts/load-chat/import-historical-from-qwdb.ts` (sentinel-gated)
 ```
 
-Raw imported messages are immutable; all derived analytics regenerate from the raw layer.
+Raw imported messages are immutable; the derived analytics (sessions, references, search index) TRUNCATE + rebuild from the raw layer on every run.
 
 ## Quality grid
 
