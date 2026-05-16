@@ -222,3 +222,64 @@ NO pass -- absorbed into Pass-3 mechanism scope; re-sizing rides as Pass-4 /
 Pass-5 carry-forwards. Pass 3 COMPLETE; Pass 4 (unified schema +
 provenance) NEXT, fresh terminal. Resume cold via
 `docs/superpowers/parking/2026-05-17-libclang-callgraph-reachability-arc-pass4-handoff.md`.
+
+## Brainstorm Pass 4 -- COMPLETE (2026-05-17)
+
+Scope: unified L1 fidelity schema + provenance -- one signal model spanning
+Track A's ghost verdict (with the D7.1 two-feeder split) and Track B's
+recovered-hidden origin across the three HUD families (D11), no mechanism
+blend (D1). Drain target: design spec D12-D16.
+
+**Sub-questions resolved:**
+
+- **SQ4.1 -> D12:** TWO physically separate provenance fields (Track A
+  verdict / Track B origin) under ONE shared design language. Near-disjoint
+  consumers -> separate fields; D1 no-blend becomes structural (different
+  columns cannot co-mingle). Rejected single discriminated container as a
+  shallow unifying wrapper.
+- **SQ4.2 -> D13:** sparse, PER-VERSION, mechanism-derived (NOT HEAD-dump
+  derived -- corrected an opening misframing). Each version's
+  passenger runs on its own AST (free per D6/D9). THREE-level coverage
+  semantic: no-signal / high-confidence-generalized (every non-HEAD
+  version; LLM-usable, not autonomously shippable) / dump-confirmed (HEAD
+  + deliberately-pinned releases). Per-fork one-time validation MANDATORY,
+  does not transfer across engines; per-version re-confirmation is the
+  only optional dump.
+- **SQ4.3 -> D14:** shared three-slot spine -- conclusion / evidence /
+  dump-confirmation status. Evidence is the trust-bearing slot; slot 3 is
+  representation only (Pass 5 owns the cross-check).
+- **SQ4.4 -> D15:** Track A arm -- final verdict in conclusion;
+  per-build-variant breakdown as FEEDER-TAGGED evidence (D7.1 split made
+  structural: call-graph -> per-variant breakdown, commented-register ->
+  textual cite). Justified by autonomous-consumer auditability + D13
+  level-2 (most versions have only the evidence to stand on).
+- **SQ4.5 -> D16:** Track B arm -- LINKED: each recovered HUD name carries
+  the HUD element it belongs to (literal `HUD_Register` arg #1). LLM
+  answers "how does radar work" as a coherent whole; no string-prefix
+  guessing. Resolves the open carry-forward (family marker must be
+  LLM-semantic).
+
+**Carry-forwards (tracks):**
+
+- Combined known-answer harness + full runtime-dump cross-check (Track A
+  3-gate + Track B anchors incl. cvar anchor) -> **Pass 5** (in plan).
+- Pass 5's acceptance gate must implement the D13 three-level consumer
+  split: autonomous-ship only level-3 (dump-confirmed); level-2 is
+  LLM-usable but never auto-shipped -> **Pass 5** (NEW input from Pass 4).
+- Per-fork one-time validation mandatory + does-not-transfer (D13 teeth)
+  -> **Pass 5** acceptance contract + future per-fork onboarding
+  constraint (sharpens D2).
+- AST-confirm 0 non-literal `HUD_Register` first args + literal
+  `HUD_CreateVar` varargs pairs (D8/D11 residual) -> arc-planner/executor
+  implementation gate (unchanged).
+- Field-shape mechanics (D15 evidence sub-fields; D16 element-key emission
+  + loader storage) -> arc-planner scaffold (implementation-shaped; the
+  Pass-4 exit boundary).
+- Open Pass-4 carry-forward "Track-B family marker must be LLM-semantic"
+  -> RESOLVED by D16 (Linked). Closed, not loose.
+
+**Pass plan revision:** 5-pass structure intact; no pass added. Pass 4
+COMPLETE; Pass 5 (application + dual acceptance gates) NEXT, fresh
+terminal. On Pass-5 close the brainstorm EXITS to arc-planner. Resume cold
+via
+`docs/superpowers/parking/2026-05-17-libclang-callgraph-reachability-arc-pass5-handoff.md`.

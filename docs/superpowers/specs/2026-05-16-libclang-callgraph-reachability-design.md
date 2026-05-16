@@ -1,6 +1,6 @@
 # Design: enforce L1 runtime-truth (ghost elimination + hidden-command recovery)
 
-**Status:** Brainstorm Passes 1-3 COMPLETE (Pass 1 AMENDED; Pass 3 widened Track B). Passes 4-5 pending, fresh terminal each.
+**Status:** Brainstorm Passes 1-4 COMPLETE (Pass 1 AMENDED; Pass 3 widened Track B; Pass 4 = unified schema D12-D16). Pass 5 (application + dual acceptance gates) pending, fresh terminal.
 **Predecessor:** parking `docs/superpowers/parking/2026-05-16-libclang-callgraph-reachability-arc.md`.
 **Role:** drain target for arc-brainstormer Passes 1-5. arc-planner scaffolds the arc against this.
 
@@ -363,6 +363,125 @@ contract understanding later, leaves the North Star visibly half-met for
 HUD (configs are `hud_*`-cvar-heavy), hand-picked subset against
 exhaustive-mapping discipline.
 
+### D12 (SQ4.1, LOCKED 2026-05-17) -- two separate provenance fields under one shared design language
+
+The unified L1 fidelity signal is NOT one discriminated container. It is
+TWO physically separate, independently-nullable provenance fields -- one
+for Track A's verdict, one for Track B's recovered-hidden origin -- that
+conform to ONE shared provenance design (D14). "One signal model" is the
+shared shape + vocabulary, not one column.
+
+Rationale: the consumers are near-disjoint. The autonomous dead-entity PR
+path reads only Track A's verdict and never touches HUD; the MCP/LLM +
+config-viewer path reads Track B's recovered entities and never touches the
+reachability verdict. Separate consumers -> separate fields. D1's
+no-mechanism-blend becomes STRUCTURAL: different columns cannot co-mingle;
+a reader can never mis-read a Track-B family as a Track-A verdict. Rejected:
+one `runtime_fidelity` field with an internal `kind` discriminator -- a
+shallow unifying wrapper no single consumer wants whole (Ousterhout
+different-abstraction-per-layer; grug don't-factor-early; exactly two
+mechanisms, both ezQuake-only).
+
+### D13 (SQ4.2, LOCKED 2026-05-17) -- sparse, per-version, mechanism-derived; three-level coverage semantic
+
+The signal is sparse by construction: it attaches only where a mechanism
+found something non-default -- a Track-A ghost verdict or a Track-B
+recovered name -- never to the normal majority of entities. The subset is
+PER-VERSION and MECHANISM-derived, NOT defined by the HEAD runtime dump.
+Each version L1 extracts runs the call-graph / HUD-model passenger on its
+OWN AST (free; D6/D9 made them zero-residual passengers on the
+already-per-version walk) and finds THAT version's anomalies. The HEAD
+dump's role is (i) one-time mechanism validation (the 3-gate known-answer
+harness -- MANDATORY; it is what earns the word "confidence"; an
+unvalidated static passenger is the structurally-broken-grep failure mode
+this arc exists to prevent) and (ii) dump-confirmation of the HEAD slice
+only. It does NOT define any version's suspect set. This corrects the
+Pass-4-opening misframing that "sparse subset" meant "the HEAD dump pool";
+the subset is each version's own mechanism output.
+
+Coverage record carries THREE trust levels (consumer-rigor,
+`reference_rigor_bar_follows_consumer`):
+
+1. **no signal** -- mechanism did not run for this version.
+2. **high-confidence-generalized** -- mechanism ran, the FORK's mechanism
+   is validated (one-time known-answer harness passed), this version is
+   NOT independently dump-confirmed. This is EVERY non-HEAD ezQuake
+   version. Usable by the approximate-tolerant consumer (LLM/MCP answering
+   version-scoped how-to); NOT autonomously shippable.
+3. **dump-confirmed** -- mechanism ran AND this version is independently
+   dump-confirmed (HEAD `3f9e724f`, plus any release the operator
+   deliberately pins). Autonomously shippable.
+
+Per-fork one-time validation is MANDATORY and does NOT transfer across
+engines (FTE/QWCL/MVDSV each need their own validation dump before their
+passenger is trusted -- D2). Per-version RE-confirmation within an
+already-validated fork is the only optional / after-the-fact dump. The
+coverage record is a per-fork "mechanism-validated" fact + a per-version
+"dump-confirmed" fact; the three levels are exactly what the two consumer
+classes demand, no more.
+
+### D14 (SQ4.3, LOCKED 2026-05-17) -- shared three-slot provenance spine
+
+Both fields conform to one shape, three slots:
+
+1. **conclusion** -- Track A: genuine-dead | build-excluded. Track B:
+   which HUD family (bare command | `+-` pair | `hud_*` settings cvar).
+2. **evidence** -- what produced the conclusion, feeder/family-shaped
+   (D15/D16). The slot that makes the verdict trustable rather than
+   asserted -- the North Star's "provenance a reader can trust."
+3. **dump-confirmation status** -- the D13 three-level coverage state for
+   this entity at this version. Representation only; Pass 5 owns the
+   actual runtime-dump cross-check (D1/D7.3 representation-not-acceptance
+   line held).
+
+### D15 (SQ4.4, LOCKED 2026-05-17) -- Track A arm: final verdict + per-variant breakdown as feeder-tagged evidence
+
+Conclusion slot = the final combined verdict (genuine-dead |
+build-excluded). The evidence slot carries the per-build-variant breakdown
+(D5's three-valued reachable / unreachable / not-compiled across the 4
+ezQuake configs) for the call-graph feeder. The evidence slot is
+FEEDER-TAGGED -- this is where D7.1's two-feeder split becomes structural:
+call-graph feeder -> per-variant breakdown; commented-register feeder -> a
+textual register-site cite. Same conclusion, structurally different
+evidence, never blended; Pass 5's feeder-specific gates read the tag.
+
+Rationale: (i) an autonomous published verdict must be auditable --
+"unreachable in client, not-compiled in server, unreachable in win/apple"
+is falsifiable, bare "genuine-dead" is not; (ii) D13 makes most versions
+level-2 (no dump backing) -- the per-variant breakdown is then the ONLY
+trust the reader has; (iii) address-taken conservative residue (D5) and
+verdict flips are visible/debuggable in the breakdown for free. Tradeoff
+accepted: L1 stores some mechanism derivation as evidence -- correct here
+because the consumer is an unseen published verdict and level-2 has nothing
+else; for a purely human-gated signal the opposite (conclusion-only) would
+be right.
+
+Field-shape mechanics (exact variant identifiers, residue-flag encoding,
+evidence column/JSON decomposition) are IMPLEMENTATION-shaped ->
+arc-planner scaffold, NOT brainstorm.
+
+### D16 (SQ4.5, LOCKED 2026-05-17) -- Track B arm: Linked (element-grouped provenance)
+
+Each recovered HUD name (bare command, `+-` pair member, `hud_*` settings
+cvar) is a separate L1 entity, but its provenance carries the HUD ELEMENT
+it belongs to (the literal `HUD_Register` arg #1 the model already reads --
+D8). The LLM is TOLD that `radar` / `+hud_radar` / `-hud_radar` /
+`hud_radar_*` all configure the one `radar` element, and can answer "how
+does radar work" as a coherent whole (toggle + hold-to-show pair +
+tunables) instead of inferring membership by string-prefix-matching.
+Resolves the open Pass-4 carry-forward (Track-B family marker must be
+LLM-semantic, not bookkeeping).
+
+Rationale: the North Star is provenance a reader can trust; forcing the
+LLM to reverse-engineer element membership from `hud_<name>_<subvar>`
+string parsing is exactly the fragile static-string guessing this arc
+exists to eliminate, and discards a grouping the contract model already
+has for free from source. Rejected: flat (family tag only, LLM infers
+grouping by stem) -- fragile, throws away free provenance.
+
+Element-grouping mechanics (how `_handler_hud.py` emits the element key;
+loader storage shape) are IMPLEMENTATION-shaped -> arc-planner scaffold.
+
 ## Out of scope -- siblings (remain in the feeder doc)
 
 Metadata-fidelity, NOT presence-fidelity -- outside the runtime-truth North
@@ -394,18 +513,20 @@ nightly-release ingestion reaches the roadmap.
 | 1 | Scope + boundary (two-track, runtime-truth North Star) | COMPLETE + AMENDED 2026-05-16 |
 | 2 | Track A call-graph construction mechanism (shared foundation dropped -- closed by measurement) | COMPLETE 2026-05-16 (D3-D7) |
 | 3 | Track B mechanism (`HUD_Register` contract; literal-tail sizing; drift guard; scope widened to commands+cvars) | COMPLETE 2026-05-17 (D8-D11) |
-| 4 | Unified L1 fidelity schema + provenance (one signal model: Track A + the three HUD families) | NEXT |
-| 5 | Application + dual acceptance gates (classify ghosts; emit HUD commands+cvars; combined known-answer harness) | pending |
+| 4 | Unified L1 fidelity schema + provenance (one signal model: Track A + the three HUD families) | COMPLETE 2026-05-17 (D12-D16) |
+| 5 | Application + dual acceptance gates (classify ghosts; emit HUD commands+cvars; combined known-answer harness) | NEXT |
 
 Pass count grew 4 -> 5: a second mechanism track legitimately adds a pass.
 Still one coherent arc, phased. Pass 2 closed 2026-05-16 (Track-A mechanism
 fully specified, D3-D7). Pass 3 closed 2026-05-17 (Track-B mechanism fully
 specified, D8-D11; literal-tail RESOLVED by measurement = empty; scope
 widened to the full `HUD_Register` contract -- commands AND `hud_*` settings
-cvars). Pass 4 (unified L1 fidelity schema + provenance) NEXT, fresh
-terminal. No pass added by the widen -- D11 absorbed it into the existing
-Pass-3 mechanism scope; the re-sizing lands as tracked Pass-4/Pass-5
-carry-forwards, not a new pass.
+cvars). Pass 4 closed 2026-05-17 (unified L1 fidelity schema + provenance
+fully specified, D12-D16; "sparse subset" corrected to per-version
+mechanism-derived with a three-level coverage semantic). Pass 5
+(application + dual acceptance gates) NEXT, fresh terminal. No pass added
+by the widen -- D11 absorbed it into the existing Pass-3 mechanism scope;
+the re-sizing lands as tracked Pass-5 carry-forwards, not a new pass.
 
 ## Spun-out (2026-05-16) -- L1 entity-name case-fidelity mini-arc
 
