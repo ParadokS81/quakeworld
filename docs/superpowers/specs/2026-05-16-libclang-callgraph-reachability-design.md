@@ -60,6 +60,132 @@ answer key). FTE/QWCL/MVDSV = per-fork gated follow-on; cost dominated by
 producing each fork's pinned runtime dump; uneven (MVDSV cheap, QWCL likely
 expensive, FTE between).
 
+### D3 (SQ2.1, LOCKED 2026-05-16) -- conservative never-false-accuse posture + root set
+
+Governing rule for the entire Track-A call-graph mechanism: bias hard toward
+never false-accusing a live entity; accept under-report; the runtime dump
+mops residue. Rationale: Track-A output is an autonomous published verdict
+(dead-entity PR -> nano/slime, consumed unseen) -- the strict-bar consumer
+case (memory `reference_rigor_bar_follows_consumer`). A false accusation
+ships a wrong "delete this" PR; a missed ghost merely stays one more cycle in
+the human-gated runtime-dump pool. Asymmetric cost -> asymmetric bias.
+
+Root set, computed PER build config (the 4 ezQuake variants
+client/server/win/apple, verified live in `extractor_lib/clang_config.py`:
+`clang_args_for` / `_server_for` / `_win_for` / `_apple_for`):
+
+1. The variant's program-entry cascade. Client variants (client/win/apple):
+   `main` -> `Host_Init` -> the `CL_Init`/`Cvar_Init`/per-subsystem `*_Init`
+   chain. Server variant (`SERVERONLY`/`SERVER_ONLY`): the distinct
+   dedicated-server entry; client subsystems are not compiled there.
+   win/apple share the client root (they only add `_WIN32`/`__APPLE__`).
+2. Address-taken closure. Any function whose address is taken anywhere in
+   that variant's compiled TU set (stored in a `cmd_function_t` table, passed
+   as a callback, assigned to an `on_change` pointer) is ALSO a root.
+
+Everything downstream in Pass 2 (edge construction, per-config union,
+classification) inherits this posture. Rejected alternative: an aggressive
+stance (flag more; tolerate some false accusations to auto-catch more
+ghosts) -- declined; wrong for the unseen-published-verdict consumer.
+
+### D4 (SQ2.2, LOCKED 2026-05-16) -- reachability propagates through the full subtree
+
+Edge rule: a function in the reachable set (entry-cascade root OR
+address-taken root per D3) is FULLY traversed -- every direct call in its
+body adds its callee, transitively. Address-taken roots are not dead-end
+markers; their entire downstream subtree is reachable too (a pointer-invoked
+handler genuinely runs, so what it registers/calls genuinely runs). Refusing
+to traverse a pointer-invoked body would re-introduce the false accusations
+D3 forbids. Consequence (intended, not a weakness): reachability is a wide
+over-approximation; the genuine-dead set is small and high-confidence --
+exactly what the unseen-published-verdict consumer needs. Expect the
+call-graph to CLEAR most of the ~166 pool as reachable-but-build-excluded
+and return a small hard core of true ghosts.
+
+### D5 (SQ2.3, LOCKED 2026-05-16) -- three-valued per-config state + conservative combination + auto-ship boundary
+
+Per suspect entity, per build variant, the registrar resolves to one of
+THREE states (the third is load-bearing):
+
+- **reachable** -- registrar runs in this variant.
+- **unreachable** -- present but no path from roots (the `sb_qtvlist_url`
+  orphan shape).
+- **not-compiled** -- `#ifdef` excluded the registrar's function from this
+  variant entirely; absence here is build-gating evidence, NOT death.
+
+Conflating not-compiled with unreachable is the central false-accusation
+trap D3 forbids.
+
+Combination rule (conservative; inherits D3):
+
+- Reachable in >=1 variant -> cleared as **build-excluded** (real code; the
+  dumped build merely lacked the path). Never shipped as dead.
+- Unreachable in EVERY variant where compiled, AND compiled in >=1 variant
+  -> **genuine-dead core**.
+- D3/D4 residue (genuinely dead but address-taken => marked reachable) lands
+  in build-excluded -> human review, never auto-condemned. Accepted
+  under-report; no false PR ships.
+
+Output boundary (rigor-bar split, memory
+`reference_rigor_bar_follows_consumer`): ONLY the "unreachable everywhere
+compiled" core + the commented-register subclass (`gl_outline_scale_world`)
+is the autonomous published delete-list to nano/slime. The whole
+build-excluded bucket (incl. conservative residue) is human-gated, not
+auto-shipped. Detection (runtime dump) DEFINED the pool; the call-graph only
+EXPLAINS each pool member's absence (orphan vs build-gated). The final static
+verdict is still cross-checked vs the runtime dump before ship -- that gate
+is Pass 5.
+
+### D6 (SQ2.4, LOCKED 2026-05-16) -- integration: shared passenger on the existing walk; non-corrupting + cleanly toggleable
+
+Option A locked (over Option B's separate dedicated pass). The call-graph is
+a self-contained Tier-1 shared module (one new file beside `_visitor.py` /
+`clang_config.py`) that OBSERVES the single existing per-variant walk --
+collecting caller->callee edges + address-taken facts read-only into its own
+private store -- then runs the per-variant BFS post-walk and exposes ONE
+downstream contract: `reachable(entity) -> {yes/no, which variants}`. BFS,
+per-variant union (D5), and address-taken bookkeeping (D3/D4) stay hidden
+behind that query.
+
+Locked properties (operator-gated):
+
+- **Purely additive / non-corrupting.** Read-only observer, own storage,
+  zero contact with existing handler state. Existing entity output stays
+  byte-identical, verified by a zero-diff check before/after (this
+  codebase's established non-invasive-change bar). Walk recursion is
+  UNCHANGED -- reuses the existing target-file filter; system/3rd-party
+  header calls intentionally excluded (engine-internal reachability only).
+  Fail-safe by construction: any call-graph failure can only bias toward
+  "reachable" (D3 safe direction), never corrupt an entity or manufacture a
+  false accusation.
+- **Modular + cleanly toggleable.** Single integration seam (one
+  subscription line); single orchestration-level boolean. Off => not
+  subscribed => zero edges/BFS/signal => today's pipeline exactly, no
+  residual cost (no parse added; the 4-variant parse already happens). This
+  on/off seam IS D2's per-fork gating: enable for ezQuake, leave off for
+  FTE/QWCL/MVDSV until each fork's answer key exists.
+
+Rejected: Option B (separate dedicated call-graph pass) -- re-pays the parse
+(the slowest stage) and clones walk machinery for no correctness gain.
+
+### D7 (SQ2.5, LOCKED 2026-05-16) -- scope boundaries closing Pass 2
+
+1. **Commented-register is a SEPARATE feeder, not the call-graph.** libclang
+   strips comments before the AST, so a `// Cvar_Register(...)` is invisible
+   to reachability. The genuine-dead auto-ship list (D5) therefore has TWO
+   independent feeders: (a) call-graph "unreachable everywhere compiled" --
+   Pass 2's mechanism; (b) commented-register textual detection -- a separate
+   already-understood concern (the extractor already runs textual passes),
+   NOT built in Pass 2. Pass 4 provenance MUST distinguish (a) vs (b); Pass 5
+   harness gates test different feeders (`sb_qtvlist_url` -> feeder a;
+   `gl_outline_scale_world` -> feeder b).
+2. **Entity -> registrar is a non-issue.** The extractor already records the
+   exact registration call-site line; its enclosing function is the BFS
+   target. No new mechanism.
+3. **Signal representation is Pass 4.** Pass 2 yields the algorithm + the
+   per-entity verdict; the L1 schema/column/provenance for `runtime_reachable`
+   is explicitly Pass 4 scope. Boundary flagged, not crossed.
+
 ## Out of scope -- siblings (remain in the feeder doc)
 
 Metadata-fidelity, NOT presence-fidelity -- outside the runtime-truth North
@@ -72,18 +198,31 @@ RETRACTED, do-not-propagate: the same-session "missed-literal extractor bug"
 (`unignoreAll`/`loadFragfile`) was the case-fold artifact -- now correctly
 explained as the shared-foundation finding above; no separate finding.
 
-## Revised pass plan (provisional -- Pass 2 opener confirms)
+## Carry-forward (Pass 2, parked) -- automate the detection-side runtime dump
+
+Detection (runtime `cvarlist`/`cmdlist`/`macrolist` capture) is out of scope
+for this arc but is currently a manual per-pinned-build step. Operator flagged
+2026-05-16: stable releases are rare (manual capture tolerable) but HEAD moves
+almost daily, and the goal is near-real-time HEAD ingestion. The slipgate-app
+mailslot-IPC POC (headless start ezQuake / send commands / close, built for
+screenshot automation -- memory `project_slipgate_screenshot_automation`) is a
+candidate to automate dump capture and enable nightly-release tracking.
+Parked: NOT this arc, future detection-side automation. Revisit when
+nightly-release ingestion reaches the roadmap.
+
+## Revised pass plan
 
 | Pass | Scope | Status |
 |---|---|---|
 | 1 | Scope + boundary (two-track, runtime-truth North Star) | COMPLETE + AMENDED 2026-05-16 |
-| 2 | Shared foundation (command case-fold harness fix) + Track A call-graph construction mechanism | pending |
-| 3 | Track B mechanism (`HUD_Register` contract; literal-tail sizing; drift guard) | pending |
+| 2 | Track A call-graph construction mechanism (shared foundation dropped -- closed by measurement) | COMPLETE 2026-05-16 (D3-D7) |
+| 3 | Track B mechanism (`HUD_Register` contract; literal-tail sizing; drift guard) | NEXT |
 | 4 | Unified L1 fidelity schema + provenance (one signal model, both tracks) | pending |
 | 5 | Application + dual acceptance gates (classify ghosts; emit HUD; combined known-answer harness) | pending |
 
 Pass count grew 4 -> 5: a second mechanism track legitimately adds a pass.
-Still one coherent arc, phased.
+Still one coherent arc, phased. Pass 2 closed 2026-05-16 (Track-A mechanism
+fully specified, D3-D7); Pass 3 (Track B) next, fresh terminal.
 
 ## Spun-out (2026-05-16) -- L1 entity-name case-fidelity mini-arc
 

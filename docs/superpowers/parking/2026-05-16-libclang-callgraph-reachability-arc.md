@@ -111,3 +111,61 @@ persistence, trailing-comment harvester precision.
 
 Pass plan grew 4 -> 5 (Track B adds a mechanism pass). Revised plan in the
 design spec; Pass 2 opener confirms it. Spec is the source of truth.
+
+## Brainstorm Pass 2 -- COMPLETE (2026-05-16)
+
+Scope: Track A call-graph construction mechanism. Shared foundation (command
+case-fold harness) DROPPED -- CLOSED BY MEASUREMENT per the spec's SHIPPED
+section (the entity-name case-fidelity mini-arc `8093e42f` made it provably
+redundant; pools 77->74 cmd / 97->92 cvar with no harness change). Pass 2
+narrowed to Track A only; 5-pass structure otherwise intact. Drain target:
+design spec D3-D7.
+
+**Sub-questions resolved:**
+
+- **SQ2.1 -> D3:** conservative never-false-accuse posture as the governing
+  rule; root set = per-config program-entry cascade UNION address-taken
+  closure. Track-A output is an unseen published verdict
+  (`reference_rigor_bar_follows_consumer`); aggressive stance rejected.
+- **SQ2.2 -> D4:** reachability propagates through the full subtree
+  (address-taken roots fully traversed). Intended: wide over-approximation
+  -> small high-confidence genuine-dead core; most of the ~166 pool clears
+  as build-excluded.
+- **SQ2.3 -> D5:** three-valued per-config state (reachable / unreachable /
+  not-compiled); not-compiled != dead is the central trap. Reachable in
+  >=1 variant -> build-excluded; unreachable in every compiled variant ->
+  genuine-dead core. Only core + commented-register auto-ships;
+  build-excluded (incl. conservative residue) human-gated.
+- **SQ2.4 -> D6:** integration = Option A, shared passenger on the existing
+  single walk (Tier-1 module, one subscription seam, `reachable(entity)`
+  contract). Locked properties: purely additive / non-corrupting
+  (byte-identical existing output, zero-diff verified, walk recursion
+  unchanged, fail-safe by construction) + modular / cleanly toggleable
+  (single boolean; off == today's pipeline, no residual cost; on/off seam
+  IS D2 per-fork gating). Option B rejected.
+- **SQ2.5 -> D7:** scope boundaries. Commented-register is a SEPARATE
+  textual feeder (libclang strips comments; not the call-graph) -- the
+  genuine-dead list has two independent feeders, Pass 2 owns only the
+  reachability feeder. Entity->registrar = enclosing function of the
+  already-recorded registration site (non-issue). Signal representation =
+  Pass 4 (boundary flagged, not crossed).
+
+**Carry-forwards (tracks):**
+
+- Track B (`HUD_Register` hidden-command recovery) -> **Pass 3** (next; in
+  plan; fresh terminal).
+- `runtime_reachable` schema / column / provenance + the two-feeder
+  provenance distinction (D7) -> **Pass 4** (in plan).
+- Runtime-dump cross-check + 3-gate known-answer harness
+  (`sb_qtvlist_url` / `gl_outline_scale_world` / `cl_bobhead`) -> **Pass 5**
+  (in plan).
+- Detection-side dump automation (mailslot POC) -> parked in the spec's
+  Carry-forward section; NOT this arc.
+- Commented-register textual detector -> named in D7; not new (extractor
+  already runs textual passes); covered by Pass 4 provenance + Pass 5
+  feeder-b gate. No separate arc.
+
+**Pass plan revision:** Pass 2 narrowed (shared foundation dropped, closed
+by measurement); 5-pass structure intact. Pass 3 (Track B) NEXT, fresh
+terminal. Resume cold via
+`docs/superpowers/parking/2026-05-16-libclang-callgraph-reachability-arc-pass3-handoff.md`.
