@@ -86,3 +86,28 @@ Design spec (drain target, Passes 1-4): `docs/superpowers/specs/2026-05-16-libcl
 
 **Pass plan:** unchanged. Pass 1 COMPLETE; Passes 2-4 pending, one per fresh
 terminal.
+
+## Brainstorm Pass 1 -- AMENDED (2026-05-16)
+
+SQ1.1 amended on operator decision: NOT ghosts-only. One coherent arc, two
+phased separately-gated tracks, zero mechanism blending. New North Star
+(operator words): **enforce L1 to show what is actually present and
+working** -- today L1 both shows non-working commands (ghosts) and hides
+working ones (runtime-built HUD names); bi-directional, same outcome, L1
+lies.
+
+- **Track A -- ghost elimination:** libclang call-graph reachability (the
+  original scope).
+- **Track B -- hidden-command recovery:** model the `HUD_Register` contract
+  (pulled in from the sibling feeder doc).
+- **Shared foundation:** the command-direction case-fold harness gap is now
+  IN scope as a prerequisite for BOTH tracks -- VERIFIED 2026-05-16 it
+  inflates the Track-B reverse-diff AND injects >=3 false ghosts
+  (`loadfragfile`, `unignoreall`, `unignoreall_team`) into the Track-A
+  77-pool.
+
+Still siblings (feeder doc, future L1-extractor arc): `Cmd_AddLegacyCommand`
+persistence, trailing-comment harvester precision.
+
+Pass plan grew 4 -> 5 (Track B adds a mechanism pass). Revised plan in the
+design spec; Pass 2 opener confirms it. Spec is the source of truth.

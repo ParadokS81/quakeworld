@@ -133,9 +133,17 @@ Findings appended after cmdline audit completes.
 
 From the libclang-callgraph-reachability arc brainstorm (Pass 1, spec
 `docs/superpowers/specs/2026-05-16-libclang-callgraph-reachability-design.md`).
-These are SIBLINGS to the ghost arc -- the REVERSE direction (runtime-has,
-L1-lacks) -- parked here for a future L1-extractor-completeness arc. Verified
-primary-source this session.
+**AMENDED 2026-05-16 -- pulled INTO the arc.** Originally banked here as
+siblings. On operator decision the HUD dynamic-name family is now **Track B**
+of the enforce-L1-runtime-truth arc, and the command case-fold harness gap is
+its **shared foundational prerequisite** (VERIFIED: it also injects >=3 false
+ghosts -- `loadfragfile`, `unignoreall`, `unignoreall_team` -- into Track A's
+pool, so it blocks both tracks). See spec
+`docs/superpowers/specs/2026-05-16-libclang-callgraph-reachability-design.md`.
+Only `Cmd_AddLegacyCommand` persistence + trailing-comment harvester
+precision remain siblings for a future L1-extractor arc. The verified
+mechanism detail below now informs Track B. Verified primary-source this
+session.
 
 **HUD dynamic-name command family (the reverse-diff "~129/132").** ezQuake
 registers HUD-element commands with names built at runtime, invisible to the
