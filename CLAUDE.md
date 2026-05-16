@@ -84,8 +84,10 @@ The user does not touch git. Claude runs all git operations silently -- no merge
 
 **Commits and merges:**
 - Commit after each meaningful change, not at the end of a session. One-line messages, what changed and why.
+- When a commit reverses or replaces an earlier approach, say so in the message (`revert X -- Y didn't hold because Z`). Claude commits polished end-states, so without this the log shows the path around the wall, never the wall -- a later bisect/blame cannot see the dead-end.
 - Push to origin at natural checkpoints: end of a feature, end of a session, whenever the history would be useful to look back on. Do not wait to be asked.
 - When a topic branch stabilizes, merge it to `main`. Fast-forward preferred, merge commit otherwise. No PR ceremony, no 4-option menus, no gates.
+- Tag each arc ship: `git tag -a arc-<slug>-shipped -m "<one line>"`, pushed at the next checkpoint. Gives `git log` the landmark jump-points `arc-history.md` already carries narratively. One silent command at ship time, no ceremony.
 - Inside a worktree, cut a fresh feature branch only if the work is genuinely risky (big refactor, throwaway experiment). Otherwise commit directly on the worktree's own branch.
 
 **Superpowers skill overrides:**
