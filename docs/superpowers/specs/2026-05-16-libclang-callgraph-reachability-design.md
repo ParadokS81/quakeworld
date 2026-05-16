@@ -114,22 +114,37 @@ surface, not the single `natural-keys.ts` site this arc's spin-out premised
 -- the parking doc's RE-VERIFY checklist caught it; memory
 `feedback_parking_verified_state_is_hypothesis`.)
 
-**Premise change for Pass 2 -- the Pass-1 numbers are now STALE.**
-`/tmp/front1-diff.sh:19` reads `entities.name`. That column is now
-source-case, the SAME basis as the runtime `cmdlist` dump (both derive from
-the one `Cmd_AddCommand("X",...)` literal). So the Pass-1 "VERIFIED -- the
-command case-fold gap injects >=3 false ghosts (`loadfragfile`,
-`unignoreall`, `unignoreall_team`) into the Track-A 77-pool AND inflates the
-Track-B reverse-diff (~132)" finding no longer holds as stated: those L1
-names now match the runtime dump directly with no harness change.
+**Premise change for Pass 2 -- RE-MEASURED 2026-05-16 on the shipped DB
+(verified, not inferred).** `/tmp/front1-diff.sh:19` reads `entities.name`,
+now source-case. The overseer terminal re-ran the banked diff on the shipped
+DB (L1 head still `3f9e724f`; SANITY GATE passed -- `sb_qtvlist_url` a
+genuine candidate, no known-live leaked: the designed version-pin proxy
+holds). Results:
 
-**Pass-2 first action MUST re-measure** the Track-A candidate pool and
-Track-B reverse-diff against a fresh version-pinned runtime dump on the
-shipped DB. Do NOT carry the Pass-1 `>=3` / `~132` figures forward -- re-derive
-them. Expected (UNVERIFIED -- measure, do not infer): the case-artifact
-false-ghosts are largely auto-resolved by the mini-arc; SQ2.1's harness-fold
-demotes from "necessary to eliminate false ghosts" to "defensive
-case-insensitive `comm` because QW command lookup is case-insensitive" --
-still correct to apply, but no longer load-bearing for pool correctness. The
-shared-foundation sub-question shrinks accordingly; re-confirm its shape at
-the Pass-2 opener before spending the pass on it.
+- **Track A -- case-artifact false ghosts GONE (measured).**
+  `unignoreAll`/`loadFragfile`/`unignoreAll_team` (all six case forms)
+  absent from the command candidate pool. Command pool **77 -> 74** -- that
+  74 is *exactly* the number Pass-1 had to compute by an ad-hoc case-fold;
+  the structural mini-arc delivered the clean pool with NO harness change.
+  Cvar pool **97 -> 92** (= 97 minus the 5 mini-arc mislabel-prunes).
+  Arithmetic closes both directions. **SQ2.1's harness case-fold is now
+  provably REDUNDANT for Track-A pool correctness** -- it may still be
+  applied as defensive case-insensitive `comm` (QW lookup is
+  case-insensitive) but it is NOT load-bearing and NOT a Pass-2 gate. The
+  shared-foundation sub-question is **CLOSED BY MEASUREMENT**, not a Pass-2
+  first-action.
+
+- **Track B -- corrects D1's "(~132)" parenthetical.** D1's
+  shared-foundation bullet stated the case gap "inflates the Track-B
+  reverse-diff (~132)", implying much of 132 was case noise. MEASURED: the
+  reverse-diff went **132 -> 129**; the case gap contributed only the
+  3-command trio, NOT the bulk. **~129 is genuine hidden-command signal**,
+  not case inflation. The two-track D1 decision stands (Track B is, if
+  anything, more real than framed); only the "~132 mostly noise" implication
+  is retracted. Pass-3 (Track B) scopes to ~129 real hidden commands.
+
+Net for Pass 2: the shared foundation is settled. Pass 2 proceeds directly
+to **Track-A call-graph construction** over the verified-clean
+**74-command / 92-cvar** pools. Recommend a fresh terminal for the Pass-2
+body (this spec now carries the verified numbers so a cold terminal starts
+from fact, not stale Pass-1 figures).
