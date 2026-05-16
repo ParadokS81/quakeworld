@@ -100,3 +100,36 @@ representation. Pass 4's scope remains the `runtime_reachable` signal schema
 narrows to the *bash-harness* command case-fold (`/tmp/front1-diff.sh`
 command direction); it is shell-level, independent of the mini-arc, and does
 not block on it.
+
+### SHIPPED 2026-05-16 -- and it MOVED THE PASS-2 PREMISE (read before Pass 2)
+
+Mini-arc SHIPPED, commit `8093e42f`; retrospective in
+`apps/qw-oracle/docs/arc-history.md` (2026-05-16 entry). Verified by this
+(overseer) terminal against live git+DB: `entities.name` is now uniformly
+source-case across all 5 engines; structural fold via generated
+`entities.name_fold`; `token_primitive` `$B`/`$b` carve-out intact;
+known-answer trio (`unignoreAll`/`loadFragfile`/`unignoreAll_team`)
+source-case in `name`, folded in `name_fold`. (The fold was a *four-site*
+surface, not the single `natural-keys.ts` site this arc's spin-out premised
+-- the parking doc's RE-VERIFY checklist caught it; memory
+`feedback_parking_verified_state_is_hypothesis`.)
+
+**Premise change for Pass 2 -- the Pass-1 numbers are now STALE.**
+`/tmp/front1-diff.sh:19` reads `entities.name`. That column is now
+source-case, the SAME basis as the runtime `cmdlist` dump (both derive from
+the one `Cmd_AddCommand("X",...)` literal). So the Pass-1 "VERIFIED -- the
+command case-fold gap injects >=3 false ghosts (`loadfragfile`,
+`unignoreall`, `unignoreall_team`) into the Track-A 77-pool AND inflates the
+Track-B reverse-diff (~132)" finding no longer holds as stated: those L1
+names now match the runtime dump directly with no harness change.
+
+**Pass-2 first action MUST re-measure** the Track-A candidate pool and
+Track-B reverse-diff against a fresh version-pinned runtime dump on the
+shipped DB. Do NOT carry the Pass-1 `>=3` / `~132` figures forward -- re-derive
+them. Expected (UNVERIFIED -- measure, do not infer): the case-artifact
+false-ghosts are largely auto-resolved by the mini-arc; SQ2.1's harness-fold
+demotes from "necessary to eliminate false ghosts" to "defensive
+case-insensitive `comm` because QW command lookup is case-insensitive" --
+still correct to apply, but no longer load-bearing for pool correctness. The
+shared-foundation sub-question shrinks accordingly; re-confirm its shape at
+the Pass-2 opener before spending the pass on it.

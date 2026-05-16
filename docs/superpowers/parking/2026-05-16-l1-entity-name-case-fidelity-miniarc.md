@@ -1,7 +1,13 @@
 # Mini-arc: L1 entity-name case fidelity (source-case in, structural fold on compare)
 
 **Created:** 2026-05-16. **Shape:** small focused L1 loader+schema arc. **Status:**
-ready to execute, fresh terminal, COLD. **Provenance:** spun out of the
+SHIPPED 2026-05-16 -- commit `8093e42f`; retrospective in
+`apps/qw-oracle/docs/arc-history.md` (2026-05-16 entry). Do NOT re-execute --
+the rest of this doc is retained as the historical handoff. Note: the
+"VERIFIED -- do not re-derive" block below was materially incomplete (the
+fold was a four-site surface, not just `natural-keys.ts`); the RE-VERIFY
+checklist caught it -- see memory `feedback_parking_verified_state_is_hypothesis`.
+**Provenance:** spun out of the
 enforce-L1-runtime-truth (libclang-callgraph-reachability) arc, Pass 2 SQ2.1.
 This **supersedes** that arc's Pass-4 "L1 source-case representation"
 carry-forward (one track, not two). The Pass-2 bash-harness case-fold is a
