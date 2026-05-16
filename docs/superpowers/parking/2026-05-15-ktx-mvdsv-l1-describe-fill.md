@@ -1,7 +1,7 @@
 # KTX / MVDSV Layer-1 describe-fill (server-config KB foundation) -- arc capture
 
 **Captured:** 2026-05-15 by arc-classifier mode W (operator override; invoked mid-brainstorm after the conceptual model converged).
-**Status:** arc-brainstormer in progress. Pass 1 COMPLETE 2026-05-15 (provenance + staleness schema; decisions D1-D4 in `docs/superpowers/specs/2026-05-15-ktx-mvdsv-l1-describe-fill-design.md`). Passes 2-5 pending.
+**Status:** arc-brainstormer in progress. Passes 1-2 COMPLETE 2026-05-15 (P1 provenance + staleness schema D1-D4; P2 synthesis method + quality bar + review gate D5-D8 + constraints C1/C2; all in `docs/superpowers/specs/2026-05-15-ktx-mvdsv-l1-describe-fill-design.md`). Passes 3-5 pending.
 **Trigger to start:** operator-initiated; conceptual brainstorm already done (this is its capture). Cheap prerequisite probe (gap-findings thread #1) can run before or as arc Phase 0.
 
 ## Why this is arc-shaped

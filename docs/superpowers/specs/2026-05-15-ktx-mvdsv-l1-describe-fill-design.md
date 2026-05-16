@@ -30,6 +30,25 @@ This arc builds the foundation; it does not write L3 concept notes.
 - KTX-first sequencing. The brainstorm sizes phases; it does not relitigate
   engine order or the locked model.
 
+## Cross-cutting constraints (every phase respects)
+
+- **C1 -- Completeness is non-negotiable; "undocumented" never means
+  "unimportant."** The operating theory that important settings were already
+  documented and the undocumented residue (the ~13% KTX-command gap, the
+  cvar NULLs) is a deliberate dev judgement that they "do not matter for
+  server admins" is explicitly distrusted. Closing that residue into a
+  complete documented baseline is the entire reason this arc exists. No phase
+  may scope-cut the residue on an importance argument
+  (`feedback_exhaustive_mapping`). Genuine not-source-legible residue still
+  gets a row and routes to the community-outreach track -- it is tracked, not
+  dropped.
+- **C2 -- Clear discrepancies are never auto-resolved; they are flagged for
+  manual operator review.** Config-vs-config (nQuake vs in-repo), comment-vs-
+  observed-behavior, config-vs-source: a clear conflict is surfaced to the
+  operator, not silently picked. There will be some. Pass 3 designs the
+  concrete drift/conflict policy on top of this constraint; the constraint
+  itself is locked here.
+
 ## Decisions log
 
 ### D1 -- Data boundary: configurable buckets only; no L3 prose (Pass 1.1)
@@ -156,12 +175,90 @@ Explicitly an intermediary solution. Future non-blocking hook (NOT this arc):
 a visual monitoring website replacing in-terminal report review once the
 broader system is coherent.
 
+### D5 -- Quality bar + cheap-classify triage of existing comments (Pass 2.1)
+
+A description is good enough to serve a user when it: (1) says WHAT the knob
+does in admin-observable terms, not WHY the code does it; (2) is not a
+restatement of the knob's own name; (3) spells out units / enum meanings where
+they exist; (4) is mechanism only -- no recommended value, no opinion (the
+locked L1/L3 line); (5) is self-contained without reading source.
+
+Existing `source_inline` dev comments (~87% of KTX commands, a chunk of
+cvars) are neither blind-trusted nor all hand-read. A cheap classification
+pass grades each against the rubric: clears it -> kept as-is, origin stays
+`source_inline`; fails it (coder-rationale / tautological / cryptic /
+opinion-laced) -> flagged for synthesis (becomes `synthesized` + anchored).
+The classify pass is the cheap probe that sizes the real synthesis workload
+instead of guessing it (cheap-probe-then-informed-pass; dual-doc lesson that a
+code comment is coder-WHY by default and user-WHAT must be judged).
+
+### D6 -- Synthesis is delivered as a guardrailed skill (Pass 2.2)
+
+The judgment + synthesis is a dedicated per-knob skill, on the proven
+`asset-type-curate` / `guide-rewrite` / `validate-extractor` precedent (hard
+pre-flight, enforced rules, sub-agent fan-out). It is the unit later phases
+fan out over. The skill hard-codes: the D5 quality-bar rubric as the
+keep-vs-synthesize judgment; the read-site-grounding method (input is code
+use-sites, never the knob name); the evidence requirement (`source_ref`
+file:line + anchor version on every synthesized row, reusing existing
+mechanisms -- no new citation format); the hard confabulation guard (not
+source-legible -> hedge or route to residue, never guess). The brainstorm
+settles that the skill exists and what it enforces; the skill's prose is
+arc-planner/executor work.
+
+### D7 -- Two-tier review gate with Opus-max dials (Pass 2.3)
+
+Gate before a synthesized description commits:
+
+1. **Automated evidence re-check, every row, load-bearing.** An independent
+   verifier (separate invocation, not the authoring context) confirms each
+   cited `source_ref` file:line actually exhibits the claimed behavior and the
+   text passes the D5 rubric mechanically. Fail -> bounced to re-synth or
+   routed to residue. Applies the verify-dispatched-claims discipline at scale.
+2. **Operator batch approval on the tail only** -- hedged ones, residue-routed
+   ones, and a spot-check sample of the auto-passed bulk. Propose/approve
+   model, operator-paced.
+
+Model/effort dials (locked, operator decision): synthesis pass = the D6 skill
+at **Opus 4.7, max reasoning**; review pass = an **independent Opus 4.7 at
+max**. Rationale: the genuine synthesize-from-source corpus is bounded (~47
+KTX CD_NODESC + ~65 non-bot KTX cvars + ~80 MVDSV commands + triage-failed
+comments; MVDSV-cvar slice gated on the Pass 3 ezquake.com probe), much of it
+routing to residue. A low-reasoning first pass is false economy on the one
+thing that must be correct; cost is modest at this volume
+(`feedback_best_tool_no_overkill`, Opus-MAX ceiling for hardest reasoning).
+
+### D8 -- Bot/judgment-tier cvars: mechanism-only is complete L1 (Pass 2.4)
+
+Bot-skill and judgment-tier cvars (~38 `k_fbskill_*` etc.) get no special
+exclusion. "Documented nowhere" means no prose source, not source-illegible --
+the bot-AI use-sites show what they do. They go through the same D6 skill,
+mechanism-only ("controls the bot's RL accuracy weighting; higher = more
+accurate"). That satisfies the success criterion: the criterion is "describes
+what the knob does," never "recommends a value." These count as fully
+described, not degraded. The recommended-value / tuning advice is L3 by the
+locked boundary -- routed to an L3 candidate, and its absence does NOT count
+as an L1 gap. Genuine residue is only the tail whose behavior is not
+source-legible even at Opus-max (D6 confabulation guard) -> Pass 5
+community-outreach, tracked, not blocking.
+
+### D6/D7 amendment -- research documents are admissible aids (Pass 2.4)
+
+Both the authoring skill (D6) and the independent reviewer (D7) may use the
+landscape research documents -- `docs/superpowers/parking/2026-05-15-ktx-
+mvdsv-doc-landscape/` probe-0..5, gap-findings, coverage manifest, and the
+shipped-config corpus -- as aids to locate use-sites, corroborate, and
+cross-check. This does not loosen grounding: source stays ground truth, and
+the committed `source_ref` file:line + anchor version remain the evidence on
+the row (source-truth dichotomy). Research docs speed and check the work; they
+are not a substitute citation.
+
 ## Pass status
 
 | Pass | Scope | Status |
 |---|---|---|
 | 1 | Provenance + staleness schema | COMPLETE (D1-D4) |
-| 2 | Source-synthesis method + quality bar + review gate | pending |
+| 2 | Source-synthesis method + quality bar + review gate | COMPLETE (D5-D8 + amendment) |
 | 3 | Mechanical-extract pipeline + drift resolution + ezquake.com probe disposition | pending |
 | 4 | Multi-projection data contract + wiki-feed mechanism | pending |
 | 5 | Upstream export (deferrable tail) + lessons-as-constraints + phase sizing + game-mode-arc relationship | pending |
@@ -203,3 +300,36 @@ Carry-forwards (each with a track):
 
 Pass plan revisions: none. Five-pass plan holds. Pass 5's upstream-export
 piece remains the deferrable tail (operator steer + D3 reinforce it).
+
+### Pass 2 sub-questions
+
+- 2.1 Quality bar + triage of existing comments -- LOCKED (D5).
+- 2.2 Synthesis method + citation/anchor format -- LOCKED (D6: guardrailed skill).
+- 2.3 Review gate before a synth description commits -- LOCKED (D7).
+- 2.4 Judgment-tier residue policy (bot cvars) -- LOCKED (D8 + D6/D7 amendment).
+
+### Pass 2 close
+
+Resolved: D5 quality bar + cheap-classify triage; D6 synthesis delivered as a
+guardrailed per-knob skill; D7 two-tier review gate at Opus-max (independent
+verifier + operator tail approval); D8 bot/judgment cvars get mechanism-only
+synthesis and count as complete L1; D6/D7 amendment makes the landscape
+research docs admissible aids for both author and reviewer without loosening
+source grounding.
+
+Carry-forwards (each with a track):
+
+- **The synthesis skill's actual prose / pre-flight / fan-out wiring** ->
+  arc-planner + executor (not brainstorm).
+- **Recommended-value / tuning advice for bot + judgment cvars** -> L3
+  candidate, routed to the L3 line (game-mode / community), not an L1 gap.
+- **Genuine not-source-legible residue tail** -> Pass 5 community-outreach
+  scope; tracked, not blocking the mechanical/synthesis arc.
+- **MVDSV-cvar synthesis volume** still soft -> firms up at the Pass 3
+  ezquake.com quantification probe.
+- **Concrete discrepancy-flagging mechanism** (how a clear conflict surfaces
+  in the walk-time report / review queue) -> Pass 3, built on constraint C2.
+
+Pass plan revisions: none. Five-pass plan holds. Constraints C1 (completeness;
+distrust "undocumented = unimportant") and C2 (discrepancies flagged, never
+auto-resolved) added this pass; every later phase respects them.
