@@ -1,0 +1,692 @@
+# KTX / MVDSV L1 describe-fill -- locked cross-cutting decisions
+
+These choices apply to every phase. They are NOT open questions; they are
+commitments locked by the arc-brainstormer multi-pass (5 passes, EXIT
+2026-05-16). If any phase needs to deviate, surface a "deviation" section at
+the top of that phase MD and stop for operator review. Mid-arc amendments land
+here as dated amendment blocks under the original decision; never silently
+override in a phase MD, never silently comply with a planning direction that
+contradicts a lock.
+
+**Source of truth is the spec, not this file.** The full rationale, the
+worked examples (`sv_antilag`, `k_noframechecks`), the pass-close carry-forward
+tracks, and the amendment lineage live in
+`docs/superpowers/specs/2026-05-15-ktx-mvdsv-l1-describe-fill-design.md`. This
+file is the phase-facing distillation: the locked call in plain English, what
+it means for a phase MD, and what NOT to do. When this file and the spec
+disagree, the spec wins and this file is the bug -- fix it here, do not drift
+in a phase MD. Numbering (C1-C5, D1-D18) is preserved from the spec verbatim so
+cross-references hold; do not renumber.
+
+This arc has **no prior monolithic plan**. It is born from a brainstorm spec,
+not a legacy-plan rewrite. `review-findings.md` is therefore a risk /
+carry-forward ledger, not a defect audit -- read it alongside this file.
+
+---
+
+## Project invariants (P-series -- not in the spec D-list; every phase respects)
+
+These are monorepo + qw-oracle always-on rules. They are not arc decisions
+(the spec does not number them) but they are cross-cutting and a cold phase
+drafter must respect them. P-prefixed so they never collide with the spec's
+C/D numbers.
+
+### P1. qw-oracle is Postgres + Bun; SQLite era is over
+
+**Decision:** Authoritative store is PostgreSQL 16 + pgvector + tsvector,
+single engine across L1/L2/L3. Every script (loader, extractor adapters,
+embed, serializers, probes) runs under **Bun**. Schema changes are
+**append-only** `db/migrations/<NNN>_<name>.sql` applied by `bun db/migrate.ts`;
+never edit an applied migration; update `SCHEMA.md` alongside.
+
+**Why:** qw-oracle Arc 1 ended the SQLite era
+(`docs/superpowers/specs/2026-05-01-qw-oracle-database-architecture-design.md`).
+`apps/qw-oracle/CLAUDE.md` "Always-on rules".
+
+**Implication for phases:** `bun install` not npm in `apps/qw-oracle/`
+(the `@qw/version-resolution: workspace:*` dep makes npm fail). CLI scripts
+use `bun scripts/.../index.ts` with `import.meta.main` guards (Bun-only;
+under Node they silently no-op). New schema fields (D2/D11) ship as a numbered
+migration + `SCHEMA.md` update in the same commit. Do NOT hand-type a schema
+edit into an applied migration.
+
+### P2. JSONB columns receive JS values, never pre-stringified JSON
+
+**Decision:** Pass JS arrays/objects directly to postgres-js (or wrap with
+`tx.json(...)`). Pre-stringifying stores a JSONB string scalar -- the
+legacy SQLite-era TEXT bug.
+
+**Why:** `reference_postgres_js_jsonb_binding`; regression gate
+`F1.jsonb_columns_not_strings`. The D9 structured choices and D11 retained
+provenance are JSONB -- this is the live failure mode for both, and C5
+mandates a probe for it.
+
+**Implication for phases:** any phase writing structured choices, retained
+multi-source provenance, or the verdict/reasoning trail (Phases 1, 2, 3, 4)
+binds JS values directly and extends the `F1.jsonb_columns_not_strings`
+probe to the new columns (C5).
+
+### P3. Source citation discipline; idempotent extractors
+
+**Decision:** Every L1 row that can carry a `source_ref` must. Layer 1
+extractors are idempotent -- re-running against the same tag produces the
+same rows. Regression guards (the >50% entity-count-drop abort) are
+load-bearing; do not bypass with `--force` without an explicit logged reason.
+
+**Why:** `apps/qw-oracle/CLAUDE.md` "Always-on rules"; this is the existing
+mechanism D6's `source_ref` evidence requirement reuses (no new citation
+format -- D6 says so explicitly).
+
+**Implication for phases:** the D9 mechanical extractor and the D6 synthesis
+skill both emit `source_ref` file:line on every row; neither invents a new
+citation format. C4 (repair by re-extract) depends on idempotency holding.
+
+### P4. Git: main-tree, commit-to-main, no PR/worktree ceremony
+
+**Decision:** All work in the main tree on `main`. Commit after each
+meaningful change. No worktree, no PR menu, no 4-option finish menu. Tag the
+arc ship `git tag -a arc-ktx-mvdsv-l1-describe-fill-shipped`.
+
+**Why:** monorepo `CLAUDE.md` "Git workflow" + "Superpowers skill overrides";
+`feedback_worktree_per_terminal`. This OVERRIDES
+`superpowers:finishing-a-development-branch` and
+`superpowers:using-git-worktrees`.
+
+**Implication for phases:** phase MDs do not include worktree setup, branch
+ceremony, or PR steps. Each phase ends with a commit on `main`. Executor
+terminals commit directly; orchestrator pushes at checkpoints.
+
+### P5. ASCII-only output discipline in committed docs and code
+
+**Decision:** ASCII only. No emoji. ASCII hyphen-minus, never em-dash or
+en-dash. No marketing voice. Code comments explain WHY, not WHAT.
+
+**Why:** `feedback_output_discipline_sentiment`; enforced because the operator
+runs docs-check-style validation that false-positives on these patterns.
+Natural voice is fine in live conversation; this rule is about committed
+artifacts.
+
+**Implication for phases:** every phase MD, every generated doc, every
+committed code comment is ASCII. The D14 wiki feed, the D15 review page, the
+D16 showcase are generated artifacts -- their generators emit ASCII.
+
+---
+
+## C1 -- Completeness is non-negotiable; "undocumented" never means "unimportant"
+
+**Decision:** Close the entire residue (the ~13% KTX-command gap, the cvar
+NULLs, the MVDSV tail) into a complete documented baseline. No phase may
+scope-cut residue on an importance argument. Genuinely not-source-legible
+residue still gets a row and routes to the C1 community-outreach track -- it
+is tracked, not dropped.
+
+**Why:** `feedback_exhaustive_mapping`; the operating theory that undocumented
+== unimportant is explicitly distrusted. Spec C1.
+
+**Implication for phases:** the exhaustive denominator (probe-0 N/M) is the
+coverage gate, not a hand-picked subset. A phase that proposes "skip the bot
+cvars / skip the MVDSV tail because they don't matter" is in violation --
+surface it as a deviation, do not silently comply. Residue is a tracked
+disposition (the C1 outreach track), never a silent drop. Pairs with D8
+(bot/judgment cvars get mechanism-only descriptions and count as complete).
+
+## C2 -- Clear discrepancies are flagged for manual operator review, never auto-resolved
+
+**Decision:** Config-vs-config (nQuake vs in-repo), comment-vs-observed-
+behavior, config-vs-source, and the C3-added config-sets-a-runtime-dead-cvar
+class: a clear conflict is surfaced to the operator with source evidence, not
+silently picked.
+
+**Why:** Spec C2. There WILL be conflicts (probe-3 found concrete value +
+polarity drift). Auto-resolution would encode one distribution's opinion as
+universal fact.
+
+**Implication for phases:** Phase 2 (mechanical extract) preserves every
+contributing source as data (one record per cvar+file) so a conflict CAN be
+flagged. Phase 3/4 resolve meaning-conflicts inline at the D7 review tail with
+source evidence in hand -- no separate conflict queue. D10 designs the
+concrete three-class policy on top of this; C2 is the constraint, D10 the
+mechanism.
+
+## C3 -- Presence is not liveness; L1 never asserts function for a runtime-dead knob
+
+**Decision:** A symbol the source registers is not thereby alive. Detection
+("registered in source, absent from a running build") is cheap and consumed
+here, not built here: clean the operator-captured `qw-1.log` runtime dump
+(2026-04-27; KTX 1.47-dev + MVDSV 1.20-dev, Apr 11 2026 build) and diff vs the
+same-version L1 extract to yield a **suspect pool, never a verdict**.
+Classification (genuine-dead vs build/#ifdef-excluded) needs the libclang
+call-graph and is OUT of scope (parked arc). Date-proximate pinning is
+sufficient for this arc; a mispin costs one human glance, never a shipped lie.
+
+**Why:** Spec C3; primary-source-verified blind spot (`sb_qtvlist_url`);
+`reference_qw_oracle_extraction_liveness_gap`. Detection is a hard
+prerequisite for the synthesis/describe phases only; the mechanical-extract
+tier is liveness-agnostic and is not gated by it.
+
+**Implication for phases:** Phase 0 produces the suspect pool (the diff).
+Phase 3/4 synthesis is gated by it: a suspect-pool knob does NOT get a
+confident "tunes X" description -- it gets the D6 truthful stamp ("registered
+in KTX/MVDSV source at version N; not reachable in a running build at this
+commit; appears non-functional, candidate upstream code bug") and routes to
+the C1 outreach track. Phase 2 (mechanical extract) is NOT gated by C3.
+C3 amends D4 (new drift trigger f), D6 (confabulation-guard sibling), C2 (new
+conflict class) -- those amendments are reflected in D4/D6 below. **Tracked
+carry-forward (see review-findings F-C3a):** confirm the L1 KTX/MVDSV extract
+commit is contemporaneous with the Apr 11 2026 dump build before relying on
+the suspect pool.
+
+## C4 -- Repair by re-running the corrected pipeline, never a one-off SQL patch
+
+**Decision:** When any phase discovers a pipeline bug (extractor, loader,
+synthesis skill, projection serializer) corrupted committed rows, correct the
+code and re-run the affected extracts/loads end-to-end. Never a targeted
+`UPDATE` that patches the visibly-wrong rows in place.
+
+**Why:** `feedback_repair_by_reextract_not_sql_update`; real incident
+2026-05-02. A hand-patch only repairs noticed damage; the same bug typically
+re-shaped unnoticed rows too. Spec C4 generalizes D9's idempotent-re-extract
+to every tier this arc touches (synthesis rows, retained provenance, staleness
+anchors, projections).
+
+**Implication for phases:** every phase that writes rows depends on idempotent
+re-run (P3). Recovery sections in phase MDs say "re-run the corrected
+pipeline," never "UPDATE the bad rows." Narrow logged exception only when
+re-extract is genuinely impossible (source artifact lost / non-deterministic
+generator); totals re-verified against pre-fix baseline.
+
+## C5 -- Every new data shape earns an F1 quality-grid probe, phase-boundary gate
+
+**Decision:** This arc adds four data shapes no existing regression probe
+watches: (1) owned description text, (2) origin tag
+(`source_inline`/`synthesized`/`shipped_doc`), (3) retained multi-source
+provenance (D11), (4) synthesized-description anchor version + staleness flag
+(D2/D4). Each earns at least one F1 probe that fails loudly on its structural
+failure mode. A shape's probe lands in the **same phase that first writes that
+shape** -- not a final-phase afterthought.
+
+**Why:** Spec C5. An honesty guarantee nothing mechanically enforces is
+hollow; silent drift in any of the four ships unnoticed to every consumer.
+
+**Implication for phases:** Phase 1 writes the schema fields -> Phase 1 ships
+the origin-tag-vocabulary probe and the synthesized-needs-anchor probe.
+Phase 2 first writes `shipped_doc` + retained provenance -> Phase 2 ships the
+provenance-entry-exists and jsonb-not-string probes (extends P2's existing
+`F1.jsonb_columns_not_strings`). The concrete probe SQL is planner/executor
+scope; the gate placement is locked. A phase that introduces its data shape
+without its probe is incomplete.
+
+---
+
+## D1 -- Data boundary: configurable buckets only; no L3 prose
+
+**Decision:** Fill descriptions for every configurable bucket -- cvars,
+commands, cmdline params, info_keys -- for KTX and MVDSV, including every
+mode-related knob (cvars/commands an admin sets to run/tune a mode). Do NOT
+write the gameplay story of a mode (that is L3, the separately-docketed
+game-mode arc). The 27 `game_mode` + 317 `mode_default` `gameplay_mechanics`
+rows are OUT of scope -- they are not a bucket of knobs; an overlay row points
+at a cvar that IS in the cvar bucket and gets its description here.
+
+**Why:** Spec D1; single source of truth, no dual maintenance. Mode narrative
+is L3 prose written once as a concept note that cites these L1 cvars.
+
+**Implication for phases:** the provenance schema (D2/D11) governs the
+`entities` table descriptions only (KTX/MVDSV cvars, commands, cmdline params,
+info_keys). It does NOT model provenance for `gameplay_mechanics` (no
+`description_origin` column there -- structurally extracted). No phase writes
+mode-narrative prose into L1. Nothing falls through: every actual knob is a
+cvar/command this arc describes.
+
+## D2 -- Origin-state model: create the user-doc track KTX/MVDSV never had
+
+**Decision:** ezQuake is the only engine with a user-doc track (help-JSON).
+KTX/MVDSV have only dev code comments. This arc creates the missing owned
+user-doc track in qw-oracle L1. Origin states: `source_inline` (a KTX/MVDSV
+dev wrote it as a code comment -- the only source surface, labeling it
+`source_inline` is correct, NOT the ezQuake comment-promotion bug because
+there is no separate user-doc field to launder into); one NEW tag for
+mechanically-lifted-from-a-shipped-human-file (label locked at D11 =
+`shipped_doc`; which file is a provenance field, not its own tag);
+`synthesized` (LLM-written from code behavior) PLUS two per-row fields built
+now -- anchor version + re-review flag; opinion has no tag (absent from L1).
+
+**Why:** Spec D2; `reference_ezquake_dual_doc_model`. It is NOT a docs.json
+clone: it is the track PLUS provenance discipline, built to graduate upstream
+(D3 path), not fork forever.
+
+**Implication for phases:** Phase 1 ships the schema fields (origin tag
+vocabulary `source_inline`/`synthesized`/`shipped_doc`; anchor version;
+re-review flag) as a numbered migration (P1). The upstream-frozen marker is
+NOT a column (D3 deferred). FTE/QWCL are later arcs on the same pattern --
+do not build for them here.
+
+## D3 -- Upstream graduation deferred to a future deliberate procedure
+
+**Decision:** Graduation (synthesized text adopted upstream, then de-duplicated
+so it cannot echo back as independent source truth) stays in the locked model
+but its infrastructure is NOT designed or built in this arc. The only hook
+built now: `synthesized` is a distinct tag carrying an anchor version, so a
+future procedure can identify "these are ours, written against version X."
+No upstream-frozen column, no content-hash ledger now.
+
+**Why:** Spec D3. Nothing can self-echo until the operator presents to the
+KTX/MVDSV dev group and a deliberate manual adoption runs -- building the
+guard now is infrastructure for an event that may not happen.
+
+**Implication for phases:** no phase builds a freeze marker, a content-hash
+contribution ledger, or an adoption procedure. The D2 `synthesized` tag +
+anchor version + D11 retained provenance ARE the non-boxing hook -- that is
+all D3 needs from this arc. Phase 6 (upstream pitch) NAMES the freeze
+requirement; it does not design it.
+
+## D4 -- Staleness = a walk-time report, operator-reviewed in-terminal
+
+**Decision:** Each synthesized description stores its anchor version. The
+per-version re-extract/ingest (already runs on a new KTX/MVDSV walk) compares
+each synthesized description's knob vs its anchor and produces a walk-time
+report: Drifted / Added / Removed. Drift triggers (tight, nothing looser):
+(a) default changed; (b) type changed; (c) valid-values/enum set changed;
+(d) knob retired/renamed; (e) a genuine upstream source comment newly
+appeared; **(f -- added by C3) reachability classification changed**.
+Read-site moves / cosmetic refactors are explicitly NOT triggers. Operator
+reviews the report in-terminal at walk time (Claude proposes, operator
+approves). A flagged description keeps serving, stamped "may be stale as of
+version X" -- stale-but-present beats a hole.
+
+**Why:** Spec D4 (+ C3 amendment adding trigger f). Cadence ~1-2 review
+events per engine per year (KTX ~1 release/yr, MVDSV ~1-2/yr) -- sustainable.
+
+**Implication for phases:** Phase 5 wires the walk-time report into the
+new-version runbook. It is a manual confirm-or-rewrite pass, operator-paced,
+NOT auto-edit and NOT a notification system. The report composes with the
+parked reachability arc via trigger (f) -- no blocking dependency. A visual
+monitoring website is a future non-blocking hook, NOT this arc.
+
+## D5 -- Quality bar + cheap-classify triage; evaluate every entity (amended)
+
+**Decision:** A description is good enough when it: (1) says WHAT the knob
+does in admin-observable terms, not WHY the code does it; (2) is not a
+restatement of the knob's name; (3) spells out units/enum meanings; (4) is
+mechanism only -- no recommended value, no opinion; (5) is self-contained
+without reading source. **Amendment (locked):** a trailing comment does NOT
+place an entity in a "documented/done" bucket. EVERY entity -- with or without
+a comment -- is evaluated. The existing comment is one input, never a verdict.
+Comment reads as a genuine user description -> adopt it, tag stays
+`source_inline` (affirmed-by-evaluation, not skipped). Comment is
+dev-rationale/weak/absent -> synthesize -> `synthesized` + anchored. The
+cheap-classify step routes EFFORT (good comment = fast affirm; weak/absent =
+full synthesis); it does NOT exempt anything from evaluation.
+
+**Why:** Spec D5 + the post-close amendment. Coverage = "every entity
+evaluated and carrying an owned affirmed-or-synthesized description," never
+"had a comment so counted." Reinforces C1 and the dual-doc model.
+
+**Implication for phases:** Phase 3 (KTX) and Phase 4 (MVDSV) run every
+in-scope entity through the D6 skill's keep-vs-synthesize judgment. No phase
+may treat "has a trailing comment" as "done." The D5 triage sizes effort, not
+scope. The "clears the bar -> kept as-is, no rework" phrasing in the original
+D5 is SUPERSEDED by the amendment -- use the amended rule.
+
+## D6 -- Synthesis is a guardrailed per-knob skill
+
+**Decision:** Judgment + synthesis is a dedicated per-knob skill on the
+`asset-type-curate`/`guide-rewrite`/`validate-extractor` precedent (hard
+pre-flight, enforced rules, sub-agent fan-out). It hard-codes: the D5 rubric
+as the keep-vs-synthesize judgment; the read-site-grounding method (input is
+code use-sites, never the knob name); the evidence requirement (`source_ref`
+file:line + anchor version on every synthesized row, reusing existing
+mechanisms -- no new citation format, P3); the hard confabulation guard (not
+source-legible -> hedge or route to residue, never guess). **C3 sibling:** a
+suspect-pool knob gets the truthful dead-stamp, not a confident description.
+**Amendment:** the landscape research docs are admissible AIDS (locate
+use-sites, corroborate) -- source stays ground truth, the committed
+`source_ref` + anchor remain the evidence.
+
+**Why:** Spec D6 (+ C3 sibling + research-docs amendment).
+
+**Implication for phases:** the skill's prose / pre-flight / fan-out wiring is
+**Phase 1 deliverable** (built once, both engines ride it). Phase 3/4 fan out
+over it. The skill is the unit later phases dispatch. Research docs speed and
+cross-check; they are not a substitute citation.
+
+## D7 -- Two-tier review gate at Opus-max
+
+**Decision:** Before a synthesized description commits: (1) **Automated
+evidence re-check, every row, load-bearing** -- an independent verifier
+(separate invocation, not the authoring context) confirms each cited
+`source_ref` file:line actually exhibits the claimed behavior and the text
+passes the D5 rubric mechanically; fail -> bounced to re-synth or routed to
+residue. (2) **Operator batch approval on the tail only** -- hedged ones,
+residue-routed ones, and a spot-check sample of the auto-passed bulk;
+performed on the D11/D15 audit-review HTML page (amended by D11). Model dials
+(locked): synthesis = the D6 skill at **Opus 4.7 max reasoning**; review =
+an **independent Opus 4.7 at max**.
+
+**Why:** Spec D7 (D11 amends the operator-tail surface to the HTML page).
+The genuine synthesize corpus is bounded; low-reasoning first pass is false
+economy on the one thing that must be correct (`feedback_best_tool_no_overkill`,
+`feedback_model_effort_range` Opus-MAX ceiling for hardest reasoning).
+
+**Implication for phases:** Phase 1 builds the two-tier gate + the independent
+verifier invocation pattern. Phase 3/4 run every synthesized row through it.
+The synthesis subagent and the review subagent are BOTH Opus 4.7 MAX
+(this is the one place the model dial is locked by the spec, not
+planner-chosen -- the per-task execution-mode annotation respects it).
+
+## D8 -- Bot/judgment-tier cvars: mechanism-only is complete L1
+
+**Decision:** Bot-skill / judgment-tier cvars (~38 `k_fbskill_*` etc.) get no
+special exclusion. "Documented nowhere" means no prose source, NOT
+source-illegible -- the bot-AI use-sites show what they do. Same D6 skill,
+mechanism-only ("controls the bot's RL accuracy weighting; higher = more
+accurate"). That satisfies the success criterion ("describes what the knob
+does," never "recommends a value"). These count as fully described. The
+recommended-value piece is L3 -> routed to an L3 candidate; its absence does
+NOT count as an L1 gap. Genuine residue is only the tail not source-legible
+even at Opus-max.
+
+**Why:** Spec D8 + D6/D7 amendment. Reinforces C1.
+
+**Implication for phases:** Phase 3 runs bot/judgment cvars through the D6
+skill mechanism-only and counts them complete. No phase degrades them or
+excludes them. Tuning advice routes OUT to the L3 line, not tracked as an L1
+gap.
+
+## D9 -- Mechanical extractor is a pure structured-lift; zero quality verdict
+
+**Decision:** The shipped-config mechanical-extract tier is a NEW sibling
+extractor handler (its own AST JSON output + loader adapter, same plug-in
+pattern as every other handler; the `mvdsv.6` roff man page is a sibling
+parser, same tier). NOT folded into the existing KTX cvar registration
+handler. It fills description fields on cvar rows that already exist from the
+libclang registration walk; it never creates entities. Idempotent re-extract.
+Emit per (cvar, source-file) pair: the config author's description text;
+structured choices kept structured (`{value,label}` enum + bitmask tables as
+DATA, never prose-flattened); the shipped value carried as data but NOT
+written as the source default; source-file provenance. **One record per
+(cvar, source-file)** -- in-repo-vs-nQuake drift preserved as data, never
+merged at extract time. Input boundary: consumes only `coverage.ndjson`
+"mechanical"-classified sources; LLM-assisted/hand-curate surfaces route to
+D6/residue. **The seam:** the extractor harvests + STOPS. It does NOT judge
+text quality. Every harvested candidate AND every comment-less cvar flows to
+the D5-D8 evaluation. No first-pass "comment looks fine" affirmation in the
+parser.
+
+**Why:** Spec D9. `feedback_exhaustive_mapping` (sibling-handler plug-in
+pattern). A parser blessing text re-introduces the "had a comment so it
+counts" trap C1/D5-amendment exist to kill.
+
+**Implication for phases:** Phase 2 builds the KTX sibling extractor +
+loader adapter; it fills ~157/260 KTX cvars with structured choices +
+candidate text + retained provenance and STOPS at the seam. Phase 4 builds
+the `mvdsv.6` sibling parser the same way. Structured choices stay structured
+(P2: JSONB as JS values). The parser never sets a quality verdict -- that is
+the D5-D8 evaluation (Phase 3/4).
+
+## D10 -- Drift/conflict policy: three classes, source-grounded, resolved inline at the D7 tail
+
+**Decision:** Built on C2. Three classes: **Value differences**
+(`sv_maxrate` 50000/500000 etc.) -- a distribution's chosen value is config
+opinion, not L1 fact; configs agree on what the knob does; L1 takes the shared
+behavior, the differing values become an L3 recommended-value note (NOT an L1
+conflict). **Meaning conflicts** (`k_noframechecks` polarity; `sv_antilag`
+cross-fork) -- the description genuinely differs; source is tiebreaker; per C2
+surfaced to operator with source evidence, never auto-picked; cross-fork
+collapses into meaning (no fork-aware schema -- the antilag entity surface is
+identical across mainline and `dusty-*`, the divergence is one entity's
+MEANING). **Membership drift** (nQuake-only / in-repo-only) -- union coverage,
+provenance records which file documented it; a deliberate omission is L3
+context, not missing L1. Resolution: source behavior is L1 truth; config
+comments are candidate descriptions; on disagreement D6 source-grounded
+synthesis produces L1 text and the disagreement is C2-flagged. Mechanism: a
+meaning-conflict is resolved at author-time in the **same D7 review tail** --
+no dedicated conflict queue.
+
+**Why:** Spec D10. `project_qw_oracle_source_truth`. `sv_antilag` worked
+example is primary-source-verified (mainline KTX no `antilag.c`, 0<->2 on==2;
+`dusty-ktx` 783-line `antilag.c`, ==1, multi-mode) -- the L1 description is
+dual, never collapsed.
+
+**Implication for phases:** Phase 2 preserves all sources (enables flagging).
+Phase 3/4 resolve meaning-conflicts inline at the D7 tail with source
+evidence. Value-differences route OUT to L3 (not an L1 conflict, do not
+flag as one). The `dusty-*` antilag fork extraction is a SEPARATE future arc
+(carry-forward, see review-findings) -- NOT this arc. The case-fidelity
+loader fidelity is a soft dependency (see review-findings F-D10b) -- never
+blocks, re-projects clean when that mini-arc lands.
+
+## D11 -- Provenance + decision-trail shape; review via the audit-review HTML pattern
+
+**Decision:** New origin tag **`shipped_doc`** (parallels
+`source_inline`/`synthesized`/ezQuake-only `help_json`) -- one tag for
+mechanically-lifted-from-a-shipped-artifact; file identity in the provenance,
+not tag-per-file. **Structured multi-source provenance, retained (option A):**
+every contributing shipped file kept on the record -- file path, line, the
+value that file shipped, raw comment text. The committed description's
+citation (`source_ref`) points at the authoritative entry; alternates retained
+as DATA, never discarded. **Decision trail is first-class:** each evaluated
+entity carries `verdict` / `confidence` / `reasoning` / `proposed_desc`
+alongside structured provenance. D6 emits the reasoning; it is stored, not
+just logged. Review surface: the D7 operator tail is performed on a generated
+`cvar-audit-review.html`-pattern page (same column family as the 2026-05-15
+ezQuake audit artifact). **Amends D7:** "operator batch approval on the tail"
+is concretely this HTML page; Claude proposes, operator approves/overrides
+per row.
+
+**Why:** Spec D11. Forced by D9 (one record per cvar+file) + C2 + D10
+(a conflict cannot be flagged nor re-detected by D4 if the losing source was
+dropped at load). Operator requirement: "we want the reasoning so we can
+review it."
+
+**Implication for phases:** Phase 1 ships the schema (origin tag incl
+`shipped_doc`; retained-provenance JSONB; verdict/confidence/reasoning/
+proposed_desc columns) + the audit-review HTML emitter (emit-from-record --
+the 2026-05-15 file is a VISUAL TEMPLATE only, its generator was NOT found in
+the codebase, see review-findings F-D11a). Phase 2 first populates retained
+provenance. Phase 3/4 populate the decision trail. P2 applies (JSONB as JS
+values).
+
+## D12 -- Cheap-probe bundle is arc Phase 0
+
+**Decision:** Three cheap probes run as **arc Phase 0**, inside the arc
+(containment + momentum over a separate pre-arc workstream): (1) **ezquake.com
+shape-quantification** -- fetch ezquake.com/docs/settings/server.html,
+cross-match vs MVDSV M=183, measure the SHAPE of the overlap (easy common
+`sv_*` vs the hard dedicated-server-only tail), not a headline count;
+ezquake.com is a `shipped_doc`-class source, artifact URI in the provenance
+field. (2) **C3 runtime-dead detection diff** -- clean `qw-1.log` (CRLF-
+normalize, case-fold both sides, `LC_ALL=C` sort, discount runtime-only
+`__k_ls_*`), diff vs the same-version L1 extract -> the C3 suspect pool.
+(3) **`load-commands.ts` one-line fix** -- verified root cause
+(`entry.ast?.description` mapping), no re-extract, frees 28/108 MVDSV
+commands; first task, free win.
+
+**Why:** Spec D12. `feedback_cheap_probes_inform_expensive_passes` realized at
+arc scale: Phase 0 is the probe, Phase 1 the triage, the synthesis phases the
+informed pass. Phase 0 sizes the MVDSV phases; it does NOT gate the KTX side.
+
+**Implication for phases:** Phase 0 ships these three. Phase 4 (MVDSV fill) is
+sized by Phase 0's probe-1 output -- arc-planner scaffolds Phase 4's boundary
+against it (a first phase that sizes a later phase is normal). Phase 0's C3
+diff is a hard prerequisite for Phase 3/4 synthesis (C3). Phase 0 does NOT
+gate Phase 2 (KTX mechanical extract is liveness-agnostic).
+
+## D13 -- Multi-projection contract: two-tier serialization over the single D11 record
+
+**Decision:** One schema, N serializers; nothing stored twice. Two-tier split
+by audience. **Public projection** (MCP, Slipgate JSON snapshot, future web
+server-manager, wiki.slipgate.me): description text + origin tag + anchor-
+version/"may be stale as of X" stamp + type + default + D9 structured choices
+as data. **Internal projection** (`cvar-audit-review.html` only): the public
+set PLUS confidence + reasoning + verdict + full multi-source provenance
+including losing alternates. The embedding input is itself a serializer
+(prose + text-flattened structured choices for retrieval recall) -- a
+serializer config, NOT a separately stored shape.
+
+**Why:** Spec D13. The honest LABEL rides to every consumer; the audit trail
+is internal-only and doubles as the deferred-D3 upstream evidence package.
+Audience, not honesty, is the line (origin tag + staleness stamp already
+discharge the D2 honesty obligation).
+
+**Implication for phases:** Phase 1 defines the two-tier serializer boundary
+(the internal-tier audit serializer is a Phase 1 deliverable -- it IS the D15
+review page). Phase 5 emits the public projections (wiki feed + snapshot.json)
++ confirms the embedding serializer config. "What goes into the embedding" and
+"the snapshot.json field list" are serializer configs -- planner/executor
+scope, NOT schema decisions, NOT brainstorm questions. The MCP public-
+projection delta (origin tag + staleness stamp on the L1 entity response;
+orientation-blob + tool-description update) must respect
+`apps/qw-oracle/API_CONTRACTS.md` new-dataset checklist (see review-findings
+F-D13a).
+
+## D14 -- Wiki-feed: bot-owned read-only namespace, regenerated each walk
+
+**Decision:** The L1 reference projection reaches wiki.slipgate.me as
+bot-generated, read-only pages in a dedicated bot-owned namespace, stamped
+"auto-generated from qw-oracle Layer 1, do not edit," regenerated from the
+snapshot on every KTX/MVDSV version walk. Human-authored pages link/transclude
+these blocks; they never edit them. Seeded-then-editable REJECTED (a human
+edit drifts the page from source -- the dual-maintenance failure the
+single-source model prevents). Near-term primary consumer is the OPERATOR as a
+visual progress anchor (`feedback_visual_anchors_force_hygiene`).
+
+**Why:** Spec D14. Page styling/templates/rendering UX are consumer-surface
+scope, explicitly OUT of this arc.
+
+**Implication for phases:** Phase 5 emits the feed contract + mechanism
+(read-only, fenced namespace, regenerate-on-walk, stamp). The wiki-side
+namespace creation + bot write path is **qwiki-v1-beta / cross-arc scope**,
+NOT this arc (see review-findings F-D14a) -- this arc owns the contract, the
+wiki implementation consumes it; independent of the deferred qwiki Modes
+Phases 5-8. A plain regenerated page delivers operator visibility;
+prettification is separate later work -- do not gold-plate it.
+
+## D15 -- Review page = internal-tier serializer, emitted from the record, row-per-entity inline comparison
+
+**Decision:** The `cvar-audit-review.html` review surface is NOT a special
+artifact -- it is the D13 internal-tier serializer (the one that additionally
+carries confidence + reasoning + verdict + losing provenance). Emit fresh
+from the structured record, same as every other projection. The 2026-05-15
+artifact is retained as a VISUAL TEMPLATE (look/feel, sortable-filterable
+column family), NOT a generator to reverse-engineer. One page, all entries,
+scan-the-whole-work; per entry the operator sees the original codebase
+comment, our proposed description, and the reasoning **together, INLINE per
+row** as one before/after/why comparison unit -- not split into separate
+panels or three filtered views. Row-per-entity; sortable + filterable.
+
+**Why:** Spec D15. `feedback_inline_pairs_over_split_panels`. Recovering an
+unknown old generator is rejected -- contradicts the operator's "quick 1 page"
+intent and breaks the uniform one-record/N-serializers model.
+
+**Implication for phases:** Phase 1 builds this emitter (it is the D7
+operator-tail surface; D11 amended D7 to this page). It is the internal-tier
+serializer of D13 -- not separate machinery. The exact emit script + where it
+hooks the walk is planner/executor scope. Inline-pairs discipline is locked
+(do not split into panels).
+
+## D16 -- Upstream export: showcase-page-first, PR-path deferred
+
+**Decision:** The upstream export does NOT lead with a PR. First artifact: a
+standalone single-page HTML showcase rendered from a `snapshot.json` export of
+the DB record, hosted on an operator-controlled static surface (slipgate.me or
+the matchscheduler site -- host is implementation scope), shown to KTX/MVDSV
+devs to socialize the work and get direction; regenerates as the fill
+progresses. The PR-path decision (repo `server-cvars.md` / empty GitHub wiki
+tabs / a dev-proposed landing) is explicitly DEFERRED until after that dev
+conversation. NOT a new data contract -- the showcase is the D13 internal-tier
+projection served as a hosted page; same serializer as D15, different host +
+consumer. Every per-knob fact is a pure DB projection; the only non-DB content
+is the static framing wrapper (title, the D14 stamp, a how-to-read intro,
+attribution) -- zero per-entity claims, zero drift surface.
+
+**Why:** Spec D16. probe-5 established the upstream doc surface is abandoned;
+an unsolicited PR risks a year of silence; a showcase-backed conversation lets
+devs pick the landing they will maintain (`feedback_cheap_probes_inform_
+expensive_passes` at export scale).
+
+**Implication for phases:** Phase 6 is the **deferrable tail** -- generate the
+showcase, hold the conversation, decide the PR path AFTER. Phase 6 does NOT
+gate arc completion (the arc is complete + useful at end of Phase 5). Do NOT
+plan the PR. The freeze/de-dup requirement is NAMED not designed (D3 owns the
+build). Attribution per `reference_upstream_pr_attribution` rides whatever PR
+eventually lands -- `Assisted-by: Claude:<model-id>`, operator signs
+`Signed-off-by`, AI never signs; not a planner decision.
+
+## D17 -- Phase shape arc-planner scaffolds against (LOCKED -- do not re-derive)
+
+**Decision:** Seven phases. arc-planner refines per-phase boundaries /
+verification regime / model+effort dials / context-budget slicing; it does NOT
+change the shape or the engine order.
+
+- **Phase 0 -- Probes + the free win.** ezquake.com shape-quant; C3
+  runtime-dead suspect-pool diff; `load-commands.ts` one-line fix. Sizes
+  Phase 4; does NOT gate the KTX side.
+- **Phase 1 -- The discipline, built once.** Provenance/staleness schema
+  fields (D2/D11); the guardrailed per-knob synthesis skill (D6); the two-tier
+  review gate (D7); the internal-tier audit/review serializer (D11/D15); the
+  C5 F1 probes. Engine-agnostic; both engines ride it.
+- **Phase 2 -- KTX mechanical extract (D9).** New sibling extractor: in-repo +
+  nQuake `ktx.cfg` -> structured choices + candidate description + retained
+  multi-source provenance; fills ~157/260 KTX cvars. Idempotent (C4).
+- **Phase 3 -- KTX source-synthesis (D5-D8, D10).** The D6 skill fans out over
+  CD_NODESC commands + residual cvars + bot/judgment cvars (mechanism-only,
+  D8) + triage-failed comments. D10 meaning-conflicts resolved inline at the
+  D7 tail; residue -> C1 outreach track.
+- **Phase 4 -- MVDSV fill, sized by Phase 0.** `mvdsv.6` man-page import for
+  cmdline (D9 sibling parser); loader-freed commands + the synthesis tail;
+  cvars split easy-common-`sv_*` vs hard-dedicated-tail per the Phase 0 probe.
+- **Phase 5 -- Staleness + projections.** Wire the D4 walk-time re-review
+  report into the new-version runbook; emit the D14 public wiki feed + the
+  snapshot.json; confirm the C5 probes green.
+- **Phase 6 (deferrable tail) -- Upstream pitch (D16).** Generate the dev
+  showcase page, hold the conversation, decide the PR path after. Explicitly
+  optional: the arc is complete and useful at the end of Phase 5; Phase 6 does
+  NOT gate arc completion.
+
+**Why:** Spec D17. KTX-first preserved (Phases 2-3 before MVDSV Phase 4).
+Phase 0 sizes Phase 4. Phase 1 is the build-once spine both engines consume.
+Each phase ends in a verifiable, runnable state.
+
+**Implication for phases:** the slicing analysis refines the per-phase
+verification regime + context budget + model/effort dials -- it does NOT
+re-derive the shape or the engine order. **Planner note (slicing input, not a
+shape change):** Phase 1 has no consumer-facing deliverable of its own -- it
+is a build-once horizontal foundation. To avoid a verification-regime
+collision (you cannot verify "the discipline works" if verifying it needs
+Phase 2/3 rows), Phase 1 ships a **self-contained smoke probe**: the skill +
+gate + serializer + F1 probes exercised end-to-end against one fixture knob
+(synthetic or a single real one) proving the spine round-trips before KTX
+volume rides it. This is a verification-regime addition WITHIN the locked
+shape, not a reshape.
+
+## D18 -- Game-mode L3 arc: sequential by operator-bandwidth, not technical dependency
+
+**Decision:** Technically NOT a hard dependency (the game-mode arc's substrate
+-- 27 game_mode + 317 mode_default structural rows + wiki/usermodes prose --
+is sufficient to author the notes; no reverse coupling since D1 carves mode
+narrative out of this arc; typed-anchor auto-flag makes parallel safe by
+construction). Operator decision nonetheless: **this arc completes before the
+game-mode L3 arc starts.** The gate is operator review-bandwidth (non-coder,
+non-server-admin, the correctness judge on every D7/D15 row -- high-focus
+work, monorepo has competing workflows). This arc's post-arc review is the
+greenlight checkpoint.
+
+**Why:** Spec D18. `feedback_arc_sequencing_operator_bandwidth` (this exact
+decision is its origin). "It all has to get done" -- both ship; this is
+ordering, not de-scoping. Bandwidth-driven, so the order MAY be revisited if
+operator circumstances change (parallel is technically safe) -- but the locked
+call is sequential.
+
+**Implication for phases:** no phase in this arc plans or depends on the
+game-mode L3 arc. It is NOT a prerequisite, NOT a parallel track, NOT part of
+this arc's plan. Note it on HANDOVER as gated-behind-this-arc-post-review at
+session wrap (already tracked).
+
+---
+
+*End of decisions. New cross-cutting commitments discovered during phase
+drafting append here as D19+ with date + reason. Spec amendments land as dated
+blocks under the original C/D. Never silently override in a phase MD; never
+silently comply with a planning direction that contradicts a lock -- surface
+it for explicit amendment.*
