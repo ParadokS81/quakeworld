@@ -4,8 +4,11 @@
 > 2026-01-04, ktx 2026-03-03) and QW servers run dev-head not tagged
 > releases, so C3's detection oracle is now **self-generated and
 > reproducible**: Phase 0 fetches the dev-head clones forward, builds mvdsv
-> (C) + ktx (QuakeC via fteqcc), runs a local `mvdsv +gamedir ktx` server to
-> capture a fresh `cvarlist`/`cmdlist` dump of that exact build, and
+> + ktx (BOTH are C, BOTH build via CMake -> the `mvdsv` binary + the
+> `qwprogs.so` mod; NO QuakeC, NO fteqcc -- corrected 2026-05-17 per OQ-3;
+> the only missing build tool is `cmake`, apt-installable), runs a local
+> `mvdsv +gamedir ktx` server to capture a fresh `cvarlist`/`cmdlist` dump
+> of that exact build, and
 > re-extracts L1 from the same commit -- source + oracle + substrate are ONE
 > build, contemporaneity dissolved (no caveat). **F-C3a is DISSOLVED**;
 > **F-C3b still stands** (detect only, do not classify). Authoritative
@@ -29,8 +32,9 @@ yields the C3 suspect pool (no contemporaneity caveat -- it is structural);
 (3) ezquake.com-vs-MVDSV shape-quantification (D12/F-D12a). Phase 0 SIZES
 Phase 4 and re-baselines the probe-0 denominators from the fresher source
 (correct by C1); it does NOT gate the KTX side (Phase 2 is
-liveness-agnostic). Carry the documented fallback: if the local fteqcc/KTX
-build or the server harness is intractable in-loop, fall back to
+liveness-agnostic). Carry the documented fallback: if `cmake` (the only
+missing build tool -- apt-installable, Task-0-shaped) cannot be obtained
+in-loop or the server harness is intractable, fall back to
 fetch-forward-source + the retained production dump under the original
 date-proximate caveat -- the arc is never blocked.
 

@@ -108,10 +108,13 @@ This arc builds the foundation; it does not write L3 concept notes.
   dev-head build) -- so a release-anchored or stale-extract-anchored KB
   describes config that is not what is deployed. Resolution: C3's detection
   input is **self-generated and reproducible**, not a frozen third-party
-  capture. Phase 0 fetches the dev-head clones forward, builds mvdsv (C) and
-  ktx (QuakeC via fteqcc -> `qwprogs.dat`), runs a local `mvdsv +gamedir ktx`
-  server to capture a fresh `cvarlist`/`cmdlist` dump of that exact build,
-  and re-extracts L1 from the same commit. Source extract, the runtime
+  capture. Phase 0 fetches the dev-head clones forward, builds mvdsv and
+  ktx (both are C, both build via CMake -- the `mvdsv` binary plus the
+  `qwprogs.so` mod it loads; no QuakeC, no fteqcc -- corrected 2026-05-17,
+  see OQ-3 / the original "QuakeC via fteqcc" wording was a planner inference
+  error, never source-verified), runs a local `mvdsv +gamedir ktx` server to
+  capture a fresh `cvarlist`/`cmdlist` dump of that exact build, and
+  re-extracts L1 from the same commit. Source extract, the runtime
   oracle, and the describe-fill substrate are then ONE build -- the
   contemporaneity problem is dissolved by construction, not caveated (the
   "same-version L1 extract" / "date-proximate pinning" / "fresh dump at the
@@ -125,9 +128,11 @@ This arc builds the foundation; it does not write L3 concept notes.
   detection (presence in source, absence from the running build) is sound
   because `cvarlist`/`cmdlist` enumerate registrations independent of config
   values. Phase 0 carries a documented fallback so the arc is never blocked:
-  if the local fteqcc/KTX build or the server harness proves intractable
-  in-loop, fall back to fetch-forward-source + the retained production dump
-  under the original date-proximate caveat. Downstream flag (Phase 5, not
+  the only missing build tool is `cmake` (gcc/make/git/bun/python3 present;
+  `cmake` is apt-installable, a Task-0-shaped step); if `cmake` cannot be
+  obtained in-loop or the local server harness proves intractable, fall back
+  to fetch-forward-source + the retained production dump under the original
+  date-proximate caveat. Downstream flag (Phase 5, not
   this section): D4's "~1-2 reviews/engine/year" assumed release cadence;
   under dev-head anchoring the re-dump+re-extract becomes a routine
   version-walk runbook step -- the staleness cadence is settled at Phase 5,

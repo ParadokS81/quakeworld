@@ -101,9 +101,12 @@ contemporaneity is structural, not a risk to manage. Decisive rationale: QW
 servers run dev-head, not tagged releases, so the KB must track dev-head
 anyway. See the spec C3 amendment + `decisions.md` C3 amendment for the full
 mechanism, the retained-production-dump cross-check, and the documented
-fallback (if the local fteqcc/KTX build is intractable in-loop, revert to
-fetch-forward-source + the production dump under the original date-proximate
-caveat -- the now-dissolved approach becomes the safety net).
+fallback (if `cmake` -- the only missing build tool, apt-installable --
+cannot be obtained in-loop, revert to fetch-forward-source + the production
+dump under the original date-proximate caveat -- the now-dissolved approach
+becomes the safety net). NOTE: KTX and MVDSV are both C / CMake (not
+QuakeC/fteqcc -- a planner inference error corrected 2026-05-17, OQ-3); the
+build path is homogeneous and more feasible than first framed.
 
 **Phase:** Phase 0 (self-build + self-dump + re-extract-forward -- a
 substantive revision of the drafted Phase 0 MD's Task 2/3; Task 1

@@ -11,6 +11,23 @@ Run through this list once. Check off what is already true and move on.
 
 ## Required before Phase 0 / Phase 1
 
+- [ ] **`cmake` installed** (new 2026-05-17 -- Phase 0 now self-builds the C3
+  oracle). KTX and MVDSV are BOTH C, BOTH built via CMake (KTX ->
+  `qwprogs.so`, MVDSV -> `mvdsv`; no QuakeC/fteqcc -- that was a corrected
+  planner error, OQ-3). Verified 2026-05-17: `gcc` / `make` / `git` / `bun`
+  / `python3` are present; **`cmake` is MISSING**. One-shot operator step
+  the agentic loop may lack rights for:
+
+  ```bash
+  sudo apt install -y cmake     # ninja-build optional, speeds the build
+  cmake --version               # expect >= 3.10
+  ```
+
+  If `cmake` cannot be installed, Phase 0's documented fallback
+  (fetch-forward-source + the retained 2026-04-27 production dump under the
+  original date-proximate caveat) keeps the arc unblocked -- the self-built
+  oracle is the target, not a hard gate.
+
 - [ ] **Postgres dev container up and L1 KTX + MVDSV extracts loaded.**
   This arc fills description fields on cvar/command/cmdline/info_key rows that
   **already exist** from the libclang/tree-sitter registration walk. An empty

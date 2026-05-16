@@ -177,9 +177,13 @@ conflict class) -- those amendments are reflected in D4/D6 below.
 C3 amendment; spec is source of truth, this is its phase-facing
 distillation):** C3's detection input is self-generated and reproducible, NOT
 a frozen third-party capture. Phase 0 fetches the dev-head clones forward,
-builds mvdsv (C `make`) + ktx (QuakeC via fteqcc -> `qwprogs.dat`), runs a
-local `mvdsv +gamedir ktx` server to capture a fresh `cvarlist`/`cmdlist`
-dump of that exact build, and re-extracts L1 from the same commit. Source
+builds mvdsv + ktx (BOTH are C, BOTH build via CMake -> the `mvdsv` binary +
+the `qwprogs.so` mod it loads; NO QuakeC, NO fteqcc -- corrected 2026-05-17
+per OQ-3; "QuakeC via fteqcc -> qwprogs.dat" was a planner inference error,
+never source-verified, and describes the out-of-scope dusty-ktx fork shape),
+runs a local `mvdsv +gamedir ktx` server to capture a fresh
+`cvarlist`/`cmdlist` dump of that exact build, and re-extracts L1 from the
+same commit. Source
 extract + runtime oracle + describe-fill substrate are then ONE build -- the
 contemporaneity problem is dissolved by construction (no caveat, no
 date-proximate pinning, no "fresh dump at the OLD commit"). Rationale: QW
@@ -190,10 +194,11 @@ not a risk). **F-C3b STILL STANDS** (detection only; classification of
 genuine-dead vs build-excluded remains the parked arc -- a local build can
 build-exclude symbols, which is exactly what C3 defers). The 2026-04-27
 production dump is retained as a secondary real-deployment cross-check.
-Documented fallback so the arc is never blocked: if the local fteqcc/KTX
-build or server harness is intractable in-loop, fall back to
-fetch-forward-source + the retained production dump under the original
-date-proximate caveat. **Implication for phases:** Phase 0's C3 task is now
+Documented fallback so the arc is never blocked: the only missing build tool
+is `cmake` (apt-installable, Task-0-shaped; gcc/make/git/bun/python3
+present); if `cmake` cannot be obtained in-loop or the server harness is
+intractable, fall back to fetch-forward-source + the retained production dump
+under the original date-proximate caveat. **Implication for phases:** Phase 0's C3 task is now
 build-and-self-dump-and-re-extract-forward (a substantive revision of the
 drafted Phase 0 MD's Task 2/3 -- the Task 1 load-commands free win is
 unchanged). Phase 1/2 recon against the post-re-extract baseline (probe-0

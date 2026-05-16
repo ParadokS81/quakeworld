@@ -15,10 +15,11 @@ builds the foundation; it does NOT write L3 concept notes.
 
 **Status:** Planning. Scaffold + slicing LOCKED (operator-reviewed
 2026-05-16; see "Slicing analysis" below). Phase 1 drafted (awaiting review).
-Phase 0 drafted then sent back for a C3-mechanism revision (operator decision
-2026-05-17: self-built reproducible C3 oracle -- see `decisions.md` C3
-amendment; F-C3a dissolved). Per-phase MDs drafted in fresh terminals,
-sub-agent-verified, operator-reviewed at each boundary.
+**Phase 0 APPROVED 2026-05-17** (self-built reproducible C3 oracle; F-C3a
+dissolved; the OQ-3 "KTX = QuakeC/fteqcc" planner error was corrected across
+spec/decisions/prompt/memory -- both engines are C/CMake). Per-phase MDs
+drafted in fresh terminals, sub-agent-verified, operator-reviewed at each
+boundary.
 
 ---
 
@@ -52,7 +53,7 @@ LOCKED by the slicing analysis (operator-reviewed 2026-05-16; see the
 
 | Phase | Status | MD | Deliverable | Runnable state at end | Verif. regime | Ctx budget |
 |---|---|---|---|---|---|---|
-| 0 | **revision required** (C3 reshape 2026-05-17) | phase-0-probes.md | Free win (`load-commands.ts`, 28/108) + **self-built C3 oracle** (fetch dev-head fwd, build mvdsv+ktx, local-server dump, re-extract L1 same build) + ezquake.com shape-quant | 28/108 reloaded; fresh same-build dump + suspect pool; L1 re-extracted to dev-head; ezquake shape known; probe-0 denominators re-baselined | Automated (build+server succeeds; 0->28; same-build set-diff deterministic; no N/183) | ~200-350k (grew: 2 engine builds + server harness + re-extract) |
+| 0 | **approved** 2026-05-17 | phase-0-probes.md | Free win (`load-commands.ts`, 28/108) + **self-built C3 oracle** (fetch dev-head fwd, build mvdsv+ktx, local-server dump, re-extract L1 same build) + ezquake.com shape-quant | 28/108 reloaded; fresh same-build dump + suspect pool; L1 re-extracted to dev-head; ezquake shape known; probe-0 denominators re-baselined | Automated (build+server succeeds; 0->28; same-build set-diff deterministic; no N/183) | ~200-350k (grew: 2 engine builds + server harness + re-extract) |
 | 1 | drafted (awaiting review) | phase-1-discipline.md | The discipline, built once: provenance/staleness schema (D2/D11); D6 synthesis skill; D7 two-tier gate; D11/D15 audit serializer; C5 probes | Full pipeline round-trips one real KTX cvar (self-contained smoke -- D19); C5 tag+anchor probes green | Automated (smoke vs 1 real KTX cvar -- D19) | **~250-450k (watch)** |
 | 2 | not started | (pending draft) | KTX mechanical extract (D9): new sibling extractor + loader adapter; in-repo + nQuake `ktx.cfg` -> structured choices + candidate text + retained provenance | ~157/260 KTX cvars carry shipped_doc candidates + retained per-source provenance; idempotent re-extract; provenance/jsonb probes green | Automated (coverage vs probe-0 + idempotency + jsonb/prov probes) | **~200-400k (watch)** |
 | 3 | not started | (pending draft) | KTX source-synthesis (D5-D8, D10): D6 skill fans out over CD_NODESC + residual cvars + bot/judgment (mechanism-only) + triage-failed comments; meaning-conflicts resolved inline at the D7 tail | Every in-scope KTX entity carries an affirmed-or-synthesized description; residue tracked to the C1 outreach track | Operator-run (D7 audit-page tail -- per-row judgment) | ~200-350k thread |
@@ -114,8 +115,11 @@ build) instead of diffing a frozen third-party capture. This DISSOLVES F-C3a
 re-baselines the probe-0 denominators from fresher source (correct by C1).
 Phase 0 still does not gate the KTX side and stays first + independent of
 Phase 1. Authority: spec C3 amendment 2026-05-17 + `decisions.md` C3
-amendment. Documented fallback keeps the arc unblocked if the local
-fteqcc/KTX build is intractable in-loop.
+amendment. KTX and MVDSV are BOTH C / CMake (not QuakeC/fteqcc -- a planner
+inference error corrected 2026-05-17, OQ-3); the only missing build tool is
+`cmake` (apt-installable, Task-0-shaped -- see `prerequisites.md`).
+Documented fallback keeps the arc unblocked if `cmake` cannot be obtained
+in-loop or the server harness is intractable.
 
 **Execution-mode posture:** near-zero inline (this is a code-synthesis arc --
 extractors, the D6 skill, serializers, schema, probes). Subagent-default
