@@ -1,6 +1,6 @@
 # Design: enforce L1 runtime-truth (ghost elimination + hidden-command recovery)
 
-**Status:** Brainstorm Pass 1 COMPLETE + AMENDED (2026-05-16). Passes 2-5 pending, fresh terminal each.
+**Status:** Brainstorm Passes 1-3 COMPLETE (Pass 1 AMENDED; Pass 3 widened Track B). Passes 4-5 pending, fresh terminal each.
 **Predecessor:** parking `docs/superpowers/parking/2026-05-16-libclang-callgraph-reachability-arc.md`.
 **Role:** drain target for arc-brainstormer Passes 1-5. arc-planner scaffolds the arc against this.
 
@@ -39,9 +39,12 @@ separately gated, zero mechanism blending.
   `<name>` command (`hud.c:1232`) and `+hud_<name>`/`-hud_<name>`
   (`hud.c:1271-1278`) when `HUD_PLUSMINUS` is set. Gate: those names present
   in L1 + cross-checked present in the runtime dump; lightweight drift guard
-  (`+hud_radar` rediscovered each run). Pass-3 open sub-question: are ALL
-  `HUD_Register` first args literal? (radar/speed/gun2 verified literal; full
-  set needs the AST to size a possible non-literal tail).
+  (`+hud_radar` rediscovered each run). **RESOLVED Pass 3 (D8):** all 83
+  `HUD_Register` first args are literal (0 non-literal tail) -- no constant
+  propagation needed. **AMENDED Pass 3 (D11):** Track B widened from
+  hidden-*command* recovery to the FULL `HUD_Register` contract -- also the
+  runtime-built `hud_<name>_<subvar>` settings cvars (`HUD_CreateVar`,
+  `hud.c:1146`); same call site, same mechanism.
 - **Shared foundation (FOUNDATIONAL -- blocks both tracks).** The
   command-direction detection harness is case-broken: it compares L1
   (lowercased) against the runtime dump (source case) case-sensitively. The
@@ -186,6 +189,180 @@ Rejected: Option B (separate dedicated call-graph pass) -- re-pays the parse
    per-entity verdict; the L1 schema/column/provenance for `runtime_reachable`
    is explicitly Pass 4 scope. Boundary flagged, not crossed.
 
+### D8 (SQ3.1, LOCKED 2026-05-16) -- Track B emission model: full static `HUD_Register` contract, runtime-dump-gated
+
+Track B mechanism is literal + constant-flag modeling of the single
+`HUD_Register` contract. It is NOT a call-graph (zero Track-A blend; D1's
+hard no-mechanism-blending rule holds).
+
+**Verified foundation (live source, HEAD `3f9e724f` -- the L1-extracted
+commit; version pin holds).** A tokenizing scan of all `HUD_Register(` call
+sites (walking every wrapped/multi-line form, not a naive grep): **83 call
+sites, 100% literal string first arg, ZERO non-literal.** D1's open Pass-3
+sub-question ("are ALL first args literal? full set needs the AST to size a
+possible non-literal tail") is **RESOLVED BY MEASUREMENT: the tail is
+empty.** Consequence: no interprocedural constant propagation, no AST
+dataflow -- the mechanism is pure literal/constant reading. (Line cites
+re-verified, no drift: definition `hud.c:1182` / prototype `hud.h:133`;
+`HUD_PLUSMINUS = (1<<10)` `hud.h:37`.)
+
+**The contract (two parts):**
+
+- **(a) Bare `<name>` -- unconditional.** One per `HUD_Register` call:
+  `Cmd_AddCommand(name, HUD_Func_f)` at `hud.c:1232`. Emit the literal
+  arg #1 for all 83 sites.
+- **(b) `+hud_<name>` / `-hud_<name>` -- gated.** Emitted only when the
+  call site's `flags` arg (`HUD_Register` param #4) literally contains
+  `HUD_PLUSMINUS` AND its `show` arg is a non-NULL literal. Active path:
+  `Cmd_AddRemCommand(cmdname, HUD_Plus_f/HUD_Minus_f)` at `hud.c:1273-1278`,
+  double-gated by `if (show)` (1265) + `if (flags & HUD_PLUSMINUS)` (1269).
+  The `flags` arg is a compile-time constant expression at the call site
+  (e.g. `HUD_PLUSMINUS | HUD_ON_SCORES`) -- read it statically; no dataflow.
+
+**Safety net (D3 conservative spirit; `reference_rigor_bar_follows_consumer`).**
+Every statically-emitted name is cross-checked against the runtime dump
+(the Track-B answer key) before it counts. Static says "should register";
+the dump confirms "does register"; only dump-confirmed names ship to L1.
+Never emit a speculative `+hud_X` absent from the dump.
+
+**Rationale for full-contract over bare-only** (operator: "better too much
+info than too little"): full static modeling earns per-name provenance for
+Pass 4 (each `+hud_*` is explainable from its call site, not merely "showed
+up in the dump") and a real drift guard (assert `+hud_radar` rediscovered
+each run). Rejected alternative: bare-only static + `+/-` from the dump
+alone -- simpler but discards provenance and weakens the drift guard.
+
+**Implementation-shaped residual (NOT brainstorm; arc-planner/executor
+gate).** The 0-non-literal-tail finding is from a textual tokenizing probe,
+strong signal but not the libclang AST instrument (handoff rule: do not
+trust your own probe). Implementation must confirm 0 non-literal first args
+via the extractor's actual AST before the literal-only assumption is load-
+bearing in code.
+
+### D9 (SQ3.2, LOCKED 2026-05-16) -- Track B integration: new dedicated `ezquake/_handler_hud.py`, additive + non-corrupting + toggleable
+
+The Track-B mechanism is a NEW project-private handler
+`ezquake/_handler_hud.py` (matching the established 8-handler architecture --
+memory `project_extraction_pipeline_vision`). It owns the `HUD_Register`
+contract (D8) end to end.
+
+**Verified premise (banked, primary-sourced in the feeder doc; not
+re-derived).** The existing command handler emits NOTHING for
+`Cmd_AddCommand(name, HUD_Func_f)` (`hud.c:1232`) -- `name` is a function
+parameter, not a literal or `#define`, so the literal-keyed handler
+correctly skips it. That is *why* the ~129 are hidden. Consequence: Track B
+is **purely additive** -- it introduces currently-absent entities and
+modifies/suppresses no existing emission.
+
+**Inherits D6's discipline (the codebase's established non-invasive bar, NOT
+a Track-A-only property):**
+
+- Existing entity output stays byte-identical, verified by the same
+  zero-diff check before/after. The HUD handler only ADDS the previously
+  hidden entities and touches no other handler's state.
+- Cleanly toggleable: single boolean / subscription seam; off == today's
+  pipeline, no residual cost. This on/off seam IS D2's per-fork gating --
+  enable for ezQuake, off for FTE/QWCL/MVDSV until each fork's HUD contract
+  + pinned answer key exists.
+
+**Architecture-level no-mechanism-blend (mirrors D1 at the code layer).**
+Contract-modeling stays OUT of the literal command handler; neither
+mechanism contaminates the other.
+
+Rejected: (2) extend `_handler_commands.py` -- couples Track B to the
+literal-only handler whose blind spot created the gap. (3) generalize to a
+shared Tier-1/2 wrapper-contract pattern -- premature factoring (Tier-2
+rule: lift on the second consumer; there is exactly one `HUD_Register`
+contract, ezQuake-only; grug-brain don't-factor-early).
+
+### D10 (SQ3.3, LOCKED 2026-05-17) -- Track B drift guard: lightweight known-answer set, NOT speculative change-detection
+
+Decision: a lightweight known-answer drift guard only. NOT speculative
+change-detection / AST-diffing / template-move heuristics. Confirms the
+operator's Pass-1 lean (feeder doc: "lightweight known-answer drift guard
+only ... do NOT build speculative change-detection -- HUD has been stable
+for years"). Rationale: a years-stable contract does not warrant carried
+adaptive machinery; if an upstream rewrite breaks the contract the
+known-answer anchors fail loudly and we re-model then ("cross the rewrite
+bridge if/when it happens").
+
+**Anchor set (design; lives here, not in the operator conversation --
+memory `feedback_plain_english_at_decision_points`), paralleling Track A's
+3-gate harness shape:**
+
+1. **Bare-name positive.** `_handler_hud.py` emits `radar`; `radar` present
+   in the runtime dump.
+2. **`+/-` positive.** It emits `+hud_radar` and `-hud_radar` (radar
+   verified live HEAD `3f9e724f`: `flags` arg #4 == `HUD_PLUSMINUS`, `show`
+   arg #8 == `"0"` non-NULL); both present in the dump.
+3. **Literal-control / failure-mode gate.** `togglehud` (`hud.c:819`,
+   literal `Cmd_AddCommand`, NOT `HUD_Register`) stays present and is NOT
+   emitted/duplicated by `_handler_hud.py`. The D9 additivity discipline as
+   a known answer -- the analogue of Track A's `cl_bobhead` gate that
+   catches the failure the positive gates cannot (handler over-reaching
+   into literal commands).
+
+**Pass-3 / Pass-5 boundary.** Pass 3 LOCKS the anchor set + semantics
+(design). Pass 5 WIRES it into the combined known-answer harness beside
+Track A's 3-gate and owns the full ~129-name runtime-dump cross-check (the
+acceptance gate). Mirrors D7.3 (signal repr -> Pass 4) and D5/D7 (Track A
+harness wiring -> Pass 5): design here, wiring there.
+
+**Domain note (operator, 2026-05-17).** `+hud_<name>`/`-hud_<name>` are a
+press/release pair (hold-to-show / release-to-hide, bind-style like
+`+attack`/`-attack`). Confirms these are genuine user-facing bindable
+commands -- reinforces Track-B value; does not reshape D8/D9.
+
+### D11 (SQ3.4, LOCKED 2026-05-17) -- Track B scope widened: the FULL `HUD_Register` contract (commands + settings cvars)
+
+Track B is no longer hidden-*command* recovery only; it recovers the entire
+`HUD_Register` runtime-built-name contract. Amends D1's Track-B definition.
+
+**Verified mechanics (live HEAD `3f9e724f`).** `HUD_CreateVar(char
+*hud_name, char *subvar, char *value)` (`hud.c:1146-1165`) builds
+`snprintf(buf, "hud_%s_%s", hud_name, subvar)` then `Cvar_Register(var)` --
+a runtime-built cvar name, the SAME hidden-name class as the bare / `+-`
+commands (literal AST extraction never sees it). Per `HUD_Register` call the
+body emits:
+
+- a fixed structural subvar set with literal subvar strings: `order`
+  (gated), `place`, `show` (gated), `pos_x`, `align_x`, `pos_y`, `align_y`,
+  `frame`, `frame_color`, `item_opacity`, `draw` (unconditional) -> cvars
+  `hud_<name>_<subvar>`;
+- a variadic tail loop `hud->params[i] = HUD_CreateVar(name, subvar, value)`
+  over the `...` (subvar,value) pairs, string literals at the call sites
+  (radar sample: `"opacity","0.5","width","30%", ...`).
+
+**Consequence for the mechanism (D8/D9/D10).** D8's contract gains part (c),
+the `hud_<name>_<subvar>` cvar family; literal-only modeling still holds
+(name literal + subvar literal; structural set + literal varargs pairs; no
+dataflow) with the same per-arg static gating pattern as the `+-` pair
+(some unconditional, some gated on a param being a non-NULL literal). D9's
+`_handler_hud.py` owns it (same call site already parsed). D10's drift
+guard gains a cvar anchor (`hud_radar_opacity` emitted + dump-present).
+D8's dump-gated conservative safety net extends unchanged -- only
+runtime-dump-confirmed cvar names ship.
+
+**Tracked downstream re-sizing (not a Pass-3 blocker; flagged per
+`feedback_every_finding_gets_a_track`).** Pass 4's L1 signal/provenance
+schema must span THREE HUD families (bare commands, `+-` command pairs,
+`hud_*` settings cvars) under one model. Pass 5's combined known-answer
+harness gains the Track-B cvar anchor; its full runtime-dump cross-check
+now spans the HUD command pool (~129, banked) PLUS a HUD settings-cvar pool
+whose hidden count is UNMEASURED. That count is a Pass-5 detection input,
+deliberately not measured now (handoff: do NOT re-run detection); safe to
+scope in pre-count because D8's dump-gating ships only confirmed names.
+
+**Implementation residual (arc-planner/executor; extends D8's).**
+AST-confirm both (i) 0 non-literal `HUD_Register` first args and (ii) the
+variadic `HUD_CreateVar` subvar/value pairs are string literals -- the
+textual probe is strong signal; the AST is the instrument.
+
+Rejected: commands-only this arc, cvars a follow-on -- re-pays identical
+contract understanding later, leaves the North Star visibly half-met for
+HUD (configs are `hud_*`-cvar-heavy), hand-picked subset against
+exhaustive-mapping discipline.
+
 ## Out of scope -- siblings (remain in the feeder doc)
 
 Metadata-fidelity, NOT presence-fidelity -- outside the runtime-truth North
@@ -216,13 +393,19 @@ nightly-release ingestion reaches the roadmap.
 |---|---|---|
 | 1 | Scope + boundary (two-track, runtime-truth North Star) | COMPLETE + AMENDED 2026-05-16 |
 | 2 | Track A call-graph construction mechanism (shared foundation dropped -- closed by measurement) | COMPLETE 2026-05-16 (D3-D7) |
-| 3 | Track B mechanism (`HUD_Register` contract; literal-tail sizing; drift guard) | NEXT |
-| 4 | Unified L1 fidelity schema + provenance (one signal model, both tracks) | pending |
-| 5 | Application + dual acceptance gates (classify ghosts; emit HUD; combined known-answer harness) | pending |
+| 3 | Track B mechanism (`HUD_Register` contract; literal-tail sizing; drift guard; scope widened to commands+cvars) | COMPLETE 2026-05-17 (D8-D11) |
+| 4 | Unified L1 fidelity schema + provenance (one signal model: Track A + the three HUD families) | NEXT |
+| 5 | Application + dual acceptance gates (classify ghosts; emit HUD commands+cvars; combined known-answer harness) | pending |
 
 Pass count grew 4 -> 5: a second mechanism track legitimately adds a pass.
 Still one coherent arc, phased. Pass 2 closed 2026-05-16 (Track-A mechanism
-fully specified, D3-D7); Pass 3 (Track B) next, fresh terminal.
+fully specified, D3-D7). Pass 3 closed 2026-05-17 (Track-B mechanism fully
+specified, D8-D11; literal-tail RESOLVED by measurement = empty; scope
+widened to the full `HUD_Register` contract -- commands AND `hud_*` settings
+cvars). Pass 4 (unified L1 fidelity schema + provenance) NEXT, fresh
+terminal. No pass added by the widen -- D11 absorbed it into the existing
+Pass-3 mechanism scope; the re-sizing lands as tracked Pass-4/Pass-5
+carry-forwards, not a new pass.
 
 ## Spun-out (2026-05-16) -- L1 entity-name case-fidelity mini-arc
 

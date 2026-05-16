@@ -169,3 +169,56 @@ design spec D3-D7.
 by measurement); 5-pass structure intact. Pass 3 (Track B) NEXT, fresh
 terminal. Resume cold via
 `docs/superpowers/parking/2026-05-16-libclang-callgraph-reachability-arc-pass3-handoff.md`.
+
+## Brainstorm Pass 3 -- COMPLETE (2026-05-17)
+
+Scope: Track B mechanism -- model the `HUD_Register` contract so L1 stops
+hiding the runtime-built HUD names. Drain target: design spec D8-D11 + D1
+amendment. All Track-B line cites re-verified against live source HEAD
+`3f9e724f` (the L1-extracted commit; version pin holds) -- no drift.
+
+**Sub-questions resolved:**
+
+- **SQ3.1 -> D8:** emission model = full static `HUD_Register` contract
+  (bare `<name>` unconditional; `+hud_<name>`/`-hud_<name>` gated on literal
+  `HUD_PLUSMINUS` + non-NULL `show`), every emitted name runtime-dump-gated
+  (D3 conservative; never ship a name absent from the dump). The D1 open
+  sub-question "are ALL first args literal?" is **RESOLVED BY MEASUREMENT**:
+  83/83 call sites literal, 0 non-literal tail -- no constant propagation,
+  no Track-A blend.
+- **SQ3.2 -> D9:** integration = NEW dedicated `ezquake/_handler_hud.py`
+  (project-private 8-handler pattern), purely additive (existing command
+  handler emits nothing for the variable-named registration -- banked,
+  primary-sourced), inheriting D6's byte-identical-existing-output +
+  cleanly-toggleable discipline; on/off seam IS D2 per-fork gating.
+- **SQ3.3 -> D10:** drift guard = lightweight 3-anchor known-answer set
+  (bare `radar` / `+hud_radar`+`-hud_radar` / literal control `togglehud`
+  untouched), NOT speculative change-detection. Pass 3 owns the design;
+  Pass 5 owns harness wiring + full-pool dump cross-check.
+- **SQ3.4 -> D11:** Track B scope WIDENED to the full `HUD_Register`
+  contract -- also the runtime-built `hud_<name>_<subvar>` settings cvars
+  (`HUD_CreateVar`, `hud.c:1146`, same hidden-name class, same call site,
+  same mechanism, dump-gated identically). Amends D1's Track-B definition.
+- **var_alias (param #2):** checked against live `HUD_Register` body --
+  registers no command/cvar; not a hidden-name source. Closed, non-finding.
+
+**Carry-forwards (tracks):**
+
+- Unified L1 fidelity schema + provenance, now spanning Track A +
+  **three** HUD families (bare commands / `+-` command pairs / `hud_*`
+  settings cvars) under one signal model -> **Pass 4** (NEXT; in plan).
+- Combined known-answer harness gains the Track-B anchors incl. a cvar
+  anchor; full runtime-dump cross-check now spans the HUD command pool
+  (~129, banked) PLUS a HUD settings-cvar pool whose hidden count is
+  UNMEASURED -> **Pass 5** (in plan). Count deliberately NOT measured now
+  (do-not-re-run-detection); safe pre-count under D8 dump-gating.
+- AST-confirm 0 non-literal `HUD_Register` first args AND literal
+  `HUD_CreateVar` varargs (subvar,value) pairs -> arc-planner/executor
+  implementation gate (D8/D11 residual; the textual probe is signal, the
+  AST is the instrument).
+
+**Pass plan revision:** 5-pass structure intact. The D11 scope-widen added
+NO pass -- absorbed into Pass-3 mechanism scope; re-sizing rides as Pass-4 /
+Pass-5 carry-forwards. Pass 3 COMPLETE; Pass 4 (unified schema +
+provenance) NEXT, fresh terminal. Resume cold via
+`docs/superpowers/parking/2026-05-17-libclang-callgraph-reachability-arc-pass4-handoff.md`.
