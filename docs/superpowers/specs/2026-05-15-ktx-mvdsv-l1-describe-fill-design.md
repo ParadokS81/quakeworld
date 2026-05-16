@@ -192,6 +192,27 @@ The classify pass is the cheap probe that sizes the real synthesis workload
 instead of guessing it (cheap-probe-then-informed-pass; dual-doc lesson that a
 code comment is coder-WHY by default and user-WHAT must be judged).
 
+### D5 amendment -- no presumptively-covered bucket; evaluate every entity (Pass 2, post-close)
+
+A trailing comment does NOT place an entity in a "documented / done" bucket.
+Most KTX/MVDSV trailing comments are dev-to-dev rationale, not user docs
+(dual-doc reality). Every entity -- with or without a comment -- is evaluated
+equally for whether it warrants our own owned user-facing description. The
+existing comment is one input to that evaluation, never a verdict.
+
+- Comment genuinely reads as a user description -> adopt it; tag stays
+  `source_inline` (honest: dev's own words, no separate user-doc field to
+  launder into) but it is affirmed-by-evaluation, not skipped.
+- Comment is dev-rationale / weak / absent -> synthesize ours ->
+  `synthesized` + anchored.
+
+The D5 cheap-classify step routes EFFORT (good comment = fast affirm; weak or
+absent = full Opus-max synthesis); it does NOT exempt anything from
+evaluation. Coverage = "every entity evaluated and carrying an owned,
+affirmed-or-synthesized description," never "had a comment so counted."
+Reinforces C1 and the dual-doc model; supersedes the "clears the bar -> kept
+as-is, no rework" phrasing in D5.
+
 ### D6 -- Synthesis is delivered as a guardrailed skill (Pass 2.2)
 
 The judgment + synthesis is a dedicated per-knob skill, on the proven
