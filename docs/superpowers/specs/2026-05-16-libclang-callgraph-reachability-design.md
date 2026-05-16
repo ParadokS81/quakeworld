@@ -84,3 +84,19 @@ explained as the shared-foundation finding above; no separate finding.
 
 Pass count grew 4 -> 5: a second mechanism track legitimately adds a pass.
 Still one coherent arc, phased.
+
+## Spun-out (2026-05-16) -- L1 entity-name case-fidelity mini-arc
+
+During Pass 2 SQ2.1 the operator scoped the *structural* case fix out into
+its own mini-arc: `docs/superpowers/parking/2026-05-16-l1-entity-name-case-fidelity-miniarc.md`
+(loader stores source-case `name` + a DB-enforced generated fold-key column
+with the `token_primitive` carve-out preserved; loader-only + reload, no
+re-extraction).
+
+Consequence for THIS arc: Pass 4's "L1 source-case representation"
+carry-forward is **superseded** -- Pass 4 does NOT pick up name-case
+representation. Pass 4's scope remains the `runtime_reachable` signal schema
++ provenance only. The Pass-2 **shared foundation** stays in this arc but
+narrows to the *bash-harness* command case-fold (`/tmp/front1-diff.sh`
+command direction); it is shell-level, independent of the mini-arc, and does
+not block on it.
