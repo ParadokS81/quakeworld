@@ -49,6 +49,53 @@ This arc builds the foundation; it does not write L3 concept notes.
   concrete drift/conflict policy on top of this constraint; the constraint
   itself is locked here.
 
+- **C3 -- Presence is not liveness; L1 never asserts function for a
+  runtime-dead knob.** A symbol the source registers is not thereby alive: a
+  `Cvar_Register` sitting in an init function with zero callers is extracted
+  and stamped `source_backed` exactly like a live one
+  (primary-source-verified: `sb_qtvlist_url`; both the audit worker and the
+  independent Opus-max reviewer read the source and missed it -- the blind
+  spot is structural, not effort). The arc splits the problem the way the
+  liveness work does. **Detection** ("registered in source, absent from a
+  running build") is cheap and consumed here, not built here: the
+  operator-captured runtime dump `qw-1.log` (2026-04-27; live KTX 1.47-dev +
+  MVDSV 1.20-dev, Apr 11 2026 build; full `cvarlist` 733 + `cmdlist` 107/107)
+  is cleaned (CRLF-normalize, case-fold both sides, `LC_ALL=C` sort, discount
+  runtime-only `__k_ls_*` auto-generated cvars) and diffed against the
+  same-version L1 extract to yield a **suspect pool, never a verdict**.
+  **Classification** ("genuinely dead vs build/`#ifdef`-excluded") needs the
+  libclang call-graph and is explicitly out of scope -- it is the parked arc
+  `docs/superpowers/parking/2026-05-16-libclang-callgraph-reachability-arc.md`.
+  Because every suspect still passes the D6 truthful-stamp guard and the D7
+  human gate, **date-proximate pinning is sufficient for this arc** (a
+  mispinned entry costs one extra human glance, never a shipped lie); the
+  parked arc needs hash-exact pinning because it publishes the authoritative
+  classification -- different consumer, different rigor bar. Sequencing:
+  detection is a hard prerequisite for the synthesis/describe phases only; the
+  mechanical-extract tier is liveness-agnostic and is not gated by it.
+
+  C3 amends three earlier locks (explicit, not silent):
+  - **D6 confabulation-guard sibling:** a suspect-pool knob does not get a
+    confident "tunes X" description; it gets a truthful stamped one
+    ("registered in KTX/MVDSV source at version N; not reachable in a running
+    build at this commit; appears non-functional, candidate upstream code
+    bug") and routes to the C1 upstream/community track -- same disposition as
+    D8 residue.
+  - **D4 new drift trigger (f):** "reachability classification changed for
+    this knob." When the parked arc later reaches KTX/MVDSV and splits
+    genuine-dead from build-excluded, the stamped rows re-review through the
+    existing D4 walk-time report. The two arcs compose through D4 -- no
+    blocking dependency, no duplicated mechanism.
+  - **C2 new conflict class:** a shipped config that sets a cvar the runtime
+    reports dead (probe-1 already saw the shape: `k_666`, `k_dm2mod` in
+    ktx.cfg, absent from the current RegisterCvar set) is a flag-don't-resolve
+    discrepancy under C2's existing mechanism.
+
+  Tracked carry-forward (planner/executor, not a brainstorm shape question):
+  confirm the L1 KTX/MVDSV extract commit is contemporaneous with the Apr 11
+  2026 dump build before relying on the suspect pool; if drift is large, take
+  a fresh dump at the extract commit.
+
 ## Decisions log
 
 ### D1 -- Data boundary: configurable buckets only; no L3 prose (Pass 1.1)
@@ -274,13 +321,205 @@ the committed `source_ref` file:line + anchor version remain the evidence on
 the row (source-truth dichotomy). Research docs speed and check the work; they
 are not a substitute citation.
 
+### D9 -- Mechanical extractor is a pure structured-lift; zero quality verdict (Pass 3.1)
+
+The shipped-config mechanical-extract tier is a new sibling extractor handler
+(its own AST JSON output + loader adapter, same plug-in pattern as every other
+handler per `feedback_exhaustive_mapping`; the `mvdsv.6` roff man page is a
+sibling parser -- same tier, same emit shape). It is NOT folded into the
+existing KTX cvar registration handler: that handler harvests `source_inline`
+call-site comments; this is the separate owned user-doc track (D2). It fills
+description fields on cvar rows that already exist from the libclang
+registration walk; it never creates entities. Idempotent re-extract
+(`feedback_repair_by_reextract_not_sql_update`).
+
+Emit, per (cvar, source-file) pair:
+
+- the description text the config author wrote;
+- structured choices kept structured -- `{value,label}` enum tables and
+  bit-mask flag tables emitted as data, never prose-flattened (re-extract is
+  cheap, but flattening now forces a re-extract later for the GUI/web-manager
+  consumer; no reason to take that debt);
+- the shipped value carried as data but NOT written as the source default
+  (config opinion; 3.2 owns the conflict/opinion policy);
+- source-file provenance (feeds 3.3).
+
+One record per (cvar, source-file): in-repo-vs-nQuake drift is preserved as
+data, never merged at extract time. Forced by C2 (never auto-resolve) + D2
+(file in a provenance field); 3.2 designs the resolution on top of it.
+
+Input boundary: the tier consumes only the `coverage.ndjson`
+"mechanical"-classified sources. The "LLM-assisted" / "hand-curate" surfaces
+(bare-`set` usermodes, `SETUP_FFA_CTF.txt`, installer prose) are NOT fed here
+-- they route to the D6 synthesis skill or the C1 residue track. Keeps the
+extractor a deep, dumb, exhaustive lift and makes its exhaustive denominator
+precise (C1).
+
+The seam (load-bearing, operator-confirmed): the extractor harvests structured
+facts + candidate description text + provenance and **stops**. It does NOT
+judge whether the text is good enough to be the user doc. Every harvested
+candidate -- and every comment-less cvar -- flows to the D5-D8 evaluation,
+which decides affirm-as-is vs synthesize-ours per the D5-amendment ("no
+presumptively-covered bucket; evaluate every entity"). No first-pass "comment
+looks fine" affirmation in the parser: a shipped-config `//` comment is the
+config author's gloss, not a vetted user doc (dual-doc lesson); a parser
+blessing text re-introduces the "had a comment so it counts" trap C1 and the
+D5-amendment exist to kill, and hides the affirm/synthesize call from the D7
+gate. The volume "saved" is exactly what D5's cheap-classify step is built to
+route cheaply.
+
+### D10 -- Drift/conflict policy: three classes, source-grounded, resolved inline at the D7 tail (Pass 3.2)
+
+Built on C2 (clear discrepancies are never auto-resolved). Three classes,
+distinct dispositions:
+
+- **Value differences** (`sv_maxrate` 50000/500000, `maxclients` 32/8,
+  `k_exclusive` 0/1, ...): a distribution's chosen value is config opinion,
+  not an L1 fact. The two configs agree on what the knob *does*; only the
+  shipped value differs. Not an L1 conflict -- L1 takes the shared behavior
+  description; the differing values become an L3 "nQuake ships X, in-repo
+  ships Y" recommended-value note. The locked-model "config opinion -> L3"
+  applied concretely; most apparent conflicts dissolve here.
+- **Meaning conflicts** (`k_noframechecks` polarity-label inversion; the
+  `sv_antilag` cross-fork case): the description of what the knob does
+  genuinely differs. Source is the tiebreaker (source-truth dichotomy); per C2
+  the conflict is surfaced to the operator with the source evidence, never
+  auto-picked. Cross-fork divergence (different codebase, not different config
+  file) is NOT a fourth class -- it collapses into this one. No fork-aware
+  provenance schema: the antilag-named entity surface is identical across
+  mainline and the `dusty-*` fork (both register `sv_antilag` / `k_vp_antilag`
+  and the `antilag` command; the MVDSV engine side is line-identical), so the
+  divergence is one entity's *meaning*, not a divergent entity set.
+- **Membership drift** (nQuake-only / in-repo-only; `sv_antilag` in-repo,
+  omitted by nQuake): not a conflict -- union coverage, provenance records
+  which file documented it. A deliberate omission is L3 operational context,
+  not missing L1 data.
+
+Resolution hierarchy: source behavior is L1 truth; config comments are
+candidate descriptions; on disagreement, D6 source-grounded synthesis produces
+the L1 text and the disagreement is flagged (C2).
+
+Mechanism (operator decision -- inline): a meaning-conflict is resolved at
+author-time -- the describe step proposes the source-grounded description and
+the operator confirms it in the **same D7 review tail** as everything else. No
+dedicated conflict queue, no separate batch pass: one workflow, source
+evidence still in hand. A conflict that *changes* across versions re-surfaces
+through the existing D4 walk-time report (composes via the C3 trigger family).
+Reuses existing gates; adds no machinery.
+
+`sv_antilag` worked example (primary-source verified this session): mainline
+`ktx` has no `antilag.c`; `sv_antilag` is a thin passthrough toggled 0<->2,
+"on" tested as `== 2`. `dusty-ktx` ships a 783-line `antilag.c` plus
+weapons/client/vote changes; its antilag engages at `== 1`, vote increments
+multi-mode. Same cvar name, different meaning per build, both deployed on
+different port ranges. The L1 description is explicitly dual and never
+collapsed to one value.
+
+Carry-forwards surfaced (formalized at Pass 3 close):
+- **Part B -- extract the `dusty-*` antilag fork into L1.** Separate future
+  arc, reshaped: a behavior/description fork (shared entity names, divergent
+  meaning), NOT an entity-set fork. arc-classifier sidequest + HANDOVER; cheap
+  probe first to size the divergent-behavior surface (honest bound: only the
+  antilag-named surface was verified this session).
+- **Case-sensitivity loader arc -- soft output-fidelity dependency.**
+  Descriptions land on a key the loader currently lowercases, so they project
+  as `loadfragfile` not `loadFragfile`. Never blocks the work; resolves by
+  re-projection when that arc lands, zero description rework. The fix is
+  already a tracked, ready-to-execute mini-arc (loader-only fold-key column,
+  no re-extraction) --
+  `docs/superpowers/parking/2026-05-16-l1-entity-name-case-fidelity-miniarc.md`.
+  Sibling to the C3 <-> reachability compose relationship.
+
+### D11 -- Provenance + decision-trail shape; review via the audit-review HTML pattern (Pass 3.3)
+
+Closes the D2 carry-forward (exact origin label + file-provenance field).
+
+- **New origin tag: `shipped_doc`** (parallels `source_inline` /
+  `synthesized` / ezQuake-only `help_json`). One tag for "mechanically lifted
+  from a shipped human-written artifact" -- in-repo/nQuake `ktx.cfg`,
+  `mvdsv.cfg`, `port_template.cfg`, the `mvdsv.6` man page. Not tag-per-file
+  (D2: avoids vocabulary bloat); file identity lives in the provenance below.
+- **Structured multi-source provenance, retained (operator decision -- option
+  A).** Every contributing shipped file is kept on the record: file path,
+  line, the value that file shipped, the raw comment text. The committed
+  description's citation (`source_ref`, D6's existing mechanism -- no new
+  citation format) points at the authoritative entry; alternates are retained
+  as data, never discarded. Forced by D9 (one record per cvar+file, drift is
+  data) + C2 + D10 (a conflict cannot be flagged, nor re-detected across
+  versions by D4, if the losing source was dropped at load).
+- **Decision trail is first-class, not ephemeral (operator requirement: "we
+  don't want just the result, we want the reasoning so we can review it").**
+  Each evaluated entity carries the established audit-review column family:
+  `verdict` (affirm `source_inline` / synthesize / conflict-resolution /
+  route-to-residue / flag-dead), `confidence`, `reasoning` (the why),
+  `proposed_desc` (the result), alongside the structured provenance. D6 emits
+  the reasoning; it is stored, not just logged.
+
+Review surface: the D7 operator-tail batch approval is performed on a
+generated **`cvar-audit-review.html`-pattern page** (sortable/filterable
+table; the same `name / source_file / verdict / confidence / reasoning /
+proposed_desc` column family as the 2026-05-15 ezQuake cvar-provenance audit
+artifact), not raw terminal output. Consistent with the locked
+single-source-of-truth model: the audit page is a generated projection of the
+structured record, never hand-maintained.
+
+Amends D7: "operator batch approval on the tail" is concretely the
+audit-review HTML page above; Claude proposes, operator approves/overrides per
+row.
+
+Carry-forwards (formalized at Pass 3 close):
+- The audit-review HTML exists as a 2026-05-15 artifact; its generator was
+  not found under `apps/qw-oracle/scripts` -- locating/standardizing the
+  generator (or emitting the page from the structured record) is
+  arc-planner/executor scope, not brainstorm.
+- The review surface as a generated projection of the single-source record
+  feeds Pass 4 (multi-projection data contract): the audit-review page is one
+  projection; MCP / snapshot / wiki / web-manager are others, all serialized
+  from the same structured record.
+
+### D12 -- Cheap-probe bundle is arc Phase 0; contained, not a pre-arc sidequest (Pass 3.4)
+
+Operator decision (containment + momentum over a separate pre-arc
+workstream): the three cheap probes run as **arc Phase 0**, inside the arc.
+arc-planner scaffolds the later MVDSV-cvar phases against Phase 0's output --
+a first phase that sizes later phases is normal arc-planner work
+(phase-boundary + per-phase verification regime); it does not block
+scaffolding the arc shape or the KTX-side phases, which are not probe-gated.
+
+Phase 0 bundle:
+
+1. **ezquake.com shape-quantification** (gap-findings #1). Fetch
+   ezquake.com/docs/settings/server.html, cross-match vs MVDSV M=183, and
+   measure the *shape* of the overlap, not a headline count. Verified
+   architecture (slime, `reference_ezquake_dual_doc_model`): ezQuake imports
+   MVDSV `sv_*` for its embedded local server, so ezquake.com is a real
+   source for the `sv_*` subset it exposes -- but contributes **zero** to KTX
+   `k_*` (no KTX in ezQuake) and is expected thin on dedicated-server-only
+   MVDSV cvars (qtv / demo / master / server-antilag) that local play never
+   exercises. The probe reveals that shape so the MVDSV-cvar phases are sized
+   correctly (easy common `sv_*` vs the hard dedicated tail that routes to D6
+   synthesis / C1 residue). ezquake.com is a `shipped_doc`-class source
+   (D11); the artifact URI is recorded in the provenance field -- one tag,
+   provenance disambiguates (D2 vocabulary discipline; no new origin value
+   for a hosted-vs-repo distinction).
+2. **C3 runtime-dead detection diff.** Clean `qw-1.log` (CRLF, case-fold
+   both sides, `LC_ALL=C`, discount runtime-only `__k_ls_*`), diff vs the
+   same-version L1 extract -> the C3 suspect pool. Phase-0 placement
+   satisfies C3's "hard prerequisite for the synthesis/describe phases."
+3. **`load-commands.ts` one-line fix** (gap-findings #2). Verified root
+   cause, no re-extract; frees 28/108 MVDSV commands. First task, free win.
+
+Probe -> triage -> informed-pass (`feedback_cheap_probes_inform_expensive_passes`)
+realized at arc scale: Phase 0 is the probe, Phase 1 the triage, the
+synthesis phases the informed pass.
+
 ## Pass status
 
 | Pass | Scope | Status |
 |---|---|---|
 | 1 | Provenance + staleness schema | COMPLETE (D1-D4) |
 | 2 | Source-synthesis method + quality bar + review gate | COMPLETE (D5-D8 + amendment) |
-| 3 | Mechanical-extract pipeline + drift resolution + ezquake.com probe disposition | pending |
+| 3 | Mechanical-extract pipeline + drift resolution + ezquake.com probe disposition | COMPLETE (D9-D12 + C3; amends D4/D6/D7) |
 | 4 | Multi-projection data contract + wiki-feed mechanism | pending |
 | 5 | Upstream export (deferrable tail) + lessons-as-constraints + phase sizing + game-mode-arc relationship | pending |
 
@@ -354,3 +593,58 @@ Carry-forwards (each with a track):
 Pass plan revisions: none. Five-pass plan holds. Constraints C1 (completeness;
 distrust "undocumented = unimportant") and C2 (discrepancies flagged, never
 auto-resolved) added this pass; every later phase respects them.
+
+### Pass 3 sub-questions
+
+- 3.1 Mechanical extractor: emit shape + boundary -- LOCKED (D9: pure
+  structured-lift, zero quality verdict; everything flows to D5-D8).
+- 3.2 nQuake-vs-in-repo drift/conflict policy on C2 -- LOCKED (D10: three
+  classes; meaning-conflicts source-grounded, C2-flagged, resolved inline at
+  the D7 tail; cross-fork collapses into meaning, `sv_antilag` exemplar).
+- 3.3 Origin tag + file-provenance field (D2 carry-forward) -- LOCKED (D11:
+  `shipped_doc` + retained structured multi-source provenance + first-class
+  verdict/confidence/reasoning trail; D7 review via the audit-review HTML
+  pattern -- amends D7).
+- 3.4 ezquake.com probe disposition + loader-fix sequencing -- LOCKED (D12:
+  cheap-probe bundle as arc Phase 0).
+
+### Pass 3 close
+
+Resolved: D9 mechanical extractor is a pure structured-lift with no quality
+verdict; D10 three-class conflict policy (value -> L3, meaning -> source-
+grounded + C2-flagged + resolved inline at the D7 tail, membership -> union;
+cross-fork collapses into meaning, `sv_antilag` the primary-source-verified
+exemplar -- mainline KTX no `antilag.c`, 0<->2 on==2; `dusty-ktx` 783-line
+`antilag.c`, ==1, multi-mode); D11 `shipped_doc` origin tag + retained
+structured multi-source provenance + first-class verdict/confidence/reasoning
+trail reviewed via the `cvar-audit-review.html` pattern (amends D7); D12 the
+cheap probe bundle (ezquake.com shape-quant + C3 dead-detection + load-
+commands fix) is arc Phase 0. Cross-cutting C3 added (presence != liveness;
+suspect pool from `qw-1.log`, never a verdict; amends D4/D6, extends C2).
+
+Carry-forwards (each with a track):
+
+- **Part B -- extract the `dusty-*` antilag fork into L1.** Separate future
+  arc; a behavior/description fork (shared entity names, divergent meaning),
+  NOT an entity-set fork. Captured at
+  `docs/superpowers/parking/2026-05-16-dusty-antilag-fork-l1.md` + HANDOVER
+  Future-arcs. Cheap probe first to size the divergent-behavior surface
+  beyond the antilag-named entities verified this session.
+- **Case-sensitivity loader fidelity** -> existing tracked mini-arc
+  (`docs/superpowers/parking/2026-05-16-l1-entity-name-case-fidelity-miniarc.md`);
+  compose-not-block, descriptions re-project correctly when it lands.
+- **Reachability classification (genuine-dead vs build-excluded)** -> the
+  parked libclang call-graph arc
+  (`docs/superpowers/parking/2026-05-16-libclang-callgraph-reachability-arc.md`),
+  composed via the C3 D4 trigger; never blocks this arc.
+- **Audit-review HTML generator** not found under `apps/qw-oracle/scripts`
+  -> arc-planner/executor scope (locate/standardize, or emit from the
+  structured record).
+- **Review surface as a generated projection** -> Pass 4 sub-question
+  (multi-projection data contract): the audit page is one projection; MCP /
+  snapshot / wiki / web-manager are others off the same structured record.
+
+Pass plan revisions: none. Five-pass plan holds. Pass 4 (multi-projection
+data contract + wiki-feed) gains the review-surface-as-projection
+sub-question (within existing scope, not a plan change). Pass 5
+(upstream-export deferrable tail) unchanged.
