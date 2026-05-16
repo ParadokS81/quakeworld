@@ -683,10 +683,44 @@ game-mode L3 arc. It is NOT a prerequisite, NOT a parallel track, NOT part of
 this arc's plan. Note it on HANDOVER as gated-behind-this-arc-post-review at
 session wrap (already tracked).
 
+## D19 -- Phase 1 walking-skeleton smoke = one real simple KTX cvar (planner slicing, operator-ruled 2026-05-16)
+
+**Decision:** Phase 1's self-contained verification is a smoke probe that runs
+the ENTIRE describe-fill pipeline -- mechanical-candidate harvest -> D5-D8
+evaluate -> D6 synthesize -> D7 two-tier gate -> D11/D15 serialize -> C5 F1
+probe -- end-to-end against **one real, simple, well-understood KTX cvar**.
+Not a synthetic throwaway; not one-per-tier. The specific cvar is the Phase 1
+drafter's choice (recorded in the Phase 1 MD): pick a plain boolean/int KTX
+cvar with a single unambiguous registration site AND a clear shipped-config
+comment, so mechanical-candidate + source-grounding + the D7 gate are all
+exercised on an easy, unambiguous case.
+
+**Why:** The D17 planner note flags Phase 1 as a build-once foundation with no
+consumer surface -- a verification-regime-collision risk (you cannot prove
+"the discipline works" without Phase 2/3 rows). The walking-skeleton smoke
+probe is the fix WITHIN the locked D17 shape (not a reshape). A real cvar (vs
+synthetic) exercises real source-grounding -- the part of the machinery most
+likely to be wrong and the thing a synthetic fixture cannot prove. One knob is
+the cheapest real signal (operator decision, slicing analysis 2026-05-16,
+`feedback_cheap_probes_inform_expensive_passes`).
+
+**Implication for phases:** Phase 1 writes exactly ONE real KTX cvar's full
+record (description + origin tag + retained provenance + anchor + the
+verdict/confidence/reasoning trail) through the real pipeline, and its
+phase-boundary verification asserts that record round-trips through the
+D11/D15 serializer and the C5 tag+anchor probes go green on it -- with NO
+dependency on Phase 2/3. Phase 2 (KTX mechanical extract) and Phase 3 (KTX
+synthesis) MUST treat that one cvar idempotently: re-running the corrected
+pipeline (C4) reproduces it identically (no duplicate row, no double-count),
+and the probe-0 coverage denominator counts it exactly once (it is already
+filled when Phase 2/3 run -- coverage logic is idempotent on it, per P3). The
+Phase 1 drafter records the chosen cvar in the Phase 1 MD's "Outputs to next
+phase" so Phase 2/3 drafters know which row is pre-filled.
+
 ---
 
 *End of decisions. New cross-cutting commitments discovered during phase
-drafting append here as D19+ with date + reason. Spec amendments land as dated
+drafting append here as D20+ with date + reason. Spec amendments land as dated
 blocks under the original C/D. Never silently override in a phase MD; never
 silently comply with a planning direction that contradicts a lock -- surface
 it for explicit amendment.*

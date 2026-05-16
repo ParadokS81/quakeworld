@@ -44,19 +44,19 @@ boundary.
 
 KTX-first preserved (Phases 2-3 before MVDSV Phase 4). Phase 0 sizes Phase 4.
 Phase 1 is the build-once spine both engines consume. Each phase ends in a
-verifiable, runnable state. The verification-regime and context-budget columns
-are filled when the slicing analysis is locked with the operator (Step 2);
-until then they read "pending".
+verifiable, runnable state. Verification-regime + context-budget columns
+LOCKED by the slicing analysis (operator-reviewed 2026-05-16; see the
+"Slicing analysis" section below).
 
 | Phase | Status | MD | Deliverable | Runnable state at end | Verif. regime | Ctx budget |
 |---|---|---|---|---|---|---|
-| 0 | not started | (pending draft) | Probes + the free win: ezquake.com shape-quant; C3 runtime-dead suspect-pool diff; `load-commands.ts` one-line fix | Suspect pool exists; ezquake.com shape known; 28/108 MVDSV commands reloaded | pending | pending |
-| 1 | not started | (pending draft) | The discipline, built once: provenance/staleness schema (D2/D11); D6 synthesis skill; D7 two-tier gate; D11/D15 audit serializer; C5 probes | Spine round-trips against one fixture knob (self-contained smoke -- D17 planner note); C5 tag+anchor probes green | pending | pending |
-| 2 | not started | (pending draft) | KTX mechanical extract (D9): new sibling extractor + loader adapter; in-repo + nQuake `ktx.cfg` -> structured choices + candidate text + retained provenance | ~157/260 KTX cvars carry shipped_doc candidates + retained per-source provenance; idempotent re-extract; provenance/jsonb probes green | pending | pending |
-| 3 | not started | (pending draft) | KTX source-synthesis (D5-D8, D10): D6 skill fans out over CD_NODESC + residual cvars + bot/judgment (mechanism-only) + triage-failed comments; meaning-conflicts resolved inline at the D7 tail | Every in-scope KTX entity carries an affirmed-or-synthesized description; residue tracked to the C1 outreach track | pending | pending |
-| 4 | not started | (pending draft) | MVDSV fill, sized by Phase 0: `mvdsv.6` man-page sibling parser (cmdline); loader-freed commands + synthesis tail; cvars split easy-common-`sv_*` vs hard-dedicated-tail per the Phase 0 probe | Every in-scope MVDSV entity carries an affirmed-or-synthesized description; residue tracked | pending | pending |
-| 5 | not started | (pending draft) | Staleness + projections: wire the D4 walk-time re-review report into the new-version runbook; emit the D14 public wiki feed + snapshot.json; confirm C5 probes green; MCP public-projection delta (F-D13a) | New-version walk produces the staleness report; public projections regenerate from the record; all C5 probes green | pending | pending |
-| 6 | not started | (pending draft) | **Deferrable tail** -- upstream pitch (D16): generate the dev showcase page from snapshot.json; hold the conversation; decide the PR path after | Showcase page renders from the record; conversation held | pending | pending |
+| 0 | not started | (pending draft) | Probes + the free win: ezquake.com shape-quant; C3 runtime-dead suspect-pool diff; `load-commands.ts` one-line fix | Suspect pool exists; ezquake.com shape known; 28/108 MVDSV commands reloaded | Automated (file exists; SQL before/after) | ~100-180k |
+| 1 | not started | (pending draft) | The discipline, built once: provenance/staleness schema (D2/D11); D6 synthesis skill; D7 two-tier gate; D11/D15 audit serializer; C5 probes | Full pipeline round-trips one real KTX cvar (self-contained smoke -- D19); C5 tag+anchor probes green | Automated (smoke vs 1 real KTX cvar -- D19) | **~250-450k (watch)** |
+| 2 | not started | (pending draft) | KTX mechanical extract (D9): new sibling extractor + loader adapter; in-repo + nQuake `ktx.cfg` -> structured choices + candidate text + retained provenance | ~157/260 KTX cvars carry shipped_doc candidates + retained per-source provenance; idempotent re-extract; provenance/jsonb probes green | Automated (coverage vs probe-0 + idempotency + jsonb/prov probes) | **~200-400k (watch)** |
+| 3 | not started | (pending draft) | KTX source-synthesis (D5-D8, D10): D6 skill fans out over CD_NODESC + residual cvars + bot/judgment (mechanism-only) + triage-failed comments; meaning-conflicts resolved inline at the D7 tail | Every in-scope KTX entity carries an affirmed-or-synthesized description; residue tracked to the C1 outreach track | Operator-run (D7 audit-page tail -- per-row judgment) | ~200-350k thread |
+| 4 | not started | (pending draft) | MVDSV fill, sized by Phase 0: `mvdsv.6` man-page sibling parser (cmdline); loader-freed commands + synthesis tail; cvars split easy-common-`sv_*` vs hard-dedicated-tail per the Phase 0 probe | Every in-scope MVDSV entity carries an affirmed-or-synthesized description; residue tracked | Operator-run (same D7 tail) | **200-400k (uncertain until P0)** |
+| 5 | not started | (pending draft) | Staleness + projections: wire the D4 walk-time re-review report into the new-version runbook; emit the D14 public wiki feed + snapshot.json; confirm C5 probes green; MCP public-projection delta (F-D13a) | New-version walk produces the staleness report; public projections regenerate from the record; all C5 probes green | Mixed (staleness report op-run at walk; projections automated round-trip) | ~150-300k |
+| 6 | not started | (pending draft) | **Deferrable tail** -- upstream pitch (D16): generate the dev showcase page from snapshot.json; hold the conversation; decide the PR path after | Showcase page renders from the record; conversation held | Operator-run; **non-gating** (arc complete at end of P5) | ~50-150k |
 
 Status flow: `not started` -> `drafted (awaiting review)` -> `approved` ->
 `in execution` -> `shipped`. The drafter terminal does NOT auto-proceed;
@@ -64,6 +64,58 @@ operator reviews at every phase boundary.
 
 **Phase 6 does NOT gate arc completion.** The arc is complete and useful at
 the end of Phase 5 (D16/D17). Phase 6 is the deferrable tail.
+
+---
+
+## Slicing analysis (locked 2026-05-16, operator-reviewed)
+
+D17's seven-phase shape is operator-locked; the slicing analysis does NOT
+re-derive it. It characterizes the shape, locks the per-phase verification
+regime + context budget (columns above), and resolves the one structural
+risk.
+
+**Technique:** probe + walking-skeleton, then vertical-slice-per-engine -- the
+blessed "horizontal foundation then vertical delivery" mixed pattern.
+Phase 0 = a tracer-bullet probe through the highest unknown (MVDSV-cvar
+sizing) before the expensive MVDSV phase commits. Phase 1 = a walking
+skeleton for the describe-fill machinery. Phases 2-3 (KTX) and 4 (MVDSV) =
+vertical slices per engine. Phases 5-6 = cross-cutting projection / deferrable
+export.
+
+**Why no verification-regime collision:** every fill phase verifies by
+DB-state coverage count (vs the probe-0 N/M denominators), NOT by "the
+downstream projection renders it." The consumer projection is deliberately
+Phase 5. That separation is what makes each fill-phase boundary
+self-contained -- no phase's verification needs a later phase to exist.
+
+**The one resolved risk -- D19:** Phase 1 is a pure build-once foundation
+with no consumer surface, which is a pass-through / verification-regime-
+collision risk under arc-planner's own rules. Resolved WITHIN the locked D17
+shape (not a reshape) by the Phase 1 walking-skeleton smoke probe: the full
+pipeline runs end-to-end against one real simple KTX cvar (operator-ruled
+2026-05-16). See `decisions.md` D19. Phase 2/3 handle that one cvar
+idempotently (C4) and count it once.
+
+**Honest uncertainty:** Phase 4's context budget (200-400k) is genuinely
+unknowable until Phase 0's ezquake.com shape-quant lands -- a rich result
+(toward 124/183) makes Phase 4 mechanical-heavy and lighter; a thin result
+(toward the verified 34% floor) makes it synthesis-heavy and closer to
+Phase 3's weight. Default to subagent-heavy execution to hold the lower
+bound; re-project at the end of Phase 0.
+
+**Execution-mode posture:** near-zero inline (this is a code-synthesis arc --
+extractors, the D6 skill, serializers, schema, probes). Subagent-default
+throughout. The D6 synthesis pass and the D7 independent review pass are
+**Opus 4.7 MAX -- spec-locked (D7), not a planner dial.** The
+phase-template's >70%-inline guard + the verification sub-agent brief defend
+against the qw-oracle Arc 1 inline-execution defect.
+
+**Draft order:** Phase 0 and Phase 1 are independent (Phase 1's spine is
+engine-agnostic; Phase 0 sizes Phase 4, not Phase 1) -- draft them in
+parallel fresh terminals first. Then 2 -> 3 -> 4 sequential; 5 after 1-4;
+6 after 5. Watch phases for context budget: 1, 2, 4 (subagent-heavy
+mandatory; Phase 1 likely needs a mid-phase fresh-terminal handoff at
+execution time -- an orchestrator concern, flagged here).
 
 ---
 
