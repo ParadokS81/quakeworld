@@ -49,3 +49,40 @@ Single-axis validation failed this session (probe confirmed the true-zero case b
 1. Read this doc + the updated `reference_qw_oracle_extraction_liveness_gap` memory + the shipped `ezquake-runtime-dead-entities.md`.
 2. Do NOT re-run detection. The pools are clean and banked.
 3. Route into arc-brainstormer (libclang reachability is design-shaped, multi-pass): per-config call-graph construction, function-pointer policy, L1 schema for `runtime_reachable`, classification of the 97/74, the dynamic-registration sibling gap.
+
+## Brainstorm Pass 1 -- COMPLETE (2026-05-16)
+
+Design spec (drain target, Passes 1-4): `docs/superpowers/specs/2026-05-16-libclang-callgraph-reachability-design.md`.
+
+**Sub-questions resolved:**
+
+- **SQ1.1 -- arc scope:** LOCKED ghosts-only. The reverse-diff HUD
+  variable-name family + `Cmd_AddLegacyCommand` persistence + trailing-comment
+  harvester precision are SIBLINGS, banked in
+  `2026-05-15-l1-extractor-entity-classification-followups.md`. Rationale:
+  opposite user-harm direction, zero shared fix mechanism (call-graph
+  reachability vs interprocedural constant propagation); folding in is
+  scope-bleed.
+- **SQ1.2 -- fork scope:** LOCKED ezQuake-first. Call-graph core is
+  engine-general (shared tier, same libclang AST/visitor for all four).
+  Validate + ship ezQuake only -- the only fork with a pinned runtime answer
+  key. FTE/QWCL/MVDSV = per-fork gated follow-on; residual cost = entry-point
+  + config-set + pinned runtime dump + own known-answer gates; uneven (MVDSV
+  cheap, QWCL likely expensive, FTE between). "Working + verified ezQuake,
+  then a concrete reference to replicate from."
+
+**Carry-forwards (tracks):**
+
+- Passes 2-4 unchanged (call-graph mechanism / L1 schema+provenance /
+  application+harness) -- see the design spec.
+- CONSTRAINT CORRECTION for Pass 2: this doc's "dual-parses client/server
+  (27 conditional macros)" is stale; the extraction memory says 4-variant
+  (client/server/win/apple). Verify against live
+  `extractor_lib/clang_config.py` in Pass 2; the per-config union must cover
+  the real variant set or win/apple-only registrars get false-accused.
+- Siblings routed to the feeder doc: HUD dynamic-name family,
+  command-direction case-fold harness gap, retracted missed-literal artifact
+  (do-not-propagate).
+
+**Pass plan:** unchanged. Pass 1 COMPLETE; Passes 2-4 pending, one per fresh
+terminal.

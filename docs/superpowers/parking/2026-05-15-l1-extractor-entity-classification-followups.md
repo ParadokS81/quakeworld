@@ -129,6 +129,57 @@ Findings appended after macros audit completes.
 
 Findings appended after cmdline audit completes.
 
+### Reachability brainstorm Pass 1 -- HUD dynamic-name family + command case-fold harness gap (2026-05-16)
+
+From the libclang-callgraph-reachability arc brainstorm (Pass 1, spec
+`docs/superpowers/specs/2026-05-16-libclang-callgraph-reachability-design.md`).
+These are SIBLINGS to the ghost arc -- the REVERSE direction (runtime-has,
+L1-lacks) -- parked here for a future L1-extractor-completeness arc. Verified
+primary-source this session.
+
+**HUD dynamic-name command family (the reverse-diff "~129/132").** ezQuake
+registers HUD-element commands with names built at runtime, invisible to the
+literal-keyed AST extractor:
+
+- `src/hud.c:1232` -- `Cmd_AddCommand(name, HUD_Func_f)` registers the bare
+  `<name>` command (`radar`, `speed`, `gun`, `gun2`, ...). `name` is the
+  `HUD_Register` first parameter, not a literal at the call site.
+- `src/hud.c:1271-1278` -- builds `cmdname = "+hud_" + name` in a
+  `char[128]`, flips byte 0 to `-`, then `Cmd_AddRemCommand(cmdname, ...)`.
+  Registers `+hud_<name>`/`-hud_<name>` when the `HUD_PLUSMINUS` flag is set.
+  The string `"+hud_radar"` is never a contiguous literal anywhere.
+- The element-name literals exist one call up: `HUD_Register("radar", ...,
+  HUD_PLUSMINUS, ...)` (`src/hud_radar.c:1422`), `"speed"`
+  (`hud_speed.c:679`), `"gun2"` (`hud_guns.c:367`).
+- Verified absent from L1 (Postgres, case-insensitive, ezquake/command,
+  HEAD): bare `radar`/`speed`/`gun`/`clock`/`face`/`frags` and all
+  `+hud_*`/`-hud_*`. Known-answer gate PASSES: literal-named HUD commands
+  `hud_recalculate`/`togglehud` ARE in L1 -- the miss is isolated precisely
+  to variable-named registrations, not a broad HUD-parse failure.
+- Sibling-arc design lean (operator, Pass 1): reliably AST-discoverable by
+  modeling the `HUD_Register` contract (literal first arg + the fixed
+  internal registration template). Lightweight known-answer drift guard only
+  (assert `+hud_radar` rediscovered each run); do NOT build speculative
+  change-detection -- HUD has been stable for years; cross the rewrite bridge
+  if/when it happens.
+
+**Command-direction case-fold harness gap.** The runtime-vs-L1 reverse-diff
+for COMMANDS was computed case-sensitively (`/tmp/src-command.txt`
+non-case-folded vs `/tmp/rt-cmds.txt`); the cvar pool had a `-cf`
+case-folded variant, the command direction did not. Effect: every camelCase
+command (stored lowercase in L1, dumped camelCase at runtime) is a false
+"runtime-not-in-L1" positive, inflating the ~132 figure. The command
+reverse-diff needs the same case-fold normalization the cvar pool already has
+before its count is trustworthy.
+
+**RETRACTED -- do not propagate.** An earlier same-session claim that
+`unignoreAll` / `loadFragfile` were *missed literal* `Cmd_AddCommand`
+registrations (a real extractor bug) is FALSE. They are present in L1
+lowercased (`unignoreall`, `loadfragfile`); the runtime dump preserves source
+camelCase. It was the case-fold artifact above, caught by direct DB
+verification. No missed-literal finding exists; this must not re-enter as a
+tracked finding.
+
 ## Related concerns (may warrant separate followups)
 
 **Help-JSON drift detection.** Cvar pass null-source bucket (8 entries) and command pass null-source bucket (5 entries) surface drift between help_*.json and current source HEAD. Some are PR #1120 (drift cleanup) survivors; some are subsystem-removal residue (e.g., mp3_volume from deleted mp3_player.c); some are name transpositions (loadfont vs fontload). A periodic drift-detection pass would catch these automatically -- could be a standalone tool comparing help_*.json keys against entity DB names per project per version, or folded into the load-knowledge pipeline as a warning.
