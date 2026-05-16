@@ -82,7 +82,7 @@ Layer 2 enrichment — segment / classify / summarise / session-summary embeddin
 | Add an MCP tool | `serve/mcp/src/tools/<name>.ts` + register in `src/index.ts`. The 12 current tools live there. |
 | Migrate schema (additive -- new column on existing table) | New migration file in `db/migrations/<NNN>_<name>.sql`; apply with `bun db/migrate.ts`. Pure-additive `ALTER TABLE ADD COLUMN` is the simplest case. Update `SCHEMA.md` alongside. |
 | Migrate schema (CHECK widening on existing column) | New migration file under `db/migrations/`. PostgreSQL `ALTER TABLE ... DROP CONSTRAINT ... + ADD CONSTRAINT ...` -- no table rebuild required for additive value-set changes (the SQLite-era table-rebuild pattern is gone). |
-| Verify a phase ran correctly | `scripts/load-knowledge/e2e-verify.md` |
+| Verify a load ran correctly | F1 quality-grid -- `load-knowledge -- quality-grid --project <p>` (`scripts/load-knowledge/quality-grid.ts`) |
 | Add a new extractor codebase | `scripts/extractors/<project>/extract.py` (Python + libclang 18; canonical KTX uses libclang too -- only dusty-ktx fork's `qcsrc/` would need tree-sitter when that arc lands). Cross-engine pattern in `scripts/extractors/EXTRACTOR-PLAYBOOK.md`. Use the `onboard-extractor` user-global skill. |
 | Author or update a Layer 3 concept note | `curated/concept-notes/`. Template at `curated/concept-notes/README.md`; stewardship at `curated/concept-notes/OPERATIONS.md`; gap-report seeds the upstream contributor kit. Use the `guide-rewrite` user-global skill. |
 
@@ -96,7 +96,7 @@ Layer 2 enrichment — segment / classify / summarise / session-summary embeddin
 
 **`source_state` is biographical-by-design.** Entity-level `source_state` captures "ever was source-backed at some loaded version" — per-version `source_file` is current-state. Documented at `scripts/load-knowledge/load-version.ts:580-585` and aligns with the source-truth-dichotomy memory (`memory/project_qw_oracle_source_truth.md`). Consumers reading entity-level state without checking the per-version transition log will misclassify retired entities; that's a CONSUMER-side concern (slipgate), not an extractor bug.
 
-**Snapshot distribution is the slipgate consumer interface.** `build-snapshot --project <p>` reads the Postgres dev DB and emits slipgate-shaped JSON into `apps/slipgate-app/src/lib/config/data/`. Per-record shape: original slipgate fields + 5 enrichment fields (source_state, first_seen_version, last_seen_version, optional default_history, optional retired_at_version). `mvdsv` is intentionally NOT snapshotted (server-side; slipgate is the client); KTX is server-only too and not snapshotted to slipgate. Output filenames documented in `serve/mcp/` consumers and `e2e-verify.md`.
+**Snapshot distribution is the slipgate consumer interface.** `build-snapshot --project <p>` reads the Postgres dev DB and emits slipgate-shaped JSON into `apps/slipgate-app/src/lib/config/data/`. Per-record shape: original slipgate fields + 5 enrichment fields (source_state, first_seen_version, last_seen_version, optional default_history, optional retired_at_version). `mvdsv` is intentionally NOT snapshotted (server-side; slipgate is the client); KTX is server-only too and not snapshotted to slipgate. Output filenames documented in `serve/mcp/` consumers and `build-snapshot.ts`.
 
 **MCP librarian volunteers cross-references.** v0.2.0 rewrite (2026-04-25) made one tool call return rich records — entity + source_state + version arc + asset relations + linked concept notes — instead of forcing follow-up calls. Voice-neutral; consumer voice and orchestration recipes live in each consumer's surface.
 
@@ -132,7 +132,7 @@ Layer 2 enrichment — segment / classify / summarise / session-summary embeddin
 - **Why this project exists** → `VISION.md`
 - **Rules for Claude sessions** → `CLAUDE.md`
 - **Per-arc design intent** → `docs/superpowers/specs/`
-- **Verification queries** → `scripts/load-knowledge/e2e-verify.md`
+- **Load verification (F1 quality-grid)** → `scripts/load-knowledge/quality-grid.ts`
 
 ---
 

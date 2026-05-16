@@ -6,7 +6,7 @@ The Layer 2 chat loader: Discord-only ingest + classifier + session segmenter + 
 
 | When you need... | Read... |
 |---|---|
-| End-to-end verification queries + per-phase expected counts | `../load-knowledge/e2e-verify.md` (Layer 1) and the phase-3 plan MD for Layer 2 |
+| Verify a load ran correctly | F1 quality-grid `../load-knowledge/quality-grid.ts` (Layer 1); phase-3 plan MD for Layer 2 |
 
 ## Pipeline order (idempotent at every step)
 

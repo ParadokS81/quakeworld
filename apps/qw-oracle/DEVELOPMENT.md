@@ -1,16 +1,16 @@
 # Development - QW Oracle
 
-Index of dev loops, runners, and verifier scripts across the four subsystems (Layer 1 loader, Layer 1 extractors, MCP server, Layer 2 corpus). Companion to `CLAUDE.md` (orientation), `OVERVIEW.md` (load-bearing map), `scripts/load-knowledge/e2e-verify.md` (per-phase queries), `scripts/extractors/EXTRACTOR-PLAYBOOK.md` (handler patterns), and `scripts/extractors/VALIDATION-RUNBOOK.md` (per-extractor acceptance).
+Index of dev loops, runners, and verifier scripts across the four subsystems (Layer 1 loader, Layer 1 extractors, MCP server, Layer 2 corpus). Companion to `CLAUDE.md` (orientation), `OVERVIEW.md` (load-bearing map), `scripts/load-knowledge/quality-grid.ts` (F1 load-verification gate), `scripts/extractors/EXTRACTOR-PLAYBOOK.md` (handler patterns), and `scripts/extractors/VALIDATION-RUNBOOK.md` (per-extractor acceptance).
 
 ## Prerequisites
 
 - **Node.js 20+** -- the loader CLI and tests run under `tsx`.
 - **npm** -- pass `--no-workspaces` for any add/install in this directory (monorepo quirk).
-- **Bun 1.x** -- the MCP server runs under Bun; it uses `bun:sqlite`-compatible `better-sqlite3` from the parent install.
+- **Bun 1.x** -- the MCP server runs under Bun with **postgres-js** against the Postgres dev DB (the `bun:sqlite` / `better-sqlite3` era ended at Arc 1 Phase 6).
 - **Python 3 + libclang 18** -- the engine-source extractors use `python3-clang` against vendored ezQuake / FTE / QWCL / MVDSV checkouts under `research/repos/`.
-- **sqlite3 CLI** (optional) -- handy for ad-hoc queries against `data/knowledge.db` and `data/qw.db`.
+- **psql** (optional) -- handy for ad-hoc queries: `docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle`.
 
-The two SQLite stores (`data/knowledge.db`, `data/qw.db`) are gitignored and rebuilt locally; an empty repo clone has no databases until the loaders run.
+The authoritative store is the `qw-oracle-postgres-dev` Postgres container (Docker volume; data gitignored, rebuilt locally). An empty clone has no DB until the loaders run. The SQLite era of `data/knowledge.db` + `data/qw.db` ended with Arc 1.
 
 ## Layer 1 loader (TypeScript)
 
@@ -42,7 +42,7 @@ Subcommands (all routed through `scripts/load-knowledge/index.ts`):
 
 The `--ordinal` flag is auto-resolved from the `versions` table when the (project, version) pair already exists; only net-new tags need to pass it explicitly.
 
-Per-phase verification queries for a fresh load: `scripts/load-knowledge/e2e-verify.md`.
+Verify a load: run the F1 quality-grid -- `npm run load-knowledge -- quality-grid --project <project>` (regression + anomaly probes; `scripts/load-knowledge/quality-grid.ts`). Ad-hoc: `docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle`.
 
 ## Layer 1 extractors (Python + libclang)
 
@@ -88,7 +88,7 @@ bun run scripts/verify-rewrite.ts            # 24-assertion smoke test (engine-e
 bun run scripts/verify-gameplay.ts           # tier-1 in-process gameplay-tool verification
 ```
 
-The server reads both `data/knowledge.db` and `data/qw.db` read-only; it must be restarted to pick up loader changes.
+The server reads the `qw_oracle` Postgres DB (container `qw-oracle-postgres-dev`) read-only; it must be restarted to pick up loader changes.
 
 ## Layer 2 corpus (legacy .mjs)
 
@@ -127,7 +127,7 @@ Exit code is non-zero when any probe FAILs or ERRORs; CI-friendly.
 | Re-load one tag end-to-end | `npm run load-knowledge -- extract-tag --project <p> --version <v>` |
 | Quality grid | `npm run load-knowledge -- quality-grid --project <p>` |
 | Pytest (all) | `pytest scripts/extractors/ -q` |
-| DB inspect | `sqlite3 data/knowledge.db` / `sqlite3 data/qw.db` |
+| DB inspect | `docker exec -it qw-oracle-postgres-dev psql -U qworacle -d qw_oracle` |
 
 ## Gotchas
 

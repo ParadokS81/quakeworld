@@ -1,6 +1,6 @@
 # QW Oracle - QuakeWorld Knowledge Service
 
-**Status:** Active development. Schema v18. Four codebases loaded into Layer 1 (ezQuake / FTE / QWCL / MVDSV) plus the `qw` namespace for game content (maps + game mechanics). KTX is the only outstanding port. For chronological ship history see [`docs/arc-history.md`](docs/arc-history.md). For active backlog see `HANDOVER.md` (root).
+**Status:** Active development. Five codebases loaded into Layer 1 (ezQuake / FTE / QWCL / MVDSV / KTX) plus the `qw` namespace for game content (maps + game mechanics). Schema state lives in `db/migrations/` + the `schema_migrations` table (see `SCHEMA.md`); there is no hand-maintained schema-version number. For chronological ship history see [`docs/arc-history.md`](docs/arc-history.md). For active backlog see `HANDOVER.md` (root).
 
 ### Layer 2 status (Arc 1 / Phase 3 -- Postgres + tsvector, Discord-only)
 

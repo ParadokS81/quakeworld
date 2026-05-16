@@ -6,7 +6,7 @@ The Layer 1 loader: per-entity-type adapters, version dispatcher, diff/blame eng
 
 | When you need... | Read... |
 |---|---|
-| End-to-end verification queries + per-phase expected counts | `e2e-verify.md` |
+| Verify a load ran correctly (F1 quality-grid: regression + anomaly probes) | `quality-grid.ts` -- run via `load-knowledge -- quality-grid --project <p>` |
 | Author a new universal validation gate (CLI conventions, F1 dispatch mirror, env-var DB config, volatile-column strip, per-project config dict, pytest test pattern, CI-readiness checklist) | `VALIDATION-GATES.md` |
 
 ## Always-on rules

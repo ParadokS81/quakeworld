@@ -1,6 +1,6 @@
 # QW Oracle - Layer 1 Schema Reference
 
-Cumulative reference for the Postgres `qw_oracle` database (Layer 1 + the `qw` game-content namespace + the new KTX additions). Organized topically (not chronologically). If you want the *why* of a specific migration, see the matching `db/migrations/<NNN>_<name>.sql` file's header comment, the per-migration spec linked in that section, or `docs/arc-history.md` for the chronological chain. If you want verification queries, see `scripts/load-knowledge/e2e-verify.md`. The authoritative shape is the live database + the SQL files in `db/migrations/`.
+Cumulative reference for the Postgres `qw_oracle` database (Layer 1 + the `qw` game-content namespace + the new KTX additions). Organized topically (not chronologically). If you want the *why* of a specific migration, see the matching `db/migrations/<NNN>_<name>.sql` file's header comment, the per-migration spec linked in that section, or `docs/arc-history.md` for the chronological chain. If you want to verify a load, run the F1 quality-grid (`npm run load-knowledge -- quality-grid --project <project>`; `scripts/load-knowledge/quality-grid.ts`). The authoritative shape is the live database + the SQL files in `db/migrations/`.
 
 Layer 2 (the chat corpus -- Discord-only) is out of scope for this doc; see `OVERVIEW.md` Section "Layer 2" for that surface.
 
@@ -886,7 +886,7 @@ Re-run idempotency: each `DROP CONSTRAINT` is wrapped in `IF EXISTS` so re-apply
 - Per-type row-shape interfaces: `scripts/load-knowledge/types.ts`
 - Loader adapters (one per entity type): `scripts/load-knowledge/load-<type>.ts`
 - CLI entry point: `scripts/load-knowledge/index.ts`
-- Verification queries per phase: `scripts/load-knowledge/e2e-verify.md`
+- Load verification: F1 quality-grid (`scripts/load-knowledge/quality-grid.ts`, run via `load-knowledge -- quality-grid --project <p>`)
 - Per-migration specs: see each section above.
 
 ---
