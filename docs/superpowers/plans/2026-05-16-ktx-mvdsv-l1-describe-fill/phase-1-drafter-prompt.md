@@ -76,13 +76,22 @@ If your goal is the build-once spine + the one-cvar smoke, proceed.
 
 ## Per-phase live recon (run it; do not trust the spec blind)
 
-- `apps/qw-oracle/SCHEMA.md` + `apps/qw-oracle/db/migrations/` -- the actual
-  current `entities` shape, whether a `description_origin`-style column
-  already exists (ezQuake has `help_json`/`source_inline`; confirm the live
-  vocabulary), and the append-only migration convention (P1). The new fields:
-  origin tag (incl `shipped_doc`), anchor version, re-review flag, retained
-  multi-source provenance (JSONB -- P2: JS values, never stringified),
-  verdict/confidence/reasoning/proposed_desc trail.
+- `apps/qw-oracle/SCHEMA.md` + `apps/qw-oracle/db/migrations/` -- the
+  append-only migration convention (P1). **VERIFIED LIVE STATE (Phase 0
+  review, decisions.md D2 clarification 2026-05-17 -- do NOT re-derive as
+  create-from-zero):** `entities.description`, `entities.description_origin`,
+  and `entities.name_fold` ALREADY EXIST. `description_origin` already holds
+  the vocabulary `{help_json, source_inline, synthesized}` (`help_json` is
+  ezQuake's, legitimate, pre-existing). Phase 1's migration therefore
+  EXTENDS: add `shipped_doc` to the origin vocabulary, plus the NEW columns
+  -- anchor version, re-review flag, retained multi-source provenance (JSONB
+  -- P2: JS values, never stringified), and the
+  verdict/confidence/reasoning/proposed_desc trail. The C5
+  origin-tag-vocabulary probe must permit the full FOUR-set
+  `{help_json, source_inline, synthesized, shipped_doc}`, not just the three
+  this arc writes (rejecting the pre-existing `help_json` would red the probe
+  on ezQuake rows). Recon the exact existing column types before authoring
+  the ALTER.
 - `apps/qw-oracle/scripts/load-knowledge/quality-grid.ts` -- the existing F1
   grid shape and the existing `F1.jsonb_columns_not_strings` probe (C5
   extends this; the new probes live here).

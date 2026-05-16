@@ -261,6 +261,19 @@ re-review flag) as a numbered migration (P1). The upstream-frozen marker is
 NOT a column (D3 deferred). FTE/QWCL are later arcs on the same pattern --
 do not build for them here.
 
+**Clarification 2026-05-17 (verified live state, Phase 0 review -- not a lock
+change):** `entities.description_origin` ALREADY EXISTS and already carries
+the vocabulary `{help_json, source_inline, synthesized}` (ezQuake's
+`help_json` is legitimate and pre-existing, exactly as D2/D11 say). So Phase
+1's migration EXTENDS the existing column to add `shipped_doc` plus the new
+anchor/re-review/retained-provenance/verdict-trail fields -- it does NOT
+create `description_origin`/`description`/`name_fold` from zero (those three
+all exist today). The C5 origin-tag-vocabulary probe must therefore permit
+the full four-set `{help_json, source_inline, synthesized, shipped_doc}`, not
+just the three this arc writes. Cross-cutting because the Phase 1 C5 probe
+and every Phase 2/3/4 origin-tag write depend on it. Routed from Phase 0
+OQ-2.
+
 ## D3 -- Upstream graduation deferred to a future deliberate procedure
 
 **Decision:** Graduation (synthesized text adopted upstream, then de-duplicated

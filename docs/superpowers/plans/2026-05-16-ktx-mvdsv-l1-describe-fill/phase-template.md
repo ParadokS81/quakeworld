@@ -35,6 +35,20 @@ runnable state must be self-contained -- it does NOT depend on Phase 2/3 rows
 existing (the D17 planner note: Phase 1 ships a smoke probe proving the spine
 round-trips against one fixture knob).
 
+### Recon facts (verified) -- REQUIRED sub-block, immediately after Goal
+
+Every phase MD carries a short bullet block titled "Recon facts (verified
+against live source <date>; do not re-derive blind)" between the Goal and
+"Inputs from previous phase". It records the numbers/paths/commits/columns
+the phase depends on, each VERIFIED against the live DB / repo / dump / spec
+during drafting -- never copied from the spec unchecked. This block is the
+evidence trail that makes the phase trustworthy and lets the operator and the
+verification sub-agent confirm the phase rests on reality. Established as a
+norm 2026-05-17 (the Phase 0 draft introduced it; institutionalized for
+consistency + the verify-before-asserting discipline). It is part of the
+Goal section, not a new top-level section -- the canonical section list
+below is unchanged.
+
 ## Inputs from previous phase
 
 What state must exist for this phase to start. Mirror of the previous phase's
