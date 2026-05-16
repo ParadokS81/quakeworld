@@ -127,7 +127,7 @@ import type {
 } from './types.js';
 
 const INFO_KEY_NAME_RE = new RegExp(
-  `^\\*?[a-z0-9_.+\\-]+:(${INFO_KEY_SCOPES.join('|')})$`
+  `^\\*?[A-Za-z0-9_.+\\-]+:(${INFO_KEY_SCOPES.join('|')})$`
 );
 const LOG_TEMPLATE_NAME_RE = new RegExp(
   `^(${LOG_TEMPLATE_CHANNELS.join('|')}):`,
@@ -434,12 +434,14 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
     const canonical = options.type === 'token_primitive' ? nameRaw : nameRaw.toLowerCase();
     incomingNames.add(canonical);
   }
-  const existingVersionRows = await sql<{ entity_id: number; name: string }[]>`
-    SELECT cv.entity_id, e.name FROM ${sql(adapter.versionsTable)} cv
+  // incomingNames holds fold keys (lower() except token_primitive) -- compare
+  // against entities.name_fold, not name, now that name carries source case.
+  const existingVersionRows = await sql<{ entity_id: number; name_fold: string }[]>`
+    SELECT cv.entity_id, e.name_fold FROM ${sql(adapter.versionsTable)} cv
     JOIN entities e ON e.id = cv.entity_id
     WHERE e.project = ${options.project} AND e.type = ${options.type} AND cv.version = ${options.version}
   `;
-  const staleVersionRows = existingVersionRows.filter(r => !incomingNames.has(r.name));
+  const staleVersionRows = existingVersionRows.filter(r => !incomingNames.has(r.name_fold));
   if (staleVersionRows.length > 0 && existingVersionRows.length > 0) {
     const staleRatio = staleVersionRows.length / existingVersionRows.length;
     if (staleRatio > 1 - PARTIAL_DROP_GUARD_RATIO && !options.forceOverwrite) {
@@ -479,15 +481,18 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
     let transitions = 0;
 
     for (const [nameRaw, entry] of Object.entries(entries)) {
-      // Token primitive names ($G vs $g mean different byte values) must
-      // preserve case. All other types use case-insensitive canonical keys.
-      const name = options.type === 'token_primitive' ? nameRaw : nameRaw.toLowerCase();
+      // name carries SOURCE case (the fold is enforced structurally by
+      // entities.name_fold, migration 013). caseFoldMergeEntries already
+      // collapsed case-variants to one source-case key; token_primitive
+      // skipped the merge so its case stays significant. Validation must
+      // therefore accept upper-case (loadFragfile, K_ENTER, sv_demoDir, ...).
+      const name = nameRaw;
       const validTokenPrimitive = options.type === 'token_primitive' && /^\$.+$/.test(nameRaw);
-      const validIdentifier = /^[a-z0-9_.+\-]+$/.test(name);
+      const validIdentifier = /^[A-Za-z0-9_.+\-]+$/.test(name);
       const validInfoKey = options.type === 'info_key' && INFO_KEY_NAME_RE.test(name);
       const validLogTemplate = options.type === 'log_template' && LOG_TEMPLATE_NAME_RE.test(name);
-      const validQcBuiltin = options.type === 'qc_builtin' && /^[a-z0-9_.+\-]+:(std_builtins|ext_builtins|ext_syscalls)$/.test(name);
-      const validCommand = options.type === 'command' && /^[a-z0-9_.+\-]+:(frogbot:std|frogbot:editor)$/.test(name);
+      const validQcBuiltin = options.type === 'qc_builtin' && /^[A-Za-z0-9_.+\-]+:(std_builtins|ext_builtins|ext_syscalls)$/.test(name);
+      const validCommand = options.type === 'command' && /^[A-Za-z0-9_.+\-]+:(frogbot:std|frogbot:editor)$/.test(name);
       if (!validTokenPrimitive && !validIdentifier && !validInfoKey && !validLogTemplate && !validQcBuiltin && !validCommand) {
         console.warn(`[load-version] skipping entity with invalid name: ${nameRaw}`);
         continue;
@@ -893,12 +898,18 @@ function stripNulBytes(v: unknown): unknown {
 // Group dict entries by their lowercase key and merge case-variants. The two
 // real-world flavours: AST-bearing source-truth name (e.g. `loadFragfile`,
 // `HUD262_add`) carrying source_file/source_line but empty desc; lowercased
-// help-JSON name carrying desc but no AST. Without this merge they collide
-// at the case-folding step downstream and the help-JSON entry blanks the
+// help-JSON name carrying desc but no AST. Without this merge a case-variant
+// pair would become two entities, with the help-JSON one blanking the
 // citation. Strategy: pick the AST-bearing variant as base, fold help-text
 // fields from any sibling that has them; if multiple variants both carry
 // AST, keep the first and log a warning (would indicate a genuine source
 // conflict, not the AST-vs-help case-collision pattern).
+//
+// The merged dict is keyed by the chosen variant's ORIGINAL key, NOT the
+// lowercased form: source case lives only in this key, and the
+// case-insensitive fold is now enforced structurally by entities.name_fold
+// (migration 013) rather than by lowercasing here. token_primitive skips
+// this function entirely (caller guard), so its case stays significant.
 function caseFoldMergeEntries(
   raw: Record<string, any>,
 ): Record<string, any> {
@@ -914,7 +925,7 @@ function caseFoldMergeEntries(
   for (const [lc, variants] of groups.entries()) {
     const first = variants[0]!;
     if (variants.length === 1) {
-      merged[lc] = first[1];
+      merged[first[0]] = first[1];
       continue;
     }
     const astBearing = variants.filter(([, v]) => v && v.ast != null);
@@ -924,7 +935,10 @@ function caseFoldMergeEntries(
         `[load-version] case-fold merge: multiple variants carry ast for "${lc}" (${names}); keeping first`,
       );
     }
-    const base = astBearing.length > 0 ? astBearing[0]![1] : first[1];
+    // Representative = the AST-bearing (source-truth) variant when present,
+    // else the first variant. Its original key carries the source case.
+    const repr = astBearing.length > 0 ? astBearing[0]! : first;
+    const base = repr[1];
     const out: Record<string, any> = { ...base };
     for (const [, v] of variants) {
       if (v === base) continue;
@@ -933,7 +947,7 @@ function caseFoldMergeEntries(
         if (out[field] == null || out[field] === '') out[field] = val;
       }
     }
-    merged[lc] = out;
+    merged[repr[0]] = out;
   }
   return merged;
 }

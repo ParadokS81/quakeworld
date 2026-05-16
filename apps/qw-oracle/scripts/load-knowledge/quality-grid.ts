@@ -1580,8 +1580,17 @@ const EZQUAKE_FLOOR_PROBES: Probe[] = [
   makeFloorSourceStateProbe('ezquake', 'cmdline_param', { doc_only: 1, source_backed: 69, source_retired: 7 }),
   makeFloorCountProbe('ezquake', 'command', 564),
   makeFloorSourceStateProbe('ezquake', 'command', { doc_only: 7, source_backed: 495, source_retired: 62 }),
-  makeFloorCountProbe('ezquake', 'cvar', 2997),
-  makeFloorSourceStateProbe('ezquake', 'cvar', { doc_only: 47, source_backed: 2741, source_retired: 209 }),
+  // Re-baselined 2026-05-16 (entity-name source-case-fidelity arc, migration
+  // 013). The prior 2997 / source_retired:209 floor was captured against a
+  // DB snapshot that still carried 5 phantom `doc_only` cvar entities for
+  // names that are really commands (scr_weaponstats_x/y/order/scale/
+  // frame_color, floodprotmsg, userdir -- mis-listed under ezquake's own
+  // help_variables.json; source has only Cmd_AddCommand). The first clean
+  // reload let pruneCrossTypeOrphans delete them (its documented job).
+  // source_backed (2741) is UNCHANGED -- no real cvar lost; the net is purely
+  // the 5 retired phantoms. Idempotent thereafter.
+  makeFloorCountProbe('ezquake', 'cvar', 2992),
+  makeFloorSourceStateProbe('ezquake', 'cvar', { doc_only: 47, source_backed: 2741, source_retired: 204 }),
   makeFloorCountProbe('ezquake', 'flag_bit', 50),
   makeFloorSourceStateProbe('ezquake', 'flag_bit', { source_backed: 50 }),
   makeFloorCountProbe('ezquake', 'hud_element', 85),

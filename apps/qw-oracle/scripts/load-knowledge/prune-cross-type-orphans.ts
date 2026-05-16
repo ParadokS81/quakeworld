@@ -67,13 +67,20 @@ export async function pruneCrossTypeOrphans(
   }
   const { tx, project, type } = options;
 
+  // Cross-type collision is case-INSENSITIVE: a help-JSON mislabel and its
+  // real source_backed counterpart are "the same name" regardless of case
+  // (engine identifier matching is case-insensitive). Match on name_fold
+  // (migration 013) so source-case names don't let a case-differing mislabel
+  // escape the prune -- the arc thesis: enforce the fold structurally, never
+  // by a consumer comparing raw `name`. token_primitive's name_fold is
+  // case-sensitive, which is the correct behavior there too.
   const orphanRows = await tx<{ id: number }[]>`
     SELECT e.id FROM entities e
     WHERE e.project = ${project} AND e.type = ${type} AND e.source_state = 'doc_only'
       AND EXISTS (
         SELECT 1 FROM entities e2
         WHERE e2.project = e.project
-          AND e2.name = e.name
+          AND e2.name_fold = e.name_fold
           AND e2.type != e.type
           AND e2.source_state = 'source_backed'
       )

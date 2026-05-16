@@ -107,18 +107,22 @@ export async function upsertEntity(
   tx: postgres.TransactionSql<{}>,
   input: UpsertEntityInput,
 ): Promise<UpsertEntityResult> {
-  // Token primitives are case-sensitive; everything else canonicalises to
-  // lowercase so ezQuake's case-insensitive cvar/command/keyname matching
-  // collapses aliases.
-  const canonicalName =
+  // fold mirrors entities.name_fold (migration 013): token_primitive stays
+  // case-sensitive ($B blue LED vs $b glyph), everything else folds to
+  // lower() so ezQuake's case-insensitive matching collapses aliases. The
+  // existence check keys off the FOLD; entities.name itself stores the
+  // SOURCE case (D1) so Layer 1 tells the truth about what the engine
+  // registered. canonical_id is unchanged -- canonicalIdFor() re-applies the
+  // same fold internally, so it stays lowercased regardless of input case.
+  const fold =
     input.type === 'token_primitive' ? input.name : input.name.toLowerCase();
-  const canonical = canonicalIdFor(input.project, input.type, canonicalName);
+  const canonical = canonicalIdFor(input.project, input.type, input.name);
   const now = new Date().toISOString();
 
   const existing = await tx<Array<{ id: number; source_state: SourceState; first_seen_version: string; last_seen_version: string }>>`
     SELECT id, source_state, first_seen_version, last_seen_version
     FROM entities
-    WHERE project = ${input.project} AND type = ${input.type} AND name = ${canonicalName}
+    WHERE project = ${input.project} AND type = ${input.type} AND name_fold = ${fold}
   `;
 
   if (existing.length > 0) {
@@ -133,17 +137,22 @@ export async function upsertEntity(
         AND vNew.project = ${input.project} AND vNew.version = ${input.last_seen_version}
     `;
 
+    // name refresh is unconditional (both the forward and equal-ordinal
+    // branches): a C identifier's case is version-stable, and the head
+    // reload that restores source case lands on the equal-ordinal else
+    // branch. name_fold recomputes to the same value, so the unique key is
+    // unaffected. last_seen still advances forward-only.
     if (ordCheck.length > 0 && ordCheck[0]!.new_ord > ordCheck[0]!.cur_ord) {
-      await tx`UPDATE entities SET last_seen_version = ${input.last_seen_version}, updated_at = ${now} WHERE id = ${e.id}`;
+      await tx`UPDATE entities SET name = ${input.name}, last_seen_version = ${input.last_seen_version}, updated_at = ${now} WHERE id = ${e.id}`;
     } else {
-      await tx`UPDATE entities SET updated_at = ${now} WHERE id = ${e.id}`;
+      await tx`UPDATE entities SET name = ${input.name}, updated_at = ${now} WHERE id = ${e.id}`;
     }
     return { id: Number(e.id), isNew: false, prevSourceState: e.source_state };
   }
 
   const inserted = await tx<{ id: number }[]>`
     INSERT INTO entities (project, type, name, canonical_id, first_seen_version, last_seen_version, source_state, predecessor_id, created_at, updated_at)
-    VALUES (${input.project}, ${input.type}, ${canonicalName}, ${canonical}, ${input.first_seen_version}, ${input.last_seen_version}, ${input.source_state}, ${null}, ${now}, ${now})
+    VALUES (${input.project}, ${input.type}, ${input.name}, ${canonical}, ${input.first_seen_version}, ${input.last_seen_version}, ${input.source_state}, ${null}, ${now}, ${now})
     RETURNING id
   `;
   return { id: Number(inserted[0]!.id), isNew: true, prevSourceState: null };
@@ -684,18 +693,19 @@ export async function upsertCvarAliasVersion(tx: postgres.TransactionSql<{}>, ro
   // Best-effort target_canonical_id resolution: if target entity exists in
   // the DB, link the FK; otherwise leave NULL (per spec). A separate
   // resolver pass can re-link rows when target projects later load.
-  // Token primitives are case-sensitive everywhere; cvar aliases are not, so
-  // lowercase the lookup name to match the canonical-id pattern.
+  // target_kind is always cvar/command/macro (never token_primitive), so the
+  // fold is plain lower() -- matches entities.name_fold (migration 013).
+  // Query the fold column, not name, now that name carries source case.
   let resolved: string | null = row.target_canonical_id ?? null;
   if (resolved == null) {
     const targetIsEntity = row.target_kind === 'cvar'
       || row.target_kind === 'command'
       || row.target_kind === 'macro';
     if (targetIsEntity) {
-      const lookupName = row.target_name.toLowerCase();
+      const lookupFold = row.target_name.toLowerCase();
       const hit = await tx<{ canonical_id: string }[]>`
         SELECT canonical_id FROM entities
-        WHERE project = ${row.target_project} AND type = ${row.target_kind} AND name = ${lookupName}
+        WHERE project = ${row.target_project} AND type = ${row.target_kind} AND name_fold = ${lookupFold}
       `;
       if (hit.length > 0) resolved = hit[0]!.canonical_id;
     }

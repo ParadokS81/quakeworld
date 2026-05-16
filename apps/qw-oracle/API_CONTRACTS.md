@@ -27,6 +27,12 @@ For any L3 sub-bucket with row-shaped data underneath (profile-notes, asset-note
 
 Source: qwiki-community-reference arc D18 (2026-05-08). The open-drift item #2 below (920 player/clan note files not exposed via MCP) is the cautionary tale of authoring a sub-bucket without this discipline. New sub-buckets in the L3 expansion pattern table inherit this rule by default.
 
+### Query contract: name lookups are case-insensitive; source case is returned
+
+> **Any-case in, source-case out.** `lookup_entity` resolves a name regardless of the caller's capitalization (`unignoreAll` == `unignoreall` == `UNIGNOREALL`), and returns the entity's `name` in the **source capitalization the engine registered** (`loadFragfile`, not `loadfragfile`).
+
+Enforced structurally, not by convention: `entities.name_fold` (migration 013, `lower(name)` except `token_primitive`) is the match key for `lookup_entity`, the loader's existence/alias checks, and the cross-type-orphan prune. A consumer that compares against raw `name` re-introduces the bug -- match on `name_fold` (or call `lookup_entity`, which does). The sole carve-out is `token_primitive`: `$B` (blue LED) and `$b` (glyph) are deliberately distinct and case-sensitive.
+
 ## Tool catalog (current 12)
 
 Tools are organized by **verb shape**, not by data category. Adding a new data category does not justify a new tool unless the verb is genuinely new.

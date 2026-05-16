@@ -67,15 +67,16 @@ The shared identity table: one row per canonical engine feature across all its o
 | `id` | INTEGER PK | |
 | `project` | TEXT CHECK | |
 | `type` | TEXT CHECK | 11 values -- see table map above |
-| `name` | TEXT | Raw name as used in-game (case preserved) |
-| `canonical_id` | TEXT UNIQUE | `<project>:<type>:<name>`, lowercased except for `token_primitive` |
+| `name` | TEXT | Source case -- the exact capitalization the engine registered (`loadFragfile`, `cl_independentPhysics`, `K_ENTER`). The case-insensitive fold is enforced structurally by `name_fold`, never by lowercasing `name`. |
+| `name_fold` | TEXT GENERATED STORED | Migration 013. `lower(name)` for every type except `token_primitive` (case-significant: `$B` blue-LED vs `$b` glyph). The structural fold key -- existence checks, alias resolution, cross-type-orphan prune, and `lookup_entity` all match on this. |
+| `canonical_id` | TEXT UNIQUE | `<project>:<type>:<name>`, lowercased except for `token_primitive`. Unchanged by migration 013 (same fold), so versioned tables / snapshots / MCP keys stay stable. |
 | `first_seen_version` | TEXT | Oldest version still carrying this row |
 | `last_seen_version` | TEXT | Most recent version carrying this row |
 | `source_state` | TEXT CHECK | `source_backed` / `source_retired` / `doc_only` / `dynamically_registered` |
 | `predecessor_id` | INTEGER nullable | Manual rename bridge (FK to self) |
 | `created_at` / `updated_at` | TEXT | ISO timestamps |
 
-**Natural key:** `(project, type, name)`. `canonical_id` is a secondary UNIQUE and is the join key for every `_versions` table via `entity_id`.
+**Natural key:** `(project, type, name_fold)` (migration 013; was `(project, type, name)` back when `name` held the lowercased form). `name` carries source case; all matching goes via `name_fold`, so a case-sensitive compare is impossible at the data layer. `canonical_id` is a secondary UNIQUE and is the join key for every `_versions` table via `entity_id`.
 
 **Source-state semantics:**
 - `source_backed` -- present in the current extraction pass.

@@ -22,9 +22,17 @@ async function fetchEntities(args: LookupEntityArgs): Promise<EntityRow[]> {
   const typeClause = args.type
     ? db`AND type = ${args.type}`
     : db`AND type IN ${db(USER_FACING_TYPES)}`;
+  // Match the structural fold key (entities.name_fold, migration 013), not
+  // `name`. name_fold is case-insensitive by construction for every type
+  // except token_primitive (case-significant: $B vs $b), so we fold the
+  // input the same way. Exact `=` instead of ILIKE also removes the latent
+  // bug where `_`/`%` in a name (e.g. cl_foo) acted as LIKE wildcards.
+  const lc = args.name.toLowerCase();
   const nameClause = isInfoKeyBareLookup
-    ? db`name ILIKE ${args.name + ':%'}`
-    : db`name ILIKE ${args.name}`;
+    ? db`split_part(name_fold, ':', 1) = ${lc}`
+    : args.type === 'token_primitive'
+      ? db`name_fold = ${args.name}`
+      : db`name_fold = ${lc}`;
 
   return db<EntityRow[]>`
     SELECT id, canonical_id, project, type, name, source_state,
