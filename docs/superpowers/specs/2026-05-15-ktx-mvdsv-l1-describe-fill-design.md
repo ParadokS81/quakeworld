@@ -513,6 +513,118 @@ Probe -> triage -> informed-pass (`feedback_cheap_probes_inform_expensive_passes
 realized at arc scale: Phase 0 is the probe, Phase 1 the triage, the
 synthesis phases the informed pass.
 
+### D13 -- Multi-projection contract: two-tier serialization over the single D11 record (Pass 4.1)
+
+The locked single-source model already settles "one schema, N serializers" --
+nothing is stored twice; every consumer reads off the one D11 record
+(description + origin tag + anchor/staleness + structured choices + retained
+multi-source provenance + verdict/confidence/reasoning trail). Pass 4.1 locks
+WHERE the projection line sits: a two-tier split by audience.
+
+- **Public projection** (MCP, Slipgate JSON snapshot, future web
+  server-manager, wiki.slipgate.me): description text + origin tag
+  (`source_inline` / `synthesized` / `shipped_doc`) + anchor-version /
+  "may be stale as of X" stamp + type + default + the D9 structured
+  choices/flags as data. The honest LABEL rides to every consumer (the D2
+  point); structured choices stay structured for the GUI/web-manager (D9).
+- **Internal projection** (`cvar-audit-review.html` only): the public set
+  PLUS confidence + reasoning + verdict + the full multi-source provenance
+  including losing alternates (the nQuake-vs-in-repo variant not chosen).
+
+The embedding input is itself a serializer -- prose description plus a
+text-flattened rendering of the structured choices so a "what values can X
+take" query still retrieves -- a serializer config, NOT a separately stored
+shape. "What goes into the embedding" is therefore not a schema decision.
+
+Reasoning (operator-confirmed, strengthened in-pass): public consumers need
+the honest label (origin + staleness), not the audit trail; an LLM answering
+via MCP does not want a confidence float and a reasoning paragraph in context,
+a wiki reader does not want the rejected config variant. That content serves
+exactly one consumer -- the operator at the D7 review tail. Operator named the
+long-term goal ("present it, help create a proper documentation strategy for
+KTX/MVDSV"): the internal tier is precisely that evidence package -- our
+description plus every shipped config cross-referenced plus the source
+behavior grounding it. Same record, two audiences: consumers get the labeled
+fact; the upstream pitch gets the full provenance + grounding trail. This
+makes the D11 trail do double duty and concretely realizes D3's non-boxing
+hook (the `synthesized` tag + anchor version + retained provenance record are
+exactly what a future deliberate adoption procedure presents) -- no extra
+machinery, D3 stays deferred.
+
+Rejected alternative: honest-labeling-maximalist (surface confidence +
+reasoning in the public projections too). The origin tag + staleness stamp
+already discharge the D2 honesty obligation; leaking the trail bloats every
+other consumer for the one reviewer's benefit. Audience, not honesty, is the
+line.
+
+### D14 -- Wiki-feed: bot-owned read-only namespace, regenerated each walk; operator-visibility is the near-term driver (Pass 4.2)
+
+The L1 reference projection reaches wiki.slipgate.me (the qwiki-v1-beta
+substrate, live Phases 1-3) as bot-generated, read-only pages in a dedicated
+bot-owned namespace, stamped "auto-generated from qw-oracle Layer 1, do not
+edit," regenerated from the snapshot on every KTX/MVDSV version walk.
+Human-authored pages (mode narrative, concept prose) link to or transclude
+these reference blocks; they never edit them. Humans curate the story, the
+bot owns the facts, neither overwrites the other.
+
+Rejected: seeded-then-editable. A human edit drifts the page from source;
+the next upstream change either clobbers the edit or is blocked by it -- the
+dual-maintenance failure the single-source model exists to prevent.
+"Editable" and "single source of truth" cannot both hold on one page.
+
+Operator reframe (load-bearing for sizing, not the contract): the near-term
+primary consumer is the OPERATOR, as a visual progress anchor over the
+describe-fill arc -- not gen-pop (the wiki is unpromoted, near-empty). This
+strengthens read-only-regenerated: a hand-editable visual anchor drifts
+silently and stops being a truthful mirror; a regenerated one drifts loudly,
+which is the point (`feedback_visual_anchors_force_hygiene`). Public
+availability is a free side benefit of hosting on our own wiki, not this
+arc's design driver.
+
+Scope boundary held: this arc locks the feed contract + mechanism
+(read-only, fenced namespace, regenerate-on-walk, stamp). Wiki page styling /
+templates / rendering UX stay consumer-surface scope, explicitly out of this
+arc per the arc capture. A plain regenerated page already delivers operator
+visibility; prettification is separate later work.
+
+Cross-arc carry-forward (formalized at pass close): wiki-side namespace
+creation + bot write path is qwiki-v1-beta / arc-planner-executor scope, not
+this brainstorm. This arc owns the contract; the wiki implementation consumes
+it. qwiki-v1-beta Modes Phases 5-8 are deferred; the reference-namespace feed
+does not depend on them and can land on the shipped substrate independently.
+
+### D15 -- Review page = internal-tier serializer, emitted from the record, row-per-entity inline comparison (Pass 4.3)
+
+Closes the Pass 3 D11 carry-forward (the 2026-05-15 audit-review HTML
+generator was not found in the codebase).
+
+The `cvar-audit-review.html` review surface is not a special artifact: it is
+the D13 internal-tier serializer -- one of the N serializers over the single
+record, the one that additionally carries confidence + reasoning + verdict +
+losing provenance.
+
+Generation: emit fresh from the structured record, the same way every other
+projection is produced. The 2026-05-15 artifact is retained as a VISUAL
+TEMPLATE (look/feel, the sortable-filterable column family), not a generator
+to reverse-engineer. Recovering an unknown old generator is rejected -- it
+contradicts the operator's stated "quick 1 page" intent and breaks the
+uniform one-record/N-serializers model.
+
+Operator-stated function (load-bearing for the page design): one page, all
+entries, scan-the-whole-work; per entry the operator sees the original
+codebase comment, our proposed description, and the reasoning, together.
+Design constraint from this (`feedback_inline_pairs_over_split_panels`): the
+source-comment / our-description / reasoning triple is shown INLINE per row
+as one before/after/why comparison unit -- not split into separate panels or
+three filtered views. Row-per-entity; sortable + filterable across rows for
+scanning. This is the D7 operator-tail batch-approval surface (D11 amended D7
+to this page); Claude proposes per row, operator approves/overrides.
+
+Implementation wiring (the exact emit script, where it hooks the walk) is
+arc-planner/executor scope, not brainstorm. What locks here is the shape:
+internal-tier serializer, emit-from-record, row-per-entity inline
+comparison, existing file is visual reference only.
+
 ## Pass status
 
 | Pass | Scope | Status |
@@ -520,7 +632,7 @@ synthesis phases the informed pass.
 | 1 | Provenance + staleness schema | COMPLETE (D1-D4) |
 | 2 | Source-synthesis method + quality bar + review gate | COMPLETE (D5-D8 + amendment) |
 | 3 | Mechanical-extract pipeline + drift resolution + ezquake.com probe disposition | COMPLETE (D9-D12 + C3; amends D4/D6/D7) |
-| 4 | Multi-projection data contract + wiki-feed mechanism | pending |
+| 4 | Multi-projection data contract + wiki-feed mechanism | COMPLETE (D13-D15) |
 | 5 | Upstream export (deferrable tail) + lessons-as-constraints + phase sizing + game-mode-arc relationship | pending |
 
 ### Pass 1 sub-questions
@@ -648,3 +760,56 @@ Pass plan revisions: none. Five-pass plan holds. Pass 4 (multi-projection
 data contract + wiki-feed) gains the review-surface-as-projection
 sub-question (within existing scope, not a plan change). Pass 5
 (upstream-export deferrable tail) unchanged.
+
+### Pass 4 sub-questions
+
+- 4.1 Projection line: one schema, where the public/internal split sits --
+  LOCKED (D13: two-tier serialization over the single D11 record; public =
+  description + origin tag + staleness + type/default + structured choices;
+  internal adds confidence/reasoning/verdict/losing-provenance and doubles
+  as the D3 upstream evidence package).
+- 4.2 Wiki-feed mechanism -- LOCKED (D14: bot-owned read-only namespace,
+  regenerated each walk; operator-as-visual-anchor the near-term driver;
+  seeded-then-editable rejected; page UX out of arc scope).
+- 4.3 Review-surface-as-projection -- LOCKED (D15: internal-tier serializer,
+  emit-from-record, row-per-entity inline comparison; 2026-05-15 artifact is
+  a visual template only).
+
+### Pass 4 close
+
+Resolved: D13 two-tier projection over the single D11 record (the honest
+label rides to all consumers, the audit trail is internal-only and doubles
+as the deferred-D3 upstream evidence package, embedding input is a serializer
+config not a stored shape); D14 wiki-feed is a bot-owned read-only
+regenerated namespace with operator-as-visual-anchor the near-term driver,
+scope boundary held (page UX out of arc), wiki-side plumbing is cross-arc;
+D15 the review page is the internal-tier serializer emitted from the record
+with row-per-entity inline comparison (`feedback_inline_pairs_over_split_panels`),
+the 2026-05-15 file retained as visual-template-only.
+
+Carry-forwards (each with a track):
+
+- **Audit-review HTML emit script + walk hook** -> arc-planner/executor
+  (D11/D15: emit-from-record; the 2026-05-15 file is the visual reference,
+  not a generator to recover).
+- **Wiki-side namespace creation + bot write path** -> qwiki-v1-beta arc /
+  arc-planner-executor (different project; consumes this contract;
+  independent of the deferred qwiki Modes Phases 5-8).
+- **Embedding serializer config** (prose + text-flattened structured choices
+  for retrieval recall) -> arc-planner/executor; a serializer config, not a
+  stored shape, not a brainstorm shape question.
+- **MCP public-projection contract delta** (origin tag + staleness stamp now
+  ride the L1 entity response; Discovery/orientation-blob + tool-description
+  update per the `API_CONTRACTS.md` new-dataset checklist) ->
+  arc-planner/executor; must respect the API_CONTRACTS contract surface.
+- **Upstream evidence package = the internal-tier record** -> Pass 5. The
+  deferrable upstream-export tail now has a concrete defined input: the
+  retained multi-source provenance + reasoning trail IS the pitch material
+  (D11/D13 already lock its capture). Pass 5 designs the export, not the
+  evidence capture.
+
+Pass plan revisions: none. Five-pass plan holds. Pass 5 (upstream-export
+deferrable tail + lessons-as-constraints + phase sizing + game-mode-arc
+relationship) unchanged in scope; D13 gives its upstream-export piece a
+defined input. Exit criterion not yet met -- Pass 5 remains; resume cold via
+`docs/superpowers/parking/2026-05-16-ktx-mvdsv-l1-describe-fill-pass5-handoff.md`.
