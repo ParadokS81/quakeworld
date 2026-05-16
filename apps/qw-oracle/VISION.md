@@ -63,7 +63,7 @@ Digest / newsletter ("what happened while I was away") and time-machine ("what w
 
 ## Current reality
 
-Layer 1 covers six namespaces at schema v18:
+Layer 1 covers six namespaces:
 - **ezQuake** -- 10 entity types + 4 asset relation tables; 4042 entities across 15 versions (v3.0 -> 3.6.9 + head; pre-3.0 era de-scoped on community-security framing).
 - **FTE** -- 5 entity types including cross-engine cvar aliases; build-6698 (engine + `plugin:ezhud` source root) plus full asset bundle (28 categories + 61 extensions + 13 path rules + 25 cvar bindings + 717 loader sites). 3279 entities total.
 - **QWCL** -- 3 entity types (cvar / command / cmdline_param); single canonical version 2.33 (1996-vintage `cvar_t` shape carved out of the post-v17 `flags_raw` contract). 380 entities.
