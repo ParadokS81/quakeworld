@@ -96,6 +96,68 @@ This arc builds the foundation; it does not write L3 concept notes.
   2026 dump build before relying on the suspect pool; if drift is large, take
   a fresh dump at the extract commit.
 
+- **C4 -- Repair by re-running the corrected pipeline, never a one-off SQL
+  patch (Pass 5.2).** When any phase discovers that a pipeline bug (extractor,
+  loader, synthesis skill, or projection serializer) corrupted committed rows,
+  the fix is to correct the code and re-run the affected extracts/loads
+  end-to-end -- never a targeted `UPDATE` that patches the visibly-wrong rows
+  in place. Reason (`feedback_repair_by_reextract_not_sql_update`, real
+  incident 2026-05-02): a hand-patch only repairs the damage that was noticed;
+  the same bug typically also silently re-shaped rows that were not noticed,
+  and a surgical SQL repair leaves those broken with no trail of how. Re-running
+  from the source-of-truth artifacts regenerates every affected row cleanly and
+  exercises the corrected path end-to-end. D9 already states this for the
+  mechanical-extract tier ("idempotent re-extract"); C4 generalizes it to every
+  tier this arc touches (synthesis rows, retained provenance, staleness
+  anchors, projections). Narrow exception, same as the memory: re-extract
+  genuinely impossible (source artifact lost, non-deterministic generator) ->
+  a targeted repair is acceptable, logged, totals re-verified against the
+  pre-fix baseline.
+
+- **C5 -- Every new data shape this arc introduces earns an F1 quality-grid
+  probe before the arc ships (Pass 5.2).** This arc adds four data shapes no
+  existing regression probe watches: (1) the owned description text, (2) the
+  origin tag (`source_inline` / `synthesized` / `shipped_doc`), (3) the
+  retained multi-source provenance (D11), (4) the synthesized-description
+  anchor version + staleness flag (D2/D4). Each gets at least one probe in the
+  qw-oracle F1 quality grid that fails loudly on the structural failure mode
+  for that shape -- e.g. a `synthesized` row with a NULL anchor version; a
+  `shipped_doc` row with no provenance entry; an origin tag outside the allowed
+  vocabulary; a description column holding a JSONB string scalar (the existing
+  `F1.jsonb_columns_not_strings` pattern, extended). Reason: the arc's entire
+  value proposition is a trustworthy, honestly-labeled KB; an honesty guarantee
+  nothing mechanically enforces is hollow, and silent drift in any of these
+  four would ship unnoticed to every consumer (MCP, snapshot, wiki, the D16 dev
+  showcase). Phase-boundary gate, not a final-phase afterthought: a shape's
+  probe lands in the same phase that first writes that shape.
+
+### Lessons honored structurally (cross-reference, not restated as constraints)
+
+The operator asked for the hard-earned ezQuake/MVDSV documentation lessons
+carried into this arc as explicit constraints (arc capture). Pass 5.2 decision:
+the genuinely-uncovered two are promoted above (C4 repair-by-reextract
+arc-wide; C5 F1 probe per new data shape). The remaining named lessons are
+already enforced by locked decisions and are deliberately NOT restated as
+standalone constraints -- restating an already-enforced rule adds words, not
+protection, and dilutes attention on the two that needed promotion. Lineage,
+so arc-planner sees they were encoded, not dropped:
+
+- **Exhaustive-mapping** (`feedback_exhaustive_mapping`) -- IS C1 verbatim
+  (C1 cites it; "undocumented never means unimportant").
+- **Comment-promotion revert / two-audience model**
+  (`reference_ezquake_dual_doc_model`) -- enforced structurally by D2
+  (`source_inline` is a dev comment, never laundered into a separate user-doc
+  field), the D5 amendment (every entity evaluated; an existing comment is one
+  input, never a verdict), and D9 (the mechanical parser never blesses
+  candidate text -- everything flows to the D5-D8 evaluation).
+- **Upstream-PR attribution** (`reference_upstream_pr_attribution`) -- locked
+  inside D16 (the constraint that rides whatever PR eventually lands).
+- **Source-truth dichotomy** (`project_qw_oracle_source_truth`, additionally
+  honored) -- enforced by the locked conceptual model's hard L1-fact/L3-opinion
+  boundary and D10's resolution hierarchy (source behavior is L1 truth; config
+  comments are candidate descriptions; on disagreement source wins and the
+  conflict is C2-flagged).
+
 ## Decisions log
 
 ### D1 -- Data boundary: configurable buckets only; no L3 prose (Pass 1.1)
@@ -625,6 +687,156 @@ arc-planner/executor scope, not brainstorm. What locks here is the shape:
 internal-tier serializer, emit-from-record, row-per-entity inline
 comparison, existing file is visual reference only.
 
+### D16 -- Upstream export: showcase-page-first, PR-path deferred to the post-pitch dev conversation (Pass 5.1)
+
+Operator steer (decisive; supersedes the artifact menu posed in-pass): the
+upstream export does NOT lead with a PR. Its first artifact is a standalone
+single-page HTML showcase rendered from a `snapshot.json` export of the DB
+record, hosted on an operator-controlled static surface (slipgate.me or the
+matchscheduler site -- exact host is implementation scope), shown to KTX/MVDSV
+devs to socialize the work and get their direction. It regenerates from a
+fresh snapshot.json as the fill progresses.
+
+The PR-path decision -- a repo-level `server-cvars.md`, the empty GitHub wiki
+tabs, or a landing the devs themselves propose -- is explicitly DEFERRED until
+after that dev conversation. Reason: probe-5 established the upstream doc
+surface is abandoned (dead "complete guide" 301, empty GitHub wiki tabs, a
+3-sentence 2022 MVDSV stub). An unsolicited PR into that state risks a year of
+silence; a showcase-backed conversation lets the devs pick the landing they
+will actually maintain. This is `feedback_cheap_probes_inform_expensive_passes`
+at export scale -- the hosted showcase plus the dev conversation is the cheap
+probe that informs the expensive, hard-to-reverse PR-path commitment.
+
+Not a new data contract. The showcase is the D13 internal-tier projection
+(description + honest origin tag + staleness anchor + provenance grounding +
+reasoning trail -- exactly the upstream evidence package D13 already locked as
+the deferred-D3 pitch input) served as a hosted page instead of generated
+in-terminal. It is the same serializer as the D15 review page, a different
+host and consumer; one more renderer over the one record, no machinery added
+(D13/D15 N-serializers model holds). D13's "(cvar-audit-review.html only)"
+clause scoped public-leak prevention (MCP/wiki/snapshot/web-manager do not get
+the trail); D13 itself names the upstream pitch as an internal-tier use, so
+D16 realizes a consumer D13 anticipated -- it does not amend D13. A pitch-tuned
+column subset (e.g. dropping the internal confidence float / workflow verdict
+labels for the dev audience) is a serializer-config choice, not a stored shape
+and not a brainstorm shape question -- arc-planner/executor scope, same status
+as the D13 embedding-serializer carry-forward.
+
+Single-source-of-truth is absolute for artifact substance (answers the
+operator's direct question -- "is there anything in those md files not taken
+from the DB?"). Every per-knob fact in the showcase, and in any later PR
+artifact, is a pure projection of the DB record. Nothing per-entity is ever
+hand-added to an upstream artifact. The only non-DB content is the artifact's
+static framing wrapper: title, the D14 "auto-generated from qw-oracle Layer 1,
+do not hand-edit" stamp, a short how-to-read-the-provenance/origin-tags intro,
+and attribution. That wrapper carries zero per-entity factual claims, so it
+creates zero drift surface. The temptation to hand-improve a weak description
+directly in the artifact is, by the locked model, the signal to fix the DB
+row -- never the artifact. This applies the single-source-of-truth model
+(D1/D13/D14) to the upstream surface; it confirms the model, it does not
+amend it.
+
+Distinct from the D14 wiki-feed and does not collide with it: D14 is the
+public-tier reference on wiki.slipgate.me with the operator as near-term
+progress anchor; D16's showcase is the internal-tier evidence projection on a
+separate static host with KTX/MVDSV devs as the one-time consumer. Parallel
+serializers off the one record (the D13 model), different audiences, no shared
+surface.
+
+Constraints that ride with the eventual PR (stated, not open):
+- Attribution per `reference_upstream_pr_attribution` -- `Assisted-by:
+  Claude:<model-id>`, operator signs `Signed-off-by`, AI never signs, follow
+  each target repo's own contribution conventions. Applies to whatever PR
+  lands; not a brainstorm choice.
+- Freeze/de-dup is NAMED, not designed. Any upstream-adopted text must be
+  logged at adoption time so re-extraction does not re-import our own
+  contribution as independent source truth. The ledger / frozen-marker is
+  D3-deferred graduation machinery, built only if and when adoption actually
+  happens. The self-echo vector is universal (even a contributed markdown
+  re-echoes as `shipped_doc` if it ever became a D9-harvested
+  shipped-config-class artifact), so the freeze requirement is
+  artifact-independent. Pass 5 records the requirement; D3 still owns the
+  build.
+
+### D17 -- Phase shape arc-planner scaffolds against (Pass 5.3)
+
+Operator-confirmed. The locked decisions imply a seven-phase shape; the
+brainstorm locks the shape and sequence only -- exact phase boundaries,
+per-phase verification regime, model/effort dials, and context-budget slicing
+are arc-planner scope, not relitigated here.
+
+- **Phase 0 -- Probes + the free win (D12).** ezquake.com-vs-MVDSV
+  shape-quantification; the C3 runtime-dead suspect-pool diff; the
+  `load-commands.ts` one-line fix (frees 28/108 MVDSV commands). Sizes the
+  MVDSV phases; does NOT gate the KTX side.
+- **Phase 1 -- The discipline, built once.** Provenance/staleness schema
+  fields (D2/D11), the guardrailed per-knob synthesis skill (D6), the two-tier
+  review gate (D7), the internal-tier audit/review serializer (D11/D15), and
+  the C5 F1 probes. Engine-agnostic; both engines ride it.
+- **Phase 2 -- KTX mechanical extract (D9).** The new sibling extractor:
+  in-repo + nQuake `ktx.cfg` -> structured choices + candidate description +
+  retained multi-source provenance; fills ~157/260 KTX cvars. Idempotent
+  re-extract (C4).
+- **Phase 3 -- KTX source-synthesis (D5-D8, D10).** The D6 skill fans out
+  over CD_NODESC commands + residual cvars + bot/judgment cvars
+  (mechanism-only, D8) + triage-failed comments. D10 meaning-conflicts
+  resolved inline at the D7 tail; genuine residue routed to the C1
+  community-outreach track.
+- **Phase 4 -- MVDSV fill, sized by Phase 0.** `mvdsv.6` man-page import for
+  cmdline (D9 sibling parser); loader-freed commands + the synthesis tail;
+  cvars split easy-common-`sv_*` vs hard-dedicated-tail per the Phase 0
+  ezquake.com probe.
+- **Phase 5 -- Staleness + projections.** Wire the D4 walk-time re-review
+  report into the new-version runbook; emit the D14 public wiki feed + the
+  snapshot.json; confirm the C5 probes green.
+- **Phase 6 (deferrable tail) -- Upstream pitch (D16).** Generate the dev
+  showcase page, hold the conversation, decide the PR path after. Explicitly
+  optional: the arc is complete and useful at the end of Phase 5; Phase 6
+  does NOT gate arc completion.
+
+KTX-first preserved (Phases 2-3 before MVDSV Phase 4). Phase 0 sizes Phase 4.
+Phase 1 is the build-once spine both engines consume. Each phase ends in a
+verifiable, runnable state (arc-shape criterion 2 + 6 from the capture).
+
+### D18 -- Game-mode L3 arc relationship: sequential by operator-bandwidth choice, not technical dependency (Pass 5.4)
+
+Technically NOT a hard dependency (analysis, recorded so the choice is not
+re-derived as a code constraint): the docketed game-mode L3 arc's own capture
+establishes its substrate -- 27 `game_mode` + 317 `mode_default` structural
+rows already in L1, plus wiki/usermodes prose -- is sufficient to author the
+notes; note bodies are mode narrative from community sources, not
+cvar-description text. There is no reverse coupling (D1 carves mode narrative
+out of this arc). And the typed-anchor staleness mechanism (D4 auto-flag-on-
+drift, which concept notes already have) means a note authored while its
+`ktx:cvar:X` anchor is still empty is auto-flagged for re-review when this arc
+fills the description -- parallel work is safe by construction, not merely
+tolerable.
+
+Operator decision nonetheless: **this arc completes before the game-mode L3
+arc starts.** The gate is operator review-bandwidth, not code coupling. The
+operator is the correctness judge on every row (the D7 review tail / D15
+review page); as a non-coder and non-server-admin that correctness judgment
+is high-focus work, and the monorepo has other parallel workflows competing
+for that focus. Splitting attention across this arc's review tail and the
+game-mode arc's authoring would degrade both. "It all has to get done" --
+both arcs ship; this is ordering, not de-scoping.
+
+Fundamentals-first framing (operator's words, load-bearing rationale): the
+game-mode arc was not "blocked for a side mission" -- it surfaced that the L1
+description foundation was missing, and this describe-fill arc IS that
+foundation. Foundation lands before the synthesis layer that cites it
+(reinforces `project_concept_notes_vertical_slice` L1-anchor/L3-substance and
+`feedback_cheap_probes_inform_expensive_passes` -- the game-mode arc was the
+probe that revealed the foundational gap).
+
+Checkpoint (operator: "lets see how successful this arc will be"): the
+game-mode arc start is explicitly contingent on this arc's outcome being
+evaluated first. This arc's post-arc review (arc-shape criterion 8 from the
+capture) is the natural greenlight checkpoint before the game-mode arc is
+kicked off. The operational gate is bandwidth-driven, so if operator
+circumstances change the order MAY be revisited (parallel is technically
+safe) -- but the locked call is sequential.
+
 ## Pass status
 
 | Pass | Scope | Status |
@@ -633,7 +845,7 @@ comparison, existing file is visual reference only.
 | 2 | Source-synthesis method + quality bar + review gate | COMPLETE (D5-D8 + amendment) |
 | 3 | Mechanical-extract pipeline + drift resolution + ezquake.com probe disposition | COMPLETE (D9-D12 + C3; amends D4/D6/D7) |
 | 4 | Multi-projection data contract + wiki-feed mechanism | COMPLETE (D13-D15) |
-| 5 | Upstream export (deferrable tail) + lessons-as-constraints + phase sizing + game-mode-arc relationship | pending |
+| 5 | Upstream export (deferrable tail) + lessons-as-constraints + phase sizing + game-mode-arc relationship | COMPLETE (D16-D18 + C4/C5; brainstorm EXIT) |
 
 ### Pass 1 sub-questions
 
@@ -813,3 +1025,79 @@ deferrable tail + lessons-as-constraints + phase sizing + game-mode-arc
 relationship) unchanged in scope; D13 gives its upstream-export piece a
 defined input. Exit criterion not yet met -- Pass 5 remains; resume cold via
 `docs/superpowers/parking/2026-05-16-ktx-mvdsv-l1-describe-fill-pass5-handoff.md`.
+
+### Pass 5 sub-questions
+
+- 5.1 Upstream export shape + freeze requirement -- LOCKED (D16:
+  showcase-page-first from a snapshot.json, PR-path deferred to the post-pitch
+  dev conversation; pure DB projection, no per-knob hand-add; freeze named not
+  built; attribution per `reference_upstream_pr_attribution`).
+- 5.2 Which hard-earned lessons become explicit arc constraints -- LOCKED
+  (C4 repair-by-reextract arc-wide + C5 F1-probe-per-new-data-shape promoted;
+  exhaustive-mapping / dual-doc / upstream-attribution / source-truth
+  cross-referenced as already-encoded, not restated).
+- 5.3 Phase sizing + brainstorm-exit check -- LOCKED (D17: seven-phase shape,
+  KTX-first, Phase 0 sizes Phase 4, Phase 6 the deferrable tail; exit
+  criterion met -- remaining unknowns are implementation-shaped).
+- 5.4 Game-mode L3 arc relationship -- LOCKED (D18: sequential by
+  operator-bandwidth choice, not a technical dependency; this arc fully before
+  the game-mode arc; this arc's post-arc review is the greenlight checkpoint).
+
+### Pass 5 close
+
+Resolved: D16 upstream export leads with a hosted single-page HTML showcase
+(from a regenerable `snapshot.json`), PR-path deferred until after the dev
+conversation, every per-knob fact a pure DB projection (the only non-DB
+content is the static framing wrapper), freeze/de-dup named not built (D3
+still owns it), attribution constraint stated; C4 (repair by re-running the
+corrected pipeline, never a one-off SQL patch -- arc-wide generalization of
+D9's idempotent re-extract) and C5 (every new data shape -- description /
+origin tag / retained provenance / staleness anchor -- earns an F1 quality
+probe, phase-boundary gate) promoted to named constraints, the other four
+named lessons cross-referenced to the decisions that already enforce them;
+D17 the seven-phase shape arc-planner scaffolds against (Phase 0 probes +
+free win -> Phase 1 build-once discipline -> Phase 2 KTX mechanical extract
+-> Phase 3 KTX synthesis -> Phase 4 MVDSV fill sized by Phase 0 -> Phase 5
+staleness + projections -> Phase 6 deferrable upstream pitch); D18 the
+game-mode L3 arc runs after this arc by an operator-bandwidth sequencing
+choice (not a code dependency -- parallel is technically safe via typed-anchor
+auto-flag), greenlit at this arc's post-arc review.
+
+Carry-forwards (each with a track):
+
+- **Dev showcase generator + snapshot.json serializer config + static host
+  (slipgate.me vs matchscheduler)** -> arc-planner/executor (D16: serializer
+  config + host choice are implementation, not a brainstorm shape question;
+  same status as the D13 embedding-serializer carry-forward).
+- **PR-path decision (repo `server-cvars.md` / GitHub wiki tabs /
+  dev-proposed landing)** -> explicitly DEFERRED, owned by the
+  operator + KTX/MVDSV dev conversation after Phase 6; not an arc-planner
+  decision and not a brainstorm question.
+- **Freeze/de-dup ledger + frozen-marker (graduation machinery)** -> still
+  D3-deferred; its own future scoped piece of work, built only if upstream
+  adoption actually happens. Unchanged by Pass 5; Pass 5 only named the
+  requirement.
+- **C5 concrete probe SQL (the four shapes) + the D17 phase boundaries +
+  per-phase verification regime + model/effort dials** -> arc-planner
+  scaffold/slicing. Constraints and shape are locked; the implementations are
+  planner/executor scope.
+- **MCP public-projection contract delta + audit-review emit hook + wiki-side
+  namespace plumbing + embedding serializer config** -> carried unchanged
+  from the Pass 3/4 closes to arc-planner/executor; respect
+  `apps/qw-oracle/API_CONTRACTS.md`.
+- **Game-mode L3 concept-note arc**
+  (`docs/superpowers/parking/2026-05-09-ktx-game-mode-l3-concept-notes.md`)
+  -> sequenced AFTER this arc by D18; greenlight at this arc's post-arc
+  review. To be noted on HANDOVER as gated-behind-this-arc at session wrap.
+
+Pass plan revisions: none. The five-pass plan held unrevised across all five
+closes. **Brainstorm COMPLETE.**
+
+Exit criterion: **MET.** Every remaining unknown is implementation-shaped --
+exact phase boundaries, per-phase verification regime, model/effort dials, the
+snapshot.json field list, the C5 probe SQL, the showcase page columns, the
+static host. None reshape the work; all are arc-planner scaffold/slicing
+decisions. No shape question remains: no unresolved data model, no unresolved
+subsystem boundary, no unresolved policy. The brainstorm is declared complete.
+Next step: arc-planner, fresh terminal, via the handoff at
+`docs/superpowers/parking/2026-05-16-ktx-mvdsv-l1-describe-fill-planner-handoff.md`.

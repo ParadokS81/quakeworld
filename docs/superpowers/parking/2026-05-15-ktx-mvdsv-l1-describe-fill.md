@@ -1,7 +1,7 @@
 # KTX / MVDSV Layer-1 describe-fill (server-config KB foundation) -- arc capture
 
 **Captured:** 2026-05-15 by arc-classifier mode W (operator override; invoked mid-brainstorm after the conceptual model converged).
-**Status:** arc-brainstormer in progress. Passes 1-4 COMPLETE (P1 provenance + staleness schema D1-D4, P2 synthesis method + quality bar + review gate D5-D8 + constraints C1/C2 -- 2026-05-15; P3 mechanical-extract pipeline + drift/conflict policy + Phase-0 probe bundle D9-D12 + cross-cutting C3, amends D4/D6/D7 -- 2026-05-16; P4 multi-projection data contract + wiki-feed mechanism D13-D15 -- 2026-05-16; all in `docs/superpowers/specs/2026-05-15-ktx-mvdsv-l1-describe-fill-design.md`). Pass 5 pending; resume cold via `docs/superpowers/parking/2026-05-16-ktx-mvdsv-l1-describe-fill-pass5-handoff.md`.
+**Status:** arc-brainstormer COMPLETE (all 5 passes; brainstorm EXIT 2026-05-16). P1 provenance + staleness schema D1-D4 + C1/C2; P2 synthesis method + quality bar + review gate D5-D8; P3 mechanical-extract pipeline + drift/conflict policy + Phase-0 probe bundle D9-D12 + C3; P4 multi-projection data contract + wiki-feed D13-D15; P5 upstream export + lessons-as-constraints + phase sizing + game-mode-arc relationship D16-D18 + C4/C5. Exit criterion MET -- all remaining unknowns are implementation-shaped. Everything locked in `docs/superpowers/specs/2026-05-15-ktx-mvdsv-l1-describe-fill-design.md`. **Next: arc-planner, fresh terminal, via `docs/superpowers/parking/2026-05-16-ktx-mvdsv-l1-describe-fill-planner-handoff.md`.**
 **Trigger to start:** operator-initiated; conceptual brainstorm already done (this is its capture). Cheap prerequisite probe (gap-findings thread #1) can run before or as arc Phase 0.
 
 ## Why this is arc-shaped
