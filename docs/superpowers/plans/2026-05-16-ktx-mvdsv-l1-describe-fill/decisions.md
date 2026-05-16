@@ -171,10 +171,36 @@ in KTX/MVDSV source at version N; not reachable in a running build at this
 commit; appears non-functional, candidate upstream code bug") and routes to
 the C1 outreach track. Phase 2 (mechanical extract) is NOT gated by C3.
 C3 amends D4 (new drift trigger f), D6 (confabulation-guard sibling), C2 (new
-conflict class) -- those amendments are reflected in D4/D6 below. **Tracked
-carry-forward (see review-findings F-C3a):** confirm the L1 KTX/MVDSV extract
-commit is contemporaneous with the Apr 11 2026 dump build before relying on
-the suspect pool.
+conflict class) -- those amendments are reflected in D4/D6 below.
+
+**Amendment 2026-05-17 (operator decision, Phase 0 review -- mirrors the spec
+C3 amendment; spec is source of truth, this is its phase-facing
+distillation):** C3's detection input is self-generated and reproducible, NOT
+a frozen third-party capture. Phase 0 fetches the dev-head clones forward,
+builds mvdsv (C `make`) + ktx (QuakeC via fteqcc -> `qwprogs.dat`), runs a
+local `mvdsv +gamedir ktx` server to capture a fresh `cvarlist`/`cmdlist`
+dump of that exact build, and re-extracts L1 from the same commit. Source
+extract + runtime oracle + describe-fill substrate are then ONE build -- the
+contemporaneity problem is dissolved by construction (no caveat, no
+date-proximate pinning, no "fresh dump at the OLD commit"). Rationale: QW
+servers run dev-head, not tagged releases (latest KTX release 1.46/Sep-2025
+is OLDER than our clone), so the KB must track dev-head or it describes
+config nobody deploys. **F-C3a is DISSOLVED** (contemporaneity is structural,
+not a risk). **F-C3b STILL STANDS** (detection only; classification of
+genuine-dead vs build-excluded remains the parked arc -- a local build can
+build-exclude symbols, which is exactly what C3 defers). The 2026-04-27
+production dump is retained as a secondary real-deployment cross-check.
+Documented fallback so the arc is never blocked: if the local fteqcc/KTX
+build or server harness is intractable in-loop, fall back to
+fetch-forward-source + the retained production dump under the original
+date-proximate caveat. **Implication for phases:** Phase 0's C3 task is now
+build-and-self-dump-and-re-extract-forward (a substantive revision of the
+drafted Phase 0 MD's Task 2/3 -- the Task 1 load-commands free win is
+unchanged). Phase 1/2 recon against the post-re-extract baseline (probe-0
+denominators re-derive from the fresher source -- correct by C1). The
+build commit is recorded as provenance (reproducible oracle). D4
+staleness-cadence rethink is a Phase 5 wiring concern (flagged, not
+blocking).
 
 ## C4 -- Repair by re-running the corrected pipeline, never a one-off SQL patch
 

@@ -96,6 +96,43 @@ This arc builds the foundation; it does not write L3 concept notes.
   2026 dump build before relying on the suspect pool; if drift is large, take
   a fresh dump at the extract commit.
 
+  **Amendment 2026-05-17 (operator decision, arc-planner Phase 0 review --
+  supersedes the detection-input mechanism above; explicit, not silent).**
+  Verified live state that forced this: the loaded L1 extract is dev-head at
+  stale commits (mvdsv `f816d28` 2026-01-04; ktx `da73e06` 2026-03-03), the
+  research clones are frozen there, and `MVDSV 1.20-dev` / `KTX 1.47-dev` are
+  constant dev strings so the version label cannot expose the ~3-month
+  (mvdsv) / ~6-week (ktx) gap to the Apr-11 dump build. Decisive fact:
+  QuakeWorld servers run **dev-head**, not tagged releases (the latest KTX
+  release 1.46 is Sep-2025, older than our clone; the Apr-11 dump itself is a
+  dev-head build) -- so a release-anchored or stale-extract-anchored KB
+  describes config that is not what is deployed. Resolution: C3's detection
+  input is **self-generated and reproducible**, not a frozen third-party
+  capture. Phase 0 fetches the dev-head clones forward, builds mvdsv (C) and
+  ktx (QuakeC via fteqcc -> `qwprogs.dat`), runs a local `mvdsv +gamedir ktx`
+  server to capture a fresh `cvarlist`/`cmdlist` dump of that exact build,
+  and re-extracts L1 from the same commit. Source extract, the runtime
+  oracle, and the describe-fill substrate are then ONE build -- the
+  contemporaneity problem is dissolved by construction, not caveated (the
+  "same-version L1 extract" / "date-proximate pinning" / "fresh dump at the
+  extract commit" wording above is moot; F-C3a is dissolved). The dump is now
+  reproducible on every version-walk, which strengthens (does not change) the
+  D4 trigger (f) mechanism. The 2026-04-27 `ciscon-1.20-dev` production dump
+  is RETAINED as a secondary real-deployment cross-check, not the primary
+  oracle. Unchanged: classification (genuine-dead vs build/`#ifdef`-excluded)
+  is still the parked arc -- a local default-config build can still exclude
+  symbols by build flag, and that is exactly the classification C3 defers;
+  detection (presence in source, absence from the running build) is sound
+  because `cvarlist`/`cmdlist` enumerate registrations independent of config
+  values. Phase 0 carries a documented fallback so the arc is never blocked:
+  if the local fteqcc/KTX build or the server harness proves intractable
+  in-loop, fall back to fetch-forward-source + the retained production dump
+  under the original date-proximate caveat. Downstream flag (Phase 5, not
+  this section): D4's "~1-2 reviews/engine/year" assumed release cadence;
+  under dev-head anchoring the re-dump+re-extract becomes a routine
+  version-walk runbook step -- the staleness cadence is settled at Phase 5,
+  not here.
+
 - **C4 -- Repair by re-running the corrected pipeline, never a one-off SQL
   patch (Pass 5.2).** When any phase discovers that a pipeline bug (extractor,
   loader, synthesis skill, or projection serializer) corrupted committed rows,

@@ -79,28 +79,35 @@ shape -- not deferred to Phase 5.
 
 ## Substantive risks (would size a phase wrong or break a prerequisite)
 
-### F-C3a -- the runtime dump must be contemporaneous with the L1 extract
+### F-C3a -- DISSOLVED 2026-05-17 (self-built reproducible C3 oracle)
 
-**Contained by:** C3 (date-proximate pinning sufficient) -- but the
-prerequisite still holds.
+**Status: DISSOLVED** by the spec C3 amendment 2026-05-17 +
+`decisions.md` C3 amendment (operator decision, Phase 0 review). Kept here
+for the trail, not as an active risk.
 
-**Evidence:** C3 consumes the operator-captured runtime dump (2026-04-27
-capture; live KTX 1.47-dev + MVDSV 1.20-dev, Apr 11 2026 build; full
-`cvarlist` 733 + `cmdlist` 107/107). The dump is **present in-repo** (verified
-2026-05-16) at
-`apps/qw-oracle/scripts/extractors/mvdsv/validation-fixtures/ciscon-1.20-dev-2026-04-27.log`
-(byte-identical to the Windows-source `qw-1.log`). The suspect pool is only
-meaningful if the L1 KTX/MVDSV extract commit is contemporaneous with that
-build.
+**Original framing (verified, kept for reference):** the loaded L1 extract
+is dev-head at stale commits (mvdsv `f816d28` 2026-01-04; ktx `da73e06`
+2026-03-03; clones frozen there), the 2026-04-27 production dump is an
+Apr-11-2026 build, and `1.20-dev`/`1.47-dev` are constant dev strings that
+cannot expose the ~3-month (mvdsv) / ~6-week (ktx) gap. Under the original
+"diff a frozen third-party dump against whatever extract exists" mechanism
+this was a real false-suspect risk.
 
-**Risk:** if the L1 extract is from a materially different commit, the diff
-yields false suspects (entities that differ because of version drift, not
-liveness). Spec C3 names this as a tracked planner/executor carry-forward.
+**Why dissolved:** Phase 0 now self-generates the C3 oracle from a
+forward-fetched dev-head build (build mvdsv + ktx, run a local server,
+capture `cvarlist`/`cmdlist`) and re-extracts L1 from the same commit.
+Source extract + runtime oracle + describe-fill substrate are ONE build, so
+contemporaneity is structural, not a risk to manage. Decisive rationale: QW
+servers run dev-head, not tagged releases, so the KB must track dev-head
+anyway. See the spec C3 amendment + `decisions.md` C3 amendment for the full
+mechanism, the retained-production-dump cross-check, and the documented
+fallback (if the local fteqcc/KTX build is intractable in-loop, revert to
+fetch-forward-source + the production dump under the original date-proximate
+caveat -- the now-dissolved approach becomes the safety net).
 
-**Phase:** Phase 0 -- before relying on the suspect pool, confirm the extract
-commit vs the Apr 11 2026 dump build. If drift is large, take a fresh dump at
-the extract commit (the recovery path C3 names). This is a Phase 0 task, not
-just a prereq checkbox.
+**Phase:** Phase 0 (self-build + self-dump + re-extract-forward -- a
+substantive revision of the drafted Phase 0 MD's Task 2/3; Task 1
+load-commands free win unchanged). Not an active risk to track.
 
 ### F-D12a -- the ezquake.com "124 MVDSV cvars" figure is NOT a real metric yet
 
@@ -270,7 +277,7 @@ consumes; do not implement the wiki side).
 |---|---|---|
 | F-C2a (config drift real) | Grave | Phase 2 (preserve per-source), Phase 3 (flag/resolve) |
 | F-C5a (no probe for 4 new shapes) | Grave | Phase 1 (tag+anchor probes), Phase 2 (provenance+jsonb probes) |
-| F-C3a (dump contemporaneity) | Substantive | Phase 0 |
+| F-C3a (dump contemporaneity) | DISSOLVED 2026-05-17 | Phase 0 (self-built reproducible oracle; not an active risk) |
 | F-D12a (ezquake.com figure unverified) | Substantive | Phase 0 (quantify), Phase 4 (sized by it) |
 | F-D12b (load-commands free win) | Substantive (positive) | Phase 0 |
 | F-D11a (audit HTML generator absent) | Substantive | Phase 1 |

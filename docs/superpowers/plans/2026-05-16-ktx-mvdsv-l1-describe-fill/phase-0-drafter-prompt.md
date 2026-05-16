@@ -1,12 +1,38 @@
+> **REVISION 2026-05-17 -- C3 mechanism changed; this supersedes every "clean
+> the frozen qw-1.log and diff it" instruction below.** Operator decision at
+> the Phase 0 review: the loaded L1 extract is stale dev-head (mvdsv
+> 2026-01-04, ktx 2026-03-03) and QW servers run dev-head not tagged
+> releases, so C3's detection oracle is now **self-generated and
+> reproducible**: Phase 0 fetches the dev-head clones forward, builds mvdsv
+> (C) + ktx (QuakeC via fteqcc), runs a local `mvdsv +gamedir ktx` server to
+> capture a fresh `cvarlist`/`cmdlist` dump of that exact build, and
+> re-extracts L1 from the same commit -- source + oracle + substrate are ONE
+> build, contemporaneity dissolved (no caveat). **F-C3a is DISSOLVED**;
+> **F-C3b still stands** (detect only, do not classify). Authoritative
+> mechanism, fallback, and rationale: the spec C3 amendment 2026-05-17 +
+> `decisions.md` C3 amendment (read them; they win over any stale wording in
+> this prompt). The 2026-04-27 production dump is retained as a SECONDARY
+> cross-check only. If you are revising an already-drafted `phase-0-probes.md`:
+> Task 1 (load-commands free win) is unchanged; Task 2/3 are substantively
+> rewritten per this; re-read the amended decisions.md / spec / review-findings
+> first.
+
 You are drafting **Phase 0 -- Probes + the free win** of the **2026-05-16
 KTX / MVDSV Layer-1 describe-fill** arc.
 
-Phase 0 runs the three cheap probes that size the MVDSV phases and gate the
-synthesis phases: (1) ezquake.com-vs-MVDSV shape-quantification (D12/F-D12a);
-(2) the C3 runtime-dead suspect-pool diff (C3/F-C3a); (3) the verified
-one-line `load-commands.ts` fix that frees 28/108 MVDSV commands (F-D12b,
-first task, free win). Phase 0 SIZES Phase 4; it does NOT gate the KTX side
-(Phase 2 is liveness-agnostic).
+Phase 0 runs: (1) the verified one-line `load-commands.ts` fix that frees
+28/108 MVDSV commands (F-D12b, first task, free win); (2) the **self-built
+C3 detection oracle** -- fetch dev-head clones forward, build mvdsv + ktx,
+run a local server to capture a fresh same-build `cvarlist`/`cmdlist` dump,
+re-extract L1 from that commit, then a trivial same-build set-difference
+yields the C3 suspect pool (no contemporaneity caveat -- it is structural);
+(3) ezquake.com-vs-MVDSV shape-quantification (D12/F-D12a). Phase 0 SIZES
+Phase 4 and re-baselines the probe-0 denominators from the fresher source
+(correct by C1); it does NOT gate the KTX side (Phase 2 is
+liveness-agnostic). Carry the documented fallback: if the local fteqcc/KTX
+build or the server harness is intractable in-loop, fall back to
+fetch-forward-source + the retained production dump under the original
+date-proximate caveat -- the arc is never blocked.
 
 This is a structured planning task. Your output is ONE markdown file. You do
 NOT execute anything -- no probes, no loader fix, no diff runs. The phase MD
