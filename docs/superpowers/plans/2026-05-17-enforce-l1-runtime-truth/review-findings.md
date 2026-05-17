@@ -220,6 +220,114 @@ README; operator-approved at the pre-execution audit gate
 (orchestrator-applied mechanical revision -- no redraft, no D-amendment);
 this finding.
 
+### F9 -- D5 `not-compiled` underivable for build-system-excluded files (Phase-1 Gate-3 RED; phase-MD Recon "verified" premise refuted)
+
+**Correction:** Phase-1 MD "Recon facts (verified)" (server-cascade bullet
++ the `cl_bobhead` 3-gate ground truth, lines ~137-145/198) assert
+`src/cl_view.c` is "client-only (quakedef.h, not qwsvdef.h) -> NOT compiled
+in the SERVERONLY build" so `cl_bobhead`'s registrar `V_Init` resolves to
+D5's `not-compiled` third state in the server variant. Live execution
+refutes the DERIVABILITY: the Phase-1 mechanism's `_compiled[variant]` set
+means "this `.c` was parsed under the variant's clang flags with the body
+syntactically present", NOT "this file is linked into the variant's
+binary". Primary-source verified (executor, 2026-05-17, pinned HEAD
+`3f9e724f`): `clang_args_server_for` = client args + `-DSERVERONLY
+-DSERVER_ONLY` (clang_config.py:72-73); `cl_view.c` has NO file-scope
+`#ifndef SERVERONLY` / `#ifdef CLIENTONLY` guard (only three `#ifdef
+X11_GAMMA_WORKAROUND` blocks; `V_Init` @ :1127 unguarded; `quakedef.h`
+included unconditionally @ :21); `extract.py:312` walks every `src/*.c`
+uniformly under each variant's flags. So under `-DSERVERONLY` libclang
+parses `cl_view.c` in full, `enter_function(V_Init)` fires, `V_Init` lands
+in `_compiled["server"]` -> server state resolves `reachable`/`unreachable`,
+never `not-compiled`. `cl_view.c`'s server-build exclusion is a
+CMake/Makefile source-list (linker-level) decision INVISIBLE to the
+per-file libclang walk. The `#ifdef`-guarded case (`sv_main.c` SERVERONLY
+`Host_Init`) IS preprocessor-visible and works; build-system/source-list
+exclusion -- the LARGE class of client-only files -- does not. Same
+`feedback_parking_verified_state_is_hypothesis` / X8 / F4 / D7-amendment /
+D11-strike shape (a "verified" premise refuted by live execution).
+
+**Impact on this arc:** Phase-1 phase-boundary check 3 Gate 3 RED
+(`cl_bobhead` server: expected `not-compiled`, got `reachable`); Gates 1
+(`sb_qtvlist_url` genuine-dead/callgraph) + 2 (`gl_outline_scale_world`
+genuine-dead/commented-register) GREEN. D3 conservative posture is NOT
+violated -- the defect makes MORE variants count "compiled", which cannot
+manufacture a false genuine-dead (a live client cvar stays reachable in
+client -> reachable_anywhere -> build-excluded; a true ghost stays
+unreachable-in-every-compiled-variant -> genuine-dead; conclusions stable
+in the analyzed cases, only the per-variant EVIDENCE breakdown wrong). It
+is a D15 per-variant-evidence-fidelity defect: the auditable breakdown that
+is level-2's only trust mis-reports the build dimension for client-only
+files in the server variant. Systemic (Gate 1 GREEN only because its
+assertion does not pin the not-compiled state; the same defect affects it).
+Phase 1 cannot self-validate -> the phase does NOT ship; BLOCKED pending an
+operator-ratified `decisions.md` amendment (the D7/D11/F4 precedent -- the
+executor surfaces + STOPS, does not redesign or amend `decisions.md`).
+
+**Action / proposed dispositions (operator-routed; orchestrator routes the
+`decisions.md` amendment -- NOT executor scope):**
+- **Option A (full fidelity):** teach the mechanism each variant's true
+  SOURCE LIST (parse ezquake-source's CMake/Makefile server/win/apple
+  targets); a registrar whose file is not in a variant's source set ->
+  `not-compiled` for that variant. Restores D5/D15 fully. Heaviest --
+  Task-1 redesign + a build-file-parsing dependency.
+- **Option B (scope + amend, the 80/20):** amend D5's not-compiled
+  DERIVATION to "preprocessor-derivable exclusions only"; build-system-
+  excluded files show `reachable`/`unreachable` in the non-target variant;
+  revise Gate 3's expected `cl_bobhead` server state accordingly.
+  Conservative posture preserved (D3 intact; D5 "accept under-report" + D19
+  "dump is the overriding answer key" already tolerate the precision loss).
+  Lightest -- a dated D5-derivation-scope amendment + Gate-3 expected-value
+  revision; accept reduced D15 build-dimension precision for client-only
+  files.
+- Executor recommendation: lean Option B (grug 80/20; D3 not violated; D19
+  dump is the overriding answer key so level-3 ship-safety unaffected) --
+  but only Option A fully restores D15's "provenance a reader can trust"
+  for level-2 versions. Operator decides; not an executor call.
+
+**Orchestrator primary-source refinement (2026-05-17 -- per
+`feedback_verify_dispatched_terminal_claims`; the executor body above is
+the record of the path, refined here, not rewritten).** The executor
+framed the gap as "build-system/Makefile source-list (linker-level)
+exclusion" and Option A as "parse ezquake-source's CMake/Makefile
+server/win/apple targets". Orchestrator primary-source check found that
+SHARPER: ezquake-source's `CMakeLists.txt` has exactly ONE
+`add_executable(ezquake)` over ONE 309-file source list (all 16 `cl_*.c`
+INCLUDED); there is NO separate dedicated-server / win / apple target, and
+CMake never sets `SERVERONLY` (pure source-level `#ifdef` define; 27 src
+files carry genuine guards; `cl_view.c` carries none). So there are NO
+per-variant CMake targets to parse -- **Option A is INAPPLICABLE, not
+merely "heaviest"**: nothing could make `cl_view.c` not-compiled-in-server
+because ezQuake-source's real build compiles it under any preprocessor
+config. The drafter premise imported the HISTORICAL `qwsv` dedicated-
+server model this codebase does not implement; the mechanism's
+`_compiled[server]` for an unguarded client file is CORRECT for ezQuake-
+source's real build. The orchestrator independently re-ran the harness and
+corroborated the executor EXACTLY (`GATE 1 GREEN`, `GATE 2 GREEN`; Gate 3
+expected `server:not-compiled` vs actual `server:reachable`, conclusion
+`build-excluded` correct, `harness exit=1`).
+
+**Resolved by:** Option B operator-ratified 2026-05-17 (one question,
+plain-English consequences; the D7/D11/F4 precedent). Dated `decisions.md`
+D5 AMENDMENT 2026-05-17 applied by the orchestrator: D5's three states +
+combination logic UNCHANGED; the DERIVATION of `not-compiled` SCOPED to
+preprocessor-derivable exclusion only; build-system/source-list exclusion
+NOT modeled (ezQuake-source: one build target, no per-variant source
+list). D3 intact; D19 / level-3 autonomous-ship safety unaffected; bounded
+D15 precision loss lands only in level-2 build-dimension auditability for
+client-only-file registrars in the server variant. Propagated as dated
+corrections (narrative preserved): Phase-1 MD Recon #5 server-cascade
+bullet + `cl_bobhead` 3-gate ground truth + Task-3 Gate 3 + phase-boundary
+check 3 (corrected `cl_bobhead` server cell = `reachable`; conclusion
+`build-excluded` UNCHANGED -- the load-bearing assertion); Phase-3 MD
+Task-3 verification (b) + check-3; Phase-4 MD Phase-1-probe-contract recon
+line. Phase-4/5 outputs UNAFFECTED (they consume the conclusion + D13
+level; `cl_bobhead` -> build-excluded -> permanently level-2, never the
+delete-list -- D20/OQ-3). The Phase-1 executor resumes the BLOCKED phase:
+revise `_callgraph.py`'s not-compiled derivation to preprocessor-scoped +
+`verify-callgraph-probes.py` Gate 3 expected `cl_bobhead` server cell ->
+`reachable` (conclusion `build-excluded`), re-run the 3-gate GREEN.
+
 ---
 
 ## R -- implementation residuals (brainstorm-deferred; owning phase resolves)
@@ -354,6 +462,7 @@ mechanism; **S** = unified schema + loader; **ACC** = acceptance contract;
 | F6 (X3 file set = live stems) | A (corrected) + B (correct) + S/APP | enumerate the 8 live output_filename stems; 9th additive |
 | F7 (dump embedded commit banner; "rests entirely on proxy" false) | ACC | correct Recon fact + detection README; embedded-SHA primary proxy leg (S2) |
 | F8 (cross-arc drift: sibling consumed mig `014` + grew quality-grid.ts post-freeze) | S (own) + ACC/APP (propagate) | executor-derive the mig ordinal; re-derive quality-grid.ts cites live; P3/P4/P5/README revised; no D-amendment |
+| F9 (D5 not-compiled underivable for build-system-excluded files; P1 Gate-3 RED; Recon premise refuted) | A (own) -> operator/orchestrator (D5-derivation amendment) | OPEN -- P1 executor HALT BLOCKED 2026-05-17; Option A (variant source-list) vs B (scope not-compiled to #ifdef-derivable + revise Gate 3); D3 not violated; operator-ratified `decisions.md` amendment |
 | R1 (AST-confirm literal) | B | AST probe before literal-only is load-bearing |
 | R2 (D15/D12 field shape) | S | two separate fields; feeder tag structural |
 | R3 (D16 element key) | B (emit) + S (store) | element-grouped provenance |

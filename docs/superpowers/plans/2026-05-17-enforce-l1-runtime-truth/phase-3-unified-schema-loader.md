@@ -626,9 +626,12 @@ handler emission or existing entity rows would violate X3.
   `gl_outline_scale_world` -> `genuine-dead` feeder
   `commented-register` with a `register_site`, `cl_bobhead` ->
   `build-excluded` feeder `callgraph` per_variant reachable
-  client/win/apple + `not-compiled` server (the Phase-1 self-validated
+  client/win/apple + `reachable` server (the Phase-1 self-validated
   answers, now round-tripped -- X2: this is Phase-1's OWN probe answer
-  re-observed in L1, NOT a new dump cross-check); (c) `radar` /
+  re-observed in L1, NOT a new dump cross-check) [F9 DATED CORRECTION
+  2026-05-17: was `not-compiled` server -- refuted premise; decisions.md
+  D5 AMENDMENT + review-findings F9; conclusion `build-excluded` is the
+  load-bearing answer and is UNCHANGED]; (c) `radar` /
   `+hud_radar` / `-hud_radar` all present as `command` entities with
   `track_b_hud_recovery.evidence.hud_element = 'radar'`, conclusions
   `bare-command` / `plus-minus-pair` / `plus-minus-pair`; (d) the
@@ -730,8 +733,11 @@ item 4), never the combined harness (Phase 4/5). X2 by construction
    the 3-gate entities carry exactly the Phase-1 self-validated
    answers (sb_qtvlist_url genuine-dead/callgraph/unreachable-
    everywhere; gl_outline_scale_world genuine-dead/commented-register;
-   cl_bobhead build-excluded/reachable-client+win+apple/not-compiled-
-   server); Track-B `radar`/`+hud_radar`/`-hud_radar` are first-class
+   cl_bobhead build-excluded/reachable-client+win+apple/reachable-server
+   [F9 DATED CORRECTION 2026-05-17: was not-compiled-server -- refuted
+   premise; decisions.md D5 AMENDMENT + review-findings F9; conclusion
+   build-excluded UNCHANGED, load-bearing]); Track-B
+   `radar`/`+hud_radar`/`-hud_radar` are first-class
    `command` entities element-linked to `radar`; the structural
    no-blend (d) holds. FAIL: any 3-gate mismatch, a missing/extra
    variant key, a Track-B cvar, or a created (not overlaid) Track-A

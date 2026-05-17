@@ -151,8 +151,12 @@ routing predicate is SHIPPED and TESTED here, Phase 5 CONSUMES it).
   per-variant unreachable everywhere-compiled; Gate 2
   `gl_outline_scale_world` -> `genuine-dead`, feeder `commented-register`,
   textual cite `r_rmain.c:730`; Gate 3 `cl_bobhead` -> `build-excluded`,
-  feeder `callgraph`, reachable client/win/apple + `not-compiled` server +
-  `address_taken_residue == false`. "Exit non-zero with a LOUD per-gate
+  feeder `callgraph`, reachable client/win/apple + `reachable` server +
+  `address_taken_residue == false` [F9 DATED CORRECTION 2026-05-17: was
+  `not-compiled` server -- refuted premise; decisions.md D5 AMENDMENT +
+  review-findings F9; conclusion `build-excluded` UNCHANGED, load-bearing;
+  Phase-4 reads conclusion+level so its outputs are unaffected].
+  "Exit non-zero with a LOUD per-gate
   report on any RED ... prints `GATE 1 GREEN / GATE 2 GREEN / GATE 3
   GREEN`." Explicitly: "this is the probe LOGIC -- Phase 4 composes it into
   the combined one-time-per-fork gate, this script does NOT wire that."

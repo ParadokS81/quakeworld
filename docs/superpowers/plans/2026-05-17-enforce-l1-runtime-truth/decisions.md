@@ -121,6 +121,72 @@ unreachable in the data model and the verdict logic. The final static verdict
 is still cross-checked vs the runtime dump before ship (D19, the acceptance
 phase).
 
+> **AMENDMENT 2026-05-17 (operator-ratified; the record of the path --
+> Phase-1 execution F9).** A Phase-1 MD "Recon facts (verified)" premise
+> was REFUTED by live execution + orchestrator primary-source verification,
+> the same `feedback_parking_verified_state_is_hypothesis` / X8 / F4 /
+> D7-amendment shape this arc has hit and operator-ratified before. The
+> Phase-1 drafter Recon asserted `src/cl_view.c` is "client-only
+> (quakedef.h, not qwsvdef.h) -> NOT compiled in the SERVERONLY build" so
+> `cl_bobhead`'s registrar `V_Init` is `not-compiled` in the server
+> variant. That imported the HISTORICAL QuakeWorld `qwsv` model (a
+> separate dedicated-server binary with its own source list excluding
+> client files). **ezQuake-source does not implement that.**
+> Orchestrator-verified at primary source (2026-05-17, pin
+> `3f9e724fa608e516040f02b9557808ff3efda53e`): `clang_config.py:72-73`
+> `clang_args_server_for` = client args + `-DSERVERONLY -DSERVER_ONLY`
+> (nothing else differs); `extract.py:477` builds ONE 309-file source set,
+> `:306-309` parses every `.c` under all 4 variant flag sets (no
+> per-variant source list); `cl_view.c` has NO file-scope `SERVERONLY`
+> guard and `quakedef.h` is a plain include-guard, so it parses non-empty
+> under `-DSERVERONLY`; `CMakeLists.txt` has ONE `add_executable(ezquake)`
+> over all 309 `.c` (16 `cl_*.c` included) -- NO separate dedicated-server
+> target -- and CMake never sets `SERVERONLY` (it is a pure source-level
+> `#ifdef` define; 27 src files carry genuine guards). So the mechanism's
+> "`_compiled[server]`" = "parsed under server flags with body present",
+> which for an unguarded client file is CORRECT for ezQuake-source's real
+> build (it would compile `cl_view.c` under any preprocessor config). The
+> error was the drafter's EXPECTED value, not the mechanism. The executor
+> Option A ("teach the mechanism each variant's true CMake source list")
+> was found INAPPLICABLE -- there is no per-variant CMake source list to
+> teach it; one target compiles everything.
+>
+> **Ratified resolution (Option B; operator 2026-05-17).** D5's THREE
+> states + the combination logic + the not-compiled-is-physically-distinct
+> implication are UNCHANGED. The DERIVATION of `not-compiled` is SCOPED to
+> **preprocessor-derivable exclusion only**: a registrar's function/file
+> body absent from a variant's PARSE because of a `#ifdef`/`#ifndef`
+> (`SERVERONLY`/`SERVER_ONLY`, `_WIN32`/`WIN32`, `__APPLE__`, etc.) that
+> empties it in that variant. Build-system / source-list exclusion is NOT
+> modeled (ezQuake-source has one build target, no per-variant source
+> list, no separate dedicated-server build). A client-only file with NO
+> preprocessor guard resolves `reachable`/`unreachable` (per the BFS) in
+> the server variant, NEVER `not-compiled`. not-compiled remains correctly
+> derivable for the 27 `SERVERONLY`-guarded files + all
+> `#ifdef _WIN32`/`__APPLE__`-guarded code (genuine preprocessor exclusion
+> -> empty body in the non-target parse). **D3 (never-false-accuse) is
+> intact** -- the scoping only makes MORE variants count "compiled" (where
+> the entity is unreachable-from-that-root or D4 address-taken-cleared); it
+> cannot remove a live entity's client-side reachability, so it cannot
+> manufacture a false `genuine-dead`; conclusions are stable, only D15's
+> per-variant EVIDENCE breakdown is affected on the build dimension for
+> client-only-file registrars in the server variant -- and that is the
+> drafter's expectation being corrected to ezQuake-source's real build
+> model, not a new inaccuracy. D19 (the dump is the overriding answer key)
+> is unaffected -> level-3 autonomous-ship safety is unchanged; the
+> bounded precision loss lands only in level-2 auditability (the
+> assistant tier). Propagated: review-findings F9 (resolution); Phase-1 MD
+> Recon #5 + the `cl_bobhead` 3-gate ground truth + Task-3 Gate 3 +
+> phase-boundary check 3 (corrected `cl_bobhead` server cell =
+> `reachable`, conclusion `build-excluded` UNCHANGED -- the load-bearing
+> assertion); Phase-3 MD Task-3 verification (b) + check-3 expected cell
+> (same correction, conclusion unchanged); Phase-4 MD Phase-1-probe-
+> contract recon line. Phase-4/5 consume the conclusion + D13 level
+> (`cl_bobhead` -> build-excluded -> permanently level-2, never the
+> delete-list -- D20/OQ-3) so their outputs are UNAFFECTED. The D5 shape
+> enum `reachable|unreachable|not-compiled` is unchanged (Phase-3 MD
+> :183/:371/:670, Phase-5 MD :198 -- still valid; not edited).
+
 ## D6. Track A integration -- shared passenger on the existing walk; non-corrupting + cleanly toggleable
 
 **Decision:** Option A: a self-contained Tier-1 shared module (one new file

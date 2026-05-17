@@ -57,6 +57,8 @@ from extractor_lib.clang_config import (  # noqa: E402
     clang_args_win_for,
 )
 from extractor_lib._visitor import Visitor, walk_tu_dispatch  # noqa: E402
+import extractor_lib._callgraph as _callgraph  # noqa: E402
+from extractor_lib._callgraph import CallGraphObserver  # noqa: E402
 from _handler_commands import CommandsEzquakeHandler  # noqa: E402
 from _handler_cvars import CvarsEzquakeHandler  # noqa: E402
 from _handler_macros import MacrosEzquakeHandler  # noqa: E402
@@ -67,6 +69,13 @@ from _handler_asset_loader_sites import AssetLoaderSitesEzquakeHandler  # noqa: 
 from _handler_keynames import KeynamesEzquakeHandler  # noqa: E402
 
 REPO_ROOT = HERE.parent.parent.parent.parent.parent
+
+# D2/D6/X4: per-fork gate. On for ezQuake only (other forks have no validated
+# known-answer harness yet -- D22 precondition). Off => the observer is never
+# constructed, no observer cycles run, no edges/BFS, no feeder-(b) scan, no
+# "callgraph" key in rows_by_handler => byte-for-byte today's pipeline.
+# To force OFF for the X3 baseline leg set the env var CALLGRAPH_OFF=1.
+ENABLE_CALLGRAPH_PASSENGER: bool = (os.environ.get("CALLGRAPH_OFF", "") != "1")
 
 # Registry of all handlers. Add new entries as more extractors are ported.
 ALL_HANDLERS = {
@@ -92,6 +101,10 @@ _WORKER_CLANG_CLIENT: list[str] = []
 _WORKER_CLANG_SERVER: list[str] = []
 _WORKER_CLANG_WIN: list[str] = []
 _WORKER_CLANG_APPLE: list[str] = []
+# Inherits the ENABLE_CALLGRAPH_PASSENGER value at fork time via copy-on-write.
+# Set explicitly in _run_parallel so the worker sees the decided value even if
+# the env var was parsed at import time in the parent. No pickling needed.
+_WORKER_CALLGRAPH_ON: bool = False
 
 
 def _split_handlers(handlers: list) -> tuple[list, list]:
@@ -113,6 +126,7 @@ def _process_one_file(
     legacy: list,
     local_rows: dict,
     local_diag: list,
+    obs=None,
 ) -> None:
     """Run all handlers against one file's TUs. Visitor handlers go through
     the shared walk; legacy handlers get their own process_file call.
@@ -122,11 +136,22 @@ def _process_one_file(
     existing handler behavior (primary-path add, per-file seen-name
     dedup, unconditional overwrite with identical data) applies uniformly
     without requiring each handler to learn about new variant labels.
-    Code behind #ifdef _WIN32 / #ifdef __APPLE__ guards — invisible to
-    the baseline client+server passes — surfaces through these extras."""
+    Code behind #ifdef _WIN32 / #ifdef __APPLE__ guards -- invisible to
+    the baseline client+server passes -- surfaces through these extras.
+
+    obs: optional CallGraphObserver. When present (ENABLE_CALLGRAPH_PASSENGER
+    is on), the observer runs FOUR SEPARATE dispatch cycles with the TRUE
+    variant labels (client/server/win/apple) -- NOT added to the shared
+    visitor list. The shared 8-handler visitor list and its 4 dispatches
+    (lines below) are byte-unchanged (X3/D6). The observer cycles are
+    entirely additive and independent."""
     target_path_str = str(path.resolve())
 
     # Visitor path: shared walk per TU, dispatching to every visitor.
+    # These 4 dispatch calls and their "client"/"server"/"client"/"client"
+    # labels are LOAD-BEARING -- existing handlers depend on the collapsed
+    # label for their dedup logic (see comment in extract.py:119-126).
+    # NEVER change these labels (X3).
     if visitors:
         for v in visitors:
             v.start_file(source_path=path, source_bytes=source_bytes)
@@ -143,6 +168,43 @@ def _process_one_file(
                 local_rows[v.name].extend(rows)
             except Exception as e:
                 local_diag.append(f"{path.name} [{v.name}.end_file]: {type(e).__name__}: {e}")
+
+    # Observer-only cycles: 4 separate dispatch passes with TRUE variant
+    # labels. Completely separate from the shared visitor list above (D6
+    # zero shared state). Only runs when obs is provided (boolean is on).
+    # Each pass: set active_variant -> start_file -> single-observer walk
+    # -> end_file -> accumulate facts. Per-file facts go into
+    # local_rows["callgraph"] (a plain list of dicts -- crosses the
+    # multiprocessing boundary fine; same shape as every other handler).
+    if obs is not None:
+        try:
+            cg_rows: list = []
+            for true_variant, tu in (
+                ("client", tu_client),
+                ("server", tu_server),
+                ("win",    tu_win),
+                ("apple",  tu_apple),
+            ):
+                obs.active_variant = true_variant
+                obs.start_file(source_path=path, source_bytes=source_bytes)
+                try:
+                    walk_tu_dispatch(tu, [obs], true_variant, target_path_str)
+                except Exception as e:
+                    local_diag.append(
+                        f"{path.name} [callgraph-obs {true_variant}]: "
+                        f"{type(e).__name__}: {e}"
+                    )
+                try:
+                    cg_rows.extend(obs.end_file())
+                except Exception as e:
+                    local_diag.append(
+                        f"{path.name} [callgraph-obs.end_file {true_variant}]: "
+                        f"{type(e).__name__}: {e}"
+                    )
+            local_rows.setdefault("callgraph", []).extend(cg_rows)
+        except Exception as e:
+            # X4: an observer failure must not perturb the 8-handler output.
+            local_diag.append(f"{path.name} [callgraph-obs]: {type(e).__name__}: {e}")
 
     # Legacy path: each handler owns its walk via process_file. Only the
     # client+server TUs are passed; legacy handlers that need platform
@@ -167,6 +229,23 @@ def _worker_process_chunk(file_path_strs: list[str]) -> tuple[dict, list]:
     local_diag: list[str] = []
     visitors, legacy = _split_handlers(_WORKER_HANDLERS)
 
+    # One observer instance per worker chunk. It is NOT in _WORKER_HANDLERS
+    # (never added to ALL_HANDLERS or the visitor list) -- it runs through
+    # separate observer-only dispatch cycles inside _process_one_file (D6).
+    # _WORKER_CALLGRAPH_ON is inherited from the parent via fork copy-on-write.
+    obs = None
+    if _WORKER_CALLGRAPH_ON:
+        try:
+            obs = CallGraphObserver()
+        except Exception as e:
+            print(
+                f"CALLGRAPH PASSENGER DISABLED (worker observer init failed: {e})",
+                file=sys.stderr,
+            )
+
+    if obs is not None:
+        local_rows["callgraph"] = []
+
     for ps in file_path_strs:
         path = Path(ps)
         try:
@@ -182,7 +261,7 @@ def _worker_process_chunk(file_path_strs: list[str]) -> tuple[dict, list]:
 
         _process_one_file(
             path, source_bytes, tu_client, tu_server, tu_win, tu_apple,
-            visitors, legacy, local_rows, local_diag,
+            visitors, legacy, local_rows, local_diag, obs,
         )
 
     return local_rows, local_diag
@@ -196,11 +275,26 @@ def _run_serial(
     clang_args_win: list[str],
     clang_args_apple: list[str],
     progress_every: int,
+    callgraph_on: bool = False,
 ) -> tuple[dict, list]:
     """Serial fallback. Used when workers == 1."""
     rows_by_handler: dict[str, list[dict]] = {h.name: [] for h in handlers}
     diagnostics: list[str] = []
     visitors, legacy = _split_handlers(handlers)
+
+    # Observer for the callgraph passenger (X4: fail-safe-off).
+    # NOT added to visitors -- runs separate cycles per file (D6).
+    obs = None
+    if callgraph_on:
+        try:
+            obs = CallGraphObserver()
+            rows_by_handler["callgraph"] = []
+        except Exception as e:
+            print(
+                f"CALLGRAPH PASSENGER DISABLED (serial observer init failed: {e})",
+                file=sys.stderr,
+            )
+
     t0 = time.perf_counter()
     for i, path in enumerate(c_files, 1):
         try:
@@ -215,12 +309,44 @@ def _run_serial(
         tu_apple  = idx.parse(str(path), args=clang_args_apple,  options=PARSE_OPTS)
         _process_one_file(
             path, source_bytes, tu_client, tu_server, tu_win, tu_apple,
-            visitors, legacy, rows_by_handler, diagnostics,
+            visitors, legacy, rows_by_handler, diagnostics, obs,
         )
         if progress_every and i % progress_every == 0:
             elapsed = time.perf_counter() - t0
             rate = i / elapsed if elapsed > 0 else 0
             print(f"  [{i:>3}/{len(c_files)}] {path.name:40} elapsed {elapsed:6.1f}s ({rate:.1f} files/s)")
+
+    # Parent-side post-walk for the callgraph passenger (serial path).
+    # Runs after all files' facts are collected (feeder a) and then
+    # scans raw source text for commented-out registrations (feeder b).
+    # Fail-safe: any exception here must not corrupt the 8-handler output
+    # or abort the extractor (X4/D6).
+    if obs is not None:
+        try:
+            _callgraph.reset_result()
+            _callgraph.feed_file_facts(rows_by_handler.get("callgraph", []))
+            _callgraph.run_postwalk()
+        except Exception as e:
+            print(
+                f"CALLGRAPH PASSENGER DISABLED (serial feeder-a post-walk failed: {e})",
+                file=sys.stderr,
+            )
+        try:
+            _callgraph.reset_commented_index()
+            for path in c_files:
+                try:
+                    text = path.read_text(encoding="utf-8", errors="replace")
+                    _callgraph.feed_commented_registrations(text, str(path))
+                except Exception:
+                    # A single file failure only loses feeder-(b) evidence
+                    # for that file -- conservative/safe direction.
+                    pass
+        except Exception as e:
+            print(
+                f"CALLGRAPH PASSENGER DISABLED (serial feeder-b scan failed: {e})",
+                file=sys.stderr,
+            )
+
     return rows_by_handler, diagnostics
 
 
@@ -233,15 +359,19 @@ def _run_parallel(
     clang_args_apple: list[str],
     workers: int,
     chunk_size: int,
+    callgraph_on: bool = False,
 ) -> tuple[dict, list]:
     """Parallel path: forked Pool, chunked map, ordered result merge."""
     global _WORKER_HANDLERS, _WORKER_CLANG_CLIENT, _WORKER_CLANG_SERVER
-    global _WORKER_CLANG_WIN, _WORKER_CLANG_APPLE
+    global _WORKER_CLANG_WIN, _WORKER_CLANG_APPLE, _WORKER_CALLGRAPH_ON
     _WORKER_HANDLERS = handlers
     _WORKER_CLANG_CLIENT = clang_args_client
     _WORKER_CLANG_SERVER = clang_args_server
     _WORKER_CLANG_WIN = clang_args_win
     _WORKER_CLANG_APPLE = clang_args_apple
+    # Set before fork so every worker inherits the decided value via
+    # copy-on-write (consistent with how _WORKER_HANDLERS is inherited).
+    _WORKER_CALLGRAPH_ON = callgraph_on
 
     file_strs = [str(p) for p in c_files]
     chunks = [file_strs[i:i + chunk_size] for i in range(0, len(file_strs), chunk_size)]
@@ -255,12 +385,47 @@ def _run_parallel(
         results = pool.map(_worker_process_chunk, chunks, chunksize=1)
 
     # Deterministic merge: iterate results in input order.
+    # Seed with the 8 handler names + "callgraph" when the passenger is on
+    # so the merge below never hits a KeyError on the extra key workers emit.
     rows_by_handler: dict[str, list[dict]] = {h.name: [] for h in handlers}
+    if callgraph_on:
+        rows_by_handler["callgraph"] = []
     diagnostics: list[str] = []
     for local_rows, local_diag in results:
         for name, rows in local_rows.items():
             rows_by_handler[name].extend(rows)
         diagnostics.extend(local_diag)
+
+    # Parent-side post-walk for the callgraph passenger (parallel path).
+    # Workers returned their per-file facts in rows_by_handler["callgraph"].
+    # Here we feed them all into the module-level post-walk store and run
+    # the BFS so reachable() answers. Then scan raw source text for
+    # feeder-(b) commented-out registrations (pure text; D1 no-blend).
+    # Fail-safe: any exception here must not corrupt the 8-handler output
+    # or abort the extractor (X4/D6).
+    if callgraph_on:
+        try:
+            _callgraph.reset_result()
+            _callgraph.feed_file_facts(rows_by_handler.get("callgraph", []))
+            _callgraph.run_postwalk()
+        except Exception as e:
+            print(
+                f"CALLGRAPH PASSENGER DISABLED (parallel feeder-a post-walk failed: {e})",
+                file=sys.stderr,
+            )
+        try:
+            _callgraph.reset_commented_index()
+            for path in c_files:
+                try:
+                    text = path.read_text(encoding="utf-8", errors="replace")
+                    _callgraph.feed_commented_registrations(text, str(path))
+                except Exception:
+                    pass
+        except Exception as e:
+            print(
+                f"CALLGRAPH PASSENGER DISABLED (parallel feeder-b scan failed: {e})",
+                file=sys.stderr,
+            )
 
     return rows_by_handler, diagnostics
 
@@ -350,12 +515,14 @@ def main() -> int:
             c_files, handlers,
             clang_args_client, clang_args_server, clang_args_win, clang_args_apple,
             args.progress_every,
+            callgraph_on=ENABLE_CALLGRAPH_PASSENGER,
         )
     else:
         rows_by_handler, diagnostics = _run_parallel(
             c_files, handlers,
             clang_args_client, clang_args_server, clang_args_win, clang_args_apple,
             workers, chunk_size,
+            callgraph_on=ENABLE_CALLGRAPH_PASSENGER,
         )
 
     parse_time = time.perf_counter() - t0

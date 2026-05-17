@@ -143,6 +143,20 @@ actual diff command emitting an empty result (X3).
   qwsvdef.h) -> NOT compiled in the SERVERONLY build. So in the server
   variant `cl_bobhead`'s registrar is **not-compiled** (D5's load-bearing
   third state), NOT "unreachable".
+  > **F9 DATED CORRECTION 2026-05-17 (Phase-1 execution; narrative above
+  > preserved as the record of the path -- decisions.md D5 AMENDMENT
+  > 2026-05-17, operator-ratified; review-findings F9).** The sentence
+  > "`src/cl_view.c` ... NOT compiled in the SERVERONLY build -> ...
+  > **not-compiled** ... NOT 'unreachable'" is REFUTED at primary source.
+  > It imported the historical `qwsv` dedicated-server model; ezQuake-
+  > source has ONE `add_executable(ezquake)` over ONE 309-file source list
+  > (all `cl_*.c` included), CMake never sets `SERVERONLY`, and `cl_view.c`
+  > has no `SERVERONLY` preprocessor guard -> it parses non-empty under
+  > `-DSERVERONLY`. Per the D5 AMENDMENT, not-compiled is preprocessor-
+  > derivable ONLY; `cl_view.c`'s server-variant state is `reachable`
+  > (BFS/D4) -- NEVER `not-compiled`. The conclusion `build-excluded`
+  > (cl_bobhead is a live client cvar) is UNCHANGED and is the load-bearing
+  > assertion (D3 intact; D19 level-3 safety unaffected).
 - **Address-taken root shapes exist (D3.2/D4; one cite each):** command
   handler callback `Cmd_AddCommand("show", HUD_Show_f)` @ `src/hud.c:813`;
   cvar on_change function pointer in the 4th initializer field
@@ -195,8 +209,13 @@ actual diff command emitting an empty result (X3).
     This is the structural proof D7.1's two-feeder split is real.
   - `cl_bobhead` -- type `cvar`, decl `cl_view.c:49`;
     `Cvar_Register(&cl_bobhead)` @ `cl_view.c:1160` inside `V_Init`
-    (`cl_view.c:1127`), reachable client/win/apple, **not-compiled** server.
-    => reachable in >=1 variant => build-excluded (cleared, never accused).
+    (`cl_view.c:1127`), reachable client/win/apple, **reachable** server
+    [F9 DATED CORRECTION 2026-05-17: was "**not-compiled** server" --
+    refuted premise, see the server-cascade bullet's F9 note +
+    decisions.md D5 AMENDMENT; not-compiled is preprocessor-derivable
+    only, `cl_view.c` is unguarded so the server cell is `reachable`].
+    => reachable in >=1 variant => build-excluded (cleared, never accused
+    -- the conclusion is UNCHANGED by F9 and is the load-bearing answer).
 - **Pin + environment (prerequisites 1-3).** `research/repos/ezquake-source`
   HEAD = `3f9e724fa608e516040f02b9557808ff3efda53e` ("Merge pull request
   #1120 ... help-json-drift") == `oracle_meta` `ezquake:source_repo_commit`
@@ -468,10 +487,21 @@ handler output would violate X3.
     cite is found.
   - [ ] Gate 3 (reachable / build-explained): assert
     `reachable(cvar "cl_bobhead")` -> conclusion `build-excluded`, feeder
-    `callgraph`, evidence per-variant = reachable in client/win/apple,
-    not-compiled in server (NOT "unreachable" in server -- the third state
-    must be distinct). RED if conclusion is genuine-dead, or if server is
-    reported "unreachable" instead of "not-compiled".
+    `callgraph`, evidence per-variant = reachable in client/win/apple AND
+    `reachable` in server. RED if conclusion is genuine-dead, or if server
+    is reported `not-compiled`.
+    > **F9 DATED CORRECTION 2026-05-17 (decisions.md D5 AMENDMENT,
+    > operator-ratified; review-findings F9).** Original Gate 3 expected
+    > `not-compiled` server and RED-on-"unreachable" -- that rested on the
+    > refuted historical-qwsv premise. Per the D5 AMENDMENT not-compiled is
+    > preprocessor-derivable ONLY; `cl_view.c` is unguarded so the
+    > mechanism correctly resolves `cl_bobhead` server -> `reachable`
+    > (harness-confirmed actual + primary-source-explained). The
+    > LOAD-BEARING assertion is conclusion `build-excluded` (UNCHANGED --
+    > a live client cvar; D3 intact). The executor implements
+    > `verify-callgraph-probes.py` Gate 3 to this corrected expectation
+    > (server `reachable`, RED iff conclusion != build-excluded OR server
+    > == not-compiled) and re-runs the 3-gate GREEN.
   - [ ] Exit non-zero with a LOUD per-gate report on any RED (D18 shape;
     this is the probe LOGIC -- Phase 4 composes it into the combined
     one-time-per-fork gate, this script does NOT wire that).
@@ -501,7 +531,10 @@ Operator runs, YES/NO:
    PASS condition: exit 0, `GATE 1 GREEN`, `GATE 2 GREEN`, `GATE 3 GREEN`
    (sb_qtvlist_url genuine-dead/callgraph-feeder/unreachable-everywhere;
    gl_outline_scale_world genuine-dead/commented-register-feeder;
-   cl_bobhead build-excluded/reachable-client+win+apple/not-compiled-server).
+   cl_bobhead build-excluded/reachable-client+win+apple/reachable-server
+   [F9 DATED CORRECTION 2026-05-17: was "not-compiled-server" -- refuted
+   premise; decisions.md D5 AMENDMENT, review-findings F9. The load-bearing
+   answer is conclusion build-excluded, UNCHANGED]).
    FAIL condition: non-zero exit or any RED gate.
 4. **Toggle-off parity (X4):** with the boolean forced off, the extractor
    output equals today's pipeline byte-for-byte (covered by check 2's
