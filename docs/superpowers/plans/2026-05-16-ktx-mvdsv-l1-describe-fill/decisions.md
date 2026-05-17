@@ -468,6 +468,23 @@ the `mvdsv.6` sibling parser the same way. Structured choices stay structured
 (P2: JSONB as JS values). The parser never sets a quality verdict -- that is
 the D5-D8 evaluation (Phase 3/4).
 
+**Amendment 2026-05-17 (planner, Phase 2 review -- primary-source-verified;
+mirrors the spec D17 dated correction).** The "~157/260" figure above (and in
+D17 / the spec / README / gap-findings) is CONFLATED and corrected.
+gap-findings derived "~157" by unioning the EXISTING `_handler_cvars.py`
+libclang registration surface (68 `source_inline`, already loaded -- by D9
+explicitly NOT this tier) with the shipped-config surface. The honest D9
+`shipped_doc` write target, verified live 2026-05-17 (3 mechanical configs:
+in-repo `ktx.cfg` 93 set-lines + nQuake `ktx.cfg` 95 + nQuake
+`port_template.cfg` 11 = 120 distinct set-names; 109 resolve exact-case to a
+live KTX cvar; 11 non-resolvers recorded + tracked, never created -- D9
+fill-not-create), is **~109/260**. The C1 gate is UNCHANGED: the probe-0
+**M=260** denominator with the ~151 not-mechanically-covered residue (incl.
+the 38 bot `k_fbskill_*`) tracked to Phase 3 / the C1 outreach track, NEVER
+importance-cut. "~109" is a verified order-of-magnitude (exact-case; the
+loader folds case via `name_fold`), NOT a hit-target -- the gate is M=260.
+Phase 2 MD Recon facts + Open Q (a) carry the full live derivation.
+
 ## D10 -- Drift/conflict policy: three classes, source-grounded, resolved inline at the D7 tail
 
 **Decision:** Built on C2. Three classes: **Value differences**
@@ -530,6 +547,22 @@ the 2026-05-15 file is a VISUAL TEMPLATE only, its generator was NOT found in
 the codebase, see review-findings F-D11a). Phase 2 first populates retained
 provenance. Phase 3/4 populate the decision trail. P2 applies (JSONB as JS
 values).
+
+**Amendment 2026-05-17 (planner, Phase 2 review -- approved cross-phase
+deviation; Phase 2 Open Q (b)).** Phase 1's locked `description_provenance`
+JSONB element `{source_file, source_line, shipped_value, raw_comment}` has no
+slot for D9's mandated "structured choices kept structured" (`{value,label}`
+enum + bitmask tables as DATA, never prose-flattened). Phase 1 did not
+provision it because its one D19 cvar (`k_short_gib`) is boolean with no enum.
+Resolution (faithful D9 realization, NOT a lock contradiction): the
+retained-provenance element is widened with an ADDITIVE optional
+`structured_choices` field per (cvar, source-file). JSONB is schemaless, so
+this is NOT a migration and does NOT break Phase 1's `k_short_gib` record
+(no enum -> field absent; element otherwise byte-identical, idempotent
+reproduction holds -- C4/D19). Rejected: a dedicated column (a real
+migration, no benefit). Cross-cutting: Phase 3 + the D11/D15 serializer + any
+Phase 1 executor consume the element shape, recorded here. P2 still binds JS
+values, never pre-stringified.
 
 ## D12 -- Cheap-probe bundle is arc Phase 0
 
@@ -672,7 +705,9 @@ change the shape or the engine order.
   C5 F1 probes. Engine-agnostic; both engines ride it.
 - **Phase 2 -- KTX mechanical extract (D9).** New sibling extractor: in-repo +
   nQuake `ktx.cfg` -> structured choices + candidate description + retained
-  multi-source provenance; fills ~157/260 KTX cvars. Idempotent (C4).
+  multi-source provenance; fills ~109/260 KTX cvars (corrected 2026-05-17 --
+  see the D9 amendment; the "~157" conflated the libclang registration
+  surface; M=260 is the C1 gate). Idempotent (C4).
 - **Phase 3 -- KTX source-synthesis (D5-D8, D10).** The D6 skill fans out over
   CD_NODESC commands + residual cvars + bot/judgment cvars (mechanism-only,
   D8) + triage-failed comments. D10 meaning-conflicts resolved inline at the

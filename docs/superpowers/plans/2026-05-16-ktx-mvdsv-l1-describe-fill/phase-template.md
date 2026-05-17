@@ -223,10 +223,16 @@ Then verify, point by point:
 7. Coverage: are counts stated against the probe-0 N/M denominators, not a
    hand-picked subset (C1)? Flag any importance-argument scope-cut of
    residue.
-8. Extractor shape: if the phase touches a KTX extractor it must be
-   tree-sitter-shaped and a NEW sibling handler (NOT the registration
-   handler, NOT libclang); MVDSV is libclang. Flag a shared-scaffold
-   assumption.
+8. Extractor shape: canonical KTX AND MVDSV are BOTH libclang/C. The D9
+   shipped-config tier is a NEW sibling handler that reads `.cfg` TEXT
+   (non-libclang, duck-typed -- precedent `_handler_match_events.py`),
+   distinct from the existing libclang registration handler -- NOT folded
+   in. Tree-sitter is the out-of-scope dusty-ktx fork ONLY (dated
+   CORRECTION 2026-05-17 in `review-findings.md` "Confirmed-good" +
+   checklist item 3, commit f3574f26; this brief block is the 4th
+   propagation site, corrected 2026-05-17 at Phase 2 review). Flag a
+   shared-scaffold assumption OR any "KTX = tree-sitter" / "fold into the
+   registration handler" claim.
 9. Model dials: are the D6 synthesis pass and D7 review pass annotated
    Opus 4.7 MAX (spec-locked)? Flag a lowered dial. Are other tasks'
    execution-mode annotations present with a rationale, subagent-default for

@@ -817,8 +817,13 @@ are arc-planner scope, not relitigated here.
   the C5 F1 probes. Engine-agnostic; both engines ride it.
 - **Phase 2 -- KTX mechanical extract (D9).** The new sibling extractor:
   in-repo + nQuake `ktx.cfg` -> structured choices + candidate description +
-  retained multi-source provenance; fills ~157/260 KTX cvars. Idempotent
-  re-extract (C4).
+  retained multi-source provenance; fills ~109/260 KTX cvars. Idempotent
+  re-extract (C4). [Dated correction 2026-05-17, planner Phase 2 review,
+  primary-source-verified: the original "~157/260" conflated the existing
+  libclang registration surface (68 `source_inline`) with the shipped-config
+  surface; the honest D9 `shipped_doc` write target is ~109/260. M=260
+  remains the C1 coverage gate, residue tracked, never importance-cut. See
+  decisions.md D9 amendment + the Phase 2 MD Recon facts / Open Q (a).]
 - **Phase 3 -- KTX source-synthesis (D5-D8, D10).** The D6 skill fans out
   over CD_NODESC commands + residual cvars + bot/judgment cvars
   (mechanism-only, D8) + triage-failed comments. D10 meaning-conflicts
