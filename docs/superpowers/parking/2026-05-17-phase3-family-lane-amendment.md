@@ -144,3 +144,68 @@ orchestrator + operator. So:
 are correct and not wasted. Nothing to undo. The gate is purely
 forward: do not run the naive loop on the families until the lane is
 ratified.
+
+## ORCHESTRATOR ADDENDUM 2026-05-17 -- the taxonomy is THREE-way, not two (operator-surfaced; load-bearing for the amendment)
+
+The operator surfaced this inspecting the verdict-stamped 27 (live
+evidence below). "Family" was conflating two structurally different
+populations. The amendment MUST encode a three-way taxonomy; treating
+a category-3 cohort as category-2 twins is a QUALITY REGRESSION
+disguised as efficiency (38 templated descriptions where 38 distinct
+knobs need individual source-grounding).
+
+1. **Heterogeneous individual** -> per-knob Opus-4.7-MAX (the proven
+   loop, unchanged). E.g. `allow_timing`, `k_admincode`,
+   `k_noframechecks`, `autotrackktx`.
+2. **Index-twin family** -> the family lane (ONE Opus-MAX family eval
+   + N cheap per-member index substitutions + the hard
+   binding-divergence catch). Members differ ONLY by a positional
+   integer/slot, same handler, same semantic role. Live evidence:
+   `1fav_go`..`20fav_go` (45 total) -- `3fav_go` and `14fav_go` are
+   the identical command with a slot int. `XonY`/`XonYonZ`
+   mode-presets are the same shape.
+3. **Namespace cohort** (shared prefix, SEMANTICALLY DISTINCT members)
+   -> NOT the twin lane. Live evidence: `k_fbskill_*` (38) --
+   `aim_accuracy` / `reactiontime` / `missiledodge` /
+   `use_rocketjumps` / `combatjump` / `visibility` / `aim_pitch_max`
+   / `vol_oppvel_incr` / `wiggleframes` ... each binds to a DIFFERENT
+   source variable and a different frogbot-AI computation. The shared
+   `k_fbskill_` prefix is a red herring; these are individuals that
+   share a namespace, not twins.
+
+**The discriminator is the per-member source binding -- the hard
+divergence-catch must be applied as a CLASSIFIER, not only a safety
+net.** Index-twins: bindings isomorphic modulo the index (same
+handler, index the only free variable). Namespace-cohort members:
+bindings structurally distinct per member. A cohort fed to the twin
+lane should see the catch reject ESSENTIALLY ALL members -- that mass
+rejection IS the signal it is category 3; route it out of the twin
+lane (do not "force the family").
+
+**Category-3 handling -- a design option for the amendment + operator
+to decide (NOT locked here; the only LOCK is: never twin-collapse a
+cohort):** a "cohort-scaffolded individual" lane MAY be worthwhile --
+ONE Opus-MAX pass establishes the shared scaffolding ("all
+`k_fbskill_*` are frogbot skill-tuning cvars, read by the bot AI at
+<sites>, scaled by bot skill, mechanism <X>"), then each of the 38
+still gets an INDIVIDUAL source-grounded description (its specific
+variable + effect) but cheaper because the shared mechanism is not
+re-derived 38x. D5-faithful effort-routing WITHOUT semantic collapse;
+distinct from both pure per-knob and index-twin substitution. The
+amendment terminal sizes the real cohorts from the manifest (note
+sub-namespaces: `k_fbskill_aim_*` ~12, `k_fbskill_vol_*` ~12 -- still
+NOT index-twins, just finer prefixes) and the operator ratifies
+whether category 3 gets the cohort-scaffold lane or stays pure
+per-knob. Either way: NEVER twin-collapsed.
+
+**Process-quality note (orchestrator-verified -- grounds the "rigor is
+fine, only efficiency was wrong" claim):** the 4 fresh individuals
+spot-checked 3/3 citations EXACT against live KTX source incl. the
+D10-canary tiebreaker `world.c:1862`
+(`framechecks = bound(0, !cvar("k_noframechecks"), 1)`); F-C3c held
+(`autotrackktx` described from source, weak `CD_AUTOTRACKKTX` comment
+correctly rejected, NOT dead-stamped); the D10 meaning-conflict was
+detected, source-tiebroken, surfaced for the D7 operator tail (not
+auto-resolved); F-D6a fabrication discipline held (no fabricated
+citations in the sample). The expensive process is WORTH it on real
+knobs -- the lane removes only the twin/cohort waste, never the rigor.
