@@ -10,10 +10,23 @@
 //                     Read-only DB access; does NOT touch any entity row.
 //                     Re-runnable: identical input data -> byte-identical file.
 //
-// Placeholders for later tasks (do NOT invoke; they throw "not yet implemented"):
+//   --persist <file>  Task 2 (persistence half): ingest a D6 records JSON file
+//                     and UPDATE the matching entity rows. Idempotent: re-running
+//                     the same file produces byte-identical rows (C4/P3).
+//                     --dry-run flag wraps everything in a rolled-back transaction
+//                     so the operator can verify the change shape before committing.
 //
-//   --fan-out         Task 2: dispatch the D6 guardrailed skill as sub-agents
-//                     over the manifest and collect per-knob records.
+//   --status          Read-only. Report how many in-scope KTX entities carry a
+//                     description_verdict (evaluated) vs remaining (not yet
+//                     evaluated). The resume cursor for the fan-out dispatcher.
+//
+//   --fingerprint     Read-only. Print the deterministic committed-row md5 over
+//                     the in-scope KTX set for idempotency + F-D4a proof anchoring.
+//
+// Placeholders (do NOT invoke; they throw "not yet implemented"):
+//
+//   --fan-out         Task 2 (dispatch half): dispatch the D6 guardrailed skill
+//                     as sub-agents over the manifest and collect per-knob records.
 //                     (Opus 4.7 MAX, spec-locked D7 -- dial never lowered here.)
 //
 //   --gate            Task 3: feed every synthesized row to the D7 tier-1
@@ -28,7 +41,7 @@
 // DB-write phases.
 
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { sql, closeSql } from '../load-knowledge/db.js';
@@ -164,6 +177,13 @@ interface D6InputPacket {
     source_line: number | null;
   };
   research_aids_dir: string;
+  // WHY include canonical_id + type here: the --persist path resolves each
+  // records-file entry back to its entity row; having canonical_id pre-computed
+  // in the manifest avoids a second query during fan-out and makes the manifest
+  // self-contained for the dispatcher. type is needed for --status per-bucket
+  // breakdown without a separate GROUP BY query.
+  canonical_id: string;
+  entity_type: 'cvar' | 'command' | 'info_key';
 }
 
 // ---------------------------------------------------------------------------
@@ -404,6 +424,11 @@ export async function assemble(): Promise<Phase3Manifest> {
         source_line: row.source_line,
       },
       research_aids_dir: RESEARCH_AIDS_DIR,
+      // Dispatcher aids: pre-resolved canonical_id avoids a second query during
+      // fan-out; entity_type enables --status per-bucket breakdown from the manifest
+      // alone (consistent with denominator-derived breakdown in --assemble-only).
+      canonical_id: row.canonical_id,
+      entity_type: row.type,
     };
   });
 
@@ -497,6 +522,373 @@ async function assembleOnly(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Record shape accepted by --persist
+// ---------------------------------------------------------------------------
+
+// The D6 skill emits one of these per evaluated knob. The persist path reads
+// them from a JSON array file and UPDATEs the matching entity row.
+//
+// Some fields may be null: affirmed source_inline rows have
+// description_anchor_version=null (the anchor is the dev's own stamped text
+// -- no separate synthesized-anchor needed); residue_routed rows may have
+// description=null; description_provenance may be null if Phase 2 produced
+// no shipped-config candidate for this knob.
+interface D6Record {
+  project: string;
+  knob: string;
+  type: 'cvar' | 'command' | 'info_key';
+  description: string | null;
+  description_origin: string | null;
+  description_anchor_version: string | null;
+  // JS value (array/object/null) -- NEVER a pre-stringified string (P2).
+  // null means "no provenance to store on this row".
+  description_provenance: unknown;
+  description_verdict: string | null;
+  description_confidence: string | null;
+  description_reasoning: string | null;
+  description_proposed: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Fingerprint query helper (shared by --fingerprint and --persist --dry-run)
+// ---------------------------------------------------------------------------
+
+// WHY md5 over ::text cast: postgres-js returns JSONB as a JS object; comparing
+// JS object serializations is key-order-dependent. Casting description_provenance
+// to ::text uses Postgres's canonical JSONB serialization so the fingerprint is
+// stable and reproducible across drivers (mirrors smoke-one-cvar.ts's
+// idempotency-self-check pattern, which also uses ::text for JSONB comparison).
+//
+// Scope: project='ktx' AND type IN ('cvar','command','info_key') -- the full
+// configurable-bucket population including k_short_gib (which carries a
+// description_verdict from Phase 1). This is the F-D4a proof anchor: a re-run
+// that does not touch k_short_gib produces the identical md5.
+async function computeFingerprint(): Promise<string> {
+  const rows = await sql<Array<{ fp: string | null }>>`
+    SELECT md5(
+      string_agg(
+        canonical_id
+          || coalesce(description, '')
+          || coalesce(description_origin, '')
+          || coalesce(description_verdict, '')
+          || coalesce(description_anchor_version, '')
+          || coalesce(description_provenance::text, ''),
+        ''
+        ORDER BY canonical_id
+      )
+    ) AS fp
+    FROM entities
+    WHERE project = 'ktx'
+      AND type IN ('cvar', 'command', 'info_key')
+  `;
+  const fp = rows[0]?.fp;
+  if (!fp) {
+    throw new Error('computeFingerprint: md5 returned null -- no KTX entities in scope');
+  }
+  return fp;
+}
+
+// ---------------------------------------------------------------------------
+// persist(): --persist <records.json> [--dry-run]
+// ---------------------------------------------------------------------------
+
+async function persistRecords(recordsPath: string, dryRun: boolean): Promise<void> {
+  // --- 1. Load and parse the records file ---
+
+  if (!existsSync(recordsPath)) {
+    throw new Error(`--persist: records file not found: ${recordsPath}`);
+  }
+  const raw = readFileSync(recordsPath, 'utf-8');
+  let records: unknown;
+  try {
+    records = JSON.parse(raw);
+  } catch (err) {
+    throw new Error(
+      `--persist: failed to parse records file as JSON: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+  if (!Array.isArray(records)) {
+    throw new Error('--persist: records file must be a JSON array');
+  }
+
+  // --- 2. Categorise each record before touching the DB ---
+
+  type ErrorEntry = { knob: string; reason: string };
+  const toUpdate: D6Record[] = [];
+  const skippedTerminal: string[] = [];
+  const errors: ErrorEntry[] = [];
+
+  for (const rec of records) {
+    if (typeof rec !== 'object' || rec === null) {
+      errors.push({ knob: '(non-object)', reason: 'record is not an object' });
+      continue;
+    }
+    const r = rec as Record<string, unknown>;
+    const knob = typeof r['knob'] === 'string' ? r['knob'] : String(r['knob'] ?? '');
+
+    // WHY skip k_short_gib here unconditionally: F-D9b/D19/C4 -- Phase 1
+    // owns this terminal synthesized row. The persist path MUST NEVER re-touch
+    // it, even if a records file accidentally includes it. Logged as
+    // skipped-terminal, not an error (the skip is expected and correct).
+    if (knob === 'k_short_gib') {
+      skippedTerminal.push(knob);
+      continue;
+    }
+
+    toUpdate.push(r as unknown as D6Record);
+  }
+
+  // --- 3. Execute inside a transaction so --dry-run can roll back ---
+
+  // WHY wrap in a transaction even for non-dry-run: postgres-js BEGIN/COMMIT
+  // guarantees that a partial failure leaves the DB unchanged; the caller can
+  // re-run the full file safely (C4/P3 idempotency holds because the UPDATE
+  // is deterministic).
+  await sql.begin(async (tx) => {
+    let persistedCount = 0;
+
+    for (const rec of toUpdate) {
+      const knob = rec.knob;
+      const type = rec.type;
+      const project = rec.project ?? 'ktx';
+
+      // Resolve to exactly one live entity row (D9 fill-not-create: if the
+      // entity does not exist, collect the error and continue -- NEVER create).
+      const entityRows = await tx<Array<{ canonical_id: string }>>`
+        SELECT canonical_id
+        FROM entities
+        WHERE project = ${project}
+          AND type = ${type}
+          AND name = ${knob}
+      `;
+
+      if (entityRows.length !== 1) {
+        const reason =
+          entityRows.length === 0
+            ? 'entity not found (D9 fill-not-create: will not create)'
+            : `ambiguous: ${entityRows.length} rows matched`;
+        errors.push({ knob, reason });
+        continue;
+      }
+
+      const canonicalId = entityRows[0]!.canonical_id;
+
+      // WHY UPDATE not INSERT: D9/D19 fill-not-create. The entity row was
+      // created by the L1 extractor; this step fills the description family
+      // columns only. Running persist() twice with the same records file
+      // produces the identical owned record (idempotent by construction --
+      // same values written both times, keyed on canonical_id). Mirrors
+      // smoke-one-cvar.ts persist() shape exactly.
+      //
+      // WHY sql.json() for description_provenance: postgres-js encodes a JS
+      // array/object passed as sql.json(value) as a JSONB structured value.
+      // Pre-stringifying (JSON.stringify) would store a JSONB string scalar --
+      // the P2 failure mode. Probe F1.jsonb_columns_not_strings catches this
+      // via jsonb_typeof(description_provenance)='array'. The established
+      // pattern across natural-keys.ts uses tx.json(row.col as never); we
+      // mirror that with tx.json() here since we are inside a transaction.
+      //
+      // WHY NOT set description_rereview: the D4 staleness-walk owns that
+      // column; this persist path writes the owned description record only
+      // and leaves description_rereview at its default FALSE.
+      const provenance = rec.description_provenance;
+      const provenanceBound =
+        provenance !== null && provenance !== undefined
+          ? tx.json(provenance as never)
+          : null;
+
+      const result = await tx`
+        UPDATE entities SET
+          description                = ${rec.description ?? null},
+          description_origin         = ${rec.description_origin ?? null},
+          description_anchor_version = ${rec.description_anchor_version ?? null},
+          description_provenance     = ${provenanceBound},
+          description_verdict        = ${rec.description_verdict ?? null},
+          description_confidence     = ${rec.description_confidence ?? null},
+          description_reasoning      = ${rec.description_reasoning ?? null},
+          description_proposed       = ${rec.description_proposed ?? null},
+          updated_at                 = now()
+        WHERE canonical_id = ${canonicalId}
+      `;
+
+      // Assert exactly 1 row updated: 0 would mean canonical_id drifted
+      // between the SELECT and the UPDATE (a schema anomaly); >1 violates
+      // the UNIQUE constraint on canonical_id (impossible by design but
+      // checked for safety).
+      const rowCount = result.count;
+      if (rowCount !== 1) {
+        errors.push({
+          knob,
+          reason: `UPDATE rowCount=${rowCount} for canonical_id=${canonicalId}`,
+        });
+        continue;
+      }
+
+      persistedCount++;
+    }
+
+    // --- 4. Compute the post-write idempotency fingerprint inside the tx ---
+    // For --dry-run this is the "would be" fingerprint on the rolled-back state;
+    // for a real run it is the committed fingerprint. Both are computed HERE so
+    // the comparison is valid before rollback.
+    const fingerprintAfter = await computeFingerprint();
+
+    // --- 5. Print summary ---
+
+    process.stdout.write('\n=== --persist summary ===\n');
+    process.stdout.write(`mode:              ${dryRun ? 'DRY-RUN (transaction will roll back)' : 'LIVE'}\n`);
+    process.stdout.write(`records file:      ${recordsPath}\n`);
+    process.stdout.write(`records parsed:    ${records.length}\n`);
+    process.stdout.write(`persisted:         ${persistedCount}\n`);
+    process.stdout.write(`skipped-terminal:  ${skippedTerminal.length}${skippedTerminal.length > 0 ? ` (${skippedTerminal.join(', ')})` : ''}\n`);
+    process.stdout.write(`errors:            ${errors.length}\n`);
+    if (errors.length > 0) {
+      for (const e of errors) {
+        process.stdout.write(`  ERROR  knob=${e.knob}: ${e.reason}\n`);
+      }
+    }
+    process.stdout.write(`idempotency fingerprint (${dryRun ? 'rolled-back' : 'committed'}): ${fingerprintAfter}\n`);
+    process.stdout.write('\n');
+
+    // --- 6. Roll back if dry-run ---
+
+    if (dryRun) {
+      // WHY rollback via throw: postgres-js BEGIN/ROLLBACK is triggered by
+      // throwing inside the sql.begin() callback. We throw a sentinel so the
+      // outer catch can distinguish a deliberate dry-run rollback from a real
+      // error without exposing the mechanism in the error summary.
+      throw new DryRunRollback();
+    }
+  }).catch((err: unknown) => {
+    // Absorb the deliberate dry-run sentinel; re-throw everything else.
+    if (!(err instanceof DryRunRollback)) {
+      throw err;
+    }
+    process.stdout.write('DRY-RUN: transaction rolled back -- no rows written.\n');
+  });
+}
+
+// Sentinel thrown inside sql.begin() to trigger ROLLBACK for --dry-run.
+// WHY a class not a string: ensures the catch-and-absorb in persistRecords
+// cannot accidentally swallow a real Error that happens to stringify the same
+// way.
+class DryRunRollback extends Error {
+  constructor() {
+    super('dry-run rollback sentinel');
+    this.name = 'DryRunRollback';
+  }
+}
+
+// ---------------------------------------------------------------------------
+// statusReport(): --status
+// ---------------------------------------------------------------------------
+
+// Read-only. Queries the entities table to show how many in-scope KTX entities
+// carry a description_verdict (evaluated) vs still-NULL (not yet evaluated).
+// This is the fan-out dispatcher's resume cursor: run --status before launching
+// the D6 fan-out to know exactly which knobs still need work.
+//
+// k_short_gib is excluded from the manifest (Phase-1 terminal) but reported
+// separately so the operator can confirm it is present, terminal, and counted
+// exactly once (C4/D19/P3).
+async function statusReport(): Promise<void> {
+  // Main counts: in-scope population (excludes k_short_gib by the WHERE clause)
+  const statusRows = await sql<Array<{
+    entity_type: string;
+    evaluated: number;
+    remaining: number;
+  }>>`
+    SELECT
+      type AS entity_type,
+      count(*) FILTER (WHERE description_verdict IS NOT NULL)::int AS evaluated,
+      count(*) FILTER (WHERE description_verdict IS NULL)::int     AS remaining
+    FROM entities
+    WHERE project = 'ktx'
+      AND type IN ('cvar', 'command', 'info_key')
+      AND canonical_id != 'ktx:cvar:k_short_gib'
+    GROUP BY type
+    ORDER BY type
+  `;
+
+  const totalEvaluated = statusRows.reduce((n, r) => n + r.evaluated, 0);
+  const totalRemaining = statusRows.reduce((n, r) => n + r.remaining, 0);
+  const totalInScope   = totalEvaluated + totalRemaining;
+
+  // k_short_gib status (terminal, excluded from manifest but counted once)
+  const shortGibRows = await sql<Array<{
+    canonical_id: string;
+    description_verdict: string | null;
+    description_origin: string | null;
+  }>>`
+    SELECT canonical_id, description_verdict, description_origin
+    FROM entities
+    WHERE canonical_id = 'ktx:cvar:k_short_gib'
+  `;
+  const shortGib = shortGibRows[0] ?? null;
+
+  // Remaining canonical_ids (for executor to consume as the next-batch list)
+  const remainingRows = await sql<Array<{ canonical_id: string }>>`
+    SELECT canonical_id
+    FROM entities
+    WHERE project = 'ktx'
+      AND type IN ('cvar', 'command', 'info_key')
+      AND canonical_id != 'ktx:cvar:k_short_gib'
+      AND description_verdict IS NULL
+    ORDER BY canonical_id
+  `;
+
+  process.stdout.write('=== --status: KTX Phase-3 describe-fill progress ===\n');
+  process.stdout.write('\n');
+  process.stdout.write(`In-scope entities (manifest, k_short_gib excluded): ${totalInScope}\n`);
+  process.stdout.write(`  evaluated (verdict IS NOT NULL): ${totalEvaluated}\n`);
+  process.stdout.write(`  remaining (verdict IS NULL):     ${totalRemaining}\n`);
+  process.stdout.write('\n');
+  process.stdout.write('Per-bucket breakdown:\n');
+  for (const row of statusRows) {
+    process.stdout.write(
+      `  ${row.entity_type.padEnd(10)}: evaluated=${row.evaluated}  remaining=${row.remaining}\n`,
+    );
+  }
+  process.stdout.write('\n');
+
+  // k_short_gib one-line report
+  if (shortGib) {
+    process.stdout.write(
+      `k_short_gib: present, verdict=${shortGib.description_verdict ?? 'NULL'}, ` +
+      `origin=${shortGib.description_origin ?? 'NULL'}, ` +
+      `terminal=true, excluded-from-manifest=true, counted-once (C4/D19/P3)\n`,
+    );
+  } else {
+    process.stdout.write('k_short_gib: NOT FOUND in entities -- Phase 1 has not executed yet\n');
+  }
+
+  process.stdout.write('\n');
+
+  if (totalRemaining === 0) {
+    process.stdout.write('All in-scope KTX entities evaluated. Fan-out complete.\n');
+  } else {
+    process.stdout.write(`Remaining canonical_ids (${totalRemaining}):\n`);
+    for (const row of remainingRows) {
+      process.stdout.write(`  ${row.canonical_id}\n`);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// fingerprintCmd(): --fingerprint
+// ---------------------------------------------------------------------------
+
+// Read-only. Prints the deterministic committed-row md5 over the in-scope KTX
+// population (project='ktx', type IN cvar/command/info_key), including
+// k_short_gib. Used for phase-boundary idempotency proof and F-D4a anchoring.
+async function fingerprintCmd(): Promise<void> {
+  const fp = await computeFingerprint();
+  process.stdout.write(`=== --fingerprint: KTX committed-row md5 ===\n`);
+  process.stdout.write(`scope: project='ktx', type IN ('cvar','command','info_key')\n`);
+  process.stdout.write(`md5:   ${fp}\n`);
+}
+
+// ---------------------------------------------------------------------------
 // Task 2/3/4 placeholders
 // ---------------------------------------------------------------------------
 
@@ -530,6 +922,24 @@ async function main(): Promise<void> {
   try {
     if (args.includes('--assemble-only')) {
       await assembleOnly();
+    } else if (args.includes('--persist')) {
+      // --persist <file> [--dry-run]
+      // Find the argument immediately after --persist as the records file path.
+      const persistIdx = args.indexOf('--persist');
+      const recordsPath = args[persistIdx + 1];
+      if (!recordsPath || recordsPath.startsWith('--')) {
+        process.stderr.write(
+          'synthesize-ktx --persist: missing records file argument.\n' +
+          'Usage: --persist <records.json> [--dry-run]\n',
+        );
+        process.exit(1);
+      }
+      const dryRun = args.includes('--dry-run');
+      await persistRecords(recordsPath, dryRun);
+    } else if (args.includes('--status')) {
+      await statusReport();
+    } else if (args.includes('--fingerprint')) {
+      await fingerprintCmd();
     } else if (args.includes('--fan-out')) {
       await fanOut();
     } else if (args.includes('--gate')) {
@@ -539,7 +949,7 @@ async function main(): Promise<void> {
     } else {
       process.stderr.write(
         'synthesize-ktx: no mode specified.\n' +
-        'Modes: --assemble-only | --fan-out | --gate | --probe\n',
+        'Modes: --assemble-only | --persist <file> [--dry-run] | --status | --fingerprint | --fan-out | --gate | --probe\n',
       );
       process.exit(1);
     }
