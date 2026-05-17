@@ -469,6 +469,85 @@ NOT catch.
 on every harvested config line before regex/persist -- a recon-note
 requirement, not probe-caught).
 
+### F-D11c -- the live `structured_choices` is a flat `[{value,label}]` array, NOT the phase-2-MD `{enum?,bitmask?}` sub-shape
+
+**Surfaced by:** the Phase 2 executor's Concern 1 2026-05-17 (the
+F-D9a / F-C1a class -- MD-text vs the live Phase-1-concretised reality;
+the executor built to verified live truth and SURFACED it, did not
+silently diverge).
+
+**Contained by:** orchestrator ratification 2026-05-17 (verified live --
+not relayed). NOT a `decisions.md` change: the D11 Amendment 2026-05-17
+already authorizes "an additive `structured_choices` field"; the phase-2
+MD Task 1/2 `structured_choices: {enum?:[{value,label}],
+bitmask?:[{bit,label}]}` was a stale drafter elaboration the Phase-1
+spine had already concretised.
+
+**Evidence (orchestrator-verified live 2026-05-17):**
+`apps/qw-oracle/scripts/describe-fill/review-gate.ts:83-89` LOCKS
+`ProvenanceEntry.structured_choices?: Array<{ value: string; label:
+string }>` -- a flat array, with its own WHY-comment citing the D11
+Amendment ("absent for boolean knobs like the D19 `k_short_gib`,
+present for enum/bitmask knobs"). `checkMechanicalRubric` consumes it
+flat; the project `tsc` gate is non-vacuous (F-C5c) so a mismatch fails
+the build. The executor realized it faithfully -- a bitmask bit-number
+is carried as the `value` string. Confirmed in the live DB:
+`ktx:cvar:k_noframechecks` provenance carries
+`structured_choices: [{value:"0",label:"no"},{value:"1",label:"yes"}]`
+(flat), the in-repo / nQuake polarity inversion preserved per-source.
+
+**Risk:** RETIRED for Phase 2 (built to live truth, ratified).
+**FORWARD (load-bearing):** Phase 3's D6-skill provenance consumption +
+the D7 D11/D15 audit serializer, and Phase 5's public-projection
+serializer, MUST consume the flat `[{value,label}]` shape. A serializer
+written against the stale `{enum?,bitmask?}` MD sub-shape would silently
+mis-render every enum/bitmask KTX cvar.
+
+**Phase:** Phase 2 (built to live truth, ratified), Phase 3 (D6 + the
+D7 D11/D15 serializer consume the flat shape), Phase 5 (public-projection
+serializer consumes the flat shape).
+
+### F-D9b -- the loader clobber-guard is a whole-record skip for terminal owned rows ("every resolved row" reads as "every NON-terminal resolved row")
+
+**Surfaced by:** the Phase 2 executor's Concern 2 2026-05-17 (surfaced
+for ratification, NOT silently applied -- the never-silently-comply
+discipline; the F-C5b / F-C3c / F-D9a handling pattern).
+
+**Contained by:** orchestrator ratification 2026-05-17 -- independently
+proven the ONLY implementation consistent with the non-negotiable F-D4a
+gate. NOT a `decisions.md` change: it is the faithful reading of the
+phase-2 MD's "never regress a terminal evaluated state" intent; the MD's
+literal "reconciles `description_provenance` on EVERY resolved row"
+over-specified.
+
+**Evidence (orchestrator-verified live 2026-05-17 -- the F-D4a proof,
+not relayed):** `load-ktx-shipped-config.ts:22-33` self-documents the
+WHY; `isTerminalOwned()` (`:107-113`) = `description_origin =
+'synthesized'` OR (`'shipped_doc'` AND `description_verdict IS NOT
+NULL`); a terminal owned row is SKIPPED ENTIRELY (no
+description/origin/provenance write); `covered = filled +
+skipped_terminal`. Reconciling a terminal row's provenance WOULD itself
+break F-D4a: the general Task-1 enum rule emits
+`structured_choices: [{0,no},{1,yes}]` from `k_short_gib`'s
+`(0 = no, 1 = yes)` comment, which Phase-1's boolean smoke deliberately
+omitted -- re-writing it changes the Phase-1 byte-identical owned
+record. A real `re-derive --project ktx --type cvar` (260 entities) left
+the owned-rows fingerprint byte-identical (`5253de8f...` before AND
+after) precisely because the whole-record terminal skip leaves
+`k_short_gib` untouched. The shipped_doc leg of the F-D4a guard --
+load-bearing for the first time this arc -- holds.
+
+**Risk:** RETIRED for Phase 2. **FORWARD (Phase 3):** once Phase 3
+stamps a verdict on a `shipped_doc` row it becomes terminal-owned, so
+any subsequent Phase-2 loader re-run SKIPS it entirely (no provenance
+re-reconcile). Correct for idempotency / F-D4a, but Phase 3 OWNS
+provenance integrity from the verdict-write onward -- the Phase-2 loader
+will not re-touch terminal rows.
+
+**Phase:** Phase 2 (built + ratified), Phase 3 (owns provenance
+integrity once it stamps verdicts; the Phase-2 loader will not re-touch
+terminal rows).
+
 ## Boundary risks (out-of-scope items a drafter might wrongly pull in)
 
 ### F-D10b -- case-fidelity loader is a soft dependency, NOT this arc
@@ -608,6 +687,8 @@ consumes; do not implement the wiki side).
 | F-C5c (project tsc gate silently vacuous for the spine) | Substantive | Phase 1 (fixed `95e8d726`, perturbation-verified), all phases running project tsc -- ratified 2026-05-17 |
 | F-D11b (regenerable audit HTML not gitignored) | Advisory | Phase 1 (fixed `95e8d726`), Phase 5 (same ignore discipline) -- ratified 2026-05-17 |
 | F-D9a (KTX configs CRLF; strip trailing `\r`) | Substantive | Phase 2 (D9 extractor + loader strip `\r` before regex/persist -- recon-note, not probe-caught) -- routed from Phase 1 2026-05-17 |
+| F-D11c (live `structured_choices` is flat `[{value,label}]`, not `{enum?,bitmask?}`) | Substantive | Phase 2 (built to live truth, ratified 2026-05-17), Phase 3 (D6 + D7 D11/D15 serializer consume flat), Phase 5 (public-projection serializer consumes flat) |
+| F-D9b (clobber-guard = whole-record skip for terminal owned rows) | Substantive | Phase 2 (built + orchestrator-ratified 2026-05-17, F-D4a-proven), Phase 3 (owns provenance integrity once it stamps verdicts) |
 | F-D10b (case-fidelity soft dep) | Boundary | Phase 5 (note only) |
 | F-D10c (dusty-* fork separate arc) | Boundary | Phase 3 (note only) |
 | F-C3b (reachability parked arc) | Boundary | Phase 0 + Phase 3 (note only) |
