@@ -1,14 +1,44 @@
 # Phase 3 executor resume handoff -- KTX source-synthesis (2026-05-17)
 
-> **!!! GATE (operator-directed 2026-05-17) !!!** Do NOT resume the
-> naive 1-knob-per-Opus volume loop. The fan-out cost on
-> parameterized-family knobs (`Nfav_go` / `XonY` etc.) is being
-> re-shaped via the **parameterized-family lane** amendment:
-> `docs/superpowers/parking/2026-05-17-phase3-family-lane-amendment.md`.
-> A fresh terminal must draft + ratify that amendment FIRST, then resume
-> the volume loop family-aware. The recipe + learnings below remain
-> valid for the heterogeneous (genuinely-individual) knobs and as the
-> per-member-binding mechanics; only the family slice changes.
+> **!!! STAGE B -- the family-lane amendment is RATIFIED 2026-05-17 !!!**
+> The gate is LIFTED. Build the THREE-way split, then resume volume. The
+> dated D6 amendment in
+> `docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/decisions.md`
+> is LOCKED + governs (read it in full + the Phase-3-MD RECON NOTE before
+> Task 2 + the phase-3-executor-prompt.md "Augmentation 2026-05-17"). The
+> discriminator is the per-member SOURCE BINDING, not name-clustering
+> (reconciles 624 = 512 + 74 + 38; 598 remaining = 508 + 53 + 37):
+>
+> - **Cat 1 -- heterogeneous individual (508 remaining):** the proven
+>   per-knob Opus-4.7-MAX loop + sharpened dispatch prompt +
+>   grep-verify-claims discipline below. UNCHANGED -- this is the bulk;
+>   the recipe + learnings in this doc apply verbatim here.
+> - **Cat 2 -- index-twin (53 remaining; 6 families: xfav_go/favx_add/
+>   UserMode/TimeSet/ksound/ChangeDM):** ONE Opus-4.7-MAX family eval
+>   (dial NOT lowered; the single eval enumerates each member's meaning)
+>   + N cheap per-member index substitutions + the HARD
+>   binding-divergence catch. Build this lane.
+> - **Cat 3 -- namespace cohort `k_fbskill_*` (37 remaining) = RATIFIED
+>   option (b) COHORT-SCAFFOLD:** ONE Opus-4.7-MAX pass establishes the
+>   shared frogbot-skill mechanism (all read in `src/bot_botimp.c`,
+>   scaled by bot skill), THEN each of the 38 still gets its OWN
+>   individual source-grounded mechanism-only line (D8 bar per-member,
+>   NO semantic collapse, NEVER twin-collapsed). Build this lane too.
+>
+> The divergence-catch is a **CLASSIFIER, not only a safety net**: a
+> cohort fed to the cat-2 twin lane mass-rejects -- that mass-rejection
+> IS the signal it is cat-3, route it to the scaffold (never "force the
+> family"). **PROVE before volume (HARD gate, the load-bearing risk --
+> not tokens):** one real cat-2 family end-to-end with a *planted
+> false-twin the catch must eject*, AND a `k_fbskill_*` slice the
+> *classifier must mass-reject and route to the cat-3 scaffold*. F-D6a
+> (independently grep-verify any sub-agent line/handler/conflict claim
+> BEFORE persist) applies per-member in ALL three lanes -- concentrated,
+> not relaxed. The 22 done laneable members (21 cat-2 + 1 cat-3) are
+> correct + carried, NOT redone; `--status`/`--fingerprint` are the
+> idempotent cursor. Bind every per-member verifier to the manifest
+> `canonical_id` (loader-lowercased per F-D10b: source `"XonX"` ->
+> `ktx:command:xonx`), NOT a reconstruction from the source name.
 
 Fresh-terminal resume for the **arc-executor** of Phase 3 of the
 `2026-05-16-ktx-mvdsv-l1-describe-fill` arc. Machinery (Tasks 1 +

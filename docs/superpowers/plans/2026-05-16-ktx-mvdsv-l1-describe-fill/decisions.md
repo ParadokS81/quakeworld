@@ -616,15 +616,20 @@ family (cat 2: one Opus-4.7-MAX family eval) OR per ratified cohort-scaffold
 grounding), with cheap independently-verified per-member binding throughout."
 Spec carries a concise mirror (Amendment precedence).
 
-**Ratification:** DRAFTED 2026-05-17 (orchestrator), PENDING operator
-plain-English sign-off. The sign-off must answer TWO things: (i) ratify the
-category-2 index-twin lane + the three-way taxonomy + the classifier-catch
-(yes/revise); (ii) the category-3 `k_fbskill_*` (38) handling -- option (a)
-pure per-knob Opus-MAX, or option (b) the cohort-scaffold lane. Until both
-are answered, the Phase-3 volume loop stays GATED on the cat-2/cat-3 slice
-(the cat-1 heterogeneous per-knob loop may proceed); Stage B (a fresh
-executor builds the lane) does NOT start. On sign-off this line is updated to
-"Ratified 2026-05-17 (operator); cat-3 = option (a|b)" and Stage B unblocks.
+**Ratification:** RATIFIED 2026-05-17 (operator, plain-English sign-off);
+**cat-3 = option (b) the cohort-scaffold lane** (one Opus-4.7-MAX
+shared-mechanism pass for the `k_fbskill_*` cohort, then each of the 38 still
+INDIVIDUALLY source-grounded -- the D8 mechanism-only bar per-member, NO
+semantic collapse). The three-way taxonomy, the category-2 index-twin lane,
+and the divergence-catch-as-classifier are ratified as drafted. Stage B is
+UNBLOCKED: a fresh executor terminal builds the cat-2 index-twin lane + the
+cat-3 cohort-scaffold lane beside the proven cat-1 per-knob loop, proves them
+(planted false-twin ejected; a cohort slice the classifier mass-rejects and
+routes to the scaffold), then resumes the volume loop three-way-split. Locked;
+governs per Amendment precedence. (Operator also self-surfaced the three-way
+correction -- `feedback_be_decisive` / `feedback_operator_not_technical_review_gate`:
+the operator drove the taxonomy insight, the orchestrator verified + drafted
++ locked it.)
 
 ## D7 -- Two-tier review gate at Opus-max
 
