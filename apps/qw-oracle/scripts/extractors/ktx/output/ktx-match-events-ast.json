@@ -123,7 +123,7 @@
         "emission_call_sites": [
           {
             "source_file": "src/client.c",
-            "source_line": 5089,
+            "source_line": 5165,
             "containing_function": "ClientObituary"
           }
         ]

@@ -297,7 +297,7 @@
       "kind": "drop_item",
       "name": "ce12",
       "value_text": "item_cells",
-      "source_ref": "commands.c:9096",
+      "source_ref": "commands.c:9105",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "ce12",
@@ -313,7 +313,7 @@
       "kind": "drop_item",
       "name": "ce6",
       "value_text": "item_cells",
-      "source_ref": "commands.c:9095",
+      "source_ref": "commands.c:9104",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "ce6",
@@ -329,7 +329,7 @@
       "kind": "drop_item",
       "name": "fl_b",
       "value_text": "item_flag_team2",
-      "source_ref": "commands.c:9102",
+      "source_ref": "commands.c:9111",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "fl_b",
@@ -345,7 +345,7 @@
       "kind": "drop_item",
       "name": "fl_r",
       "value_text": "item_flag_team1",
-      "source_ref": "commands.c:9101",
+      "source_ref": "commands.c:9110",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "fl_r",
@@ -361,7 +361,7 @@
       "kind": "drop_item",
       "name": "ga",
       "value_text": "item_armor1",
-      "source_ref": "commands.c:9080",
+      "source_ref": "commands.c:9089",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "ga",
@@ -377,7 +377,7 @@
       "kind": "drop_item",
       "name": "gl",
       "value_text": "weapon_grenadelauncher",
-      "source_ref": "commands.c:9086",
+      "source_ref": "commands.c:9095",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "gl",
@@ -393,7 +393,7 @@
       "kind": "drop_item",
       "name": "h100",
       "value_text": "item_health",
-      "source_ref": "commands.c:9079",
+      "source_ref": "commands.c:9088",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "h100",
@@ -409,7 +409,7 @@
       "kind": "drop_item",
       "name": "h15",
       "value_text": "item_health",
-      "source_ref": "commands.c:9077",
+      "source_ref": "commands.c:9086",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "h15",
@@ -425,7 +425,7 @@
       "kind": "drop_item",
       "name": "h25",
       "value_text": "item_health",
-      "source_ref": "commands.c:9078",
+      "source_ref": "commands.c:9087",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "h25",
@@ -441,7 +441,7 @@
       "kind": "drop_item",
       "name": "lg",
       "value_text": "weapon_lightning",
-      "source_ref": "commands.c:9088",
+      "source_ref": "commands.c:9097",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "lg",
@@ -457,7 +457,7 @@
       "kind": "drop_item",
       "name": "ng",
       "value_text": "weapon_nailgun",
-      "source_ref": "commands.c:9084",
+      "source_ref": "commands.c:9093",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "ng",
@@ -473,7 +473,7 @@
       "kind": "drop_item",
       "name": "p",
       "value_text": "item_artifact_invulnerability",
-      "source_ref": "commands.c:9097",
+      "source_ref": "commands.c:9106",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "p",
@@ -489,7 +489,7 @@
       "kind": "drop_item",
       "name": "q",
       "value_text": "item_artifact_super_damage",
-      "source_ref": "commands.c:9100",
+      "source_ref": "commands.c:9109",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "q",
@@ -505,7 +505,7 @@
       "kind": "drop_item",
       "name": "r",
       "value_text": "item_artifact_invisibility",
-      "source_ref": "commands.c:9099",
+      "source_ref": "commands.c:9108",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "r",
@@ -521,7 +521,7 @@
       "kind": "drop_item",
       "name": "ra",
       "value_text": "item_armorInv",
-      "source_ref": "commands.c:9082",
+      "source_ref": "commands.c:9091",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "ra",
@@ -537,7 +537,7 @@
       "kind": "drop_item",
       "name": "rl",
       "value_text": "weapon_rocketlauncher",
-      "source_ref": "commands.c:9087",
+      "source_ref": "commands.c:9096",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "rl",
@@ -553,7 +553,7 @@
       "kind": "drop_item",
       "name": "ro10",
       "value_text": "item_rockets",
-      "source_ref": "commands.c:9094",
+      "source_ref": "commands.c:9103",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "ro10",
@@ -569,7 +569,7 @@
       "kind": "drop_item",
       "name": "ro5",
       "value_text": "item_rockets",
-      "source_ref": "commands.c:9093",
+      "source_ref": "commands.c:9102",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "ro5",
@@ -585,7 +585,7 @@
       "kind": "drop_item",
       "name": "s",
       "value_text": "item_artifact_envirosuit",
-      "source_ref": "commands.c:9098",
+      "source_ref": "commands.c:9107",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "s",
@@ -601,7 +601,7 @@
       "kind": "drop_item",
       "name": "sh20",
       "value_text": "item_shells",
-      "source_ref": "commands.c:9089",
+      "source_ref": "commands.c:9098",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "sh20",
@@ -617,7 +617,7 @@
       "kind": "drop_item",
       "name": "sh40",
       "value_text": "item_shells",
-      "source_ref": "commands.c:9090",
+      "source_ref": "commands.c:9099",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "sh40",
@@ -633,7 +633,7 @@
       "kind": "drop_item",
       "name": "sng",
       "value_text": "weapon_supernailgun",
-      "source_ref": "commands.c:9085",
+      "source_ref": "commands.c:9094",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "sng",
@@ -649,7 +649,7 @@
       "kind": "drop_item",
       "name": "sp25",
       "value_text": "item_spikes",
-      "source_ref": "commands.c:9091",
+      "source_ref": "commands.c:9100",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "sp25",
@@ -665,7 +665,7 @@
       "kind": "drop_item",
       "name": "sp50",
       "value_text": "item_spikes",
-      "source_ref": "commands.c:9092",
+      "source_ref": "commands.c:9101",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "sp50",
@@ -681,7 +681,7 @@
       "kind": "drop_item",
       "name": "sp_b",
       "value_text": "info_player_team2",
-      "source_ref": "commands.c:9104",
+      "source_ref": "commands.c:9113",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "sp_b",
@@ -697,7 +697,7 @@
       "kind": "drop_item",
       "name": "sp_cp",
       "value_text": "info_player_coop",
-      "source_ref": "commands.c:9106",
+      "source_ref": "commands.c:9115",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "sp_cp",
@@ -713,7 +713,7 @@
       "kind": "drop_item",
       "name": "sp_dm",
       "value_text": "info_player_deathmatch",
-      "source_ref": "commands.c:9105",
+      "source_ref": "commands.c:9114",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "sp_dm",
@@ -729,7 +729,7 @@
       "kind": "drop_item",
       "name": "sp_r",
       "value_text": "info_player_team1",
-      "source_ref": "commands.c:9103",
+      "source_ref": "commands.c:9112",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "sp_r",
@@ -745,7 +745,7 @@
       "kind": "drop_item",
       "name": "sp_sp",
       "value_text": "info_player_start",
-      "source_ref": "commands.c:9107",
+      "source_ref": "commands.c:9116",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "sp_sp",
@@ -761,7 +761,7 @@
       "kind": "drop_item",
       "name": "ssg",
       "value_text": "weapon_supershotgun",
-      "source_ref": "commands.c:9083",
+      "source_ref": "commands.c:9092",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "ssg",
@@ -777,7 +777,7 @@
       "kind": "drop_item",
       "name": "ya",
       "value_text": "item_armor2",
-      "source_ref": "commands.c:9081",
+      "source_ref": "commands.c:9090",
       "ruleset_gate_json": {},
       "props_json": {
         "drop_token": "ya",

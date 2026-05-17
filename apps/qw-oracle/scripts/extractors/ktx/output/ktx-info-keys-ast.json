@@ -9,12 +9,12 @@
           "write"
         ],
         "source_file": "src/commands.c",
-        "source_line": 6088,
+        "source_line": 6097,
         "containing_function": "AutoTrack",
         "all_call_sites": [
           {
             "source_file": "src/commands.c",
-            "source_line": 6088,
+            "source_line": 6097,
             "operation": "write"
           }
         ]

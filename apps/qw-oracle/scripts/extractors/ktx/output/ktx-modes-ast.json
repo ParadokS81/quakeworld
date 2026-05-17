@@ -8,14 +8,14 @@
       "name": "1on1",
       "kind": "game_mode",
       "value_text": "um1ON1",
-      "source_ref": "commands.c:4528",
+      "source_ref": "commands.c:4537",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4207",
+        "initstring_ref": "commands.c:4216",
         "init_function": null,
         "team_structure": "UM_1ON1",
         "race_plrs_per_team": 1,
@@ -27,8 +27,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4528",
-          "commands.c:4207"
+          "commands.c:4537",
+          "commands.c:4216"
         ]
       }
     },
@@ -36,14 +36,14 @@
       "name": "2on2",
       "kind": "game_mode",
       "value_text": "um2ON2",
-      "source_ref": "commands.c:4529",
+      "source_ref": "commands.c:4538",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4262",
+        "initstring_ref": "commands.c:4271",
         "init_function": null,
         "team_structure": "UM_2ON2",
         "race_plrs_per_team": 2,
@@ -55,8 +55,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4529",
-          "commands.c:4262"
+          "commands.c:4538",
+          "commands.c:4271"
         ]
       }
     },
@@ -64,14 +64,14 @@
       "name": "3on3",
       "kind": "game_mode",
       "value_text": "um3ON3",
-      "source_ref": "commands.c:4530",
+      "source_ref": "commands.c:4539",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4294",
+        "initstring_ref": "commands.c:4303",
         "init_function": null,
         "team_structure": "UM_3ON3",
         "race_plrs_per_team": 3,
@@ -83,8 +83,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4530",
-          "commands.c:4294"
+          "commands.c:4539",
+          "commands.c:4303"
         ]
       }
     },
@@ -92,14 +92,14 @@
       "name": "4on4",
       "kind": "game_mode",
       "value_text": "um4ON4",
-      "source_ref": "commands.c:4531",
+      "source_ref": "commands.c:4540",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4346",
+        "initstring_ref": "commands.c:4355",
         "init_function": null,
         "team_structure": "UM_4ON4",
         "race_plrs_per_team": 4,
@@ -111,8 +111,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4531",
-          "commands.c:4346"
+          "commands.c:4540",
+          "commands.c:4355"
         ]
       }
     },
@@ -120,14 +120,14 @@
       "name": "10on10",
       "kind": "game_mode",
       "value_text": "um10ON10",
-      "source_ref": "commands.c:4532",
+      "source_ref": "commands.c:4541",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4378",
+        "initstring_ref": "commands.c:4387",
         "init_function": null,
         "team_structure": "UM_10ON10",
         "race_plrs_per_team": 10,
@@ -139,8 +139,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4532",
-          "commands.c:4378"
+          "commands.c:4541",
+          "commands.c:4387"
         ]
       }
     },
@@ -148,14 +148,14 @@
       "name": "ffa",
       "kind": "game_mode",
       "value_text": "umFFA",
-      "source_ref": "commands.c:4533",
+      "source_ref": "commands.c:4542",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4410",
+        "initstring_ref": "commands.c:4419",
         "init_function": null,
         "team_structure": "UM_FFA",
         "race_plrs_per_team": -1,
@@ -167,8 +167,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4533",
-          "commands.c:4410"
+          "commands.c:4542",
+          "commands.c:4419"
         ]
       }
     },
@@ -176,14 +176,14 @@
       "name": "ctf",
       "kind": "game_mode",
       "value_text": "umCTF",
-      "source_ref": "commands.c:4534",
+      "source_ref": "commands.c:4543",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4429",
+        "initstring_ref": "commands.c:4438",
         "init_function": null,
         "team_structure": "UM_CTF",
         "race_plrs_per_team": 0,
@@ -195,8 +195,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4534",
-          "commands.c:4429"
+          "commands.c:4543",
+          "commands.c:4438"
         ]
       }
     },
@@ -204,14 +204,14 @@
       "name": "hoonymode",
       "kind": "game_mode",
       "value_text": "umHOONYMODE",
-      "source_ref": "commands.c:4535",
+      "source_ref": "commands.c:4544",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4223",
+        "initstring_ref": "commands.c:4232",
         "init_function": null,
         "team_structure": "UM_1ON1HM",
         "race_plrs_per_team": 0,
@@ -223,8 +223,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4535",
-          "commands.c:4223"
+          "commands.c:4544",
+          "commands.c:4232"
         ]
       }
     },
@@ -232,14 +232,14 @@
       "name": "blitz2v2",
       "kind": "game_mode",
       "value_text": "umBLITZ2v2",
-      "source_ref": "commands.c:4536",
+      "source_ref": "commands.c:4545",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4243",
+        "initstring_ref": "commands.c:4252",
         "init_function": null,
         "team_structure": "UM_1ON1HM",
         "race_plrs_per_team": 0,
@@ -251,8 +251,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4536",
-          "commands.c:4243"
+          "commands.c:4545",
+          "commands.c:4252"
         ]
       }
     },
@@ -260,14 +260,14 @@
       "name": "blitz4v4",
       "kind": "game_mode",
       "value_text": "umBLITZ4v4",
-      "source_ref": "commands.c:4537",
+      "source_ref": "commands.c:4546",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4327",
+        "initstring_ref": "commands.c:4336",
         "init_function": null,
         "team_structure": "UM_1ON1HM",
         "race_plrs_per_team": 0,
@@ -279,8 +279,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4537",
-          "commands.c:4327"
+          "commands.c:4546",
+          "commands.c:4336"
         ]
       }
     },
@@ -288,14 +288,14 @@
       "name": "2on2on2",
       "kind": "game_mode",
       "value_text": "um2ON2ON2",
-      "source_ref": "commands.c:4538",
+      "source_ref": "commands.c:4547",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4278",
+        "initstring_ref": "commands.c:4287",
         "init_function": null,
         "team_structure": "UM_2ON2ON2",
         "race_plrs_per_team": 0,
@@ -307,8 +307,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4538",
-          "commands.c:4278"
+          "commands.c:4547",
+          "commands.c:4287"
         ]
       }
     },
@@ -316,14 +316,14 @@
       "name": "3on3on3",
       "kind": "game_mode",
       "value_text": "um3ON3ON3",
-      "source_ref": "commands.c:4539",
+      "source_ref": "commands.c:4548",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4310",
+        "initstring_ref": "commands.c:4319",
         "init_function": null,
         "team_structure": "UM_3ON3ON3",
         "race_plrs_per_team": 0,
@@ -335,8 +335,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4539",
-          "commands.c:4310"
+          "commands.c:4548",
+          "commands.c:4319"
         ]
       }
     },
@@ -344,14 +344,14 @@
       "name": "4on4on4",
       "kind": "game_mode",
       "value_text": "um4ON4ON4",
-      "source_ref": "commands.c:4540",
+      "source_ref": "commands.c:4549",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4362",
+        "initstring_ref": "commands.c:4371",
         "init_function": null,
         "team_structure": "UM_4ON4ON4",
         "race_plrs_per_team": 0,
@@ -363,8 +363,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4540",
-          "commands.c:4362"
+          "commands.c:4549",
+          "commands.c:4371"
         ]
       }
     },
@@ -372,14 +372,14 @@
       "name": "XonX",
       "kind": "game_mode",
       "value_text": "umXONX",
-      "source_ref": "commands.c:4541",
+      "source_ref": "commands.c:4550",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4394",
+        "initstring_ref": "commands.c:4403",
         "init_function": null,
         "team_structure": "UM_XONX",
         "race_plrs_per_team": 0,
@@ -391,8 +391,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4541",
-          "commands.c:4394"
+          "commands.c:4550",
+          "commands.c:4403"
         ]
       }
     },
@@ -400,14 +400,14 @@
       "name": "wipeout",
       "kind": "game_mode",
       "value_text": "umWIPEOUT",
-      "source_ref": "commands.c:4542",
+      "source_ref": "commands.c:4551",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4453",
+        "initstring_ref": "commands.c:4462",
         "init_function": null,
         "team_structure": "UM_4ON4",
         "race_plrs_per_team": 0,
@@ -419,8 +419,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4542",
-          "commands.c:4453"
+          "commands.c:4551",
+          "commands.c:4462"
         ]
       }
     },
@@ -428,14 +428,14 @@
       "name": "ca",
       "kind": "game_mode",
       "value_text": "umCA",
-      "source_ref": "commands.c:4543",
+      "source_ref": "commands.c:4552",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4478",
+        "initstring_ref": "commands.c:4487",
         "init_function": null,
         "team_structure": "UM_4ON4",
         "race_plrs_per_team": 0,
@@ -447,8 +447,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4543",
-          "commands.c:4478"
+          "commands.c:4552",
+          "commands.c:4487"
         ]
       }
     },
@@ -456,14 +456,14 @@
       "name": "tot",
       "kind": "game_mode",
       "value_text": "umTOT",
-      "source_ref": "commands.c:4544",
+      "source_ref": "commands.c:4553",
       "ruleset_gate_json": {},
       "props_json": {
         "init_mechanism": "um_init_string",
         "mode_class": "standalone",
         "auto_reset_on_match": false,
         "activation_cvar": null,
-        "initstring_ref": "commands.c:4502",
+        "initstring_ref": "commands.c:4511",
         "init_function": null,
         "team_structure": "UM_FFA",
         "race_plrs_per_team": 0,
@@ -475,8 +475,8 @@
         "playable_solo": false,
         "auto_reset_call_sites": [],
         "source_xrefs": [
-          "commands.c:4544",
-          "commands.c:4502"
+          "commands.c:4553",
+          "commands.c:4511"
         ]
       }
     },
@@ -558,12 +558,12 @@
         "game_type": "Mutator",
         "playable_solo": false,
         "auto_reset_call_sites": [
-          "commands.c:7540",
-          "commands.c:7756"
+          "commands.c:7549",
+          "commands.c:7765"
         ],
         "sub_flags_json": null,
         "source_xrefs": [
-          "commands.c:7870",
+          "commands.c:7879",
           "world.c:1083"
         ]
       }
@@ -589,10 +589,10 @@
         "game_type": "Mutator",
         "playable_solo": false,
         "auto_reset_call_sites": [
-          "commands.c:2883",
-          "commands.c:7535",
-          "commands.c:7856",
-          "commands.c:7924"
+          "commands.c:2892",
+          "commands.c:7544",
+          "commands.c:7865",
+          "commands.c:7933"
         ],
         "sub_flags_json": null,
         "source_xrefs": [
@@ -622,14 +622,14 @@
         "game_type": "Mutator",
         "playable_solo": false,
         "auto_reset_call_sites": [
-          "commands.c:2882",
-          "commands.c:7751",
-          "commands.c:7851",
-          "commands.c:7920"
+          "commands.c:2891",
+          "commands.c:7760",
+          "commands.c:7860",
+          "commands.c:7929"
         ],
         "sub_flags_json": null,
         "source_xrefs": [
-          "commands.c:7553",
+          "commands.c:7562",
           "world.c:966"
         ]
       }
@@ -657,7 +657,7 @@
         "auto_reset_call_sites": [],
         "sub_flags_json": null,
         "source_xrefs": [
-          "commands.c:3240",
+          "commands.c:3249",
           "world.c:930"
         ]
       }
@@ -685,7 +685,7 @@
         "auto_reset_call_sites": [],
         "sub_flags_json": null,
         "source_xrefs": [
-          "commands.c:8641",
+          "commands.c:8650",
           "world.c:1011"
         ]
       }
@@ -713,7 +713,7 @@
         "auto_reset_call_sites": [],
         "sub_flags_json": null,
         "source_xrefs": [
-          "commands.c:3121",
+          "commands.c:3130",
           "world.c:969"
         ]
       }
@@ -746,7 +746,7 @@
           "k_freshteams_weapon_time"
         ],
         "source_xrefs": [
-          "commands.c:7619",
+          "commands.c:7628",
           "world.c:894"
         ]
       }
@@ -774,7 +774,7 @@
         "auto_reset_call_sites": [],
         "sub_flags_json": null,
         "source_xrefs": [
-          "commands.c:7711",
+          "commands.c:7720",
           "world.c:909"
         ]
       }
@@ -786,7 +786,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4153",
+      "source_ref": "commands.c:4162",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -802,7 +802,7 @@
       "kind": "mode_default",
       "value_text": "\\\"\\\"",
       "value_numeric": null,
-      "source_ref": "commands.c:4154",
+      "source_ref": "commands.c:4163",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -818,7 +818,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4155",
+      "source_ref": "commands.c:4164",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -834,7 +834,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4156",
+      "source_ref": "commands.c:4165",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -850,7 +850,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4157",
+      "source_ref": "commands.c:4166",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -866,7 +866,7 @@
       "kind": "mode_default",
       "value_text": "\\\"\\\"",
       "value_numeric": null,
-      "source_ref": "commands.c:4158",
+      "source_ref": "commands.c:4167",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -882,7 +882,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4159",
+      "source_ref": "commands.c:4168",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -898,7 +898,7 @@
       "kind": "mode_default",
       "value_text": "8",
       "value_numeric": 8,
-      "source_ref": "commands.c:4160",
+      "source_ref": "commands.c:4169",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -914,7 +914,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4161",
+      "source_ref": "commands.c:4170",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -930,7 +930,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4162",
+      "source_ref": "commands.c:4171",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -946,7 +946,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4163",
+      "source_ref": "commands.c:4172",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -962,7 +962,7 @@
       "kind": "mode_default",
       "value_text": "16",
       "value_numeric": 16,
-      "source_ref": "commands.c:4164",
+      "source_ref": "commands.c:4173",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -978,7 +978,7 @@
       "kind": "mode_default",
       "value_text": "10 1 1",
       "value_numeric": null,
-      "source_ref": "commands.c:4165",
+      "source_ref": "commands.c:4174",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -994,7 +994,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4166",
+      "source_ref": "commands.c:4175",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1010,7 +1010,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4167",
+      "source_ref": "commands.c:4176",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1026,7 +1026,7 @@
       "kind": "mode_default",
       "value_text": "\\\"\\\"",
       "value_numeric": null,
-      "source_ref": "commands.c:4168",
+      "source_ref": "commands.c:4177",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1042,7 +1042,7 @@
       "kind": "mode_default",
       "value_text": "\\\"\\\"",
       "value_numeric": null,
-      "source_ref": "commands.c:4169",
+      "source_ref": "commands.c:4178",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1058,7 +1058,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4170",
+      "source_ref": "commands.c:4179",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1074,7 +1074,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4171",
+      "source_ref": "commands.c:4180",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1090,7 +1090,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4172",
+      "source_ref": "commands.c:4181",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1106,7 +1106,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4173",
+      "source_ref": "commands.c:4182",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1122,7 +1122,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4174",
+      "source_ref": "commands.c:4183",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1138,7 +1138,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4175",
+      "source_ref": "commands.c:4184",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1154,7 +1154,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4176",
+      "source_ref": "commands.c:4185",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1170,7 +1170,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4177",
+      "source_ref": "commands.c:4186",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1186,7 +1186,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4178",
+      "source_ref": "commands.c:4187",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1202,7 +1202,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4179",
+      "source_ref": "commands.c:4188",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1218,7 +1218,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4180",
+      "source_ref": "commands.c:4189",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1234,7 +1234,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4181",
+      "source_ref": "commands.c:4190",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1250,7 +1250,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4182",
+      "source_ref": "commands.c:4191",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1266,7 +1266,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4183",
+      "source_ref": "commands.c:4192",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1282,7 +1282,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4184",
+      "source_ref": "commands.c:4193",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1298,7 +1298,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4185",
+      "source_ref": "commands.c:4194",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1314,7 +1314,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4186",
+      "source_ref": "commands.c:4195",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1330,7 +1330,7 @@
       "kind": "mode_default",
       "value_text": "4",
       "value_numeric": 4,
-      "source_ref": "commands.c:4187",
+      "source_ref": "commands.c:4196",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1346,7 +1346,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4188",
+      "source_ref": "commands.c:4197",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1362,7 +1362,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4189",
+      "source_ref": "commands.c:4198",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1378,7 +1378,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4190",
+      "source_ref": "commands.c:4199",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1394,7 +1394,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4191",
+      "source_ref": "commands.c:4200",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1410,7 +1410,7 @@
       "kind": "mode_default",
       "value_text": "4",
       "value_numeric": 4,
-      "source_ref": "commands.c:4192",
+      "source_ref": "commands.c:4201",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1426,7 +1426,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4193",
+      "source_ref": "commands.c:4202",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1442,7 +1442,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4194",
+      "source_ref": "commands.c:4203",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1458,7 +1458,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4195",
+      "source_ref": "commands.c:4204",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1474,7 +1474,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4196",
+      "source_ref": "commands.c:4205",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1490,7 +1490,7 @@
       "kind": "mode_default",
       "value_text": "64",
       "value_numeric": 64,
-      "source_ref": "commands.c:4197",
+      "source_ref": "commands.c:4206",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1506,7 +1506,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4198",
+      "source_ref": "commands.c:4207",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1522,7 +1522,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4199",
+      "source_ref": "commands.c:4208",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1538,7 +1538,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4200",
+      "source_ref": "commands.c:4209",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1554,7 +1554,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4201",
+      "source_ref": "commands.c:4210",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1570,7 +1570,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4202",
+      "source_ref": "commands.c:4211",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1586,7 +1586,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4203",
+      "source_ref": "commands.c:4212",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1602,7 +1602,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4204",
+      "source_ref": "commands.c:4213",
       "ruleset_gate_json": {
         "mode": "common"
       },
@@ -1618,7 +1618,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4208",
+      "source_ref": "commands.c:4217",
       "ruleset_gate_json": {
         "mode": "1on1"
       },
@@ -1634,7 +1634,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4209",
+      "source_ref": "commands.c:4218",
       "ruleset_gate_json": {
         "mode": "1on1"
       },
@@ -1650,7 +1650,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4210",
+      "source_ref": "commands.c:4219",
       "ruleset_gate_json": {
         "mode": "1on1"
       },
@@ -1666,7 +1666,7 @@
       "kind": "mode_default",
       "value_text": "10",
       "value_numeric": 10,
-      "source_ref": "commands.c:4211",
+      "source_ref": "commands.c:4220",
       "ruleset_gate_json": {
         "mode": "1on1"
       },
@@ -1682,7 +1682,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4212",
+      "source_ref": "commands.c:4221",
       "ruleset_gate_json": {
         "mode": "1on1"
       },
@@ -1698,7 +1698,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4213",
+      "source_ref": "commands.c:4222",
       "ruleset_gate_json": {
         "mode": "1on1"
       },
@@ -1714,7 +1714,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4214",
+      "source_ref": "commands.c:4223",
       "ruleset_gate_json": {
         "mode": "1on1"
       },
@@ -1730,7 +1730,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4215",
+      "source_ref": "commands.c:4224",
       "ruleset_gate_json": {
         "mode": "1on1"
       },
@@ -1746,7 +1746,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4216",
+      "source_ref": "commands.c:4225",
       "ruleset_gate_json": {
         "mode": "1on1"
       },
@@ -1762,7 +1762,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4217",
+      "source_ref": "commands.c:4226",
       "ruleset_gate_json": {
         "mode": "1on1"
       },
@@ -1778,7 +1778,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4218",
+      "source_ref": "commands.c:4227",
       "ruleset_gate_json": {
         "mode": "1on1"
       },
@@ -1794,7 +1794,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4219",
+      "source_ref": "commands.c:4228",
       "ruleset_gate_json": {
         "mode": "1on1"
       },
@@ -1810,7 +1810,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4220",
+      "source_ref": "commands.c:4229",
       "ruleset_gate_json": {
         "mode": "1on1"
       },
@@ -1826,7 +1826,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4224",
+      "source_ref": "commands.c:4233",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -1842,7 +1842,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4225",
+      "source_ref": "commands.c:4234",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -1858,7 +1858,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4226",
+      "source_ref": "commands.c:4235",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -1874,7 +1874,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4227",
+      "source_ref": "commands.c:4236",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -1890,7 +1890,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4228",
+      "source_ref": "commands.c:4237",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -1906,7 +1906,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4229",
+      "source_ref": "commands.c:4238",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -1922,7 +1922,7 @@
       "kind": "mode_default",
       "value_text": "12",
       "value_numeric": 12,
-      "source_ref": "commands.c:4230",
+      "source_ref": "commands.c:4239",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -1938,7 +1938,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4231",
+      "source_ref": "commands.c:4240",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -1954,7 +1954,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4232",
+      "source_ref": "commands.c:4241",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -1970,7 +1970,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4233",
+      "source_ref": "commands.c:4242",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -1986,7 +1986,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4234",
+      "source_ref": "commands.c:4243",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -2002,7 +2002,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4235",
+      "source_ref": "commands.c:4244",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -2018,7 +2018,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4236",
+      "source_ref": "commands.c:4245",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -2034,7 +2034,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4237",
+      "source_ref": "commands.c:4246",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -2050,7 +2050,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4238",
+      "source_ref": "commands.c:4247",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -2066,7 +2066,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4239",
+      "source_ref": "commands.c:4248",
       "ruleset_gate_json": {
         "mode": "hoonymode"
       },
@@ -2082,7 +2082,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4244",
+      "source_ref": "commands.c:4253",
       "ruleset_gate_json": {
         "mode": "blitz2v2"
       },
@@ -2098,7 +2098,7 @@
       "kind": "mode_default",
       "value_text": "4",
       "value_numeric": 4,
-      "source_ref": "commands.c:4245",
+      "source_ref": "commands.c:4254",
       "ruleset_gate_json": {
         "mode": "blitz2v2"
       },
@@ -2114,7 +2114,7 @@
       "kind": "mode_default",
       "value_text": "4",
       "value_numeric": 4,
-      "source_ref": "commands.c:4246",
+      "source_ref": "commands.c:4255",
       "ruleset_gate_json": {
         "mode": "blitz2v2"
       },
@@ -2130,7 +2130,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4247",
+      "source_ref": "commands.c:4256",
       "ruleset_gate_json": {
         "mode": "blitz2v2"
       },
@@ -2146,7 +2146,7 @@
       "kind": "mode_default",
       "value_text": "4",
       "value_numeric": 4,
-      "source_ref": "commands.c:4248",
+      "source_ref": "commands.c:4257",
       "ruleset_gate_json": {
         "mode": "blitz2v2"
       },
@@ -2162,7 +2162,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4249",
+      "source_ref": "commands.c:4258",
       "ruleset_gate_json": {
         "mode": "blitz2v2"
       },
@@ -2178,150 +2178,6 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4250",
-      "ruleset_gate_json": {
-        "mode": "blitz2v2"
-      },
-      "props_json": {
-        "comment": null,
-        "apply_order": 2,
-        "initstring_array": "_2on2hm_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "teamplay",
-      "kind": "mode_default",
-      "value_text": "2",
-      "value_numeric": 2,
-      "source_ref": "commands.c:4251",
-      "ruleset_gate_json": {
-        "mode": "blitz2v2"
-      },
-      "props_json": {
-        "comment": "hurt teammates and yourself",
-        "apply_order": 2,
-        "initstring_array": "_2on2hm_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "deathmatch",
-      "kind": "mode_default",
-      "value_text": "3",
-      "value_numeric": 3,
-      "source_ref": "commands.c:4252",
-      "ruleset_gate_json": {
-        "mode": "blitz2v2"
-      },
-      "props_json": {
-        "comment": "weapons stay",
-        "apply_order": 2,
-        "initstring_array": "_2on2hm_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_overtime",
-      "kind": "mode_default",
-      "value_text": "0",
-      "value_numeric": 0,
-      "source_ref": "commands.c:4253",
-      "ruleset_gate_json": {
-        "mode": "blitz2v2"
-      },
-      "props_json": {
-        "comment": "time based",
-        "apply_order": 2,
-        "initstring_array": "_2on2hm_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_exttime",
-      "kind": "mode_default",
-      "value_text": "3",
-      "value_numeric": 3,
-      "source_ref": "commands.c:4254",
-      "ruleset_gate_json": {
-        "mode": "blitz2v2"
-      },
-      "props_json": {
-        "comment": "overtime 3mins",
-        "apply_order": 2,
-        "initstring_array": "_2on2hm_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_pow",
-      "kind": "mode_default",
-      "value_text": "1",
-      "value_numeric": 1,
-      "source_ref": "commands.c:4255",
-      "ruleset_gate_json": {
-        "mode": "blitz2v2"
-      },
-      "props_json": {
-        "comment": "use powerups",
-        "apply_order": 2,
-        "initstring_array": "_2on2hm_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_membercount",
-      "kind": "mode_default",
-      "value_text": "1",
-      "value_numeric": 1,
-      "source_ref": "commands.c:4256",
-      "ruleset_gate_json": {
-        "mode": "blitz2v2"
-      },
-      "props_json": {
-        "comment": "minimum number of players in each team",
-        "apply_order": 2,
-        "initstring_array": "_2on2hm_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_lockmin",
-      "kind": "mode_default",
-      "value_text": "1",
-      "value_numeric": 1,
-      "source_ref": "commands.c:4257",
-      "ruleset_gate_json": {
-        "mode": "blitz2v2"
-      },
-      "props_json": {
-        "comment": "minimum number of teams",
-        "apply_order": 2,
-        "initstring_array": "_2on2hm_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_lockmax",
-      "kind": "mode_default",
-      "value_text": "2",
-      "value_numeric": 2,
-      "source_ref": "commands.c:4258",
-      "ruleset_gate_json": {
-        "mode": "blitz2v2"
-      },
-      "props_json": {
-        "comment": "maximum number of teams",
-        "apply_order": 2,
-        "initstring_array": "_2on2hm_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_mode",
-      "kind": "mode_default",
-      "value_text": "2",
-      "value_numeric": 2,
       "source_ref": "commands.c:4259",
       "ruleset_gate_json": {
         "mode": "blitz2v2"
@@ -2334,76 +2190,220 @@
       }
     },
     {
-      "name": "coop",
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4260",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "hurt teammates and yourself",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4261",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "weapons stay",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_overtime",
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
+      "source_ref": "commands.c:4262",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "time based",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_exttime",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
       "source_ref": "commands.c:4263",
       "ruleset_gate_json": {
-        "mode": "2on2"
+        "mode": "blitz2v2"
       },
       "props_json": {
-        "comment": "no coop",
+        "comment": "overtime 3mins",
         "apply_order": 2,
-        "initstring_array": "_2on2_um_init",
+        "initstring_array": "_2on2hm_um_init",
         "is_baseline": false
       }
     },
     {
-      "name": "maxclients",
+      "name": "k_pow",
       "kind": "mode_default",
-      "value_text": "4",
-      "value_numeric": 4,
+      "value_text": "1",
+      "value_numeric": 1,
       "source_ref": "commands.c:4264",
       "ruleset_gate_json": {
-        "mode": "2on2"
+        "mode": "blitz2v2"
       },
       "props_json": {
-        "comment": "2on2 = 4 players",
+        "comment": "use powerups",
         "apply_order": 2,
-        "initstring_array": "_2on2_um_init",
+        "initstring_array": "_2on2hm_um_init",
         "is_baseline": false
       }
     },
     {
-      "name": "k_maxclients",
+      "name": "k_membercount",
       "kind": "mode_default",
-      "value_text": "4",
-      "value_numeric": 4,
+      "value_text": "1",
+      "value_numeric": 1,
       "source_ref": "commands.c:4265",
       "ruleset_gate_json": {
-        "mode": "2on2"
+        "mode": "blitz2v2"
       },
       "props_json": {
-        "comment": "2on2 = 4 players",
+        "comment": "minimum number of players in each team",
         "apply_order": 2,
-        "initstring_array": "_2on2_um_init",
+        "initstring_array": "_2on2hm_um_init",
         "is_baseline": false
       }
     },
     {
-      "name": "timelimit",
+      "name": "k_lockmin",
       "kind": "mode_default",
-      "value_text": "10",
-      "value_numeric": 10,
+      "value_text": "1",
+      "value_numeric": 1,
       "source_ref": "commands.c:4266",
       "ruleset_gate_json": {
-        "mode": "2on2"
+        "mode": "blitz2v2"
       },
       "props_json": {
-        "comment": "10 minute rounds",
+        "comment": "minimum number of teams",
         "apply_order": 2,
-        "initstring_array": "_2on2_um_init",
+        "initstring_array": "_2on2hm_um_init",
         "is_baseline": false
       }
     },
     {
-      "name": "teamplay",
+      "name": "k_lockmax",
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
       "source_ref": "commands.c:4267",
       "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": "maximum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_mode",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4268",
+      "ruleset_gate_json": {
+        "mode": "blitz2v2"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "_2on2hm_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "coop",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4272",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4273",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "2on2 = 4 players",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4274",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "2on2 = 4 players",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "10",
+      "value_numeric": 10,
+      "source_ref": "commands.c:4275",
+      "ruleset_gate_json": {
+        "mode": "2on2"
+      },
+      "props_json": {
+        "comment": "10 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_2on2_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4276",
+      "ruleset_gate_json": {
         "mode": "2on2"
       },
       "props_json": {
@@ -2418,7 +2418,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4268",
+      "source_ref": "commands.c:4277",
       "ruleset_gate_json": {
         "mode": "2on2"
       },
@@ -2434,7 +2434,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4269",
+      "source_ref": "commands.c:4278",
       "ruleset_gate_json": {
         "mode": "2on2"
       },
@@ -2450,7 +2450,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4270",
+      "source_ref": "commands.c:4279",
       "ruleset_gate_json": {
         "mode": "2on2"
       },
@@ -2466,7 +2466,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4271",
+      "source_ref": "commands.c:4280",
       "ruleset_gate_json": {
         "mode": "2on2"
       },
@@ -2482,7 +2482,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4272",
+      "source_ref": "commands.c:4281",
       "ruleset_gate_json": {
         "mode": "2on2"
       },
@@ -2498,7 +2498,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4273",
+      "source_ref": "commands.c:4282",
       "ruleset_gate_json": {
         "mode": "2on2"
       },
@@ -2514,7 +2514,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4274",
+      "source_ref": "commands.c:4283",
       "ruleset_gate_json": {
         "mode": "2on2"
       },
@@ -2530,7 +2530,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4275",
+      "source_ref": "commands.c:4284",
       "ruleset_gate_json": {
         "mode": "2on2"
       },
@@ -2546,7 +2546,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4279",
+      "source_ref": "commands.c:4288",
       "ruleset_gate_json": {
         "mode": "2on2on2"
       },
@@ -2562,7 +2562,7 @@
       "kind": "mode_default",
       "value_text": "6",
       "value_numeric": 6,
-      "source_ref": "commands.c:4280",
+      "source_ref": "commands.c:4289",
       "ruleset_gate_json": {
         "mode": "2on2on2"
       },
@@ -2578,7 +2578,7 @@
       "kind": "mode_default",
       "value_text": "6",
       "value_numeric": 6,
-      "source_ref": "commands.c:4281",
+      "source_ref": "commands.c:4290",
       "ruleset_gate_json": {
         "mode": "2on2on2"
       },
@@ -2594,7 +2594,7 @@
       "kind": "mode_default",
       "value_text": "10",
       "value_numeric": 10,
-      "source_ref": "commands.c:4282",
+      "source_ref": "commands.c:4291",
       "ruleset_gate_json": {
         "mode": "2on2on2"
       },
@@ -2610,7 +2610,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4283",
+      "source_ref": "commands.c:4292",
       "ruleset_gate_json": {
         "mode": "2on2on2"
       },
@@ -2626,7 +2626,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4284",
+      "source_ref": "commands.c:4293",
       "ruleset_gate_json": {
         "mode": "2on2on2"
       },
@@ -2642,7 +2642,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4285",
+      "source_ref": "commands.c:4294",
       "ruleset_gate_json": {
         "mode": "2on2on2"
       },
@@ -2658,7 +2658,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4286",
+      "source_ref": "commands.c:4295",
       "ruleset_gate_json": {
         "mode": "2on2on2"
       },
@@ -2674,7 +2674,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4287",
+      "source_ref": "commands.c:4296",
       "ruleset_gate_json": {
         "mode": "2on2on2"
       },
@@ -2690,7 +2690,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4288",
+      "source_ref": "commands.c:4297",
       "ruleset_gate_json": {
         "mode": "2on2on2"
       },
@@ -2706,7 +2706,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4289",
+      "source_ref": "commands.c:4298",
       "ruleset_gate_json": {
         "mode": "2on2on2"
       },
@@ -2722,7 +2722,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4290",
+      "source_ref": "commands.c:4299",
       "ruleset_gate_json": {
         "mode": "2on2on2"
       },
@@ -2738,7 +2738,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4291",
+      "source_ref": "commands.c:4300",
       "ruleset_gate_json": {
         "mode": "2on2on2"
       },
@@ -2754,155 +2754,155 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4295",
-      "ruleset_gate_json": {
-        "mode": "3on3"
-      },
-      "props_json": {
-        "comment": "no coop",
-        "apply_order": 2,
-        "initstring_array": "_3on3_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "maxclients",
-      "kind": "mode_default",
-      "value_text": "6",
-      "value_numeric": 6,
-      "source_ref": "commands.c:4296",
-      "ruleset_gate_json": {
-        "mode": "3on3"
-      },
-      "props_json": {
-        "comment": "3on3 = 6 players",
-        "apply_order": 2,
-        "initstring_array": "_3on3_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_maxclients",
-      "kind": "mode_default",
-      "value_text": "6",
-      "value_numeric": 6,
-      "source_ref": "commands.c:4297",
-      "ruleset_gate_json": {
-        "mode": "3on3"
-      },
-      "props_json": {
-        "comment": "3on3 = 6 players",
-        "apply_order": 2,
-        "initstring_array": "_3on3_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "timelimit",
-      "kind": "mode_default",
-      "value_text": "15",
-      "value_numeric": 15,
-      "source_ref": "commands.c:4298",
-      "ruleset_gate_json": {
-        "mode": "3on3"
-      },
-      "props_json": {
-        "comment": "15 minute rounds",
-        "apply_order": 2,
-        "initstring_array": "_3on3_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "teamplay",
-      "kind": "mode_default",
-      "value_text": "2",
-      "value_numeric": 2,
-      "source_ref": "commands.c:4299",
-      "ruleset_gate_json": {
-        "mode": "3on3"
-      },
-      "props_json": {
-        "comment": "hurt teammates and yourself",
-        "apply_order": 2,
-        "initstring_array": "_3on3_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "deathmatch",
-      "kind": "mode_default",
-      "value_text": "1",
-      "value_numeric": 1,
-      "source_ref": "commands.c:4300",
-      "ruleset_gate_json": {
-        "mode": "3on3"
-      },
-      "props_json": {
-        "comment": "weapons wont stay on pickup",
-        "apply_order": 2,
-        "initstring_array": "_3on3_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_pow",
-      "kind": "mode_default",
-      "value_text": "1",
-      "value_numeric": 1,
-      "source_ref": "commands.c:4301",
-      "ruleset_gate_json": {
-        "mode": "3on3"
-      },
-      "props_json": {
-        "comment": "use powerups",
-        "apply_order": 2,
-        "initstring_array": "_3on3_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_membercount",
-      "kind": "mode_default",
-      "value_text": "2",
-      "value_numeric": 2,
-      "source_ref": "commands.c:4302",
-      "ruleset_gate_json": {
-        "mode": "3on3"
-      },
-      "props_json": {
-        "comment": "minimum number of players in each team",
-        "apply_order": 2,
-        "initstring_array": "_3on3_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_lockmin",
-      "kind": "mode_default",
-      "value_text": "1",
-      "value_numeric": 1,
-      "source_ref": "commands.c:4303",
-      "ruleset_gate_json": {
-        "mode": "3on3"
-      },
-      "props_json": {
-        "comment": "minimum number of teams",
-        "apply_order": 2,
-        "initstring_array": "_3on3_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_lockmax",
-      "kind": "mode_default",
-      "value_text": "2",
-      "value_numeric": 2,
       "source_ref": "commands.c:4304",
       "ruleset_gate_json": {
         "mode": "3on3"
       },
       "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "6",
+      "value_numeric": 6,
+      "source_ref": "commands.c:4305",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "3on3 = 6 players",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "6",
+      "value_numeric": 6,
+      "source_ref": "commands.c:4306",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "3on3 = 6 players",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "15",
+      "value_numeric": 15,
+      "source_ref": "commands.c:4307",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "15 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4308",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "hurt teammates and yourself",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4309",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "weapons wont stay on pickup",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4310",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "use powerups",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4311",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "minimum number of players in each team",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4312",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
+        "comment": "minimum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_3on3_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4313",
+      "ruleset_gate_json": {
+        "mode": "3on3"
+      },
+      "props_json": {
         "comment": "maximum number of teams",
         "apply_order": 2,
         "initstring_array": "_3on3_um_init",
@@ -2914,7 +2914,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4305",
+      "source_ref": "commands.c:4314",
       "ruleset_gate_json": {
         "mode": "3on3"
       },
@@ -2930,7 +2930,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4306",
+      "source_ref": "commands.c:4315",
       "ruleset_gate_json": {
         "mode": "3on3"
       },
@@ -2946,7 +2946,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4307",
+      "source_ref": "commands.c:4316",
       "ruleset_gate_json": {
         "mode": "3on3"
       },
@@ -2962,7 +2962,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4311",
+      "source_ref": "commands.c:4320",
       "ruleset_gate_json": {
         "mode": "3on3on3"
       },
@@ -2978,7 +2978,7 @@
       "kind": "mode_default",
       "value_text": "9",
       "value_numeric": 9,
-      "source_ref": "commands.c:4312",
+      "source_ref": "commands.c:4321",
       "ruleset_gate_json": {
         "mode": "3on3on3"
       },
@@ -2994,7 +2994,7 @@
       "kind": "mode_default",
       "value_text": "9",
       "value_numeric": 9,
-      "source_ref": "commands.c:4313",
+      "source_ref": "commands.c:4322",
       "ruleset_gate_json": {
         "mode": "3on3on3"
       },
@@ -3010,7 +3010,7 @@
       "kind": "mode_default",
       "value_text": "15",
       "value_numeric": 15,
-      "source_ref": "commands.c:4314",
+      "source_ref": "commands.c:4323",
       "ruleset_gate_json": {
         "mode": "3on3on3"
       },
@@ -3026,7 +3026,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4315",
+      "source_ref": "commands.c:4324",
       "ruleset_gate_json": {
         "mode": "3on3on3"
       },
@@ -3042,7 +3042,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4316",
+      "source_ref": "commands.c:4325",
       "ruleset_gate_json": {
         "mode": "3on3on3"
       },
@@ -3058,7 +3058,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4317",
+      "source_ref": "commands.c:4326",
       "ruleset_gate_json": {
         "mode": "3on3on3"
       },
@@ -3074,7 +3074,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4318",
+      "source_ref": "commands.c:4327",
       "ruleset_gate_json": {
         "mode": "3on3on3"
       },
@@ -3090,7 +3090,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4319",
+      "source_ref": "commands.c:4328",
       "ruleset_gate_json": {
         "mode": "3on3on3"
       },
@@ -3106,7 +3106,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4320",
+      "source_ref": "commands.c:4329",
       "ruleset_gate_json": {
         "mode": "3on3on3"
       },
@@ -3122,7 +3122,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4321",
+      "source_ref": "commands.c:4330",
       "ruleset_gate_json": {
         "mode": "3on3on3"
       },
@@ -3138,7 +3138,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4322",
+      "source_ref": "commands.c:4331",
       "ruleset_gate_json": {
         "mode": "3on3on3"
       },
@@ -3154,7 +3154,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4323",
+      "source_ref": "commands.c:4332",
       "ruleset_gate_json": {
         "mode": "3on3on3"
       },
@@ -3170,7 +3170,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4328",
+      "source_ref": "commands.c:4337",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3186,7 +3186,7 @@
       "kind": "mode_default",
       "value_text": "8",
       "value_numeric": 8,
-      "source_ref": "commands.c:4329",
+      "source_ref": "commands.c:4338",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3202,7 +3202,7 @@
       "kind": "mode_default",
       "value_text": "8",
       "value_numeric": 8,
-      "source_ref": "commands.c:4330",
+      "source_ref": "commands.c:4339",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3218,7 +3218,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4331",
+      "source_ref": "commands.c:4340",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3234,7 +3234,7 @@
       "kind": "mode_default",
       "value_text": "4",
       "value_numeric": 4,
-      "source_ref": "commands.c:4332",
+      "source_ref": "commands.c:4341",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3250,7 +3250,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4333",
+      "source_ref": "commands.c:4342",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3266,7 +3266,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4334",
+      "source_ref": "commands.c:4343",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3282,7 +3282,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4335",
+      "source_ref": "commands.c:4344",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3298,7 +3298,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4336",
+      "source_ref": "commands.c:4345",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3314,7 +3314,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4337",
+      "source_ref": "commands.c:4346",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3330,7 +3330,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4338",
+      "source_ref": "commands.c:4347",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3346,7 +3346,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4339",
+      "source_ref": "commands.c:4348",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3362,7 +3362,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4340",
+      "source_ref": "commands.c:4349",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3378,7 +3378,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4341",
+      "source_ref": "commands.c:4350",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3394,7 +3394,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4342",
+      "source_ref": "commands.c:4351",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3410,7 +3410,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4343",
+      "source_ref": "commands.c:4352",
       "ruleset_gate_json": {
         "mode": "blitz4v4"
       },
@@ -3426,155 +3426,155 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4347",
-      "ruleset_gate_json": {
-        "mode": "4on4"
-      },
-      "props_json": {
-        "comment": "no coop",
-        "apply_order": 2,
-        "initstring_array": "_4on4_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "maxclients",
-      "kind": "mode_default",
-      "value_text": "8",
-      "value_numeric": 8,
-      "source_ref": "commands.c:4348",
-      "ruleset_gate_json": {
-        "mode": "4on4"
-      },
-      "props_json": {
-        "comment": "4on4 = 8 players",
-        "apply_order": 2,
-        "initstring_array": "_4on4_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_maxclients",
-      "kind": "mode_default",
-      "value_text": "8",
-      "value_numeric": 8,
-      "source_ref": "commands.c:4349",
-      "ruleset_gate_json": {
-        "mode": "4on4"
-      },
-      "props_json": {
-        "comment": "4on4 = 8 players",
-        "apply_order": 2,
-        "initstring_array": "_4on4_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "timelimit",
-      "kind": "mode_default",
-      "value_text": "20",
-      "value_numeric": 20,
-      "source_ref": "commands.c:4350",
-      "ruleset_gate_json": {
-        "mode": "4on4"
-      },
-      "props_json": {
-        "comment": "20 minute rounds",
-        "apply_order": 2,
-        "initstring_array": "_4on4_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "teamplay",
-      "kind": "mode_default",
-      "value_text": "2",
-      "value_numeric": 2,
-      "source_ref": "commands.c:4351",
-      "ruleset_gate_json": {
-        "mode": "4on4"
-      },
-      "props_json": {
-        "comment": "hurt teammates and yourself",
-        "apply_order": 2,
-        "initstring_array": "_4on4_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "deathmatch",
-      "kind": "mode_default",
-      "value_text": "1",
-      "value_numeric": 1,
-      "source_ref": "commands.c:4352",
-      "ruleset_gate_json": {
-        "mode": "4on4"
-      },
-      "props_json": {
-        "comment": "weapons wont stay on pickup",
-        "apply_order": 2,
-        "initstring_array": "_4on4_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_pow",
-      "kind": "mode_default",
-      "value_text": "1",
-      "value_numeric": 1,
-      "source_ref": "commands.c:4353",
-      "ruleset_gate_json": {
-        "mode": "4on4"
-      },
-      "props_json": {
-        "comment": "use powerups",
-        "apply_order": 2,
-        "initstring_array": "_4on4_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_membercount",
-      "kind": "mode_default",
-      "value_text": "3",
-      "value_numeric": 3,
-      "source_ref": "commands.c:4354",
-      "ruleset_gate_json": {
-        "mode": "4on4"
-      },
-      "props_json": {
-        "comment": "minimum number of players in each team",
-        "apply_order": 2,
-        "initstring_array": "_4on4_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_lockmin",
-      "kind": "mode_default",
-      "value_text": "1",
-      "value_numeric": 1,
-      "source_ref": "commands.c:4355",
-      "ruleset_gate_json": {
-        "mode": "4on4"
-      },
-      "props_json": {
-        "comment": "minimum number of teams",
-        "apply_order": 2,
-        "initstring_array": "_4on4_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_lockmax",
-      "kind": "mode_default",
-      "value_text": "2",
-      "value_numeric": 2,
       "source_ref": "commands.c:4356",
       "ruleset_gate_json": {
         "mode": "4on4"
       },
       "props_json": {
+        "comment": "no coop",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "8",
+      "value_numeric": 8,
+      "source_ref": "commands.c:4357",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "4on4 = 8 players",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "8",
+      "value_numeric": 8,
+      "source_ref": "commands.c:4358",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "4on4 = 8 players",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "20",
+      "value_numeric": 20,
+      "source_ref": "commands.c:4359",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "20 minute rounds",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4360",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "hurt teammates and yourself",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4361",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "weapons wont stay on pickup",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4362",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "use powerups",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4363",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "minimum number of players in each team",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmin",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4364",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
+        "comment": "minimum number of teams",
+        "apply_order": 2,
+        "initstring_array": "_4on4_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_lockmax",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4365",
+      "ruleset_gate_json": {
+        "mode": "4on4"
+      },
+      "props_json": {
         "comment": "maximum number of teams",
         "apply_order": 2,
         "initstring_array": "_4on4_um_init",
@@ -3586,7 +3586,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4357",
+      "source_ref": "commands.c:4366",
       "ruleset_gate_json": {
         "mode": "4on4"
       },
@@ -3602,7 +3602,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4358",
+      "source_ref": "commands.c:4367",
       "ruleset_gate_json": {
         "mode": "4on4"
       },
@@ -3618,7 +3618,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4359",
+      "source_ref": "commands.c:4368",
       "ruleset_gate_json": {
         "mode": "4on4"
       },
@@ -3634,7 +3634,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4363",
+      "source_ref": "commands.c:4372",
       "ruleset_gate_json": {
         "mode": "4on4on4"
       },
@@ -3650,7 +3650,7 @@
       "kind": "mode_default",
       "value_text": "12",
       "value_numeric": 12,
-      "source_ref": "commands.c:4364",
+      "source_ref": "commands.c:4373",
       "ruleset_gate_json": {
         "mode": "4on4on4"
       },
@@ -3666,7 +3666,7 @@
       "kind": "mode_default",
       "value_text": "12",
       "value_numeric": 12,
-      "source_ref": "commands.c:4365",
+      "source_ref": "commands.c:4374",
       "ruleset_gate_json": {
         "mode": "4on4on4"
       },
@@ -3682,7 +3682,7 @@
       "kind": "mode_default",
       "value_text": "20",
       "value_numeric": 20,
-      "source_ref": "commands.c:4366",
+      "source_ref": "commands.c:4375",
       "ruleset_gate_json": {
         "mode": "4on4on4"
       },
@@ -3698,7 +3698,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4367",
+      "source_ref": "commands.c:4376",
       "ruleset_gate_json": {
         "mode": "4on4on4"
       },
@@ -3714,7 +3714,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4368",
+      "source_ref": "commands.c:4377",
       "ruleset_gate_json": {
         "mode": "4on4on4"
       },
@@ -3730,7 +3730,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4369",
+      "source_ref": "commands.c:4378",
       "ruleset_gate_json": {
         "mode": "4on4on4"
       },
@@ -3746,7 +3746,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4370",
+      "source_ref": "commands.c:4379",
       "ruleset_gate_json": {
         "mode": "4on4on4"
       },
@@ -3762,7 +3762,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4371",
+      "source_ref": "commands.c:4380",
       "ruleset_gate_json": {
         "mode": "4on4on4"
       },
@@ -3778,7 +3778,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4372",
+      "source_ref": "commands.c:4381",
       "ruleset_gate_json": {
         "mode": "4on4on4"
       },
@@ -3794,7 +3794,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4373",
+      "source_ref": "commands.c:4382",
       "ruleset_gate_json": {
         "mode": "4on4on4"
       },
@@ -3810,7 +3810,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4374",
+      "source_ref": "commands.c:4383",
       "ruleset_gate_json": {
         "mode": "4on4on4"
       },
@@ -3826,7 +3826,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4375",
+      "source_ref": "commands.c:4384",
       "ruleset_gate_json": {
         "mode": "4on4on4"
       },
@@ -3842,7 +3842,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4379",
+      "source_ref": "commands.c:4388",
       "ruleset_gate_json": {
         "mode": "10on10"
       },
@@ -3858,7 +3858,7 @@
       "kind": "mode_default",
       "value_text": "20",
       "value_numeric": 20,
-      "source_ref": "commands.c:4380",
+      "source_ref": "commands.c:4389",
       "ruleset_gate_json": {
         "mode": "10on10"
       },
@@ -3874,7 +3874,7 @@
       "kind": "mode_default",
       "value_text": "20",
       "value_numeric": 20,
-      "source_ref": "commands.c:4381",
+      "source_ref": "commands.c:4390",
       "ruleset_gate_json": {
         "mode": "10on10"
       },
@@ -3890,7 +3890,7 @@
       "kind": "mode_default",
       "value_text": "20",
       "value_numeric": 20,
-      "source_ref": "commands.c:4382",
+      "source_ref": "commands.c:4391",
       "ruleset_gate_json": {
         "mode": "10on10"
       },
@@ -3906,7 +3906,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4383",
+      "source_ref": "commands.c:4392",
       "ruleset_gate_json": {
         "mode": "10on10"
       },
@@ -3922,7 +3922,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4384",
+      "source_ref": "commands.c:4393",
       "ruleset_gate_json": {
         "mode": "10on10"
       },
@@ -3938,7 +3938,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4385",
+      "source_ref": "commands.c:4394",
       "ruleset_gate_json": {
         "mode": "10on10"
       },
@@ -3954,7 +3954,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4386",
+      "source_ref": "commands.c:4395",
       "ruleset_gate_json": {
         "mode": "10on10"
       },
@@ -3970,7 +3970,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4387",
+      "source_ref": "commands.c:4396",
       "ruleset_gate_json": {
         "mode": "10on10"
       },
@@ -3986,7 +3986,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4388",
+      "source_ref": "commands.c:4397",
       "ruleset_gate_json": {
         "mode": "10on10"
       },
@@ -4002,7 +4002,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4389",
+      "source_ref": "commands.c:4398",
       "ruleset_gate_json": {
         "mode": "10on10"
       },
@@ -4018,7 +4018,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4390",
+      "source_ref": "commands.c:4399",
       "ruleset_gate_json": {
         "mode": "10on10"
       },
@@ -4034,7 +4034,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4391",
+      "source_ref": "commands.c:4400",
       "ruleset_gate_json": {
         "mode": "10on10"
       },
@@ -4050,7 +4050,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4395",
+      "source_ref": "commands.c:4404",
       "ruleset_gate_json": {
         "mode": "XonX"
       },
@@ -4066,7 +4066,7 @@
       "kind": "mode_default",
       "value_text": "32",
       "value_numeric": 32,
-      "source_ref": "commands.c:4396",
+      "source_ref": "commands.c:4405",
       "ruleset_gate_json": {
         "mode": "XonX"
       },
@@ -4082,7 +4082,7 @@
       "kind": "mode_default",
       "value_text": "32",
       "value_numeric": 32,
-      "source_ref": "commands.c:4397",
+      "source_ref": "commands.c:4406",
       "ruleset_gate_json": {
         "mode": "XonX"
       },
@@ -4098,7 +4098,7 @@
       "kind": "mode_default",
       "value_text": "20",
       "value_numeric": 20,
-      "source_ref": "commands.c:4398",
+      "source_ref": "commands.c:4407",
       "ruleset_gate_json": {
         "mode": "XonX"
       },
@@ -4114,7 +4114,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4399",
+      "source_ref": "commands.c:4408",
       "ruleset_gate_json": {
         "mode": "XonX"
       },
@@ -4130,7 +4130,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4400",
+      "source_ref": "commands.c:4409",
       "ruleset_gate_json": {
         "mode": "XonX"
       },
@@ -4146,7 +4146,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4401",
+      "source_ref": "commands.c:4410",
       "ruleset_gate_json": {
         "mode": "XonX"
       },
@@ -4162,7 +4162,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4402",
+      "source_ref": "commands.c:4411",
       "ruleset_gate_json": {
         "mode": "XonX"
       },
@@ -4178,7 +4178,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4403",
+      "source_ref": "commands.c:4412",
       "ruleset_gate_json": {
         "mode": "XonX"
       },
@@ -4194,7 +4194,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4404",
+      "source_ref": "commands.c:4413",
       "ruleset_gate_json": {
         "mode": "XonX"
       },
@@ -4210,7 +4210,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4405",
+      "source_ref": "commands.c:4414",
       "ruleset_gate_json": {
         "mode": "XonX"
       },
@@ -4226,7 +4226,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4406",
+      "source_ref": "commands.c:4415",
       "ruleset_gate_json": {
         "mode": "XonX"
       },
@@ -4242,7 +4242,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4407",
+      "source_ref": "commands.c:4416",
       "ruleset_gate_json": {
         "mode": "XonX"
       },
@@ -4258,7 +4258,7 @@
       "kind": "mode_default",
       "value_text": "26",
       "value_numeric": 26,
-      "source_ref": "commands.c:4412",
+      "source_ref": "commands.c:4421",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4274,7 +4274,7 @@
       "kind": "mode_default",
       "value_text": "26",
       "value_numeric": 26,
-      "source_ref": "commands.c:4413",
+      "source_ref": "commands.c:4422",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4290,7 +4290,7 @@
       "kind": "mode_default",
       "value_text": "20",
       "value_numeric": 20,
-      "source_ref": "commands.c:4414",
+      "source_ref": "commands.c:4423",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4306,7 +4306,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4415",
+      "source_ref": "commands.c:4424",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4322,7 +4322,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4416",
+      "source_ref": "commands.c:4425",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4338,7 +4338,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4417",
+      "source_ref": "commands.c:4426",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4354,7 +4354,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4418",
+      "source_ref": "commands.c:4427",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4370,7 +4370,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4419",
+      "source_ref": "commands.c:4428",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4386,7 +4386,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4420",
+      "source_ref": "commands.c:4429",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4402,7 +4402,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4421",
+      "source_ref": "commands.c:4430",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4418,7 +4418,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4422",
+      "source_ref": "commands.c:4431",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4434,7 +4434,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4423",
+      "source_ref": "commands.c:4432",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4450,7 +4450,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4424",
+      "source_ref": "commands.c:4433",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4466,7 +4466,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4425",
+      "source_ref": "commands.c:4434",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4482,7 +4482,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4426",
+      "source_ref": "commands.c:4435",
       "ruleset_gate_json": {
         "mode": "ffa"
       },
@@ -4498,7 +4498,7 @@
       "kind": "mode_default",
       "value_text": "ctf",
       "value_numeric": null,
-      "source_ref": "commands.c:4430",
+      "source_ref": "commands.c:4439",
       "ruleset_gate_json": {
         "mode": "ctf"
       },
@@ -4514,150 +4514,6 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4431",
-      "ruleset_gate_json": {
-        "mode": "ctf"
-      },
-      "props_json": {
-        "comment": null,
-        "apply_order": 2,
-        "initstring_array": "ctf_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "coop",
-      "kind": "mode_default",
-      "value_text": "0",
-      "value_numeric": 0,
-      "source_ref": "commands.c:4432",
-      "ruleset_gate_json": {
-        "mode": "ctf"
-      },
-      "props_json": {
-        "comment": null,
-        "apply_order": 2,
-        "initstring_array": "ctf_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "maxclients",
-      "kind": "mode_default",
-      "value_text": "16",
-      "value_numeric": 16,
-      "source_ref": "commands.c:4433",
-      "ruleset_gate_json": {
-        "mode": "ctf"
-      },
-      "props_json": {
-        "comment": null,
-        "apply_order": 2,
-        "initstring_array": "ctf_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_maxclients",
-      "kind": "mode_default",
-      "value_text": "16",
-      "value_numeric": 16,
-      "source_ref": "commands.c:4434",
-      "ruleset_gate_json": {
-        "mode": "ctf"
-      },
-      "props_json": {
-        "comment": null,
-        "apply_order": 2,
-        "initstring_array": "ctf_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "timelimit",
-      "kind": "mode_default",
-      "value_text": "10",
-      "value_numeric": 10,
-      "source_ref": "commands.c:4435",
-      "ruleset_gate_json": {
-        "mode": "ctf"
-      },
-      "props_json": {
-        "comment": null,
-        "apply_order": 2,
-        "initstring_array": "ctf_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "teamplay",
-      "kind": "mode_default",
-      "value_text": "4",
-      "value_numeric": 4,
-      "source_ref": "commands.c:4436",
-      "ruleset_gate_json": {
-        "mode": "ctf"
-      },
-      "props_json": {
-        "comment": null,
-        "apply_order": 2,
-        "initstring_array": "ctf_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "deathmatch",
-      "kind": "mode_default",
-      "value_text": "3",
-      "value_numeric": 3,
-      "source_ref": "commands.c:4437",
-      "ruleset_gate_json": {
-        "mode": "ctf"
-      },
-      "props_json": {
-        "comment": null,
-        "apply_order": 2,
-        "initstring_array": "ctf_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_dis",
-      "kind": "mode_default",
-      "value_text": "2",
-      "value_numeric": 2,
-      "source_ref": "commands.c:4438",
-      "ruleset_gate_json": {
-        "mode": "ctf"
-      },
-      "props_json": {
-        "comment": "no out of water discharges in ctf",
-        "apply_order": 2,
-        "initstring_array": "ctf_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_pow",
-      "kind": "mode_default",
-      "value_text": "1",
-      "value_numeric": 1,
-      "source_ref": "commands.c:4439",
-      "ruleset_gate_json": {
-        "mode": "ctf"
-      },
-      "props_json": {
-        "comment": null,
-        "apply_order": 2,
-        "initstring_array": "ctf_um_init",
-        "is_baseline": false
-      }
-    },
-    {
-      "name": "k_spw",
-      "kind": "mode_default",
-      "value_text": "1",
-      "value_numeric": 1,
       "source_ref": "commands.c:4440",
       "ruleset_gate_json": {
         "mode": "ctf"
@@ -4670,7 +4526,7 @@
       }
     },
     {
-      "name": "k_membercount",
+      "name": "coop",
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
@@ -4686,11 +4542,155 @@
       }
     },
     {
+      "name": "maxclients",
+      "kind": "mode_default",
+      "value_text": "16",
+      "value_numeric": 16,
+      "source_ref": "commands.c:4442",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_maxclients",
+      "kind": "mode_default",
+      "value_text": "16",
+      "value_numeric": 16,
+      "source_ref": "commands.c:4443",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "timelimit",
+      "kind": "mode_default",
+      "value_text": "10",
+      "value_numeric": 10,
+      "source_ref": "commands.c:4444",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "teamplay",
+      "kind": "mode_default",
+      "value_text": "4",
+      "value_numeric": 4,
+      "source_ref": "commands.c:4445",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "deathmatch",
+      "kind": "mode_default",
+      "value_text": "3",
+      "value_numeric": 3,
+      "source_ref": "commands.c:4446",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_dis",
+      "kind": "mode_default",
+      "value_text": "2",
+      "value_numeric": 2,
+      "source_ref": "commands.c:4447",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": "no out of water discharges in ctf",
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_pow",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4448",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_spw",
+      "kind": "mode_default",
+      "value_text": "1",
+      "value_numeric": 1,
+      "source_ref": "commands.c:4449",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
+      "name": "k_membercount",
+      "kind": "mode_default",
+      "value_text": "0",
+      "value_numeric": 0,
+      "source_ref": "commands.c:4450",
+      "ruleset_gate_json": {
+        "mode": "ctf"
+      },
+      "props_json": {
+        "comment": null,
+        "apply_order": 2,
+        "initstring_array": "ctf_um_init",
+        "is_baseline": false
+      }
+    },
+    {
       "name": "k_lockmin",
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4442",
+      "source_ref": "commands.c:4451",
       "ruleset_gate_json": {
         "mode": "ctf"
       },
@@ -4706,7 +4706,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4443",
+      "source_ref": "commands.c:4452",
       "ruleset_gate_json": {
         "mode": "ctf"
       },
@@ -4722,7 +4722,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4444",
+      "source_ref": "commands.c:4453",
       "ruleset_gate_json": {
         "mode": "ctf"
       },
@@ -4738,7 +4738,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4445",
+      "source_ref": "commands.c:4454",
       "ruleset_gate_json": {
         "mode": "ctf"
       },
@@ -4754,7 +4754,7 @@
       "kind": "mode_default",
       "value_text": "4",
       "value_numeric": 4,
-      "source_ref": "commands.c:4446",
+      "source_ref": "commands.c:4455",
       "ruleset_gate_json": {
         "mode": "ctf"
       },
@@ -4770,7 +4770,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4447",
+      "source_ref": "commands.c:4456",
       "ruleset_gate_json": {
         "mode": "ctf"
       },
@@ -4786,7 +4786,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4448",
+      "source_ref": "commands.c:4457",
       "ruleset_gate_json": {
         "mode": "ctf"
       },
@@ -4802,7 +4802,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4449",
+      "source_ref": "commands.c:4458",
       "ruleset_gate_json": {
         "mode": "ctf"
       },
@@ -4818,7 +4818,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4450",
+      "source_ref": "commands.c:4459",
       "ruleset_gate_json": {
         "mode": "ctf"
       },
@@ -4834,7 +4834,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4454",
+      "source_ref": "commands.c:4463",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -4850,7 +4850,7 @@
       "kind": "mode_default",
       "value_text": "9",
       "value_numeric": 9,
-      "source_ref": "commands.c:4455",
+      "source_ref": "commands.c:4464",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -4866,7 +4866,7 @@
       "kind": "mode_default",
       "value_text": "4",
       "value_numeric": 4,
-      "source_ref": "commands.c:4456",
+      "source_ref": "commands.c:4465",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -4882,7 +4882,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4457",
+      "source_ref": "commands.c:4466",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -4898,7 +4898,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4458",
+      "source_ref": "commands.c:4467",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -4914,7 +4914,7 @@
       "kind": "mode_default",
       "value_text": "4",
       "value_numeric": 4,
-      "source_ref": "commands.c:4459",
+      "source_ref": "commands.c:4468",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -4930,7 +4930,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4460",
+      "source_ref": "commands.c:4469",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -4946,7 +4946,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4461",
+      "source_ref": "commands.c:4470",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -4962,7 +4962,7 @@
       "kind": "mode_default",
       "value_text": "8",
       "value_numeric": 8,
-      "source_ref": "commands.c:4462",
+      "source_ref": "commands.c:4471",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -4978,7 +4978,7 @@
       "kind": "mode_default",
       "value_text": "8",
       "value_numeric": 8,
-      "source_ref": "commands.c:4463",
+      "source_ref": "commands.c:4472",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -4994,7 +4994,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4464",
+      "source_ref": "commands.c:4473",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -5010,7 +5010,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4465",
+      "source_ref": "commands.c:4474",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -5026,7 +5026,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4466",
+      "source_ref": "commands.c:4475",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -5042,7 +5042,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4467",
+      "source_ref": "commands.c:4476",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -5058,7 +5058,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4468",
+      "source_ref": "commands.c:4477",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -5074,7 +5074,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4469",
+      "source_ref": "commands.c:4478",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -5090,7 +5090,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4470",
+      "source_ref": "commands.c:4479",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -5106,7 +5106,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4471",
+      "source_ref": "commands.c:4480",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -5122,7 +5122,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4472",
+      "source_ref": "commands.c:4481",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -5138,7 +5138,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4473",
+      "source_ref": "commands.c:4482",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -5154,7 +5154,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4474",
+      "source_ref": "commands.c:4483",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -5170,7 +5170,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4475",
+      "source_ref": "commands.c:4484",
       "ruleset_gate_json": {
         "mode": "wipeout"
       },
@@ -5186,7 +5186,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4479",
+      "source_ref": "commands.c:4488",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5202,7 +5202,7 @@
       "kind": "mode_default",
       "value_text": "9",
       "value_numeric": 9,
-      "source_ref": "commands.c:4480",
+      "source_ref": "commands.c:4489",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5218,7 +5218,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4481",
+      "source_ref": "commands.c:4490",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5234,7 +5234,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4482",
+      "source_ref": "commands.c:4491",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5250,7 +5250,7 @@
       "kind": "mode_default",
       "value_text": "4",
       "value_numeric": 4,
-      "source_ref": "commands.c:4483",
+      "source_ref": "commands.c:4492",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5266,7 +5266,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4484",
+      "source_ref": "commands.c:4493",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5282,7 +5282,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4485",
+      "source_ref": "commands.c:4494",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5298,7 +5298,7 @@
       "kind": "mode_default",
       "value_text": "8",
       "value_numeric": 8,
-      "source_ref": "commands.c:4486",
+      "source_ref": "commands.c:4495",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5314,7 +5314,7 @@
       "kind": "mode_default",
       "value_text": "8",
       "value_numeric": 8,
-      "source_ref": "commands.c:4487",
+      "source_ref": "commands.c:4496",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5330,7 +5330,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4488",
+      "source_ref": "commands.c:4497",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5346,7 +5346,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4489",
+      "source_ref": "commands.c:4498",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5362,7 +5362,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4490",
+      "source_ref": "commands.c:4499",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5378,7 +5378,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4491",
+      "source_ref": "commands.c:4500",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5394,7 +5394,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4492",
+      "source_ref": "commands.c:4501",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5410,7 +5410,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4493",
+      "source_ref": "commands.c:4502",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5426,7 +5426,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4494",
+      "source_ref": "commands.c:4503",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5442,7 +5442,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4495",
+      "source_ref": "commands.c:4504",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5458,7 +5458,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4496",
+      "source_ref": "commands.c:4505",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5474,7 +5474,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4497",
+      "source_ref": "commands.c:4506",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5490,7 +5490,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4498",
+      "source_ref": "commands.c:4507",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5506,7 +5506,7 @@
       "kind": "mode_default",
       "value_text": "2",
       "value_numeric": 2,
-      "source_ref": "commands.c:4499",
+      "source_ref": "commands.c:4508",
       "ruleset_gate_json": {
         "mode": "ca"
       },
@@ -5522,7 +5522,7 @@
       "kind": "mode_default",
       "value_text": "4",
       "value_numeric": 4,
-      "source_ref": "commands.c:4503",
+      "source_ref": "commands.c:4512",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5538,7 +5538,7 @@
       "kind": "mode_default",
       "value_text": "-1",
       "value_numeric": -1,
-      "source_ref": "commands.c:4504",
+      "source_ref": "commands.c:4513",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5554,7 +5554,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4505",
+      "source_ref": "commands.c:4514",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5570,7 +5570,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4506",
+      "source_ref": "commands.c:4515",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5586,7 +5586,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4507",
+      "source_ref": "commands.c:4516",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5602,7 +5602,7 @@
       "kind": "mode_default",
       "value_text": "80",
       "value_numeric": 80,
-      "source_ref": "commands.c:4508",
+      "source_ref": "commands.c:4517",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5618,7 +5618,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4509",
+      "source_ref": "commands.c:4518",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5634,7 +5634,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4510",
+      "source_ref": "commands.c:4519",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5650,7 +5650,7 @@
       "kind": "mode_default",
       "value_text": "8",
       "value_numeric": 8,
-      "source_ref": "commands.c:4511",
+      "source_ref": "commands.c:4520",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5666,7 +5666,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4512",
+      "source_ref": "commands.c:4521",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5682,7 +5682,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4513",
+      "source_ref": "commands.c:4522",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5698,7 +5698,7 @@
       "kind": "mode_default",
       "value_text": "9",
       "value_numeric": 9,
-      "source_ref": "commands.c:4514",
+      "source_ref": "commands.c:4523",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5714,7 +5714,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4515",
+      "source_ref": "commands.c:4524",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5730,7 +5730,7 @@
       "kind": "mode_default",
       "value_text": "3",
       "value_numeric": 3,
-      "source_ref": "commands.c:4516",
+      "source_ref": "commands.c:4525",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5746,7 +5746,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4517",
+      "source_ref": "commands.c:4526",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5762,7 +5762,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4518",
+      "source_ref": "commands.c:4527",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5778,7 +5778,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4519",
+      "source_ref": "commands.c:4528",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5794,7 +5794,7 @@
       "kind": "mode_default",
       "value_text": "1",
       "value_numeric": 1,
-      "source_ref": "commands.c:4520",
+      "source_ref": "commands.c:4529",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5810,7 +5810,7 @@
       "kind": "mode_default",
       "value_text": "9",
       "value_numeric": 9,
-      "source_ref": "commands.c:4521",
+      "source_ref": "commands.c:4530",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5826,7 +5826,7 @@
       "kind": "mode_default",
       "value_text": "0",
       "value_numeric": 0,
-      "source_ref": "commands.c:4522",
+      "source_ref": "commands.c:4531",
       "ruleset_gate_json": {
         "mode": "tot"
       },
@@ -5842,7 +5842,7 @@
       "kind": "mode_default",
       "value_text": "5",
       "value_numeric": 5,
-      "source_ref": "commands.c:4523",
+      "source_ref": "commands.c:4532",
       "ruleset_gate_json": {
         "mode": "tot"
       },

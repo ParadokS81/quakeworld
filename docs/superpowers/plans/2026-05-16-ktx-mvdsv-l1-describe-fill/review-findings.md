@@ -271,6 +271,55 @@ contract number). The C1 gate is unchanged.
 **Phase:** Phase 2 (recon the POST-Phase-0 M; no hardcoded 260), Phase 0
 (produces the re-baseline).
 
+### F-C3c -- the ktx/command C3 leg is measurement-invalid (mvdsv `cmdlist` is structurally blind to KTX mod-path commands)
+
+**Surfaced by:** the Phase 0 executor, Task 2 two-stage review 2026-05-17
+(primary-source-verified live). The Task 2 design assumed KTX commands are
+`cmdlist`-enumerable and never verified it -- the class per-phase drafting
+structurally misses (the F-D4a / F-C1a precedent, here caught at executor
+two-stage review instead of the holistic gate).
+
+**Contained by:** the Executor correction 2026-05-17 in
+`phase-0-artifacts/c3-suspect-pool.md` + `phase-0-results.md` +
+`c3-liveness-diff.sh` (ktx/command excluded as NON-DIAGNOSTIC; genuine pool
+= ktx/cvar 0 + mvdsv/cvar 5 + mvdsv/command 4). Faithful to C3 (removes a
+357-entry false-death hazard before commit), NOT a decision amendment.
+
+**Evidence:** the C3 oracle is `mvdsv +gamedir ktx` -> `cvarlist`/`cmdlist`.
+KTX cvars register into mvdsv's cvar system via `Cvar_Register`, so
+`cvarlist` enumerates them (ktx/cvar leg valid: 259/259, 0 suspects). KTX
+commands are struct-literal `cmd_t cmds[]` / frogbot `std_commands[]` /
+`editor_commands[]` tables iterated by KTX mod-side dispatch (KTX command
+extractor docstring: "PATTERN 4 -- struct-literal command tables iterated
+via dispatch"; KTX `Cmd_AddCommand` call sites commented out, `teamplay.c`).
+`mvdsv cmdlist` enumerates only engine-side `Cmd_AddCommand`, so it CANNOT
+observe the KTX mod-command surface: 357/358 "absent" is the trivial
+structural default, zero liveness signal. The raw 357 are unmistakably LIVE
+core commands (`1on1`,`2on2`,`4on4`,`ready`,`break`,`captain`,`yes`,`no`,
+`+scores`,`pickup`,`agree`). The retained 2026-04-27 production dump
+reproduces 357==357 (structural, not build/liveness).
+
+**Risk (arc-invalidating if uncorrected):** consumed per the C3/D6 contract,
+357 live KTX commands -- ~the entire competitive-QW command surface -- would
+get the D6 "appears non-functional, candidate upstream code bug" dead-stamp
+and route to C1 outreach: precisely the shipped lie C3 forbids (the dual of
+"presence is not liveness" -- never assert DEATH for a knob the oracle
+cannot observe). Distinct from F-C3b: F-C3b parks *classifying genuine
+suspects*; here the instrument yields *no valid suspects to classify* for
+this leg.
+
+**Open question (Phase 0 boundary -- operator/orchestrator ratify):** the
+artifacts are corrected so Phase 3 cannot dead-stamp KTX commands (it
+describes them from source behavior like any non-suspect knob). Ratify the
+non-diagnostic framing. Whether KTX-command runtime-liveness ever warrants a
+KTX-mod-side oracle (candidate: the parked libclang call-graph reachability
+arc over the `cmds[]` dispatch) is flagged out-of-this-arc -- NOT decided
+here, NOT a Phase 0/3 deliverable.
+
+**Phase:** Phase 0 (detect the oracle limitation, exclude the leg, correct
+the artifacts), Phase 3 (consume the corrected reading -- KTX commands carry
+no Phase-0 C3 signal; do NOT dead-stamp them).
+
 ### Pre-dispatch holistic gate 2026-05-17 -- audit trail (Findings 2 + 3)
 
 The gate (orchestrator pre-dispatch, whole-plan-as-one-object) returned NOT
@@ -451,6 +500,7 @@ consumes; do not implement the wiki side).
 | F-D13a (MCP contract surface delta) | Substantive | Phase 5 |
 | F-C1a (Phase-2 hardcoded M=260; Phase-0 re-baselines) | Substantive | Phase 2 (recon POST-Phase-0 M, no hardcoded 260), Phase 0 (produces the re-baseline) -- Correction 1 committed `d0bd2068` |
 | F-C5b (synthesized-anchor probe was global; arc-scoped) | Substantive | Phase 1 (ship arc-scoped, mirror the `origin_vocabulary` guard), all fill phases (re-run) -- adjudicated Option 1 2026-05-17 |
+| F-C3c (ktx/command C3 leg measurement-invalid; cmdlist blind to KTX mod commands) | Substantive | Phase 0 (exclude leg as NON-DIAGNOSTIC, correct artifacts -- Executor correction 2026-05-17), Phase 3 (do NOT dead-stamp KTX commands) |
 | F-D10b (case-fidelity soft dep) | Boundary | Phase 5 (note only) |
 | F-D10c (dusty-* fork separate arc) | Boundary | Phase 3 (note only) |
 | F-C3b (reachability parked arc) | Boundary | Phase 0 + Phase 3 (note only) |

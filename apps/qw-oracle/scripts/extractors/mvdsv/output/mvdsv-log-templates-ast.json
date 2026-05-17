@@ -58,7 +58,7 @@
           },
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2047,
+            "source_line": 2048,
             "containing_function": "SV_TogglePause"
           }
         ]
@@ -71,12 +71,12 @@
         "format_string": "%s WARNING: missing player/eyes model checksum\\n",
         "format_string_normalized": "%s WARNING: missing player/eyes model checksum\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1010,
+        "source_line": 1011,
         "containing_function": "Cmd_Begin_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1010,
+            "source_line": 1011,
             "containing_function": "Cmd_Begin_f"
           }
         ]
@@ -89,12 +89,12 @@
         "format_string": "%s WARNING: non standard player/eyes model detected\\n",
         "format_string_normalized": "%s WARNING: non standard player/eyes model detected\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1017,
+        "source_line": 1018,
         "containing_function": "Cmd_Begin_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1017,
+            "source_line": 1018,
             "containing_function": "Cmd_Begin_f"
           }
         ]
@@ -143,12 +143,12 @@
         "format_string": "%s dropped\\n",
         "format_string_normalized": "%s dropped\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2120,
+        "source_line": 2121,
         "containing_function": "Cmd_Drop_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2120,
+            "source_line": 2121,
             "containing_function": "Cmd_Drop_f"
           }
         ]
@@ -179,12 +179,12 @@
         "format_string": "%s logged out\\n",
         "format_string_normalized": "%s logged out\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 3240,
+        "source_line": 3241,
         "containing_function": "Cmd_Logout_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 3240,
+            "source_line": 3241,
             "containing_function": "Cmd_Logout_f"
           }
         ]
@@ -233,12 +233,12 @@
         "format_string": "%s refused remote screenshot\\n",
         "format_string_normalized": "%s refused remote screenshot\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2502,
+        "source_line": 2503,
         "containing_function": "Cmd_NoSnap_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2502,
+            "source_line": 2503,
             "containing_function": "Cmd_NoSnap_f"
           }
         ]
@@ -269,12 +269,12 @@
         "format_string": "%s turns %s %s\\n",
         "format_string_normalized": "%s turns %s %s\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2567,
+        "source_line": 2568,
         "containing_function": "Cmd_AirStep_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2567,
+            "source_line": 2568,
             "containing_function": "Cmd_AirStep_f"
           }
         ]
@@ -359,12 +359,12 @@
         "format_string": "%s was kicked for topcolor spam\\n",
         "format_string_normalized": "%s was kicked for topcolor spam\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2427,
+        "source_line": 2428,
         "containing_function": "Cmd_SetInfo_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2427,
+            "source_line": 2428,
             "containing_function": "Cmd_SetInfo_f"
           }
         ]
@@ -377,12 +377,12 @@
         "format_string": "%s was kicked for userinfo spam\\n",
         "format_string_normalized": "%s was kicked for userinfo spam\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2321,
+        "source_line": 2322,
         "containing_function": "Cmd_SetInfo_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2321,
+            "source_line": 2322,
             "containing_function": "Cmd_SetInfo_f"
           }
         ]
@@ -616,12 +616,12 @@
         "format_string": "%s%s\\n\\n",
         "format_string_normalized": "%s%s\\n\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1598,
+        "source_line": 1599,
         "containing_function": "Cmd_Download_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1598,
+            "source_line": 1599,
             "containing_function": "Cmd_Download_f"
           }
         ]
@@ -634,12 +634,12 @@
         "format_string": "... %s failed, will try again\\n",
         "format_string_normalized": "... %s failed, will try again\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 4126,
+        "source_line": 4127,
         "containing_function": "SV_ServerSideWeaponLogic_PostPostThink",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4126,
+            "source_line": 4127,
             "containing_function": "SV_ServerSideWeaponLogic_PostPostThink"
           }
         ]
@@ -652,12 +652,12 @@
         "format_string": "... %s successful, stopping\\n",
         "format_string_normalized": "... %s successful, stopping\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 4129,
+        "source_line": 4130,
         "containing_function": "SV_ServerSideWeaponLogic_PostPostThink",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4129,
+            "source_line": 4130,
             "containing_function": "SV_ServerSideWeaponLogic_PostPostThink"
           }
         ]
@@ -688,12 +688,12 @@
         "format_string": "Best: %d, forgetorder enabled\\n",
         "format_string_normalized": "Best: %d, forgetorder enabled\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 3996,
+        "source_line": 3997,
         "containing_function": "SV_ExecuteServerSideWeaponForgetOrder",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 3996,
+            "source_line": 3997,
             "containing_function": "SV_ExecuteServerSideWeaponForgetOrder"
           }
         ]
@@ -742,12 +742,12 @@
         "format_string": "Can't join, all player slots full\\n",
         "format_string_normalized": "Can't join, all player slots full\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2691,
+        "source_line": 2692,
         "containing_function": "Cmd_Join_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2691,
+            "source_line": 2692,
             "containing_function": "Cmd_Join_f"
           }
         ]
@@ -760,12 +760,12 @@
         "format_string": "Can't join, all spectator/vip slots full\\n",
         "format_string_normalized": "Can't join, all spectator/vip slots full\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2780,
+        "source_line": 2781,
         "containing_function": "Cmd_Observe_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2780,
+            "source_line": 2781,
             "containing_function": "Cmd_Observe_f"
           }
         ]
@@ -778,12 +778,12 @@
         "format_string": "Can't suicide -- already dead!\\n",
         "format_string_normalized": "Can't suicide -- already dead!\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2005,
+        "source_line": 2006,
         "containing_function": "Cmd_Kill_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2005,
+            "source_line": 2006,
             "containing_function": "Cmd_Kill_f"
           }
         ]
@@ -796,12 +796,12 @@
         "format_string": "Current rate is %i\\n",
         "format_string_normalized": "Current rate is %i\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2179,
+        "source_line": 2180,
         "containing_function": "Cmd_Rate_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2179,
+            "source_line": 2180,
             "containing_function": "Cmd_Rate_f"
           }
         ]
@@ -814,12 +814,12 @@
         "format_string": "Download this map faster:\\n",
         "format_string_normalized": "Download this map faster:\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1597,
+        "source_line": 1598,
         "containing_function": "Cmd_Download_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1597,
+            "source_line": 1598,
             "containing_function": "Cmd_Download_f"
           }
         ]
@@ -850,12 +850,12 @@
         "format_string": "File %s is %.0fKB (%.2fMB)\\n",
         "format_string_normalized": "File %s is %.0fKB (%.2fMB)\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1604,
+        "source_line": 1605,
         "containing_function": "Cmd_Download_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1604,
+            "source_line": 1605,
             "containing_function": "Cmd_Download_f"
           }
         ]
@@ -868,12 +868,12 @@
         "format_string": "FloodProt: %s\\n",
         "format_string_normalized": "FloodProt: %s\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1858,
+        "source_line": 1859,
         "containing_function": "SV_Say",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1858,
+            "source_line": 1859,
             "containing_function": "SV_Say"
           }
         ]
@@ -886,12 +886,12 @@
         "format_string": "FloodProt: You can't talk for %d seconds.\\n",
         "format_string_normalized": "FloodProt: You can't talk for %d seconds.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1861,
+        "source_line": 1862,
         "containing_function": "SV_Say",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1861,
+            "source_line": 1862,
             "containing_function": "SV_Say"
           }
         ]
@@ -904,12 +904,12 @@
         "format_string": "Hide successful\\n",
         "format_string_normalized": "Hide successful\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 4137,
+        "source_line": 4138,
         "containing_function": "SV_ServerSideWeaponLogic_PostPostThink",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4137,
+            "source_line": 4138,
             "containing_function": "SV_ServerSideWeaponLogic_PostPostThink"
           }
         ]
@@ -922,12 +922,12 @@
         "format_string": "Hiding on death: %d\\n",
         "format_string_normalized": "Hiding on death: %d\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 4041,
+        "source_line": 4042,
         "containing_function": "SV_ExecuteServerSideWeaponHideOnDeath",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4041,
+            "source_line": 4042,
             "containing_function": "SV_ExecuteServerSideWeaponHideOnDeath"
           }
         ]
@@ -940,12 +940,12 @@
         "format_string": "Hiding: %d\\n",
         "format_string_normalized": "Hiding: %d\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 4093,
+        "source_line": 4094,
         "containing_function": "SV_ServerSideWeaponLogic_PrePostThink",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4093,
+            "source_line": 4094,
             "containing_function": "SV_ServerSideWeaponLogic_PrePostThink"
           }
         ]
@@ -958,12 +958,12 @@
         "format_string": "Invalid client to track\\n",
         "format_string_normalized": "Invalid client to track\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2152,
+        "source_line": 2153,
         "containing_function": "Cmd_PTrack_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2152,
+            "source_line": 2153,
             "containing_function": "Cmd_PTrack_f"
           }
         ]
@@ -976,12 +976,12 @@
         "format_string": "Logged in.\\n",
         "format_string_normalized": "Logged in.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2221,
+        "source_line": 2222,
         "containing_function": "Cmd_TechLogin_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2221,
+            "source_line": 2222,
             "containing_function": "Cmd_TechLogin_f"
           }
         ]
@@ -994,12 +994,12 @@
         "format_string": "Logged out.\\n",
         "format_string_normalized": "Logged out.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2209,
+        "source_line": 2210,
         "containing_function": "Cmd_TechLogin_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2209,
+            "source_line": 2210,
             "containing_function": "Cmd_TechLogin_f"
           }
         ]
@@ -1012,12 +1012,12 @@
         "format_string": "Map %s is %.0fKB (%.2fMB)\\n",
         "format_string_normalized": "Map %s is %.0fKB (%.2fMB)\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1591,
+        "source_line": 1592,
         "containing_function": "Cmd_Download_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1591,
+            "source_line": 1592,
             "containing_function": "Cmd_Download_f"
           }
         ]
@@ -1030,12 +1030,12 @@
         "format_string": "Map model file does not match (%s), %i != %i/%i.\\n\"\n\t\t\t                 \"You may need a new version of the map, or the proper install files.\\n",
         "format_string_normalized": "Map model file does not match (%s), %i != %i/%i.\\n\"\n\t\t\t                 \"You may need a new version of the map, or the proper install files.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 706,
+        "source_line": 707,
         "containing_function": "Cmd_PreSpawn_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 706,
+            "source_line": 707,
             "containing_function": "Cmd_PreSpawn_f"
           }
         ]
@@ -1048,12 +1048,12 @@
         "format_string": "Net rate set to %i\\n",
         "format_string_normalized": "Net rate set to %i\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2186,
+        "source_line": 2187,
         "containing_function": "Cmd_Rate_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2186,
+            "source_line": 2187,
             "containing_function": "Cmd_Rate_f"
           }
         ]
@@ -1084,12 +1084,12 @@
         "format_string": "No longer firing...\\n",
         "format_string_normalized": "No longer firing...\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 4143,
+        "source_line": 4144,
         "containing_function": "SV_ServerSideWeaponLogic_PostPostThink",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4143,
+            "source_line": 4144,
             "containing_function": "SV_ServerSideWeaponLogic_PostPostThink"
           }
         ]
@@ -1102,12 +1102,12 @@
         "format_string": "Non-wp impulse: %f\\n",
         "format_string_normalized": "Non-wp impulse: %f\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 4105,
+        "source_line": 4106,
         "containing_function": "SV_ServerSideWeaponLogic_PrePostThink",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4105,
+            "source_line": 4106,
             "containing_function": "SV_ServerSideWeaponLogic_PrePostThink"
           }
         ]
@@ -1120,12 +1120,12 @@
         "format_string": "Pause not allowed.\\n",
         "format_string_normalized": "Pause not allowed.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2079,
+        "source_line": 2080,
         "containing_function": "Cmd_Pause_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2079,
+            "source_line": 2080,
             "containing_function": "Cmd_Pause_f"
           }
         ]
@@ -1174,12 +1174,12 @@
         "format_string": "SV_Spawn_f: Invalid client start\\n",
         "format_string_normalized": "SV_Spawn_f: Invalid client start\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 847,
+        "source_line": 848,
         "containing_function": "Cmd_Spawn_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 847,
+            "source_line": 848,
             "containing_function": "Cmd_Spawn_f"
           }
         ]
@@ -1192,12 +1192,12 @@
         "format_string": "Server is paused.\\n",
         "format_string_normalized": "Server is paused.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1026,
+        "source_line": 1027,
         "containing_function": "Cmd_Begin_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1026,
+            "source_line": 1027,
             "containing_function": "Cmd_Begin_f"
           }
         ]
@@ -1210,12 +1210,12 @@
         "format_string": "Setting new w_rank: %s\\n",
         "format_string_normalized": "Setting new w_rank: %s\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 4217,
+        "source_line": 4218,
         "containing_function": "SV_UserSetWeaponRank",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4217,
+            "source_line": 4218,
             "containing_function": "SV_UserSetWeaponRank"
           }
         ]
@@ -1228,12 +1228,12 @@
         "format_string": "Spectators can not pause.\\n",
         "format_string_normalized": "Spectators can not pause.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2085,
+        "source_line": 2086,
         "containing_function": "Cmd_Pause_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2085,
+            "source_line": 2086,
             "containing_function": "Cmd_Pause_f"
           }
         ]
@@ -1246,12 +1246,12 @@
         "format_string": "Switching to best weapon: %d\\n",
         "format_string_normalized": "Switching to best weapon: %d\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 4080,
+        "source_line": 4081,
         "containing_function": "SV_ServerSideWeaponLogic_PrePostThink",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4080,
+            "source_line": 4081,
             "containing_function": "SV_ServerSideWeaponLogic_PrePostThink"
           }
         ]
@@ -1264,12 +1264,12 @@
         "format_string": "This server requires a %s password. Please disconnect, set the password and reconnect as %s.\\n",
         "format_string_normalized": "This server requires a %s password. Please disconnect, set the password and reconnect as %s.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2674,
+        "source_line": 2675,
         "containing_function": "Cmd_Join_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2674,
+            "source_line": 2675,
             "containing_function": "Cmd_Join_f"
           }
         ]
@@ -1336,12 +1336,12 @@
         "format_string": "Upload denied\\n",
         "format_string_normalized": "Upload denied\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1291,
+        "source_line": 1292,
         "containing_function": "SV_CancelUpload",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1291,
+            "source_line": 1292,
             "containing_function": "SV_CancelUpload"
           }
         ]
@@ -1372,12 +1372,12 @@
         "format_string": "Wait %d seconds\\n",
         "format_string_normalized": "Wait %d seconds\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2684,
+        "source_line": 2685,
         "containing_function": "Cmd_Join_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2684,
+            "source_line": 2685,
             "containing_function": "Cmd_Join_f"
           }
         ]
@@ -1390,12 +1390,12 @@
         "format_string": "You can't change your name while logged in on this server.\\n",
         "format_string_normalized": "You can't change your name while logged in on this server.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2400,
+        "source_line": 2401,
         "containing_function": "Cmd_SetInfo_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2400,
+            "source_line": 2401,
             "containing_function": "Cmd_SetInfo_f"
           }
         ]
@@ -1408,12 +1408,12 @@
         "format_string": "You can't change your name while you're muted\\n",
         "format_string_normalized": "You can't change your name while you're muted\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2390,
+        "source_line": 2391,
         "containing_function": "Cmd_SetInfo_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2390,
+            "source_line": 2391,
             "containing_function": "Cmd_SetInfo_f"
           }
         ]
@@ -1426,12 +1426,12 @@
         "format_string": "You can't talk for %d more seconds\\n",
         "format_string_normalized": "You can't talk for %d more seconds\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1849,
+        "source_line": 1850,
         "containing_function": "SV_Say",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1849,
+            "source_line": 1850,
             "containing_function": "SV_Say"
           }
         ]
@@ -1462,12 +1462,12 @@
         "format_string": "You were kicked from the game for topcolor spamming\\n",
         "format_string_normalized": "You were kicked from the game for topcolor spamming\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2430,
+        "source_line": 2431,
         "containing_function": "Cmd_SetInfo_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2430,
+            "source_line": 2431,
             "containing_function": "Cmd_SetInfo_f"
           }
         ]
@@ -1480,12 +1480,12 @@
         "format_string": "You were kicked from the game for userinfo spamming\\n",
         "format_string_normalized": "You were kicked from the game for userinfo spamming\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2324,
+        "source_line": 2325,
         "containing_function": "Cmd_SetInfo_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2324,
+            "source_line": 2325,
             "containing_function": "Cmd_SetInfo_f"
           }
         ]
@@ -1516,12 +1516,12 @@
         "format_string": "Your QW client doesn't support this command\\n",
         "format_string_normalized": "Your QW client doesn't support this command\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2669,
+        "source_line": 2670,
         "containing_function": "Cmd_Join_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2669,
+            "source_line": 2670,
             "containing_function": "Cmd_Join_f"
           }
         ]
@@ -2469,12 +2469,12 @@
         "format_string": "%s is corrupt or wrong size\\n",
         "format_string_normalized": "%s is corrupt or wrong size\\n",
         "source_file": "src/cmodel.c",
-        "source_line": 994,
+        "source_line": 996,
         "containing_function": "CM_LoadPhysicsNormals",
         "all_call_sites": [
           {
             "source_file": "src/cmodel.c",
-            "source_line": 994,
+            "source_line": 996,
             "containing_function": "CM_LoadPhysicsNormals"
           }
         ]
@@ -2523,12 +2523,12 @@
         "format_string": "%s%s",
         "format_string_normalized": "%s%s",
         "source_file": "src/sv_user.c",
-        "source_line": 2611,
+        "source_line": 2612,
         "containing_function": "Cmd_ShowMapsList_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2611,
+            "source_line": 2612,
             "containing_function": "Cmd_ShowMapsList_f"
           }
         ]
@@ -2577,12 +2577,12 @@
         "format_string": "%s---%s\\n",
         "format_string_normalized": "%s---%s\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2616,
+        "source_line": 2617,
         "containing_function": "Cmd_ShowMapsList_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2616,
+            "source_line": 2617,
             "containing_function": "Cmd_ShowMapsList_f"
           }
         ]
@@ -3411,12 +3411,12 @@
         "format_string": "Bad file name.\\n",
         "format_string_normalized": "Bad file name.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2253,
+        "source_line": 2254,
         "containing_function": "Cmd_Upload_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2253,
+            "source_line": 2254,
             "containing_function": "Cmd_Upload_f"
           }
         ]
@@ -3483,12 +3483,12 @@
         "format_string": "Bad user command: %s\\n",
         "format_string_normalized": "Bad user command: %s\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 3423,
+        "source_line": 3424,
         "containing_function": "SV_ExecuteUserCommand",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 3423,
+            "source_line": 3424,
             "containing_function": "SV_ExecuteUserCommand"
           }
         ]
@@ -3627,12 +3627,12 @@
         "format_string": "Can't change pm_airstep: demo recording in progress or serverinfo key status is not 'Standby'.\\n",
         "format_string_normalized": "Can't change pm_airstep: demo recording in progress or serverinfo key status is not 'Standby'.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2556,
+        "source_line": 2557,
         "containing_function": "Cmd_AirStep_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2556,
+            "source_line": 2557,
             "containing_function": "Cmd_AirStep_f"
           }
         ]
@@ -3645,12 +3645,12 @@
         "format_string": "Can't change sv_minping: demo recording or match in progress.\\n",
         "format_string_normalized": "Can't change sv_minping: demo recording or match in progress.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2518,
+        "source_line": 2519,
         "containing_function": "Cmd_MinPing_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2518,
+            "source_line": 2519,
             "containing_function": "Cmd_MinPing_f"
           }
         ]
@@ -3663,12 +3663,12 @@
         "format_string": "Can't change sv_minping: sv_enable_cmd_minping == 0.\\n",
         "format_string_normalized": "Can't change sv_minping: sv_enable_cmd_minping == 0.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2520,
+        "source_line": 2521,
         "containing_function": "Cmd_MinPing_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2520,
+            "source_line": 2521,
             "containing_function": "Cmd_MinPing_f"
           }
         ]
@@ -4041,12 +4041,12 @@
         "format_string": "Client not tagged to upload.\\n",
         "format_string_normalized": "Client not tagged to upload.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2239,
+        "source_line": 2240,
         "containing_function": "Cmd_Upload_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2239,
+            "source_line": 2240,
             "containing_function": "Cmd_Upload_f"
           }
         ]
@@ -4167,12 +4167,12 @@
         "format_string": "Corrupt BSPX header\\n",
         "format_string_normalized": "Corrupt BSPX header\\n",
         "source_file": "src/cmodel.c",
-        "source_line": 1693,
+        "source_line": 1707,
         "containing_function": "CM_LoadBSPX",
         "all_call_sites": [
           {
             "source_file": "src/cmodel.c",
-            "source_line": 1693,
+            "source_line": 1707,
             "containing_function": "CM_LoadBSPX"
           }
         ]
@@ -4748,12 +4748,12 @@
         "format_string": "Failed to read BSP header, got %d of %d bytes\\n",
         "format_string_normalized": "Failed to read BSP header, got %d of %d bytes\\n",
         "source_file": "src/cmodel.c",
-        "source_line": 1278,
+        "source_line": 1293,
         "containing_function": "CM_OpenMap",
         "all_call_sites": [
           {
             "source_file": "src/cmodel.c",
-            "source_line": 1278,
+            "source_line": 1293,
             "containing_function": "CM_OpenMap"
           }
         ]
@@ -4766,12 +4766,12 @@
         "format_string": "Failed to read BSP lump, got %d of %d bytes\\n",
         "format_string_normalized": "Failed to read BSP lump, got %d of %d bytes\\n",
         "source_file": "src/cmodel.c",
-        "source_line": 1337,
+        "source_line": 1352,
         "containing_function": "CM_CalcChecksum",
         "all_call_sites": [
           {
             "source_file": "src/cmodel.c",
-            "source_line": 1337,
+            "source_line": 1352,
             "containing_function": "CM_CalcChecksum"
           }
         ]
@@ -4784,12 +4784,12 @@
         "format_string": "Failed to read BSPX lump, got %d of %d bytes\\n",
         "format_string_normalized": "Failed to read BSPX lump, got %d of %d bytes\\n",
         "source_file": "src/cmodel.c",
-        "source_line": 1652,
+        "source_line": 1666,
         "containing_function": "CM_BSPX_ReadLump",
         "all_call_sites": [
           {
             "source_file": "src/cmodel.c",
-            "source_line": 1652,
+            "source_line": 1666,
             "containing_function": "CM_BSPX_ReadLump"
           }
         ]
@@ -4802,12 +4802,12 @@
         "format_string": "Failed to read BSPX lumps header, got %d of %d bytes\\n",
         "format_string_normalized": "Failed to read BSPX lumps header, got %d of %d bytes\\n",
         "source_file": "src/cmodel.c",
-        "source_line": 1702,
+        "source_line": 1716,
         "containing_function": "CM_LoadBSPX",
         "all_call_sites": [
           {
             "source_file": "src/cmodel.c",
-            "source_line": 1702,
+            "source_line": 1716,
             "containing_function": "CM_LoadBSPX"
           }
         ]
@@ -4879,12 +4879,12 @@
         "format_string": "File already exists.\\n",
         "format_string_normalized": "File already exists.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2259,
+        "source_line": 2260,
         "containing_function": "Cmd_Upload_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2259,
+            "source_line": 2260,
             "containing_function": "Cmd_Upload_f"
           }
         ]
@@ -5082,12 +5082,12 @@
         "format_string": "Invalid BSPX lump position, ofs: %d, len: %d, filelen: %d\\n",
         "format_string_normalized": "Invalid BSPX lump position, ofs: %d, len: %d, filelen: %d\\n",
         "source_file": "src/cmodel.c",
-        "source_line": 1564,
+        "source_line": 1578,
         "containing_function": "CM_BSPX_LoadLumps",
         "all_call_sites": [
           {
             "source_file": "src/cmodel.c",
-            "source_line": 1564,
+            "source_line": 1578,
             "containing_function": "CM_BSPX_LoadLumps"
           }
         ]
@@ -5316,12 +5316,12 @@
         "format_string": "Loading BSPX physics normals\\n",
         "format_string_normalized": "Loading BSPX physics normals\\n",
         "source_file": "src/cmodel.c",
-        "source_line": 967,
+        "source_line": 969,
         "containing_function": "CM_LoadPhysicsNormals",
         "all_call_sites": [
           {
             "source_file": "src/cmodel.c",
-            "source_line": 967,
+            "source_line": 969,
             "containing_function": "CM_LoadPhysicsNormals"
           }
         ]
@@ -5334,12 +5334,12 @@
         "format_string": "Loading external physics normals\\n",
         "format_string_normalized": "Loading external physics normals\\n",
         "source_file": "src/cmodel.c",
-        "source_line": 991,
+        "source_line": 993,
         "containing_function": "CM_LoadPhysicsNormals",
         "all_call_sites": [
           {
             "source_file": "src/cmodel.c",
-            "source_line": 991,
+            "source_line": 993,
             "containing_function": "CM_LoadPhysicsNormals"
           }
         ]
@@ -6442,12 +6442,12 @@
         "format_string": "SV_Begin_f from different level\\n",
         "format_string_normalized": "SV_Begin_f from different level\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 971,
+        "source_line": 972,
         "containing_function": "Cmd_Begin_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 971,
+            "source_line": 972,
             "containing_function": "Cmd_Begin_f"
           }
         ]
@@ -6784,12 +6784,12 @@
         "format_string": "SV_ClientExtensionWeaponSwitch: corrupt data string\\n",
         "format_string_normalized": "SV_ClientExtensionWeaponSwitch: corrupt data string\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 4666,
+        "source_line": 4667,
         "containing_function": "SV_ExecuteClientMessage",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4666,
+            "source_line": 4667,
             "containing_function": "SV_ExecuteClientMessage"
           }
         ]
@@ -6946,12 +6946,12 @@
         "format_string": "SV_PreSpawn_f from different level\\n",
         "format_string_normalized": "SV_PreSpawn_f from different level\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 687,
+        "source_line": 688,
         "containing_function": "Cmd_PreSpawn_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 687,
+            "source_line": 688,
             "containing_function": "Cmd_PreSpawn_f"
           }
         ]
@@ -6964,12 +6964,12 @@
         "format_string": "SV_ReadClientMessage: badread\\n",
         "format_string_normalized": "SV_ReadClientMessage: badread\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 4605,
+        "source_line": 4606,
         "containing_function": "SV_ExecuteClientMessage",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4605,
+            "source_line": 4606,
             "containing_function": "SV_ExecuteClientMessage"
           }
         ]
@@ -6982,12 +6982,12 @@
         "format_string": "SV_ReadClientMessage: unknown command char\\n",
         "format_string_normalized": "SV_ReadClientMessage: unknown command char\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 4617,
+        "source_line": 4618,
         "containing_function": "SV_ExecuteClientMessage",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4617,
+            "source_line": 4618,
             "containing_function": "SV_ExecuteClientMessage"
           }
         ]
@@ -7000,12 +7000,12 @@
         "format_string": "SV_ReadClientMessage: unknown debug message type %d\\n",
         "format_string_normalized": "SV_ReadClientMessage: unknown debug message type %d\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 4655,
+        "source_line": 4656,
         "containing_function": "SV_ExecuteClientMessage",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4655,
+            "source_line": 4656,
             "containing_function": "SV_ExecuteClientMessage"
           }
         ]
@@ -7036,12 +7036,12 @@
         "format_string": "SV_Spawn_f from different level\\n",
         "format_string_normalized": "SV_Spawn_f from different level\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 839,
+        "source_line": 840,
         "containing_function": "Cmd_Spawn_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 839,
+            "source_line": 840,
             "containing_function": "Cmd_Spawn_f"
           }
         ]
@@ -7126,12 +7126,12 @@
         "format_string": "Seek to BSP lump at %d failed\\n",
         "format_string_normalized": "Seek to BSP lump at %d failed\\n",
         "source_file": "src/cmodel.c",
-        "source_line": 1328,
+        "source_line": 1343,
         "containing_function": "CM_CalcChecksum",
         "all_call_sites": [
           {
             "source_file": "src/cmodel.c",
-            "source_line": 1328,
+            "source_line": 1343,
             "containing_function": "CM_CalcChecksum"
           }
         ]
@@ -7144,12 +7144,12 @@
         "format_string": "Seek to BSPX lump at %d failed\\n",
         "format_string_normalized": "Seek to BSPX lump at %d failed\\n",
         "source_file": "src/cmodel.c",
-        "source_line": 1646,
+        "source_line": 1660,
         "containing_function": "CM_BSPX_ReadLump",
         "all_call_sites": [
           {
             "source_file": "src/cmodel.c",
-            "source_line": 1646,
+            "source_line": 1660,
             "containing_function": "CM_BSPX_ReadLump"
           }
         ]
@@ -7342,12 +7342,12 @@
         "format_string": "Spawn not valid -- already spawned\\n",
         "format_string_normalized": "Spawn not valid -- already spawned\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 831,
+        "source_line": 832,
         "containing_function": "Cmd_Spawn_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 831,
+            "source_line": 832,
             "containing_function": "Cmd_Spawn_f"
           }
         ]
@@ -7378,12 +7378,12 @@
         "format_string": "Spectators can't change pm_airstep\\n",
         "format_string_normalized": "Spectators can't change pm_airstep\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2548,
+        "source_line": 2549,
         "containing_function": "Cmd_AirStep_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2548,
+            "source_line": 2549,
             "containing_function": "Cmd_AirStep_f"
           }
         ]
@@ -8347,12 +8347,12 @@
         "format_string": "User info settings short:\\n",
         "format_string_normalized": "User info settings short:\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2344,
+        "source_line": 2345,
         "containing_function": "Cmd_SetInfo_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2344,
+            "source_line": 2345,
             "containing_function": "Cmd_SetInfo_f"
           }
         ]
@@ -8365,12 +8365,12 @@
         "format_string": "User info settings:\\n",
         "format_string_normalized": "User info settings:\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2336,
+        "source_line": 2337,
         "containing_function": "Cmd_SetInfo_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2336,
+            "source_line": 2337,
             "containing_function": "Cmd_SetInfo_f"
           }
         ]
@@ -8563,12 +8563,12 @@
         "format_string": "Value must be 0 or 1.\\n",
         "format_string_normalized": "Value must be 0 or 1.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2561,
+        "source_line": 2562,
         "containing_function": "Cmd_AirStep_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2561,
+            "source_line": 2562,
             "containing_function": "Cmd_AirStep_f"
           }
         ]
@@ -8581,12 +8581,12 @@
         "format_string": "Value must be >= 0 and <= 300.\\n",
         "format_string_normalized": "Value must be >= 0 and <= 300.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2525,
+        "source_line": 2526,
         "containing_function": "Cmd_MinPing_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2525,
+            "source_line": 2526,
             "containing_function": "Cmd_MinPing_f"
           }
         ]
@@ -8599,12 +8599,12 @@
         "format_string": "Vote for maps by typing the mapname, for example \\\"%s\\\"\\n\\n---%s\\n",
         "format_string_normalized": "Vote for maps by typing the mapname, for example \\\"%s\\\"\\n\\n---%s\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2594,
+        "source_line": 2595,
         "containing_function": "Cmd_ShowMapsList_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2594,
+            "source_line": 2595,
             "containing_function": "Cmd_ShowMapsList_f"
           }
         ]
@@ -8653,12 +8653,12 @@
         "format_string": "WARNING %s: [SV_PreSpawn] Back buffered (%d0), clearing\\n",
         "format_string_normalized": "WARNING %s: [SV_PreSpawn] Back buffered (%d0), clearing\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 727,
+        "source_line": 728,
         "containing_function": "Cmd_PreSpawn_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 727,
+            "source_line": 728,
             "containing_function": "Cmd_PreSpawn_f"
           }
         ]
@@ -9254,12 +9254,12 @@
         "format_string": "\\n%s\\n\"\n\t\t           \"Usage:\\n\"\n\t\t           \"  %s %s [%s [%s]]\\n\"\n\t\t           \"    \\\"#\\\" is one or several numbers from the demo list\\n\"\n\t\t           \"  %s %s [%s%s [%s%s%s]]\\n\"\n\t\t           \"    Each number of dots represents the Nth last recorded demo\\n\"\n\t\t           \"    (Note that you can mix numbers and groups of dots)\\n\"\n\t\t           \"  %s [%s|%s|%s]\\n\"\n\t\t           \"     \\\"\\\\\\\", \\\"stop\\\" or \\\"cancel\\\" clear the download queue\\n\\n",
         "format_string_normalized": "\\n%s\\n\"\n\t\t           \"Usage:\\n\"\n\t\t           \"  %s %s [%s [%s]]\\n\"\n\t\t           \"    \\\"#\\\" is one or several numbers from the demo list\\n\"\n\t\t           \"  %s %s [%s%s [%s%s%s]]\\n\"\n\t\t           \"    Each number of dots represents the Nth last recorded demo\\n\"\n\t\t           \"    (Note that you can mix numbers and groups of dots)\\n\"\n\t\t           \"  %s [%s|%s|%s]\\n\"\n\t\t           \"     \\\"\\\\\\\", \\\"stop\\\" or \\\"cancel\\\" clear the download queue\\n\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1659,
+        "source_line": 1660,
         "containing_function": "Cmd_DemoDownload_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1659,
+            "source_line": 1660,
             "containing_function": "Cmd_DemoDownload_f"
           }
         ]
@@ -9794,12 +9794,12 @@
         "format_string": "download [filename]\\n",
         "format_string_normalized": "download [filename]\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1432,
+        "source_line": 1433,
         "containing_function": "Cmd_Download_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1432,
+            "source_line": 1433,
             "containing_function": "Cmd_Download_f"
           }
         ]
@@ -10429,12 +10429,12 @@
         "format_string": "pm_airstep = %s\\n",
         "format_string_normalized": "pm_airstep = %s\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2574,
+        "source_line": 2575,
         "containing_function": "Cmd_AirStep_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2574,
+            "source_line": 2575,
             "containing_function": "Cmd_AirStep_f"
           }
         ]
@@ -10447,12 +10447,12 @@
         "format_string": "prespawn not valid -- already spawned\\n",
         "format_string_normalized": "prespawn not valid -- already spawned\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 679,
+        "source_line": 680,
         "containing_function": "Cmd_PreSpawn_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 679,
+            "source_line": 680,
             "containing_function": "Cmd_PreSpawn_f"
           }
         ]
@@ -10735,12 +10735,12 @@
         "format_string": "sv_minping = %s\\n",
         "format_string_normalized": "sv_minping = %s\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2530,
+        "source_line": 2531,
         "containing_function": "Cmd_MinPing_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2530,
+            "source_line": 2531,
             "containing_function": "Cmd_MinPing_f"
           }
         ]
@@ -11023,12 +11023,12 @@
         "format_string": "upload [local filename] [remote filename]\\n",
         "format_string_normalized": "upload [local filename] [remote filename]\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2245,
+        "source_line": 2246,
         "containing_function": "Cmd_Upload_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2245,
+            "source_line": 2246,
             "containing_function": "Cmd_Upload_f"
           }
         ]
@@ -11131,12 +11131,12 @@
         "format_string": "usage: airstep [0 | 1]\\n",
         "format_string_normalized": "usage: airstep [0 | 1]\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2577,
+        "source_line": 2578,
         "containing_function": "Cmd_AirStep_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2577,
+            "source_line": 2578,
             "containing_function": "Cmd_AirStep_f"
           }
         ]
@@ -11239,12 +11239,12 @@
         "format_string": "usage: download demonum/num\\n\"\n\t\t\t\t\t           \"if num is negative then download the Nth to last recorded demo, \"\n\t\t\t\t\t           \"also can type any quantity of dots and \"\n\t\t\t\t\t           \"where N dots is the Nth to last recorded demo\\n",
         "format_string_normalized": "usage: download demonum/num\\n\"\n\t\t\t\t\t           \"if num is negative then download the Nth to last recorded demo, \"\n\t\t\t\t\t           \"also can type any quantity of dots and \"\n\t\t\t\t\t           \"where N dots is the Nth to last recorded demo\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1506,
+        "source_line": 1507,
         "containing_function": "Cmd_Download_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1506,
+            "source_line": 1507,
             "containing_function": "Cmd_Download_f"
           }
         ]
@@ -11329,12 +11329,12 @@
         "format_string": "usage: minping [<value>]\\n<value> = '' show current sv_minping value\\n",
         "format_string_normalized": "usage: minping [<value>]\\n<value> = '' show current sv_minping value\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2533,
+        "source_line": 2534,
         "containing_function": "Cmd_MinPing_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2533,
+            "source_line": 2534,
             "containing_function": "Cmd_MinPing_f"
           }
         ]
@@ -11419,12 +11419,12 @@
         "format_string": "usage: setinfo [ <key> <value> ]\\n",
         "format_string_normalized": "usage: setinfo [ <key> <value> ]\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 2354,
+        "source_line": 2355,
         "containing_function": "Cmd_SetInfo_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2354,
+            "source_line": 2355,
             "containing_function": "Cmd_SetInfo_f"
           }
         ]
@@ -11719,7 +11719,7 @@
           },
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1871,
+            "source_line": 1872,
             "containing_function": "SV_Say"
           }
         ]
@@ -11755,12 +11755,12 @@
         "format_string": "-",
         "format_string_normalized": "-",
         "source_file": "src/sv_user.c",
-        "source_line": 1363,
+        "source_line": 1364,
         "containing_function": "SV_NextUpload",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1363,
+            "source_line": 1364,
             "containing_function": "SV_NextUpload"
           }
         ]
@@ -11809,12 +11809,12 @@
         "format_string": "Can't create %s\\n",
         "format_string_normalized": "Can't create %s\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1348,
+        "source_line": 1349,
         "containing_function": "SV_NextUpload",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1348,
+            "source_line": 1349,
             "containing_function": "SV_NextUpload"
           }
         ]
@@ -11886,12 +11886,12 @@
         "format_string": "Couldn't download %s to %s\\n",
         "format_string_normalized": "Couldn't download %s to %s\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1563,
+        "source_line": 1564,
         "containing_function": "Cmd_Download_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1563,
+            "source_line": 1564,
             "containing_function": "Cmd_Download_f"
           }
         ]
@@ -12012,12 +12012,12 @@
         "format_string": "Downloading %s to %s\\n",
         "format_string_normalized": "Downloading %s to %s\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1586,
+        "source_line": 1587,
         "containing_function": "Cmd_Download_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1586,
+            "source_line": 1587,
             "containing_function": "Cmd_Download_f"
           }
         ]
@@ -12215,12 +12215,12 @@
         "format_string": "Receiving %s from %d...\\n",
         "format_string_normalized": "Receiving %s from %d...\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1354,
+        "source_line": 1355,
         "containing_function": "SV_NextUpload",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1354,
+            "source_line": 1355,
             "containing_function": "SV_NextUpload"
           }
         ]
@@ -12575,12 +12575,12 @@
         "format_string": "\\n%s upload completed.\\n",
         "format_string_normalized": "\\n%s upload completed.\\n",
         "source_file": "src/sv_user.c",
-        "source_line": 1380,
+        "source_line": 1381,
         "containing_function": "SV_NextUpload",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1380,
+            "source_line": 1381,
             "containing_function": "SV_NextUpload"
           }
         ]

@@ -975,7 +975,7 @@
   ],
   "_stats": {
     "source_total_call_sites": 112,
-    "function_defs_indexed": 1316,
+    "function_defs_indexed": 1317,
     "count": 108,
     "with_handler": 108,
     "with_description": 28

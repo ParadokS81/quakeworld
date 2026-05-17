@@ -539,22 +539,22 @@
           },
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2710,
-            "operation": "remove"
-          },
-          {
-            "source_file": "src/sv_user.c",
             "source_line": 2711,
             "operation": "remove"
           },
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2795,
-            "operation": "write"
+            "source_line": 2712,
+            "operation": "remove"
           },
           {
             "source_file": "src/sv_user.c",
             "source_line": 2796,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/sv_user.c",
+            "source_line": 2797,
             "operation": "write"
           }
         ]
@@ -655,12 +655,12 @@
           "read"
         ],
         "source_file": "src/sv_user.c",
-        "source_line": 4711,
+        "source_line": 4712,
         "containing_function": "SV_ExecuteClientMessage",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4711,
+            "source_line": 4712,
             "operation": "read"
           }
         ]
@@ -675,32 +675,32 @@
           "read"
         ],
         "source_file": "src/sv_user.c",
-        "source_line": 3995,
+        "source_line": 3996,
         "containing_function": "SV_ExecuteServerSideWeaponForgetOrder",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 3995,
+            "source_line": 3996,
             "operation": "read"
           },
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4040,
+            "source_line": 4041,
             "operation": "read"
           },
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4048,
+            "source_line": 4049,
             "operation": "read"
           },
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4115,
+            "source_line": 4116,
             "operation": "read"
           },
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4216,
+            "source_line": 4217,
             "operation": "read"
           }
         ]
@@ -715,12 +715,12 @@
           "read"
         ],
         "source_file": "src/sv_user.c",
-        "source_line": 1568,
+        "source_line": 1569,
         "containing_function": "Cmd_Download_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1568,
+            "source_line": 1569,
             "operation": "read"
           }
         ]
@@ -755,17 +755,17 @@
           "read"
         ],
         "source_file": "src/sv_user.c",
-        "source_line": 1009,
+        "source_line": 1010,
         "containing_function": "Cmd_Begin_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1009,
+            "source_line": 1010,
             "operation": "read"
           },
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1014,
+            "source_line": 1015,
             "operation": "read"
           }
         ]
@@ -871,7 +871,7 @@
           },
           {
             "source_file": "src/sv_user.c",
-            "source_line": 2401,
+            "source_line": 2402,
             "operation": "write"
           }
         ]
@@ -917,17 +917,17 @@
           "read"
         ],
         "source_file": "src/sv_user.c",
-        "source_line": 1008,
+        "source_line": 1009,
         "containing_function": "Cmd_Begin_f",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1008,
+            "source_line": 1009,
             "operation": "read"
           },
           {
             "source_file": "src/sv_user.c",
-            "source_line": 1013,
+            "source_line": 1014,
             "operation": "read"
           }
         ]
@@ -967,12 +967,12 @@
           "read"
         ],
         "source_file": "src/sv_user.c",
-        "source_line": 4970,
+        "source_line": 4971,
         "containing_function": "SV_ClientDownloadComplete",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4970,
+            "source_line": 4971,
             "operation": "read"
           }
         ]
@@ -1155,22 +1155,22 @@
           "write"
         ],
         "source_file": "src/sv_user.c",
-        "source_line": 4211,
+        "source_line": 4212,
         "containing_function": "SV_UserSetWeaponRank",
         "all_call_sites": [
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4211,
+            "source_line": 4212,
             "operation": "read"
           },
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4213,
+            "source_line": 4214,
             "operation": "write"
           },
           {
             "source_file": "src/sv_user.c",
-            "source_line": 4444,
+            "source_line": 4445,
             "operation": "read"
           }
         ]
