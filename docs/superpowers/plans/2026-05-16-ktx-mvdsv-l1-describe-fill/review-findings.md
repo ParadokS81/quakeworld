@@ -77,6 +77,57 @@ exists + jsonb-not-string probes, since Phase 2 first writes `shipped_doc` +
 retained provenance). The probe lands in the same phase that first writes the
 shape -- not deferred to Phase 5.
 
+### F-D4a -- the shared derive tail clobbers the owned describe-fill rows on every walk
+
+**Contained by:** the dated `decisions.md` D4 amendment 2026-05-17 (the
+owned-row guard is a Phase-1-spine deliverable -- built once, engine-agnostic,
+BEFORE Phase 2's first owned write; predicate = owned-track membership;
+Phase 5 consumes it + owns only the D4 report) + the dated Phase-1-MD
+scope-amendment 2026-05-17.
+
+**Evidence (primary-source-verified 2026-05-17 -- planner Phase 5
+cold-review + the Phase 5 drafter's independent recon, agreeing):**
+`apps/qw-oracle/scripts/load-knowledge/derive-entity-description.ts` -- all
+13 per-type derivers (the file's own header comment line 48: "All 13
+derivers write description_origin every time they UPDATE"; verified
+`deriveCvar` 70-121, `deriveCommand` 123-143, `deriveCmdlineParam`
+166-186, ...) issue `UPDATE entities SET
+description=COALESCE(help_*/trailing_comment),
+description_origin=CASE ... ELSE NULL ... WHERE entities.id=vt.entity_id
+AND ...version/project/type` with NO
+`description_origin IN ('synthesized','shipped_doc')` guard. It runs on
+every version walk/load via `index.ts:679
+deriveEntityDescriptionsForVersion(...)` inside the load transaction. None
+of Phases 1-4 touch this file (Phase 1 adds the
+`description_rereview`/`description_anchor_version` columns + the C5 probes,
+never the derive tail).
+
+**Risk (arc-invalidating):** the arc's entire owned
+`synthesized`/`shipped_doc` record is overwritten back to the source
+comment -- or to NULL (most KTX/MVDSV cvars have no trailing comment, the
+reason this arc exists) -- on the FIRST post-write re-extract. That
+re-extract is not rare: D4 staleness mandates one on every new KTX/MVDSV
+version; C4 recovery ("re-run the corrected pipeline") in Phases 2/3/4
+re-runs the load path; Phase 4's own idempotency contract re-runs
+extract+load twice. Scoping the guard to Phase 5 (the original Phase 5
+draft + drafter Open Q (b) Reading A) leaves Phases 2-4's owned writes
+destroyed by any interim re-extract and makes the per-phase DB-state
+verification regime silently unsound (a verified Phase-2 boundary wiped
+before Phase 5 ever runs). A staged `shipped_doc` row (Phase 2, pre-Phase-3
+evaluation) carries no anchor, so an
+`AND description_anchor_version IS NOT NULL` conjunct in the guard
+under-protects it -- the predicate must be owned-track membership alone.
+
+**Phase:** Phase 1 (the owned-row guard at the shared derive tail --
+engine-agnostic, built once, BEFORE Phase 2's first owned write; dated D4
+amendment + dated Phase-1-MD scope-amendment 2026-05-17). Phase 5 CONSUMES
+the Phase-1 guard and owns only the D4 walk-time Drifted/Added/Removed
+report + the `description_rereview`/"may be stale as of X" wiring (Phase 5
+Task 4 rescoped; `derive-entity-description.ts` moves out of Phase 5's
+Modified set into Phase 1's). Caught at the final arc gate by the
+fresh-context cold review -- the verification discipline's per-phase
+load-bearing catch, here at arc-shape level.
+
 ## Substantive risks (would size a phase wrong or break a prerequisite)
 
 ### F-C3a -- DISSOLVED 2026-05-17 (self-built reproducible C3 oracle)
@@ -301,6 +352,7 @@ consumes; do not implement the wiki side).
 |---|---|---|
 | F-C2a (config drift real) | Grave | Phase 2 (preserve per-source), Phase 3 (flag/resolve) |
 | F-C5a (no probe for 4 new shapes) | Grave | Phase 1 (tag+anchor probes), Phase 2 (provenance+jsonb probes) |
+| F-D4a (derive tail clobbers owned rows) | Grave | Phase 1 (owned-row guard at the shared derive tail; dated D4 + Phase-1 scope amendment 2026-05-17), Phase 5 (consume the guard; own only the D4 report -- Task 4 rescoped) |
 | F-C3a (dump contemporaneity) | DISSOLVED 2026-05-17 | Phase 0 (self-built reproducible oracle; not an active risk) |
 | F-D12a (ezquake.com figure unverified) | Substantive | Phase 0 (quantify), Phase 4 (sized by it) |
 | F-D12b (load-commands free win) | Substantive (positive) | Phase 0 |

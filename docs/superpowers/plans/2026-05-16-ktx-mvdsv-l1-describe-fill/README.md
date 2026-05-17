@@ -38,9 +38,22 @@ mirrors APPROVED Phase 2's sound per-project-partitioned branch; Open Q (a)
 locked as a dated D9 clarification; Open Q (b) no-new-probe C5 reading
 blessed; context budget resolved -- heaviest single-engine phase,
 subagent-heavy holds the ~200-400k lower bound, Tasks 1-3/4-8 separable for
-a mid-phase handoff; est. ~150-250 MVDSV rows of operator D7-tail judgment).
-Per-phase MDs drafted in fresh terminals, sub-agent-verified,
-operator-reviewed at each boundary.
+a mid-phase handoff; est. ~150-250 MVDSV rows of operator D7-tail judgment). **Phase 5 DRAFTED;
+cold-review caught F-D4a (GRAVE, arc-shape-level -- the arc's most severe
+latent gap, surfaced at the final gate):** the shared
+`derive-entity-description.ts` tail unconditionally recomputes
+`description`/`description_origin` on every walk with no owned-row guard
+(all 13 derivers, verified live; `index.ts:679`), so a Phase-5-only guard
+would let Phase 2/3/4 C4-recovery + Phase 4 idempotency + any new-version
+walk destroy the arc's owned record mid-execution. Adjudicated retroactive
+**Phase-1-spine scope** (built before Phase 2's first owned write); dated
+D4 + Phase-1-MD amendments landed; Phase 5 bounced for a SURGICAL Task-4
+rescope (consume the Phase-1 guard; own only the D4 report) -- the rest of
+Phase 5 (D13 public serializer, F-D13a MCP delta, D14 contract, harness)
+is sound and preserved. The Phase 5 drafter caught the clobber at recon
+and surfaced the scope question (Open Q (b)) rather than silently shipping
+it -- the discipline working. Per-phase MDs drafted in fresh terminals,
+sub-agent-verified, operator-reviewed at each boundary.
 
 ---
 
@@ -75,11 +88,11 @@ LOCKED by the slicing analysis (operator-reviewed 2026-05-16; see the
 | Phase | Status | MD | Deliverable | Runnable state at end | Verif. regime | Ctx budget |
 |---|---|---|---|---|---|---|
 | 0 | **approved** 2026-05-17 | phase-0-probes.md | Free win (`load-commands.ts`, 28/108) + **self-built C3 oracle** (fetch dev-head fwd, build mvdsv+ktx, local-server dump, re-extract L1 same build) + ezquake.com shape-quant | 28/108 reloaded; fresh same-build dump + suspect pool; L1 re-extracted to dev-head; ezquake shape known; probe-0 denominators re-baselined | Automated (build+server succeeds; 0->28; same-build set-diff deterministic; no N/183) | ~200-350k (grew: 2 engine builds + server harness + re-extract) |
-| 1 | **approved** 2026-05-17 | phase-1-discipline.md | The discipline, built once: provenance/staleness schema (D2/D11); D6 synthesis skill; D7 two-tier gate; D11/D15 audit serializer; C5 probes | Full pipeline round-trips one real KTX cvar (self-contained smoke -- D19); C5 tag+anchor probes green | Automated (smoke vs 1 real KTX cvar -- D19) | **~250-450k (watch)** |
+| 1 | **approved + dated scope-amendment 2026-05-17** (F-D4a: owned-row guard task added; re-draft before execution -- see decisions D4 amendment + the Phase-1-MD amendment block) | phase-1-discipline.md | The discipline, built once: provenance/staleness schema (D2/D11); **the owned-row guard at the shared derive tail (F-D4a -- protects the owned record from the every-walk recompute-clobber; both engines + the staleness walk ride it)**; D6 synthesis skill; D7 two-tier gate; D11/D15 audit serializer; C5 probes | Full pipeline round-trips one real KTX cvar (self-contained smoke -- D19, now also asserts the owned-row guard); C5 tag+anchor probes green | Automated (smoke vs 1 real KTX cvar -- D19) | **~250-450k (watch)** |
 | 2 | **approved** 2026-05-17 | phase-2-ktx-mechanical-extract.md | KTX mechanical extract (D9): new sibling extractor + loader adapter; in-repo + nQuake `ktx.cfg` + nQuake `port_template.cfg` -> structured choices + candidate text + retained provenance | ~109/260 KTX cvars carry shipped_doc candidates + retained per-source provenance (M=260 C1 gate; "~157" conflation corrected 2026-05-17); idempotent re-extract; provenance/jsonb probes green | Automated (coverage vs probe-0 + idempotency + jsonb/prov probes) | **~200-400k (watch)** |
 | 3 | **approved** 2026-05-17 | phase-3-ktx-source-synthesis.md | KTX source-synthesis (D5-D8, D10): D6 skill fans out over CD_NODESC + residual cvars + bot/judgment (mechanism-only) + triage-failed comments; meaning-conflicts resolved inline at the D7 tail | Every in-scope KTX entity carries an affirmed-or-synthesized description; residue tracked to the C1 outreach track | Operator-run (D7 audit-page tail -- per-row judgment) | ~200-350k thread |
 | 4 | **approved** 2026-05-17 | phase-4-mvdsv-fill.md | MVDSV fill, sized by Phase 0: `mvdsv.6` man-page sibling parser (cmdline); loader-freed commands + synthesis tail; cvars split easy-common-`sv_*` vs hard-dedicated-tail per the Phase 0 probe | Every in-scope MVDSV entity carries an affirmed-or-synthesized description; residue tracked | Operator-run (same D7 tail) | **200-400k (subagent-heavy holds lower bound; resolved by P0 shape -- Open Q (e))** |
-| 5 | not started | (pending draft) | Staleness + projections: wire the D4 walk-time re-review report into the new-version runbook; emit the D14 public wiki feed + snapshot.json; confirm C5 probes green; MCP public-projection delta (F-D13a) | New-version walk produces the staleness report; public projections regenerate from the record; all C5 probes green | Mixed (staleness report op-run at walk; projections automated round-trip) | ~150-300k |
+| 5 | **drafted -- NEEDS REVISION** 2026-05-17 (F-D4a: surgical Task-4 rescope -- the owned-row guard moves to Phase 1; Task 4 keeps only the D4 report + rereview/stale-stamp wiring; `derive-entity-description.ts` out of Phase 5 Modified. Paste-back in `phase-5-drafter-prompt.md` hint slot; rest of the draft sound and preserved) | phase-5-staleness-projections.md | Staleness + projections: wire the D4 walk-time re-review report into the new-version runbook; emit the D14 public wiki feed + snapshot.json; confirm C5 probes green; MCP public-projection delta (F-D13a) | New-version walk produces the staleness report; public projections regenerate from the record; all C5 probes green | Mixed (staleness report op-run at walk; projections automated round-trip) | ~150-300k |
 | 6 | not started | (pending draft) | **Deferrable tail** -- upstream pitch (D16): generate the dev showcase page from snapshot.json; hold the conversation; decide the PR path after | Showcase page renders from the record; conversation held | Operator-run; **non-gating** (arc complete at end of P5) | ~50-150k |
 
 Status flow: `not started` -> `drafted (awaiting review)` -> `approved` ->

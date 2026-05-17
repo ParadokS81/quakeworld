@@ -333,6 +333,73 @@ later prompt.
 
 ## Optional hint slot
 
-n/a -- first draft of Phase 5. (If a prior draft came back wrong, the
-planner fills a one-paragraph hint here and a fresh terminal redrafts from
-the corrections; do not preserve a prior draft's bugs.)
+**REVISION 2026-05-17 (planner Phase 5 cold-review -- SURGICAL Task-4
+rescope only; the rest of your draft is sound and APPROVED in substance,
+PRESERVE it verbatim).** Your draft was excellent: the Recon (the clobber
+verified to primary-source depth), Tasks 1/2/3/5, the F-D13a six edit
+sites, the D13 audience line, C1/C5, the D14-outbound-vs-snapshot.py-inbound
+catch, and all three applied sub-agent SUBSTANTIVEs are correct and stay
+as-is. You correctly caught the derive-tail clobber and surfaced Open Q (b)
+rather than silently shipping it -- that is exactly right.
+
+The planner adjudicated Open Q (b): the owned-row guard is **retroactive
+Phase-1-spine scope, NOT Phase 5's** (decisive: Phase 2/3/4 C4-recovery
+re-runs AND Phase 4's own idempotency contract re-run the load path -> the
+derive tail, so the guard MUST exist before Phase 2's first owned write or
+the arc destroys its own record mid-execution; a Phase-5-only guard makes
+the per-phase DB-state verification regime silently unsound). Authority:
+the dated `decisions.md` **D4 amendment 2026-05-17** + the dated Phase-1-MD
+amendment block + **review-findings F-D4a** -- READ ALL THREE before
+redrafting. Phase 1 now owns the guard (in all four arc-bucket derivers;
+predicate = `description_origin IN ('synthesized','shipped_doc')` --
+owned-track membership ALONE, NO `description_anchor_version` conjunct,
+which under-protected staged `shipped_doc`).
+
+Make ONLY these changes; touch nothing else:
+
+1. **Task 4** -- rescope to the D4 walk-time report ONLY. Drop the
+   owned-row-guard step + the `derive-entity-description.ts` edit entirely
+   (that is now Phase 1, consumed not built). Task 4 keeps: the
+   `staleness-walk-report.ts` Drifted/Added/Removed taxonomy (tight
+   triggers a-f incl. C3 trigger (f)); setting `description_rereview=TRUE`
+   on a Drifted owned row so the public projection stamps "may be stale as
+   of version X" and KEEPS SERVING; wiring the report into the walk at the
+   `index.ts` derive-tail seam (the report runs AFTER the
+   Phase-1-guarded derive tail -- the guard is a precondition Phase 5
+   consumes, not Phase 5's edit); operator-paced confirm-or-rewrite, not
+   auto-edit, not a notifier. Update Task 4's Goal/Files/Steps/
+   Verification/Execution-mode accordingly (Execution mode can drop to
+   `subagent (Sonnet 4.7 MAX)` -- it no longer touches the shared derive
+   tail; the cross-cutting load-tail risk moved to Phase 1).
+2. **Files touched** -- remove
+   `apps/qw-oracle/scripts/load-knowledge/derive-entity-description.ts`
+   from Phase 5's Modified set (it is Phase 1's now). Keep
+   `staleness-walk-report.ts` (Created) and the `index.ts` report-wiring
+   (Modified -- the report seam only, not the guard).
+3. **Recon facts** -- keep the clobber-verification bullet (it is
+   accurate and load-bearing context) but reframe its conclusion: the
+   owned-row guard is delivered by Phase 1 (the dated D4 + Phase-1
+   amendments); Phase 5 CONSUMES it and asserts (does not build) that the
+   derive tail no longer clobbers owned rows. Add a one-line cite to the
+   D4 amendment + F-D4a.
+4. **Inputs from previous phase** -- under "Phase 1 executed", add: the
+   owned-row guard at the shared derive tail exists (the dated Phase-1
+   scope-amendment task) -- Phase 5 consumes it.
+5. **Open Q (b)** -- rewrite as RESOLVED: "Adjudicated by the planner
+   2026-05-17 as retroactive Phase-1-spine scope; landed as the dated D4
+   amendment + the Phase-1-MD amendment + F-D4a. Phase 5 consumes the
+   Phase-1 guard; this MD's Task 4 is the report only. No longer open."
+6. **Outputs / Recovery B1** -- adjust the one or two lines that asserted
+   Phase 5 owns the guard to "Phase 5 consumes the Phase-1 owned-row
+   guard; the D4 report sets the rereview flag, never the text". Recovery
+   B1's fix becomes "the guard is Phase 1's -- if it failed, that is a
+   Phase-1 defect surfaced to the operator, re-run the corrected
+   Phase-1-guarded derive tail (C4); Phase 5's report only sets the
+   flag".
+
+Re-run the verification sub-agent (phase-template brief) after the
+rescope, focused on: Task 4 no longer edits the shared derive tail; the
+guard is correctly consumed-from-Phase-1; no other section regressed; the
+D13/F-D13a/D14/C5 content is byte-unchanged. Halt with the standard
+handback (finding counts + the confirm that Task 4 is now report-only +
+the rest preserved). Do NOT reopen Tasks 1/2/3/5 or any other section.

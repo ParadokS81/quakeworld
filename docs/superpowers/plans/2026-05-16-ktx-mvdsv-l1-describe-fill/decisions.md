@@ -347,6 +347,43 @@ NOT auto-edit and NOT a notification system. The report composes with the
 parked reachability arc via trigger (f) -- no blocking dependency. A visual
 monitoring website is a future non-blocking hook, NOT this arc.
 
+**Amendment 2026-05-17 (planner, Phase 5 review -- retroactive
+Phase-1-spine scope; the F-D4a fix; this AMENDS approved-Phase-1 +
+Phase-5 scope -- the D8-amendment-class precedent, NOT a silent override).**
+Primary-source-verified (planner cold-review + the Phase 5 drafter's
+independent recon, agreeing): the shared
+`apps/qw-oracle/scripts/load-knowledge/derive-entity-description.ts` tail
+(all 13 per-type derivers; called every walk/load via `index.ts:679`)
+UNCONDITIONALLY recomputes `description`+`description_origin` from the
+freshly-walked source columns for every entity at the walked version, with
+NO owned-row guard. D4 ("a flagged description keeps serving, stamped may
+be stale as of version X") is impossible unless the walk stops clobbering
+the owned rows. The owned-row guard is therefore NOT Phase-5-only: it must
+exist BEFORE Phase 2 writes the first owned row, because Phase 2/3/4
+C4-recovery re-runs AND Phase 4's own idempotency contract re-run the load
+path (-> the derive tail), so a Phase-5-only guard lets any interim
+re-extract destroy Phases 2-4's owned record and makes the per-phase
+DB-state verification regime silently unsound. **Locked:** the owned-row
+guard is a **Phase-1-spine deliverable** (engine-agnostic, built once,
+both engines + the staleness walk ride it; added as a dated Phase-1-MD
+task) -- in EACH of the four arc-bucket derivers (cvar / command /
+cmdline_param / info_key) the `UPDATE` excludes rows where
+`description_origin IN ('synthesized','shipped_doc')` (owned-track
+membership ALONE -- NO `AND description_anchor_version IS NOT NULL`
+conjunct: a staged `shipped_doc` row carries no anchor until Phase 3 and
+MUST still be protected; affirmed `source_inline` rows are deliberately
+NOT guarded -- they came from source, re-derive is idempotent, and a newly
+changed source comment is D4 trigger (e)). ezquake/fte/qwcl rows are
+unaffected (not owned-track). Phase 5 CONSUMES the Phase-1 guard and owns
+ONLY the D4 walk-time Drifted/Added/Removed report + setting/serving
+`description_rereview` + the "may be stale as of X" stamp;
+`derive-entity-description.ts` moves out of Phase 5's Files-touched into
+Phase 1's. Phase 1's draft + Phase 5's Task 4 are stale-pending this
+amendment (re-drafted from it; Phase 1 is paper -- amended pre-execution,
+never drifted). Tracked: review-findings F-D4a. Cross-cutting (Phase 1
+builds it; Phases 2/3/4 depend on it for C4-recovery + idempotency safety;
+Phase 5 consumes it).
+
 ## D5 -- Quality bar + cheap-classify triage; evaluate every entity (amended)
 
 **Decision:** A description is good enough when it: (1) says WHAT the knob

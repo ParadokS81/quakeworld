@@ -21,6 +21,38 @@
 > `phase-template.md` (commit f3574f26). No Phase 1 impact -- Phase 1 harvests
 > one shipped-config comment line and touches no source AST.
 
+> **AMENDMENT 2026-05-17 (planner, surfaced at Phase 5 cold-review --
+> F-D4a; `decisions.md` D4 amendment 2026-05-17 is the authority; this is
+> a dated retroactive scope-addition to an approved-but-paper phase,
+> integrated before execution per the never-drift rule).** Phase 1 gains
+> ONE task: **the owned-row guard at the shared derive tail.**
+> `apps/qw-oracle/scripts/load-knowledge/derive-entity-description.ts` --
+> all 13 per-type derivers UNCONDITIONALLY recompute
+> `description`+`description_origin` every walk (verified live; run via
+> `index.ts:679` inside the load transaction). In EACH of the four
+> arc-bucket derivers (cvar / command / cmdline_param / info_key) add a
+> WHERE-clause exclusion: a row with
+> `description_origin IN ('synthesized','shipped_doc')` is NOT recomputed
+> (owned-track membership ALONE -- NO `description_anchor_version`
+> conjunct: staged `shipped_doc` rows carry no anchor until Phase 3 and
+> MUST still be protected). ezquake/fte/qwcl + affirmed-`source_inline`
+> rows are unaffected (not owned-track; affirmed source rows re-derive
+> idempotently and a newly changed source comment is D4 trigger (e)).
+> Comment WHY (P5: the walk must not silently overwrite the owned
+> user-doc track). This guard is the engine-agnostic spine BOTH engines +
+> the staleness walk ride; it MUST exist before Phase 2's first owned
+> write (Phase 2/3/4 C4-recovery + Phase 4 idempotency re-run the derive
+> tail). "Files touched" gains
+> `apps/qw-oracle/scripts/load-knowledge/derive-entity-description.ts`
+> (Modified). The D19 smoke additionally asserts the guard (a simulated
+> re-derive does NOT clobber the one filled cvar; re-run twice ->
+> identical). Execution mode for the added task: `subagent (Opus 4.7
+> medium)` -- touches the shared derive tail, must not regress
+> ezquake/fte/qwcl; NOT Opus MAX (no spec-locked dial in Phase 1 for
+> this); NOT inline. Phase 1's body below is stale-pending this task's
+> integration (re-draft from this amendment + the D4 amendment before
+> execution). See review-findings F-D4a.
+
 ## Goal
 
 Phase 1 builds the entire describe-fill discipline ONCE, engine-agnostic, so
