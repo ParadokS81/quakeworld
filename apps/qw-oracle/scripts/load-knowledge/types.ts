@@ -91,6 +91,7 @@ export interface CommandAstBlock {
   source_column: number;
   enclosing_function: string | null;
   build_variant: string;
+  description?: string | null;
 }
 
 export interface CommandEntry {

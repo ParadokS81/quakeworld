@@ -25,7 +25,7 @@ export function buildCommandVersionRow(
   return {
     entity_id: entityId,
     version,
-    help_desc: entry.desc ?? null,
+    help_desc: entry.desc ?? ast?.description ?? null,
     help_remarks: entry.remarks ?? null,
     help_group_id: entry['group-id'] ?? null,
     handler_fn: ast?.handler_fn ?? null,
