@@ -15,9 +15,10 @@ two mechanisms, phased and SEPARATELY GATED, zero mechanism blending.
 
 **Status:** Planning. Scaffold built 2026-05-17 (decisions / review-findings
 / prerequisites / phase-template / handoff-prompt / README).
-**Slicing analysis: RECOMMENDED below -- pending operator gate (planner Step
-2e).** Per-phase MDs are drafted in fresh terminals after the slicing lock,
-sub-agent-verified, operator-reviewed at each boundary.
+**Slicing LOCKED 2026-05-17 (operator-gated): 5 phases, fully SEQUENTIAL**
+(Track A -> Track B -> schema+loader -> acceptance -> application; each phase
+draft -> review -> ship before the next). Per-phase MDs are drafted in fresh
+terminals, sub-agent-verified, operator-reviewed at each boundary.
 
 ---
 
@@ -43,12 +44,7 @@ sub-agent-verified, operator-reviewed at each boundary.
 
 ---
 
-## Phase index -- RECOMMENDED, pending operator gate
-
-> This table is the planner's slicing recommendation, not yet locked. The
-> operator gates it (push back / reorder / merge / split / change technique)
-> before any phase MD is drafted. On lock, the status line above flips and
-> this note is removed.
+## Phase index -- LOCKED 2026-05-17 (operator-gated)
 
 Status flow: `not started` -> `drafted (awaiting review)` -> `approved` ->
 `in execution` -> `shipped`. The drafter terminal does NOT auto-proceed;
@@ -68,7 +64,7 @@ separate future arc.
 
 ---
 
-## Slicing analysis -- RECOMMENDED, pending operator gate
+## Slicing analysis -- LOCKED 2026-05-17 (operator-gated)
 
 **Technique:** mechanism-tracer-first, then horizontal foundation, then
 vertical application -- the qw-oracle-blessed "horizontal-then-vertical"
@@ -110,13 +106,35 @@ independently verifiable (harness passes LOUD/green at the pinned commit;
 broken-pin -> zero level-3; toggle-off parity). That gate is "the thing that
 earns the word confidence" (D13/D18) -- a real deliverable.
 
-**Parallelism:** Phases 1 and 2 are independent (D1 zero mechanism blend;
-different files -- a Tier-1 shared module vs a Tier-3 ezQuake handler). They
-CAN draft and execute in parallel. Whether they DO is an operator-bandwidth
-decision (`feedback_arc_sequencing_operator_bandwidth`: not-a-hard-dependency
-!= run in parallel; both tracks are correctness-judgment-heavy) -- gated with
-the operator, recorded here on lock. Phase 3 after 1+2; Phase 4 after 3 +
-prerequisites item 4 (durable dump); Phase 5 after 4.
+**Sequencing (LOCKED -- operator decision 2026-05-17): fully SEQUENTIAL.**
+Phases 1 and 2 are independent (D1 zero mechanism blend; different files -- a
+Tier-1 shared module vs a Tier-3 ezQuake handler) and COULD parallelize, but
+both tracks are correctness-judgment-heavy (a wrong call-graph false-accuses
+a live entity; a wrong HUD model emits a phantom command). Per
+`feedback_arc_sequencing_operator_bandwidth` (not-a-hard-dependency !=
+run-in-parallel; default sequential when both need heavy operator
+correctness-judgment) the operator chose sequential: 1 -> 2 -> 3 -> 4 -> 5,
+each phase draft -> review -> ship before the next. One fresh terminal at a
+time; no orchestrator-third-terminal needed for parallelism. Hard ordering
+constraints inside the sequence: Phase 3 needs Phase 1+2 output; Phase 4
+needs Phase 3 + prerequisites item 4 (durable dump); Phase 5 needs Phase 4.
+
+**Execution-mode posture:** near-zero inline -- this is a pure code-synthesis
+arc (a call-graph module, a new handler, a schema migration + loader adapter,
+the harness, the delete-list generator, probes). Subagent-default throughout
+(X5). The Phase 1 call-graph mechanism design and the Phase 3 two-field /
+three-slot schema design are Opus-MAX-shaped (X6); mechanical synthesis
+against the locked spec is Sonnet-medium-shaped; the post-draft verification
+sub-agent is Sonnet-medium Explore-shape. The phase-template's >70%-inline
+guard + the verification sub-agent brief defend the qw-oracle Arc 1
+inline-execution defect. Per-task annotation lands in each phase MD at draft
+time (planner Step 3 rough-cut recorded here; refined per phase).
+
+**Draft order:** sequential -- one fresh terminal per phase, in order
+1 -> 5. The drafter terminal does NOT auto-proceed; operator reviews at every
+boundary and opens the next phase's fresh terminal on approval. The
+arc-orchestrator (wave 2) drives this sequence; until it ships the operator
+drives it manually via the per-phase `phase-<N>-drafter-prompt.md` files.
 
 **Context-budget posture:** all phases land under ~450k with subagent-heavy
 execution (X5/X6); none reaches the 500k failure zone; none needs a split.
