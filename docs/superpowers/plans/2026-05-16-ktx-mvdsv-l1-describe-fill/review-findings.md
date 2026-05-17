@@ -403,6 +403,48 @@ name; the structural tier has many `synthesized`-stamping derivers per 012
 `origin_vocabulary` guard), every later fill phase (re-runs it at its
 boundary).
 
+### F-C5c -- the project typecheck gate was silently vacuous for the entire describe-fill spine
+
+**Surfaced by:** the Phase 1 executor 2026-05-17 (the F-D4a class -- a gate
+that does not gate; per-phase drafting structurally missed that
+`scripts/describe-fill/` was never in `tsconfig.json`'s `include`, so every
+"tsc EXIT=0" on the spine was vacuous).
+
+**Contained by:** the Executor fix in `95e8d726` (`scripts/describe-fill/**/*`
+added to `tsconfig.json` include) + orchestrator ratification 2026-05-17.
+
+**Evidence (orchestrator-verified live 2026-05-17 -- perturbation test, not
+relayed):** an injected type error in
+`scripts/load-knowledge/derive-entity-description.ts` was caught by the
+project `tsc` (`error TS2322`, exit 2); the clean tree at `95e8d726` is
+exit 0. The gate is now genuinely non-vacuous -- the per-task `tsc EXIT=0`
+claims are real. `tsconfig.json` is a legitimate Files-touched (Modified)
+delta not in the original phase MD.
+
+**Risk:** RETIRED -- without the fix the entire spine (guard, schema,
+probes, skill, gate, serializer) could have shipped with type errors behind
+a green-but-blind gate. Now covered + perturbation-proven.
+
+**Phase:** Phase 1 (fix landed `95e8d726`; the resuming executor's boundary
+typecheck is now genuine), every later phase that runs the project tsc.
+
+### F-D11b -- the regenerable audit-review HTML projection was not gitignored
+
+**Surfaced by:** the Phase 1 executor 2026-05-17. `.gitignore` covered
+`output/*.json` but not `output/describe-fill/*.html` -- the D11/D15
+audit-review page is an emit-from-record regenerable projection (D11/D15:
+never hand-maintained) and must not be committed.
+
+**Contained by:** the Executor fix in `95e8d726` (`output/describe-fill/`
+ignored) + orchestrator ratification 2026-05-17. `.gitignore` is a
+legitimate Files-touched (Modified) delta.
+
+**Risk:** low -- a committed regenerable projection would drift from the
+record and violate the single-source-of-truth model. Retired.
+
+**Phase:** Phase 1 (fix landed `95e8d726`); Phase 5 (the public projection
+emitter inherits the same ignore discipline).
+
 ## Boundary risks (out-of-scope items a drafter might wrongly pull in)
 
 ### F-D10b -- case-fidelity loader is a soft dependency, NOT this arc
@@ -527,6 +569,8 @@ consumes; do not implement the wiki side).
 | F-C5b (synthesized-anchor probe was global; arc-scoped) | Substantive | Phase 1 (ship arc-scoped, mirror the `origin_vocabulary` guard), all fill phases (re-run) -- adjudicated Option 1 2026-05-17 |
 | F-C3c (ktx/command C3 leg measurement-invalid; cmdlist blind to KTX mod commands) | Substantive | Phase 0 (exclude leg as NON-DIAGNOSTIC, correct artifacts -- Executor correction 2026-05-17), Phase 3 (do NOT dead-stamp KTX commands) |
 | F-C3d (extract-tag head doesn't advance from origin; latent) | Advisory | Phase 5 (D4 walk: explicit fetch + SHA-pin + `--commit`) -- Phase 0 proved the mitigation |
+| F-C5c (project tsc gate silently vacuous for the spine) | Substantive | Phase 1 (fixed `95e8d726`, perturbation-verified), all phases running project tsc -- ratified 2026-05-17 |
+| F-D11b (regenerable audit HTML not gitignored) | Advisory | Phase 1 (fixed `95e8d726`), Phase 5 (same ignore discipline) -- ratified 2026-05-17 |
 | F-D10b (case-fidelity soft dep) | Boundary | Phase 5 (note only) |
 | F-D10c (dusty-* fork separate arc) | Boundary | Phase 3 (note only) |
 | F-C3b (reachability parked arc) | Boundary | Phase 0 + Phase 3 (note only) |

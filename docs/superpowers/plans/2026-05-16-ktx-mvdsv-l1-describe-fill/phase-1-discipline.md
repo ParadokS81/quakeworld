@@ -165,6 +165,9 @@ fan-out drivers beside it; Phase 1 lands only the spine + the one-cvar smoke.
 apps/qw-oracle/SCHEMA.md                                            # document description / description_origin (pre-existing 012 doc gap) + the 7 new fields, SAME task as the migration (P1)
 apps/qw-oracle/scripts/load-knowledge/quality-grid.ts               # register the 2 new C5 probes in REGRESSION_PROBES
 docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/README.md  # Phase 1 status -> drafted/approved (status column only; operator-driven)
+apps/qw-oracle/scripts/load-knowledge/derive-entity-description.ts   # F-D4a owned-row guard (per the top AMENDMENT block) -- the 4 arc-bucket derivers
+apps/qw-oracle/tsconfig.json                                        # F-C5c (execution-surfaced 2026-05-17): add scripts/describe-fill/**/* to include -- the typecheck gate was silently vacuous for the spine
+apps/qw-oracle/.gitignore                                           # F-D11b (execution-surfaced 2026-05-17): ignore the regenerable output/describe-fill/*.html projection
 ```
 
 The `SCHEMA.md` entities section (lines 61-92 today) documents neither

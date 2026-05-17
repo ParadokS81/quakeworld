@@ -11,6 +11,47 @@ final commit + halt-report. Nothing is in flight; tree state below.
 
 ---
 
+## ORCHESTRATOR RATIFICATION (2026-05-17, post-spine boundary-check -- READ FIRST)
+
+The orchestrator independently re-derived the spine at `95e8d726` (NOT
+relayed from the prior terminal's self-report):
+
+- **F-D4a guard structurally VERIFIED.** Exactly the 4 arc-bucket derivers
+  (deriveCvar/Command/CmdlineParam/InfoKey) carry the 2-clause
+  `IS DISTINCT FROM 'synthesized'` + `IS DISTINCT FROM 'shipped_doc'`
+  owned-track-alone guard; NULL-safe; NO anchor conjunct; deriveCvarAlias +
+  the other derivers + the dispatch map untouched; WHY-commented (P5).
+- **F-C5c RATIFIED (genuinely resolved).** The project `tsc` gate was
+  proven NON-vacuous by a perturbation test (an injected type error in
+  `derive-entity-description.ts` was caught: `error TS2322`, exit 2; clean
+  tree = exit 0). The per-task `tsc EXIT=0` claims are real, not vacuous.
+- **F-D11b RATIFIED.** `.gitignore` for `output/describe-fill/*.html` (the
+  regenerable projection) is correct.
+- **F-C5b** already ratified (`7824fb20`); the arc-scoped
+  `synthesized_requires_anchor` + the 7 excluded `match_event` rows hold.
+- **Open Q (e) CONFIRMED, do not relitigate:** D6 skill slug =
+  `describe-fill-synthesis` (live, registered); audit HTML default =
+  `apps/qw-oracle/output/describe-fill/cvar-audit-review.html`. Reversible;
+  locked as-is.
+- `review-findings.md` carries F-C5c + F-D11b (Substantive/Advisory +
+  ownership); the phase-1 MD Files-touched > Modified now lists
+  `tsconfig.json` + `.gitignore` + `derive-entity-description.ts`.
+
+**Your remaining work is EXACTLY: Task 6 (D19 smoke) -> the 5
+phase-boundary checks -> the orchestrator guard re-derive-safe assertion
+-> final commit + halt-report.** Do not rebuild the spine. Do not re-run
+the holistic gate (CLEAN, captured).
+
+**THE NON-NEGOTIABLE GATE (the orchestrator re-runs this itself at the
+boundary -- your self-report is a hypothesis until psql-proven):** the D19
+smoke must prove, with verbatim psql output, that a simulated re-derive
+does NOT clobber the owned `k_short_gib` row AND that running the derive
+tail twice leaves that owned record byte-identical. Phase 1 does NOT pass
+the boundary without that proof green. Everything else is recoverable;
+this is the one that silently corrupts the whole arc if wrong.
+
+---
+
 ## THE SPINE IS BUILT + PER-TASK VERIFIED + COMMITTED. DO NOT REBUILD IT.
 
 Checkpoint commit: **`95e8d726`** (pushed to origin/main). This arc's 8
