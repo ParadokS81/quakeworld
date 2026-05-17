@@ -76,6 +76,7 @@ def collect_handlers(names: str = "all") -> dict:
     from _handler_gameplay_taxonomies import KtxGameplayTaxonomiesHandler
     from _handler_gameplay_tables import KtxGameplayTablesHandler
     from _handler_match_events import KtxMatchEventsHandler
+    from _handler_shipped_config import KtxShippedConfigHandler
     available: dict = {
         "cvars": CvarsKtxHandler(),
         "commands": CommandsKtxHandler(),
@@ -88,6 +89,11 @@ def collect_handlers(names: str = "all") -> dict:
         # 2026-05-05 -- standalone (no Visitor inheritance), duck-typed
         # lifecycle stubs for driver compatibility.
         "match_events": KtxMatchEventsHandler(),
+        # shipped_config is the D9 mechanical-extract handler: parses the three
+        # shipped .cfg files and emits raw (cvar, source-file) records with
+        # candidate description text + structured_choices as data. No verdict
+        # keys -- harvest-and-stop seam per arc Phase 2.
+        "shipped_config": KtxShippedConfigHandler(),
     }
     if names == "all":
         return available

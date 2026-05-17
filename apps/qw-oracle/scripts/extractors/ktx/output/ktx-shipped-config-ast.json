@@ -1,0 +1,2864 @@
+{
+  "records": [
+    {
+      "name": "k_minrate",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 2,
+      "shipped_value": "2500",
+      "raw_comment": "minimum rate setting for players/spectators"
+    },
+    {
+      "name": "sv_maxrate",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 3,
+      "shipped_value": "500000",
+      "raw_comment": "maximum rate setting for players/spectators"
+    },
+    {
+      "name": "k_noframechecks",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 4,
+      "shipped_value": "0",
+      "raw_comment": "disable check for fps/speed manipulation (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_no_fps_physics",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 5,
+      "shipped_value": "0",
+      "raw_comment": "fps independent physics (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_short_gib",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 6,
+      "shipped_value": "1",
+      "raw_comment": "remove gibs after 2 seconds (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_exclusive",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 7,
+      "shipped_value": "1",
+      "raw_comment": "number of players gets locked on game start (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_lockmax",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 8,
+      "shipped_value": "32",
+      "raw_comment": "maximum number of teams in game"
+    },
+    {
+      "name": "k_lockmin",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 9,
+      "shipped_value": "0",
+      "raw_comment": "minimum number of teams in game"
+    },
+    {
+      "name": "k_membercount",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 10,
+      "shipped_value": "1",
+      "raw_comment": "minimum number of players in each team to start match"
+    },
+    {
+      "name": "k_lock_hdp",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 11,
+      "shipped_value": "0",
+      "raw_comment": "allow handicap (0 = yes, 1 = no)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "yes"
+        },
+        {
+          "value": "1",
+          "label": "no"
+        }
+      ]
+    },
+    {
+      "name": "k_count",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 12,
+      "shipped_value": "10",
+      "raw_comment": "countdown before match starts (seconds)"
+    },
+    {
+      "name": "k_idletime",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 13,
+      "shipped_value": "0",
+      "raw_comment": "after how many seconds the idlebot kick players who are not ready (0 = disable)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "disable"
+        }
+      ]
+    },
+    {
+      "name": "k_defmap",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 14,
+      "shipped_value": "dm3",
+      "raw_comment": "server homemap. server will change to this when last player leaves the server"
+    },
+    {
+      "name": "k_highspeed",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 17,
+      "shipped_value": "320",
+      "raw_comment": "maximum allowed runspeed (cmd speed will switch between this setting and sv_maxspeed)"
+    },
+    {
+      "name": "k_timetop",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 18,
+      "shipped_value": "30",
+      "raw_comment": "maximum time in minutes allocateable by a player for a game"
+    },
+    {
+      "name": "k_dm2mod",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 19,
+      "shipped_value": "1",
+      "raw_comment": "modified deathmatch 2 mode (0 = standard qw dmm2, 1 = modified dmm2)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "standard qw dmm2"
+        },
+        {
+          "value": "1",
+          "label": "modified dmm2"
+        }
+      ]
+    },
+    {
+      "name": "k_mode",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 20,
+      "shipped_value": "2",
+      "raw_comment": "server mode (1 = duel, 2 = team, 3 = ffa, 4 = ctf)",
+      "structured_choices": [
+        {
+          "value": "1",
+          "label": "duel"
+        },
+        {
+          "value": "2",
+          "label": "team"
+        },
+        {
+          "value": "3",
+          "label": "ffa"
+        },
+        {
+          "value": "4",
+          "label": "ctf"
+        }
+      ]
+    },
+    {
+      "name": "k_midair",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 21,
+      "shipped_value": "0",
+      "raw_comment": "midair (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_spw",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 22,
+      "shipped_value": "4",
+      "raw_comment": "spawn mode (0 = qw respawns, 1 = kombat teams spawn safety, 2 = kombat teams respawns, 3 = ktx respawns, 4 = ktx2 respawns)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "qw respawns"
+        },
+        {
+          "value": "1",
+          "label": "kombat teams spawn safety"
+        },
+        {
+          "value": "2",
+          "label": "kombat teams respawns"
+        },
+        {
+          "value": "3",
+          "label": "ktx respawns"
+        },
+        {
+          "value": "4",
+          "label": "ktx2 respawns"
+        }
+      ]
+    },
+    {
+      "name": "k_pow",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 23,
+      "shipped_value": "1",
+      "raw_comment": "powerups (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "dq",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 24,
+      "shipped_value": "0",
+      "raw_comment": "drop quad (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "dr",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 25,
+      "shipped_value": "0",
+      "raw_comment": "drop ring (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "dp",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 26,
+      "shipped_value": "1",
+      "raw_comment": "drop backpacks (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_dis",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 27,
+      "shipped_value": "1",
+      "raw_comment": "discharge (0 = off, 1 = on, 2 = only discharge players in liquid)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        },
+        {
+          "value": "2",
+          "label": "only discharge players in liquid"
+        }
+      ]
+    },
+    {
+      "name": "k_666",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 28,
+      "shipped_value": "0",
+      "raw_comment": "respawn 666 (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_bzk",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 29,
+      "shipped_value": "0",
+      "raw_comment": "berzerk (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_btime",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 30,
+      "shipped_value": "20",
+      "raw_comment": "berzerk time (seconds)"
+    },
+    {
+      "name": "k_frp",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 31,
+      "shipped_value": "0",
+      "raw_comment": "fairpacks (0 = drop equipped weapon, 1 = drop best weapon, 2 = drop last fired weapon)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "drop equipped weapon"
+        },
+        {
+          "value": "1",
+          "label": "drop best weapon"
+        },
+        {
+          "value": "2",
+          "label": "drop last fired weapon"
+        }
+      ]
+    },
+    {
+      "name": "k_overtime",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 32,
+      "shipped_value": "1",
+      "raw_comment": "overtime mode (0 = off, 1 = time, 2 = suddendeath)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "time"
+        },
+        {
+          "value": "2",
+          "label": "suddendeath"
+        }
+      ]
+    },
+    {
+      "name": "k_exttime",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 33,
+      "shipped_value": "5",
+      "raw_comment": "overtime length in minutes if k_overtime = 1"
+    },
+    {
+      "name": "k_fallbunny",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 34,
+      "shipped_value": "1",
+      "raw_comment": "fallbunny (0 = off (broken ankle), 1 = on (standard qw behaviour))"
+    },
+    {
+      "name": "k_disallow_kfjump",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 35,
+      "shipped_value": "1",
+      "raw_comment": "kfjump (0 = on, 1 = off)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "on"
+        },
+        {
+          "value": "1",
+          "label": "off"
+        }
+      ]
+    },
+    {
+      "name": "k_disallow_krjump",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 36,
+      "shipped_value": "1",
+      "raw_comment": "krjump (0 = on, 1 = off)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "on"
+        },
+        {
+          "value": "1",
+          "label": "off"
+        }
+      ]
+    },
+    {
+      "name": "k_teamoverlay",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 37,
+      "shipped_value": "0",
+      "raw_comment": "team overlay (0 = disabled, 1 = enabled)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "disabled"
+        },
+        {
+          "value": "1",
+          "label": "enabled"
+        }
+      ]
+    },
+    {
+      "name": "k_classic_shotgun",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 38,
+      "shipped_value": "1",
+      "raw_comment": "use precisely shown sg/ssg hits for each pellet fired"
+    },
+    {
+      "name": "k_use_matchless_dir",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 44,
+      "shipped_value": "1",
+      "raw_comment": "use configs/usermodes/matchless instead of [...]/ffa (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "dmm4_invinc_time",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 47,
+      "shipped_value": "0",
+      "raw_comment": "spawn invincibility time for dmm4 in seconds (-1 = disable, 0 = default (2 seconds))",
+      "structured_choices": [
+        {
+          "value": "1",
+          "label": "disable"
+        }
+      ]
+    },
+    {
+      "name": "k_dmm4_gren_mode",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 48,
+      "shipped_value": "0",
+      "raw_comment": "grenade explosions (0 = default, 1 = only on direct impact)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "default"
+        },
+        {
+          "value": "1",
+          "label": "only on direct impact"
+        }
+      ]
+    },
+    {
+      "name": "k_disallow_weapons",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 49,
+      "shipped_value": "16",
+      "raw_comment": "weapons allowed in dmm4 (bit mask):",
+      "structured_choices": [
+        {
+          "value": "1",
+          "label": "sg"
+        },
+        {
+          "value": "2",
+          "label": "ssg"
+        },
+        {
+          "value": "4",
+          "label": "ng"
+        },
+        {
+          "value": "8",
+          "label": "sng"
+        },
+        {
+          "value": "16",
+          "label": "gl"
+        },
+        {
+          "value": "32",
+          "label": "rl"
+        },
+        {
+          "value": "64",
+          "label": "lg"
+        },
+        {
+          "value": "4096",
+          "label": "axe"
+        }
+      ]
+    },
+    {
+      "name": "add_q_aerowalk",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 53,
+      "shipped_value": "1",
+      "raw_comment": "add quad on aerowalk (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_end_tele_spawn",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 54,
+      "shipped_value": "0",
+      "raw_comment": "remove tele spawn on map end (0 = yes, 1 = no)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "yes"
+        },
+        {
+          "value": "1",
+          "label": "no"
+        }
+      ]
+    },
+    {
+      "name": "k_remove_end_hurt",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 55,
+      "shipped_value": "1",
+      "raw_comment": "end modifications (0 = no modifications, 1 = remove hurt and changelevel triggers, 2 = remove hurt trigger)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no modifications"
+        },
+        {
+          "value": "1",
+          "label": "remove hurt and changelevel triggers"
+        },
+        {
+          "value": "2",
+          "label": "remove hurt trigger"
+        }
+      ]
+    },
+    {
+      "name": "k_defmode",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 58,
+      "shipped_value": "4on4",
+      "raw_comment": "default mode on server"
+    },
+    {
+      "name": "k_free_mode",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 59,
+      "shipped_value": "5",
+      "raw_comment": "who can issue XonX/ffa/ctf commands (0 = noone, 1 = admins, 2 = elected admins, 3 = judges, 4 = elected judges, 5 = all)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "noone"
+        },
+        {
+          "value": "1",
+          "label": "admins"
+        },
+        {
+          "value": "2",
+          "label": "elected admins"
+        },
+        {
+          "value": "3",
+          "label": "judges"
+        },
+        {
+          "value": "4",
+          "label": "elected judges"
+        },
+        {
+          "value": "5",
+          "label": "all"
+        }
+      ]
+    },
+    {
+      "name": "k_allowed_free_modes",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 60,
+      "shipped_value": "4095",
+      "raw_comment": "allowed free modes (bit mask):",
+      "structured_choices": [
+        {
+          "value": "1",
+          "label": "1on1"
+        },
+        {
+          "value": "2",
+          "label": "2on2"
+        },
+        {
+          "value": "4",
+          "label": "3on3"
+        },
+        {
+          "value": "8",
+          "label": "4on4"
+        },
+        {
+          "value": "16",
+          "label": "10on10"
+        },
+        {
+          "value": "32",
+          "label": "ffa"
+        },
+        {
+          "value": "64",
+          "label": "ctf"
+        },
+        {
+          "value": "128",
+          "label": "hoonymode"
+        },
+        {
+          "value": "256",
+          "label": "2on2on2"
+        },
+        {
+          "value": "512",
+          "label": "3on3on3"
+        },
+        {
+          "value": "1024",
+          "label": "4on4on4"
+        },
+        {
+          "value": "2048",
+          "label": "XonX"
+        }
+      ]
+    },
+    {
+      "name": "k_ctf_custom_models",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 64,
+      "shipped_value": "1",
+      "raw_comment": "ctf models (0 = use original quake models, 1 = use ctf models)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "use original quake models"
+        },
+        {
+          "value": "1",
+          "label": "use ctf models"
+        }
+      ]
+    },
+    {
+      "name": "k_ctf_hookstyle",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 65,
+      "shipped_value": "1",
+      "raw_comment": "hook style (1 = smooth, 2 = fast, 3 = classic)",
+      "structured_choices": [
+        {
+          "value": "1",
+          "label": "smooth"
+        },
+        {
+          "value": "2",
+          "label": "fast"
+        },
+        {
+          "value": "3",
+          "label": "classic"
+        }
+      ]
+    },
+    {
+      "name": "k_ctf_rune_power_str",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 66,
+      "shipped_value": "2.0",
+      "raw_comment": "strength rune power (default is 2)"
+    },
+    {
+      "name": "k_ctf_rune_power_res",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 67,
+      "shipped_value": "2.0",
+      "raw_comment": "resistance rune power (default is 2)"
+    },
+    {
+      "name": "k_ctf_rune_power_rgn",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 68,
+      "shipped_value": "2.0",
+      "raw_comment": "regeneration rune power (default is 2)"
+    },
+    {
+      "name": "k_ctf_rune_power_hst",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 69,
+      "shipped_value": "2.0",
+      "raw_comment": "haste rune power (default is 2)"
+    },
+    {
+      "name": "k_prewar",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 72,
+      "shipped_value": "1",
+      "raw_comment": "prewar setting (0 = prewar fire is disallowed, 1 = prewar fire is allowed, 2 = no fire or jump until ready)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "prewar fire is disallowed"
+        },
+        {
+          "value": "1",
+          "label": "prewar fire is allowed"
+        },
+        {
+          "value": "2",
+          "label": "no fire or jump until ready"
+        }
+      ]
+    },
+    {
+      "name": "k_sready",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 73,
+      "shipped_value": "0",
+      "raw_comment": "players glow when not ready (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_freeze",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 74,
+      "shipped_value": "0",
+      "raw_comment": "freeze platforms and doors before matchstart (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "allow_timing",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 77,
+      "shipped_value": "1",
+      "raw_comment": "timing/lagged players manipulation (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "timing_players_time",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 78,
+      "shipped_value": "2",
+      "raw_comment": "how long a player should lag before manipulation starts (seconds)"
+    },
+    {
+      "name": "timing_players_action",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 79,
+      "shipped_value": "3",
+      "raw_comment": "timing/lagged players manipulation (bit mask):",
+      "structured_choices": [
+        {
+          "value": "1",
+          "label": "info"
+        },
+        {
+          "value": "2",
+          "label": "glow"
+        },
+        {
+          "value": "4",
+          "label": "invincible"
+        },
+        {
+          "value": "8",
+          "label": "autokpause"
+        }
+      ]
+    },
+    {
+      "name": "demo_tmp_record",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 83,
+      "shipped_value": "1",
+      "raw_comment": "enable mvd-autorecording (0 = off)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        }
+      ]
+    },
+    {
+      "name": "demo_skip_ktffa_record",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 84,
+      "shipped_value": "0",
+      "raw_comment": "record ffa games (0 = yes, 1 = no)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "yes"
+        },
+        {
+          "value": "1",
+          "label": "no"
+        }
+      ]
+    },
+    {
+      "name": "demo_scoreslength",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 85,
+      "shipped_value": "6",
+      "raw_comment": "how many seconds to show score table at end of game"
+    },
+    {
+      "name": "k_demo_mintime",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 86,
+      "shipped_value": "360",
+      "raw_comment": "if the game is breaked, save demo if this many seconds has passed"
+    },
+    {
+      "name": "k_demotxt_format",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 87,
+      "shipped_value": "\"json\"",
+      "raw_comment": "format of stats"
+    },
+    {
+      "name": "k_demoname_date",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 88,
+      "shipped_value": "\"%Y%m%d-%H%M\"",
+      "raw_comment": "will add date at end of demoname in form of YYYY-MM-DD"
+    },
+    {
+      "name": "k_keepspectalkindemos",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 89,
+      "shipped_value": "0",
+      "raw_comment": "enable recording of spectalk in demos (0 = off, 1 = enabled)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "enabled"
+        }
+      ]
+    },
+    {
+      "name": "k_extralog",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 90,
+      "shipped_value": "0",
+      "raw_comment": "enable detailed KTX statistics (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_allowvoteadmin",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 93,
+      "shipped_value": "1",
+      "raw_comment": "allow admin election (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_lockmap",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 94,
+      "shipped_value": "0",
+      "raw_comment": "prevent players from changing map (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_vp_break",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 95,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for breaking"
+    },
+    {
+      "name": "k_vp_admin",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 96,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for admin election"
+    },
+    {
+      "name": "k_vp_captain",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 97,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for captain election"
+    },
+    {
+      "name": "k_vp_coach",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 98,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for coach election"
+    },
+    {
+      "name": "k_vp_suggestcolor",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 99,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for color suggestion election"
+    },
+    {
+      "name": "k_vp_map",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 100,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for map change"
+    },
+    {
+      "name": "k_vp_pickup",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 101,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for pickup"
+    },
+    {
+      "name": "k_vp_rpickup",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 102,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for random pickup"
+    },
+    {
+      "name": "k_vp_nospecs",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 103,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for /nospecs"
+    },
+    {
+      "name": "k_vp_teamoverlay",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 104,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for /teamoverlay"
+    },
+    {
+      "name": "k_vp_coop",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 105,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for cooperative mode aka /votecoop"
+    },
+    {
+      "name": "k_vp_hookstyle",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 106,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for changing grappling hook style in ctf /hookstyle"
+    },
+    {
+      "name": "k_vp_antilag",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 107,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for antilag mode aka /antilag"
+    },
+    {
+      "name": "k_fp",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 110,
+      "shipped_value": "1",
+      "raw_comment": "floodprot: max X messages per Y seconds, else silence for Z seconds (1 = 9 1 1, 2 = 4 1 5, 3 = 5 3 7)",
+      "structured_choices": [
+        {
+          "value": "1",
+          "label": "9 1 1"
+        },
+        {
+          "value": "2",
+          "label": "4 1 5"
+        },
+        {
+          "value": "3",
+          "label": "5 3 7"
+        }
+      ]
+    },
+    {
+      "name": "k_cmd_fp_kick",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 111,
+      "shipped_value": "3",
+      "raw_comment": "warnings given before kicking"
+    },
+    {
+      "name": "k_cmd_fp_dontkick",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 112,
+      "shipped_value": "0",
+      "raw_comment": "kick command flooders (0 = on, 1 = off)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "on"
+        },
+        {
+          "value": "1",
+          "label": "off"
+        }
+      ]
+    },
+    {
+      "name": "k_cmd_fp_disabled",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 113,
+      "shipped_value": "0",
+      "raw_comment": "flood protection (0 = on, 1 = off)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "on"
+        },
+        {
+          "value": "1",
+          "label": "off"
+        }
+      ]
+    },
+    {
+      "name": "allow_toggle_practice",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 116,
+      "shipped_value": "5",
+      "raw_comment": "toggle practice mode (0 = noone, 1 = admins, 2 = elected admins, 3 = judges, 4 = elected judges, 5 = all)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "noone"
+        },
+        {
+          "value": "1",
+          "label": "admins"
+        },
+        {
+          "value": "2",
+          "label": "elected admins"
+        },
+        {
+          "value": "3",
+          "label": "judges"
+        },
+        {
+          "value": "4",
+          "label": "elected judges"
+        },
+        {
+          "value": "5",
+          "label": "all"
+        }
+      ]
+    },
+    {
+      "name": "lock_practice",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 117,
+      "shipped_value": "1",
+      "raw_comment": "lock practice mode (0 = unlock on reset, 1 = allow_toggle_practice, 2 = locked)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "unlock on reset"
+        },
+        {
+          "value": "1",
+          "label": "allow_toggle_practice"
+        },
+        {
+          "value": "2",
+          "label": "locked"
+        }
+      ]
+    },
+    {
+      "name": "srv_practice_mode",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 118,
+      "shipped_value": "0",
+      "raw_comment": "practice mode (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_ann",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 121,
+      "shipped_value": "0",
+      "raw_comment": "announce spectator join/quits during game (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_spectalk",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 122,
+      "shipped_value": "0",
+      "raw_comment": "spectators can talk to players during game (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_spec_info",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 123,
+      "shipped_value": "1",
+      "raw_comment": "moreinfo (bit mask):",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "infospec"
+        },
+        {
+          "value": "1",
+          "label": "infospec"
+        },
+        {
+          "value": "2",
+          "label": "infolock"
+        }
+      ]
+    },
+    {
+      "name": "k_sayteam_to_spec",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 125,
+      "shipped_value": "1",
+      "raw_comment": "send say_team to specs (0 = never, 1 = only during game, 2 = only during prewar, 3 = always)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "never"
+        },
+        {
+          "value": "1",
+          "label": "only during game"
+        },
+        {
+          "value": "2",
+          "label": "only during prewar"
+        },
+        {
+          "value": "3",
+          "label": "always"
+        }
+      ]
+    },
+    {
+      "name": "allow_spec_wizard",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 126,
+      "shipped_value": "0",
+      "raw_comment": "allow spectator wizards (0 = no, 1 = only when no players are on the server, 2 = only in prewar)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "only when no players are on the server"
+        },
+        {
+          "value": "2",
+          "label": "only in prewar"
+        }
+      ]
+    },
+    {
+      "name": "k_no_wizard_animation",
+      "source_file": "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "source_line": 127,
+      "shipped_value": "0",
+      "raw_comment": "wizard animation (0 = on, 1 = off)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "on"
+        },
+        {
+          "value": "1",
+          "label": "off"
+        }
+      ]
+    },
+    {
+      "name": "k_minrate",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 2,
+      "shipped_value": "2500",
+      "raw_comment": "minimum rate setting for players/spectators"
+    },
+    {
+      "name": "sv_maxrate",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 3,
+      "shipped_value": "50000",
+      "raw_comment": "maximum rate setting for players/spectators"
+    },
+    {
+      "name": "k_autoreset",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 4,
+      "shipped_value": "1",
+      "raw_comment": "exec configs/reset.cfg when last player leaves"
+    },
+    {
+      "name": "k_noframechecks",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 5,
+      "shipped_value": "0",
+      "raw_comment": "check for fps/speed manipulation (0 = yes, 1 = no)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "yes"
+        },
+        {
+          "value": "1",
+          "label": "no"
+        }
+      ]
+    },
+    {
+      "name": "k_no_fps_physics",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 6,
+      "shipped_value": "0",
+      "raw_comment": "fps independent physics (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_short_gib",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 7,
+      "shipped_value": "0",
+      "raw_comment": "remove gibs after 2 seconds (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_exclusive",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 8,
+      "shipped_value": "0",
+      "raw_comment": "number of players gets locked on game start (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_master",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 9,
+      "shipped_value": "0",
+      "raw_comment": "only let admins change match settings (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_admins",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 10,
+      "shipped_value": "1",
+      "raw_comment": "allow admins on server (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_lockmax",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 12,
+      "shipped_value": "32",
+      "raw_comment": "maximum number of teams in game"
+    },
+    {
+      "name": "k_lockmin",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 13,
+      "shipped_value": "0",
+      "raw_comment": "minimum number of teams in game"
+    },
+    {
+      "name": "k_membercount",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 14,
+      "shipped_value": "1",
+      "raw_comment": "minimum number of players in each team to start match"
+    },
+    {
+      "name": "k_lock_hdp",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 15,
+      "shipped_value": "0",
+      "raw_comment": "allow handicap (0 = yes, 1 = no)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "yes"
+        },
+        {
+          "value": "1",
+          "label": "no"
+        }
+      ]
+    },
+    {
+      "name": "k_count",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 16,
+      "shipped_value": "10",
+      "raw_comment": "countdown before match starts (seconds)"
+    },
+    {
+      "name": "k_idletime",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 17,
+      "shipped_value": "0",
+      "raw_comment": "after how many seconds the idlebot kick players who are not ready (0 = disable)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "disable"
+        }
+      ]
+    },
+    {
+      "name": "k_extralog",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 19,
+      "shipped_value": "0",
+      "raw_comment": "log extra information (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_highspeed",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 22,
+      "shipped_value": "320",
+      "raw_comment": "maximum allowed runspeed (cmd speed will switch between this setting and sv_maxspeed)"
+    },
+    {
+      "name": "k_timetop",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 23,
+      "shipped_value": "30",
+      "raw_comment": "maximum time in minutes allocateable by a player for a game"
+    },
+    {
+      "name": "k_dm2mod",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 24,
+      "shipped_value": "1",
+      "raw_comment": "modified deathmatch 2 mode (0 = standard qw dmm2, 1 = modified dmm2)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "standard qw dmm2"
+        },
+        {
+          "value": "1",
+          "label": "modified dmm2"
+        }
+      ]
+    },
+    {
+      "name": "k_midair",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 25,
+      "shipped_value": "0",
+      "raw_comment": "midair (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_yawnmode",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 26,
+      "shipped_value": "0",
+      "raw_comment": "yawnmode (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_pow",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 27,
+      "shipped_value": "0",
+      "raw_comment": "powerups (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "dq",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 28,
+      "shipped_value": "0",
+      "raw_comment": "drop quad (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "dr",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 29,
+      "shipped_value": "0",
+      "raw_comment": "drop ring (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "dp",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 30,
+      "shipped_value": "1",
+      "raw_comment": "drop backpacks (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_dis",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 31,
+      "shipped_value": "1",
+      "raw_comment": "discharge (0 = off, 1 = on, 2 = only discharge players in liquid)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        },
+        {
+          "value": "2",
+          "label": "only discharge players in liquid"
+        }
+      ]
+    },
+    {
+      "name": "k_666",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 32,
+      "shipped_value": "0",
+      "raw_comment": "respawn 666 (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_bzk",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 33,
+      "shipped_value": "0",
+      "raw_comment": "berzerk (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_btime",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 34,
+      "shipped_value": "20",
+      "raw_comment": "berzerk time (seconds)"
+    },
+    {
+      "name": "k_frp",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 35,
+      "shipped_value": "0",
+      "raw_comment": "fairpacks (0 = drop equipped weapon, 1 = drop best weapon, 2 = drop last fired weapon)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "drop equipped weapon"
+        },
+        {
+          "value": "1",
+          "label": "drop best weapon"
+        },
+        {
+          "value": "2",
+          "label": "drop last fired weapon"
+        }
+      ]
+    },
+    {
+      "name": "k_overtime",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 36,
+      "shipped_value": "1",
+      "raw_comment": "overtime mode (0 = off, 1 = time, 2 = suddendeath)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "time"
+        },
+        {
+          "value": "2",
+          "label": "suddendeath"
+        }
+      ]
+    },
+    {
+      "name": "k_exttime",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 37,
+      "shipped_value": "3",
+      "raw_comment": "overtime length in minutes if k_overtime = 1"
+    },
+    {
+      "name": "k_fallbunny",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 38,
+      "shipped_value": "1",
+      "raw_comment": "fallbunny (0 = off (broken ankle), 1 = on (standard qw behaviour))"
+    },
+    {
+      "name": "k_disallow_kfjump",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 39,
+      "shipped_value": "1",
+      "raw_comment": "kfjump (0 = on, 1 = off)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "on"
+        },
+        {
+          "value": "1",
+          "label": "off"
+        }
+      ]
+    },
+    {
+      "name": "k_disallow_krjump",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 40,
+      "shipped_value": "1",
+      "raw_comment": "krjump (0 = on, 1 = off)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "on"
+        },
+        {
+          "value": "1",
+          "label": "off"
+        }
+      ]
+    },
+    {
+      "name": "k_teamoverlay",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 41,
+      "shipped_value": "0",
+      "raw_comment": "team overlay (0 = disabled, 1 = enabled)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "disabled"
+        },
+        {
+          "value": "1",
+          "label": "enabled"
+        }
+      ]
+    },
+    {
+      "name": "k_free_mode",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 42,
+      "shipped_value": "5",
+      "raw_comment": "who can issue XonX/ffa/ctf commands (0 = noone, 1 = admins, 2 = elected admins, 3 = judges, 4 = elected judges, 5 = all)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "noone"
+        },
+        {
+          "value": "1",
+          "label": "admins"
+        },
+        {
+          "value": "2",
+          "label": "elected admins"
+        },
+        {
+          "value": "3",
+          "label": "judges"
+        },
+        {
+          "value": "4",
+          "label": "elected judges"
+        },
+        {
+          "value": "5",
+          "label": "all"
+        }
+      ]
+    },
+    {
+      "name": "k_spw",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 45,
+      "shipped_value": "3",
+      "raw_comment": "spawn mode (0 = qw respawns, 1 = kombat teams spawn safety, 2 = kombat teams respawns, 3 = ktx respawns)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "qw respawns"
+        },
+        {
+          "value": "1",
+          "label": "kombat teams spawn safety"
+        },
+        {
+          "value": "2",
+          "label": "kombat teams respawns"
+        },
+        {
+          "value": "3",
+          "label": "ktx respawns"
+        }
+      ]
+    },
+    {
+      "name": "k_spm_custom_model",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 46,
+      "shipped_value": "\"progs/player.mdl\"",
+      "raw_comment": "specify which model to use for spawn point markers (0 = goldkey, 1 = wizard, or specify a custom model e.g. \"progs/spawn.mdl\")",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "goldkey"
+        },
+        {
+          "value": "1",
+          "label": "wizard"
+        }
+      ]
+    },
+    {
+      "name": "k_spm_color_rgba",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 47,
+      "shipped_value": "\"0 1.2 1.2 0.3\"",
+      "raw_comment": "specify RGB color and alpha for spawn model"
+    },
+    {
+      "name": "k_spm_glow",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 48,
+      "shipped_value": "0",
+      "raw_comment": "enable yellow glow for spawn markers (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_spm_show",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 49,
+      "shipped_value": "1",
+      "raw_comment": "show spawn point markers (0 = off, 1 on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        }
+      ]
+    },
+    {
+      "name": "k_allow_vwep",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 52,
+      "shipped_value": "1",
+      "raw_comment": "allow visible weapons on server (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_vwep",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 53,
+      "shipped_value": "0",
+      "raw_comment": "enable visible weapons (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_instagib",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 56,
+      "shipped_value": "2",
+      "raw_comment": "instagib (0 = off, 1 = fast coilgun, 2 = slow coilgun)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "fast coilgun"
+        },
+        {
+          "value": "2",
+          "label": "slow coilgun"
+        }
+      ]
+    },
+    {
+      "name": "k_instagib_custom_models",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 57,
+      "shipped_value": "1",
+      "raw_comment": "custom models for instagib mode (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "dmm4_invinc_time",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 60,
+      "shipped_value": "0",
+      "raw_comment": "spawn invincibility time for dmm4 in seconds (-1 = disable, 0 = default (2 seconds))",
+      "structured_choices": [
+        {
+          "value": "1",
+          "label": "disable"
+        }
+      ]
+    },
+    {
+      "name": "k_dmm4_gren_mode",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 61,
+      "shipped_value": "0",
+      "raw_comment": "grenade explosions (0 = default, 1 = only on direct impact)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "default"
+        },
+        {
+          "value": "1",
+          "label": "only on direct impact"
+        }
+      ]
+    },
+    {
+      "name": "k_disallow_weapons",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 62,
+      "shipped_value": "16",
+      "raw_comment": "weapons allowed in dmm4 (bit mask):",
+      "structured_choices": [
+        {
+          "value": "1",
+          "label": "sg"
+        },
+        {
+          "value": "2",
+          "label": "ssg"
+        },
+        {
+          "value": "4",
+          "label": "ng"
+        },
+        {
+          "value": "8",
+          "label": "sng"
+        },
+        {
+          "value": "16",
+          "label": "gl"
+        },
+        {
+          "value": "32",
+          "label": "rl"
+        },
+        {
+          "value": "64",
+          "label": "lg"
+        },
+        {
+          "value": "4096",
+          "label": "axe"
+        }
+      ]
+    },
+    {
+      "name": "add_q_aerowalk",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 66,
+      "shipped_value": "1",
+      "raw_comment": "add quad on aerowalk (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_end_tele_spawn",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 67,
+      "shipped_value": "0",
+      "raw_comment": "remove tele spawn on map end (0 = yes, 1 = no)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "yes"
+        },
+        {
+          "value": "1",
+          "label": "no"
+        }
+      ]
+    },
+    {
+      "name": "k_remove_end_hurt",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 68,
+      "shipped_value": "1",
+      "raw_comment": "end modifications (0 = no modifications, 1 = remove hurt and changelevel triggers, 2 = remove hurt trigger)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no modifications"
+        },
+        {
+          "value": "1",
+          "label": "remove hurt and changelevel triggers"
+        },
+        {
+          "value": "2",
+          "label": "remove hurt trigger"
+        }
+      ]
+    },
+    {
+      "name": "k_ctf_custom_models",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 71,
+      "shipped_value": "1",
+      "raw_comment": "ctf models (0 = use original quake models, 1 = use ctf models)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "use original quake models"
+        },
+        {
+          "value": "1",
+          "label": "use ctf models"
+        }
+      ]
+    },
+    {
+      "name": "k_prewar",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 74,
+      "shipped_value": "1",
+      "raw_comment": "prewar setting (0 = prewar fire is disallowed, 1 = prewar fire is allowed, 2 = no fire or jump until ready)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "prewar fire is disallowed"
+        },
+        {
+          "value": "1",
+          "label": "prewar fire is allowed"
+        },
+        {
+          "value": "2",
+          "label": "no fire or jump until ready"
+        }
+      ]
+    },
+    {
+      "name": "k_sready",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 75,
+      "shipped_value": "1",
+      "raw_comment": "players glow when not ready (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_freeze",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 76,
+      "shipped_value": "0",
+      "raw_comment": "freeze platforms and doors before matchstart (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_race_simultaneous",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 79,
+      "shipped_value": "1",
+      "raw_comment": "multi player race mode on/off"
+    },
+    {
+      "name": "allow_timing",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 82,
+      "shipped_value": "0",
+      "raw_comment": "timing/lagged players manipulation (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "timing_players_time",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 83,
+      "shipped_value": "6",
+      "raw_comment": "how long a player should lag before manipulation starts (seconds)"
+    },
+    {
+      "name": "timing_players_action",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 84,
+      "shipped_value": "1",
+      "raw_comment": "timing/lagged players manipulation (bit mask):",
+      "structured_choices": [
+        {
+          "value": "1",
+          "label": "info"
+        },
+        {
+          "value": "2",
+          "label": "glow"
+        },
+        {
+          "value": "4",
+          "label": "invincible"
+        },
+        {
+          "value": "8",
+          "label": "autokpause"
+        }
+      ]
+    },
+    {
+      "name": "demo_tmp_record",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 88,
+      "shipped_value": "1",
+      "raw_comment": "enable mvd-autorecording (0 = off)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        }
+      ]
+    },
+    {
+      "name": "demo_skip_ktffa_record",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 89,
+      "shipped_value": "0",
+      "raw_comment": "record ffa games (0 = yes, 1 = no)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "yes"
+        },
+        {
+          "value": "1",
+          "label": "no"
+        }
+      ]
+    },
+    {
+      "name": "demo_scoreslength",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 90,
+      "shipped_value": "6",
+      "raw_comment": "how many seconds to show score table at end of game"
+    },
+    {
+      "name": "k_demo_mintime",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 91,
+      "shipped_value": "360",
+      "raw_comment": "if the game is breaked, save demo if this many seconds has passed"
+    },
+    {
+      "name": "k_demoname_date",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 92,
+      "shipped_value": "\"%Y%m%d-%H%M\"",
+      "raw_comment": "will add date at end of demoname in form of YYYY-MM-DD"
+    },
+    {
+      "name": "k_demotxt_format",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 93,
+      "shipped_value": "\"json\"",
+      "raw_comment": ".txt files generated next to .mvd files will be in json format"
+    },
+    {
+      "name": "sv_www_address",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 96,
+      "shipped_value": "\"https://badplace.eu\"",
+      "raw_comment": "URL to send match/race results to"
+    },
+    {
+      "name": "sv_www_authkey",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 97,
+      "shipped_value": "\"\"",
+      "raw_comment": "contact meag to find out what string to put here"
+    },
+    {
+      "name": "k_allowvoteadmin",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 100,
+      "shipped_value": "1",
+      "raw_comment": "allow admin election (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_lockmap",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 101,
+      "shipped_value": "0",
+      "raw_comment": "prevent players from changing map (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_vp_break",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 102,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for breaking"
+    },
+    {
+      "name": "k_vp_admin",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 103,
+      "shipped_value": "75",
+      "raw_comment": "vote percentage for admin election"
+    },
+    {
+      "name": "k_vp_captain",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 104,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for captain election"
+    },
+    {
+      "name": "k_vp_map",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 105,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for map change"
+    },
+    {
+      "name": "k_vp_pickup",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 106,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for pickup"
+    },
+    {
+      "name": "k_vp_rpickup",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 107,
+      "shipped_value": "51",
+      "raw_comment": "vote percentage for random pickup"
+    },
+    {
+      "name": "k_fp",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 110,
+      "shipped_value": "1",
+      "raw_comment": "floodprot: max X messages per Y seconds, else silence for Z seconds (1 = 9 1 1, 2 = 4 1 5, 3 = 5 3 7)",
+      "structured_choices": [
+        {
+          "value": "1",
+          "label": "9 1 1"
+        },
+        {
+          "value": "2",
+          "label": "4 1 5"
+        },
+        {
+          "value": "3",
+          "label": "5 3 7"
+        }
+      ]
+    },
+    {
+      "name": "k_cmd_fp_kick",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 111,
+      "shipped_value": "3",
+      "raw_comment": "warnings given before kicking"
+    },
+    {
+      "name": "k_cmd_fp_dontkick",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 112,
+      "shipped_value": "1",
+      "raw_comment": "kick command flooders (0 = on, 1 = off)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "on"
+        },
+        {
+          "value": "1",
+          "label": "off"
+        }
+      ]
+    },
+    {
+      "name": "k_cmd_fp_disabled",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 113,
+      "shipped_value": "0",
+      "raw_comment": "flood protection (0 = on, 1 = off)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "on"
+        },
+        {
+          "value": "1",
+          "label": "off"
+        }
+      ]
+    },
+    {
+      "name": "allow_toggle_practice",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 116,
+      "shipped_value": "5",
+      "raw_comment": "toggle practice mode (0 = noone, 1 = admins, 2 = elected admins, 3 = judges, 4 = elected judges, 5 = all)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "noone"
+        },
+        {
+          "value": "1",
+          "label": "admins"
+        },
+        {
+          "value": "2",
+          "label": "elected admins"
+        },
+        {
+          "value": "3",
+          "label": "judges"
+        },
+        {
+          "value": "4",
+          "label": "elected judges"
+        },
+        {
+          "value": "5",
+          "label": "all"
+        }
+      ]
+    },
+    {
+      "name": "lock_practice",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 117,
+      "shipped_value": "1",
+      "raw_comment": "lock practice mode (0 = unlock on reset, 1 = allow_toggle_practice, 2 = locked)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "unlock on reset"
+        },
+        {
+          "value": "1",
+          "label": "allow_toggle_practice"
+        },
+        {
+          "value": "2",
+          "label": "locked"
+        }
+      ]
+    },
+    {
+      "name": "srv_practice_mode",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 118,
+      "shipped_value": "0",
+      "raw_comment": "practice mode (0 = off, 1 = on)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "off"
+        },
+        {
+          "value": "1",
+          "label": "on"
+        }
+      ]
+    },
+    {
+      "name": "k_ann",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 121,
+      "shipped_value": "0",
+      "raw_comment": "announce spectator join/quits during game (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_spectalk",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 122,
+      "shipped_value": "0",
+      "raw_comment": "spectators can talk to players during game (0 = no, 1 = yes)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes"
+        }
+      ]
+    },
+    {
+      "name": "k_spec_info",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 123,
+      "shipped_value": "1",
+      "raw_comment": "moreinfo (bit mask):",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "infospec"
+        },
+        {
+          "value": "1",
+          "label": "infospec"
+        },
+        {
+          "value": "2",
+          "label": "infolock"
+        }
+      ]
+    },
+    {
+      "name": "k_sayteam_to_spec",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 125,
+      "shipped_value": "1",
+      "raw_comment": "send say_team to specs (0 = never, 1 = only during game, 2 = only during prewar, 3 = always)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "never"
+        },
+        {
+          "value": "1",
+          "label": "only during game"
+        },
+        {
+          "value": "2",
+          "label": "only during prewar"
+        },
+        {
+          "value": "3",
+          "label": "always"
+        }
+      ]
+    },
+    {
+      "name": "allow_spec_wizard",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 126,
+      "shipped_value": "0",
+      "raw_comment": "allow spectator wizards (0 = no, 1 = only when no players are on the server, 2 = only in prewar)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "only when no players are on the server"
+        },
+        {
+          "value": "2",
+          "label": "only in prewar"
+        }
+      ]
+    },
+    {
+      "name": "k_no_wizard_animation",
+      "source_file": "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "source_line": 127,
+      "shipped_value": "0",
+      "raw_comment": "wizard animation (0 = on, 1 = off)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "on"
+        },
+        {
+          "value": "1",
+          "label": "off"
+        }
+      ]
+    },
+    {
+      "name": "k_motd5",
+      "source_file": "research/repos/nquake-distfiles/sv-gpl/ktx/port_template.cfg",
+      "source_line": 6,
+      "shipped_value": "\"hoonymode, 2on2on2, 3on3on3, 4on4on4, race, wipeout\"",
+      "raw_comment": "etc.."
+    },
+    {
+      "name": "k_motd_time",
+      "source_file": "research/repos/nquake-distfiles/sv-gpl/ktx/port_template.cfg",
+      "source_line": 8,
+      "shipped_value": "\"5\"",
+      "raw_comment": "time motd is displayed in seconds"
+    },
+    {
+      "name": "k_matchless",
+      "source_file": "research/repos/nquake-distfiles/sv-gpl/ktx/port_template.cfg",
+      "source_line": 13,
+      "shipped_value": "0",
+      "raw_comment": "run ktx as a regular match server or as a matchless (ffa) server (0 = regular, 1 = matchless)"
+    },
+    {
+      "name": "k_use_matchless_dir",
+      "source_file": "research/repos/nquake-distfiles/sv-gpl/ktx/port_template.cfg",
+      "source_line": 14,
+      "shipped_value": "1",
+      "raw_comment": "use configs/usermodes/matchless instead of [...]/ffa (0 = no, 1 = yes FFA, 2 = yes CTF)",
+      "structured_choices": [
+        {
+          "value": "0",
+          "label": "no"
+        },
+        {
+          "value": "1",
+          "label": "yes FFA"
+        },
+        {
+          "value": "2",
+          "label": "yes CTF"
+        }
+      ]
+    },
+    {
+      "name": "k_defmode",
+      "source_file": "research/repos/nquake-distfiles/sv-gpl/ktx/port_template.cfg",
+      "source_line": 17,
+      "shipped_value": "2on2",
+      "raw_comment": "default mode on server"
+    },
+    {
+      "name": "k_allowed_free_modes",
+      "source_file": "research/repos/nquake-distfiles/sv-gpl/ktx/port_template.cfg",
+      "source_line": 18,
+      "shipped_value": "4095",
+      "raw_comment": "allowed free modes (bit mask):",
+      "structured_choices": [
+        {
+          "value": "1",
+          "label": "1on1"
+        },
+        {
+          "value": "2",
+          "label": "2on2"
+        },
+        {
+          "value": "4",
+          "label": "3on3"
+        },
+        {
+          "value": "8",
+          "label": "4on4"
+        },
+        {
+          "value": "16",
+          "label": "10on10"
+        },
+        {
+          "value": "32",
+          "label": "ffa"
+        },
+        {
+          "value": "64",
+          "label": "ctf"
+        },
+        {
+          "value": "128",
+          "label": "hoonymode"
+        },
+        {
+          "value": "256",
+          "label": "2on2on2"
+        },
+        {
+          "value": "512",
+          "label": "3on3on3"
+        },
+        {
+          "value": "1024",
+          "label": "4on4on4"
+        },
+        {
+          "value": "2048",
+          "label": "XonX"
+        }
+      ]
+    },
+    {
+      "name": "k_defmap",
+      "source_file": "research/repos/nquake-distfiles/sv-gpl/ktx/port_template.cfg",
+      "source_line": 20,
+      "shipped_value": "maphub_v2",
+      "raw_comment": "server homemap. server will change to this when last player leaves the server"
+    },
+    {
+      "name": "k_mode",
+      "source_file": "research/repos/nquake-distfiles/sv-gpl/ktx/port_template.cfg",
+      "source_line": 21,
+      "shipped_value": "2",
+      "raw_comment": "server mode (1 = duel, 2 = team, 3 = ffa, 4 = ctf)",
+      "structured_choices": [
+        {
+          "value": "1",
+          "label": "duel"
+        },
+        {
+          "value": "2",
+          "label": "team"
+        },
+        {
+          "value": "3",
+          "label": "ffa"
+        },
+        {
+          "value": "4",
+          "label": "ctf"
+        }
+      ]
+    }
+  ],
+  "unresolved": [],
+  "_stats": {
+    "by_source_file": {
+      "research/repos/ktx/resources/example-configs/ktx/ktx.cfg": 93,
+      "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg": 89,
+      "research/repos/nquake-distfiles/sv-gpl/ktx/port_template.cfg": 8
+    },
+    "record_count": 190,
+    "files_parsed": [
+      "research/repos/ktx/resources/example-configs/ktx/ktx.cfg",
+      "research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg",
+      "research/repos/nquake-distfiles/sv-gpl/ktx/port_template.cfg"
+    ]
+  }
+}

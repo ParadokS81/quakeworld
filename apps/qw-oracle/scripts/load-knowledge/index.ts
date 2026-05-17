@@ -41,6 +41,7 @@ async function main(): Promise<void> {
   if (subcommand === 'load-ktx-modes')            { await runLoadKtxModes(rest); return; }
   if (subcommand === 'load-ktx-taxonomies')       { await runLoadKtxTaxonomies(rest); return; }
   if (subcommand === 'load-ktx-gameplay-tables')  { await runLoadKtxGameplayTables(rest); return; }
+  if (subcommand === 'load-ktx-shipped-config')   { await runLoadKtxShippedConfig(rest); return; }
   if (subcommand === 're-derive')                 { await runReDerive(rest); return; }
   if (subcommand === 'migration-probes')          { await runMigrationProbesCli(rest); return; }
 
@@ -118,6 +119,15 @@ Subcommands:
                 15 loc_macro + 21 teamplay_message rows -> gameplay_mechanics).
                 Defaults to
                 scripts/extractors/ktx/output/ktx-gameplay-tables-ast.json.
+  load-ktx-shipped-config [--json <path>]
+                Fill the description-provenance family on live KTX cvars
+                from the shipped-config AST (harvest, ZERO verdict -- D9
+                seam; Phase 3 affirms/synthesizes). Fill-not-create:
+                unresolved names become a C2/C3 config-drift datum, never
+                a new entity. Terminal owned rows (synthesized, or
+                shipped_doc with a verdict) are skipped byte-identically.
+                Defaults to
+                scripts/extractors/ktx/output/ktx-shipped-config-ast.json.
   re-derive     [--project <p>] [--type <t>]
                 Re-run the derive-entity-description step over existing
                 rows without re-loading from extractor JSON. Use when
@@ -628,6 +638,43 @@ async function runLoadKtxGameplayTables(args: string[]): Promise<void> {
     console.error(
       `load-ktx-gameplay-tables: STOP - count below F-anchors (${fail.join(', ')}). ` +
       `Re-run extraction.`,
+    );
+    process.exitCode = 2;
+  }
+}
+
+async function runLoadKtxShippedConfig(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      json: { type: 'string' },
+    },
+  });
+
+  const jsonPath =
+    values.json ??
+    join(__dirname, '..', 'extractors', 'ktx', 'output', 'ktx-shipped-config-ast.json');
+  const { loadKtxShippedConfigFromFile } = await import('./load-ktx-shipped-config.js');
+  const r = await loadKtxShippedConfigFromFile(sql, jsonPath);
+  console.log(
+    `load-ktx-shipped-config: records_read=${r.records_read} resolved=${r.resolved} ` +
+    `filled=${r.filled} skipped_terminal=${r.skipped_terminal} covered=${r.covered} ` +
+    `unresolved=${r.unresolved.length}`,
+  );
+  if (r.unresolved.length > 0) {
+    console.log(
+      `load-ktx-shipped-config: unresolved (C2/C3 config-drift) = ` +
+      r.unresolved.map((u) => `${u.name}@${u.source_file}:${u.source_line}`).join(', '),
+    );
+  }
+
+  // F-anchor STOP guard (P3, mirrors load-ktx-modes). The live verified
+  // resolving order is ~109 against M=260; covered<100 means the
+  // name_fold resolver broke (re-run extraction; do not bypass).
+  if (r.covered < 100) {
+    console.error(
+      `load-ktx-shipped-config: STOP - covered count below F-anchor 100 (got ${r.covered}). ` +
+      `Re-run extraction; resolver may be broken.`,
     );
     process.exitCode = 2;
   }

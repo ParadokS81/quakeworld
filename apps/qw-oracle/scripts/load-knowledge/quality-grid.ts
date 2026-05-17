@@ -215,6 +215,39 @@ async function probeEntityHasVersionRows(ctx: ProbeContext): Promise<ProbeResult
 // target list with match_event_versions.{attributes_json,emission_call_sites_json}
 // + gameplay_{mechanics,entity_defs}.props_json (D14 + F21).
 async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResult> {
+  // Phase 2 is first to write entities.description_provenance JSONB at volume
+  // for ktx; this branch is the C5/F-C5a regression gate for that column.
+  if (ctx.project === 'ktx') {
+    const rows = await ctx.sql<{ canonical_id: string }[]>`
+      SELECT canonical_id
+      FROM entities
+      WHERE project = 'ktx'
+        AND description_provenance IS NOT NULL
+        AND jsonb_typeof(description_provenance) = 'string'
+      ORDER BY canonical_id
+      LIMIT 8
+    `;
+    const countRows = await ctx.sql<{ cnt: number }[]>`
+      SELECT COUNT(*)::int AS cnt
+      FROM entities
+      WHERE project = 'ktx'
+        AND description_provenance IS NOT NULL
+        AND jsonb_typeof(description_provenance) = 'string'
+    `;
+    const total = countRows[0]?.cnt ?? 0;
+    return {
+      name: 'F1.jsonb_columns_not_strings',
+      family: 'regression',
+      description: 'JSONB array/object columns are not JSONB string scalars (loader bug regression gate)',
+      status: total === 0 ? 'PASS' : 'FAIL',
+      count: total,
+      summary: total === 0
+        ? 'no JSONB string scalars in entities.description_provenance for ktx'
+        : `${total} JSONB string scalar(s) in entities.description_provenance for ktx`,
+      examples: rows.map(r => r.canonical_id),
+    };
+  }
+
   if (ctx.project !== 'ezquake') {
     return {
       name: 'F1.jsonb_columns_not_strings',
@@ -430,6 +463,57 @@ async function probeDescribeFillSynthesizedRequiresAnchor(ctx: ProbeContext): Pr
     summary: total === 0
       ? 'all arc-scoped synthesized rows have description_anchor_version set'
       : `${total} arc-scoped synthesized row(s) missing description_anchor_version`,
+    examples: rows.map(r => r.canonical_id),
+  };
+}
+
+// Arc-scoped: every shipped_doc row in the describe-fill arc must carry a
+// description_provenance JSONB array with at least one entry (C5, D11/F-C5a).
+// The triple NULL/typeof/length check is mandatory NULL-safety: a NULL
+// provenance, a JSONB string scalar (pre-stringify loader regression), or an
+// empty array all represent the same failure -- the loader did not retain the
+// source evidence for the description it wrote. Arc-scoped to
+// project IN ('ktx','mvdsv') + the four entity types Phase 2 fills, exactly
+// like sibling probes origin_vocabulary and synthesized_requires_anchor.
+async function probeDescribeFillProvenanceEntryExists(ctx: ProbeContext): Promise<ProbeResult> {
+  const rows = await ctx.sql<{ canonical_id: string }[]>`
+    SELECT canonical_id
+    FROM entities
+    WHERE project IN ('ktx', 'mvdsv')
+      AND type IN ('cvar', 'command', 'cmdline_param', 'info_key')
+      AND description_origin = 'shipped_doc'
+      AND (
+        description_provenance IS NULL
+        OR jsonb_typeof(description_provenance) <> 'array'
+        OR jsonb_array_length(description_provenance) < 1
+      )
+    ORDER BY canonical_id
+    LIMIT 8
+  `;
+
+  const countRows = await ctx.sql<{ cnt: number }[]>`
+    SELECT COUNT(*)::int AS cnt
+    FROM entities
+    WHERE project IN ('ktx', 'mvdsv')
+      AND type IN ('cvar', 'command', 'cmdline_param', 'info_key')
+      AND description_origin = 'shipped_doc'
+      AND (
+        description_provenance IS NULL
+        OR jsonb_typeof(description_provenance) <> 'array'
+        OR jsonb_array_length(description_provenance) < 1
+      )
+  `;
+  const total = countRows[0]?.cnt ?? 0;
+
+  return {
+    name: 'F1.describe_fill.provenance_entry_exists',
+    family: 'regression',
+    description: 'arc-scoped shipped_doc rows carry a non-empty description_provenance JSONB array (C5, D11/F-C5a)',
+    status: total === 0 ? 'PASS' : 'FAIL',
+    count: total,
+    summary: total === 0
+      ? 'all arc-scoped shipped_doc rows have a non-empty description_provenance array'
+      : `${total} arc-scoped shipped_doc row(s) missing a valid description_provenance array`,
     examples: rows.map(r => r.canonical_id),
   };
 }
@@ -2132,6 +2216,7 @@ const REGRESSION_PROBES: Probe[] = [
   // arc: ktx-mvdsv-l1-describe-fill C5 probes -- origin-tag vocabulary + synthesized-anchor (Phase 1)
   { name: 'F1.describe_fill.origin_vocabulary', family: 'regression', description: '', run: probeDescribeFillOriginVocabulary },
   { name: 'F1.describe_fill.synthesized_requires_anchor', family: 'regression', description: '', run: probeDescribeFillSynthesizedRequiresAnchor },
+  { name: 'F1.describe_fill.provenance_entry_exists', family: 'regression', description: '', run: probeDescribeFillProvenanceEntryExists },
   // FTE count-range probes
   { name: 'F1.fte.cvars_count', family: 'regression', description: '', run: probeFteCvarsCount },
   { name: 'F1.fte.engine_cvars', family: 'regression', description: '', run: probeFteEngineCvars },
