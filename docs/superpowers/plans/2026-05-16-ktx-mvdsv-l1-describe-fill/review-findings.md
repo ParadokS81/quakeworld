@@ -445,6 +445,30 @@ record and violate the single-source-of-truth model. Retired.
 **Phase:** Phase 1 (fix landed `95e8d726`); Phase 5 (the public projection
 emitter inherits the same ignore discipline).
 
+### F-D9a -- the shipped KTX configs are CRLF; the D9 mechanical extractor must strip trailing `\r`
+
+**Surfaced by:** the Phase 1 executor 2026-05-17 (D19 smoke harvest). The
+in-repo / nQuake `ktx.cfg` shipped configs use CRLF line endings; the
+one-cvar harvest had to strip the trailing `\r` before the regex match
+(handled + WHY-commented in the smoke). Ledger curation is
+orchestrator-owned -- routed here + into the Phase 2 executor prompt.
+
+**Contained by:** the Phase 2 D9 mechanical extractor + loader applying the
+same trailing-`\r` strip at volume; carried explicitly into the Phase 2
+executor prompt 2026-05-17.
+
+**Evidence:** the Phase 1 smoke proved the strip is required on the real
+shipped configs (one cvar). Phase 2's D9 extractor reads the SAME files for
+the ~109/260 mechanical-candidate cvars; without the strip every harvested
+value and every `raw_comment` carries a trailing `\r` into
+`description_provenance` -- a silent data-quality defect across the whole
+`shipped_doc` surface that the jsonb-not-string / provenance C5 probes do
+NOT catch.
+
+**Phase:** Phase 2 (the D9 sibling extractor + loader strip trailing `\r`
+on every harvested config line before regex/persist -- a recon-note
+requirement, not probe-caught).
+
 ## Boundary risks (out-of-scope items a drafter might wrongly pull in)
 
 ### F-D10b -- case-fidelity loader is a soft dependency, NOT this arc
@@ -507,6 +531,18 @@ write path -- scope creep into the qwiki arc.
 consumes; do not implement the wiki side).
 
 ## Confirmed-good (carry forward, do not relitigate)
+
+- **anchor_version convention (ratified 2026-05-17, orchestrator -- Phase 1
+  Open Q (e) class; reversible but arc-wide).** A `synthesized` row's
+  `description_anchor_version` = the `git describe` of the loaded dev-head;
+  Phase 1's `k_short_gib` = `1.47-2-g67253dc` (KTX dev-head commit
+  `67253dc9`, orchestrator-verified as the loaded ktx version). Rationale:
+  reproducible, human-readable release lineage + embedded SHA, directly
+  comparable for the D4 staleness walk. Phase 3 (KTX) and Phase 4 (MVDSV)
+  stamp this identically (MVDSV: `git describe` of its own loaded
+  dev-head). `shipped_doc` rows carry NO anchor until Phase 3 evaluation
+  (the F-D4a guard protects them precisely because they are anchor-less --
+  no anchor conjunct). Recorded so it is not relitigated per-phase.
 
 - **The structural tier needs no prose and is OUT of scope.** KTX
   log_templates (1195) / match_events (7) / gameplay_tables (83) /
@@ -571,6 +607,7 @@ consumes; do not implement the wiki side).
 | F-C3d (extract-tag head doesn't advance from origin; latent) | Advisory | Phase 5 (D4 walk: explicit fetch + SHA-pin + `--commit`) -- Phase 0 proved the mitigation |
 | F-C5c (project tsc gate silently vacuous for the spine) | Substantive | Phase 1 (fixed `95e8d726`, perturbation-verified), all phases running project tsc -- ratified 2026-05-17 |
 | F-D11b (regenerable audit HTML not gitignored) | Advisory | Phase 1 (fixed `95e8d726`), Phase 5 (same ignore discipline) -- ratified 2026-05-17 |
+| F-D9a (KTX configs CRLF; strip trailing `\r`) | Substantive | Phase 2 (D9 extractor + loader strip `\r` before regex/persist -- recon-note, not probe-caught) -- routed from Phase 1 2026-05-17 |
 | F-D10b (case-fidelity soft dep) | Boundary | Phase 5 (note only) |
 | F-D10c (dusty-* fork separate arc) | Boundary | Phase 3 (note only) |
 | F-C3b (reachability parked arc) | Boundary | Phase 0 + Phase 3 (note only) |
