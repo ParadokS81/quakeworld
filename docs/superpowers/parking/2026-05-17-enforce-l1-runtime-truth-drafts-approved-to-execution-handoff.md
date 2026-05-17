@@ -27,18 +27,34 @@ Status:
   P4 `06cd544a` (S2/F7 embedded-SHA primary proxy leg); **P5 this session**
   (`phase-5-application-outputs.md`, flipped approved -- commit at this
   session's cadence). The arc plan is fully drafted.
-- **EXECUTION: NOT STARTED -- and BLOCKED behind the pre-execution
-  cross-phase audit.** No phase code has shipped. Before Phase 1 dispatch
-  there is a HARD GATE: a dedicated fresh-terminal cross-phase consistency
-  audit (operator-requested 2026-05-17 session 5; brief at
+- **EXECUTION: NOT STARTED. Pre-execution cross-phase audit GATE: RAN +
+  RESOLVED 2026-05-17 (operator pending final gate-clear sign-off).** The
+  dedicated fresh-terminal audit (brief at
   `docs/superpowers/parking/2026-05-17-enforce-l1-runtime-truth-cross-phase-audit-prompt.md`)
-  must return CLEAN, or its FINDINGS must be resolved (dated
-  `decisions.md` amendment / targeted phase-MD revision) first. The
-  per-phase gates were PAIRWISE (fresh-terminal-per-gate, via handoff
-  summaries); no single reader held all 5 frozen MDs at once -- the audit
-  closes that transitive-breakage gap (T1-T6). Do NOT dispatch Phase 1
-  until the audit verdict is CLEAN/resolved. Phase 1 is the first phase
-  to execute once unblocked.
+  RAN: T1-T6 token contracts CLEAN; it found one CRITICAL, and the
+  orchestrator (reproducing it at primary source + extending the audit's
+  T4, which was enforce-L1-internal and blind to cross-ARC collision)
+  surfaced a second same-root-cause issue -> **review-findings F8**:
+  - **X1 (CRITICAL):** the parallel ktx-mvdsv describe-fill arc consumed
+    migration ordinal `014` (commit `95e8d726`, ~3h50m post-P3-freeze);
+    the plan had hard-coded `014_l1_runtime_fidelity_provenance.sql`
+    (P3->P4->P5->README). Duplicate ordinal in an append-only
+    sha256-tracked chain = silent-corruption-class.
+  - **X2 (SUBSTANTIVE, same root cause):** `95e8d726` also grew
+    `quality-grid.ts` ~166 lines, shifting every frozen P3 line-cite
+    (probe-name namespace disjoint + registration idiom intact -> not
+    CRITICAL).
+  **RESOLVED** by an operator-approved targeted mechanical revision
+  (commit `a04c6929`): the P3 migration ordinal is now EXECUTOR-DERIVED
+  (`<NNN>`), every `quality-grid.ts` cite re-derived live, version-
+  agnostic phrasing propagated P4/P5/README, the session-3 re-verify
+  block carries a dated correction (narrative preserved), F8 + ownership
+  row added. Orchestrator-re-verified: no residual stale ordinal/cite,
+  T1/T2 enum+feeder+column tokens UNTOUCHED, ASCII clean. NO redraft, NO
+  `decisions.md` D-amendment (X8 generalized to cross-arc drift). The
+  gate's "CLEAN or findings resolved" condition is satisfied. Do NOT
+  dispatch Phase 1 until the operator confirms the gate-clear; once
+  cleared, Phase 1 is first.
 - **Prerequisites:** items 1-3 satisfied at scaffold time, RE-CONFIRM LIVE
   before Phase 1 (X8 -- "verified" is a hypothesis): the ezQuake extractor
   runs end-to-end + emits its current entity JSON (also the X3 zero-diff
@@ -130,6 +146,22 @@ s4->s5 `c632f5dd`; P5 APPROVED + this handoff = this session. Branch
 
 ## Critical rules (carry into EXECUTION orchestration)
 
+- **F8 STANDING RULE (load-bearing for the Phase-3 executor; the
+  ktx-mvdsv arc is STILL ACTIVE).** The Phase-3 migration ordinal is
+  EXECUTOR-DERIVED at execution: `<NNN>` = (highest integer prefix in
+  `db/migrations/`) + 1, derived live immediately before writing the
+  file. At this handoff the highest is `014` (the sibling arc's
+  `014_description_provenance_trail.sql`) so enforce-L1 is `015` -- but
+  RE-DERIVE; that arc may consume `015`+ before enforce-L1 executes.
+  NEVER hard-code `014`/`015`. Likewise re-derive every `quality-grid.ts`
+  line reference by symbol search (the sibling arc grew that file ~166
+  lines post-freeze; the `F1.describe_fill.*` probe namespace is disjoint
+  from enforce-L1's and the `REGRESSION_PROBES[]` idiom is intact -- not
+  alarming, just shifted). This is `feedback_parking_verified_state_is_
+  hypothesis` / X8 generalized to cross-arc drift (review-findings F8).
+  The orchestrator augments the Phase-1 (and especially Phase-3)
+  executor prompt with this rule.
+
 - **Verify executor claims yourself -- now against LIVE shipped code/DB.**
   An executor's "DONE / verification PASS" and its sub-agent's
   "0 CRITICAL" are HYPOTHESES until you re-run the probes + grep/SQL/Read
@@ -214,13 +246,16 @@ s4->s5 `c632f5dd`; P5 APPROVED + this handoff = this session. Branch
    BOTH legs `3f9e724f`; postgres container up); prereq-4 durable in-repo
    + F7 provenance CLOSED. Do NOT re-open design; do NOT re-derive pools
    (74/92/129 banked + session-5-reproduced via the BANKED proxy/dump --
-   X7). **HARD GATE: confirm the pre-execution cross-phase audit (the
-   dedicated fresh terminal; brief at
-   `...-cross-phase-audit-prompt.md`) returned CLEAN, or that every
-   FINDING was resolved via a dated `decisions.md` amendment / targeted
-   phase-MD revision. If the audit has not run or returned unresolved
-   FINDINGS, STOP -- execution is blocked; route back to the audit /
-   operator. Do NOT dispatch Phase 1 on an un-audited plan.**
+   X7). **HARD GATE -- STATUS: RAN + RESOLVED (commit `a04c6929`),
+   operator gate-clear pending.** The cross-phase audit ran: T1-T6 CLEAN;
+   F8 (X1 CRITICAL mig-ordinal collision + X2 SUBSTANTIVE quality-grid.ts
+   cite-staleness, same root cause -- the active ktx-mvdsv arc drifted
+   into shared files post-freeze) was found and RESOLVED by a targeted
+   revision (executor-derived ordinal + de-staled cites; no redraft, no
+   D-amendment). Confirm the operator cleared the gate AND that F8's
+   STANDING RULE is carried into the Phase-1+ executor (next bullet). If
+   the operator has NOT cleared it, STOP -- ask for the gate-clear; do
+   not dispatch on a pending gate.
 2. (Only once the audit gate is CLEAN/resolved.) Dispatch Phase 1
    EXECUTION. Phase 1 is first so the executor prompt is
    minimal-augmentation: this is EXECUTION not drafting (ship the LOCKED
