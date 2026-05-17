@@ -13,20 +13,13 @@
 > 4. After drafting, dispatch the verification sub-agent (brief at the
 >    bottom of `phase-template.md`) before declaring the phase MD ready.
 
-> **Recon correction (drafter, 2026-05-16, primary-source-verified).**
-> Checklist item 3 above (inherited from the template) repeats
-> `review-findings.md`'s "KTX extractor is tree-sitter" claim. That claim is
-> FALSE for canonical KTX. Verified: `apps/qw-oracle/scripts/extractors/ktx/
-> _handler_cvars.py:63` imports `from clang.cindex import CursorKind`
-> (libclang), and `apps/qw-oracle/scripts/extractors/CLAUDE.md:25` states
-> "libclang for C/C++ ports (ezquake, fte, mvdsv, qwcl, KTX-canonical);
-> tree-sitter is reserved for the dusty-ktx fork's qcsrc/ (QuakeC), not yet
-> onboarded". Tree-sitter applies ONLY to the out-of-scope `dusty-ktx` fork
-> (F-D10c). This does NOT affect Phase 1 (Phase 1 harvests one shipped-config
-> comment line, it touches no source AST). It is surfaced in Open Questions
-> for operator correction of the scaffold doc before the Phase 2 KTX drafter
-> consumes the wrong premise. Not silently edited (scaffold-doc amendment is
-> an operator call -- decisions.md preamble rule).
+> **Recon note (RESOLVED at scaffold 2026-05-17 -- not re-raised).** The
+> earlier "KTX extractor is tree-sitter" scaffold wording is corrected:
+> canonical KTX is libclang/C; the D9 per-engine difference is a
+> shipped-config sibling parser, not a tree-sitter-vs-libclang split. See the
+> dated CORRECTION 2026-05-17 in `review-findings.md` "Confirmed-good" and
+> `phase-template.md` (commit f3574f26). No Phase 1 impact -- Phase 1 harvests
+> one shipped-config comment line and touches no source AST.
 
 ## Goal
 
@@ -73,6 +66,41 @@ Phase 1. Phase 1's inputs are the operator-side `prerequisites.md`
   template does NOT exist anywhere in the tree (F-D11a, re-verified by this
   drafter's recon -- no artifact, no generator under `/home/paradoks/projects`).
   Phase 1 builds a NEW emitter from the D11/D15 enumerated column family.
+
+## Recon facts (live baseline -- drafter-verified via psql 2026-05-17)
+
+Live-DB facts the tasks and probes build on. Verified by the drafter against
+`qw-oracle-postgres-dev` on 2026-05-17 (not inferred). The correction vs the
+first draft: the description baseline is NOT zero -- every probe and
+phase-boundary check in this phase is written against this real baseline.
+
+- **`entities` `description%` columns TODAY = 6** (verified):
+  `description`, `description_embedding`, `description_embedding_sha256`,
+  `description_embedding_stale`, `description_origin`, `description_tsv`. The
+  four `description_embedding*` / `description_tsv` columns belong to the
+  L3/embedding + tsvector pipeline, NOT this arc. Consequence: a
+  `column_name LIKE 'description%'` count is ambiguous (it sweeps those four
+  in) -- every schema check in this phase uses the explicit 9-name IN-list
+  (Task 1 verification == phase-boundary check 1), never `LIKE`.
+- **Pre-existing description coverage is non-zero** (described =
+  `description IS NOT NULL`), against the probe-0 denominators (verified):
+  - KTX: cvar 68/260, command 311/358, info_key 7/7.
+  - MVDSV: cvar 35/183, info_key 45/45, command 0/108, cmdline_param 0/11.
+  - Arc-scope total described = 466.
+- **All 466 baseline-described arc rows carry `description_origin =
+  'source_inline'`** (verified: arc-scope origin distribution is exactly
+  `source_inline:466`, nothing else). `source_inline` is in the arc-scoped
+  allowed set, so `F1.describe_fill.origin_vocabulary` is **already GREEN on
+  the baseline** -- recorded as the expected pass state, NOT a defect and NOT
+  something Phase 1 remediates.
+- **KTX cvars with `description_origin IN ('synthesized','shipped_doc')` = 0**
+  at baseline (verified). The D19 smoke is the first row to enter that set --
+  which is exactly what makes the origin-scoped self-containment check
+  (phase-boundary check 5) a precise PASS=1 signal rather than a
+  guaranteed-false `description IS NOT NULL` count (which is 68 at baseline).
+- **The D19 target is unfilled** (verified): `entities` row
+  `canonical_id='ktx:cvar:k_short_gib'` has `description` NULL and
+  `description_origin` NULL today. The smoke fills exactly this row.
 
 ## Files touched
 
@@ -173,14 +201,18 @@ n/a   # Phase 1 is purely additive; the loader-fix delete-shaped change is Phase
         (the migrator runs `.sql` in lexical order, tracks
         `schema_migrations` by filename+sha256, rejects edits to applied
         migrations).
-- **Verification:**
+- **Verification:** identical to phase-boundary check 1 -- mirror it; do NOT
+  use `LIKE 'description%'` (the live column set already has 6 `description%`
+  columns incl 4 embedding/tsv ones -- see Recon facts -- so a LIKE count is
+  ambiguous):
   `docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -tAc
-  "SELECT column_name FROM information_schema.columns WHERE table_name='entities'
-  AND column_name LIKE 'description%' ORDER BY column_name;"`
-  -- PASS condition: returns exactly
-  `description, description_anchor_version, description_confidence,
-  description_origin, description_proposed, description_provenance,
-  description_rereview, description_reasoning, description_verdict`.
+  "SELECT count(*) FROM information_schema.columns WHERE
+  table_name='entities' AND column_name IN ('description','description_origin',
+  'description_anchor_version','description_rereview','description_provenance',
+  'description_verdict','description_confidence','description_reasoning',
+  'description_proposed');"`
+  -- PASS condition: prints `9` (pre-migration baseline is `2` --
+  `description`, `description_origin`; the migration adds the other 7).
 - **Execution mode:** `subagent (Opus medium)` -- schema-foundation design
   that must reconcile the existing 012 looseness, honor P1 (append-only) and
   P2 (JSONB shape), and write faithful SCHEMA.md prose; knowledge breadth
@@ -226,8 +258,12 @@ n/a   # Phase 1 is purely additive; the loader-fix delete-shaped change is Phase
   `cd apps/qw-oracle && bun scripts/load-knowledge/index.ts quality-grid
   --project ktx --family regression --probe F1.describe_fill.origin_vocabulary`
   then `--probe F1.describe_fill.synthesized_requires_anchor`
-  -- PASS condition: both report `[PASS]` (after Task 6 fills the one cvar;
-  before Task 6 they are vacuously PASS on zero filled rows).
+  -- PASS condition: both report `[PASS]`. Baseline state (Recon facts):
+  `origin_vocabulary` is already GREEN (all 466 baseline arc rows are
+  `source_inline`, in-vocabulary -- NOT zero rows); `synthesized_requires_anchor`
+  is vacuously GREEN (0 `synthesized` rows at baseline). After Task 6 fills
+  `k_short_gib` (origin synthesized/shipped_doc + anchor stamped) both stay
+  GREEN -- that is the real assertion.
 - **Execution mode:** `subagent (Sonnet medium)` -- code synthesis against a
   clear, established in-file pattern (the existing probe functions are the
   template), single file, reasoning required for the project/type-scoped SQL.
@@ -482,12 +518,19 @@ bun scripts/load-knowledge/index.ts quality-grid --project ktx --family regressi
 # ktx.cfg comments + committed description + reasoning INLINE in one row
 # (not split into separate panels/views).
 
-# 5. Self-containment: no Phase 2/3 rows exist yet
+# 5. Self-containment via the arc-owned origin scope. NOT
+#    "description IS NOT NULL" -- KTX cvar baseline already has 68
+#    source_inline-described rows (Recon facts); the arc-owned signal is the
+#    synthesized/shipped_doc origin set, which is 0 at baseline.
 docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -tAc \
  "SELECT count(*) FROM entities WHERE project='ktx' AND type='cvar' \
-  AND description IS NOT NULL;"
-# PASS condition: prints 1 (only k_short_gib -- proves the smoke is
-# self-contained, not riding Phase 2/3 volume).
+  AND description_origin IN ('synthesized','shipped_doc');"
+docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -tAc \
+ "SELECT canonical_id FROM entities WHERE project='ktx' AND type='cvar' \
+  AND description_origin IN ('synthesized','shipped_doc');"
+# PASS condition: first prints 1; second prints exactly
+# ktx:cvar:k_short_gib. Proves the smoke filled exactly the one D19 cvar and
+# no Phase 2/3 volume leaked in (baseline for this set is 0).
 ```
 
 If all five PASS, operator proceeds (Phase 1 -> approved). If any FAIL,
@@ -529,18 +572,12 @@ worktree/PR ceremony; no per-phase tag -- the arc-ship tag is end-of-arc).
 
 ## Open questions / deferred items
 
-- **Question (a):** `review-findings.md`'s "Confirmed-good" note states "KTX
-  extractor is tree-sitter; MVDSV is libclang". That is FALSE for canonical
-  KTX (primary-source-verified: `ktx/_handler_cvars.py:63` imports libclang;
-  `extractors/CLAUDE.md:25` confirms KTX-canonical is libclang, tree-sitter
-  only for the out-of-scope dusty-ktx QuakeC fork).
-  **Default chosen for now:** Phase 1 proceeds unaffected (it harvests one
-  config comment line, touches no source AST). The phase MD records the
-  correction; the scaffold doc is NOT silently edited.
-  **Who can resolve:** operator -- correct the `review-findings.md`
-  Confirmed-good note (and the inherited phase-template checklist item 3)
-  before the Phase 2 KTX drafter consumes the wrong premise. This is a
-  scaffold-doc amendment (decisions.md preamble: never silently override).
+- **Question (a) -- RESOLVED at scaffold 2026-05-17, no action.** The
+  "KTX extractor is tree-sitter" scaffold error was corrected by the planner
+  in `review-findings.md` "Confirmed-good" + `phase-template.md` (dated
+  CORRECTION 2026-05-17, commit f3574f26): canonical KTX is libclang/C; the
+  D9 per-engine difference is a shipped-config sibling parser, not a
+  tree-sitter-vs-libclang split. No Phase 1 impact; not re-raised.
 
 - **Question (b):** D2/D11 lock the origin vocabulary as "exactly
   source_inline/synthesized/shipped_doc; no other tag", but the live
@@ -628,9 +665,12 @@ NEVER an `UPDATE` that patches the visibly-wrong rows in place.
 - **Serializer round-trip FAIL (check 4):** fix
   `serialize-audit-review.ts`, re-emit from the record (the page is a pure
   projection -- re-generation is the fix, never hand-edit the HTML).
-- **Self-containment check 5 prints > 1:** something rode Phase 2/3 volume
-  into Phase 1. Investigate -- Phase 1 must fill exactly `k_short_gib`. This
-  is a scope breach, route to operator (do not lower the assertion).
+- **Self-containment check 5 fails (count != 1, or canonical_id !=
+  ktx:cvar:k_short_gib):** the synthesized/shipped_doc origin set must hold
+  exactly `k_short_gib` after the smoke (baseline is 0 -- Recon facts).
+  count > 1 or a different cid means Phase 2/3 volume leaked in or the smoke
+  wrote the wrong row. Scope breach -- route to operator with the query
+  output verbatim; do not lower the assertion.
 - **Unanticipated failure:** route to operator with the failing check's
   output verbatim; do not explain the gap away (CLAUDE.md verification
   discipline).
