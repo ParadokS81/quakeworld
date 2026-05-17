@@ -43,12 +43,37 @@ all run against it
 **Confirm before the schema + loader phase:** container running. Not needed
 for the two mechanism phases (they verify on extractor JSON, not the DB).
 
-## 4. Durable pinned HEAD runtime dump + detection assets -- ACTION REQUIRED (gates the acceptance phase)
+## 4. Durable pinned HEAD runtime dump + detection assets -- SECURED 2026-05-17 (Phase-4 proxy-confirms provenance)
 
 **This is the one real operator-side prerequisite. It does NOT block the
 mechanism phases; it blocks the acceptance phase (D18/D19 answer key).**
 
-State verified 2026-05-17:
+> **UPDATE 2026-05-17 (orchestrator, operator-instructed -- Task 0 done).**
+> The dump was located (it was never lost -- it lives in the Windows ezQuake
+> install, outside the repo and outside `/tmp`, which is why the initial
+> in-repo/`/tmp` search missed it) and the matched triple is now SECURED
+> durable in-repo at `apps/qw-oracle/data/detection/`:
+> - `entities-runtime-dump-3f9e724f.txt` -- byte-identical (`cmp` clean) copy
+>   of `/mnt/c/Games/QuakeWorld/QuakeWorld/qw/matches/entities.log`; renamed
+>   ONLY to escape `apps/qw-oracle/.gitignore:10 *.log` (verified trackable).
+>   3350 lines, CRLF preserved; cmdlist 7-564 / cvarlist 571-3272 / macrolist
+>   3276-3344 (verified). 557 runtime cmds / 2700 runtime cvars.
+> - `front1-diff.sh`, `cmdline-liveness.sh` -- banked verbatim (R6
+>   reuse-not-reinvent; their hardcoded `/mnt/c` + `/tmp` paths are NOT
+>   rewritten -- Phase-4 owns path-portability).
+> - `apps/qw-oracle/data/detection/README.md` -- lineage + the line-range
+>   contract + the R6 proxy location + provenance status, for a cold Phase-4
+>   read.
+>
+> **Remaining for Phase 4 (NOT closed here):** (a) the R6 version-pin
+> sanity-proxy (the SANITY GATE in `front1-diff.sh:33-36`) is RE-RUN against
+> the live DB at the Phase-4 boundary (X8/W2) -- it was deliberately NOT
+> re-run at relocation time; (b) the operator blesses provenance (they ran
+> the `3f9e724f` build); (c) the Phase-4 drafter proposes the canonical path
+> + wiring. The original Task-0 narrative below is preserved as the record
+> of the path.
+
+State verified 2026-05-17 (original; superseded by the UPDATE above):
 - Durable, in-repo: `apps/qw-oracle/docs/upstream-prs/ezquake-runtime-dead-entities.md`
   (the already-shipped dead set; the application phase regenerates this --
   review-findings R4).
@@ -90,7 +115,7 @@ keys, accounts, or network access required.
 | 1 libclang extractor runs | satisfied, confirm | all phases (not a phase concern) |
 | 2 ezquake-source pin `3f9e724f` | satisfied, confirm | Track A/B load-bearing; acceptance cross-check |
 | 3 Postgres dev container | satisfied, confirm | schema+loader phase onward |
-| 4 durable pinned dump + proxy | **ACTION REQUIRED** | acceptance phase ONLY |
+| 4 durable pinned dump + proxy | SECURED in-repo 2026-05-17; Phase-4 re-runs R6 proxy + operator blesses provenance | acceptance phase ONLY |
 | 5 external API/secret | n/a | -- |
 
 Phases 1-2 (mechanism) start cold against items 1-2. Item 4 is the
