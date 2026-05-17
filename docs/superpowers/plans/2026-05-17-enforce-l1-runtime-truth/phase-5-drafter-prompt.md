@@ -1,3 +1,85 @@
+=============================================================================
+ORCHESTRATOR AUGMENTATION -- session 5, 2026-05-17 (READ FIRST; mandatory)
+This block is prepended by the arc-orchestrator. It carries the Phase-4
+cross-phase learnings that did NOT exist when the canonical prompt below was
+pre-generated at planning Step 4. The canonical prompt is unchanged below and
+still authoritative for shape; this block OVERRIDES it on any conflict.
+=============================================================================
+
+Phases 1-4 are ALL APPROVED. Phase 5 is the LAST draft. Apply these
+Phase-4-shipped facts -- they are the contract you CONSUME, not rebuild:
+
+1. route_by_level IS SHIPPED + TESTED (Phase 4, `extractor_lib/_acceptance.py`).
+   Phase 5 CALLS `route_by_level(dump_confirmation)` to generate the
+   level-3-only delete-list and scope the level-2 assistant surface. Phase 5
+   does NOT re-implement level routing, does NOT re-run the dump cross-check,
+   does NOT re-decide genuine-dead. The dump cross-check ALREADY HAPPENED in
+   Phase 4 (the dump is D19's overriding answer key; Phase 4 consulted it and
+   stamped). A Phase-5 re-derivation of the level is the SAME X2/R5
+   composition violation the whole arc forbids (Phase 4 consuming Phase-1/2
+   probes is the worked precedent) -- if the draft does this, it is a
+   deviation: surface it, do not let it pass.
+
+2. The dump_confirmation STAMP is already written by Phase 4's loader:
+   `dump-confirmed` (level-3) for EXACTLY the dump-confirmed pool/HUD rows;
+   every other populated row stays Phase-3's `high-confidence-generalized`
+   (level-2). Phase 5 FILTERS on this stamp (via route_by_level). It is read,
+   never recomputed.
+
+3. F7 (review-findings) EXISTS and is RESOLVED. The runtime dump
+   self-certifies its commit via the embedded `<build>~<sha>` (dump line
+   3347 `ezQuake 3.7.0-dev 8084~3f9e724fa`); prerequisites item-4 provenance
+   is CLOSED (triple corroboration). Phase 4 owns/owned the version-pin proxy
+   + the detection-README correction -- Phase 5 does NOT touch them. The
+   level-3 rows in your regenerated artifact are the Phase-4 loader's stamp,
+   NOT a Phase-5 dump re-derivation. The live artifact's existing "How these
+   were found" prose ("commit verified == source HEAD, zero version skew")
+   already reflects the embedded-SHA truth -- preserve that shape.
+
+4. build-excluded is PERMANENTLY level-2 -- NEVER in the delete-list at ANY
+   level (D20 + Phase-4 OQ-3, operator-ratified 2026-05-17). A single-build
+   runtime dump cannot carry a cross-build "reachable in some other variant"
+   verdict, so build-excluded (incl. D5 address-taken residue) can never
+   reach the autonomous list. The delete-list is ONLY the level-3
+   dump-confirmed "unreachable everywhere compiled" core + the
+   commented-register subclass. It lives ONLY in the always-on L1 signal.
+
+5. D21 NOTHING WITHHELD (reinforced under the Phase-4 lens): level-2
+   recovered commands ARE emitted as first-class entities. The level gates
+   AUTONOMOUS SHIP only, never first-class EXISTENCE. Do not gate the entity
+   on dump-confirmation.
+
+6. R4 BYTE-SHAPE REFERENCE CARRIES A KNOWN-STALE NUMBER. The live
+   `apps/qw-oracle/docs/upstream-prs/ezquake-runtime-dead-entities.md`
+   "How these were found" section says "97 cvars / 74 commands". The 97 is
+   the PRE-mini-arc figure; F2-authoritative is 74 commands / 92 cvars /
+   ~129 reverse (post `8093e42f`, X7). R4 = regenerate the SHAPE (sections,
+   per-entry feeder tagging, the Class-1/2/3 + Attribution layout) byte-
+   consistent -- it is NOT a license to reproduce the stale 97. The
+   regenerated artifact's pool figure MUST be the F2-authoritative number,
+   re-verified vs the live DB at draft time (X8/W2). Match shape; correct
+   the stale count. State this explicitly in "Recon facts (verified)".
+
+7. ARCHETYPE FLOOR -- Phase 5 is a MIXED archetype. The signal-population
+   half is loader-port/backfill (automated floor). The delete-list regen
+   ships to nano/slime UNSEEN (the strict-bar autonomous consumer --
+   `reference_rigor_bar_follows_consumer`); it is a published-artifact whose
+   floor is OPERATOR-RUN. Mixed phase -> the boundary takes the HIGHER floor.
+   The Phase-5 Verification section MUST include the operator eyeballing the
+   regenerated `ezquake-runtime-dead-entities.md` before it is trusted; the
+   automated byte-shape-diff probe stacks ON TOP, it does NOT replace the
+   operator review. A purely-automated Phase-5 verification is a finding --
+   draft it with the operator-run review as the floor.
+
+The arc COMPLETES at Phase 5 (both North-Star directions met for ezQuake).
+The ezQuake help-JSON doc-gap arc and the FTE/QWCL/MVDSV ship are SEPARATE
+sequenced follow-ons -- do NOT start them. Halt-and-handback unchanged: you
+halt, the operator + orchestrator gate, no auto-proceed.
+
+=============================================================================
+END ORCHESTRATOR AUGMENTATION -- canonical pre-generated prompt follows
+=============================================================================
+
 You are drafting Phase 5 of the arc:
   2026-05-17-enforce-l1-runtime-truth
   ("enforce L1 runtime-truth"; ghost elimination + hidden-command recovery)
