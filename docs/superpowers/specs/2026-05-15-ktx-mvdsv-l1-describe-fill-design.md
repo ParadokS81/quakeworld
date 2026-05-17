@@ -200,6 +200,21 @@ so arc-planner sees they were encoded, not dropped:
   comments are candidate descriptions; on disagreement source wins and the
   conflict is C2-flagged).
 
+## Amendment precedence (2026-05-17 -- pre-execution gate, operator decision)
+
+This spec is source of truth and `decisions.md` distills it; the "spec wins"
+tiebreaker resolves spec-vs-distillation disagreements ONLY -- it never means
+an un-amended original C/D paragraph here outranks a dated amendment or
+clarification recorded against that same C/D in `decisions.md` and the
+affected phase MDs. Where this spec's original text predates such a dated
+block, the dated amendment GOVERNS; the pre-amendment wording is superseded
+exactly as the mirrored block under that C/D heading below states. "Spec
+wins" is never "original wins over amended." The mirrored blocks carry the
+substance in brief; phase-facing detail lives in `decisions.md` + the phase
+MDs, not re-derived from the spec. (Added by the pre-dispatch holistic gate
+-- the un-mirrored "spec wins" reading was a latent revert hazard for the
+load-bearing D4 owned-row guard, F-D4a.)
+
 ## Decisions log
 
 ### D1 -- Data boundary: configurable buckets only; no L3 prose (Pass 1.1)
@@ -269,6 +284,17 @@ Carry-forward to Pass 2: whether a given dev code comment is actually good
 enough to serve a *user* (trust-but-verify) is the Pass 2 quality-bar / review-
 gate question, not a Pass 1 schema question.
 
+**Clarification 2026-05-17 (mirrors `decisions.md` D2 clarification; see
+decisions.md + the Phase 0/1 MDs for the phase-facing detail).**
+`entities.description_origin` ALREADY EXISTS and already carries
+`{help_json, source_inline, synthesized}` (ezQuake's `help_json` is
+legitimate and pre-existing). Phase 1's migration EXTENDS that column to add
+`shipped_doc` plus the anchor / re-review / retained-provenance /
+verdict-trail fields -- it does NOT create `description_origin` /
+`description` / `name_fold` from zero (all three exist today). The C5
+origin-tag probe must therefore permit the full four-set `{help_json,
+source_inline, synthesized, shipped_doc}`, not only the three this arc writes.
+
 ### D3 -- Upstream graduation deferred to a future deliberate procedure (Pass 1.3)
 
 Graduation (synthesized text adopted upstream, then de-duplicated so it cannot
@@ -325,6 +351,30 @@ year. ~1-2 review events per engine per year.
 Explicitly an intermediary solution. Future non-blocking hook (NOT this arc):
 a visual monitoring website replacing in-terminal report review once the
 broader system is coherent.
+
+**Amendment 2026-05-17 (mirrors `decisions.md` D4 amendment, F-D4a -- THE
+load-bearing block; see decisions.md + the Phase-1 MD amendment block + the
+Phase-5 MD for the phase-facing detail).** The shared
+`apps/qw-oracle/scripts/load-knowledge/derive-entity-description.ts` tail runs
+every walk/load and UNCONDITIONALLY recomputes `description` +
+`description_origin` from freshly-walked source columns, with no owned-row
+guard. D4 ("a flagged description keeps serving, stamped may be stale as of
+version X") is impossible unless the walk stops clobbering the owned rows.
+The owned-row guard is therefore NOT Phase-5-only: it is a **Phase-1-spine
+deliverable**, live BEFORE Phase 2 writes the first owned row (Phase 2/3/4
+C4-recovery re-runs AND Phase 4's idempotency contract re-run the load path
+-> the derive tail before Phase 5 exists). In EACH of the four arc-bucket
+derivers (cvar / command / cmdline_param / info_key) the UPDATE excludes rows
+where `description_origin IN ('synthesized','shipped_doc')` -- owned-track
+membership ALONE, NO `AND description_anchor_version IS NOT NULL` conjunct (a
+staged `shipped_doc` row carries no anchor until Phase 3 and MUST still be
+protected; affirmed `source_inline` is deliberately NOT guarded -- re-derive
+is idempotent, a newly changed source comment is D4 trigger (e)).
+ezquake/fte/qwcl rows are unaffected. Phase 5 CONSUMES this guard and owns
+only the D4 walk-time Drifted/Added/Removed report + the re-review flag + the
+"may be stale as of X" stamp. Tracked: review-findings F-D4a. Applying "spec
+wins" to the pre-amendment D4 text above would revert this guard -- it must
+not (see Amendment precedence).
 
 ### D5 -- Quality bar + cheap-classify triage of existing comments (Pass 2.1)
 
@@ -400,6 +450,16 @@ routing to residue. A low-reasoning first pass is false economy on the one
 thing that must be correct; cost is modest at this volume
 (`feedback_best_tool_no_overkill`, Opus-MAX ceiling for hardest reasoning).
 
+**Clarification 2026-05-17 (mirrors `decisions.md` D7 clarification; see
+decisions.md + the Phase 3/4 MDs for the phase-facing detail).** The
+D5/D5-amendment word "cheap" is EFFORT routing, not a cheaper model. The
+keep-vs-synthesize classify is hard-coded INSIDE the D6 skill and the skill
+is Opus 4.7 MAX: ONE guarded D6 invocation per knob at Opus 4.7 MAX, with
+"cheap" / "fast affirm" the early-exit path WITHIN that single Opus-MAX
+invocation (a good comment classifies-and-affirms quickly), NOT a separate
+cheaper pre-classify model tier outside the skill (that alternative works
+around the spec-locked D6/D7 dial and is rejected).
+
 ### D8 -- Bot/judgment-tier cvars: mechanism-only is complete L1 (Pass 2.4)
 
 Bot-skill and judgment-tier cvars (~38 `k_fbskill_*` etc.) get no special
@@ -471,6 +531,25 @@ blessing text re-introduces the "had a comment so it counts" trap C1 and the
 D5-amendment exist to kill, and hides the affirm/synthesize call from the D7
 gate. The volume "saved" is exactly what D5's cheap-classify step is built to
 route cheaply.
+
+**Amendment + clarification 2026-05-17 (mirrors `decisions.md` D9 amendment
+and D9 clarification; see decisions.md + the Phase 2/4 MD Recon facts for the
+phase-facing detail).** (a) The "~157/260" figure (D9/D17/spec/README) was
+CONFLATED -- gap-findings unioned the existing libclang registration surface
+(68 `source_inline`, by D9 explicitly NOT this tier) with the shipped-config
+surface. The honest D9 `shipped_doc` write target, verified live, is
+~109/260. The C1 gate is UNCHANGED: probe-0 M=260 with the ~151
+not-mechanically-covered residue (incl. the 38 bot `k_fbskill_*`) tracked,
+NEVER importance-cut; "~109" is a verified order-of-magnitude, not a
+hit-target -- the gate is M=260. (b) `mvdsv.6` IS the D9 mechanical sibling
+parser. The `coverage.ndjson` "LLM-assisted" / "free prose" tag is a caution
+about the candidate body as a FINISHED user-doc (the downstream D6 step every
+harvested candidate flows to), NOT a statement that the source has no regular
+extractable skeleton: its OPTIONS section is a regular roff `.TP` / `.B`
+grammar. The D9 sibling harvests that skeleton + verbatim candidate +
+structured enums + provenance and STOPS (zero quality verdict), exactly like
+the KTX config sibling. Spec line ~432 already names `mvdsv.6` a sibling --
+this records WHY the tag is not a contradiction.
 
 ### D10 -- Drift/conflict policy: three classes, source-grounded, resolved inline at the D7 tail (Pass 3.2)
 
@@ -580,6 +659,17 @@ Carry-forwards (formalized at Pass 3 close):
   feeds Pass 4 (multi-projection data contract): the audit-review page is one
   projection; MCP / snapshot / wiki / web-manager are others, all serialized
   from the same structured record.
+
+**Amendment 2026-05-17 (mirrors `decisions.md` D11 amendment; see
+decisions.md + the Phase 2/3 MDs for the phase-facing detail).** The locked
+`description_provenance` JSONB element
+`{source_file, source_line, shipped_value, raw_comment}` is widened with an
+ADDITIVE optional `structured_choices` field per (cvar, source-file) to carry
+D9's "structured choices kept structured" (`{value,label}` enum + bitmask
+tables as DATA, never prose-flattened). JSONB is schemaless, so this is NOT a
+migration and does NOT break Phase 1's `k_short_gib` record (no enum -> field
+absent; element otherwise byte-identical, idempotent reproduction holds --
+C4/D19). Rejected: a dedicated column (a real migration, no benefit).
 
 ### D12 -- Cheap-probe bundle is arc Phase 0; contained, not a pre-arc sidequest (Pass 3.4)
 

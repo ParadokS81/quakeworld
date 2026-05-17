@@ -242,6 +242,56 @@ rule"). Adding a tool would be wrong (the checklist says no new tool here).
 include the orientation-blob + tool-description edit in the same commit, and
 must NOT add a tool.
 
+### F-C1a -- Phase 0 forward re-extract re-baselines the probe-0 denominators; Phase 2 hardcoded M=260
+
+**Surfaced by:** the pre-dispatch holistic gate 2026-05-17 (Finding 1 of 3 --
+the mechanical cross-document propagation class per-phase review structurally
+misses; the F-D4a precedent).
+
+**Contained by:** the spec C3 amendment 2026-05-17 (Phase 0 Task 2 re-extracts
+dev-head forward and re-baselines the probe-0 denominators -- correct by C1) +
+the Correction-1 Phase-2 MD revision 2026-05-17 (committed `d0bd2068`).
+
+**Evidence:** locked execution order is Phase 0 || Phase 1 first, then
+2->3->4; Phase 0's own Outputs name "Phase 1/2/3/4 recon against the POST-
+re-extract baseline." Phases 3/4/5 carried the "recon POST-Phase-0 M;
+pre-Phase-0 was X, gate-SHAPE not frozen" discipline verbatim. Phase 2 was
+the lone KTX fill phase missing it -- Recon called 260 "the gate", boundary
+checks 1/3 + Task 4 hardcoded 260. At execution, if any KTX cvar churned
+since commit `da73e06`, Phase 2's boundary spuriously FAILs, or an executor
+misreads a legitimate Phase-0 re-baseline as a fill-not-create violation, or
+force-fits 260.
+
+**Risk:** RETIRED -- Correction 1 (landed + committed `d0bd2068`) made the
+Phase-2 Recon `M=260` bullet carry the POST-Phase-0-recon caveat and removed
+the hardcoded 260 from boundary checks 1/3 + Task 4 goal/coverage step
+(recon the POST-Phase-0 M live; pre-Phase-0 260 is gate-SHAPE, not a frozen
+contract number). The C1 gate is unchanged.
+
+**Phase:** Phase 2 (recon the POST-Phase-0 M; no hardcoded 260), Phase 0
+(produces the re-baseline).
+
+### Pre-dispatch holistic gate 2026-05-17 -- audit trail (Findings 2 + 3)
+
+The gate (orchestrator pre-dispatch, whole-plan-as-one-object) returned NOT
+CLEAN -- 3 mechanical cross-document propagation gaps, no design change, no
+lock relitigation. **Finding 1 -> F-C1a** above (Correction 1, committed
+`d0bd2068`). **Finding 2 (OQ-3 5th site):** Phase 1 MD drafter-checklist
+item 3 carried the pre-correction "KTX tree-sitter vs MVDSV libclang are
+DIFFERENT" falsehood -- the 5th OQ-3 propagation site; corrected 2026-05-17
+(Correction 2, committed `d0bd2068`; also recorded in the Confirmed-good
+CORRECTION 2026-05-17 block). **Finding 3 (resolved 2026-05-17, Correction
+3):** the spec declared the "spec wins" tiebreaker but carried only the
+original D2/D4/D7/D9/D11 text -- the dated amendments lived only in
+`decisions.md` + the phase MDs. Applying "spec wins" literally at Phase 5 or
+post-arc review would read a D4 with no owned-row guard and could un-do
+F-D4a (the single most load-bearing, arc-invalidating fix in the plan).
+Defused by Correction 3: a global "Amendment precedence" clause near the
+spec top (the "spec wins" rule resolves spec-vs-distillation only, never
+amended-vs-original) + concise mirrored dated blocks under spec
+D2/D4/D7/D9/D11 (the C3 amendment + the D17 ~157->109 correction were
+already mirrored -- the template pattern).
+
 ## Boundary risks (out-of-scope items a drafter might wrongly pull in)
 
 ### F-D10b -- case-fidelity loader is a soft dependency, NOT this arc
@@ -342,7 +392,11 @@ consumes; do not implement the wiki side).
   Open Q (a)) rather than consuming the wrong premise; this dated block is
   the planner acting on that surface so the Phase 2 KTX drafter prompt is
   generated against verified truth. `phase-template.md` checklist item 3
-  inherited the same false phrasing and is corrected in the same commit.
+  inherited the same false phrasing and is corrected in the same commit. 5th
+  OQ-3 propagation site (pre-dispatch holistic gate, 2026-05-17): the Phase 1
+  MD drafter-checklist item 3 still carried this falsehood (self-contradicted
+  10 lines down by the RESOLVED recon note); corrected 2026-05-17 (Correction
+  2, committed `d0bd2068`) -- dated, never silently, per the OQ-3 lock.
 
 ---
 
@@ -358,6 +412,7 @@ consumes; do not implement the wiki side).
 | F-D12b (load-commands free win) | Substantive (positive) | Phase 0 |
 | F-D11a (audit HTML generator absent) | Substantive | Phase 1 |
 | F-D13a (MCP contract surface delta) | Substantive | Phase 5 |
+| F-C1a (Phase-2 hardcoded M=260; Phase-0 re-baselines) | Substantive | Phase 2 (recon POST-Phase-0 M, no hardcoded 260), Phase 0 (produces the re-baseline) -- Correction 1 committed `d0bd2068` |
 | F-D10b (case-fidelity soft dep) | Boundary | Phase 5 (note only) |
 | F-D10c (dusty-* fork separate arc) | Boundary | Phase 3 (note only) |
 | F-C3b (reachability parked arc) | Boundary | Phase 0 + Phase 3 (note only) |
