@@ -44,6 +44,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type postgres from 'postgres';
 import { sql, closeSql } from '../load-knowledge/db.js';
 
 // ---------------------------------------------------------------------------
@@ -563,8 +564,21 @@ interface D6Record {
 // configurable-bucket population including k_short_gib (which carries a
 // description_verdict from Phase 1). This is the F-D4a proof anchor: a re-run
 // that does not touch k_short_gib produces the identical md5.
-async function computeFingerprint(): Promise<string> {
-  const rows = await sql<Array<{ fp: string | null }>>`
+//
+// WHY exec parameter: the caller supplies either the top-level `sql` connection
+// (for --fingerprint standalone and --status, where we read committed state) or
+// the transaction handle `tx` (inside --persist's sql.begin block). A separate
+// connection cannot see an open transaction's uncommitted writes, so passing
+// `sql` inside the transaction would read pre-transaction committed state --
+// making the dry-run fingerprint vacuous (always FP_NOW regardless of what the
+// records would change) and the live fingerprint stale. Passing `tx` fixes both:
+// the dry-run fingerprint reflects the would-be state before rollback, and the
+// live fingerprint reflects the about-to-commit state. Mirrors the
+// postgres.TransactionSql<{}> parameter shape established in natural-keys.ts.
+async function computeFingerprint(
+  exec: postgres.Sql<{}> | postgres.TransactionSql<{}>,
+): Promise<string> {
+  const rows = await exec<Array<{ fp: string | null }>>`
     SELECT md5(
       string_agg(
         canonical_id
@@ -731,7 +745,15 @@ async function persistRecords(recordsPath: string, dryRun: boolean): Promise<voi
     // For --dry-run this is the "would be" fingerprint on the rolled-back state;
     // for a real run it is the committed fingerprint. Both are computed HERE so
     // the comparison is valid before rollback.
-    const fingerprintAfter = await computeFingerprint();
+    //
+    // WHY tx (not sql): computeFingerprint must see this transaction's own
+    // uncommitted writes. The top-level `sql` connection is a separate
+    // connection that cannot read an open transaction's pending state, so
+    // passing `sql` would silently return the pre-transaction committed
+    // fingerprint -- making dry-run non-vacuous checks vacuous and live persist
+    // report a stale fingerprint. Passing `tx` gives visibility into both the
+    // would-be writes (dry-run) and the about-to-commit writes (live).
+    const fingerprintAfter = await computeFingerprint(tx);
 
     // --- 5. Print summary ---
 
@@ -882,7 +904,9 @@ async function statusReport(): Promise<void> {
 // population (project='ktx', type IN cvar/command/info_key), including
 // k_short_gib. Used for phase-boundary idempotency proof and F-D4a anchoring.
 async function fingerprintCmd(): Promise<void> {
-  const fp = await computeFingerprint();
+  // WHY sql (not tx): standalone --fingerprint reads committed state; there is
+  // no open transaction here. Passing the top-level connection is correct.
+  const fp = await computeFingerprint(sql);
   process.stdout.write(`=== --fingerprint: KTX committed-row md5 ===\n`);
   process.stdout.write(`scope: project='ktx', type IN ('cvar','command','info_key')\n`);
   process.stdout.write(`md5:   ${fp}\n`);
