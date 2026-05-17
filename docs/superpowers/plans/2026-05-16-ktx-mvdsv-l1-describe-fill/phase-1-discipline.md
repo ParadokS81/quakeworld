@@ -42,32 +42,7 @@ round-trips the D11/D15 serializer, and the two C5 probes go GREEN on it --
 with ZERO dependency on Phase 2 or Phase 3 rows existing. That self-contained
 one-cvar round-trip IS the runnable, verifiable state at the phase boundary.
 
-## Inputs from previous phase
-
-**Phase 1 does NOT consume Phase 0.** Per the locked slicing analysis
-(`README.md`): Phase 0 and Phase 1 are independent and draftable/executable in
-parallel -- Phase 1's spine is engine-agnostic; Phase 0 sizes Phase 4, not
-Phase 1. Phase 1's inputs are the operator-side `prerequisites.md`
-"Required before Phase 0 / Phase 1" items, all verified satisfied 2026-05-16:
-
-- Postgres dev container up and L1 KTX + MVDSV extracts loaded
-  (`entities` carries `ktx|1827`, `mvdsv|1236` -- the describe-fill fills
-  description fields on cvar rows that ALREADY exist; it never creates
-  entities).
-- `apps/qw-oracle/.env` populated with `DATABASE_URL`
-  (`postgresql://qworacle:dev@localhost:5432/qw_oracle`); `.env` gitignored.
-- Research repos present:
-  `research/repos/ktx/resources/example-configs/ktx/ktx.cfg` and
-  `research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg` (the two shipped
-  KTX configs the D19 one-cvar harvest reads), and
-  `research/repos/ktx/src/world.c` (the cvar registration site for source
-  grounding).
-- Awareness item acknowledged: the "2026-05-15 cvar-audit-review.html" visual
-  template does NOT exist anywhere in the tree (F-D11a, re-verified by this
-  drafter's recon -- no artifact, no generator under `/home/paradoks/projects`).
-  Phase 1 builds a NEW emitter from the D11/D15 enumerated column family.
-
-## Recon facts (live baseline -- drafter-verified via psql 2026-05-17)
+### Recon facts (verified against live source 2026-05-17; do not re-derive blind)
 
 Live-DB facts the tasks and probes build on. Verified by the drafter against
 `qw-oracle-postgres-dev` on 2026-05-17 (not inferred). The correction vs the
@@ -101,6 +76,31 @@ phase-boundary check in this phase is written against this real baseline.
 - **The D19 target is unfilled** (verified): `entities` row
   `canonical_id='ktx:cvar:k_short_gib'` has `description` NULL and
   `description_origin` NULL today. The smoke fills exactly this row.
+
+## Inputs from previous phase
+
+**Phase 1 does NOT consume Phase 0.** Per the locked slicing analysis
+(`README.md`): Phase 0 and Phase 1 are independent and draftable/executable in
+parallel -- Phase 1's spine is engine-agnostic; Phase 0 sizes Phase 4, not
+Phase 1. Phase 1's inputs are the operator-side `prerequisites.md`
+"Required before Phase 0 / Phase 1" items, all verified satisfied 2026-05-16:
+
+- Postgres dev container up and L1 KTX + MVDSV extracts loaded
+  (`entities` carries `ktx|1827`, `mvdsv|1236` -- the describe-fill fills
+  description fields on cvar rows that ALREADY exist; it never creates
+  entities).
+- `apps/qw-oracle/.env` populated with `DATABASE_URL`
+  (`postgresql://qworacle:dev@localhost:5432/qw_oracle`); `.env` gitignored.
+- Research repos present:
+  `research/repos/ktx/resources/example-configs/ktx/ktx.cfg` and
+  `research/repos/nquake-distfiles/sv-configs/ktx/ktx.cfg` (the two shipped
+  KTX configs the D19 one-cvar harvest reads), and
+  `research/repos/ktx/src/world.c` (the cvar registration site for source
+  grounding).
+- Awareness item acknowledged: the "2026-05-15 cvar-audit-review.html" visual
+  template does NOT exist anywhere in the tree (F-D11a, re-verified by this
+  drafter's recon -- no artifact, no generator under `/home/paradoks/projects`).
+  Phase 1 builds a NEW emitter from the D11/D15 enumerated column family.
 
 ## Files touched
 
