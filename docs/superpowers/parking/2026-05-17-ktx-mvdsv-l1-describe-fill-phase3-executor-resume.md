@@ -1,52 +1,59 @@
 # Phase 3 executor resume handoff -- KTX source-synthesis (2026-05-17)
 
-> **!!! STAGE B -- the family-lane amendment is RATIFIED 2026-05-17 !!!**
-> The gate is LIFTED. Build the THREE-way split, then resume volume. The
-> dated D6 amendment in
+> **!!! STAGE B IS BUILT + PROVEN 2026-05-18 -- resume the THREE-way
+> volume split !!!** The cat-2 index-twin lane + the cat-3 cohort-scaffold
+> lane are built, PROVED end-to-end, and already producing real persisted
+> volume. The HARD proof gate (the load-bearing Stage-B risk) is RETIRED.
+> The dated D6 amendment in
 > `docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/decisions.md`
-> is LOCKED + governs (read it in full + the Phase-3-MD RECON NOTE before
-> Task 2 + the phase-3-executor-prompt.md "Augmentation 2026-05-17"). The
-> discriminator is the per-member SOURCE BINDING, not name-clustering
-> (reconciles 624 = 512 + 74 + 38; 598 remaining = 508 + 53 + 37):
+> still LOCKS + governs (read it in full + the Phase-3-MD RECON NOTE +
+> the phase-3-executor-prompt.md "Augmentation 2026-05-17"). What is now
+> DONE (do NOT rebuild):
 >
-> - **Cat 1 -- heterogeneous individual (508 remaining):** the proven
->   per-knob Opus-4.7-MAX loop + sharpened dispatch prompt +
->   grep-verify-claims discipline below. UNCHANGED -- this is the bulk;
->   the recipe + learnings in this doc apply verbatim here.
-> - **Cat 2 -- index-twin (53 remaining; 6 families: xfav_go/favx_add/
->   UserMode/TimeSet/ksound/ChangeDM):** ONE Opus-4.7-MAX family eval
->   (dial NOT lowered; the single eval enumerates each member's meaning)
->   + N cheap per-member index substitutions + the HARD
->   binding-divergence catch. Build this lane.
-> - **Cat 3 -- namespace cohort `k_fbskill_*` (37 remaining) = RATIFIED
->   option (b) COHORT-SCAFFOLD:** ONE Opus-4.7-MAX pass establishes the
->   shared frogbot-skill mechanism (all read in `src/bot_botimp.c`,
->   scaled by bot skill), THEN each of the 38 still gets its OWN
->   individual source-grounded mechanism-only line (D8 bar per-member,
->   NO semantic collapse, NEVER twin-collapsed). Build this lane too.
+> - **`--verify-binding` helper SHIPPED** (commit `2fd1421e`, tsc EXIT=0,
+>   F-C5c non-vacuous). `bun scripts/describe-fill/synthesize-ktx.ts
+>   --verify-binding <HandlerSymbol>` = the authoritative live cmd_t
+>   DEF()-family binding table (manifest-consistency checked, keyed off
+>   loader-lowercased `canonical_id` per F-D10b, case-insensitive).
+>   `--verify-binding --cohort <namePrefix>` = the cat-3 classifier
+>   (k_fbskill 0/38 fit -> MASS_REJECT). Read-only; no DB/no entity touch.
+>   It is the ONLY new code; cat-2/cat-3 are executor-orchestrated
+>   processes reusing the existing `--persist`/`--status`/`--fingerprint`.
+> - **Cat-2 lane PROVEN on ChangeDM (5 members, end-to-end):** ONE
+>   Opus-4.7-MAX family eval (dial NOT lowered) + `--verify-binding
+>   ChangeDM` + the planted false-twin `dm` (real cmd, `ShowDMM` handler,
+>   literal 0) EJECTED by the Opus eval AND the mechanical catch AND
+>   proven untouched in the DB (still `source_inline`, no verdict ->
+>   correctly a remaining cat-1 knob). dmm5 honestly `hedged` (the
+>   confabulation guard working). F-D6a: every claim byte-verified.
+>   Persisted idempotently (dry-run == live fp).
+> - **Cat-3 lane PROVEN on a 5-member k_fbskill slice (option b):** ONE
+>   Opus-4.7-MAX shared-mechanism scaffold pass + 5 INDIVIDUAL,
+>   mechanically-distinct source-grounded records (non-collapse verified;
+>   D8 mechanism-only, L3 tuning routed OUT per member). F-D6a: ~20 line
+>   claims across 6 source files byte-verified incl. the reactiontime
+>   easy-mode `:231` vs `:180` divergence (flagged, not collapsed).
+>   Persisted idempotently. ONE pre-existing done cat-3 member was in the
+>   slice (idempotent re-persist: persisted=5, cursor +4 net) -- expected
+>   per "1 done cat-3 carried"; cat-3 VOLUME must use the `--status`
+>   cursor to skip done members (the proof-slice overlap was one-time).
 >
-> The divergence-catch is a **CLASSIFIER, not only a safety net**: a
-> cohort fed to the cat-2 twin lane mass-rejects -- that mass-rejection
-> IS the signal it is cat-3, route it to the scaffold (never "force the
-> family"). **PROVE before volume (HARD gate, the load-bearing risk --
-> not tokens):** one real cat-2 family end-to-end with a *planted
-> false-twin the catch must eject*, AND a `k_fbskill_*` slice the
-> *classifier must mass-reject and route to the cat-3 scaffold*. F-D6a
-> (independently grep-verify any sub-agent line/handler/conflict claim
-> BEFORE persist) applies per-member in ALL three lanes -- concentrated,
-> not relaxed. The 22 done laneable members (21 cat-2 + 1 cat-3) are
-> correct + carried, NOT redone; `--status`/`--fingerprint` are the
-> idempotent cursor. Bind every per-member verifier to the manifest
-> `canonical_id` (loader-lowercased per F-D10b: source `"XonX"` ->
-> `ktx:command:xonx`), NOT a reconstruction from the source name.
+> The divergence-catch is a proven **CLASSIFIER, not only a safety net**.
+> F-D6a (independently grep-verify any sub-agent line/handler/conflict
+> claim BEFORE persist) applies per-member in ALL three lanes --
+> concentrated, not relaxed (proven: zero fabrication / zero off-by-one
+> across both Opus proofs vs the batch-1 precedent). The done laneable
+> members are carried, NOT redone; `--status`/`--fingerprint` are the
+> idempotent cursor.
 
 Fresh-terminal resume for the **arc-executor** of Phase 3 of the
 `2026-05-16-ktx-mvdsv-l1-describe-fill` arc. Machinery (Tasks 1 +
-2-machinery) DONE + committed; calibration proven; the F-D4a mini-proof
-PASSED; the **D6 volume fan-out is IN PROGRESS** (26 / 624 evaluated as
-of this wrap). This is NOT a fresh start and NOT blocked -- it is a
-clean mid-loop budget wrap. Pick up the volume loop where `--status`
-says it is.
+2-machinery) DONE + committed; the Stage-B lanes BUILT + PROVEN
+(2026-05-18); calibration proven; the F-D4a mini-proof PASSED; the
+**three-way D6 volume fan-out is IN PROGRESS** (35 / 624 evaluated as of
+this wrap). This is NOT a fresh start and NOT blocked -- it is a clean
+mid-loop budget wrap right after the Stage-B proof gate. Pick up the
+three-way volume loop where `--status` says it is.
 
 Open the Phase 3 executor prompt
 (`docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/phase-3-executor-prompt.md`)
@@ -139,14 +146,22 @@ the exact resumable loop and the batch-loop learnings.
 
 ## Live cursor state at this wrap (re-verify first thing -- a mismatch means investigate)
 
-- `--status`: **26 evaluated / 598 remaining** (command evaluated=22
-  remaining=336; cvar evaluated=4 remaining=255; info_key evaluated=0
+- `--status`: **35 evaluated / 589 remaining** (command evaluated=27
+  remaining=331; cvar evaluated=8 remaining=251; info_key evaluated=0
   remaining=7). `k_short_gib` terminal=true, counted-once (C4/D19/P3).
-- `--fingerprint`: **`87349f25a85a37b0c25e5529ea5600f5`** (was
-  `6062e6b3...` at session start -> `6320b04c...` after batch 1 ->
-  `87349f25...` after batch 2; it is non-vacuous, F-P3a fixed).
-- `git log --oneline -6` should still show
-  `546610a2`/`54b27d0f`/`c8a17cd3` plus the handoff-doc commits.
+- `--fingerprint`: **`9a5a7eaa5afab8d64ef14b501dd6b073`** (prior wrap
+  `87349f25...` -> `8ca316ee...` after cat-2 ChangeDM (+5) ->
+  `9a5a7eaa...` after the cat-3 k_fbskill slice (+4 net); non-vacuous,
+  F-P3a fixed; each cat-2/cat-3 persist had dry-run == live fp).
+- Evaluated cvar breakdown (8): non-fbskill `allow_timing`,
+  `k_admincode`, `k_noframechecks` (3, prior cat-1) + the 5-member
+  k_fbskill proof slice (`aim_accuracy`, `aim_lgpref`,
+  `movement_dodgefactor`, `reactiontime`, `wiggleframes`); one of those
+  5 was the pre-existing carried cat-3 member (idempotent). Evaluated
+  command (27) = the 22 prior cat-1 + the 5 ChangeDM `dmm1..dmm5`.
+- `git log --oneline` should show `2fd1421e` (the `--verify-binding`
+  helper) on top of `546610a2`/`54b27d0f`/`c8a17cd3` + the handoff-doc
+  commits.
 
 ## The remaining work (the bulk -- many terminals)
 
@@ -255,6 +270,80 @@ clean; collect, two-stage review, persist, discard detail, repeat):
   (the `k_noframechecks` polarity canary is a cvar, already calibrated)
   and genuine residue/hedge there.
 
+## The proven cat-2 / cat-3 lane recipes (Stage B -- use these verbatim)
+
+Both lanes are PROVEN (2026-05-18). They produce the SAME `D6Record`
+shape the cat-1 loop produces and feed the SAME `--persist`. The only
+new tool is `--verify-binding`. Per-lane recipe:
+
+### Cat-2 index-twin family lane (6 families; ChangeDM done)
+
+Remaining families + handler symbol + remaining counts (source-grep
+verified at anchor `67253dc9`; `--verify-binding <Handler>` is the
+authoritative live table):
+
+- `xfav_go` (`DEF(xfav_go)`, `Nfav_go` 1..20, commands.c ~866-885; 15
+  done in cat-1 batches -> ~5 remaining)
+- `favx_add` (`DEF(favx_add)`, `favN_add` 1..20, commands.c ~846-865;
+  20 remaining)
+- `UserMode` (`DEF(UserMode)`, presets 1..17 = `1on1`/`2on2`/`ffa`/
+  `ctf`/`hoonymode`/`blitz2v2`/`blitz4v4`/`2on2on2`/`3on3on3`/`4on4on4`/
+  `XonX`/`wipeout`/`carena`/`tot` + the `*on*`; commands.c 809-825;
+  ~6 done -> ~11 remaining -- name-regex undercounts, use the handler)
+- `TimeSet` (`DEF(TimeSet)`, `timeN` float `5.0f..30.0f`,
+  commands.c 763-768; 6 remaining)
+- `ksound` (`DEF(TeamSay)`, `ksoundN` 1..6, commands.c 770-775; 6
+  remaining -- family handler is `TeamSay`, members are `ksoundN`)
+- `ChangeDM` (`DEF(ChangeDM)`, `dmmN` 1..5, commands.c 725-729) -- DONE
+
+Per family: (1) `bun scripts/describe-fill/synthesize-ktx.ts
+--verify-binding <Handler>` -> the live per-member table (canonical_id /
+literal / line / manifest-consistency). (2) Dispatch ONE Opus
+(`subagent_type:"general-purpose"`, `model:"opus"`, MAX) family-eval
+sub-agent -- the ChangeDM brief is the verbatim template (read the
+shared `DEF(<Handler>)` handler body for the parameter axis; per-member
+literal->meaning; per-member self-contained `description`; the sharpened
+provenance + F-D6a requirements verbatim; include any plausible
+adjacent name as a candidate so the catch is exercised). (3) **F-D6a
+two-stage review:** independently grep every cited line at `67253dc9`
+(the proofs hit zero fabrication -- keep that bar). (4) **Divergence-
+catch:** diff the Opus per-member list against the `--verify-binding`
+table; any Opus-claimed member NOT in the live `DEF(<Handler>)` table
+(or with a different literal) is EJECTED to the cat-1 loop, NOT
+family-templated. (5) Expand fitting members -> one `D6Record` each
+(own `source_ref` = its cmd_t line, anchor, origin/verdict
+`synthesized`, provenance = CD_ define + cmd_t row + handler site).
+(6) shape-check -> `--persist --dry-run` (persisted==N, errors==0, fp
+moves) -> `--persist` -> `--status`/`--fingerprint` advanced by the
+fitting count. Records file:
+`output/describe-fill/phase3-records-cat2-<family>.json` (gitignored).
+
+### Cat-3 cohort-scaffold lane (k_fbskill_*, option b; 5 done, ~33 left)
+
+(1) `--verify-binding --cohort k_fbskill` reconfirms `MASS_REJECT`
+(0/38 fit) -- the classifier proof; never twin-collapse. (2) Take the
+remaining-NULL k_fbskill members from `--status` (skip the 5 done --
+the cursor is the source of truth; do NOT re-derive done members). A
+sub-namespace slice (`k_fbskill_aim_*`, `k_fbskill_vol_*`, other) per
+dispatch is clean. (3) Dispatch ONE Opus (MAX) cohort-scaffold
+sub-agent -- the proven slice brief is the verbatim template: ONE
+shared-mechanism pass (the frogbot skill-init -> `cvar(FB_CVAR_*)` ->
+`self->fb.skill.*` -> AI read-site chain) THEN each member INDIVIDUALLY
+source-grounded, mechanism-only (D8), NO semantic collapse, L3 tuning
+routed OUT per member. (4) F-D6a grep-verify every macro/RegisterCvar/
+skill-init/consumption/behaviour line (the slice proof spanned 6 files,
+all byte-exact -- keep that bar; the `:231` easy-mode divergence is
+real, flag don't collapse). (5) shape-check (distinct descriptions ==
+no collapse) -> `--persist --dry-run` -> `--persist` -> verify cursor.
+
+### Three-way routing for the residue (cvars/commands not in a family/cohort)
+
+Everything not a cat-2 `DEF()` family member and not `k_fbskill_*` is
+cat-1: the proven per-knob loop above, UNCHANGED. The manifest is
+ordered command-first; `--status` lists remaining canonical_ids. When a
+name-cluster looks twinnable, `--verify-binding <Handler>` decides:
+FAMILY_OK -> cat-2; no shared `DEF()` / MASS_REJECT -> cat-1 or cat-3.
+
 ## Critical rules (locked; carry verbatim from the executor prompt)
 
 - D6 + D7 are **Opus 4.7 MAX, spec-locked (D7), not lowerable**. "cheap"
@@ -288,16 +377,26 @@ clean; collect, two-stage review, persist, discard detail, repeat):
 
 1. Open the Phase 3 executor prompt; invoke `arc-executor`;
    spot-re-verify the live anchors: M=260/358/7 via psql; `--status` ==
-   **26 evaluated / 598 remaining**; `--fingerprint` ==
-   **`87349f25a85a37b0c25e5529ea5600f5`**; `git log --oneline -6` shows
-   `546610a2`/`54b27d0f`/`c8a17cd3`; F-D4a guard live (`IS DISTINCT
-   FROM`, not `IN`). A mismatch means investigate, not proceed.
-2. Resume the volume loop above with the SHARPENED dispatch prompt and
-   the grep-verify-claims discipline: `--status` -> next batch of ~10
-   Opus D6 sub-agents -> two-stage review (independently grep-verify any
-   line/conflict claim) -> assemble + json.load shape-check -> `--persist
-   --dry-run` -> `--persist` -> verify `--status`/`--fingerprint`
-   advanced. Pace to the context budget; this is many terminals.
+   **35 evaluated / 589 remaining** (command 27/331, cvar 8/251,
+   info_key 0/7); `--fingerprint` ==
+   **`9a5a7eaa5afab8d64ef14b501dd6b073`**; `git log --oneline` shows
+   `2fd1421e` on top of `546610a2`/`54b27d0f`/`c8a17cd3`; F-D4a guard
+   live (`IS DISTINCT FROM`, not `IN`); `bun
+   scripts/describe-fill/synthesize-ktx.ts --verify-binding ChangeDM`
+   prints FAMILY_OK. A mismatch means investigate, not proceed.
+2. Resume the THREE-way volume split (Stage B lanes are PROVEN -- use
+   "The proven cat-2 / cat-3 lane recipes" section verbatim). Suggested
+   order: finish cat-2 (5 remaining families, one Opus family-eval each,
+   ~48 members) -> cat-3 cohort-scaffold (~33 remaining k_fbskill, skip
+   the 5 done via the cursor) -> then the cat-1 bulk (the ~508
+   heterogeneous, the proven per-knob loop + SHARPENED dispatch +
+   grep-verify-claims). For every lane: two-stage review + F-D6a
+   grep-verify any line/handler/conflict claim BEFORE persist (the
+   proofs hit zero fabrication -- hold that bar), shape-check, `--persist
+   --dry-run` -> `--persist`, verify `--status`/`--fingerprint` advanced.
+   Pace to the context budget; this is still many terminals; wrap with
+   an updated copy of THIS handoff at the smell zone (advance counts +
+   fingerprint, keep the recipes + learnings).
 3. When all 624 are evaluated (`--status` 624/0 + k_short_gib intact),
    move to Task 3 (build + run the D7 tier-1 `gate()`), then Task 4
    (probe + harness + `--twice` + run report), then Task 5 (operator
