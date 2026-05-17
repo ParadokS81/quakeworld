@@ -67,6 +67,7 @@ from _handler_hud_elements import HudElementsEzquakeHandler  # noqa: E402
 from _handler_asset_cvar_bindings import AssetCvarBindingsEzquakeHandler  # noqa: E402
 from _handler_asset_loader_sites import AssetLoaderSitesEzquakeHandler  # noqa: E402
 from _handler_keynames import KeynamesEzquakeHandler  # noqa: E402
+from _handler_hud import HudCommandsEzquakeHandler  # noqa: E402
 
 REPO_ROOT = HERE.parent.parent.parent.parent.parent
 
@@ -77,19 +78,28 @@ REPO_ROOT = HERE.parent.parent.parent.parent.parent
 # To force OFF for the X3 baseline leg set the env var CALLGRAPH_OFF=1.
 ENABLE_CALLGRAPH_PASSENGER: bool = (os.environ.get("CALLGRAPH_OFF", "") != "1")
 
+# D2/D9/X4: per-fork gate for the Track-B HUD-commands handler. On for
+# ezQuake only (other forks have their own extract.py and never import
+# this handler -- the directory IS the per-fork gate, D22). Off => the
+# handler is never constructed, never in ALL_HANDLERS, never subscribed
+# => no 9th file, the 8 existing JSONs byte-for-byte today's pipeline.
+# To force OFF for the X3 baseline leg set the env var HUD_COMMANDS_OFF=1.
+ENABLE_HUD_COMMANDS_HANDLER: bool = (os.environ.get("HUD_COMMANDS_OFF", "") != "1")
+
 # Registry of all handlers. Add new entries as more extractors are ported.
-ALL_HANDLERS = {
-    h.name: h for h in [
-        CommandsEzquakeHandler(),
-        CvarsEzquakeHandler(),
-        MacrosEzquakeHandler(),
-        CmdlineEzquakeHandler(),
-        HudElementsEzquakeHandler(),
-        AssetCvarBindingsEzquakeHandler(),
-        AssetLoaderSitesEzquakeHandler(),
-        KeynamesEzquakeHandler(),
-    ]
-}
+_HANDLER_INSTANCES = [
+    CommandsEzquakeHandler(),
+    CvarsEzquakeHandler(),
+    MacrosEzquakeHandler(),
+    CmdlineEzquakeHandler(),
+    HudElementsEzquakeHandler(),
+    AssetCvarBindingsEzquakeHandler(),
+    AssetLoaderSitesEzquakeHandler(),
+    KeynamesEzquakeHandler(),
+]
+if ENABLE_HUD_COMMANDS_HANDLER:
+    _HANDLER_INSTANCES.append(HudCommandsEzquakeHandler())
+ALL_HANDLERS = {h.name: h for h in _HANDLER_INSTANCES}
 
 
 # ----- worker-process state -------------------------------------------------

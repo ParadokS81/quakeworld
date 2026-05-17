@@ -490,8 +490,16 @@ handler output would violate X3.
 - **Verification (X3, the actual command -- not prose):**
   ```
   cd apps/qw-oracle
-  # baseline: handler OFF (ENABLE_HUD_COMMANDS_HANDLER forced False)
-  python3 scripts/extractors/ezquake/extract.py \
+  # baseline: handler OFF via HUD_COMMANDS_OFF=1 (forces
+  # ENABLE_HUD_COMMANDS_HANDLER False -- the shipped seam idiom, mirroring
+  # Phase-1 CALLGRAPH_OFF).
+  # [ORCHESTRATOR CORRECTION 2026-05-18 -- review-findings F10] the original
+  # block set NO env var: a verbatim copy-run = two ON runs => X3 silent
+  # no-op (the F6-class hazard). The executor implemented the env-var seam
+  # (within this task's authorized least-invasive-form latitude) and ran X3
+  # with the baseline genuinely off; this fixes the literal text so a future
+  # copy-run is honest.
+  HUD_COMMANDS_OFF=1 python3 scripts/extractors/ezquake/extract.py \
     --output-dir /tmp/hud-off --workers 12
   # handler ON (default True)
   python3 scripts/extractors/ezquake/extract.py \
@@ -587,7 +595,9 @@ Operator runs, YES/NO:
    `python3 -c "import sys; sys.path.insert(0,'apps/qw-oracle/scripts/extractors/ezquake'); sys.path.insert(0,'apps/qw-oracle/scripts/extractors'); import _handler_hud as h; print(hasattr(h,'HudCommandsEzquakeHandler'))"`
    PASS condition: prints `True`.
 2. **X3 zero-diff non-corruption (the actual command, empty result):** run
-   the Task-2 Verification block. PASS condition: the `diff -q` loop over
+   the Task-2 Verification block (the baseline leg MUST set
+   `HUD_COMMANDS_OFF=1` -- review-findings F10). PASS condition: the
+   `diff -q` loop over
    all 8 EXISTING handler JSONs prints NOTHING (byte-identical off vs on),
    `ADDITIVE OK` prints, and the handler-ON 8 files also diff-empty against
    the prior committed HEAD entity JSON. FAIL condition: any non-empty diff

@@ -328,6 +328,44 @@ revise `_callgraph.py`'s not-compiled derivation to preprocessor-scoped +
 `verify-callgraph-probes.py` Gate 3 expected `cl_bobhead` server cell ->
 `reachable` (conclusion `build-excluded`), re-run the 3-gate GREEN.
 
+### F10 -- Phase-2 MD Task-2 X3 baseline-leg omits the OFF env var (F6-class copy-run silent-no-op)
+
+**Correction:** The Phase-2 MD Task-2 "Verification (X3 ...)" block (and
+phase-boundary check 2 which runs it) wrote the baseline leg as
+`python3 .../extract.py --output-dir /tmp/hud-off --workers 12` with the
+comment "handler OFF (ENABLE_HUD_COMMANDS_HANDLER forced False)" but set NO
+env var. The IMPLEMENTED + shipped seam (verified live in the Phase-2
+`extract.py` diff) is `ENABLE_HUD_COMMANDS_HANDLER =
+(os.environ.get("HUD_COMMANDS_OFF","") != "1")` -- it defaults ON; only
+`HUD_COMMANDS_OFF=1` forces it off (deliberately mirroring Phase-1's
+shipped `CALLGRAPH_OFF`). A verbatim copy-run of the MD block therefore
+produces TWO ON runs -> the 8-stem `diff -q` is empty for the WRONG reason
+-> X3 silently no-ops. EXACT same class as F6 (a phase MD's literal X3
+command that silently no-ops); the `feedback_verification_layer_catches_
+lift_residuals` shape -- surfaced by the executor at execution; the Phase-2
+draft + its verification sub-agent missed it.
+
+**Impact on this arc:** NONE on the shipped mechanism. The executor
+implemented the env-var seam (within the MD Task-2 "subagent picks the
+least-invasive concrete form" + "mirrors the operator-approved Phase-1
+Task-2 shape" latitude) and ran X3 with the baseline GENUINELY off
+(`HUD_COMMANDS_OFF=1`); the orchestrator independently re-ran X3 the same
+way (mktemp OFF vs ON) -- 8 F6 stems byte-identical, 9th additive,
+committed-baseline leg non-vacuous + clean. The defect is ONLY in the MD's
+literal command text (a future copy-run / validate-extractor re-run
+hazard), not in code or data.
+
+**Action for every phase shipping an env-var-gated X3 (B done corrected;
+S/ACC/APP):** the X3 baseline leg MUST explicitly set the handler's OFF
+env var; never a bare command + a "forced False" comment. Enumerate the
+OFF switch in the literal block (the F6 "enumerate the live stems"
+sibling -- here "enumerate the OFF switch").
+
+**Resolved by:** Phase-2 MD orchestrator-correction 2026-05-18 (dated note
+in its Task-2 block + phase-boundary check 2; narrative preserved -- the
+F6/F8/F9 house style; orchestrator-applied mechanical revision, no redraft,
+no D-amendment, operator-cleared at the Phase-2 boundary); this finding.
+
 ---
 
 ## R -- implementation residuals (brainstorm-deferred; owning phase resolves)
@@ -462,7 +500,8 @@ mechanism; **S** = unified schema + loader; **ACC** = acceptance contract;
 | F6 (X3 file set = live stems) | A (corrected) + B (correct) + S/APP | enumerate the 8 live output_filename stems; 9th additive |
 | F7 (dump embedded commit banner; "rests entirely on proxy" false) | ACC | correct Recon fact + detection README; embedded-SHA primary proxy leg (S2) |
 | F8 (cross-arc drift: sibling consumed mig `014` + grew quality-grid.ts post-freeze) | S (own) + ACC/APP (propagate) | executor-derive the mig ordinal; re-derive quality-grid.ts cites live; P3/P4/P5/README revised; no D-amendment |
-| F9 (D5 not-compiled underivable for build-system-excluded files; P1 Gate-3 RED; Recon premise refuted) | A (own) -> operator/orchestrator (D5-derivation amendment) | OPEN -- P1 executor HALT BLOCKED 2026-05-17; Option A (variant source-list) vs B (scope not-compiled to #ifdef-derivable + revise Gate 3); D3 not violated; operator-ratified `decisions.md` amendment |
+| F9 (D5 not-compiled underivable for build-system-excluded files; P1 Gate-3 RED; Recon premise refuted) | A (own) -> operator/orchestrator (D5-derivation amendment) | RESOLVED 2026-05-17 -- Option B operator-ratified; `decisions.md` D5 AMENDMENT 2026-05-17 (not-compiled = preprocessor-derivable only; D3 intact; D19/level-3 unaffected); P1 re-verified GREEN + SHIPPED `51604f67` (README Phase-1 shipped) |
+| F10 (Phase-2 MD Task-2 X3 baseline-leg omits the OFF env var; F6-class copy-run silent-no-op) | B (own) -> orchestrator (MD correction) | RESOLVED 2026-05-18 -- executor implemented the `HUD_COMMANDS_OFF` env-var seam + ran X3 genuinely off; orchestrator independently re-ran X3 clean + applied the dated Phase-2 MD correction; no code/data impact, no D-amendment |
 | R1 (AST-confirm literal) | B | AST probe before literal-only is load-bearing |
 | R2 (D15/D12 field shape) | S | two separate fields; feeder tag structural |
 | R3 (D16 element key) | B (emit) + S (store) | element-grouped provenance |
