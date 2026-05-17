@@ -1,8 +1,8 @@
 # Phase 3 executor resume handoff -- KTX source-synthesis (2026-05-17)
 
-> **!!! STAGE B IS BUILT + PROVEN 2026-05-18 -- resume the THREE-way
-> volume split !!!** The cat-2 index-twin lane + the cat-3 cohort-scaffold
-> lane are built, PROVED end-to-end, and already producing real persisted
+> **!!! STAGE B IS BUILT + PROVEN -- resume the THREE-way volume
+> split !!!** The cat-2 index-twin lane + the cat-3 cohort-scaffold
+> lane are built, PROVED end-to-end, and producing real persisted
 > volume. The HARD proof gate (the load-bearing Stage-B risk) is RETIRED.
 > The dated D6 amendment in
 > `docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/decisions.md`
@@ -19,41 +19,43 @@
 >   (k_fbskill 0/38 fit -> MASS_REJECT). Read-only; no DB/no entity touch.
 >   It is the ONLY new code; cat-2/cat-3 are executor-orchestrated
 >   processes reusing the existing `--persist`/`--status`/`--fingerprint`.
-> - **Cat-2 lane PROVEN on ChangeDM (5 members, end-to-end):** ONE
->   Opus-4.7-MAX family eval (dial NOT lowered) + `--verify-binding
->   ChangeDM` + the planted false-twin `dm` (real cmd, `ShowDMM` handler,
->   literal 0) EJECTED by the Opus eval AND the mechanical catch AND
->   proven untouched in the DB (still `source_inline`, no verdict ->
->   correctly a remaining cat-1 knob). dmm5 honestly `hedged` (the
->   confabulation guard working). F-D6a: every claim byte-verified.
->   Persisted idempotently (dry-run == live fp).
+> - **Cat-2 lane PROVEN + now run on 4 of 6 families** (ChangeDM prior;
+>   xfav_go + favx_add + UserMode this session 2026-05-18). Recipe held
+>   end-to-end every time: `--verify-binding` -> ONE Opus-4.7-MAX family
+>   eval -> F-D6a grep-verify EVERY cited line at `67253dc9` (zero
+>   fabrication across all 4 -- bar held) -> divergence-catch (planted/
+>   natural false-twin EJECTED by the Opus eval AND mechanically every
+>   time: ChangeDM `dm`, xfav_go `fav5_add`, favx_add bare `fav_add`,
+>   UserMode `totmode`) -> shape-check -> `--persist --dry-run` ==
+>   `--persist` (idempotent) -> cursor advanced by exactly the fitting
+>   count. UserMode confirmed the meatier sub-case (per-preset `_um_init`
+>   config, not pure slot-twins) still works in ONE eval.
 > - **Cat-3 lane PROVEN on a 5-member k_fbskill slice (option b):** ONE
 >   Opus-4.7-MAX shared-mechanism scaffold pass + 5 INDIVIDUAL,
 >   mechanically-distinct source-grounded records (non-collapse verified;
 >   D8 mechanism-only, L3 tuning routed OUT per member). F-D6a: ~20 line
 >   claims across 6 source files byte-verified incl. the reactiontime
 >   easy-mode `:231` vs `:180` divergence (flagged, not collapsed).
->   Persisted idempotently. ONE pre-existing done cat-3 member was in the
->   slice (idempotent re-persist: persisted=5, cursor +4 net) -- expected
->   per "1 done cat-3 carried"; cat-3 VOLUME must use the `--status`
->   cursor to skip done members (the proof-slice overlap was one-time).
+>   Persisted idempotently. cat-3 VOLUME must use the `--status` cursor
+>   to skip the proven-done members (the proof-slice overlap was
+>   one-time).
 >
 > The divergence-catch is a proven **CLASSIFIER, not only a safety net**.
 > F-D6a (independently grep-verify any sub-agent line/handler/conflict
 > claim BEFORE persist) applies per-member in ALL three lanes --
-> concentrated, not relaxed (proven: zero fabrication / zero off-by-one
-> across both Opus proofs vs the batch-1 precedent). The done laneable
+> concentrated, not relaxed (proven: zero fabrication across the prior
+> batch-1 precedent AND all 4 cat-2 family proofs). The done laneable
 > members are carried, NOT redone; `--status`/`--fingerprint` are the
 > idempotent cursor.
 
 Fresh-terminal resume for the **arc-executor** of Phase 3 of the
 `2026-05-16-ktx-mvdsv-l1-describe-fill` arc. Machinery (Tasks 1 +
-2-machinery) DONE + committed; the Stage-B lanes BUILT + PROVEN
-(2026-05-18); calibration proven; the F-D4a mini-proof PASSED; the
-**three-way D6 volume fan-out is IN PROGRESS** (35 / 624 evaluated as of
+2-machinery) DONE + committed; the Stage-B lanes BUILT + PROVEN; the
+**three-way D6 volume fan-out is IN PROGRESS** (71 / 624 evaluated as of
 this wrap). This is NOT a fresh start and NOT blocked -- it is a clean
-mid-loop budget wrap right after the Stage-B proof gate. Pick up the
-three-way volume loop where `--status` says it is.
+mid-loop budget wrap right after a strong cat-2 run (3 families,
++36 members, zero fabrication, all idempotent). Pick up the three-way
+volume loop where `--status` says it is.
 
 Open the Phase 3 executor prompt
 (`docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/phase-3-executor-prompt.md`)
@@ -62,292 +64,238 @@ would. This doc is the augmentation layer ON TOP of that prompt -- it
 records what is already verified + done so you do NOT re-derive it, plus
 the exact resumable loop and the batch-loop learnings.
 
-## Where things are (verified live this session 2026-05-17; do not re-derive blind, but DO re-verify)
+## Where things are (verified live 2026-05-18; re-verify, do not trust blind)
 
-- **Pre-flight CLEAN. Phase 0/1/2 verified EXECUTED** against live source
-  (not relayed) this session: commits `546610a2`/`54b27d0f`/`c8a17cd3`
-  present (`git log --oneline`); migration `014` applied (proven: the
-  `shipped_doc`/verdict/anchor columns carry live data); D6 skill
-  `~/.claude/skills/describe-fill-synthesis/` (SKILL.md + 4 references/)
-  present; D7 gate `apps/qw-oracle/scripts/describe-fill/review-gate.ts`
-  present; D11/D15 serializer
-  `apps/qw-oracle/scripts/load-knowledge/serialize-audit-review.ts`
-  present; F-D4a owned-row guard LIVE in
+- **Pre-flight CLEAN. Phase 0/1/2 verified EXECUTED** against live
+  source (re-verified this session): M denominators live = cvar **260**
+  / command **358** / info_key **7** (psql, POST-Phase-0 did not churn);
+  F-D4a owned-row guard LIVE in
   `scripts/load-knowledge/derive-entity-description.ts` -- phrased
   `description_origin IS DISTINCT FROM 'synthesized' AND ... IS DISTINCT
-  FROM 'shipped_doc'` (NULL-safe, membership-alone, NO anchor conjunct;
-  in deriveCvar + deriveCommand + the other 2 arc-bucket derivers; file
-  header documents the WHY). NOTE: a literal `grep "description_origin
-  IN"` returns nothing -- the guard uses `IS DISTINCT FROM`, not `IN`;
-  do not read that as "guard absent" (a prior-session grep false alarm).
+  FROM 'shipped_doc'` (NULL-safe, membership-alone). NOTE: a literal
+  `grep "description_origin IN"` returns nothing -- the guard uses `IS
+  DISTINCT FROM`, not `IN`; that is NOT "guard absent" (a recurring
+  prior-session grep false alarm -- do not re-raise it).
 - **Live denominators (POST-Phase-0, the C1 gate-shape):** cvar **260** /
   command **358** / info_key **7**. In-scope to fan = **624** (manifest
   excludes the idempotent Phase-1-terminal `k_short_gib`).
 - **Anchor (live, stamp every synthesized KTX row):**
-  `1.47-2-g67253dc` (ktx versions.commit_sha `67253dc9ab4f`, == ktx
-  clone `git describe --tags` and `git rev-parse --short=8 HEAD`).
-  Derived into the manifest packets; do not hardcode blind elsewhere.
+  `1.47-2-g67253dc` (ktx clone `git rev-parse --short=8 HEAD` ==
+  `67253dc9`, `git describe --tags` == `1.47-2-g67253dc`; re-verified
+  this session). Derived into the manifest packets; do not hardcode
+  blind elsewhere.
 - **Manifest:** `apps/qw-oracle/output/describe-fill/phase3-ktx-manifest.json`
-  (md5 `8c7a8682a336b1c118d61382378fb25e`, gitignored per F-D11b), 624
-  entities each carrying the full self-contained brief packet
-  (project/knob/anchor_version/mechanical_candidate/suspect_pool_member/
-  source_root/model_dial/output_contract/out_of_scope + source_ref +
-  research_aids_dir + canonical_id + entity_type) + an 11-entry
-  `config_drift_nonresolvers` section (D9 fill-not-create; no entity).
+  (gitignored per F-D11b), 624 entities each carrying the full
+  self-contained brief packet + an 11-entry `config_drift_nonresolvers`
+  section (D9 fill-not-create; no entity). Top-level keys:
+  `generated_against` / `entities` / `config_drift_nonresolvers`.
 - **F-C3c CONFIRMED live (Phase-0 artifact):** every KTX entity's
-  `suspect_pool_member = FALSE` (ktx/cvar 0 suspects; ktx/command leg
-  NON-DIAGNOSTIC/excluded). NO KTX entity is ever dead-stamped -- KTX
-  commands are described from source behaviour like any non-suspect knob.
-- **F-D11c CONFIRMED live:** `review-gate.ts` LOCKS the FLAT
-  `structured_choices?: Array<{value:string;label:string}>`. Phase-2
-  retained provenance is passed through UNCHANGED (per-source polarity
-  preserved). The `--persist` `D6Record` has NO `source_ref` column --
-  the synthesized row's citation rides the EXISTING
-  `cvar_versions`/`command_versions` source_file+source_line (P3/D6, no
-  new format); the C5 `synthesized_requires_source_ref` probe checks
-  that mechanism's EXISTENCE, not the record.
+  `suspect_pool_member = FALSE`. NO KTX entity is ever dead-stamped --
+  KTX commands described from source behaviour like any non-suspect knob.
+- **F-D11c / F-D9b** carried as in the prior wrap (flat
+  `structured_choices`, terminal-owned whole-record skip). Not exercised
+  by the cat-2 command lanes this session (commands carry no
+  structured_choices); will matter at the cvar bulk + cat-3.
 
 ## What is DONE + committed (do NOT rebuild)
 
 - **Task 1 (assembler)** -- commit `546610a2`. The deterministic
-  624-entity manifest (above).
+  624-entity manifest.
 - **Task 2 machinery (persist/status/fingerprint)** -- commit
   `54b27d0f`. `--persist <records.json> [--dry-run]` (idempotent UPSERT
-  matched by project+type+name, `tx.json` P2,
-  `UPDATE ... WHERE canonical_id` fill-not-create, `k_short_gib`
+  matched by **project+type+name** -- name == `entities.name`, see the
+  NEW learning below; `tx.json` P2, fill-not-create, `k_short_gib`
   whole-skip F-D9b/D19, `--dry-run` rolls back); `--status` = the
   cross-terminal resume cursor; `--fingerprint` = idempotency/F-D4a
-  baseline. **`gate()` (Task 3 D7 tier-1) is still a "not yet
-  implemented" stub** -- the volume loop is Task-2-only; Task 3 runs
-  AFTER all 624 are evaluated.
-- **F-P3a fix** -- commit `c8a17cd3`. `computeFingerprint(exec)` takes
-  the tx so `--persist` is non-vacuous (committed == dry-run would-be,
-  proven both batches this session).
-- **Calibration batch (6) PROVEN + persisted** (prior session): records
-  template `output/describe-fill/phase3-records-calibration.json`
-  (gitignored; the worked example shape -- command rows
-  `autotrackktx`/`10fav_go` show mc=none commands DO carry a populated
-  `description_provenance` JS array of read-site grounding entries).
-- **F-D4a mini-proof PASSED** (prior session): a real `re-derive
-  --project ktx --type cvar` left the owned-row set byte-identical;
-  the Phase-1-spine owned-row guard protects Phase-3 `synthesized`
-  rows. The FULL phase-boundary F-D4a proof is still the
-  final-terminal deliverable.
-- **Volume batches 1 + 2 persisted this session (20 KTX commands):**
-  batch-01 = `10on10`,`11fav_go`..`19fav_go`; batch-02 =
-  `1fav_go`,`1on1`,`20fav_go`,`2fav_go`,`2on2`,`2on2on2`,`3fav_go`,
-  `3on3`,`3on3on3`,`4fav_go`. All `synthesized|high`, anchor stamped,
-  read-site-grounded (xfav_go spectator-slot family / UserMode mode
-  presets), F-C3c honoured (none dead-stamped), D5-amendment applied
-  (CD_NODESC "no desc" / CD_ name-restatement / `.......etc........`
-  ditto-filler all treated as ONE input -> synthesize). Records:
-  `output/describe-fill/phase3-records-batch-01.json` +
-  `-batch-02.json` (gitignored; re-runnable, idempotent).
+  baseline. **`gate()` (Task 3 D7 tier-1) is still a stub** -- the
+  volume loop is Task-2-only; Task 3 runs AFTER all 624 are evaluated.
+- **F-P3a fix** -- commit `c8a17cd3`. `computeFingerprint(exec)` is
+  non-vacuous (committed == dry-run, proven every batch).
+- **`--verify-binding` helper** -- commit `2fd1421e`.
+- **Volume persisted to date (71 / 624 evaluated):**
+  - Prior sessions: calibration (6) + batch-01/02 (20 cat-1 commands) +
+    cat-2 ChangeDM (5) + cat-3 k_fbskill proof slice (net) -> 35.
+  - **This session (cat-2, +36):** xfav_go `5fav_go..9fav_go` (5);
+    favx_add `fav1_add..fav20_add` (20); UserMode `4on4 ffa ctf
+    hoonymode blitz2v2 blitz4v4 4on4on4 XonX wipeout carena tot` (11).
+    Records: `output/describe-fill/phase3-records-cat2-{xfav_go,favx_add,usermode}.json`
+    (gitignored; re-runnable, idempotent). All `synthesized`, anchor
+    stamped, F-D6a grep-verified zero-fabrication, divergence-catch
+    proven each.
 
 ## Live cursor state at this wrap (re-verify first thing -- a mismatch means investigate)
 
-- `--status`: **35 evaluated / 589 remaining** (command evaluated=27
-  remaining=331; cvar evaluated=8 remaining=251; info_key evaluated=0
+- `--status`: **71 evaluated / 553 remaining** (command evaluated=63
+  remaining=295; cvar evaluated=8 remaining=251; info_key evaluated=0
   remaining=7). `k_short_gib` terminal=true, counted-once (C4/D19/P3).
-- `--fingerprint`: **`9a5a7eaa5afab8d64ef14b501dd6b073`** (prior wrap
-  `87349f25...` -> `8ca316ee...` after cat-2 ChangeDM (+5) ->
-  `9a5a7eaa...` after the cat-3 k_fbskill slice (+4 net); non-vacuous,
-  F-P3a fixed; each cat-2/cat-3 persist had dry-run == live fp).
-- Evaluated cvar breakdown (8): non-fbskill `allow_timing`,
-  `k_admincode`, `k_noframechecks` (3, prior cat-1) + the 5-member
-  k_fbskill proof slice (`aim_accuracy`, `aim_lgpref`,
-  `movement_dodgefactor`, `reactiontime`, `wiggleframes`); one of those
-  5 was the pre-existing carried cat-3 member (idempotent). Evaluated
-  command (27) = the 22 prior cat-1 + the 5 ChangeDM `dmm1..dmm5`.
-- `git log --oneline` should show `2fd1421e` (the `--verify-binding`
-  helper) on top of `546610a2`/`54b27d0f`/`c8a17cd3` + the handoff-doc
-  commits.
+- `--fingerprint`: **`5c7e9c95784d9a3fdc03cbaa5299c406`**. Lineage this
+  session (each step had dry-run == live fp; non-vacuous, F-P3a):
+  `9a5a7eaa...` (prior wrap) -> `869c69c7...` (+xfav_go 5) ->
+  `eeb1a83e...` (+favx_add 20) -> `242fd007...` (transient: usermode
+  partial +10, the XonX knob-casing error) -> **`5c7e9c95...`** (after
+  the XonX fix re-persist, +11 usermode net; idempotent re-persist of
+  the 10 + the corrected 1, C4/P3 as designed).
+- Evaluated command (63) = 22 prior cat-1 + ChangeDM 5 + xfav_go 5 +
+  favx_add 20 + UserMode 11. Evaluated cvar (8) = unchanged from the
+  prior wrap (3 prior cat-1 + the 5-member k_fbskill proof slice).
+  info_key 0/7 untouched.
+- `git log --oneline` should show `2fd1421e` on top of
+  `546610a2`/`54b27d0f`/`c8a17cd3` + the handoff-doc/amendment commits.
 
 ## The remaining work (the bulk -- many terminals)
 
-1. **Task 2 volume D6 fan-out: 598 remaining knobs.** `--status` is the
-   cursor (any manifest entity with `description_verdict IS NULL`). The
-   manifest is ordered; the next remaining knobs are still the command
-   bucket (the `*on*` mode presets + remaining families), then cvars
-   (incl. the 100 `shipped_doc` candidates + the 38 bot `k_fbskill_*`
-   D8 set + residue), then 7 info_keys.
-2. **Task 3: D7 tier-1 independent re-check.** Build the `gate()` half
-   of `synthesize-ktx.ts` (stub throws). Wire `review-gate.ts` over
-   every `synthesized` row as an INDEPENDENT Opus-4.7-MAX invocation
-   (separate context from Task 2). PASS->commit; FAIL->one bounded
-   retry OR C1 residue. Mark the tier-2 tail set.
-3. **Task 4: the C5 probe + harness.** Add
-   `F1.describe_fill.synthesized_requires_source_ref` to
-   `quality-grid.ts` REGRESSION_PROBES; the coverage/residue/idempotency
-   harness + the `--twice` byte-identical proof + the run report.
-4. **Task 5: D7 tier-2 OPERATOR tail.** Emit the `serialize-audit-review.ts`
-   page (subagent, Sonnet medium -- a projection); operator works every
-   hedged + residue + C2-flagged D10 meaning-conflict + spot-check.
-   THIS is the phase boundary -- operator-run.
-5. **Phase-boundary verification** -- the 7 automated YES/NO probes +
-   the non-negotiable F-D4a owned-row re-derive-safe fingerprint pair +
-   `k_short_gib` byte-identical. Commit + halt. Do NOT proceed to
-   Phase 4. Do NOT re-run the holistic gate.
-
-## The resumable volume loop (the recipe that worked 26/26 so far)
-
-Per batch (size by context budget -- 10 parallel sub-agents/batch was
-clean; collect, two-stage review, persist, discard detail, repeat):
-
-1. Generate the next N from the manifest filtered to verdict-IS-NULL
-   (manifest order). One-liner pattern (worked this session):
-   `python3` reads `phase3-ktx-manifest.json`, subtracts the
-   `description_verdict IS NOT NULL` set from a `psql` query, takes the
-   first N, dumps their packets to a temp file.
-2. Dispatch N **Opus** sub-agents in ONE message
-   (`subagent_type:"general-purpose"`, `model:"opus"`; concurrent,
-   independent, no shared state). Each invokes the
-   `describe-fill-synthesis` Skill on exactly its packet. Brief = the
-   manifest packet ONLY + the per-finding reminders verbatim; the skill
-   hard-codes the rubric/guards (do NOT re-explain them). Each returns
-   one fenced ```json record (fields: project, knob, type, description,
-   description_origin, description_anchor_version, description_provenance,
-   description_verdict, description_confidence, description_reasoning,
-   description_proposed) + the one-line halt.
-3. Two-stage review the records; assemble into a batch records JSON
-   under `output/describe-fill/` (gitignored). `python3 json.load`
-   shape-check (10 records, all 11 D6Record fields, no extra keys,
-   provenance is array-or-null never a string, project/type/origin/
-   anchor/verdict correct). Then `--persist <batchfile> --dry-run`
-   (expect persisted==N, errors==0, would-be fingerprint != current),
-   then `--persist <batchfile>` (real). Verify `--status` advanced by N
-   and `--fingerprint` == the dry-run value.
-4. Approaching the smell zone -> wrap with an updated copy of THIS
-   handoff (advance counts + fingerprint, keep the recipe + learnings).
-   The DB is the source of truth; `--status` is the cursor; the loop is
-   fully idempotent (C4/P3) so re-persisting an already-applied batch is
-   safe.
-
-### Batch-loop learnings (carry forward -- these are proven, use them)
-
-- **Use the SHARPENED dispatch prompt** (batch 2 used it: 0
-  re-dispatches vs batch 1's 4). Beyond the packet + per-finding
-  reminders, state UPFRONT, verbatim:
-  (a) "`description_provenance` MUST be a populated JS array (NEVER
-  null, NEVER pre-stringified), each entry shaped exactly
-  `{source_file, source_line:int, shipped_value:string|null,
-  raw_comment:string|null}`, mirroring the calibration `10fav_go`/
-  `10on10` precedent (CD_/CD_NODESC define line, cmd_t registration row,
-  authoritative handler/mode-init site, cited companion/dispatcher)";
-  (b) "verify EVERY source line by grepping the live tree at HEAD
-  67253dc9 == anchor; do NOT reason line numbers from memory; the
-  L1/manifest source_ref is byte-accurate at this anchor -- do NOT
-  assert an off-by-one and do NOT fabricate a C2 conflict that does not
-  exist (only a GENUINE meaning/polarity inversion gets a C2 note)";
-  (c) "do NOT add a top-level `source_ref` field".
-- **Two-stage review MUST independently grep-verify any subagent claim
-  of a source-line discrepancy or C2 conflict BEFORE persisting.**
-  Batch 1 precedent: a sub-agent fabricated a "L1 says 879 / live 880
-  off-by-one" with a C2-style note for the D7 tail; `grep -n` disproved
-  it (live IS 879, L1 IS 879, byte-exact). Accepting it would have
-  persisted wrong provenance + a fabricated narrative misleading the D7
-  operator tail. A sub-agent factual claim is a hypothesis until you
-  grep/SQL it (CLAUDE.md verification discipline;
-  `feedback_verify_dispatched_terminal_claims`).
-- **An extraneous top-level `source_ref` key is HARMLESS** (the persist
-  path only binds the 11 known D6Record fields; unknown keys are
-  ignored). Strip it during batch assembly for calibration-shape
-  consistency -- do NOT bounce a sub-agent just for that (mechanical
-  cleanup, not a content defect).
-- **Transcription fidelity matters at assembly.** The reasoning/raw_comment
-  strings are long with embedded quotes; write the batch JSON, then
-  `python3 json.load` it BEFORE `--persist` (a malformed file fails the
-  whole batch). Re-emit `track %d\n`-style sequences as plain text in
-  raw_comment to avoid JSON-escape ambiguity (the value-correctness
-  lives in description/reasoning, raw_comment is evidence-trail prose).
-- **Batch shape:** the manifest is ordered with the command bucket
-  first; the `*fav_go` family (xfav_go spectator-slot, CD_NODESC) and
-  the `*on*` UserMode presets (CD_ name-restatement -> _Xon X_um_init)
-  are contiguous, homogeneous, fully source-legible -> clean 10-knob
-  batches, all `synthesized|high`. Expect this through the command
-  bucket; cvars (shipped_doc candidates, bot k_fbskill_* D8, residue)
-  will be more heterogeneous -- watch for real C2 meaning-conflicts
-  (the `k_noframechecks` polarity canary is a cvar, already calibrated)
-  and genuine residue/hedge there.
+1. **cat-2 -- 2 families left (~12 members).** `TimeSet`
+   (`DEF(TimeSet)`, `timeN` float 5.0f..30.0f, commands.c 763-768; 6
+   remaining -- pure float index-twins, the simplest remaining family,
+   xfav_go-class) and `ksound` (members `ksoundN` 1..6 but the SHARED
+   HANDLER is `DEF(TeamSay)` -- use `--verify-binding TeamSay`,
+   commands.c 770-775; 6 remaining). ChangeDM/xfav_go/favx_add/UserMode
+   DONE (carried, idempotent).
+2. **cat-3 -- k_fbskill cohort-scaffold (option b).** ~33 remaining
+   (skip the proven-done via the `--status` cursor). Recipe unchanged
+   (below).
+3. **cat-1 bulk -- ~508 heterogeneous.** The proven per-knob loop +
+   SHARPENED dispatch + grep-verify-claims. Manifest-ordered
+   command-first, then cvars (incl. shipped_doc candidates + residue),
+   then 7 info_keys.
+4. **Then Task 3 (build + run the D7 tier-1 `gate()`), Task 4 (C5
+   probe + harness + `--twice` + run report), Task 5 (operator tail),
+   then the phase-boundary block** incl. the verbatim F-D4a
+   re-derive-safe fingerprint pair + `k_short_gib` byte-identical.
+   Halt; do NOT proceed to Phase 4; do NOT re-run the holistic gate.
 
 ## The proven cat-2 / cat-3 lane recipes (Stage B -- use these verbatim)
 
-Both lanes are PROVEN (2026-05-18). They produce the SAME `D6Record`
-shape the cat-1 loop produces and feed the SAME `--persist`. The only
-new tool is `--verify-binding`. Per-lane recipe:
+Both lanes PROVEN. They produce the SAME `D6Record` shape the cat-1
+loop produces and feed the SAME `--persist`. Only new tool:
+`--verify-binding`.
 
-### Cat-2 index-twin family lane (6 families; ChangeDM done)
+### Cat-2 index-twin family lane (PROVEN 4x: ChangeDM/xfav_go/favx_add/UserMode)
 
-Remaining families + handler symbol + remaining counts (source-grep
-verified at anchor `67253dc9`; `--verify-binding <Handler>` is the
-authoritative live table):
-
-- `xfav_go` (`DEF(xfav_go)`, `Nfav_go` 1..20, commands.c ~866-885; 15
-  done in cat-1 batches -> ~5 remaining)
-- `favx_add` (`DEF(favx_add)`, `favN_add` 1..20, commands.c ~846-865;
-  20 remaining)
-- `UserMode` (`DEF(UserMode)`, presets 1..17 = `1on1`/`2on2`/`ffa`/
-  `ctf`/`hoonymode`/`blitz2v2`/`blitz4v4`/`2on2on2`/`3on3on3`/`4on4on4`/
-  `XonX`/`wipeout`/`carena`/`tot` + the `*on*`; commands.c 809-825;
-  ~6 done -> ~11 remaining -- name-regex undercounts, use the handler)
-- `TimeSet` (`DEF(TimeSet)`, `timeN` float `5.0f..30.0f`,
-  commands.c 763-768; 6 remaining)
-- `ksound` (`DEF(TeamSay)`, `ksoundN` 1..6, commands.c 770-775; 6
-  remaining -- family handler is `TeamSay`, members are `ksoundN`)
-- `ChangeDM` (`DEF(ChangeDM)`, `dmmN` 1..5, commands.c 725-729) -- DONE
+Remaining families + handler symbol:
+- `TimeSet` (`DEF(TimeSet)`, `timeN` 5.0f..30.0f, commands.c 763-768;
+  6 remaining)
+- `ksound` (`DEF(TeamSay)`, members `ksoundN` 1..6, commands.c 770-775;
+  6 remaining -- family handler is `TeamSay`, members are `ksoundN`;
+  `--verify-binding TeamSay`)
+- DONE: ChangeDM, xfav_go, favx_add, UserMode.
 
 Per family: (1) `bun scripts/describe-fill/synthesize-ktx.ts
 --verify-binding <Handler>` -> the live per-member table (canonical_id /
-literal / line / manifest-consistency). (2) Dispatch ONE Opus
-(`subagent_type:"general-purpose"`, `model:"opus"`, MAX) family-eval
-sub-agent -- the ChangeDM brief is the verbatim template (read the
-shared `DEF(<Handler>)` handler body for the parameter axis; per-member
-literal->meaning; per-member self-contained `description`; the sharpened
-provenance + F-D6a requirements verbatim; include any plausible
-adjacent name as a candidate so the catch is exercised). (3) **F-D6a
-two-stage review:** independently grep every cited line at `67253dc9`
-(the proofs hit zero fabrication -- keep that bar). (4) **Divergence-
-catch:** diff the Opus per-member list against the `--verify-binding`
-table; any Opus-claimed member NOT in the live `DEF(<Handler>)` table
-(or with a different literal) is EJECTED to the cat-1 loop, NOT
-family-templated. (5) Expand fitting members -> one `D6Record` each
-(own `source_ref` = its cmd_t line, anchor, origin/verdict
-`synthesized`, provenance = CD_ define + cmd_t row + handler site).
-(6) shape-check -> `--persist --dry-run` (persisted==N, errors==0, fp
-moves) -> `--persist` -> `--status`/`--fingerprint` advanced by the
-fitting count. Records file:
+literal / line / manifest-consistency). Cross-ref `--status` for the
+verdict-NULL subset (use an EXACT set intersection, NOT substring grep
+-- `comm -12` of sorted exact id lists; substring matched
+`ctf`->`ctfbasedspawn` / `4on4`->`4on4on4` this session). (2) Dispatch
+ONE Opus (`subagent_type:"general-purpose"`, `model:"opus"`, MAX)
+family-eval sub-agent -- the proven brief template: read the shared
+`DEF(<Handler>)` body for the parameter axis; per-member literal ->
+meaning; per-member self-contained `description`; the sharpened
+provenance + F-D6a requirements verbatim; include a plausible adjacent
+real-command-different-handler name as the planted false-twin so the
+catch is exercised (ChangeDM `dm`/ShowDMM, xfav_go `fav5_add`/favx_add,
+favx_add bare `fav_add`, UserMode `totmode`/ToggleToT all worked).
+(3) **F-D6a two-stage review:** independently grep EVERY cited line at
+`67253dc9` -- structural anchors AND the load-bearing config values
+(for config-applying families like UserMode, spot-check the actual
+asserted cvar values in the `_um_init`/handler body, not just that the
+line exists; the wipeout-vs-carena distinguishing values were the
+highest-risk check and were exact). Zero fabrication is the held bar.
+(4) **Divergence-catch:** diff the Opus per-member list against the
+`--verify-binding` table; any Opus-claimed member NOT in the live table
+(or a different literal/handler) is EJECTED to cat-1, NOT
+family-templated. (5) Expand fitting members -> one `D6Record` each.
+(6) shape-check (python3 json.load + 11-field + provenance-array) ->
+`--persist --dry-run` (persisted==N, errors==0, fp moves) ->
+`--persist` -> `--status`/`--fingerprint` advanced by the fitting
+count. Records file:
 `output/describe-fill/phase3-records-cat2-<family>.json` (gitignored).
 
-### Cat-3 cohort-scaffold lane (k_fbskill_*, option b; 5 done, ~33 left)
+### Cat-3 cohort-scaffold lane (k_fbskill_*, option b; ~33 remaining)
 
 (1) `--verify-binding --cohort k_fbskill` reconfirms `MASS_REJECT`
 (0/38 fit) -- the classifier proof; never twin-collapse. (2) Take the
-remaining-NULL k_fbskill members from `--status` (skip the 5 done --
-the cursor is the source of truth; do NOT re-derive done members). A
-sub-namespace slice (`k_fbskill_aim_*`, `k_fbskill_vol_*`, other) per
-dispatch is clean. (3) Dispatch ONE Opus (MAX) cohort-scaffold
-sub-agent -- the proven slice brief is the verbatim template: ONE
+remaining-NULL k_fbskill members from `--status` (skip the proven done
+-- the cursor is the source of truth). A sub-namespace slice
+(`k_fbskill_aim_*`, `k_fbskill_vol_*`, other) per dispatch is clean.
+(3) Dispatch ONE Opus (MAX) cohort-scaffold sub-agent: ONE
 shared-mechanism pass (the frogbot skill-init -> `cvar(FB_CVAR_*)` ->
 `self->fb.skill.*` -> AI read-site chain) THEN each member INDIVIDUALLY
 source-grounded, mechanism-only (D8), NO semantic collapse, L3 tuning
 routed OUT per member. (4) F-D6a grep-verify every macro/RegisterCvar/
-skill-init/consumption/behaviour line (the slice proof spanned 6 files,
-all byte-exact -- keep that bar; the `:231` easy-mode divergence is
-real, flag don't collapse). (5) shape-check (distinct descriptions ==
-no collapse) -> `--persist --dry-run` -> `--persist` -> verify cursor.
+skill-init/consumption/behaviour line at `67253dc9` (the slice proof
+spanned 6 files, all byte-exact; the `:231` easy-mode divergence is
+real -- flag, don't collapse). (5) shape-check (distinct descriptions
+== no collapse) -> `--persist --dry-run` -> `--persist` -> verify
+cursor.
 
-### Three-way routing for the residue (cvars/commands not in a family/cohort)
+### Three-way routing for the residue (cat-1)
 
 Everything not a cat-2 `DEF()` family member and not `k_fbskill_*` is
-cat-1: the proven per-knob loop above, UNCHANGED. The manifest is
-ordered command-first; `--status` lists remaining canonical_ids. When a
+cat-1: the proven per-knob loop, UNCHANGED. The manifest is ordered
+command-first; `--status` lists remaining canonical_ids. When a
 name-cluster looks twinnable, `--verify-binding <Handler>` decides:
 FAMILY_OK -> cat-2; no shared `DEF()` / MASS_REJECT -> cat-1 or cat-3.
+
+## Batch-loop learnings (carry forward -- proven, use them)
+
+- **NEW 2026-05-18 -- mixed-case source names (load-bearing).**
+  `--persist` matches each record to its entity by **project + type +
+  `knob`**, where `knob` must equal the entity's `entities.name`
+  column. The loader preserves SOURCE CASE in `entities.name` but
+  lowercases `canonical_id` (F-D10b). So for a member whose source name
+  is mixed-case (e.g. cmd_t `"XonX"`): `canonical_id` =
+  `ktx:command:xonx` (lowercased) but `entities.name` = `XonX`, and the
+  record's `knob` MUST be **`XonX`** (source case), NOT the lowercased
+  canonical suffix. Setting `knob:"xonx"` -> `ERROR knob=xonx: entity
+  not found (D9 fill-not-create)`. Symptom: a partial persist
+  (`persisted: N-1, errors: 1`) where exactly the mixed-case member
+  fails. Fix in-task: set that record's `knob` to the source-case
+  entity name, re-persist (idempotent -- the already-persisted re-UPSERT
+  identically, C4/P3). The `--verify-binding` table prints
+  `ktx:command:xonx` (canonical, lowercased) -- to get the persist
+  `knob` use `entities.name` (psql) or the manifest packet's `knob`
+  field (it is `row.name`, source case). Watch every future family/
+  cohort/cat-1 knob with upper-case letters in source.
+- **Use the SHARPENED dispatch prompt** (verbatim, UPFRONT):
+  (a) `description_provenance` MUST be a populated JS array (NEVER null,
+  NEVER pre-stringified), each entry exactly `{source_file,
+  source_line:int, shipped_value:string|null, raw_comment:string|null}`;
+  (b) verify EVERY source line by grepping the live tree at HEAD
+  `67253dc9` == anchor; do NOT reason line numbers from memory; do NOT
+  assert an off-by-one and do NOT fabricate a C2 conflict that does not
+  exist; (c) do NOT add a top-level `source_ref` field.
+- **F-D6a two-stage review is the dispatcher's job and is
+  non-negotiable.** A sub-agent factual claim (line numbers, handler
+  identity, asserted config values, conflicts) is a HYPOTHESIS until
+  grep/psql-verified. For config-applying families, verify the asserted
+  cvar VALUES against the source body, not only that the cited line
+  exists (CLAUDE.md verification discipline;
+  `feedback_verify_dispatched_terminal_claims`). All 4 cat-2 proofs hit
+  zero fabrication -- hold that bar; do not relax it under budget
+  pressure (wrap instead).
+- **Large subagent outputs persist to a file** (the favx_add 20-record
+  output was 56KB -> tool-results file). Extract the ```json block with
+  a small python3 reader + shape-check + write the records file in ONE
+  step (keeps ~25k tokens out of context -- budget-efficient). For
+  inline outputs, transcribe faithfully then `python3 json.load` before
+  `--persist`.
+- **Exact set intersection for "remaining members," never substring.**
+  `comm -12` two sorted exact-id lists. Substring grep mis-matched
+  `ctf`->`ctfbasedspawn`, `tot`->`totmode`, `4on4`->`4on4on4`,
+  `2on2`->`2on2on2` this session.
+- **Cat-2 covers meatier sub-cases too.** UserMode members are not pure
+  slot-twins -- each preset applies a distinct `_um_init` config blob.
+  Still ONE family eval (the family is the unit; per-member meaning
+  enumerated within it -- D6 amendment). The terse CD strings ("FFA
+  settings", "toggle wipeout", `....etc....` ditto-filler, CD_NODESC)
+  are ALL "no genuine user description" per D5-amendment -> synthesize
+  from behaviour, record the CD string as `shipped_value`.
 
 ## Critical rules (locked; carry verbatim from the executor prompt)
 
 - D6 + D7 are **Opus 4.7 MAX, spec-locked (D7), not lowerable**. "cheap"
-  = the in-invocation fast-affirm early exit, never a cheaper model.
+  = the in-invocation fast-affirm early exit, never a cheaper model. The
+  cat-2 family eval IS Opus-4.7-MAX (the family is the unit).
 - **F-C3c: never D6-dead-stamp a KTX entity** (suspect_pool_member
   FALSE arc-wide). Describe from source; not source-legible ->
   hedge/residue (never guess, never dead-stamp).
@@ -361,9 +309,9 @@ FAMILY_OK -> cat-2; no shared `DEF()` / MASS_REJECT -> cat-1 or cat-3.
   cross-reference source evidence only; do NOT create a KTX
   `sv_antilag` entity, do NOT extract the `dusty-*` fork, do NOT
   classify reachability.
-- C1: residue is tracked + enumerated to the C1-outreach track, never
-  importance-cut; M (260/358/7) is never lowered. The 11 config-drift
-  non-resolvers are recorded + routed, never created (D9).
+- C1: residue is tracked + enumerated, never importance-cut; M
+  (260/358/7) never lowered. The 11 config-drift non-resolvers are
+  recorded + routed, never created (D9).
 - P1-P5: Bun, append-only migrations + SCHEMA.md, main-tree commit-on-
   main (no PR/worktree; run git silently; commit ONLY this arc's files
   -- the pre-existing parallel-arc working-tree drift is NOT ours),
@@ -377,26 +325,27 @@ FAMILY_OK -> cat-2; no shared `DEF()` / MASS_REJECT -> cat-1 or cat-3.
 
 1. Open the Phase 3 executor prompt; invoke `arc-executor`;
    spot-re-verify the live anchors: M=260/358/7 via psql; `--status` ==
-   **35 evaluated / 589 remaining** (command 27/331, cvar 8/251,
+   **71 evaluated / 553 remaining** (command 63/295, cvar 8/251,
    info_key 0/7); `--fingerprint` ==
-   **`9a5a7eaa5afab8d64ef14b501dd6b073`**; `git log --oneline` shows
+   **`5c7e9c95784d9a3fdc03cbaa5299c406`**; `git log --oneline` shows
    `2fd1421e` on top of `546610a2`/`54b27d0f`/`c8a17cd3`; F-D4a guard
    live (`IS DISTINCT FROM`, not `IN`); `bun
    scripts/describe-fill/synthesize-ktx.ts --verify-binding ChangeDM`
    prints FAMILY_OK. A mismatch means investigate, not proceed.
-2. Resume the THREE-way volume split (Stage B lanes are PROVEN -- use
-   "The proven cat-2 / cat-3 lane recipes" section verbatim). Suggested
-   order: finish cat-2 (5 remaining families, one Opus family-eval each,
-   ~48 members) -> cat-3 cohort-scaffold (~33 remaining k_fbskill, skip
-   the 5 done via the cursor) -> then the cat-1 bulk (the ~508
+2. Resume the THREE-way volume split (use "The proven cat-2 / cat-3
+   lane recipes" verbatim). Suggested order: finish cat-2 (TimeSet 6 ->
+   ksound 6 via `--verify-binding TeamSay`, ~12 members, one Opus
+   family-eval each) -> cat-3 cohort-scaffold (~33 remaining k_fbskill,
+   skip done via the cursor) -> then the cat-1 bulk (~508
    heterogeneous, the proven per-knob loop + SHARPENED dispatch +
-   grep-verify-claims). For every lane: two-stage review + F-D6a
-   grep-verify any line/handler/conflict claim BEFORE persist (the
-   proofs hit zero fabrication -- hold that bar), shape-check, `--persist
-   --dry-run` -> `--persist`, verify `--status`/`--fingerprint` advanced.
-   Pace to the context budget; this is still many terminals; wrap with
-   an updated copy of THIS handoff at the smell zone (advance counts +
-   fingerprint, keep the recipes + learnings).
+   grep-verify-claims). For EVERY lane: two-stage review + F-D6a
+   grep-verify any line/handler/conflict/config-value claim BEFORE
+   persist (zero fabrication is the held bar -- 4 cat-2 proofs clean),
+   watch mixed-case knobs (the NEW learning), shape-check, `--persist
+   --dry-run` -> `--persist`, verify `--status`/`--fingerprint`
+   advanced. Pace to the context budget; this is still many terminals;
+   wrap with an updated copy of THIS handoff at the smell zone (advance
+   counts + fingerprint, keep the recipes + learnings).
 3. When all 624 are evaluated (`--status` 624/0 + k_short_gib intact),
    move to Task 3 (build + run the D7 tier-1 `gate()`), then Task 4
    (probe + harness + `--twice` + run report), then Task 5 (operator
@@ -410,7 +359,7 @@ are the contract; this doc is the verified-state shortcut. If this doc
 and the live DB disagree, the live DB wins (re-derive). If a D6
 sub-agent is unsure it must hedge/residue-route (never guess) -- that is
 the designed behaviour, tracked not dropped (C1). A sub-agent factual
-claim (line numbers, conflicts) is a hypothesis -- grep/SQL it before
-persisting. Do not push D6/D7 (highest-judgment) work past the smell
-zone -- wrap and hand off; one extra terminal is cheap, a degraded
-shipped L1 description is not.
+claim (line numbers, conflicts, asserted config values) is a hypothesis
+-- grep/SQL it before persisting. Do not push D6/D7 (highest-judgment)
+work past the smell zone -- wrap and hand off; one extra terminal is
+cheap, a degraded shipped L1 description is not.
