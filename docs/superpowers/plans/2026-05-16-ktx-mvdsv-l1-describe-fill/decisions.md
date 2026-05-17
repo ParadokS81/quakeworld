@@ -247,6 +247,25 @@ provenance-entry-exists and jsonb-not-string probes (extends P2's existing
 scope; the gate placement is locked. A phase that introduces its data shape
 without its probe is incomplete.
 
+**Clarification 2026-05-17 (orchestrator, Phase 1 execution -- the locked
+reading, not a change; the C5 honesty probes are arc-scoped).** "Four data
+shapes THIS ARC adds" is arc-scoped by construction: the C5 probes gate the
+D1 configurable buckets this arc owns -- `project IN ('ktx','mvdsv') AND
+type IN ('cvar','command','cmdline_param','info_key')`, the same predicate
+`F1.describe_fill.origin_vocabulary` already uses. Pre-existing
+structural-tier `synthesized` rows (the 7 `ktx:match_event:*`, templated by
+`deriveMatchEvent`; `description_anchor_version` NULL by design per
+migrations 012/014; out of D1 scope -- the locked "Confirmed-good"
+structural-tier exclusion) are NOT a shape this arc adds and MUST NOT gate
+its phase boundary. The Phase-1 MD's `synthesized_requires_anchor` step had
+been written globally with a "0 synthesized rows at baseline" claim (false:
+7 exist; orchestrator-verified live 2026-05-17) -- a drafter slip the Phase 1
+executor's verification discipline caught and the orchestrator adjudicated
+(arc-scope it: it is the MD's own already-specified guard, not a new
+choice). Tracked: review-findings F-C5b. Cross-cutting (Phase 1 ships the
+probe; every later fill phase re-runs it). Not a lock change -- C5 + D1
+already entail arc-scope; recorded so it is not relitigated.
+
 ---
 
 ## D1 -- Data boundary: configurable buckets only; no L3 prose

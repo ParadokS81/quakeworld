@@ -173,6 +173,16 @@ This arc builds the foundation; it does not write L3 concept notes.
   showcase). Phase-boundary gate, not a final-phase afterthought: a shape's
   probe lands in the same phase that first writes that shape.
 
+  **Clarification 2026-05-17 (mirrors `decisions.md` C5 clarification; see
+  decisions.md + the Phase-1 MD for the phase-facing detail).** The C5
+  probes are arc-scoped to the D1 configurable buckets this arc owns
+  (`project IN ('ktx','mvdsv')` and
+  `type IN ('cvar','command','cmdline_param','info_key')`). Pre-existing
+  structural-tier `synthesized` rows (ktx `match_event` etc.; NULL-anchor
+  by design, migrations 012/014; out of D1 scope) are not a shape this arc
+  adds and must not gate its phase boundary. Tracked: review-findings
+  F-C5b (a Phase-1-MD global-probe drafter slip, caught at execution).
+
 ### Lessons honored structurally (cross-reference, not restated as constraints)
 
 The operator asked for the hard-earned ezQuake/MVDSV documentation lessons

@@ -292,6 +292,43 @@ amended-vs-original) + concise mirrored dated blocks under spec
 D2/D4/D7/D9/D11 (the C3 amendment + the D17 ~157->109 correction were
 already mirrored -- the template pattern).
 
+### F-C5b -- the Phase-1 `synthesized_requires_anchor` probe was specified globally; FAILs at baseline on 7 out-of-scope structural-tier rows
+
+**Surfaced by:** the Phase 1 executor's verification discipline at
+execution 2026-05-17 (the F-D4a-class catch per-phase review missed -- the
+drafter verified the arc-scope origin distribution but wrote the anchor
+probe globally and asserted "0 synthesized at baseline").
+
+**Contained by:** arc-scoping the probe to the D1 configurable buckets --
+the same `project IN ('ktx','mvdsv') AND type IN
+('cvar','command','cmdline_param','info_key')` guard its sibling
+`F1.describe_fill.origin_vocabulary` already carries (Phase-1 MD lines
+279-283) + the dated decisions.md C5 clarification 2026-05-17 + the
+Phase-1-MD correction 2026-05-17.
+
+**Evidence (orchestrator-verified live 2026-05-17, docker psql -- not the
+executor's word):** exactly 7 `synthesized` rows exist --
+`ktx:match_event:{damage,death,pick_mapitem,pick_powerup,drop_powerup,
+pick_backpack,drop_backpack}`, all `description_anchor_version IS NULL`. A
+literal global probe FAILs at baseline with 7 offenders, breaking Phase-1
+phase-boundary check 3 on legitimate out-of-scope data. Arc-scoped count =
+0 -> vacuously GREEN exactly as the MD intends. Migrations 012 (line 114:
+"match_event will populate via deriveMatchEvent origin='synthesized' in
+this same arc") + 014 (NULL anchor by design, no backfill) corroborate the
+rows are expected, templated, out of D1 scope (the locked structural-tier
+"Confirmed-good" exclusion lists `match_events (7)`).
+
+**Risk:** RETIRED -- adjudicated Option 1 (orchestrator, decisive: it is
+the MD's own already-specified arc-scope guard + the `origin_vocabulary`
+precedent, not a new design choice -- not operator-polled). Rejected:
+global-minus-`match_event` (a blocklist coupled to a structural-tier type
+name; the structural tier has many `synthesized`-stamping derivers per 012
+-- accretes special-cases; PoSD/grug-fail).
+
+**Phase:** Phase 1 (ship the probe arc-scoped, mirror the
+`origin_vocabulary` guard), every later fill phase (re-runs it at its
+boundary).
+
 ## Boundary risks (out-of-scope items a drafter might wrongly pull in)
 
 ### F-D10b -- case-fidelity loader is a soft dependency, NOT this arc
@@ -413,6 +450,7 @@ consumes; do not implement the wiki side).
 | F-D11a (audit HTML generator absent) | Substantive | Phase 1 |
 | F-D13a (MCP contract surface delta) | Substantive | Phase 5 |
 | F-C1a (Phase-2 hardcoded M=260; Phase-0 re-baselines) | Substantive | Phase 2 (recon POST-Phase-0 M, no hardcoded 260), Phase 0 (produces the re-baseline) -- Correction 1 committed `d0bd2068` |
+| F-C5b (synthesized-anchor probe was global; arc-scoped) | Substantive | Phase 1 (ship arc-scoped, mirror the `origin_vocabulary` guard), all fill phases (re-run) -- adjudicated Option 1 2026-05-17 |
 | F-D10b (case-fidelity soft dep) | Boundary | Phase 5 (note only) |
 | F-D10c (dusty-* fork separate arc) | Boundary | Phase 3 (note only) |
 | F-C3b (reachability parked arc) | Boundary | Phase 0 + Phase 3 (note only) |

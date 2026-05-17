@@ -282,9 +282,18 @@ n/a   # Phase 1 is purely additive; the loader-fix delete-shaped change is Phase
         'shipped_doc')` whenever `description IS NOT NULL`. `status='FAIL'`
         with offending rows in `examples` on any violation, else `'PASS'`.
   - [ ] Write `probeDescribeFillSynthesizedRequiresAnchor` returning
-        `ProbeResult`: every `entities` row with
-        `description_origin='synthesized'` has a non-NULL
-        `description_anchor_version`. `FAIL` lists offenders, else `PASS`.
+        `ProbeResult`. ARC-SCOPED -- mirror the `origin_vocabulary` (ii)
+        guard's predicate exactly (`project IN ('ktx','mvdsv')` and
+        `type IN ('cvar','command','cmdline_param','info_key')`): every
+        arc-scoped `entities` row with `description_origin='synthesized'`
+        has a non-NULL `description_anchor_version`. `FAIL` lists
+        offenders, else `PASS`. It does NOT police pre-existing
+        structural-tier `synthesized` rows (ktx `match_event` etc.) --
+        those are NULL-anchor by design (migrations 012/014), out of D1
+        scope, watched elsewhere. [Dated correction 2026-05-17,
+        orchestrator, Phase-1-execution-surfaced: this step had been
+        written globally; see decisions.md C5 clarification + the
+        Recon-facts baseline note below + review-findings F-C5b.]
   - [ ] Register both in `REGRESSION_PROBES` (the array at quality-grid.ts
         ~line 1962), name them `F1.describe_fill.origin_vocabulary` and
         `F1.describe_fill.synthesized_requires_anchor`, `family:'regression'`
@@ -298,10 +307,18 @@ n/a   # Phase 1 is purely additive; the loader-fix delete-shaped change is Phase
   `cd apps/qw-oracle && bun scripts/load-knowledge/index.ts quality-grid
   --project ktx --family regression --probe F1.describe_fill.origin_vocabulary`
   then `--probe F1.describe_fill.synthesized_requires_anchor`
-  -- PASS condition: both report `[PASS]`. Baseline state (Recon facts):
+  -- PASS condition: both report `[PASS]`. Baseline state (Recon facts,
+  re-verified live 2026-05-17, orchestrator, docker psql):
   `origin_vocabulary` is already GREEN (all 466 baseline arc rows are
-  `source_inline`, in-vocabulary -- NOT zero rows); `synthesized_requires_anchor`
-  is vacuously GREEN (0 `synthesized` rows at baseline). After Task 6 fills
+  `source_inline`, in-vocabulary -- NOT zero rows);
+  `synthesized_requires_anchor` is vacuously GREEN because 0 ARC-SCOPED
+  `synthesized` rows exist at baseline -- the 7 pre-existing
+  `ktx:match_event:*` `synthesized` rows are structural-tier,
+  NULL-`description_anchor_version` by design (migrations 012/014), out of
+  D1 scope, and are correctly EXCLUDED by the arc-scope guard (NOT
+  offenders; the earlier "0 `synthesized` rows at baseline" wording was a
+  drafter slip -- false globally, true only arc-scoped; F-C5b). After Task
+  6 fills
   `k_short_gib` (origin synthesized/shipped_doc + anchor stamped) both stay
   GREEN -- that is the real assertion.
 - **Execution mode:** `subagent (Sonnet medium)` -- code synthesis against a
