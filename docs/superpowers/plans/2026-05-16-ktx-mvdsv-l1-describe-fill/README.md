@@ -14,8 +14,10 @@ the separately-docketed game-mode L3 concept notes cite as anchors. This arc
 builds the foundation; it does NOT write L3 concept notes.
 
 **Status:** Planning. Scaffold + slicing LOCKED (operator-reviewed
-2026-05-16; see "Slicing analysis" below). Phase 1 drafted (awaiting review).
-**Phase 0 APPROVED 2026-05-17** (self-built reproducible C3 oracle; F-C3a
+2026-05-16; see "Slicing analysis" below). **Phase 1 APPROVED 2026-05-17**
+(planner cold-review: two probe-gate defects + one template-shape deviation
+caught and fixed across three passes, all fixes independently live-verified;
+D19 smoke = `k_short_gib`). **Phase 0 APPROVED 2026-05-17** (self-built reproducible C3 oracle; F-C3a
 dissolved; the OQ-3 "KTX = QuakeC/fteqcc" planner error was corrected across
 spec/decisions/prompt/memory -- both engines are C/CMake). Per-phase MDs
 drafted in fresh terminals, sub-agent-verified, operator-reviewed at each
@@ -54,7 +56,7 @@ LOCKED by the slicing analysis (operator-reviewed 2026-05-16; see the
 | Phase | Status | MD | Deliverable | Runnable state at end | Verif. regime | Ctx budget |
 |---|---|---|---|---|---|---|
 | 0 | **approved** 2026-05-17 | phase-0-probes.md | Free win (`load-commands.ts`, 28/108) + **self-built C3 oracle** (fetch dev-head fwd, build mvdsv+ktx, local-server dump, re-extract L1 same build) + ezquake.com shape-quant | 28/108 reloaded; fresh same-build dump + suspect pool; L1 re-extracted to dev-head; ezquake shape known; probe-0 denominators re-baselined | Automated (build+server succeeds; 0->28; same-build set-diff deterministic; no N/183) | ~200-350k (grew: 2 engine builds + server harness + re-extract) |
-| 1 | drafted (awaiting review) | phase-1-discipline.md | The discipline, built once: provenance/staleness schema (D2/D11); D6 synthesis skill; D7 two-tier gate; D11/D15 audit serializer; C5 probes | Full pipeline round-trips one real KTX cvar (self-contained smoke -- D19); C5 tag+anchor probes green | Automated (smoke vs 1 real KTX cvar -- D19) | **~250-450k (watch)** |
+| 1 | **approved** 2026-05-17 | phase-1-discipline.md | The discipline, built once: provenance/staleness schema (D2/D11); D6 synthesis skill; D7 two-tier gate; D11/D15 audit serializer; C5 probes | Full pipeline round-trips one real KTX cvar (self-contained smoke -- D19); C5 tag+anchor probes green | Automated (smoke vs 1 real KTX cvar -- D19) | **~250-450k (watch)** |
 | 2 | not started | (pending draft) | KTX mechanical extract (D9): new sibling extractor + loader adapter; in-repo + nQuake `ktx.cfg` -> structured choices + candidate text + retained provenance | ~157/260 KTX cvars carry shipped_doc candidates + retained per-source provenance; idempotent re-extract; provenance/jsonb probes green | Automated (coverage vs probe-0 + idempotency + jsonb/prov probes) | **~200-400k (watch)** |
 | 3 | not started | (pending draft) | KTX source-synthesis (D5-D8, D10): D6 skill fans out over CD_NODESC + residual cvars + bot/judgment (mechanism-only) + triage-failed comments; meaning-conflicts resolved inline at the D7 tail | Every in-scope KTX entity carries an affirmed-or-synthesized description; residue tracked to the C1 outreach track | Operator-run (D7 audit-page tail -- per-row judgment) | ~200-350k thread |
 | 4 | not started | (pending draft) | MVDSV fill, sized by Phase 0: `mvdsv.6` man-page sibling parser (cmdline); loader-freed commands + synthesis tail; cvars split easy-common-`sv_*` vs hard-dedicated-tail per the Phase 0 probe | Every in-scope MVDSV entity carries an affirmed-or-synthesized description; residue tracked | Operator-run (same D7 tail) | **200-400k (uncertain until P0)** |

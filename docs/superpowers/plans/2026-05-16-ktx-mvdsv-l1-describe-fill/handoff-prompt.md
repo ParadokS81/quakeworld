@@ -90,8 +90,12 @@ provenance-stamped, per the D17 seven-phase shape), proceed.
      ktx/mvdsv (SQL).
    - Phase 1/2: `apps/qw-oracle/SCHEMA.md` + `db/migrations/`; the existing
      F1 grid `scripts/load-knowledge/quality-grid.ts`; the existing
-     extractor/loader plug-in pattern (KTX = tree-sitter sibling handler;
-     this is NOT the libclang registration handler).
+     extractor/loader plug-in pattern. The D9 KTX shipped-config extractor
+     is a NEW sibling handler distinct from the existing libclang
+     registration handler -- canonical KTX is libclang/C, NOT tree-sitter
+     (tree-sitter is the out-of-scope dusty-ktx fork only). Dated CORRECTION
+     2026-05-17 in `review-findings.md` "Confirmed-good" + `phase-template.md`
+     (commit f3574f26; OQ-3 false-premise propagation, third site).
    - Phase 3/4: the D6 skill scaffold precedent
      (`asset-type-curate` / `guide-rewrite` / `validate-extractor`); the
      actual KTX `commands.c` CD_ table / `world.c` register sites; the
