@@ -70,7 +70,15 @@ repeat that.
   silently diverged).
 - **KTX cvar M = 260** (live: `count(*) FROM entities WHERE project='ktx'
   AND type='cvar'` = 260). This is the probe-0 C1 coverage denominator -- the
-  gate, never a hand-picked subset.
+  gate, never a hand-picked subset. **Phase 0 re-extracts dev-head forward
+  and re-baselines this denominator (correct by C1) -- Phase 2 EXECUTION
+  recons the POST-Phase-0 M live (`phase-0-results.md` records old-vs-new);
+  the 260 here is the live PRE-Phase-0 value and the gate-SHAPE, NOT a
+  frozen contract number. The locked execution order runs Phase 0 before
+  Phase 2, so a KTX-cvar count != 260 that matches the Phase-0 re-baseline
+  is CORRECT (C1), not a Phase-2 failure. Added 2026-05-17 (pre-dispatch
+  holistic-gate Finding 1 -- the Phase-0-rebaseline propagation gap; the
+  identical discipline Phases 3/4/5 already carry; review-findings F-C1a).**
 - **Pre-existing origin baseline (live, pre-014):** KTX cvar
   `description_origin` distribution = `source_inline:68`, `NULL:192`. ZERO
   `synthesized`, ZERO `shipped_doc` (Phase 1's `k_short_gib` D19 fill has
@@ -441,7 +449,9 @@ n/a   # Phase 2 is purely additive (fill-not-create; new sibling handler + adapt
 ### Task 4 -- Idempotency + coverage assertion harness
 
 - **Goal:** a thin driver that runs extract+load twice, asserts identical DB
-  state, computes coverage vs the probe-0 M=260 denominator, confirms
+  state, computes coverage vs the POST-Phase-0 KTX-cvar M denominator
+  (reconned live at execution; pre-Phase-0 was 260, the gate-SHAPE not a
+  frozen number -- C1; see Recon facts), confirms
   `k_short_gib` is counted exactly once and its Phase-1 state intact, and
   reports the not-mechanically-covered residue as the explicit tracked
   Phase-3 hand-off. This task IS the phase-boundary verification.
@@ -452,10 +462,13 @@ n/a   # Phase 2 is purely additive (fill-not-create; new sibling handler + adapt
   - [ ] Driver: run the Task 1 extract, the Task 2 load, capture the
         Task 2 md5 fingerprint; re-run extract+load; assert the fingerprint
         is identical (C4/P3 idempotency proven, not assumed).
-  - [ ] Coverage report against M=260 (C1 -- the exhaustive denominator, not
-        a hand-picked subset): count KTX cvars with >=1
-        `description_provenance` entry; count `description_origin =
-        'shipped_doc'`; count the residue = 260 minus mechanically-covered.
+  - [ ] Coverage report against the POST-Phase-0 KTX-cvar M (recon it live
+        from `phase-0-results.md` at execution -- Phase 0 re-baselined it;
+        pre-Phase-0 was 260, the gate-SHAPE not a frozen number; C1 -- the
+        exhaustive denominator, not a hand-picked subset): count KTX cvars
+        with >=1 `description_provenance` entry; count `description_origin =
+        'shipped_doc'`; count the residue = (POST-Phase-0 M) minus
+        mechanically-covered.
         The residue (incl. the 38 bot `k_fbskill_*` + the non-resolving
         config-drift names) is REPORTED as the Phase-3 hand-off list, never
         importance-cut and never a lowered denominator (C1).
@@ -480,25 +493,32 @@ post-Phase-1 baseline (Phase 1 executed: 014 applied, `k_short_gib`
 real post-Phase-1 baseline, NOT a zero-baseline idealization.
 
 ```
-# 1. Fill-not-create: KTX cvar count unchanged at the M=260 denominator
+# 1. Fill-not-create: KTX cvar count UNCHANGED across Phase 2 vs the
+#    POST-Phase-0 M (recon the live pre-Phase-2 count first; Phase 0
+#    re-baselined it -- pre-Phase-0 was 260, the gate-SHAPE not a frozen
+#    number).
 docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -tAc \
  "SELECT count(*) FROM entities WHERE project='ktx' AND type='cvar';"
-# PASS condition: prints 260 (Phase 2 created ZERO entities; D9 fill-not-create).
+# PASS condition: equals the POST-Phase-0 KTX-cvar M captured at Phase 2
+# start (pre-Phase-0 baseline was 260) AND is UNCHANGED across Phase 2
+# (Phase 2 created ZERO entities; D9 fill-not-create). A count != 260 that
+# matches the Phase-0 re-baseline is CORRECT (C1), not a failure.
 
 # 2. Idempotent re-extract: run the Task 4 driver twice; fingerprints equal
 cd apps/qw-oracle && bun scripts/describe-fill/extract-ktx-mechanical.ts --twice
 # PASS condition: the driver prints IDENTICAL=YES (two full extract+load
 # cycles produced a byte-identical entities md5 fingerprint -- C4/P3).
 
-# 3. Coverage vs probe-0 M=260 + residue tracked (NOT importance-cut)
+# 3. Coverage vs the POST-Phase-0 M + residue tracked (NOT importance-cut)
 docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -tAc \
  "SELECT count(*) FROM entities WHERE project='ktx' AND type='cvar' \
   AND description_provenance IS NOT NULL \
   AND jsonb_array_length(description_provenance) >= 1;"
 # PASS condition: prints the mechanical-covered count (live-verified order
 # ~109; the exact figure is the idempotent extract's output) AND the Task 4
-# report lists residue = 260 - covered as the explicit Phase-3 hand-off
-# (the denominator stays 260; residue is tracked, never cut -- C1).
+# report lists residue = (POST-Phase-0 KTX-cvar M) - covered as the explicit
+# Phase-3 hand-off (the denominator is the POST-Phase-0 M -- pre-Phase-0 was
+# 260; residue is tracked, never cut -- C1).
 
 # 4. k_short_gib idempotent + not regressed (D19/C4)
 docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -tAc \

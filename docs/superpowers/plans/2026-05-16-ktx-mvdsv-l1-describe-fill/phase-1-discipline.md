@@ -5,11 +5,19 @@
 > 2. Read `review-findings.md`; identify the rows whose "Phase" is this
 >    phase (ownership table at the bottom).
 > 3. Recon the LIVE source before inlining anything: the actual extractor
->    shape for the engine in scope (KTX tree-sitter vs MVDSV libclang are
->    DIFFERENT -- F confirmed-good note), the actual `entities` /
->    `*_versions` schema (`apps/qw-oracle/SCHEMA.md` + `db/migrations/`),
->    the actual probe-0 N/M denominators. Do NOT copy numbers or code from
->    the spec without verifying against live source.
+>    shape for the engine in scope (canonical KTX AND MVDSV are BOTH
+>    libclang/C -- the per-engine difference is that the D9 shipped-config
+>    extractor is a NEW sibling handler distinct from the existing
+>    registration handler, NOT a tree-sitter-vs-libclang split; tree-sitter
+>    is the out-of-scope dusty-ktx fork only -- see the dated CORRECTION
+>    2026-05-17 in `review-findings.md` "Confirmed-good"), the actual
+>    `entities` / `*_versions` schema (`apps/qw-oracle/SCHEMA.md` +
+>    `db/migrations/`), the actual probe-0 N/M denominators. Do NOT copy
+>    numbers or code from the spec without verifying against live source.
+>    (OQ-3 5th propagation site -- this stale "KTX tree-sitter" phrasing
+>    was corrected 2026-05-17 by the pre-dispatch holistic gate, never
+>    silently; the first four sites were fixed in f3574f26 / c8111008 /
+>    42c4a060.)
 > 4. After drafting, dispatch the verification sub-agent (brief at the
 >    bottom of `phase-template.md`) before declaring the phase MD ready.
 
