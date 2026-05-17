@@ -12,6 +12,10 @@ exports/
 dist/
 output/*.json
 
+# Describe-fill internal-tier audit-review HTML (regenerable projection;
+# the committed artifact is scripts/load-knowledge/serialize-audit-review.ts)
+output/describe-fill/
+
 # Map knowledge layer caches (BSPs and PAKs are not committed)
 data/bsp-cache/
 data/pak-cache/

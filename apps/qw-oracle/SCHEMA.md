@@ -74,6 +74,15 @@ The shared identity table: one row per canonical engine feature across all its o
 | `last_seen_version` | TEXT | Most recent version carrying this row |
 | `source_state` | TEXT CHECK | `source_backed` / `source_retired` / `doc_only` / `dynamically_registered` |
 | `predecessor_id` | INTEGER nullable | Manual rename bridge (FK to self) |
+| `description` | TEXT nullable | Migration 012. The owned Layer 1 description text for this entity. NULL for types with no audience for prose (ruleset, keyname, ...). |
+| `description_origin` | TEXT nullable | Migration 012. Provenance label for `description`: where the text came from. Unconstrained TEXT on purpose (012 kept it loose so new origins need no migration); the vocabulary is enforced by the F1 probe `F1.describe_fill.origin_vocabulary`, not a CHECK. See "Description-provenance family" below for the value set. |
+| `description_anchor_version` | TEXT nullable | Migration 014. The version string a `synthesized` description was authored against -- the D2/D4 staleness anchor. NULL for non-synthesized rows. |
+| `description_rereview` | BOOLEAN NOT NULL DEFAULT FALSE | Migration 014. D4 walk-time staleness flag. When the walk-time report flags a synthesized description as possibly drifted this is set TRUE; the description keeps serving, stamped "may be stale as of version X" (stale-but-present beats a hole). |
+| `description_provenance` | JSONB nullable | Migration 014. D11 retained multi-source provenance: a JSON array, one object per contributing shipped file -- `{source_file, source_line, shipped_value, raw_comment}` (a later phase additively widens the element with an optional `structured_choices` field; JSONB is schemaless so no migration). The committed description's `source_ref` points at the authoritative entry; losing/alternate sources are retained as data, never discarded, so a config-vs-config conflict stays flaggable. NULL when no shipped-file contributor. |
+| `description_verdict` | TEXT nullable | Migration 014. D11 decision trail: the D5-D8 evaluation verdict. |
+| `description_confidence` | TEXT nullable | Migration 014. D11 decision trail: the synthesis / evaluation confidence. |
+| `description_reasoning` | TEXT nullable | Migration 014. D11 decision trail: D6's reasoning, stored not just logged (reviewed at the D7 tail). |
+| `description_proposed` | TEXT nullable | Migration 014. D11 decision trail: the proposed description as it stood before the D7 gate, so the D15 audit-review page can show before/after even after commit. |
 | `created_at` / `updated_at` | TEXT | ISO timestamps |
 
 **Natural key:** `(project, type, name_fold)` (migration 013; was `(project, type, name)` back when `name` held the lowercased form). `name` carries source case; all matching goes via `name_fold`, so a case-sensitive compare is impossible at the data layer. `canonical_id` is a secondary UNIQUE and is the join key for every `_versions` table via `entity_id`.
@@ -89,6 +98,20 @@ The shared identity table: one row per canonical engine feature across all its o
 **Consumed by:** every downstream query. Every `*_versions` row FK-references `entity_id`; every `source_overrides` row too.
 
 **CHECK widening history:** The `type` CHECK started at 4 values in v1 and has been widened four times (v1->v2, v2->v3, v4->v5, v11->v12) via full table-rebuild migrations. See `ENTITIES_V2_MIGRATION_SQL`, `ENTITIES_V3_MIGRATION_SQL`, `ENTITIES_V5_MIGRATION_SQL`, `ENTITIES_V12_MIGRATION_SQL` in `schema.ts`. Fresh DBs stamp the widest CHECK directly on the v1 CREATE -- the comment at the top of `SCHEMA_V1_SQL` documents why that is deliberate.
+
+**Description-provenance family:** `description` + `description_origin` (migration 012) and the seven migration-014 columns (`description_anchor_version`, `description_rereview`, `description_provenance`, `description_verdict`, `description_confidence`, `description_reasoning`, `description_proposed`) together form one coherent description-provenance/staleness/decision-trail family. `description` is the owned Layer 1 text; `description_origin` records where it came from; migration 014 adds the D2/D4 staleness anchor + re-review flag, the D11 retained multi-source provenance (JSONB), and the D5-D8 decision trail (verdict / confidence / reasoning / proposed). The KTX/MVDSV describe-fill arc (spec `docs/superpowers/specs/2026-05-15-ktx-mvdsv-l1-describe-fill-design.md`) is the first writer of the 014 columns; FTE/QWCL are later arcs on the same pattern.
+
+The `description_origin` vocabulary:
+
+- **Column-wide superset:** `help_json` / `source_inline` / `inherited` / `synthesized` / `shipped_doc` / NULL.
+  - `help_json` -- from external dev-curated metadata (help-JSON for ezQuake/FTE; asset YAML for asset_category). ezQuake/FTE-only -- KTX/MVDSV have no help-JSON track, which is exactly the gap the describe-fill arc closes.
+  - `source_inline` -- from source code (trailing-comment harvest, struct-init fields, templated derivers).
+  - `inherited` -- borrowed from another entity's description. Reserved-unused: the QWCL cross-engine borrow arc's slot, not yet written by any loader.
+  - `synthesized` -- LLM/operator prose authored from code behavior, not present in source or external curation. Carries `description_anchor_version` (D2/D4).
+  - `shipped_doc` -- mechanically lifted from a shipped human-authored artifact (a shipped config, the `mvdsv.6` man page, ezquake.com docs). Which file is a `description_provenance` entry, not its own tag (D11).
+  - `NULL` -- `description` IS NULL.
+- **KTX/MVDSV configurable buckets this arc fills** are restricted to `source_inline` / `synthesized` / `shipped_doc` (D2/D11). `help_json` is ezQuake/FTE-only; `inherited` is the reserved-unused QWCL slot.
+- **Enforcement:** the vocabulary is enforced by the F1 quality-grid probe `F1.describe_fill.origin_vocabulary`, NOT a CHECK constraint. Migration 012 deliberately left `description_origin` an unconstrained TEXT so new origins can be added without a heavyweight CHECK-rebuild migration; per C5 the honesty guarantee is made real by the probe (it fails loudly at the phase-boundary gate on any out-of-vocabulary tag), not by the schema. The probe's column-wide guard permits the five-set `{help_json, source_inline, inherited, synthesized, shipped_doc}` (NULL only where `description` IS NULL); its arc-scoped guard restricts the KTX/MVDSV configurable buckets to the three this arc writes (`source_inline` / `synthesized` / `shipped_doc`).
 
 ---
 

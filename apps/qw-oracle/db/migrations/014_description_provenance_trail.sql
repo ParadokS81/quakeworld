@@ -1,0 +1,99 @@
+-- 014_description_provenance_trail.sql
+--
+-- The KTX/MVDSV L1 describe-fill provenance/staleness/decision-trail field
+-- family on entities. This arc creates the owned user-doc track KTX/MVDSV
+-- never had (D2): ezQuake/FTE ride help-JSON; KTX/MVDSV had only dev code
+-- comments. These seven columns carry, per entity, where a description came
+-- from, when a synthesized one was authored (its staleness anchor), the full
+-- multi-source provenance retained as data, and the D5-D8 evaluation
+-- decision trail.
+--
+-- New columns (all nullable or defaulted -- see "Additive-safe" below):
+--   description_anchor_version TEXT NULL
+--       The version string a `synthesized` description was authored against.
+--       D2/D4 staleness anchor: the D4 walk-time report compares a
+--       synthesized description's knob vs this anchor to decide Drifted /
+--       Added / Removed. NULL for non-synthesized rows (source_inline /
+--       shipped_doc rows are not anchored).
+--   description_rereview BOOLEAN NOT NULL DEFAULT FALSE
+--       D4 walk-time staleness flag. When the walk-time report flags a
+--       synthesized description as possibly drifted, this is set TRUE; the
+--       description KEEPS serving, stamped "may be stale as of version X"
+--       (stale-but-present beats a hole -- D4). Defaults FALSE: a freshly
+--       authored description is not stale.
+--   description_provenance JSONB NULL
+--       D11 retained multi-source provenance. A JSON array, one object per
+--       contributing shipped file:
+--         { source_file, source_line, shipped_value, raw_comment }
+--       Every contributing source is kept on the record (option A, D11): the
+--       committed description's source_ref points at the authoritative entry;
+--       losing/alternate sources are RETAINED AS DATA, never discarded, so a
+--       config-vs-config conflict can still be C2-flagged and re-detected by
+--       the D4 walk (D10/D11). NULL when no shipped-file contributor (e.g. a
+--       pure source_inline or pure synthesized row with no shipped artifact).
+--       A later phase additively widens the element with an optional
+--       `structured_choices` field per (cvar, source-file) for D9's
+--       "structured choices kept structured" enum/bitmask tables (D11
+--       amendment 2026-05-17). JSONB is schemaless so that widening needs NO
+--       migration and does not break this column -- it is deliberately NOT
+--       pre-provisioned here. Plain JSONB NULL: no DEFAULT, no CHECK.
+--   description_verdict TEXT NULL
+--       D11 decision trail: the D5-D8 evaluation verdict for this entity.
+--   description_confidence TEXT NULL
+--       D11 decision trail: the synthesis / evaluation confidence.
+--   description_reasoning TEXT NULL
+--       D11 decision trail: D6's reasoning, STORED not just logged -- the
+--       operator wants the reasoning so it can be reviewed at the D7 tail.
+--   description_proposed TEXT NULL
+--       D11 decision trail: the proposed description as it stood BEFORE the
+--       D7 gate, so the D15 audit-review page can show before/after even
+--       after the description has been committed.
+--
+-- Additive-safe (mirrors the safe-additive shape of 012/013): every new
+-- column is nullable or defaulted, so the ALTER is safe on the existing
+-- rows (KTX + MVDSV cvar/command/cmdline_param/info_key rows already loaded
+-- from the libclang registration walk) with no rewrite and no lock-heavy
+-- backfill. No backfill statements: these seven are FORWARD-populated by the
+-- describe-fill pipeline. description_rereview defaults FALSE; the other six
+-- are NULL by design (contrast 012, which backfilled the pre-existing
+-- description_origin because that column described already-present data --
+-- here there is no pre-existing provenance/trail data to backfill).
+--
+-- Does NOT create `description` or `description_origin`: both already exist
+-- (012). This migration only ADDS the seven columns above. The arc's
+-- KTX/MVDSV writes EXTEND the existing `description_origin` vocabulary with
+-- `shipped_doc` (D2/D11/D2-clarification-2026-05-17) -- a data change, not a
+-- schema change, since 012 deliberately left the column an unconstrained
+-- TEXT.
+--
+-- NO CHECK constraint on description_origin or any new column. This is
+-- deliberate and load-bearing, not an omission:
+--   * Migration 012's header explicitly keeps description_origin loose "so
+--     future origin values ... can be introduced without a migration". The
+--     describe-fill arc is exactly such a future value (`shipped_doc`).
+--     Adding a CHECK now would fight 012's deliberate design and P1's
+--     append-only spirit (a CHECK widening is a heavyweight rebuild every
+--     time the vocabulary grows -- the precise cost 012 chose to avoid).
+--   * Per C5, an honesty guarantee that nothing mechanically enforces is
+--     hollow -- so the D2/D11 origin vocabulary
+--     ({help_json, source_inline, synthesized, shipped_doc}) IS enforced,
+--     by the F1 quality-grid probe `F1.describe_fill.origin_vocabulary`
+--     (a later Phase 1 task). The probe IS the enforcement: it fails loudly
+--     on any out-of-vocabulary tag at the phase-boundary gate. A CHECK is
+--     not just unnecessary, it is the wrong tool here.
+--
+-- Linkage: D2 (the owned user-doc track + origin states), D11 (retained
+-- multi-source provenance + first-class decision trail), D4 (walk-time
+-- staleness via the anchor version + re-review flag). See
+-- docs/superpowers/specs/2026-05-15-ktx-mvdsv-l1-describe-fill-design.md
+-- and the arc decisions.md (D2 / D4 / D11 / C5, incl. the 2026-05-17
+-- clarification + amendment blocks).
+
+ALTER TABLE entities
+  ADD COLUMN description_anchor_version TEXT NULL,
+  ADD COLUMN description_rereview      BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN description_provenance    JSONB NULL,
+  ADD COLUMN description_verdict       TEXT NULL,
+  ADD COLUMN description_confidence    TEXT NULL,
+  ADD COLUMN description_reasoning     TEXT NULL,
+  ADD COLUMN description_proposed      TEXT NULL;

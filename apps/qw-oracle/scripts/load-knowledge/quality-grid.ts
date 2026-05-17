@@ -271,6 +271,169 @@ async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResult> {
   };
 }
 
+// C5 probe for the origin-tag vocabulary shape (arc: ktx-mvdsv-l1-describe-fill).
+//
+// Two-part assertion:
+//   (i)  GLOBAL guard: no entities row carries an out-of-vocabulary
+//        description_origin value, and description_origin is NULL only
+//        where description is also NULL (a NULL origin on a populated
+//        description field is a loader bug, not an absent description).
+//   (ii) ARC-SCOPED guard: for the D1 configurable buckets this arc
+//        owns (project IN ('ktx','mvdsv') AND type IN ('cvar','command',
+//        'cmdline_param','info_key')) every row with a non-NULL description
+//        must have an in-vocabulary origin from the narrower owned-track
+//        set {source_inline, synthesized, shipped_doc}.
+//        help_json is ezquake-only and must not appear here; 'inherited'
+//        is the full-vocabulary extension but is not an arc-owned origin.
+//
+// The IS NULL OR ... NOT IN form in part (ii) is mandatory for NULL-safety:
+// a bare NOT IN evaluates to NULL (not TRUE) for a NULL lhs and would
+// silently miss a NULL-origin row with a non-NULL description (F-C5b root
+// cause pattern).
+async function probeDescribeFillOriginVocabulary(ctx: ProbeContext): Promise<ProbeResult> {
+  const examples: string[] = [];
+
+  // Part (i): GLOBAL guard -- full entities table, no project filter.
+  // Offender: description_origin is non-NULL but outside the allowed set,
+  // OR description_origin IS NULL while description IS NOT NULL.
+  const globalRows = await ctx.sql<{ canonical_id: string }[]>`
+    SELECT canonical_id
+    FROM entities
+    WHERE (
+      description_origin IS NOT NULL
+      AND description_origin NOT IN ('help_json', 'source_inline', 'inherited', 'synthesized', 'shipped_doc')
+    )
+    OR (
+      description_origin IS NULL
+      AND description IS NOT NULL
+    )
+    ORDER BY canonical_id
+    LIMIT 8
+  `;
+  for (const r of globalRows) {
+    examples.push(`GLOBAL:${r.canonical_id}`);
+  }
+
+  // Count total GLOBAL offenders (may exceed the 8-row example cap).
+  const globalCountRows = await ctx.sql<{ cnt: number }[]>`
+    SELECT COUNT(*)::int AS cnt
+    FROM entities
+    WHERE (
+      description_origin IS NOT NULL
+      AND description_origin NOT IN ('help_json', 'source_inline', 'inherited', 'synthesized', 'shipped_doc')
+    )
+    OR (
+      description_origin IS NULL
+      AND description IS NOT NULL
+    )
+  `;
+  const globalTotal = globalCountRows[0]?.cnt ?? 0;
+
+  // Part (ii): ARC-SCOPED guard -- D1 configurable buckets for ktx + mvdsv.
+  // A row is an offender when description IS NOT NULL but description_origin
+  // is NULL or outside the owned-track set {source_inline, synthesized,
+  // shipped_doc}. The IS NULL OR ... NOT IN form is mandatory so a NULL
+  // origin (not in NOT IN's truth domain) is caught as an offender (F-C5b).
+  const arcSlotsNeeded = 8 - examples.length;
+  if (arcSlotsNeeded > 0) {
+    const arcRows = await ctx.sql<{ canonical_id: string }[]>`
+      SELECT canonical_id
+      FROM entities
+      WHERE project IN ('ktx', 'mvdsv')
+        AND type IN ('cvar', 'command', 'cmdline_param', 'info_key')
+        AND description IS NOT NULL
+        AND (
+          description_origin IS NULL
+          OR description_origin NOT IN ('source_inline', 'synthesized', 'shipped_doc')
+        )
+      ORDER BY canonical_id
+      LIMIT ${arcSlotsNeeded}
+    `;
+    for (const r of arcRows) {
+      examples.push(`ARC:${r.canonical_id}`);
+    }
+  }
+
+  const arcCountRows = await ctx.sql<{ cnt: number }[]>`
+    SELECT COUNT(*)::int AS cnt
+    FROM entities
+    WHERE project IN ('ktx', 'mvdsv')
+      AND type IN ('cvar', 'command', 'cmdline_param', 'info_key')
+      AND description IS NOT NULL
+      AND (
+        description_origin IS NULL
+        OR description_origin NOT IN ('source_inline', 'synthesized', 'shipped_doc')
+      )
+  `;
+  const arcTotal = arcCountRows[0]?.cnt ?? 0;
+
+  const total = globalTotal + arcTotal;
+  return {
+    name: 'F1.describe_fill.origin_vocabulary',
+    family: 'regression',
+    description: 'description_origin values are in-vocabulary; arc-scoped rows use owned-track origins only (C5)',
+    status: total === 0 ? 'PASS' : 'FAIL',
+    count: total,
+    summary: total === 0
+      ? 'all description_origin values in vocabulary; arc-scoped rows use owned-track origins'
+      : `${total} offender(s): ${globalTotal} global vocabulary violation(s), ${arcTotal} arc-scoped owned-track violation(s)`,
+    examples,
+  };
+}
+
+// C5 probe for the synthesized-description anchor-version shape (arc:
+// ktx-mvdsv-l1-describe-fill).
+//
+// ARC-SCOPED ONLY -- mirrors the part (ii) predicate of
+// probeDescribeFillOriginVocabulary exactly: project IN ('ktx','mvdsv')
+// AND type IN ('cvar','command','cmdline_param','info_key').
+//
+// Assertion: every arc-scoped row with description_origin='synthesized'
+// must have a non-NULL description_anchor_version. A NULL anchor on a
+// synthesized row means the staleness walk (D4) has no baseline to diff
+// against -- the D2 anchor field is not optional for this origin.
+//
+// The type IN (...) filter structurally excludes the 7 pre-existing
+// ktx:match_event:* rows (description_origin='synthesized',
+// description_anchor_version=NULL by design, migrations 012/014).
+// Those rows are structural-tier, out of D1 scope, and MUST NOT be
+// policed here. A global probe would catch them and produce a
+// vacuously-unfixable FAIL -- that is the exact shape F-C5b retired.
+async function probeDescribeFillSynthesizedRequiresAnchor(ctx: ProbeContext): Promise<ProbeResult> {
+  const rows = await ctx.sql<{ canonical_id: string }[]>`
+    SELECT canonical_id
+    FROM entities
+    WHERE project IN ('ktx', 'mvdsv')
+      AND type IN ('cvar', 'command', 'cmdline_param', 'info_key')
+      AND description_origin = 'synthesized'
+      AND description_anchor_version IS NULL
+    ORDER BY canonical_id
+    LIMIT 8
+  `;
+
+  const countRows = await ctx.sql<{ cnt: number }[]>`
+    SELECT COUNT(*)::int AS cnt
+    FROM entities
+    WHERE project IN ('ktx', 'mvdsv')
+      AND type IN ('cvar', 'command', 'cmdline_param', 'info_key')
+      AND description_origin = 'synthesized'
+      AND description_anchor_version IS NULL
+  `;
+  const total = countRows[0]?.cnt ?? 0;
+
+  return {
+    name: 'F1.describe_fill.synthesized_requires_anchor',
+    family: 'regression',
+    description: 'arc-scoped synthesized rows carry a non-NULL description_anchor_version (C5, D2/D4)',
+    status: total === 0 ? 'PASS' : 'FAIL',
+    count: total,
+    summary: total === 0
+      ? 'all arc-scoped synthesized rows have description_anchor_version set'
+      : `${total} arc-scoped synthesized row(s) missing description_anchor_version`,
+    examples: rows.map(r => r.canonical_id),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Family 2 -- Anomaly probes
 // ---------------------------------------------------------------------------
@@ -1966,6 +2129,9 @@ const REGRESSION_PROBES: Probe[] = [
   { name: 'F1.cross_type_orphans', family: 'regression', description: '', run: probeCrossTypeOrphans },
   { name: 'F1.entity_has_version_rows', family: 'regression', description: '', run: probeEntityHasVersionRows },
   { name: 'F1.jsonb_columns_not_strings', family: 'regression', description: '', run: probeJsonbNotStrings },
+  // arc: ktx-mvdsv-l1-describe-fill C5 probes -- origin-tag vocabulary + synthesized-anchor (Phase 1)
+  { name: 'F1.describe_fill.origin_vocabulary', family: 'regression', description: '', run: probeDescribeFillOriginVocabulary },
+  { name: 'F1.describe_fill.synthesized_requires_anchor', family: 'regression', description: '', run: probeDescribeFillSynthesizedRequiresAnchor },
   // FTE count-range probes
   { name: 'F1.fte.cvars_count', family: 'regression', description: '', run: probeFteCvarsCount },
   { name: 'F1.fte.engine_cvars', family: 'regression', description: '', run: probeFteEngineCvars },

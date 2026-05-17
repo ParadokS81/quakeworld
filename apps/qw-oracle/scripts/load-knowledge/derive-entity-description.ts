@@ -66,6 +66,32 @@ type DeriveFn = (tx: postgres.TransactionSql<{}>, project: Project, version: str
 // last_seen_version so we only touch entities whose freshest known shape is
 // at the version we just ingested -- older rows whose last_seen_version is
 // elsewhere are not disturbed.
+//
+// OWNED-ROW GUARD (F-D4a; decisions.md D4 amendment 2026-05-17 is the
+// authority). The derive tail runs UNCONDITIONALLY on every walk/load
+// (index.ts re-derive loop, inside the load transaction). Without a guard
+// it would clobber the describe-fill arc's owned user-doc track --
+// operator/AI-authored prose stamped 'synthesized' or 'shipped_doc' --
+// back to a source comment or to NULL on the first post-write re-extract,
+// which makes D4 ("a flagged description keeps serving, stamped may be
+// stale as of version X") impossible. So the four arc-bucket derivers
+// (cvar / command / cmdline_param / info_key) exclude any row whose
+// description_origin is 'synthesized' or 'shipped_doc'. The predicate is
+// owned-track MEMBERSHIP ALONE -- there is intentionally NO
+// description_anchor_version conjunct, because a staged 'shipped_doc' row
+// carries no anchor until a later phase and MUST still be protected.
+// 'source_inline' and NULL-origin rows are deliberately NOT guarded: they
+// re-derive idempotently from source, NULL-origin is exactly the
+// describe-fill baseline this arc exists to fill, and a newly changed
+// upstream source comment is D4 staleness trigger (e). The clause is
+// written NULL-safely with IS DISTINCT FROM -- a plain
+// `description_origin NOT IN ('synthesized','shipped_doc')` would evaluate
+// to NULL (not TRUE) for NULL-origin rows and silently drop them from the
+// UPDATE, permanently starving the baseline rows the arc targets.
+// `NULL IS DISTINCT FROM 'synthesized'` is TRUE, so NULL-origin and
+// 'source_inline' rows are correctly kept; only literal 'synthesized' /
+// 'shipped_doc' rows are excluded. The other 9 derivers are unguarded by
+// design -- they own no arc user-doc track. See review-findings F-D4a.
 
 async function deriveCvar(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
   // help_values is TEXT-typed (legacy SQLite carryover) carrying well-formed
@@ -117,6 +143,12 @@ async function deriveCvar(tx: postgres.TransactionSql<{}>, project: Project, ver
       AND entities.project = ${project}
       AND entities.type = 'cvar'
       AND entities.last_seen_version = ${version}
+      -- F-D4a owned-row guard (decisions.md D4 amendment 2026-05-17):
+      -- never re-derive over the arc's owned user-doc track. NULL-safe
+      -- form -- NULL/source_inline rows stay in the UPDATE; only literal
+      -- synthesized/shipped_doc rows are excluded. See file header.
+      AND entities.description_origin IS DISTINCT FROM 'synthesized'
+      AND entities.description_origin IS DISTINCT FROM 'shipped_doc'
   `;
 }
 
@@ -140,6 +172,12 @@ async function deriveCommand(tx: postgres.TransactionSql<{}>, project: Project, 
       AND entities.project = ${project}
       AND entities.type = 'command'
       AND entities.last_seen_version = ${version}
+      -- F-D4a owned-row guard (decisions.md D4 amendment 2026-05-17):
+      -- never re-derive over the arc's owned user-doc track. NULL-safe
+      -- form -- NULL/source_inline rows stay in the UPDATE; only literal
+      -- synthesized/shipped_doc rows are excluded. See file header.
+      AND entities.description_origin IS DISTINCT FROM 'synthesized'
+      AND entities.description_origin IS DISTINCT FROM 'shipped_doc'
   `;
 }
 
@@ -183,6 +221,12 @@ async function deriveCmdlineParam(tx: postgres.TransactionSql<{}>, project: Proj
       AND entities.project = ${project}
       AND entities.type = 'cmdline_param'
       AND entities.last_seen_version = ${version}
+      -- F-D4a owned-row guard (decisions.md D4 amendment 2026-05-17):
+      -- never re-derive over the arc's owned user-doc track. NULL-safe
+      -- form -- NULL/source_inline rows stay in the UPDATE; only literal
+      -- synthesized/shipped_doc rows are excluded. See file header.
+      AND entities.description_origin IS DISTINCT FROM 'synthesized'
+      AND entities.description_origin IS DISTINCT FROM 'shipped_doc'
   `;
 }
 
@@ -319,6 +363,12 @@ async function deriveInfoKey(tx: postgres.TransactionSql<{}>, project: Project, 
       AND entities.project = ${project}
       AND entities.type = 'info_key'
       AND entities.last_seen_version = ${version}
+      -- F-D4a owned-row guard (decisions.md D4 amendment 2026-05-17):
+      -- never re-derive over the arc's owned user-doc track. NULL-safe
+      -- form -- NULL/source_inline rows stay in the UPDATE; only literal
+      -- synthesized/shipped_doc rows are excluded. See file header.
+      AND entities.description_origin IS DISTINCT FROM 'synthesized'
+      AND entities.description_origin IS DISTINCT FROM 'shipped_doc'
   `;
 }
 
