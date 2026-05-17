@@ -65,6 +65,46 @@ win/apple-only registrars get false-accused (a D3 violation).
 
 **Resolved by:** decisions.md D3 implication; this finding.
 
+### F4 -- D7 "the extractor already runs textual passes" is FALSE
+
+**Correction:** D7's Implication (and the Phase-1 drafter prompt) assert the
+extractor already runs a commented-register textual pass to "surface". Live
+recon during Phase-1 drafting (overseer-re-verified: repo-wide grep of
+`scripts/extractors/**/*.py` incl. `_legacy/`) proves NO such pass exists
+anywhere. The only textual-pass hit is the retired
+`_legacy/extract-ezquake-cvars-clang.py` *trailing help-desc comment*
+harvester -- a different concern, archived/unused. `gl_outline_scale_world`
+was hand-grep + runtime-dump classified, not auto-fed. Same
+`feedback_parking_verified_state_is_hypothesis` shape as the D11 amendment.
+
+**Action for every Track-A drafter/executor:** feeder (b) is BUILT as a
+minimal standalone commented-register textual scanner (~15-line regex over
+raw source) inside `_callgraph.py`, architecturally separate from the
+call-graph (D1 no-blend). D7.1's two-feeder structural split STANDS;
+Phase-4 Gate-2 and Phase-5 R4 unchanged.
+
+**Resolved by:** decisions.md D7 AMENDMENT 2026-05-17 (operator-ratified
+2026-05-17 via Phase-1 OQ-1); this finding.
+
+### F5 -- D7.2 registrar derivation is asymmetric (commands vs cvars)
+
+**Correction:** D7.2 "registrar is the enclosing function of the
+already-recorded registration site (no new mechanism)" holds literally only
+for COMMANDS (`_handler_commands.py` records `enclosing_function` via its
+`_func_stack`). For CVARS `_handler_cvars.py` records only the `cvar_t`
+VAR_DECL site (file scope, NO enclosing function); the Track-A passenger
+must itself bind `Cvar_Register(&X)` CALL_EXPRs to their enclosing
+FUNCTION_DECL via the shared visitor's existing `enter_function`/
+`exit_function` hooks (D6-inherent, NOT a new mechanism). Overseer-verified
+(`cl_view.c:49` decl vs `:1160` Cvar_Register inside `V_Init` `:1127`).
+
+**Action:** Phase-1 (A) owns the passenger-side derivation. Phase-3 (S)
+must know the Track-A per-variant evidence is PASSENGER-derived, not
+handler-recorded -- affects R2's D15 evidence field shape.
+
+**Resolved by:** decisions.md D7 AMENDMENT 2026-05-17; Phase 1 mechanism;
+this finding.
+
 ---
 
 ## R -- implementation residuals (brainstorm-deferred; owning phase resolves)
@@ -194,6 +234,8 @@ mechanism; **S** = unified schema + loader; **ACC** = acceptance contract;
 | F1 (order/show prose) | B (awareness only) | decisions.md D11 amendment; no code impact |
 | F2 (stale pool numbers) | A, B, ACC, APP | use 74/92/129; re-verify live (X8) |
 | F3 (stale variant count) | A | recon `clang_config.py`; 4 variants |
+| F4 (no extant comment-reg pass) | A | D7 amendment; build minimal standalone scanner |
+| F5 (cvar registrar asymmetry) | A (derive) + S (aware) | D7 amendment; passenger-derived evidence |
 | R1 (AST-confirm literal) | B | AST probe before literal-only is load-bearing |
 | R2 (D15/D12 field shape) | S | two separate fields; feeder tag structural |
 | R3 (D16 element key) | B (emit) + S (store) | element-grouped provenance |

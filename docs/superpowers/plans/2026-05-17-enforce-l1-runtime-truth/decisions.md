@@ -157,6 +157,61 @@ mechanism phase does not build the commented-register detector from scratch
 (the extractor already runs textual passes) but must surface feeder-tagged
 output.
 
+> **AMENDMENT 2026-05-17 (operator-ratified; the record of the path).**
+> Two D7 premises were REFUTED by live recon during Phase-1 drafting, both
+> overseer-re-verified against live source (grep of the full extractor tree
+> incl. `_legacy/`; `_handler_commands.py`/`_handler_cvars.py`/`_visitor.py`;
+> the shipped `ezquake-runtime-dead-entities.md`):
+>
+> 1. **D7 Implication "the extractor already runs textual passes" -- FALSE.**
+>    There is NO commented-register textual detector anywhere in the live
+>    extractor. A repo-wide grep of `scripts/extractors/**/*.py` for
+>    commented-out-registration detection returns zero such pass; the only
+>    textual-pass hit is the retired `_legacy/extract-ezquake-cvars-clang.py`
+>    *trailing help-desc comment* harvester -- a DIFFERENT concern (it
+>    harvests `// description` after a LIVE registration; it does NOT detect
+>    a commented-OUT `// Cvar_Register(...)`), and it is archived/unused. The
+>    `gl_outline_scale_world` Class-2 entry in the shipped dead-entities
+>    artifact was produced by manual operator source-grep + the runtime dump
+>    (the artifact says so: "re-verified by direct source grep"), NOT by an
+>    automated feeder. Same `feedback_parking_verified_state_is_hypothesis`
+>    shape as this file's own D11 amendment.
+>    **Ratified resolution:** D7.1's TWO-FEEDER STRUCTURAL split STANDS
+>    (feeder (a) call-graph; feeder (b) commented-register; feeder-tagged,
+>    never blended -- the design intent is independent of whether the code
+>    pre-existed). The Implication sentence "does not build the
+>    commented-register detector from scratch (the extractor already runs
+>    textual passes) but must surface feeder-tagged output" is amended to:
+>    **"builds feeder (b) as a minimal standalone commented-register textual
+>    scanner (~15-line regex over raw source text) inside
+>    `extractor_lib/_callgraph.py`, architecturally SEPARATE from the
+>    call-graph (no AST / no edges / no BFS contact -- D1 no-blend preserved
+>    structurally), and surfaces it feeder-tagged."** Downstream UNCHANGED:
+>    Phase-4 Gate-2 composition and Phase-5 R4 delete-list regeneration (the
+>    shipped artifact's Class-2 commented-register section must still be
+>    mechanism-regenerated) both still hold.
+>
+> 2. **D7.2 "registrar is the enclosing function of the already-recorded
+>    registration site (no new mechanism)" -- imprecise for CVARS.** Holds
+>    literally for COMMANDS: `_handler_commands.py` maintains a `_func_stack`
+>    (`enter_function`/`exit_function`) and records `enclosing_function` at
+>    the `Cmd_AddCommand` CALL_EXPR. For CVARS `_handler_cvars.py` records
+>    only the `cvar_t X = {...}` VAR_DECL site (file scope, NO enclosing
+>    function); the `Cvar_Register(&X)` call is a separate site no handler
+>    binds to a registrar. Overseer-verified: `cl_bobhead` decl
+>    `cl_view.c:49` (file scope) vs `Cvar_Register(&cl_bobhead)`
+>    `cl_view.c:1160` inside `V_Init` (`cl_view.c:1127`).
+>    **Ratified reading:** the Track-A passenger itself binds
+>    `Cvar_Register`-family CALL_EXPRs to their enclosing FUNCTION_DECL
+>    during its read-only walk, using the shared visitor's EXISTING
+>    `enter_function`/`exit_function` hooks (`_visitor.py:49/54/141/162`).
+>    This is inherent to D6 ("collecting caller->callee edges + address-taken
+>    facts read-only"), NOT a new mechanism: "already-recorded" in D7.2 means
+>    "the registration call exists in the AST the walk already traverses,"
+>    NOT "lives in `cvar_versions.source_line`." Phase-3 (schema) must know
+>    the Track-A evidence is passenger-derived, not handler-recorded
+>    (review-findings F5 -> affects R2's evidence field shape).
+
 ## D8. Track B emission model -- full static `HUD_Register` command contract, dump-gated
 
 **Decision:** Literal + constant-flag modeling of the single `HUD_Register`

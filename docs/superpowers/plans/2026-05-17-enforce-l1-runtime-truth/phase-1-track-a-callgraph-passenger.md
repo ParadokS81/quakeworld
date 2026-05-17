@@ -11,8 +11,13 @@
 > 4. After drafting, dispatch the verification sub-agent. -- DONE; findings
 >    applied, see "Open questions".
 
-> **DEVIATION -- operator review required before this phase executes
-> (decisions.md D7.1 factual premise refuted by live recon; D11-shaped).**
+> **DEVIATION -- RESOLVED 2026-05-17 (operator-ratified; orchestrator
+> overseer-re-verified the refuted premise against live source before
+> routing). Option (a) ratified: minimal standalone textual scanner. The
+> dated amendment is landed at `decisions.md` D7 AMENDMENT 2026-05-17; this
+> phase is CLEARED to execute. Narrative below preserved as the record of
+> the path (decisions.md D7.1 factual premise refuted by live recon;
+> D11-shaped).**
 >
 > decisions.md D7 implication states: "The mechanism phase does not build the
 > commented-register detector from scratch (the extractor already runs
@@ -52,10 +57,12 @@
 > scratch" in the sense the prompt forbids (that phrase assumed a banked pass
 > to wrap; none exists).
 >
-> **Operator decision required (see Open questions OQ-1):** ratify the
-> minimal-textual-scanner default, OR amend D7.1 to drop feeder (b) from this
-> arc (Gate 2 then changes), OR direct a different home for the scanner. Do
-> NOT execute this phase until OQ-1 is resolved.
+> **Operator decision (OQ-1) -- RESOLVED 2026-05-17:** option (a) ratified
+> -- ship feeder (b) as the minimal standalone textual scanner in
+> `_callgraph.py`, architecturally separate from the call-graph (D1 no-blend
+> preserved). D7.1's two-feeder structural split STANDS; Phase-4 Gate-2 and
+> Phase-5 R4 unchanged. Authoritative record: `decisions.md` D7 AMENDMENT
+> 2026-05-17 (+ review-findings F4/F5). This phase is no longer blocked.
 
 ## Goal
 
@@ -527,24 +534,25 @@ State now true that was not before:
 
 ## Open questions / deferred items
 
-- **OQ-1 (DEVIATION -- operator must resolve before execution).**
+- **OQ-1 (DEVIATION -- RESOLVED 2026-05-17, operator-ratified).**
   - **Question:** decisions.md D7.1 / the drafter prompt assert "the
     extractor already runs textual passes [for commented-register] --
     surface its output feeder-tagged"; live recon proves no such pass
     exists (only a retired `_legacy/` trailing-help-comment pass, a
     different concern). "Surface existing output" is not executable.
-  - **Default chosen for now:** ship feeder (b) as a minimal standalone
+  - **Resolution (operator-ratified 2026-05-17; orchestrator
+    overseer-re-verified the refuted premise against live source before
+    routing):** option (a) -- ship feeder (b) as a minimal standalone
     textual scanner in `_callgraph.py`, architecturally separate from the
     call-graph (no AST/edge/BFS contact -- D1 no-blend), satisfying D7.1's
-    INTENT and Gate 2. This is NOT a sub-agent finding overridden by a
-    decision -- it is a decision whose factual premise live verification
+    INTENT and Gate 2. This was NOT a sub-agent finding overridden by a
+    decision -- it was a decision whose factual premise live verification
     refuted (the `feedback_parking_verified_state_is_hypothesis` /
-    D11-strike shape), surfaced not silently resolved.
-  - **Who can resolve:** operator -- ratify the minimal-scanner default, OR
-    amend D7.1 (drop feeder (b) from this arc; Gate 2 then changes), OR
-    direct a different scanner home. Per the phase-template + decisions.md
-    deviation rule this phase MD STOPS for operator review (deviation block
-    at top).
+    D11-strike shape), surfaced and routed, not silently resolved.
+  - **Recorded by:** `decisions.md` D7 AMENDMENT 2026-05-17 (authoritative)
+    + review-findings F4/F5 + the resolved deviation block at the top of
+    this MD. D7.1's two-feeder structural split STANDS; Phase-4 Gate-2 and
+    Phase-5 R4 are unchanged. Phase 1 is CLEARED to execute.
 - **OQ-2.**
   - **Question:** the existing walk collapses win/apple to label "client"
     (extract.py:134-137). The passenger needs the true 4-way variant. The
