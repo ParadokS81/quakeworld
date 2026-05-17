@@ -96,23 +96,39 @@ clause, it lands as a DATED block under `decisions.md` D6 (concise
 mirror in the spec per the established pattern) + a Phase-3-MD recon
 note, ratified by operator/orchestrator before the loop resumes.
 
-## Fresh-terminal task (the amendment terminal)
+## Fresh-terminal task -- TWO stages, two terminals, in order
 
-1. Invoke `arc-executor` (or arc-orchestrator if treating this as a
-   cross-phase amendment). Read this doc + `decisions.md` D5/D6/D7 +
-   the Phase-3 MD Task 2 + the resume handoff
+This is a `decisions.md` D6 amendment. D6 is consumed by Phase 3 (KTX)
+AND Phase 4 (MVDSV fans the SAME D6 skill -- see the D7 clarification
+block "Cross-cutting: Phase 4 fans the SAME D6 skill"). A change to D6
+fan-out granularity is therefore cross-phase decision memory ->
+**orchestrator-owned**, NOT an executor default. The arc-executor skill
+explicitly does not amend `decisions.md`; amendments route through
+orchestrator + operator. So:
+
+### Stage A -- arc-ORCHESTRATOR terminal (fresh): the amendment
+
+1. Invoke `arc-orchestrator` (or the operator acting as manual
+   orchestrator). Read this doc + `decisions.md` D5/D6/D7 + the
+   Phase-3 MD Task 2 + the resume handoff
    (`2026-05-17-ktx-mvdsv-l1-describe-fill-phase3-executor-resume.md`).
 2. Quantify the families from the manifest (real numbers, not the
    estimate above): grep contiguous same-handler registration blocks;
    produce the family inventory (family -> members -> shared handler ->
    parameter axis) and the residual genuinely-individual count.
 3. Draft the dated D6 amendment (the lane, points 1-5 above) + the
-   concise spec mirror + the Phase-3-MD recon note + a one-line
-   executor-prompt augmentation. Surface to operator/orchestrator for
-   ratification (this is a decision, not an executor default).
-4. On ratification: build the family-lane dispatch (one Opus-MAX family
-   evaluator emitting the family JSON array + the per-member binding
-   verifier as a cheap pass), prove it on ONE family end-to-end
+   concise spec mirror (amendment-precedence pattern) + the Phase-3-MD
+   recon note + the one-line executor-prompt augmentation. Surface to
+   the operator for ratification (this is a decision, not an executor
+   default). The orchestrator owns this cross-phase memory write; it
+   also flags the same lane is available to Phase 4 (MVDSV).
+
+### Stage B -- arc-EXECUTOR terminal (fresh, ONLY after ratification): build + resume
+
+4. Invoke `arc-executor`. Build the family-lane dispatch (one Opus-MAX
+   family evaluator emitting the family JSON array + the per-member
+   binding verifier as a cheap pass -- the divergence-catch is a HARD
+   gate, not a formality), prove it on ONE family end-to-end
    (cheap-probe discipline) against the existing idempotent `--persist`
    + `--status`/`--fingerprint` gates, then resume the volume loop
    family-aware. Heterogeneous knobs keep the proven per-knob loop.
