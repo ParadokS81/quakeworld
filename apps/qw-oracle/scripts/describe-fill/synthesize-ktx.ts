@@ -23,6 +23,19 @@
 //   --fingerprint     Read-only. Print the deterministic committed-row md5 over
 //                     the in-scope KTX set for idempotency + F-D4a proof anchoring.
 //
+//   --verify-binding  Read-only. The cat-2/cat-3 mechanical per-member binding
+//                     verifier (D6 family-lane amendment 2026-05-17, RATIFIED).
+//                     `--verify-binding <HandlerSymbol>` prints the authoritative
+//                     LIVE cmd_t binding table for the DEF(<HandlerSymbol>)
+//                     index-twin family at the anchor (one row per member:
+//                     canonical_id, literal, source line, manifest-consistency).
+//                     `--verify-binding --cohort <namePrefix>` is the cat-3
+//                     CLASSIFIER: it reports the index-twin fit-fraction for the
+//                     cohort; an ~0 fraction is MASS_REJECT -> route the cohort
+//                     OUT to the cat-3 scaffold (never twin-collapse). Source-
+//                     truth-first, keyed off the loader-lowercased canonical_id
+//                     (F-D10b), case-insensitive. No DB access, no entity touch.
+//
 // Placeholders (do NOT invoke; they throw "not yet implemented"):
 //
 //   --fan-out         Task 2 (dispatch half): dispatch the D6 guardrailed skill
@@ -913,6 +926,343 @@ async function fingerprintCmd(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// verify-binding: the cat-2/cat-3 mechanical per-member binding verifier
+// ---------------------------------------------------------------------------
+//
+// WHY this exists (D6 family-lane amendment 2026-05-17, RATIFIED -- cat-3 =
+// option (b)): the cat-2 index-twin lane substitutes a per-member parameter
+// into ONE Opus-4.7-MAX family eval. The safety property is that each member's
+// source binding is independently confirmed MECHANICALLY -- the member's live
+// registration row exists, dispatches the SAME handler, with the expected
+// literal. This helper IS that confirmation, concentrated into one
+// reproducible read-only pass: F-D6a is not relaxed by the lane, it is
+// concentrated (one family eval to verify + N cheap binding checks vs N
+// independent Opus claims). It is ALSO the cat-3 CLASSIFIER -- feed a cohort
+// and essentially all members fail the index-twin binding check; that
+// mass-rejection IS the signal it is category 3, route OUT to the scaffold
+// (never "force the family").
+//
+// Source-truth-first: parses the LIVE KTX cmd_t table at the anchor and keys
+// off the loader-lowercased canonical_id (F-D10b: source "XonX" ->
+// ktx:command:xonx), case-insensitive -- NOT a reconstruction from the source
+// name string (else a real member false-ejects -- a false-negative
+// divergence). Read-only: no DB access, no entity touch (mirrors the
+// --status/--fingerprint safety posture). The executor owns the
+// Opus-claimed-vs-live divergence diff; this helper owns the mechanical
+// live-source truth it diffs against.
+
+interface CmdTableRow {
+  name: string;        // the quoted command name exactly as written in source
+  handler: string;     // DEF(symbol) inner symbol, or the bare fn identifier
+  isDef: boolean;      // true if the handler is wrapped in DEF(...)
+  literal: string;     // 3rd field trimmed (int "5" / float "5.0f" / "0")
+  flags: string;       // 4th field (CF_... | CF_...; no top-level commas)
+  cdDoc: string;       // the CD_ doc constant (5th field)
+  sourceLine: number;  // 1-based line number in src/commands.c
+  canonicalId: string; // ktx:command:<name lowercased> (F-D10b loader rule)
+}
+
+const COMMANDS_C_REL = 'src/commands.c';
+
+// Parse the `cmd_t cmds[] = { ... };` array out of commands.c into structured
+// rows. WHY slice the array first: commands.c has multiple `};`-terminated
+// blocks (verified live: 1063 / 4554 / 9117); parsing the whole file would
+// pull rows from unrelated tables. WHY split-on-comma not one mega-regex: a
+// cmd_t row is exactly 5 top-level comma-separated fields ({ name, handler,
+// literal, flags, cd }); DEF(...) has no comma, flags use `|` not `,`,
+// literals are simple -- so a comma split is robust and obvious where a
+// nested-regex would be clever and fragile (grug: simple obvious > clever).
+function parseCmdTable(commandsSrc: string): CmdTableRow[] {
+  const lines = commandsSrc.split('\n');
+
+  // Locate the cmds[] array. The declaration line is `cmd_t cmds[] =`.
+  const startIdx = lines.findIndex((l) => /^cmd_t\s+cmds\[\]\s*=/.test(l));
+  if (startIdx === -1) {
+    throw new Error(
+      `--verify-binding: could not find 'cmd_t cmds[] =' in ${COMMANDS_C_REL} ` +
+      '(is KTX_SOURCE_ROOT at the anchor?)',
+    );
+  }
+  // The array ends at the first standalone `};` AFTER the declaration.
+  let endIdx = -1;
+  for (let i = startIdx + 1; i < lines.length; i++) {
+    if (/^\};/.test(lines[i]!)) {
+      endIdx = i;
+      break;
+    }
+  }
+  if (endIdx === -1) {
+    throw new Error(
+      `--verify-binding: could not find the closing '};' of cmds[] in ${COMMANDS_C_REL}`,
+    );
+  }
+
+  const rows: CmdTableRow[] = [];
+  const parseFailures: Array<{ line: number; text: string }> = [];
+
+  for (let i = startIdx + 1; i < endIdx; i++) {
+    const raw = lines[i]!;
+    // A row line starts (after leading whitespace) with `{ "`.
+    if (!/^\s*\{\s*"/.test(raw)) continue;
+
+    // Strip the outer braces and any trailing comma, then split into the
+    // 5 top-level fields. A row with a stray comma in an unexpected place
+    // is recorded as a parse failure (surfaced, never silently dropped --
+    // C1 / verification discipline).
+    const inner = raw.trim().replace(/^\{/, '').replace(/\},?\s*$/, '');
+    const parts = inner.split(',');
+    if (parts.length < 5) {
+      parseFailures.push({ line: i + 1, text: raw.trim() });
+      continue;
+    }
+
+    const nameMatch = parts[0]!.match(/"([^"]+)"/);
+    if (!nameMatch) {
+      parseFailures.push({ line: i + 1, text: raw.trim() });
+      continue;
+    }
+    const name = nameMatch[1]!;
+
+    const handlerRaw = parts[1]!.trim();
+    const defMatch = handlerRaw.match(/^DEF\(\s*([A-Za-z_]\w*)\s*\)$/);
+    const isDef = defMatch !== null;
+    const handler = isDef ? defMatch![1]! : handlerRaw;
+
+    const literal = parts[2]!.trim();
+    // Flags may have been split if (hypothetically) it contained a comma;
+    // it does not in practice (verified live -- `CF_A | CF_B`), but rejoin
+    // the middle so cd is always the LAST field regardless.
+    const cdRaw = parts[parts.length - 1]!.trim();
+    const cdMatch = cdRaw.match(/([A-Za-z_]\w*)/);
+    const cdDoc = cdMatch ? cdMatch[1]! : cdRaw;
+    const flags = parts.slice(3, parts.length - 1).join(',').trim();
+
+    rows.push({
+      name,
+      handler,
+      isDef,
+      literal,
+      flags,
+      cdDoc,
+      sourceLine: i + 1,
+      // F-D10b loader rule: command canonical_id is lowercased.
+      canonicalId: `ktx:command:${name.toLowerCase()}`,
+    });
+  }
+
+  if (parseFailures.length > 0) {
+    process.stdout.write(
+      `\n[verify-binding] WARNING: ${parseFailures.length} cmd_t line(s) did not ` +
+      `parse (surfaced, not dropped -- C1):\n`,
+    );
+    for (const f of parseFailures) {
+      process.stdout.write(`  ${COMMANDS_C_REL}:${f.line}  ${f.text}\n`);
+    }
+  }
+
+  return rows;
+}
+
+// Read the manifest entities keyed by canonical_id (lowercased -- F-D10b /
+// operator no-case-sensitivity). Used to cross-check that each live family
+// member is an in-scope manifest entity and that the manifest-recorded
+// source_line matches the live registration line.
+function loadManifestByCanonicalId(): Map<
+  string,
+  { canonical_id: string; knob: string; entity_type: string; source_line: number | null }
+> {
+  if (!existsSync(MANIFEST_PATH)) {
+    throw new Error(
+      `--verify-binding: manifest not found at ${MANIFEST_PATH}. ` +
+      'Run --assemble-only first.',
+    );
+  }
+  const manifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf-8')) as Phase3Manifest;
+  const map = new Map<
+    string,
+    { canonical_id: string; knob: string; entity_type: string; source_line: number | null }
+  >();
+  for (const e of manifest.entities) {
+    map.set(e.canonical_id.toLowerCase(), {
+      canonical_id: e.canonical_id,
+      knob: e.knob,
+      entity_type: e.entity_type,
+      source_line: e.source_ref.source_line,
+    });
+  }
+  return map;
+}
+
+// cat-2: print the authoritative LIVE binding table for one DEF(<symbol>)
+// index-twin family. The executor diffs the Opus family-eval's per-member
+// literal/meaning list against THIS (the F-D6a divergence-catch); a member
+// the Opus list claims but that is absent here, or present with a different
+// handler/literal, is EJECTED to the cat-1 per-knob path.
+function verifyFamilyBinding(handlerSymbol: string): void {
+  const commandsSrc = readFileSync(
+    join(KTX_SOURCE_ROOT, COMMANDS_C_REL),
+    'utf-8',
+  );
+  const rows = parseCmdTable(commandsSrc);
+  const manifest = loadManifestByCanonicalId();
+
+  const members = rows.filter((r) => r.isDef && r.handler === handlerSymbol);
+
+  process.stdout.write(`=== --verify-binding: cat-2 family DEF(${handlerSymbol}) ===\n`);
+  process.stdout.write(`source: ${COMMANDS_C_REL} (live tree at the anchor)\n`);
+  process.stdout.write(`members found (shared handler DEF(${handlerSymbol})): ${members.length}\n\n`);
+
+  if (members.length === 0) {
+    process.stdout.write(
+      `NO ROWS. Either the handler symbol is wrong, or this is NOT a ` +
+      `DEF()-dispatched index-twin family -> do NOT force a family; route per ` +
+      `the cat-1/cat-3 rules.\n`,
+    );
+    return;
+  }
+
+  // Stable order by literal-as-number when possible, else by name, for a
+  // deterministic, diff-friendly report.
+  members.sort((a, b) => {
+    const an = parseFloat(a.literal);
+    const bn = parseFloat(b.literal);
+    if (!Number.isNaN(an) && !Number.isNaN(bn) && an !== bn) return an - bn;
+    return a.name.localeCompare(b.name);
+  });
+
+  let allConsistent = true;
+  for (const m of members) {
+    const mf = manifest.get(m.canonicalId.toLowerCase());
+    const inManifest = mf !== undefined;
+    const lineMatch =
+      inManifest && mf!.source_line === m.sourceLine ? 'YES' : 'NO';
+    if (!inManifest || lineMatch === 'NO') allConsistent = false;
+    process.stdout.write(
+      `  ${m.canonicalId.padEnd(28)} literal=${m.literal.padEnd(7)} ` +
+      `${COMMANDS_C_REL}:${m.sourceLine}  ` +
+      `in_manifest=${inManifest ? 'YES' : 'NO'} ` +
+      `manifest_line_match=${inManifest ? lineMatch : 'n/a'}` +
+      `${m.flags ? `  flags=${m.flags}` : ''}\n`,
+    );
+  }
+
+  process.stdout.write('\n');
+  process.stdout.write(
+    `family verdict: ${allConsistent ? 'FAMILY_OK' : 'DIVERGENCE'} ` +
+    `(${allConsistent
+      ? 'every live member is an in-scope manifest entity with a matching source line'
+      : 'a member is absent from the manifest or its source line disagrees -- ' +
+        'investigate before persisting; do NOT force the family (F-D6a)'})\n`,
+  );
+  process.stdout.write(
+    'NEXT: the executor diffs the Opus family-eval per-member list against ' +
+    'this live table; any Opus-claimed member not present here (or here with a ' +
+    'different literal) is EJECTED to the cat-1 per-knob Opus-4.7-MAX path ' +
+    '(the divergence-catch -- a HARD blocking gate, not a formality).\n',
+  );
+}
+
+// cat-3 CLASSIFIER: given a manifest name prefix (e.g. k_fbskill), report what
+// fraction of the cohort resolves to a shared-handler DEF() index-twin cmd_t
+// row. Essentially-zero fit => MASS_REJECT => route the whole cohort OUT to
+// the cat-3 cohort-scaffold lane (NEVER twin-collapse a cohort -- the only
+// LOCK). Also prints the distinct-handler histogram so the Frogbot*-style
+// "name-clustered but N distinct handlers" case is visible (the amendment's
+// recon precedent that the catch is load-bearing, not ceremony).
+function classifyCohort(namePrefix: string): void {
+  const commandsSrc = readFileSync(
+    join(KTX_SOURCE_ROOT, COMMANDS_C_REL),
+    'utf-8',
+  );
+  const rows = parseCmdTable(commandsSrc);
+  const rowByCanonical = new Map<string, CmdTableRow>();
+  for (const r of rows) rowByCanonical.set(r.canonicalId.toLowerCase(), r);
+
+  if (!existsSync(MANIFEST_PATH)) {
+    throw new Error(
+      `--verify-binding --cohort: manifest not found at ${MANIFEST_PATH}.`,
+    );
+  }
+  const manifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf-8')) as Phase3Manifest;
+  const prefixLc = namePrefix.toLowerCase();
+  const cohort = manifest.entities.filter((e) =>
+    e.knob.toLowerCase().startsWith(prefixLc),
+  );
+
+  process.stdout.write(`=== --verify-binding --cohort ${namePrefix} (cat-3 classifier) ===\n`);
+  process.stdout.write(`cohort members (manifest name prefix '${namePrefix}'): ${cohort.length}\n\n`);
+
+  if (cohort.length === 0) {
+    process.stdout.write('NO cohort members matched the prefix -- check the prefix.\n');
+    return;
+  }
+
+  // For each cohort member: does it resolve to an index-twin cmd_t row
+  // (isDef === true) whose DEF() handler is SHARED by >=2 cohort members?
+  const handlerHist = new Map<string, number>();
+  let fitCount = 0;
+  const perMember: Array<{ cid: string; fit: boolean; handler: string | null; isDef: boolean }> = [];
+
+  for (const e of cohort) {
+    const row = rowByCanonical.get(e.canonical_id.toLowerCase());
+    if (row && row.isDef) {
+      handlerHist.set(row.handler, (handlerHist.get(row.handler) ?? 0) + 1);
+      perMember.push({ cid: e.canonical_id, fit: true, handler: row.handler, isDef: true });
+    } else {
+      perMember.push({
+        cid: e.canonical_id,
+        fit: false,
+        handler: row ? row.handler : null,
+        isDef: row ? row.isDef : false,
+      });
+    }
+  }
+  // A member only truly "fits the twin lane" if its DEF() handler is shared
+  // by >=2 cohort members (a lone DEF() row is not an index-twin family).
+  for (const pm of perMember) {
+    if (pm.fit && pm.handler && (handlerHist.get(pm.handler) ?? 0) >= 2) {
+      fitCount++;
+    } else {
+      pm.fit = false;
+    }
+  }
+
+  const fitFraction = fitCount / cohort.length;
+  process.stdout.write(
+    `index-twin fit: ${fitCount}/${cohort.length} ` +
+    `(${(fitFraction * 100).toFixed(1)}%) members resolve to a shared-handler ` +
+    `DEF() index-twin cmd_t row\n`,
+  );
+  process.stdout.write('distinct-handler histogram (shared DEF handlers among the cohort):\n');
+  if (handlerHist.size === 0) {
+    process.stdout.write('  (none -- no cohort member is a DEF()-dispatched cmd_t row)\n');
+  } else {
+    for (const [h, n] of [...handlerHist.entries()].sort((a, b) => b[1] - a[1])) {
+      process.stdout.write(`  DEF(${h}): ${n}\n`);
+    }
+  }
+  process.stdout.write('\n');
+
+  // MASS_REJECT threshold: the amendment says "essentially all members fail".
+  // Any non-trivial fit means it might be a real family; <10% fit (and no
+  // handler shared by a majority) is the unambiguous mass-rejection signal.
+  const isMassReject = fitFraction < 0.1;
+  process.stdout.write(
+    `classifier verdict: ${isMassReject ? 'MASS_REJECT' : 'INSPECT'} -- ` +
+    `${isMassReject
+      ? 'essentially no member fits the index-twin binding; this is a ' +
+        'category-3 namespace cohort. Route the WHOLE cohort OUT to the ' +
+        'cat-3 cohort-scaffold lane (option b, RATIFIED): ONE Opus-4.7-MAX ' +
+        'shared-mechanism pass, then each member INDIVIDUALLY source-grounded ' +
+        '(D8 mechanism-only bar per-member, NO semantic collapse). NEVER ' +
+        'twin-collapse a cohort (the only LOCK).'
+      : 'a non-trivial fraction fits a shared handler -- inspect manually; ' +
+        'this may be a real index-twin family or a mixed set. Do NOT auto ' +
+        'twin-collapse; confirm by source-grep before routing.'}\n`,
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Task 2/3/4 placeholders
 // ---------------------------------------------------------------------------
 
@@ -964,6 +1314,35 @@ async function main(): Promise<void> {
       await statusReport();
     } else if (args.includes('--fingerprint')) {
       await fingerprintCmd();
+    } else if (args.includes('--verify-binding')) {
+      // --verify-binding <HandlerSymbol>            (cat-2 family table)
+      // --verify-binding --cohort <namePrefix>      (cat-3 classifier)
+      // WHY no DB / no closeSql concern: this mode is purely file+source
+      // (manifest JSON + live commands.c); it never opens the sql connection,
+      // so the finally{} closeSql() is a harmless no-op here.
+      const vbIdx = args.indexOf('--verify-binding');
+      if (args.includes('--cohort')) {
+        const cohortIdx = args.indexOf('--cohort');
+        const prefix = args[cohortIdx + 1];
+        if (!prefix || prefix.startsWith('--')) {
+          process.stderr.write(
+            'synthesize-ktx --verify-binding --cohort: missing name-prefix argument.\n' +
+            'Usage: --verify-binding --cohort <namePrefix>\n',
+          );
+          process.exit(1);
+        }
+        classifyCohort(prefix);
+      } else {
+        const handlerSymbol = args[vbIdx + 1];
+        if (!handlerSymbol || handlerSymbol.startsWith('--')) {
+          process.stderr.write(
+            'synthesize-ktx --verify-binding: missing handler-symbol argument.\n' +
+            'Usage: --verify-binding <HandlerSymbol> | --verify-binding --cohort <namePrefix>\n',
+          );
+          process.exit(1);
+        }
+        verifyFamilyBinding(handlerSymbol);
+      }
     } else if (args.includes('--fan-out')) {
       await fanOut();
     } else if (args.includes('--gate')) {
@@ -973,7 +1352,9 @@ async function main(): Promise<void> {
     } else {
       process.stderr.write(
         'synthesize-ktx: no mode specified.\n' +
-        'Modes: --assemble-only | --persist <file> [--dry-run] | --status | --fingerprint | --fan-out | --gate | --probe\n',
+        'Modes: --assemble-only | --persist <file> [--dry-run] | --status | --fingerprint | ' +
+        '--verify-binding <HandlerSymbol> | --verify-binding --cohort <namePrefix> | ' +
+        '--fan-out | --gate | --probe\n',
       );
       process.exit(1);
     }
