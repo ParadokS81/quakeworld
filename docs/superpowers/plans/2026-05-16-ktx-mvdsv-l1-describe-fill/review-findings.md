@@ -265,12 +265,33 @@ consumes; do not implement the wiki side).
   cvars M=260, commands M=358 (311 in L1, 47 CD_NODESC), info_keys M=7 (done);
   MVDSV cvars M=183, commands M=108 (28 loader-blocked), cmdline M=11 (9 from
   `mvdsv.6`). Use these, not a hand-picked subset.
-- **KTX extractor is tree-sitter; MVDSV is libclang -- different
-  methodology.** The D9 KTX sibling extractor for shipped-config is a NEW
-  handler, not the registration handler, and not the libclang pattern. Phase 2
-  (KTX) and Phase 4 (MVDSV) drafters must recon the actual extractor shape per
-  engine; do not assume a shared scaffold. (`onboard-extractor` skill scope
-  note; `project_extraction_pipeline_vision`.)
+- **Canonical KTX and MVDSV are BOTH libclang/C -- the D9 shipped-config
+  extractor is a NEW sibling handler (the real per-engine difference is the
+  handler, NOT the parse methodology).** Phase 2 (KTX) and Phase 4 (MVDSV)
+  drafters recon the actual extractor shape per engine; the D9 shipped-config
+  sibling is a NEW handler distinct from the existing registration handler --
+  do not fold it in. (`onboard-extractor` skill scope note;
+  `project_extraction_pipeline_vision`.)
+
+  **CORRECTION 2026-05-17 (planner, primary-source-verified at Phase 1
+  review -- OQ-3 discipline; supersedes, does not silently override).** The
+  original wording of this bullet asserted "KTX extractor is tree-sitter;
+  MVDSV is libclang -- different methodology ... [KTX] not the libclang
+  pattern." That is FALSE for canonical KTX and is the same inference-not-
+  verified failure family as OQ-3. Verified live: every
+  `apps/qw-oracle/scripts/extractors/ktx/_handler_*.py` (cvars:63,
+  commands:88, info_keys:68, modes:90, gameplay_taxonomies:78,
+  log_templates:56) imports `from clang.cindex` (libclang); `extract.py:45`
+  uses `clang.cindex.Config, Index`; `apps/qw-oracle/scripts/extractors/
+  CLAUDE.md:25` states "libclang for C/C++ ports (ezquake, fte, mvdsv, qwcl,
+  KTX-canonical); tree-sitter is reserved for the dusty-ktx fork's qcsrc/
+  (QuakeC), not yet onboarded." Tree-sitter applies ONLY to the out-of-scope
+  `dusty-ktx` QuakeC fork (F-D10c), never to canonical KTX. The Phase 1
+  drafter correctly surfaced this (Phase 1 MD top "Recon correction" +
+  Open Q (a)) rather than consuming the wrong premise; this dated block is
+  the planner acting on that surface so the Phase 2 KTX drafter prompt is
+  generated against verified truth. `phase-template.md` checklist item 3
+  inherited the same false phrasing and is corrected in the same commit.
 
 ---
 
