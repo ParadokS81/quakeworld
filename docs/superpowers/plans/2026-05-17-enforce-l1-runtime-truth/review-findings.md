@@ -134,6 +134,43 @@ byte-identical set; it gets the separate off-absent / on-present check.
 **Resolved by:** Phase-1 MD orchestrator-correction 2026-05-17 (dated note
 in its Task-2 block); Phase-2 MD already uses the live stems; this finding.
 
+### F7 -- dump DOES carry an embedded commit banner; "pin rests ENTIRELY on the proxy" is FALSE
+
+**Correction:** The detection README
+(`apps/qw-oracle/data/detection/README.md`, "Version-pin provenance (R6)")
+and the Phase-4 MD Recon facts both assert the runtime dump carries NO
+embedded version banner and commit-pinning rests ENTIRELY on the
+`front1-diff.sh:33-36` SANITY GATE. Orchestrator primary-source check
+2026-05-17 (Phase-4 gate) refutes this: dump line 3347 is the
+`version`-command OUTPUT `ezQuake 3.7.0-dev 8084~3f9e724fa` -- a direct
+embedded commit prefix (`~3f9e724fa` == the pin `3f9e724fa608e516...`),
+sitting in the post-macrolist tail OUTSIDE all three `front1-diff.sh`
+extraction ranges (7-564 / 571-3272 / 3276-3344) so it never polluted the
+74/92/129 diff. The README author saw only line 545 (the `version` command
+NAME in cmdlist) and missed line 3347 (its OUTPUT). Same
+`feedback_parking_verified_state_is_hypothesis` shape as F4/D7.1 and the D11
+strike.
+
+**Impact on this arc:** the proxy stays a valid hard sub-gate, but the dump
+self-certifies its commit -- a strictly stronger, EXACT D19 sub-gate than
+the "no known-live cvar leaked" heuristic (the strict-bar
+autonomous-level-3 consumer -- `reference_rigor_bar_follows_consumer`).
+Provenance for the in-repo dump is CONFIRMED three independent ways
+(embedded SHA + orchestrator R6 re-run GREEN 74/92/129 + session-3
+byte-identical cmp); prerequisites item 4 provenance CLOSED.
+
+**Action for the ACC phase:** correct the false "no embedded banner / rests
+entirely on the proxy" Recon fact AND the detection README's "Version-pin
+provenance (R6)" section; wire the embedded `~<sha>` vs `oracle_meta
+ezquake:source_repo_commit` match as the version-pin proxy's PRIMARY hard
+leg (operator-ratified 2026-05-17, S2), keeping `front1-diff.sh:33-36` as a
+secondary corroborator; `front1-diff.sh` stays byte-immutable (the SHA leg
+lives in `version-pin-proxy.sh`). Future forks/pins inherit the stronger
+exact check.
+
+**Resolved by:** Phase-4 MD revision 2026-05-17 (S2; orchestrator gate
+primary-source finding, operator-ratified); this finding.
+
 ---
 
 ## R -- implementation residuals (brainstorm-deferred; owning phase resolves)
@@ -266,6 +303,7 @@ mechanism; **S** = unified schema + loader; **ACC** = acceptance contract;
 | F4 (no extant comment-reg pass) | A | D7 amendment; build minimal standalone scanner |
 | F5 (cvar registrar asymmetry) | A (derive) + S (aware) | D7 amendment; passenger-derived evidence |
 | F6 (X3 file set = live stems) | A (corrected) + B (correct) + S/APP | enumerate the 8 live output_filename stems; 9th additive |
+| F7 (dump embedded commit banner; "rests entirely on proxy" false) | ACC | correct Recon fact + detection README; embedded-SHA primary proxy leg (S2) |
 | R1 (AST-confirm literal) | B | AST probe before literal-only is load-bearing |
 | R2 (D15/D12 field shape) | S | two separate fields; feeder tag structural |
 | R3 (D16 element key) | B (emit) + S (store) | element-grouped provenance |
