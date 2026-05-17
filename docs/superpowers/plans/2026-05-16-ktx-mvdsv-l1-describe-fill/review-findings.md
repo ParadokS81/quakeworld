@@ -320,6 +320,31 @@ here, NOT a Phase 0/3 deliverable.
 the artifacts), Phase 3 (consume the corrected reading -- KTX commands carry
 no Phase-0 C3 signal; do NOT dead-stamp them).
 
+### F-C3d -- `extract-tag --version head` does not advance from origin (latent; the Phase 5 D4 staleness walk shares it)
+
+**Surfaced by:** the Phase 0 executor, Task 2 advisory 2026-05-17. The
+re-extract subagent worked around it correctly -- fetched origin, pinned the
+exact dev-head SHA, passed an explicit `--commit`; the Phase 0 oracle is
+sound (orchestrator-verified live: `versions` ktx `67253dc9`, mvdsv
+`18d03621`, NOT the stale `da73e06` / `f816d28`).
+
+**Contained by:** explicit fetch + SHA-pin + `--commit` at every dev-head
+re-extract; recorded in `phase-0-results.md` provenance.
+
+**Evidence:** `extract-tag --version head` checks out the local clone's
+master as-is; it does NOT `git fetch` origin first, so any step that trusts
+it to "re-extract dev-head" silently extracts a stale tree.
+
+**Risk (advisory, not arc-invalidating):** the Phase 5 D4 staleness walk
+("re-dump + re-extract on every version walk", spec C3 amendment) is the
+next consumer; if it assumes `extract-tag` advances it anchors staleness
+against a stale tree -- a silent false-"not drifted". The mitigation is a
+one-line discipline already proven in Phase 0.
+
+**Phase:** Phase 5 (the D4 staleness-walk runbook explicitly fetches origin
++ pins the exact dev-head SHA + passes `--commit`; do not assume
+`extract-tag` advances).
+
 ### Pre-dispatch holistic gate 2026-05-17 -- audit trail (Findings 2 + 3)
 
 The gate (orchestrator pre-dispatch, whole-plan-as-one-object) returned NOT
@@ -501,6 +526,7 @@ consumes; do not implement the wiki side).
 | F-C1a (Phase-2 hardcoded M=260; Phase-0 re-baselines) | Substantive | Phase 2 (recon POST-Phase-0 M, no hardcoded 260), Phase 0 (produces the re-baseline) -- Correction 1 committed `d0bd2068` |
 | F-C5b (synthesized-anchor probe was global; arc-scoped) | Substantive | Phase 1 (ship arc-scoped, mirror the `origin_vocabulary` guard), all fill phases (re-run) -- adjudicated Option 1 2026-05-17 |
 | F-C3c (ktx/command C3 leg measurement-invalid; cmdlist blind to KTX mod commands) | Substantive | Phase 0 (exclude leg as NON-DIAGNOSTIC, correct artifacts -- Executor correction 2026-05-17), Phase 3 (do NOT dead-stamp KTX commands) |
+| F-C3d (extract-tag head doesn't advance from origin; latent) | Advisory | Phase 5 (D4 walk: explicit fetch + SHA-pin + `--commit`) -- Phase 0 proved the mitigation |
 | F-D10b (case-fidelity soft dep) | Boundary | Phase 5 (note only) |
 | F-D10c (dusty-* fork separate arc) | Boundary | Phase 3 (note only) |
 | F-C3b (reachability parked arc) | Boundary | Phase 0 + Phase 3 (note only) |
