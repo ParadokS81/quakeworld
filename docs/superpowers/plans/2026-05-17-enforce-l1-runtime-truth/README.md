@@ -17,12 +17,16 @@ two mechanisms, phased and SEPARATELY GATED, zero mechanism blending.
 DRAFTED. A pre-execution **cross-phase consistency audit** (dedicated
 fresh terminal; brief at
 `docs/superpowers/parking/2026-05-17-enforce-l1-runtime-truth-cross-phase-audit-prompt.md`)
-is the HARD GATE before execution -- it closes the transitive-breakage gap
-the pairwise fresh-terminal-per-phase gates structurally could not (no
-single reader held all 5 frozen MDs at once; T1-T6). The DISTINCT
-EXECUTION orchestration has NOT started and is BLOCKED until the audit is
-CLEAN/resolved (a different, heavier mode -- arc-executor per phase, fresh
-terminal; see
+was the HARD GATE before execution -- it closes the transitive-breakage
+gap the pairwise fresh-terminal-per-phase gates structurally could not
+(no single reader held all 5 frozen MDs at once; T1-T6). It RAN +
+CLEARED 2026-05-17: T1-T6 CLEAN; found + resolved **review-findings F8**
+(X1 CRITICAL mig-ordinal collision with the parallel ktx-mvdsv arc + X2
+SUBSTANTIVE quality-grid.ts cite-staleness; targeted revision `a04c6929`,
+no redraft, no D-amendment; operator-cleared). The DISTINCT EXECUTION
+orchestration is now UNBLOCKED but NOT yet started (a different, heavier
+mode -- arc-executor per phase, fresh terminal; F8's standing rule binds
+the executor; see
 `docs/superpowers/parking/2026-05-17-enforce-l1-runtime-truth-drafts-approved-to-execution-handoff.md`).
 Scaffold built 2026-05-17 (decisions / review-findings / prerequisites /
 phase-template / handoff-prompt / README).

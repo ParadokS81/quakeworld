@@ -27,8 +27,8 @@ Status:
   P4 `06cd544a` (S2/F7 embedded-SHA primary proxy leg); **P5 this session**
   (`phase-5-application-outputs.md`, flipped approved -- commit at this
   session's cadence). The arc plan is fully drafted.
-- **EXECUTION: NOT STARTED. Pre-execution cross-phase audit GATE: RAN +
-  RESOLVED 2026-05-17 (operator pending final gate-clear sign-off).** The
+- **EXECUTION: UNBLOCKED. Pre-execution cross-phase audit GATE: CLEARED
+  2026-05-17 (operator signed off after F8 found + resolved + re-verified).** The
   dedicated fresh-terminal audit (brief at
   `docs/superpowers/parking/2026-05-17-enforce-l1-runtime-truth-cross-phase-audit-prompt.md`)
   RAN: T1-T6 token contracts CLEAN; it found one CRITICAL, and the
@@ -52,9 +52,10 @@ Status:
   row added. Orchestrator-re-verified: no residual stale ordinal/cite,
   T1/T2 enum+feeder+column tokens UNTOUCHED, ASCII clean. NO redraft, NO
   `decisions.md` D-amendment (X8 generalized to cross-arc drift). The
-  gate's "CLEAN or findings resolved" condition is satisfied. Do NOT
-  dispatch Phase 1 until the operator confirms the gate-clear; once
-  cleared, Phase 1 is first.
+  gate's "CLEAN or findings resolved" condition is satisfied and the
+  operator CLEARED the gate 2026-05-17. EXECUTION IS UNBLOCKED -- Phase 1
+  is first. (F8's STANDING RULE still binds the executor -- see Critical
+  rules.)
 - **Prerequisites:** items 1-3 satisfied at scaffold time, RE-CONFIRM LIVE
   before Phase 1 (X8 -- "verified" is a hypothesis): the ezQuake extractor
   runs end-to-end + emits its current entity JSON (also the X3 zero-diff
@@ -246,16 +247,16 @@ s4->s5 `c632f5dd`; P5 APPROVED + this handoff = this session. Branch
    BOTH legs `3f9e724f`; postgres container up); prereq-4 durable in-repo
    + F7 provenance CLOSED. Do NOT re-open design; do NOT re-derive pools
    (74/92/129 banked + session-5-reproduced via the BANKED proxy/dump --
-   X7). **HARD GATE -- STATUS: RAN + RESOLVED (commit `a04c6929`),
-   operator gate-clear pending.** The cross-phase audit ran: T1-T6 CLEAN;
-   F8 (X1 CRITICAL mig-ordinal collision + X2 SUBSTANTIVE quality-grid.ts
-   cite-staleness, same root cause -- the active ktx-mvdsv arc drifted
-   into shared files post-freeze) was found and RESOLVED by a targeted
-   revision (executor-derived ordinal + de-staled cites; no redraft, no
-   D-amendment). Confirm the operator cleared the gate AND that F8's
-   STANDING RULE is carried into the Phase-1+ executor (next bullet). If
-   the operator has NOT cleared it, STOP -- ask for the gate-clear; do
-   not dispatch on a pending gate.
+   X7). **HARD GATE -- STATUS: CLEARED 2026-05-17 (commit `a04c6929`
+   resolved F8; operator signed off the gate-clear).** The cross-phase
+   audit ran: T1-T6 CLEAN; F8 (X1 CRITICAL mig-ordinal collision + X2
+   SUBSTANTIVE quality-grid.ts cite-staleness, same root cause -- the
+   active ktx-mvdsv arc drifted into shared files post-freeze) was found,
+   RESOLVED by a targeted revision, re-verified, and operator-cleared.
+   The gate is OPEN. You MUST still carry F8's STANDING RULE into the
+   Phase-1+ executor prompt (next bullet) -- the ktx-mvdsv arc remains
+   active, so the migration ordinal + quality-grid.ts cites are
+   executor-derived live, never the frozen numbers.
 2. (Only once the audit gate is CLEAN/resolved.) Dispatch Phase 1
    EXECUTION. Phase 1 is first so the executor prompt is
    minimal-augmentation: this is EXECUTION not drafting (ship the LOCKED
