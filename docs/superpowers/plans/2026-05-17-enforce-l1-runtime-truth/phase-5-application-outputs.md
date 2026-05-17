@@ -188,7 +188,9 @@ construction; there is no Phase 6 to collide with -- W4 vacuous here).
   Phase-5 level-3 filter is exactly "dump-confirmed genuine-dead" for
   Track A; build-excluded is structurally unreachable by the filter.
 - **Phase-3 signal shape Phase 5 reads (from the APPROVED Phase-3 MD).**
-  Migration `014`: nullable JSONB `cvar_versions.track_a_reachability`,
+  Phase-3's migration (executor-derived ordinal -- review-findings F8;
+  NOT a frozen `014` -- the parallel ktx-mvdsv arc consumed that
+  post-freeze): nullable JSONB `cvar_versions.track_a_reachability`,
   `command_versions.track_a_reachability`,
   `command_versions.track_b_hud_recovery`; D14 three-slot spine
   `{conclusion, evidence, dump_confirmation}`. Track-A callgraph evidence
@@ -272,7 +274,8 @@ routing, runs NO dump cross-check, makes NO first-class-emission change
 - From Phase 2: `ezquake/_handler_hud.py` -> `ezquake-hud-commands-ast.json`
   (first-class HUD commands, element-linked), GREEN per
   `ezquake/verify-hud-probes.py`; the `ENABLE_HUD_COMMANDS_HANDLER` toggle.
-- From Phase 3: migration `014` applied; `track_a_reachability` (on
+- From Phase 3: the Phase-3 migration applied (executor-derived ordinal
+  -- F8, not a frozen `014`); `track_a_reachability` (on
   `cvar_versions` + `command_versions`) + `track_b_hud_recovery` (on
   `command_versions`) populated by the loader for the banked pool / HUD
   commands, slot-3 = `high-confidence-generalized` (level-2) for every

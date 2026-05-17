@@ -171,6 +171,55 @@ exact check.
 **Resolved by:** Phase-4 MD revision 2026-05-17 (S2; orchestrator gate
 primary-source finding, operator-ratified); this finding.
 
+### F8 -- cross-arc drift: a sibling arc consumed migration `014` + grew `quality-grid.ts` POST-FREEZE
+
+**Correction:** The Phase-3 MD (frozen 2026-05-17 14:04) recon'd "latest
+migration = `013` -> Phase 3 is `014`" and hard-coded
+`014_l1_runtime_fidelity_provenance.sql` (~13 refs), propagated to Phase 4
+(2 refs), Phase 5 (2 refs), README (1). The PARALLEL, out-of-scope
+**ktx-mvdsv describe-fill arc** then committed `95e8d726` (2026-05-17
+17:54, ~3h50m AFTER P3 froze; also after P4 16:15 / P5 17:41) which
+(a) consumed migration ordinal `014` (`014_description_provenance_trail.sql`
+-- `ALTER TABLE entities`, a DISJOINT schema object from enforce-L1's
+`cvar_versions`/`command_versions` columns, so no column collision) and
+(b) appended ~166 lines to `apps/qw-oracle/scripts/load-knowledge/
+quality-grid.ts` (its `F1.describe_fill.*` probes -- a DISJOINT probe
+namespace, the `REGRESSION_PROBES[]` registration idiom intact, so no
+name collision) + 23 lines to `SCHEMA.md`. Net: the enforce-L1 plan's
+frozen migration ordinal is a duplicate (X1, CRITICAL -- a second `014`
+in an append-only sha256-tracked chain is silent-corruption-class), and
+every frozen `quality-grid.ts` line-cite (`probeJsonbNotStrings`
+~`:217-272`, the session-3 re-verify `:217/229/1968`) is shifted (X2,
+SUBSTANTIVE -- an executor following a frozen cite reads the wrong
+lines). Same root cause; invisible to every PAIRWISE per-phase gate
+(the drift landed post-freeze, from a sibling arc) -- caught only by the
+operator-requested pre-execution CROSS-PHASE audit (2026-05-17). This is
+the `feedback_parking_verified_state_is_hypothesis` / X8 family
+GENERALIZED to cross-arc drift: a point-in-time "verified" recon is not
+a permanent guarantee when a sibling arc shares the migration chain +
+`quality-grid.ts`.
+
+**Impact on this arc:** the migration ordinal MUST be EXECUTOR-DERIVED at
+execution (`(highest db/migrations/ int)+1`; `015` at this writing but
+RE-DERIVE -- the ktx-mvdsv arc is still active and may consume more),
+NEVER frozen; every `quality-grid.ts` reference is re-derived by symbol
+search at execution, never trusted frozen. No design decision changed --
+NO `decisions.md` D-amendment (X8 already governs "verified is a
+hypothesis"; this records its cross-arc materialization).
+
+**Action for every Phase-3/ACC/APP drafter/executor:** use `<NNN>`
+executor-derived ordinal language; never hard-code `014`/`015`; re-derive
+all `quality-grid.ts` line numbers live (the probe-name namespace is
+disjoint and the registration idiom is intact -- not alarming, just
+shifted).
+
+**Resolved by:** Phase-3 MD targeted revision 2026-05-17 (the recon fact
++ Task 2 ordinal-derive step + `<NNN>` throughout + a dated correction
+preserving the session-3 narrative); propagated to Phase-4 / Phase-5 /
+README; operator-approved at the pre-execution audit gate
+(orchestrator-applied mechanical revision -- no redraft, no D-amendment);
+this finding.
+
 ---
 
 ## R -- implementation residuals (brainstorm-deferred; owning phase resolves)
@@ -304,6 +353,7 @@ mechanism; **S** = unified schema + loader; **ACC** = acceptance contract;
 | F5 (cvar registrar asymmetry) | A (derive) + S (aware) | D7 amendment; passenger-derived evidence |
 | F6 (X3 file set = live stems) | A (corrected) + B (correct) + S/APP | enumerate the 8 live output_filename stems; 9th additive |
 | F7 (dump embedded commit banner; "rests entirely on proxy" false) | ACC | correct Recon fact + detection README; embedded-SHA primary proxy leg (S2) |
+| F8 (cross-arc drift: sibling consumed mig `014` + grew quality-grid.ts post-freeze) | S (own) + ACC/APP (propagate) | executor-derive the mig ordinal; re-derive quality-grid.ts cites live; P3/P4/P5/README revised; no D-amendment |
 | R1 (AST-confirm literal) | B | AST probe before literal-only is load-bearing |
 | R2 (D15/D12 field shape) | S | two separate fields; feeder tag structural |
 | R3 (D16 element key) | B (emit) + S (store) | element-grouped provenance |

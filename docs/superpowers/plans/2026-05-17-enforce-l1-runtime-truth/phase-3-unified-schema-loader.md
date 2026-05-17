@@ -36,7 +36,8 @@ separate, independently-nullable JSONB columns -- `track_a_reachability`
 (on `cvar_versions` AND `command_versions`, the 92-cvar + 74-command
 banked pool spans both types -- D20) and `track_b_hud_recovery` (on
 `command_versions` ONLY, commands-only -- D11 amended / D21) -- landed by
-an append-only migration `014` with the matching `SCHEMA.md` edit in the
+an append-only migration (ordinal EXECUTOR-DERIVED at execution, never
+frozen -- review-findings F8) with the matching `SCHEMA.md` edit in the
 SAME task. The two columns are STRUCTURALLY separate (D12: no single
 `runtime_fidelity` column, no shared `kind` discriminator -- a reader
 querying `track_b_hud_recovery` can never see a Track-A verdict because it
@@ -57,8 +58,8 @@ APPROVED Phase-1 `reachable()` contract (via a Phase-3-owned additive
 serialization seam -- OQ-1) and the real APPROVED Phase-2
 `ezquake-hud-commands-ast.json`; the F1 quality-grid extends to the two
 new JSONB shapes. **Runnable, verifiable state at the phase boundary:**
-migration `014` applied (idempotent re-run is a no-op) + `SCHEMA.md`
-updated; the ezQuake extractor + loader run end-to-end and the real
+the migration (executor-derived ordinal -- F8) applied (idempotent
+re-run is a no-op) + `SCHEMA.md` updated; the ezQuake extractor + loader run end-to-end and the real
 Phase-1 verdicts + Phase-2 recovered HUD commands round-trip into the two
 columns with the correct D14 three-slot shape (Track A feeder-tagged
 per-variant; Track B element-linked); `dump_confirmation` is uniformly
@@ -73,12 +74,27 @@ the combined harness (Phase 4/5). That is X2 by construction (W4 guarded).
 
 ### Recon facts (verified against live source 2026-05-17; do not re-derive blind)
 
-- **Latest migration = `013` -> Phase 3 is `014`.** `ls db/migrations/`
-  (verified): `001..013`, newest `013_entity_name_source_case_fold.sql`
-  (the `8093e42f` case-fidelity mini-arc). Migrations are append-only
-  `.sql` files applied by `bun db/migrate.ts` in lexical order, tracked in
+- **Migration ordinal = EXECUTOR-DERIVED at execution, NEVER frozen here
+  (review-findings F8 -- cross-arc drift).** At P3 freeze (2026-05-17
+  14:04) the latest was `013_entity_name_source_case_fold.sql` and this
+  recon said "Phase 3 is `014`". That is now STALE: the PARALLEL,
+  out-of-scope **ktx-mvdsv describe-fill arc** consumed ordinal `014`
+  (`014_description_provenance_trail.sql`, commit `95e8d726`, 2026-05-17
+  17:54 -- 3h50m AFTER P3 froze) and is STILL ACTIVE (it may consume more
+  before enforce-L1 executes). HARD RULE (X8 generalized to cross-arc
+  drift -- F8): the executor DERIVES the ordinal at execution time as
+  `(highest integer prefix in db/migrations/) + 1` (e.g.
+  `ls db/migrations/ | sed 's/_.*//' | sort -n | tail -1` then +1 --
+  currently `015`, but RE-DERIVE, do NOT trust this number; the
+  ktx-mvdsv arc is live). The migration file is
+  `<NNN>_l1_runtime_fidelity_provenance.sql` where `<NNN>` is that
+  derived zero-padded ordinal. Do NOT hard-code `014` or `015` anywhere.
+  Migrations are append-only `.sql` files applied by `bun db/migrate.ts`
+  in lexical order, tracked in
   `schema_migrations(filename, applied_at, sha256)`; editing an applied
-  migration is rejected (loader `CLAUDE.md` + `SCHEMA.md` Conventions).
+  migration is rejected (loader `CLAUDE.md` + `SCHEMA.md` Conventions) --
+  which is exactly why a duplicate ordinal is silent-corruption-class and
+  must be derived live.
   The SQLite-era `schema.ts` / `SCHEMA_VERSION` / `applySchema` /
   "Fresh DB vs migrated DB" prose in `SCHEMA.md` lines ~384-423 is
   STALE pre-Arc-1 text (the doc's own currency note + loader `CLAUDE.md`
@@ -120,7 +136,10 @@ the combined harness (Phase 4/5). That is X2 by construction (W4 guarded).
   the explicit "never JSON.stringify + TEXT bind" comment; `info_key`
   `call_sites_json`; `log_template` `all_call_sites_json`). NEVER
   `JSON.stringify(...)` then bind. The F1 regression gate is
-  `probeJsonbNotStrings` (`quality-grid.ts:217-272`): a `targets`
+  `probeJsonbNotStrings` (in `quality-grid.ts` -- RE-DERIVE the line range
+  at execution by symbol search, do NOT trust a frozen cite: the sibling
+  ktx-mvdsv arc added ~166 lines to this file post-P3-freeze, F8 / X2;
+  pre-freeze it was ~`:217-272`): a `targets`
   array of `{table, column}` asserting
   `jsonb_typeof(col) != 'string'`; cross-project, ezQuake-anchored.
   Phase 3 adds the 3 new columns to that array (decisions.md R2
@@ -237,8 +256,11 @@ contract independently. Hard inputs:
 ### Created
 
 ```
-apps/qw-oracle/db/migrations/014_l1_runtime_fidelity_provenance.sql
-    # Append-only. Pure-additive ALTER ADD COLUMN x3, nullable, NO CHECK
+apps/qw-oracle/db/migrations/<NNN>_l1_runtime_fidelity_provenance.sql
+    # <NNN> = ordinal DERIVED at execution ((highest db/migrations/ int)+1;
+    # currently 015 but RE-DERIVE -- the ktx-mvdsv arc is live; F8). NEVER
+    # hard-code the ordinal. Append-only. Pure-additive ALTER ADD COLUMN
+    # x3, nullable, NO CHECK
     # (013 shape: pure schema, no backfill -- values arrive via loader
     # re-run, X9). Header comment documents the D14 three-slot shape,
     # D12 structural no-blend, D13 slot-3 representation-only.
@@ -266,7 +288,7 @@ apps/qw-oracle/scripts/load-knowledge/load-hud-commands.ts
 
 ```
 apps/qw-oracle/SCHEMA.md
-    # Same task as migration 014 (the migration+SCHEMA.md-in-one-task
+    # Same task as the migration (the migration+SCHEMA.md-in-one-task
     # discipline). New "v18 ... runtime fidelity provenance" section +
     # the cvar_versions / command_versions type-specific column lines +
     # the F1 jsonb target-list note.
@@ -419,15 +441,21 @@ handler emission or existing entity rows would violate X3.
   track-blended provenance into an autonomously-consumed KB --
   architecturally load-bearing and correctness-critical.
 
-### Task 2 -- Migration `014` + `SCHEMA.md` (one task)
+### Task 2 -- Migration (executor-derived ordinal `<NNN>`) + `SCHEMA.md` (one task)
 
 - **Goal:** Land the two physically separate JSONB columns via an
   append-only pure-additive migration and document them in `SCHEMA.md`
   in the SAME task (the migration+SCHEMA.md discipline).
-- **Files:** `db/migrations/014_l1_runtime_fidelity_provenance.sql`
-  (created); `SCHEMA.md` (modified).
+- **Files:** `db/migrations/<NNN>_l1_runtime_fidelity_provenance.sql`
+  (created; `<NNN>` derived at execution -- F8); `SCHEMA.md` (modified).
 - **Steps:**
-  - [ ] Write `014_l1_runtime_fidelity_provenance.sql`. Header comment:
+  - [ ] DERIVE the ordinal FIRST: `<NNN>` = the next integer after the
+    highest existing `db/migrations/` numeric prefix (e.g.
+    `ls db/migrations/ | sed 's/_.*//' | sort -n | tail -1`, +1, zero-pad
+    to 3). At this writing that is `015` (the ktx-mvdsv arc consumed
+    `014` post-freeze) but the executor RE-DERIVES live -- that arc is
+    active and may consume more (F8 / X8). Do NOT hard-code.
+  - [ ] Write `<NNN>_l1_runtime_fidelity_provenance.sql`. Header comment:
     the D14 three-slot shape (verbatim from Task 1's locked block), the
     D12 structural no-blend rationale, the D13 slot-3
     representation-only rule, and the X9 "pure schema; no backfill --
@@ -457,7 +485,7 @@ handler emission or existing entity rows would violate X3.
 - **Verification (the actual commands -- not prose):**
   ```
   cd apps/qw-oracle
-  bun db/migrate.ts                       # applies 014
+  bun db/migrate.ts                       # applies the new <NNN> migration
   bun db/migrate.ts                       # idempotent re-run
   docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -tAc \
     "SELECT column_name,data_type FROM information_schema.columns
@@ -466,7 +494,8 @@ handler emission or existing entity rows would violate X3.
             ('track_a_reachability','track_b_hud_recovery'))
      ORDER BY 1,2;"
   ```
-  PASS condition: first `migrate` applies `014`; second prints no new
+  PASS condition: first `migrate` applies the new `<NNN>` migration;
+  second prints no new
   application (idempotent no-op); the SQL prints exactly 3 rows, all
   `jsonb`; `git grep -n track_a_reachability SCHEMA.md` and
   `track_b_hud_recovery` both non-empty. FAIL condition: a second-run
@@ -677,7 +706,8 @@ item 4), never the combined harness (Phase 4/5). X2 by construction
 (W4 guarded).
 
 1. **Migration applied + idempotent + columns are JSONB (Task 2):** run
-   the Task-2 Verification block. PASS: `014` applies once, the second
+   the Task-2 Verification block. PASS: the new `<NNN>` migration applies
+   once, the second
    `bun db/migrate.ts` is a no-op, exactly 3 `jsonb` columns exist
    (`cvar_versions.track_a_reachability`,
    `command_versions.track_a_reachability`,
@@ -741,7 +771,8 @@ Recovery.
 
 State now true that was not before:
 
-- Migration `014` applied; `cvar_versions.track_a_reachability`,
+- The migration (executor-derived ordinal `<NNN>` -- F8) applied;
+  `cvar_versions.track_a_reachability`,
   `command_versions.track_a_reachability`,
   `command_versions.track_b_hud_recovery` exist as nullable JSONB,
   no CHECK; `SCHEMA.md` documents them. Two physically separate fields,
@@ -856,12 +887,15 @@ State now true that was not before:
   `feedback_verify_dispatched_terminal_claims` that is a hypothesis
   until grep/SQL'd, so the orchestrator independently re-verified every
   load-bearing recon fact against primary source: migration `013`->
-  `014` (`ls db/migrations/`); `source_state` CHECK + the
+  `014` (`ls db/migrations/`) [STALE post-freeze -- F8, see the dated
+  correction below; ordinal is now executor-derived]; `source_state`
+  CHECK + the
   `dynamically_registered` definition (`SCHEMA.md:75,82-85`); the
   natural key `(project,type,name_fold)` (`SCHEMA.md:71,79`);
   `tx.json(...)` discipline + the explicit "never JSON.stringify"
   comment (`natural-keys.ts:384`) + `probeJsonbNotStrings`
-  (`quality-grid.ts:217/229/1968`); the Phase-1 `reachable()` /
+  (`quality-grid.ts` ~`:217/229/1968` AT SESSION-3 TIME -- now shifted,
+  see the dated correction below / F8); the Phase-1 `reachable()` /
   Phase-2 `hud_commands` contracts (vs the APPROVED Phase-1/2 MDs).
   ONE point required escalation: the sub-agent's "load-version.ts
   adapter-quartet import pattern verified" could NOT be reproduced by
@@ -873,6 +907,26 @@ State now true that was not before:
   the sub-agent's confirmation on that point was lucky-correct, not
   independently rigorous -- the orchestrator re-verification is the
   trust anchor (`feedback_verification_layer_catches_lift_residuals`).
+- **DATED CORRECTION 2026-05-17 (pre-execution cross-phase audit;
+  review-findings F8 -- narrative above preserved as the record of the
+  path).** Two facts the session-3 sub-agent AND orchestrator verified
+  TRUE at the time -- "migration `013` is the live latest, `014` correct"
+  and the `quality-grid.ts` line-cites (`:217-272` / `:217/229/1968`) --
+  were INVALIDATED POST-FREEZE by the parallel, out-of-scope ktx-mvdsv
+  describe-fill arc: commit `95e8d726` (2026-05-17 17:54, ~3h50m after P3
+  froze) consumed ordinal `014` (`014_description_provenance_trail.sql`)
+  AND appended ~166 lines to `quality-grid.ts` (its `F1.describe_fill.*`
+  probes -- a DISJOINT namespace; the `REGRESSION_PROBES[]` registration
+  idiom is intact, so no probe-name collision -- but every frozen
+  `quality-grid.ts` line number is shifted). This is the
+  `feedback_parking_verified_state_is_hypothesis` / X8 lesson
+  GENERALIZED to cross-arc drift: a point-in-time verification is not a
+  permanent guarantee when a sibling arc shares the migration chain +
+  `quality-grid.ts`. RESOLUTION (operator-approved, this session): the
+  migration ordinal is EXECUTOR-DERIVED at execution (the corrected Recon
+  fact + Task 2 `<NNN>`); every `quality-grid.ts` cite is RE-DERIVED by
+  symbol search at execution, never trusted frozen. No design changed --
+  no `decisions.md` D-amendment; recorded as review-findings F8.
 
 ## Recovery (if verification fails)
 
@@ -882,7 +936,8 @@ the new columns are loader-populated; "UPDATE ... SET
 track_a_reachability" as a repair is automatically the wrong instinct):
 
 - **Migration non-idempotent (check 1 FAIL):** the migrator re-applied
-  `014` -- the sha256/applied-tracking convention was not matched, or
+  the new `<NNN>` migration -- the sha256/applied-tracking convention
+  was not matched, or
   an `IF NOT EXISTS` clause diverges from the live migrator. Match the
   live `bun db/migrate.ts` convention exactly (do not invent one);
   re-run on a clean DB; re-verify.

@@ -166,7 +166,9 @@ routing predicate is SHIPPED and TESTED here, Phase 5 CONSUMES it).
   / R1 GREEN`. Any RED -> non-zero + per-probe report." Same explicit
   "Phase 4 COMPOSES it ... this script does NOT wire the combined harness."
 - **Phase-3 slot-3 contract (from the APPROVED Phase-3 MD + CARRY-FORWARD
-  1).** Migration `014` landed three nullable JSONB columns:
+  1).** Phase-3's migration (executor-derived ordinal -- review-findings
+  F8; NOT `014`, which the parallel ktx-mvdsv arc consumed post-freeze)
+  landed three nullable JSONB columns:
   `cvar_versions.track_a_reachability`,
   `command_versions.track_a_reachability`,
   `command_versions.track_b_hud_recovery`. Each conforms to the D14
@@ -251,7 +253,8 @@ validation logic (D1/X2/R5). Hard inputs:
 - From Phase 2: the shipped `ezquake/verify-hud-probes.py` (3 anchors + R7 +
   R1, same shape) + the `ENABLE_HUD_COMMANDS_HANDLER` toggle boolean in
   `ezquake/extract.py`.
-- From Phase 3: migration `014` applied; the three nullable JSONB columns
+- From Phase 3: the Phase-3 migration applied (executor-derived ordinal
+  -- F8, not a frozen `014`); the three nullable JSONB columns
   populated by the loader with `dump_confirmation = high-confidence-
   generalized` (level-2) for every pool/HUD row; the Phase-3-created
   `emit_callgraph_signal.py`, `load-callgraph-reachability.ts`,
