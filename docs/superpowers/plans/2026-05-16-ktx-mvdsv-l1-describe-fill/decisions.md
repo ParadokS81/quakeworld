@@ -504,38 +504,73 @@ downgrade, NOT a scope cut.
    unchanged. The lane de-duplicates *authoring effort*, never scope, rows,
    verdicts, or rigor.
 
-Real family inventory (source-grep-verified at `67253dc9`, keyed off the
-Task-1 manifest canonical_ids -- this REPLACES the ~80-120 estimate):
+**The taxonomy is THREE-way, not two (operator-surfaced 2026-05-17 from the
+verdict-stamped sample; locked in the intent doc ORCHESTRATOR ADDENDUM).**
+Treating a category-3 cohort as category-2 twins is a QUALITY REGRESSION
+disguised as efficiency (38 templated lines where 38 distinct knobs each need
+individual source-grounding). The discriminator is the per-member source
+binding; the divergence-catch is a CLASSIFIER, not only a safety net.
 
-| Family | Handler (grep-verified) | Members | Done | Remaining | Sub-case |
-|---|---|---|---|---|---|
-| xfav_go | `DEF(xfav_go)` slot 1..20 | 20 | 15 | 5 | A |
-| favx_add | `DEF(favx_add)` slot 1..20 | 20 | 0 | 20 | A |
-| UserMode | `DEF(UserMode)` preset 1..17 | 17 | 6 | 11 | B |
-| TimeSet | `DEF(TimeSet)` minutes 5..30 | 6 | 0 | 6 | A |
-| TeamSay/ksound | `DEF(TeamSay)` slot 1..6 | 6 | 0 | 6 | A |
-| ChangeDM | `DEF(ChangeDM)` 1..5 | 5 | 0 | 5 | B |
-| k_fbskill_* | D8 bot-skill, distinct weightings | 38 | 1 | 37 | B/D8 |
-| **TOTAL** | **7 families** | **112** | **22** | **90** | -- |
+1. **Heterogeneous individual** -> per-knob Opus-4.7-MAX, the proven loop,
+   UNCHANGED (e.g. `allow_timing`, `k_admincode`, `k_noframechecks`,
+   `autotrackktx`). 512 / 624 in-scope; 508 / 598 remaining.
+2. **Index-twin family** -> the family lane: ONE Opus-4.7-MAX family eval
+   (dial NOT lowered) + N cheap per-member index substitutions + the hard
+   binding-divergence catch. Members differ ONLY by a positional
+   integer/slot, SAME handler, SAME semantic role; the single eval enumerates
+   each member's meaning (UserMode's per-preset names are in that one eval's
+   member list -- still ONE eval, not N).
+3. **Namespace cohort** -> NOT the twin lane, EVER. Shared prefix,
+   SEMANTICALLY DISTINCT members each binding a different source variable +
+   computation. `k_fbskill_*` is the live case (38: `aim_accuracy` /
+   `reactiontime` / `missiledodge` / `wiggleframes` / `vol_oppvel_incr` ...;
+   the `k_fbskill_` prefix is a red herring). The hard catch applied as a
+   CLASSIFIER: feed a cohort to the twin lane and ESSENTIALLY ALL members
+   fail the binding check -- that mass-rejection IS the signal it is
+   category 3; route the whole cohort OUT (never "force the family").
 
-512 / 624 in-scope knobs stay genuinely-individual per-knob Opus-MAX. Of the
-598 remaining: 90 laneable + 508 individual. The 22 already-done family
-members are correct + carried (idempotent; NOT redone).
+Real category inventory (source-grep-verified at `67253dc9`, keyed off the
+Task-1 manifest canonical_ids -- REPLACES the ~80-120 estimate; reconciles
+624 = 512 + 74 + 38, 598 remaining = 508 + 53 + 37):
 
-Two sub-cases (both ride the lane; the difference is per-member authoring):
-- **Sub-case A -- pure parameterized substitution** (xfav_go, favx_add,
-  TimeSet, ksound; 52 members): the description IS a template with the literal
-  substituted ("jump spectator view to favourite slot N" / "set timelimit to
-  N minutes"). One family eval -> per-member by substitution + binding verify.
-- **Sub-case B -- shared-context batch** (UserMode 17, ChangeDM 5,
-  k_fbskill_* 38; 60 members): members share one dispatcher/mechanism but each
-  literal selects a *semantically distinct* preset/weighting (1on1 != ctf !=
-  wipeout; dodgefactor != accuracy). One family eval establishes the shared
-  dispatch mechanism + axis ONCE; each member still gets its OWN Opus-authored
-  mechanism-only line WITHIN that shared family context (cheaper than cold
-  per-knob: the dispatcher is established once, not re-derived 17/5/38x).
-  `k_fbskill_*` is the spec's named D8 example -- sub-case B IS the D8
-  mechanism-only pattern generalized; D8 is not weakened.
+| Category | Members (in-scope) | Done | Remaining | Handling |
+|---|---|---|---|---|
+| 1 -- heterogeneous individual | 512 | 4 | 508 | per-knob Opus-MAX (unchanged) |
+| 2 -- index-twin (6 families) | 74 | 21 | 53 | the family lane |
+| 3 -- namespace cohort `k_fbskill_*` | 38 | 1 | 37 | NEVER twin; see below |
+
+Category-2 index-twin families: xfav_go `DEF(xfav_go)` slot 1..20 (20; 15
+done), favx_add `DEF(favx_add)` slot 1..20 (20), UserMode `DEF(UserMode)`
+preset 1..17 (17; 6 done -- name-regex would undercount this by 9, only
+source-grep yields it), TimeSet `DEF(TimeSet)` min 5..30 (6), ksound
+`DEF(TeamSay)` slot 1..6 (6), ChangeDM `DEF(ChangeDM)` 1..5 (5). The 22
+already-done laneable members (21 cat-2 + 1 cat-3) are correct + carried
+(idempotent; NOT redone).
+
+**Category-3 handling -- the OPEN ratification choice (the only LOCK is:
+NEVER twin-collapse a cohort).** Option (a) **pure per-knob Opus-MAX** --
+treat the 38 exactly as category 1 (max safety, zero efficiency gain).
+Option (b) **cohort-scaffold lane** -- ONE Opus-4.7-MAX pass establishes the
+shared scaffolding ("all `k_fbskill_*` are frogbot skill-tuning cvars, read
+by the bot AI at <sites>, scaled by bot skill, mechanism <X>"), then EACH of
+the 38 still gets an INDIVIDUAL source-grounded description (its specific
+variable + effect) -- cheaper because the shared mechanism is not re-derived
+38x, but with NO semantic collapse. D5-faithful effort-routing distinct from
+both pure per-knob and index-twin substitution; the D8 mechanism-only bar is
+unchanged (each member still its own source-grounded mechanism line). Sub-
+namespaces (`k_fbskill_aim_*` 12, `k_fbskill_vol_*` 12, other 14) are still
+cohorts not twins; a scaffold may be one cohort-wide pass or per-sub-
+namespace. The executor sizes/builds per the ratified option.
+
+Process-quality validation (orchestrator-verified 2026-05-17, grounds "rigor
+is fine, only efficiency was wrong"): the calibration individuals spot-checked
+3/3 citations EXACT against live KTX source incl. the D10 canary
+`world.c:1862` (`framechecks = bound(0, !cvar("k_noframechecks"), 1)`); F-C3c
+held (`autotrackktx` source-described, weak `CD_AUTOTRACKKTX` rejected, NOT
+dead-stamped); the D10 meaning-conflict was detected + source-tiebroken +
+surfaced for the D7 tail; F-D6a held (no fabricated citations). The expensive
+per-knob process is WORTH it on real knobs -- the lane removes only
+twin/cohort waste, never rigor.
 
 Robustness rules carried into the lane build (recon-surfaced):
 - The per-member binding verifier keys off the manifest `canonical_id`
@@ -551,32 +586,45 @@ Robustness rules carried into the lane build (recon-surfaced):
   independent Opus claims).
 
 **Why:** D5 (cheap-classify routes EFFORT, not scope) at family granularity;
-faithful to D6/D7 (the family eval is Opus-4.7-MAX; the only "cheap" step is
-the mechanical per-member binding verify -- D5/D7-sanctioned effort-routing,
-not a model downgrade) and D8 (sub-case B IS the D8 mechanism-only pattern).
-`feedback_cheap_probes_inform_expensive_passes` (family eval = the deliberate
-expensive pass; binding verify = the cheap confirm), `feedback_be_decisive`,
-`feedback_no_case_sensitivity`, F-D6a, F-D11c, F-D10b.
+faithful to D6/D7 (the index-twin family eval is Opus-4.7-MAX; the only
+"cheap" step is the mechanical per-member binding verify -- D5/D7-sanctioned
+effort-routing, not a model downgrade) and D8 (category 3 is NEVER
+twin-collapsed; whichever cat-3 option is ratified keeps the D8
+mechanism-only bar per-member -- D8 is not weakened, and an undetected
+cohort-as-twin would have BREACHED it, which is why the catch is a
+classifier). `feedback_cheap_probes_inform_expensive_passes` (family/cohort
+eval = the deliberate expensive pass; binding verify = the cheap confirm +
+the category classifier), `feedback_be_decisive`, `feedback_no_case_sensitivity`,
+F-D6a, F-D11c, F-D10b.
 
 **Implication for phases:** Phase 3 -- a fresh executor terminal (AFTER
-operator ratification) builds the family-dispatch mechanism beside the proven
-per-knob loop, proves it on ONE real family with a planted false-twin the
-divergence-catch must eject, then resumes the volume loop SPLIT
-(heterogeneous -> the proven per-knob loop; family twins -> the lane); the 22
-done family members are carried, not redone. Phase 4 -- MVDSV fans the SAME D6
-skill (D7 clarification) so the lane is available there; the Phase-4 recon
-quantifies MVDSV families by source-grep the same way (do NOT assume KTX's
-inventory). The D7-clarification phrase "ONE guarded D6 invocation per knob at
-Opus 4.7 MAX" is GOVERNED by this amendment: read as "ONE guarded D6
-invocation per knob OR per provable identical-family (the family eval at Opus
-4.7 MAX), with cheap independently-verified per-member binding." Spec carries
-a concise mirror (Amendment precedence).
+operator ratification) builds the category-2 index-twin family lane beside
+the proven per-knob loop, PROVES it on ONE real family with a planted
+false-twin the divergence-catch must eject AND a cohort (a `k_fbskill_*`
+slice) the classifier must mass-reject and route out, then resumes the volume
+loop THREE-WAY split: category 1 -> proven per-knob loop; category 2 -> the
+lane; category 3 -> the ratified option (a pure per-knob OR b cohort-scaffold).
+The 22 done laneable members (21 cat-2 + 1 cat-3) are carried, not redone.
+Phase 4 -- MVDSV fans the SAME D6 skill (D7 clarification) so the taxonomy is
+available there; the Phase-4 recon quantifies MVDSV categories by source-grep
+the same way (do NOT assume KTX's inventory; cohorts get classified, never
+assumed twins). The D7-clarification phrase "ONE guarded D6 invocation per
+knob at Opus 4.7 MAX" is GOVERNED by this amendment: read as "ONE guarded D6
+invocation per knob (cat 1, and cat 3 if option a) OR per provable index-twin
+family (cat 2: one Opus-4.7-MAX family eval) OR per ratified cohort-scaffold
+(cat 3 option b: one Opus-4.7-MAX scaffold pass + per-member individual
+grounding), with cheap independently-verified per-member binding throughout."
+Spec carries a concise mirror (Amendment precedence).
 
 **Ratification:** DRAFTED 2026-05-17 (orchestrator), PENDING operator
-plain-English sign-off. Until ratified, the Phase-3 volume loop stays GATED on
-the family slice (the heterogeneous per-knob loop may proceed); Stage B (a
-fresh executor builds the lane) does NOT start. On sign-off this line is
-updated to "Ratified 2026-05-17 (operator)" and Stage B unblocks.
+plain-English sign-off. The sign-off must answer TWO things: (i) ratify the
+category-2 index-twin lane + the three-way taxonomy + the classifier-catch
+(yes/revise); (ii) the category-3 `k_fbskill_*` (38) handling -- option (a)
+pure per-knob Opus-MAX, or option (b) the cohort-scaffold lane. Until both
+are answered, the Phase-3 volume loop stays GATED on the cat-2/cat-3 slice
+(the cat-1 heterogeneous per-knob loop may proceed); Stage B (a fresh
+executor builds the lane) does NOT start. On sign-off this line is updated to
+"Ratified 2026-05-17 (operator); cat-3 = option (a|b)" and Stage B unblocks.
 
 ## D7 -- Two-tier review gate at Opus-max
 

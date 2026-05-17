@@ -495,25 +495,30 @@ the committed `source_ref` file:line + anchor version remain the evidence on
 the row (source-truth dichotomy). Research docs speed and check the work; they
 are not a substitute citation.
 
-**Amendment 2026-05-17 -- parameterized-family lane (mirrors `decisions.md`
-D6 family-lane amendment; see decisions.md + the Phase-3 MD for the
-phase-facing detail + the source-grep-verified family inventory).** D6's
-per-knob fan-out gains a narrow exception for *provable parameterized twins*:
-a set of in-scope knobs that source-grep (not name-clustering) confirms is one
-behaviour parameterized by one literal arg, same handler, contiguous
-registration. Such a family gets ONE Opus-4.7-MAX family evaluation (the dial
-is NOT lowered -- the family is the unit) establishing the shared mechanism +
-parameter axis + per-member list, then per-member records by parameter
-substitution with each member's source binding independently and cheaply
-verified. A member whose binding diverges (different handler/arg, or a real
-distinct comment) is EJECTED to the full per-knob Opus-MAX path -- a HARD
-blocking gate. Heterogeneous knobs are unchanged; every member still ends as
-its own owned row + verdict + D7 tier-1 + anchor + `source_ref`; C1 M
-unchanged. Faithful to D5 (effort-routing at family granularity, not a scope
-cut) and D8 (`k_fbskill_*` is the named shared-context sub-case). Phase 4
-(MVDSV fans the same D6 skill) may use the lane with its own source-grep
-family inventory. Per Amendment precedence this GOVERNS the D7-clarification
-"ONE guarded D6 invocation per knob" phrasing.
+**Amendment 2026-05-17 -- the three-way taxonomy / parameterized-family lane
+(mirrors `decisions.md` D6 family-lane amendment; see decisions.md + the
+Phase-3 MD for the phase-facing detail + the source-grep-verified category
+inventory + the open category-3 ratification choice).** D6's per-knob fan-out
+is split THREE ways by the per-member source binding (the discriminator):
+**(1) heterogeneous individual** -> per-knob Opus-MAX, unchanged (512/624);
+**(2) index-twin family** -> ONE Opus-4.7-MAX family eval (dial NOT lowered --
+the family is the unit) + N cheap per-member index substitutions + a HARD
+binding-divergence catch; members differ ONLY by a positional integer/slot,
+same handler, same role (74/624, 6 families); **(3) namespace cohort**
+(shared prefix, semantically DISTINCT members -- `k_fbskill_*`, 38) -> NEVER
+twin-collapsed (templating a cohort is a quality regression disguised as
+efficiency). The hard catch is a CLASSIFIER, not only a safety net: a cohort
+fed to the twin lane mass-rejects, and that mass-rejection IS the signal it
+is category 3 -- route it out. Category-3 handling is an OPEN operator
+ratification choice (the only LOCK: never twin-collapse a cohort): (a) pure
+per-knob Opus-MAX, or (b) a cohort-scaffold lane (one shared-mechanism pass
+then each member still individually source-grounded, cheaper but no semantic
+collapse). Every member still ends as its own owned row + verdict + D7 tier-1
++ anchor + `source_ref`; C1 M unchanged; D8 mechanism-only bar unchanged.
+Faithful to D5 (effort-routing at family/cohort granularity, not a scope
+cut). Phase 4 (MVDSV fans the same D6 skill) classifies its own categories by
+source-grep. Per Amendment precedence this GOVERNS the D7-clarification "ONE
+guarded D6 invocation per knob" phrasing.
 
 ### D9 -- Mechanical extractor is a pure structured-lift; zero quality verdict (Pass 3.1)
 

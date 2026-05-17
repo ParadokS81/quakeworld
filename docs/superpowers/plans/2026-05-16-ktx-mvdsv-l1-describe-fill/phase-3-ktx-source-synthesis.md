@@ -353,31 +353,42 @@ they are Phase-1 deliverables; Phase 3 fans out over / runs them.
   inline-shaped -- `feedback_no_subagents_for_mechanical_edits`
   sharpened; phase-template).
 
-> **RECON NOTE 2026-05-17 (orchestrator, Phase 3 mid-loop -- the
-> parameterized-family lane; READ BEFORE executing Task 2).** Task 2's
-> "dispatch the D6 skill per manifest entity" is GOVERNED by the dated D6
-> family-lane amendment in `decisions.md` (read it in full). The volume loop
-> is SPLIT: heterogeneous knobs keep the proven per-knob Opus-4.7-MAX loop;
-> 112 knobs across **7 source-grep-verified parameterized families** (xfav_go
-> 20, favx_add 20, UserMode 17, TimeSet 6, ksound 6, ChangeDM 5, k_fbskill_*
-> 38) ride the family lane -- ONE Opus-4.7-MAX family eval (the dial is NOT
-> lowered) + per-member parameter substitution with each member's source
-> binding independently + cheaply grep-verified. The false-twin
-> divergence-catch (a member whose grepped binding diverges -> EJECTED to
-> per-knob Opus-MAX) is a HARD BLOCKING GATE -- it is the load-bearing risk,
-> not tokens; prove the lane on ONE real family with a *planted false-twin
-> the catch must eject* before resuming volume. 22 family members are already
-> done (15 xfav_go, 6 UserMode, 1 k_fbskill) -- correct + carried, NOT
-> redone; `--status` is the cursor. Bind the per-member verifier to the
-> manifest `canonical_id` (loader-lowercased per F-D10b: source `"XonX"` ->
-> `ktx:command:xonx`), not the source name string. F-D6a (grep-verify any
-> sub-agent line/handler/conflict claim BEFORE persist) applies in full and
-> is concentrated, not relaxed, by the lane. Sub-case A (pure substitution:
-> xfav_go/favx_add/TimeSet/ksound) vs sub-case B (shared-context batch,
-> per-member meaning differs: UserMode/ChangeDM/k_fbskill_*) -- see the
-> decisions.md block for the per-member authoring difference. This lane is
+> **RECON NOTE 2026-05-17 (orchestrator, Phase 3 mid-loop -- the THREE-way
+> taxonomy; READ BEFORE executing Task 2).** Task 2's "dispatch the D6 skill
+> per manifest entity" is GOVERNED by the dated D6 family-lane amendment in
+> `decisions.md` (read it in full). The volume loop is split THREE ways by
+> the per-member source binding (the discriminator -- NOT name-clustering;
+> reconciles 624 = 512 + 74 + 38):
+> - **Category 1 -- heterogeneous individual (512/624, 508 remaining):** the
+>   proven per-knob Opus-4.7-MAX loop + sharpened dispatch prompt +
+>   grep-verify-claims discipline. UNCHANGED.
+> - **Category 2 -- index-twin (74/624, 53 remaining; 6 families: xfav_go 20,
+>   favx_add 20, UserMode 17, TimeSet 6, ksound 6, ChangeDM 5):** ONE
+>   Opus-4.7-MAX family eval (dial NOT lowered; the single eval enumerates
+>   each member's meaning) + N cheap per-member index substitutions + the
+>   HARD binding-divergence catch.
+> - **Category 3 -- namespace cohort `k_fbskill_*` (38, 37 remaining):**
+>   NEVER twin-collapsed (templating 38 semantically-distinct bot-AI knobs is
+>   a quality regression disguised as efficiency). The hard catch is a
+>   CLASSIFIER: a cohort fed to the twin lane mass-rejects -> route it OUT.
+>   Handling is the OPEN operator ratification choice -- (a) pure per-knob
+>   Opus-MAX, or (b) a cohort-scaffold lane (one shared-mechanism pass then
+>   each of the 38 still individually source-grounded). The only LOCK: never
+>   twin-collapse a cohort. Sub-namespaces (`k_fbskill_aim_*` 12,
+>   `k_fbskill_vol_*` 12, other 14) are still cohorts, not twins.
+>
+> Prove the lane on ONE real index-twin family with a *planted false-twin the
+> catch must eject* AND a `k_fbskill_*` slice the *classifier must
+> mass-reject and route out* before resuming volume -- the divergence-catch
+> as classifier is the load-bearing risk, not tokens. 22 done laneable
+> members (15 xfav_go + 6 UserMode = 21 cat-2, +1 k_fbskill cat-3) are
+> correct + carried, NOT redone; `--status` is the cursor. Bind the
+> per-member verifier to the manifest `canonical_id` (loader-lowercased per
+> F-D10b: source `"XonX"` -> `ktx:command:xonx`), not the source name
+> string. F-D6a (grep-verify any sub-agent line/handler/conflict claim
+> BEFORE persist) applies in full and is concentrated, not relaxed. This is
 > Stage B (a fresh executor builds it) and starts ONLY after the operator
-> ratifies the amendment.
+> ratifies the amendment incl. the category-3 option.
 
 ### Task 2 -- The D6 guardrailed fan-out: evaluate every in-scope KTX entity (Opus 4.7 MAX -- spec-locked)
 

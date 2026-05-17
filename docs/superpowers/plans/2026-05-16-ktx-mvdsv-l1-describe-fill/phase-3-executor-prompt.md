@@ -203,25 +203,35 @@ do not self-number unless trivial), open questions, and a one-line
 recommendation. Do NOT proceed to Phase 4. Do NOT re-run the holistic
 gate.
 
-## Augmentation 2026-05-17 -- the parameterized-family lane (Stage B; orchestrator, Phase 3 mid-loop)
+## Augmentation 2026-05-17 -- the THREE-way taxonomy (Stage B; orchestrator, Phase 3 mid-loop)
 
-Task 2's per-knob fan-out is now SPLIT by the dated D6 family-lane
-amendment in `decisions.md` (read it in full + the Phase-3-MD RECON
-NOTE before Task 2). Heterogeneous knobs (508 of the 598 remaining):
-the proven per-knob Opus-4.7-MAX loop + the sharpened dispatch prompt +
-the grep-verify-claims discipline -- unchanged, resume as the resume
-handoff describes. Family twins (90 of the 598 remaining, across 7
-source-grep-verified families: xfav_go/favx_add/UserMode/TimeSet/
-ksound/ChangeDM/k_fbskill_*): the family lane -- ONE Opus-4.7-MAX
-family eval (dial NOT lowered) + per-member parameter substitution +
-cheap independent per-member binding verify keyed off the manifest
-`canonical_id`. Build the lane mechanism beside the per-knob loop,
-PROVE it on one real family with a *planted false-twin the
-divergence-catch must eject* (the divergence-catch is a HARD blocking
-gate -- the load-bearing risk, not tokens), then resume the split
-volume loop. The 22 done family members are carried, not redone
-(`--status`/`--fingerprint` are the idempotent cursor). F-D6a applies
-in full and is concentrated by the lane, not relaxed. This Stage B
-starts ONLY after the operator has ratified the amendment (the
-decisions.md Ratification line reads "Ratified", not "DRAFTED ...
-PENDING").
+Task 2's per-knob fan-out is split THREE ways by the dated D6
+family-lane amendment in `decisions.md` (read it in full + the
+Phase-3-MD RECON NOTE before Task 2). The discriminator is the
+per-member source binding, NOT name-clustering (reconciles
+598 remaining = 508 + 53 + 37):
+- **Category 1 -- heterogeneous individual (508 remaining):** the
+  proven per-knob Opus-4.7-MAX loop + sharpened dispatch prompt +
+  grep-verify-claims discipline -- unchanged; resume as the resume
+  handoff describes.
+- **Category 2 -- index-twin (53 remaining; 6 families xfav_go/
+  favx_add/UserMode/TimeSet/ksound/ChangeDM):** the family lane -- ONE
+  Opus-4.7-MAX family eval (dial NOT lowered) + per-member index
+  substitution + cheap independent per-member binding verify keyed off
+  the manifest `canonical_id`.
+- **Category 3 -- namespace cohort `k_fbskill_*` (37 remaining):**
+  NEVER twin-collapsed. The catch is a CLASSIFIER -- a cohort fed to
+  the twin lane mass-rejects, route it OUT. Handling is the ratified
+  operator option: (a) pure per-knob Opus-MAX, or (b) cohort-scaffold
+  (one shared-mechanism pass then each of the 38 individually
+  source-grounded). The only LOCK: never twin-collapse a cohort.
+
+Build the cat-2 lane beside the per-knob loop, PROVE it on one real
+index-twin family with a *planted false-twin the catch must eject* AND
+a `k_fbskill_*` slice the *classifier must mass-reject and route out*
+(the load-bearing risk, not tokens), then resume the three-way split.
+The 22 done laneable members (21 cat-2 + 1 cat-3) are carried, not
+redone (`--status`/`--fingerprint` are the idempotent cursor). F-D6a
+applies in full and is concentrated, not relaxed. Stage B starts ONLY
+after the decisions.md Ratification line reads "Ratified ...; cat-3 =
+option (a|b)", not "DRAFTED ... PENDING".
