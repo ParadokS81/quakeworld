@@ -353,6 +353,32 @@ they are Phase-1 deliverables; Phase 3 fans out over / runs them.
   inline-shaped -- `feedback_no_subagents_for_mechanical_edits`
   sharpened; phase-template).
 
+> **RECON NOTE 2026-05-17 (orchestrator, Phase 3 mid-loop -- the
+> parameterized-family lane; READ BEFORE executing Task 2).** Task 2's
+> "dispatch the D6 skill per manifest entity" is GOVERNED by the dated D6
+> family-lane amendment in `decisions.md` (read it in full). The volume loop
+> is SPLIT: heterogeneous knobs keep the proven per-knob Opus-4.7-MAX loop;
+> 112 knobs across **7 source-grep-verified parameterized families** (xfav_go
+> 20, favx_add 20, UserMode 17, TimeSet 6, ksound 6, ChangeDM 5, k_fbskill_*
+> 38) ride the family lane -- ONE Opus-4.7-MAX family eval (the dial is NOT
+> lowered) + per-member parameter substitution with each member's source
+> binding independently + cheaply grep-verified. The false-twin
+> divergence-catch (a member whose grepped binding diverges -> EJECTED to
+> per-knob Opus-MAX) is a HARD BLOCKING GATE -- it is the load-bearing risk,
+> not tokens; prove the lane on ONE real family with a *planted false-twin
+> the catch must eject* before resuming volume. 22 family members are already
+> done (15 xfav_go, 6 UserMode, 1 k_fbskill) -- correct + carried, NOT
+> redone; `--status` is the cursor. Bind the per-member verifier to the
+> manifest `canonical_id` (loader-lowercased per F-D10b: source `"XonX"` ->
+> `ktx:command:xonx`), not the source name string. F-D6a (grep-verify any
+> sub-agent line/handler/conflict claim BEFORE persist) applies in full and
+> is concentrated, not relaxed, by the lane. Sub-case A (pure substitution:
+> xfav_go/favx_add/TimeSet/ksound) vs sub-case B (shared-context batch,
+> per-member meaning differs: UserMode/ChangeDM/k_fbskill_*) -- see the
+> decisions.md block for the per-member authoring difference. This lane is
+> Stage B (a fresh executor builds it) and starts ONLY after the operator
+> ratifies the amendment.
+
 ### Task 2 -- The D6 guardrailed fan-out: evaluate every in-scope KTX entity (Opus 4.7 MAX -- spec-locked)
 
 - **Goal:** fan the Phase-1 D6 skill (the unit) as sub-agents over the

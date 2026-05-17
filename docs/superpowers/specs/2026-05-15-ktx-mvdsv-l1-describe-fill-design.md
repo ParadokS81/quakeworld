@@ -495,6 +495,26 @@ the committed `source_ref` file:line + anchor version remain the evidence on
 the row (source-truth dichotomy). Research docs speed and check the work; they
 are not a substitute citation.
 
+**Amendment 2026-05-17 -- parameterized-family lane (mirrors `decisions.md`
+D6 family-lane amendment; see decisions.md + the Phase-3 MD for the
+phase-facing detail + the source-grep-verified family inventory).** D6's
+per-knob fan-out gains a narrow exception for *provable parameterized twins*:
+a set of in-scope knobs that source-grep (not name-clustering) confirms is one
+behaviour parameterized by one literal arg, same handler, contiguous
+registration. Such a family gets ONE Opus-4.7-MAX family evaluation (the dial
+is NOT lowered -- the family is the unit) establishing the shared mechanism +
+parameter axis + per-member list, then per-member records by parameter
+substitution with each member's source binding independently and cheaply
+verified. A member whose binding diverges (different handler/arg, or a real
+distinct comment) is EJECTED to the full per-knob Opus-MAX path -- a HARD
+blocking gate. Heterogeneous knobs are unchanged; every member still ends as
+its own owned row + verdict + D7 tier-1 + anchor + `source_ref`; C1 M
+unchanged. Faithful to D5 (effort-routing at family granularity, not a scope
+cut) and D8 (`k_fbskill_*` is the named shared-context sub-case). Phase 4
+(MVDSV fans the same D6 skill) may use the lane with its own source-grep
+family inventory. Per Amendment precedence this GOVERNS the D7-clarification
+"ONE guarded D6 invocation per knob" phrasing.
+
 ### D9 -- Mechanical extractor is a pure structured-lift; zero quality verdict (Pass 3.1)
 
 The shipped-config mechanical-extract tier is a new sibling extractor handler

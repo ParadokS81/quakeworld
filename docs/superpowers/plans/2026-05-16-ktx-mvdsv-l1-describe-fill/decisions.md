@@ -450,6 +450,134 @@ use-sites, corroborate) -- source stays ground truth, the committed
 over it. The skill is the unit later phases dispatch. Research docs speed and
 cross-check; they are not a substitute citation.
 
+**Amendment 2026-05-17 (orchestrator, Phase 3 mid-loop -- operator-directed
+fan-out cost re-shaping: the parameterized-family lane. GOVERNS the
+D7-clarification phrase "ONE guarded D6 invocation per knob" per Amendment
+precedence. Ratification: see the Ratification line at the end of this
+block).**
+
+Context: the naive 1-knob-per-Opus-MAX volume fan-out costs ~55-70k tokens
+and one sub-agent/terminal cycle PER knob (the surfacing terminal hit 400k
+after 2 batches). A measurable slice of the in-scope set is not heterogeneous
+knobs but *provable parameterized twins* -- one behaviour parameterized by one
+literal, same handler, contiguous registration. Re-deriving identical
+read-site judgment per twin is exactly the waste D5's cheap-classify principle
+authorizes routing away from -- applied at family granularity. NOT a model
+downgrade, NOT a scope cut.
+
+1. **Trigger -- provable twins only.** A set of in-scope knobs is a family iff
+   source-grep (NOT name-clustering) confirms: same handler function, same
+   registration shape, contiguous registration block, differing only by one
+   literal arg (the parameter axis). Detected from the Task-1 manifest
+   `source_ref` + a grep of the live registration table at the anchor
+   (`67253dc9`).
+2. **One Opus-4.7-MAX family evaluation** establishes (a) the shared
+   mechanism, read-site-grounded against the shared handler; (b) the parameter
+   axis (what each member's literal selects); (c) the explicit per-member
+   parameter list. This eval IS Opus-4.7-MAX -- the D6/D7 dial is NOT lowered;
+   the family is the unit, not the knob.
+3. **Per-member binding stays mandatory + independently verified (the safety
+   property).** Each member's record = the family template with its parameter
+   substituted AND its source binding confirmed mechanically: the member's
+   registration row exists at its manifest `source_ref`, dispatches the SAME
+   handler, with the expected literal. Cheap (grep/Sonnet), NOT Opus
+   re-derivation. This is the ONLY "cheap" step -- exactly D5/D7's "cheap =
+   effort routing, never a cheaper model for the judgment."
+4. **False-twin divergence-catch -- a HARD BLOCKING GATE, not a formality.** A
+   member whose grepped binding does NOT fit the template (different handler,
+   different arg pattern, or a real distinct shipped/source comment) is
+   EJECTED from the lane and runs the full per-knob Opus-4.7-MAX path. "Looks
+   like the family, ship it" is forbidden; this preserves the
+   never-assert-unverified core (the F-C3c / `sb_qtvlist_url` precedent).
+   Realized during this recon (proof the catch is load-bearing, not
+   ceremony): `src/bot_commands.c`'s 39 `Frogbot*` sub-commands are
+   name-clustered but 39 DISTINCT handlers -> NOT a family, stay per-knob; and
+   the `UserMode` family would have been undercounted by 9 by name-regex
+   (`ffa/ctf/hoonymode/blitz2v2/blitz4v4/xonx/wipeout/carena/tot` share
+   `DEF(UserMode)`) -- only source-grep yields the true family.
+5. **Everything else is unchanged.** Heterogeneous knobs, shipped_doc
+   candidates, C2 meaning-conflict candidates, residue/hedge keep per-knob
+   Opus-4.7-MAX (the spec's deliberate price -- D7). Every family member still
+   ends as its OWN owned row with its OWN verdict + D7 tier-1 re-check +
+   anchor + `source_ref` via the existing `*_versions` mechanism; C1 M
+   denominator unchanged; the flat `structured_choices` shape (F-D11c)
+   unchanged. The lane de-duplicates *authoring effort*, never scope, rows,
+   verdicts, or rigor.
+
+Real family inventory (source-grep-verified at `67253dc9`, keyed off the
+Task-1 manifest canonical_ids -- this REPLACES the ~80-120 estimate):
+
+| Family | Handler (grep-verified) | Members | Done | Remaining | Sub-case |
+|---|---|---|---|---|---|
+| xfav_go | `DEF(xfav_go)` slot 1..20 | 20 | 15 | 5 | A |
+| favx_add | `DEF(favx_add)` slot 1..20 | 20 | 0 | 20 | A |
+| UserMode | `DEF(UserMode)` preset 1..17 | 17 | 6 | 11 | B |
+| TimeSet | `DEF(TimeSet)` minutes 5..30 | 6 | 0 | 6 | A |
+| TeamSay/ksound | `DEF(TeamSay)` slot 1..6 | 6 | 0 | 6 | A |
+| ChangeDM | `DEF(ChangeDM)` 1..5 | 5 | 0 | 5 | B |
+| k_fbskill_* | D8 bot-skill, distinct weightings | 38 | 1 | 37 | B/D8 |
+| **TOTAL** | **7 families** | **112** | **22** | **90** | -- |
+
+512 / 624 in-scope knobs stay genuinely-individual per-knob Opus-MAX. Of the
+598 remaining: 90 laneable + 508 individual. The 22 already-done family
+members are correct + carried (idempotent; NOT redone).
+
+Two sub-cases (both ride the lane; the difference is per-member authoring):
+- **Sub-case A -- pure parameterized substitution** (xfav_go, favx_add,
+  TimeSet, ksound; 52 members): the description IS a template with the literal
+  substituted ("jump spectator view to favourite slot N" / "set timelimit to
+  N minutes"). One family eval -> per-member by substitution + binding verify.
+- **Sub-case B -- shared-context batch** (UserMode 17, ChangeDM 5,
+  k_fbskill_* 38; 60 members): members share one dispatcher/mechanism but each
+  literal selects a *semantically distinct* preset/weighting (1on1 != ctf !=
+  wipeout; dodgefactor != accuracy). One family eval establishes the shared
+  dispatch mechanism + axis ONCE; each member still gets its OWN Opus-authored
+  mechanism-only line WITHIN that shared family context (cheaper than cold
+  per-knob: the dispatcher is established once, not re-derived 17/5/38x).
+  `k_fbskill_*` is the spec's named D8 example -- sub-case B IS the D8
+  mechanism-only pattern generalized; D8 is not weakened.
+
+Robustness rules carried into the lane build (recon-surfaced):
+- The per-member binding verifier keys off the manifest `canonical_id`
+  (loader-lowercased per F-D10b: source `"XonX"` -> `ktx:command:xonx`), NOT a
+  reconstruction from the source name string -- else a real member
+  false-ejects (a false-negative divergence). Case-insensitive match
+  (operator no-case-sensitivity principle).
+- F-D6a applies in full: any sub-agent line/handler/conflict claim is
+  independently grep-verified BEFORE persist; the family eval's per-member
+  parameter list is grep-checked against the live registration table at
+  `67253dc9`. The lane does not relax the grep-verify-before-persist gate; it
+  concentrates it (one family eval to verify + N cheap binding checks vs N
+  independent Opus claims).
+
+**Why:** D5 (cheap-classify routes EFFORT, not scope) at family granularity;
+faithful to D6/D7 (the family eval is Opus-4.7-MAX; the only "cheap" step is
+the mechanical per-member binding verify -- D5/D7-sanctioned effort-routing,
+not a model downgrade) and D8 (sub-case B IS the D8 mechanism-only pattern).
+`feedback_cheap_probes_inform_expensive_passes` (family eval = the deliberate
+expensive pass; binding verify = the cheap confirm), `feedback_be_decisive`,
+`feedback_no_case_sensitivity`, F-D6a, F-D11c, F-D10b.
+
+**Implication for phases:** Phase 3 -- a fresh executor terminal (AFTER
+operator ratification) builds the family-dispatch mechanism beside the proven
+per-knob loop, proves it on ONE real family with a planted false-twin the
+divergence-catch must eject, then resumes the volume loop SPLIT
+(heterogeneous -> the proven per-knob loop; family twins -> the lane); the 22
+done family members are carried, not redone. Phase 4 -- MVDSV fans the SAME D6
+skill (D7 clarification) so the lane is available there; the Phase-4 recon
+quantifies MVDSV families by source-grep the same way (do NOT assume KTX's
+inventory). The D7-clarification phrase "ONE guarded D6 invocation per knob at
+Opus 4.7 MAX" is GOVERNED by this amendment: read as "ONE guarded D6
+invocation per knob OR per provable identical-family (the family eval at Opus
+4.7 MAX), with cheap independently-verified per-member binding." Spec carries
+a concise mirror (Amendment precedence).
+
+**Ratification:** DRAFTED 2026-05-17 (orchestrator), PENDING operator
+plain-English sign-off. Until ratified, the Phase-3 volume loop stays GATED on
+the family slice (the heterogeneous per-knob loop may proceed); Stage B (a
+fresh executor builds the lane) does NOT start. On sign-off this line is
+updated to "Ratified 2026-05-17 (operator)" and Stage B unblocks.
+
 ## D7 -- Two-tier review gate at Opus-max
 
 **Decision:** Before a synthesized description commits: (1) **Automated
