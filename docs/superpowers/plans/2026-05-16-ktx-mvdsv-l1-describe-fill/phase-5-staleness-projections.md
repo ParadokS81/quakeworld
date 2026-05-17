@@ -49,13 +49,16 @@ wiki-feed CONTRACT + the snapshot the wiki consumes (bot-owned read-only
 fenced namespace, regenerate-on-walk, the "auto-generated from qw-oracle
 Layer 1, do not edit" stamp) -- the CONTRACT only, NOT the wiki-side
 implementation (F-D14a cross-arc); (4) the D4 walk-time re-review report
-wired into the new-KTX/MVDSV-version runbook at the existing
+wired into the new-KTX/MVDSV-version runbook AFTER the existing
 `deriveEntityDescriptionsForVersion` derive-tail seam -- a manual
 operator-paced confirm-or-rewrite pass at walk time (Drifted / Added /
-Removed against the tight triggers a-f), NOT auto-edit, NOT a notifier,
-with the owned describe-fill rows protected from the blind
-recompute-clobber so a flagged description keeps serving stamped "may be
-stale as of version X" (stale-but-present beats a hole). The arc is
+Removed against the tight triggers a-f), NOT auto-edit, NOT a notifier;
+the owned describe-fill rows are protected from the blind
+recompute-clobber by the **Phase-1 owned-row guard** (the dated D4
+amendment 2026-05-17 -- Phase 5 CONSUMES it, does not build it; the
+guard is a precondition Phase 5 asserts, the report only sets/serves
+`description_rereview`) so a flagged description keeps serving stamped
+"may be stale as of version X" (stale-but-present beats a hole). The arc is
 COMPLETE and useful at the end of Phase 5 (D16/D17); Phase 6 (the D16
 upstream showcase) is the deferrable, non-gating tail and is NOT this
 phase. The runnable, verifiable state at the phase boundary is HONESTLY
@@ -151,14 +154,23 @@ corrected is the standing cautionary precedent for this block).
   returns only header-comment lines + the `deriveMatchEvent`
   hard-coded `'synthesized'`; NO owned-row protection). **This is the
   load-bearing D4-wiring interaction:** on the next KTX/MVDSV walk this
-  tail will overwrite every describe-fill owned
+  tail would overwrite every describe-fill owned
   `synthesized`/`shipped_doc` description back to a help_*/comment
   value or NULL. D4 ("a flagged description keeps serving, stamped may
-  be stale as of version X") REQUIRES the walk not to clobber it --
-  protecting the owned rows at this seam is intrinsic to D4's wiring
-  and is squarely Phase 5 (D4 = "wire the walk-time re-review into the
-  new-version runbook"; Phases 1-4 do not touch this file). Surfaced
-  precisely in Open Q (b).
+  be stale as of version X") REQUIRES the walk not to clobber it.
+  **Conclusion (adjudicated 2026-05-17):** the owned-row guard at this
+  shared derive tail is delivered by **Phase 1** -- it must exist
+  BEFORE Phase 2's first owned write (Phase 2/3/4 C4-recovery + Phase 4
+  idempotency re-run the load path, so a Phase-5-only guard makes the
+  per-phase DB-state regime silently unsound). Phase 5 CONSUMES the
+  Phase-1 guard and asserts (does NOT build) that the derive tail no
+  longer clobbers owned rows; `derive-entity-description.ts` is Phase
+  1's Files-touched, not Phase 5's. Authority: the dated `decisions.md`
+  D4 amendment 2026-05-17 + the dated Phase-1-MD scope-amendment
+  2026-05-17 + review-findings F-D4a (predicate = owned-track
+  membership ALONE -- `description_origin IN
+  ('synthesized','shipped_doc')`, NO `description_anchor_version`
+  conjunct, in all four arc-bucket derivers). Resolved in Open Q (b).
 - **The D4 anchor column is Phase-1-owned, NOT Phase 5's to invent.**
   Migration 014 (Phase 1) adds `description_anchor_version TEXT NULL`
   (the version a `synthesized` description was authored against) and
@@ -263,8 +275,13 @@ self-contained). Phase 5 EXECUTION requires all five EXECUTED:
   internal-tier `serialize-audit-review.ts` exists (Phase 5's PUBLIC
   tier is its sibling over the same record); the four Phase-1/2/3 C5
   probes + the jsonb ktx/mvdsv extension registered in
-  `REGRESSION_PROBES`; `k_short_gib` carries its Phase-1 terminal
-  `synthesized` record.
+  `REGRESSION_PROBES`; **the owned-row guard at the shared derive tail
+  exists** (`derive-entity-description.ts` -- all four arc-bucket
+  derivers exclude `description_origin IN
+  ('synthesized','shipped_doc')` from recompute; the dated Phase-1-MD
+  scope-amendment 2026-05-17 task + the dated D4 amendment + F-D4a) --
+  Phase 5 consumes it (Task 4 is the D4 report only, never the guard);
+  `k_short_gib` carries its Phase-1 terminal `synthesized` record.
 - **Phase 2+3 executed:** the KTX slice is content-complete -- every
   in-scope KTX entity (cvar M=260 / command M=358 / info_key M=7,
   POST-Phase-0-rebaselined) carries an affirmed-or-synthesized
@@ -293,7 +310,7 @@ is BLOCKED on it (not a Phase 5 defect -- the slicing order is
 
 ```
 apps/qw-oracle/scripts/describe-fill/serialize-public.ts            # the D13 PUBLIC-tier serializer helper (sibling of Phase-1 serialize-audit-review.ts; one record, N serializers); shared by the snapshot.json projection + the D14 wiki-consumed payload
-apps/qw-oracle/scripts/describe-fill/staleness-walk-report.ts       # the D4 walk-time Drifted/Added/Removed report + owned-row protection at the derive-tail seam
+apps/qw-oracle/scripts/describe-fill/staleness-walk-report.ts       # the D4 walk-time Drifted/Added/Removed report (tight triggers a-f); sets/serves description_rereview; CONSUMES the Phase-1 owned-row guard, does NOT build it (the guard is Phase 1's -- dated D4 amendment 2026-05-17)
 apps/qw-oracle/scripts/describe-fill/verify-phase-5.ts              # the automated phase-boundary harness (idempotent round-trip + C1 coverage + C5-green + same-commit/no-new-tool checks)
 apps/qw-oracle/docs/wiki-feed-contract.md                           # the D14 feed CONTRACT the qwiki-v1-beta arc consumes (bot-owned read-only fenced namespace, regenerate-on-walk, the do-not-edit stamp)
 ```
@@ -307,8 +324,7 @@ Phase-2/3/4 extract/fan-out drivers already live there).
 
 ```
 apps/qw-oracle/scripts/load-knowledge/build-snapshot.ts             # add the KTX/MVDSV public-tier emitters (read entities.description/origin/anchor/rereview + structured choices via serialize-public.ts); replace the "does not yet support" throw for ktx/mvdsv
-apps/qw-oracle/scripts/load-knowledge/derive-entity-description.ts   # D4 owned-row guard: do NOT recompute/clobber description+origin for describe-fill rows (description_origin IN ('synthesized','shipped_doc') with a description_anchor_version); they keep serving (D4)
-apps/qw-oracle/scripts/load-knowledge/index.ts                      # wire the D4 staleness-walk report into the derive-tail seam (beside deriveEntityDescriptionsForVersion); add the build-snapshot ktx/mvdsv subcommand path + usage if not already generic
+apps/qw-oracle/scripts/load-knowledge/index.ts                      # wire the D4 staleness-walk report to run AFTER the Phase-1-guarded deriveEntityDescriptionsForVersion derive tail (report seam ONLY -- the owned-row guard is Phase 1's, consumed here not edited); add the build-snapshot ktx/mvdsv subcommand path + usage if not already generic
 apps/qw-oracle/serve/mcp/src/entity-record.ts                       # F-D13a: SELECT + return the public-tier describe-fill fields on the L1 EntityRecord (origin tag + anchor/stale stamp)
 apps/qw-oracle/serve/mcp/src/types.ts                               # F-D13a: extend the EntityRecord type with the public-tier describe-fill fields
 apps/qw-oracle/serve/mcp/src/index.ts                               # F-D13a (SAME commit): lookup_entity + search_entities TOOL_LIST descriptions + the search query-input description teach the owned description + origin/staleness
@@ -415,8 +431,8 @@ n/a   # Phase 5 is purely additive (new serializers/wiring + a contract doc + a 
         `derive-entity-description.ts` -> `embed-entities.ts` ->
         `description_tsv`/`description_embedding` path (the owned
         `description` already feeds it once the Task-2-of-Phase-1
-        record is committed; Task 4's owned-row guard keeps the owned
-        prose in `description`). VERIFY this assumption rather than
+        record is committed; the Phase-1 owned-row guard keeps the
+        owned prose in `description`). VERIFY this assumption rather than
         assume it: confirm against live `embed-entities.ts` that it
         embeds the `entities.description` column (not a help_*-derived
         string), so the owned describe-fill prose IS the embedding
@@ -424,7 +440,7 @@ n/a   # Phase 5 is purely additive (new serializers/wiring + a contract doc + a 
         `description_embedding_stale` flips on the owned-row write so
         the next embed pass re-embeds (the existing
         derive-entity-description.ts header documents this stale-flip;
-        the Task-4 guard must preserve it for owned rows). If the
+        the Phase-1 guard must preserve it for owned rows). If the
         embed path does NOT already ingest the owned `description`,
         that is a silent embeddings-not-updated bug -- surface it as a
         deviation, do NOT silently add a new stored shape. Phase 5
@@ -597,47 +613,27 @@ n/a   # Phase 5 is purely additive (new serializers/wiring + a contract doc + a 
   Task-1 payload contract and a boundary miss is a real scope-creep
   risk (F-D14a).
 
-### Task 4 -- The D4 walk-time staleness report + owned-row protection at the derive seam
+### Task 4 -- The D4 walk-time staleness report
 
 - **Goal:** wire the D4 walk-time Drifted/Added/Removed report into the
-  new-KTX/MVDSV-version runbook at the existing
-  `deriveEntityDescriptionsForVersion` derive-tail seam, and protect
-  the owned describe-fill rows from the blind recompute-clobber so a
-  flagged description keeps serving stamped "may be stale as of version
-  X" -- a manual operator-paced confirm-or-rewrite pass, NOT auto-edit,
-  NOT a notification system.
+  new-KTX/MVDSV-version runbook so it runs AFTER the Phase-1-guarded
+  `deriveEntityDescriptionsForVersion` derive tail, and set/serve
+  `description_rereview` on a Drifted owned row so the public projection
+  stamps "may be stale as of version X" and the description KEEPS
+  SERVING -- a manual operator-paced confirm-or-rewrite pass, NOT
+  auto-edit, NOT a notification system. **The owned-row guard itself is
+  Phase 1's** (the dated `decisions.md` D4 amendment 2026-05-17 + the
+  dated Phase-1-MD scope-amendment + review-findings F-D4a -- it must
+  exist before Phase 2's first owned write); Phase 5 CONSUMES it as a
+  precondition and does NOT edit `derive-entity-description.ts`.
 - **Files:**
   `apps/qw-oracle/scripts/describe-fill/staleness-walk-report.ts`
   (created);
-  `apps/qw-oracle/scripts/load-knowledge/derive-entity-description.ts`
-  (modified -- the owned-row guard);
   `apps/qw-oracle/scripts/load-knowledge/index.ts` (modified -- wire
-  the report into the derive-tail seam).
+  the report to run AFTER the Phase-1-guarded derive tail; the report
+  seam ONLY, NOT the guard -- `derive-entity-description.ts` is Phase
+  1's Files-touched, not Phase 5's).
 - **Steps:**
-  - [ ] Owned-row guard in `derive-entity-description.ts`: this file
-        has a SEPARATE per-type deriver function (verified live:
-        `deriveCvar`, `deriveCommand`, ... -- the header documents 13
-        derivers), each issuing its own `UPDATE entities SET
-        description=..., description_origin=...` for the walked
-        `last_seen_version` with NO describe-fill guard. The guard MUST
-        be added to EVERY deriver that writes an arc-scope bucket --
-        cvar, command, cmdline_param, info_key (the four describe-fill
-        types). Editing only one (e.g. `deriveCvar`) ships a PARTIAL
-        guard: the command/cmdline_param/info_key derivers would still
-        clobber owned rows. Each such deriver's `UPDATE` gets the same
-        WHERE-clause exclusion: a row with
-        `description_origin IN ('synthesized','shipped_doc')` AND
-        `description_anchor_version IS NOT NULL` is NOT recomputed --
-        the owned describe-fill description keeps serving (D4:
-        "stale-but-present beats a hole"). ezquake/fte/qwcl rows are
-        unaffected (they are not describe-fill-owned -- they carry
-        `help_json`/`source_inline` with no `description_anchor_version`,
-        so the exclusion predicate is false for them); the macro/
-        hud_element/pure-template derivers (non-arc-bucket types) need
-        no edit. The executor recons the exact deriver function names
-        at execution and guards each of the four arc-bucket ones.
-        Comment WHY (P5: D4 -- the walk must not silently overwrite the
-        owned user-doc track).
   - [ ] `staleness-walk-report.ts`: at walk time compute, per owned
         synthesized row, anchor (`description_anchor_version`) vs the
         freshly-walked source facts and classify into three sections:
@@ -655,16 +651,20 @@ n/a   # Phase 5 is purely additive (new serializers/wiring + a contract doc + a 
         handling; do not invent a new mechanism). A Drifted row sets
         `description_rereview = TRUE` (the Phase-1 column) so the public
         projection stamps "may be stale as of version X" and KEEPS
-        SERVING -- the report does NOT auto-edit the description.
+        SERVING -- the report does NOT auto-edit the description, and it
+        does NOT write `description`/`description_origin` (those belong
+        to the Phase-1-guarded derive tail alone; the report touches
+        the `description_rereview` flag only).
   - [ ] Wire the report into the walk in `index.ts` beside
         `deriveEntityDescriptionsForVersion` (the `extract-tag` /
-        `re-derive` seam): after the (now owned-row-guarded) derive
-        tail runs for a KTX/MVDSV version, emit the report for the
-        operator to review in-terminal at walk time (Claude proposes
-        per row, operator approves/rewrites -- same model as the rest
-        of the arc). It is operator-paced, NOT a notifier, NOT a
-        monitoring website (those are explicitly future non-blocking
-        hooks, NOT this arc -- D4).
+        `re-derive` seam): after the **Phase-1-owned-row-guarded**
+        derive tail runs for a KTX/MVDSV version (the guard is a
+        consumed precondition -- this task does NOT add or edit it),
+        emit the report for the operator to review in-terminal at walk
+        time (Claude proposes per row, operator approves/rewrites --
+        same model as the rest of the arc). It is operator-paced, NOT a
+        notifier, NOT a monitoring website (those are explicitly future
+        non-blocking hooks, NOT this arc -- D4).
   - [ ] The report is emitted under the Phase-1
         `scripts/describe-fill/` run-report convention (ASCII, P5);
         exact filename per the Phase-1/2/3/4 convention (executor
@@ -675,23 +675,29 @@ n/a   # Phase 5 is purely additive (new serializers/wiring + a contract doc + a 
   probe). Steps: pick a describe-filled KTX or MVDSV cvar, simulate a
   drift trigger (e.g. bump a default in the extractor fixture, or use a
   Phase-0 forward-fetch that legitimately moved one), run the
-  guarded derive tail + the report; confirm (i) the owned description
-  was NOT clobbered (it still serves, now stamped
-  `description_rereview=TRUE` / "may be stale as of version X"), (ii)
-  the row appears in the report's Drifted section under the correct
-  trigger, (iii) Added/Removed sections behave, (iv) the operator can
-  work it per-row (confirm-or-rewrite) in-terminal. PASS condition: the
-  operator confirms the report is correct, owned rows kept serving
-  stamped (not auto-edited, not clobbered), per-row review works. This
-  is operator judgement, recorded honestly -- not a probe.
-- **Execution mode:** `subagent (Opus 4.7 medium)` -- this touches the
-  SHARED `derive-entity-description.ts` load tail (must not regress the
-  existing ezquake/fte/qwcl derive behavior) and encodes the tight D4
-  trigger taxonomy + the C3-trigger-(f) compose + the owned-row
-  protection; cross-cutting, judgment-dense, knowledge breadth across
-  the load-version path matters. NOT Opus MAX (no spec-locked dial in
-  Phase 5). NOT inline (a load-tail guard + a walk-wired report is not
-  inline-shaped).
+  Phase-1-guarded derive tail then the report; confirm (i) the Phase-1
+  owned-row guard held -- the owned description was NOT clobbered (it
+  still serves; a clobber here is a **Phase-1** defect surfaced to the
+  operator, NOT a Phase 5 Task-4 defect), (ii) the report set
+  `description_rereview=TRUE` so the projection stamps "may be stale as
+  of version X", (iii) the row appears in the report's Drifted section
+  under the correct trigger, (iv) Added/Removed sections behave, (v)
+  the operator can work it per-row (confirm-or-rewrite) in-terminal.
+  PASS condition: the operator confirms the report is correct, owned
+  rows kept serving stamped (not auto-edited; the Phase-1 guard held),
+  per-row review works. This is operator judgement, recorded honestly
+  -- not a probe.
+- **Execution mode:** `subagent (Sonnet 4.7 MAX)` -- Task 4 no longer
+  touches the shared `derive-entity-description.ts` load tail (that
+  cross-cutting load-tail risk moved to Phase 1 per the dated D4
+  amendment 2026-05-17); it is now a self-contained report builder + a
+  single `index.ts` report-seam wiring encoding the tight D4 trigger
+  taxonomy + the C3-trigger-(f) compose. Judgment-dense (the
+  tight-vs-loose trigger line) but no longer cross-cutting into the
+  shared derive path, so the Opus dial is no longer warranted here
+  (it moved to Phase 1's added guard task). Sonnet 4.7 MAX fits (speed
+  + the taxonomy judgment). NOT inline (a walk-wired report with a
+  trigger taxonomy is not inline-shaped).
 
 ### Task 5 -- The phase-boundary harness (automated half) + the C5 round-trip confirmation
 
@@ -818,16 +824,19 @@ test -f apps/qw-oracle/docs/wiki-feed-contract.md && \
 
 # B1. The D4 walk-time staleness report at a SIMULATED new-version walk
 #     Pick a describe-filled KTX or MVDSV cvar, induce one tight drift
-#     trigger (a-f), run the owned-row-guarded derive tail + the report.
+#     trigger (a-f), run the Phase-1-guarded derive tail then the report.
 bun scripts/describe-fill/staleness-walk-report.ts --simulate <cvar>
 # OPERATOR CONFIRMS, in-terminal, per row:
-#  - the owned description was NOT clobbered by the derive tail (it
-#    still serves, now stamped description_rereview=TRUE / "may be
-#    stale as of version X");
+#  - the Phase-1 owned-row guard held -- the owned description was NOT
+#    clobbered by the derive tail (it still serves, now stamped
+#    description_rereview=TRUE / "may be stale as of version X"). A
+#    clobber here is a PHASE-1 defect (the dated D4 amendment guard),
+#    surfaced to the operator -- NOT a Phase 5 Task-4 defect;
 #  - the drifted row appears in the report's Drifted section under the
 #    correct trigger; Added/Removed sections behave;
 #  - the report is a manual confirm-or-rewrite pass (Claude proposes,
-#    operator approves) -- NOT auto-edit, NOT a notifier.
+#    operator approves) that sets only description_rereview -- NOT
+#    auto-edit, NOT a notifier, never the description text.
 # This is operator judgement recorded honestly. There is no YES/NO
 # probe for it -- that is the D4 design (an intermediary operator-paced
 # report, ~1-2 events/engine/year), not a test gap.
@@ -870,15 +879,17 @@ that was not before:
   write path/page styling is NOT implemented (F-D14a cross-arc;
   qwiki-v1-beta consumes this contract independently).
 - **The D4 walk-time staleness re-review is wired** into the
-  new-KTX/MVDSV-version runbook at the existing
-  `deriveEntityDescriptionsForVersion` derive-tail seam: the owned
-  describe-fill rows are protected from the blind recompute-clobber
-  (a flagged description keeps serving stamped "may be stale as of
-  version X" -- D4); the Drifted/Added/Removed report (tight triggers
-  a-f, incl. the C3 trigger (f) that composes with the parked
-  reachability arc -- F-C3b, no blocking dependency) runs for the
-  operator in-terminal at walk time; manual confirm-or-rewrite, NOT
-  auto-edit, NOT a notifier.
+  new-KTX/MVDSV-version runbook to run AFTER the existing
+  `deriveEntityDescriptionsForVersion` derive-tail seam: Phase 5
+  CONSUMES the Phase-1 owned-row guard (the dated D4 amendment
+  2026-05-17 + Phase-1-MD scope-amendment + F-D4a -- so a flagged
+  description keeps serving stamped "may be stale as of version X",
+  D4); the Drifted/Added/Removed report (tight triggers a-f, incl. the
+  C3 trigger (f) that composes with the parked reachability arc --
+  F-C3b, no blocking dependency) runs for the operator in-terminal at
+  walk time and sets `description_rereview` only -- never the
+  `description`/`description_origin` text; manual confirm-or-rewrite,
+  NOT auto-edit, NOT a notifier.
 - **All C5 probes stay GREEN through the projection round-trip** (the
   four `F1.describe_fill.*` + the jsonb ktx+mvdsv extension); Phase 5
   introduced NO new data shape and shipped NO new probe (C5).
@@ -912,28 +923,29 @@ operator/orchestrator tags at ship, not a per-phase tag).
   (sequencing, flagged here -- not a reshape; README locks 5 after
   1-4). Same honest pattern Phases 2/3/4 recorded.
 
-- **Question (b) -- the D4 owned-row guard lives in the existing
-  `derive-entity-description.ts` load tail; is that Phase 5 wiring or a
-  retroactive Phase-1-spine concern?** Live-verified: `deriveCvar`
-  (and the sibling derivers) UNCONDITIONALLY recompute
+- **Question (b) -- RESOLVED 2026-05-17 (no longer open).** The
+  question was: the D4 owned-row guard lives in the shared
+  `derive-entity-description.ts` load tail (live-verified: all the
+  per-type derivers UNCONDITIONALLY recompute
   `description`+`description_origin` for the walked version with NO
-  describe-fill guard; Phases 1-4 do not touch this file. D4 ("a
-  flagged description keeps serving stamped may be stale as of version
-  X") is impossible unless the walk stops clobbering the owned rows,
-  and D4 is explicitly "wire the walk-time re-review into the
-  new-version runbook" -- the walk IS the `extract-tag` /
-  `deriveEntityDescriptionsForVersion` tail. **Default chosen for now
-  (recommended):** the owned-row guard + the report are Phase 5's D4
-  wiring (Task 4) -- it is the new-version-runbook wiring D4 names, not
-  a Phase-1 spine rebuild (Phase 1 built schema/skill/gate/internal
-  serializer; it never touched the load-version derive tail). **Who
-  can resolve:** operator -- confirm this is the faithful D4 reading
-  (the guard is intrinsic to "keeps serving"; surfaced per the
-  never-silently-comply / never-silently-skip rule -- this is a real
-  load-bearing interaction, not glossed). Not a `decisions.md` change
-  (D4 already locks the walk-time wiring as Phase 5's); if the operator
-  reads the derive-tail edit as Phase-1-spine scope, that is a one-line
-  routing note, not a reshape.
+  describe-fill guard; Phases 1-4 did not touch this file) -- is that
+  Phase 5 wiring or a retroactive Phase-1-spine concern? The original
+  draft chose Reading A (Phase 5 wiring) but surfaced this as a real
+  load-bearing interaction per the never-silently-comply rule rather
+  than shipping it. **Adjudication:** the planner adjudicated this
+  2026-05-17 as **retroactive Phase-1-spine scope** -- decisive: Phase
+  2/3/4 C4-recovery re-runs AND Phase 4's own idempotency contract
+  re-run the load path -> the derive tail, so the guard MUST exist
+  before Phase 2's first owned write or the arc destroys its own
+  record mid-execution, and a Phase-5-only guard makes the per-phase
+  DB-state verification regime silently unsound. Landed as the dated
+  `decisions.md` D4 amendment 2026-05-17 + the dated Phase-1-MD
+  scope-amendment + review-findings F-D4a (Phase 1 owns the guard in
+  all four arc-bucket derivers; predicate = owned-track membership
+  ALONE -- `description_origin IN ('synthesized','shipped_doc')`, NO
+  `description_anchor_version` conjunct, which under-protected staged
+  `shipped_doc`). **Phase 5 consumes the Phase-1 guard; this MD's Task
+  4 is the D4 report only. No longer open.**
 
 - **Question (c) -- the snapshot.json field list + the embedding
   serializer config are planner/executor serializer-config scope (D13),
@@ -1007,6 +1019,37 @@ amendment, never silently overridden, never silently complied with.
   confirmation (Sonnet MAX / Opus medium / Sonnet medium consistent
   with the stated posture; no spec-locked MAX) -- no change.
 
+- **RESCOPE re-verification pass completed 2026-05-17** (Explore agent,
+  the phase-template brief + the 8 rescope-focused checks from the
+  Phase 5 drafter prompt's 2026-05-17 REVISION hint: Task 4 no longer
+  edits the shared derive tail; guard correctly consumed-from-Phase-1;
+  predicate is owned-track membership ALONE; Open Q (b) RESOLVED; no
+  regression in Tasks 1/2/3/5 or the D13/F-D13a/D14/C5 content; live
+  file-path spot-check). Trigger: the dated `decisions.md` D4 amendment
+  2026-05-17 + the dated Phase-1-MD scope-amendment + review-findings
+  F-D4a moved the owned-row guard to Phase 1; this MD's Task 4 was
+  surgically rescoped to the D4 report only. Result: **ZERO CRITICAL,
+  ZERO SUBSTANTIVE, ONE ADVISORY.** Nothing contradicted
+  `decisions.md`; nothing rejected; no lock premise looked wrong
+  (OQ-3 -- nothing surfaced for amendment). The single ADVISORY was
+  "append a dated rescope re-verification sub-block and preserve the
+  pre-rescope pass as the trail" -- discharged by THIS block (the
+  pre-rescope pass above is deliberately preserved verbatim per the
+  dated-append discipline). Note on the pre-rescope pass's SUBSTANTIVE
+  (2) (the guard must be added to EVERY arc-bucket deriver, not one):
+  that insight was CORRECT and became exactly F-D4a + the dated D4 +
+  Phase-1-MD amendments -- the guard was not reverted, it was
+  RELOCATED to Phase 1 (all four arc-bucket derivers; predicate =
+  owned-track membership alone, the anchor conjunct dropped because it
+  under-protected staged `shipped_doc`). Task 4 now consumes that
+  Phase-1 guard and owns only the D4 walk-time report. The rescope is
+  COMPLETE and HONEST; the F-D13a six-edit-site / D13-audience /
+  D14-inbound-vs-outbound / C1 N/M / C5-no-new-probe content is
+  byte-unchanged save the two stale "Task 4's owned-row guard"
+  cross-reference labels in the Task-1 embedding-config step, corrected
+  to "the Phase-1 owned-row guard" (label only; Task 1 logic
+  unchanged).
+
 ## Recovery (if verification fails)
 
 C4 discipline throughout: recovery is re-running the corrected
@@ -1046,14 +1089,21 @@ rows too -- `feedback_repair_by_reextract_not_sql_update`).
   serializer, re-emit, re-run the probe (C4). Do NOT loosen the probe;
   Phase 5 ships no new probe and must not weaken an existing one.
 - **B1 the owned description was clobbered, or the report auto-edited
-  it:** the Task-4 owned-row guard failed or the report wrote the
-  description. D4 is NOT auto-edit -- a flagged description keeps
-  serving stamped, only `description_rereview` is set. Fix the guard
-  in `derive-entity-description.ts` (skip
-  `description_origin IN ('synthesized','shipped_doc')` with an
-  anchor) and the report (set the flag, never the text), re-run the
-  simulated walk (C4). Do NOT `UPDATE` the clobbered row back by hand
-  -- re-run the corrected guarded derive tail.
+  it:** split by which failed. (i) **Clobbered** -- the **Phase-1**
+  owned-row guard failed. That is a Phase-1 defect (the dated D4
+  amendment 2026-05-17: in each of the four arc-bucket derivers the
+  `UPDATE` excludes `description_origin IN
+  ('synthesized','shipped_doc')` -- owned-track membership ALONE, NO
+  `description_anchor_version` conjunct so staged `shipped_doc` is
+  protected), NOT a Phase 5 Task-4 defect. Surface it to the operator;
+  the fix is in `derive-entity-description.ts` (Phase 1's
+  Files-touched); re-run the corrected Phase-1-guarded derive tail
+  end-to-end (C4). Do NOT `UPDATE` the clobbered row back by hand --
+  re-run the corrected guarded derive tail. (ii) **Report auto-edited
+  the text** -- the Phase 5 Task-4 report wrote `description`/
+  `description_origin` instead of only `description_rereview`. D4 is
+  NOT auto-edit; fix `staleness-walk-report.ts` to set the flag and
+  never the text, re-run the simulated walk (C4).
 - **Unanticipated failure:** route to operator with the failing check's
   output verbatim; do not explain the gap away (CLAUDE.md verification
   discipline).

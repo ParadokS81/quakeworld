@@ -13,7 +13,13 @@ a future web server-manager, and wiki.slipgate.me all render from, and that
 the separately-docketed game-mode L3 concept notes cite as anchors. This arc
 builds the foundation; it does NOT write L3 concept notes.
 
-**Status:** Planning. Scaffold + slicing LOCKED (operator-reviewed
+**Status:** PLAN COMPLETE 2026-05-17 -- all phase MDs (0-5) approved;
+ready for wave-2 execution (see the arc-orchestrator handoff at
+`docs/superpowers/parking/2026-05-17-ktx-mvdsv-l1-describe-fill-orchestrator-handoff.md`).
+Phase 1 carries a dated F-D4a scope-amendment its executor integrates
+before/as Phase 1 runs; Phase 6 is the separate deferrable non-gating tail
+(NOT drafted -- premature per D16 until the post-arc dev showcase
+conversation). Scaffold + slicing LOCKED (operator-reviewed
 2026-05-16; see "Slicing analysis" below). **Phase 1 APPROVED 2026-05-17**
 (planner cold-review: two probe-gate defects + one template-shape deviation
 caught and fixed across three passes, all fixes independently live-verified;
@@ -52,7 +58,14 @@ rescope (consume the Phase-1 guard; own only the D4 report) -- the rest of
 Phase 5 (D13 public serializer, F-D13a MCP delta, D14 contract, harness)
 is sound and preserved. The Phase 5 drafter caught the clobber at recon
 and surfaced the scope question (Open Q (b)) rather than silently shipping
-it -- the discipline working. Per-phase MDs drafted in fresh terminals,
+it -- the discipline working. **Phase 5 v2 APPROVED 2026-05-17** (surgical
+rescope diff-verified v1->v2: the 24-line guard step physically deleted from
+Task 4 not relabeled; Task 4 now report-only consuming the Phase-1 guard;
+Recovery B1 predicate fix confirmed -- owned-track membership alone, no
+anchor conjunct; zero collateral -- Tasks 1/2/3/5, the F-D13a six sites, the
+D13 audience line, C5 byte-unchanged). **ARC PLAN COMPLETE** -- every phase
+MD approved; the arc-orchestrator (wave-2 execution) handoff is generated.
+Per-phase MDs drafted in fresh terminals,
 sub-agent-verified, operator-reviewed at each boundary.
 
 ---
@@ -92,7 +105,7 @@ LOCKED by the slicing analysis (operator-reviewed 2026-05-16; see the
 | 2 | **approved** 2026-05-17 | phase-2-ktx-mechanical-extract.md | KTX mechanical extract (D9): new sibling extractor + loader adapter; in-repo + nQuake `ktx.cfg` + nQuake `port_template.cfg` -> structured choices + candidate text + retained provenance | ~109/260 KTX cvars carry shipped_doc candidates + retained per-source provenance (M=260 C1 gate; "~157" conflation corrected 2026-05-17); idempotent re-extract; provenance/jsonb probes green | Automated (coverage vs probe-0 + idempotency + jsonb/prov probes) | **~200-400k (watch)** |
 | 3 | **approved** 2026-05-17 | phase-3-ktx-source-synthesis.md | KTX source-synthesis (D5-D8, D10): D6 skill fans out over CD_NODESC + residual cvars + bot/judgment (mechanism-only) + triage-failed comments; meaning-conflicts resolved inline at the D7 tail | Every in-scope KTX entity carries an affirmed-or-synthesized description; residue tracked to the C1 outreach track | Operator-run (D7 audit-page tail -- per-row judgment) | ~200-350k thread |
 | 4 | **approved** 2026-05-17 | phase-4-mvdsv-fill.md | MVDSV fill, sized by Phase 0: `mvdsv.6` man-page sibling parser (cmdline); loader-freed commands + synthesis tail; cvars split easy-common-`sv_*` vs hard-dedicated-tail per the Phase 0 probe | Every in-scope MVDSV entity carries an affirmed-or-synthesized description; residue tracked | Operator-run (same D7 tail) | **200-400k (subagent-heavy holds lower bound; resolved by P0 shape -- Open Q (e))** |
-| 5 | **drafted -- NEEDS REVISION** 2026-05-17 (F-D4a: surgical Task-4 rescope -- the owned-row guard moves to Phase 1; Task 4 keeps only the D4 report + rereview/stale-stamp wiring; `derive-entity-description.ts` out of Phase 5 Modified. Paste-back in `phase-5-drafter-prompt.md` hint slot; rest of the draft sound and preserved) | phase-5-staleness-projections.md | Staleness + projections: wire the D4 walk-time re-review report into the new-version runbook; emit the D14 public wiki feed + snapshot.json; confirm C5 probes green; MCP public-projection delta (F-D13a) | New-version walk produces the staleness report; public projections regenerate from the record; all C5 probes green | Mixed (staleness report op-run at walk; projections automated round-trip) | ~150-300k |
+| 5 | **approved** 2026-05-17 (v2 surgical rescope, diff-verified v1->v2: guard step physically deleted from Task 4, `derive-entity-description.ts` out of Phase 5 Modified, Task 4 report-only consuming the Phase-1 guard, Recovery B1 predicate fix confirmed, zero collateral to known-good sections) | phase-5-staleness-projections.md | Staleness + projections: wire the D4 walk-time re-review report into the new-version runbook; emit the D14 public wiki feed + snapshot.json; confirm C5 probes green; MCP public-projection delta (F-D13a) | New-version walk produces the staleness report; public projections regenerate from the record; all C5 probes green | Mixed (staleness report op-run at walk; projections automated round-trip) | ~150-300k |
 | 6 | not started | (pending draft) | **Deferrable tail** -- upstream pitch (D16): generate the dev showcase page from snapshot.json; hold the conversation; decide the PR path after | Showcase page renders from the record; conversation held | Operator-run; **non-gating** (arc complete at end of P5) | ~50-150k |
 
 Status flow: `not started` -> `drafted (awaiting review)` -> `approved` ->
