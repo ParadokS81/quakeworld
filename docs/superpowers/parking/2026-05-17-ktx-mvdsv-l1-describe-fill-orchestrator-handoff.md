@@ -136,8 +136,26 @@ phase boundary against live source.
   technical dependency).
 - Phase 6 is the deferrable non-gating tail; do NOT plan/build the upstream
   PR (D16 -- showcase + conversation first, PR path decided AFTER).
+- **The PRE-DISPATCH HOLISTIC GATE is non-negotiable and BLOCKS all
+  executor dispatch (added 2026-05-17, operator decision -- closes the one
+  workflow gap the planner surfaced at arc-plan completion; do not
+  relitigate the design).** Per-phase review is incremental; a cross-phase
+  flaw visible only when Phases 1-5 are read AS ONE OBJECT has no dedicated
+  checkpoint -- F-D4a (a GRAVE arc-invalidating ordering bug) proved it:
+  it survived FOUR approved phases and was caught at the final phase gate
+  by ordering luck, not by design. You (the orchestrator) are the fresh,
+  planning-unanchored, read-everything terminal -- structurally the right
+  context for the holistic pass (the arc-reviewer rationale, applied
+  pre-execution). You also carry a mild proceed-bias, so the gate is
+  written adversarial, output-defined, and dispatch-blocking to counter it.
+  It is action 2 below: it MUST return an explicit verdict (CLEAN, or
+  findings routed to a dated correction) BEFORE any executor terminal is
+  dispatched. A separate dedicated pre-execution reviewer terminal was
+  deliberately NOT added (disproportionate ceremony for a solo operator who
+  values momentum; this terminal already reads everything fresh) -- the
+  gate lives here instead.
 
-## First three actions
+## First actions -- action 2 is a dispatch-blocking gate
 
 1. Do the reads in order; invoke the `arc-orchestrator` skill; confirm the
    plan-complete locked state WITHOUT relitigating. Scope-check: this is the
@@ -145,7 +163,43 @@ phase boundary against live source.
    owned-row guard, the D9 `mvdsv.6` sibling, `sv_antilag` DUAL, the
    M=260/183 gates). A sibling-arc misdirection (finding numbers / handler
    names from `enforce-L1-runtime-truth`) means STOP.
-2. Kick off Phase 0 and Phase 1 executor terminals (independent; parallel
+
+2. **PRE-DISPATCH HOLISTIC GATE -- read the WHOLE completed plan as ONE
+   OBJECT and adversarially hunt the cross-phase failure classes per-phase
+   review structurally misses. BLOCKS all executor dispatch until it
+   returns an explicit verdict.** Inputs read together in one pass (NOT
+   phase-by-phase): README + decisions.md (every dated amendment) +
+   review-findings.md + all six phase MDs (Phase 1 WITH its F-D4a
+   amendment block). Hunt specifically:
+   (a) **Ordering / sequencing hazards** -- for every "Phase N consumes X
+   from Phase M": does M actually establish X BEFORE N needs it, including
+   under C4-recovery re-runs and idempotency re-runs (the exact F-D4a
+   archetype -- a shared pipeline step re-triggered mid-execution)?
+   (b) **Shared-mutable-state collisions** -- any shared script / table /
+   walk step multiple phases touch, or that runs every walk (the derive
+   tail was one): can a phase's committed output be silently
+   clobbered/contaminated by a shared step another phase or a routine
+   re-extract triggers?
+   (c) **Verification-regime soundness** -- does any phase's
+   approved/verified state secretly depend on a later phase, or get
+   invalidated by an interim operation? Re-audit the slicing analysis's
+   "no collision" claim holistically (F-D4a was a hidden one).
+   (d) **Dated-amendment propagation** -- every amendment (C3, D2, D9,
+   D11, D7, D9-clarification, D4/F-D4a, D19) reflected consistently across
+   spec <-> decisions <-> the affected phase MDs <-> README; no phase MD
+   silently contradicts one; the Phase-1 F-D4a task is actually specified
+   in the Phase-1 MD AND enforced by the sequencing rule in action 3.
+   (e) **Lock / scope drift** -- no phase MD relitigated a lock or drifted
+   into a parked / sibling-arc scope.
+   Verdict is mandatory and explicit. **CLEAN** -> proceed to action 3.
+   **Any finding** -> HALT, do NOT dispatch any executor; surface it to
+   the operator in plain English with a decisive recommendation; land the
+   correction as a dated amendment + revise the affected phase MD (the
+   exact F-D4a handling pattern -- never silent, never proceed-anyway);
+   re-run the gate after correction. This institutionalizes the planner's
+   final-gate cold-review discipline as a hard pre-execution gate.
+
+3. Kick off Phase 0 and Phase 1 executor terminals (independent; parallel
    per the locked draft order). **For Phase 1: the executor's FIRST job is
    to integrate the dated F-D4a owned-row-guard task** (Phase-1 MD amendment
    block) -- generate the Phase-1 executor prompt with that integration
@@ -153,7 +207,7 @@ phase boundary against live source.
    live + verified (a simulated re-derive does not clobber the D19 owned
    cvar). Phase 0 is a hard synthesis prerequisite (C3/D12) and the Phase-4
    sizing input (F-D12a) but does NOT gate the KTX side.
-3. Set up cross-phase memory capture: decisions.md amendments land dated
+4. Set up cross-phase memory capture: decisions.md amendments land dated
    (never silent); mid-arc review-findings additions get the next F-suffix;
    augment each downstream executor prompt with prior-phase learnings;
    recommend a fresh-terminal handoff when an executor's context enters the
