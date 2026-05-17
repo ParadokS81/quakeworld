@@ -548,6 +548,36 @@ will not re-touch terminal rows.
 integrity once it stamps verdicts; the Phase-2 loader will not re-touch
 terminal rows).
 
+### F-D6a -- the D6 fan-out sub-agent can fabricate line/conflict claims; the dispatcher must grep-verify before persist
+
+**Surfaced by:** the Phase 3 executor batch-1 2026-05-17 (an Opus D6
+sub-agent asserted a `command_versions.source_line` off-by-one
+-- 879 vs a claimed "live 880" -- with a fabricated C2-style conflict
+note for the D7 tail; independent `grep -n` disproved it: live IS 879,
+L1 IS 879, byte-exact across spot-checked rows -- the existing L1
+citation mechanism is byte-accurate at the anchor). Caught + corrected
+BEFORE persist; zero bad data reached the DB.
+
+**Contained by:** the Phase 3 executor process control (2026-05-17,
+recorded in `phase-3-executor-resume.md` + commit `34328a96`): the
+two-stage review now independently `grep`s any sub-agent line/conflict
+claim before persisting, and the D6 dispatch prompt was sharpened to
+forbid memory-based line numbers + fabricated conflicts. Net effect
+proven: batch 2 had 0 re-dispatches vs batch 1's 4. Orchestrator-
+ratified 2026-05-17 (F-D4a held byte-identical across the period; no
+bad data persisted -- the rigor working, not a contract gap).
+
+**Risk:** a confabulated source-line / conflict that reaches `description`
+or the D7 tail is a shipped lie (the dual of the D6 confabulation
+guard). NOT Phase-3-only -- Phase 4 (MVDSV fill) fans out the SAME D6
+skill over MVDSV source; without the grep-verify-before-persist gate +
+the sharpened dispatch prompt it inherits the same fabrication surface.
+
+**Phase:** Phase 3 (caught + discipline added + orchestrator-ratified
+2026-05-17), Phase 4 (the Phase-4 executor prompt MUST carry the
+grep-verify-any-sub-agent-line/conflict-claim-before-persist gate + the
+memory-based-line-numbers-forbidden dispatch-prompt hardening).
+
 ## Boundary risks (out-of-scope items a drafter might wrongly pull in)
 
 ### F-D10b -- case-fidelity loader is a soft dependency, NOT this arc
@@ -689,6 +719,7 @@ consumes; do not implement the wiki side).
 | F-D9a (KTX configs CRLF; strip trailing `\r`) | Substantive | Phase 2 (D9 extractor + loader strip `\r` before regex/persist -- recon-note, not probe-caught) -- routed from Phase 1 2026-05-17 |
 | F-D11c (live `structured_choices` is flat `[{value,label}]`, not `{enum?,bitmask?}`) | Substantive | Phase 2 (built to live truth, ratified 2026-05-17), Phase 3 (D6 + D7 D11/D15 serializer consume flat), Phase 5 (public-projection serializer consumes flat) |
 | F-D9b (clobber-guard = whole-record skip for terminal owned rows) | Substantive | Phase 2 (built + orchestrator-ratified 2026-05-17, F-D4a-proven), Phase 3 (owns provenance integrity once it stamps verdicts) |
+| F-D6a (D6 sub-agent can fabricate line/conflict claims; grep-verify before persist) | Substantive | Phase 3 (caught + discipline added + orchestrator-ratified 2026-05-17), Phase 4 (executor prompt MUST carry the grep-verify gate + dispatch-prompt hardening) |
 | F-D10b (case-fidelity soft dep) | Boundary | Phase 5 (note only) |
 | F-D10c (dusty-* fork separate arc) | Boundary | Phase 3 (note only) |
 | F-C3b (reachability parked arc) | Boundary | Phase 0 + Phase 3 (note only) |
