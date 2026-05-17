@@ -168,7 +168,10 @@ the exact resumable loop and the batch-loop learnings.
 
 Both lanes PROVEN. They produce the SAME `D6Record` shape the cat-1
 loop produces and feed the SAME `--persist`. Only new tool:
-`--verify-binding`.
+`--verify-binding`. **Run every lane under the "Execution efficiency
+protocol" below** -- it is rigor-preserving (F-D6a / divergence-catch /
+idempotency identical) and roughly doubles families-per-terminal by
+removing context plumbing, not verification.
 
 ### Cat-2 index-twin family lane (PROVEN 4x: ChangeDM/xfav_go/favx_add/UserMode)
 
@@ -235,6 +238,75 @@ cat-1: the proven per-knob loop, UNCHANGED. The manifest is ordered
 command-first; `--status` lists remaining canonical_ids. When a
 name-cluster looks twinnable, `--verify-binding <Handler>` decides:
 FAMILY_OK -> cat-2; no shared `DEF()` / MASS_REJECT -> cat-1 or cat-3.
+
+## Execution efficiency protocol (2026-05-18 -- DEFAULT next session; rigor-preserving)
+
+Operator-directed (2026-05-18) after the cat-2 run showed the cost was
+context PLUMBING, not rigor. These two changes roughly double
+families-per-terminal. They remove ZERO verification steps. NOT a
+`decisions.md`/spec change (D5/D6/D7/D8/F-D6a/C1 untouched); an
+executor-process optimization recorded here (the executor's mutable
+augmentation layer). Read this as "be equally rigorous for less
+context," NOT "do less" -- if a step here ever feels like corner-cutting
+you have mis-read it; the rigor invariants are spelled out so a future
+executor can check them.
+
+### 1. Sub-agent writes records to disk; dispatcher verifies WITHOUT ingesting prose
+
+- The family/cohort/per-knob sub-agent WRITES its records JSON array to
+  `output/describe-fill/phase3-records-<lane>-<name>.json` itself, and
+  returns INLINE only a compact control summary: records written + path,
+  verdict/confidence distribution, the divergence-catch verdict, and
+  every hedged/residue member with its one-line reason. It still must
+  NOT touch the DB and NOT commit (override the manifest packet's "do
+  not write files" line FOR THIS records-file ONLY, in the brief --
+  explicitly; the DB/commit prohibition stands; the assembler code is
+  NOT changed). The dispatcher remains the sole F-D6a verifier and the
+  sole `--persist` caller -- the single control point is intact.
+- The dispatcher verifies the file WITHOUT reading the prose into
+  context: `python3` extracts the `description_provenance[]`
+  `(source_file,source_line)` set + runs the 11-field/array shape-check
+  (never prints `description`/`description_reasoning`/`_proposed`); then
+  `grep` independently confirms EVERY cited line at `67253dc9` (+
+  spot-check the asserted config VALUES for config-applying families,
+  e.g. the `_um_init` cvars -- as done for UserMode); the
+  divergence-catch is mechanical (`--verify-binding`) and needs no
+  prose. **F-D6a is unchanged: it only ever needed the cited
+  `(file,line)` set + the live source tree, never the prose.** Proven
+  this session on favx_add (56KB output -> file -> python-extract ->
+  grep-verify, never ingested).
+- **Prose-quality tripwire (the only thing the full ingest gave that
+  this doesn't):** spot-read 2 RANDOM descriptions per batch (targeted
+  `python3` print of just those `description` fields) for gross
+  violations only -- a dead-stamped KTX command (F-C3c), a
+  recommended/opinion value (D5/D8), or a bare name-restatement.
+  Per-row prose quality is D7 tier-1's job (a SEPARATE spec-locked Opus
+  re-check, Task 3) and the operator tail's (Task 5) -- the volume
+  executor doing it for every row was redundant over-reach; the
+  2-sample tripwire keeps a sanity net without the full ingest.
+
+### 2. Tiered re-verification (cheap-verify the git-immutable, full-verify the live-mutable)
+
+- **Live-mutable -> FULL re-verify every terminal (unchanged):** the DB
+  `--status` cursor, `--fingerprint`, M=260/358/7, the anchor commit,
+  the F-D4a guard presence. These silently drift; the 6 one-liners in
+  "First three actions" stay mandatory.
+- **Git-immutable -> cheap drift-check, deep-read only on drift:** the
+  phase MD, `decisions.md`, `review-findings.md`, the executor prompt.
+  These change ONLY via commits/working-tree edits, both detectable in
+  ONE command: `git -C . log --oneline <handoff-commit>..HEAD --
+  docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/ ` plus
+  `git status --porcelain` over the same paths. (This handoff was
+  committed at `89b9ffbf`; use that as `<handoff-commit>`.) BOTH empty
+  -> the contract docs are byte-identical to what THIS handoff's author
+  read; trust this doc's distilled critical-rules + recipes and do NOT
+  re-read the 26k-token phase MD / decisions in full. ANY non-empty ->
+  read the diff of the changed file(s) only. "Prior-verified is a
+  hypothesis" is preserved -- it is re-verified, just by the cheaper
+  equally-sound mechanism (git is the source of truth for git-tracked
+  files; an unverifiable silent edit to a committed file cannot exist).
+  This is the single biggest pre-flight token saving and removes no
+  diligence that catches real drift.
 
 ## Batch-loop learnings (carry forward -- proven, use them)
 
@@ -323,15 +395,28 @@ FAMILY_OK -> cat-2; no shared `DEF()` / MASS_REJECT -> cat-1 or cat-3.
 
 ## First three actions (next terminal)
 
-1. Open the Phase 3 executor prompt; invoke `arc-executor`;
-   spot-re-verify the live anchors: M=260/358/7 via psql; `--status` ==
-   **71 evaluated / 553 remaining** (command 63/295, cvar 8/251,
-   info_key 0/7); `--fingerprint` ==
+1. Invoke `arc-executor`; read this handoff. Then run the TIERED
+   re-verification ("Execution efficiency protocol" #2):
+   (a) **git-immutable drift-check (cheap, do first):** `git -C
+   /home/paradoks/projects/quakeworld log --oneline 89b9ffbf..HEAD --
+   docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/` and
+   `git status --porcelain docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/`.
+   BOTH empty -> the phase MD / decisions.md / review-findings /
+   executor prompt are byte-identical to this handoff's basis: trust
+   this doc's "Critical rules" + recipes, do NOT full-read the 26k phase
+   MD / decisions. ANY non-empty -> read ONLY the changed file's diff.
+   Still open + skim the executor prompt's "Augmentation 2026-05-17"
+   (short) and the Phase-3-MD RECON NOTE for the three-way taxonomy
+   framing if this is your first exposure.
+   (b) **live-mutable full re-verify (mandatory, unchanged):**
+   M=260/358/7 via psql; `--status` == **71 evaluated / 553 remaining**
+   (command 63/295, cvar 8/251, info_key 0/7); `--fingerprint` ==
    **`5c7e9c95784d9a3fdc03cbaa5299c406`**; `git log --oneline` shows
    `2fd1421e` on top of `546610a2`/`54b27d0f`/`c8a17cd3`; F-D4a guard
    live (`IS DISTINCT FROM`, not `IN`); `bun
    scripts/describe-fill/synthesize-ktx.ts --verify-binding ChangeDM`
-   prints FAMILY_OK. A mismatch means investigate, not proceed.
+   prints FAMILY_OK. A mismatch in EITHER tier means investigate, not
+   proceed.
 2. Resume the THREE-way volume split (use "The proven cat-2 / cat-3
    lane recipes" verbatim). Suggested order: finish cat-2 (TimeSet 6 ->
    ksound 6 via `--verify-binding TeamSay`, ~12 members, one Opus
