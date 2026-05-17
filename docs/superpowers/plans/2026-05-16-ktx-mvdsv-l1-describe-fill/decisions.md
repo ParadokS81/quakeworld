@@ -418,6 +418,20 @@ The synthesis subagent and the review subagent are BOTH Opus 4.7 MAX
 (this is the one place the model dial is locked by the spec, not
 planner-chosen -- the per-task execution-mode annotation respects it).
 
+**Clarification 2026-05-17 (planner, Phase 3 review -- the locked reading,
+not a change; Phase 3 Open Q (a)).** The D5/D5-amendment word "cheap" is
+EFFORT routing, NOT a cheaper model. The keep-vs-synthesize classify is
+hard-coded INSIDE the D6 skill (D6) and the skill is Opus 4.7 MAX (D7); the
+spec is explicit -- "weak or absent = full Opus-max synthesis" (spec ~line
+361) and "a low-reasoning first pass is false economy" (spec ~line 399). So:
+ONE guarded D6 invocation per knob at Opus 4.7 MAX; "cheap" / "fast affirm"
+is the early-exit path WITHIN that single Opus-MAX invocation (a good comment
+classifies-and-affirms quickly), NOT a separate cheaper pre-classify model
+tier outside the skill (that alternative works around the spec-locked D6
+dial and is rejected). Cross-cutting: Phase 4 fans the SAME D6 skill -- this
+locks the reading so it is not relitigated there. Affects per-knob compute
+only; the operator-tail review count is unchanged.
+
 ## D8 -- Bot/judgment-tier cvars: mechanism-only is complete L1
 
 **Decision:** Bot-skill / judgment-tier cvars (~38 `k_fbskill_*` etc.) get no
