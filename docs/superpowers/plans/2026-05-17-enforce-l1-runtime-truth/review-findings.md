@@ -105,6 +105,35 @@ handler-recorded -- affects R2's D15 evidence field shape.
 **Resolved by:** decisions.md D7 AMENDMENT 2026-05-17; Phase 1 mechanism;
 this finding.
 
+### F6 -- the X3 zero-diff baseline file set = the 8 LIVE output_filename stems
+
+**Correction:** any phase shipping the X3 non-corruption diff must enumerate
+the EXACT 8 live handler `output_filename` values, NOT the intuitive/spec
+names. Verified live (`grep output_filename
+apps/qw-oracle/scripts/extractors/ezquake/_handler_*.py`, 2026-05-17):
+`ezquake-commands-ast.json`, **`ezquake-variables-ast.json`** (cvars -- stem
+is `variables`, NOT `cvars`), `ezquake-macros-ast.json`,
+**`ezquake-cmdline-params-ast.json`** (stem `cmdline-params`, NOT `cmdline`),
+`ezquake-hud-elements-ast.json`, `ezquake-keynames-ast.json`,
+`ezquake-asset-cvar-bindings-ast.json`,
+`ezquake-asset-loader-sites-ast.json`.
+
+**Why it matters:** Phase 1's approved Task-2 X3 loop listed
+`ezquake-cvars-ast.json` + `ezquake-cmdline-ast.json` -- neither file
+exists, so `diff -q` would have silently no-op'd X3 on cvars (92 of the
+banked pool) + cmdline. Surfaced by the Phase-2 drafter's cross-check; the
+Phase-1 overseer review missed it (a verification-layer residual --
+`feedback_verification_layer_catches_lift_residuals`: the gate's value is
+catching what the prior review did not predict).
+
+**Action for every phase shipping X3 (A done corrected; B correct; S/APP):**
+enumerate the 8 stems above; never the spec/intuitive names. The 9th file
+`ezquake-hud-commands-ast.json` (Phase 2) is additive -- NOT in the
+byte-identical set; it gets the separate off-absent / on-present check.
+
+**Resolved by:** Phase-1 MD orchestrator-correction 2026-05-17 (dated note
+in its Task-2 block); Phase-2 MD already uses the live stems; this finding.
+
 ---
 
 ## R -- implementation residuals (brainstorm-deferred; owning phase resolves)
@@ -236,6 +265,7 @@ mechanism; **S** = unified schema + loader; **ACC** = acceptance contract;
 | F3 (stale variant count) | A | recon `clang_config.py`; 4 variants |
 | F4 (no extant comment-reg pass) | A | D7 amendment; build minimal standalone scanner |
 | F5 (cvar registrar asymmetry) | A (derive) + S (aware) | D7 amendment; passenger-derived evidence |
+| F6 (X3 file set = live stems) | A (corrected) + B (correct) + S/APP | enumerate the 8 live output_filename stems; 9th additive |
 | R1 (AST-confirm literal) | B | AST probe before literal-only is load-bearing |
 | R2 (D15/D12 field shape) | S | two separate fields; feeder tag structural |
 | R3 (D16 element key) | B (emit) + S (store) | element-grouped provenance |

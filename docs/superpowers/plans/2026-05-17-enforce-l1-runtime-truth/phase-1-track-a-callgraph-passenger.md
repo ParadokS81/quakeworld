@@ -426,8 +426,14 @@ handler output would violate X3.
   python3 scripts/extractors/ezquake/extract.py \
     --output-dir /tmp/cg-on  --workers 12
   # every existing entity JSON must be byte-identical:
-  for f in ezquake-commands-ast.json ezquake-cvars-ast.json \
-           ezquake-macros-ast.json ezquake-cmdline-ast.json \
+  # [ORCHESTRATOR CORRECTION 2026-05-17] cvars/cmdline stems fixed to the
+  # LIVE output_filename values (verified `grep output_filename _handler_*.py`):
+  # was ezquake-cvars-ast.json / ezquake-cmdline-ast.json -- those files do
+  # NOT exist; the loop would have skipped X3 on the two most load-bearing
+  # types (cvars = 92 of the pool). Surfaced by the Phase-2 drafter's
+  # cross-check; the Phase-1 review missed it (review-findings F6).
+  for f in ezquake-commands-ast.json ezquake-variables-ast.json \
+           ezquake-macros-ast.json ezquake-cmdline-params-ast.json \
            ezquake-hud-elements-ast.json ezquake-keynames-ast.json \
            ezquake-asset-cvar-bindings-ast.json \
            ezquake-asset-loader-sites-ast.json ; do
