@@ -226,12 +226,22 @@ per-member source binding, NOT name-clustering (reconciles
   (one shared-mechanism pass then each of the 38 individually
   source-grounded). The only LOCK: never twin-collapse a cohort.
 
-Build the cat-2 lane beside the per-knob loop, PROVE it on one real
-index-twin family with a *planted false-twin the catch must eject* AND
-a `k_fbskill_*` slice the *classifier must mass-reject and route out*
-(the load-bearing risk, not tokens), then resume the three-way split.
-The 22 done laneable members (21 cat-2 + 1 cat-3) are carried, not
-redone (`--status`/`--fingerprint` are the idempotent cursor). F-D6a
-applies in full and is concentrated, not relaxed. Stage B starts ONLY
-after the decisions.md Ratification line reads "Ratified ...; cat-3 =
-option (a|b)", not "DRAFTED ... PENDING".
+**STATUS 2026-05-18: Stage B is BUILT + PROVEN -- the cat-2 index-twin
+lane + the cat-3 cohort-scaffold lane are built, proved end-to-end, and
+producing real persisted volume; the HARD proof gate (the load-bearing
+risk) is RETIRED.** Do NOT rebuild them. The `--verify-binding` helper
+shipped (commit `2fd1421e`); cat-2 proved on ChangeDM (planted
+false-twin `dm` ejected); cat-3 proved (classifier MASS_REJECT 0/38 +
+option-b scaffold slice, non-collapsed). cat-3 = ratified **option
+(b)** cohort-scaffold. The remaining work is the THREE-way VOLUME tail
+(many terminals) + post-volume Task 3/4/5 + the phase boundary. The
+resume handoff
+`docs/superpowers/parking/2026-05-17-ktx-mvdsv-l1-describe-fill-phase3-executor-resume.md`
+is the live verified-state shortcut + carries the proven per-lane
+recipes ("The proven cat-2 / cat-3 lane recipes" section) + the current
+cursor + "First three actions"; read it after this prompt and resume
+the three-way volume split from `--status`. The done laneable members
+are carried, not redone (`--status`/`--fingerprint` are the idempotent
+cursor; cat-3 volume drives off the cursor to skip the 5 proven). F-D6a
+applies in full and is concentrated, not relaxed (the proofs hit zero
+fabrication -- hold that bar).
