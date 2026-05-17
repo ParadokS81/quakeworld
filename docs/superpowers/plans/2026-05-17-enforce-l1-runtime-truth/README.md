@@ -14,8 +14,15 @@ HIDING working commands (Track B: hidden-command recovery). One coherent arc,
 two mechanisms, phased and SEPARATELY GATED, zero mechanism blending.
 
 **Status:** ALL 5 DRAFTS APPROVED 2026-05-17 -- the arc plan is FULLY
-DRAFTED; the DISTINCT EXECUTION orchestration has NOT started (a different,
-heavier mode -- arc-executor per phase, fresh terminal; see
+DRAFTED. A pre-execution **cross-phase consistency audit** (dedicated
+fresh terminal; brief at
+`docs/superpowers/parking/2026-05-17-enforce-l1-runtime-truth-cross-phase-audit-prompt.md`)
+is the HARD GATE before execution -- it closes the transitive-breakage gap
+the pairwise fresh-terminal-per-phase gates structurally could not (no
+single reader held all 5 frozen MDs at once; T1-T6). The DISTINCT
+EXECUTION orchestration has NOT started and is BLOCKED until the audit is
+CLEAN/resolved (a different, heavier mode -- arc-executor per phase, fresh
+terminal; see
 `docs/superpowers/parking/2026-05-17-enforce-l1-runtime-truth-drafts-approved-to-execution-handoff.md`).
 Scaffold built 2026-05-17 (decisions / review-findings / prerequisites /
 phase-template / handoff-prompt / README).

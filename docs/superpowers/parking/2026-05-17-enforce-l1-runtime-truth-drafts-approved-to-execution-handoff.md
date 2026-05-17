@@ -27,7 +27,18 @@ Status:
   P4 `06cd544a` (S2/F7 embedded-SHA primary proxy leg); **P5 this session**
   (`phase-5-application-outputs.md`, flipped approved -- commit at this
   session's cadence). The arc plan is fully drafted.
-- **EXECUTION: NOT STARTED.** No phase code has shipped. Phase 1 is first.
+- **EXECUTION: NOT STARTED -- and BLOCKED behind the pre-execution
+  cross-phase audit.** No phase code has shipped. Before Phase 1 dispatch
+  there is a HARD GATE: a dedicated fresh-terminal cross-phase consistency
+  audit (operator-requested 2026-05-17 session 5; brief at
+  `docs/superpowers/parking/2026-05-17-enforce-l1-runtime-truth-cross-phase-audit-prompt.md`)
+  must return CLEAN, or its FINDINGS must be resolved (dated
+  `decisions.md` amendment / targeted phase-MD revision) first. The
+  per-phase gates were PAIRWISE (fresh-terminal-per-gate, via handoff
+  summaries); no single reader held all 5 frozen MDs at once -- the audit
+  closes that transitive-breakage gap (T1-T6). Do NOT dispatch Phase 1
+  until the audit verdict is CLEAN/resolved. Phase 1 is the first phase
+  to execute once unblocked.
 - **Prerequisites:** items 1-3 satisfied at scaffold time, RE-CONFIRM LIVE
   before Phase 1 (X8 -- "verified" is a hypothesis): the ezQuake extractor
   runs end-to-end + emits its current entity JSON (also the X3 zero-diff
@@ -203,8 +214,15 @@ s4->s5 `c632f5dd`; P5 APPROVED + this handoff = this session. Branch
    BOTH legs `3f9e724f`; postgres container up); prereq-4 durable in-repo
    + F7 provenance CLOSED. Do NOT re-open design; do NOT re-derive pools
    (74/92/129 banked + session-5-reproduced via the BANKED proxy/dump --
-   X7).
-2. Dispatch Phase 1 EXECUTION. Phase 1 is first so the executor prompt is
+   X7). **HARD GATE: confirm the pre-execution cross-phase audit (the
+   dedicated fresh terminal; brief at
+   `...-cross-phase-audit-prompt.md`) returned CLEAN, or that every
+   FINDING was resolved via a dated `decisions.md` amendment / targeted
+   phase-MD revision. If the audit has not run or returned unresolved
+   FINDINGS, STOP -- execution is blocked; route back to the audit /
+   operator. Do NOT dispatch Phase 1 on an un-audited plan.**
+2. (Only once the audit gate is CLEAN/resolved.) Dispatch Phase 1
+   EXECUTION. Phase 1 is first so the executor prompt is
    minimal-augmentation: this is EXECUTION not drafting (ship the LOCKED
    `phase-1-track-a-callgraph-passenger.md` per its execution-mode
    annotations -- the call-graph mechanism design task is the Opus-MAX
