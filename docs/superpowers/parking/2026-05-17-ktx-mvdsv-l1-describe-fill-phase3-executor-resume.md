@@ -85,6 +85,17 @@ resumable loop.
   `k_short_gib` terminal/excluded/counted-once intact. Records template:
   `output/describe-fill/phase3-records-calibration.json` (gitignored;
   shape is the worked example for the volume loop).
+- **F-D4a mini-proof PASSED (de-risks the whole volume pass).** A real
+  `bun scripts/load-knowledge/index.ts re-derive --project ktx --type
+  cvar` (260 entities touched) left the owned-row set
+  (`description_origin IN ('synthesized','shipped_doc')`, ktx cvar)
+  **byte-identical** (`ee172564...` before == after), `k_short_gib`
+  byte-identical (`845ddc8b...`), the 6 calibration synthesized rows
+  intact. The Phase-1-spine owned-row guard demonstrably protects
+  **Phase-3-written `synthesized` rows**, not just Phase-1/2 shapes. The
+  FULL phase-boundary F-D4a proof over the complete 624-evaluated owned
+  set is still the final-terminal deliverable -- but the guard is proven
+  sound for the Phase-3 row shape, so the volume loop is safe to run.
 
 ## The remaining work (the bulk -- this is what the next terminals do)
 
