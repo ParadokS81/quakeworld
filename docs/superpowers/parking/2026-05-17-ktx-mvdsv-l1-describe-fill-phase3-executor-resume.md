@@ -1,5 +1,15 @@
 # Phase 3 executor resume handoff -- KTX source-synthesis (2026-05-17)
 
+> **!!! GATE (operator-directed 2026-05-17) !!!** Do NOT resume the
+> naive 1-knob-per-Opus volume loop. The fan-out cost on
+> parameterized-family knobs (`Nfav_go` / `XonY` etc.) is being
+> re-shaped via the **parameterized-family lane** amendment:
+> `docs/superpowers/parking/2026-05-17-phase3-family-lane-amendment.md`.
+> A fresh terminal must draft + ratify that amendment FIRST, then resume
+> the volume loop family-aware. The recipe + learnings below remain
+> valid for the heterogeneous (genuinely-individual) knobs and as the
+> per-member-binding mechanics; only the family slice changes.
+
 Fresh-terminal resume for the **arc-executor** of Phase 3 of the
 `2026-05-16-ktx-mvdsv-l1-describe-fill` arc. Machinery (Tasks 1 +
 2-machinery) DONE + committed; calibration proven; the F-D4a mini-proof
