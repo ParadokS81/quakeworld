@@ -499,6 +499,39 @@ importance-cut. "~109" is a verified order-of-magnitude (exact-case; the
 loader folds case via `name_fold`), NOT a hit-target -- the gate is M=260.
 Phase 2 MD Recon facts + Open Q (a) carry the full live derivation.
 
+**Clarification 2026-05-17 (planner, Phase 4 review -- the locked reading,
+not a change; Phase 4 Open Q (a)).** `coverage.ndjson` tags the `mvdsv.6`
+man page `extractability:"LLM-assisted"` / `structure_quality:"free prose"`,
+while D9 (this decision -- "the `mvdsv.6` roff man page is a sibling parser,
+same tier, same emit shape"), D11 (`mvdsv.6` named a `shipped_doc` source),
+D12 ("9 from `mvdsv.6`"), the README phase-4 row, and the Phase-4 drafter
+prompt all name it the D9 mechanical sibling parser. These are NOT in
+conflict; the D9 harvest-and-STOP seam reconciles them. Verified live
+2026-05-17 (planner, against `research/repos/mvdsv/docs/man/man6/mvdsv.6`):
+the OPTIONS section is a REGULAR roff grammar -- each flag is a `.TP` then
+`.B -<flag> [\fIARG\fP]` then prose lines, with non-`.B` `.TP` blocks as
+section dividers a mechanical parser skips; `-progtype` / `-cheats` carry
+inline enums kept structured (P2/D9/D11). The D9 mechanical sibling's job
+is exactly that: lift the regular `.TP`/`.B` skeleton + the verbatim
+candidate body text + the structured enums + provenance, and STOP -- ZERO
+quality verdict. The "free prose" the `coverage.ndjson` tag flags is the
+quality of the candidate body as a FINISHED user-doc -- which is precisely
+the downstream D6 evaluation step every harvested candidate flows to per
+the D5-amendment, NOT the mechanical sibling's concern. The probe-time
+`LLM-assisted` tag was a structure_quality caution about producing a
+finished doc, not a statement that the source has no regular extractable
+skeleton (contrast the genuinely structureless surfaces the D9 input
+boundary routes straight to D6: bare-`set` usermodes, `SETUP_FFA_CTF.txt`,
+installer prose -- those have no `.TP`/`.B` grammar at all). So: `mvdsv.6`
+IS the D9 mechanical sibling (harvest the regular skeleton + verbatim
+candidate + structured enums, STOP); its prose is evaluated, like every
+other shipped_doc candidate, by the D6 fan-out. Spec line 432 already
+names `mvdsv.6` a D9 sibling -- this records WHY the `coverage.ndjson` tag
+is not a contradiction, so the reading is not relitigated at Phase 4
+execution or by a future man-page-riding fork onboarding the same pattern.
+Cross-cutting (D9/D11/D12 + README + the Phase-4 prompt + any future
+roff-source fork). Not a lock change; the locks are honored as written.
+
 ## D10 -- Drift/conflict policy: three classes, source-grounded, resolved inline at the D7 tail
 
 **Decision:** Built on C2. Three classes: **Value differences**
