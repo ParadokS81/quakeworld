@@ -1,6 +1,6 @@
 # Design: enforce L1 runtime-truth (ghost elimination + hidden-command recovery)
 
-**Status:** Brainstorm Passes 1-4 COMPLETE (Pass 1 AMENDED; Pass 3 widened Track B; Pass 4 = unified schema D12-D16). Pass 5 (application + dual acceptance gates) pending, fresh terminal.
+**Status:** Brainstorm COMPLETE -- Passes 1-5 (Pass 1 AMENDED; Pass 3 widened Track B; Pass 4 = unified schema D12-D16; Pass 5 = application + dual acceptance gates D17-D22, and STRUCK D11's cvar half). EXITED to arc-planner: `docs/superpowers/parking/2026-05-17-libclang-callgraph-reachability-arc-planner-handoff.md`.
 **Predecessor:** parking `docs/superpowers/parking/2026-05-16-libclang-callgraph-reachability-arc.md`.
 **Role:** drain target for arc-brainstormer Passes 1-5. arc-planner scaffolds the arc against this.
 
@@ -315,6 +315,35 @@ commands -- reinforces Track-B value; does not reshape D8/D9.
 
 ### D11 (SQ3.4, LOCKED 2026-05-17) -- Track B scope widened: the FULL `HUD_Register` contract (commands + settings cvars)
 
+> **AMENDED Pass 5 (2026-05-17) -- CVAR HALF STRUCK (operator-ratified).**
+> D11's premise that the `hud_<name>_<subvar>` settings cvars are "the SAME
+> hidden-name class ... literal AST extraction never sees it" is **REFUTED by
+> live verification** (operator-requested spot-check + dispatched coverage
+> audit, both independently re-verified by the overseer terminal against live
+> code, the backup DB, and the schema). The cvars are NOT hidden: a wired,
+> general `HUD_Register`->cvar synthesis already lives in
+> `ezquake/_handler_cvars.py` (`_synthesize_hud_cvars`, dispatched from
+> `visit_cursor` on `HUD_Register`) and emits all `hud_<name>_<subvar>` cvars
+> as first-class `source_backed type='cvar'` L1 entities (verified: 1429 such
+> entities in the backup DB; radar = 32 = 11 structural + 21 variadic; clock
+> = 18). `_handler_hud_elements.py`'s "owned-cvar synthesis" is nested
+> metadata only, not entities -- which explained the apparent contradiction.
+> **Consequence:** Track B narrows to the **command half only** (bare
+> `<name>`, `+hud_<name>`, `-hud_<name>` -- still genuinely hidden per D9's
+> separately-verified literal-only-command-handler premise, unaffected).
+> Riders: (i) the new `_handler_hud.py` (D9) emits **commands only** -- it
+> MUST NOT synthesize cvars (duplicate emitter collides with
+> `_handler_cvars.py` on `entities UNIQUE(project,type,name)`); (ii)
+> annotation fix -- `order` is *unconditional*, `show` is the gated subvar
+> (the "structural subvar set" bullet below mislabels `order` as gated;
+> handler code is correct, only this prose was wrong); (iii) D16's
+> element-link applies to recovered *commands*; whether the pre-existing 1429
+> `hud_*` cvars should also carry the element key (the synth already knows it
+> = `HUD_Register` arg #1) is a cheap future sibling wire, NOT this arc.
+> This is the `feedback_parking_verified_state_is_hypothesis` failure mode a
+> locked decision caught at Pass 5; the body below is preserved as the record
+> of the path. Where D11 below says "commands + cvars", read "commands only".
+
 Track B is no longer hidden-*command* recovery only; it recovers the entire
 `HUD_Register` runtime-built-name contract. Amends D1's Track-B definition.
 
@@ -482,6 +511,118 @@ grouping by stem) -- fragile, throws away free provenance.
 Element-grouping mechanics (how `_handler_hud.py` emits the element key;
 loader storage shape) are IMPLEMENTATION-shaped -> arc-planner scaffold.
 
+### D17 (SQ5.1, LOCKED 2026-05-17) -- one shared acceptance-contract shape, per-track instantiation
+
+The acceptance contract is ONE shared shape, three stages, instantiated
+SEPARATELY per track (and feeder-specific within Track A) -- never a blended
+gate. This mirrors D12 at the acceptance layer: one language, separate
+instantiation, structural no-blend. The three stages:
+
+1. **Validate the mechanism once per fork** -- the known-answer harness (D18).
+2. **Cross-check the runtime dump** to stamp each entity's D13 level (D19).
+3. **Route by level** -- the SAME routing for both tracks: level-3
+   dump-confirmed -> may ship autonomously; level-2 -> assistant/MCP-usable,
+   never auto-shipped; level-1 -> mechanism did not run.
+
+D13's three-level coverage state is the single shared spine stage 3 reads
+identically for both tracks; stages 1-2 carry track-specific (Track A:
+feeder-specific per D7.1/D15) gates. Rejected: two fully independent
+acceptance contracts -- duplicates the three-stage reasoning and lets the
+tracks drift on what "shippable" means, abandoning the D1+D12 balance.
+
+### D18 (SQ5.2, LOCKED 2026-05-17) -- stage 1: hard, all-or-nothing, loud, one-time-per-fork mechanism-validation gate
+
+Composition: Track A's 3 probes (`sb_qtvlist_url` genuine-dead/zero-caller
+-- call-graph feeder; `gl_outline_scale_world` genuine-dead/commented-register
+-- textual feeder; `cl_bobhead` in `V_Init` reachable -> build-explained) +
+Track B's anchors (bare `radar`; `+hud_radar`/`-hud_radar`; `togglehud`
+untouched -- the additivity gate). Run once per fork at that fork's pinned
+validation commit (ezQuake = HEAD `3f9e724f`).
+
+Failure semantics: ANY probe wrong at the pinned commit -> the passenger
+emits NO signal for that fork, the pipeline falls back to exactly today's
+output (D6/D9 fail-safe-off seam, existing entities byte-identical), and the
+failure is LOUD (visible pipeline error, operator alerted). NOT per-gate
+soft degradation. Rationale: the probe set is tiny and the contract is
+years-stable (D10); a red probe means the mechanism is broken OR upstream
+moved what it models -- the confidence claim is then void by definition, so
+partial trust is worse than none for the unseen-published-verdict consumer
+(`reference_rigor_bar_follows_consumer`). It is NEVER a per-version output
+comparison: a new version legitimately yields its own anomaly set (D13); the
+harness does not run per-version and cannot be tripped by version drift --
+only by deliberate re-validation/re-pin where source genuinely moved.
+
+### D19 (SQ5.3, LOCKED 2026-05-17) -- stage 2: runtime dump is the overriding answer key
+
+Static proposes, the dump disposes; on ANY static-vs-dump disagreement the
+dump wins and the conservative direction is taken: Track A drops the
+accusation (entity stays, never false-accused -- D3); Track B does not ship
+the name (D8 safety net). The version-pin sanity proxy (the
+`sb_qtvlist_url`-style known-live leak check already used in detection) is a
+HARD sub-gate: broken pin -> ZERO level-3 stamps issued for that dump,
+everything falls back to level-2. Consequence (accepted, by design): level-3
+exists ONLY for commits with a pinned dump -- HEAD plus deliberately-pinned
+releases; every other version is permanently level-2 (assistant-usable,
+never auto-shipped). That is the strict-bar consumer, not a gap.
+
+### D20 (SQ5.4, LOCKED 2026-05-17) -- Track A application: two outputs, two consumers
+
+(1) **Always-on L1 signal** over the whole banked pool (74 commands + 92
+cvars at HEAD `3f9e724f`): every member gets its Track-A provenance
+populated (D15 conclusion + feeder-tagged per-variant evidence + D13 level),
+per-version, sparse. (2) **Narrow autonomous delete-list**: only the level-3
+dump-confirmed "unreachable everywhere compiled" core + commented-register
+subclass, PR-ready to nano/slime as a REGENERATION of the already-shipped
+`apps/qw-oracle/docs/upstream-prs/ezquake-runtime-dead-entities.md` (same
+artifact shape, mechanism-generated; consistency). The build-excluded bucket
+(incl. D5 conservative address-taken residue) lives ONLY in the L1 signal,
+NEVER in the delete-list -- human-gated, no separate artifact. The two
+feeders stay structurally separate into the delete-list (D7.1/D15): each
+entry feeder-tagged so a reviewer sees WHY it is dead. No undifferentiated
+"these are dead" list.
+
+### D21 (SQ5.5, LOCKED 2026-05-17) -- Track B application: recovered HUD commands as first-class entities
+
+Each recovered command -- bare `<name>`, `+hud_<name>`, `-hud_<name>` --
+becomes a first-class L1 `command` entity, distinguished only by its
+Track-B provenance field (recovery origin + D16 element link, so the LLM is
+told `radar`/`+hud_radar`/`-hud_radar` all drive the `radar` element).
+Emitted at every version the passenger runs; the dump-confirmation slot
+stamps level-3 where a pinned dump confirms, level-2 elsewhere. NOTHING is
+withheld -- D8's "dump-confirmed only" is correctly scoped to the level-3
+autonomous-trust tier (D19); a level-2 command is mechanism-derived from
+that version's own source on a harness-validated fork, which is D13's
+defined, assistant-usable state. Making these first-class is what feeds the
+doc-gap follow-on (they become visible to the `needs_doc` audit). Cvar
+family struck (D11 amended) -- commands-only.
+
+### D22 (SQ5.6, LOCKED 2026-05-17) -- per-fork, per-track onboarding precondition (sharpens D2)
+
+The acceptance contract carries a per-fork, per-track onboarding
+precondition. A fork's passenger stays OFF (D6/D9 single on/off seam =
+exactly today's pipeline for that fork, fail-safe) until two fork-specific
+artifacts exist: (1) a **fork-specific known-answer harness** -- shared
+SHAPE (D18's hard/all-or-nothing/loud structure), but probe ENTITIES
+re-derived from that fork's own source (a known zero-caller, a known
+reachable-init, a commented-register if any, the fork's HUD anchors if it
+has a HUD); validation one-time, mandatory, NON-transferable (ezQuake's
+probes license nothing elsewhere); (2) a **fork-pinned runtime dump** for
+level-3 -- absent it the fork rides permanently at level-2 (a valid useful
+state, not a failure). Evaluated PER TRACK: a server-only fork (MVDSV) has
+no client HUD -> Track B is N/A there while Track A applies; a fork can run
+Track A with Track B not-applicable (D1 no-blend; SQ5.1 per-track
+instantiation). Non-transferability is a real recurring cost and it is
+correct -- forks differ in entry cascade, registration APIs, HUD presence;
+the strict-bar consumer cannot accept "it worked for ezQuake so it works
+here." Stating it as a contract precondition is what stops onboarding from
+cutting that corner.
+
+**Pass 5 closes the brainstorm. It EXITS to arc-planner.** Handoff:
+`docs/superpowers/parking/2026-05-17-libclang-callgraph-reachability-arc-planner-handoff.md`.
+All remaining unknowns are implementation-shaped (field-shape mechanics,
+AST-confirm residuals, harness wiring) -> arc-planner scaffold, NOT
+brainstorm.
+
 ## Out of scope -- siblings (remain in the feeder doc)
 
 Metadata-fidelity, NOT presence-fidelity -- outside the runtime-truth North
@@ -489,6 +630,21 @@ Star. Future separate L1-extractor arc:
 
 - `Cmd_AddLegacyCommand` `legacy_alias_of` persistence (loader/schema).
 - Trailing-comment harvester precision.
+- **ezQuake help-JSON documentation-gap arc (NEW, Pass 5; sequenced AFTER
+  this arc -- genuine dependency: this arc produces the true entity set the
+  doc-gap arc consumes).** Surfaced Pass 5: the docs site
+  (`ezquake.com/docs/commands.html`) renders `help_commands.json` 1:1 (Vue
+  `v-for`; `update_help_files.sh` pulls from ezquake-source). Of 511 entries:
+  346 hand-written, 165 `system-generated:true` stubs (registered,
+  undocumented -- tier 1), and the entire HUD command family ABSENT -- not
+  even stubbed, because `help.c:967-970` (`Help_Describe_f`'s runtime
+  `cmd_functions` walk) has an EXPLICIT `if (function == HUD_Plus_f ||
+  HUD_Minus_f || HUD_Func_f) continue;` with a stale `// not interested ...
+  for the moment` comment (tier 2 -- ezQuake's own acknowledged TODO).
+  Future-arc parking:
+  `docs/superpowers/parking/2026-05-17-ezquake-helpjson-doc-gap-arc.md`.
+  Shape: map the gap from post-this-arc L1 -> propose descriptions ->
+  upstream PR to nano/slime including the `help.c` code-pointer.
 
 RETRACTED, do-not-propagate: the same-session "missed-literal extractor bug"
 (`unignoreAll`/`loadFragfile`) was the case-fold artifact -- now correctly
@@ -514,7 +670,7 @@ nightly-release ingestion reaches the roadmap.
 | 2 | Track A call-graph construction mechanism (shared foundation dropped -- closed by measurement) | COMPLETE 2026-05-16 (D3-D7) |
 | 3 | Track B mechanism (`HUD_Register` contract; literal-tail sizing; drift guard; scope widened to commands+cvars) | COMPLETE 2026-05-17 (D8-D11) |
 | 4 | Unified L1 fidelity schema + provenance (one signal model: Track A + the three HUD families) | COMPLETE 2026-05-17 (D12-D16) |
-| 5 | Application + dual acceptance gates (classify ghosts; emit HUD commands+cvars; combined known-answer harness) | NEXT |
+| 5 | Application + dual acceptance gates (classify ghosts; emit HUD commands; combined known-answer harness; per-fork precondition) | COMPLETE 2026-05-17 (D17-D22); brainstorm EXITED |
 
 Pass count grew 4 -> 5: a second mechanism track legitimately adds a pass.
 Still one coherent arc, phased. Pass 2 closed 2026-05-16 (Track-A mechanism
@@ -523,10 +679,16 @@ specified, D8-D11; literal-tail RESOLVED by measurement = empty; scope
 widened to the full `HUD_Register` contract -- commands AND `hud_*` settings
 cvars). Pass 4 closed 2026-05-17 (unified L1 fidelity schema + provenance
 fully specified, D12-D16; "sparse subset" corrected to per-version
-mechanism-derived with a three-level coverage semantic). Pass 5
-(application + dual acceptance gates) NEXT, fresh terminal. No pass added
-by the widen -- D11 absorbed it into the existing Pass-3 mechanism scope;
-the re-sizing lands as tracked Pass-5 carry-forwards, not a new pass.
+mechanism-derived with a three-level coverage semantic). Pass 5 closed
+2026-05-17 (application + dual acceptance gates, D17-D22; one shared
+contract shape / hard one-time-per-fork validation gate / dump-as-answer-key
+/ Track-A two-output / Track-B commands-only / per-fork-per-track
+precondition). Pass 5 also STRUCK D11's cvar half (premise refuted by live
+verification -- cvars already extracted by `_handler_cvars.py`; Track B
+narrowed to commands-only) and spun out the ezQuake help-JSON
+documentation-gap follow-on arc. No pass added by the Pass-3 widen -- D11
+absorbed it, then Pass 5 corrected it. **Brainstorm COMPLETE; EXITED to
+arc-planner.**
 
 ## Spun-out (2026-05-16) -- L1 entity-name case-fidelity mini-arc
 

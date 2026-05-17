@@ -283,3 +283,68 @@ COMPLETE; Pass 5 (application + dual acceptance gates) NEXT, fresh
 terminal. On Pass-5 close the brainstorm EXITS to arc-planner. Resume cold
 via
 `docs/superpowers/parking/2026-05-17-libclang-callgraph-reachability-arc-pass5-handoff.md`.
+
+## Brainstorm Pass 5 -- COMPLETE (2026-05-17) -- BRAINSTORM EXITS
+
+Scope: application + dual acceptance gates -- how the two settled mechanisms
+produce L1 output and the acceptance contract that gates it. Drain target:
+design spec D17-D22 (+ D11 amendment + siblings + pass table).
+
+**Sub-questions resolved:**
+
+- **SQ5.1 -> D17:** ONE shared acceptance-contract shape (3 stages:
+  validate-mechanism / dump-cross-check / route-by-level), instantiated
+  per-track (feeder-specific in Track A), D13 three-level state as the
+  single shared ship-vs-surface spine. Mirrors D12 at the acceptance layer.
+- **SQ5.2 -> D18:** stage 1 = hard / all-or-nothing / loud /
+  one-time-per-fork mechanism-validation gate (Track A 3 probes + Track B
+  anchors). Any wrong probe -> no signal for that fork, fall back to
+  today's pipeline, alert. NOT a per-version output check.
+- **SQ5.3 -> D19:** stage 2 = runtime dump is the overriding answer key;
+  static proposes, dump disposes, disagreement resolves conservative;
+  version-pin sanity proxy a hard sub-gate (broken -> zero level-3 for that
+  dump). Level-3 exists only for pinned-dump commits, by design.
+- **SQ5.4 -> D20:** Track-A application = two outputs (always-on
+  per-version L1 signal over the 74-cmd/92-cvar pool; level-3-only
+  feeder-tagged PR-ready delete-list regenerating
+  `ezquake-runtime-dead-entities.md`). Build-excluded only in the signal,
+  never the delete-list.
+- **SQ5.5 -> D21:** Track-B application = recovered HUD **commands** (bare /
+  `+hud_` / `-hud_`) as first-class L1 command entities, element-linked
+  (D16), dump-gated into D13 levels; nothing withheld. Commands-only
+  (cvars struck, see below).
+- **SQ5.6 -> D22:** per-fork, per-track onboarding precondition
+  (fork-specific harness mandatory + non-transferable; fork-pinned dump for
+  level-3, absence -> permanent level-2 not failure; off-by-default toggle
+  enforces it; server-only fork -> Track B N/A). Sharpens D2.
+
+**Mid-pass correction (operator-driven spot-check + dispatched audit, both
+overseer-re-verified):**
+
+- **D11 cvar half STRUCK.** Premise ("`hud_<name>_<subvar>` cvars are a
+  hidden class") REFUTED: `ezquake/_handler_cvars.py` already synthesizes
+  them from `HUD_Register` into first-class `source_backed type='cvar'`
+  entities (verified 1429 in backup DB; radar 32, clock 18). Track B
+  narrowed to commands-only. Implementation guard: new `_handler_hud.py`
+  emits commands only (cvar collision on `UNIQUE(project,type,name)`).
+  D11 annotation fix: `order` unconditional, `show` gated. Canonical
+  `feedback_parking_verified_state_is_hypothesis` catch at Pass 5.
+
+**Carry-forwards (tracks):**
+
+- ezQuake help-JSON documentation-gap arc -> **NEW future arc**, parking
+  `docs/superpowers/parking/2026-05-17-ezquake-helpjson-doc-gap-arc.md`;
+  sequenced AFTER this arc (genuine dependency). Recorded in spec siblings.
+- Pre-existing 1429 `hud_*` cvars carrying the D16 element key -> cheap
+  future sibling wire (`_handler_cvars.py` already knows the element);
+  flagged, not this arc.
+- AST-confirm 0 non-literal `HUD_Register` first args (D8 residual; cvar
+  varargs residual now moot -- cvar half struck) -> arc-planner/executor
+  implementation gate.
+- Field-shape mechanics (D15 evidence sub-fields; D16 element-key emission;
+  delete-list format; harness wiring) -> arc-planner scaffold.
+
+**Pass plan revision:** brainstorm COMPLETE. All five passes closed; no
+pass added by Pass 5. Remaining unknowns are implementation-shaped.
+**EXITED to arc-planner** via
+`docs/superpowers/parking/2026-05-17-libclang-callgraph-reachability-arc-planner-handoff.md`.
