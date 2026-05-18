@@ -296,27 +296,6 @@ function hoonyModeSizeLabel(ia: string): string | null {
   return null;
 }
 
-// ---------------------------------------------------------------------------
-// Conflict detection: heuristic flag for rows where the raw source comment
-// materially differs from our description (signals "operator should review").
-// Uses a very simple approach: if there IS a raw_comment and both are non-trivial
-// (> 5 chars), check if the first ~50 chars of the raw_comment appear anywhere
-// in the description (case-insensitive). If not, mark as potentially conflicting.
-// ---------------------------------------------------------------------------
-
-function hasApparentConflict(row: EntityRow): boolean {
-  if (!Array.isArray(row.description_provenance) || !row.description) return false;
-  for (const entry of row.description_provenance) {
-    const rawComment = entry.raw_comment;
-    if (!rawComment || rawComment.length < 6) continue;
-    // Take first meaningful phrase (up to 30 chars) from raw_comment
-    const probe = rawComment.slice(0, 30).toLowerCase().trim();
-    if (probe.length < 6) continue;
-    // If the probe does not appear in the description, flag it.
-    if (!row.description.toLowerCase().includes(probe)) return true;
-  }
-  return false;
-}
 
 // ---------------------------------------------------------------------------
 // Shipped/source text for display (raw_comment + shipped_value from provenance)
@@ -339,22 +318,18 @@ function renderProvenanceShort(provenance: ProvenanceEntry[] | null): string {
 }
 
 // ---------------------------------------------------------------------------
-// Verdict badge HTML
+// Reasoning -- split into one block per "Step N" so a wall of prose becomes
+// scannable. The lookahead split keeps "Step N" at the start of each chunk
+// and preserves the model's original order (including out-of-order steps).
 // ---------------------------------------------------------------------------
 
-function verdictBadge(verdict: string | null): string {
-  const v = verdict ?? 'unknown';
-  return `<span class="vbadge vbadge-${esc(v.replace(/_/g, '-'))}">${esc(v)}</span>`;
-}
-
-function originBadge(origin: string | null): string {
-  if (!origin) return '';
-  return `<span class="obadge">${esc(origin)}</span>`;
-}
-
-function confidenceBadge(conf: string | null): string {
-  if (!conf) return '';
-  return `<span class="cbadge cbadge-${esc(conf)}">${esc(conf)}</span>`;
+function renderReasoning(text: string): string {
+  const parts = text
+    .split(/(?=\bStep\s+\d+\b)/g)
+    .map(s => s.trim())
+    .filter(Boolean);
+  if (parts.length <= 1) return `<div class="rstep">${esc(text.trim())}</div>`;
+  return parts.map(p => `<div class="rstep">${esc(p)}</div>`).join('');
 }
 
 // ---------------------------------------------------------------------------
@@ -372,9 +347,25 @@ function renderCatalogView(
   const bucketed = new Map<BucketName, EntityRow[]>();
   for (const b of BUCKET_NAMES) bucketed.set(b, []);
 
+  const bucketByRow = new Map<string, BucketName>();
   for (const row of rows) {
-    const b = assignBucket(row.name, row.type, row.description);
-    bucketed.get(b)!.push(row);
+    bucketByRow.set(row.canonical_id, assignBucket(row.name, row.type, row.description));
+  }
+
+  // Co-locate +x / -x press-release bind pairs. Bucketing is keyword-on-
+  // description, so a pair splits when only one member's text mentions (e.g.)
+  // CTF. The '-' member inherits its '+' sibling's bucket -- a single feature
+  // stays in one bucket. ('+' is the press member, usually the richer text.)
+  const byExactName = new Map<string, EntityRow>();
+  for (const row of rows) byExactName.set(row.name, row);
+  for (const row of rows) {
+    if (!row.name.startsWith('-')) continue;
+    const plus = byExactName.get('+' + row.name.slice(1));
+    if (plus) bucketByRow.set(row.canonical_id, bucketByRow.get(plus.canonical_id)!);
+  }
+
+  for (const row of rows) {
+    bucketed.get(bucketByRow.get(row.canonical_id)!)!.push(row);
   }
 
   // Sort within each bucket by name (case-insensitive)
@@ -393,9 +384,10 @@ function renderCatalogView(
     if (bucketRows.length === 0) return '';
 
     const rowsHtml = bucketRows.map(row => {
-      const conflict = hasApparentConflict(row);
       const isHedged = row.description_verdict === 'hedged';
-      const highlight = (isHedged || conflict) ? ' row-highlight' : '';
+      const conf = row.description_confidence;
+      const isLowConf = !!conf && conf !== 'high';
+      const highlight = (isHedged || isLowConf) ? ' row-highlight' : '';
 
       // Mode tags for cvars
       const tags = entityModeTags.get(row.canonical_id) ?? [];
@@ -404,25 +396,47 @@ function renderCatalogView(
 
       const provHtml = renderProvenanceShort(row.description_provenance);
       const descHtml = row.description ? `<span class="desc-text">${esc(row.description)}</span>` : `<em class="none">none</em>`;
+
+      // Attention markers: only shown on rows that deviate from the
+      // synthesized/high default (hedged verdict or sub-high confidence).
+      // ~10 of 625 rows trip these; the rest render clean (name + type only).
+      // The old raw-comment-vs-description "conflict" heuristic was removed:
+      // every description here is synthesized, so a verbatim-substring check
+      // fires on ~85% of rows -- it detects rephrasing, not contradiction.
+      const attentionBits: string[] = [];
+      if (isHedged) attentionBits.push('<span class="att att-hedged">hedged</span>');
+      if (isLowConf) attentionBits.push(`<span class="att att-conf">${esc(conf)} confidence</span>`);
+      const attentionHtml = attentionBits.length
+        ? `<div class="attention">${attentionBits.join('')}</div>`
+        : '';
+
+      // Reasoning -- collapsed expander (verbose). Steps split one-per-line.
+      // Order is preserved exactly as the model wrote it: if the stored
+      // reasoning runs Step 3 -> Step 1 -> Step 3, the page shows that order.
+      // Reordering would hide a real signal about that row's reasoning.
       const reasoningHtml = row.description_reasoning
-        ? `<details class="reasoning-details"><summary>reasoning</summary><div class="reasoning-body">${esc(row.description_reasoning)}</div></details>`
+        ? `<details class="reasoning-details">
+        <summary>reasoning</summary>
+        <div class="reasoning-body">${renderReasoning(row.description_reasoning)}</div>
+      </details>`
         : '';
 
       return `<div id="${anchorOf(row)}" class="entity-row${highlight}" data-verdict="${esc(row.description_verdict ?? '')}" data-name="${esc(row.name.toLowerCase())}">
-  <div class="row-head">
-    <span class="ename">${esc(row.name)}</span>
-    <span class="etype">${esc(row.type)}</span>
-    ${verdictBadge(row.description_verdict)}
-    ${originBadge(row.description_origin)}
-    ${confidenceBadge(row.description_confidence)}
-    ${isHedged ? '<span class="flag-hedged">hedged</span>' : ''}
-    ${conflict ? '<span class="flag-conflict">check source</span>' : ''}
-    ${modeTagHtml}
-  </div>
-  <div class="row-body">
-    <div class="row-field"><span class="field-label">Shipped/source:</span> ${provHtml}</div>
-    <div class="row-field"><span class="field-label">Description:</span> ${descHtml}</div>
-    ${reasoningHtml}
+  <div class="row-grid">
+    <div class="row-id">
+      <div class="ename">${esc(row.name)}</div>
+      <span class="etype">${esc(row.type)}</span>
+      ${modeTagHtml}
+    </div>
+    <div class="row-desc">
+      ${attentionHtml}
+      ${descHtml}
+      ${reasoningHtml}
+    </div>
+    <div class="row-prov">
+      <div class="col-label">shipped / source</div>
+      ${provHtml}
+    </div>
   </div>
 </div>`;
     }).join('\n');
@@ -745,9 +759,8 @@ body { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; backg
 }
 .bucket-body { padding: 0 0 8px 0; }
 
-/* --- Entity row --- */
+/* --- Entity row (3-col grid: identity | description | shipped/source) --- */
 .entity-row {
-  padding: 8px 16px 6px 20px;
   border-bottom: 1px solid #252525;
   border-left: 3px solid transparent;
 }
@@ -755,52 +768,59 @@ body { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; backg
 .entity-row.row-hidden { display: none; }
 .entity-row.row-highlight { border-left-color: #d87070; background: #211a1a; }
 
-.row-head {
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-  margin-bottom: 5px;
+.row-grid {
+  display: grid;
+  grid-template-columns: 190px minmax(320px, 620px) minmax(240px, 440px);
+  gap: 24px;
+  align-items: start;
+  padding: 9px 16px 9px 17px;
 }
-.ename { font-family: monospace; font-weight: bold; font-size: 13px; color: #e8e8e8; }
-.etype { font-size: 11px; color: #888; background: #333; padding: 1px 5px; border-radius: 2px; }
-
-/* --- Verdict / origin / confidence badges --- */
-.vbadge { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 11px; font-weight: bold; }
-.vbadge-synthesized { background: #1a2a3a; color: #6a9fd8; border: 1px solid #2d5580; }
-.vbadge-affirmed { background: #1a3a1a; color: #6dbe6d; border: 1px solid #2d6b2d; }
-.vbadge-hedged { background: #3a2a1a; color: #d8b470; border: 1px solid #806030; }
-.vbadge-dead-stamped { background: #3a1a1a; color: #d87070; border: 1px solid #802d2d; }
-.vbadge-residue-routed { background: #2a1a3a; color: #b47ad8; border: 1px solid #5a2d80; }
-.vbadge-unknown { background: #3a3a1a; color: #c8c870; border: 1px solid #7a7a30; }
-
-.obadge { font-size: 10px; color: #999; background: #2a2a2a; padding: 1px 5px; border-radius: 2px; border: 1px solid #444; }
-.cbadge { font-size: 10px; padding: 1px 5px; border-radius: 2px; }
-.cbadge-high { background: #1a3a1a; color: #7ad87a; }
-.cbadge-medium { background: #2a2a1a; color: #c8c870; }
-.cbadge-low { background: #3a1a1a; color: #d87070; }
-
-.flag-hedged { font-size: 10px; background: #3a2a1a; color: #d8b470; padding: 1px 6px; border-radius: 2px; border: 1px solid #806030; }
-.flag-conflict { font-size: 10px; background: #3a1a1a; color: #d87070; padding: 1px 6px; border-radius: 2px; border: 1px solid #802d2d; }
+.row-id { min-width: 0; }
+.ename { font-family: monospace; font-weight: bold; font-size: 13px; color: #e8e8e8; word-break: break-all; margin-bottom: 5px; }
+.etype { display: inline-block; font-size: 11px; color: #888; background: #333; padding: 1px 5px; border-radius: 2px; }
+.row-desc { min-width: 0; }
+.row-prov { min-width: 0; }
+.col-label { font-size: 10px; font-weight: bold; color: #5a5a5a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
 
 /* --- Mode tags on cvar rows --- */
 .mode-tags { display: inline-flex; gap: 3px; flex-wrap: wrap; align-items: center; }
+.row-id .mode-tags { display: flex; margin-top: 6px; }
 .mtag { font-size: 10px; background: #1a2a3a; color: #7ab0d8; padding: 1px 5px; border-radius: 2px; border: 1px solid #2d5580; }
 .mtag-baseline { background: #2a1a3a; color: #b47ad8; border-color: #5a2d80; }
 .mtag-more { background: #333; color: #888; }
 
-/* --- Row body (before/after/reasoning) --- */
-.row-body { padding-left: 4px; }
-.row-field { margin-bottom: 4px; font-size: 12px; }
-.field-label { font-size: 10px; font-weight: bold; color: #666; text-transform: uppercase; letter-spacing: 0.04em; }
-.prov-entry { display: inline; }
-.prov-file { font-size: 10px; color: #666; margin-right: 4px; font-family: monospace; }
-.prov-val { font-size: 10px; color: #888; margin-right: 4px; }
-.prov-comment { color: #bbb; font-size: 12px; font-family: monospace; white-space: pre-wrap; }
-.desc-text { color: #c8e6b8; font-size: 12px; font-family: monospace; white-space: pre-wrap; }
+/* --- Description column --- */
+.desc-text { display: block; color: #d8d8d8; font-size: 13px; line-height: 1.55; white-space: pre-wrap; }
 .none { color: #555; font-style: italic; }
 .none-text { color: #555; font-style: italic; font-size: 11px; padding: 4px 8px; }
 
-.reasoning-details { margin-top: 4px; }
-.reasoning-details summary { font-size: 10px; color: #888; cursor: pointer; }
-.reasoning-body { font-size: 11px; color: #d8cc9a; background: #252010; padding: 6px 8px; margin-top: 4px; white-space: pre-wrap; font-family: monospace; }
+/* Attention markers -- only rendered on deviating rows */
+.attention { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 5px; }
+.att { font-size: 10px; font-weight: bold; padding: 1px 7px; border-radius: 2px; letter-spacing: 0.03em; }
+.att-hedged { background: #3a2a1a; color: #d8b470; border: 1px solid #806030; }
+.att-conf { background: #3a2a1a; color: #d8b470; border: 1px solid #806030; }
+
+/* Reasoning disclosure -- verbose; collapsed by default, one block per step */
+.reasoning-details { margin-top: 8px; }
+.reasoning-details summary {
+  font-size: 10px; color: #777; cursor: pointer; display: inline-block;
+  padding: 1px 7px; border: 1px solid #3a3a3a; border-radius: 2px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.reasoning-details summary:hover { color: #aaa; border-color: #555; }
+.reasoning-details[open] summary { margin-bottom: 6px; color: #999; }
+.reasoning-body { border-left: 2px solid #332e22; padding-left: 10px; }
+.rstep {
+  font-size: 11px; color: #cdbf8e; line-height: 1.5;
+  padding: 4px 0; white-space: pre-wrap;
+}
+.rstep + .rstep { border-top: 1px solid #2a2620; }
+
+/* --- Shipped/source column (compact, one entry per line) --- */
+.prov-entry { display: block; margin-bottom: 5px; font-size: 11px; line-height: 1.4; }
+.prov-file { display: block; font-size: 10px; color: #666; font-family: monospace; }
+.prov-val { font-size: 10px; color: #888; margin-right: 4px; }
+.prov-comment { color: #a8a8a8; font-size: 11px; font-family: monospace; white-space: pre-wrap; word-break: break-word; }
 
 /* --- By-Mode view --- */
 .mode-intro { padding: 10px 16px; background: #222; border-bottom: 1px solid #333; font-size: 12px; color: #aaa; line-height: 1.5; }
