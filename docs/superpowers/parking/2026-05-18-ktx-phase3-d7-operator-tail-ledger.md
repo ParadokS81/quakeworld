@@ -584,6 +584,67 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   (not blanket, not pure per-row). WI-1 wide-grep is the catching
   discipline -- keep applying it every remaining row.
 
+## !!! SESSION WRAP 2026-05-18 (orchestrator session #3) -- RESUME IN A FRESH TERMINAL !!!
+
+Walked **rows 21-33 (13 rows)**. Clean orchestrator-discipline wrap
+(approaching context smell-zone; this gate is judgment-critical and the
+arc-orchestrator pushback rule forbids pushing fidelity-critical
+verification past the smell zone -- the votemap meaning-inversion is
+exactly the class of defect a degraded window misses). NOT
+smell-zone-forced panic; the ledger is a lossless resume contract,
+committed + pushed after every row. **33 / 43 done, 10 PENDING.**
+
+**Session #3 outcomes:**
+- 5 CLEAR (r21 clearmarkerflag, r26 toggleklist, r29 k_noframechecks
+  [D10 canary PASS], r32 timedown, r33 timeup).
+- 6 CLEAR-fact + affirm-judg queued (r22 removemarker, r23
+  k_allowvoteadmin, r24 k_exclusive, r28 k_motd_time, r30
+  k_sayteam_to_spec [all lean AFFIRM], r31 k_timetop [lean
+  **SYNTHESIZE**]).
+- **2 new FIX** (queue now 6): r25 k_highspeed = **sub-class B
+  (precision, NEW)** -- "Default 320" mislabels a shipped-cfg value as
+  the registered default + "admin speed command" is wrong (CF_PLAYER);
+  r27 votemap = **sub-class A under-scope, callee-truncation flavour,
+  HIGHEST SEVERITY of the entire walk (meaning INVERSION** -- "direct
+  immediate map change" for what is actually a vote cast + tally).
+- **WI-2 opened** (default-metadata / command-class precision -- a
+  distinct class from WI-1; 1 data point r25, watch for recurrence).
+- **WI-1 upgraded**: 5th data point (r27); the "explicit out-of-scope /
+  not-source-legible / callee-not-traced hedge in the reasoning" is now
+  a PROVEN HARD defect predictor (not a heuristic) -- trace every such
+  hedge, expect an inversion.
+- **NEW judgment sub-type opened** (r31 k_timetop): elaborated-affirm /
+  provenance-correctness -- worker extended an affirm with
+  source-version-specific numerics but kept affirmed/no-anchor, leaving
+  them unprotected vs source drift. Generalises to ANY extended-affirm
+  -> needs an operator POLICY call at the batch (not just per-row).
+- D10 canary (r29 k_noframechecks): **PASS** (polarity deterministic,
+  both configs encode the same mapping, C2 is inverted-prose only).
+
+**Two operator-decision batches now larger (still walk-end, do NOT
+auto-apply -- C4):**
+1. **FIX queue = 6**, TWO sub-classes: A (under-scope, 5: rows
+   4/5/11/12 + 27 votemap) -- targeted re-fan candidate; B (precision,
+   1: row 25 k_highspeed) -- needs a per-row re-synth with an explicit
+   "registered-default vs shipped-cfg-value" + "command CF_ flag"
+   checklist (an under-scope re-fan will NOT catch B). votemap is the
+   most severe (meaning inversion on a core pug command).
+2. **Affirmed-sample judgment queue = 11**, now TWO sub-types: the
+   terse-verbatim cluster (mostly lean AFFIRM) and the NEW
+   elaborated-affirm/provenance sub-type (r31 k_timetop, lean
+   SYNTHESIZE) which wants an operator policy call generalising to all
+   extended-affirms.
+
+**Resume instructions (fresh terminal):** identical method to session
+#2 below (read this ledger top-to-bottom; restore the source oracle;
+WI-1 + WI-2 + PROC-1 every row; trace every out-of-scope hedge -- PROVEN
+predictor; commit+push every row). **RESUME AT ROW 34** -- live `NEXT =`
+in the "## Docket = 43 rows" footer (currently HTML#31 `k_pow_pickup`,
+synth). 10 PENDING: rows 34-43 (k_pow_pickup, k_spw, spawn_show,
+spawn666time, k_instagib, k_overtime, _k_coachteam1, _k_last_cycle_map,
+timing_players_action, k_use_matchless_dir). Phase 3 does NOT ship until
+the walk completes + FIX queue resolved + operator scan verdict.
+
 ## !!! SESSION WRAP 2026-05-18 (orchestrator session #2) -- RESUME IN A FRESH TERMINAL !!!
 
 This session resolved the docket-integrity blocker (RE-ANCHORED the
