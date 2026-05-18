@@ -49,7 +49,7 @@ are knob-keyed, so the renumber is loss-free.
 | 5|hedged|dmm5|4|[D] FIX|
 | 6|affirm|gamemodes|16|[D] CLEAR-fact; judg->Q|
 | 7|synth|k_free_mode|12|[D] FIX|
-| 8|synth|k_privategame_force_reconnect|17|PENDING|
+| 8|synth|k_privategame_force_reconnect|17|[D] CLEAR|
 | 9|affirm|race_toggle|18|PENDING|
 |10|affirm|addbot:frogbot:std|19|PENDING|
 |11|affirm|breakondeath:frogbot:std|20|PENDING|
@@ -86,8 +86,8 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 16 done / 27 PENDING.
-NEXT = ledger row 17 = HTML#8 `k_privategame_force_reconnect` (synth).
+[D]=dispositioned. 17 done / 26 PENDING.
+NEXT = ledger row 18 = HTML#9 `race_toggle` (affirmed -- spot-sample).
 
 ## Per-row dispositions
 
@@ -109,6 +109,7 @@ NEXT = ledger row 17 = HTML#8 `k_privategame_force_reconnect` (synth).
 | 14 | next_best | command | HTML#3 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1) | Affirmed verbatim CD_NEXT_BEST "set pov to next best player" (commands.c:516, origin source_inline). Handler next_best() commands.c:6311-6340 verified source-exact: b1=get_ed_best1()/b2=get_ed_best2(); !b1 -> "next_best: can't do this now" return (:6319); top-2 TOGGLE -- to=b1, if goal==b1 ->b2 elif goal==b2 ->b1 (:6326-6334); stuffcmd `track <id>` (:6338). Reg :896 CF_SPECTATOR|CF_MATCHLESS. WI-1: uncited :161 fwd-decl (no behaviour) + the :6135-6144 "ktpro compatible autotrack" comment block correctly OUT OF SCOPE -- that block heads a SEPARATE event-driven autotrack subsystem (rl-taken / observed-dies / powerup), NOT this one-shot command's own behaviour; reasoning rightly scoped to the handler. Shipped text source-accurate, all D5 clauses pass, the top-2-toggle is acknowledged mechanism nuance; terse verbatim (NOT the elaborated-affirm anti-pattern). FACT source-accurate; affirm-vs-synth judgment -> Affirmed-sample judgment queue (PROC-1), NOT a silent CLEAR. |
 | 15 | toggletracklist | command | HTML#4 synth | CLEAR (fact) | Synth description source-exact. Handler commands.c:5457-5476: k_allowtracklist=!cvar (:5459); match_in_progress -> return BEFORE cvar_fset (:5461, "no effect during match" exact); cvar_fset (:5466); G_bprint on/off (:5468-5474). Companion gate tracklist commands.c:5433: blocks only when !k_allowtracklist && match_in_progress && self->ct==ctPlayer -> "tracklist is disabled" (matches the description's "players ... during a match" scoping exactly). WI-1 grep exhaustive: uncited hits = :145/146 fwd-decls + :5188/5192 (the `klist` command's "also toggle tracklist" x-ref string, NOT this handler) + world.c:862 cvar reg default 1 -- all correctly out of scope, no behavioural under-scope. Shared macro CD_TRACKLIST on both :842 tracklist + :843 toggletracklist = shared-STRING cohort (NOT a C2 -- one macro on two commands, not two docs disagreeing on one knob); D10 synthesize-from-handler is the policy-mandated resolution, consistent with the accepted downspecs/cohort pattern + slice-2 STATUS. PROC-1: pure checkable fact, no residual judgment. No action. |
 | 16 | gamemodes | command | HTML#6 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1) | FACT source-accurate: handler ListGameModes commands.c:9513-9552 verified -- static known[] (25 entries: race/1on1/.../wipeout/yawnmode/totmode), iterates cmds[], G_sprint each registered command name that is in known[] (= the game-mode-selection commands actually registered on this server). WI-1: only 3 sites (:289 fwd-decl, :1062 reg, :9513 handler), all cited, no under-scope. Affirmed verbatim CD_GAMEMODES "list available game modes" (:684). Affirm-vs-synth read in the Affirmed-sample judgment queue. NOT a silent CLEAR. |
+| 17 | k_privategame_force_reconnect | cvar | HTML#8 synth | CLEAR (fact) | Synth source-exact. private_game_toggle() vote.c:1550-1598: read :1553; player block gated `enable && match_in_progress<2` (:1559); per non-logged-in player -- always unready (:1576-1580); `if(force_reconnect && !is_logged_in)` (:1582) -> allow_specs (k_privategame_allow_specs) ? do_force_spec + "You must login to play." (:1587-88) : disconnect + "Please reconnect & login" (:1592-93); force_reconnect=0 -> unready-only, left connected (src comment :1586 "kicked at map change anyway"). Every description clause verified. WI-1 exhaustive: ONLY 3 sites (world.c:1091 reg+comment, vote.c:1553 read, vote.c:1582 use) -- single-read-site, NOT the multi-site class. Reg comment "kick unauthed players" correctly classified a less-precise SUBSET (omits the allow_specs branch) -> D10 synth-from-source, NOT a C2. Description does not conflate with the separate :1564 !allow_specs existing-spectator kick. PROC-1: checkable fact, no residual judgment. No action. |
 
 Legend: CLEAR = verified fine, no action. ACCEPT AS-IS + P4 carry =
 correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
@@ -246,9 +247,10 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
 
 ## Walk status
 
-- Rows dispositioned: 14 / 43 (r13 downspecs CLEAR shared-handler;
-  r14 next_best CLEAR-fact, affirm-judgment queued per PROC-1).
-  Docket re-anchored this session to the
+- Rows dispositioned: 17 / 43. r13 downspecs CLEAR (shared-handler);
+  r14 next_best + r16 gamemodes CLEAR-fact (affirm-judg queued, PROC-1);
+  r15 toggletracklist + r17 k_privategame_force_reconnect CLEAR (fact,
+  single/cohort, no under-scope). Docket re-anchored this session to the
   authoritative HTML (the prior "4+20+10+9" group model is SUPERSEDED
   by the HTML-true 4 hedged + 11 affirmed + 28 synthesized). 31 PENDING,
   walked in HTML doc order as rows 13-43 -- see the authoritative table
@@ -321,4 +323,6 @@ point.
    walk completes + the FIX queue is resolved + the operator reports
    the scan verdict.
 
-- Next: ledger row 15 = HTML#4 `toggletracklist` (synthesized).
+- Next: see the live `NEXT =` pointer in the "## Docket = 43 rows"
+  authoritative-table footer (single source of resume truth; updated
+  every row). Currently row 18 = HTML#9 `race_toggle`.
