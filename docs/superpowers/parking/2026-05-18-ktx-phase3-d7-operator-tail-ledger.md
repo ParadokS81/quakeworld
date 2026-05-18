@@ -74,7 +74,7 @@ are knob-keyed, so the renumber is loss-free.
 |30|synth|k_ctf_hookstyle|9|[D] CLEAR|
 |31|synth|k_pow_pickup|34|[D] FIX (precision NEW flavour C -- cvar=0 "timer stacks" FALSE; source hard-caps 30s)|
 |32|synth|k_spw|35|[D] CLEAR (fact)|
-|33|synth|spawn_show|36|PENDING|
+|33|synth|spawn_show|36|[D] CLEAR (fact) + C-shaped-reasoning near-miss noted|
 |34|synth|spawn666time|37|PENDING|
 |35|synth|k_classic_shotgun|7|[D] CLEAR|
 |36|synth|k_disallow_weapons|11|[D] FIX|
@@ -86,10 +86,10 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 35 done / 8 PENDING.
-NEXT = ledger row 36 = HTML#33 `spawn_show` (synthesized).
-  (HTML#32 k_spw now [D] CLEAR -- next PENDING in HTML
-  order is #33.)
+[D]=dispositioned. 36 done / 7 PENDING.
+NEXT = ledger row 37 = HTML#34 `spawn666time` (synthesized).
+  (HTML#33 spawn_show now [D] CLEAR -- next PENDING in HTML
+  order is #34.)
 
 ## Per-row dispositions
 
@@ -115,6 +115,7 @@ NEXT = ledger row 36 = HTML#33 `spawn_show` (synthesized).
 | 18 | race_toggle | command | HTML#9 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean SYNTH) | FACT source-accurate: reg commands.c:1007 DEF(r_changestatus) arg 3; r_changestatus case 3 race.c:3050-3059 -- `if (self->racer && race.status)` -> G_bprint "%s has quit the race" + race_end(self,true,false) (:3053-54), THEN set_player_race_ready(self, !self->race_ready) (:3057). WI-1: race.c:4269 race_toggle_incr_cvar = false-positive substring (unrelated headstart/resolution helper, NOT this command); commands.c:7970 r_changestatus(3) = internal caller (same path, not new behaviour). Affirmed verbatim CD_RTOGGLE "toggle ready status for race" (:633). Affirm-vs-synth: OMITS a behaviorally-material mid-run side-effect (running it mid-race publicly QUITS your run -- "X has quit the race" -- before toggling); weaker affirm than next_best/gamemodes, my lean = SYNTHESIZE. In the queue. NOT a silent CLEAR. |
 | 20 | breakondeath:frogbot:std | command | HTML#11 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE on the cvar FB_CVAR_BREAK_ON_DEATH (=k_fb_break_on_death): reg world.c:1065 default 1; toggle handler FrogbotsSetBreakOnDeath bot_commands.c:2219-2230 (bots_enabled gate; cvar_fset !cvar :2227; G_sprint "changed to on/off" :2228); behavioural read player.c:1145 `if(!self->isBot && tot_mode_enabled() && cvar(...))` -> PlayerBreak; match.c:1789 = non-behavioural settings-display read (correctly out of scope, NOT under-scope). Affirmed verbatim. Affirm-vs-synth: genuine terse /botcmd user-help line; omits the tot_mode/human gate but that is implied by the frogbot-practice context this command lives in. lean = AFFIRM (mild). Queue (frogbot-help-string cluster). NOT a silent CLEAR. |
 | 19 | addbot:frogbot:std | command | HTML#10 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate: std_commands table bot_commands.c:2318 `{ "addbot", FrogbotsAddbot_f, "Adds a bot. Skill & team optional" }`; handler FrogbotsAddbot_f :362-392 -- !bots_enabled -> "Bots are disabled" return (:368); optional numeric argv[2]=skill (:375-380), argv[3]=team; FrogbotsAddbot(skill,team,true) (:392) spawns one bot, clamps skill, auto-balances teams. WI-1: :1908 + :2790 are OTHER internal FrogbotsAddbot callers (different contexts, not this std command). Affirmed verbatim. Affirm-vs-synth: the string is a GENUINE user-facing help line (PrintAvailableCommands prints it to players in /botcmd), terse-by-design for a command list, accurate WHAT, no hidden material side-effect; my lean = strong AFFIRM (contrast race_toggle). In the queue. NOT a silent CLEAR. |
+| 36 | spawn_show | command | HTML#33 synth | CLEAR (fact) -- + flavour-C-shaped-reasoning NEAR-MISS recorded | WI-1 EXHAUSTIVE on BOTH the command `spawn_show` AND the controlled cvar `k_spm_show` (row-20 method) AND `SpawnShowStatus()` AND `ShowSpawnPoints`/`HideSpawnPoints`. Handler ToggleSpawnPoints commands.c:2700-2730 every clause source-exact: read k_spm_show; `if(match_in_progress) return` (= "no effect while a match is in progress", command-scoped, correct); `spawn_show++`; `if(>SPAWN_SHOW_MATCH=2) =SPAWN_SHOW_DISABLED=0` (= "advancing past match wraps back to off"); cvar_set; switch 0->HideSpawnPoints+"off" / 1->ShowSpawnPoints+"prewar" / 2->ShowSpawnPoints+"match". Enum g_local.h:1258-1260 SPAWN_SHOW_* = 0/1/2 verified; C2 (switch labels w/ SPAWNICIDE_* g_local.h:1277-1279 also 0/1/2, clamp uses SPAWN_SHOW_MATCH -- behaviour identical, source-internal naming inconsistency) correctly surfaced in reasoning, not auto-resolved, no D10 needed (no doc-vs-source divergence). **DESCRIPTION VERDICT = source-TRUE, exhaustively verified**: the prewar-vs-match SEMANTIC ("1 = shown only before the match starts", "2 = shown during the match") is NOT in the cited handler (it calls the SAME ShowSpawnPoints() for both 1 and 2) -- it is enforced at world.c:704-707 `if(SpawnShowStatus()>SPAWN_SHOW_DISABLED) ShowSpawnPoints()` (modes 1&2 shown in prewar) + match.c:1246-1249 `if(SpawnShowStatus()!=SPAWN_SHOW_MATCH) HideSpawnPoints()` (at match start: mode 1 hidden, mode 2 persists, mode 0 never shown). ShowSpawnPoints items.c:3012 spawns glow ents; HideSpawnPoints items.c:3023 ent_remove. All other Show/Hide callers (race.c:534/3337, hoonymode.c:858, commands.c:2755 ToggleSpawnicide reset) consistent, none contradict. UNCITED sites all corroborate/non-behavioural, NOT under-scope output defect. WI-2 CLEAN BY ABSENCE: no "(default)" claim (registered default RegisterCvarEx("k_spm_show","1")=1/prewar NOT asserted -- the r25 trap avoided again); no command-class claim (reg CF_PLAYER|CF_SPC_ADMIN not stated). PROC-1: the OUTPUT reduces to a checkable fact that CHECKS OUT (description matches exhaustively-verified behaviour incl. the enforcement sites) -> CLEAR (fact), no residual judgment about the disposition. **METHODOLOGY NEAR-MISS (decision-relevant to the flavour-C operator batch, NOT a FIX, NOT a silent CLEAR)**: the synthesis REASONING scoped its authoritative site to the handler alone ("source_ref authoritative behavior site = src/commands.c:2700") and DERIVED the prewar/match semantic from the announce strings + SPAWN_SHOW_* enum NAMES -- it never cited match.c:1246 / world.c:704 where that semantic is actually ENFORCED. Identical root-cause shape to r34 k_pow_pickup flavour C (infer a downstream/semantic claim from gate-adjacent labels, do not trace the enforcing code) -- but it landed CORRECT here only because KTX's announce strings + enum names faithfully name what match.c:1246 enforces. r34 proved those labels are NOT always honest (k_pow_pickup's reg comment + "stack" inference were contradicted by the untraced grant code). Data point: C-shaped reasoning has now appeared 2 of the last 3 synth rows (r34 FIX / r36 CLEAR-by-luck); the FIX-vs-CLEAR split turned entirely on whether the labels happened to be honest -- which the synthesis did not itself verify. Strengthens the case that flavour C's re-synth checklist item ("trace every inferred OFF-state/semantic/downstream clause to the code that ENFORCES it; never derive it from a label/announce-string/enum-name alone") is systemic, not one-off. No action on the row (output source-true). |
 | 35 | k_spw | cvar | HTML#32 synth | CLEAR (fact) | WI-1 EXHAUSTIVE: many sites, all accounted. Authoritative enum respawn_model_name() g_utils.c:2663 verified case-exact vs description: -1 "pre-qtest nonrandom respawns" / 0 "Normal QW respawns" / 1 "KT SpawnSafety" / 2 "Kombat Teams respawns" / 3 "KTX respawns" / 4 "KTX2 respawns" (description's "non-random"/"spawn-safety" = orthographic normalization only, not a divergence). Behavioural branches verified: -1 = static sequential ez_find cycling w/ wrap (client.c:1063-1073, non-random); 0 = plain valid-spot find, no protections (k_spw falsy at :1122, skipped at :1113); k_spw 2/3/4 = nearby-player spot-discard + `self->k_1spawn=time+2.6` window (client.c:1109-1140, source comments "treat this spot as not valid" + "protect ... from be spawnfragged") = the description's "anti-telefrag"; same-spawn-avoidance verified BOTH paths -- k_spw 1/2/3 last-spot discard (client.c:1122 `k_spw && k_spw!=4 && self->k_lastspawn==spot`, source "protection from spawn twice on the same spot") AND k_spw 4 double-reselect (client.c:1301 SelectSpawnPoint recheck, source "low chance to get same spawn point") = the description's "same-spawn-avoidance logic". UNCITED sites all corroborate / non-behavioural, NOT under-scope class: toggle cmd commands.c:2678 `bound(-1,cvar("k_spw"),4)` + `++k_spw>4 -> -1` wrap CORROBORATES the exact -1..4 range (description makes no setting/command claim); register world.c:856 `RegisterCvar("k_spw")` default ""/0 = enum "Normal QW" (consistent); status prints match.c:1599 / commands.c:1937 non-behavioural; match.c:1596/2082 commented-out inert; config strings race.c:300 / commands.c:4196/4449/4477/4501/4528 / cvar_fset :8886 are per-mode applications, not behaviour-defining. NO out-of-scope hedge (predictor n/a -- reasoning traced enum + branches). C2/D10: the mechanical-candidate's two shipped-cfg provenance variants CONFLICT (one lists 0-4 incl "4=ktx2 respawns", the other only 0-3); source enum authoritative AND recovers value -1 BOTH candidates omit -> value-ADD (L1 more complete than either shipped doc), C2 surfaced in the reasoning not silently absorbed -- consistent with operator-accepted D10/dual-doc precedent (k_demoname_date / k_noframechecks canary PASS / k_ctf_hookstyle votable-4). WI-2 CLEAN BY ABSENCE: no "(default)" claim -- and critically the synthesis correctly did NOT mislabel any of the 7 shipped config-string values (1 and 4) as the registered default (the exact WI-2 trap r25 k_highspeed fell into; here avoided); cvar, no command-class claim. PROC-1: pure checkable fact (6-value enum source-exact + behavioural summary source-verified incl. both same-spawn paths + D10 reduces to a deterministic source read), no residual judgment. No action. |
 | 34 | k_pow_pickup | cvar | HTML#31 synth | **FIX** (re-synthesis) -- precision, NEW flavour C (untraced-downstream-consequence) | WI-1 EXHAUSTIVE: 4 sites. CITED+verified: register world.c:818 `RegisterCvarEx("k_pow_pickup","0")`, gate items.c:2046 `if(cvar("k_pow_pickup"))`, corroborating comment items.c:2044 "if \"fair\" powerups pickup is activated, don't allow ... same kind (ie 2 quads)". UNCITED (traced, correctly out of scope -- NOT under-scope class): commands.c:2853 TogglePuPickup (prewar-only toggle cmd `if(match_in_progress) return`, redtext "new powerups pickup (no multi pickup)" -- CORROBORATES polarity; description makes no setting/command claim); commands.c:4162 common_um_init `"k_pow_pickup 0\n"` (mode-init config string -- CORROBORATES the 0 default, not a behaviour site). NO out-of-scope hedge in reasoning (predictor does not fire). Primary cvar=1 gate behaviour IS correctly scoped + source-exact: 4 streq guards items.c:2048-2069 (envirosuit/radsuit_finished=suit, invulnerability/invincible_finished=pentagram, invisibility/invisible_finished=ring, super_damage/super_damage_finished=quad; each `*_finished > time -> return` = "cannot re-pick same kind until expiry") -- description EXACT. WI-2 CLEAN: "0 (default)" is the TRUE registered default (RegisterCvarEx(...,"0") world.c:818, double-corroborated by common_um_init) -- good contrast to r25 k_highspeed's wrong "Default 320"; cvar, no command-class claim. **THE DEFECT (PROC-1, checkable fact)**: the cvar=0 parenthetical "(allowing the timer to stack)" is FACTUALLY FALSE. Grant code items.c:2134-2212 (UNTRACED by the synthesis): normal map powerup -> flat `*_finished = g_globalvars.time + 30` (p_cnt stays NULL, reset to a fresh 30s, NOT additive -- 25s-left + new quad = 30s not 55s); dropped powerup -> `p_cnt[0]=max(time,old_pu_time)+seconds_left` THEN `p_cnt[0]=min(g_globalvars.time+30,p_cnt[0])` with the literal source comment "// do not allow more than 30 seconds of quad anyway." Source EXPLICITLY caps at 30s and EXPLICITLY prevents stacking; "stack" directly CONTRADICTS the anti-stacking cap and is behaviourally material (reader believes 2 quads ~= 60s; source guarantees <=30s). NEW FIX flavour C: primary behaviour correctly traced+source-exact (NOT sub-class A under-scope), defect NOT default-metadata/command-class (NOT sub-class B) -- it is an INFERRED cvar=0 downstream-consequence clause the synthesis never traced to the grant code, which contradicts it. Re-synth (C4, operator-gated, NOT auto-applied): KEEP polarity (1=fair/block same-kind re-pickup until expiry; 0=default re-pickup allowed) + the 4-kinds gate + "0 (default)"; FIX the 0-case parenthetical -> re-pickup REFRESHES the timer (map powerup: reset to a fresh 30s, NOT additive; dropped powerup: remaining time added but HARD-CAPPED at 30s total) -- it does NOT accumulate beyond one powerup's 30s duration. Optional: cross-ref the prewar-only toggle TogglePuPickup. |
 | 33 | timeup | command | HTML#29 synth | CLEAR (fact) | WI-1 EXHAUSTIVE: `timeup`/`TimeUp` 3 sites (fwd-decl :236, reg commands.c:734 `DEF(TimeUp),5.0f`, handler :2977); `overtimeup`:799 + help-string :1577 = false-positive substrings (correctly out of scope); cohort sibling `timeup1`:732 (1.0f, distinct entity). NOT under-scope. Handler TimeUp(t=5) :2977-3015 every clause source-exact: mid-match guard; ramp `(t==5)&&timelimit==0->1`/`==1->3`/`==3->5`; else `timelimit+=t` (+5); `bound(0,timelimit,cvar("k_timetop"))` (consistent w/ r31); `tl==timelimit`->"still N" caller-only; `cvar_fset("timelimit")`+`G_bprint` announce. KEY WI-1 WIN -- VERIFIED an asymmetry, did not assume: TimeUp has NO hoony branch AND NO both-<=0 refusal (TimeDown r32 had BOTH); the synthesis correctly DIFFERENTIATED (timeup desc omits hoony/refusal because the source genuinely lacks them) = precision, NOT under-scope. ANTI-COLLAPSE correct (ramp keyed to t=5, not family-collapsed w/ timeup1 t=1). WI-2 clean: no false "Default"/command-class claim (CF_PLAYER\|CF_SPC_ADMIN, silent on privilege). CD_TIMEUP "+5 mins match time" simplification -> D10 synth-from-handler, ONE input not verdict, surfaced not auto-resolved, accepted timedown/downspecs precedent. PROC-1: checkable fact, no residual judgment. No action. |
@@ -289,6 +290,27 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
   2nd untraced-downstream-consequence FIX appears, C is a confirmed
   systemic class with its own re-synth checklist (cf the WI-1 / WI-2
   promotion bar).
+  - **r36 spawn_show NEAR-MISS (recorded session #4, NOT a FIX --
+    output source-true):** the spawn_show synthesis scoped its
+    authoritative site to the handler alone and DERIVED the
+    prewar-vs-match semantic from the announce strings + SPAWN_SHOW_*
+    enum NAMES, never citing the actual enforcement (match.c:1246
+    `SpawnShowStatus()!=SPAWN_SHOW_MATCH -> HideSpawnPoints` at match
+    start + world.c:704 prewar show). EXACT flavour-C root-cause shape
+    as r34 -- infer a semantic/downstream claim from gate-adjacent
+    labels, do not trace the enforcing code -- but it landed CORRECT
+    because KTX's labels happened to be honest (the enum names + the
+    sprint strings faithfully name what match.c:1246 enforces). r34
+    proved the labels are NOT always honest. **C-shaped reasoning has
+    now appeared 2 of the last 3 synth rows (r34 FIX by label-lie /
+    r36 CLEAR by label-honesty); the FIX-vs-CLEAR split turned
+    entirely on label honesty, which the synthesis never itself
+    verified.** This is the promotion signal: C is not a one-off, the
+    root cause is systemic even though only 1 of 2 instances produced
+    a defect. The operator's flavour-C decision should weigh that the
+    re-synth checklist item is needed for ALL synth rows asserting a
+    semantic/downstream/OFF-state claim, not only the rows that
+    happened to ship a wrong one.
 
 ## Affirmed-sample judgment queue (operator adjudicates at walk end -- PROC-1)
 
@@ -548,11 +570,28 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   and the synthesis correctly did NOT mislabel any of 7 shipped
   config-string values as the default (the r25 trap, here avoided).
   No residual judgment. 0 new FIX.
-- Session #4 totals so far: 2 rows, 1 CLEAR + 1 FIX, 0 judgment-queue
-  adds. Cumulative: **35 / 43 done, 8 PENDING**. FIX queue **7** --
+- r36 spawn_show (HTML#33, synth): **CLEAR (fact)** + flavour-C
+  near-miss recorded. WI-1 exhaustive on spawn_show + k_spm_show +
+  SpawnShowStatus + Show/HideSpawnPoints. Handler/wrap/match-guard
+  source-exact; the prewar-vs-match SEMANTIC (not in the cited
+  handler -- same ShowSpawnPoints() for 1&2) verified source-TRUE at
+  the UNCITED enforcement match.c:1246 (`!=SPAWN_SHOW_MATCH ->
+  HideSpawnPoints` at match start) + world.c:704 (prewar show). C2
+  (SPAWNICIDE_* vs SPAWN_SHOW_* labels, both 0/1/2) correctly
+  surfaced. WI-2 clean by absence (no default/command-class claim --
+  RegisterCvarEx default 1 not asserted; r25 trap avoided). Output
+  source-true -> CLEAR, no FIX. But the REASONING derived the
+  prewar/match semantic from announce-strings+enum-names, never
+  tracing match.c:1246 -- EXACT flavour-C root-cause shape as r34,
+  landed correct only by label-honesty. Recorded as the flavour-C
+  promotion data point (2 of last 3 synth rows C-shaped; FIX-vs-CLEAR
+  split = label honesty, unverified by synthesis). 0 new FIX.
+- Session #4 totals so far: 3 rows, 2 CLEAR + 1 FIX, 0 judgment-queue
+  adds. Cumulative: **36 / 43 done, 7 PENDING**. FIX queue **7** --
   A under-scope 5 (rows 4/5/11/12 + 27), B precision-default/cmd 1
-  (row 25), C precision-untraced-downstream 1 (row 34). Affirmed-
-  sample judgment queue unchanged at **11**.
+  (row 25), C precision-untraced-downstream 1 (row 34) + r36 near-miss
+  (CLEAR, recorded as C promotion signal). Affirmed-sample judgment
+  queue unchanged at **11**.
 
 ### Session #3 running tally (resume from row 21)
 
