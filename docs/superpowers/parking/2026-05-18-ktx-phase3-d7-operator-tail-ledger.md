@@ -35,6 +35,9 @@ curated -> marker -> affirm-sample.
 | 6 | k_ann | cvar | curated | CLEAR | High-quality synthesis. Wide read (WI-1): ALL k_ann reads = exactly the 2 cited sites (spectate.c:180/239) + bare register; ternary verbatim; message text exact. Synthesis correctly rejected the imprecise shipped doc, documented true behaviour (never fully suppressed -- always reaches spectators; k_ann only gates player visibility during a live match), surfaced the precision gap as a C2 note. Source-accurate. No action. |
 | 7 | k_classic_shotgun | cvar | curated | CLEAR | High-quality synthesis. Wide read (WI-1): all reads = world.c:948 + two parallel blocks (weapons.c:549/717/724 + the :740/782/793 HITBOXCHECK variant) -- reasoning explicitly accounted for the variant. Verified: classic_shotgun passed as TraceAttack `send_effects`; AddMultiDamage + hit-stats run REGARDLESS, only SpawnBlood/puff gated; `!classic_shotgun -> Multi_Finish()` combined effect. Description (visual-only, damage/accuracy identical) source-exact; correctly disambiguated the C2 "sg/ssg hits != accuracy" misread. No action. |
 | 8 | k_cmd_fp_dontkick | cvar | curated | CLEAR | High-quality synthesis. Wide read (WI-1): all reads accounted (globals.c:83 decl, world.c:999/1437, commands.c:1204/2071). Verified commands.c:1188-1228: warn+lockout run BEFORE `if(!k_cmd_fp_dontkick)` (always); kick path gated by it; clamp 0/1; scoped to cmd-flood not say-flood. Correctly defused the inverse-polarity trap + surfaced the config-default divergence (ktx-repo ships 0=kick, nquake-distfiles ships 1=no-kick) as retained-both C2 -- NOT a defect. Operator-nugget: nquake vs stock KTX differ here (-> L3/wiki + admin awareness). No action. |
+| 9 | k_ctf_hookstyle | cvar | curated | CLEAR | Excellent synthesis. Wide read (WI-1): all behavioural reads = grapple.c (cited) + vote.c setters confirm 1/2/3/4 all votable. Verified each value: 1 grapple.c:62/216/402 (halved refire, ~250ms cancel [source's OWN comment], accel/decel pull); 2 :221/402 (~80ms cancel, fixed pull); 3 :443/212/464 (THROW_SPEED, no cancel); 4 :447/226 (CR_THROW_SPEED, immediate cancel). Curated concern handled correctly via D10: shipped cfg documents only 1/2/3, source has real votable value 4 -> L1 now MORE complete than shipped doc (the arc value-add). Operator-nugget: hookstyle 4 votable but cfg-undocumented (-> CTF/hook L3). No action. |
+| 10 | k_demoname_date | cvar | curated | CLEAR | High-quality synthesis. Wide read (WI-1): only 2 sites (world.c:938 register+comment, match.c:2337 read) -- both accounted, no under-grep. Verified match.c:2337-2341: free strftime format -> QVMstrftime -> strlcat to demoname; empty -> skipped. Correctly debunked the doubly-wrong shipped-cfg comment ("YYYY-MM-DD" -- but it is arbitrary strftime AND the shipped %Y%m%d-%H%M yields YYYYMMDD-HHMM); D10 source-truth, conflict surfaced as C2. L1 now more accurate than shipped doc. No action. |
+| 11 | k_disallow_weapons | cvar | curated | **FIX** (re-synthesis) | Curated polarity concern handled CORRECTLY (verified: cvar `disallow`, var `disallowed_weapons`, `items & ~mask` strips; bit table sg=1..axe=4096 matches g_consts.h via g_utils.c:2159-2194). BUT WI-1 wide-read: UNDER-SCOPED (same root cause as dmm5/allow_toggle_practice). Description says "dmm4 only, inventory strip". Source: client.c:2358 inventory strip = dmm4&match (ok); match.c:875 weapon MAP-ENTITY removal = `deathmatch>=4` = dmm4 AND dmm5 (src comment "deathmatches (4 or 5) unless ToT"); fb_globals.c:203 `fb_lg_disabled()` bot-LG effect NOT mode-gated. Missing dmm5 scope + map-pickup-removal + bot effect. CROSS-LINK: corroborates row-4 dmm5=dmm4-family. Re-synth: keep polarity+bits, broaden to dmm4&dmm5, add map-entity removal (+ToT exception) + non-gated bot-LG effect. |
 
 Legend: CLEAR = verified fine, no action. ACCEPT AS-IS + P4 carry =
 correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
@@ -58,6 +61,15 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
   cross-ref the `lock_practice` cvar. Operator context (prewar-only;
   toggling reloads the map; pure server-side feature gate) for the L3
   practice-feature note.
+- **k_disallow_weapons** (row 11): re-synthesize KEEPING the correct
+  disallow-polarity + bit table (sg=1/ssg=2/ng=4/sng=8/gl=16/rl=32/
+  lg=64/axe=4096, vs g_consts.h). BROADEN scope: inventory strip is
+  dmm4&match (client.c:2358) BUT map weapon-entity removal is
+  `deathmatch>=4` = dmm4 AND dmm5 (match.c:875, "deathmatches (4 or 5)
+  unless ToT mode + item pickup bonus"); ADD the non-mode-gated bot
+  effect `fb_lg_disabled()` (fb_globals.c:203, bots change LG behaviour
+  when the LG bit is set, any mode). Cross-link: confirms dmm5 is
+  dmm4-family (consistent with row-4).
 
 ## Carry-forwards to Phase 4 (MVDSV) -- the orchestrator MUST fold these into the Phase-4 executor prompt
 
@@ -97,19 +109,57 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
 
 ## Walk status
 
-- Rows dispositioned: 8 / 43. Group 1 (hedged) COMPLETE; group 2
-  (curated) IN PROGRESS (4/20).
+- Rows dispositioned: 11 / 43. Group 1 (hedged) COMPLETE; group 2
+  (curated) IN PROGRESS (7/20).
   - 1-3 ban/banip/banrem: ACCEPT AS-IS + P4 carry (CF-1).
   - 4 dmm5: FIX; CF-2; WI-1 opened.
   - 5 allow_toggle_practice: FIX (add lock_practice guard).
-  - 6 k_ann: CLEAR. 7 k_classic_shotgun: CLEAR.
-  - 8 k_cmd_fp_dontkick: CLEAR (config-default divergence surfaced ok).
-- FIX queue: 2 (dmm5, allow_toggle_practice).
-- **Systemic-vs-one-off ratio: 2 FIX / 5 substantive** (dmm5,
-  allow_toggle_practice = FIX; k_ann, k_classic_shotgun,
-  k_cmd_fp_dontkick = CLEAR; ban family excluded). 3 CLEAR in a row
-  after the 2 early FIX -> VARIANCE confirmed, NOT uniform defect.
-  Per-row re-synth of the FIX queue is the right resolution; blanket
-  re-fan rejected (would regress the good rows). Surfaced at group-2
-  boundary.
-- Next: row 9 `k_ctf_hookstyle` (curated, synthesized).
+  - 6-10 k_ann / k_classic_shotgun / k_cmd_fp_dontkick / k_ctf_hookstyle
+    / k_demoname_date: CLEAR.
+  - 11 k_disallow_weapons: FIX (under-scoped; broaden dmm4->dmm4&dmm5
+    + map-entity removal + bot effect).
+- FIX queue: 3 (dmm5, allow_toggle_practice, k_disallow_weapons).
+- **Systemic read (SHARPENED): 3 FIX / 8 substantive. All 3 FIX share
+  ONE root cause** -- multi-read-site cvars where D6 explored only the
+  primary apply-site (dmm5, allow_toggle_practice, k_disallow_weapons).
+  The 5 CLEAR were few-site OR D6 wide-read them. NOT random variance ->
+  a PREDICTABLE class. Candidate resolution (operator decides at the
+  group-2 boundary): targeted re-fan of the multi-read-site rows only
+  (not blanket, not pure per-row). WI-1 wide-grep is the catching
+  discipline -- keep applying it every remaining row.
+
+## !!! SESSION WRAP -- ORCHESTRATOR SMELL ZONE (>430k). RESUME IN A FRESH TERMINAL. !!!
+
+State fully captured + committed; the walk is resumable with zero loss.
+
+**Resume instructions (fresh terminal):**
+1. Read THIS ledger top-to-bottom (it is the complete durable record:
+   source oracle, the 43-row groups, per-row dispositions, FIX queue,
+   carry-forwards CF-1/CF-2, WI-1, the sharpened systemic read).
+2. Restore the source oracle (it is /tmp, ephemeral -- likely gone):
+   `git clone https://github.com/QW-Group/ktx.git /tmp/ktx-src-67253dc9
+   && git -C /tmp/ktx-src-67253dc9 checkout 67253dc9ab4f643f1e6523a923a41caab9ea587f`
+   then verify `git -C /tmp/ktx-src-67253dc9 describe --tags` ==
+   `1.47-2-g67253dc` (== the anchor; proves byte-identical source).
+3. Per-row method (UNCHANGED -- WI-1 is load-bearing): for each row,
+   pull `description` + `description_reasoning` + `description_provenance`
+   from psql; **WIDE-grep every read of the knob in /tmp/ktx-src-67253dc9**
+   (not just cited sites -- the 3 FIXes were all caught this way); verify
+   each claim; verdict CLEAR (log, no operator input) or FIX (surface to
+   operator + record actionable re-synth spec in the FIX queue).
+4. Cadence (operator-agreed): auto-proceed through CLEAR with one-line
+   ledger notice; surface FIX rows + judgment/community rows to the
+   operator; operator stands by.
+5. **RESUME AT ROW 12 `k_free_mode`** (curated). Remaining: rows 12-24
+   curated (13), then group 3 marker (rows 25-34, 10), then group 4
+   affirm-sample (rows 35-43, 9).
+6. At the group-2 boundary: put the systemic decision to the operator
+   (targeted re-fan of multi-site rows vs per-row re-synth of the FIX
+   queue). Do NOT auto-apply any FIX -- C4: re-synthesis routes through
+   the D6 pipeline, never a hand UPDATE; the operator gates the path.
+7. NOT a Phase-3-boundary action and NOT the holistic gate -- this is
+   the in-flight D7 tier-2 tail only. Phase 3 does not ship until the
+   walk completes + the FIX queue is resolved + the operator reports
+   the scan verdict.
+
+- Next (fresh terminal): row 12 `k_free_mode`.
