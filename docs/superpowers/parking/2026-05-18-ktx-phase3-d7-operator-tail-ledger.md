@@ -32,6 +32,9 @@ curated -> marker -> affirm-sample.
 | 3 | banrem | command | hedged | ACCEPT AS-IS + P4 carry | Same redirect mechanism (commands.c:977, index-twin). CD_BANREM="remove ban / banlist". |
 | 4 | dmm5 | command | hedged | **FIX** (re-synthesis) | Description FALSELY claims "same behavior as mode 3" + "distinguishing rule not source-legible". Wide grep DISPROVES: dmm5 takes the `deathmatch>3` path (weapons.c:122 axe dmg 75 not 20; weapons.c:1185 discharge-kill) = dmm4-like; AND has a mode-5-EXCLUSIVE match loadout at client.c:2308 (`deathmatch==5 && match_in_progress==2` -> 80 nails/30 shells/10 rockets/30 cells) = the single authoritative distinguishing site the hedge said does not exist; bot AI differs (bot_client.c:249 goal_client6). Shares only weapons-stay/half-ammo-respawn with 2/3 (items.c). dmm5 is its OWN sub-mode, ~dmm4-family, NOT a dmm3 clone. |
 | 5 | allow_toggle_practice | cvar | curated | **FIX** (re-synthesis) | Curated concern (shipped doc over-promises elected-admin/judge tiers) was handled CORRECTLY -- access-tier enumeration (0 / 1,2 / 3,4 / 5 / default) is source-exact, D10 call right. BUT wide read (WI-1) found a SEPARATE gap: the guard list omits the `lock_practice` gate (commands.c:4919: `lock_practice==2 \|\| (!=0 && !=1)` -> "command is locked", return). Add the lock_practice guard + cross-ref. Operator corroboration: practice = prewar-only (match_in_progress return), toggling reloads the map (SetPractice), server-side feature gate -- consistent with source; feeds the L3 practice-feature note. |
+| 6 | k_ann | cvar | curated | CLEAR | High-quality synthesis. Wide read (WI-1): ALL k_ann reads = exactly the 2 cited sites (spectate.c:180/239) + bare register; ternary verbatim; message text exact. Synthesis correctly rejected the imprecise shipped doc, documented true behaviour (never fully suppressed -- always reaches spectators; k_ann only gates player visibility during a live match), surfaced the precision gap as a C2 note. Source-accurate. No action. |
+| 7 | k_classic_shotgun | cvar | curated | CLEAR | High-quality synthesis. Wide read (WI-1): all reads = world.c:948 + two parallel blocks (weapons.c:549/717/724 + the :740/782/793 HITBOXCHECK variant) -- reasoning explicitly accounted for the variant. Verified: classic_shotgun passed as TraceAttack `send_effects`; AddMultiDamage + hit-stats run REGARDLESS, only SpawnBlood/puff gated; `!classic_shotgun -> Multi_Finish()` combined effect. Description (visual-only, damage/accuracy identical) source-exact; correctly disambiguated the C2 "sg/ssg hits != accuracy" misread. No action. |
+| 8 | k_cmd_fp_dontkick | cvar | curated | CLEAR | High-quality synthesis. Wide read (WI-1): all reads accounted (globals.c:83 decl, world.c:999/1437, commands.c:1204/2071). Verified commands.c:1188-1228: warn+lockout run BEFORE `if(!k_cmd_fp_dontkick)` (always); kick path gated by it; clamp 0/1; scoped to cmd-flood not say-flood. Correctly defused the inverse-polarity trap + surfaced the config-default divergence (ktx-repo ships 0=kick, nquake-distfiles ships 1=no-kick) as retained-both C2 -- NOT a defect. Operator-nugget: nquake vs stock KTX differ here (-> L3/wiki + admin awareness). No action. |
 
 Legend: CLEAR = verified fine, no action. ACCEPT AS-IS + P4 carry =
 correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
@@ -94,19 +97,19 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
 
 ## Walk status
 
-- Rows dispositioned: 5 / 43. Group 1 (hedged) COMPLETE; group 2
-  (curated) IN PROGRESS (1/20).
+- Rows dispositioned: 8 / 43. Group 1 (hedged) COMPLETE; group 2
+  (curated) IN PROGRESS (4/20).
   - 1-3 ban/banip/banrem: ACCEPT AS-IS + P4 carry (CF-1).
   - 4 dmm5: FIX; CF-2; WI-1 opened.
   - 5 allow_toggle_practice: FIX (add lock_practice guard).
+  - 6 k_ann: CLEAR. 7 k_classic_shotgun: CLEAR.
+  - 8 k_cmd_fp_dontkick: CLEAR (config-default divergence surfaced ok).
 - FIX queue: 2 (dmm5, allow_toggle_practice).
-- **Systemic-vs-one-off ratio: 2 / 2 substantive rows -> FIX** (ban
-  family excluded -- trivial redirect, nothing to explore). Both caught
-  ONLY by WI-1 wide-read; common root = D6 under-explores guards/call
-  sites beyond the cited line. NOT concluding systemic yet. Decision
-  threshold: if it holds to ~4-5 of the next several -> pivot from
-  per-row re-synth to skill-prompt sharpening + targeted re-fan of the
-  under-explored class (operator decides at threshold). Tracked silently
-  per row; surfaced at the threshold or the group-2 boundary, not
-  narrated every row (momentum).
-- Next: row 6 `k_ann` (curated, synthesized).
+- **Systemic-vs-one-off ratio: 2 FIX / 5 substantive** (dmm5,
+  allow_toggle_practice = FIX; k_ann, k_classic_shotgun,
+  k_cmd_fp_dontkick = CLEAR; ban family excluded). 3 CLEAR in a row
+  after the 2 early FIX -> VARIANCE confirmed, NOT uniform defect.
+  Per-row re-synth of the FIX queue is the right resolution; blanket
+  re-fan rejected (would regress the good rows). Surfaced at group-2
+  boundary.
+- Next: row 9 `k_ctf_hookstyle` (curated, synthesized).
