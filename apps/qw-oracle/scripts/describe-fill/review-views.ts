@@ -380,14 +380,60 @@ function renderCatalogView(
   // Build anchors: canonical_id -> anchor string
   const anchorOf = (row: EntityRow) => `c-${esc(row.canonical_id)}`;
 
+  // Review docket -- the bounded set the operator actually scans (decisions
+  // A1 / D7 tier-2). NOT a re-check of all 624: mechanical correctness (every
+  // citation byte-exact, zero fabrication) is already machine-proven by the
+  // F-D6a gate the fleet ran on every batch. This is the human-judgment layer:
+  //   * hedged          -- the deliberately-uncertain rows (live verdict)
+  //   * curated docket   -- the explicit per-lane operator-tail list the fleet
+  //                         consolidated (the reconciliation-resume doc +
+  //                         output/describe-fill/fleet/slice-{1,2,3,4}-STATUS.md;
+  //                         all 20 names DB-verified present). This is the
+  //                         AUTHORITATIVE backstop: the worker reasoning-marker
+  //                         convention is NOT 100% reliably persisted (e.g.
+  //                         k_pow_pickup -- a real polarity-inversion concern --
+  //                         was routed by slice-4-STATUS but its persisted
+  //                         reasoning carries no marker phrase). A marker-only
+  //                         filter would silently drop it; the named list cannot.
+  //   * marker heuristic -- additive safety net for any other reasoning-recorded
+  //                         flags ("NOT auto-resolved"/"operator tail"/"for the
+  //                         D7 operator"); benign-noted rows carry no marker.
+  //   * affirmed sample  -- deterministic 1-in-4 spot-check of the affirm calls
+  //                         (walks `rows` in fetch/name order -> idempotent)
+  const CURATED_DOCKET = new Set<string>([
+    'k_demoname_date', 'k_disallow_weapons', 'k_exclusive', 'k_free_mode',
+    'k_highspeed', 'k_instagib', 'k_overtime', 'k_pow_pickup', 'k_spw',
+    'k_use_matchless_dir', 'timing_players_action', '_k_last_cycle_map',
+    'spawn666time', 'spawn_show', 'votemap', 'k_ann', 'allow_toggle_practice',
+    'k_classic_shotgun', 'k_cmd_fp_dontkick', 'k_ctf_hookstyle',
+  ]);
+  const docketIds = new Set<string>();
+  let affirmedSeen = 0;
+  for (const row of rows) {
+    const r = row.description_reasoning ?? '';
+    const flagged = row.description_verdict === 'hedged'
+      || CURATED_DOCKET.has(row.name)
+      || /NOT auto-resolved/i.test(r)
+      || /operator tail/i.test(r)
+      || /for the D7 operator/i.test(r);
+    let sampled = false;
+    if (row.description_verdict === 'affirmed') {
+      affirmedSeen++;
+      sampled = affirmedSeen % 4 === 1;
+    }
+    if (flagged || sampled) docketIds.add(row.canonical_id);
+  }
+  const docketCount = docketIds.size;
+
   const bucketHtml = sortedBuckets.map(([bucketName, bucketRows]) => {
     if (bucketRows.length === 0) return '';
 
     const rowsHtml = bucketRows.map(row => {
       const isHedged = row.description_verdict === 'hedged';
+      const isDocket = docketIds.has(row.canonical_id);
       const conf = row.description_confidence;
       const isLowConf = !!conf && conf !== 'high';
-      const highlight = (isHedged || isLowConf) ? ' row-highlight' : '';
+      const highlight = (isHedged || isLowConf || isDocket) ? ' row-highlight' : '';
 
       // Mode tags for cvars
       const tags = entityModeTags.get(row.canonical_id) ?? [];
@@ -404,6 +450,7 @@ function renderCatalogView(
       // every description here is synthesized, so a verbatim-substring check
       // fires on ~85% of rows -- it detects rephrasing, not contradiction.
       const attentionBits: string[] = [];
+      if (isDocket) attentionBits.push('<span class="att att-docket">review docket</span>');
       if (isHedged) attentionBits.push('<span class="att att-hedged">hedged</span>');
       if (isLowConf) attentionBits.push(`<span class="att att-conf">${esc(conf)} confidence</span>`);
       const attentionHtml = attentionBits.length
@@ -421,7 +468,7 @@ function renderCatalogView(
       </details>`
         : '';
 
-      return `<div id="${anchorOf(row)}" class="entity-row${highlight}" data-verdict="${esc(row.description_verdict ?? '')}" data-name="${esc(row.name.toLowerCase())}">
+      return `<div id="${anchorOf(row)}" class="entity-row${highlight}" data-verdict="${esc(row.description_verdict ?? '')}" data-name="${esc(row.name.toLowerCase())}" data-docket="${isDocket ? '1' : ''}">
   <div class="row-grid">
     <div class="row-id">
       <div class="ename">${esc(row.name)}</div>
@@ -454,11 +501,13 @@ ${rowsHtml}
 
   return `<div id="view-catalog" class="view-panel" data-total="${rows.length}">
 <div class="catalog-controls sticky-bar">
+  <label class="docket-toggle"><input type="checkbox" id="filter-docket"> Review docket only <span class="docket-n">${docketCount}</span></label>
   <label>Verdict: <select id="filter-verdict"><option value="">all verdicts</option><option value="synthesized">synthesized</option><option value="affirmed">affirmed</option><option value="hedged">hedged</option><option value="dead_stamped">dead_stamped</option><option value="residue_routed">residue_routed</option></select></label>
   <label>Name: <input type="text" id="filter-name" placeholder="substring..." autocomplete="off"></label>
   <span id="catalog-count" class="count-display">${rows.length} / ${rows.length}</span>
 </div>
 <div id="catalog-body">
+<div class="docket-note"><strong>Review docket = the ${docketCount} rows flagged for your judgment.</strong> The 4 hedged + the worker-contested rows (comment/value drift the fleet did NOT auto-resolve) + a 1-in-4 affirmed spot-sample. Tick "Review docket only" above to scan just these (each expands to full detail + reasoning + source). Mechanical correctness -- every citation byte-exact, zero fabrication -- is already machine-proven across all 624; this is the human-judgment layer, not a re-check of everything.</div>
 ${bucketHtml}
 </div>
 </div>`;
@@ -848,6 +897,14 @@ body { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; backg
 .att { font-size: 10px; font-weight: bold; padding: 1px 7px; border-radius: 2px; letter-spacing: 0.03em; }
 .att-hedged { background: #3a2a1a; color: #d8b470; border: 1px solid #806030; }
 .att-conf { background: #3a2a1a; color: #d8b470; border: 1px solid #806030; }
+.att-docket { background: #3a1f08; color: #ffb24d; border: 1px solid #b06a1a; }
+
+/* Review-docket filter control + intro banner */
+.docket-toggle { font-weight: bold; color: #ffb24d !important; cursor: pointer; }
+.docket-toggle input { vertical-align: middle; margin-right: 2px; cursor: pointer; }
+.docket-n { background: #3a1f08; color: #ffb24d; border: 1px solid #b06a1a; padding: 0 6px; border-radius: 9px; font-size: 11px; }
+.docket-note { margin: 8px 16px; padding: 8px 12px; background: #241a0c; border: 1px solid #5a3a10; border-radius: 3px; font-size: 12px; color: #c8b890; line-height: 1.55; }
+.docket-note strong { color: #ffb24d; }
 
 /* Reasoning disclosure -- verbose; collapsed by default, one block per step */
 .reasoning-details { margin-top: 8px; }
@@ -1036,18 +1093,21 @@ ${byModeHtml}
   // Catalog filter
   var filterVerdict = document.getElementById('filter-verdict');
   var filterName = document.getElementById('filter-name');
+  var filterDocket = document.getElementById('filter-docket');
   var countDisplay = document.getElementById('catalog-count');
   var total = parseInt(document.getElementById('view-catalog').getAttribute('data-total'), 10);
 
   function applyFilter() {
     var vf = filterVerdict ? filterVerdict.value : '';
     var nf = filterName ? filterName.value.toLowerCase() : '';
+    var df = filterDocket ? filterDocket.checked : false;
     var rows = document.querySelectorAll('.entity-row');
     var visible = 0;
     rows.forEach(function(row) {
       var verdict = row.getAttribute('data-verdict');
       var name = row.getAttribute('data-name');
-      var show = (!vf || verdict === vf) && (!nf || (name && name.indexOf(nf) !== -1));
+      var docket = row.getAttribute('data-docket') === '1';
+      var show = (!vf || verdict === vf) && (!nf || (name && name.indexOf(nf) !== -1)) && (!df || docket);
       if (show) { row.classList.remove('row-hidden'); visible++; }
       else { row.classList.add('row-hidden'); }
     });
@@ -1065,6 +1125,7 @@ ${byModeHtml}
 
   if (filterVerdict) filterVerdict.addEventListener('change', applyFilter);
   if (filterName) filterName.addEventListener('input', applyFilter);
+  if (filterDocket) filterDocket.addEventListener('change', applyFilter);
 })();
 </script>
 </body>
