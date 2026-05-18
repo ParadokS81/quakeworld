@@ -31,6 +31,7 @@ curated -> marker -> affirm-sample.
 | 2 | banip | command | hedged | ACCEPT AS-IS + P4 carry | Same redirect mechanism (commands.c:976, index-twin). CD_BANIP="timed ban by ip". |
 | 3 | banrem | command | hedged | ACCEPT AS-IS + P4 carry | Same redirect mechanism (commands.c:977, index-twin). CD_BANREM="remove ban / banlist". |
 | 4 | dmm5 | command | hedged | **FIX** (re-synthesis) | Description FALSELY claims "same behavior as mode 3" + "distinguishing rule not source-legible". Wide grep DISPROVES: dmm5 takes the `deathmatch>3` path (weapons.c:122 axe dmg 75 not 20; weapons.c:1185 discharge-kill) = dmm4-like; AND has a mode-5-EXCLUSIVE match loadout at client.c:2308 (`deathmatch==5 && match_in_progress==2` -> 80 nails/30 shells/10 rockets/30 cells) = the single authoritative distinguishing site the hedge said does not exist; bot AI differs (bot_client.c:249 goal_client6). Shares only weapons-stay/half-ammo-respawn with 2/3 (items.c). dmm5 is its OWN sub-mode, ~dmm4-family, NOT a dmm3 clone. |
+| 5 | allow_toggle_practice | cvar | curated | **FIX** (re-synthesis) | Curated concern (shipped doc over-promises elected-admin/judge tiers) was handled CORRECTLY -- access-tier enumeration (0 / 1,2 / 3,4 / 5 / default) is source-exact, D10 call right. BUT wide read (WI-1) found a SEPARATE gap: the guard list omits the `lock_practice` gate (commands.c:4919: `lock_practice==2 \|\| (!=0 && !=1)` -> "command is locked", return). Add the lock_practice guard + cross-ref. Operator corroboration: practice = prewar-only (match_in_progress return), toggling reloads the map (SetPractice), server-side feature gate -- consistent with source; feeds the L3 practice-feature note. |
 
 Legend: CLEAR = verified fine, no action. ACCEPT AS-IS + P4 carry =
 correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
@@ -47,6 +48,13 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
   (client.c:2308: nails 80 / shells 30 / rockets 10 / cells 30 when
   match_in_progress==2), distinct bot goal (bot_client.c:249). Verdict
   -> synthesized, the hedge is removed (it was source-legible all along).
+- **allow_toggle_practice** (row 5): re-synthesize KEEPING the correct
+  access-tier enumeration; ADD the missing `lock_practice` guard
+  (commands.c:4919 -- command rejected with "command is locked" when
+  lock_practice==2 or any value not 0/1) to the "ignored when" clause;
+  cross-ref the `lock_practice` cvar. Operator context (prewar-only;
+  toggling reloads the map; pure server-side feature gate) for the L3
+  practice-feature note.
 
 ## Carry-forwards to Phase 4 (MVDSV) -- the orchestrator MUST fold these into the Phase-4 executor prompt
 
@@ -86,8 +94,19 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
 
 ## Walk status
 
-- Rows dispositioned: 4 / 43. **Group 1 (hedged) COMPLETE.**
+- Rows dispositioned: 5 / 43. Group 1 (hedged) COMPLETE; group 2
+  (curated) IN PROGRESS (1/20).
   - 1-3 ban/banip/banrem: ACCEPT AS-IS + P4 carry (CF-1).
-  - 4 dmm5: FIX -> re-synthesis queue; CF-2 logged; WI-1 opened.
-- FIX queue: 1 (dmm5).
-- Next: group 2 (curated, 20 rows), row 5 `allow_toggle_practice`.
+  - 4 dmm5: FIX; CF-2; WI-1 opened.
+  - 5 allow_toggle_practice: FIX (add lock_practice guard).
+- FIX queue: 2 (dmm5, allow_toggle_practice).
+- **Systemic-vs-one-off ratio: 2 / 2 substantive rows -> FIX** (ban
+  family excluded -- trivial redirect, nothing to explore). Both caught
+  ONLY by WI-1 wide-read; common root = D6 under-explores guards/call
+  sites beyond the cited line. NOT concluding systemic yet. Decision
+  threshold: if it holds to ~4-5 of the next several -> pivot from
+  per-row re-synth to skill-prompt sharpening + targeted re-fan of the
+  under-explored class (operator decides at threshold). Tracked silently
+  per row; surfaced at the threshold or the group-2 boundary, not
+  narrated every row (momentum).
+- Next: row 6 `k_ann` (curated, synthesized).
