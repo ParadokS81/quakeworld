@@ -53,7 +53,7 @@ are knob-keyed, so the renumber is loss-free.
 | 9|affirm|race_toggle|18|[D] CLEAR-fact; judg->Q (lean SYNTH)|
 |10|affirm|addbot:frogbot:std|19|[D] CLEAR-fact; judg->Q (lean AFFIRM)|
 |11|affirm|breakondeath:frogbot:std|20|[D] CLEAR-fact; judg->Q (lean AFFIRM)|
-|12|synth|clearmarkerflag:frogbot:editor|21|PENDING|
+|12|synth|clearmarkerflag:frogbot:editor|21|[D] CLEAR|
 |13|affirm|removemarker:frogbot:editor|22|PENDING|
 |14|synth|allow_toggle_practice|5|[D] FIX|
 |15|hedged|ban|1|[D] ACCEPT+P4 (CF-1)|
@@ -86,8 +86,8 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 20 done / 23 PENDING.
-NEXT = ledger row 21 = HTML#12 `clearmarkerflag:frogbot:editor` (synthesized).
+[D]=dispositioned. 21 done / 22 PENDING.
+NEXT = ledger row 22 = HTML#13 `removemarker:frogbot:editor` (affirmed).
 
 ## Per-row dispositions
 
@@ -113,6 +113,7 @@ NEXT = ledger row 21 = HTML#12 `clearmarkerflag:frogbot:editor` (synthesized).
 | 18 | race_toggle | command | HTML#9 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean SYNTH) | FACT source-accurate: reg commands.c:1007 DEF(r_changestatus) arg 3; r_changestatus case 3 race.c:3050-3059 -- `if (self->racer && race.status)` -> G_bprint "%s has quit the race" + race_end(self,true,false) (:3053-54), THEN set_player_race_ready(self, !self->race_ready) (:3057). WI-1: race.c:4269 race_toggle_incr_cvar = false-positive substring (unrelated headstart/resolution helper, NOT this command); commands.c:7970 r_changestatus(3) = internal caller (same path, not new behaviour). Affirmed verbatim CD_RTOGGLE "toggle ready status for race" (:633). Affirm-vs-synth: OMITS a behaviorally-material mid-run side-effect (running it mid-race publicly QUITS your run -- "X has quit the race" -- before toggling); weaker affirm than next_best/gamemodes, my lean = SYNTHESIZE. In the queue. NOT a silent CLEAR. |
 | 20 | breakondeath:frogbot:std | command | HTML#11 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE on the cvar FB_CVAR_BREAK_ON_DEATH (=k_fb_break_on_death): reg world.c:1065 default 1; toggle handler FrogbotsSetBreakOnDeath bot_commands.c:2219-2230 (bots_enabled gate; cvar_fset !cvar :2227; G_sprint "changed to on/off" :2228); behavioural read player.c:1145 `if(!self->isBot && tot_mode_enabled() && cvar(...))` -> PlayerBreak; match.c:1789 = non-behavioural settings-display read (correctly out of scope, NOT under-scope). Affirmed verbatim. Affirm-vs-synth: genuine terse /botcmd user-help line; omits the tot_mode/human gate but that is implied by the frogbot-practice context this command lives in. lean = AFFIRM (mild). Queue (frogbot-help-string cluster). NOT a silent CLEAR. |
 | 19 | addbot:frogbot:std | command | HTML#10 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate: std_commands table bot_commands.c:2318 `{ "addbot", FrogbotsAddbot_f, "Adds a bot. Skill & team optional" }`; handler FrogbotsAddbot_f :362-392 -- !bots_enabled -> "Bots are disabled" return (:368); optional numeric argv[2]=skill (:375-380), argv[3]=team; FrogbotsAddbot(skill,team,true) (:392) spawns one bot, clamps skill, auto-balances teams. WI-1: :1908 + :2790 are OTHER internal FrogbotsAddbot callers (different contexts, not this std command). Affirmed verbatim. Affirm-vs-synth: the string is a GENUINE user-facing help line (PrintAvailableCommands prints it to players in /botcmd), terse-by-design for a command list, accurate WHAT, no hidden material side-effect; my lean = strong AFFIRM (contrast race_toggle). In the queue. NOT a silent CLEAR. |
+| 21 | clearmarkerflag:frogbot:editor | command | HTML#12 synth | CLEAR (fact) | Synth source-exact, D10 call correct. WI-1 EXHAUSTIVE: `clearmarkerflag` literal ONLY bot_commands.c:2342; `FrogbotClearMarkerFlag` = def :1540 + table :2342, NO other callers -- single-site, NOT the multi-read-site under-scope class. Handler :1540-1568 verified every clause: editor-mode gate (FrogbotsCommand :2386 FrogbotOptionEnabled(FB_OPTION_EDITOR_MODE) -> editor_commands[]); `nearest=LocateMarker(self origin)` (marker_util.c:162 -> LocateNextMarker, the universal `nearest` idiom 11+ sites); nearest==NULL -> "No marker nearby" return; argc<3 -> prints FROGBOT_MARKER_FLAG_OPTIONS return; flags=DecodeMarkerFlagString (marker_load.c:87, returns 0 iff no recognized char u/6/f/b/t/e/n); `if(flags)` -> `nearest->fb.T &= ~flags` + "Marker flags cleared, now: %s" EncodeMarkerFlags(post-clear); else -> "invalid" no-op. C2 note VERIFIED: shipped string "Clears flag on a path between two markers" byte-identical at :2342 (clearmarkerflag) and :2344 (clearpathflag) = confirmed peer-copy artifact; handler operates on a SINGLE marker's fb.T not a path -> shipped string factually wrong, D10 source-truth synth-from-handler is the right call, conflict surfaced as C2 not silently absorbed. PROC-1: reduces to checkable fact (synth text == verified behaviour; shipped string unambiguously a copy-paste error), no residual judgment. No action. |
 
 Legend: CLEAR = verified fine, no action. ACCEPT AS-IS + P4 carry =
 correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
@@ -276,6 +277,17 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
 
 ## Walk status
 
+### Session #3 running tally (resume from row 21)
+
+- r21 clearmarkerflag:frogbot:editor (HTML#12, synth): **CLEAR (fact)**.
+  Single-site, not the under-scope class; every clause source-exact; C2
+  peer-copy-string artifact verified, D10 call right. 0 new FIX.
+- Session #3 totals so far: 1 row, 1 CLEAR, 0 FIX, 0 judgment-queue
+  adds. Cumulative: **21 / 43 done, 22 PENDING**. FIX queue still 4
+  (rows 4/5/11/12). Affirmed-sample judgment queue still 5.
+
+### Session #2 wrap (rows 13-20)
+
 - Rows dispositioned: 20 / 43 this session (13-20). Synth CLEAR (fact,
   no under-scope): r13 downspecs, r15 toggletracklist, r17
   k_privategame_force_reconnect. Affirmed CLEAR-fact + judgment queued
@@ -376,5 +388,5 @@ ledger is a lossless resume contract. **20 / 43 done, 23 PENDING
    the scan verdict.
 
 - Next: live `NEXT =` pointer in the "## Docket = 43 rows" footer
-  (single source of resume truth). Currently row 21 = HTML#12
-  `clearmarkerflag:frogbot:editor`.
+  (single source of resume truth). Currently row 22 = HTML#13
+  `removemarker:frogbot:editor` (affirmed).
