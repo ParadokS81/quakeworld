@@ -50,7 +50,7 @@ are knob-keyed, so the renumber is loss-free.
 | 6|affirm|gamemodes|16|[D] CLEAR-fact; judg->Q|
 | 7|synth|k_free_mode|12|[D] FIX|
 | 8|synth|k_privategame_force_reconnect|17|[D] CLEAR|
-| 9|affirm|race_toggle|18|PENDING|
+| 9|affirm|race_toggle|18|[D] CLEAR-fact; judg->Q (lean SYNTH)|
 |10|affirm|addbot:frogbot:std|19|PENDING|
 |11|affirm|breakondeath:frogbot:std|20|PENDING|
 |12|synth|clearmarkerflag:frogbot:editor|21|PENDING|
@@ -86,8 +86,8 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 17 done / 26 PENDING.
-NEXT = ledger row 18 = HTML#9 `race_toggle` (affirmed -- spot-sample).
+[D]=dispositioned. 18 done / 25 PENDING.
+NEXT = ledger row 19 = HTML#10 `addbot:frogbot:std` (affirmed -- spot-sample).
 
 ## Per-row dispositions
 
@@ -110,6 +110,7 @@ NEXT = ledger row 18 = HTML#9 `race_toggle` (affirmed -- spot-sample).
 | 15 | toggletracklist | command | HTML#4 synth | CLEAR (fact) | Synth description source-exact. Handler commands.c:5457-5476: k_allowtracklist=!cvar (:5459); match_in_progress -> return BEFORE cvar_fset (:5461, "no effect during match" exact); cvar_fset (:5466); G_bprint on/off (:5468-5474). Companion gate tracklist commands.c:5433: blocks only when !k_allowtracklist && match_in_progress && self->ct==ctPlayer -> "tracklist is disabled" (matches the description's "players ... during a match" scoping exactly). WI-1 grep exhaustive: uncited hits = :145/146 fwd-decls + :5188/5192 (the `klist` command's "also toggle tracklist" x-ref string, NOT this handler) + world.c:862 cvar reg default 1 -- all correctly out of scope, no behavioural under-scope. Shared macro CD_TRACKLIST on both :842 tracklist + :843 toggletracklist = shared-STRING cohort (NOT a C2 -- one macro on two commands, not two docs disagreeing on one knob); D10 synthesize-from-handler is the policy-mandated resolution, consistent with the accepted downspecs/cohort pattern + slice-2 STATUS. PROC-1: pure checkable fact, no residual judgment. No action. |
 | 16 | gamemodes | command | HTML#6 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1) | FACT source-accurate: handler ListGameModes commands.c:9513-9552 verified -- static known[] (25 entries: race/1on1/.../wipeout/yawnmode/totmode), iterates cmds[], G_sprint each registered command name that is in known[] (= the game-mode-selection commands actually registered on this server). WI-1: only 3 sites (:289 fwd-decl, :1062 reg, :9513 handler), all cited, no under-scope. Affirmed verbatim CD_GAMEMODES "list available game modes" (:684). Affirm-vs-synth read in the Affirmed-sample judgment queue. NOT a silent CLEAR. |
 | 17 | k_privategame_force_reconnect | cvar | HTML#8 synth | CLEAR (fact) | Synth source-exact. private_game_toggle() vote.c:1550-1598: read :1553; player block gated `enable && match_in_progress<2` (:1559); per non-logged-in player -- always unready (:1576-1580); `if(force_reconnect && !is_logged_in)` (:1582) -> allow_specs (k_privategame_allow_specs) ? do_force_spec + "You must login to play." (:1587-88) : disconnect + "Please reconnect & login" (:1592-93); force_reconnect=0 -> unready-only, left connected (src comment :1586 "kicked at map change anyway"). Every description clause verified. WI-1 exhaustive: ONLY 3 sites (world.c:1091 reg+comment, vote.c:1553 read, vote.c:1582 use) -- single-read-site, NOT the multi-site class. Reg comment "kick unauthed players" correctly classified a less-precise SUBSET (omits the allow_specs branch) -> D10 synth-from-source, NOT a C2. Description does not conflate with the separate :1564 !allow_specs existing-spectator kick. PROC-1: checkable fact, no residual judgment. No action. |
+| 18 | race_toggle | command | HTML#9 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean SYNTH) | FACT source-accurate: reg commands.c:1007 DEF(r_changestatus) arg 3; r_changestatus case 3 race.c:3050-3059 -- `if (self->racer && race.status)` -> G_bprint "%s has quit the race" + race_end(self,true,false) (:3053-54), THEN set_player_race_ready(self, !self->race_ready) (:3057). WI-1: race.c:4269 race_toggle_incr_cvar = false-positive substring (unrelated headstart/resolution helper, NOT this command); commands.c:7970 r_changestatus(3) = internal caller (same path, not new behaviour). Affirmed verbatim CD_RTOGGLE "toggle ready status for race" (:633). Affirm-vs-synth: OMITS a behaviorally-material mid-run side-effect (running it mid-race publicly QUITS your run -- "X has quit the race" -- before toggling); weaker affirm than next_best/gamemodes, my lean = SYNTHESIZE. In the queue. NOT a silent CLEAR. |
 
 Legend: CLEAR = verified fine, no action. ACCEPT AS-IS + P4 carry =
 correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
@@ -186,6 +187,17 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   cmds[]), not a static catalog. My lean = defensible affirm (terse
   verbatim, accurate WHAT, the registered-subset subtlety is minor and
   arguably implied by "available"); YOUR call. NOT a silent CLEAR.
+- **race_toggle** (row 18, HTML#9): FACT = source-accurate.
+  r_changestatus case 3 (race.c:3050-3059): if mid-run (self->racer
+  && race.status) -> G_bprint "X has quit the race" + race_end
+  (:3053-54), THEN set_player_race_ready(self, !self->race_ready)
+  (:3057). Affirm-vs-synth: shipped "toggle ready status for race" is
+  WHAT-accurate for the idle case but OMITS a behaviorally-material
+  side-effect -- run mid-race it publicly aborts your race run first.
+  Stronger synthesize case than next_best/gamemodes (material
+  side-effect + public broadcast, not mechanism nuance); my lean =
+  SYNTHESIZE the mid-run-quit into the description. YOUR call. NOT a
+  silent CLEAR.
 
 ## Carry-forwards to Phase 4 (MVDSV) -- the orchestrator MUST fold these into the Phase-4 executor prompt
 
