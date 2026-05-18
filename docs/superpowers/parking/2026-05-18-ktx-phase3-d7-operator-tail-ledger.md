@@ -38,6 +38,7 @@ curated -> marker -> affirm-sample.
 | 9 | k_ctf_hookstyle | cvar | curated | CLEAR | Excellent synthesis. Wide read (WI-1): all behavioural reads = grapple.c (cited) + vote.c setters confirm 1/2/3/4 all votable. Verified each value: 1 grapple.c:62/216/402 (halved refire, ~250ms cancel [source's OWN comment], accel/decel pull); 2 :221/402 (~80ms cancel, fixed pull); 3 :443/212/464 (THROW_SPEED, no cancel); 4 :447/226 (CR_THROW_SPEED, immediate cancel). Curated concern handled correctly via D10: shipped cfg documents only 1/2/3, source has real votable value 4 -> L1 now MORE complete than shipped doc (the arc value-add). Operator-nugget: hookstyle 4 votable but cfg-undocumented (-> CTF/hook L3). No action. |
 | 10 | k_demoname_date | cvar | curated | CLEAR | High-quality synthesis. Wide read (WI-1): only 2 sites (world.c:938 register+comment, match.c:2337 read) -- both accounted, no under-grep. Verified match.c:2337-2341: free strftime format -> QVMstrftime -> strlcat to demoname; empty -> skipped. Correctly debunked the doubly-wrong shipped-cfg comment ("YYYY-MM-DD" -- but it is arbitrary strftime AND the shipped %Y%m%d-%H%M yields YYYYMMDD-HHMM); D10 source-truth, conflict surfaced as C2. L1 now more accurate than shipped doc. No action. |
 | 11 | k_disallow_weapons | cvar | curated | **FIX** (re-synthesis) | Curated polarity concern handled CORRECTLY (verified: cvar `disallow`, var `disallowed_weapons`, `items & ~mask` strips; bit table sg=1..axe=4096 matches g_consts.h via g_utils.c:2159-2194). BUT WI-1 wide-read: UNDER-SCOPED (same root cause as dmm5/allow_toggle_practice). Description says "dmm4 only, inventory strip". Source: client.c:2358 inventory strip = dmm4&match (ok); match.c:875 weapon MAP-ENTITY removal = `deathmatch>=4` = dmm4 AND dmm5 (src comment "deathmatches (4 or 5) unless ToT"); fb_globals.c:203 `fb_lg_disabled()` bot-LG effect NOT mode-gated. Missing dmm5 scope + map-pickup-removal + bot effect. CROSS-LINK: corroborates row-4 dmm5=dmm4-family. Re-synth: keep polarity+bits, broaden to dmm4&dmm5, add map-entity removal (+ToT exception) + non-gated bot-LG effect. |
+| 12 | k_free_mode | cvar | curated | **FIX** (re-synthesis) | Curated C2 concern handled CORRECTLY -- check_perm ladder (0 none / 1 real-adm / 2 adm / 3-4 judges-NOT-implemented-deny / 5 all, commands.c:1513-1551) source-exact; matchless forces 5 (commands.c:4634) exact; shipped-cfg-vs-source divergence a real C2, D10 source-truth call right. BUT WI-1 wide-read: UNDER-SCOPED (same root cause as dmm5/allow_toggle_practice/k_disallow_weapons -- 4th of the class). Reasoning cited only the player path (4634 read + 4723 check_perm); MISSED commands.c:4714-4722: SERVER-invoked switch (`UserMode(-x)`, sv_invoked) uses k_free_mode as a BINARY gate -- only ==5 permits, else discarded ("sv ... discarded due to k_free_mode"), check_perm NOT consulted. Live sv callers: world.c:1145 map-switch auto-reapply of last XonX, world.c:558/1253, race.c:260, bot_commands.c:2150/2436 -- so k_free_mode<5 set to lock player mode-switching ALSO silently disables the server's own map-switch XonX auto-reapply (real, surprising admin consequence). Dev comment commands.c:4712 ("I didn't understand how k_free_mode affect this command") flagged the murk the synthesis should have surfaced. |
 
 Legend: CLEAR = verified fine, no action. ACCEPT AS-IS + P4 carry =
 correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
@@ -70,6 +71,23 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
   effect `fb_lg_disabled()` (fb_globals.c:203, bots change LG behaviour
   when the LG bit is set, any mode). Cross-link: confirms dmm5 is
   dmm4-family (consistent with row-4).
+- **k_free_mode** (row 12): re-synthesize KEEPING the verified-exact
+  check_perm access ladder (0 none / 1 real-admin / 2 admin / 3-4
+  judges-not-implemented-deny / 5 all, commands.c:1513-1551), the
+  matchless-forces-5 rule (commands.c:4634), and the C2 shipped-cfg-vs-
+  source divergence note (D10 source-truth -- shipped labels "1=admins,
+  2=elected admins, 3=judges, 4=elected judges" contradict the running
+  check_perm which is real-adm / adm / judges-NOT-implemented). ADD the
+  SERVER-invoked path (commands.c:4714-4722): the access ladder applies
+  ONLY to player-invoked switches; when UserMode is server-invoked
+  (`UserMode(-x)`, sv_invoked -- live callers: map-switch XonX auto-
+  reapply world.c:1145, world.c:558/1253, race.c:260, bot_commands.c:
+  2150/2436) k_free_mode is a BINARY gate -- only ==5 permits the
+  switch, any other value discards it (check_perm not consulted).
+  Operator-relevant consequence to state: k_free_mode<5 set to restrict
+  players ALSO silently disables the server's own map-switch XonX
+  auto-reapply. Cross-link: 4th of the multi-read-site under-scope class
+  (dmm5 / allow_toggle_practice / k_disallow_weapons / k_free_mode).
 
 ## Carry-forwards to Phase 4 (MVDSV) -- the orchestrator MUST fold these into the Phase-4 executor prompt
 
@@ -103,14 +121,17 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
   the opposite (exhaustive grep genuinely empty -> correct). RULE for
   every remaining hedged/curated row whose reasoning says "not
   source-legible / grouped with X / not at a single site": independently
-  run the WIDE grep before accepting. 1 data point (dmm5); if it recurs
-  -> systemic (skill-fix + re-fan of the pattern), if isolated -> one-off
-  re-synth. Tracking.
+  run the WIDE grep before accepting. 4 data points now (dmm5 row 4,
+  allow_toggle_practice row 5, k_disallow_weapons row 11, k_free_mode
+  row 12) -- it RECURRED 3x, no longer a 1-off: systemic CONFIRMED.
+  Resolution is the group-2-boundary operator decision (targeted re-fan
+  of the multi-read-site class). Keep applying the WIDE grep every
+  remaining row -- it is the catching discipline and is still load-bearing.
 
 ## Walk status
 
-- Rows dispositioned: 11 / 43. Group 1 (hedged) COMPLETE; group 2
-  (curated) IN PROGRESS (7/20).
+- Rows dispositioned: 12 / 43. Group 1 (hedged) COMPLETE; group 2
+  (curated) IN PROGRESS (8/20).
   - 1-3 ban/banip/banrem: ACCEPT AS-IS + P4 carry (CF-1).
   - 4 dmm5: FIX; CF-2; WI-1 opened.
   - 5 allow_toggle_practice: FIX (add lock_practice guard).
@@ -118,19 +139,27 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
     / k_demoname_date: CLEAR.
   - 11 k_disallow_weapons: FIX (under-scoped; broaden dmm4->dmm4&dmm5
     + map-entity removal + bot effect).
-- FIX queue: 3 (dmm5, allow_toggle_practice, k_disallow_weapons).
-- **Systemic read (SHARPENED): 3 FIX / 8 substantive. All 3 FIX share
+  - 12 k_free_mode: FIX (under-scoped; reasoning modelled only the
+    player check_perm path, missed the sv_invoked binary gate
+    commands.c:4714-4722 + its world.c:1145 map-switch consequence).
+- FIX queue: 4 (dmm5, allow_toggle_practice, k_disallow_weapons,
+  k_free_mode).
+- **Systemic read (CONFIRMED): 4 FIX / 9 substantive. All 4 FIX share
   ONE root cause** -- multi-read-site cvars where D6 explored only the
-  primary apply-site (dmm5, allow_toggle_practice, k_disallow_weapons).
-  The 5 CLEAR were few-site OR D6 wide-read them. NOT random variance ->
-  a PREDICTABLE class. Candidate resolution (operator decides at the
+  primary apply-site (dmm5, allow_toggle_practice, k_disallow_weapons,
+  k_free_mode). The 5 CLEAR were few-site OR D6 wide-read them. NOT
+  random variance -> a PREDICTABLE class, now 4/4 consecutive on the
+  multi-site rows that have come up. Resolution (operator decides at the
   group-2 boundary): targeted re-fan of the multi-read-site rows only
   (not blanket, not pure per-row). WI-1 wide-grep is the catching
   discipline -- keep applying it every remaining row.
 
-## !!! SESSION WRAP -- ORCHESTRATOR SMELL ZONE (>430k). RESUME IN A FRESH TERMINAL. !!!
+## Resume contract (standing -- re-assert SESSION WRAP here if this session hits the smell zone)
 
-State fully captured + committed; the walk is resumable with zero loss.
+Prior session wrapped at the orchestrator smell zone (>430k); the
+current session resumed fresh in a new terminal. State is captured +
+committed after every row; the walk is resumable with zero loss at any
+point.
 
 **Resume instructions (fresh terminal):**
 1. Read THIS ledger top-to-bottom (it is the complete durable record:
@@ -144,15 +173,15 @@ State fully captured + committed; the walk is resumable with zero loss.
 3. Per-row method (UNCHANGED -- WI-1 is load-bearing): for each row,
    pull `description` + `description_reasoning` + `description_provenance`
    from psql; **WIDE-grep every read of the knob in /tmp/ktx-src-67253dc9**
-   (not just cited sites -- the 3 FIXes were all caught this way); verify
+   (not just cited sites -- the 4 FIXes were all caught this way); verify
    each claim; verdict CLEAR (log, no operator input) or FIX (surface to
    operator + record actionable re-synth spec in the FIX queue).
 4. Cadence (operator-agreed): auto-proceed through CLEAR with one-line
    ledger notice; surface FIX rows + judgment/community rows to the
    operator; operator stands by.
-5. **RESUME AT ROW 12 `k_free_mode`** (curated). Remaining: rows 12-24
-   curated (13), then group 3 marker (rows 25-34, 10), then group 4
-   affirm-sample (rows 35-43, 9).
+5. **RESUME AT ROW 13** (curated; row 12 `k_free_mode` = FIX, done).
+   Remaining: rows 13-24 curated (12), then group 3 marker (rows 25-34,
+   10), then group 4 affirm-sample (rows 35-43, 9).
 6. At the group-2 boundary: put the systemic decision to the operator
    (targeted re-fan of multi-site rows vs per-row re-synth of the FIX
    queue). Do NOT auto-apply any FIX -- C4: re-synthesis routes through
@@ -162,4 +191,4 @@ State fully captured + committed; the walk is resumable with zero loss.
    walk completes + the FIX queue is resolved + the operator reports
    the scan verdict.
 
-- Next (fresh terminal): row 12 `k_free_mode`.
+- Next: row 13 (curated).
