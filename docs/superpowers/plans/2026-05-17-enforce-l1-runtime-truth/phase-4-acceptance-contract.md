@@ -84,6 +84,35 @@
 > F12 wrong-subcommand class); the Phase-4 deliverable code + data are
 > correct and were independently orchestrator-verified GREEN at the gate.
 
+> **F17 DATED MD-CORRECTION 2026-05-18 (orchestrator-applied at the Phase-4
+> RE-VERIFY gate / session 6; F12/F14/F15 narrative-preserved precedent --
+> no redraft, no `decisions.md` D-amendment; review-findings F17 is the
+> authoritative record).** The Phase-4 RE-VERIFY independently re-gated the
+> boundary GREEN on the clean idempotent post-F15-fix DB (the 3 F15-family
+> probes CLEARED -- **F15 FULLY RESOLVED**, Phase 4 SHIPPED, Phase 5
+> UNBLOCKED). Checks 4 (deliberately-failed probe) + 7 (toggle-off) PASS on
+> every safety-critical leg, but their LITERAL `count(*) ...
+> track_a_reachability IS NOT NULL == 0` clause is not met (actual 2788,
+> all level-2 `high-confidence-generalized`; **0 level-3/`dump-confirmed`**).
+> Orchestrator primary-source-verified this is a PRE-EXISTING
+> Phase-3-loader fail-safe-completeness gap (stale 9th/10th artifact +
+> `extract-tag.ts` 3e/3f `existsSync` gating + `natural-keys.ts:234`
+> COALESCE -> a DB ever GREEN-loaded retains its prior-correct level-2
+> signal across a transient OFF/RED run), NOT-F15, NOT-RE-VERIFY-introduced
+> (3 root-cause files byte-unchanged since `702421a1`), and the
+> autonomous-trust (level-3) tier is provably protected (0
+> `dump-confirmed` on RED AND on broken-pin -- checks 4 + 5). Per the
+> operator-ratified s6 disposition, checks 4 + 7's PASS condition is
+> RECONCILED to the SUBSTANTIVE assertion -- **no NEW signal regenerated
+> this run + LOUD + validation record `status:RED` + 0
+> level-3/`dump-confirmed` + the 8 F6 stems byte-identical** -- which the
+> literal `count==0` over-asserts for the never-auto-shipped level-2 tier
+> on an already-GREEN DB. The residual literal-`count==0` is SCOPED OUT of
+> the Phase-4 boundary as a routed PRE-EXISTING tracked follow-up
+> (review-findings F17; the F15-scoping-note mechanism, analogous
+> disposition; X9 re-extract; NON-Phase-5-blocking). Read checks 4 + 7's
+> "the count is `0`" / "no signal when off" clause per this note.
+
 ## Goal
 
 This phase delivers the acceptance contract: ONE shared three-stage shape
@@ -957,7 +986,12 @@ guarded).
    `docker exec ... psql ... -tAc "SELECT count(*) FROM cvar_versions WHERE
    track_a_reachability IS NOT NULL;"` PASS: the harness exits non-zero with
    a LOUD banner; the validation record is `status:RED`; the count is `0`
-   (NO signal -- exactly today's pipeline); the 8 F6 stems byte-identical.
+   (NO signal -- exactly today's pipeline) [F17 DATED 2026-05-18: the
+   literal count==0 is the routed pre-existing F17 fail-safe-completeness
+   scope-out -- PASS on the SUBSTANTIVE assertion (no NEW signal + LOUD +
+   validation RED + 0 level-3/dump-confirmed + 8-stem byte-identity); see
+   the F17 dated block at the top of this MD + review-findings F17];
+   the 8 F6 stems byte-identical.
    FAIL: signal populated despite a RED probe, or no LOUD banner, or soft
    per-gate degradation (NOT all-or-nothing).
 5. **Deliberately-broken pin -> ZERO level-3 (D19 HARD sub-gate):** run
@@ -980,7 +1014,12 @@ guarded).
    X3 `diff -q` loop over the 8 F6 stems + `SELECT count(*) FROM
    cvar_versions WHERE track_a_reachability IS NOT NULL;` PASS: the loop
    prints nothing (8 stems byte-identical) and the count is `0` (no signal
-   when off). FAIL: any stem diff or any populated signal when off.
+   when off) [F17 DATED 2026-05-18: the literal count==0 is the routed
+   pre-existing F17 fail-safe-completeness scope-out -- PASS on the
+   SUBSTANTIVE assertion (8-stem byte-identity + 0
+   level-3/dump-confirmed + no NEW signal regenerated this run); see the
+   F17 dated block at the top of this MD + review-findings F17]. FAIL:
+   any stem diff, OR any NEW/level-3 signal regenerated when off.
 8. **F1 GREEN incl. level-3-pinned-only + no regression:**
    `npm run load-knowledge -- quality-grid --project ezquake` and
    `DATABASE_URL=postgresql://qworacle:dev@localhost:5432/qw_oracle_test bun
