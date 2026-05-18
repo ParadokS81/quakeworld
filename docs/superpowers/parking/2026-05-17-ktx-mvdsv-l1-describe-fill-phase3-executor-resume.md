@@ -408,10 +408,10 @@ executor can check them.
 1. Invoke `arc-executor`; read this handoff. Then run the TIERED
    re-verification ("Execution efficiency protocol" #2):
    (a) **git-immutable drift-check (cheap, do first):** `git -C
-   /home/paradoks/projects/quakeworld log --oneline a21b76cd..HEAD --
+   /home/paradoks/projects/quakeworld log --oneline 6a951cab..HEAD --
    docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/` and
    `git status --porcelain docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/`.
-   (`a21b76cd` = the `docs(arc-ktx-mvdsv): Phase 3 cat-2+cat-3
+   (`6a951cab` = the `docs(arc-ktx-mvdsv): Phase 3 cat-2+cat-3
    volume wrap` commit that ships THIS updated handoff -- its own hash,
    filled in at the bottom of this doc + via `git log --oneline -1
    docs/superpowers/parking/2026-05-17-ktx-mvdsv-l1-describe-fill-phase3-executor-resume.md`.)
@@ -469,7 +469,7 @@ cheap, a degraded shipped L1 description is not.
 
 ---
 
-**This wrap committed at:** `a21b76cd` (the
+**This wrap committed at:** `6a951cab` (the
 `docs(arc-ktx-mvdsv): Phase 3 cat-2+cat-3 volume wrap` commit) -- the
 git-immutable drift-check baseline used in "First three actions" (a).
 A later wrap will supersede this with its own commit hash; cross-check
