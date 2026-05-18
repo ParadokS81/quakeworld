@@ -64,7 +64,7 @@ are knob-keyed, so the renumber is loss-free.
 |20|affirm|k_exclusive|24|[D] CLEAR-fact; judg->Q (lean AFFIRM)|
 |21|synth|k_highspeed|25|[D] FIX (precision, NOT under-scope class)|
 |22|synth|toggleklist|26|[D] CLEAR|
-|23|synth|votemap|27|PENDING|
+|23|synth|votemap|27|[D] FIX (under-scope sub-A; meaning INVERSION -- highest severity)|
 |24|affirm|k_motd_time|28|PENDING|
 |25|synth|k_noframechecks|29|PENDING (D10 canary)|
 |26|affirm|k_sayteam_to_spec|30|PENDING|
@@ -86,8 +86,8 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 26 done / 17 PENDING.
-NEXT = ledger row 27 = HTML#23 `votemap` (synthesized).
+[D]=dispositioned. 27 done / 16 PENDING.
+NEXT = ledger row 28 = HTML#24 `k_motd_time` (affirmed).
 
 ## Per-row dispositions
 
@@ -113,6 +113,7 @@ NEXT = ledger row 27 = HTML#23 `votemap` (synthesized).
 | 18 | race_toggle | command | HTML#9 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean SYNTH) | FACT source-accurate: reg commands.c:1007 DEF(r_changestatus) arg 3; r_changestatus case 3 race.c:3050-3059 -- `if (self->racer && race.status)` -> G_bprint "%s has quit the race" + race_end(self,true,false) (:3053-54), THEN set_player_race_ready(self, !self->race_ready) (:3057). WI-1: race.c:4269 race_toggle_incr_cvar = false-positive substring (unrelated headstart/resolution helper, NOT this command); commands.c:7970 r_changestatus(3) = internal caller (same path, not new behaviour). Affirmed verbatim CD_RTOGGLE "toggle ready status for race" (:633). Affirm-vs-synth: OMITS a behaviorally-material mid-run side-effect (running it mid-race publicly QUITS your run -- "X has quit the race" -- before toggling); weaker affirm than next_best/gamemodes, my lean = SYNTHESIZE. In the queue. NOT a silent CLEAR. |
 | 20 | breakondeath:frogbot:std | command | HTML#11 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE on the cvar FB_CVAR_BREAK_ON_DEATH (=k_fb_break_on_death): reg world.c:1065 default 1; toggle handler FrogbotsSetBreakOnDeath bot_commands.c:2219-2230 (bots_enabled gate; cvar_fset !cvar :2227; G_sprint "changed to on/off" :2228); behavioural read player.c:1145 `if(!self->isBot && tot_mode_enabled() && cvar(...))` -> PlayerBreak; match.c:1789 = non-behavioural settings-display read (correctly out of scope, NOT under-scope). Affirmed verbatim. Affirm-vs-synth: genuine terse /botcmd user-help line; omits the tot_mode/human gate but that is implied by the frogbot-practice context this command lives in. lean = AFFIRM (mild). Queue (frogbot-help-string cluster). NOT a silent CLEAR. |
 | 19 | addbot:frogbot:std | command | HTML#10 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate: std_commands table bot_commands.c:2318 `{ "addbot", FrogbotsAddbot_f, "Adds a bot. Skill & team optional" }`; handler FrogbotsAddbot_f :362-392 -- !bots_enabled -> "Bots are disabled" return (:368); optional numeric argv[2]=skill (:375-380), argv[3]=team; FrogbotsAddbot(skill,team,true) (:392) spawns one bot, clamps skill, auto-balances teams. WI-1: :1908 + :2790 are OTHER internal FrogbotsAddbot callers (different contexts, not this std command). Affirmed verbatim. Affirm-vs-synth: the string is a GENUINE user-facing help line (PrintAvailableCommands prints it to players in /botcmd), terse-by-design for a command list, accurate WHAT, no hidden material side-effect; my lean = strong AFFIRM (contrast race_toggle). In the queue. NOT a silent CLEAR. |
+| 27 | votemap | command | HTML#23 synth | **FIX** (re-synthesis) -- under-scope sub-A (callee-truncation); meaning INVERSION, highest severity of the walk | WI-1: command path votemap (commands.c:701 CF_BOTH\|CF_MATCHLESS\|CF_PARAMS) -> VoteMap (maps.c:503) -> VoteMapSpecific (maps.c:486) -> DoSelectMap (maps.c:392). Synthesis EXPLICITLY scoped OUT DoSelectMap ("any vote/threshold semantics, if present, live inside DoSelectMap which is out of this knob's authoritative read-site") and asserted the OPPOSITE: "direct map change ... performed immediately". Traced DoSelectMap maps.c:392-470 -- it is a VOTE CAST + TALLY, not a direct switch: 7/15s time gate ("Wait N seconds"); k_matchLess+k_no_vote_map block; non-matchless `else if(match_in_progress) return`; `if((self->ct==ctSpec) && !is_adm(self)) return` (non-admin specs CANNOT vote map); k_lockmap respected; registers caller's vote `self->v.map=k_lastvotedmap=iMap`; broadcasts "X suggests/agrees/would rather play on map"; `vote_check_map()` tallies, switch only if threshold passes. EVERY distinctive description clause FALSE: "direct ... immediately" (it's a vote), "usable by players and spectators" (non-admin specs blocked), "no match restriction" (match + matchless + time gates). CD_VOTEMAP label "alternative map vote system" + the `// Perform vote` comment maps.c:497 + the names VoteMap/votemap ALL said vote; synthesis overrode all by declaring the callee out of scope. Root cause = WI-1/sub-A under-scope (callee-truncation flavour: declared a callee out-of-scope, asserted a claim the callee contradicts). 5th under-scope FIX (rows 4/5/11/12 + 27). Re-synth: votemap CASTS a map vote (not a direct change) -- arg = mapname; argc<2 -> "Usage: votemap <mapname>"; GetMapNum==0 -> "Map '%s' not available on this server"; else registers a vote via DoSelectMap (time gate 7s/15s-matchless; blocked mid-match non-matchless / k_no_vote_map / k_lockmap-unless-adm; non-admin spectators cannot vote; vote_check_map tallies and only switches level when the vote passes). State the gates + that the actual level change is vote-thresholded, NOT immediate. |
 | 26 | toggleklist | command | HTML#22 synth | CLEAR (fact) | WI-1 EXHAUSTIVE: `toggleklist` 3 sites (fwd-decl :147, reg commands.c:834, handler :5175); `k_allowklist` 5 sites ALL accounted -- register world.c:861 RegisterCvarEx("k_allowklist","1") (explicit default 1), consumer klist() :5077 (`!cvar("k_allowklist") && match_in_progress && self->ct==ctPlayer` -> "klist is disabled" return), handler :5177/:5184/:5186. Consumer cited+verified -> NOT under-scope class. Handler toggleklist() :5175-5194 every clause source-exact: k_allowklist=!cvar (:5177) toggle; `if(match_in_progress) return` (:5179) BEFORE cvar_fset -> command ignored mid-match (the pre-guard local is harmless dead computation on the match path); cvar_fset("k_allowklist",..) (:5184); G_bprint on/off + "remember to also toggle tracklist" (:5186-5193) = broadcast-to-all. Description's "controls whether klist usable by players during a match" matches the :5077 consumer exactly. CD_TRACKLIST label-reuse at :834 (= "trackers list", :464) correctly REJECTED as shipped_value-only -- consistent with the operator-accepted row-15 toggletracklist precedent (same shared-string macro; D10 synth-from-handler; label-reuse NOT a source-to-source C2). WI-2 check clean: no "Default" claim (true registered default "1" would have been correct anyway); no command-class mis-scope (toggleklist reg = CF_BOTH|CF_MATCHLESS; "players" refers to the consumer's ctPlayer guard, not a privilege claim). PROC-1: checkable fact, no residual judgment (synth, mechanical_candidate 'none', shared-string handling policy-mandated per accepted precedent). No action. |
 | 25 | k_highspeed | cvar | HTML#21 synth | **FIX** (re-synthesis) -- precision, NOT the under-scope class | WI-1 EXHAUSTIVE: `k_highspeed` 2 sites only -- bare register world.c:870, single read commands.c:3230 inside ToggleSpeed (the "speed" command commands.c:757). Core toggle synthesis is CORRECT + D10 call right: ToggleSpeed commands.c:3215 toggles k_maxspeed between hardcoded 320 (:3226) and bound(0,cvar("k_highspeed"),9999) (:3230), then cvar_fset("sv_maxspeed",k_maxspeed) (:3234) + per-player p->maxspeed loop -- the synthesis correctly rejected the imprecise shipped-cfg "switch between this setting and sv_maxspeed" (sv_maxspeed is the OUTPUT target). BUT two FACTUAL defects in the synthesized text (WI-1-caught, machine-gate-invisible): (a) **"Default 320" is WRONG** -- RegisterCvar("k_highspeed") = RegisterCvarEx(var,"") (world.c:752-754), registered default is empty -> 0; 320 is ONLY the ktx example-config shipped value (ktx.cfg:17, single config sampled, NOT cross-checked vs nquake-distfiles which rows 8/24 prove diverges) -- the exact shipped-cfg-vs-registered-default conflation D10/dual-doc exists to prevent. (b) **"the admin 'speed' command" is WRONG** -- commands.c:757 flag = CF_PLAYER (adjacent prewar/lockmap are CF_BOTH_ADMIN); ToggleSpeed has NO admin check, only `if(match_in_progress) return`; any player toggles server maxspeed in prewar. Minor: omits the match_in_progress no-op (prewar-only). Re-synth: KEEP the toggle behaviour + units + 0-9999 clamp + D10 sv_maxspeed-is-output call; FIX "Default 320" -> registered default empty/0 (320 = ktx-example-cfg shipped value, C2 distribution-drift caveat per the k_cmd_fp_dontkick/k_exclusive precedent); FIX "admin" -> CF_PLAYER prewar player command; ADD the match_in_progress precondition. DISTINCT root cause from the 4-row under-scope cluster (single-site, default-metadata + command-class precision) -- the under-scope re-fan strategy would NOT catch this. |
 | 24 | k_exclusive | cvar | HTML#20 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE: 3 sites -- behavioural client.c:1455 (`if((CountPlayers()>=k_attendees) && cvar("k_exclusive"))` -> "Sorry, server is full / Please reconnect as spectator" return false, in the match-in-progress connect-permission path); register world.c:940 (+comment); toggle commands.c:8620 (cvar_toggle_msg "exclusive mode"). NOT under-scope -- single behavioural site. Companion `k_attendees = CountPlayers()` snapshots at match-start (match.c:2022/2632/2724/2889, admin.c:594/678) -> confirms "locked on game start". Enum 0=no/1=yes truthiness-exact. Affirm-vs-synth: shipped-cfg comment WHAT-accurate for the admin effect (player cap locks at game-start count); cap-vs-roster subtlety (leaver frees a slot up to the cap) is mechanism depth not a misleading WHAT, no hidden side-effect (contrast race_toggle). lean = AFFIRM (shipped-cfg-comment cluster w/ k_allowvoteadmin). C2 default-drift (ktx-repo ktx.cfg ships 1, nquake-distfiles ships 0) correctly classified per-distribution drift NOT semantic conflict -- consistent with operator-accepted k_cmd_fp_dontkick (row 8) precedent. Operator-nugget (L3/admin): nquake vs stock KTX differ on k_exclusive default. NOT a silent CLEAR. |
@@ -126,10 +127,15 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
 
 ## FIX queue (routed to targeted re-synthesis -- C4, never hand-UPDATE)
 
-> TWO sub-classes now. **Sub-class A (under-scope, 4):** rows 4/5/11/12
-> -- multi-read-site cvars D6 explored only the primary apply-site; one
-> shared root cause; the operator's group-2 re-fan decision targets
-> THIS set. **Sub-class B (precision, 1):** row 25 k_highspeed --
+> TWO sub-classes now. **Sub-class A (under-scope, 5):** rows
+> 4/5/11/12 (multi-read-site cvars D6 explored only the primary
+> apply-site) + **row 27 votemap** (callee-truncation: synthesizer
+> declared callee DoSelectMap out-of-scope and asserted the OPPOSITE
+> of what it does -- a meaning INVERSION, the single most severe
+> defect of the walk). One shared root cause (synthesis concluded
+> about behaviour without tracing where the behaviour lives); the
+> operator's group-2 re-fan decision targets THIS set. **Sub-class B
+> (precision, 1):** row 25 k_highspeed --
 > single-site, core behaviour synthesized correctly, but the
 > default-metadata ("Default 320" = a shipped-cfg value mislabelled as
 > the registered default) and command-class ("admin" for a CF_PLAYER
@@ -180,6 +186,26 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
   players ALSO silently disables the server's own map-switch XonX
   auto-reapply. Cross-link: 4th of the multi-read-site under-scope class
   (dmm5 / allow_toggle_practice / k_disallow_weapons / k_free_mode).
+- **votemap** (row 27): 5th under-scope, callee-truncation flavour --
+  the synthesizer declared the callee DoSelectMap "out of this knob's
+  authoritative read-site" and asserted "direct map change ...
+  performed immediately", the OPPOSITE of DoSelectMap's actual
+  behaviour (a vote cast + vote_check_map tally). Highest severity:
+  a meaning inversion on a core pug command. Re-synthesize: votemap
+  CASTS a map vote. arg = mapname; argc<2 -> "Usage: votemap
+  <mapname>"; GetMapNum==0 -> "Map '%s' not available on this server";
+  else DoSelectMap registers the caller's vote (self->v.map =
+  k_lastvotedmap; broadcasts "suggests/agrees/would rather play on")
+  and vote_check_map() switches the level ONLY if the vote threshold
+  passes. State the gates: 7s (15s matchless) time gate; non-matchless
+  blocked while match_in_progress; matchless needs match_in_progress==2
+  and is blocked by k_no_vote_map; non-admin spectators cannot vote;
+  k_lockmap blocks non-admins. Do NOT assert "direct"/"immediate" or
+  "no match restriction" or "usable by spectators". Cross-link: same
+  WI-1 root cause as rows 4/5/11/12; the catching discipline is
+  "trace every cited path to the function that performs the behaviour;
+  an explicit out-of-scope hedge in the reasoning is a defect
+  predictor, not a license to stop."
 
 ### Sub-class B -- precision (1, distinct root cause)
 
@@ -334,12 +360,23 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   the opposite (exhaustive grep genuinely empty -> correct). RULE for
   every remaining hedged/curated row whose reasoning says "not
   source-legible / grouped with X / not at a single site": independently
-  run the WIDE grep before accepting. 4 data points now (dmm5 row 4,
-  allow_toggle_practice row 5, k_disallow_weapons row 11, k_free_mode
-  row 12) -- it RECURRED 3x, no longer a 1-off: systemic CONFIRMED.
-  Resolution is the group-2-boundary operator decision (targeted re-fan
-  of the multi-read-site class). Keep applying the WIDE grep every
-  remaining row -- it is the catching discipline and is still load-bearing.
+  run the WIDE grep before accepting. **5 data points now** (dmm5 row
+  4, allow_toggle_practice row 5, k_disallow_weapons row 11,
+  k_free_mode row 12, **votemap row 27**) -- systemic CONFIRMED, now
+  with a NEW flavour: row 27 is *callee-truncation* -- the reasoning
+  EXPLICITLY said the callee (DoSelectMap) was "out of this knob's
+  authoritative read-site" and then asserted the OPPOSITE of what the
+  callee does (claimed "direct/immediate" for a vote-cast). This
+  upgrades the rule from a heuristic to a HARD predictor: **when a
+  synth/curated reasoning explicitly hedges that something is
+  out-of-scope / not-source-legible / lives-in-a-callee-we-did-not-
+  trace, that hedge is a defect SIGNAL -- trace it before accepting,
+  expect an inversion.** 4/4 multi-read-site + 1/1 callee-truncation =
+  5/5 where the WIDE trace was applied. Resolution is the
+  group-2-boundary operator decision (targeted re-fan of the
+  under-scope class, both flavours). Keep applying the WIDE grep AND
+  the full callee-trace every remaining row -- load-bearing, and the
+  out-of-scope-hedge predictor is now proven.
 - **WI-2 "default-metadata / command-class precision" (NEW, session #3,
   row 25 k_highspeed):** a SINGLE-site synth can have its core
   behaviour + D10 call fully correct yet still carry a factual error in
@@ -409,12 +446,18 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   k_allowklist 5 sites all accounted (consumer klist():5077 verified);
   every clause source-exact; CD_TRACKLIST label-reuse handled per the
   accepted row-15 toggletracklist precedent; WI-2 clean.
-- Session #3 totals so far: 6 rows, 2 CLEAR + 3 CLEAR-fact + 1 FIX, 3
-  judgment-queue adds. Cumulative: **26 / 43 done, 17 PENDING**. FIX
-  queue **5** -- sub-class A under-scope = 4 (rows 4/5/11/12),
-  sub-class B precision = 1 (row 25 k_highspeed). Affirmed-sample
-  judgment queue 8 (removemarker, k_allowvoteadmin, k_exclusive added
-  this session).
+- r27 votemap (HTML#23, synth): **FIX -- highest severity of the
+  walk (meaning INVERSION).** Synthesis declared callee DoSelectMap
+  out-of-scope and asserted "direct map change ... immediately"; the
+  callee is a VOTE cast + vote_check_map tally. 5th under-scope FIX
+  (sub-class A, callee-truncation flavour). Proves the
+  out-of-scope-hedge defect predictor.
+- Session #3 totals so far: 7 rows, 2 CLEAR + 3 CLEAR-fact + 2 FIX, 3
+  judgment-queue adds. Cumulative: **27 / 43 done, 16 PENDING**. FIX
+  queue **6** -- sub-class A under-scope = 5 (rows 4/5/11/12 + 27
+  votemap), sub-class B precision = 1 (row 25 k_highspeed).
+  Affirmed-sample judgment queue 8 (removemarker, k_allowvoteadmin,
+  k_exclusive added this session).
 
 ### Session #2 wrap (rows 13-20)
 
@@ -518,5 +561,5 @@ ledger is a lossless resume contract. **20 / 43 done, 23 PENDING
    the scan verdict.
 
 - Next: live `NEXT =` pointer in the "## Docket = 43 rows" footer
-  (single source of resume truth). Currently row 27 = HTML#23
-  `votemap` (synthesized).
+  (single source of resume truth). Currently row 28 = HTML#24
+  `k_motd_time` (affirmed).
