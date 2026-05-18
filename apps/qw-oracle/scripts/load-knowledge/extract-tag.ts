@@ -14,7 +14,7 @@
 // extractor; this file stubs them as 'not-yet-supported' errors.
 
 import { execSync, spawnSync } from 'node:child_process';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import type postgres from 'postgres';
@@ -23,7 +23,12 @@ import { loadAssets } from './load-assets.js';
 import { loadReleaseNotes, projectHasGithubUpstream } from './load-release-notes.js';
 import { buildAssetBundle } from './build-asset-bundle.js';
 import { embedEntitiesPass } from '../embed/embed-entities.ts';
-import type { EntityType, Project } from './types.js';
+import type {
+  AcceptanceValidationRecord,
+  EntityType,
+  Level3StampSet,
+  Project,
+} from './types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MONOREPO_ROOT = join(__dirname, '..', '..', '..', '..');
@@ -108,6 +113,116 @@ const PROJECT_HAS_ASSET_BUNDLE: Record<Project, boolean> = {
 // rebuild calls (buildAssetBundle in step 2c, asset_category load in step 3,
 // loadAssets in step 4) all resolve here.
 const BUNDLE_OUTPUT_DIR = join(MONOREPO_ROOT, 'apps', 'slipgate-app', 'src', 'lib', 'config', 'data');
+
+// enforce-L1-runtime-truth Phase 4 / Task 4 -- the SHIPPED acceptance
+// artifacts directory (written by extractor_lib._acceptance run_stage1/2).
+const DETECTION_DIR = join(MONOREPO_ROOT, 'apps', 'qw-oracle', 'data', 'detection');
+
+// Prefix-tolerant (case-insensitive) commit agreement -- the SAME mechanic
+// _acceptance.validation_record_ok documents (F7 self-certifies via a short
+// prefix): the validation record holds the SHORT pin token while oracle_meta
+// holds the FULL 40-char hash. True iff either string is a prefix of the
+// other. Empty inputs -> false (fail-safe-CLOSED).
+function pinsAgree(a: string | null | undefined, b: string | null | undefined): boolean {
+  if (!a || !b) return false;
+  const x = a.toLowerCase();
+  const y = b.toLowerCase();
+  return x.startsWith(y) || y.startsWith(x);
+}
+
+// Resolve the Task-4 stage-2 stamp-set for the ezQuake Track-A/B loaders,
+// computed ONCE and shared by the 3e (Track-B) + 3f (Track-A) blocks.
+//
+// This is the LOADER-SIDE realization of the D22 structural gate (the
+// emit-side gate already governs whether the 10th file exists at all; this
+// governs whether the stamp is APPLIED). Returns the parsed stamp-set ONLY
+// when ALL hold:
+//   - the SHIPPED acceptance-validated-ezquake.json exists AND status==GREEN
+//   - its validation_commit prefix-agrees with the current oracle_meta pin
+//     (ezquake:source_repo_commit) -- i.e. the loaded `version` IS the
+//     pinned-dump version (Phase-3 rows are all at version='head' and that
+//     is what the pin certifies)
+//   - level3-stamp-set-<validation_commit>.json exists and parses
+// Otherwise returns null -> the loaders run with NO stamp-set ->
+// Phase-3 level-2 behaviour EXACTLY (D18/D22 fail-safe-CLOSED). Any
+// read/parse failure -> null (never throws -- a stamp-set we cannot trust
+// is one we do not apply).
+async function resolveStageTwoStampSet(
+  sql: postgres.Sql,
+  version: string,
+): Promise<Level3StampSet | null> {
+  try {
+    const recordPath = join(DETECTION_DIR, 'acceptance-validated-ezquake.json');
+    if (!existsSync(recordPath)) {
+      console.warn(
+        `[extract-tag] D22 (loader): acceptance-validated-ezquake.json absent ` +
+        `-> NO stage-2 stamp (Phase-3 level-2; today's pipeline).`,
+      );
+      return null;
+    }
+    const record = JSON.parse(
+      readFileSync(recordPath, 'utf-8'),
+    ) as AcceptanceValidationRecord;
+    if (record.status !== 'GREEN') {
+      console.warn(
+        `[extract-tag] D22 (loader): acceptance record status=${record.status} ` +
+        `(not GREEN) -> NO stage-2 stamp (Phase-3 level-2; today's pipeline).`,
+      );
+      return null;
+    }
+
+    // The loaded version's certifying pin lives in oracle_meta (the full
+    // 40-char hash). The validation record holds the short token. They must
+    // prefix-agree for this version to BE the pinned-dump version.
+    const pinRows = await sql<{ value: string }[]>`
+      SELECT value FROM oracle_meta WHERE key = 'ezquake:source_repo_commit'
+    `;
+    const currentPin = pinRows.length > 0 ? pinRows[0]!.value : null;
+    if (!pinsAgree(record.validation_commit, currentPin)) {
+      console.warn(
+        `[extract-tag] D22 (loader): version='${version}' pin ` +
+        `${currentPin ?? '<unset>'} does not agree with validated commit ` +
+        `${record.validation_commit} -> NO stage-2 stamp (not the ` +
+        `pinned-dump version; Phase-3 level-2).`,
+      );
+      return null;
+    }
+
+    // The stamp-set filename keys off the SHORT validation_commit token
+    // (matches _acceptance._stamp_set_path(pin)).
+    const stampPath = join(
+      DETECTION_DIR,
+      `level3-stamp-set-${record.validation_commit}.json`,
+    );
+    if (!existsSync(stampPath)) {
+      console.warn(
+        `[extract-tag] D22 (loader): ${stampPath} absent though the record ` +
+        `is GREEN -> NO stage-2 stamp (Phase-3 level-2). Re-run ` +
+        `accept-runtime-truth.py --stage all if this is unexpected.`,
+      );
+      return null;
+    }
+    const stampSet = JSON.parse(
+      readFileSync(stampPath, 'utf-8'),
+    ) as Level3StampSet;
+    console.log(
+      `[extract-tag] D22 (loader): GREEN + pin-agreed -> stage-2 stamp-set ` +
+      `proxy=${stampSet.proxy}, track_a=${stampSet.track_a_dump_confirmed.length}, ` +
+      `track_b=${stampSet.track_b_dump_confirmed.length} ` +
+      `(level-3 stamp applied for the dump-confirmed names; ` +
+      `proxy=FAIL would mean empty lists -> nothing stamped).`,
+    );
+    return stampSet;
+  } catch (e) {
+    // Fail-safe-CLOSED: an unreadable / malformed stamp-set is one we do
+    // not apply. The loaders then run Phase-3 level-2 exactly.
+    console.warn(
+      `[extract-tag] D22 (loader): stamp-set resolution failed (${e}) ` +
+      `-> NO stage-2 stamp (Phase-3 level-2; today's pipeline).`,
+    );
+    return null;
+  }
+}
 
 // Per-project entity-type JSON file mapping. Filenames must match each
 // extractor's actual output. ezQuake's cvar handler writes
@@ -437,6 +552,20 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
   // when the overlay stamps them. Project-scoped + existsSync-guarded +
   // idempotent (safe to re-run; the call no-ops on a checkout where the
   // HUD-commands handler has not yet been exercised).
+  // enforce-L1-runtime-truth Phase 4 / Task 4 -- resolve the stage-2
+  // stamp-set ONCE here (ezQuake-only) so the 3e (Track-B) + 3f (Track-A)
+  // blocks share the SAME decision and one set of LOUD log lines. null when
+  // not mechanism-validated GREEN at the loaded version's pin -> both
+  // loaders run Phase-3 level-2 exactly (D18/D22 fail-safe-CLOSED). This is
+  // the LIVE wiring site (F6/F10/F12 family: the Phase-4 MD's "wire in
+  // load-version.ts" is wrong vs live -- load-version.ts has ZERO
+  // overlay/adapter/stamp references; loadHudCommandsFromFile /
+  // loadCallgraphReachabilityFromFile are invoked HERE, in 3e/3f).
+  const stageTwoStampSet =
+    options.project === 'ezquake'
+      ? await resolveStageTwoStampSet(options.sql, options.version)
+      : null;
+
   if (options.project === 'ezquake') {
     const hudCommandsJsonPath = join(extractorOutputDir, 'ezquake-hud-commands-ast.json');
     if (existsSync(hudCommandsJsonPath)) {
@@ -445,6 +574,8 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
         options.sql,
         options.version,
         hudCommandsJsonPath,
+        // Stage-2 stamp-set (null -> Phase-3 level-2 exactly).
+        stageTwoStampSet ?? undefined,
       );
       console.log(
         `[extract-tag] ezquake Track-B HUD commands loaded: ` +
@@ -480,6 +611,8 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
         options.sql,
         options.version,
         reachabilityJsonPath,
+        // Same stage-2 stamp-set as 3e (null -> Phase-3 level-2 exactly).
+        stageTwoStampSet ?? undefined,
       );
       console.log(
         `[extract-tag] ezquake Track-A reachability overlay: ` +

@@ -39,14 +39,35 @@
 // via tx.json(...) inside upsertCvarVersion / upsertCommandVersion -- this
 // module passes a JS object; the upsert helpers own the tx.json wrap.
 // Never JSON.stringify + a TEXT bind.
+//
+// STAGE-2 STAMP (enforce-L1-runtime-truth Phase 4 / Task 4):
+// loadCallgraphReachabilityFromArray/FromFile take an OPTIONAL stamp-set
+// (the SHIPPED level3-stamp-set-<pin>.json). When supplied (the gate is
+// GREEN + the version is the pinned-dump version -- the caller in
+// extract-tag.ts 3f decides this), for each entry whose name is in
+// stamp_set.track_a_dump_confirmed the loader flips ONLY the in-memory
+// spine.dump_confirmation from 'high-confidence-generalized' (level-2) to
+// 'dump-confirmed' (level-3) BEFORE the existing upsert. conclusion +
+// evidence are re-emitted VERBATIM from the same 10th-file source (slot-3
+// is the ONLY field that differs L2 vs L3 -- CARRY-FORWARD 1). The write
+// STILL routes through the SAME stampCvar/stampCommand ->
+// upsertCvarVersion/upsertCommandVersion ON CONFLICT path (X9 -- NEVER an
+// in-place UPDATE ... SET). The stamp-set is OPTIONAL + defaulted so
+// non-pinned / ungated callers are byte-identical to Phase 3 (pure
+// additive). The full track_a_reachability blob is re-emitted non-null, so
+// the natural-keys.ts COALESCE(EXCLUDED, table) correctly takes EXCLUDED
+// (the stamp lands) -- the COALESCE is NOT changed to =EXCLUDED (that would
+// reintroduce the Phase-3 cross-writer clobber).
 
 import { readFileSync } from 'node:fs';
 import type postgres from 'postgres';
 import { upsertCvarVersion, upsertCommandVersion } from './natural-keys.js';
 import type {
   CallgraphReachabilityFile,
+  CallgraphReachabilitySpine,
   CommandVersionRow,
   CvarVersionRow,
+  Level3StampSet,
 } from './types.js';
 
 export interface LoadCallgraphReachabilityResult {
@@ -158,10 +179,44 @@ async function stampCvar(
   return true;
 }
 
+// Apply the Task-4 stage-2 slot-3 stamp to ONE spine.
+//
+// Returns a spine whose conclusion + evidence are byte-identical to the
+// input (re-emitted verbatim -- CARRY-FORWARD 1) and whose
+// dump_confirmation is 'dump-confirmed' IFF `name` is in the stamp-set's
+// track_a_dump_confirmed list; otherwise the spine is returned UNCHANGED
+// (keeps the emit seam's level-2 'high-confidence-generalized'). A new
+// object is built (never a mutation of the parsed signal) so re-runs and
+// the no-stamp-set path are order-independent. When `dumpConfirmed` is
+// empty (proxy FAIL / stage-1 RED -> Task-3 wrote empty lists) NOTHING is
+// flipped -- every row stays Phase-3 level-2 (D22 fail-safe-CLOSED).
+function applyStageTwoStamp(
+  spine: CallgraphReachabilitySpine,
+  name: string,
+  dumpConfirmed: Set<string> | null,
+): CallgraphReachabilitySpine {
+  if (dumpConfirmed === null || !dumpConfirmed.has(name)) return spine;
+  // Slot-3-ONLY flip: conclusion + evidence pass through by reference
+  // (same in-memory values the emit seam produced -- CARRY-FORWARD 1);
+  // only dump_confirmation is replaced. The DB JSONB round-trip then shows
+  // conclusion + evidence byte-identical to the Phase-3 write.
+  return {
+    conclusion: spine.conclusion,
+    evidence: spine.evidence,
+    dump_confirmation: 'dump-confirmed',
+  };
+}
+
 export async function loadCallgraphReachabilityFromArray(
   sql: postgres.Sql,
   version: string,
   signal: CallgraphReachabilityFile,
+  // OPTIONAL stage-2 stamp-set (enforce-L1 Phase 4 / Task 4). When omitted
+  // (the default -- every non-pinned / ungated caller) behaviour is
+  // byte-identical to Phase 3: NOTHING is flipped, every row stays level-2.
+  // The caller (extract-tag.ts 3f) supplies this ONLY when the validation
+  // record is GREEN AND the version is the pinned-dump version.
+  stampSet?: Level3StampSet,
 ): Promise<LoadCallgraphReachabilityResult> {
   const entries = signal.entries;
   if (!entries || typeof entries !== 'object') {
@@ -169,6 +224,15 @@ export async function loadCallgraphReachabilityFromArray(
       'load-callgraph-reachability: signal file has no "entries" object',
     );
   }
+
+  // Build the dump-confirmed name-set ONLY when the caller passed a
+  // proxy=PASS stamp-set. proxy=FAIL (broken pin / RED mechanism) -> the
+  // confirmed list is empty by construction (Task-3) AND we additionally
+  // refuse to consult it -> null -> nothing stamped (D22/D19 fail-safe).
+  const trackADumpConfirmed: Set<string> | null =
+    stampSet && stampSet.proxy === 'PASS'
+      ? new Set(stampSet.track_a_dump_confirmed)
+      : null;
 
   const result: LoadCallgraphReachabilityResult = {
     cvarStamped: 0,
@@ -187,10 +251,16 @@ export async function loadCallgraphReachabilityFromArray(
         result.skippedNames.push(`${type}::${name}`);
         continue;
       }
+      // Stage-2 slot-3 stamp (CARRY-FORWARD 1: conclusion + evidence
+      // verbatim, only dump_confirmation may flip to 'dump-confirmed').
+      // No-op (returns the spine unchanged) for every name NOT in the
+      // proxy=PASS stamp-set, and for EVERY name when no stamp-set was
+      // supplied -> Phase-3 level-2 behaviour exactly.
+      const stampedSpine = applyStageTwoStamp(spine, name, trackADumpConfirmed);
       const stamped =
         type === 'command'
-          ? await stampCommand(tx, entityId, version, spine)
-          : await stampCvar(tx, entityId, version, spine);
+          ? await stampCommand(tx, entityId, version, stampedSpine)
+          : await stampCvar(tx, entityId, version, stampedSpine);
       if (!stamped) {
         // Entity exists but has no version row at this version (the
         // per-type loader did not emit it for this tag). Same safe
@@ -212,9 +282,12 @@ export async function loadCallgraphReachabilityFromFile(
   sql: postgres.Sql,
   version: string,
   jsonPath: string,
+  // OPTIONAL stage-2 stamp-set -- threaded straight through. Omitted by
+  // every non-pinned / ungated caller (Phase-3 behaviour exactly).
+  stampSet?: Level3StampSet,
 ): Promise<LoadCallgraphReachabilityResult> {
   const signal = JSON.parse(
     readFileSync(jsonPath, 'utf-8'),
   ) as CallgraphReachabilityFile;
-  return loadCallgraphReachabilityFromArray(sql, version, signal);
+  return loadCallgraphReachabilityFromArray(sql, version, signal, stampSet);
 }

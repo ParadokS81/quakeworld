@@ -38,11 +38,30 @@
 // is bound via tx.json(...) inside upsertCommandVersion -- never
 // JSON.stringify + a TEXT bind. This module passes a JS object; the upsert
 // helper owns the tx.json wrap.
+//
+// STAGE-2 STAMP (enforce-L1-runtime-truth Phase 4 / Task 4):
+// loadHudCommandsFromArray/FromFile take an OPTIONAL stamp-set (the SHIPPED
+// level3-stamp-set-<pin>.json). When supplied (the caller in extract-tag.ts
+// 3e decides this -- gate GREEN + version is the pinned-dump version), for
+// each recovered HUD command whose name is in
+// stamp_set.track_b_dump_confirmed the row's track_b_hud_recovery.
+// dump_confirmation is built as 'dump-confirmed' (level-3); absent-from-
+// stamp-set rows keep the level-2 'high-confidence-generalized' (D21 --
+// nothing withheld; still a first-class level-2 command). EVERYTHING ELSE
+// (the row shape, source_state='source_backed', the upsertCommandVersion
+// ON CONFLICT path, the tx.json bind) is UNCHANGED. The stamp-set is
+// OPTIONAL + defaulted so non-pinned / ungated callers are byte-identical
+// to Phase 3 (pure additive).
 
 import { readFileSync } from 'node:fs';
 import type postgres from 'postgres';
 import { upsertEntity, upsertCommandVersion } from './natural-keys.js';
-import type { CommandVersionRow, HudCommandEntry, HudCommandsFile } from './types.js';
+import type {
+  CommandVersionRow,
+  HudCommandEntry,
+  HudCommandsFile,
+  Level3StampSet,
+} from './types.js';
 
 // The dict key in the 9th file that holds the recovered commands.
 export const HUD_COMMANDS_PAYLOAD_FIELD = 'hud_commands';
@@ -70,8 +89,11 @@ export function hudCommandIsSourceBacked(_entry: HudCommandEntry): boolean {
 //   (i) evidence.registration_api= entry.ast.registration_api
 //   (j) evidence.handler_fn      = entry.ast.handler_fn
 //   (k) evidence.site            = {source_file, source_line} from ast
-//   (l) dump_confirmation        = "high-confidence-generalized" (constant;
-//        Phase 3 NEVER writes "dump-confirmed" -- Phase 4 / D19).
+//   (l) dump_confirmation        = "high-confidence-generalized" (the
+//        level-2 default) UNLESS the Task-4 stage-2 stamp confirms this
+//        command name (dumpConfirmed=true) -> "dump-confirmed" (level-3,
+//        D19). CARRY-FORWARD 1: slot-3 is the ONLY field the stamp may
+//        change; conclusion + evidence are built identically either way.
 // The base command_versions columns map from entry.ast
 // (handler_fn/source_file/source_line/source_column);
 // registration_file = entry.ast.enclosing_function; help_* are null
@@ -82,6 +104,10 @@ export function buildHudCommandVersionRow(
   version: string,
   entry: HudCommandEntry,
   now: string,
+  // Task-4 stage-2: true IFF this command name is in the proxy=PASS
+  // stamp-set's track_b_dump_confirmed list. Defaults false -> Phase-3
+  // level-2 behaviour exactly (every ungated / non-pinned caller).
+  dumpConfirmed = false,
 ): CommandVersionRow {
   const ast = entry.ast;
   const conclusion =
@@ -99,7 +125,12 @@ export function buildHudCommandVersionRow(
         source_line: ast.source_line,
       },
     },
-    dump_confirmation: 'high-confidence-generalized',
+    // Slot-3-ONLY: level-3 when the runtime dump confirmed the name,
+    // else the level-2 default. conclusion + evidence above are identical
+    // in both branches (CARRY-FORWARD 1).
+    dump_confirmation: dumpConfirmed
+      ? 'dump-confirmed'
+      : 'high-confidence-generalized',
   };
 
   return {
@@ -140,6 +171,9 @@ export async function upsertHudCommandRow(
   name: string,
   entry: HudCommandEntry,
   now: string,
+  // Task-4 stage-2: passed straight to buildHudCommandVersionRow. Defaults
+  // false -> Phase-3 level-2 (every ungated / non-pinned caller).
+  dumpConfirmed = false,
 ): Promise<{ wasExisting: boolean }> {
   const upsertResult = await upsertEntity(tx, {
     project: 'ezquake',
@@ -149,7 +183,13 @@ export async function upsertHudCommandRow(
     last_seen_version: version,
     source_state: 'source_backed',
   });
-  const row = buildHudCommandVersionRow(upsertResult.id, version, entry, now);
+  const row = buildHudCommandVersionRow(
+    upsertResult.id,
+    version,
+    entry,
+    now,
+    dumpConfirmed,
+  );
   await upsertCommandVersion(tx, row);
   return { wasExisting: !upsertResult.isNew };
 }
@@ -158,6 +198,11 @@ export async function loadHudCommandsFromArray(
   sql: postgres.Sql,
   version: string,
   ast: HudCommandsFile,
+  // OPTIONAL stage-2 stamp-set (enforce-L1 Phase 4 / Task 4). Omitted by
+  // every non-pinned / ungated caller -> Phase-3 level-2 behaviour
+  // exactly. Supplied by extract-tag.ts 3e ONLY when the validation record
+  // is GREEN AND the version is the pinned-dump version.
+  stampSet?: Level3StampSet,
 ): Promise<LoadHudCommandsResult> {
   const commands = ast[HUD_COMMANDS_PAYLOAD_FIELD];
   if (!commands || typeof commands !== 'object') {
@@ -166,12 +211,31 @@ export async function loadHudCommandsFromArray(
     );
   }
 
+  // Dump-confirmed name-set ONLY when proxy=PASS. proxy=FAIL (broken pin /
+  // RED mechanism) -> the list is empty by construction (Task-3) AND we
+  // refuse to consult it -> null -> nothing stamped (D22/D19 fail-safe).
+  const trackBDumpConfirmed: Set<string> | null =
+    stampSet && stampSet.proxy === 'PASS'
+      ? new Set(stampSet.track_b_dump_confirmed)
+      : null;
+
   const now = new Date().toISOString();
   const result: LoadHudCommandsResult = { inserted: 0, updated: 0, total: 0 };
 
   await sql.begin(async (tx) => {
     for (const [name, entry] of Object.entries(commands)) {
-      const { wasExisting } = await upsertHudCommandRow(tx, version, name, entry, now);
+      // Slot-3-only stamp: true IFF this name is dump-confirmed. false for
+      // every name when no stamp-set was supplied -> Phase-3 level-2.
+      const dumpConfirmed =
+        trackBDumpConfirmed !== null && trackBDumpConfirmed.has(name);
+      const { wasExisting } = await upsertHudCommandRow(
+        tx,
+        version,
+        name,
+        entry,
+        now,
+        dumpConfirmed,
+      );
       if (wasExisting) result.updated++;
       else result.inserted++;
       result.total++;
@@ -185,7 +249,9 @@ export async function loadHudCommandsFromFile(
   sql: postgres.Sql,
   version: string,
   jsonPath: string,
+  // OPTIONAL stage-2 stamp-set -- threaded straight through.
+  stampSet?: Level3StampSet,
 ): Promise<LoadHudCommandsResult> {
   const ast = JSON.parse(readFileSync(jsonPath, 'utf-8')) as HudCommandsFile;
-  return loadHudCommandsFromArray(sql, version, ast);
+  return loadHudCommandsFromArray(sql, version, ast, stampSet);
 }

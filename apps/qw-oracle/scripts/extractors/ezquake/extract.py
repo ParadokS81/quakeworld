@@ -570,7 +570,16 @@ def main() -> int:
                 cg_path = emit_callgraph_signal(
                     cmds_fin, cvars_fin, output_dir
                 )
-                print(f"  [callgraph-signal] Track-A reachability -> {cg_path}")
+                # cg_path is None when the D22 structural gate is closed
+                # (not mechanism-validated GREEN at the current pin): emit()
+                # already printed the LOUD D22 banner to stderr and wrote
+                # NOTHING -- so do NOT print a misleading success line. The
+                # Track-A overlay then existsSync-skips -> today's pipeline.
+                if cg_path is not None:
+                    print(
+                        f"  [callgraph-signal] Track-A reachability "
+                        f"-> {cg_path}"
+                    )
             except Exception as e:
                 print(
                     f"CALLGRAPH SIGNAL SEAM DISABLED "

@@ -1,6 +1,9 @@
 // Integration tests against the qw_oracle_test Postgres database (D13).
 
 import { describe, it, expect, beforeEach, afterAll } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import postgres from 'postgres';
 import { runMigrations } from '../../db/migrate.js';
 import {
@@ -257,6 +260,111 @@ describe('probeRuntimeFidelityShape', () => {
     const result = await probeRuntimeFidelityShape({ sql, project: 'fte' });
     expect(result.status).toBe('PASS');
     expect(result.summary).toMatch(/skipped/);
+  });
+
+  // enforce-L1-runtime-truth Phase 4 / Task 4 -- the level-3-pinned-only
+  // assertion Phase 3 deferred. The probe reads the SHIPPED
+  // acceptance-validated-ezquake.json (same path the loader/D22 gate read)
+  // and the test DB's oracle_meta pin. We derive the agreeing pin FROM the
+  // shipped record's validation_commit so the test stays correct if the
+  // arc re-pins (no hardcoded 40-char hash). pinsAgree is prefix-tolerant
+  // (the record holds the SHORT token; oracle_meta holds the FULL hash),
+  // so a record commit of '3f9e724f' agrees with an oracle_meta value of
+  // '3f9e724f' + any suffix.
+  function shippedValidatedCommit(): string {
+    // scripts/load-knowledge/ -> scripts/ -> qw-oracle/ ; data/detection/.
+    const here = dirname(fileURLToPath(import.meta.url));
+    const recordPath = join(
+      here, '..', '..', 'data', 'detection', 'acceptance-validated-ezquake.json',
+    );
+    const record = JSON.parse(readFileSync(recordPath, 'utf-8')) as {
+      status: string;
+      validation_commit: string;
+    };
+    if (record.status !== 'GREEN') {
+      throw new Error(
+        `Test precondition: acceptance-validated-ezquake.json must be GREEN ` +
+        `to exercise the level-3-pinned-only leg; got status=${record.status}. ` +
+        `Run accept-runtime-truth.py --stage all first.`,
+      );
+    }
+    return record.validation_commit;
+  }
+
+  it('PASS -- dump-confirmed (level-3) row AT the pinned-dump version (head) + pin agrees', async () => {
+    const now = new Date().toISOString();
+    const { cvarEntityId } = await seedTrackABEntities(now);
+
+    // oracle_meta pin agrees with the SHIPPED record's validation_commit
+    // (prefix-tolerant: short token is a prefix of this padded value).
+    const agreeingPin = shippedValidatedCommit() + 'a608e516040f02b9557808ff3efda53e';
+    await sql`
+      INSERT INTO oracle_meta (key, value) VALUES ('ezquake:source_repo_commit', ${agreeingPin})
+      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+    `;
+
+    // A well-formed Track-A spine with dump_confirmation flipped to
+    // 'dump-confirmed', stored at version='head' (the pinned-dump version).
+    const lvl3AtPinned = { ...WELL_FORMED_TRACK_A_CALLGRAPH, dump_confirmation: 'dump-confirmed' };
+    await sql`
+      INSERT INTO cvar_versions (entity_id, version, extracted_at, server_only, track_a_reachability)
+      VALUES (${cvarEntityId}, 'head', ${now}, false, ${sql.json(lvl3AtPinned)})
+    `;
+
+    const result = await probeRuntimeFidelityShape({ sql, project: 'ezquake' });
+    expect(result.status).toBe('PASS');
+    expect(result.count).toBe(0);
+  });
+
+  it('FAIL -- dump-confirmed (level-3) row at a NON-pinned version', async () => {
+    const now = new Date().toISOString();
+    const { cvarEntityId } = await seedTrackABEntities(now);
+
+    const agreeingPin = shippedValidatedCommit() + 'a608e516040f02b9557808ff3efda53e';
+    await sql`
+      INSERT INTO oracle_meta (key, value) VALUES ('ezquake:source_repo_commit', ${agreeingPin})
+      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+    `;
+
+    // Same well-formed shape, dump-confirmed, but at a version that is NOT
+    // the pinned-dump version -> autonomous level-3 verdict that does not
+    // trace to the validated pin -> offender (D19).
+    const lvl3NonPinned = { ...WELL_FORMED_TRACK_A_CALLGRAPH, dump_confirmation: 'dump-confirmed' };
+    await sql`
+      INSERT INTO cvar_versions (entity_id, version, extracted_at, server_only, track_a_reachability)
+      VALUES (${cvarEntityId}, 'v9.99-nonpinned', ${now}, false, ${sql.json(lvl3NonPinned)})
+    `;
+
+    const result = await probeRuntimeFidelityShape({ sql, project: 'ezquake' });
+    expect(result.status).toBe('FAIL');
+    expect(result.count).toBeGreaterThan(0);
+    expect(result.summary).toMatch(/level-3-non-pinned/);
+  });
+
+  it('PASS -- Phase-3-style level-2 (high-confidence-generalized) row still passes (no regression)', async () => {
+    const now = new Date().toISOString();
+    const { cvarEntityId, cmdEntityId } = await seedTrackABEntities(now);
+
+    // Pin set, but every row is level-2 -- the level-3-pinned-only leg must
+    // not flag level-2 rows (it targets dump-confirmed ONLY); the Phase-3
+    // shape leg must still pass these well-formed rows.
+    const agreeingPin = shippedValidatedCommit() + 'a608e516040f02b9557808ff3efda53e';
+    await sql`
+      INSERT INTO oracle_meta (key, value) VALUES ('ezquake:source_repo_commit', ${agreeingPin})
+      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+    `;
+    await sql`
+      INSERT INTO cvar_versions (entity_id, version, extracted_at, server_only, track_a_reachability)
+      VALUES (${cvarEntityId}, 'head', ${now}, false, ${sql.json(WELL_FORMED_TRACK_A_CALLGRAPH)})
+    `;
+    await sql`
+      INSERT INTO command_versions (entity_id, version, extracted_at, track_a_reachability, track_b_hud_recovery)
+      VALUES (${cmdEntityId}, 'head', ${now}, ${sql.json(WELL_FORMED_TRACK_A_COMMENTED)}, ${sql.json(WELL_FORMED_TRACK_B)})
+    `;
+
+    const result = await probeRuntimeFidelityShape({ sql, project: 'ezquake' });
+    expect(result.status).toBe('PASS');
+    expect(result.count).toBe(0);
   });
 });
 

@@ -1125,7 +1125,46 @@ export interface CallgraphReachabilitySpine {
         feeder: 'commented-register';
         register_site: { source_file: string; source_line: number };
       };
-  dump_confirmation: 'high-confidence-generalized';
+  // The emit seam writes the level-2 constant 'high-confidence-generalized'
+  // for EVERY populated row. The Task-4 stage-2 loader flips ONLY this key
+  // to 'dump-confirmed' (level-3) for the dump-confirmed names -- in-memory,
+  // before the existing upsert (CARRY-FORWARD 1: slot-3 is the ONLY field
+  // that differs L2 vs L3; conclusion + evidence re-emitted verbatim). The
+  // union admits both so the stamped value type-checks.
+  dump_confirmation: 'high-confidence-generalized' | 'dump-confirmed';
+}
+
+// enforce-L1-runtime-truth Phase 4 / Task 3-4.
+//
+// The SHIPPED stage-2 stamp-set artifact, written by
+// extractor_lib._acceptance.run_stage2 to
+// apps/qw-oracle/data/detection/level3-stamp-set-<pin>.json. The Task-4
+// loaders (load-callgraph-reachability.ts / load-hud-commands.ts) read it
+// and flip dump_confirmation -> 'dump-confirmed' (level-3) for the names it
+// lists. `proxy` is 'PASS' only when the version-pin proxy + stage-1 both
+// held; 'FAIL' means EMPTY confirmed lists (broken pin / RED mechanism ->
+// nothing stamped -> every row stays Phase-3 level-2). Locked schema.
+export interface Level3StampSet {
+  validated_commit: string;
+  proxy: 'PASS' | 'FAIL';
+  track_a_dump_confirmed: string[];
+  track_b_dump_confirmed: string[];
+  static_dead_overridden_by_dump: string[];
+  counts: Record<string, number>;
+}
+
+// The SHIPPED acceptance validation record, written by
+// extractor_lib._acceptance.run_stage1 to
+// apps/qw-oracle/data/detection/acceptance-validated-<fork>.json. The D22
+// gate consults it; the Task-4 loaders read `status` (must be 'GREEN') and
+// `validation_commit` (the SHORT pin token -- prefix-tolerant vs the full
+// oracle_meta hash). Locked schema.
+export interface AcceptanceValidationRecord {
+  fork: string;
+  validation_commit: string;
+  status: 'GREEN' | 'RED';
+  probes: Record<string, unknown>;
+  validated_at: string;
 }
 export interface CallgraphReachabilityFile {
   project: 'ezquake';

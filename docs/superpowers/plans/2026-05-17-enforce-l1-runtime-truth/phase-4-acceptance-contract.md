@@ -45,6 +45,45 @@
 > If any premise had been refuted this block would be a DEVIATION and the
 > phase would STOP for an operator amendment. None was.
 
+> **F12 + F14 DATED MD-CORRECTION 2026-05-18 (orchestrator-applied at the
+> Phase-4 gate; F6/F10/F12 narrative-preserved precedent -- no redraft, no
+> `decisions.md` D-amendment; the SHIPPED code is correct, only this MD's
+> literal text was wrong; review-findings F12 [carry-forward, confirmed] +
+> F14 [new] are the authoritative record).** Two literal-text defects in
+> this MD's verification commands + wiring-site names were caught by the
+> Phase-4 executor at execution (it ran the CORRECT forms and surfaced both,
+> did NOT silently edit the locked MD -- operator-not-technical-gate) and
+> independently orchestrator-verified vs primary source at the gate:
+> - **F12 (the F6/F10/F12 copy-run hazard family).** Task-4 Verification
+>   step 1 literally `bun scripts/load-knowledge/index.ts load-version
+>   --project ezquake --version head --force` is the WRONG subcommand
+>   (`load-version` requires `--type/--json/--commit` and ingests ONE
+>   single-type JSON; a verbatim copy-run HARD-THROWS and is the wrong
+>   semantics for a real extract+load+post-loop round-trip). The CORRECT
+>   entrypoint is `bun scripts/load-knowledge/index.ts extract-tag --project
+>   ezquake --version head --force --skip-release-notes`. Task-4 step-5 +
+>   phase-boundary Verification 8 literally `bun test
+>   scripts/load-knowledge/quality-grid.test.ts` FAILS the `qw_oracle_test`
+>   DB safety guard (a bare `bun test` inherits the dev DB and the guard
+>   correctly refuses); the canonical form is
+>   `DATABASE_URL=postgresql://qworacle:dev@localhost:5432/qw_oracle_test
+>   bun test scripts/load-knowledge/quality-grid.test.ts`. The executor ran
+>   both correct forms at execution; these literal lines below carry an
+>   inline `[F12 ...]` marker pointing here.
+> - **F14 (same F6/F10/F12 family -- wrong wiring-site name).** Task-4
+>   step "Wire in `load-version.ts`" + the Files-touched / X9-grep
+>   `load-knowledge/load-version.ts` name the WRONG file: live,
+>   `load-version.ts` has zero overlay/adapter references and is byte
+>   UNTOUCHED by Phase 4; the real stage-2 stamp-set wiring site is
+>   `scripts/load-knowledge/extract-tag.ts` (the additive
+>   `resolveStageTwoStampSet`, gated, threaded into the Track-A overlay 3f
+>   + Track-B adapter 3e). The executor wired the correct live site;
+>   `load-version.ts` was correctly left untouched. Read every
+>   `load-version.ts` occurrence below as `extract-tag.ts` per this note.
+> Both are MD-literal-only defects (the F6 wrong-stems / F10 missing-OFF /
+> F12 wrong-subcommand class); the Phase-4 deliverable code + data are
+> correct and were independently orchestrator-verified GREEN at the gate.
+
 ## Goal
 
 This phase delivers the acceptance contract: ONE shared three-stage shape
@@ -775,7 +814,11 @@ mechanism would violate X3/D1.
     "dump-confirmed"`; absent-from-dump rows stay level-2 (D21 nothing
     withheld -- still a first-class command entity, just not autonomously
     trusted). Commands only (R7 -- unchanged from Phase 3).
-  - [ ] **Wire in `load-version.ts`.** One additive site: pass the
+  - [ ] **Wire in `extract-tag.ts`.** [F14 DATED CORRECTION 2026-05-18:
+    was `load-version.ts` -- WRONG site; the live stamp-set wiring is
+    `scripts/load-knowledge/extract-tag.ts` (`resolveStageTwoStampSet`, 3e
+    Track-B / 3f Track-A); `load-version.ts` is byte-untouched. See the
+    F12+F14 dated block at the top of this MD.] One additive site: pass the
     stamp-set (when the gate is GREEN + the version is pinned) into the
     Track-A overlay + Track-B adapter. The per-type loader order +
     overlay-after-per-type-loaders ordering are Phase-3's -- unchanged.
@@ -797,7 +840,10 @@ mechanism would violate X3/D1.
   cd /home/paradoks/projects/quakeworld/apps/qw-oracle
   # 1. GREEN path: harness + extract + load, then stage-2 stamped L3
   python3 scripts/extractors/ezquake/accept-runtime-truth.py --stage all
-  bun scripts/load-knowledge/index.ts load-version --project ezquake --version head --force
+  # [F12 DATED CORRECTION 2026-05-18: was `index.ts load-version ...` --
+  #  WRONG subcommand (hard-throws). Correct working invocation below;
+  #  see the F12+F14 dated block at the top of this MD.]
+  bun scripts/load-knowledge/index.ts extract-tag --project ezquake --version head --force --skip-release-notes
   PSQL="docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -tAc"
   $PSQL "SELECT DISTINCT track_a_reachability->>'dump_confirmation'
          FROM cvar_versions WHERE track_a_reachability IS NOT NULL;"
@@ -821,17 +867,23 @@ mechanism would violate X3/D1.
   $PSQL "SELECT count(*) FROM cvar_versions WHERE track_a_reachability IS NOT NULL;"
   # 5. F1 + X3
   npm run load-knowledge -- quality-grid --project ezquake
-  bun test scripts/load-knowledge/quality-grid.test.ts
+  # [F12 DATED CORRECTION 2026-05-18: bare `bun test` fails the
+  #  qw_oracle_test DB guard -- canonical form below; see the F12+F14
+  #  dated block at the top of this MD.]
+  DATABASE_URL=postgresql://qworacle:dev@localhost:5432/qw_oracle_test bun test scripts/load-knowledge/quality-grid.test.ts
   # 6. X9 PATH probe -- the stamp routes through the upsert ON CONFLICT
   #    path, NOT a bare in-place UPDATE (a state check alone cannot tell
   #    them apart -- this grep is the positive X9 evidence):
   ! grep -nE "UPDATE[[:space:]]+(cvar_versions|command_versions)[[:space:]]+SET" \
       scripts/load-knowledge/load-callgraph-reachability.ts \
       scripts/load-knowledge/load-hud-commands.ts \
-      scripts/load-knowledge/load-version.ts \
+      scripts/load-knowledge/extract-tag.ts \
     && grep -qE "upsert(Cvar|Command)Version" \
       scripts/load-knowledge/load-callgraph-reachability.ts \
     && echo "X9 PATH OK (no bare UPDATE; routes through upsert ON CONFLICT)"
+  # [F14 DATED CORRECTION 2026-05-18: third grep target was
+  #  load-version.ts -> extract-tag.ts (the real wiring site); see the
+  #  F12+F14 dated block at the top of this MD.]
   ```
   PASS condition: (1) `dump_confirmation` is a MIX of
   `high-confidence-generalized` + `dump-confirmed` (level-3 exists, and
@@ -931,11 +983,42 @@ guarded).
    when off). FAIL: any stem diff or any populated signal when off.
 8. **F1 GREEN incl. level-3-pinned-only + no regression:**
    `npm run load-knowledge -- quality-grid --project ezquake` and
-   `bun test scripts/load-knowledge/quality-grid.test.ts`. PASS:
-   `F1.runtime_fidelity_shape PASS` (incl. the new level-3-only-at-pinned
-   assertion), `F1.jsonb_columns_not_strings PASS`, no regression FAIL; the
-   test passes incl. the level-3-at-non-pinned FAIL case. FAIL: any
-   regression FAIL or the new assertion absent.
+   `DATABASE_URL=postgresql://qworacle:dev@localhost:5432/qw_oracle_test bun
+   test scripts/load-knowledge/quality-grid.test.ts`. [F12 DATED CORRECTION
+   2026-05-18: bare `bun test` fails the qw_oracle_test DB guard --
+   canonical form above; see the F12+F14 dated block at the top of this MD.]
+   PASS: `F1.runtime_fidelity_shape PASS` (incl. the new
+   level-3-only-at-pinned assertion), `F1.jsonb_columns_not_strings PASS`,
+   the test passes incl. the level-3-at-non-pinned FAIL case. [F15 DATED
+   SCOPING 2026-05-18: the literal "no regression FAIL" is RECONCILED with
+   Phase-4 scope exactly as F13 reconciled check-5, but with the OPPOSITE
+   disposition. Phase-4's mandated `extract-tag --force` re-load (the
+   first-ever re-load of tag `3f9e724f` since Phase-3 clean-loaded it)
+   surfaces a PRE-EXISTING Phase-3-loader source_state idempotency
+   divergence: exactly 12 Track-B bare-HUD commands flip
+   `source_backed -> doc_only` (`F1.ezquake.floor.command_source_state`
+   612/19/62 vs 624/7/62; `F1.ezquake.anchor.doc_only_count` 69 vs 57;
+   `F1.cross_type_orphans` 12; command COUNT unchanged at 693). Orchestrator
+   independently primary-source-verified NOT Task-4-caused (`natural-keys.ts
+   upsertEntity` -- the source_state machine -- is NOT in the Phase-4 diff;
+   `load-hud-commands.ts`'s `source_state:'source_backed'` write is
+   byte-unchanged; the per-type command loader is untouched; the 12 names
+   are simultaneously per-type-command-loader + Track-B-adapter targets on
+   the same entity row, so the final state is clean-load-vs-reload
+   order-dependent) and NOT a stale calibration (unlike F13's legitimate
+   D21 growth -- this is a genuine violation of the "L1 extractors are
+   idempotent" always-on rule). Disposition (operator-routed at the gate):
+   do NOT recalibrate the floor to 612/19 (that bakes in the non-idempotent
+   state); route as a separate Phase-3-loader-idempotency follow-up
+   (review-findings F15; X9 re-extract not SQL UPDATE). The 3 F15-family
+   regression FAILs are therefore SCOPED OUT of the Phase-4 boundary as a
+   routed pre-existing blocker, NOT a Phase-4 defect; Phase 5 is BLOCKED
+   until F15 is fixed + Phase-4 re-verified on a clean idempotent DB.] PASS
+   for Phase-4's OWN F1 deliverables: `F1.runtime_fidelity_shape` (incl.
+   level-3-pinned-only) + `F1.jsonb_columns_not_strings` GREEN +
+   `command_count` 693. FAIL: the new assertion absent, OR any regression
+   FAIL OUTSIDE the enumerated F15-family set (`cross_type_orphans`,
+   `ezquake.floor.command_source_state`, `ezquake.anchor.doc_only_count`).
 9. **X9 write-path -- the stamp is loader-path, not a bare UPDATE (a state
    check alone cannot tell them apart):**
    ```
@@ -943,10 +1026,13 @@ guarded).
    ! grep -nE "UPDATE[[:space:]]+(cvar_versions|command_versions)[[:space:]]+SET" \
        scripts/load-knowledge/load-callgraph-reachability.ts \
        scripts/load-knowledge/load-hud-commands.ts \
-       scripts/load-knowledge/load-version.ts \
+       scripts/load-knowledge/extract-tag.ts \
      && grep -qE "upsert(Cvar|Command)Version" \
        scripts/load-knowledge/load-callgraph-reachability.ts \
      && echo "X9 PATH OK"
+   # [F14 DATED CORRECTION 2026-05-18: third grep target was
+   #  load-version.ts -> extract-tag.ts (the real wiring site); see the
+   #  F12+F14 dated block at the top of this MD.]
    ```
    PASS: `X9 PATH OK` prints (no bare `UPDATE <versions-table> SET` in the
    three loader files; the slot-3 stamp routes through the Phase-3

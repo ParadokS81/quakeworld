@@ -40,16 +40,26 @@ counts -- no contradiction with F2.
 
 ## Version-pin provenance (R6)
 
-The dump carries NO embedded version banner (the `version` token at line 545
-is just the cvar/command named "version" in the listing). Commit-pinning to
-`3f9e724f` rests entirely on the **SANITY GATE in `front1-diff.sh` lines
-33-36** -- the R6 version-pin proxy: `sb_qtvlist_url` MUST appear in the cvar
-candidate pool AND no known-live cvar
-(`bottomcolor|bgmvolume|cl_bobhead|zombietime|cl_cmdline|name`) may leak in.
-A wrong-commit dump breaks those invariants. Re-running this proxy against
-the live DB is the X8 / W2 discipline and is a **Phase-4-boundary action**
--- it was NOT re-run when this directory was created (orchestrator secured
-the artifact; the operator ran the build and blesses provenance at Phase 4).
+The dump SELF-CERTIFIES its commit. The `version`-command OUTPUT in the
+post-macrolist tail (line ~3347) reads `ezQuake 3.7.0-dev 8084~3f9e724fa`
+-- the `~3f9e724fa` token is an EXACT prefix of `oracle_meta
+ezquake:source_repo_commit` (`3f9e724fa608e516040f02b9557808ff3efda53e`).
+This is the PRIMARY version-pin sub-gate (review-findings F7), implemented
+in `version-pin-proxy.sh`. The earlier README claim ("the dump carries NO
+embedded version banner") was wrong: the `version` token at cmdlist line 545
+is just the command NAME in the listing; its OUTPUT appears at line 3347,
+outside all three `front1-diff.sh` extraction ranges (7-564 / 571-3272 /
+3276-3344), which is why it never polluted the 74/92/129 candidate pools.
+
+The **SANITY GATE in `front1-diff.sh` lines 33-36** (`sb_qtvlist_url` MUST
+appear in the cvar candidate pool; no known-live cvar may leak in) is KEPT
+as a secondary heuristic corroborator in `version-pin-proxy.sh`. These legs
+are cvar-only and are reused verbatim-in-substance (R6: reuse, not reinvent).
+
+`front1-diff.sh` remains byte-immutable -- the SHA leg lives ONLY in
+`version-pin-proxy.sh`. Re-running `version-pin-proxy.sh` against the live
+DB is the X8 / W2 discipline and is a **Phase-4-boundary action** -- the
+orchestrator secured the artifact and the operator blesses provenance here.
 
 ## Path-portability (Phase-4 / R6)
 

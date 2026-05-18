@@ -18,9 +18,51 @@
 //
 // Run: npm run load-knowledge -- quality-grid [--project <p>] [--family regression|anomaly|both] [--probe <name>] [--json]
 
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type postgres from 'postgres';
 import { HEAD_ORDINAL } from './constants.js';
-import type { Project } from './types.js';
+import type { AcceptanceValidationRecord, Project } from './types.js';
+
+// enforce-L1-runtime-truth Phase 4 / Task 4 -- the SHIPPED acceptance
+// validation record (written by extractor_lib._acceptance.run_stage1). The
+// F1.runtime_fidelity_shape probe reads its `validation_commit` to enforce
+// the level-3-pinned-only assertion (Phase 3 deferred it to Phase 4).
+const QG_DIR = dirname(fileURLToPath(import.meta.url));
+// scripts/load-knowledge/ -> scripts/ -> qw-oracle/ ; then data/detection/.
+const DETECTION_DIR = join(QG_DIR, '..', '..', 'data', 'detection');
+
+// Prefix-tolerant (case-insensitive) commit agreement -- the SAME mechanic
+// _acceptance.validation_record_ok documents (F7 self-certifies via a short
+// prefix): the validation record holds the SHORT pin token while oracle_meta
+// holds the FULL 40-char hash. True iff either string is a prefix of the
+// other. Empty inputs -> false.
+function pinsAgree(a: string | null | undefined, b: string | null | undefined): boolean {
+  if (!a || !b) return false;
+  const x = a.toLowerCase();
+  const y = b.toLowerCase();
+  return x.startsWith(y) || y.startsWith(x);
+}
+
+// Read the SHIPPED acceptance validation record's commit IFF status==GREEN.
+// Returns the SHORT validation_commit token, or null when the record is
+// absent / not GREEN / unreadable. A null here means "no validated pin" ->
+// the probe treats ANY dump-confirmed row as an offender (level-3 may not
+// exist without a GREEN validated pin -- D18/D19/D22).
+function readValidatedCommit(fork: string): string | null {
+  try {
+    const recordPath = join(DETECTION_DIR, `acceptance-validated-${fork}.json`);
+    if (!existsSync(recordPath)) return null;
+    const record = JSON.parse(
+      readFileSync(recordPath, 'utf-8'),
+    ) as AcceptanceValidationRecord;
+    if (record.status !== 'GREEN') return null;
+    return record.validation_commit ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export type ProbeFamily = 'regression' | 'anomaly';
 export type ProbeStatus = 'PASS' | 'FAIL' | 'CLEAN' | 'FOUND' | 'ERROR';
@@ -567,21 +609,118 @@ export async function probeRuntimeFidelityShape(ctx: ProbeContext): Promise<Prob
   `;
   const trackBTotal = trackBCountRows[0]?.cnt ?? 0;
 
-  const total = trackATotal + trackBTotal;
+  // -- LEVEL-3-PINNED-ONLY assertion (enforce-L1 Phase 4 / Task 4) --
+  //
+  // Phase 3 explicitly DEFERRED this leg to Phase 4 (the probe asserted
+  // shape only -- 'dump-confirmed' was a VALID value with no version
+  // constraint). Phase 4 binds it: a row whose dump_confirmation is
+  // 'dump-confirmed' (level-3, autonomously consumed) is well-formed ONLY
+  // when its version IS the pinned-dump commit recorded in the SHIPPED
+  // acceptance-validated-ezquake.json. A 'dump-confirmed' row at any
+  // non-pinned version FAILS the probe (an autonomous delete-list verdict
+  // that does not trace to a GREEN validated pin is version-noise -- D19).
+  //
+  // Pin resolution (prefix-tolerant, the _acceptance.validation_record_ok
+  // mechanic -- F7 self-certifies via a short prefix): the SHIPPED record
+  // holds the SHORT validation_commit token; oracle_meta holds the FULL
+  // 40-char ezquake:source_repo_commit. The pinned-dump VERSION is 'head'
+  // (extractor_lib._acceptance.PINNED_DUMP_VERSION -- every Phase-3/4
+  // ezQuake reachability row sits at version='head', and that is what the
+  // pin certifies). `pinnedOk` is true iff a GREEN record exists AND its
+  // commit prefix-agrees with the current oracle_meta pin. When
+  // `pinnedOk` is false (no GREEN validated pin) EVERY 'dump-confirmed'
+  // row is an offender; when true, only those at a version other than the
+  // pinned-dump version. Pure read-only SQL + the validation-record pin.
+  const PINNED_DUMP_VERSION = 'head';
+  const validatedCommit = readValidatedCommit('ezquake');
+  const pinRows = await ctx.sql<{ value: string }[]>`
+    SELECT value FROM oracle_meta WHERE key = 'ezquake:source_repo_commit'
+  `;
+  const currentPin = pinRows.length > 0 ? pinRows[0]!.value : null;
+  const pinnedOk = pinsAgree(validatedCommit, currentPin);
+
+  // Track-A level-3 rows (cvar_versions + command_versions) that violate
+  // the pinned-only rule. NOT (pinned-version AND pinnedOk) == offender.
+  const lvl3ARows = await ctx.sql<{ canonical_id: string }[]>`
+    WITH a3 AS (
+      SELECT e.canonical_id, cv.version AS v, cv.track_a_reachability AS col
+      FROM cvar_versions cv
+      JOIN entities e ON e.id = cv.entity_id
+      WHERE e.project = 'ezquake' AND cv.track_a_reachability IS NOT NULL
+      UNION ALL
+      SELECT e.canonical_id, cmv.version AS v, cmv.track_a_reachability AS col
+      FROM command_versions cmv
+      JOIN entities e ON e.id = cmv.entity_id
+      WHERE e.project = 'ezquake' AND cmv.track_a_reachability IS NOT NULL
+    )
+    SELECT canonical_id
+    FROM a3
+    WHERE col->>'dump_confirmation' = 'dump-confirmed'
+      AND NOT (${pinnedOk} AND v = ${PINNED_DUMP_VERSION})
+    ORDER BY canonical_id
+    LIMIT 8
+  `;
+  const lvl3ACountRows = await ctx.sql<{ cnt: number }[]>`
+    WITH a3 AS (
+      SELECT cv.version AS v, cv.track_a_reachability AS col
+      FROM cvar_versions cv
+      JOIN entities e ON e.id = cv.entity_id
+      WHERE e.project = 'ezquake' AND cv.track_a_reachability IS NOT NULL
+      UNION ALL
+      SELECT cmv.version AS v, cmv.track_a_reachability AS col
+      FROM command_versions cmv
+      JOIN entities e ON e.id = cmv.entity_id
+      WHERE e.project = 'ezquake' AND cmv.track_a_reachability IS NOT NULL
+    )
+    SELECT COUNT(*)::int AS cnt
+    FROM a3
+    WHERE col->>'dump_confirmation' = 'dump-confirmed'
+      AND NOT (${pinnedOk} AND v = ${PINNED_DUMP_VERSION})
+  `;
+  const lvl3ATotal = lvl3ACountRows[0]?.cnt ?? 0;
+
+  // Track-B level-3 rows (command_versions.track_b_hud_recovery) that
+  // violate the pinned-only rule.
+  const lvl3BRows = await ctx.sql<{ canonical_id: string }[]>`
+    SELECT e.canonical_id
+    FROM command_versions cmv
+    JOIN entities e ON e.id = cmv.entity_id
+    WHERE e.project = 'ezquake'
+      AND cmv.track_b_hud_recovery IS NOT NULL
+      AND cmv.track_b_hud_recovery->>'dump_confirmation' = 'dump-confirmed'
+      AND NOT (${pinnedOk} AND cmv.version = ${PINNED_DUMP_VERSION})
+    ORDER BY e.canonical_id
+    LIMIT 8
+  `;
+  const lvl3BCountRows = await ctx.sql<{ cnt: number }[]>`
+    SELECT COUNT(*)::int AS cnt
+    FROM command_versions cmv
+    JOIN entities e ON e.id = cmv.entity_id
+    WHERE e.project = 'ezquake'
+      AND cmv.track_b_hud_recovery IS NOT NULL
+      AND cmv.track_b_hud_recovery->>'dump_confirmation' = 'dump-confirmed'
+      AND NOT (${pinnedOk} AND cmv.version = ${PINNED_DUMP_VERSION})
+  `;
+  const lvl3BTotal = lvl3BCountRows[0]?.cnt ?? 0;
+  const lvl3Total = lvl3ATotal + lvl3BTotal;
+
+  const total = trackATotal + trackBTotal + lvl3Total;
   const examples: string[] = [
     ...trackARows.map(r => `track_a:${r.canonical_id}`),
     ...trackBRows.map(r => `track_b:${r.canonical_id}`),
+    ...lvl3ARows.map(r => `lvl3_pin_a:${r.canonical_id}`),
+    ...lvl3BRows.map(r => `lvl3_pin_b:${r.canonical_id}`),
   ].slice(0, 8);
 
   return {
     name: 'F1.runtime_fidelity_shape',
     family: 'regression',
-    description: 'Track A/B reachability columns hold a well-formed D14 three-slot spine (enforce-L1 R2 + D12 no-blend)',
+    description: 'Track A/B reachability columns hold a well-formed D14 three-slot spine (enforce-L1 R2 + D12 no-blend) AND every dump-confirmed (level-3) row is at the pinned-dump commit (Phase-4 deferral)',
     status: total === 0 ? 'PASS' : 'FAIL',
     count: total,
     summary: total === 0
-      ? 'all Track A/B reachability rows are well-formed'
-      : `${total} offending row(s): Track A=${trackATotal}, Track B=${trackBTotal}`,
+      ? 'all Track A/B reachability rows are well-formed and every level-3 row is pin-anchored'
+      : `${total} offending row(s): shape Track A=${trackATotal}, Track B=${trackBTotal}; level-3-non-pinned=${lvl3Total}`,
     examples,
   };
 }

@@ -22,15 +22,33 @@ and the 9th hud-commands file are byte-untouched -- this module never
 opens them.
 
 dump_confirmation is the CONSTANT "high-confidence-generalized" for EVERY
-populated row (D13/D14 slot-3 representation rule). Phase 3 NEVER writes
-"dump-confirmed" -- that is Phase 4 / D19 (the runtime-dump cross-check).
+populated row (D13/D14 slot-3 representation rule). This seam NEVER writes
+"dump-confirmed" -- the stage-2 stamp (the runtime-dump cross-check, D19)
+is the Task-4 loader's job, applied via the X9 ON CONFLICT upsert path.
+
+D22 STRUCTURAL GATE (Phase 4 / Task 4)
+--------------------------------------
+Before the additive 10th-file write, emit() consults the SHIPPED
+acceptance validation record via _acceptance.validation_record_ok('ezquake',
+<current oracle_meta pin>). This binds the acceptance gate to the pipeline
+STRUCTURALLY: if ezQuake is not mechanism-validated GREEN at the current
+pin (RED / record absent / wrong-commit), NO 10th file is written -> the
+Track-A overlay (extract-tag.ts 3f) finds nothing (existsSync skip-and-log)
+-> track_a_reachability stays NULL -> the pipeline falls back to EXACTLY
+today's output (D18/D22, fail-safe-CLOSED). This REUSES the Phase-1
+fail-safe shape (a guard biased to today's pipeline); it adds NO new
+exception machinery. The 8 F6 byte-identical stems are untouched either
+way -- emit_callgraph_signal.py only ever writes the 10th file (X3).
 """
 
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
+import extractor_lib._acceptance as _acceptance
 import extractor_lib._callgraph as _callgraph
 
 # The single additive output. Lives in the SAME output dir as the 8+1
@@ -162,15 +180,104 @@ def build_signal(commands_finalize: dict, cvars_finalize: dict) -> dict:
     }
 
 
-def emit(commands_finalize: dict, cvars_finalize: dict, output_dir: Path) -> Path:
-    """Serialize the Track-A signal to the additive 10th file.
+# ---------------------------------------------------------------------------
+# D22 structural gate (Phase 4 / Task 4) -- fail-safe-CLOSED.
+# ---------------------------------------------------------------------------
+# The fork this seam serves. emit_callgraph_signal.py is the single ezQuake
+# Track-A instantiation; the gate predicate (_acceptance.validation_record_ok)
+# is fork-parameterized and engine-agnostic (extractor_lib house rule).
+_FORK = "ezquake"
 
-    Returns the written path. The caller invokes this ONLY when the
-    callgraph passenger is on (ENABLE_CALLGRAPH_PASSENGER) and AFTER the
-    post-walk has run (run_postwalk + feed_commented_registrations), so
+# The oracle_meta key that records the FULL 40-char source commit the DB was
+# extracted at. _acceptance.validation_record_ok is prefix-tolerant: the
+# validation record holds the SHORT pin token, this value is the full hash
+# (the F7 dump self-certifies via the short prefix).
+_PIN_META_KEY = "ezquake:source_repo_commit"
+
+
+def _current_pin() -> str:
+    """Read the current source-repo commit from oracle_meta.
+
+    Uses the SAME read-only psql invocation _acceptance.run_stage2 uses
+    (extractor_lib._acceptance._PSQL) -- one psql shape across the gate.
+    Returns "" on any read failure; the empty string makes
+    validation_record_ok return False (fail-safe-CLOSED: a pin we cannot
+    read is a pin we do not trust)."""
+    try:
+        proc = subprocess.run(
+            _acceptance._PSQL
+            + [f"SELECT value FROM oracle_meta WHERE key='{_PIN_META_KEY}'"],
+            capture_output=True,
+            text=True,
+        )
+        if proc.returncode != 0:
+            return ""
+        return proc.stdout.strip()
+    except OSError:
+        # docker/psql not invokable -> no pin -> gate closes (today's
+        # pipeline). NEVER raise -- this is the Phase-1 fail-safe shape.
+        return ""
+
+
+def _gate_status(pin: str) -> str:
+    """Classify WHY the D22 gate is closed, for the LOUD banner.
+
+    Pure read of the SHIPPED validation record (never writes). One of:
+      'absent'       -- no record file at all.
+      'RED'          -- record exists but status != GREEN (mechanism
+                         broke OR upstream moved what it models).
+      'wrong-commit' -- record GREEN but its validation_commit does not
+                         agree with the current pin (prefix-tolerant; the
+                         dump cross-check would be version-noise).
+    Defensive default 'absent' if the record is unreadable -- the gate is
+    already closed (validation_record_ok False); this only labels it."""
+    try:
+        path = _acceptance._validation_record_path(_FORK)
+        record = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return "absent"
+    if record.get("status") != "GREEN":
+        return "RED"
+    return "wrong-commit"
+
+
+def emit(commands_finalize: dict, cvars_finalize: dict, output_dir: Path) -> Path | None:
+    """Serialize the Track-A signal to the additive 10th file -- IFF the
+    D22 structural gate is open.
+
+    The caller invokes this ONLY when the callgraph passenger is on
+    (ENABLE_CALLGRAPH_PASSENGER) and AFTER the post-walk has run
+    (run_postwalk + feed_commented_registrations), so
     `_callgraph.reachable()` answers from real post-walk state rather than
     the all-safe fallback.
+
+    D22 (Phase 4 / Task 4): before writing the 10th file, check
+    `_acceptance.validation_record_ok(_FORK, <current oracle_meta pin>)`.
+      - True  -> proceed EXACTLY as Phase 3: write the file, behaviour
+                 byte-identical. Returns the written path.
+      - False -> write NOTHING (no 10th file) + a LOUD banner; return
+                 None. The Track-A overlay (extract-tag.ts 3f) then logs-
+                 and-skips on its existsSync guard -> track_a_reachability
+                 stays NULL for every row -> EXACTLY today's pipeline
+                 (D18/D22 fail-safe-CLOSED). REUSES the Phase-1 fail-safe
+                 shape; adds NO new exception machinery.
     """
+    pin = _current_pin()
+    if not _acceptance.validation_record_ok(_FORK, pin):
+        status = _gate_status(pin)
+        pin_label = pin if pin else "<unreadable>"
+        # LOUD operator-facing banner (mirrors _acceptance._loud's 64-char
+        # rule). RED/absent/wrong-commit must be visible -- not a quiet log.
+        sep = "=" * 64
+        print(sep, file=sys.stderr)
+        print(
+            f"D22 GATE: ezquake not mechanism-validated at {pin_label} "
+            f"-> NO Track-A signal (today's pipeline). status={status}",
+            file=sys.stderr,
+        )
+        print(sep, file=sys.stderr)
+        return None
+
     payload = build_signal(commands_finalize, cvars_finalize)
     out_path = Path(output_dir) / OUTPUT_FILENAME
     out_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
