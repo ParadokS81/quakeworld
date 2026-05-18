@@ -485,13 +485,18 @@ function renderByModeView(
   modes: ModeRow[],
   modeDefaults: ModeDefaultRow[],
   entities: EntityRow[],
-  anchorPrefix: string, // 'c-' prefix for Catalog links
 ): string {
   // Build entity lookup: name (lower) -> row
   const entityByName = new Map<string, EntityRow>();
   for (const e of entities) entityByName.set(e.name.toLowerCase(), e);
-  const entityByCanonicalId = new Map<string, EntityRow>();
-  for (const e of entities) entityByCanonicalId.set(e.canonical_id, e);
+
+  // Verdict counts for the baked-in legend (same entity set the Catalog shows).
+  const verdictCounts = new Map<string, number>();
+  for (const e of entities) {
+    const v = e.description_verdict ?? '(none)';
+    verdictCounts.set(v, (verdictCounts.get(v) ?? 0) + 1);
+  }
+  const vc = (k: string) => verdictCounts.get(k) ?? 0;
 
   // Group mode_defaults by initstring_array
   const defaultsByInit = new Map<string, ModeDefaultRow[]>();
@@ -500,121 +505,139 @@ function renderByModeView(
     if (!defaultsByInit.has(ia)) defaultsByInit.set(ia, []);
     defaultsByInit.get(ia)!.push(md);
   }
+  for (const [, arr] of defaultsByInit) arr.sort((a, b) => a.name.localeCompare(b.name));
 
-  // Sort within each initstring group by name
-  for (const [, arr] of defaultsByInit) {
-    arr.sort((a, b) => a.name.localeCompare(b.name));
-  }
-
-  // Baseline (common_um_init) set
   const baselineDefaults = (defaultsByInit.get('common_um_init') ?? []).sort((a, b) => a.name.localeCompare(b.name));
 
-  // Split modes
-  const standalones = modes
-    .filter(m => m.props_json.mode_class === 'standalone')
-    .sort((a, b) => a.props_json.user_facing_label.localeCompare(b.props_json.user_facing_label));
+  const standalones = modes.filter(m => m.props_json.mode_class === 'standalone');
   const mutators = modes
     .filter(m => m.props_json.mode_class === 'mutator')
     .sort((a, b) => a.props_json.user_facing_label.localeCompare(b.props_json.user_facing_label));
 
-  // Render a cvar line in By-Mode view
-  function renderModeDefaultLine(md: ModeDefaultRow): string {
+  // Signature defaults for a mode = every non-baseline initstring group whose
+  // initstringToMode() resolves to this mode's name. (The prior implementation
+  // had two mutually-exclusive guards here and silently produced an empty list
+  // for every non-HoonyMode standalone mode -- the reason By-Mode showed
+  // nothing useful. Fixed: skip baseline, skip non-matching, collect the rest.)
+  function sigDefaultsFor(mode: ModeRow): ModeDefaultRow[] {
+    const sig: ModeDefaultRow[] = [];
+    for (const [ia, rows] of defaultsByInit) {
+      const targets = initstringToMode(ia);
+      if (targets.includes('__baseline__')) continue;
+      if (!targets.includes(mode.name)) continue;
+      for (const row of rows) sig.push(row);
+    }
+    sig.sort((a, b) => a.name.localeCompare(b.name));
+    return sig;
+  }
+
+  // Most-customized first: ordering by signature size puts the modes a reviewer
+  // most needs to inspect (the rule-heavy ones) at the top.
+  const standaloneOrdered = [...standalones].sort((a, b) => {
+    const d = sigDefaultsFor(b).length - sigDefaultsFor(a).length;
+    return d !== 0 ? d : a.props_json.user_facing_label.localeCompare(b.props_json.user_facing_label);
+  });
+
+  // One aligned cvar row: name | value | meaning. Fixed columns (CSS grid) are
+  // what makes a 13-22 line list scannable -- the eye tracks straight down.
+  function cvarGridRow(md: ModeDefaultRow): string {
     const val = md.value_text != null ? md.value_text : (md.value_numeric != null ? String(md.value_numeric) : '?');
-    const comment = md.props_json.comment ? ` <span class="md-comment">${esc(md.props_json.comment)}</span>` : '';
+    const comment = md.props_json.comment ? ` <span class="cg-comment">${esc(md.props_json.comment)}</span>` : '';
     const entity = entityByName.get(md.name.toLowerCase());
     const anchor = entity ? `c-${esc(entity.canonical_id)}` : '';
     const nameHtml = anchor
-      ? `<a href="#${anchor}" class="md-cvar-link" title="Jump to Catalog entry">${esc(md.name)}</a>`
-      : `<span class="md-cvar">${esc(md.name)}</span>`;
-    const descSnippet = entity?.description ? ` <span class="md-desc">${esc(trunc(entity.description, 140))}</span>` : '';
-    return `<div class="md-row">${nameHtml} <span class="md-val">${esc(val)}</span>${comment}${descSnippet}</div>`;
+      ? `<a href="#${anchor}" class="cg-name" title="Jump to Catalog entry">${esc(md.name)}</a>`
+      : `<span class="cg-name cg-name-plain">${esc(md.name)}</span>`;
+    const desc = entity?.description
+      ? `<span class="cg-desc">${esc(trunc(entity.description, 150))}</span>`
+      : `<span class="none">(not in catalog)</span>`;
+    return `<div class="cg-row"><span class="cg-c1">${nameHtml}</span><span class="cg-c2">${esc(val)}</span><span class="cg-c3">${desc}${comment}</span></div>`;
+  }
+  function cvarGrid(rows: ModeDefaultRow[], emptyMsg: string): string {
+    if (rows.length === 0) return `<div class="none-text">${emptyMsg}</div>`;
+    return `<div class="cvar-grid"><div class="cg-row cg-head"><span class="cg-c1">cvar</span><span class="cg-c2">value</span><span class="cg-c3">meaning</span></div>${rows.map(cvarGridRow).join('')}</div>`;
   }
 
-  // Shared baseline block (rendered ONCE, referenced by standalone modes)
-  const baselineBlockHtml = `<details id="shared-baseline" class="baseline-block">
-  <summary class="baseline-summary">Shared baseline (common_um_init) -- ${baselineDefaults.length} cvars applied to all um_init_string standalone modes</summary>
-  <div class="baseline-body">
-${baselineDefaults.map(renderModeDefaultLine).join('\n')}
+  // Sticky mode-jump index (pure anchor links; CSS scroll-behavior handles glide)
+  const jumpChips = [
+    ...standaloneOrdered.map(m => `<a href="#m-${esc(m.name)}" class="jump-chip">${esc(m.props_json.user_facing_label)}</a>`),
+    ...mutators.map(m => `<a href="#m-${esc(m.name)}" class="jump-chip jump-chip-mut">${esc(m.props_json.user_facing_label)}</a>`),
+  ].join('');
+
+  // Verdict legend baked into the page -- anyone the operator shares this with
+  // needs to know what synthesized / affirmed / hedged / dead_stamped /
+  // residue_routed mean. Counts are live from the rendered entity set.
+  const legendHtml = `<details class="legend-block" id="verdict-legend">
+  <summary class="legend-summary">Verdict legend -- what synthesized / affirmed / hedged / dead_stamped / residue_routed mean (read before sharing)</summary>
+  <div class="legend-body">
+    <div class="lg-row"><span class="lg-tag lg-syn">synthesized</span><span class="lg-n">${vc('synthesized')}</span><span class="lg-d">Fresh description written by the D6 skill from the KTX C source's actual behaviour (no usable existing text). The default path; carries a code anchor + source citations.</span></div>
+    <div class="lg-row"><span class="lg-tag lg-aff">affirmed</span><span class="lg-n">${vc('affirmed')}</span><span class="lg-d">An in-source code comment at the cvar/command definition was judged already good enough to ship as-is. The existing source comment IS the description -- no synthesis, no anchor.</span></div>
+    <div class="lg-row"><span class="lg-tag lg-hed">hedged</span><span class="lg-n">${vc('hedged')}</span><span class="lg-d">Mechanism visible in KTX source but the user-facing meaning is not fully pinnable from KTX alone, so deliberately flagged uncertain rather than guessed. Mostly redirect stubs whose real logic is engine-side (MVDSV, Phase 4). On the operator review docket.</span></div>
+    <div class="lg-row"><span class="lg-tag lg-dead">dead_stamped</span><span class="lg-n">${vc('dead_stamped')}</span><span class="lg-d">Flagged as suspected dead / unreachable code instead of being described (C3 detection). Zero for KTX is locked-correct (F-C3c -- the whole competitive surface is live). Expected non-zero for MVDSV.</span></div>
+    <div class="lg-row"><span class="lg-tag lg-res">residue_routed</span><span class="lg-n">${vc('residue_routed')}</span><span class="lg-d">Not legible from source at all -- gets a row but routes to the community-outreach track instead of a guess. Zero for KTX means everything was describable from source.</span></div>
   </div>
 </details>`;
 
-  // Render a standalone mode card
+  // Shared baseline block (rendered ONCE, referenced by every um_init_string mode)
+  const baselineBlockHtml = `<details id="shared-baseline" class="baseline-block">
+  <summary class="baseline-summary">Shared baseline (common_um_init) -- ${baselineDefaults.length} cvars applied first to every um_init_string standalone mode</summary>
+  <div class="baseline-body">${cvarGrid(baselineDefaults, 'No baseline cvars extracted.')}</div>
+</details>`;
+
   function renderStandaloneCard(mode: ModeRow): string {
     const p = mode.props_json;
-    const autoreset = p.auto_reset_on_match ? `<span class="badge badge-autoreset">auto-reset on match</span>` : '';
-    const gameType = p.game_type ? `<span class="badge">${esc(p.game_type)}</span>` : '';
+    const badges = [
+      p.game_type ? `<span class="badge">${esc(p.game_type)}</span>` : '',
+      p.init_mechanism ? `<span class="badge badge-init">${esc(p.init_mechanism)}</span>` : '',
+      p.auto_reset_on_match ? `<span class="badge badge-autoreset">auto-reset on match</span>` : '',
+    ].join('');
 
-    // Find signature defaults (those whose initstring_array maps to this mode)
-    const sigDefaults: ModeDefaultRow[] = [];
-    // Also collect hoonymode size labels for this mode
-    const hoonyLabels: Map<string, string> = new Map(); // name -> label
-    for (const [ia, rows] of defaultsByInit) {
-      const targets = initstringToMode(ia);
-      if (targets.includes(mode.name) || targets.includes('__baseline__')) continue;
-      if (!targets.includes(mode.name)) continue;
-      for (const row of rows) sigDefaults.push(row);
-      const sizeLabel = hoonyModeSizeLabel(ia);
-      if (sizeLabel) {
-        for (const row of rows) hoonyLabels.set(row.name, sizeLabel);
-      }
-    }
-    sigDefaults.sort((a, b) => a.name.localeCompare(b.name));
-
-    // Also collect hoonymode size buckets if this is hoonymode
-    const hoonyBuckets: Map<string, ModeDefaultRow[]> = new Map();
+    let body: string;
+    let sigCount: number;
     if (mode.name === 'hoonymode') {
+      const buckets: Array<[string, ModeDefaultRow[]]> = [];
       for (const [ia, rows] of defaultsByInit) {
         const sizeLabel = hoonyModeSizeLabel(ia);
-        if (sizeLabel) {
-          hoonyBuckets.set(sizeLabel, [...rows].sort((a, b) => a.name.localeCompare(b.name)));
-        }
+        if (sizeLabel) buckets.push([sizeLabel, [...rows].sort((a, b) => a.name.localeCompare(b.name))]);
       }
+      buckets.sort((a, b) => a[0].localeCompare(b[0]));
+      sigCount = buckets.reduce((n, [, r]) => n + r.length, 0);
+      body = buckets.map(([label, rows]) =>
+        `<div class="sig-subgroup"><div class="sig-subgroup-label">${esc(label)} variant -- ${rows.length} cvars</div>${cvarGrid(rows, 'none')}</div>`
+      ).join('');
+    } else {
+      const sig = sigDefaultsFor(mode);
+      sigCount = sig.length;
+      const emptyMsg = p.init_mechanism === 'um_init_string'
+        ? 'No signature-only init -- this mode runs on the shared baseline alone.'
+        : 'Activated by cvar toggle -- no init-string default list is extracted for this mode.';
+      body = cvarGrid(sig, emptyMsg);
     }
 
-    const sigHtml = mode.name === 'hoonymode' && hoonyBuckets.size > 0
-      ? [...hoonyBuckets.entries()].map(([label, rows]) =>
-          `<div class="sig-subgroup"><div class="sig-subgroup-label">Signature (${esc(label)} variant)</div>${rows.map(renderModeDefaultLine).join('\n')}</div>`
-        ).join('\n')
-      : (sigDefaults.length > 0
-          ? sigDefaults.map(renderModeDefaultLine).join('\n')
-          : `<div class="none-text">No signature-only init (all defaults are baseline)</div>`);
+    const baselineRef = p.init_mechanism === 'um_init_string'
+      ? `<a href="#shared-baseline" class="baseline-ref-link">+ ${baselineDefaults.length} shared baseline cvars</a>`
+      : `<span class="baseline-ref-link baseline-ref-none">no shared baseline</span>`;
 
-    const hasBaselineRef = p.init_mechanism === 'um_init_string';
-    const baselineRef = hasBaselineRef
-      ? `<div class="baseline-ref"><a href="#shared-baseline">Baseline (common_um_init) -- ${baselineDefaults.length} shared cvars</a> -- see the shared baseline block above.</div>`
-      : '';
-
-    return `<div class="mode-card">
+    return `<div class="mode-card" id="m-${esc(mode.name)}">
   <div class="mode-card-head">
     <span class="mode-label">${esc(p.user_facing_label)}</span>
     <span class="mode-name-raw">${esc(mode.name)}</span>
-    ${gameType}${autoreset}
-    <span class="badge badge-class">${esc(p.mode_class)}</span>
+    ${badges}
+    <span class="sig-stat"><strong>${sigCount}</strong> signature</span>
+    ${baselineRef}
   </div>
   <div class="mode-card-body">
-    <details class="mode-sig-section" open>
-      <summary>Signature (this mode's own init) -- ${sigDefaults.length} cvars</summary>
-      <div class="sig-body">
-${sigHtml}
-      </div>
-    </details>
-    ${baselineRef}
+${body}
   </div>
 </div>`;
   }
 
-  // Render a mutator card (cvar-toggle; best-effort listing)
   function renderMutatorCard(mode: ModeRow): string {
     const p = mode.props_json;
-    const autoreset = p.auto_reset_on_match ? `<span class="badge badge-autoreset">auto-reset on match</span>` : '';
-    const gameType = p.game_type ? `<span class="badge">${esc(p.game_type)}</span>` : '';
     const activCvar = p.activation_cvar ?? '';
-
-    // Best-effort: entities whose name or description mentions this mode (case-insensitive)
-    // Plus the activation_cvar entity itself.
+    const activCvarLower = activCvar.toLowerCase();
     const modeLower = mode.name.toLowerCase();
     const labelLower = p.user_facing_label.toLowerCase();
-    const activCvarLower = activCvar.toLowerCase();
 
     const related = entities.filter(e => {
       if (activCvar && e.name.toLowerCase() === activCvarLower) return true;
@@ -622,43 +645,45 @@ ${sigHtml}
       return combined.includes(modeLower) || (labelLower.length > 3 && combined.includes(labelLower));
     }).sort((a, b) => a.name.localeCompare(b.name));
 
-    const relatedHtml = related.map(e => {
-      const anchor = `c-${esc(e.canonical_id)}`;
-      const descSnippet = e.description ? ` <span class="md-desc">${esc(trunc(e.description, 140))}</span>` : '';
-      const activFlag = activCvar && e.name.toLowerCase() === activCvarLower ? `<span class="badge badge-activ">activation cvar</span>` : '';
-      return `<div class="md-row"><a href="#${anchor}" class="md-cvar-link">${esc(e.name)}</a> <span class="etype">${esc(e.type)}</span>${activFlag}${descSnippet}</div>`;
-    }).join('\n');
+    const relatedHtml = related.length === 0
+      ? `<div class="none-text">No associated cvars found by activation cvar or name/description match.</div>`
+      : `<div class="cvar-grid"><div class="cg-row cg-head"><span class="cg-c1">cvar</span><span class="cg-c2">type</span><span class="cg-c3">meaning</span></div>` +
+        related.map(e => {
+          const anchor = `c-${esc(e.canonical_id)}`;
+          const isActiv = !!activCvar && e.name.toLowerCase() === activCvarLower;
+          const activFlag = isActiv ? `<span class="badge badge-activ">activation</span> ` : '';
+          const desc = e.description ? `<span class="cg-desc">${esc(trunc(e.description, 150))}</span>` : `<span class="none">none</span>`;
+          return `<div class="cg-row${isActiv ? ' cg-row-activ' : ''}"><span class="cg-c1"><a href="#${anchor}" class="cg-name">${esc(e.name)}</a></span><span class="cg-c2">${esc(e.type)}</span><span class="cg-c3">${activFlag}${desc}</span></div>`;
+        }).join('') +
+        `</div>`;
 
-    return `<div class="mode-card mode-card-mutator">
+    return `<div class="mode-card mode-card-mutator" id="m-${esc(mode.name)}">
   <div class="mode-card-head">
     <span class="mode-label">${esc(p.user_facing_label)}</span>
     <span class="mode-name-raw">${esc(mode.name)}</span>
-    ${gameType}${autoreset}
-    <span class="badge badge-class">${esc(p.mode_class)}</span>
-    ${activCvar ? `<span class="badge badge-activ-cvar">activation: <span class="ename">${esc(activCvar)}</span></span>` : ''}
+    <span class="badge badge-class">mutator</span>
+    ${activCvar ? `<span class="badge badge-activ-cvar">activation: ${esc(activCvar)}</span>` : ''}
   </div>
   <div class="mode-card-body">
-    <div class="mutator-banner">association by activation cvar + description mention -- NOT a source-exhaustive list</div>
-    <div class="mutator-related">
+    <div class="mutator-banner">Association is by activation cvar + name/description match -- NOT a source-exhaustive list.</div>
 ${relatedHtml}
-    </div>
   </div>
 </div>`;
   }
 
-  const standaloneHtml = standalones.map(renderStandaloneCard).join('\n');
+  const standaloneHtml = standaloneOrdered.map(renderStandaloneCard).join('\n');
   const mutatorHtml = mutators.map(renderMutatorCard).join('\n');
 
   return `<div id="view-by-mode" class="view-panel" style="display:none">
-<div class="mode-intro">
-  <p>Init-string modes have exact source-extracted cvar lists. Cvar-toggle mutators
-  (instagib, freshteams, berzerk, killquad, midair, lgc, nosweep, yawnmode, bloodfest, race)
-  are activated by a cvar; their listing is best-effort, not source-exhaustive.
-  Commands, admin, demo, logging, and internal knobs are not mode-controlled and live
-  only in the Catalog view.</p>
+<div class="bymode-bar sticky-bar">
+  <strong class="bm-title">Jump</strong>
+  <div class="mode-jump">${jumpChips}</div>
+  <span class="count-display">${standalones.length} standalone . ${mutators.length} mutators . ${baselineDefaults.length} baseline cvars</span>
 </div>
+${legendHtml}
+<div class="mode-intro"><p>The shared baseline is applied first, then each mode's signature cvars override it. Init-string modes have exact source-extracted lists; cvar-toggle mutators are activated by a cvar and their listing is best-effort, not source-exhaustive. Commands, admin, demo, logging and internal knobs are not mode-controlled and live only in the Catalog view. Modes are ordered most-customized first.</p></div>
 ${baselineBlockHtml}
-<div class="mode-section-header">Standalone modes (${standalones.length})</div>
+<div class="mode-section-header">Standalone modes (${standalones.length}) -- ordered by signature size</div>
 ${standaloneHtml}
 <div class="mode-section-header">Mutators (${mutators.length})</div>
 ${mutatorHtml}
@@ -701,7 +726,7 @@ export function renderPage(
   }
 
   const catalogHtml = renderCatalogView(entities, entityModeTags, baselineEntityIds);
-  const byModeHtml = renderByModeView(modes, modeDefaults, entities, 'c-');
+  const byModeHtml = renderByModeView(modes, modeDefaults, entities);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -823,63 +848,110 @@ body { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; backg
 .prov-comment { color: #a8a8a8; font-size: 11px; font-family: monospace; white-space: pre-wrap; word-break: break-word; }
 
 /* --- By-Mode view --- */
-.mode-intro { padding: 10px 16px; background: #222; border-bottom: 1px solid #333; font-size: 12px; color: #aaa; line-height: 1.5; }
-.mode-intro p { max-width: 900px; }
+html { scroll-behavior: smooth; }
 
-.baseline-block { margin: 8px 16px; border: 1px solid #3a3a3a; border-radius: 3px; }
-.baseline-summary { padding: 8px 12px; cursor: pointer; font-size: 12px; color: #b47ad8; background: #1e1a2a; list-style: none; }
-.baseline-summary:hover { background: #252030; }
-.baseline-body { padding: 4px 8px; max-height: 400px; overflow-y: auto; }
+/* Sticky jump bar (shares .sticky-bar; chip row + count) */
+.bymode-bar { align-items: flex-start; }
+.bm-title { color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding-top: 3px; flex-shrink: 0; }
+.mode-jump { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; max-height: 56px; overflow-y: auto; }
+.jump-chip {
+  font-size: 11px; font-family: monospace; padding: 2px 7px; border-radius: 2px;
+  background: #1a2a1a; color: #8fcf8f; border: 1px solid #2d5b2d; text-decoration: none;
+}
+.jump-chip:hover { background: #2d5b2d; color: #d8ffd8; }
+.jump-chip-mut { background: #2a1a3a; color: #c79fe0; border-color: #5a2d80; }
+.jump-chip-mut:hover { background: #5a2d80; color: #f0e0ff; }
+
+/* Verdict legend -- baked in for anyone the page is shared with */
+.legend-block { margin: 8px 16px; border: 1px solid #5a3a00; border-radius: 3px; background: #1f1a10; }
+.legend-summary { padding: 8px 12px; cursor: pointer; font-size: 12px; font-weight: bold; color: #d8b470; list-style: none; }
+.legend-summary::-webkit-details-marker { display: none; }
+.legend-summary::before { content: '+ '; color: #806030; }
+.legend-block[open] .legend-summary::before { content: '- '; }
+.legend-summary:hover { background: #261f12; }
+.legend-body { padding: 4px 12px 10px; }
+.lg-row { display: grid; grid-template-columns: 130px 48px 1fr; gap: 12px; align-items: baseline; padding: 6px 0; border-top: 1px solid #2a2014; }
+.lg-row:first-child { border-top: none; }
+.lg-tag { font-family: monospace; font-size: 11px; font-weight: bold; padding: 1px 6px; border-radius: 2px; text-align: center; }
+.lg-syn { background: #1a2a1a; color: #6dbe6d; border: 1px solid #2d6b2d; }
+.lg-aff { background: #1a242a; color: #6ab0c8; border: 1px solid #2d5566; }
+.lg-hed { background: #3a2a1a; color: #d8b470; border: 1px solid #806030; }
+.lg-dead { background: #2a1a1a; color: #c87070; border: 1px solid #6b2d2d; }
+.lg-res { background: #251a2a; color: #b47ad8; border: 1px solid #5a2d80; }
+.lg-n { font-family: monospace; font-size: 13px; font-weight: bold; color: #e0e0e0; text-align: right; }
+.lg-d { font-size: 12px; color: #b8b8b8; line-height: 1.5; }
+
+.mode-intro { padding: 10px 16px; background: #222; border-bottom: 1px solid #333; font-size: 12px; color: #aaa; line-height: 1.5; }
+.mode-intro p { max-width: 1000px; }
+
+.baseline-block { margin: 8px 16px; border: 1px solid #5a2d80; border-radius: 3px; }
+.baseline-summary { padding: 8px 12px; cursor: pointer; font-size: 12px; font-weight: bold; color: #c79fe0; background: #211a2a; list-style: none; }
+.baseline-summary::-webkit-details-marker { display: none; }
+.baseline-summary::before { content: '+ '; color: #7a4da0; }
+.baseline-block[open] .baseline-summary::before { content: '- '; }
+.baseline-summary:hover { background: #2a2035; }
+.baseline-body { padding: 8px 12px; max-height: 460px; overflow-y: auto; }
+#shared-baseline { scroll-margin-top: 116px; }
 
 .mode-section-header {
-  padding: 10px 16px 6px; font-size: 13px; font-weight: bold;
-  color: #c8c8c8; border-bottom: 2px solid #444; margin-top: 8px;
+  padding: 14px 16px 6px; font-size: 12px; font-weight: bold;
+  color: #888; text-transform: uppercase; letter-spacing: 0.06em;
+  border-bottom: 1px solid #333; margin-top: 6px;
 }
 
 .mode-card {
-  margin: 8px 16px; border: 1px solid #2a2a2a; border-radius: 3px;
-  background: #1e1e1e;
+  margin: 8px 16px; border: 1px solid #2e2e2e; border-radius: 3px;
+  background: #1d1d1d; scroll-margin-top: 116px;
 }
-.mode-card-mutator { border-color: #2a1a3a; }
+.mode-card:target { border-color: #6a9a6a; box-shadow: 0 0 0 1px #4a7a4a; }
+.mode-card-mutator { border-color: #3a2a4a; }
+.mode-card-mutator:target { border-color: #9a6ac0; box-shadow: 0 0 0 1px #7a4da0; }
 
 .mode-card-head {
   padding: 8px 12px; display: flex; align-items: center; gap: 8px;
-  flex-wrap: wrap; background: #252525; border-radius: 3px 3px 0 0;
+  flex-wrap: wrap; background: #262626; border-radius: 3px 3px 0 0;
   border-bottom: 1px solid #333;
 }
-.mode-label { font-weight: bold; font-size: 13px; color: #e8e8e8; }
+.mode-label { font-weight: bold; font-size: 14px; color: #f0f0f0; }
 .mode-name-raw { font-family: monospace; font-size: 11px; color: #888; }
 .badge { font-size: 10px; padding: 1px 6px; border-radius: 2px; background: #333; color: #aaa; border: 1px solid #444; }
-.badge-class { background: #1a2a1a; color: #6dbe6d; border-color: #2d6b2d; }
+.badge-class { background: #2a1a3a; color: #c79fe0; border-color: #5a2d80; }
+.badge-init { background: #1a242a; color: #6ab0c8; border-color: #2d5566; font-family: monospace; }
 .badge-autoreset { background: #2a1a3a; color: #b47ad8; border-color: #5a2d80; }
-.badge-activ { background: #1a2a3a; color: #6a9fd8; border-color: #2d5580; font-size: 10px; }
-.badge-activ-cvar { background: #2a2a1a; color: #c8c870; border-color: #7a7a30; font-size: 10px; }
+.badge-activ { background: #1a2a3a; color: #6a9fd8; border-color: #2d5580; }
+.badge-activ-cvar { background: #2a2a1a; color: #c8c870; border-color: #7a7a30; font-family: monospace; }
+.sig-stat { font-size: 11px; color: #8fcf8f; background: #16240f; border: 1px solid #2d5b2d; padding: 1px 8px; border-radius: 2px; }
+.sig-stat strong { color: #c8ffc8; font-size: 13px; }
+.baseline-ref-link { margin-left: auto; font-size: 11px; color: #c79fe0; text-decoration: none; }
+.baseline-ref-link:hover { text-decoration: underline; }
+.baseline-ref-none { color: #666; cursor: default; }
+.baseline-ref-none:hover { text-decoration: none; }
 
-.mode-card-body { padding: 8px 12px; }
+.mode-card-body { padding: 6px 12px 10px; }
 
-.mode-sig-section { margin-bottom: 6px; }
-.mode-sig-section summary { font-size: 11px; color: #aaa; cursor: pointer; padding: 3px 0; }
-.sig-body { padding: 4px 8px; }
-.sig-subgroup { margin-bottom: 8px; }
-.sig-subgroup-label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 3px; text-transform: uppercase; }
-
-.baseline-ref { font-size: 11px; color: #888; margin-top: 4px; }
-.baseline-ref a { color: #b47ad8; text-decoration: none; }
-.baseline-ref a:hover { text-decoration: underline; }
+.sig-subgroup { margin-bottom: 10px; }
+.sig-subgroup-label { font-size: 10px; color: #999; font-weight: bold; margin: 6px 0 3px; text-transform: uppercase; letter-spacing: 0.04em; }
 
 .mutator-banner {
   font-size: 11px; color: #d8b470; background: #251a00; padding: 5px 8px;
-  border: 1px solid #5a3a00; border-radius: 2px; margin-bottom: 6px;
+  border: 1px solid #5a3a00; border-radius: 2px; margin: 4px 0 8px;
 }
-.mutator-related { padding: 2px 0; }
 
-.md-row { padding: 3px 0; font-size: 12px; border-bottom: 1px solid #252525; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
-.md-cvar { font-family: monospace; color: #c8c8c8; }
-.md-cvar-link { font-family: monospace; color: #7ab0d8; text-decoration: none; }
-.md-cvar-link:hover { text-decoration: underline; }
-.md-val { font-family: monospace; color: #c8e6b8; background: #1a2a1a; padding: 1px 5px; border-radius: 2px; font-size: 11px; }
-.md-comment { font-size: 10px; color: #888; font-style: italic; }
-.md-desc { color: #a8a8a8; font-size: 11px; max-width: 600px; }
+/* Aligned cvar grid -- fixed columns are the scannability lever */
+.cvar-grid { display: grid; grid-template-columns: minmax(150px, 240px) 70px 1fr; gap: 0 16px; font-size: 12px; }
+.cg-row { display: contents; }
+.cg-row > span { padding: 3px 0; border-bottom: 1px solid #242424; min-width: 0; }
+.cg-head > span { font-size: 10px; color: #5a5a5a; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #383838; position: sticky; top: 0; }
+.cg-row:hover > span { background: #232323; }
+.cg-row-activ > span { background: #1c2230; }
+.cg-c1 { font-family: monospace; }
+.cg-name { color: #7ab0d8; text-decoration: none; }
+.cg-name:hover { text-decoration: underline; }
+.cg-name-plain { color: #c8c8c8; }
+.cg-c2 { font-family: monospace; color: #c8e6b8; }
+.cg-c3 { color: #b0b0b0; line-height: 1.45; }
+.cg-desc { color: #b0b0b0; }
+.cg-comment { font-size: 10px; color: #888; font-style: italic; }
 </style>
 </head>
 <body>
