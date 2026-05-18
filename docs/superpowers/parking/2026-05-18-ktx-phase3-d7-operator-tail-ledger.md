@@ -310,52 +310,71 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   (not blanket, not pure per-row). WI-1 wide-grep is the catching
   discipline -- keep applying it every remaining row.
 
-## Resume contract (standing -- re-assert SESSION WRAP here if this session hits the smell zone)
+## !!! SESSION WRAP 2026-05-18 (orchestrator session #2) -- RESUME IN A FRESH TERMINAL !!!
 
-Prior session wrapped at the orchestrator smell zone (>430k); the
-current session resumed fresh in a new terminal. State is captured +
-committed after every row; the walk is resumable with zero loss at any
-point.
+This session resolved the docket-integrity blocker (RE-ANCHORED the
+docket to the authoritative `ktx-review-views.html` "Review docket
+only" = 43 `data-docket="1"`; psql/group reconstruction is DISPROVEN
+-- do not retry it), ratified **PROC-1** (the fact-vs-judgment CLEAR
+bar), and walked **rows 13-20** (8 rows). Operator-chosen clean wrap
+(not smell-zone-forced) so the judgment-dense remainder gets a fresh
+window. State captured + committed + pushed after every row; the
+ledger is a lossless resume contract. **20 / 43 done, 23 PENDING
+(rows 21-43).**
 
 **Resume instructions (fresh terminal):**
-1. Read THIS ledger top-to-bottom (it is the complete durable record:
-   source oracle, the AUTHORITATIVE 43 docket table -- HTML-sourced,
-   per-row dispositions, FIX queue, carry-forwards CF-1/CF-2, WI-1, the
-   systemic read). The docket source of truth is the operator's
-   `ktx-review-views.html` "Review docket only" toggle (43 rows
-   `data-docket="1"`); do NOT reconstruct it from psql -- that failed
-   this session. The ledger's "## Docket = 43 rows" table is the
-   distilled authoritative copy.
-2. Restore the source oracle (it is /tmp, ephemeral -- likely gone):
+1. Read THIS ledger top-to-bottom. The complete durable record:
+   source oracle, the **AUTHORITATIVE 43 docket table** (in "## Docket
+   = 43 rows" -- HTML-sourced, per-row `[D]`/`PENDING` + live `NEXT =`
+   footer), per-row dispositions, FIX queue, **Affirmed-sample
+   judgment queue**, carry-forwards CF-1/CF-2, WI-1 + **PROC-1**, the
+   systemic read. Docket source of truth = the operator's
+   `/mnt/c/Users/Administrator/Downloads/ktx-review-views.html`
+   "Review docket only" toggle; the ledger table is the distilled copy.
+   Do NOT reconstruct the docket from psql -- that is disproven.
+2. Restore the source oracle (likely gone from /tmp):
    `git clone https://github.com/QW-Group/ktx.git /tmp/ktx-src-67253dc9
    && git -C /tmp/ktx-src-67253dc9 checkout 67253dc9ab4f643f1e6523a923a41caab9ea587f`
    then verify `git -C /tmp/ktx-src-67253dc9 describe --tags` ==
-   `1.47-2-g67253dc` (== the anchor; proves byte-identical source).
-3. Per-row method (UNCHANGED -- WI-1 is load-bearing): for each row,
-   pull `description` + `description_reasoning` + `description_provenance`
-   from psql; **WIDE-grep every read of the knob in /tmp/ktx-src-67253dc9**
-   (not just cited sites -- the 4 FIXes were all caught this way); verify
-   each claim; verdict CLEAR (log, no operator input) or FIX (surface to
-   operator + record actionable re-synth spec in the FIX queue).
-4. Cadence (operator-agreed): auto-proceed through CLEAR with one-line
-   ledger notice; surface FIX rows + judgment/community rows to the
-   operator; operator stands by.
-5. **RESUME AT ROW 13 = HTML#1 `downspecs`** (synthesized). Remaining
-   31 = rows 13-43 in HTML doc order; walk the authoritative-table
-   PENDING rows top-to-bottom. (Affirmed rows in the set are the
-   1-in-4 spot-sample -- the D7 check there is "is the affirmed text
-   source-accurate / should it have been synthesized?", same WIDE-grep.)
-6. Systemic decision (CONFIRMED 4/4 multi-read-site under-scope class):
-   put to the operator at a natural checkpoint (no longer tied to the
-   defunct "row 24 curated boundary") -- targeted re-fan of the
-   multi-read-site FIX rows vs per-row re-synth. Do NOT auto-apply any
-   FIX -- C4: re-synthesis routes through the D6 pipeline, never a hand
-   UPDATE; the operator gates the path.
+   `1.47-2-g67253dc`. DB: `docker exec qw-oracle-postgres-dev psql -U
+   qworacle -d qw_oracle` (the `psql` binary is NOT on PATH; use the
+   container). Pull `description`, `description_origin`,
+   `description_reasoning`, `description_provenance::text` per knob.
+3. Per-row method -- **WI-1 + PROC-1, both load-bearing:**
+   - **WI-1:** WIDE-grep every read of the knob in the source oracle,
+     NOT just cited sites (the 4 FIXes were all caught this way). For
+     a cvar that toggles/sets another cvar, ALSO grep that cvar's
+     name/macro -- behaviour lives at its read sites (row 20 method).
+   - **PROC-1:** auto-CLEAR only when the verdict is a CHECKABLE FACT
+     (grep exhaustive + cited lines confirmed + description matches
+     verified behaviour). The moment the residual is a JUDGMENT
+     (affirm-vs-should-synthesize, community framing, "is the terse
+     text misleading") -> surface, never absorb into a CLEAR.
+   - **Affirmed-verdict rows:** verify the FACT layer (CLEAR-fact /
+     FIX-fact); the affirm-vs-synthesize JUDGMENT goes to the
+     **Affirmed-sample judgment queue** with a lean -- NO silent CLEAR.
+4. Cadence (operator-agreed): auto-proceed CLEAR (fact) with a
+   one-line ledger notice; surface FIX + judgment/community rows; the
+   operator stands by. Commit the ledger after EVERY row; push at
+   checkpoints.
+5. **RESUME AT ROW 21** -- see the live `NEXT =` pointer in the
+   "## Docket = 43 rows" table footer (currently HTML#12
+   `clearmarkerflag:frogbot:editor`, synth). Walk the PENDING rows in
+   HTML doc order top-to-bottom.
+6. **Two operator-decision batches due at walk end (do NOT auto-apply):**
+   (a) **FIX queue systemic re-fan** -- CONFIRMED 4/4 multi-read-site
+   class (rows 4/5/11/12): targeted re-fan of the multi-site FIX rows
+   vs per-row re-synth. C4: re-synthesis routes through the D6
+   pipeline, NEVER a hand UPDATE; operator gates the path.
+   (b) **Affirmed-sample judgment queue** -- 5 rows so far (next_best,
+   gamemodes, addbot, breakondeath = lean AFFIRM; race_toggle = lean
+   SYNTHESIZE, material mid-run public race-abort). Operator
+   adjudicates keep-vs-synthesize as a batch.
 7. NOT a Phase-3-boundary action and NOT the holistic gate -- this is
    the in-flight D7 tier-2 tail only. Phase 3 does not ship until the
    walk completes + the FIX queue is resolved + the operator reports
    the scan verdict.
 
-- Next: see the live `NEXT =` pointer in the "## Docket = 43 rows"
-  authoritative-table footer (single source of resume truth; updated
-  every row). Currently row 18 = HTML#9 `race_toggle`.
+- Next: live `NEXT =` pointer in the "## Docket = 43 rows" footer
+  (single source of resume truth). Currently row 21 = HTML#12
+  `clearmarkerflag:frogbot:editor`.
