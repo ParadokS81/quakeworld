@@ -669,6 +669,56 @@ dial and is rejected). Cross-cutting: Phase 4 fans the SAME D6 skill -- this
 locks the reading so it is not relitigated there. Affects per-knob compute
 only; the operator-tail review count is unchanged.
 
+**Amendment 2026-05-18 (operator-ratified at the post-fleet reconciliation;
+KTX Task-2 volume complete, 624/0, zero-fab held). Three changes; KTX
+scope. Does NOT relitigate the D7 model for MVDSV/Phase 4 -- that still
+runs tier-1 as written unless separately amended.**
+
+- **A1 -- KTX D7 tier-1 DEFERRED pending the operator's manual scan.**
+  Tier-1 (the independent Opus-4.7-MAX per-row evidence re-check, ~594
+  synthesized KTX rows ~= a second overnight fleet) is NOT run up front.
+  The operator's grouped manual scan on the Task-5 review surface is run
+  FIRST. Rationale: F-D6a already proved citation integrity for every
+  KTX row (each cited line re-grepped byte-exact at `67253dc9`, zero
+  fabrication across all batches incl. the reconciliation tail); the
+  operator's scan IS the spec-locked human correctness gate (D7 tier-2 /
+  D18). If the scan surfaces grave errors -> tier-1 (scoped+run as a
+  fleet) OR targeted re-synthesis is reinstated. If the scan is clean ->
+  tier-1 is formally retired for KTX and that is recorded as the answer
+  to phase-boundary check 4 (a synthesized row's "gate verdict" == its
+  D6 verdict + the operator scan, not an automated tier-1 verdict). This
+  is a deliberate cost/economy decision by the operator (do not re-do
+  verified work robotically); it is NOT a relaxation of zero-fab, which
+  held and still holds.
+- **A2 -- Task-5 review surface enhanced (operator-directed).** The
+  operator review page is a two-view grouped projection (Catalog: all
+  knobs once in functional buckets, hedged + comment-vs-source-conflict
+  rows flagged; By-Mode: per-mode knobs split Signature vs shared
+  Baseline, standalone vs mutator -- grounded in KTX `gameplay_mechanics`
+  game_mode/mode_default source data) instead of the plain alphabetical
+  Phase-1 emitter output. New script
+  `apps/qw-oracle/scripts/describe-fill/review-views.ts` (pure
+  read-only DB projection, ASCII-only, idempotent, regenerable --
+  D11/D15 emit-from-record preserved). The Phase-1
+  `serialize-audit-review.ts` is left UNMODIFIED as the separate
+  contract emitter. The By-Mode view is also a deliverable for the
+  halted game-mode-semantics arc (cross-arc dividend).
+- **A3 -- dispatcher self-patch of raw_comment authorized (executor
+  process layer; not a spec/model change).** For benign
+  raw_comment-imprecision the dispatcher may fill raw_comment from its
+  OWN independent F-D6a c2 grep (the authoritative line it already
+  fetched) instead of round-tripping the sub-agent -- removes a
+  round-trip, not a check ((file,line) independence + behaviour
+  grounding intact; raw_comment is deterministic from (file,line)).
+  Applied-as-available for the reconciliation tail; NEVER triggered --
+  the sharpened cvar-line requirement (d) in the per-knob brief fixed
+  the drift at source (all 6 tail batches c2-clean first pass).
+  Carry-forward: fold the cvar-line (d) sharpening into the canonical
+  per-knob brief for any future fleet run (validates slice-3 STATUS
+  carry-forward #1 -- the field name `raw_comment` was a trap, not an
+  impossible bar). A real wrong-line / invented-behaviour fabrication
+  still HALTs, unchanged.
+
 ## D8 -- Bot/judgment-tier cvars: mechanism-only is complete L1
 
 **Decision:** Bot-skill / judgment-tier cvars (~38 `k_fbskill_*` etc.) get no

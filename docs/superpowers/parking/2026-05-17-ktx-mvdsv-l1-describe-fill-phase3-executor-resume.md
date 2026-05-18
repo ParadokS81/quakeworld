@@ -1,5 +1,13 @@
 # Phase 3 executor resume handoff -- KTX source-synthesis (2026-05-17)
 
+> **!!! 2026-05-18 SUPERSEDED -- the fleet ran AND the post-fleet
+> reconciliation completed. Task-2 volume is COMPLETE (624/0). The LIVE
+> contract is now
+> `docs/superpowers/parking/2026-05-18-ktx-phase3-reconciliation-resume.md`
+> -- read THAT first. What remains is gated on the operator's manual
+> scan (D7 tier-1 deferred per decisions.md 2026-05-18 amendment A1).
+> The cat-1 per-knob recipe below still governs any re-synthesis. !!!**
+
 > **!!! 2026-05-18 FLEET LAUNCHED -- READ THIS FIRST. The remaining 488
 > cat-1 knobs are being drained by 4 DISJOINT parallel slice terminals
 > per `docs/superpowers/parking/2026-05-18-ktx-cat1-fleet-handoff.md`.
