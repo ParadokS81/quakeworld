@@ -72,7 +72,7 @@ are knob-keyed, so the renumber is loss-free.
 |28|synth|timedown|32|[D] CLEAR|
 |29|synth|timeup|33|[D] CLEAR|
 |30|synth|k_ctf_hookstyle|9|[D] CLEAR|
-|31|synth|k_pow_pickup|34|PENDING|
+|31|synth|k_pow_pickup|34|[D] FIX (precision NEW flavour C -- cvar=0 "timer stacks" FALSE; source hard-caps 30s)|
 |32|synth|k_spw|35|PENDING|
 |33|synth|spawn_show|36|PENDING|
 |34|synth|spawn666time|37|PENDING|
@@ -86,10 +86,10 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 33 done / 10 PENDING.
-NEXT = ledger row 34 = HTML#31 `k_pow_pickup` (synthesized).
-  (HTML#30 = row 9 k_ctf_hookstyle, already [D] CLEAR -- next
-  PENDING in HTML order is #31.)
+[D]=dispositioned. 34 done / 9 PENDING.
+NEXT = ledger row 35 = HTML#32 `k_spw` (synthesized).
+  (HTML#31 k_pow_pickup now [D] FIX -- next PENDING in HTML
+  order is #32.)
 
 ## Per-row dispositions
 
@@ -115,6 +115,7 @@ NEXT = ledger row 34 = HTML#31 `k_pow_pickup` (synthesized).
 | 18 | race_toggle | command | HTML#9 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean SYNTH) | FACT source-accurate: reg commands.c:1007 DEF(r_changestatus) arg 3; r_changestatus case 3 race.c:3050-3059 -- `if (self->racer && race.status)` -> G_bprint "%s has quit the race" + race_end(self,true,false) (:3053-54), THEN set_player_race_ready(self, !self->race_ready) (:3057). WI-1: race.c:4269 race_toggle_incr_cvar = false-positive substring (unrelated headstart/resolution helper, NOT this command); commands.c:7970 r_changestatus(3) = internal caller (same path, not new behaviour). Affirmed verbatim CD_RTOGGLE "toggle ready status for race" (:633). Affirm-vs-synth: OMITS a behaviorally-material mid-run side-effect (running it mid-race publicly QUITS your run -- "X has quit the race" -- before toggling); weaker affirm than next_best/gamemodes, my lean = SYNTHESIZE. In the queue. NOT a silent CLEAR. |
 | 20 | breakondeath:frogbot:std | command | HTML#11 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE on the cvar FB_CVAR_BREAK_ON_DEATH (=k_fb_break_on_death): reg world.c:1065 default 1; toggle handler FrogbotsSetBreakOnDeath bot_commands.c:2219-2230 (bots_enabled gate; cvar_fset !cvar :2227; G_sprint "changed to on/off" :2228); behavioural read player.c:1145 `if(!self->isBot && tot_mode_enabled() && cvar(...))` -> PlayerBreak; match.c:1789 = non-behavioural settings-display read (correctly out of scope, NOT under-scope). Affirmed verbatim. Affirm-vs-synth: genuine terse /botcmd user-help line; omits the tot_mode/human gate but that is implied by the frogbot-practice context this command lives in. lean = AFFIRM (mild). Queue (frogbot-help-string cluster). NOT a silent CLEAR. |
 | 19 | addbot:frogbot:std | command | HTML#10 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate: std_commands table bot_commands.c:2318 `{ "addbot", FrogbotsAddbot_f, "Adds a bot. Skill & team optional" }`; handler FrogbotsAddbot_f :362-392 -- !bots_enabled -> "Bots are disabled" return (:368); optional numeric argv[2]=skill (:375-380), argv[3]=team; FrogbotsAddbot(skill,team,true) (:392) spawns one bot, clamps skill, auto-balances teams. WI-1: :1908 + :2790 are OTHER internal FrogbotsAddbot callers (different contexts, not this std command). Affirmed verbatim. Affirm-vs-synth: the string is a GENUINE user-facing help line (PrintAvailableCommands prints it to players in /botcmd), terse-by-design for a command list, accurate WHAT, no hidden material side-effect; my lean = strong AFFIRM (contrast race_toggle). In the queue. NOT a silent CLEAR. |
+| 34 | k_pow_pickup | cvar | HTML#31 synth | **FIX** (re-synthesis) -- precision, NEW flavour C (untraced-downstream-consequence) | WI-1 EXHAUSTIVE: 4 sites. CITED+verified: register world.c:818 `RegisterCvarEx("k_pow_pickup","0")`, gate items.c:2046 `if(cvar("k_pow_pickup"))`, corroborating comment items.c:2044 "if \"fair\" powerups pickup is activated, don't allow ... same kind (ie 2 quads)". UNCITED (traced, correctly out of scope -- NOT under-scope class): commands.c:2853 TogglePuPickup (prewar-only toggle cmd `if(match_in_progress) return`, redtext "new powerups pickup (no multi pickup)" -- CORROBORATES polarity; description makes no setting/command claim); commands.c:4162 common_um_init `"k_pow_pickup 0\n"` (mode-init config string -- CORROBORATES the 0 default, not a behaviour site). NO out-of-scope hedge in reasoning (predictor does not fire). Primary cvar=1 gate behaviour IS correctly scoped + source-exact: 4 streq guards items.c:2048-2069 (envirosuit/radsuit_finished=suit, invulnerability/invincible_finished=pentagram, invisibility/invisible_finished=ring, super_damage/super_damage_finished=quad; each `*_finished > time -> return` = "cannot re-pick same kind until expiry") -- description EXACT. WI-2 CLEAN: "0 (default)" is the TRUE registered default (RegisterCvarEx(...,"0") world.c:818, double-corroborated by common_um_init) -- good contrast to r25 k_highspeed's wrong "Default 320"; cvar, no command-class claim. **THE DEFECT (PROC-1, checkable fact)**: the cvar=0 parenthetical "(allowing the timer to stack)" is FACTUALLY FALSE. Grant code items.c:2134-2212 (UNTRACED by the synthesis): normal map powerup -> flat `*_finished = g_globalvars.time + 30` (p_cnt stays NULL, reset to a fresh 30s, NOT additive -- 25s-left + new quad = 30s not 55s); dropped powerup -> `p_cnt[0]=max(time,old_pu_time)+seconds_left` THEN `p_cnt[0]=min(g_globalvars.time+30,p_cnt[0])` with the literal source comment "// do not allow more than 30 seconds of quad anyway." Source EXPLICITLY caps at 30s and EXPLICITLY prevents stacking; "stack" directly CONTRADICTS the anti-stacking cap and is behaviourally material (reader believes 2 quads ~= 60s; source guarantees <=30s). NEW FIX flavour C: primary behaviour correctly traced+source-exact (NOT sub-class A under-scope), defect NOT default-metadata/command-class (NOT sub-class B) -- it is an INFERRED cvar=0 downstream-consequence clause the synthesis never traced to the grant code, which contradicts it. Re-synth (C4, operator-gated, NOT auto-applied): KEEP polarity (1=fair/block same-kind re-pickup until expiry; 0=default re-pickup allowed) + the 4-kinds gate + "0 (default)"; FIX the 0-case parenthetical -> re-pickup REFRESHES the timer (map powerup: reset to a fresh 30s, NOT additive; dropped powerup: remaining time added but HARD-CAPPED at 30s total) -- it does NOT accumulate beyond one powerup's 30s duration. Optional: cross-ref the prewar-only toggle TogglePuPickup. |
 | 33 | timeup | command | HTML#29 synth | CLEAR (fact) | WI-1 EXHAUSTIVE: `timeup`/`TimeUp` 3 sites (fwd-decl :236, reg commands.c:734 `DEF(TimeUp),5.0f`, handler :2977); `overtimeup`:799 + help-string :1577 = false-positive substrings (correctly out of scope); cohort sibling `timeup1`:732 (1.0f, distinct entity). NOT under-scope. Handler TimeUp(t=5) :2977-3015 every clause source-exact: mid-match guard; ramp `(t==5)&&timelimit==0->1`/`==1->3`/`==3->5`; else `timelimit+=t` (+5); `bound(0,timelimit,cvar("k_timetop"))` (consistent w/ r31); `tl==timelimit`->"still N" caller-only; `cvar_fset("timelimit")`+`G_bprint` announce. KEY WI-1 WIN -- VERIFIED an asymmetry, did not assume: TimeUp has NO hoony branch AND NO both-<=0 refusal (TimeDown r32 had BOTH); the synthesis correctly DIFFERENTIATED (timeup desc omits hoony/refusal because the source genuinely lacks them) = precision, NOT under-scope. ANTI-COLLAPSE correct (ramp keyed to t=5, not family-collapsed w/ timeup1 t=1). WI-2 clean: no false "Default"/command-class claim (CF_PLAYER\|CF_SPC_ADMIN, silent on privilege). CD_TIMEUP "+5 mins match time" simplification -> D10 synth-from-handler, ONE input not verdict, surfaced not auto-resolved, accepted timedown/downspecs precedent. PROC-1: checkable fact, no residual judgment. No action. |
 | 32 | timedown | command | HTML#28 synth | CLEAR (fact) | WI-1 EXHAUSTIVE: `timedown`/`TimeDown` 3 sites (fwd-decl :235, reg commands.c:733 `DEF(TimeDown),5.0f,CF_PLAYER\|CF_SPC_ADMIN`, handler :2930) + help-string :1577 (plumbing); cohort sibling `timedown1` :731 (1.0f, distinct entity evaluated separately). NOT under-scope. Handler TimeDown(t) :2930-2975 with this entity's t=5 every clause source-exact: mid-match guard (`if(match_in_progress) return`); hoony `(t==5)&&isHoonyModeAny()->t=2` then flat -2 (ramp skipped since t!=5); ramp `(t==5)&&timelimit==5->3` / `==3->1`; else `timelimit-=t` (-5); `bound(0,timelimit,cvar("k_timetop"))` (consistent w/ r31); both-<=0 -> "need some timelimit or fraglimit" + revert to tl; `cvar_set("timelimit")` + `G_bprint` "Match length set to N minute(s)". ANTI-COLLAPSE correct (the accepted downspecs/toggletracklist shared-handler pattern): all ramp/hoony keyed to the 5-step, NOT family-collapsed with timedown1(t=1). Minor unstated sub-case (`tl==timelimit` -> "timelimit still N" caller-only no-change feedback) immaterial -- all primary behaviour + guards + refusal stated. WI-2 clean: no false "Default"/command-class claim (CF_PLAYER\|CF_SPC_ADMIN, description correctly silent on privilege). CD_TIMEDOWN "-5 mins match time" simplification -> D10 synth-from-handler, ONE input not a verdict, surfaced not auto-resolved, consistent with accepted slice-2/downspecs precedent (NOT a source-to-source C2). PROC-1: checkable fact, no residual judgment (synth, mechanical_candidate 'none', cohort + CD-simplification handled per accepted pattern). No action. |
 | 31 | k_timetop | cvar | HTML#27 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean **SYNTHESIZE** -- elaborated-affirm/provenance-correctness) | FACT source-accurate. WI-1 EXHAUSTIVE: `k_timetop` 6 sites ALL accounted -- 3 vote clamps `bound(0,timelimit/t,cvar("k_timetop"))` commands.c:2957/3003/3026 (time/timeup/timeset), register world.c:934, FixRules clamp `bound(0,cvar("k_timetop"),600)` world.c:1554, `if(k_tt<=0) cvar_fset("k_timetop",k_tt=30)` world.c:1696. NOT under-scope. Every clause source-exact (player time-vote ceiling / 0-600 clamp / <=0->30 reset). Affirm-vs-synth: **the reasoning openly states the worker EXTENDED the candidate** ("maximum time in minutes allocateable by a player for a game") with source-derived numerics (the 0-600 clamp + reset-to-30) yet recorded affirmed / origin source_inline / NO anchor. Those numerics (600, 30) are source-VERSION-specific synthesized facts, not the dev's words; under an unanchored affirm they are UNPROTECTED against source drift (staleness machinery keys on description_anchor_version, null on affirmed). lean = SYNTHESIZE: an extended-affirm carrying synthesized version-specific numerics should be origin=synthesized + anchor 1.47-2-g67253dc so 600/30 are re-reviewed on drift. DISTINCT judgment sub-type = "extended-with-synthesized-numerics affirm" (provenance-correctness + staleness consequence) -- qualitatively different from the terse-verbatim affirms (frogbot strings, k_motd_time, k_sayteam_to_spec). Operator options: (a) keep affirmed-with-extension (numerics unprotected), (b) reclassify SYNTHESIZE+anchor [lean], (c) trim to verbatim candidate (true affirm). NOT a silent CLEAR. |
@@ -135,22 +136,32 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
 
 ## FIX queue (routed to targeted re-synthesis -- C4, never hand-UPDATE)
 
-> TWO sub-classes now. **Sub-class A (under-scope, 5):** rows
-> 4/5/11/12 (multi-read-site cvars D6 explored only the primary
+> THREE sub-classes now (7 total). **Sub-class A (under-scope, 5):**
+> rows 4/5/11/12 (multi-read-site cvars D6 explored only the primary
 > apply-site) + **row 27 votemap** (callee-truncation: synthesizer
 > declared callee DoSelectMap out-of-scope and asserted the OPPOSITE
 > of what it does -- a meaning INVERSION, the single most severe
 > defect of the walk). One shared root cause (synthesis concluded
 > about behaviour without tracing where the behaviour lives); the
 > operator's group-2 re-fan decision targets THIS set. **Sub-class B
-> (precision, 1):** row 25 k_highspeed --
-> single-site, core behaviour synthesized correctly, but the
-> default-metadata ("Default 320" = a shipped-cfg value mislabelled as
-> the registered default) and command-class ("admin" for a CF_PLAYER
-> command) are wrong. A under-scope re-fan would NOT fix B -- it needs
-> a per-row re-synth with an explicit "registered-default vs
-> shipped-cfg-value" + "command CF_ flag" check. Operator decides both
-> paths at walk end (C4).
+> (precision -- default-metadata/command-class, 1):** row 25
+> k_highspeed -- single-site, core behaviour synthesized correctly,
+> but the default-metadata ("Default 320" = a shipped-cfg value
+> mislabelled as the registered default) and command-class ("admin"
+> for a CF_PLAYER command) are wrong. **Sub-class C (precision --
+> untraced-downstream-consequence, 1, NEW session #4):** row 34
+> k_pow_pickup -- single-site, primary cvar=1 gate behaviour
+> synthesized CORRECTLY + source-exact AND default-metadata WI-2-clean
+> (true registered default), but the cvar=0 parenthetical "(allowing
+> the timer to stack)" is FALSE -- an INFERRED OFF-state downstream
+> clause never traced to the grant code (items.c:2134-2212), which
+> flat-resets / 30s-hard-caps and explicitly forbids stacking. Neither
+> an under-scope re-fan (B and C primary behaviour are correctly
+> scoped) NOR the B checklist (C's defect is not default/command-class)
+> catches C -- it needs a per-row re-synth whose checklist adds
+> "trace every inferred OFF-state / side-effect / downstream clause to
+> the code that implements it; do not infer a consequence from the
+> gate alone." Operator decides all paths at walk end (C4).
 
 - **dmm5** (row 4): re-synthesize with the FULL grep. Corrected description
   must: drop "same as mode 3" + drop the "distinction not source-legible"
@@ -240,6 +251,43 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
   command-class mislabel; needs a per-row re-synth whose checklist
   explicitly separates registered-default from shipped-cfg-value and
   reads the command's CF_ flag.
+
+### Sub-class C -- precision / untraced-downstream-consequence (1, NEW session #4)
+
+- **k_pow_pickup** (row 34): single-site, primary behaviour synthesized
+  CORRECTLY -- do NOT regress: keep the polarity (1 = "fair" pickup,
+  a player already holding an active powerup of a kind cannot re-pick
+  the same kind until it expires; 0 = default, re-pickup allowed),
+  the four-kinds gate (items.c:2048-2069 streq guards:
+  envirosuit/radsuit_finished = suit, invulnerability/invincible_finished
+  = pentagram, invisibility/invisible_finished = ring,
+  super_damage/super_damage_finished = quad), and "0 (default)" (the
+  TRUE registered default, RegisterCvarEx("k_pow_pickup","0")
+  world.c:818, double-corroborated by common_um_init commands.c:4162 --
+  WI-2 clean, NOT a shipped-cfg mislabel). Re-synthesize to FIX ONE
+  factual error: the cvar=0 parenthetical "(allowing the timer to
+  stack)" is FALSE. Grant code items.c:2134-2212 (the synthesis cited
+  the gate items.c:2046 but never traced the grant): a normal
+  map-spawned powerup does a flat `*_finished = g_globalvars.time + 30`
+  (p_cnt stays NULL -> reset to a fresh 30s, NOT additive); a
+  player-dropped powerup does `p_cnt[0] = max(time,old_pu_time) +
+  seconds_left` THEN `p_cnt[0] = min(g_globalvars.time + 30, p_cnt[0])`
+  with the literal source comment `// do not allow more than 30 seconds
+  of quad anyway.` Corrected cvar=0 text: re-pickup REFRESHES the timer
+  -- a fresh map powerup resets it to the full 30s (not additive); a
+  dropped powerup adds its remaining time but is HARD-CAPPED at 30s
+  total. It does NOT accumulate beyond a single powerup's 30s duration.
+  Optional enrichment: cross-ref the prewar-only toggle command
+  TogglePuPickup (commands.c:2853, `if(match_in_progress) return`).
+  This is NOT the under-scope root cause (the primary cvar=1 behaviour
+  was correctly scoped + traced) and NOT the B default/command-class
+  class (the default-metadata is correct here). Distinct checklist
+  item it needs: "trace every INFERRED OFF-state / side-effect /
+  downstream clause to the code that implements it; never infer a
+  consequence from the gate alone." Watch whether it recurs -- if a
+  2nd untraced-downstream-consequence FIX appears, C is a confirmed
+  systemic class with its own re-synth checklist (cf the WI-1 / WI-2
+  promotion bar).
 
 ## Affirmed-sample judgment queue (operator adjudicates at walk end -- PROC-1)
 
@@ -472,6 +520,25 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   judgment queue). No affirmed row gets a silent CLEAR.
 
 ## Walk status
+
+### Session #4 running tally (resume from row 34)
+
+- r34 k_pow_pickup (HTML#31, synth): **FIX** -- precision, NEW
+  flavour C (untraced-downstream-consequence). WI-1 exhaustive (4
+  sites; 2 uncited both corroborate, NOT under-scope; no out-of-scope
+  hedge). Primary cvar=1 gate behaviour source-exact + correctly
+  scoped; "0 (default)" WI-2-clean (true registered default --
+  contrast r25). DEFECT: cvar=0 "(allowing the timer to stack)" is
+  FALSE -- grant code items.c:2134-2212 flat-resets (map) /
+  30s-hard-caps (dropped); literal source comment "do not allow more
+  than 30 seconds of quad anyway". FIX queue now **7** (A=5, B=1,
+  C=1). NEW FIX flavour C opened (per-row re-synth, distinct
+  checklist: trace every inferred OFF-state/downstream clause).
+- Session #4 totals so far: 1 row, 0 CLEAR + 1 FIX, 0 judgment-queue
+  adds. Cumulative: **34 / 43 done, 9 PENDING**. FIX queue **7** --
+  A under-scope 5 (rows 4/5/11/12 + 27), B precision-default/cmd 1
+  (row 25), C precision-untraced-downstream 1 (row 34). Affirmed-
+  sample judgment queue unchanged at **11**.
 
 ### Session #3 running tally (resume from row 21)
 
