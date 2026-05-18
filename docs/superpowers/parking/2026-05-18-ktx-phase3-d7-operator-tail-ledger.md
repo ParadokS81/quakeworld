@@ -78,7 +78,7 @@ are knob-keyed, so the renumber is loss-free.
 |34|synth|spawn666time|37|[D] CLEAR (fact) + C-shaped near-miss #2|
 |35|synth|k_classic_shotgun|7|[D] CLEAR|
 |36|synth|k_disallow_weapons|11|[D] FIX|
-|37|synth|k_instagib|38|PENDING|
+|37|synth|k_instagib|38|[D] CLEAR-fact; presentation residual ROUTED (FIX sub-D one-off + op D10-presentation policy judg) + C near-miss#3 (weaker)|
 |38|synth|k_overtime|39|PENDING|
 |39|synth|k_demoname_date|10|[D] CLEAR|
 |40|synth|_k_coachteam1|40|PENDING|
@@ -86,11 +86,10 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 37 done / 6 PENDING.
-NEXT = ledger row 38 = HTML#37 `k_instagib` (synthesized).
-  (HTML#34 spawn666time now [D]; HTML#35 k_classic_shotgun [D]
-  CLEAR + HTML#36 k_disallow_weapons [D] FIX already done --
-  next PENDING in HTML order is #37.)
+[D]=dispositioned. 38 done / 5 PENDING.
+NEXT = ledger row 39 = HTML#38 `k_overtime` (synthesized).
+  (HTML#37 k_instagib now [D]; HTML#39 k_demoname_date [D]
+  CLEAR already done -- next PENDING in HTML order is #38.)
 
 ## Per-row dispositions
 
@@ -116,6 +115,7 @@ NEXT = ledger row 38 = HTML#37 `k_instagib` (synthesized).
 | 18 | race_toggle | command | HTML#9 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean SYNTH) | FACT source-accurate: reg commands.c:1007 DEF(r_changestatus) arg 3; r_changestatus case 3 race.c:3050-3059 -- `if (self->racer && race.status)` -> G_bprint "%s has quit the race" + race_end(self,true,false) (:3053-54), THEN set_player_race_ready(self, !self->race_ready) (:3057). WI-1: race.c:4269 race_toggle_incr_cvar = false-positive substring (unrelated headstart/resolution helper, NOT this command); commands.c:7970 r_changestatus(3) = internal caller (same path, not new behaviour). Affirmed verbatim CD_RTOGGLE "toggle ready status for race" (:633). Affirm-vs-synth: OMITS a behaviorally-material mid-run side-effect (running it mid-race publicly QUITS your run -- "X has quit the race" -- before toggling); weaker affirm than next_best/gamemodes, my lean = SYNTHESIZE. In the queue. NOT a silent CLEAR. |
 | 20 | breakondeath:frogbot:std | command | HTML#11 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE on the cvar FB_CVAR_BREAK_ON_DEATH (=k_fb_break_on_death): reg world.c:1065 default 1; toggle handler FrogbotsSetBreakOnDeath bot_commands.c:2219-2230 (bots_enabled gate; cvar_fset !cvar :2227; G_sprint "changed to on/off" :2228); behavioural read player.c:1145 `if(!self->isBot && tot_mode_enabled() && cvar(...))` -> PlayerBreak; match.c:1789 = non-behavioural settings-display read (correctly out of scope, NOT under-scope). Affirmed verbatim. Affirm-vs-synth: genuine terse /botcmd user-help line; omits the tot_mode/human gate but that is implied by the frogbot-practice context this command lives in. lean = AFFIRM (mild). Queue (frogbot-help-string cluster). NOT a silent CLEAR. |
 | 19 | addbot:frogbot:std | command | HTML#10 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate: std_commands table bot_commands.c:2318 `{ "addbot", FrogbotsAddbot_f, "Adds a bot. Skill & team optional" }`; handler FrogbotsAddbot_f :362-392 -- !bots_enabled -> "Bots are disabled" return (:368); optional numeric argv[2]=skill (:375-380), argv[3]=team; FrogbotsAddbot(skill,team,true) (:392) spawns one bot, clamps skill, auto-balances teams. WI-1: :1908 + :2790 are OTHER internal FrogbotsAddbot callers (different contexts, not this std command). Affirmed verbatim. Affirm-vs-synth: the string is a GENUINE user-facing help line (PrintAvailableCommands prints it to players in /botcmd), terse-by-design for a command list, accurate WHAT, no hidden material side-effect; my lean = strong AFFIRM (contrast race_toggle). In the queue. NOT a silent CLEAR. |
+| 38 | k_instagib | cvar | HTML#37 synth | CLEAR-fact; presentation residual ROUTED (FIX sub-D one-off + operator D10-presentation policy judgment) + flavour-C near-miss #3 (qualified weaker) | WI-1 EXHAUSTIVE: ~60 sites grep'd (multi-read-site cvar -- sub-class A risk profile, checked). FACT layer ALL source-verified: (a) enum/range -- ToggleInstagib commands.c:7723 `bound(0,cvar,3)` + `if(++k_instagib>3) k_instagib=0` (commands.c:7783-7788) + print branches 7790-7829 (0 disabled / 1 "slow [coilgun] mode" / 2 "fast [coilgun] mode" / 3 "extreme [coilgun] mode") = 0=off/1=slow/2=fast/3=extreme, 0-3 EXACT; (b) "requires dmm4 (or midair)" verified TWO sites -- ToggleInstagib enable-gate commands.c:7734 `if(!cvar("k_midair") && deathmatch!=4){ "Instagib requires dmm4"; return; }` + world.c:1765 `if(cvar("k_instagib") && deathmatch!=4) cvar_fset("k_instagib",0) // instagib only in dmm4`; (c) "When non-zero players fight with the instagib coilgun" -- ~50 truthiness read-sites (client/combat/items/match/stats*/weapons) switch weapon/damage/scoring, coilgun = IT_SHOTGUN slot; (d) **"Higher non-zero values use a faster-firing coilgun" = source-TRUE**, verified at the UNCITED weapons.c:2151-2163 (W_Attack case IT_SHOTGUN): `cvar("k_instagib")==1 -> attack_finished=time+1.2` / `==2 -> +0.7` / else(==3) `+0.5` -- monotonic 1.2>0.7>0.5 = higher value fires faster, EXACT; (e) C2 note CONTENT factually accurate -- nquake ktx.cfg:56 `set k_instagib 2 // (0=off,1=fast,2=slow)` vs source 1=slow/2=fast/3=extreme/0-3: shipped doc INVERTS 1<->2 AND truncates to 0/1/2, verified. WI-2 CLEAN BY ABSENCE: no "(default)" claim (register world.c:975 RegisterCvarEx("k_instagib","0")=0; the synthesis correctly did NOT label the nquake shipped value 2 as "the default" -- r25 trap avoided, the shipped 2 is treated as the C2 conflict datum); no command-class claim (it is a cvar; the dmm4/midair gates are mode preconditions not privilege). **PROC-1: FACT layer CLEAR; but TWO residuals -> NOT a silent CLEAR**: (1) **presentation FIX (sub-class D, ONE-OFF -- corpus-verified)** -- the description embeds the C2 note with a dangling `(see reasoning)` pointer to the internal description_reasoning field, unreachable by any user/downstream consumer. DB check: `description ILIKE '%see reasoning%'` = 1 / 1828 ktx descriptions, 1 / all-projects -> UNIQUE to k_instagib, NOT a systemic D6 pattern -> per-row presentation re-synth, NOT a re-fan. (2) **operator D10-presentation policy judgment (co-located)** -- embedding a shipped-cfg conflict-note in the USER-FACING description deviates from the established accepted precedent (k_spw r35 / k_noframechecks r29 / k_demoname_date r10: description states clean source-truth, the C2 lives ONLY in description_reasoning). Argument FOR embedding here: the nquake ktx.cfg comment is ACTIVELY WRONG (inverts 1<->2), not merely less-precise -- an admin trusting `1=fast` sets slow-mode by mistake; an inline warning has real user-protection value a source-internal C2 lacks. Argument AGAINST: presentation consistency with the entire rest of the synth corpus. This generalises -> operator policy: "when the shipped-cfg comment is ACTIVELY MISLABELLING (not just imprecise), does L1 warn inline or stay clean-source-truth + reasoning-only?" Not Claude's call (C4 + PROC-1). Re-synth (operator-gated): MUST drop the dangling `(see reasoning)`; KEEP all source-true facts (enum 0-3 / slow-fast-extreme / faster-firing / dmm4-gate); the inline-C2-warning stays or moves to reasoning per the operator policy decision. (3) **flavour-C near-miss #3 (QUALIFIED WEAKER)**: reasoning derived "faster-firing" from the ToggleInstagib slow/fast/extreme PRINT labels, did not cite weapons.c:2151-2163. Weaker leap than r36/r37 -- "slow"/"fast" are literal fire-rate descriptors (label self-describes the semantic), only the "extreme > fast" MONOTONIC ordering (3 faster than 2; "extreme" is not self-evidently a speed axis) was a genuine untraced inference. Recorded for C-tally honesty as a weaker data point, not equal weight to r36/r37. No FACTUAL re-synthesis needed (all facts source-true); the routed work is presentation-only + the operator policy call. |
 | 37 | spawn666time | command | HTML#34 synth | CLEAR (fact) -- + flavour-C-shaped-reasoning NEAR-MISS #2 recorded | WI-1 EXHAUSTIVE on the command `spawn666time` (sole literal commands.c:1035) + the controlled cvar `dmm4_invinc_time` (row-20 method) + the constants DMM4_INVINCIBLE_DEFAULT/MAX. Handler Spawn666Time commands.c:8890-8924 every clause source-exact: `if(deathmatch!=4) G_sprint "command allowed in dmm4 only" return` (= "Only available in DMM4" + "Outside DMM4 it refuses with a message"); `if(match_in_progress \|\| trap_CmdArgc()==1)` report path -> read cvar, `val ? bound(0,val,DMM4_INVINCIBLE_MAX) : DMM4_INVINCIBLE_DEFAULT`, G_sprint "spawn invincibility time is %.1fs", return (= "with no argument it reports ... in seconds" + "while a match is in progress it only reports"); else set path `dmm4_invinc_time = bound(0, atof(arg), DMM4_INVINCIBLE_DEFAULT)`, G_bprint "X set spawn invincibility time to %.1fs" (= "with a numeric argument it sets ... clamped to a non-negative maximum, broadcasting the change"), `trap_cvar_set_float("dmm4_invinc_time", val ? val : -1)` w/ source comment "to actualy disable ... we need set it to negative value" (= "Setting it to 0 effectively disables spawn invincibility"). Constants g_consts.h:317-318 DMM4_INVINCIBLE_DEFAULT=2.0 / DMM4_INVINCIBLE_MAX=30.0 verified -> the reasoning-noted set-vs-display clamp asymmetry is GENUINE (set ceiling=DEFAULT 2.0, display+consumer ceiling=MAX 30.0); the description's "non-negative maximum" HONESTLY abstracts it (stating either number would be wrong for the other path) and the reasoning surfaced it not auto-resolved -- consistent w/ accepted surface-the-asymmetry precedent (k_spw/votemap-guidance/downspecs); upstream KTX code quirk, NOT a doc-vs-source C2, NOT an L1 defect. **DESCRIPTION VERDICT = source-TRUE, exhaustively verified at the CONSUMER**: the "spawn-pentagram (post-respawn invincibility)" + "0 disables" semantic is NOT in the cited handler -- it is enforced at the UNCITED consumer client.c:2183-2290 inside PutClientInServer() (the (re)spawn fn): gated `(deathmatch==4 \|\| k_bloodfest) && match_in_progress==2`; `// 0 evalutes to DMM4_INVINCIBLE_DEFAULT, negative value disable invincible`; `dmm4_invinc_time = val ? bound(0,val,DMM4_INVINCIBLE_MAX) : DMM4_INVINCIBLE_DEFAULT`; `if(dmm4_invinc_time>0){ items|=IT_INVULNERABILITY; self->invincible_finished = g_globalvars.time + dmm4_invinc_time; }`. The set-0->store-(-1) roundtrip verified END-TO-END: handler stores -1; consumer -1 is C-truthy -> `bound(0,-1,30)`=0 -> `if(0>0)` false -> no IT_INVULNERABILITY, no invincible_finished = DISABLED, exactly as described. "post-respawn invincibility / pentagram" = source-true (IT_INVULNERABILITY granted in the respawn fn), not merely cvar-name inference. Command-availability correctly scoped to the COMMAND's DMM4-only handler gate (the consumer's broader deathmatch==4\|\|k_bloodfest is the EFFECT scope, not the command's -- description is about the command, correct). WI-2 CLEAN: no "(default)" claim (notably did NOT assert DMM4_INVINCIBLE_DEFAULT=2.0 as "the default" -- the safer abstraction given the asymmetry; register world.c:947 RegisterCvar default ""/0); no command-class claim (reg CF_PLAYER\|CF_SPC_ADMIN\|CF_PARAMS not stated; "Only available in DMM4"/"refuses outside"/"match->report-only" are handler game-mode/match-state gates, NOT a privilege assertion). PROC-1: the OUTPUT reduces to a checkable fact that CHECKS OUT (handler clauses source-exact + consumer verifies the invincibility+disable semantic + asymmetry genuine & honestly abstracted) -> CLEAR (fact), no residual judgment about the disposition. **METHODOLOGY NEAR-MISS #2 (decision-relevant to the flavour-C operator batch, NOT a FIX, NOT a silent CLEAR)**: the synthesis REASONING scoped its authoritative site to the handler ("source_ref authoritative behavior site = src/commands.c:8890") and DERIVED the "pent = pentagram of protection / spawn invincibility" + "0 disables" semantic from the cvar NAME + the handler's redtext LABEL "spawn invincibility time" -- it never cited client.c:2183-2290 where that semantic is actually ENFORCED. EXACT flavour-C root-cause shape as r34 k_pow_pickup + r36 spawn_show -- infer a semantic/downstream claim from gate-adjacent labels, do not trace the enforcing code -- landed CORRECT here only because KTX's cvar-name + redtext label faithfully name what PutClientInServer enforces. **C-shaped reasoning now 3 of the last 4 synth rows (r34 FIX by label-lie / r36 CLEAR by label-honesty / r37 CLEAR by label-honesty); r35 k_spw is the traced counter-example (it cited the enum + the client.c selection branches, NOT label-inferred) -- proving the pipeline CAN trace enforcement, so C is an INCONSISTENCY not a capability ceiling.** No action on the row (output source-true). |
 | 36 | spawn_show | command | HTML#33 synth | CLEAR (fact) -- + flavour-C-shaped-reasoning NEAR-MISS recorded | WI-1 EXHAUSTIVE on BOTH the command `spawn_show` AND the controlled cvar `k_spm_show` (row-20 method) AND `SpawnShowStatus()` AND `ShowSpawnPoints`/`HideSpawnPoints`. Handler ToggleSpawnPoints commands.c:2700-2730 every clause source-exact: read k_spm_show; `if(match_in_progress) return` (= "no effect while a match is in progress", command-scoped, correct); `spawn_show++`; `if(>SPAWN_SHOW_MATCH=2) =SPAWN_SHOW_DISABLED=0` (= "advancing past match wraps back to off"); cvar_set; switch 0->HideSpawnPoints+"off" / 1->ShowSpawnPoints+"prewar" / 2->ShowSpawnPoints+"match". Enum g_local.h:1258-1260 SPAWN_SHOW_* = 0/1/2 verified; C2 (switch labels w/ SPAWNICIDE_* g_local.h:1277-1279 also 0/1/2, clamp uses SPAWN_SHOW_MATCH -- behaviour identical, source-internal naming inconsistency) correctly surfaced in reasoning, not auto-resolved, no D10 needed (no doc-vs-source divergence). **DESCRIPTION VERDICT = source-TRUE, exhaustively verified**: the prewar-vs-match SEMANTIC ("1 = shown only before the match starts", "2 = shown during the match") is NOT in the cited handler (it calls the SAME ShowSpawnPoints() for both 1 and 2) -- it is enforced at world.c:704-707 `if(SpawnShowStatus()>SPAWN_SHOW_DISABLED) ShowSpawnPoints()` (modes 1&2 shown in prewar) + match.c:1246-1249 `if(SpawnShowStatus()!=SPAWN_SHOW_MATCH) HideSpawnPoints()` (at match start: mode 1 hidden, mode 2 persists, mode 0 never shown). ShowSpawnPoints items.c:3012 spawns glow ents; HideSpawnPoints items.c:3023 ent_remove. All other Show/Hide callers (race.c:534/3337, hoonymode.c:858, commands.c:2755 ToggleSpawnicide reset) consistent, none contradict. UNCITED sites all corroborate/non-behavioural, NOT under-scope output defect. WI-2 CLEAN BY ABSENCE: no "(default)" claim (registered default RegisterCvarEx("k_spm_show","1")=1/prewar NOT asserted -- the r25 trap avoided again); no command-class claim (reg CF_PLAYER|CF_SPC_ADMIN not stated). PROC-1: the OUTPUT reduces to a checkable fact that CHECKS OUT (description matches exhaustively-verified behaviour incl. the enforcement sites) -> CLEAR (fact), no residual judgment about the disposition. **METHODOLOGY NEAR-MISS (decision-relevant to the flavour-C operator batch, NOT a FIX, NOT a silent CLEAR)**: the synthesis REASONING scoped its authoritative site to the handler alone ("source_ref authoritative behavior site = src/commands.c:2700") and DERIVED the prewar/match semantic from the announce strings + SPAWN_SHOW_* enum NAMES -- it never cited match.c:1246 / world.c:704 where that semantic is actually ENFORCED. Identical root-cause shape to r34 k_pow_pickup flavour C (infer a downstream/semantic claim from gate-adjacent labels, do not trace the enforcing code) -- but it landed CORRECT here only because KTX's announce strings + enum names faithfully name what match.c:1246 enforces. r34 proved those labels are NOT always honest (k_pow_pickup's reg comment + "stack" inference were contradicted by the untraced grant code). Data point: C-shaped reasoning has now appeared 2 of the last 3 synth rows (r34 FIX / r36 CLEAR-by-luck); the FIX-vs-CLEAR split turned entirely on whether the labels happened to be honest -- which the synthesis did not itself verify. Strengthens the case that flavour C's re-synth checklist item ("trace every inferred OFF-state/semantic/downstream clause to the code that ENFORCES it; never derive it from a label/announce-string/enum-name alone") is systemic, not one-off. No action on the row (output source-true). |
 | 35 | k_spw | cvar | HTML#32 synth | CLEAR (fact) | WI-1 EXHAUSTIVE: many sites, all accounted. Authoritative enum respawn_model_name() g_utils.c:2663 verified case-exact vs description: -1 "pre-qtest nonrandom respawns" / 0 "Normal QW respawns" / 1 "KT SpawnSafety" / 2 "Kombat Teams respawns" / 3 "KTX respawns" / 4 "KTX2 respawns" (description's "non-random"/"spawn-safety" = orthographic normalization only, not a divergence). Behavioural branches verified: -1 = static sequential ez_find cycling w/ wrap (client.c:1063-1073, non-random); 0 = plain valid-spot find, no protections (k_spw falsy at :1122, skipped at :1113); k_spw 2/3/4 = nearby-player spot-discard + `self->k_1spawn=time+2.6` window (client.c:1109-1140, source comments "treat this spot as not valid" + "protect ... from be spawnfragged") = the description's "anti-telefrag"; same-spawn-avoidance verified BOTH paths -- k_spw 1/2/3 last-spot discard (client.c:1122 `k_spw && k_spw!=4 && self->k_lastspawn==spot`, source "protection from spawn twice on the same spot") AND k_spw 4 double-reselect (client.c:1301 SelectSpawnPoint recheck, source "low chance to get same spawn point") = the description's "same-spawn-avoidance logic". UNCITED sites all corroborate / non-behavioural, NOT under-scope class: toggle cmd commands.c:2678 `bound(-1,cvar("k_spw"),4)` + `++k_spw>4 -> -1` wrap CORROBORATES the exact -1..4 range (description makes no setting/command claim); register world.c:856 `RegisterCvar("k_spw")` default ""/0 = enum "Normal QW" (consistent); status prints match.c:1599 / commands.c:1937 non-behavioural; match.c:1596/2082 commented-out inert; config strings race.c:300 / commands.c:4196/4449/4477/4501/4528 / cvar_fset :8886 are per-mode applications, not behaviour-defining. NO out-of-scope hedge (predictor n/a -- reasoning traced enum + branches). C2/D10: the mechanical-candidate's two shipped-cfg provenance variants CONFLICT (one lists 0-4 incl "4=ktx2 respawns", the other only 0-3); source enum authoritative AND recovers value -1 BOTH candidates omit -> value-ADD (L1 more complete than either shipped doc), C2 surfaced in the reasoning not silently absorbed -- consistent with operator-accepted D10/dual-doc precedent (k_demoname_date / k_noframechecks canary PASS / k_ctf_hookstyle votable-4). WI-2 CLEAN BY ABSENCE: no "(default)" claim -- and critically the synthesis correctly did NOT mislabel any of the 7 shipped config-string values (1 and 4) as the registered default (the exact WI-2 trap r25 k_highspeed fell into; here avoided); cvar, no command-class claim. PROC-1: pure checkable fact (6-value enum source-exact + behavioural summary source-verified incl. both same-spawn paths + D10 reduces to a deterministic source read), no residual judgment. No action. |
@@ -140,7 +140,7 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
 
 ## FIX queue (routed to targeted re-synthesis -- C4, never hand-UPDATE)
 
-> THREE sub-classes now (7 total). **Sub-class A (under-scope, 5):**
+> FOUR sub-classes now (8 total). **Sub-class A (under-scope, 5):**
 > rows 4/5/11/12 (multi-read-site cvars D6 explored only the primary
 > apply-site) + **row 27 votemap** (callee-truncation: synthesizer
 > declared callee DoSelectMap out-of-scope and asserted the OPPOSITE
@@ -165,7 +165,19 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
 > catches C -- it needs a per-row re-synth whose checklist adds
 > "trace every inferred OFF-state / side-effect / downstream clause to
 > the code that implements it; do not infer a consequence from the
-> gate alone." Operator decides all paths at walk end (C4).
+> gate alone." **Sub-class D (presentation / D10-embedding, 1, ONE-OFF
+> -- NEW session #4):** row 38 k_instagib -- ALL factual claims
+> source-true (no factual re-synth needed); the defect is presentation
+> only: the user-facing description embeds the shipped-cfg C2 note with
+> a dangling `(see reasoning)` pointer to the internal
+> description_reasoning field (corpus-verified UNIQUE: 1/1828 ktx, 1
+> all-projects -> NOT systemic, a per-row presentation fix). Co-located
+> operator policy judgment (does NOT route like A/B/C): embedding an
+> actively-mislabelling shipped-cfg conflict inline vs the established
+> clean-source-truth precedent (k_spw/k_noframechecks/k_demoname_date)
+> -- decided by the operator, generalises to all
+> actively-wrong-shipped-cfg rows. Operator decides all paths at walk
+> end (C4).
 
 - **dmm5** (row 4): re-synthesize with the FULL grep. Corrected description
   must: drop "same as mode 3" + drop the "distinction not source-legible"
@@ -340,6 +352,60 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
     D6 synth class, not a per-row patch -- the near-misses show the
     rows that need it are invisible at output-inspection time (they
     look CLEAR) and only a forced enforcement-trace surfaces them.
+  - **r38 k_instagib NEAR-MISS #3 (QUALIFIED WEAKER -- recorded
+    session #4, NOT a factual FIX):** reasoning derived "Higher
+    non-zero values use a faster-firing coilgun" from the
+    ToggleInstagib slow/fast/extreme PRINT labels, did not cite the
+    enforcing weapons.c:2151-2163 (==1 +1.2s / ==2 +0.7s / ==3
+    +0.5s). Explicitly logged WEAKER than r36/r37: "slow"/"fast" are
+    literal fire-rate descriptors (the label self-describes the
+    semantic, unlike "prewar"/"spawn invincibility time"); only the
+    "extreme > fast" MONOTONIC ordering (value 3 fires faster than 2 --
+    "extreme" is not self-evidently a speed axis) was a genuine
+    untraced inference. Counts toward the C tally as a fractional /
+    weaker data point, NOT equal weight to the r36/r37 full
+    near-misses. Net C evidence base for the operator: r34 hard FIX +
+    r36 + r37 full near-misses + r38 weaker near-miss + r35 clean
+    traced counter-example. The promotion conclusion is unchanged
+    (C is a confirmed systemic inconsistency; global re-synth-prompt
+    fix recommended); r38 mainly shows the gradient -- the inferential
+    leap varies in size, so the checklist item should force the trace
+    REGARDLESS of how self-describing the label looks (r38's label
+    looked safe and the monotonic part still wasn't traced).
+
+### Sub-class D -- presentation / D10-embedding (1, ONE-OFF, NEW session #4)
+
+- **k_instagib** (row 38): ALL factual claims source-true -- do NOT
+  re-synthesize the facts: KEEP enum 0=off/1=slow/2=fast/3=extreme +
+  the 0-3 range (ToggleInstagib commands.c:7723 `bound(0,cvar,3)` +
+  wrap + print branches), "requires dmm4 (or midair)" (enable-gate
+  commands.c:7734 + world.c:1765 force-off), "When non-zero ...
+  instagib coilgun" (~50 truthiness read-sites, IT_SHOTGUN slot),
+  "Higher non-zero values use a faster-firing coilgun" (source-TRUE
+  at weapons.c:2151-2163: k_instagib==1 -> +1.2s / ==2 -> +0.7s /
+  ==3 -> +0.5s, monotonic), and the C2 CONTENT (nquake ktx.cfg:56
+  inverts 1<->2 + truncates 0/1/2). The defect is PRESENTATION ONLY,
+  two parts: **(D1) per-row presentation FIX (re-synth-routed, C4):**
+  remove the dangling `(see reasoning)` -- it points at the internal
+  description_reasoning field no user/consumer can read. Corpus-
+  verified ONE-OFF (`description ILIKE '%see reasoning%'` = 1/1828
+  ktx, 1/all-projects) -> a per-row fix, NOT a systemic re-fan.
+  **(D2) operator D10-presentation POLICY judgment (operator decides,
+  does not auto-route):** should the user-facing L1 description embed
+  a shipped-cfg conflict-note AT ALL? Established accepted precedent
+  (k_spw r35 / k_noframechecks r29 / k_demoname_date r10) = clean
+  source-truth in the description, C2 confined to reasoning. BUT
+  k_instagib's shipped ktx.cfg comment is ACTIVELY MISLABELLING
+  (`1=fast` when source is `1=slow` -- an admin trusting it sets the
+  WRONG mode), not merely less-precise; an inline warning has real
+  user-protection value a source-internal C2 lacks. The policy call
+  generalises: "actively-wrong shipped-cfg comment -> warn inline, or
+  stay clean-source-truth + reasoning-only?" Operator-only (C4 +
+  PROC-1). Re-synth under D1 is mechanical (drop the dangling ref);
+  whether the inline C2 warning survives is set by the D2 decision.
+  Distinct from A (under-scope) / B (default-cmd-class) / C
+  (untraced-downstream) -- those are FACTUAL defects; D is a
+  presentation/policy residual on a factually-correct row.
 
 ## Affirmed-sample judgment queue (operator adjudicates at walk end -- PROC-1)
 
@@ -631,13 +697,29 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   reasoning derived the invincibility semantic from cvar-name+redtext
   label, never traced the consumer -- EXACT flavour-C shape as
   r34/r36. 0 new FIX.
-- Session #4 totals so far: 4 rows, 3 CLEAR + 1 FIX, 0 judgment-queue
-  adds. Cumulative: **37 / 43 done, 6 PENDING**. FIX queue **7** --
+- r38 k_instagib (HTML#37, synth): **CLEAR-fact; presentation
+  residual ROUTED** (NOT a silent CLEAR, NOT a factual FIX). All
+  factual claims source-verified (enum 0-3 slow/fast/extreme;
+  dmm4(or-midair) gate 2 sites; "faster-firing" source-TRUE at
+  weapons.c:2151-2163 monotonic 1.2/0.7/0.5s; C2-content accurate;
+  WI-2 clean by absence, shipped value 2 correctly NOT called
+  default). Residuals: (D1) dangling `(see reasoning)` internal-field
+  ref in user-facing text -> per-row presentation FIX, corpus-verified
+  ONE-OFF (1/1828 ktx, 1/all-projects); (D2) operator D10-presentation
+  policy judgment (embed actively-wrong shipped-cfg warning inline vs
+  established clean-source-truth precedent); + flavour-C near-miss #3
+  (QUALIFIED WEAKER -- slow/fast are literal fire-rate words, only
+  extreme-monotonicity untraced). Opened FIX sub-class D
+  (presentation, distinct from factual A/B/C). 0 factual FIX.
+- Session #4 totals so far: 5 rows -- 3 CLEAR (r35/r36/r37) + 1
+  factual FIX (r34) + 1 CLEAR-fact-with-routed-presentation-residual
+  (r38). Cumulative: **38 / 43 done, 5 PENDING**. FIX queue **8** --
   A under-scope 5 (rows 4/5/11/12 + 27), B precision-default/cmd 1
-  (row 25), C precision-untraced-downstream 1 (row 34) + r36/r37
-  near-misses (CLEAR, recorded as C promotion signal -- C-shaped
-  reasoning 3 of last 4 synth rows; r35 traced counter-example).
-  Affirmed-sample judgment queue unchanged at **11**.
+  (row 25), C precision-untraced-downstream 1 (row 34), D presentation
+  ONE-OFF 1 (row 38). Flavour-C watch: 1 hard FIX (r34) + 2 full
+  near-misses (r36/r37) + 1 weaker near-miss (r38) + 1 traced
+  counter-example (r35) -> C confirmed systemic, global re-synth-prompt
+  fix recommended. Affirmed-sample judgment queue unchanged at **11**.
 
 ### Session #3 running tally (resume from row 21)
 
