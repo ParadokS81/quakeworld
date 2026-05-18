@@ -670,13 +670,90 @@ then Phase-4 re-verified fully GREEN on a clean idempotent DB, THEN Phase 5.
 No `decisions.md` D-amendment (D20/D21/X7/X8/F8 already govern; this is a
 loader idempotency defect, not a refuted premise -- the F8/F13/X8 family).
 
-**Resolved by:** OPEN -- routed at the Phase-4 gate 2026-05-18 to a
-Phase-3-loader-idempotency fix-cycle (the s4->s5 handoff scopes it);
-Phase-4 code committed as a checkpoint, Phase 5 BLOCKED on F15; this
-finding. Phase-4 executor primary-source-verified NOT-Task-4-caused (four
-ways) + surfaced as the primary DONE_WITH_CONCERNS in the P4 HALT;
-orchestrator independently re-verified the causation + the 12-entity set +
-the source_state machine vs primary source at the gate.
+**Resolved by:** FIX SHIPPED 2026-05-18 (`59d34786`, single-file
+`load-hud-commands.ts` +28/-1) + ORCHESTRATOR-INDEPENDENTLY-RE-GATED GREEN
+2026-05-18; the Phase-4 RE-VERIFY is the ONE remaining gate before F15
+fully closes + Phase 5 unblocks. The record of the path: routed at the
+Phase-4 gate to a Phase-3-loader-idempotency fix-cycle (s4->s5 handoff
+scoped it); Phase-4 code checkpointed (`702421a1`); orchestrator
+independently re-verified the causation + 12-entity set + the source_state
+machine vs primary source at the s4->s5 gate. The fix-cycle executor
+diagnosed the exact mechanism -- a **period-2 oscillation**: on a re-load
+the per-type command loader writes the help-JSON twin's
+`command_versions.source_file` NULL, `load-version.ts`'s entity-level
+state-retreat block then demotes `source_backed -> doc_only` at head, and
+the Track-B adapter (the D21 designated owner of these entities'
+source_state) could not re-assert it on an existing row (clean lands 624,
+re-load 612, alternating) -- and fixed it minimally + F8-safely:
+`upsertHudCommandRow` now `setEntitySourceState(id,'source_backed')` on the
+existing-entity path (the established `upsertEntity`-then-
+`setEntitySourceState` pattern from `load-version.ts`). Project-private,
+ezQuake-only, Track-B-only -- ZERO contact with the F8-shared
+`natural-keys.ts` / retreat / prune / `quality-grid.ts`; no migration; no
+D-amendment; the F13 floor UNCHANGED (NOT recalibrated -- F15 is
+F13-inverse). **Orchestrator independent re-gate (the Phase-3 3-way
+method, NOT the executor's word -- `feedback_verify_dispatched_terminal_
+claims`):** (1) scope/safety -- `git show 59d34786` is exactly one file
++28/-1, X9-clean (uses the sanctioned `setEntitySourceState`; no bare
+in-place `UPDATE <versions> SET`), no `git add -A`, no forbidden path;
+(2) F8 all-project F1 grid (dev DB) -- ezquake 0 regression failures
+(`command_source_state` actual==expected 624/7/62, F13 floor GREEN + NOT
+recalibrated; `runtime_fidelity_shape` + `jsonb_columns_not_strings`
+PASS), mvdsv/fte/qwcl fully clean, ktx's 2 FAILs independently proven
+PRE-EXISTING sibling ktx-mvdsv `log_template`-floor drift (1196 vs 1195;
+disjoint type/loader; structurally impossible to be F15-caused),
+`describe_fill` GREEN; (3) independent re-load idempotency proof -- 3 real
+`extract-tag --force` re-loads, every snapshot BYTE-IDENTICAL ==
+{doc_only:7, source_backed:624, source_retired:62}, the 12 all
+`source_backed`, the 7 legit doc_only unchanged, `cross_type_orphans=0`,
+`command_count=693`, pin `3f9e724f` preserved, `ktx_sentinel=1828`
+constant (cross-arc non-interference witnessed) -- NO period-2
+oscillation. F15 fix independently CONFIRMED idempotent; the loud
+orphan-warning noise it surfaced is **F16** (benign, non-blocking).
+Remaining before F15 fully RESOLVED + Phase 5 unblocked + README/
+arc-history Phase-4 -> shipped: the Phase-4 RE-VERIFY (the 9 boundary
+checks + the 3 F15-family FAILs CLEARED) on the clean idempotent DB.
+
+### F16 -- the F15-fix re-gate's `extract-tag` re-loads emit ~117/run loud `[load-version] fully-orphaned entity` command warnings -- a benign transient intra-run artifact (ADVISORY; not a blocker)
+
+**Observation (orchestrator, F15 re-gate 2026-05-18):** each of the 3
+independent `extract-tag --force` re-loads logged ~117 (351 total)
+`[load-version] fully-orphaned entity: project=ezquake type=command
+entity_id=... no rows in command_versions. Skipping retreat -- investigate
+(partial walk crashed mid-flight, or cross-type orphan pruner failure)`
+warnings. Independently adjudicated NOT a defect: the warned ids are the
+Track-B HUD-recovered commands (`+hud_*`/`-hud_*`/bare -- e.g.
+`+hud_bar_armor` 15905, `-hud_netgraph` 15939, `tracker` 16030); in the
+FINAL state every one has its `command_versions` row (`with_cv == total
+== 693`; REAL fully-orphaned ezquake command entities = 0;
+`F1.entity_has_version_rows` PASS + `F1.cross_type_orphans` PASS). Root:
+`load-version.ts`'s step-3 per-type command entity-level state-retreat
+scan runs BEFORE the Track-B 3e post-loop creates those entities'
+`command_versions` rows (the SAME 3e-after-step-3 ordering at F15's
+root); the scan correctly logs + SKIPS them ("do NOT touch the entity
+row") and 3e then completes them.
+
+**Impact on this arc:** NONE. NOT F15-caused (the warning is emitted by
+`load-version.ts`, which the F15 fix does not touch -- the fix is in
+`load-hud-commands.ts`); NOT a Phase-4/Phase-5 blocker; final state clean
++ idempotent (independently proven 3x). It is loud-log NOISE: ~117 lines
+saying "investigate ... crashed mid-flight" for entities that are simply
+Track-B-pending in the SAME run -- misleading for a future operator /
+`validate-extractor` / arc-reviewer (a genuine future orphan would be
+buried).
+
+**Action / disposition (ADVISORY -- orchestrator-routed, NON-blocking;
+`feedback_every_finding_gets_a_track`):** route as a HANDOVER log-hygiene
+small-followup -- scope the step-3 command retreat-scan's fully-orphaned
+warning to exclude the known Track-B-pending set (or defer it until after
+the 3e post-loop). `load-version.ts` is F8-shared substrate -> any change
+is its OWN scoped change with the all-project F1 gate, NEVER folded into
+the F15 fix. No `decisions.md` amendment (a log-message scoping nit, not a
+design change).
+
+**Resolved by:** OPEN (ADVISORY, non-blocking) -- surfaced + adjudicated
+benign by the orchestrator at the F15 re-gate 2026-05-18; routed to
+HANDOVER as a log-hygiene small-followup; this finding.
 
 ---
 
@@ -818,7 +895,8 @@ mechanism; **S** = unified schema + loader; **ACC** = acceptance contract;
 | F12 (Phase-3 MD Task-3 + check-3 literal cmd is `load-version` -- wrong subcommand; F6/F10-class hard-fail) | S (own) -> orchestrator (dated MD-correction) | RESOLVED 2026-05-18 -- executor ran the correct `extract-tag` entrypoint at execution (acceptance + check-3 X2-faithful); orchestrator APPLIED the dated MD-correction (Task-3 Verification block `load-version` -> `extract-tag --skip-release-notes`; Task-4 + check-5 bare `bun test` -> canonical `qw_oracle_test`-DB form; check-3 references the Task-3 block so it inherits the fix) -- F6/F10 narrative-preserved precedent, no redraft, no D-amendment, code/data correct |
 | F13 (Phase-3's own D21 +129 makes regression-family `ezquake.floor.command_*` RED; check-5 "no regression FAIL" unreconciled w/ Phase-3 scope) | S (own) -> orchestrator (recalibrate floor snapshot AND/OR revise check-5; cross-arc shared-substrate) | RESOLVED 2026-05-18 -- floor delta primary-source-verified LEGITIMATE idempotent D21 growth (693=564+129, 624=495+129, baseline-564 unchanged, 129=Phase-2 source-of-truth, 0 dup-fold), NOT a regression/corruption; orchestrator independently re-verified at primary source (693 / 0 dup name_fold / {7,624,62} / 129 track_b carriers) + re-ran the F1 grid (exactly the 2 floor probes RED, no hidden breakage); operator-routed -> orchestrator RECALIBRATED `quality-grid.ts` (564 -> 693; source_backed 495 -> 624; dated inline note + the :1949 snapshot line; F8-scoped surgical edit, disjoint from the ktx-mvdsv region) + folded the expected-D21-growth note into the F12 dated check-5 MD-correction; Task-4 own deliverables DONE+verified (2 new probes GREEN, test 15/15, tsc clean); no D-amendment (D20/D21/X7 always correct -- stale calibrated snapshot) |
 | F14 (Phase-4 MD names `load-version.ts` as the stamp-set wiring site; live site is `extract-tag.ts`; F6/F10/F12-class wrong-literal) | ACC (own) -> orchestrator (dated MD-correction) | RESOLVED 2026-05-18 -- executor wired the correct live `extract-tag.ts` site (`resolveStageTwoStampSet`, 3e/3f, additive+gated) + left `load-version.ts` byte-untouched + surfaced it; orchestrator git-diff-verified at the gate + APPLIED the dated MD-correction (consolidated F12+F14 block + the Task-4 "Wire in" step + the X9-grep target -> `extract-tag.ts`) -- F6/F10/F12 narrative-preserved precedent, no redraft, no D-amendment, code/data correct |
-| F15 (Phase-4's mandated `extract-tag --force` re-load surfaces a PRE-EXISTING Phase-3-loader source_state idempotency divergence -- 12 Track-B bare-HUD cmds flip source_backed->doc_only; the Phase-5 blocker) | S (pre-existing, own) -> orchestrator+operator (route as Phase-3-loader-idempotency fix-cycle; do NOT recalibrate -- F13-inverse) | OPEN (routed 2026-05-18) -- orchestrator independently primary-source-verified NOT-Task-4-caused (natural-keys.ts `upsertEntity` sets source_state only on INSERT, never on re-load UPDATE; NOT in the Phase-4 diff; `load-hud-commands.ts` source_state write byte-unchanged; the 12 names are simultaneously per-type-command-loader + Track-B-adapter targets on the same row -> clean-vs-reload order-dependent) + NOT a stale calibration (F13-inverse: a genuine "L1 extractors are idempotent" always-on-rule violation; do NOT recalibrate 612/19 -- that bakes in the defect; `feedback_idempotency_before_staleness`). Operator-routed to the checkpoint path: Phase-4 code committed as a checkpoint + F15 the explicit Phase-5 blocker + Verification-8 scoped to exclude the 3 F15-family FAILs (dated Phase-4-MD scoping note) + F15 routes as its own Phase-3-loader-idempotency fix-cycle (X9 re-extract not SQL UPDATE) -> Phase-4 re-verify on a clean idempotent DB -> THEN Phase 5. No D-amendment (X8/F8/F13 family). s4->s5 handoff scopes it. |
+| F15 (Phase-4's mandated `extract-tag --force` re-load surfaces a PRE-EXISTING Phase-3-loader source_state idempotency divergence -- 12 Track-B bare-HUD cmds flip source_backed->doc_only; the Phase-5 blocker) | S (pre-existing, own) -> orchestrator+operator (route as Phase-3-loader-idempotency fix-cycle; do NOT recalibrate -- F13-inverse) | FIX SHIPPED 2026-05-18 (`59d34786`, one file `load-hud-commands.ts` +28/-1) + ORCHESTRATOR-RE-GATED GREEN -- 3-way independent (scope/X9-clean; all-project F1 -- ezquake 0-regress + F13-floor-GREEN-not-recalibrated, ktx 2 FAILs proven PRE-EXISTING sibling `log_template` drift, mvdsv/fte/qwcl clean; 3x real `extract-tag --force` re-loads BYTE-IDENTICAL 624/7/62, no period-2 oscillation, ktx untouched); the Phase-4 RE-VERIFY is the ONE remaining gate before F15 closes + Phase 5 unblocks; orphan-warning noise routed F16 (benign). The path: orchestrator independently primary-source-verified NOT-Task-4-caused (natural-keys.ts `upsertEntity` sets source_state only on INSERT, never on re-load UPDATE; NOT in the Phase-4 diff; `load-hud-commands.ts` source_state write byte-unchanged; the 12 names are simultaneously per-type-command-loader + Track-B-adapter targets on the same row -> clean-vs-reload order-dependent) + NOT a stale calibration (F13-inverse: a genuine "L1 extractors are idempotent" always-on-rule violation; do NOT recalibrate 612/19 -- that bakes in the defect; `feedback_idempotency_before_staleness`). Operator-routed to the checkpoint path: Phase-4 code committed as a checkpoint + F15 the explicit Phase-5 blocker + Verification-8 scoped to exclude the 3 F15-family FAILs (dated Phase-4-MD scoping note) + F15 routes as its own Phase-3-loader-idempotency fix-cycle (X9 re-extract not SQL UPDATE) -> Phase-4 re-verify on a clean idempotent DB -> THEN Phase 5. No D-amendment (X8/F8/F13 family). s4->s5 handoff scopes it. |
+| F16 (F15-fix re-gate's `extract-tag` re-loads emit ~117/run benign `[load-version] fully-orphaned entity` command warnings -- transient intra-run 3e-after-step-3 artifact) | S (log-hygiene, own) -> orchestrator (route HANDOVER) | OPEN (ADVISORY, non-blocking) -- orchestrator-adjudicated benign at the F15 re-gate 2026-05-18 (final-state real orphans=0; `F1.entity_has_version_rows`+`F1.cross_type_orphans` PASS; NOT F15-caused -- emitted by untouched `load-version.ts`); routed HANDOVER log-hygiene small-followup; no D-amendment |
 | R1 (AST-confirm literal) | B | AST probe before literal-only is load-bearing |
 | R2 (D15/D12 field shape) | S | two separate fields; feeder tag structural |
 | R3 (D16 element key) | B (emit) + S (store) | element-grouped provenance |
