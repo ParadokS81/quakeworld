@@ -1,10 +1,16 @@
-// Throwaway generator: emits the 4 disjoint cat-1 fleet worker prompts from ONE
-// template (consistency-creates-leverage; no copy-paste drift across the 4).
+// Throwaway generator: emits the 4 disjoint cat-1 fleet worker handoff
+// prompts from ONE template (consistency-creates-leverage; no copy-paste
+// drift across the 4). Output = TRACKED parking docs so the operator can
+// @-mention / open them in a fresh terminal (gitignored data dirs are
+// invisible to @-completion). The slice-N-ids.txt lane files stay under
+// the gitignored output/ dir -- the worker reads them with a tool, the
+// operator never pastes them.
 // Run from apps/qw-oracle:  bun scripts/describe-fill/gen-fleet-prompts.mjs
 import fs from 'fs';
 
-const FLEET_BASELINE = '292d3ad5'; // current HEAD at authoring; drift-check path is the
-// plan-dir, which the wrap commit does NOT touch -> non-self-referential, stays valid.
+const PARKING = '/home/paradoks/projects/quakeworld/docs/superpowers/parking';
+const FLEET_BASELINE = '292d3ad5'; // current HEAD at authoring; drift-check path is
+// the plan-dir, which the wrap commits do NOT touch -> non-self-referential.
 
 const slices = [
   { n: 1, file: 'output/describe-fill/fleet/slice-1-ids.txt', count: 130, comp: '130 command (pure command lane)' },
@@ -13,7 +19,14 @@ const slices = [
   { n: 4, file: 'output/describe-fill/fleet/slice-4-ids.txt', count: 120, comp: '113 cvar + 7 info_key (includes the 11 D9 config-drift non-resolvers -- fill-not-create, the manifest packet is self-contained; expect more affirmed verdicts)' },
 ];
 
-const PROMPT = (s) => `KTX Phase-3 cat-1 FLEET WORKER -- SLICE ${s.n} of 4 (unattended overnight)
+const PROMPT = (s) => `<!-- FLEET WORKER HANDOFF PROMPT -- KTX Phase-3 cat-1, SLICE ${s.n} of 4.
+     Paste this ENTIRE file as the first message in a fresh \`claude\`
+     terminal opened in the monorepo root. ONE slice per terminal --
+     double-check the slice number matches the terminal you intend
+     (slices are disjoint; a mis-paste only wastes compute, the
+     idempotent UPSERT cannot corrupt the DB). -->
+
+KTX Phase-3 cat-1 FLEET WORKER -- SLICE ${s.n} of 4 (unattended overnight)
 
 You are an arc-executor fleet worker for Phase 3 of the 2026-05-16-ktx-mvdsv-l1-describe-fill arc. Invoke the \`arc-executor\` skill FIRST (cold start). Working dir: /home/paradoks/projects/quakeworld/apps/qw-oracle.
 
@@ -28,7 +41,7 @@ A mismatch in step 3 or 4 means INVESTIGATE, not proceed.
 
 == THE LOOP (repeat until lane drained or smell zone) ==
 A. Next batch = the FIRST <=10 canonical_ids in \`${s.file}\` that are STILL listed remaining by \`bun scripts/describe-fill/synthesize-ktx.ts --status\`. Use an EXACT set intersection (comm -12 of two sorted exact-id lists), NEVER substring grep. This is the idempotent skip -- already-persisted lane ids are auto-skipped, so a restart is safe.
-B. Dispatch ONE sub-agent: subagent_type general-purpose, model opus, MAX reasoning. The model dial is SPEC-LOCKED by D7 inside the describe-fill-synthesis skill -- NOT lowerable, "fast affirm" is the in-invocation early exit, never a cheaper pass. Brief = the PROVEN PER-KNOB BRIEF below, verbatim, with this batch's <=10 canonical_ids and records filename \`output/describe-fill/phase3-records-slice${s.n}-batchNN.json\` (NN = your sequential batch number for this slice, zero-padded e.g. 01).
+B. Dispatch ONE sub-agent: subagent_type general-purpose, model opus, MAX reasoning. The model dial is SPEC-LOCKED by D7 inside the describe-fill-synthesis skill -- NOT lowerable, "fast affirm" is the in-invocation early exit, never a cheaper pass. Brief = the PROVEN PER-KNOB BRIEF below, verbatim, with this batch's <=10 canonical_ids and records filename \`output/describe-fill/phase3-records-slice${s.n}-batchNN.json\` (NN = your sequential batch number for this slice, zero-padded e.g. 01; if a file for that NN already exists from a prior run, continue numbering past the highest existing).
 C. F-D6a TWO-STAGE REVIEW (dispatcher's job -- non-negotiable, never delegated, never skipped):
    c1. Shape-check the records file (do NOT ingest description/reasoning/proposed prose): exactly the 11 fields per record; description_provenance a populated JS array of {source_file, source_line:int, shipped_value:string|null, raw_comment:string|null}; no top-level source_ref; knob byte-for-byte == the manifest packet's knob (the persist key = entities.name, source case); anchor/origin/verdict consistent (synthesized->origin synthesized + anchor 1.47-2-g67253dc; affirmed->origin source_inline + null anchor).
    c2. Independently re-grep EVERY cited (source_file, source_line) in the ktx clone at 67253dc9. ASSERT each entry's raw_comment equals the trimmed verbatim text at that exact line OR is null. (THE BATCH-04 LESSON: a prior batch cited correct registration lines but put a CD_* macro's resolved string in raw_comment instead of the line's actual text. If ANY raw_comment != its line's verbatim text and != null, the batch is DEFECTIVE -> SendMessage the SAME sub-agent the surgical raw_comment-precision fix [keep descriptions/verdicts/lines; only repair raw_comment + add a separate entry at the real #define line], re-verify; do NOT persist until clean.) Distinguish benign raw_comment-imprecision (line + behaviour correct) from a real wrong-line/invented-behaviour fabrication -- the latter never persists; re-dispatch, and if it persists HALT that batch and record it.
@@ -71,6 +84,7 @@ When your lane shows 0 remaining (lane ids intersect --status remaining == empty
 `;
 
 for (const s of slices) {
-  fs.writeFileSync(`output/describe-fill/fleet/PROMPT-slice-${s.n}.txt`, PROMPT(s));
-  console.log(`wrote output/describe-fill/fleet/PROMPT-slice-${s.n}.txt (${PROMPT(s).length} chars, lane ${s.count})`);
+  const out = `${PARKING}/2026-05-18-ktx-cat1-fleet-slice-${s.n}.md`;
+  fs.writeFileSync(out, PROMPT(s));
+  console.log(`wrote ${out} (${PROMPT(s).length} chars, lane ${s.count})`);
 }

@@ -36,18 +36,26 @@ the rest of cat-1). 4 disjoint terminals drain it in ~1.5 h in parallel.
 | 3 | output/describe-fill/fleet/slice-3-ids.txt | 119 | `vwep` .. `_k_lastmap` | 14 command + 105 cvar |
 | 4 | output/describe-fill/fleet/slice-4-ids.txt | 120 | `_k_last_xonx` .. `*mu:userinfo` | 113 cvar + 7 info_key (incl. the 11 D9 config-drift non-resolvers) |
 
-- The 4 paste-ready prompts: `apps/qw-oracle/output/describe-fill/fleet/PROMPT-slice-{1,2,3,4}.txt`
-  (gitignored data; regenerate with `bun scripts/describe-fill/gen-fleet-prompts.mjs`
-  from one template -- zero drift across the 4).
+- The 4 paste-ready prompts (TRACKED parking docs -- `@`-mentionable /
+  openable in a fresh terminal):
+  `docs/superpowers/parking/2026-05-18-ktx-cat1-fleet-slice-{1,2,3,4}.md`.
+  Regenerate with `bun scripts/describe-fill/gen-fleet-prompts.mjs` (from
+  `apps/qw-oracle`) -- one template, zero drift across the 4. The
+  `slice-N-ids.txt` lane files stay gitignored under
+  `apps/qw-oracle/output/describe-fill/fleet/` (the worker reads them
+  with a tool; the operator never pastes them).
 
 ## Launch ritual (operator)
 
 1. Open 4 fresh terminals (plain `claude` in the monorepo root).
-2. In each terminal N: `cat apps/qw-oracle/output/describe-fill/fleet/PROMPT-slice-N.txt`,
-   copy the whole thing, paste as the first message. (Mis-pasting slice X
-   into terminal Y is the ONLY way to break disjointness -- double-check
-   the number. Even then the idempotent UPSERT prevents DB corruption;
-   worst case is wasted compute.)
+2. In terminal N, paste the contents of
+   `docs/superpowers/parking/2026-05-18-ktx-cat1-fleet-slice-N.md` as the
+   first message -- either `@2026-05-18-ktx-cat1-fleet-slice-N.md` (the
+   file is tracked, so `@`-completion finds it) or open/`cat` it and
+   paste the whole thing. (Mis-pasting slice X into terminal Y is the
+   ONLY way to break disjointness -- double-check the number. Even then
+   the idempotent UPSERT prevents DB corruption; worst case is wasted
+   compute.)
 3. Sleep. Each worker self-paces: pre-flight -> 10-knob batches
    (dispatch Opus-4.7-MAX -> F-D6a cross-grep -> persist) -> halt when its
    lane is drained or it hits ~300k context, writing
