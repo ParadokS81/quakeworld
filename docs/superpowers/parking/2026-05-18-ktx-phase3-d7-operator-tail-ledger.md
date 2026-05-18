@@ -68,7 +68,7 @@ are knob-keyed, so the renumber is loss-free.
 |24|affirm|k_motd_time|28|[D] CLEAR-fact; judg->Q (lean strong AFFIRM)|
 |25|synth|k_noframechecks|29|[D] CLEAR (D10 canary PASS)|
 |26|affirm|k_sayteam_to_spec|30|[D] CLEAR-fact; judg->Q (lean strong AFFIRM)|
-|27|affirm|k_timetop|31|PENDING|
+|27|affirm|k_timetop|31|[D] CLEAR-fact; judg->Q (lean SYNTHESIZE -- elaborated-affirm/provenance)|
 |28|synth|timedown|32|PENDING|
 |29|synth|timeup|33|PENDING|
 |30|synth|k_ctf_hookstyle|9|[D] CLEAR|
@@ -86,8 +86,8 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 30 done / 13 PENDING.
-NEXT = ledger row 31 = HTML#27 `k_timetop` (affirmed).
+[D]=dispositioned. 31 done / 12 PENDING.
+NEXT = ledger row 32 = HTML#28 `timedown` (synthesized).
 
 ## Per-row dispositions
 
@@ -113,6 +113,7 @@ NEXT = ledger row 31 = HTML#27 `k_timetop` (affirmed).
 | 18 | race_toggle | command | HTML#9 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean SYNTH) | FACT source-accurate: reg commands.c:1007 DEF(r_changestatus) arg 3; r_changestatus case 3 race.c:3050-3059 -- `if (self->racer && race.status)` -> G_bprint "%s has quit the race" + race_end(self,true,false) (:3053-54), THEN set_player_race_ready(self, !self->race_ready) (:3057). WI-1: race.c:4269 race_toggle_incr_cvar = false-positive substring (unrelated headstart/resolution helper, NOT this command); commands.c:7970 r_changestatus(3) = internal caller (same path, not new behaviour). Affirmed verbatim CD_RTOGGLE "toggle ready status for race" (:633). Affirm-vs-synth: OMITS a behaviorally-material mid-run side-effect (running it mid-race publicly QUITS your run -- "X has quit the race" -- before toggling); weaker affirm than next_best/gamemodes, my lean = SYNTHESIZE. In the queue. NOT a silent CLEAR. |
 | 20 | breakondeath:frogbot:std | command | HTML#11 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE on the cvar FB_CVAR_BREAK_ON_DEATH (=k_fb_break_on_death): reg world.c:1065 default 1; toggle handler FrogbotsSetBreakOnDeath bot_commands.c:2219-2230 (bots_enabled gate; cvar_fset !cvar :2227; G_sprint "changed to on/off" :2228); behavioural read player.c:1145 `if(!self->isBot && tot_mode_enabled() && cvar(...))` -> PlayerBreak; match.c:1789 = non-behavioural settings-display read (correctly out of scope, NOT under-scope). Affirmed verbatim. Affirm-vs-synth: genuine terse /botcmd user-help line; omits the tot_mode/human gate but that is implied by the frogbot-practice context this command lives in. lean = AFFIRM (mild). Queue (frogbot-help-string cluster). NOT a silent CLEAR. |
 | 19 | addbot:frogbot:std | command | HTML#10 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate: std_commands table bot_commands.c:2318 `{ "addbot", FrogbotsAddbot_f, "Adds a bot. Skill & team optional" }`; handler FrogbotsAddbot_f :362-392 -- !bots_enabled -> "Bots are disabled" return (:368); optional numeric argv[2]=skill (:375-380), argv[3]=team; FrogbotsAddbot(skill,team,true) (:392) spawns one bot, clamps skill, auto-balances teams. WI-1: :1908 + :2790 are OTHER internal FrogbotsAddbot callers (different contexts, not this std command). Affirmed verbatim. Affirm-vs-synth: the string is a GENUINE user-facing help line (PrintAvailableCommands prints it to players in /botcmd), terse-by-design for a command list, accurate WHAT, no hidden material side-effect; my lean = strong AFFIRM (contrast race_toggle). In the queue. NOT a silent CLEAR. |
+| 31 | k_timetop | cvar | HTML#27 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean **SYNTHESIZE** -- elaborated-affirm/provenance-correctness) | FACT source-accurate. WI-1 EXHAUSTIVE: `k_timetop` 6 sites ALL accounted -- 3 vote clamps `bound(0,timelimit/t,cvar("k_timetop"))` commands.c:2957/3003/3026 (time/timeup/timeset), register world.c:934, FixRules clamp `bound(0,cvar("k_timetop"),600)` world.c:1554, `if(k_tt<=0) cvar_fset("k_timetop",k_tt=30)` world.c:1696. NOT under-scope. Every clause source-exact (player time-vote ceiling / 0-600 clamp / <=0->30 reset). Affirm-vs-synth: **the reasoning openly states the worker EXTENDED the candidate** ("maximum time in minutes allocateable by a player for a game") with source-derived numerics (the 0-600 clamp + reset-to-30) yet recorded affirmed / origin source_inline / NO anchor. Those numerics (600, 30) are source-VERSION-specific synthesized facts, not the dev's words; under an unanchored affirm they are UNPROTECTED against source drift (staleness machinery keys on description_anchor_version, null on affirmed). lean = SYNTHESIZE: an extended-affirm carrying synthesized version-specific numerics should be origin=synthesized + anchor 1.47-2-g67253dc so 600/30 are re-reviewed on drift. DISTINCT judgment sub-type = "extended-with-synthesized-numerics affirm" (provenance-correctness + staleness consequence) -- qualitatively different from the terse-verbatim affirms (frogbot strings, k_motd_time, k_sayteam_to_spec). Operator options: (a) keep affirmed-with-extension (numerics unprotected), (b) reclassify SYNTHESIZE+anchor [lean], (c) trim to verbatim candidate (true affirm). NOT a silent CLEAR. |
 | 30 | k_sayteam_to_spec | cvar | HTML#26 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE: `k_sayteam_to_spec` 4 sites (register world.c:864, read world.c:1443 + switch :1447 + call :1578 -- all FixSayTeamToSpecs); companion `sv_sayteam_to_spec` 4 sites (current-read :1444, write :1468, consumer g_cmd.c:297/528 = the actual say_team->spec gate). NOT under-scope. FixSayTeamToSpecs world.c:1441-1469 switch verified 1:1 vs the enum: case 0->0 (never), case 1->`match_in_progress?1:0` (only during game), case 2->`match_in_progress?0:1` (only during prewar), default(3)->1 (always); `bound(0,..,3)` clamps cleanly. Affirm-vs-synth: among the cleanest of the walk -- fully-spelled 4-value enum mapping EXACTLY to the source switch (every value incl. the match_in_progress conditionals verified, not merely WHAT-accurate), DOUBLE-config corroborated (ktx-example + nquake ktx.cfg:125 identical text, both ship 1). Only omission = the k_->sv_ engine-cvar bridge (implementation mechanism, not admin-relevant). lean = strong AFFIRM (shipped-cfg-comment cluster w/ k_allowvoteadmin/k_exclusive/k_motd_time, cleaner -- exact enum-to-switch). WI-2 clean: no "Default" claim (correct -- 1 is the shipped value not the registered default which is ""/0 via RegisterCvar); cvar, no command-class claim. NOT a silent CLEAR. |
 | 29 | k_noframechecks | cvar | HTML#25 synth | CLEAR (fact) -- **D10 canary PASS** | WI-1 EXHAUSTIVE: `k_noframechecks` 2 sites (register world.c:946, polarity world.c:1862); `framechecks` 4 sites ALL accounted (decl globals.c:26, assign world.c:1862, status commands.c:2032 `Enabled(framechecks)`, enforcement client.c:3824). NOT under-scope. **D10 polarity verified deterministic**: `framechecks = bound(0, !cvar("k_noframechecks"), 1)` -- cvar 0 -> !0=1 -> framechecks 1 = checks ON (default); cvar 1 -> !1=0 -> framechecks 0 = OFF. ZERO interpretive latitude. client.c:3824 `if(... && framechecks && !self->isBot)` gates two checks: uptime (`r>103 && !match_in_progress` warn -> `uptimebugpolicy>3` stuffcmd disconnect) + FPS (`fps>current_maxfps+2` warn -> `fIllegalFPSWarnings>3` stuffcmd disconnect); `!isBot` = bots exempt. Every description clause source-accurate. **C2 framing-conflict**: ktx-example ktx.cfg:4 "disable check (0=no,1=yes)" vs nquake ktx.cfg:5 "check (0=yes,1=no)" -- decoded, BOTH encode the SAME mapping (0=on,1=off); the conflict is INVERTED PROSE, not value->behavior; synthesized "(0=checks on,1=checks off)" matches source AND both configs' actual mappings. C2 surfaced not auto-absorbed. WI-2 clean: "the default; cvar 0" correct (RegisterCvar->RegisterCvarEx(var,"")=""/0, both configs ship 0 -- good inverse of r25's "Default 320" error); cvar, no command-class claim. PROC-1: D10 call reduces to checkable arithmetic (no judgment latitude -- any reviewer computing the !cvar inversion gets the same answer, consistent with both configs), no residual judgment. **Canary verdict: D10 PASS.** No action. |
 | 28 | k_motd_time | cvar | HTML#24 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE: 2 sites -- register world.c:841 (+comment "motd time in seconds"), single read motd.c:139 in MakeMOTD. NOT under-scope. `int i = bound(0,cvar("k_motd_time"),30); motd->attack_finished = g_globalvars.time + (i ? i : (k_matchLess?3:7))` -- k_motd_time = MOTD display seconds, clamped 0..30, 0 -> fallback (3 matchless / 7 else). Affirmed text "time motd is displayed in seconds" = WHAT+unit exact. Affirm-vs-synth: TRIPLE agreement (shipped-doc candidate nquake port_template.cfg:8 + independent code comment world.c:841 + runtime behaviour all say seconds) = cleanest affirm class (contrast r21 clearmarkerflag copy-paste artifact). Omits clamp(<=30) + 0->default fallback = mechanism depth not a misleading WHAT, no hidden side-effect (cf k_exclusive cap-vs-roster, AFFIRM). WI-2 clean: no "Default" claim (true registered default ""/0 via RegisterCvarEx(var,""); good contrast to r25 k_highspeed's wrong "Default 320"); cvar, no command-class claim. lean = strong AFFIRM (terse-doc/shipped-cfg cluster w/ k_allowvoteadmin, k_exclusive). Operator-nugget L3/admin: k_motd_time=0 does NOT disable MOTD (falls back 3/7s), max clamped 30s. NOT a silent CLEAR. |
@@ -288,6 +289,30 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   user-help string; omits the tot_mode/human gate, implied by the
   frogbot-practice context. lean = AFFIRM (mild). [frogbot-help-string
   sub-batch: addbot/breakondeath/... -- adjudicate together.] YOUR call.
+- **k_timetop** (row 31, HTML#27) -- **DISTINCT sub-type: elaborated-
+  affirm / provenance-correctness (NOT terse-verbatim).** FACT =
+  source-accurate (6 sites: vote clamps commands.c:2957/3003/3026
+  `bound(0,timelimit,cvar("k_timetop"))`; FixRules world.c:1554
+  `bound(0,cvar("k_timetop"),600)`; world.c:1696 `if(k_tt<=0)
+  cvar_fset("k_timetop",k_tt=30)`). The reasoning ITSELF states the
+  worker extended the candidate ("maximum time in minutes
+  allocateable by a player for a game") with the 0-600 clamp +
+  reset-to-30 -- source-VERSION-specific numerics -- but recorded
+  affirmed / source_inline / NO anchor. Consequence: 600 & 30 are
+  synthesized facts left UNPROTECTED against source drift (staleness
+  machinery keys on description_anchor_version, null for affirmed).
+  This is qualitatively different from the terse-verbatim affirm
+  cluster: it is a provenance-CLASS question with a staleness
+  consequence, not a "is the terse WHAT good enough" nuance. lean =
+  SYNTHESIZE (origin synthesized + anchor 1.47-2-g67253dc so the
+  extracted numerics are re-reviewed on drift). Operator options:
+  (a) keep affirmed-with-extension (numerics unprotected); (b)
+  reclassify SYNTHESIZE + anchor [my lean]; (c) trim back to the
+  verbatim candidate (the candidate alone clears D5 -> a true
+  affirm). Generalises: any affirmed row whose text was extended
+  with source-specific numerics has this same provenance gap --
+  worth an operator policy call at the batch, not just per-row.
+  YOUR call. NOT a silent CLEAR.
 - **k_sayteam_to_spec** (row 30, HTML#26): FACT = source-accurate.
   FixSayTeamToSpecs world.c:1441-1469 switch maps 1:1 to the enum:
   0->0 never, 1->match_in_progress?1:0 (only during game),
@@ -492,13 +517,21 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   queued lean strong AFFIRM. 4+4 sites accounted; switch maps 1:1 to
   the 4-value enum; double-config corroborated; one of the cleanest
   affirms of the walk; WI-2 clean.
-- Session #3 totals so far: 10 rows, 3 CLEAR + 5 CLEAR-fact + 2 FIX, 5
-  judgment-queue adds. Cumulative: **30 / 43 done, 13 PENDING**. FIX
+- r31 k_timetop (HTML#27, affirm): **CLEAR-fact**; affirm-judg queued
+  lean **SYNTHESIZE**. DISTINCT sub-type: elaborated-affirm /
+  provenance-correctness -- worker extended the candidate with
+  source-version-specific numerics (0-600 clamp, reset-to-30) but
+  kept affirmed/no-anchor, leaving the numerics unprotected vs source
+  drift. Generalises to any extended-affirm; flagged for an operator
+  policy call at the batch.
+- Session #3 totals so far: 11 rows, 3 CLEAR + 6 CLEAR-fact + 2 FIX, 6
+  judgment-queue adds. Cumulative: **31 / 43 done, 12 PENDING**. FIX
   queue **6** -- sub-class A under-scope = 5 (rows 4/5/11/12 + 27
   votemap), sub-class B precision = 1 (row 25 k_highspeed).
-  Affirmed-sample judgment queue **10** (this session added
+  Affirmed-sample judgment queue **11** (this session added
   removemarker, k_allowvoteadmin, k_exclusive, k_motd_time,
-  k_sayteam_to_spec). D10 canary (r29): PASS.
+  k_sayteam_to_spec, k_timetop). D10 canary (r29): PASS. NEW
+  judgment sub-type opened (r31): elaborated-affirm/provenance.
 
 ### Session #2 wrap (rows 13-20)
 
@@ -602,5 +635,5 @@ ledger is a lossless resume contract. **20 / 43 done, 23 PENDING
    the scan verdict.
 
 - Next: live `NEXT =` pointer in the "## Docket = 43 rows" footer
-  (single source of resume truth). Currently row 31 = HTML#27
-  `k_timetop` (affirmed).
+  (single source of resume truth). Currently row 32 = HTML#28
+  `timedown` (synthesized).
