@@ -17,11 +17,77 @@ captured here and routed to targeted re-synthesis via the D6 pipeline
   `git describe --tags` == `1.47-2-g67253dc` == the anchor stamped on
   every synthesized row -> byte-identical to the synthesis source.
 
-## Docket = 43 rows
+## Docket = 43 rows -- AUTHORITATIVE SOURCE (re-anchored 2026-05-18, this session)
 
-Groups: 4 hedged + 20 curated (per-lane operator-tail consolidation) +
-10 reasoning-marker + 9 affirmed-sample. Walk order: hedged ->
-curated -> marker -> affirm-sample.
+The docket is NOT reconstructable from psql verdict/marker queries -- a
+reconstruction attempt this session mis-set the curated group (missed
+allow_toggle_practice, wrongly pulled _k_coachteam1 / k_noframechecks).
+The SINGLE SOURCE OF TRUTH is the operator's review-views page:
+`/mnt/c/Users/Administrator/Downloads/ktx-review-views.html`
+(Windows `C:\Users\Administrator\Downloads\ktx-review-views.html`).
+The "Review docket only" toggle selects exactly the 43 rows carrying
+`data-docket="1"`. Verdict-true breakdown FROM THE PAGE (this
+SUPERSEDES the prior session's "20 curated + 10 marker + 9 affirm"
+estimate, which does not match the page): **4 hedged + 11 affirmed
+(1-in-4 spot-sample) + 28 synthesized = 43.**
+
+Walk order: rows 1-12 KEEP the prior session's numbers (knob-keyed,
+already dispositioned -- a subset of the authoritative 43, all
+verified present). Rows 13-43 = the remaining 31 in HTML catalog
+document order (what the operator sees with "Review docket only"
+ticked). Row numbers are labels; dispositions + FIX queue + CF refs
+are knob-keyed, so the renumber is loss-free.
+
+### The authoritative 43 (HTML doc order | verdict | knob | ledger row | status)
+
+|HTML|verdict|knob|row|status|
+|--|--|--|--|--|
+| 1|synth|downspecs|13|PENDING (next)|
+| 2|synth|k_ann|6|[D] CLEAR|
+| 3|affirm|next_best|14|PENDING|
+| 4|synth|toggletracklist|15|PENDING|
+| 5|hedged|dmm5|4|[D] FIX|
+| 6|affirm|gamemodes|16|PENDING|
+| 7|synth|k_free_mode|12|[D] FIX|
+| 8|synth|k_privategame_force_reconnect|17|PENDING|
+| 9|affirm|race_toggle|18|PENDING|
+|10|affirm|addbot:frogbot:std|19|PENDING|
+|11|affirm|breakondeath:frogbot:std|20|PENDING|
+|12|synth|clearmarkerflag:frogbot:editor|21|PENDING|
+|13|affirm|removemarker:frogbot:editor|22|PENDING|
+|14|synth|allow_toggle_practice|5|[D] FIX|
+|15|hedged|ban|1|[D] ACCEPT+P4 (CF-1)|
+|16|hedged|banip|2|[D] ACCEPT+P4 (CF-1)|
+|17|hedged|banrem|3|[D] ACCEPT+P4 (CF-1)|
+|18|affirm|k_allowvoteadmin|23|PENDING|
+|19|synth|k_cmd_fp_dontkick|8|[D] CLEAR|
+|20|affirm|k_exclusive|24|PENDING|
+|21|synth|k_highspeed|25|PENDING|
+|22|synth|toggleklist|26|PENDING|
+|23|synth|votemap|27|PENDING|
+|24|affirm|k_motd_time|28|PENDING|
+|25|synth|k_noframechecks|29|PENDING (D10 canary)|
+|26|affirm|k_sayteam_to_spec|30|PENDING|
+|27|affirm|k_timetop|31|PENDING|
+|28|synth|timedown|32|PENDING|
+|29|synth|timeup|33|PENDING|
+|30|synth|k_ctf_hookstyle|9|[D] CLEAR|
+|31|synth|k_pow_pickup|34|PENDING|
+|32|synth|k_spw|35|PENDING|
+|33|synth|spawn_show|36|PENDING|
+|34|synth|spawn666time|37|PENDING|
+|35|synth|k_classic_shotgun|7|[D] CLEAR|
+|36|synth|k_disallow_weapons|11|[D] FIX|
+|37|synth|k_instagib|38|PENDING|
+|38|synth|k_overtime|39|PENDING|
+|39|synth|k_demoname_date|10|[D] CLEAR|
+|40|synth|_k_coachteam1|40|PENDING|
+|41|synth|_k_last_cycle_map|41|PENDING|
+|42|synth|timing_players_action|42|PENDING|
+|43|synth|k_use_matchless_dir|43|PENDING|
+
+[D]=dispositioned (rows 1-12, prior session). 12 done / 31 PENDING.
+NEXT = ledger row 13 = HTML#1 `downspecs` (synthesized).
 
 ## Per-row dispositions
 
@@ -130,8 +196,11 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
 
 ## Walk status
 
-- Rows dispositioned: 12 / 43. Group 1 (hedged) COMPLETE; group 2
-  (curated) IN PROGRESS (8/20).
+- Rows dispositioned: 12 / 43. Docket re-anchored this session to the
+  authoritative HTML (the prior "4+20+10+9" group model is SUPERSEDED
+  by the HTML-true 4 hedged + 11 affirmed + 28 synthesized). 31 PENDING,
+  walked in HTML doc order as rows 13-43 -- see the authoritative table
+  in "## Docket = 43 rows". The 12 done are a verified subset of the 43.
   - 1-3 ban/banip/banrem: ACCEPT AS-IS + P4 carry (CF-1).
   - 4 dmm5: FIX; CF-2; WI-1 opened.
   - 5 allow_toggle_practice: FIX (add lock_practice guard).
@@ -163,8 +232,13 @@ point.
 
 **Resume instructions (fresh terminal):**
 1. Read THIS ledger top-to-bottom (it is the complete durable record:
-   source oracle, the 43-row groups, per-row dispositions, FIX queue,
-   carry-forwards CF-1/CF-2, WI-1, the sharpened systemic read).
+   source oracle, the AUTHORITATIVE 43 docket table -- HTML-sourced,
+   per-row dispositions, FIX queue, carry-forwards CF-1/CF-2, WI-1, the
+   systemic read). The docket source of truth is the operator's
+   `ktx-review-views.html` "Review docket only" toggle (43 rows
+   `data-docket="1"`); do NOT reconstruct it from psql -- that failed
+   this session. The ledger's "## Docket = 43 rows" table is the
+   distilled authoritative copy.
 2. Restore the source oracle (it is /tmp, ephemeral -- likely gone):
    `git clone https://github.com/QW-Group/ktx.git /tmp/ktx-src-67253dc9
    && git -C /tmp/ktx-src-67253dc9 checkout 67253dc9ab4f643f1e6523a923a41caab9ea587f`
@@ -179,16 +253,20 @@ point.
 4. Cadence (operator-agreed): auto-proceed through CLEAR with one-line
    ledger notice; surface FIX rows + judgment/community rows to the
    operator; operator stands by.
-5. **RESUME AT ROW 13** (curated; row 12 `k_free_mode` = FIX, done).
-   Remaining: rows 13-24 curated (12), then group 3 marker (rows 25-34,
-   10), then group 4 affirm-sample (rows 35-43, 9).
-6. At the group-2 boundary: put the systemic decision to the operator
-   (targeted re-fan of multi-site rows vs per-row re-synth of the FIX
-   queue). Do NOT auto-apply any FIX -- C4: re-synthesis routes through
-   the D6 pipeline, never a hand UPDATE; the operator gates the path.
+5. **RESUME AT ROW 13 = HTML#1 `downspecs`** (synthesized). Remaining
+   31 = rows 13-43 in HTML doc order; walk the authoritative-table
+   PENDING rows top-to-bottom. (Affirmed rows in the set are the
+   1-in-4 spot-sample -- the D7 check there is "is the affirmed text
+   source-accurate / should it have been synthesized?", same WIDE-grep.)
+6. Systemic decision (CONFIRMED 4/4 multi-read-site under-scope class):
+   put to the operator at a natural checkpoint (no longer tied to the
+   defunct "row 24 curated boundary") -- targeted re-fan of the
+   multi-read-site FIX rows vs per-row re-synth. Do NOT auto-apply any
+   FIX -- C4: re-synthesis routes through the D6 pipeline, never a hand
+   UPDATE; the operator gates the path.
 7. NOT a Phase-3-boundary action and NOT the holistic gate -- this is
    the in-flight D7 tier-2 tail only. Phase 3 does not ship until the
    walk completes + the FIX queue is resolved + the operator reports
    the scan verdict.
 
-- Next: row 13 (curated).
+- Next: ledger row 13 = HTML#1 `downspecs` (synthesized).
