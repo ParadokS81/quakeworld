@@ -832,6 +832,111 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   (not blanket, not pure per-row). WI-1 wide-grep is the catching
   discipline -- keep applying it every remaining row.
 
+## !!! SESSION WRAP 2026-05-18 (orchestrator session #4) -- RESUME IN A FRESH TERMINAL !!!
+
+**THIS BLOCK SUPERSEDES session #3's.** Walked **rows 34-38 (5 rows)**.
+Clean orchestrator-discipline wrap (5 context-heavy rows each requiring
+deep enforcement-tracing; this session DISCOVERED flavour-C is systemic,
+which makes every remaining synth row a judgment-critical
+enforcement-trace -- the arc-orchestrator pushback rule forbids pushing
+fidelity-critical verification on accumulated context, and a degraded
+window silent-CLEARs exactly the flavour-C near-miss / presentation
+residual this session proved is invisible at output-inspection). NOT
+smell-zone-forced panic; the ledger is a lossless resume contract,
+committed + pushed after every row. **38 / 43 done, 5 PENDING.**
+
+**Session #4 outcomes:**
+- 3 CLEAR (r35 k_spw, r36 spawn_show, r37 spawn666time -- r36/r37 each
+  exhaustively verified source-true at an UNCITED enforcement site).
+- 1 factual FIX (r34 k_pow_pickup) = **NEW sub-class C (precision /
+  untraced-downstream-consequence)**: cvar=0 "(allowing the timer to
+  stack)" is FALSE -- grant code items.c:2134-2212 flat-resets (map) /
+  30s-hard-caps (dropped), literal source comment "do not allow more
+  than 30 seconds of quad anyway". Primary cvar=1 gate correctly
+  scoped + WI-2-clean -> NOT sub-class A or B.
+- 1 CLEAR-fact-with-routed-presentation-residual (r38 k_instagib) =
+  **NEW sub-class D (presentation / D10-embedding, ONE-OFF)**: every
+  fact source-true, but the description embeds a dangling
+  `(see reasoning)` internal-field ref (corpus-verified UNIQUE:
+  1/1828 ktx, 1/all-projects) + a co-located operator D10-presentation
+  POLICY judgment (embed an actively-wrong shipped-cfg warning inline
+  vs the established clean-source-truth precedent).
+- **MAJOR METHODOLOGY FINDING -- flavour-C is CONFIRMED SYSTEMIC.**
+  C-shaped reasoning (assert a semantic/downstream/OFF-state claim
+  inferred from cvar-name / announce-string / enum-name / redtext
+  label, NEVER trace the code that ENFORCES it) appeared in **4 of
+  the last 5 synth rows**: r34 (hard FIX -- labels lied), r36 + r37
+  (full near-misses -- CLEAR only because labels were honest), r38
+  (weaker near-miss -- slow/fast literal but extreme-monotonicity
+  untraced). r35 k_spw is the lone TRACED counter-example (cited the
+  enum + the client.c selection branches) -- proving the pipeline CAN
+  trace enforcement, so C is an INCONSISTENCY, not a capability
+  ceiling. The FIX-vs-CLEAR outcome turned ENTIRELY on un-self-
+  verified label honesty. **The near-misses are invisible at
+  output-inspection (they look CLEAR); only a forced enforcement-trace
+  surfaces them** -> this is why the rest of the walk MUST trace every
+  inferred semantic/downstream clause, and why the operator's
+  flavour-C remedy should be a GLOBAL D6 re-synth-prompt addition, not
+  a per-row patch.
+
+**Strengthened resume METHOD (in addition to session #2/#3 method --
+this is the load-bearing change):** WI-1 is no longer only "wide-grep
++ trace every explicit out-of-scope hedge". It now ALSO requires, for
+EVERY synth row (not just hedged/curated): **identify every
+semantic / downstream / OFF-state / side-effect clause in the
+description, and trace it to the code that ENFORCES it -- never accept
+a claim that was derived from a cvar-name, announce-string, enum-name
+or redtext label without citing the enforcing read-site.** A claim
+that merely "looks CLEAR" at output-inspection is exactly the
+flavour-C near-miss. r34 proved labels are not always honest; r36/r37
+proved the inference happens even when the output is correct. Keep
+WI-2 (default-metadata / command-class -- still clean every row since
+r25; the synth pipeline now reliably refuses to mislabel shipped-cfg
+values as defaults -- r35/r37/r38 all correctly abstained) and PROC-1
+(auto-CLEAR only on checkable fact; ANY residual judgment -- incl.
+presentation/D10-embedding policy like r38 -- surfaces, never a silent
+CLEAR).
+
+**Two operator-decision batches, now LARGER (still walk-end, do NOT
+auto-apply -- C4):**
+1. **FIX queue = 8**, FOUR sub-classes: **A** (under-scope, 5: rows
+   4/5/11/12 + 27 votemap) -- targeted re-fan candidate; **B**
+   (precision default/cmd-class, 1: row 25 k_highspeed) -- per-row
+   re-synth w/ default-vs-shipped + CF_-flag checklist; **C**
+   (precision untraced-downstream, 1: row 34 k_pow_pickup) -- per-row
+   re-synth + the GLOBAL "trace inferred semantic/downstream to
+   enforcing code" prompt addition (the flavour-C systemic remedy --
+   weigh r34 FIX + r36/r37/r38 near-misses + r35 counter-example as
+   the evidence base); **D** (presentation, ONE-OFF, 1: row 38
+   k_instagib) -- per-row drop the dangling `(see reasoning)` +
+   the co-located D2 operator policy call (actively-wrong shipped-cfg
+   comment -> warn inline or stay clean-source-truth + reasoning-only;
+   generalises to all actively-mislabelling-shipped-cfg rows).
+   votemap (sub-A) remains the single most severe (meaning inversion).
+2. **Affirmed-sample judgment queue = 11** (UNCHANGED this session --
+   all 5 rows were synth, no affirm rows): terse-verbatim cluster
+   (mostly lean AFFIRM) + the elaborated-affirm/provenance sub-type
+   (r31 k_timetop, lean SYNTHESIZE, wants an operator policy call
+   generalising to all extended-affirms).
+
+**Resume instructions (fresh terminal):** read this ledger
+top-to-bottom; restore the source oracle (`git clone
+https://github.com/QW-Group/ktx.git /tmp/ktx-src-67253dc9 && git -C
+/tmp/ktx-src-67253dc9 checkout
+67253dc9ab4f643f1e6523a923a41caab9ea587f`; verify `git -C
+/tmp/ktx-src-67253dc9 describe --tags` == `1.47-2-g67253dc`; DB via
+`docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle`,
+psql NOT on PATH); apply the **strengthened method** above (WI-1
+wide-grep + out-of-scope-hedge trace + **the new per-row
+enforce-trace-every-inferred-semantic-clause discipline** + WI-2 +
+PROC-1) every row; commit + push every row. **RESUME AT ROW 39** --
+live `NEXT =` in the "## Docket = 43 rows" footer (currently HTML#38
+`k_overtime`, synth). 5 PENDING: rows 39-43 (k_overtime,
+_k_coachteam1, _k_last_cycle_map, timing_players_action,
+k_use_matchless_dir -- all synthesized; expect more C-shaped reasoning,
+trace enforcement). Phase 3 does NOT ship until the walk completes +
+FIX queue resolved + operator scan verdict.
+
 ## !!! SESSION WRAP 2026-05-18 (orchestrator session #3) -- RESUME IN A FRESH TERMINAL !!!
 
 Walked **rows 21-33 (13 rows)**. Clean orchestrator-discipline wrap
