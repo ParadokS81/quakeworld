@@ -52,7 +52,7 @@ are knob-keyed, so the renumber is loss-free.
 | 8|synth|k_privategame_force_reconnect|17|[D] CLEAR|
 | 9|affirm|race_toggle|18|[D] CLEAR-fact; judg->Q (lean SYNTH)|
 |10|affirm|addbot:frogbot:std|19|[D] CLEAR-fact; judg->Q (lean AFFIRM)|
-|11|affirm|breakondeath:frogbot:std|20|PENDING|
+|11|affirm|breakondeath:frogbot:std|20|[D] CLEAR-fact; judg->Q (lean AFFIRM)|
 |12|synth|clearmarkerflag:frogbot:editor|21|PENDING|
 |13|affirm|removemarker:frogbot:editor|22|PENDING|
 |14|synth|allow_toggle_practice|5|[D] FIX|
@@ -86,8 +86,8 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 19 done / 24 PENDING.
-NEXT = ledger row 20 = HTML#11 `breakondeath:frogbot:std` (affirmed -- spot-sample).
+[D]=dispositioned. 20 done / 23 PENDING.
+NEXT = ledger row 21 = HTML#12 `clearmarkerflag:frogbot:editor` (synthesized).
 
 ## Per-row dispositions
 
@@ -111,6 +111,7 @@ NEXT = ledger row 20 = HTML#11 `breakondeath:frogbot:std` (affirmed -- spot-samp
 | 16 | gamemodes | command | HTML#6 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1) | FACT source-accurate: handler ListGameModes commands.c:9513-9552 verified -- static known[] (25 entries: race/1on1/.../wipeout/yawnmode/totmode), iterates cmds[], G_sprint each registered command name that is in known[] (= the game-mode-selection commands actually registered on this server). WI-1: only 3 sites (:289 fwd-decl, :1062 reg, :9513 handler), all cited, no under-scope. Affirmed verbatim CD_GAMEMODES "list available game modes" (:684). Affirm-vs-synth read in the Affirmed-sample judgment queue. NOT a silent CLEAR. |
 | 17 | k_privategame_force_reconnect | cvar | HTML#8 synth | CLEAR (fact) | Synth source-exact. private_game_toggle() vote.c:1550-1598: read :1553; player block gated `enable && match_in_progress<2` (:1559); per non-logged-in player -- always unready (:1576-1580); `if(force_reconnect && !is_logged_in)` (:1582) -> allow_specs (k_privategame_allow_specs) ? do_force_spec + "You must login to play." (:1587-88) : disconnect + "Please reconnect & login" (:1592-93); force_reconnect=0 -> unready-only, left connected (src comment :1586 "kicked at map change anyway"). Every description clause verified. WI-1 exhaustive: ONLY 3 sites (world.c:1091 reg+comment, vote.c:1553 read, vote.c:1582 use) -- single-read-site, NOT the multi-site class. Reg comment "kick unauthed players" correctly classified a less-precise SUBSET (omits the allow_specs branch) -> D10 synth-from-source, NOT a C2. Description does not conflate with the separate :1564 !allow_specs existing-spectator kick. PROC-1: checkable fact, no residual judgment. No action. |
 | 18 | race_toggle | command | HTML#9 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean SYNTH) | FACT source-accurate: reg commands.c:1007 DEF(r_changestatus) arg 3; r_changestatus case 3 race.c:3050-3059 -- `if (self->racer && race.status)` -> G_bprint "%s has quit the race" + race_end(self,true,false) (:3053-54), THEN set_player_race_ready(self, !self->race_ready) (:3057). WI-1: race.c:4269 race_toggle_incr_cvar = false-positive substring (unrelated headstart/resolution helper, NOT this command); commands.c:7970 r_changestatus(3) = internal caller (same path, not new behaviour). Affirmed verbatim CD_RTOGGLE "toggle ready status for race" (:633). Affirm-vs-synth: OMITS a behaviorally-material mid-run side-effect (running it mid-race publicly QUITS your run -- "X has quit the race" -- before toggling); weaker affirm than next_best/gamemodes, my lean = SYNTHESIZE. In the queue. NOT a silent CLEAR. |
+| 20 | breakondeath:frogbot:std | command | HTML#11 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE on the cvar FB_CVAR_BREAK_ON_DEATH (=k_fb_break_on_death): reg world.c:1065 default 1; toggle handler FrogbotsSetBreakOnDeath bot_commands.c:2219-2230 (bots_enabled gate; cvar_fset !cvar :2227; G_sprint "changed to on/off" :2228); behavioural read player.c:1145 `if(!self->isBot && tot_mode_enabled() && cvar(...))` -> PlayerBreak; match.c:1789 = non-behavioural settings-display read (correctly out of scope, NOT under-scope). Affirmed verbatim. Affirm-vs-synth: genuine terse /botcmd user-help line; omits the tot_mode/human gate but that is implied by the frogbot-practice context this command lives in. lean = AFFIRM (mild). Queue (frogbot-help-string cluster). NOT a silent CLEAR. |
 | 19 | addbot:frogbot:std | command | HTML#10 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate: std_commands table bot_commands.c:2318 `{ "addbot", FrogbotsAddbot_f, "Adds a bot. Skill & team optional" }`; handler FrogbotsAddbot_f :362-392 -- !bots_enabled -> "Bots are disabled" return (:368); optional numeric argv[2]=skill (:375-380), argv[3]=team; FrogbotsAddbot(skill,team,true) (:392) spawns one bot, clamps skill, auto-balances teams. WI-1: :1908 + :2790 are OTHER internal FrogbotsAddbot callers (different contexts, not this std command). Affirmed verbatim. Affirm-vs-synth: the string is a GENUINE user-facing help line (PrintAvailableCommands prints it to players in /botcmd), terse-by-design for a command list, accurate WHAT, no hidden material side-effect; my lean = strong AFFIRM (contrast race_toggle). In the queue. NOT a silent CLEAR. |
 
 Legend: CLEAR = verified fine, no action. ACCEPT AS-IS + P4 carry =
@@ -207,6 +208,13 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   players, terse-by-design, accurate WHAT, no hidden material
   side-effect. My lean = strong AFFIRM (this is the real user-doc
   surface; contrast race_toggle). YOUR call. NOT a silent CLEAR.
+- **breakondeath:frogbot:std** (row 20, HTML#11): FACT = source-accurate
+  (toggle FrogbotsSetBreakOnDeath bot_commands.c:2219-2230; behavioural
+  read player.c:1145 !isBot && tot_mode_enabled() && cvar -> PlayerBreak;
+  match.c:1789 display-only). Affirm-vs-synth: genuine terse /botcmd
+  user-help string; omits the tot_mode/human gate, implied by the
+  frogbot-practice context. lean = AFFIRM (mild). [frogbot-help-string
+  sub-batch: addbot/breakondeath/... -- adjudicate together.] YOUR call.
 
 ## Carry-forwards to Phase 4 (MVDSV) -- the orchestrator MUST fold these into the Phase-4 executor prompt
 
@@ -268,10 +276,14 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
 
 ## Walk status
 
-- Rows dispositioned: 17 / 43. r13 downspecs CLEAR (shared-handler);
-  r14 next_best + r16 gamemodes CLEAR-fact (affirm-judg queued, PROC-1);
-  r15 toggletracklist + r17 k_privategame_force_reconnect CLEAR (fact,
-  single/cohort, no under-scope). Docket re-anchored this session to the
+- Rows dispositioned: 20 / 43 this session (13-20). Synth CLEAR (fact,
+  no under-scope): r13 downspecs, r15 toggletracklist, r17
+  k_privategame_force_reconnect. Affirmed CLEAR-fact + judgment queued
+  (PROC-1): r14 next_best (lean affirm), r16 gamemodes (lean affirm),
+  r18 race_toggle (lean SYNTH -- material mid-run quit), r19
+  addbot:frogbot:std (lean affirm), r20 breakondeath:frogbot:std (lean
+  affirm). 0 new FIX this session (FIX queue still 4 from rows
+  4/5/11/12). Docket re-anchored this session to the
   authoritative HTML (the prior "4+20+10+9" group model is SUPERSEDED
   by the HTML-true 4 hedged + 11 affirmed + 28 synthesized). 31 PENDING,
   walked in HTML doc order as rows 13-43 -- see the authoritative table
