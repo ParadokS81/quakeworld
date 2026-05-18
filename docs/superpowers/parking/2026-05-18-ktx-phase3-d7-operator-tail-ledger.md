@@ -54,7 +54,7 @@ are knob-keyed, so the renumber is loss-free.
 |10|affirm|addbot:frogbot:std|19|[D] CLEAR-fact; judg->Q (lean AFFIRM)|
 |11|affirm|breakondeath:frogbot:std|20|[D] CLEAR-fact; judg->Q (lean AFFIRM)|
 |12|synth|clearmarkerflag:frogbot:editor|21|[D] CLEAR|
-|13|affirm|removemarker:frogbot:editor|22|PENDING|
+|13|affirm|removemarker:frogbot:editor|22|[D] CLEAR-fact; judg->Q (lean AFFIRM)|
 |14|synth|allow_toggle_practice|5|[D] FIX|
 |15|hedged|ban|1|[D] ACCEPT+P4 (CF-1)|
 |16|hedged|banip|2|[D] ACCEPT+P4 (CF-1)|
@@ -86,8 +86,10 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 21 done / 22 PENDING.
-NEXT = ledger row 22 = HTML#13 `removemarker:frogbot:editor` (affirmed).
+[D]=dispositioned. 22 done / 21 PENDING.
+NEXT = ledger row 23 = HTML#18 `k_allowvoteadmin` (affirmed).
+  (HTML#14-17 = rows 5/1/2/3, already [D]: allow_toggle_practice FIX,
+  ban/banip/banrem ACCEPT+P4 -- next PENDING in HTML order is #18.)
 
 ## Per-row dispositions
 
@@ -113,6 +115,7 @@ NEXT = ledger row 22 = HTML#13 `removemarker:frogbot:editor` (affirmed).
 | 18 | race_toggle | command | HTML#9 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean SYNTH) | FACT source-accurate: reg commands.c:1007 DEF(r_changestatus) arg 3; r_changestatus case 3 race.c:3050-3059 -- `if (self->racer && race.status)` -> G_bprint "%s has quit the race" + race_end(self,true,false) (:3053-54), THEN set_player_race_ready(self, !self->race_ready) (:3057). WI-1: race.c:4269 race_toggle_incr_cvar = false-positive substring (unrelated headstart/resolution helper, NOT this command); commands.c:7970 r_changestatus(3) = internal caller (same path, not new behaviour). Affirmed verbatim CD_RTOGGLE "toggle ready status for race" (:633). Affirm-vs-synth: OMITS a behaviorally-material mid-run side-effect (running it mid-race publicly QUITS your run -- "X has quit the race" -- before toggling); weaker affirm than next_best/gamemodes, my lean = SYNTHESIZE. In the queue. NOT a silent CLEAR. |
 | 20 | breakondeath:frogbot:std | command | HTML#11 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE on the cvar FB_CVAR_BREAK_ON_DEATH (=k_fb_break_on_death): reg world.c:1065 default 1; toggle handler FrogbotsSetBreakOnDeath bot_commands.c:2219-2230 (bots_enabled gate; cvar_fset !cvar :2227; G_sprint "changed to on/off" :2228); behavioural read player.c:1145 `if(!self->isBot && tot_mode_enabled() && cvar(...))` -> PlayerBreak; match.c:1789 = non-behavioural settings-display read (correctly out of scope, NOT under-scope). Affirmed verbatim. Affirm-vs-synth: genuine terse /botcmd user-help line; omits the tot_mode/human gate but that is implied by the frogbot-practice context this command lives in. lean = AFFIRM (mild). Queue (frogbot-help-string cluster). NOT a silent CLEAR. |
 | 19 | addbot:frogbot:std | command | HTML#10 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate: std_commands table bot_commands.c:2318 `{ "addbot", FrogbotsAddbot_f, "Adds a bot. Skill & team optional" }`; handler FrogbotsAddbot_f :362-392 -- !bots_enabled -> "Bots are disabled" return (:368); optional numeric argv[2]=skill (:375-380), argv[3]=team; FrogbotsAddbot(skill,team,true) (:392) spawns one bot, clamps skill, auto-balances teams. WI-1: :1908 + :2790 are OTHER internal FrogbotsAddbot callers (different contexts, not this std command). Affirmed verbatim. Affirm-vs-synth: the string is a GENUINE user-facing help line (PrintAvailableCommands prints it to players in /botcmd), terse-by-design for a command list, accurate WHAT, no hidden material side-effect; my lean = strong AFFIRM (contrast race_toggle). In the queue. NOT a silent CLEAR. |
+| 22 | removemarker:frogbot:editor | command | HTML#13 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE: `removemarker` literal ONLY bot_commands.c:2335; `FrogbotRemoveMarker` = def :1199 + table :2335, NO other callers -- single-site, NOT under-scope class. Handler :1199-1223 verified: nearest=LocateMarker(self origin); !nearest -> "No marker found nearby" return; !streq(classname,"marker") -> "Cannot remove non-manual markers" return; saved_marker==nearest -> DeselectMarker + saved_marker=NULL; RemoveMarker(nearest) (route_fields.c:121). Affirmed string "Removes a routing marker from the map" = WHAT-accurate. Affirm-vs-synth: genuine user-facing editor help line (PrintAvailableCommands prints commands[i].description), terse-by-design; omits nearest-targeting + manual-only refusal, but both are editor-command mechanism implied by context (universal LocateMarker(nearest) idiom across editor_commands[] siblings) and the manual-only guard is a no-op-with-message refusal NOT a material hidden side-effect (contrast race_toggle). lean = AFFIRM (terse-genuine-help-line cluster: addbot/breakondeath/gamemodes/next_best). Corroboration: r21/r22 adjacent editor_commands[] siblings -- clearmarkerflag string was copy-paste artifact (correctly synthesized), removemarker string factually correct (correctly affirmed); pipeline discriminated correctly within the same code neighborhood. NOT a silent CLEAR. |
 | 21 | clearmarkerflag:frogbot:editor | command | HTML#12 synth | CLEAR (fact) | Synth source-exact, D10 call correct. WI-1 EXHAUSTIVE: `clearmarkerflag` literal ONLY bot_commands.c:2342; `FrogbotClearMarkerFlag` = def :1540 + table :2342, NO other callers -- single-site, NOT the multi-read-site under-scope class. Handler :1540-1568 verified every clause: editor-mode gate (FrogbotsCommand :2386 FrogbotOptionEnabled(FB_OPTION_EDITOR_MODE) -> editor_commands[]); `nearest=LocateMarker(self origin)` (marker_util.c:162 -> LocateNextMarker, the universal `nearest` idiom 11+ sites); nearest==NULL -> "No marker nearby" return; argc<3 -> prints FROGBOT_MARKER_FLAG_OPTIONS return; flags=DecodeMarkerFlagString (marker_load.c:87, returns 0 iff no recognized char u/6/f/b/t/e/n); `if(flags)` -> `nearest->fb.T &= ~flags` + "Marker flags cleared, now: %s" EncodeMarkerFlags(post-clear); else -> "invalid" no-op. C2 note VERIFIED: shipped string "Clears flag on a path between two markers" byte-identical at :2342 (clearmarkerflag) and :2344 (clearpathflag) = confirmed peer-copy artifact; handler operates on a SINGLE marker's fb.T not a path -> shipped string factually wrong, D10 source-truth synth-from-handler is the right call, conflict surfaced as C2 not silently absorbed. PROC-1: reduces to checkable fact (synth text == verified behaviour; shipped string unambiguously a copy-paste error), no residual judgment. No action. |
 
 Legend: CLEAR = verified fine, no action. ACCEPT AS-IS + P4 carry =
@@ -216,6 +219,22 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   user-help string; omits the tot_mode/human gate, implied by the
   frogbot-practice context. lean = AFFIRM (mild). [frogbot-help-string
   sub-batch: addbot/breakondeath/... -- adjudicate together.] YOUR call.
+- **removemarker:frogbot:editor** (row 22, HTML#13): FACT =
+  source-accurate (FrogbotRemoveMarker bot_commands.c:1199-1223;
+  LocateMarker nearest -> no-marker / non-"marker"-classname guards ->
+  deselect-if-saved -> RemoveMarker route_fields.c:121). Affirm-vs-synth:
+  genuine user-facing editor help line (printed by PrintAvailableCommands
+  in the editor command list), terse-by-design, WHAT-accurate. Omits (a)
+  nearest-targeting and (b) manual-only refusal ("Cannot remove
+  non-manual markers"); (a) is the universal editor_commands[] mechanism
+  (every sibling uses LocateMarker(nearest) -- implied by "editor"), (b)
+  is a no-op-with-message guard, NOT a material hidden side-effect like
+  race_toggle's public race-abort. lean = AFFIRM (editor/frogbot-help-
+  string cluster -- adjudicate with addbot/breakondeath/gamemodes/
+  next_best). Note: r22 removemarker is the affirmed sibling of r21
+  clearmarkerflag (synthesized -- its shipped string was a copy-paste
+  artifact); the pipeline correctly split the two within one
+  editor_commands[] neighbourhood -- a pro-affirm signal here. YOUR call.
 
 ## Carry-forwards to Phase 4 (MVDSV) -- the orchestrator MUST fold these into the Phase-4 executor prompt
 
@@ -282,9 +301,15 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
 - r21 clearmarkerflag:frogbot:editor (HTML#12, synth): **CLEAR (fact)**.
   Single-site, not the under-scope class; every clause source-exact; C2
   peer-copy-string artifact verified, D10 call right. 0 new FIX.
-- Session #3 totals so far: 1 row, 1 CLEAR, 0 FIX, 0 judgment-queue
-  adds. Cumulative: **21 / 43 done, 22 PENDING**. FIX queue still 4
-  (rows 4/5/11/12). Affirmed-sample judgment queue still 5.
+- r22 removemarker:frogbot:editor (HTML#13, affirm): **CLEAR-fact**;
+  affirm-judg queued lean AFFIRM. Single-site; handler source-exact;
+  terse genuine editor help line, omitted nuance is editor mechanism /
+  no-op guard not material side-effect. Pipeline correctly split r21
+  (synth, copy-paste string) vs r22 (affirm, correct string).
+- Session #3 totals so far: 2 rows, 1 CLEAR + 1 CLEAR-fact, 0 FIX, 1
+  judgment-queue add. Cumulative: **22 / 43 done, 21 PENDING**. FIX
+  queue still 4 (rows 4/5/11/12). Affirmed-sample judgment queue now 6
+  (added removemarker).
 
 ### Session #2 wrap (rows 13-20)
 
@@ -388,5 +413,5 @@ ledger is a lossless resume contract. **20 / 43 done, 23 PENDING
    the scan verdict.
 
 - Next: live `NEXT =` pointer in the "## Docket = 43 rows" footer
-  (single source of resume truth). Currently row 22 = HTML#13
-  `removemarker:frogbot:editor` (affirmed).
+  (single source of resume truth). Currently row 23 = HTML#18
+  `k_allowvoteadmin` (affirmed).
