@@ -67,7 +67,7 @@ are knob-keyed, so the renumber is loss-free.
 |23|synth|votemap|27|[D] FIX (under-scope sub-A; meaning INVERSION -- highest severity)|
 |24|affirm|k_motd_time|28|[D] CLEAR-fact; judg->Q (lean strong AFFIRM)|
 |25|synth|k_noframechecks|29|[D] CLEAR (D10 canary PASS)|
-|26|affirm|k_sayteam_to_spec|30|PENDING|
+|26|affirm|k_sayteam_to_spec|30|[D] CLEAR-fact; judg->Q (lean strong AFFIRM)|
 |27|affirm|k_timetop|31|PENDING|
 |28|synth|timedown|32|PENDING|
 |29|synth|timeup|33|PENDING|
@@ -86,8 +86,8 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 29 done / 14 PENDING.
-NEXT = ledger row 30 = HTML#26 `k_sayteam_to_spec` (affirmed).
+[D]=dispositioned. 30 done / 13 PENDING.
+NEXT = ledger row 31 = HTML#27 `k_timetop` (affirmed).
 
 ## Per-row dispositions
 
@@ -113,6 +113,7 @@ NEXT = ledger row 30 = HTML#26 `k_sayteam_to_spec` (affirmed).
 | 18 | race_toggle | command | HTML#9 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean SYNTH) | FACT source-accurate: reg commands.c:1007 DEF(r_changestatus) arg 3; r_changestatus case 3 race.c:3050-3059 -- `if (self->racer && race.status)` -> G_bprint "%s has quit the race" + race_end(self,true,false) (:3053-54), THEN set_player_race_ready(self, !self->race_ready) (:3057). WI-1: race.c:4269 race_toggle_incr_cvar = false-positive substring (unrelated headstart/resolution helper, NOT this command); commands.c:7970 r_changestatus(3) = internal caller (same path, not new behaviour). Affirmed verbatim CD_RTOGGLE "toggle ready status for race" (:633). Affirm-vs-synth: OMITS a behaviorally-material mid-run side-effect (running it mid-race publicly QUITS your run -- "X has quit the race" -- before toggling); weaker affirm than next_best/gamemodes, my lean = SYNTHESIZE. In the queue. NOT a silent CLEAR. |
 | 20 | breakondeath:frogbot:std | command | HTML#11 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE on the cvar FB_CVAR_BREAK_ON_DEATH (=k_fb_break_on_death): reg world.c:1065 default 1; toggle handler FrogbotsSetBreakOnDeath bot_commands.c:2219-2230 (bots_enabled gate; cvar_fset !cvar :2227; G_sprint "changed to on/off" :2228); behavioural read player.c:1145 `if(!self->isBot && tot_mode_enabled() && cvar(...))` -> PlayerBreak; match.c:1789 = non-behavioural settings-display read (correctly out of scope, NOT under-scope). Affirmed verbatim. Affirm-vs-synth: genuine terse /botcmd user-help line; omits the tot_mode/human gate but that is implied by the frogbot-practice context this command lives in. lean = AFFIRM (mild). Queue (frogbot-help-string cluster). NOT a silent CLEAR. |
 | 19 | addbot:frogbot:std | command | HTML#10 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate: std_commands table bot_commands.c:2318 `{ "addbot", FrogbotsAddbot_f, "Adds a bot. Skill & team optional" }`; handler FrogbotsAddbot_f :362-392 -- !bots_enabled -> "Bots are disabled" return (:368); optional numeric argv[2]=skill (:375-380), argv[3]=team; FrogbotsAddbot(skill,team,true) (:392) spawns one bot, clamps skill, auto-balances teams. WI-1: :1908 + :2790 are OTHER internal FrogbotsAddbot callers (different contexts, not this std command). Affirmed verbatim. Affirm-vs-synth: the string is a GENUINE user-facing help line (PrintAvailableCommands prints it to players in /botcmd), terse-by-design for a command list, accurate WHAT, no hidden material side-effect; my lean = strong AFFIRM (contrast race_toggle). In the queue. NOT a silent CLEAR. |
+| 30 | k_sayteam_to_spec | cvar | HTML#26 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE: `k_sayteam_to_spec` 4 sites (register world.c:864, read world.c:1443 + switch :1447 + call :1578 -- all FixSayTeamToSpecs); companion `sv_sayteam_to_spec` 4 sites (current-read :1444, write :1468, consumer g_cmd.c:297/528 = the actual say_team->spec gate). NOT under-scope. FixSayTeamToSpecs world.c:1441-1469 switch verified 1:1 vs the enum: case 0->0 (never), case 1->`match_in_progress?1:0` (only during game), case 2->`match_in_progress?0:1` (only during prewar), default(3)->1 (always); `bound(0,..,3)` clamps cleanly. Affirm-vs-synth: among the cleanest of the walk -- fully-spelled 4-value enum mapping EXACTLY to the source switch (every value incl. the match_in_progress conditionals verified, not merely WHAT-accurate), DOUBLE-config corroborated (ktx-example + nquake ktx.cfg:125 identical text, both ship 1). Only omission = the k_->sv_ engine-cvar bridge (implementation mechanism, not admin-relevant). lean = strong AFFIRM (shipped-cfg-comment cluster w/ k_allowvoteadmin/k_exclusive/k_motd_time, cleaner -- exact enum-to-switch). WI-2 clean: no "Default" claim (correct -- 1 is the shipped value not the registered default which is ""/0 via RegisterCvar); cvar, no command-class claim. NOT a silent CLEAR. |
 | 29 | k_noframechecks | cvar | HTML#25 synth | CLEAR (fact) -- **D10 canary PASS** | WI-1 EXHAUSTIVE: `k_noframechecks` 2 sites (register world.c:946, polarity world.c:1862); `framechecks` 4 sites ALL accounted (decl globals.c:26, assign world.c:1862, status commands.c:2032 `Enabled(framechecks)`, enforcement client.c:3824). NOT under-scope. **D10 polarity verified deterministic**: `framechecks = bound(0, !cvar("k_noframechecks"), 1)` -- cvar 0 -> !0=1 -> framechecks 1 = checks ON (default); cvar 1 -> !1=0 -> framechecks 0 = OFF. ZERO interpretive latitude. client.c:3824 `if(... && framechecks && !self->isBot)` gates two checks: uptime (`r>103 && !match_in_progress` warn -> `uptimebugpolicy>3` stuffcmd disconnect) + FPS (`fps>current_maxfps+2` warn -> `fIllegalFPSWarnings>3` stuffcmd disconnect); `!isBot` = bots exempt. Every description clause source-accurate. **C2 framing-conflict**: ktx-example ktx.cfg:4 "disable check (0=no,1=yes)" vs nquake ktx.cfg:5 "check (0=yes,1=no)" -- decoded, BOTH encode the SAME mapping (0=on,1=off); the conflict is INVERTED PROSE, not value->behavior; synthesized "(0=checks on,1=checks off)" matches source AND both configs' actual mappings. C2 surfaced not auto-absorbed. WI-2 clean: "the default; cvar 0" correct (RegisterCvar->RegisterCvarEx(var,"")=""/0, both configs ship 0 -- good inverse of r25's "Default 320" error); cvar, no command-class claim. PROC-1: D10 call reduces to checkable arithmetic (no judgment latitude -- any reviewer computing the !cvar inversion gets the same answer, consistent with both configs), no residual judgment. **Canary verdict: D10 PASS.** No action. |
 | 28 | k_motd_time | cvar | HTML#24 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE: 2 sites -- register world.c:841 (+comment "motd time in seconds"), single read motd.c:139 in MakeMOTD. NOT under-scope. `int i = bound(0,cvar("k_motd_time"),30); motd->attack_finished = g_globalvars.time + (i ? i : (k_matchLess?3:7))` -- k_motd_time = MOTD display seconds, clamped 0..30, 0 -> fallback (3 matchless / 7 else). Affirmed text "time motd is displayed in seconds" = WHAT+unit exact. Affirm-vs-synth: TRIPLE agreement (shipped-doc candidate nquake port_template.cfg:8 + independent code comment world.c:841 + runtime behaviour all say seconds) = cleanest affirm class (contrast r21 clearmarkerflag copy-paste artifact). Omits clamp(<=30) + 0->default fallback = mechanism depth not a misleading WHAT, no hidden side-effect (cf k_exclusive cap-vs-roster, AFFIRM). WI-2 clean: no "Default" claim (true registered default ""/0 via RegisterCvarEx(var,""); good contrast to r25 k_highspeed's wrong "Default 320"); cvar, no command-class claim. lean = strong AFFIRM (terse-doc/shipped-cfg cluster w/ k_allowvoteadmin, k_exclusive). Operator-nugget L3/admin: k_motd_time=0 does NOT disable MOTD (falls back 3/7s), max clamped 30s. NOT a silent CLEAR. |
 | 27 | votemap | command | HTML#23 synth | **FIX** (re-synthesis) -- under-scope sub-A (callee-truncation); meaning INVERSION, highest severity of the walk | WI-1: command path votemap (commands.c:701 CF_BOTH\|CF_MATCHLESS\|CF_PARAMS) -> VoteMap (maps.c:503) -> VoteMapSpecific (maps.c:486) -> DoSelectMap (maps.c:392). Synthesis EXPLICITLY scoped OUT DoSelectMap ("any vote/threshold semantics, if present, live inside DoSelectMap which is out of this knob's authoritative read-site") and asserted the OPPOSITE: "direct map change ... performed immediately". Traced DoSelectMap maps.c:392-470 -- it is a VOTE CAST + TALLY, not a direct switch: 7/15s time gate ("Wait N seconds"); k_matchLess+k_no_vote_map block; non-matchless `else if(match_in_progress) return`; `if((self->ct==ctSpec) && !is_adm(self)) return` (non-admin specs CANNOT vote map); k_lockmap respected; registers caller's vote `self->v.map=k_lastvotedmap=iMap`; broadcasts "X suggests/agrees/would rather play on map"; `vote_check_map()` tallies, switch only if threshold passes. EVERY distinctive description clause FALSE: "direct ... immediately" (it's a vote), "usable by players and spectators" (non-admin specs blocked), "no match restriction" (match + matchless + time gates). CD_VOTEMAP label "alternative map vote system" + the `// Perform vote` comment maps.c:497 + the names VoteMap/votemap ALL said vote; synthesis overrode all by declaring the callee out of scope. Root cause = WI-1/sub-A under-scope (callee-truncation flavour: declared a callee out-of-scope, asserted a claim the callee contradicts). 5th under-scope FIX (rows 4/5/11/12 + 27). Re-synth: votemap CASTS a map vote (not a direct change) -- arg = mapname; argc<2 -> "Usage: votemap <mapname>"; GetMapNum==0 -> "Map '%s' not available on this server"; else registers a vote via DoSelectMap (time gate 7s/15s-matchless; blocked mid-match non-matchless / k_no_vote_map / k_lockmap-unless-adm; non-admin spectators cannot vote; vote_check_map tallies and only switches level when the vote passes). State the gates + that the actual level change is vote-thresholded, NOT immediate. |
@@ -287,6 +288,18 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   user-help string; omits the tot_mode/human gate, implied by the
   frogbot-practice context. lean = AFFIRM (mild). [frogbot-help-string
   sub-batch: addbot/breakondeath/... -- adjudicate together.] YOUR call.
+- **k_sayteam_to_spec** (row 30, HTML#26): FACT = source-accurate.
+  FixSayTeamToSpecs world.c:1441-1469 switch maps 1:1 to the enum:
+  0->0 never, 1->match_in_progress?1:0 (only during game),
+  2->match_in_progress?0:1 (only during prewar), default(3)->1
+  always. k_ -> engine sv_sayteam_to_spec (g_cmd.c:528 = actual
+  say_team->spec gate). Affirm-vs-synth: one of the cleanest affirms
+  of the walk -- fully-spelled 4-value enum EXACTLY matching the
+  source switch (every value verified incl. match_in_progress
+  conditionals), DOUBLE-config corroborated (ktx-example + nquake
+  identical). Only omission is the k_->sv_ bridge (implementation
+  mechanism, not admin-relevant). lean = strong AFFIRM. YOUR call.
+  NOT a silent CLEAR.
 - **k_motd_time** (row 28, HTML#24): FACT = source-accurate.
   MakeMOTD motd.c:139 `bound(0,cvar("k_motd_time"),30)` ->
   motd->attack_finished = now + (i ? i : (k_matchLess?3:7));
@@ -475,13 +488,17 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   enforcement client.c:3824 (uptime + FPS warn->disconnect, bots
   exempt) source-exact; the two configs' C2 is inverted-prose only
   (both encode 0=on,1=off); WI-2 clean, no judgment residual.
-- Session #3 totals so far: 9 rows, 3 CLEAR + 4 CLEAR-fact + 2 FIX, 4
-  judgment-queue adds. Cumulative: **29 / 43 done, 14 PENDING**. FIX
+- r30 k_sayteam_to_spec (HTML#26, affirm): **CLEAR-fact**; affirm-judg
+  queued lean strong AFFIRM. 4+4 sites accounted; switch maps 1:1 to
+  the 4-value enum; double-config corroborated; one of the cleanest
+  affirms of the walk; WI-2 clean.
+- Session #3 totals so far: 10 rows, 3 CLEAR + 5 CLEAR-fact + 2 FIX, 5
+  judgment-queue adds. Cumulative: **30 / 43 done, 13 PENDING**. FIX
   queue **6** -- sub-class A under-scope = 5 (rows 4/5/11/12 + 27
   votemap), sub-class B precision = 1 (row 25 k_highspeed).
-  Affirmed-sample judgment queue **9** (this session added
-  removemarker, k_allowvoteadmin, k_exclusive, k_motd_time). D10
-  canary (r29): PASS.
+  Affirmed-sample judgment queue **10** (this session added
+  removemarker, k_allowvoteadmin, k_exclusive, k_motd_time,
+  k_sayteam_to_spec). D10 canary (r29): PASS.
 
 ### Session #2 wrap (rows 13-20)
 
@@ -585,5 +602,5 @@ ledger is a lossless resume contract. **20 / 43 done, 23 PENDING
    the scan verdict.
 
 - Next: live `NEXT =` pointer in the "## Docket = 43 rows" footer
-  (single source of resume truth). Currently row 30 = HTML#26
-  `k_sayteam_to_spec` (affirmed).
+  (single source of resume truth). Currently row 31 = HTML#27
+  `k_timetop` (affirmed).
