@@ -55,7 +55,11 @@
 
 import { readFileSync } from 'node:fs';
 import type postgres from 'postgres';
-import { upsertEntity, upsertCommandVersion } from './natural-keys.js';
+import {
+  upsertEntity,
+  upsertCommandVersion,
+  setEntitySourceState,
+} from './natural-keys.js';
 import type {
   CommandVersionRow,
   HudCommandEntry,
@@ -183,6 +187,29 @@ export async function upsertHudCommandRow(
     last_seen_version: version,
     source_state: 'source_backed',
   });
+
+  // F15 idempotency invariant. upsertEntity writes source_state ONLY on the
+  // INSERT path; its existing-row path returns prevSourceState and leaves the
+  // column untouched (natural-keys.ts -- the shared source_state machine; not
+  // ours to change). Track B is the DESIGNATED OWNER of these entities'
+  // source_state (D21: recovered HUD commands are unconditionally
+  // source_backed, distinguished ONLY by the Track-B field). When the entity
+  // already exists, the step-3 per-type command loader has just written its
+  // help-JSON twin (ast=null -> command_versions.source_file=null), which the
+  // entity-level state-retreat block (load-version.ts) then reads to demote
+  // the row source_backed -> doc_only at head. 3e runs AFTER step-3, so the
+  // adapter must re-ASSERT the source_state it owns or the load is
+  // non-idempotent (a re-load lands doc_only where a clean load lands
+  // source_backed -- it oscillates with period 2 across re-loads). This
+  // mirrors the established upsertEntity-then-setEntitySourceState pattern in
+  // load-version.ts's per-type upsert loop; it is a state assertion, NOT a
+  // transition-log re-implementation (the per-type loader still owns
+  // transition logging -- see this module's header). isNew skips it: the
+  // INSERT already persisted source_backed.
+  if (!upsertResult.isNew) {
+    await setEntitySourceState(tx, upsertResult.id, 'source_backed');
+  }
+
   const row = buildHudCommandVersionRow(
     upsertResult.id,
     version,
