@@ -366,6 +366,198 @@ in its Task-2 block + phase-boundary check 2; narrative preserved -- the
 F6/F8/F9 house style; orchestrator-applied mechanical revision, no redraft,
 no D-amendment, operator-cleared at the Phase-2 boundary); this finding.
 
+### F11 -- Phase-3 migration `015` HEADER comment conflates Track-B scope with the Track-A D20 pool (immutable applied artifact; consumer docs corrected)
+
+**Correction:** The Task-2 Sonnet subagent's `015_l1_runtime_fidelity_provenance.sql`
+HEADER comment (lines ~37-38) describes `track_b_hud_recovery`'s population
+scope as "Recovered-HUD-command origin for the banked-HEAD pool (74 commands
+-- D20/D21)". The "74 commands / D20" parenthetical is the Track-A banked
+SUSPECT pool (registered-but-maybe-dead commands -- D20). Track-B's populated
+set is a STRUCTURALLY DIFFERENT set: the recovered HIDDEN HUD commands the
+Phase-2 handler emits in `ezquake-hud-commands-ast.json` (bare `<name>` +
+`+hud_<name>`/`-hud_<name>`; the ~129-command reverse-diff per X7 -- the very
+commands the literal extractor never saw, which is why Track B exists). The
+SAME conflation propagated into the SCHEMA.md v18 `track_b_hud_recovery`
+paragraph. Same `feedback_parking_verified_state_is_hypothesis` /
+verify-dispatched-terminal-claims shape -- caught by the executor's
+primary-source re-check of the dispatched subagent's output, not by the
+subagent's own "PASS".
+
+**Impact on this arc:** ZERO on schema / data / runtime. The migration BODY
+is correct and shape-locked (3 `ALTER ADD COLUMN`, nullable, no CHECK -- the
+LOCKED SHAPE; all 6 Phase-3 phase-boundary checks still pass: the body, not
+the header prose, is canonical; idempotency proven by DB-vs-file sha256
+MATCH). It is a doc-precision defect in (a) the SCHEMA.md v18 section
+[CONSUMER-FACING, EDITABLE -- DRAINED in-place at execution: the
+`track_b_hud_recovery` paragraph now states the correct
+`ezquake-hud-commands-ast.json` / ~129 / D21/X7 scope and explicitly
+contrasts it with the Track-A 74/D20 pool] and (b) the migration `015`
+HEADER comment [IMMUTABLE: `015` is applied + sha256-tracked in
+`schema_migrations`; editing it makes the next `bun db/migrate.ts` THROW
+"modified after applied"; a `--reset` re-apply drops the WHOLE schema
+(catastrophic, wholly disproportionate to a header nit) and a manual
+un-apply is the X9-forbidden in-place-DB-surgery class -- the executor does
+NOT self-authorize either]. The precise scope statement now exists in every
+consumer-facing authority: SCHEMA.md v18 (drained), the Phase-3 MD Recon
+facts (`:210/:216`), and decisions D21/X7.
+
+**Action / proposed disposition (operator-routed via the orchestrator -- NOT
+executor scope):** the executor recommendation is ACCEPT-AS-IS for the
+migration `015` header -- the migration body is canonical and correct, the
+header is a point-in-time rationale record, and SCHEMA.md (the living schema
+authority, which the SCHEMA.md currency note says to trust) + the Phase-3 MD
++ decisions all carry the precise statement. If the orchestrator/operator
+deems the permanent migration record must be perfected, the
+convention-respecting corrective is a future trivial no-op clarifying
+migration (`016`-shape, comment-only) -- an orchestrator/operator call, not
+an executor default. No design decision changed -- NO `decisions.md`
+D-amendment (the conflation is a drafter-prose error, not a spec error; D20
+Track-A / D21+X7 Track-B were always correct).
+
+**Resolved by:** SCHEMA.md v18 drained in-place at Phase-3 execution
+2026-05-18 (the consumer-facing leg); the migration-`015`-header leg surfaced
+as DONE_WITH_CONCERNS in the Phase-3 executor HALT for orchestrator routing
+(accept-as-is recommended); this finding. **Data corroboration (Phase-3 Task-3
+2026-05-18):** the loader loaded EXACTLY 129 `track_b_hud_recovery` rows, all
+`type='command'`, 0 `type='cvar'` (R7 structurally clean) -- 129 == X7's
+"~129 Track-B reverse-diff", a DIFFERENT set from the Track-A 74/D20 pool,
+confirming the conflation at the data layer (the loader faithfully loaded the
+Phase-2 handler output; the 74 figure was never Track-B's scope).
+
+### F12 -- Phase-3 MD Task-3 + check-3 literal verification command is the wrong subcommand (F6/F10-class copy-run hard-fail)
+
+**Correction:** The Phase-3 MD Task-3 "Verification" block AND phase-boundary
+check 3 both literally specify
+`bun scripts/load-knowledge/index.ts load-version --project ezquake --version
+head --force`. Primary-source-verified live (`index.ts:189-205`): the
+`load-version` subcommand requires `['project','version','type','json',
+'commit']` and calls `loadVersion({jsonPath: values.json...})` -- it ingests
+ONE pre-existing entity-type JSON for ONE type; it does NOT run the Python
+extractor, the per-type loop, or the Phase-3 Track-B/Track-A post-loop blocks.
+A verbatim copy-run HARD-THROWS `--type is required` (missing `--type/--json/
+--commit`), and even fully-argged it is the WRONG entrypoint (single-JSON
+ingest, not the real-extractor+loader+post-loop pipeline Phase 3's round-trip
+needs). The correct entrypoint is `extract-tag` (`index.ts:321-342` ->
+`extract-tag.ts:6,44-47`): `runExtractTag` requires only `['project',
+'version']`, runs the real `extract.py`, the per-type loop, then the
+3b/3c/3e/3f post-loop (incl. the Phase-3 Track-B adapter + Track-A overlay).
+Same `feedback_verification_layer_catches_lift_residuals` shape as F6/F10 (a
+phase-MD literal verification command that does not do what its prose says) --
+F6 = wrong stems -> silent no-op; F10 = missing OFF env -> silent no-op; F12 =
+wrong subcommand -> hard-fail + wrong semantics. Surfaced by the Phase-3
+executor's subagent at execution; the Phase-3 draft + its verification
+sub-agent missed it.
+
+**Impact on this arc:** NONE on the shipped loader/code (all 3 created + 6
+modified files are correct; the round-trip PASSES). The defect is ONLY in the
+Phase-3 MD's literal command text (Task-3 Verification block + phase-boundary
+check 3) -- a future copy-run / `validate-extractor` re-run / arc-reviewer
+hazard. The Phase-3 executor ran the CORRECT command
+(`extract-tag --project ezquake --version head --force [--skip-release-notes]`)
+for Task-3 acceptance AND phase-boundary check 3 (X2-faithful: real extractor
++ this phase's own loader output only; never the runtime dump / combined
+harness).
+
+**Action for the orchestrator (NOT executor scope -- the executor does not
+unilaterally rewrite the phase-MD contract; F6/F10 precedent = orchestrator-
+applied dated MD-correction):** apply a dated correction to the Phase-3 MD
+Task-3 Verification block + phase-boundary check 3, replacing the
+`load-version ...` literal with
+`bun scripts/load-knowledge/index.ts extract-tag --project ezquake --version
+head --force [--skip-release-notes]`; narrative-preserved house style
+(F6/F8/F9/F10); no redraft, no D-amendment (code/data correct; only the MD
+command text wrong). Propagate the same check to Phase-4/5 if they copy the
+`load-version`-shaped command.
+
+**Sub-item (same family, bundle into the same dated MD-correction): the
+check-5 `bun test` literal.** Phase-3 MD check 5 + Task-4 verification
+literally specify `bun test scripts/load-knowledge/quality-grid.test.ts`.
+Primary-source-verified: `quality-grid.test.ts:13-19` is a SAFETY GUARD that
+THROWS unless `DATABASE_URL` includes `qw_oracle_test`; a bare `bun test`
+inherits `.env`'s dev DB (`qw_oracle`) and the guard correctly refuses
+("Refusing to run ... against a non-test database"), so the literal command
+FAILS as written. The canonical form (package.json:27) is
+`DATABASE_URL=postgresql://qworacle:dev@localhost:5432/qw_oracle_test bun test
+scripts/load-knowledge/quality-grid.test.ts` (or `npm run test -- <file>`).
+The Phase-3 executor verified the test 15/15-passes via the canonical
+test-DB invocation (the subagent's "15/15" was correct; the bare-command
+failure was an invocation artifact, not a Task-4 defect). Same F6/F10/F12
+family -- bundle the check-5 literal-command fix into the same orchestrator
+dated MD-correction.
+
+**Resolved by:** Phase-3 executor ran the correct `extract-tag` entrypoint
+AND the canonical test-DB `bun test` at execution 2026-05-18 + surfaced both
+in the HALT for one orchestrator MD-correction routing (F6/F10 precedent);
+this finding.
+
+### F13 -- Phase-3's own D21 Track-B addition makes the regression-family `ezquake.floor.command_*` probes RED; check-5 literal "no regression FAIL" unreconciled with Phase-3 scope
+
+**Correction:** Phase-3 Task-3 (D21) correctly adds 129 first-class
+`type='command'` recovered-HUD-command entities (all `source_state=
+'source_backed'` -- OQ-2). This NECESSARILY moves the calibrated floor
+snapshots at `quality-grid.ts` (`makeFloorCountProbe('ezquake','command',
+564)` @~2110; `makeFloorSourceStateProbe('ezquake','command',{doc_only:7,
+source_backed:495,source_retired:62})` @~2111): live is now command_count=693,
+source_backed=624 (doc_only=7 / source_retired=62 UNCHANGED). Primary-source-
+verified at execution that this is LEGITIMATE growth, NOT a regression/
+corruption/idempotency-bug: (a) 693 entities, 693 DISTINCT name_fold, 0
+dup-overflow -- `UNIQUE(project,type,name_fold)` structurally forbids re-run
+inflation (`feedback_idempotency_before_staleness` check PASSED); (b) the
+emitted 9th file `ezquake-hud-commands-ast.json` has exactly 129 hud_commands
+(`_stats.source_total=129`, bare83+plus23+minus23) -- the loader loaded
+exactly the Phase-2 handler's own recovered set (X7, no detection re-run);
+(c) 693-129 = EXACTLY 564 and the non-Track-B command set is byte-unchanged
+-- the pre-Phase-3 baseline is intact (no existing-row corruption; X3/check-6
+consistent); (d) 564+129=693, 495+129=624 -- exact. This is the
+`reference_qw_oracle_floor_vs_clean_reload` family (floor counts are
+calibrated snapshots a correct reload legitimately moves -- verify before
+crying regression; verified). NOTE the Task-4 subagent mischaracterized these
+as "floor-family, not regression-family, benign" -- FALSE: primary-source-
+verified `makeFloorCountProbe`@1975 + `makeFloorSourceStateProbe`@2015 BOTH
+set `family: 'regression'`; the grid Summary correctly counts them as "2
+regression failures". The subagent's synthesized "benign/non-regression-
+family" claim was caught by the executor's `feedback_verify_dispatched_
+terminal_claims` re-check.
+
+**Impact on this arc:** Phase-3 Task-4's OWN deliverables are DONE +
+primary-source-verified (jsonb-targets += the 3 new cols;
+`F1.runtime_fidelity_shape` + `F1.jsonb_columns_not_strings` BOTH PASS on the
+live Task-3-populated DB; `bun test quality-grid.test.ts` 15/15;
+`tsc --noEmit` clean; quality-grid.ts 2361->2645, ktx-mvdsv F8 namespace
+disjoint + idiom intact). But phase-boundary check-5's LITERAL PASS condition
+"no regression FAIL" is violated by these 2 regression-family floor FAILs --
+which are RED *only because Phase-3 did exactly what D21/the North Star
+specifies* (recover hidden HUD commands as first-class entities). The Phase-3
+MD did not reconcile its own D21 deliverable with its check-5 "no regression
+FAIL" + the floor snapshot, and its Recovery section does not anticipate this
+failure mode. The 2 anomalies the grid also surfaces (`F2.doc_only_crosstab`
+57; `F2.default_value_ping_pong` gl_lightmode) are pre-existing,
+non-Phase-3, in the non-gating F2 anomaly family -- irrelevant here.
+
+**Action / proposed disposition (orchestrator/operator-routed -- NOT executor
+scope: the floor block is a CROSS-ARC SHARED SUBSTRATE (`quality-grid.ts`)
+the active sibling ktx-mvdsv arc also edits -- `feedback_cross_phase_audit_
+shared_file_drift` / F8 family -- so a unilateral executor recalibration risks
+the exact cross-arc collision this arc has repeatedly hit; the arc-executor
+skill also forbids improvising a Recovery the phase MD did not authorize):**
+recalibrate the two `ezquake.command` floor expecteds to the verified-exact
+new baseline -- `makeFloorCountProbe('ezquake','command', 693)` and
+`makeFloorSourceStateProbe('ezquake','command',{doc_only:7,source_backed:624,
+source_retired:62})` (plus the `:1949`-style calibration comment) -- AND/OR
+the orchestrator revises Phase-3 check-5 to scope out expected-Phase-3-D21
+floor growth. Executor recommendation: recalibrate (the values are
+primary-source-exact and idempotent; leaving a knowingly-red regression gate
+is the `feedback_every_finding_gets_a_track` anti-pattern) -- but the
+orchestrator owns the cross-arc-shared-substrate edit + the check-5
+contract-wording call. No design decision changed -- NO `decisions.md`
+D-amendment (D20 Track-A 74 / D21+X7 Track-B ~129 were always correct; this
+is a stale calibrated snapshot, not a spec error).
+
+**Resolved by:** Phase-3 executor primary-source-verified the floor delta is
+legitimate idempotent D21 growth (not a regression) + surfaced as the primary
+DONE_WITH_CONCERNS in the P3 HALT for orchestrator routing
+(recalibrate-or-revise-check-5); this finding.
+
 ---
 
 ## R -- implementation residuals (brainstorm-deferred; owning phase resolves)
@@ -502,6 +694,9 @@ mechanism; **S** = unified schema + loader; **ACC** = acceptance contract;
 | F8 (cross-arc drift: sibling consumed mig `014` + grew quality-grid.ts post-freeze) | S (own) + ACC/APP (propagate) | executor-derive the mig ordinal; re-derive quality-grid.ts cites live; P3/P4/P5/README revised; no D-amendment |
 | F9 (D5 not-compiled underivable for build-system-excluded files; P1 Gate-3 RED; Recon premise refuted) | A (own) -> operator/orchestrator (D5-derivation amendment) | RESOLVED 2026-05-17 -- Option B operator-ratified; `decisions.md` D5 AMENDMENT 2026-05-17 (not-compiled = preprocessor-derivable only; D3 intact; D19/level-3 unaffected); P1 re-verified GREEN + SHIPPED `51604f67` (README Phase-1 shipped) |
 | F10 (Phase-2 MD Task-2 X3 baseline-leg omits the OFF env var; F6-class copy-run silent-no-op) | B (own) -> orchestrator (MD correction) | RESOLVED 2026-05-18 -- executor implemented the `HUD_COMMANDS_OFF` env-var seam + ran X3 genuinely off; orchestrator independently re-ran X3 clean + applied the dated Phase-2 MD correction; no code/data impact, no D-amendment |
+| F11 (Phase-3 mig `015` HEADER conflates Track-B scope w/ Track-A 74/D20 pool; same in SCHEMA.md v18) | S (own) -> orchestrator (accept-as-is or future no-op clarifying mig) | RESOLVED 2026-05-18 -- SCHEMA.md v18 drained in-place at execution (consumer-facing leg corrected); orchestrator gate CONFIRMED accept-as-is for the immutable applied-`015`-header leg (sha256-tracked; editing it is the silent-corruption class F8 exists to prevent; body canonical+correct; SCHEMA.md + Phase-3 MD + decisions D21/X7 all carry the precise scope; a no-op `016` would be pure ceremony) -- no data/schema/runtime impact, no D-amendment; data-corroborated (loader loaded 129 == X7 reverse-diff, all type='command', 0 cvar) |
+| F12 (Phase-3 MD Task-3 + check-3 literal cmd is `load-version` -- wrong subcommand; F6/F10-class hard-fail) | S (own) -> orchestrator (dated MD-correction) | RESOLVED 2026-05-18 -- executor ran the correct `extract-tag` entrypoint at execution (acceptance + check-3 X2-faithful); orchestrator APPLIED the dated MD-correction (Task-3 Verification block `load-version` -> `extract-tag --skip-release-notes`; Task-4 + check-5 bare `bun test` -> canonical `qw_oracle_test`-DB form; check-3 references the Task-3 block so it inherits the fix) -- F6/F10 narrative-preserved precedent, no redraft, no D-amendment, code/data correct |
+| F13 (Phase-3's own D21 +129 makes regression-family `ezquake.floor.command_*` RED; check-5 "no regression FAIL" unreconciled w/ Phase-3 scope) | S (own) -> orchestrator (recalibrate floor snapshot AND/OR revise check-5; cross-arc shared-substrate) | RESOLVED 2026-05-18 -- floor delta primary-source-verified LEGITIMATE idempotent D21 growth (693=564+129, 624=495+129, baseline-564 unchanged, 129=Phase-2 source-of-truth, 0 dup-fold), NOT a regression/corruption; orchestrator independently re-verified at primary source (693 / 0 dup name_fold / {7,624,62} / 129 track_b carriers) + re-ran the F1 grid (exactly the 2 floor probes RED, no hidden breakage); operator-routed -> orchestrator RECALIBRATED `quality-grid.ts` (564 -> 693; source_backed 495 -> 624; dated inline note + the :1949 snapshot line; F8-scoped surgical edit, disjoint from the ktx-mvdsv region) + folded the expected-D21-growth note into the F12 dated check-5 MD-correction; Task-4 own deliverables DONE+verified (2 new probes GREEN, test 15/15, tsc clean); no D-amendment (D20/D21/X7 always correct -- stale calibrated snapshot) |
 | R1 (AST-confirm literal) | B | AST probe before literal-only is load-bearing |
 | R2 (D15/D12 field shape) | S | two separate fields; feeder tag structural |
 | R3 (D16 element key) | B (emit) + S (store) | element-grouped provenance |

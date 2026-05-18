@@ -38,6 +38,17 @@ export function buildCommandVersionRow(
     source_root: entry.source_root ?? null,
     raw_ast_hash,
     extracted_at: now,
+
+    // L1 runtime-fidelity provenance (migration 015). The per-type command
+    // loader populates NEITHER column -- track_a_reachability is owned by
+    // the Track-A overlay (load-callgraph-reachability.ts) and
+    // track_b_hud_recovery by the Track-B adapter (load-hud-commands.ts),
+    // each via its own post-loop upsert. These nulls keep the shared row
+    // shape compiling; a normal load leaves both columns NULL (D13
+    // level-1). The upsert COALESCEs so these nulls do not clobber a value
+    // a sibling pass wrote in the same run.
+    track_a_reachability: null,
+    track_b_hud_recovery: null,
   };
 }
 

@@ -67,6 +67,14 @@ export function buildCvarVersionRow(
 
     raw_ast_hash,
     extracted_at: now,
+
+    // L1 runtime-fidelity provenance (migration 015). The per-type cvar
+    // loader NEVER populates this -- the Track-A overlay
+    // (load-callgraph-reachability.ts) owns it via a separate post-loop
+    // upsert. Carrying the nullable field keeps the shared row shape
+    // compiling; a normal load leaves the column NULL (D13 level-1). The
+    // upsert COALESCEs so this null does not clobber an overlay value.
+    track_a_reachability: null,
   };
 }
 

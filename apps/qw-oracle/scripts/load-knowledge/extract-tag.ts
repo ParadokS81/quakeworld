@@ -423,6 +423,86 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
     }
   }
 
+  // 3e. ezQuake Track-B HUD-commands load (enforce-L1-runtime-truth Phase
+  // 3). After the entity-loader loop, load the recovered HUD commands from
+  // _handler_hud.py's ezquake-hud-commands-ast.json as first-class
+  // type='command' entities, each carrying the track_b_hud_recovery spine
+  // on its command_versions row. Same 3b/3c precedent as the KTX modes
+  // block above: a non-standard loader whose data is NOT
+  // EntityType-dispatch-loop-shaped (hud_command is not an EntityType --
+  // D21 keeps these as type='command', so they cannot ride
+  // ENTITY_JSON_FILES + the typed dispatch loop, which casts as
+  // [EntityType,string][] and would throw "Unknown entity type"). Runs
+  // BEFORE the Track-A overlay (3f) so the rows it creates already exist
+  // when the overlay stamps them. Project-scoped + existsSync-guarded +
+  // idempotent (safe to re-run; the call no-ops on a checkout where the
+  // HUD-commands handler has not yet been exercised).
+  if (options.project === 'ezquake') {
+    const hudCommandsJsonPath = join(extractorOutputDir, 'ezquake-hud-commands-ast.json');
+    if (existsSync(hudCommandsJsonPath)) {
+      const { loadHudCommandsFromFile } = await import('./load-hud-commands.js');
+      const hudResult = await loadHudCommandsFromFile(
+        options.sql,
+        options.version,
+        hudCommandsJsonPath,
+      );
+      console.log(
+        `[extract-tag] ezquake Track-B HUD commands loaded: ` +
+        `total=${hudResult.total} (inserted=${hudResult.inserted}, updated=${hudResult.updated})`,
+      );
+    } else {
+      console.warn(
+        `[extract-tag] ezquake-hud-commands-ast.json missing at ${hudCommandsJsonPath}; ` +
+        `skipping Track-B HUD-command loading. Re-run extract-tag once the HUD-commands ` +
+        `handler ships if this is unexpected.`,
+      );
+    }
+  }
+
+  // 3f. ezQuake Track-A reachability overlay (enforce-L1-runtime-truth
+  // Phase 3). After Track-B (3e), overlay the locked Track-A spine from
+  // emit_callgraph_signal.py's additive 10th file
+  // ezquake-callgraph-reachability-ast.json onto the EXISTING
+  // cvar_versions / command_versions rows (including the
+  // just-created Track-B command rows). This is an OVERLAY: it creates NO
+  // entities (X7); a signal entry that matches no existing entity is
+  // skipped + counted (a non-zero skip count is logged LOUD, never a
+  // silent drop). Runs LAST of the ezQuake post-loop blocks so every
+  // cvar/command row it stamps already exists. Project-scoped +
+  // existsSync-guarded + idempotent (the ON CONFLICT path re-supplies the
+  // spine each run; the per-type loaders' nulls are COALESCEd so they
+  // never wipe it).
+  if (options.project === 'ezquake') {
+    const reachabilityJsonPath = join(extractorOutputDir, 'ezquake-callgraph-reachability-ast.json');
+    if (existsSync(reachabilityJsonPath)) {
+      const { loadCallgraphReachabilityFromFile } = await import('./load-callgraph-reachability.js');
+      const cgResult = await loadCallgraphReachabilityFromFile(
+        options.sql,
+        options.version,
+        reachabilityJsonPath,
+      );
+      console.log(
+        `[extract-tag] ezquake Track-A reachability overlay: ` +
+        `cvar_stamped=${cgResult.cvarStamped}, command_stamped=${cgResult.commandStamped}, ` +
+        `skipped=${cgResult.skipped}`,
+      );
+      if (cgResult.skipped > 0) {
+        console.warn(
+          `[extract-tag] Track-A overlay SKIPPED ${cgResult.skipped} signal ` +
+          `entr${cgResult.skipped === 1 ? 'y' : 'ies'} with no matching loaded entity ` +
+          `(NOT created -- X7). First few: ${cgResult.skippedNames.slice(0, 10).join(', ')}` +
+          `${cgResult.skippedNames.length > 10 ? ', ...' : ''}`,
+        );
+      }
+    } else {
+      console.warn(
+        `[extract-tag] ezquake-callgraph-reachability-ast.json missing at ${reachabilityJsonPath}; ` +
+        `skipping Track-A reachability overlay. Re-run extract-tag with the callgraph ` +
+        `passenger ON (default) if this is unexpected.`,
+      );
+    }
+  }
+
   // 4. Asset bundle. Skipped for projects without one.
   let assets = { extensionsUpserted: 0, pathRulesUpserted: 0, cvarBindingsUpserted: 0, loaderSitesUpserted: 0 };
   if (hasAssetBundle) {

@@ -598,7 +598,19 @@ handler emission or existing entity rows would violate X3.
   ```
   cd apps/qw-oracle
   # run the real extractor (Phase-1/2 toggles on) + the loader for head
-  bun scripts/load-knowledge/index.ts load-version --project ezquake --version head --force
+  # [F12 DATED CORRECTION 2026-05-18 (orchestrator-applied; review-findings
+  #  F12; F6/F10 narrative-preserved precedent -- no redraft, no D-amendment,
+  #  code/data correct). Original literal was: `bun scripts/load-knowledge/
+  #  index.ts load-version --project ezquake --version head --force`.
+  #  Primary-source-verified WRONG: `load-version` (index.ts:189-205) requires
+  #  --type/--json/--commit and ingests ONE pre-existing single-type JSON --
+  #  it does NOT run extract.py, the per-type loop, or the Phase-3 Track-A/
+  #  Track-B post-loop; a copy-run HARD-THROWS `--type is required` (the
+  #  F6/F10 silent-no-op sibling -- here a hard-fail + wrong semantics).
+  #  Correct entrypoint (index.ts:321-342 -> extract-tag.ts) below; the
+  #  Phase-3 executor ran THIS at execution (X2-faithful: real extractor +
+  #  this phase's own loader output only).]
+  bun scripts/load-knowledge/index.ts extract-tag --project ezquake --version head --force --skip-release-notes
   PSQL="docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -tAc"
   # (a) Track-A populated for pool members, correct three-slot + level-2
   $PSQL "SELECT count(*) FROM command_versions WHERE track_a_reachability IS NOT NULL;"
@@ -690,12 +702,22 @@ handler emission or existing entity rows would violate X3.
   ```
   cd apps/qw-oracle
   npm run load-knowledge -- quality-grid --project ezquake
-  bun test scripts/load-knowledge/quality-grid.test.ts
+  # [F12 DATED CORRECTION 2026-05-18: original `bun test scripts/load-
+  #  knowledge/quality-grid.test.ts` FAILS as written -- quality-grid.test.ts
+  #  has a safety guard that THROWS unless DATABASE_URL targets a *_test DB;
+  #  a bare `bun test` inherits .env's dev DB. Canonical form (package.json):]
+  DATABASE_URL=postgresql://qworacle:dev@localhost:5432/qw_oracle_test bun test scripts/load-knowledge/quality-grid.test.ts
   ```
   PASS condition: the grid prints `F1.jsonb_columns_not_strings PASS`
   and `F1.runtime_fidelity_shape PASS` and no FAIL in the regression
-  family; the test file passes incl. the new cases. FAIL condition:
-  any regression FAIL, or the new probe absent from the grid output.
+  family [F13 DATED CORRECTION 2026-05-18: the regression-family
+  `ezquake.floor.command_*` snapshot was RE-BASELINED 564 -> 693 /
+  source_backed 495 -> 624 in `quality-grid.ts` because Phase-3's own
+  D21/Track-B deliverable legitimately adds +129 first-class recovered
+  HUD `command` entities -- primary-source-verified, 0 dup name_fold,
+  NOT a regression; review-findings F13, no D-amendment]; the test file
+  passes incl. the new cases. FAIL condition: any regression FAIL, or
+  the new probe absent from the grid output.
 - **Execution mode:** `subagent (Sonnet medium)` -- probe + test
   authoring against the locked shape and the established
   `quality-grid.ts` idiom; reasoning, not architecture. Sonnet-medium
@@ -754,9 +776,25 @@ item 4), never the combined harness (Phase 4/5). X2 by construction
 5. **F1 quality-grid GREEN incl. the new shapes (Task 4):**
    `npm run load-knowledge -- quality-grid --project ezquake` -- PASS:
    `F1.jsonb_columns_not_strings PASS`, `F1.runtime_fidelity_shape
-   PASS`, no regression FAIL; `bun test
-   scripts/load-knowledge/quality-grid.test.ts` passes. FAIL: any
-   regression FAIL or the new probe absent.
+   PASS`, no regression FAIL [F13 DATED CORRECTION 2026-05-18
+   (orchestrator-applied, operator-routed; review-findings F13;
+   `reference_qw_oracle_floor_vs_clean_reload` family; no D-amendment --
+   D20/D21/X7 were always correct): Phase-3's own D21/Track-B deliverable
+   adds +129 first-class recovered HUD `command` entities, so the
+   regression-family `ezquake.floor.command_count` (564 -> 693) +
+   `ezquake.floor.command_source_state` (source_backed 495 -> 624;
+   doc_only=7 / source_retired=62 UNCHANGED) calibrated snapshot was
+   RE-BASELINED in `quality-grid.ts` to the primary-source-verified-exact
+   new baseline (693 DISTINCT name_fold, 0 dup, 693-129 == the prior 564
+   baseline intact -- legitimate growth, NOT regression/idempotency
+   inflation). Post-recalibration "no regression FAIL" holds as written;
+   this note records that the post-Phase-3 floor growth is BY-DESIGN so a
+   future re-run / arc-reviewer reads 693 not 564 with the why];
+   `DATABASE_URL=postgresql://qworacle:dev@localhost:5432/qw_oracle_test
+   bun test scripts/load-knowledge/quality-grid.test.ts` passes [F12
+   DATED CORRECTION 2026-05-18: original bare `bun test ...` fails the
+   test-DB safety guard; canonical test-DB form shown -- review-findings
+   F12]. FAIL: any regression FAIL or the new probe absent.
 6. **X3 non-corruption -- existing emission + existing rows unchanged:**
    the 8 F6 byte-identical stems are byte-identical to the prior-HEAD
    extractor output (Phase-1/2 already gate this; Phase 3 adds only the

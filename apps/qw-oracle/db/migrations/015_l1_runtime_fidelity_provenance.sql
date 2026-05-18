@@ -1,0 +1,61 @@
+-- 015_l1_runtime_fidelity_provenance.sql
+--
+-- L1 runtime fidelity provenance: two physically separate JSONB columns
+-- carrying Track-A reachability and Track-B HUD-recovery verdicts, per the
+-- enforce-L1-runtime-truth arc (D14 three-slot spine, D12 no-blend, D13
+-- slot-3 representation rule).
+--
+-- D14 THREE-SLOT SPINE: {conclusion, evidence, dump_confirmation}
+--   Every populated row carries exactly three top-level keys. The schema
+--   enforces no JSON substructure (nullable JSONB, no CHECK) -- the loader
+--   is the enforcer.
+--
+--   COLUMN 1: track_a_reachability  (cvar_versions + command_versions)
+--     Track-A callgraph feeder shape:
+--       { "conclusion":"genuine-dead"|"build-excluded",
+--         "evidence":{ "feeder":"callgraph",
+--                      "per_variant":{"client":S,"server":S,"win":S,"apple":S},
+--                      "address_taken_residue":bool },
+--         "dump_confirmation":"high-confidence-generalized" }
+--     Track-A commented-register feeder shape:
+--       { "conclusion":"genuine-dead"|"build-excluded",
+--         "evidence":{ "feeder":"commented-register",
+--                      "register_site":{"source_file":str,"source_line":int} },
+--         "dump_confirmation":"high-confidence-generalized" }
+--     where S in "reachable"|"unreachable"|"not-compiled". The string
+--     "not-compiled" is DISTINCT -- it is never collapsed into "unreachable"
+--     (D5 three-valued per-variant signal).
+--
+--   COLUMN 2: track_b_hud_recovery  (command_versions ONLY -- D11/D21)
+--     Shape:
+--       { "conclusion":"bare-command"|"plus-minus-pair",
+--         "evidence":{ "hud_element":str, "hud_family":"bare"|"plus"|"minus",
+--                      "registration_api":"Cmd_AddCommand"|"Cmd_AddRemCommand",
+--                      "handler_fn":"HUD_Func_f"|"HUD_Plus_f"|"HUD_Minus_f",
+--                      "site":{"source_file":str,"source_line":int} },
+--         "dump_confirmation":"high-confidence-generalized" }
+--     Not on cvar_versions. Recovered-HUD-command origin for the
+--     banked-HEAD pool (74 commands -- D20/D21).
+--
+-- D12 STRUCTURAL NO-BLEND: NO single runtime_fidelity wrapper column; NO
+--   cross-track `kind` discriminator. `evidence.feeder` is an INTRA-Track-A
+--   tag that disambiguates Track A's own two feeders (callgraph vs
+--   commented-register -- D7.1/D15). It is structurally never a cross-track
+--   discriminator. Track separation is PHYSICAL: two columns, each covering
+--   different tables and scopes.
+--
+-- D13 SLOT-3 REPRESENTATION-ONLY RULE: the loader writes
+--   "high-confidence-generalized" (level-2) for EVERY populated row in Phase
+--   3. "dump-confirmed" (level-3) is a VALID enum the column MAY hold but
+--   Phase 3 NEVER writes it -- Phase 4 owns the runtime-dump cross-check
+--   (D19). NULL whole column == level-1 "mechanism did not run".
+--
+--   Population scope: banked HEAD pool only (92 cvars + 74 commands -- D20).
+--   NULL elsewhere is D13 level-1 "no signal" -- not an error.
+--
+-- X9 Pure schema; no data backfill -- values arrive when the loader is
+--   re-run against the Phase-1/2 extractor output (loader-only, no re-walk).
+
+ALTER TABLE cvar_versions    ADD COLUMN track_a_reachability JSONB;
+ALTER TABLE command_versions ADD COLUMN track_a_reachability JSONB;
+ALTER TABLE command_versions ADD COLUMN track_b_hud_recovery JSONB;

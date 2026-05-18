@@ -191,13 +191,15 @@ export async function upsertCvarVersion(tx: postgres.TransactionSql<{}>, row: Cv
       help_desc, help_remarks, help_values, help_group_id, help_type,
       default_value, flags_raw, flag_names, on_change, min_bound, max_bound,
       source_file, source_line, source_column, storage_class, group_name_in_source,
-      trailing_comment, server_only, source_root, raw_ast_hash, extracted_at
+      trailing_comment, server_only, source_root, raw_ast_hash, extracted_at,
+      track_a_reachability
     ) VALUES (
       ${row.entity_id}, ${row.version},
       ${row.help_desc}, ${row.help_remarks}, ${row.help_values}, ${row.help_group_id}, ${row.help_type},
       ${row.default_value}, ${row.flags_raw}, ${row.flag_names}, ${row.on_change}, ${row.min_bound}, ${row.max_bound},
       ${row.source_file}, ${row.source_line}, ${row.source_column}, ${row.storage_class}, ${row.group_name_in_source},
-      ${row.trailing_comment}, ${asBool(row.server_only)}, ${row.source_root}, ${row.raw_ast_hash}, ${row.extracted_at}
+      ${row.trailing_comment}, ${asBool(row.server_only)}, ${row.source_root}, ${row.raw_ast_hash}, ${row.extracted_at},
+      ${row.track_a_reachability == null ? null : tx.json(row.track_a_reachability as never)}
     )
     ON CONFLICT (entity_id, version) DO UPDATE SET
       help_desc            = EXCLUDED.help_desc,
@@ -220,7 +222,16 @@ export async function upsertCvarVersion(tx: postgres.TransactionSql<{}>, row: Cv
       server_only          = EXCLUDED.server_only,
       source_root          = EXCLUDED.source_root,
       raw_ast_hash         = EXCLUDED.raw_ast_hash,
-      extracted_at         = EXCLUDED.extracted_at
+      extracted_at         = EXCLUDED.extracted_at,
+      -- COALESCE so the per-type cvar loader (which always passes null)
+      -- never clobbers a track_a_reachability value the Track-A overlay
+      -- already wrote in a SEPARATE upsert this same run. The overlay runs
+      -- AFTER the per-type loop (3f post-loop block) and passes the real
+      -- spine, so its EXCLUDED is non-null and wins. A normal re-load
+      -- (loader-only X9 recovery) re-runs both passes, so the value is
+      -- re-supplied by the overlay each time -- COALESCE just makes the
+      -- per-type pass a no-op for this column rather than a wipe.
+      track_a_reachability = COALESCE(EXCLUDED.track_a_reachability, cvar_versions.track_a_reachability)
   `;
 }
 
@@ -230,12 +241,15 @@ export async function upsertCommandVersion(tx: postgres.TransactionSql<{}>, row:
       entity_id, version,
       help_desc, help_remarks, help_group_id,
       handler_fn, source_file, source_line, source_column,
-      registration_file, source_root, raw_ast_hash, extracted_at
+      registration_file, source_root, raw_ast_hash, extracted_at,
+      track_a_reachability, track_b_hud_recovery
     ) VALUES (
       ${row.entity_id}, ${row.version},
       ${row.help_desc}, ${row.help_remarks}, ${row.help_group_id},
       ${row.handler_fn}, ${row.source_file}, ${row.source_line}, ${row.source_column},
-      ${row.registration_file}, ${row.source_root}, ${row.raw_ast_hash}, ${row.extracted_at}
+      ${row.registration_file}, ${row.source_root}, ${row.raw_ast_hash}, ${row.extracted_at},
+      ${row.track_a_reachability == null ? null : tx.json(row.track_a_reachability as never)},
+      ${row.track_b_hud_recovery == null ? null : tx.json(row.track_b_hud_recovery as never)}
     )
     ON CONFLICT (entity_id, version) DO UPDATE SET
       help_desc         = EXCLUDED.help_desc,
@@ -248,7 +262,17 @@ export async function upsertCommandVersion(tx: postgres.TransactionSql<{}>, row:
       registration_file = EXCLUDED.registration_file,
       source_root       = EXCLUDED.source_root,
       raw_ast_hash      = EXCLUDED.raw_ast_hash,
-      extracted_at      = EXCLUDED.extracted_at
+      extracted_at      = EXCLUDED.extracted_at,
+      -- COALESCE on BOTH provenance columns: the two writers are SEPARATE
+      -- upserts in one run. The Track-B adapter writes track_b (track_a
+      -- null); the Track-A overlay writes track_a (track_b null); the
+      -- per-type command loader writes both null. Each pass would otherwise
+      -- wipe the other's column on ON CONFLICT. COALESCE keeps a non-null
+      -- value once any pass has written it -- and a normal X9 re-load
+      -- re-supplies both from their owning passes, so this is order- and
+      -- re-run-safe (loader's own idempotent write, not an in-place repair).
+      track_a_reachability = COALESCE(EXCLUDED.track_a_reachability, command_versions.track_a_reachability),
+      track_b_hud_recovery = COALESCE(EXCLUDED.track_b_hud_recovery, command_versions.track_b_hud_recovery)
   `;
 }
 

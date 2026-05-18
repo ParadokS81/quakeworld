@@ -451,6 +451,17 @@ export interface CommandVersionRow {
   source_root: string | null;
   raw_ast_hash: string | null;
   extracted_at: string;
+  // L1 runtime-fidelity provenance (migration 015, enforce-L1-runtime-truth
+  // arc). Two physically separate JSONB columns (D12 no-blend). NULL == D13
+  // level-1 "mechanism did not run for this row"; populated only for the
+  // banked-HEAD pool. track_a_reachability is owned by the Track-A overlay
+  // (load-callgraph-reachability.ts); the per-type command loader leaves it
+  // null. track_b_hud_recovery is owned by the Track-B adapter
+  // (load-hud-commands.ts). Shape is the locked three-slot spine
+  // {conclusion, evidence, dump_confirmation} -- the loader is the enforcer
+  // (the column is a bare nullable JSONB with no CHECK).
+  track_a_reachability: object | null;
+  track_b_hud_recovery: object | null;
 }
 
 export interface MacroVersionRow {
@@ -858,6 +869,13 @@ export interface CvarVersionRow {
 
   raw_ast_hash: string | null;
   extracted_at: string;
+
+  // L1 runtime-fidelity provenance (migration 015). Track-A reachability
+  // only -- there is NO track_b_hud_recovery on cvar_versions (D11/D21:
+  // Track-B is COMMANDS ONLY). NULL == D13 level-1; owned by the Track-A
+  // overlay (load-callgraph-reachability.ts), so the per-type cvar loader
+  // leaves it null. Same locked three-slot spine as the command column.
+  track_a_reachability: object | null;
 }
 
 export interface ReleaseNoteRow {
@@ -1075,4 +1093,68 @@ export interface MapRow {
   notes: string | null;
   source_bsp_url: string;
   extracted_at: string;
+}
+
+// --- enforce-L1-runtime-truth Phase 3: extractor signal-file shapes -------
+//
+// Two additive extractor outputs feed the two new JSONB columns. Both are
+// ezQuake-only (the per-fork extractor directory is the gate -- D22) and
+// loaded outside the EntityType dispatch loop (3b/3c precedent in
+// extract-tag.ts). The loader trusts these shapes as the handlers'/seam's
+// contract; no re-derivation (F5 OPAQUE round-trip -- shape only).
+
+// Track-A: the 10th file `ezquake-callgraph-reachability-ast.json`, written
+// by emit_callgraph_signal.py. Keyed by `<type>::<name>` so the loader joins
+// to entities by (project='ezquake', type, name_fold). Each value is ALREADY
+// the locked three-slot Track-A spine -- the seam applied the mechanism->L1
+// transform (a)-(e); the loader copies it through verbatim.
+export interface CallgraphReachabilitySpine {
+  conclusion: 'genuine-dead' | 'build-excluded';
+  evidence:
+    | {
+        feeder: 'callgraph';
+        per_variant: {
+          client: string;
+          server: string;
+          win: string;
+          apple: string;
+        };
+        address_taken_residue: boolean;
+      }
+    | {
+        feeder: 'commented-register';
+        register_site: { source_file: string; source_line: number };
+      };
+  dump_confirmation: 'high-confidence-generalized';
+}
+export interface CallgraphReachabilityFile {
+  project: 'ezquake';
+  // entries[<type>::<name>] -> the locked Track-A spine. `type` is 'cvar' |
+  // 'command'; `name` is the SOURCE-case entity name (the loader folds it).
+  entries: Record<string, { type: 'cvar' | 'command'; name: string; spine: CallgraphReachabilitySpine }>;
+  _stats?: Record<string, unknown>;
+}
+
+// Track-B: the 9th file `ezquake-hud-commands-ast.json`, written by
+// _handler_hud.py's finalize(). `hud_commands` is a dict keyed by the
+// recovered command name; each entry carries the HUD family/element and the
+// AST site. The Track-B adapter (load-hud-commands.ts) maps this to a
+// command_versions row PLUS the track_b_hud_recovery spine (transform f-l).
+export interface HudCommandEntry {
+  hud_family: 'bare' | 'plus' | 'minus';
+  hud_element: string;
+  ast: {
+    handler_fn: 'HUD_Func_f' | 'HUD_Plus_f' | 'HUD_Minus_f';
+    source_file: string;
+    source_line: number;
+    source_column: number;
+    enclosing_function: string | null;
+    build_variant: string;
+    registration_api: 'Cmd_AddCommand' | 'Cmd_AddRemCommand';
+  };
+}
+export interface HudCommandsFile {
+  hud_commands: Record<string, HudCommandEntry>;
+  r1?: Record<string, unknown>;
+  _stats?: Record<string, unknown>;
 }

@@ -131,7 +131,7 @@ What differs is the type-specific payload columns.
 
 Extracted from `var_t`/`cvar_t` struct initializers. Schema v1.
 
-Type-specific columns: `help_desc`, `help_remarks`, `help_values`, `help_group_id`, `help_type`, `default_value`, `flags_raw`, `flag_names`, `on_change`, `min_bound`, `max_bound`, `storage_class`, `group_name_in_source`, `trailing_comment`, `server_only`, `source_root` (nullable, schema v11 -- see `source_root` reference below).
+Type-specific columns: `help_desc`, `help_remarks`, `help_values`, `help_group_id`, `help_type`, `default_value`, `flags_raw`, `flag_names`, `on_change`, `min_bound`, `max_bound`, `storage_class`, `group_name_in_source`, `trailing_comment`, `server_only`, `source_root` (nullable, schema v11 -- see `source_root` reference below), `track_a_reachability` (JSONB nullable, migration 015 -- v18 runtime fidelity, see below).
 
 **Populated by:** `load-cvars.ts` <- `packages/qw-config/scripts/extract-ezquake-cvars-clang.py` -> `ezquake-variables-ast.json`.
 
@@ -145,7 +145,7 @@ Index: `idx_cvar_versions_source ON (source_file, source_line)`.
 
 Extracted from `Cmd_AddCommand` registration sites. Schema v1.
 
-Type-specific: `help_desc`, `help_remarks`, `help_group_id`, `handler_fn`, `registration_file`, `source_root` (nullable, schema v11 -- see `source_root` reference below).
+Type-specific: `help_desc`, `help_remarks`, `help_group_id`, `handler_fn`, `registration_file`, `source_root` (nullable, schema v11 -- see `source_root` reference below), `track_a_reachability` (JSONB nullable, migration 015 -- v18 runtime fidelity, see below), `track_b_hud_recovery` (JSONB nullable, migration 015 -- v18 runtime fidelity, see below).
 
 **Populated by:** `load-commands.ts` <- `extract-ezquake-commands-clang.py` -> `ezquake-commands-ast.json`.
 
@@ -899,6 +899,50 @@ Re-run idempotency: each `DROP CONSTRAINT` is wrapped in `IF EXISTS` so re-apply
 
 - Spec: `docs/superpowers/specs/2026-05-04-ktx-onboarding-design.md` (five-pass arc-brainstormer).
 - Plan: `docs/superpowers/plans/2026-05-04-ktx-onboarding/README.md` (9 phases).
+
+---
+
+## v18 (2026-05-18): L1 runtime fidelity provenance (enforce-L1 arc)
+
+Migration `015_l1_runtime_fidelity_provenance.sql`. Pure-additive: three nullable JSONB columns, no backfill, no index, no FK change.
+
+### Two physically separate JSONB columns
+
+D12 structural no-blend: there is NO single `runtime_fidelity` wrapper column and NO cross-track `kind` discriminator. Track separation is PHYSICAL -- two independent columns, each covering different tables and different population scopes. `evidence.feeder` is an INTRA-Track-A tag that disambiguates Track A's own two feeders (callgraph vs commented-register -- D7.1/D15); it is structurally never a cross-track discriminator.
+
+**`track_a_reachability`** -- on `cvar_versions` AND `command_versions` (JSONB nullable).
+
+Track-A reachability verdict. Populated only for the banked HEAD pool (92 cvars + 74 commands -- D20). NULL elsewhere is D13 level-1 "no signal".
+
+D14 three-slot spine: `{conclusion, evidence, dump_confirmation}`. Two Track-A feeders (D7.1/D15):
+
+- Callgraph feeder: `{ "conclusion":"genuine-dead"|"build-excluded", "evidence":{ "feeder":"callgraph", "per_variant":{"client":S,"server":S,"win":S,"apple":S}, "address_taken_residue":bool }, "dump_confirmation":"high-confidence-generalized" }`
+- Commented-register feeder: `{ "conclusion":"genuine-dead"|"build-excluded", "evidence":{ "feeder":"commented-register", "register_site":{"source_file":str,"source_line":int} }, "dump_confirmation":"high-confidence-generalized" }`
+
+where `S` in `"reachable"|"unreachable"|"not-compiled"`. The string `"not-compiled"` is DISTINCT -- never collapsed into `"unreachable"` (D5 three-valued per-variant signal).
+
+**`track_b_hud_recovery`** -- on `command_versions` ONLY (JSONB nullable). NOT on `cvar_versions` (D11 amended / D21, commands-only).
+
+Recovered-HUD-command origin. Populated only for the recovered hidden HUD commands the Phase-2 Track-B handler emits in `ezquake-hud-commands-ast.json` (bare `<name>` + `+hud_<name>`/`-hud_<name>` -- D21; the ~129-command reverse-diff set per X7 -- a DIFFERENT set from the Track-A 74-command D20 banked pool; these are commands the literal extractor never saw). NULL elsewhere is D13 level-1.
+
+D14 three-slot spine: `{ "conclusion":"bare-command"|"plus-minus-pair", "evidence":{ "hud_element":str, "hud_family":"bare"|"plus"|"minus", "registration_api":"Cmd_AddCommand"|"Cmd_AddRemCommand", "handler_fn":"HUD_Func_f"|"HUD_Plus_f"|"HUD_Minus_f", "site":{"source_file":str,"source_line":int} }, "dump_confirmation":"high-confidence-generalized" }`.
+
+### D13 slot-3 representation boundary
+
+The loader writes `"high-confidence-generalized"` (level-2) for EVERY populated row in Phase 3. `"dump-confirmed"` (level-3) is a valid enum value the columns MAY hold but Phase 3 NEVER writes it -- Phase 4 owns the runtime-dump cross-check (D19). NULL whole column == level-1 "mechanism did not run".
+
+### Population
+
+Loader-driven -- NOT a migration backfill. Re-run the Phase-3 loader against the Phase-1/2 extractor output to populate. No UPDATE or INSERT in the migration (X9 pure-schema discipline, mirroring 013).
+
+### F1 regression gate
+
+These three columns join the `F1.jsonb_columns_not_strings` regression-gate target set. The loader binds them via `tx.json(...)`, never `JSON.stringify`, and `F1.jsonb_columns_not_strings` + the new `F1.runtime_fidelity_shape` probe (Phase-3 Task-4) gate their shape on every load.
+
+### Spec / plan
+
+- Spec: `docs/superpowers/specs/2026-05-16-libclang-callgraph-reachability-design.md`
+- Arc: `enforce-L1-runtime-truth` (2026-05-17)
 
 ---
 

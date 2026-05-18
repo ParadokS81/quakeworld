@@ -214,7 +214,7 @@ async function probeEntityHasVersionRows(ctx: ProbeContext): Promise<ProbeResult
 // project; other-project runs no-op. Phase 7 (KTX onboarding) extends the
 // target list with match_event_versions.{attributes_json,emission_call_sites_json}
 // + gameplay_{mechanics,entity_defs}.props_json (D14 + F21).
-async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResult> {
+export async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResult> {
   // Phase 2 is first to write entities.description_provenance JSONB at volume
   // for ktx; this branch is the C5/F-C5a regression gate for that column.
   if (ctx.project === 'ktx') {
@@ -277,6 +277,10 @@ async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResult> {
     { table: 'match_event_versions', column: 'emission_call_sites_json' },
     { table: 'gameplay_mechanics', column: 'props_json' },
     { table: 'gameplay_entity_defs', column: 'props_json' },
+    // arc: enforce-L1-runtime-truth -- Track A/B reachability columns (R2 gate extension)
+    { table: 'cvar_versions',    column: 'track_a_reachability' },
+    { table: 'command_versions', column: 'track_a_reachability' },
+    { table: 'command_versions', column: 'track_b_hud_recovery' },
   ];
   const examples: string[] = [];
   let total = 0;
@@ -300,6 +304,284 @@ async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResult> {
     status: total === 0 ? 'PASS' : 'FAIL',
     count: total,
     summary: total === 0 ? 'no JSONB string scalars in array/object columns' : `${total} JSONB string scalars detected`,
+    examples,
+  };
+}
+
+// arc: enforce-L1-runtime-truth -- structural shape probe for Track A/B reachability
+// columns (F1.runtime_fidelity_shape).
+//
+// Asserts the D14 three-slot spine ({conclusion, evidence, dump_confirmation}) is
+// intact and that each feeder-specific sub-shape is well-formed. Also enforces the
+// D12 no-cross-track-blend rule: a track_a_reachability value must not carry
+// Track-B keys (hud_element / hud_family) in its evidence, and a track_b_hud_recovery
+// value must not carry Track-A keys (feeder / per_variant). A single column value
+// carrying BOTH shapes is also an offender.
+//
+// Scoped to --project ezquake (mirrors probeJsonbNotStrings; other-project runs
+// no-op). dump-confirmed is a VALID dump_confirmation value -- this probe asserts
+// shape only; the "Phase 3 never writes dump-confirmed" invariant is a separate
+// phase-boundary SQL check (X2/W4) and is NOT enforced here.
+//
+// NULL-safety: the IS NULL OR ... NOT IN form is mandatory throughout so that a
+// NULL lhs (e.g. evidence->>'feeder' on a malformed row) yields TRUE (offender)
+// rather than NULL (silently ignored). See probeDescribeFillOriginVocabulary for
+// the established NULL-safety idiom (F-C5b root cause pattern).
+export async function probeRuntimeFidelityShape(ctx: ProbeContext): Promise<ProbeResult> {
+  if (ctx.project !== 'ezquake') {
+    return {
+      name: 'F1.runtime_fidelity_shape',
+      family: 'regression',
+      description: 'Track A/B reachability columns hold a well-formed D14 three-slot spine (enforce-L1 R2 + D12 no-blend)',
+      status: 'PASS',
+      count: 0,
+      summary: 'ezquake-scoped probe; skipped for other projects',
+      examples: [],
+    };
+  }
+
+  // -- Track A offenders (cvar_versions + command_versions where track_a_reachability IS NOT NULL) --
+  //
+  // A row is an offender if ANY of:
+  //   - top-level key-set != exactly {conclusion, evidence, dump_confirmation}
+  //   - conclusion not in the 2-value enum
+  //   - evidence->>'feeder' not in the 2-value enum (NULL-safe: treat NULL as offender)
+  //   - feeder='callgraph' and per_variant sub-shape is malformed
+  //   - feeder='commented-register' and register_site sub-shape is malformed
+  //   - dump_confirmation not in the 2-value enum (NULL-safe)
+  //
+  // Cross-track blend guard (D12): a track_a_reachability whose evidence carries
+  // hud_element or hud_family (Track-B keys) is an offender.
+  //
+  // Key count uses (SELECT count(*)::int FROM jsonb_object_keys(val)) -- there is no
+  // built-in jsonb_object_keys_as_array() in Postgres 16.
+  // Union across cvar_versions and command_versions; examples are canonical_ids.
+  const trackARows = await ctx.sql<{ canonical_id: string }[]>`
+    WITH a_rows AS (
+      SELECT e.canonical_id,
+             cv.track_a_reachability AS col
+      FROM cvar_versions cv
+      JOIN entities e ON e.id = cv.entity_id
+      WHERE e.project = 'ezquake'
+        AND cv.track_a_reachability IS NOT NULL
+      UNION ALL
+      SELECT e.canonical_id,
+             cmv.track_a_reachability AS col
+      FROM command_versions cmv
+      JOIN entities e ON e.id = cmv.entity_id
+      WHERE e.project = 'ezquake'
+        AND cmv.track_a_reachability IS NOT NULL
+    )
+    SELECT canonical_id
+    FROM a_rows
+    WHERE
+      -- top-level spine check: must have exactly the three expected keys
+      NOT (
+        (col ? 'conclusion') AND (col ? 'evidence') AND (col ? 'dump_confirmation')
+        AND (SELECT count(*)::int FROM jsonb_object_keys(col)) = 3
+      )
+      -- conclusion enum (NULL-safe: IS NULL OR NOT IN)
+      OR col->>'conclusion' IS NULL
+      OR col->>'conclusion' NOT IN ('genuine-dead', 'build-excluded')
+      -- feeder enum (NULL-safe)
+      OR col->'evidence'->>'feeder' IS NULL
+      OR col->'evidence'->>'feeder' NOT IN ('callgraph', 'commented-register')
+      -- callgraph sub-shape: per_variant must exist with exactly 4 keys, each in enum;
+      -- address_taken_residue must be a boolean
+      OR (
+        col->'evidence'->>'feeder' = 'callgraph'
+        AND (
+          NOT (col->'evidence' ? 'per_variant')
+          OR NOT (
+            (col->'evidence'->'per_variant' ? 'client')
+            AND (col->'evidence'->'per_variant' ? 'server')
+            AND (col->'evidence'->'per_variant' ? 'win')
+            AND (col->'evidence'->'per_variant' ? 'apple')
+            AND (SELECT count(*)::int FROM jsonb_object_keys(col->'evidence'->'per_variant')) = 4
+          )
+          OR col->'evidence'->'per_variant'->>'client' IS NULL
+          OR col->'evidence'->'per_variant'->>'client' NOT IN ('reachable', 'unreachable', 'not-compiled')
+          OR col->'evidence'->'per_variant'->>'server' IS NULL
+          OR col->'evidence'->'per_variant'->>'server' NOT IN ('reachable', 'unreachable', 'not-compiled')
+          OR col->'evidence'->'per_variant'->>'win' IS NULL
+          OR col->'evidence'->'per_variant'->>'win' NOT IN ('reachable', 'unreachable', 'not-compiled')
+          OR col->'evidence'->'per_variant'->>'apple' IS NULL
+          OR col->'evidence'->'per_variant'->>'apple' NOT IN ('reachable', 'unreachable', 'not-compiled')
+          OR jsonb_typeof(col->'evidence'->'address_taken_residue') <> 'boolean'
+        )
+      )
+      -- commented-register sub-shape: register_site must exist with source_file (non-empty) and source_line (number)
+      OR (
+        col->'evidence'->>'feeder' = 'commented-register'
+        AND (
+          NOT (col->'evidence' ? 'register_site')
+          OR (col->'evidence'->'register_site'->>'source_file') IS NULL
+          OR (col->'evidence'->'register_site'->>'source_file') = ''
+          OR jsonb_typeof(col->'evidence'->'register_site'->'source_line') <> 'number'
+        )
+      )
+      -- dump_confirmation enum (NULL-safe)
+      OR col->>'dump_confirmation' IS NULL
+      OR col->>'dump_confirmation' NOT IN ('high-confidence-generalized', 'dump-confirmed')
+      -- D12 cross-track blend guard: track_a_reachability must NOT carry Track-B evidence keys
+      OR (col->'evidence' ? 'hud_element')
+      OR (col->'evidence' ? 'hud_family')
+    ORDER BY canonical_id
+    LIMIT 8
+  `;
+
+  const trackACountRows = await ctx.sql<{ cnt: number }[]>`
+    WITH a_rows AS (
+      SELECT e.canonical_id,
+             cv.track_a_reachability AS col
+      FROM cvar_versions cv
+      JOIN entities e ON e.id = cv.entity_id
+      WHERE e.project = 'ezquake'
+        AND cv.track_a_reachability IS NOT NULL
+      UNION ALL
+      SELECT e.canonical_id,
+             cmv.track_a_reachability AS col
+      FROM command_versions cmv
+      JOIN entities e ON e.id = cmv.entity_id
+      WHERE e.project = 'ezquake'
+        AND cmv.track_a_reachability IS NOT NULL
+    )
+    SELECT COUNT(*)::int AS cnt
+    FROM a_rows
+    WHERE
+      NOT (
+        (col ? 'conclusion') AND (col ? 'evidence') AND (col ? 'dump_confirmation')
+        AND (SELECT count(*)::int FROM jsonb_object_keys(col)) = 3
+      )
+      OR col->>'conclusion' IS NULL
+      OR col->>'conclusion' NOT IN ('genuine-dead', 'build-excluded')
+      OR col->'evidence'->>'feeder' IS NULL
+      OR col->'evidence'->>'feeder' NOT IN ('callgraph', 'commented-register')
+      OR (
+        col->'evidence'->>'feeder' = 'callgraph'
+        AND (
+          NOT (col->'evidence' ? 'per_variant')
+          OR NOT (
+            (col->'evidence'->'per_variant' ? 'client')
+            AND (col->'evidence'->'per_variant' ? 'server')
+            AND (col->'evidence'->'per_variant' ? 'win')
+            AND (col->'evidence'->'per_variant' ? 'apple')
+            AND (SELECT count(*)::int FROM jsonb_object_keys(col->'evidence'->'per_variant')) = 4
+          )
+          OR col->'evidence'->'per_variant'->>'client' IS NULL
+          OR col->'evidence'->'per_variant'->>'client' NOT IN ('reachable', 'unreachable', 'not-compiled')
+          OR col->'evidence'->'per_variant'->>'server' IS NULL
+          OR col->'evidence'->'per_variant'->>'server' NOT IN ('reachable', 'unreachable', 'not-compiled')
+          OR col->'evidence'->'per_variant'->>'win' IS NULL
+          OR col->'evidence'->'per_variant'->>'win' NOT IN ('reachable', 'unreachable', 'not-compiled')
+          OR col->'evidence'->'per_variant'->>'apple' IS NULL
+          OR col->'evidence'->'per_variant'->>'apple' NOT IN ('reachable', 'unreachable', 'not-compiled')
+          OR jsonb_typeof(col->'evidence'->'address_taken_residue') <> 'boolean'
+        )
+      )
+      OR (
+        col->'evidence'->>'feeder' = 'commented-register'
+        AND (
+          NOT (col->'evidence' ? 'register_site')
+          OR (col->'evidence'->'register_site'->>'source_file') IS NULL
+          OR (col->'evidence'->'register_site'->>'source_file') = ''
+          OR jsonb_typeof(col->'evidence'->'register_site'->'source_line') <> 'number'
+        )
+      )
+      OR col->>'dump_confirmation' IS NULL
+      OR col->>'dump_confirmation' NOT IN ('high-confidence-generalized', 'dump-confirmed')
+      OR (col->'evidence' ? 'hud_element')
+      OR (col->'evidence' ? 'hud_family')
+  `;
+  const trackATotal = trackACountRows[0]?.cnt ?? 0;
+
+  // -- Track B offenders (command_versions where track_b_hud_recovery IS NOT NULL) --
+  //
+  // A row is an offender if ANY of:
+  //   - top-level key-set != exactly {conclusion, evidence, dump_confirmation}
+  //   - conclusion not in the 2-value enum
+  //   - evidence->>'hud_element' is NULL or empty
+  //   - evidence->>'hud_family' not in the 3-value enum (NULL-safe)
+  //   - dump_confirmation not in the 2-value enum (NULL-safe)
+  //
+  // D12 cross-track blend guard: a track_b_hud_recovery value must NOT carry
+  // Track-A keys (feeder / per_variant) in its evidence.
+  const trackBRows = await ctx.sql<{ canonical_id: string }[]>`
+    SELECT e.canonical_id
+    FROM command_versions cmv
+    JOIN entities e ON e.id = cmv.entity_id
+    WHERE e.project = 'ezquake'
+      AND cmv.track_b_hud_recovery IS NOT NULL
+      AND (
+        -- spine check
+        NOT (
+          (cmv.track_b_hud_recovery ? 'conclusion')
+          AND (cmv.track_b_hud_recovery ? 'evidence')
+          AND (cmv.track_b_hud_recovery ? 'dump_confirmation')
+          AND (SELECT count(*)::int FROM jsonb_object_keys(cmv.track_b_hud_recovery)) = 3
+        )
+        -- conclusion enum (NULL-safe)
+        OR cmv.track_b_hud_recovery->>'conclusion' IS NULL
+        OR cmv.track_b_hud_recovery->>'conclusion' NOT IN ('bare-command', 'plus-minus-pair')
+        -- hud_element: must be non-NULL and non-empty
+        OR (cmv.track_b_hud_recovery->'evidence'->>'hud_element') IS NULL
+        OR (cmv.track_b_hud_recovery->'evidence'->>'hud_element') = ''
+        -- hud_family enum (NULL-safe)
+        OR cmv.track_b_hud_recovery->'evidence'->>'hud_family' IS NULL
+        OR cmv.track_b_hud_recovery->'evidence'->>'hud_family' NOT IN ('bare', 'plus', 'minus')
+        -- dump_confirmation enum (NULL-safe)
+        OR cmv.track_b_hud_recovery->>'dump_confirmation' IS NULL
+        OR cmv.track_b_hud_recovery->>'dump_confirmation' NOT IN ('high-confidence-generalized', 'dump-confirmed')
+        -- D12 blend guard: must NOT carry Track-A evidence keys
+        OR (cmv.track_b_hud_recovery->'evidence' ? 'feeder')
+        OR (cmv.track_b_hud_recovery->'evidence' ? 'per_variant')
+      )
+    ORDER BY e.canonical_id
+    LIMIT 8
+  `;
+
+  const trackBCountRows = await ctx.sql<{ cnt: number }[]>`
+    SELECT COUNT(*)::int AS cnt
+    FROM command_versions cmv
+    JOIN entities e ON e.id = cmv.entity_id
+    WHERE e.project = 'ezquake'
+      AND cmv.track_b_hud_recovery IS NOT NULL
+      AND (
+        NOT (
+          (cmv.track_b_hud_recovery ? 'conclusion')
+          AND (cmv.track_b_hud_recovery ? 'evidence')
+          AND (cmv.track_b_hud_recovery ? 'dump_confirmation')
+          AND (SELECT count(*)::int FROM jsonb_object_keys(cmv.track_b_hud_recovery)) = 3
+        )
+        OR cmv.track_b_hud_recovery->>'conclusion' IS NULL
+        OR cmv.track_b_hud_recovery->>'conclusion' NOT IN ('bare-command', 'plus-minus-pair')
+        OR (cmv.track_b_hud_recovery->'evidence'->>'hud_element') IS NULL
+        OR (cmv.track_b_hud_recovery->'evidence'->>'hud_element') = ''
+        OR cmv.track_b_hud_recovery->'evidence'->>'hud_family' IS NULL
+        OR cmv.track_b_hud_recovery->'evidence'->>'hud_family' NOT IN ('bare', 'plus', 'minus')
+        OR cmv.track_b_hud_recovery->>'dump_confirmation' IS NULL
+        OR cmv.track_b_hud_recovery->>'dump_confirmation' NOT IN ('high-confidence-generalized', 'dump-confirmed')
+        OR (cmv.track_b_hud_recovery->'evidence' ? 'feeder')
+        OR (cmv.track_b_hud_recovery->'evidence' ? 'per_variant')
+      )
+  `;
+  const trackBTotal = trackBCountRows[0]?.cnt ?? 0;
+
+  const total = trackATotal + trackBTotal;
+  const examples: string[] = [
+    ...trackARows.map(r => `track_a:${r.canonical_id}`),
+    ...trackBRows.map(r => `track_b:${r.canonical_id}`),
+  ].slice(0, 8);
+
+  return {
+    name: 'F1.runtime_fidelity_shape',
+    family: 'regression',
+    description: 'Track A/B reachability columns hold a well-formed D14 three-slot spine (enforce-L1 R2 + D12 no-blend)',
+    status: total === 0 ? 'PASS' : 'FAIL',
+    count: total,
+    summary: total === 0
+      ? 'all Track A/B reachability rows are well-formed'
+      : `${total} offending row(s): Track A=${trackATotal}, Track B=${trackBTotal}`,
     examples,
   };
 }
@@ -1664,7 +1946,7 @@ async function probeMvdsvTrailingCommentCoverageCvars(ctx: ProbeContext): Promis
 //                            ORDER BY project, type, source_state;"
 //
 //   ezquake: cmdline_param  doc_only=1 source_backed=69 source_retired=7
-//            command        doc_only=7 source_backed=495 source_retired=62
+//            command        doc_only=7 source_backed=624 source_retired=62  (re-baselined 2026-05-18, F13; see the inline note at the command floor probe)
 //            cvar           doc_only=47 source_backed=2741 source_retired=204
 //            macro          doc_only=2 source_backed=66
 //            hud_element    source_backed=83 source_retired=2
@@ -1825,8 +2107,20 @@ const EZQUAKE_FLOOR_PROBES: Probe[] = [
   makeFloorSourceStateProbe('ezquake', 'asset_category', { source_backed: 30 }),
   makeFloorCountProbe('ezquake', 'cmdline_param', 77),
   makeFloorSourceStateProbe('ezquake', 'cmdline_param', { doc_only: 1, source_backed: 69, source_retired: 7 }),
-  makeFloorCountProbe('ezquake', 'command', 564),
-  makeFloorSourceStateProbe('ezquake', 'command', { doc_only: 7, source_backed: 495, source_retired: 62 }),
+  makeFloorCountProbe('ezquake', 'command', 693),
+  makeFloorSourceStateProbe('ezquake', 'command', { doc_only: 7, source_backed: 624, source_retired: 62 }),
+  // Re-baselined 2026-05-18 (enforce-L1-runtime-truth arc Phase 3, migration
+  // 015; review-findings F13). Phase 3's D21/Track-B deliverable recovers the
+  // hidden HUD_Register command family (bare <name> + +hud_/-hud_) as
+  // first-class type='command' entities: +129 (== the Phase-2 handler's own
+  // _stats.source_total; bare 83 + plus 23 + minus 23). 564 -> 693 and
+  // source_backed 495 -> 624 (doc_only=7 / source_retired=62 UNCHANGED).
+  // Primary-source-verified legitimate growth, NOT regression/idempotency
+  // inflation: 693 DISTINCT name_fold, 0 dup (UNIQUE(project,type,name_fold)
+  // forbids re-run inflation), 693-129 == exactly the prior 564 baseline
+  // (intact). The reference_qw_oracle_floor_vs_clean_reload family. No
+  // decisions.md amendment -- D20/D21/X7 were always correct; this is a
+  // stale calibrated snapshot catching up to a correct deliverable.
   // Re-baselined 2026-05-16 (entity-name source-case-fidelity arc, migration
   // 013). The prior 2997 / source_retired:209 floor was captured against a
   // DB snapshot that still carried 5 phantom `doc_only` cvar entities for
@@ -2213,6 +2507,8 @@ const REGRESSION_PROBES: Probe[] = [
   { name: 'F1.cross_type_orphans', family: 'regression', description: '', run: probeCrossTypeOrphans },
   { name: 'F1.entity_has_version_rows', family: 'regression', description: '', run: probeEntityHasVersionRows },
   { name: 'F1.jsonb_columns_not_strings', family: 'regression', description: '', run: probeJsonbNotStrings },
+  // arc: enforce-L1-runtime-truth -- Track A/B reachability column shape gate (Phase 3 / R2 + D12)
+  { name: 'F1.runtime_fidelity_shape', family: 'regression', description: '', run: probeRuntimeFidelityShape },
   // arc: ktx-mvdsv-l1-describe-fill C5 probes -- origin-tag vocabulary + synthesized-anchor (Phase 1)
   { name: 'F1.describe_fill.origin_vocabulary', family: 'regression', description: '', run: probeDescribeFillOriginVocabulary },
   { name: 'F1.describe_fill.synthesized_requires_anchor', family: 'regression', description: '', run: probeDescribeFillSynthesizedRequiresAnchor },

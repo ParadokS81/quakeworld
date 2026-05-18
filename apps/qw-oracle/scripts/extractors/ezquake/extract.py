@@ -540,11 +540,52 @@ def main() -> int:
 
     # Finalize and write per-handler outputs.
     suffix = ".unified" if args.validation_suffix else ""
+    finalize_outputs: dict[str, dict] = {}
     for h in handlers:
         out_path = output_dir / f"{h.output_filename}{suffix}"
         output = h.finalize(all_rows=rows_by_handler[h.name], repo_root=ezq_repo)
+        finalize_outputs[h.name] = output
         out_path.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
         print(f"  [{h.name}] {len(rows_by_handler[h.name])} raw rows -> {out_path}")
+
+    # Track-A serialization seam (enforce-L1-runtime-truth Phase 3, OQ-1).
+    # Runs AFTER the post-walk (run_postwalk + feed_commented_registrations
+    # already executed inside _run_serial / _run_parallel, so
+    # _callgraph.reachable() answers from real post-walk state) AND after
+    # finalize (so it reuses the already-computed commands/cvars finalize
+    # outputs -- ZERO re-parse, ZERO re-finalize, D6-safe). ONE call site
+    # here intentionally covers BOTH execution modes: serial and parallel
+    # both return to this same main() section after their internal
+    # post-walk. Behind the EXISTING ENABLE_CALLGRAPH_PASSENGER boolean
+    # (OQ-1: no new boolean). ADDITIVE-ONLY: writes just the 10th file; the
+    # 8+1 existing outputs above are byte-untouched. Fail-safe (X4/D6): a
+    # seam failure must never corrupt the existing outputs or abort the
+    # extractor -- it has already written every other file by this point.
+    if ENABLE_CALLGRAPH_PASSENGER:
+        cmds_fin = finalize_outputs.get("commands")
+        cvars_fin = finalize_outputs.get("cvars")
+        if cmds_fin is not None and cvars_fin is not None:
+            try:
+                from emit_callgraph_signal import emit as emit_callgraph_signal
+                cg_path = emit_callgraph_signal(
+                    cmds_fin, cvars_fin, output_dir
+                )
+                print(f"  [callgraph-signal] Track-A reachability -> {cg_path}")
+            except Exception as e:
+                print(
+                    f"CALLGRAPH SIGNAL SEAM DISABLED "
+                    f"(Track-A emit failed: {e}); the 8+1 existing outputs "
+                    f"are unaffected.",
+                    file=sys.stderr,
+                )
+        else:
+            # Subset --handlers run that excluded commands or cvars: the
+            # 10th file is only meaningful with BOTH keysets, so skip.
+            print(
+                "  [callgraph-signal] skipped "
+                "(commands and/or cvars handler not in this run)",
+                file=sys.stderr,
+            )
 
     if diagnostics:
         print(f"\nDiagnostics: {len(diagnostics)} entries")
