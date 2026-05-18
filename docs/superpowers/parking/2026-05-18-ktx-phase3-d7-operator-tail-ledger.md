@@ -47,7 +47,7 @@ are knob-keyed, so the renumber is loss-free.
 | 3|affirm|next_best|14|[D] CLEAR-fact; judg->Q|
 | 4|synth|toggletracklist|15|[D] CLEAR|
 | 5|hedged|dmm5|4|[D] FIX|
-| 6|affirm|gamemodes|16|PENDING|
+| 6|affirm|gamemodes|16|[D] CLEAR-fact; judg->Q|
 | 7|synth|k_free_mode|12|[D] FIX|
 | 8|synth|k_privategame_force_reconnect|17|PENDING|
 | 9|affirm|race_toggle|18|PENDING|
@@ -86,8 +86,8 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 15 done / 28 PENDING.
-NEXT = ledger row 16 = HTML#6 `gamemodes` (affirmed -- spot-sample).
+[D]=dispositioned. 16 done / 27 PENDING.
+NEXT = ledger row 17 = HTML#8 `k_privategame_force_reconnect` (synth).
 
 ## Per-row dispositions
 
@@ -108,6 +108,7 @@ NEXT = ledger row 16 = HTML#6 `gamemodes` (affirmed -- spot-sample).
 | 13 | downspecs | command | HTML#1 synth | CLEAR | High-quality. `downspecs` literal only at commands.c:983 registration (shared handler `DEF(downplayers)`, cmd_t arg 2); behaviour fully in the cited shared path. Verified ChangeClientsCount commands.c:8017-8055: match_in_progress -> return (:8022), k_allowcountchange perm gate (:8027), type=bound(1,t,2) + type==2 -> sv_max=maxspectators/k_max=k_maxspectators (:8032-8037), cl_count=bound(1, cvar(sv_max)-1, max(1,cvar(k_max))) (:8046), unchanged -> silent return (:8048), cvar_fset + G_bprint broadcast (:8053-54). Reg cohort 980-983 confirms upplayers/1, downplayers/1, upspecs(DEF upplayers)/2, downspecs(DEF downplayers)/2 -- shared-handler cohort correctly flagged (anti-collapse: described the type==2 maxspectators path specifically, NOT family-collapsed). Shipped CD_DOWNSPECS "decrease maxspectators" correctly graded D5-fail. Description source-exact. NOT the multi-read-site under-scope class (single literal site + fully-cited shared handler). No action. |
 | 14 | next_best | command | HTML#3 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1) | Affirmed verbatim CD_NEXT_BEST "set pov to next best player" (commands.c:516, origin source_inline). Handler next_best() commands.c:6311-6340 verified source-exact: b1=get_ed_best1()/b2=get_ed_best2(); !b1 -> "next_best: can't do this now" return (:6319); top-2 TOGGLE -- to=b1, if goal==b1 ->b2 elif goal==b2 ->b1 (:6326-6334); stuffcmd `track <id>` (:6338). Reg :896 CF_SPECTATOR|CF_MATCHLESS. WI-1: uncited :161 fwd-decl (no behaviour) + the :6135-6144 "ktpro compatible autotrack" comment block correctly OUT OF SCOPE -- that block heads a SEPARATE event-driven autotrack subsystem (rl-taken / observed-dies / powerup), NOT this one-shot command's own behaviour; reasoning rightly scoped to the handler. Shipped text source-accurate, all D5 clauses pass, the top-2-toggle is acknowledged mechanism nuance; terse verbatim (NOT the elaborated-affirm anti-pattern). FACT source-accurate; affirm-vs-synth judgment -> Affirmed-sample judgment queue (PROC-1), NOT a silent CLEAR. |
 | 15 | toggletracklist | command | HTML#4 synth | CLEAR (fact) | Synth description source-exact. Handler commands.c:5457-5476: k_allowtracklist=!cvar (:5459); match_in_progress -> return BEFORE cvar_fset (:5461, "no effect during match" exact); cvar_fset (:5466); G_bprint on/off (:5468-5474). Companion gate tracklist commands.c:5433: blocks only when !k_allowtracklist && match_in_progress && self->ct==ctPlayer -> "tracklist is disabled" (matches the description's "players ... during a match" scoping exactly). WI-1 grep exhaustive: uncited hits = :145/146 fwd-decls + :5188/5192 (the `klist` command's "also toggle tracklist" x-ref string, NOT this handler) + world.c:862 cvar reg default 1 -- all correctly out of scope, no behavioural under-scope. Shared macro CD_TRACKLIST on both :842 tracklist + :843 toggletracklist = shared-STRING cohort (NOT a C2 -- one macro on two commands, not two docs disagreeing on one knob); D10 synthesize-from-handler is the policy-mandated resolution, consistent with the accepted downspecs/cohort pattern + slice-2 STATUS. PROC-1: pure checkable fact, no residual judgment. No action. |
+| 16 | gamemodes | command | HTML#6 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1) | FACT source-accurate: handler ListGameModes commands.c:9513-9552 verified -- static known[] (25 entries: race/1on1/.../wipeout/yawnmode/totmode), iterates cmds[], G_sprint each registered command name that is in known[] (= the game-mode-selection commands actually registered on this server). WI-1: only 3 sites (:289 fwd-decl, :1062 reg, :9513 handler), all cited, no under-scope. Affirmed verbatim CD_GAMEMODES "list available game modes" (:684). Affirm-vs-synth read in the Affirmed-sample judgment queue. NOT a silent CLEAR. |
 
 Legend: CLEAR = verified fine, no action. ACCEPT AS-IS + P4 carry =
 correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
@@ -175,6 +176,15 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   "next" through a ranking). My lean = defensible affirm (terse
   verbatim, not the elaborated-affirm anti-pattern); YOUR call whether
   the toggle nuance warrants synthesis. NOT a silent CLEAR.
+- **gamemodes** (row 16, HTML#6): FACT = source-accurate. ListGameModes
+  commands.c:9513-9552 = a static 25-entry known[] game-mode list
+  intersected with the registered cmds[] table, G_sprint per match.
+  Affirm-vs-synth: shipped "list available game modes" is terse +
+  WHAT-accurate; nuance = "available" specifically means the game-mode
+  commands REGISTERED/active on this server (hardcoded known[] ∩
+  cmds[]), not a static catalog. My lean = defensible affirm (terse
+  verbatim, accurate WHAT, the registered-subset subtlety is minor and
+  arguably implied by "available"); YOUR call. NOT a silent CLEAR.
 
 ## Carry-forwards to Phase 4 (MVDSV) -- the orchestrator MUST fold these into the Phase-4 executor prompt
 
