@@ -51,7 +51,7 @@ are knob-keyed, so the renumber is loss-free.
 | 7|synth|k_free_mode|12|[D] FIX|
 | 8|synth|k_privategame_force_reconnect|17|[D] CLEAR|
 | 9|affirm|race_toggle|18|[D] CLEAR-fact; judg->Q (lean SYNTH)|
-|10|affirm|addbot:frogbot:std|19|PENDING|
+|10|affirm|addbot:frogbot:std|19|[D] CLEAR-fact; judg->Q (lean AFFIRM)|
 |11|affirm|breakondeath:frogbot:std|20|PENDING|
 |12|synth|clearmarkerflag:frogbot:editor|21|PENDING|
 |13|affirm|removemarker:frogbot:editor|22|PENDING|
@@ -86,8 +86,8 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 18 done / 25 PENDING.
-NEXT = ledger row 19 = HTML#10 `addbot:frogbot:std` (affirmed -- spot-sample).
+[D]=dispositioned. 19 done / 24 PENDING.
+NEXT = ledger row 20 = HTML#11 `breakondeath:frogbot:std` (affirmed -- spot-sample).
 
 ## Per-row dispositions
 
@@ -111,6 +111,7 @@ NEXT = ledger row 19 = HTML#10 `addbot:frogbot:std` (affirmed -- spot-sample).
 | 16 | gamemodes | command | HTML#6 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1) | FACT source-accurate: handler ListGameModes commands.c:9513-9552 verified -- static known[] (25 entries: race/1on1/.../wipeout/yawnmode/totmode), iterates cmds[], G_sprint each registered command name that is in known[] (= the game-mode-selection commands actually registered on this server). WI-1: only 3 sites (:289 fwd-decl, :1062 reg, :9513 handler), all cited, no under-scope. Affirmed verbatim CD_GAMEMODES "list available game modes" (:684). Affirm-vs-synth read in the Affirmed-sample judgment queue. NOT a silent CLEAR. |
 | 17 | k_privategame_force_reconnect | cvar | HTML#8 synth | CLEAR (fact) | Synth source-exact. private_game_toggle() vote.c:1550-1598: read :1553; player block gated `enable && match_in_progress<2` (:1559); per non-logged-in player -- always unready (:1576-1580); `if(force_reconnect && !is_logged_in)` (:1582) -> allow_specs (k_privategame_allow_specs) ? do_force_spec + "You must login to play." (:1587-88) : disconnect + "Please reconnect & login" (:1592-93); force_reconnect=0 -> unready-only, left connected (src comment :1586 "kicked at map change anyway"). Every description clause verified. WI-1 exhaustive: ONLY 3 sites (world.c:1091 reg+comment, vote.c:1553 read, vote.c:1582 use) -- single-read-site, NOT the multi-site class. Reg comment "kick unauthed players" correctly classified a less-precise SUBSET (omits the allow_specs branch) -> D10 synth-from-source, NOT a C2. Description does not conflate with the separate :1564 !allow_specs existing-spectator kick. PROC-1: checkable fact, no residual judgment. No action. |
 | 18 | race_toggle | command | HTML#9 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean SYNTH) | FACT source-accurate: reg commands.c:1007 DEF(r_changestatus) arg 3; r_changestatus case 3 race.c:3050-3059 -- `if (self->racer && race.status)` -> G_bprint "%s has quit the race" + race_end(self,true,false) (:3053-54), THEN set_player_race_ready(self, !self->race_ready) (:3057). WI-1: race.c:4269 race_toggle_incr_cvar = false-positive substring (unrelated headstart/resolution helper, NOT this command); commands.c:7970 r_changestatus(3) = internal caller (same path, not new behaviour). Affirmed verbatim CD_RTOGGLE "toggle ready status for race" (:633). Affirm-vs-synth: OMITS a behaviorally-material mid-run side-effect (running it mid-race publicly QUITS your run -- "X has quit the race" -- before toggling); weaker affirm than next_best/gamemodes, my lean = SYNTHESIZE. In the queue. NOT a silent CLEAR. |
+| 19 | addbot:frogbot:std | command | HTML#10 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate: std_commands table bot_commands.c:2318 `{ "addbot", FrogbotsAddbot_f, "Adds a bot. Skill & team optional" }`; handler FrogbotsAddbot_f :362-392 -- !bots_enabled -> "Bots are disabled" return (:368); optional numeric argv[2]=skill (:375-380), argv[3]=team; FrogbotsAddbot(skill,team,true) (:392) spawns one bot, clamps skill, auto-balances teams. WI-1: :1908 + :2790 are OTHER internal FrogbotsAddbot callers (different contexts, not this std command). Affirmed verbatim. Affirm-vs-synth: the string is a GENUINE user-facing help line (PrintAvailableCommands prints it to players in /botcmd), terse-by-design for a command list, accurate WHAT, no hidden material side-effect; my lean = strong AFFIRM (contrast race_toggle). In the queue. NOT a silent CLEAR. |
 
 Legend: CLEAR = verified fine, no action. ACCEPT AS-IS + P4 carry =
 correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
@@ -198,6 +199,14 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   side-effect + public broadcast, not mechanism nuance); my lean =
   SYNTHESIZE the mid-run-quit into the description. YOUR call. NOT a
   silent CLEAR.
+- **addbot:frogbot:std** (row 19, HTML#10): FACT = source-accurate
+  (FrogbotsAddbot_f bot_commands.c:362-392; bots_enabled gate, optional
+  numeric skill argv[2] + team argv[3], FrogbotsAddbot spawns + clamps
+  + auto-balances). Affirm-vs-synth: "Adds a bot. Skill & team
+  optional" is a GENUINE user-facing /botcmd help line shown to
+  players, terse-by-design, accurate WHAT, no hidden material
+  side-effect. My lean = strong AFFIRM (this is the real user-doc
+  surface; contrast race_toggle). YOUR call. NOT a silent CLEAR.
 
 ## Carry-forwards to Phase 4 (MVDSV) -- the orchestrator MUST fold these into the Phase-4 executor prompt
 
