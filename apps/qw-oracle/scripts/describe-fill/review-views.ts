@@ -538,24 +538,50 @@ function renderByModeView(
     return d !== 0 ? d : a.props_json.user_facing_label.localeCompare(b.props_json.user_facing_label);
   });
 
-  // One aligned cvar row: name | value | meaning. Fixed columns (CSS grid) are
-  // what makes a 13-22 line list scannable -- the eye tracks straight down.
+  // Full Catalog-grade detail for an entity. Same description / reasoning /
+  // shipped-source shape the Catalog renders, so an expanded By-Mode row reads
+  // exactly like its Catalog entry (consistency; no duplicated styling).
+  function entityDetailHtml(e: EntityRow): string {
+    const full = e.description
+      ? `<div class="desc-text">${esc(e.description)}</div>`
+      : `<em class="none">no description</em>`;
+    const reasoning = e.description_reasoning
+      ? `<details class="reasoning-details"><summary>reasoning</summary><div class="reasoning-body">${renderReasoning(e.description_reasoning)}</div></details>`
+      : '';
+    const verdict = e.description_verdict
+      ? `<span class="cg-verdict cg-v-${esc(e.description_verdict)}">${esc(e.description_verdict)}</span>`
+      : '';
+    return `<div class="cg-detail">
+  <div class="cg-detail-main">${verdict}${full}${reasoning}</div>
+  <div class="cg-prov"><div class="col-label">shipped / source</div>${renderProvenanceShort(e.description_provenance)}</div>
+  <a href="#c-${esc(e.canonical_id)}" class="cg-catalog-link">open full entry in Catalog -&gt;</a>
+</div>`;
+  }
+
+  // One cvar row. Collapsed = aligned scannable line (name | value | snippet);
+  // click to expand the full Catalog-grade detail in place. Rows whose cvar has
+  // no Catalog entity (engine cvars KTX does not own) stay flat -- nothing to
+  // expand. No per-row id: the same cvar recurs across modes (a duplicate id
+  // would be invalid HTML); the only jump targets are the mode cards.
+  function cvarRow(name: string, col2: string, entity: EntityRow | undefined, trailer: string): string {
+    if (!entity) {
+      return `<div class="cg-flat"><span class="cg-c1"><span class="cg-name-plain">${esc(name)}</span></span><span class="cg-c2">${esc(col2)}</span><span class="cg-c3"><span class="none">(not in catalog)</span>${trailer}</span></div>`;
+    }
+    const snippet = entity.description ? esc(trunc(entity.description, 150)) : '(no description)';
+    return `<details class="cg-row cg-x">
+  <summary class="cg-line"><span class="cg-c1"><span class="cg-name">${esc(name)}</span></span><span class="cg-c2">${esc(col2)}</span><span class="cg-c3"><span class="cg-snip">${snippet}</span>${trailer}<span class="cg-caret">+</span></span></summary>
+${entityDetailHtml(entity)}
+</details>`;
+  }
+
   function cvarGridRow(md: ModeDefaultRow): string {
     const val = md.value_text != null ? md.value_text : (md.value_numeric != null ? String(md.value_numeric) : '?');
-    const comment = md.props_json.comment ? ` <span class="cg-comment">${esc(md.props_json.comment)}</span>` : '';
-    const entity = entityByName.get(md.name.toLowerCase());
-    const anchor = entity ? `c-${esc(entity.canonical_id)}` : '';
-    const nameHtml = anchor
-      ? `<a href="#${anchor}" class="cg-name" title="Jump to Catalog entry">${esc(md.name)}</a>`
-      : `<span class="cg-name cg-name-plain">${esc(md.name)}</span>`;
-    const desc = entity?.description
-      ? `<span class="cg-desc">${esc(trunc(entity.description, 150))}</span>`
-      : `<span class="none">(not in catalog)</span>`;
-    return `<div class="cg-row"><span class="cg-c1">${nameHtml}</span><span class="cg-c2">${esc(val)}</span><span class="cg-c3">${desc}${comment}</span></div>`;
+    const trailer = md.props_json.comment ? ` <span class="cg-comment">${esc(md.props_json.comment)}</span>` : '';
+    return cvarRow(md.name, val, entityByName.get(md.name.toLowerCase()), trailer);
   }
   function cvarGrid(rows: ModeDefaultRow[], emptyMsg: string): string {
     if (rows.length === 0) return `<div class="none-text">${emptyMsg}</div>`;
-    return `<div class="cvar-grid"><div class="cg-row cg-head"><span class="cg-c1">cvar</span><span class="cg-c2">value</span><span class="cg-c3">meaning</span></div>${rows.map(cvarGridRow).join('')}</div>`;
+    return `<div class="cvar-grid"><div class="cg-headrow"><span class="cg-c1">cvar</span><span class="cg-c2">value</span><span class="cg-c3">meaning -- click any row for the full description, reasoning + source</span></div>${rows.map(cvarGridRow).join('')}</div>`;
   }
 
   // Sticky mode-jump index (pure anchor links; CSS scroll-behavior handles glide)
@@ -647,13 +673,11 @@ ${body}
 
     const relatedHtml = related.length === 0
       ? `<div class="none-text">No associated cvars found by activation cvar or name/description match.</div>`
-      : `<div class="cvar-grid"><div class="cg-row cg-head"><span class="cg-c1">cvar</span><span class="cg-c2">type</span><span class="cg-c3">meaning</span></div>` +
+      : `<div class="cvar-grid"><div class="cg-headrow"><span class="cg-c1">cvar</span><span class="cg-c2">type</span><span class="cg-c3">meaning -- click any row for the full description, reasoning + source</span></div>` +
         related.map(e => {
-          const anchor = `c-${esc(e.canonical_id)}`;
           const isActiv = !!activCvar && e.name.toLowerCase() === activCvarLower;
-          const activFlag = isActiv ? `<span class="badge badge-activ">activation</span> ` : '';
-          const desc = e.description ? `<span class="cg-desc">${esc(trunc(e.description, 150))}</span>` : `<span class="none">none</span>`;
-          return `<div class="cg-row${isActiv ? ' cg-row-activ' : ''}"><span class="cg-c1"><a href="#${anchor}" class="cg-name">${esc(e.name)}</a></span><span class="cg-c2">${esc(e.type)}</span><span class="cg-c3">${activFlag}${desc}</span></div>`;
+          const activFlag = isActiv ? ` <span class="badge badge-activ">activation</span>` : '';
+          return cvarRow(e.name, e.type, e, activFlag);
         }).join('') +
         `</div>`;
 
@@ -937,21 +961,50 @@ html { scroll-behavior: smooth; }
   border: 1px solid #5a3a00; border-radius: 2px; margin: 4px 0 8px;
 }
 
-/* Aligned cvar grid -- fixed columns are the scannability lever */
-.cvar-grid { display: grid; grid-template-columns: minmax(150px, 240px) 70px 1fr; gap: 0 16px; font-size: 12px; }
-.cg-row { display: contents; }
-.cg-row > span { padding: 3px 0; border-bottom: 1px solid #242424; min-width: 0; }
-.cg-head > span { font-size: 10px; color: #5a5a5a; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #383838; position: sticky; top: 0; }
-.cg-row:hover > span { background: #232323; }
-.cg-row-activ > span { background: #1c2230; }
-.cg-c1 { font-family: monospace; }
-.cg-name { color: #7ab0d8; text-decoration: none; }
-.cg-name:hover { text-decoration: underline; }
+/* Cvar grid -- fixed-width flex columns keep rows aligned (scannable);
+   each row is a click-to-expand <details> (collapsed line | full detail). */
+.cvar-grid { font-size: 12px; }
+.cg-headrow, .cg-line, .cg-flat {
+  display: flex; gap: 16px; align-items: baseline;
+  padding: 4px 0; border-bottom: 1px solid #242424;
+}
+.cg-headrow { font-size: 10px; color: #5a5a5a; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #383838; }
+.cg-c1 { flex: 0 0 220px; font-family: monospace; min-width: 0; overflow-wrap: anywhere; }
+.cg-c2 { flex: 0 0 56px; font-family: monospace; color: #c8e6b8; min-width: 0; overflow-wrap: anywhere; }
+.cg-c3 { flex: 1 1 auto; color: #b0b0b0; line-height: 1.45; min-width: 0; display: flex; gap: 6px; align-items: baseline; }
+.cg-snip { flex: 1 1 auto; min-width: 0; }
+.cg-name { color: #7ab0d8; }
 .cg-name-plain { color: #c8c8c8; }
-.cg-c2 { font-family: monospace; color: #c8e6b8; }
-.cg-c3 { color: #b0b0b0; line-height: 1.45; }
-.cg-desc { color: #b0b0b0; }
-.cg-comment { font-size: 10px; color: #888; font-style: italic; }
+.cg-comment { font-size: 10px; color: #888; font-style: italic; flex-shrink: 0; }
+
+.cg-row { border-bottom: none; }
+details.cg-row > summary.cg-line { cursor: pointer; list-style: none; }
+details.cg-row > summary.cg-line::-webkit-details-marker { display: none; }
+.cg-x > summary:hover { background: #232323; }
+.cg-x > summary:hover .cg-name { text-decoration: underline; }
+.cg-caret { flex-shrink: 0; width: 12px; text-align: center; color: #5a8a5a; font-weight: bold; }
+.cg-x[open] > summary { background: #20261c; border-bottom-color: #2d4a2d; }
+.cg-x[open] .cg-caret { color: #8fcf8f; }
+.cg-x[open] .cg-snip { color: #d4d4d4; }
+
+/* Expanded detail -- mirrors the Catalog detail (reuses .desc-text /
+   .reasoning-details / .prov-* / .col-label so the look is identical). */
+.cg-detail {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 360px);
+  gap: 10px 24px; padding: 10px 0 14px 10px;
+  margin-left: 3px; border-left: 2px solid #2d4a2d;
+  border-bottom: 1px solid #242424;
+}
+.cg-detail-main { min-width: 0; }
+.cg-prov { min-width: 0; }
+.cg-verdict { display: inline-block; font-size: 10px; font-weight: bold; padding: 1px 7px; border-radius: 2px; margin-bottom: 6px; }
+.cg-v-synthesized { background: #1a2a1a; color: #6dbe6d; border: 1px solid #2d6b2d; }
+.cg-v-affirmed { background: #1a242a; color: #6ab0c8; border: 1px solid #2d5566; }
+.cg-v-hedged { background: #3a2a1a; color: #d8b470; border: 1px solid #806030; }
+.cg-v-dead_stamped { background: #2a1a1a; color: #c87070; border: 1px solid #6b2d2d; }
+.cg-v-residue_routed { background: #251a2a; color: #b47ad8; border: 1px solid #5a2d80; }
+.cg-catalog-link { grid-column: 1 / -1; font-size: 11px; color: #7ab0d8; text-decoration: none; }
+.cg-catalog-link:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
