@@ -1,5 +1,16 @@
 # Phase 3 executor resume handoff -- KTX source-synthesis (2026-05-17)
 
+> **!!! 2026-05-18 FLEET LAUNCHED -- READ THIS FIRST. The remaining 488
+> cat-1 knobs are being drained by 4 DISJOINT parallel slice terminals
+> per `docs/superpowers/parking/2026-05-18-ktx-cat1-fleet-handoff.md`.
+> A fresh terminal must NOT resume serial cat-1 volume -- it runs the
+> POST-FLEET RECONCILIATION (read the 4 `slice-N-STATUS.md`, resume any
+> smell-zone tail off the idempotent cursor, then Task 3/4/5 + phase
+> boundary). The cursor is the source of truth; cat-1 below is the
+> per-knob recipe the fleet workers use, not a serial instruction.
+> Live cursor at fleet launch: 136 evaluated / 488 remaining, fp
+> `33bf5da640e8e3c13e99460075b67983`. !!!**
+
 > **!!! STAGE B DONE -- cat-2 AND cat-3 FULLY DRAINED. Only the
 > uniform cat-1 per-knob loop (~508) + Task 3/4/5 + phase boundary
 > remain !!!** The cat-2 index-twin lane (all 6 families) and the
@@ -136,7 +147,15 @@ the exact resumable loop and the batch-loop learnings.
 
 ## Live cursor state at this wrap (re-verify first thing -- a mismatch means investigate)
 
-- `--status`: **116 evaluated / 508 remaining** (command evaluated=75
+- **2026-05-18 UPDATE (supersedes the 2026-05-17 numbers below):**
+  `--status` = **136 evaluated / 488 remaining** (command 95/263, cvar
+  41/218, info_key 0/7); `--fingerprint` =
+  **`33bf5da640e8e3c13e99460075b67983`**. Session lineage (each step
+  dry-run == live fp, F-P3a non-vacuous): `3a7ac3e4...` (2026-05-17 wrap)
+  -> `89ca5db4...` (+batch-03 10 cat-1 cmds) -> **`33bf5da6...`**
+  (+batch-04 10 cat-1 cmds). The 488 remaining == the 4-lane fleet pool
+  (130+119+119+120); cat-2 + cat-3 drained, all 488 are cat-1.
+- (2026-05-17, historical) `--status`: **116 evaluated / 508 remaining** (command evaluated=75
   remaining=283; cvar evaluated=41 remaining=218; info_key evaluated=0
   remaining=7). `k_short_gib` terminal=true, counted-once (C4/D19/P3).
   The 508 remaining are 100% cat-1 (cat-2 + cat-3 fully drained).
@@ -320,6 +339,24 @@ executor can check them.
 
 ## Batch-loop learnings (carry forward -- proven, use them)
 
+- **NEW 2026-05-18b -- raw_comment must be the verbatim LINE, not a
+  symbol's value (load-bearing; F-D6a caught it).** batch-04 passed
+  shape + behaviour but cited `cmd_t cmds[]` registration lines while
+  putting the CD_* macro's RESOLVED STRING in `raw_comment` (the real
+  `#define CD_*` is elsewhere, e.g. `commands.c:590`). The dispatcher's
+  independent cross-grep flagged 6 assert-fails. RULE: every
+  `description_provenance` entry's `raw_comment` is the verbatim trimmed
+  text AT that exact `source_line`, OR `null`; a macro/symbol value is
+  evidence ONLY via a SEPARATE entry citing its real definition line
+  (two entries, each raw_comment matching its own line -- exactly as
+  batch-03 did correctly). Dispatcher re-check upgraded to strict
+  `raw_comment === null || === trimmed-live-line`. This is a
+  BRIEF-quality fix (sharpened requirement (d) in the fleet prompts),
+  not a model one -- the Opus-MAX synthesis judgment was sound;
+  re-dispatch was surgical (provenance only, descriptions untouched).
+  Distinguish benign raw_comment-imprecision (line + behaviour correct,
+  surgical re-dispatch) from a real wrong-line/invented fabrication
+  (never persists; HALT if it survives one re-dispatch).
 - **NEW 2026-05-18 -- mixed-case source names (load-bearing).**
   `--persist` matches each record to its entity by **project + type +
   `knob`**, where `knob` must equal the entity's `entities.name`
