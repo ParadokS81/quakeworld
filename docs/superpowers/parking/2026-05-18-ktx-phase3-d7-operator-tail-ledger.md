@@ -61,7 +61,7 @@ are knob-keyed, so the renumber is loss-free.
 |17|hedged|banrem|3|[D] ACCEPT+P4 (CF-1)|
 |18|affirm|k_allowvoteadmin|23|[D] CLEAR-fact; judg->Q (lean AFFIRM)|
 |19|synth|k_cmd_fp_dontkick|8|[D] CLEAR|
-|20|affirm|k_exclusive|24|PENDING|
+|20|affirm|k_exclusive|24|[D] CLEAR-fact; judg->Q (lean AFFIRM)|
 |21|synth|k_highspeed|25|PENDING|
 |22|synth|toggleklist|26|PENDING|
 |23|synth|votemap|27|PENDING|
@@ -86,10 +86,8 @@ are knob-keyed, so the renumber is loss-free.
 |42|synth|timing_players_action|42|PENDING|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 23 done / 20 PENDING.
-NEXT = ledger row 24 = HTML#20 `k_exclusive` (affirmed).
-  (HTML#19 = row 8 k_cmd_fp_dontkick, already [D] CLEAR -- next
-  PENDING in HTML order is #20.)
+[D]=dispositioned. 24 done / 19 PENDING.
+NEXT = ledger row 25 = HTML#21 `k_highspeed` (synthesized).
 
 ## Per-row dispositions
 
@@ -115,6 +113,7 @@ NEXT = ledger row 24 = HTML#20 `k_exclusive` (affirmed).
 | 18 | race_toggle | command | HTML#9 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean SYNTH) | FACT source-accurate: reg commands.c:1007 DEF(r_changestatus) arg 3; r_changestatus case 3 race.c:3050-3059 -- `if (self->racer && race.status)` -> G_bprint "%s has quit the race" + race_end(self,true,false) (:3053-54), THEN set_player_race_ready(self, !self->race_ready) (:3057). WI-1: race.c:4269 race_toggle_incr_cvar = false-positive substring (unrelated headstart/resolution helper, NOT this command); commands.c:7970 r_changestatus(3) = internal caller (same path, not new behaviour). Affirmed verbatim CD_RTOGGLE "toggle ready status for race" (:633). Affirm-vs-synth: OMITS a behaviorally-material mid-run side-effect (running it mid-race publicly QUITS your run -- "X has quit the race" -- before toggling); weaker affirm than next_best/gamemodes, my lean = SYNTHESIZE. In the queue. NOT a silent CLEAR. |
 | 20 | breakondeath:frogbot:std | command | HTML#11 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE on the cvar FB_CVAR_BREAK_ON_DEATH (=k_fb_break_on_death): reg world.c:1065 default 1; toggle handler FrogbotsSetBreakOnDeath bot_commands.c:2219-2230 (bots_enabled gate; cvar_fset !cvar :2227; G_sprint "changed to on/off" :2228); behavioural read player.c:1145 `if(!self->isBot && tot_mode_enabled() && cvar(...))` -> PlayerBreak; match.c:1789 = non-behavioural settings-display read (correctly out of scope, NOT under-scope). Affirmed verbatim. Affirm-vs-synth: genuine terse /botcmd user-help line; omits the tot_mode/human gate but that is implied by the frogbot-practice context this command lives in. lean = AFFIRM (mild). Queue (frogbot-help-string cluster). NOT a silent CLEAR. |
 | 19 | addbot:frogbot:std | command | HTML#10 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate: std_commands table bot_commands.c:2318 `{ "addbot", FrogbotsAddbot_f, "Adds a bot. Skill & team optional" }`; handler FrogbotsAddbot_f :362-392 -- !bots_enabled -> "Bots are disabled" return (:368); optional numeric argv[2]=skill (:375-380), argv[3]=team; FrogbotsAddbot(skill,team,true) (:392) spawns one bot, clamps skill, auto-balances teams. WI-1: :1908 + :2790 are OTHER internal FrogbotsAddbot callers (different contexts, not this std command). Affirmed verbatim. Affirm-vs-synth: the string is a GENUINE user-facing help line (PrintAvailableCommands prints it to players in /botcmd), terse-by-design for a command list, accurate WHAT, no hidden material side-effect; my lean = strong AFFIRM (contrast race_toggle). In the queue. NOT a silent CLEAR. |
+| 24 | k_exclusive | cvar | HTML#20 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE: 3 sites -- behavioural client.c:1455 (`if((CountPlayers()>=k_attendees) && cvar("k_exclusive"))` -> "Sorry, server is full / Please reconnect as spectator" return false, in the match-in-progress connect-permission path); register world.c:940 (+comment); toggle commands.c:8620 (cvar_toggle_msg "exclusive mode"). NOT under-scope -- single behavioural site. Companion `k_attendees = CountPlayers()` snapshots at match-start (match.c:2022/2632/2724/2889, admin.c:594/678) -> confirms "locked on game start". Enum 0=no/1=yes truthiness-exact. Affirm-vs-synth: shipped-cfg comment WHAT-accurate for the admin effect (player cap locks at game-start count); cap-vs-roster subtlety (leaver frees a slot up to the cap) is mechanism depth not a misleading WHAT, no hidden side-effect (contrast race_toggle). lean = AFFIRM (shipped-cfg-comment cluster w/ k_allowvoteadmin). C2 default-drift (ktx-repo ktx.cfg ships 1, nquake-distfiles ships 0) correctly classified per-distribution drift NOT semantic conflict -- consistent with operator-accepted k_cmd_fp_dontkick (row 8) precedent. Operator-nugget (L3/admin): nquake vs stock KTX differ on k_exclusive default. NOT a silent CLEAR. |
 | 23 | k_allowvoteadmin | cvar | HTML#18 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE: 3 sites -- behavioural admin.c:497 (`if(!cvar("k_allowvoteadmin"))` -> "Admin election is not allowed on this server" return, inside VoteAdmin admin.c:450 = the 'elect' command commands.c:800 CD_ELECT, after the k_admins gate :489); bare register world.c:878 (reasoning omitted, immaterial -- no behaviour/comment); status-print commands.c:2030 (correctly classified non-behavioural). NOT under-scope class -- single behavioural site, fully cited. Enum 0=no/1=yes is cvar-truthiness-exact. Affirmed shipped-cfg comment (identical ktx-repo example + nquake-distfiles). Affirm-vs-synth: precise, enum code-matching, WHAT-accurate; omits only cross-cvar nuance (k_allowvoteadmin=0 blocks the elect route but password-admin stays governed by k_admins) = L3 admin-config concept-note material, not a defect in a terse single-cvar doc. lean = strong AFFIRM (config comment exactly describing its own binary gate; cleaner than the frogbot-help cluster). Operator-nugget for L3 admin/voting note: disabling vote-admin != disabling all admin (k_admins still governs the password path). NOT a silent CLEAR. |
 | 22 | removemarker:frogbot:editor | command | HTML#13 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE: `removemarker` literal ONLY bot_commands.c:2335; `FrogbotRemoveMarker` = def :1199 + table :2335, NO other callers -- single-site, NOT under-scope class. Handler :1199-1223 verified: nearest=LocateMarker(self origin); !nearest -> "No marker found nearby" return; !streq(classname,"marker") -> "Cannot remove non-manual markers" return; saved_marker==nearest -> DeselectMarker + saved_marker=NULL; RemoveMarker(nearest) (route_fields.c:121). Affirmed string "Removes a routing marker from the map" = WHAT-accurate. Affirm-vs-synth: genuine user-facing editor help line (PrintAvailableCommands prints commands[i].description), terse-by-design; omits nearest-targeting + manual-only refusal, but both are editor-command mechanism implied by context (universal LocateMarker(nearest) idiom across editor_commands[] siblings) and the manual-only guard is a no-op-with-message refusal NOT a material hidden side-effect (contrast race_toggle). lean = AFFIRM (terse-genuine-help-line cluster: addbot/breakondeath/gamemodes/next_best). Corroboration: r21/r22 adjacent editor_commands[] siblings -- clearmarkerflag string was copy-paste artifact (correctly synthesized), removemarker string factually correct (correctly affirmed); pipeline discriminated correctly within the same code neighborhood. NOT a silent CLEAR. |
 | 21 | clearmarkerflag:frogbot:editor | command | HTML#12 synth | CLEAR (fact) | Synth source-exact, D10 call correct. WI-1 EXHAUSTIVE: `clearmarkerflag` literal ONLY bot_commands.c:2342; `FrogbotClearMarkerFlag` = def :1540 + table :2342, NO other callers -- single-site, NOT the multi-read-site under-scope class. Handler :1540-1568 verified every clause: editor-mode gate (FrogbotsCommand :2386 FrogbotOptionEnabled(FB_OPTION_EDITOR_MODE) -> editor_commands[]); `nearest=LocateMarker(self origin)` (marker_util.c:162 -> LocateNextMarker, the universal `nearest` idiom 11+ sites); nearest==NULL -> "No marker nearby" return; argc<3 -> prints FROGBOT_MARKER_FLAG_OPTIONS return; flags=DecodeMarkerFlagString (marker_load.c:87, returns 0 iff no recognized char u/6/f/b/t/e/n); `if(flags)` -> `nearest->fb.T &= ~flags` + "Marker flags cleared, now: %s" EncodeMarkerFlags(post-clear); else -> "invalid" no-op. C2 note VERIFIED: shipped string "Clears flag on a path between two markers" byte-identical at :2342 (clearmarkerflag) and :2344 (clearpathflag) = confirmed peer-copy artifact; handler operates on a SINGLE marker's fb.T not a path -> shipped string factually wrong, D10 source-truth synth-from-handler is the right call, conflict surfaced as C2 not silently absorbed. PROC-1: reduces to checkable fact (synth text == verified behaviour; shipped string unambiguously a copy-paste error), no residual judgment. No action. |
@@ -220,6 +219,19 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   user-help string; omits the tot_mode/human gate, implied by the
   frogbot-practice context. lean = AFFIRM (mild). [frogbot-help-string
   sub-batch: addbot/breakondeath/... -- adjudicate together.] YOUR call.
+- **k_exclusive** (row 24, HTML#20): FACT = source-accurate. Gate
+  client.c:1455 `if((CountPlayers()>=k_attendees) && cvar("k_exclusive"))`
+  -> refuse player connect, "reconnect as spectator"; k_attendees =
+  CountPlayers() snapshot at match-start. Affirm-vs-synth: shipped-cfg
+  comment "number of players gets locked on game start (0=no,1=yes)" is
+  enum-exact + WHAT-accurate for the admin effect (player cap locks at
+  game-start count). Only looseness = cap-vs-roster (a leaver frees a
+  slot up to the cap, it is not the exact player SET that locks) --
+  mechanism depth, not a misleading WHAT, no hidden side-effect. lean =
+  AFFIRM (shipped-cfg-comment cluster, with k_allowvoteadmin). C2
+  default-drift handled per the operator-accepted k_cmd_fp_dontkick
+  precedent (per-distribution default, not a semantic conflict). YOUR
+  call. NOT a silent CLEAR.
 - **k_allowvoteadmin** (row 23, HTML#18): FACT = source-accurate.
   VoteAdmin admin.c:450 (the 'elect' command, commands.c:800 CD_ELECT);
   admin.c:497 `if(!cvar("k_allowvoteadmin"))` -> "Admin election is not
@@ -324,10 +336,14 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   queued lean strong AFFIRM. 3 sites, single behavioural (admin.c:497
   elect gate); shipped-cfg comment enum-exact; cross-cvar k_admins
   nuance is L3 material not a terse-doc defect.
-- Session #3 totals so far: 3 rows, 1 CLEAR + 2 CLEAR-fact, 0 FIX, 2
-  judgment-queue adds. Cumulative: **23 / 43 done, 20 PENDING**. FIX
-  queue still 4 (rows 4/5/11/12). Affirmed-sample judgment queue now 7
-  (added removemarker, k_allowvoteadmin).
+- r24 k_exclusive (HTML#20, affirm): **CLEAR-fact**; affirm-judg
+  queued lean AFFIRM. 3 sites single behavioural client.c:1455;
+  shipped-cfg comment enum-exact; C2 default-drift per the accepted
+  k_cmd_fp_dontkick precedent.
+- Session #3 totals so far: 4 rows, 1 CLEAR + 3 CLEAR-fact, 0 FIX, 3
+  judgment-queue adds. Cumulative: **24 / 43 done, 19 PENDING**. FIX
+  queue still 4 (rows 4/5/11/12). Affirmed-sample judgment queue now 8
+  (added removemarker, k_allowvoteadmin, k_exclusive).
 
 ### Session #2 wrap (rows 13-20)
 
@@ -431,5 +447,5 @@ ledger is a lossless resume contract. **20 / 43 done, 23 PENDING
    the scan verdict.
 
 - Next: live `NEXT =` pointer in the "## Docket = 43 rows" footer
-  (single source of resume truth). Currently row 24 = HTML#20
-  `k_exclusive` (affirmed).
+  (single source of resume truth). Currently row 25 = HTML#21
+  `k_highspeed` (synthesized).
