@@ -1,5 +1,10 @@
 # KTX D7 V-pass -- per-batch handover prompt (template, F-V1/F-V2 hardened 2026-05-19)
 
+**Run this terminal on Opus 4.7, MAX reasoning.** If this session is not
+Opus, STOP and tell the operator -- HARD GATE 2 (Step 4) is per-clause
+enforcement verification and degrades on weaker models; the D7 dial is
+spec-locked (decisions.md D7 / B1-B3), not a per-run choice.
+
 Paste this whole file into a FRESH terminal. Change exactly ONE line --
 `BATCH_ID` in step 0. Everything else is identical across all terminals.
 This is the B3 verification-shaped pass defined in `decisions.md` D7
@@ -133,7 +138,10 @@ ground-truth defect under the full prompt (the `autotrack` canary fired:
 a known C-FIX returned TRACED-CLEAN). The canary + re-grep below are not
 advisory -- they are the only thing that keeps the scaled run honest.
 
-- Dispatch read-only general-purpose sub-agents at model `opus`, in
+- Dispatch read-only general-purpose sub-agents at model `opus`, **MAX
+  reasoning effort** (the D7 spec-locked dial -- B1/B3; NOT a per-run
+  choice; calibration proved even Opus false-negatives the invisible
+  class, so Opus-MAX is the floor, never lower), in
   waves. Each wave = ~5 of YOUR batch rows PLUS exactly 1 injected
   CANARY row (6 rows total). The sub-agent is NOT told which row is the
   canary -- it classifies all 6 identically with the Step-3 method and
