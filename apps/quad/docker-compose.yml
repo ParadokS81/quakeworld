@@ -26,7 +26,12 @@ services:
       - "64738:64738/udp"
     volumes:
       - ./mumble-data:/data
+      - ./mumble-certs:/certs:ro   # Let's Encrypt cert, written + chowned by the acme service
     environment:
+      # Trusted TLS cert -> no more self-signed / hostname-mismatch warnings.
+      # MUMBLE_CONFIG_SSLCERT/SSLKEY map to murmur.ini sslCert/sslKey.
+      MUMBLE_CONFIG_SSLCERT: "/certs/fullchain.pem"
+      MUMBLE_CONFIG_SSLKEY: "/certs/privkey.pem"
       MUMBLE_SUPERUSER_PASSWORD: "${MUMBLE_SUPERUSER_PASSWORD:-changeme}"
       MUMBLE_CONFIG_WELCOMETEXT: "Welcome to the QuakeWorld Voice Server"
       MUMBLE_CONFIG_USERS: 50
@@ -38,3 +43,22 @@ services:
       MUMBLE_CONFIG_ICESECRETWRITE: "${MUMBLE_ICE_SECRET}"
     expose:
       - "6502"   # ICE API — internal Docker network only, not public
+
+  # Issues + auto-renews the Let's Encrypt cert for mumble.slipgate.me via
+  # Cloudflare DNS-01 (no inbound ports needed). Runs its own renewal cron
+  # (command: daemon). On issue/renew its reloadcmd chowns the cert to
+  # murmur's runtime uid (10000) and restarts mumble-server through the
+  # Docker socket so murmur reloads the new cert. CF_Token / CF_Zone_ID come
+  # from .env (gitignored). See DEPLOYMENT.md "Mumble TLS certificate".
+  acme:
+    image: neilpang/acme.sh:latest
+    container_name: acme-sh
+    restart: unless-stopped
+    command: daemon
+    volumes:
+      - ./acme-data:/acme.sh
+      - ./mumble-certs:/certs
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      CF_Token: "${CF_Token}"
+      CF_Zone_ID: "${CF_Zone_ID}"
