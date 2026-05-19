@@ -170,6 +170,35 @@ advisory -- they are the only thing that keeps the scaled run honest.
   REJECTED. Record nothing from it. Re-dispatch with a sharpened prompt
   (quote the canary's enforcing line). A wave only counts when its
   canary matches.
+- **Re-dispatch discipline (batch-03 finding -- read before you
+  re-dispatch a single wave).**
+  1. The canaries are NOT equally hard. `k_teamoverlay` (C-NEAR-MISS) is
+     the HARDEST -- it IS the exact invisible correct-by-accident class
+     the V-pass exists to catch, so sub-agents WILL false-negative it as
+     TRACED-CLEAN repeatedly. That is the canary doing its job. It is
+     NOT evidence the ground truth is wrong. Canary ground truth is
+     RATIFIED (decisions.md D7 / the probe + cross-batch
+     orchestrator re-greps): NEVER amend it from inside a batch, and
+     never let repeated `k_teamoverlay` GATE-1 failures spiral into a
+     ground-truth-doubt loop. If you believe a canary verdict is wrong,
+     HALT and escalate to the operator (as batch-03 correctly did) --
+     do not override and do not loop.
+  2. Sharpen the re-dispatch prompt TOWARD discrimination only: quote
+     the canary's enforcing line and the specific clause that has NO
+     enforcing line. Do NOT add a "do not over-flag / these are
+     defensible generalizations" instruction -- it demonstrably
+     backfires into systematic UNDER-flagging of genuine defects
+     (batch-03 Finding 2: a false TRACED-CLEAN on an invisible defect is
+     the single worst V-pass outcome). The `k_yawnmode` over-flag
+     control already guards the over-flag direction; do not trade it
+     for under-flagging.
+  3. Bounded retries: if a wave's canary still fails GATE 1 after 2
+     toward-discrimination re-dispatches, do NOT keep looping and do NOT
+     switch briefs -- rotate that wave's canary to a different pool
+     member and continue; the wave's batch rows still require the HARD
+     GATE 2 orchestrator re-grep before they are recorded. Persistent
+     GATE-1 failure across the whole batch -> HALT + escalate, never
+     ship.
 - **HARD GATE 2 -- orchestrator re-grep.** Independently of the canary,
   for every accepted wave YOU re-grep the oracle for >=1 flagged row's
   wrong-clause enforcing line AND >=1 TRACED-CLEAN row's most

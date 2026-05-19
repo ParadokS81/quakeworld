@@ -89,6 +89,65 @@ no B4 / re-synth without the operator gate. HARD GATE 2 is per-batch and
 orchestrator-independent: never relay a terminal's re-grep claim
 unverified (`feedback_verify_dispatched_terminal_claims`).
 
+### !!! ALL 9 LANDED 2026-05-19 -- 7 verified, 03+08 re-run, Findings 1+2 RESOLVED. Collation still gated on all 9. !!!
+
+**State:** 7 of 9 batches committed + gate-verified (01 02 04 05 06 07
+09; 445 rows; aggregate flavour-C 68/445 ~= 15.3% == fleet ~14%, batch
+05 high-outlier 23.6% but NOT ~40% -- bucket variance not stride
+failure; canary-hygiene 0 leaks on every hardened-template batch). The
+gate architecture WORKED end-to-end: canary GATE 1 fired + was honored
+across batches (k_teamoverlay / autotrack false-negatives caught +
+re-dispatched), and HARD GATE 2 orchestrator re-grep independently
+caught under-flagged TRACED-CLEANs GATE 1 could not see (batch 04
+`midair_minheight` + `_k_coachteam2`; batch 07 wave-3 under-trace) then
+recovered -- `feedback_verification_layer_catches_lift_residuals` proven
+in-run.
+
+**2 did NOT complete (both untracked, NOT committed):**
+- **Batch 08 (bucket 7, expect 61 rows): no-op.** Ledger = preamble
+  only, 0 rows, 0 waves. Terminal crashed before wave 1. Full re-run.
+- **Batch 03 (bucket 2, expect 65 rows): halted CORRECTLY at 20 rows.**
+  Not a crash -- the terminal escalated 2 findings and STOPPED rather
+  than ship tainted (textbook C4). Per-row inputs preserved at
+  `/tmp/vpass-b03/`. Re-run (scope = operator call: full fresh vs
+  resume-from-preserved).
+
+**Finding 1 (k_teamoverlay ground-truth dispute) -- RESOLVED, DO NOT
+RE-LITIGATE.** Orchestrator independent re-grep + batches 02/04/05/06/07
+independent re-greps ALL converge: the team-info stream gates ONLY on
+`client.c:4720 if (!k_teamoverlay)` -- NO `isDuel()` on the feature
+path; the sole `!isDuel()` is `match.c:1639`, a settings-summary print
+string, not the stream. **C-NEAR-MISS is correct ground truth.**
+k_teamoverlay is a DELIBERATELY-HARD canary -- it IS the invisible
+correct-by-accident class; sub-agents false-negativing it = the gate
+WORKING. Batch-03 option (b) "amend to TRACED-CLEAN" would blind the
+gate to the entire near-miss class -- REJECTED. Canary ground truth
+stands; never amend from inside a batch (escalate, as batch-03 did).
+
+**Finding 2 (sharpened "don't over-flag" brief -> systematic
+under-flagging) -- REAL but batch-03-LOCAL; template hardened this
+session.** Batch 03 used a FAILURE-B anti-over-flag re-dispatch brief,
+self-detected it under-flagged genuine defects, and halted. The other
+batches sharpened toward discrimination (safe direction); batch 04
+proved HARD GATE 2 catches Finding-2 residue + recovers. The V-pass
+template Step-4 HARD GATE 1 bullet now carries explicit re-dispatch
+discipline (canary-hardness asymmetry; sharpen toward discrimination
+NOT anti-over-flag; bounded retries; never amend ground truth in-batch;
+halt+escalate). 03 + 08 re-run under the hardened template + standard
+brief.
+
+**Collation:** B5 Stage-1 (global rate + flagged set, all 571 / 9
+buckets) is STILL gated -- buckets 2 + 7 missing. The 7-batch aggregate
+above is interim situational context, NOT the committed Stage-1 record.
+No collation until 03 + 08 land verified.
+
+**Next:** (1) operator picks batch-03 re-run scope; (2) re-run 03 + 08
+(hardened template, standard brief, k_teamoverlay C-NEAR-MISS); (3)
+orchestrator per-batch HARD GATE 2 on the 2 new ledgers as they land;
+(4) THEN canary-filtered B5 Stage-1 collation across all 9, committed;
+(5) B4 decision batch. The 7 verified batches hold (do not re-verify
+absent a new signal -- the gates functioned).
+
 ## !!! SESSION #6 WRAP 2026-05-19 (orchestrator @~400k) -> RESUME AS SESSION #7. SUPERSEDES the session-#6 UPDATE + "First three actions" below. !!!
 
 Session #6 hit the ~400k smell zone and clean-wrapped here; next work
