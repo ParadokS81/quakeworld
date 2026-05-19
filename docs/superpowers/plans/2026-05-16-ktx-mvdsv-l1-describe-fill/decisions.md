@@ -719,6 +719,106 @@ runs tier-1 as written unless separately amended.**
   impossible bar). A real wrong-line / invented-behaviour fabrication
   still HALTs, unchanged.
 
+**Amendment 2026-05-19 (orchestrator session #6, fresh terminal -- RATIFIED
+2026-05-19, operator plain-English sign-off; applied this session). Triggered
+by the flavour-C fleet probe (2 / 14 ~= 14% positive on the unreviewed
+confident fleet; ledger "FLAVOUR-C FLEET PROBE 2026-05-19" block = the FACT
+base). Five changes. B2 is KTX-scope; B1/B3/B4/B5 are global (both engines,
+every D6 run) per the resume contract. DO NOT REVERT without re-deriving the
+probe -- B2 specifically supersedes the 2026-05-18 A1 retirement clause
+because an operator HTML scan was MEASURED unable to see the flavour-C class
+(autotrack's wrong clause reads perfectly clean); reverting B2 reinstates an
+unsafe retirement condition.**
+
+- **B1 -- the strengthened trace-every-clause rule is MANDATORY for every D6
+  invocation (first-pass AND re-synth), both engines.** Hard-coded into the
+  `describe-fill-synthesis` skill (governs Step 1, Step 5, the
+  Verification-discipline section; full method in
+  `references/enforce-trace-discipline.md`, a fifth load-bearing reference).
+  For every semantic / threshold / polarity / scope / OFF-state / side-effect
+  clause in the produced description, the run MUST locate the line that
+  ENFORCES it and verify the clause against that line's actual code INCLUDING
+  adjacent comments. A clause derivable only from the knob name, an
+  announce/redtext string, an enum name, or a config comment with no
+  enforcing read-site cited is forbidden -- hedge or route, never assert. A
+  cited, consistent-looking site is NOT sufficient (the r42 lesson): the
+  citation must be the line that enforces the specific assertion. WI-1
+  (wide-grep every use-site + trace every out-of-scope hedge, expect
+  inversion), WI-2 (a "Default" claim verified vs the REGISTERED default,
+  never a shipped-cfg value; access-class vs the CF_ flag + handler check)
+  and PROC-1 (auto-CLEAR only on checkable fact; any residual judgment
+  surfaces, never absorbed) are folded in as named in-skill rules.
+  Prompt/skill strengthening only -- Opus 4.7 MAX dial unchanged (D7).
+
+- **B2 -- A1's KTX D7 tier-1 retirement condition is REPLACED (supersedes
+  the 2026-05-18 A1 retirement clause; A1's deferral-of-up-front-tier-1
+  still stands).** The probe MEASURED that an operator HTML scan cannot
+  retire flavour-C. KTX D7 tier-1 is retired -- and a synthesized row's gate
+  verdict final -- ONLY when that row has passed a clean hardened
+  verification-shaped pass (the V-pass, B3), NOT when the operator scan is
+  clean. The operator scan is retained as the PROC-1 gross-error /
+  judgment-surface layer but is explicitly INSUFFICIENT alone to retire
+  tier-1. Phase-boundary check 4's answer becomes: gate verdict == D6
+  verdict + clean V-pass (or, for a flagged row, D6 re-synth verdict + clean
+  re-V-pass).
+
+- **B3 -- the V-pass is defined and is read-only.** An independent,
+  read-only, per-clause enforcement re-trace of an already-synthesized row
+  against the proven source oracle, using the probe-validated hardened
+  prompt (ledger probe block = the working prototype). It CLASSIFIES only --
+  TRACED-CLEAN / C-NEAR-MISS / C-FIX / WI2-FIX -- and modifies NO
+  description, NO DB, NO file. It is NOT a second synthesis (a second
+  synthesis re-asks the open question and re-inherits flavour-C -- the
+  resume contract's THE distinction). Measured cost ~16.5k tokens/row, 4-5
+  rows per subagent (~1/4-1/3 the original synthesis weight); run as
+  parallel subagent waves across ~4-6 disjoint-slice terminals. Applies to:
+  the ~555 unreviewed KTX confident fleet, every KTX FIX-queue re-synth,
+  and (Phase-4 carrier) MVDSV.
+
+- **B4 -- the correction process (re-synth loop) is specified.** A
+  V-pass-flagged row gets NO hand-patch and NO blind re-fan. It routes
+  (operator-gated as a batch -- C4) back through D6 FROM STEP 1, under the
+  B1-strengthened prompt, running the FULL trace-every-clause pass
+  (under-tracing was the failure; never a one-sentence edit), SEEDED with
+  the V-pass finding (the specific wrong clause + the enforcing file:line
+  the V-pass located) as a mandatory input so it is a closed, anchored
+  re-derivation rather than a blind second synthesis. It emits a new D6
+  record (description / reasoning / source_ref / anchor / verdict per D11).
+  The re-synthesized row is then RE-VERIFIED through the V-pass. The loop
+  terminates at TRACED-CLEAN or a genuine hedge/residue routed to C1.
+  FIX-queue sub-class routing (A under-scope / B WI-2 / C downstream-detail
+  / D presentation-one-off) is preserved and tells the seeded re-synth what
+  to nail; A/B/C run the full seeded re-synth, D is the presentation/policy
+  path.
+
+- **B5 -- two-stage durable record is a contract, not ad-hoc.** Stage 1 =
+  the V-pass classification ledger: every row's knob / classification /
+  per-clause enforcing-line citations / rationale, append-only, committed
+  per slice (the 43-row D7-tail ledger, scaled; TRACED-CLEAN entries ARE
+  the B2 retirement evidence). Stage 2 = the change report: per corrected
+  row, old text -> new text + the wrong clause + the enforcing line + the
+  triggering V-pass finding + the re-synth record + the re-V result.
+  Emission format is machine-collatable (specified in the V-pass + re-synth
+  subagent briefs) so Stage 1 / Stage 2 reconstruct without hand-merging.
+  D11 governs (provenance STORED, not just logged);
+  `feedback_every_finding_gets_a_track` at fleet scale.
+
+- **Phase-4 / MVDSV carrier.** This amendment is the "separately amended"
+  the 2026-05-18 D7 block named: MVDSV/Phase 4 no longer runs
+  original-tier-1-as-written. Phase 4 fans the SAME B1-strengthened D6
+  skill; its D7-tail is the V-pass (B3) with the B4 loop and B5 record; the
+  not-yet-written Phase-4 executor prompt MUST carry B1-B5 before Phase 4
+  runs. Running Phase 4 under the un-amended prompt reproduces flavour-C on
+  MVDSV from zero.
+
+**Ratification:** RATIFIED 2026-05-19 (operator plain-English sign-off).
+Applied this session: (1) this block appended under D7; (2) B1 propagated
+into `~/.claude/skills/describe-fill-synthesis/SKILL.md` +
+`references/enforce-trace-discipline.md`; (3) the Phase-4 executor-prompt
+B1-B5 requirement flagged in the arc README + the 2026-05-19
+orchestrator-resume. The V-pass fleet run + FIX-queue re-synth remain
+operator-gated and NOT started (C4).
+
 ## D8 -- Bot/judgment-tier cvars: mechanism-only is complete L1
 
 **Decision:** Bot-skill / judgment-tier cvars (~38 `k_fbskill_*` etc.) get no

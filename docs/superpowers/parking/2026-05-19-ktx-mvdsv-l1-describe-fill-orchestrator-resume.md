@@ -8,6 +8,46 @@ COMPLETE !!!"** block at the top of
 This doc frames the NEXT section and preserves the hard-won conceptual
 results so a fresh terminal does not re-derive them.
 
+## !!! UPDATE 2026-05-19 (orchestrator session #6) -- probe DONE + amendment RATIFIED + applied. SUPERSEDES "First three actions" below. !!!
+
+First-action-1 + first-action-2 of this contract are COMPLETE; the
+"First three actions" section below is now history -- read this block
+for live state.
+
+- **flavour-C fleet probe = DONE (FACT).** 14 random unreviewed
+  confident-fleet rows (1 orchestrator-traced + 13 across 3 parallel
+  read-only Opus subagents under a hardened anti-r42 prompt; both
+  positives + a high-surface all-clean row independently re-grepped).
+  Result **2/14 ~= 14% flavour-C-positive** (1 hard C-FIX `autotrack` --
+  "allowed only outside a live match" is a CF_MATCHLESS name-inference,
+  flatly wrong + output-invisible; 1 near-miss `k_teamoverlay`).
+  Docket-tail ~60% vs fleet ~14% => the docket was enrichment-selected
+  (fleet NOT 60% rotten) BUT ~7% hard-FIX projects ~40 wrong-clause rows
+  over ~555, and the operator HTML scan provably cannot see them. Full
+  FACT base = ledger "## !!! FLAVOUR-C FLEET PROBE 2026-05-19 !!!" block
+  (commit `813e2493`).
+- **Decisions amendment = RATIFIED 2026-05-19 + APPLIED this session.**
+  `decisions.md` D7 Amendment 2026-05-19 (B1-B5 + Phase-4 carrier). B1
+  strengthened-trace rule propagated into the D6 skill + new
+  `references/enforce-trace-discipline.md` (5th load-bearing ref). B2
+  supersedes the 2026-05-18 A1 retirement clause (V-pass, not operator
+  scan, retires KTX tier-1). README flagged.
+- **LIVE next actions (all operator-gated, NOT started -- C4):**
+  1. The Phase-3 ship-gate decision batch is still owed to the operator
+     -- but reshaped by the probe: (a) run the B3 V-pass over the ~555
+     unreviewed fleet (parallel subagent waves, ~4-6 disjoint-slice
+     terminals, ~16.5k tok/row; the probe's hardened prompt is the
+     validated prototype) + the B4 seeded-re-synth loop on flagged rows
+     + the original 10-row FIX queue (now all via the B4 loop); (b) the
+     affirmed-judgment queue (11) keep-vs-synth + r31 elaborated-affirm
+     policy; (c) the 2 shipped-cfg-drift notes (r38/r42).
+  2. Phase 3 ships only when every synthesized KTX row is V-pass-clean
+     (B2) + FIX/affirm queues resolved + the B5 two-stage record exists.
+  3. Phase 4 (MVDSV): write the executor prompt CARRYING D7 B1-B5
+     before any MVDSV synthesis runs.
+- The 43-row walk + the probe are DONE -- do not re-run either. C4
+  holds: nothing in any queue applied; no L1 row mutated.
+
 ## Where things are
 
 - **Arc:** `2026-05-16-ktx-mvdsv-l1-describe-fill` (Layer-1 describe-fill,

@@ -115,6 +115,20 @@ operator reviews at every phase boundary.
 **Phase 6 does NOT gate arc completion.** The arc is complete and useful at
 the end of Phase 5 (D16/D17). Phase 6 is the deferrable tail.
 
+**Amendment 2026-05-19 (D7 / B1-B5 -- RATIFIED, applied).** A random-fleet
+flavour-C probe (2/14 ~= 14% positive on the ~555 unreviewed confident KTX
+rows; FACT in the D7-tail ledger "FLAVOUR-C FLEET PROBE 2026-05-19" block)
+reshaped the Phase-3 ship-gate and Phase 4. B2 supersedes the 2026-05-18 A1
+retirement clause: KTX D7 tier-1 is retired ONLY by a clean read-only
+verification-shaped V-pass per row (B3), NOT by the operator HTML scan
+(measured unable to see the class). Phase-3 ship-gate condition 3 is now:
+V-pass the ~555 fleet + the B4 seeded-re-synth loop on flagged rows (both
+operator-gated, NOT started -- C4). **Phase 4 (MVDSV): the not-yet-written
+executor prompt MUST carry decisions.md D7 B1-B5 before Phase 4 runs** --
+Phase 4 fans the same B1-strengthened D6 skill; its D7-tail is the V-pass,
+not original-tier-1-as-written. Authority: `decisions.md` D7 Amendment
+2026-05-19 + `~/.claude/skills/describe-fill-synthesis/references/enforce-trace-discipline.md`.
+
 ---
 
 ## Slicing analysis (locked 2026-05-16, operator-reviewed)
