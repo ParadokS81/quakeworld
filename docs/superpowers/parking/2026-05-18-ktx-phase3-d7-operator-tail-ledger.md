@@ -83,13 +83,12 @@ are knob-keyed, so the renumber is loss-free.
 |39|synth|k_demoname_date|10|[D] CLEAR|
 |40|synth|_k_coachteam1|40|[D] CLEAR (fact) -- properly-traced (C counter-example #2)|
 |41|synth|_k_last_cycle_map|41|[D] CLEAR (fact) -- properly-traced (C counter-example #3)|
-|42|synth|timing_players_action|42|PENDING|
+|42|synth|timing_players_action|42|[D] FIX (precision -- velocity "restored" overclaim vs explicit source comment; sub-C variant) + C2 bit-8 autokpause op-note|
 |43|synth|k_use_matchless_dir|43|PENDING|
 
-[D]=dispositioned. 41 done / 2 PENDING.
-NEXT = ledger row 42 = HTML#42 `timing_players_action` (synthesized).
-  (HTML#41 _k_last_cycle_map now [D] -- next PENDING in HTML
-  order is #42.)
+[D]=dispositioned. 42 done / 1 PENDING.
+NEXT = ledger row 43 = HTML#43 `k_use_matchless_dir` (synthesized) -- FINAL ROW.
+  (HTML#42 timing_players_action now [D] -- last PENDING is #43.)
 
 ## Per-row dispositions
 
@@ -115,6 +114,7 @@ NEXT = ledger row 42 = HTML#42 `timing_players_action` (synthesized).
 | 18 | race_toggle | command | HTML#9 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean SYNTH) | FACT source-accurate: reg commands.c:1007 DEF(r_changestatus) arg 3; r_changestatus case 3 race.c:3050-3059 -- `if (self->racer && race.status)` -> G_bprint "%s has quit the race" + race_end(self,true,false) (:3053-54), THEN set_player_race_ready(self, !self->race_ready) (:3057). WI-1: race.c:4269 race_toggle_incr_cvar = false-positive substring (unrelated headstart/resolution helper, NOT this command); commands.c:7970 r_changestatus(3) = internal caller (same path, not new behaviour). Affirmed verbatim CD_RTOGGLE "toggle ready status for race" (:633). Affirm-vs-synth: OMITS a behaviorally-material mid-run side-effect (running it mid-race publicly QUITS your run -- "X has quit the race" -- before toggling); weaker affirm than next_best/gamemodes, my lean = SYNTHESIZE. In the queue. NOT a silent CLEAR. |
 | 20 | breakondeath:frogbot:std | command | HTML#11 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean AFFIRM) | FACT source-accurate. WI-1 EXHAUSTIVE on the cvar FB_CVAR_BREAK_ON_DEATH (=k_fb_break_on_death): reg world.c:1065 default 1; toggle handler FrogbotsSetBreakOnDeath bot_commands.c:2219-2230 (bots_enabled gate; cvar_fset !cvar :2227; G_sprint "changed to on/off" :2228); behavioural read player.c:1145 `if(!self->isBot && tot_mode_enabled() && cvar(...))` -> PlayerBreak; match.c:1789 = non-behavioural settings-display read (correctly out of scope, NOT under-scope). Affirmed verbatim. Affirm-vs-synth: genuine terse /botcmd user-help line; omits the tot_mode/human gate but that is implied by the frogbot-practice context this command lives in. lean = AFFIRM (mild). Queue (frogbot-help-string cluster). NOT a silent CLEAR. |
 | 19 | addbot:frogbot:std | command | HTML#10 affirm | CLEAR-fact; affirm-judg -> queue (PROC-1, lean strong AFFIRM) | FACT source-accurate: std_commands table bot_commands.c:2318 `{ "addbot", FrogbotsAddbot_f, "Adds a bot. Skill & team optional" }`; handler FrogbotsAddbot_f :362-392 -- !bots_enabled -> "Bots are disabled" return (:368); optional numeric argv[2]=skill (:375-380), argv[3]=team; FrogbotsAddbot(skill,team,true) (:392) spawns one bot, clamps skill, auto-balances teams. WI-1: :1908 + :2790 are OTHER internal FrogbotsAddbot callers (different contexts, not this std command). Affirmed verbatim. Affirm-vs-synth: the string is a GENUINE user-facing help line (PrintAvailableCommands prints it to players in /botcmd), terse-by-design for a command list, accurate WHAT, no hidden material side-effect; my lean = strong AFFIRM (contrast race_toggle). In the queue. NOT a silent CLEAR. |
+| 42 | timing_players_action | cvar | HTML#42 synth | **FIX** (re-synthesis) -- precision (velocity "restored" overclaim, sub-class C variant: cited-site scope-mischaracterization) + C2 bit-8 autokpause operator-note | WI-1 EXHAUSTIVE: bitmask cvar, all sites traced -- TA_ defs client.c:123-126 (TA_INFO 1<<0=1, TA_GLOW 1<<1=2, TA_INVINCIBLE 1<<2=4, TA_ALL=7); 2 read clusters CheckTiming client.c:132 + BackFromLag client.c:3119, both `TA_ALL & cvar` masked. Each bit's effect TRACED to enforcement (not flag-name-inferred): TA_INFO -> client.c:153 G_bprint "WARNING: %s is timing out!" + client.c:3123 "%s is back from lag" (EXACT); TA_GLOW -> client.c:185 `p->s.v.effects |= EF_DIMLIGHT` inside `if(p->k_timingWarnTime)` while-flagged (EXACT, "dim-light glow"); TA_INVINCIBLE -> client.c:164 save+zero takedamage/solid/movetype + `SetVector(velocity,0,0,0)` (EXACT for the zeroing). Additive (3=info+glow, 7=all) EXACT; `allow_timing` gate client.c:135 `if(!cvar("allow_timing")) return` EXACT; "lagging beyond timing_players_time" client.c:144 (bound 0-30, default 6) EXACT. **THE DEFECT (PROC-1, checkable fact -- precision)**: description says invincible "...freeze velocity (made non-interactive), **restoring them when the player returns**" -- "them" includes velocity, but BackFromLag client.c:3128-3131 restores ONLY takedamage/solid/movetype (verified: no velocity/SetVector line in the full :3117-3133 body); velocity is zeroed at client.c:170 with the EXPLICIT ADJACENT SOURCE COMMENT `// speed is zeroed and not restored`. The synthesis cited the restore site (client.c:3128) yet conflated zeroed-vs-restored for velocity, directly contradicting the source author's own flagged gotcha; the reasoning carries the same error ("zero velocity, restored in BackFromLag" -- false). Behaviourally material: a player lagging at speed (mid rocket-jump) has momentum PERMANENTLY killed, not resumed on return -- a real competitive consequence the source author specifically commented on. Sub-class C variant (precision/downstream-detail) but distinct from r34's "never traced": here the site WAS cited, the exact restore-scope was mischaracterized against an explicit adjacent comment -> sharpens the global C remedy: the re-synth prompt fix is not only "trace the enforcement site" but "verify EACH detail clause against the exact source incl. adjacent comments". WI-2 CLEAN BY ABSENCE: no "(default)" claim (RegisterCvar world.c:848 -> ""/0; shipped ktx.cfg value 3 correctly NOT called the default -- r25 trap avoided again); cvar, no command-class claim. **C2 (correctly handled, NOT a defect, operator-awareness note)**: shipped ktx.cfg:80 lists `8=autokpause` as a 4th bit; source has ZERO autokpause/TA_AUTOK/bit-8 symbol (grep confirmed) and TA_ALL=7 masks bit 8 to no-effect. Reasoning surfaced this as a D10 source-tiebreaker C2, description correctly documents only the 3 source-real bits and does NOT embed the conflict (clean source-truth, NO dangling "(see reasoning)" -- contrast r38 k_instagib). Operator-note (NOT a fix -- L1 is correct): the shipped ktx.cfg comment is stale/wrong for this KTX (bit-8 autokpause non-existent); operator decides whether that is shipped-doc drift to report upstream or expected. Re-synth (C4, operator-gated): KEEP all verified-true clauses (3 bits + values + effects + additive + allow_timing gate + timing_players_time ref + bit-8 omission); FIX the invincible clause -> velocity is zeroed while lagged and is NOT restored on return (only takedamage/solid/movetype are restored); "made non-interactive, then takedamage/solid/movetype restored on return (velocity/momentum is permanently zeroed, not restored)". |
 | 41 | _k_last_cycle_map | cvar | HTML#41 synth | CLEAR (fact) -- properly-traced (flavour-C counter-example #3) | WI-1 EXHAUSTIVE: exactly 3 sites, all cited + all inside SelectMapInCycle maps.c:634 -- register world.c:780-781 (2-line comment), read maps.c:651, write maps.c:690. NO under-scope, NO out-of-scope hedge. Enforcement TRACED + verified: maps.c:651 `if(!(i=cvar("_k_last_cycle_map"))){ if(!(i=IsMapInCycle(mapname))) i=0; }` -> stored index seeds the `while(i<1000)` scan over `k_ml_minp_/maxp_/k_ml_%d` entries (resume position); maps.c:690 `if((i=IsMapInCycle(buf))) cvar_fset("_k_last_cycle_map", i);` -> rewritten ONLY when the chosen next map is in-cycle. **IsMapInCycle convention VERIFIED at its definition maps.c:552-582** (not assumed): loops k_ml_%d, `if(streq(map,newmap)) return (i+1); // i may be 0, so returning i + 1`, else `return 0` -> **1-based position, 0 = not in cycle** -- EXACT match to the description's "1-based ... (0 = not in cycle)". Resume-after-off-cycle-vote semantic verified EXACT: an off-cycle voted map -> IsMapInCycle(buf)==0 -> maps.c:690 does NOT rewrite -> stored in-cycle index retained -> maps.c:651 resumes from it (NOT restart); world.c:781 comment "so we can back to map cycle if someone voted for map not in map cycle" corroborates. "not set from config" VERIFIED: zero config-string writers (grep commands.c), only the runtime maps.c:690 cvar_fset + RegisterCvar (no value). Comment-vs-code drift (world.c:780 "name of last map" but it stores an INDEX, maps.c:690 writes the int i) correctly surfaced in REASONING as single-source comment-drift (NOT a cross-source C2, not auto-resolved) -- and NOT embedded in the description (clean source-truth, contrast r38 k_instagib's dangling "(see reasoning)"). WI-2 CLEAN BY ABSENCE: no "(default)" claim (RegisterCvar->""/0; description says "not set from config" rather than asserting a default -- correct); cvar, no command-class claim. PROC-1: pure checkable fact (3 sites exhaustive + both read/write traced + IsMapInCycle convention verified at def + resume semantic traced exact), no residual judgment. **flavour-C counter-example #3** (with r35 k_spw, r40 _k_coachteam1): the reasoning explicitly traced both use-sites AND the IsMapInCycle return convention to source, did NOT infer the "1-based" / resume semantic from the cvar name or reg comment -- the 3rd consecutive properly-traced row this session-pair, reinforcing C = inconsistency (the trace is done well when done), not a capability ceiling. No action. |
 | 40 | _k_coachteam1 | cvar | HTML#40 synth | CLEAR (fact) -- properly-traced (flavour-C counter-example #2, with r35) | WI-1 EXHAUSTIVE: exactly 2 sites, both cited+verified -- register world.c:1027 `RegisterCvar("_k_coachteam1"); // internal mod usage` + sole read g_userinfo.c:364 `s2 = cvar_string("_k_coachteam1")`. NO under-scope, NO out-of-scope hedge. Enforcement TRACED to the body (not inferred from the strneq gate): in FixPlayerTeam g_userinfo.c:337, inside `if(self->ct==ctSpec)` -> `if(k_coaches==2)` -> `if(self->k_picked==1){ s2=cvar_string("_k_coachteam1"); }`; then `if(strneq(s1=newteam, s2))` -> `G_sprint "You may not change team"` (rejected) + `stuffcmd_flags(... "team \"%s\"\n", s2)` (client forced back to the stored team name) + `return true` (change blocked). Every description clause EXACT: "internal mod-state cvar holding the team name" (cvar_string read = team-name string; "internal mod usage" reg comment), "two coaches active" (k_coaches==2), "spectating coach slot 1 (k_picked==1)" (ctSpec + k_picked==1), "rejected and forced back to the stored team name" (G_sprint + stuffcmd s2 + return true). No-writer note VERIFIED by independent grep (`cvar_set[a-z]*/cvar_fset("_k_coachteam1")` = ZERO in-tree writers -> read-only, set externally by admin/tooling) -- the reasoning correctly classified this NOT a C2 / NOT a dead-stamp (F-C3c, KTX never dead-stamped) and surfaced it as an observation, not auto-resolved; checkable fact, accurate. WI-2 CLEAN BY ABSENCE: no "(default)" claim (RegisterCvar -> ""/0; internal string cvar, correctly no default asserted); cvar, no command-class claim. PROC-1: pure checkable fact (2 sites exhaustive + enforcement body traced exact + no-writer grep-confirmed), no residual judgment. **flavour-C counter-example**: the reasoning explicitly traced the reject+force-back enforcement consequence to the g_userinfo.c body rather than inferring it from the cvar name / strneq gate -- the 2nd properly-traced synth row (with r35 k_spw). Reinforces "C is an inconsistency, not a capability ceiling" -- the pipeline DOES trace enforcement when it does; the global re-synth-prompt fix is about making the trace mandatory, not adding a missing capability. No action. |
 | 39 | k_overtime | cvar | HTML#38 synth | **FIX** (re-synthesis) -- MEANING INVERSION, sub-class A (highest-severity class; 2nd of the walk after r27 votemap) + flavour-C overlay | WI-1 EXHAUSTIVE: ~45 sites (multi-read-site -- sub-class A profile). Authoritative enforcement = CheckOvertime match.c:504-615. Verified source-TRUE: enum 0-4 (`bound(0,cvar("k_overtime"),4)` ChangeOvertime commands.c:1732 + cycle 0->1->2->3->SD_GOLDEN_FRAG->0 commands.c:1737-1764; guard match.c:535 `!k_mb_overtime || (!=1 && !=2 && !=3 && !=SD_GOLDEN_FRAG) -> EndMatch(0)`; SD_GOLDEN_FRAG=4 g_consts.h:305); **1 = k_exttime MINUTES verified at enforcement** (`k_exttime=bound(1,cvar("k_exttime"),999)`; `if(k_overtime==1){ self->cnt=k_exttime; match_end_time += self->cnt*60; G_bprint "%s minute(s) overtime follows" }` match.c:589-598 -- the *60 + "minute" broadcast confirm the unit, NOT label-inferred); 2 = `k_sudden_death=SD_NORMAL; match_end_time=0` (sudden death); 4 = `k_sudden_death=SD_GOLDEN_FRAG; match_end_time=0` (never cancelled by the score-diff if -- always proceeds); suppression ALL THREE traced exact -- hoony `if(isHoonyModeAny()){ HM_draw(); return; }` match.c:526, lgc `if(lgc_enabled()) k_mb_overtime=0` match.c:553, team/CTF `if((isTeam()||isCTF()) && teams!=2) k_mb_overtime=0` match.c:560. **THE DEFECT (PROC-1, checkable fact -- MEANING INVERSION)**: description says "3 = tie-break ... only granted when the score difference is **more than one frag**". Enforcement match.c:566-571: `if(((k_mb_overtime==3) && abs(sc)>1) || (k_mb_overtime!=3 && k_mb_overtime!=SD_GOLDEN_FRAG && abs(sc)>0)) k_mb_overtime=0;` -- for mode 3, `abs(sc) > 1` CANCELS overtime (-> `if(!k_mb_overtime) EndMatch(0)`). So tie-break is granted ONLY when `abs(sc) <= 1` (score difference at most one frag / near-tie), CANCELLED when > 1. Source comment match.c:566 verbatim `// tie-break overtime allowed with one frag difference (c) ktpro` corroborates. The description states the EXACT INVERSE of the source condition -- a competitive match-deciding rule an admin/player would read completely backwards. Secondary (note for re-synth, not the headline): mode 3 sets `k_sudden_death=SD_TIEBREAK; match_end_time=0` (sudden-death-style, no fixed block) so "extra time is played" is imprecise -- it is SD_TIEBREAK SD, not a mode-1-style fixed k_exttime extension; AND modes 1/2 are only reached on an exact tie (clause B cancels 1/2 when abs(sc)>0) -- the description's "drawn match" framing is OK for 1/2 but the abs(sc)==0 gate is unstated (completeness, not the inversion). WI-2 CLEAN BY ABSENCE: no "(default)" claim (register world.c:854 `RegisterCvar("k_overtime")`=""/0; the ~17 shipped config-string values 0/1 correctly NOT called the default -- the r25 trap avoided again, pipeline's reliable abstention continues r35/r37/r38); cvar, no command-class claim. **Root cause = sub-class A under-scope (concluded about tie-break behaviour without tracing the match.c:566 cancel condition -- the reasoning scoped to the match.c:535 "If 0 no overtime, 1 overtime, 2 sudden death" comment region + the match.c:1692 scoreboard LABEL switch, ~30 lines short of the actual condition) WITH a flavour-C overlay (the inverted "more than one frag" quantitative detail was INVENTED from the "tie-break" concept/label, not traced -- exactly the systemic pattern, and like r34 the label-inference produced a WRONG claim, not a lucky-correct one).** Severity = MEANING INVERSION, the votemap r27 class (the walk's highest); 2nd such of the 43. Re-synth (C4, operator-gated, NOT auto-applied): KEEP the verified-true clauses (enum 0-4; 0=draw-end; 1=k_exttime-MINUTES time extension; 2=sudden death next frag; 4=golden frag; the three suppression conditions). FIX clause 3 -> "3 = tie-break: sudden-death-style overtime (k_sudden_death=SD_TIEBREAK, no fixed time limit), granted ONLY when the score difference is at most one frag (|diff| <= 1, a near-tie); if a side already leads by more than one frag the match ends with no overtime." Optionally add the modes-1/2 exact-tie gate (abs(sc)==0) for completeness. |
@@ -143,7 +143,7 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
 
 ## FIX queue (routed to targeted re-synthesis -- C4, never hand-UPDATE)
 
-> FOUR sub-classes now (9 total). **Sub-class A (under-scope, 6):**
+> FOUR sub-classes now (10 total). **Sub-class A (under-scope, 6):**
 > rows 4/5/11/12 (multi-read-site cvars D6 explored only the primary
 > apply-site) + **row 27 votemap** + **row 39 k_overtime** (the TWO
 > meaning-INVERSION rows -- votemap: callee-truncation, asserted
@@ -158,8 +158,13 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
 > but the default-metadata ("Default 320" = a shipped-cfg value
 > mislabelled as the registered default) and command-class ("admin"
 > for a CF_PLAYER command) are wrong. **Sub-class C (precision --
-> untraced-downstream-consequence, 1, NEW session #4):** row 34
-> k_pow_pickup -- single-site, primary cvar=1 gate behaviour
+> downstream-detail, 2, NEW session #4-#5):** row 34 k_pow_pickup
+> (never traced the grant code -- "stack" inferred) + row 42
+> timing_players_action (cited the restore site but mischaracterized
+> velocity as restored, against the explicit `// speed is zeroed and
+> not restored` adjacent comment); both per-row re-synth + the global
+> "verify EVERY downstream-detail clause against exact source incl.
+> adjacent comments" prompt fix. The k_pow_pickup variant -- single-site, primary cvar=1 gate behaviour
 > synthesized CORRECTLY + source-exact AND default-metadata WI-2-clean
 > (true registered default), but the cvar=0 parenthetical "(allowing
 > the timer to stack)" is FALSE -- an INFERRED OFF-state downstream
@@ -299,7 +304,7 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
   explicitly separates registered-default from shipped-cfg-value and
   reads the command's CF_ flag.
 
-### Sub-class C -- precision / untraced-downstream-consequence (1, NEW session #4)
+### Sub-class C -- precision / downstream-detail (2, NEW session #4-#5)
 
 - **k_pow_pickup** (row 34): single-site, primary behaviour synthesized
   CORRECTLY -- do NOT regress: keep the polarity (1 = "fair" pickup,
@@ -335,6 +340,27 @@ correct for KTX, gap closes at Phase 4. FIX = captured finding, routed
   2nd untraced-downstream-consequence FIX appears, C is a confirmed
   systemic class with its own re-synth checklist (cf the WI-1 / WI-2
   promotion bar).
+- **timing_players_action** (row 42): C VARIANT -- cited-site
+  scope-mischaracterization (NOT "never traced" like r34). All 3
+  bits + values + effects + additive + allow_timing gate +
+  timing_players_time ref + the bit-8 omission are source-true; the
+  ONE precision defect: the invincible clause says velocity is among
+  the things "restoring them when the player returns" but BackFromLag
+  client.c:3128-3131 restores ONLY takedamage/solid/movetype -- the
+  synthesis CITED that restore site yet conflated zeroed-vs-restored
+  for velocity, contradicting the explicit adjacent source comment
+  client.c:170 `// speed is zeroed and not restored`. Re-synth:
+  KEEP everything else; FIX the invincible clause -> while lagged the
+  player's takedamage/solid/movetype are zeroed (restored on return)
+  AND velocity is zeroed but PERMANENTLY not restored (momentum
+  killed). This variant SHARPENS the global C remedy: the prompt fix
+  must be "verify EVERY downstream-detail clause against the exact
+  source INCLUDING adjacent comments" -- not merely "trace the
+  enforcement site" (here the site was cited and still got the
+  detail wrong). C2 (shipped ktx.cfg:80 bit-8 `autokpause` absent
+  from source; TA_ALL=7 masks it) was correctly D10-resolved + the
+  description kept clean (NO embedded "(see reasoning)" -- contrast
+  r38); operator-awareness note only, NOT a fix (L1 is correct).
   - **r36 spawn_show NEAR-MISS (recorded session #4, NOT a FIX --
     output source-true):** the spawn_show synthesis scoped its
     authoritative site to the handler alone and DERIVED the
@@ -721,10 +747,26 @@ worker's). Format: knob -- FACT verdict -- affirm-vs-synth read + nuance.
   (reg says "name" but stores index) surfaced in reasoning, NOT
   embedded in description (clean, contrast r38). WI-2 clean by
   absence. flavour-C counter-example #3. 0 new FIX.
-- Session #5 totals so far: 3 rows -- 1 FIX (r39, meaning-inversion
-  sub-class A) + 2 CLEAR (r40, r41). Cumulative: **41 / 43 done, 2
-  PENDING**. FIX queue **9** (A=6, B=1, C=1, D=1). Affirmed-sample
-  judgment queue unchanged at **11** (all session-#5 rows synth).
+- r42 timing_players_action (HTML#42, synth): **FIX (precision,
+  sub-class C variant)** + C2 operator-note. Bitmask 3 bits
+  (TA_INFO 1/TA_GLOW 2/TA_INVINCIBLE 4, TA_ALL=7) all traced
+  source-exact; additive / allow_timing gate / timing_players_time
+  all exact. DEFECT: invincible clause "restoring them" wrongly
+  includes velocity -- BackFromLag client.c:3128 restores only
+  takedamage/solid/movetype; velocity zeroed at client.c:170 w/
+  explicit comment "speed is zeroed and not restored" (synthesis
+  cited the restore site but mischaracterized scope -> C variant,
+  sharpens global remedy to "verify every detail clause incl.
+  adjacent comments"). C2 (shipped ktx.cfg:80 bit-8 autokpause
+  absent from source, TA_ALL masks it) correctly D10-resolved,
+  description clean (contrast r38) -> operator-awareness note only,
+  not a fix. WI-2 clean by absence. FIX queue now **10** (A=6, B=1,
+  C=2, D=1).
+- Session #5 totals so far: 4 rows -- 2 FIX (r39 meaning-inversion
+  A, r42 precision C-variant) + 2 CLEAR (r40, r41). Cumulative:
+  **42 / 43 done, 1 PENDING (r43, the final row)**. FIX queue **10**
+  (A=6, B=1, C=2, D=1). Affirmed-sample judgment queue unchanged at
+  **11** (all session-#5 rows synth).
 
 ### Session #4 running tally (resume from row 34)
 
