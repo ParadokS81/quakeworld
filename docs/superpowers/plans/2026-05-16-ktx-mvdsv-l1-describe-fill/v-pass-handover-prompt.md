@@ -198,9 +198,21 @@ the rate). The `###` block is the durable human detail. Both required.
 
 ## Step 6 -- halt + report (do NOT continue past this)
 
-1. `git add` ONLY your `v-pass-ledger-batch-<NN>.md` and commit:
+1. **Canary-strip self-check (HARD -- batch-01 leaked one; do NOT skip).**
+   A canary is a CONTROL: it is never a recorded row. Before committing,
+   verify your ledger body carries ZERO canary canonical_ids:
+   ```
+   grep -nE '^(RESULT \| |### )(ktx:command:autotrack|ktx:cvar:k_teamoverlay|ktx:cvar:k_yawnmode)\b' v-pass-ledger-batch-<NN>.md
+   ```
+   This MUST print nothing. If it prints any line, DELETE that `RESULT |`
+   line AND its following `### <id>` detail block (through the line before
+   the next `RESULT |`), then re-confirm `grep -c '^RESULT |'
+   v-pass-ledger-batch-<NN>.md` equals your reported `<N>`. The canary
+   verdicts still go in the prose wave headers (that is the GATE-1
+   evidence) -- only the machine `RESULT |` + `### ` spine is canary-free.
+2. `git add` ONLY your `v-pass-ledger-batch-<NN>.md` and commit:
    `docs(arc-ktx-mvdsv): D7 V-pass batch <NN> -- <N> rows, <F> flavour-C-positive, <W> WI2`.
-2. Report, verbatim shape:
+3. Report, verbatim shape:
    ```
    V-PASS BATCH <NN> DONE -- <N> rows (canaries excluded from N)
    TRACED-CLEAN: <n>  C-NEAR-MISS: <n>  C-FIX: <n>  WI2-FIX: <n>
@@ -208,8 +220,9 @@ the rate). The `###` block is the durable human detail. Both required.
    flagged canonical_ids: <comma list, or none>
    waves: <total>  canary-rejected+redispatched: <count>
    spot-verify (HARD GATE 2): <rows re-grepped per wave, all held>
+   canary-strip self-check: PASS (zero canary ids in RESULT/### spine)
    ```
-3. STOP. Do not re-synth. Do not touch other batches. Do not edit any
+4. STOP. Do not re-synth. Do not touch other batches. Do not edit any
    description or the DB. B4 (correcting the flagged rows) is a separate
    operator-gated step that consumes your ledger.
 

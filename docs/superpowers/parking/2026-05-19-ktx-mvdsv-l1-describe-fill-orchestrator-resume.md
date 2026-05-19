@@ -8,6 +8,87 @@ COMPLETE !!!"** block at the top of
 This doc frames the NEXT section and preserves the hard-won conceptual
 results so a fresh terminal does not re-derive them.
 
+## !!! SESSION #7 2026-05-19 (orchestrator, fresh terminal) -- BATCH-1 GATE PASSED. Supersedes SESSION #6 first-actions 1-3 below; first-actions 4-6 still stand. !!!
+
+**Batch 1 (BATCH_ID 1, bucket 0) is orchestrator-VALIDATED. Greenlight
+GIVEN for BATCH_ID 2..9 (operator launches 8 fresh terminals, the
+hardened template, one BATCH_ID each).**
+
+### Gate result (FACT)
+
+- 63 batch rows; 9 flavour-C-positive (4 C-FIX `20fav_go` `fragsdown`
+  `rpickup` `k_entityfile` + 5 C-NEAR-MISS `dmm1` `dmm3` `k_allow_vwep`
+  `k_fbskill_aim_lgpref` `k_extralog`); 5 WI2-FIX; 49 TRACED-CLEAN. Rate
+  9/63 = 14.3% == random-fleet probe ~14% (F-V1 stride de-clustered;
+  NOT the calibration ~42% contiguous-clustering artifact).
+- **F-V2 HARD GATE 1 LIVE:** 1 canary rejection (wave 02
+  false-negatived `k_teamoverlay` TRACED-CLEAN -> wave rejected -> 02b
+  under sharpened prompt returned the correct C-NEAR-MISS). The gate
+  caught the exact invisible-class false-negative calibration predicted.
+- **F-V2 HARD GATE 2 (orchestrator independent re-grep, NOT the
+  terminal's claim):** 4/4 confirmed vs `/tmp/ktx-src-67253dc9` ==
+  `1.47-2-g67253dc`. `20fav_go` C-FIX (no `20fav_add` cmd exists;
+  `fav_add`->`self->fav[]` commands.c:5614 read by `fav_next` 5793 !=
+  `20fav_go`->`self->favx[]` 5831) + `k_entityfile` C-FIX (g_utils.c:1722
+  stores the FULL `<map>#<ent>` string, '#' only computes a separate
+  mapName 1723-24) both genuinely defective; `k_use_matchless_dir` +
+  `k_ctf_rune_power_rgn` TRACED-CLEAN genuinely clean (k_use_matchless_dir
+  independently reproduces the session-#5 hand-walk r43=CLEAR). No
+  false-flag, no false-clean.
+- C4 holds: classify-only, committed (`be44b008`), B4 not started, no L1
+  row mutated.
+
+### One finding -- canary-leak (non-blocking; FIXED this session)
+
+`k_yawnmode` (a canary control) leaked into batch-01's machine spine
+(ledger line 451-452 = a stray `RESULT |` + `###` block). The terminal's
+N (63) and tally are CORRECT (canary excluded from count/rate); only the
+spine carries the stray control row. Raw `grep '^RESULT |'` = 64,
+3-canary-filter = 63. Two-part track (`feedback_every_finding_gets_a_track`
++ `feedback_verification_layer_catches_lift_residuals`):
+
+- **Template Step 6 hardened this session.** New item 1 = mandatory
+  pre-commit canary-strip self-check (`grep -nE '^(RESULT \| |### )(...)'`
+  must print nothing; delete leaked `RESULT |`+`###` block and re-verify
+  N if not) + a `canary-strip self-check: PASS` report line. The 8
+  remaining terminals run the hardened template -> clean ledgers at
+  source (operator must paste the CURRENT on-disk template).
+- **B5 Stage-1 collation rule (first-action #4 -- ROBUST backstop
+  regardless of per-terminal hygiene).** Global rate / flagged-set tally
+  is `grep '^RESULT |' <all 9> | grep -vE '\| (ktx:command:autotrack|ktx:cvar:k_teamoverlay|ktx:cvar:k_yawnmode) \|'`
+  -- canary-id filter applied BEFORE any count. batch-01's leaked
+  `k_yawnmode` line stays in the committed+pushed ledger (not worth a
+  re-commit); the collation filter neutralizes it.
+
+### Live next steps (session #6 first-actions 4-6, refined)
+
+4. **As batches 2..9 land (HARD GATE 2 is PER-BATCH, not once):** read
+   each report block for the signals (`canary-rejected` present; rate
+   ~10-20%; committed+halted; `canary-strip self-check: PASS`) THEN
+   independently re-grep >=1 flagged + >=1 clean of EACH batch against
+   the oracle. Only then collate B5 Stage-1 via the canary-filtered
+   `grep '^RESULT |'` (rule above), committed.
+5. **B4 decision batch to the operator:** the full flagged set (batch-1's
+   9 + batches 2..9 flagged + the `fav_go` ~13-member cohort) via the B4
+   seeded-re-synth loop; plus the still-owed Phase-3 ship-gate
+   sub-decisions (affirmed-judgment queue 11 + r31 policy; r38/r42
+   shipped-cfg-drift notes). Batch-1 operator-attention residuals to
+   fold in: `dmm1`/`dmm3` strict-vs-substantive near-miss call (force-off
+   enforced by the generic `dmm!=4`, no `mode==1/3` test);
+   dead-`CF_SPC_ADMIN` structural defect (`race_set_finish`/`upspecs`,
+   likely systemic -> fleet-sweep candidate); `CF_MATCHLESS`
+   additive-misread WI-2 pattern (`fav_add`/`fav_all_del`, systemic).
+6. Later: Phase-4 (MVDSV) executor prompt MUST carry D7 B1-B5 (Phase-4
+   carrier) before any MVDSV synthesis.
+
+### When in doubt
+
+Route to operator, one question, plain-English consequences.
+`decisions.md` D7 Amendment 2026-05-19 is the detailed authority. C4 --
+no B4 / re-synth without the operator gate. HARD GATE 2 is per-batch and
+orchestrator-independent: never relay a terminal's re-grep claim
+unverified (`feedback_verify_dispatched_terminal_claims`).
+
 ## !!! SESSION #6 WRAP 2026-05-19 (orchestrator @~400k) -> RESUME AS SESSION #7. SUPERSEDES the session-#6 UPDATE + "First three actions" below. !!!
 
 Session #6 hit the ~400k smell zone and clean-wrapped here; next work
