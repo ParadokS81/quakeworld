@@ -5,5 +5,5 @@
 # Lines starting with '#' or empty are ignored.
 # Edit this file to clear (delete the line), snooze (push the date), or add new entries.
 
-2026-05-19 | qwiki-v1-beta Phase 1 V6 verification -- ssh unraid-deploy 'ls -t /mnt/remotes/NAS1618_backup/unraid-backup/*.tar.gz | head -1' then tar -tzf <latest> | grep -c qwiki-beta -- expect positive count (weekly Synology backup cron runs Mon 04:00 2026-05-18)
+2026-06-19 | Unraid weekly-backup health (monthly) -- ssh unraid 'D=$(ls -1d /mnt/remotes/NAS1618_backup/unraid-backup/????-??-??@??.?? | sort | tail -1); F="$D/CA_backup.tar.gz"; a=$(( ($(date +%s)-$(stat -c %Y "$F"))/86400 )); s=$(stat -c %s "$F"); [ "$a" -le 8 ] && [ "$s" -gt 21474836480 ] && echo "PASS ${a}d $(numfmt --to=iec $s)" || echo "FAIL a=${a}d s=$(numfmt --to=iec $s)"' -- newest dated folder CA_backup.tar.gz must be <=8d old AND >20G. Backup is ONE nested tarball of all /mnt/user/appdata (~44G, ~67% Plex); full layout in /home/paradoks/projects/unRAID/docs/server/backup.md. V6 qwiki-beta content proof DONE 2026-05-19 (auto-included by construction, no per-container exclude). On PASS push date +1mo; on FAIL see backup.md Troubleshooting + /var/log/appdata_backup.log
 2026-05-20 | memory verification (parking 2026-04-29-memory-system-consolidation.md) + run /insights and compare against the 2026-04-29 run for workflow-improvement signal

@@ -1138,17 +1138,21 @@ ssh unraid 'set -a && . /mnt/user/appdata/qwiki-beta/.env && set +a && \
 
 **V6. Backup tarball includes qwiki-beta.**
 
-The Unraid -> Synology backup script tars all of `/mnt/user/appdata/` per `unRAID/docs/server/backup.md`; there is no per-container include/exclude config to edit. This probe is purely confirmation that the auto-include actually picked up the new subdirectory once a backup cycle has run.
+The Unraid -> Synology backup script (`/boot/config/plugins/ca.backup2/appdata_backup.sh`) tars **all** of `/mnt/user/appdata/` into a single `CA_backup.tar.gz`; the only exclusions (`BackupOptions.json` `excluded`) are six Plex cache subdirs -- there is no per-container include/exclude to edit, so qwiki-beta is auto-included by construction. This probe confirms the auto-include landed once a backup cycle has run.
+
+The 2026-05-03 script rewrite changed the output layout to a **per-run dated subfolder**: `unraid-backup/<YYYY-MM-DD@HH.MM>/CA_backup.tar.gz` -- NOT a flat `unraid-backup/*.tar.gz`. The probe MUST descend into the newest dated folder (a flat glob silently matches nothing and produces a false "no backup"):
 
 ```bash
 # (asynchronous) after the next Monday 04:00 cron, or after a manual backup run:
-ssh unraid 'ls -t /mnt/remotes/NAS1618_backup/unraid-backup/*.tar.gz | head -1'
-# Pick the timestamp; then confirm qwiki-beta is inside:
-ssh unraid 'tar -tzf /mnt/remotes/NAS1618_backup/unraid-backup/<latest>.tar.gz | grep -c qwiki-beta'
+ssh unraid 'D=$(ls -1d /mnt/remotes/NAS1618_backup/unraid-backup/????-??-??@??.?? | sort | tail -1); echo "$D"; ls -la "$D/CA_backup.tar.gz"'
+# then confirm qwiki-beta is inside the tarball:
+ssh unraid 'D=$(ls -1d /mnt/remotes/NAS1618_backup/unraid-backup/????-??-??@??.?? | sort | tail -1); tar -tzf "$D/CA_backup.tar.gz" | grep -c qwiki-beta'
 ```
 
-- **PASS condition:** the latest tarball is newer than Phase 1 deploy time, and `tar -tzf` grep returns a positive count of `qwiki-beta` paths.
-- **FAIL condition:** no backup tarball newer than Phase 1 deploy (wait for next Monday 04:00 cron) OR the tarball contains zero `qwiki-beta` entries (the appdata-backup script malfunctioned; consult `unRAID/docs/server/backup.md` Troubleshooting).
+- **PASS condition:** the newest dated folder is newer than Phase 1 deploy time, `CA_backup.tar.gz` exists at multi-GB size, and `tar -tzf | grep -c qwiki-beta` returns a positive count.
+- **FAIL condition:** no dated folder newer than Phase 1 deploy (wait for next Monday 04:00 cron) OR `CA_backup.tar.gz` absent/zero-size OR zero `qwiki-beta` entries (consult `unRAID/docs/server/backup.md` Troubleshooting + `/var/log/appdata_backup.log`).
+
+**Status -- verified 2026-05-19: PASS.** `unraid-backup/2026-05-18@04.00/CA_backup.tar.gz` (46,340,085,854 bytes, mtime 2026-05-18 04:17) written by a fully successful cron run (`/var/log/appdata_backup.log`: "AppData Backup Complete, 27/27 containers restarted"); `tar -tzf | grep qwiki-beta` confirmed `./qwiki-beta/mariadb-data/*` (live MW DB) present. The original probe above globbed `unraid-backup/*.tar.gz` -- one directory level too shallow for the post-2026-05-03 nested layout -- and a sibling session misread the resulting empty match as "no backup." Ongoing backup-health is now a recurring monthly guard in `.claude/calendar-checks.txt`.
 
 If V1-V5 PASS, the phase is green; V6 is asynchronous (depends on weekly backup cron) and operator monitors it the following Monday rather than blocking Phase 2 on it.
 
