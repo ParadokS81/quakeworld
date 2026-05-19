@@ -8,45 +8,106 @@ COMPLETE !!!"** block at the top of
 This doc frames the NEXT section and preserves the hard-won conceptual
 results so a fresh terminal does not re-derive them.
 
-## !!! UPDATE 2026-05-19 (orchestrator session #6) -- probe DONE + amendment RATIFIED + applied. SUPERSEDES "First three actions" below. !!!
+## !!! SESSION #6 WRAP 2026-05-19 (orchestrator @~400k) -> RESUME AS SESSION #7. SUPERSEDES the session-#6 UPDATE + "First three actions" below. !!!
 
-First-action-1 + first-action-2 of this contract are COMPLETE; the
-"First three actions" section below is now history -- read this block
-for live state.
+Session #6 hit the ~400k smell zone and clean-wrapped here; next work
+(collate 9 V-pass ledgers + spot-verify + B4) is judgment-critical so a
+fresh terminal takes it. Probe + amendment + V-pass tooling are DONE;
+the 9-terminal V-pass is about to run.
 
-- **flavour-C fleet probe = DONE (FACT).** 14 random unreviewed
-  confident-fleet rows (1 orchestrator-traced + 13 across 3 parallel
-  read-only Opus subagents under a hardened anti-r42 prompt; both
-  positives + a high-surface all-clean row independently re-grepped).
-  Result **2/14 ~= 14% flavour-C-positive** (1 hard C-FIX `autotrack` --
-  "allowed only outside a live match" is a CF_MATCHLESS name-inference,
-  flatly wrong + output-invisible; 1 near-miss `k_teamoverlay`).
-  Docket-tail ~60% vs fleet ~14% => the docket was enrichment-selected
-  (fleet NOT 60% rotten) BUT ~7% hard-FIX projects ~40 wrong-clause rows
-  over ~555, and the operator HTML scan provably cannot see them. Full
-  FACT base = ledger "## !!! FLAVOUR-C FLEET PROBE 2026-05-19 !!!" block
-  (commit `813e2493`).
-- **Decisions amendment = RATIFIED 2026-05-19 + APPLIED this session.**
-  `decisions.md` D7 Amendment 2026-05-19 (B1-B5 + Phase-4 carrier). B1
-  strengthened-trace rule propagated into the D6 skill + new
-  `references/enforce-trace-discipline.md` (5th load-bearing ref). B2
-  supersedes the 2026-05-18 A1 retirement clause (V-pass, not operator
-  scan, retires KTX tier-1). README flagged.
-- **LIVE next actions (all operator-gated, NOT started -- C4):**
-  1. The Phase-3 ship-gate decision batch is still owed to the operator
-     -- but reshaped by the probe: (a) run the B3 V-pass over the ~555
-     unreviewed fleet (parallel subagent waves, ~4-6 disjoint-slice
-     terminals, ~16.5k tok/row; the probe's hardened prompt is the
-     validated prototype) + the B4 seeded-re-synth loop on flagged rows
-     + the original 10-row FIX queue (now all via the B4 loop); (b) the
-     affirmed-judgment queue (11) keep-vs-synth + r31 elaborated-affirm
-     policy; (c) the 2 shipped-cfg-drift notes (r38/r42).
-  2. Phase 3 ships only when every synthesized KTX row is V-pass-clean
-     (B2) + FIX/affirm queues resolved + the B5 two-stage record exists.
-  3. Phase 4 (MVDSV): write the executor prompt CARRYING D7 B1-B5
-     before any MVDSV synthesis runs.
-- The 43-row walk + the probe are DONE -- do not re-run either. C4
-  holds: nothing in any queue applied; no L1 row mutated.
+### Where things are
+
+- **flavour-C fleet probe = DONE (FACT).** 2/14 ~= 14% positive on the
+  unreviewed confident fleet (1 hard C-FIX `autotrack`, 1 near-miss
+  `k_teamoverlay`). Docket-tail ~60% vs fleet ~14% => docket was
+  enrichment-selected (fleet NOT 60% rotten) but ~7% hard-FIX over ~555
+  and the operator HTML scan cannot see the class. FACT base = ledger
+  "## !!! FLAVOUR-C FLEET PROBE 2026-05-19 !!!" block (`813e2493`).
+- **D7 Amendment 2026-05-19 (B1-B5 + Phase-4 carrier) = RATIFIED +
+  APPLIED** (`2541b142`). B1 strengthened-trace rule in
+  `decisions.md` D7 + propagated to the D6 skill + new
+  `~/.claude/skills/describe-fill-synthesis/references/enforce-trace-discipline.md`
+  (5th load-bearing ref). B2 supersedes the 2026-05-18 A1 retirement
+  clause: a clean read-only **V-pass** per row (NOT the operator scan)
+  retires KTX D7 tier-1. B3 V-pass def; B4 seeded-re-synth loop; B5
+  two-stage durable record. README + this doc flagged.
+- **V-pass tooling DONE.** Template
+  `docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/v-pass-handover-prompt.md`,
+  F-V1/F-V2 hardened + model-dial pinned (`bb007c5f` calibration,
+  `23be6afc` hardened, `7e753dcc` dial). Calibration (batch-0) =
+  CALIBRATION-grade, NOT a ledger (canary fired: an Opus subagent
+  false-negatived `autotrack` under the full prompt -> F-V2 exists).
+  Calibration detail: `.../v-pass-batch-00-calibration.md`.
+- **Population = 571 strided rows / 9 md5 buckets** (583 synth/synth
+  ktx - 10 FIX -> B4 - 3 canary controls). Buckets ~51-82 each.
+  Fleet base-rate estimate ~14% (random probe).
+- **In flight:** operator is running BATCH 1 (BATCH_ID 1 -> bucket 0,
+  63 rows) as the final at-scale validation before launching the other
+  8. C4 holds: nothing in any queue applied; no L1 row mutated; B4 not
+  started.
+
+### Reads required (cold, in order)
+
+1. `decisions.md` D7 **Amendment 2026-05-19 (B1-B5)** + the 2026-05-18
+   A1/A2/A3 it supersedes (the detailed authority).
+2. `~/.claude/skills/describe-fill-synthesis/references/enforce-trace-discipline.md`
+   (the method) + the ledger "FLAVOUR-C FLEET PROBE 2026-05-19" block
+   (probe FACT) + `.../v-pass-batch-00-calibration.md` (why F-V1/F-V2).
+3. `.../v-pass-handover-prompt.md` (the live template the 9 run).
+4. This block.
+
+### Critical rules / conceptual results -- DO NOT re-derive
+
+- Synthesis-shaped vs verification-shaped is THE distinction; the V-pass
+  is verification-shaped and NOT a second synthesis.
+- **The canary FIRED in calibration** -- the hardened prompt is
+  necessary but NOT sufficient; F-V2 (per-wave structural canary HARD
+  GATE 1 + orchestrator re-grep HARD GATE 2) is load-bearing, not
+  advisory. A subagent verdict (incl. TRACED-CLEAN) is a hypothesis
+  until independently re-grepped.
+- flavour-C is invisible to an operator HTML scan (B2 supersedes A1).
+- **C4:** nothing applied; B4 = re-synth via the D6 pipeline,
+  operator-gated, SEEDED with the V-pass finding, full trace not patch,
+  then re-V-passed; NEVER a hand-edit.
+- Opus 4.7 MAX is the spec-locked floor for the terminals AND the
+  subagents (D7 / B1-B3); not a per-run choice.
+- 9 is locked into the template SQL (`% 9`); changing N is a deliberate
+  SQL edit. The 43-row walk, the probe, and the calibration are DONE --
+  do not re-run them.
+
+### First actions (fresh terminal = session #7)
+
+1. Read batch-1's reported summary + its committed
+   `v-pass-ledger-batch-01.md`. Check the validation signals: terminal
+   self-checked Opus; `canary-rejected` count present (gate live, not
+   dormant); flavour-C rate ~10-20% (NOT ~40% -- if ~40% the stride did
+   not de-cluster, HALT + diagnose before scaling); committed + halted
+   (no B4 drift).
+2. Independently re-grep a sample of batch 1 (>=1 flagged + >=1 clean)
+   against `/tmp/ktx-src-67253dc9` == `1.47-2-g67253dc` -- the
+   orchestrator-level HARD GATE 2. This is the last gate before 8
+   unsupervised terminals.
+3. If batch 1 validates -> greenlight the operator to launch BATCH_ID
+   2..9 (Opus max each). If not -> one plain-English question to the
+   operator with the diagnosis.
+4. As ledgers land: `grep '^RESULT |'` across all 9 -> B5 Stage-1
+   (global rate + flagged set), committed.
+5. Bring the operator the **B4 decision batch**: the flagged rows + the
+   known `fav_go` ~13-member family cohort, routed through the B4
+   seeded-re-synth loop. Plus the still-owed Phase-3 ship-gate
+   sub-decisions: affirmed-judgment queue (11) + r31 policy; the 2
+   shipped-cfg-drift notes (r38/r42). Phase 3 ships only when every
+   synth row is V-pass-clean (B2) + queues resolved + B5 record exists.
+6. Later / not now: Phase 4 (MVDSV) executor prompt MUST carry D7
+   B1-B5 before any MVDSV synthesis (Phase-4 carrier).
+
+### When in doubt
+
+Route to operator, one question at a time, plain-English consequences.
+`decisions.md` D7 Amendment 2026-05-19 is the detailed authority. Do not
+run B4 / any re-synth without the operator gate (C4). Do not relay a
+subagent verdict without independent re-grep. Do not scale to 8 more
+terminals until batch 1 is orchestrator-verified.
 
 ## Where things are
 
