@@ -2984,10 +2984,11 @@ const TeamManagementModal = (function() {
         // State 3: Active
         if (status === 'active') {
             const userEntry = _mumbleConfig.mumbleUsers?.[_currentUserId];
+            // Single source of truth for the join URL: MumbleConfigService.getJoinUrl
+            // embeds the user's mumbleUsername (and temp password for first-timers) so
+            // Mumble auto-fills the nick instead of prompting. Both the first-time and
+            // returning-user branches below use this -- do NOT hand-build a second URL.
             const joinUrl = MumbleConfigService.getJoinUrl(_teamId, _currentUserId);
-            const genericUrl = _mumbleConfig.serverAddress
-                ? `mumble://${_mumbleConfig.serverAddress}:${_mumbleConfig.serverPort}/${_mumbleConfig.channelPath}`
-                : null;
 
             // User join section
             let userSection = '';
@@ -3017,17 +3018,17 @@ const TeamManagementModal = (function() {
                 userSection = `
                     <div class="space-y-2">
                         <p class="text-xs font-medium text-foreground">Connected as: <span class="text-primary">${_escapeHtml(userEntry.mumbleUsername)}</span> ✓</p>
-                        ${genericUrl ? `
-                            <a href="${genericUrl}"
+                        ${joinUrl ? `
+                            <a href="${joinUrl}"
                                class="inline-block px-3 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium rounded-lg transition-colors">
                                 Join Channel
                             </a>
                             <div class="mt-2">
                                 <p class="text-xs text-muted-foreground mb-1">Or copy URL:</p>
                                 <div class="flex items-center gap-2">
-                                    <code class="text-xs bg-muted px-2 py-1 rounded font-mono break-all">${_escapeHtml(genericUrl)}</code>
+                                    <code class="text-xs bg-muted px-2 py-1 rounded font-mono break-all">${_escapeHtml(joinUrl)}</code>
                                     <button class="mumble-copy-url text-xs text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
-                                            data-url="${_escapeHtml(genericUrl)}" title="Copy URL">
+                                            data-url="${_escapeHtml(joinUrl)}" title="Copy URL">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
