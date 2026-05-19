@@ -91,10 +91,12 @@ unverified (`feedback_verify_dispatched_terminal_claims`).
 
 ### !!! ALL 9 LANDED 2026-05-19 -- 7 verified, 03+08 re-run, Findings 1+2 RESOLVED. Collation still gated on all 9. !!!
 
-**State:** 7 of 9 batches committed + gate-verified (01 02 04 05 06 07
-09; 445 rows; aggregate flavour-C 68/445 ~= 15.3% == fleet ~14%, batch
-05 high-outlier 23.6% but NOT ~40% -- bucket variance not stride
-failure; canary-hygiene 0 leaks on every hardened-template batch). The
+**State (updated -- batch 08 re-run VERIFIED):** 8 of 9 batches
+committed + orchestrator-gate-verified (01 02 04 05 06 07 08 09; 506
+rows; aggregate flavour-C 76/506 ~= 15.0% == fleet ~14%, batch 05
+high-outlier 23.6% but NOT ~40% -- bucket variance not stride failure;
+canary-hygiene 0 leaks on every hardened-template batch). Only **batch
+03** outstanding. The
 gate architecture WORKED end-to-end: canary GATE 1 fired + was honored
 across batches (k_teamoverlay / autotrack false-negatives caught +
 re-dispatched), and HARD GATE 2 orchestrator re-grep independently
@@ -103,9 +105,17 @@ caught under-flagged TRACED-CLEANs GATE 1 could not see (batch 04
 recovered -- `feedback_verification_layer_catches_lift_residuals` proven
 in-run.
 
-**2 did NOT complete (both untracked, NOT committed):**
-- **Batch 08 (bucket 7, expect 61 rows): no-op.** Ledger = preamble
-  only, 0 rows, 0 waves. Terminal crashed before wave 1. Full re-run.
+**Batch 08 RESOLVED (re-run 2026-05-19, `fc5e8b6f`):** full fresh
+re-run under the hardened template VALIDATED -- 61 rows, 8 flavour-C
+13.1%, canary-strip clean, GATE 1 fired on waves 05/08 (k_teamoverlay)
++ GATE 2 on waves 01/05b, all recovered; orchestrator HARD GATE 2 3/3
+independent re-grep confirmed (`k_ctf_based_spawn` + `3fav_go` C-FIX
+genuinely defective -- 3fav_go reproduces the batch-01 `20fav_go`
+fav-family defect cross-batch; `k_freshteams_sweep_sng_ammo`
+TRACED-CLEAN genuinely clean). Full re-run was the proven path (clean,
+no halted-terminal bookkeeping).
+
+**1 still outstanding (untracked, NOT committed):**
 - **Batch 03 (bucket 2, expect 65 rows): halted CORRECTLY at 20 rows.**
   Not a crash -- the terminal escalated 2 findings and STOPPED rather
   than ship tainted (textbook C4). Per-row inputs preserved at
@@ -141,12 +151,14 @@ buckets) is STILL gated -- buckets 2 + 7 missing. The 7-batch aggregate
 above is interim situational context, NOT the committed Stage-1 record.
 No collation until 03 + 08 land verified.
 
-**Next:** (1) operator picks batch-03 re-run scope; (2) re-run 03 + 08
-(hardened template, standard brief, k_teamoverlay C-NEAR-MISS); (3)
-orchestrator per-batch HARD GATE 2 on the 2 new ledgers as they land;
-(4) THEN canary-filtered B5 Stage-1 collation across all 9, committed;
-(5) B4 decision batch. The 7 verified batches hold (do not re-verify
-absent a new signal -- the gates functioned).
+**Next:** (1) re-run batch 03 -- full fresh re-run, BATCH_ID 3, current
+hardened template (same proven path as batch 08; 65 rows, ~standard
+brief, k_teamoverlay stays C-NEAR-MISS); (2) orchestrator per-batch
+HARD GATE 2 on the batch-03 ledger when it lands; (3) THEN
+canary-filtered B5 Stage-1 collation across all 9 (`grep '^RESULT |'`
+all 9 | `grep -vE '\| (ktx:command:autotrack|ktx:cvar:k_teamoverlay|ktx:cvar:k_yawnmode) \|'`),
+committed; (4) B4 decision batch. The 8 verified batches hold (do not
+re-verify absent a new signal -- the gates functioned).
 
 ## !!! SESSION #6 WRAP 2026-05-19 (orchestrator @~400k) -> RESUME AS SESSION #7. SUPERSEDES the session-#6 UPDATE + "First three actions" below. !!!
 
