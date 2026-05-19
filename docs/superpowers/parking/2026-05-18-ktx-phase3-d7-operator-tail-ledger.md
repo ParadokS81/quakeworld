@@ -1067,6 +1067,51 @@ resolve + operator scan verdict; do NOT auto-apply -- C4):**
    dispositions (done this session per operator request -- see the
    commit following this block).
 
+## !!! FLAVOUR-C FLEET PROBE 2026-05-19 (orchestrator session #6, fresh terminal) -- RESULT (FACT) !!!
+
+First-action probe from `2026-05-19-...-orchestrator-resume.md`. Measures the
+flavour-C base rate in the UNREVIEWED confident fleet (synthesized/synthesized
+KTX rows NOT in the 43-row docket; population 583, ~555 unreviewed). 14 RANDOM
+rows (md5-seeded over canonical_id; zero docket knobs in the draw; k_fbskill_*
+capped at 2 reps to match its ~6.5% fleet share). Oracle `/tmp/ktx-src-67253dc9`
+== `1.47-2-g67253dc` (byte-identical to synthesis source). Method = the
+strengthened walk (WI-1 wide-grep + per-clause enforce-trace + WI-2 + PROC-1);
+1 row hand-traced by the orchestrator (calibration), 13 by 3 parallel Opus
+read-only verification subagents under a hardened anti-r42 prompt (per-clause
+enforcing-line citation MANDATORY in output). Both positives + a
+highest-enum-surface TRACED-CLEAN in the all-clean batch independently
+re-grepped by the orchestrator (`feedback_verify_dispatched_terminal_claims`).
+
+**Result: 2 / 14 flavour-C-positive ~= 14% (95% exact-binomial CI ~2-43%,
+small-n).** 12 TRACED-CLEAN. The 2:
+- **autotrack -- C-FIX (hard defect).** "allowed only outside a live match"
+  is a `CF_MATCHLESS` flag-NAME inference; the enforcing DoCommand dispatch
+  (`commands.c` ~1078-1086) makes CF_MATCHLESS additive ("also valid in
+  matchless"), NOT a no-live-match restriction; zero `match_in_progress`
+  guard in the autotrack path. Clause is WRONG. -> FIX-queue addition.
+- **k_teamoverlay -- C-NEAR-MISS (invisible; correct-but-untraced).** "not
+  in duel" has NO enforcing line on the team-info stream; the only
+  `!isDuel()` is `match.c:1639`, the TmOverlay settings-SUMMARY display
+  string. Non-contradictory (isDuel is mode-exclusive with the stream's
+  team/ctf/coop gate) but pure scope-inference -> exactly the
+  output-invisible class.
+
+**Decisive comparison: docket-tail 6/10 (~60%) C-shaped vs random-fleet
+2/14 (~14%).** The ~4x gap is strong evidence the 43-row docket was
+ENRICHMENT-selected (hedged + conflict-flagged + curated-concern + 1-in-4
+affirm sample) -- the unreviewed fleet is NOT 60% defective. BUT 14% is not
+negligible for an L1 source-of-truth, and the ~7% hard-FIX rate (autotrack
+class: a flatly-wrong clause that reads perfectly clean) projects ~40
+genuinely-wrong-clause rows over the ~555 unreviewed. **An operator HTML
+scan cannot retire this**: autotrack's wrong clause is invisible at
+output-inspection -- it confirms, MEASURED not asserted, that A1's "scan
+clean -> KTX D7 tier-1 formally retired" condition is unsafe as written.
+The probe ALSO validated the hardened verification-shaped prompt (it caught
+both invisible-class rows with precise enforcing-line reasoning, re-grep
+confirmed) -- that prompt is the working prototype for the D6 re-synth
+amendment and the ~555 verification fleet. Interpretation/recommendation =
+operator-decision phase (next); raw result above is FACT.
+
 ## !!! SESSION WRAP 2026-05-18 (orchestrator session #4) -- RESUME IN A FRESH TERMINAL !!!
 
 **THIS BLOCK SUPERSEDES session #3's.** Walked **rows 34-38 (5 rows)**.
