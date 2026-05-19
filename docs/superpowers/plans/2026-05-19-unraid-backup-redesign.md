@@ -248,6 +248,8 @@ apprise:
 
 Notes baked in: `/mnt/src/appdata` is the container's read-only bind of the host `/mnt/user/appdata` (Task 2.2). `pg_dumpall` captures all Postgres DBs+roles. SQLite hook quiesces the db correctly (no torn copy); the *arr datadirs are still file-backed for non-db files, which is fine.
 
+**Phase 0 discovery applied (2026-05-19) -- use `infra/unraid-backup/README.md` as the authoritative resolved list, NOT the illustrative example above.** Corrections vs the hypothesis: (1) add a `sqlite_databases` entry for quad's Mumble DB `/mnt/src/appdata/quad/mumble-data/mumble-server.sqlite` (quad is NOT flat-only); (2) bazarr's db is nested -> `/mnt/src/appdata/bazarr/db/bazarr.db` (not appdata root); (3) `<SYN_SSH>` host = Tailscale `nas1618` (`100.112.91.72`), not the LAN IP. Full resolved sqlite list + env-var names in the README.
+
 - [ ] **Step 2: Commit**
 
 ```bash
