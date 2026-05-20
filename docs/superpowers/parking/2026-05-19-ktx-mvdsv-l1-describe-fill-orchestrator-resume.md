@@ -91,12 +91,16 @@ unverified (`feedback_verify_dispatched_terminal_claims`).
 
 ### !!! ALL 9 LANDED 2026-05-19 -- 7 verified, 03+08 re-run, Findings 1+2 RESOLVED. Collation still gated on all 9. !!!
 
-**State (updated -- batch 08 re-run VERIFIED):** 8 of 9 batches
-committed + orchestrator-gate-verified (01 02 04 05 06 07 08 09; 506
-rows; aggregate flavour-C 76/506 ~= 15.0% == fleet ~14%, batch 05
-high-outlier 23.6% but NOT ~40% -- bucket variance not stride failure;
-canary-hygiene 0 leaks on every hardened-template batch). Only **batch
-03** outstanding. The
+**State (updated 2026-05-20 -- ALL 9 VERIFIED + B5 Stage-1
+COLLATED):** 9 of 9 batches committed + orchestrator-gate-verified
+(01..09; **N=571 rows, matches expected population exactly**; aggregate
+**flavour-C 84/571 = 14.71% == random-fleet probe ~14%** -- calibration
+prediction validated at full scale; canary-hygiene 0 leaks on every
+hardened-template batch). B5 Stage-1 collation committed at
+`docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/v-pass-stage-1-collation.md`.
+**475 TRACED-CLEAN rows = B2 retirement evidence** (D7 tier-1 retired
+for those rows). **96 flagged rows = the B4 cohort** (55 C-FIX + 29
+C-NEAR-MISS + 12 WI2-FIX), operator-gated (C4 -- not started). The
 gate architecture WORKED end-to-end: canary GATE 1 fired + was honored
 across batches (k_teamoverlay / autotrack false-negatives caught +
 re-dispatched), and HARD GATE 2 orchestrator re-grep independently
@@ -109,18 +113,31 @@ in-run.
 re-run under the hardened template VALIDATED -- 61 rows, 8 flavour-C
 13.1%, canary-strip clean, GATE 1 fired on waves 05/08 (k_teamoverlay)
 + GATE 2 on waves 01/05b, all recovered; orchestrator HARD GATE 2 3/3
-independent re-grep confirmed (`k_ctf_based_spawn` + `3fav_go` C-FIX
-genuinely defective -- 3fav_go reproduces the batch-01 `20fav_go`
-fav-family defect cross-batch; `k_freshteams_sweep_sng_ammo`
-TRACED-CLEAN genuinely clean). Full re-run was the proven path (clean,
-no halted-terminal bookkeeping).
+independent re-grep confirmed.
 
-**1 still outstanding (untracked, NOT committed):**
-- **Batch 03 (bucket 2, expect 65 rows): halted CORRECTLY at 20 rows.**
-  Not a crash -- the terminal escalated 2 findings and STOPPED rather
-  than ship tainted (textbook C4). Per-row inputs preserved at
-  `/tmp/vpass-b03/`. Re-run (scope = operator call: full fresh vs
-  resume-from-preserved).
+**Batch 03 RESOLVED (re-run 2026-05-20, `edcc3019`):** full fresh
+re-run under the hardened template VALIDATED -- 65 rows, 8 flavour-C
+12.3%, canary-strip clean, GATE 1 fired wave 05 (k_teamoverlay,
+recovered attempt 3 under anti-stale + discrimination-sharpened brief
+-- the SAFE direction, NOT the FAILURE-B brief that batch-03's
+predecessor session correctly halted on); orchestrator HARD GATE 2 2/2
+independent re-grep confirmed (`_k_worldspawns` C-FIX = real
+off-by-one timing defect: `SP_worldspawn` reads `_k_worldspawns`
+during entity parse BEFORE `FirstFrame` increments it, so the 0.5s
+branch fires on map 2 not map 1; `srv_practice_mode` TRACED-CLEAN =
+all cited subsystem `k_practice` gates present at their lines with
+the `// #practice mode#` comment).
+
+**Gate architecture vindicated end-to-end.** Across all 9: canary
+GATE 1 fired and was honored consistently (k_teamoverlay
+false-negatives caught + re-dispatched in 01/03/04/06/07/08/09;
+autotrack false-negatives in 06/09); HARD GATE 2 orchestrator re-grep
+independently caught under-flagged TRACED-CLEANs that GATE 1 could
+not see (batch 04 `midair_minheight` + `_k_coachteam2`; batch 07
+wave-3) and recovered. Two batches (03, 08) failed on first attempt
+(batch 03 correctly halted on a methodology gap; batch 08 crashed
+pre-wave-1) -- BOTH re-ran cleanly under the hardened template and
+validated.
 
 **Finding 1 (k_teamoverlay ground-truth dispute) -- RESOLVED, DO NOT
 RE-LITIGATE.** Orchestrator independent re-grep + batches 02/04/05/06/07
@@ -151,14 +168,36 @@ buckets) is STILL gated -- buckets 2 + 7 missing. The 7-batch aggregate
 above is interim situational context, NOT the committed Stage-1 record.
 No collation until 03 + 08 land verified.
 
-**Next:** (1) re-run batch 03 -- full fresh re-run, BATCH_ID 3, current
-hardened template (same proven path as batch 08; 65 rows, ~standard
-brief, k_teamoverlay stays C-NEAR-MISS); (2) orchestrator per-batch
-HARD GATE 2 on the batch-03 ledger when it lands; (3) THEN
-canary-filtered B5 Stage-1 collation across all 9 (`grep '^RESULT |'`
-all 9 | `grep -vE '\| (ktx:command:autotrack|ktx:cvar:k_teamoverlay|ktx:cvar:k_yawnmode) \|'`),
-committed; (4) B4 decision batch. The 8 verified batches hold (do not
-re-verify absent a new signal -- the gates functioned).
+**Next (handoff state):**
+1. **B4 decision batch to the operator** -- the 96 flagged rows route
+   through the B4 seeded-re-synth loop (decisions.md B4: D6 pipeline
+   from Step 1, B1-strengthened, SEEDED with the V-pass finding,
+   re-V-passed). Six systemic clusters identified in the collation
+   amortize ~31 rows (fav_go family, CF_MATCHLESS WI-2 cohort,
+   dead-CF_SPC_ADMIN, midair_minheight pair, k_on_end_f_* trio,
+   dmm1/dmm3 force-off). Remaining ~65 unique rows for individual
+   seeded re-synth. **Cluster-first recommendation:** start with the
+   fav_go family as the B4 calibration cluster (largest + most
+   coherent, like V-pass batch-0 calibrated F-V1/F-V2 before scale-up)
+   to validate the seeded-re-synth loop; then expand or fan out.
+2. **Phase-3 ship-gate residuals still owed** (smaller decisions):
+   affirmed-judgment queue (11 rows) keep-vs-synth + r31 elaborated-
+   affirm policy generalization; the 2 shipped-cfg-drift operator-
+   awareness notes (r38 k_instagib, r42 timing_players_action) --
+   upstream-report-or-not. Plus the dmm1/dmm3 strict-vs-substantive
+   call (B4 cluster #6).
+3. **Phase-4 (MVDSV) carrier (NOT NOW).** The Phase-4 executor prompt
+   MUST carry D7 B1-B5 before any MVDSV synthesis (Phase-4 carrier
+   per decisions.md B-block). Plan once Phase-3 ships.
+
+**Phase 3 ship-gate:** condition 1 (D7 walk) DONE; condition 2 (FIX
+queue + V-pass flagged set) opens with the B4 batch; condition 3
+(operator scan verdict) opens at the operator's discretion. Phase 3
+ships when every synth row is V-pass-clean (B2) + queues resolved +
+B5 Stage-2 (change report) recorded.
+
+**The 9 verified batches hold** (do not re-verify absent a new signal
+-- the gates functioned).
 
 ## !!! SESSION #6 WRAP 2026-05-19 (orchestrator @~400k) -> RESUME AS SESSION #7. SUPERSEDES the session-#6 UPDATE + "First three actions" below. !!!
 
