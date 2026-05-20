@@ -17,8 +17,8 @@ pattern.
 | `<SYN_SSH>` | **RESOLVED 2026-05-20** | `borg-unraid@nas1618` (Tailscale MagicDNS; TS IP `100.112.91.72`; LAN fallback `192.168.1.185`). User created (admin group), DSM SSH bound to port 22, firewall allow for Tailscale CGNAT `100.64.0.0/10` (mask `255.192.0.0`) applied; login tested working. |
 | `<SYN_TMPDIR>` | **RESOLVED 2026-05-20** | `/volume1/backup/.borgtmp` -- created, `chown borg-unraid:users`, `chmod 700`. (DSM 7 `/tmp` is noexec; private TMPDIR required.) |
 | `<SYN_REPO>` | **RESOLVED 2026-05-20** | `/volume1/backup/borg-appdata` -- volume1 confirmed, created, `chown borg-unraid:users`, `chmod 700`. |
-| `<PRAGUE_ENV>` | PENDING `[OP]` | How Prague schedules the pull (WSL cron / native / Task Scheduler->WSL). |
-| `<PRAGUE_REPO>` | PENDING `[OP]` | Local repo-copy path on Prague NVMe. |
+| `<PRAGUE_ENV>` | **RESOLVED 2026-05-20** | Windows Task Scheduler -> WSL bash. Trigger: daily 13:00 CET (workstation local time). Action: `wsl -d <distro> bash -lc '<script-path>/prague-pull.sh'`. Script path + WSL distro confirmed at Phase 5. |
+| `<PRAGUE_REPO>` | **RESOLVED 2026-05-20** | `/mnt/d/Backups/borg-appdata` in WSL (Windows path `D:\Backups\borg-appdata`; folder already created). Steady-state size ~30-60 GB; D: capacity to be confirmed at first pull. |
 | `<HC_PING_URL>` | **RESOLVED 2026-05-20** | Healthchecks.io check "unraid-borgmatic" (period 1d, grace 6h). Value lives in `/mnt/user/appdata/borgmatic/borg.env` (mode 600, root) under key `HC_PING_URL`; borgmatic YAML references as `${HC_PING_URL}`. NOT in git. |
 | `<APPRISE_DISCORD>` | **RESOLVED 2026-05-20** | `discord://{id}/{token}` from a Discord channel webhook. Value in `/mnt/user/appdata/borgmatic/borg.env` under key `APPRISE_DISCORD`; YAML references as `${APPRISE_DISCORD}`. Webhook smoke-tested: HTTP 204 on POST. NOT in git. |
 | `<ARR_SQLITE>` | RESOLVED | See "SQLite databases" below. |
@@ -108,7 +108,7 @@ borg --version` reports a 1.4.x at Phase 2.
 
 1. ~~Confirm/override the locked dials above.~~ **DONE 2026-05-20** -- all four dials confirmed.
 2. ~~Synology: SynoCommunity `borgbackup` + `borg-unraid` user + repo dir + private TMPDIR + firewall + SSH on 22.~~ **DONE 2026-05-20** -- borg 1.4.3 reachable at `ssh borg-unraid@nas1618`; repo + TMPDIR perms locked.
-3. State `<PRAGUE_ENV>` + `<PRAGUE_REPO>` (Task 0.3).
+3. ~~State `<PRAGUE_ENV>` + `<PRAGUE_REPO>` (Task 0.3).~~ **DONE 2026-05-20** -- Windows Task Scheduler -> WSL, daily 13:00 CET; repo at `D:\Backups\borg-appdata` (WSL: `/mnt/d/Backups/borg-appdata`).
 4. ~~Create Healthchecks check + Discord webhook (Task 0.4).~~ **DONE 2026-05-20** -- both secrets staged in `/mnt/user/appdata/borgmatic/borg.env`; Discord webhook smoke-tested (HTTP 204 + visible message in channel "Captain Hook" bot post 15:16).
 
-Phase 1 starts once item 3 lands.
+**Phase 0 CLOSED 2026-05-20.** Phase 1 can start.
