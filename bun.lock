@@ -32,6 +32,7 @@
         "@napi-rs/canvas": "^0.1.94",
         "@snazzah/davey": "^0.1.9",
         "@tf2pickup-org/mumble-client": "^0.12.6",
+        "@tf2pickup-org/mumble-protocol": "^1.0.12",
         "@types/js-yaml": "^4.0.9",
         "discord.js": "^14.25.1",
         "firebase-admin": "^13.6.1",

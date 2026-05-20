@@ -425,7 +425,7 @@ export class AutoRecord {
     });
 
     await session.init();
-    session.start(this.mumbleClient!);
+    await session.start(this.mumbleClient!);
     this.sessions.set(config.channelId, session);
 
     // Register in shared session registry

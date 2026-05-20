@@ -15,6 +15,7 @@
 
 import { mkdir, stat } from 'node:fs/promises';
 import { type Client as MumbleClient } from '@tf2pickup-org/mumble-client';
+import { UserState } from '@tf2pickup-org/mumble-protocol';
 import { MumbleTrack, type MumbleTrackMetadata } from './mumble-track.js';
 import { writeMumbleSessionMetadata } from './mumble-metadata.js';
 import { VoiceReceiver } from './voice-receiver.js';
@@ -47,6 +48,8 @@ export class MumbleRecordingSession {
   private tracks = new Map<number, MumbleTrack>();  // keyed by Mumble session ID
   private nextTrackNumber = 1;
   private voiceReceiver: VoiceReceiver | null = null;
+  private mumbleClient: MumbleClient | null = null;
+  private listeningChannelSubscribed = false;
   private stopping = false;
 
   constructor(opts: {
@@ -78,11 +81,40 @@ export class MumbleRecordingSession {
   }
 
   /**
-   * Start receiving voice. Attaches the VoiceReceiver to the MumbleClient socket.
-   * Voice packets from all users are routed here; only those in our channel
-   * (tracked by addUser/removeUser) get written to tracks.
+   * Start receiving voice. Subscribes the bot as a Mumble 1.4+ channel
+   * listener on the recording channel (without leaving Root) so the server
+   * forwards voice packets to it, then attaches the VoiceReceiver to the
+   * MumbleClient socket. Voice packets from all users are routed here;
+   * only those in our channel (tracked by addUser/removeUser) get written
+   * to tracks.
    */
-  start(mumbleClient: MumbleClient): void {
+  async start(mumbleClient: MumbleClient): Promise<void> {
+    this.mumbleClient = mumbleClient;
+
+    // Mumble servers filter voice by channel membership. The bot lives in
+    // Root, so without an explicit listener subscription on the team channel
+    // every voice packet would be dropped server-side -- which is exactly
+    // why every Mumble recording produced -91 dB silence before this fix.
+    if (mumbleClient.isConnected() && mumbleClient.session !== undefined) {
+      try {
+        await mumbleClient.socket!.send(UserState, UserState.create({
+          session: mumbleClient.session,
+          listeningChannelAdd: [this.channelId],
+        }));
+        this.listeningChannelSubscribed = true;
+        logger.info(`Mumble session ${this.sessionId} listening on channel`, {
+          channelId: this.channelId,
+          channelName: this.channelName,
+        });
+      } catch (err) {
+        logger.error(`Failed to add channel listener for session ${this.sessionId}`, {
+          channelId: this.channelId,
+          error: err instanceof Error ? err.message : String(err),
+        });
+        throw err;
+      }
+    }
+
     this.voiceReceiver = new VoiceReceiver();
     this.voiceReceiver.attach(mumbleClient, (packet) => {
       if (this.stopping) return;
@@ -173,6 +205,29 @@ export class MumbleRecordingSession {
       this.voiceReceiver.detach();
       this.voiceReceiver = null;
     }
+
+    // Tell the server to stop forwarding voice from this channel to us.
+    // Best-effort: if the client already disconnected, skip silently.
+    if (
+      this.listeningChannelSubscribed &&
+      this.mumbleClient &&
+      this.mumbleClient.session !== undefined &&
+      this.mumbleClient.isConnected()
+    ) {
+      try {
+        await this.mumbleClient.socket!.send(UserState, UserState.create({
+          session: this.mumbleClient.session,
+          listeningChannelRemove: [this.channelId],
+        }));
+      } catch (err) {
+        logger.warn(`Failed to remove channel listener for session ${this.sessionId}`, {
+          channelId: this.channelId,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+    this.listeningChannelSubscribed = false;
+    this.mumbleClient = null;
 
     logger.info(`Mumble session ${this.sessionId} voice diagnostic`, {
       packetsReceived: receiverStats.packetsReceived,
