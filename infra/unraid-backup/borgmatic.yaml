@@ -32,16 +32,31 @@ ssh_command: ssh -i /root/.ssh/borg_syn_ed25519 -o BatchMode=yes -o StrictHostKe
 encryption_passphrase: "{credential container borg_passphrase}"
 
 exclude_patterns:
+    # All patterns use pp: (path-prefix) style. Borg's default fm (fnmatch)
+    # style matches the EXACT path only -- so a bare /a/b excludes the dir
+    # entry itself but NOT /a/b/file. pp: matches the dir and everything
+    # below it.
+    #
     # Plex transient state -- not backup-worthy, large turnover
-    - /mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Cache
-    - /mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Logs
-    - /mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Codecs
-    - /mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Crash Reports
-    - /mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Updates
-    - /mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Diagnostics
+    - "pp:/mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Cache"
+    - "pp:/mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Logs"
+    - "pp:/mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Codecs"
+    - "pp:/mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Crash Reports"
+    - "pp:/mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Updates"
+    - "pp:/mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Diagnostics"
+    # Plug-in Support has a sibling Caches/ dir alongside the top-level Cache.
+    # Plan missed this -- found via dry-run leak count (854 paths). Other Plug-in
+    # Support subdirs (Data, Databases, Preferences, Metadata Combination) stay
+    # in the backup (Databases especially -- Plex's metadata SQLite lives there).
+    - "pp:/mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Caches"
     # DB datadirs excluded -- captured below as logical dumps (a hot file copy is torn)
-    - /mnt/src/appdata/qwiki-beta/mariadb-data
-    - /mnt/src/appdata/qw-oracle-postgres
+    - "pp:/mnt/src/appdata/qwiki-beta/mariadb-data"
+    - "pp:/mnt/src/appdata/qw-oracle-postgres"
+    # Our own borgmatic config -- secrets live here, MUST NOT land in the encrypted
+    # archive. Storing decryption key + SSH key inside the encrypted thing is a
+    # security smell (and a privilege-escalation vector if ciphertext + passphrase
+    # ever co-leak). Recovery path is escrow, not self-restore of borgmatic.
+    - "pp:/mnt/src/appdata/borgmatic"
 
 # Retention dials per locked-in spec (README "Locked dials" section)
 keep_daily: 7
@@ -54,28 +69,28 @@ checks:
     - name: archives
       frequency: 1 week
 
-# qwiki MariaDB -- logical dump via docker exec.
-# password_transport: environment sets MYSQL_PWD in borgmatic's process so the
-# `docker exec --env MYSQL_PWD` forwards it to the mariadb-dump in the other
-# container (the only viable transport across container boundaries).
+# qwiki MariaDB -- logical dump via the borgmatic 2.x `container:` option.
+# borgmatic invokes docker exec internally and streams the dump through
+# stdout (avoiding the cross-container /tmp/borgmatic-... write that fails
+# when source and sink are in different containers' filesystems).
+# password_transport: environment is required when the DB client is in a
+# separate container (pipe transport can't cross container boundaries).
 mariadb_databases:
     - name: all
-      hostname: 127.0.0.1
+      container: qwiki-mariadb
       username: root
       password: "{credential container qwiki_mariadb_root_pw}"
       password_transport: environment
-      mariadb_dump_command: docker exec --env MYSQL_PWD qwiki-mariadb mariadb-dump
-      mariadb_command: docker exec --env MYSQL_PWD qwiki-mariadb mariadb
 
-# qw-oracle Postgres -- pg_dumpall captures all DBs + roles in one shot.
-# PGPASSWORD env var forwarding is postgres's native pattern.
+# qw-oracle Postgres -- container option dispatches `docker exec ... pg_dumpall`
+# with internal stdout streaming. POSTGRES_USER on this image is `qworacle`
+# (verified against /mnt/user/appdata/qw-oracle/docker-compose.prod.yml),
+# created as a superuser at init time -- required for pg_dumpall.
 postgresql_databases:
     - name: all
-      hostname: 127.0.0.1
+      container: qw-oracle-postgres
       username: qworacle
       password: "{credential container qw_oracle_pg_pw}"
-      pg_dump_command: docker exec --env PGPASSWORD qw-oracle-postgres pg_dumpall
-      psql_command: docker exec --env PGPASSWORD qw-oracle-postgres psql
 
 # SQLite DBs -- borgmatic quiesces each via the sqlite hook (no torn copies).
 # Resolved list from Phase 0 Task 0.5 (README "SQLite databases" section).
@@ -96,13 +111,20 @@ sqlite_databases:
       path: /mnt/src/appdata/quad/mumble-data/mumble-server.sqlite
 
 # Healthchecks dead-man's-switch ping (off-Unraid by design).
+# Note: borgmatic's `{credential container ...}` syntax works for password-shape
+# fields (encryption_passphrase, DB passwords) but does NOT resolve inside
+# arbitrary URL strings -- it would land in the URL literally. So HC + Apprise
+# use ${VAR} env interpolation, with the env set via the LinuxServer.io
+# FILE__VAR=/run/secrets/var pattern (loaded by init-envfile at container start).
+# Invocations via `docker exec borgmatic with-contenv borgmatic ...` ensure
+# the env is loaded into the borgmatic process (docker exec alone bypasses s6).
 healthchecks:
-    ping_url: "{credential container hc_ping_url}"
+    ping_url: "${HC_PING_URL}"
 
 # Apprise -> Discord on failure only (success state is Healthchecks' job).
 apprise:
     services:
-        - url: "{credential container apprise_discord}"
+        - url: "${APPRISE_DISCORD}"
           label: discord
     states:
         - fail

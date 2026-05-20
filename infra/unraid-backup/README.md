@@ -1,6 +1,6 @@
 # Unraid backup redesign -- on-box reference + resolved parameters
 
-**Status:** Phase 1 CLOSED 2026-05-20 -- encrypted borg repo on Synology + key escrow verified. Phase 2 can start.
+**Status:** Phase 2 CLOSED 2026-05-20 -- borgmatic container deployed, first 58 GB baseline archive landed on Synology in 17m38s, nightly cron installed. Phases 4-6 next (monitoring already half-validated by induced failures during deploy).
 **Spec:** `docs/superpowers/specs/2026-05-19-unraid-backup-redesign-design.md`
 **Plan:** `docs/superpowers/plans/2026-05-19-unraid-backup-redesign.md`
 
@@ -182,3 +182,124 @@ borg --version` reports a 1.4.x at Phase 2.
 **Phase 0 CLOSED 2026-05-20.** Phase 1 can start.
 
 **Phase 1 CLOSED 2026-05-20.** Encrypted repo init verified, key escrowed (Google Drive), escrow-only restore proof passed against the real repo. Phase 2 can start -- begin with the corrections logged in "Plan corrections discovered during Phase 1 execution" above.
+
+## Phase 2 execution findings (2026-05-20)
+
+- **Container deployed.** `borgmatic` container, image
+  `ghcr.io/borgmatic-collective/borgmatic:latest`, borgmatic 2.1.5 / borg
+  1.4.4, `--network=host`, `--restart unless-stopped`.
+- **First archive shipped.** `ParadokS-2026-05-20T17:46:18.302821`
+  (fingerprint `8213f0a945087b6cb558e06a6c3a8d223539a60aacaacbb8473ad148fe0e603b`).
+  Duration 17m38s, 202,108 files, 58.43 GB original / 48.54 GB compressed /
+  38.74 GB deduplicated, sustained ~55 MB/sec push to Synology over
+  Tailscale-tunnelled SSH.
+- **Content verified.** Real-archive audit: 3 mariadb dump entries, 3
+  postgres dump entries (415 MB pg_dumpall output), 8 sqlite dump
+  entries (sonarr / radarr / prowlarr / bazarr / sonarr-anime / mumble);
+  qwiki-beta appdata 40,812 paths; qw-oracle appdata 1,764 paths;
+  quad/mumble 6 paths. All five exclude classes held with **0 leaks**
+  on the real archive (Plex top-Cache, Plex Plug-in Support/Caches,
+  borgmatic-self, qwiki mariadb-data datadir, qw-oracle-postgres
+  datadir).
+- **On-box layout.** `/mnt/user/appdata/borgmatic/` = `{config,ssh,secrets}`
+  subdirs (mode 700) plus the now-legacy `borg.env` (replaced by per-file
+  secrets; safe to delete later, kept for now as a paper trail). Secrets:
+  one file per credential (mode 600, no trailing newline), names match
+  the `{credential container <name>}` syntax in YAML AND the FILE__VAR
+  env-loader keys passed to the container.
+- **Monitoring half-validated.** Two earlier failed runs (credential-in-URL
+  + cross-container `--result-file`) fired Apprise->Discord pings
+  successfully, evidencing Phase 4 Task 4.2's fail-path end-to-end
+  without needing a deliberate induce-failure step. Healthchecks RED
+  during the two failures, flipped GREEN on the successful third run.
+- **Nightly cron installed.** `0 3 * * * docker exec borgmatic /command/with-contenv borgmatic --verbosity -1`
+  -- installed live in root's crontab AND appended (idempotent) to
+  `/boot/config/go` for boot survival. Existing weekly tar
+  (`0 4 * * 1 appdata_backup.sh`) and USB mirror left in place per plan
+  -- they stay through the Phase 7 cutover soak.
+
+### Plan corrections discovered during Phase 2 execution (apply forward)
+
+6. **Refined env-handling model** (Phase 1 correction #3 was incomplete).
+   The image's s6-overlay v3 layer:
+   - Copies `docker run -e VAR=val` into `/run/s6/container_environment/`
+     at startup. Init scripts (`init-envfile`, `init-custom-packages`,
+     etc.) use `#!/command/with-contenv bash` and DO see these vars.
+   - Image's internal cron service uses with-contenv too, so internal
+     cron firings see the env.
+   - **External `docker exec borgmatic <cmd>` does NOT load this env.**
+     Wrap as `docker exec borgmatic /command/with-contenv <cmd>`.
+   - LinuxServer.io `FILE__VAR=/path/to/file` pattern: init-envfile reads
+     the file's contents into the env var `VAR`. Pair with a
+     `-v /host/secret:/run/secrets/foo:ro` mount + `-e FILE__FOO=/run/secrets/foo`.
+
+7. **`{credential container <name>}` syntax only works for password-shape
+   fields.** Verified in borgmatic 2.1.5: resolves correctly inside
+   `encryption_passphrase`, `mariadb_databases[*].password`,
+   `postgresql_databases[*].password`. Does NOT resolve inside arbitrary
+   string fields like `healthchecks.ping_url` or `apprise.services[*].url`
+   -- the literal `{credential container ...}` ends up URL-encoded in
+   the outbound URL (`https://hc-ping.com/%7Bcredential%20container...`).
+   Workaround: `${VAR}` env interpolation for URL-shape fields, with env
+   loaded via FILE__VAR + with-contenv wrapper.
+
+8. **`DOCKERCLI=true` required to install docker CLI.** The image's
+   `init-custom-packages` script `apk add`'s docker-cli ONLY when this
+   env var is set. Without it, DB hooks that need `docker exec` (the
+   `container:` option or any custom `*_dump_command: docker exec ...`)
+   fail with `[Errno 2] No such file or directory: 'docker'`.
+
+9. **borgmatic 2.x `container:` option supersedes the plan's
+   `*_dump_command: docker exec ...` pattern.** With custom `docker exec`
+   commands, borgmatic still appends `--result-file
+   /tmp/borgmatic-XXX/...`, but that path only exists in the borgmatic
+   container -- mariadb-dump running inside qwiki-mariadb cannot write
+   there, fails `Errcode: 2 No such file or directory`. The `container:
+   <name>` option (added in borgmatic 2.x) handles this correctly:
+   borgmatic resolves the container's bridge IP via docker inspect,
+   then runs mariadb-dump / pg_dumpall *locally* in the borgmatic
+   container against `--host <ip> --protocol tcp`. Dump writes to
+   local `/tmp`, no cross-container filesystem issue.
+
+10. **Exclude patterns need `pp:` prefix.** Borg's default `fm` (fnmatch)
+    style matches the EXACT path -- bare `/a/b` excludes the directory
+    entry itself but NOT `/a/b/file`. Use `pp:` (path-prefix) style:
+    matches the dir AND every descendant. Caught via dry-run leak count
+    (860 Plex Cache paths leaking with bare pattern; 0 with `pp:`).
+
+11. **Plan's Plex excludes miss `Plug-in Support/Caches/`.** Plex 1.x has
+    TWO transient cache locations: top-level `Plex Media Server/Cache/`
+    (in plan) and the nested `Plex Media Server/Plug-in Support/Caches/`
+    (NOT in plan). Adding the nested one cut 854 paths from the baseline.
+    Other `Plug-in Support` siblings (`Data`, `Databases` -- Plex
+    metadata SQLite -- `Preferences`, `Metadata Combination`) MUST stay
+    in the backup.
+
+12. **Backup MUST exclude the borgmatic config dir itself.** The plan
+    sources `/mnt/user/appdata` which contains
+    `/mnt/user/appdata/borgmatic/` where the SSH key, encryption
+    passphrase, DB credentials, and HC/Apprise secrets all live.
+    Storing decryption material inside the encrypted ciphertext is a
+    security smell (privilege-escalation if ciphertext + passphrase
+    ever co-leak). Added `pp:/mnt/src/appdata/borgmatic` exclude.
+
+13. **Unraid uses root's crontab, NOT `/etc/cron.d/`.** Plan's Task 2.4
+    `echo "..." >> /etc/cron.d/borgmatic-cron` would not fire (Unraid's
+    cron daemon doesn't read /etc/cron.d). Correct mechanism:
+    `(crontab -l 2>/dev/null | grep -v <token>; echo "<line>") | crontab -`.
+    Verified against existing entries (cron.daily, appdata_backup.sh,
+    usb_mirror.sh, plex-publish-check.sh) -- all live in root's crontab.
+
+14. **Image's own internal cron also fires** at `0 1 * * *` (`borgmatic
+    --stats -v 0`). Accepted as harmless duplicate: borg dedup makes
+    the 01:00 run cheap, Healthchecks sees pings within its 1-day
+    window from either run. If the 01:00 doubling becomes annoying,
+    disable via the image's svc-cron s6 service or an empty crontab
+    mount. Not done now -- YAGNI.
+
+**Phase 2 CLOSED 2026-05-20.** Phases 3 (folded into 2) and 4
+(monitoring -- HC + Discord both already proven by induced + real
+failures, only the Homepage tile remains as an [OP] task) effectively
+substantially-complete. Next: Phase 5 (Prague offsite pull) + Phase 6
+(restore drill -- the real acceptance gate). The two-week parallel
+soak before Phase 7 cutover begins now.
