@@ -1,9 +1,14 @@
 # quad Mumble audio receiver -- silent recording investigation handoff
 
 **Captured:** 2026-05-20 mid-flow (continuing parent session at ~500k context).
-**Status:** RESOLVED 2026-05-20. Acceptance test passed: max_volume -1.0 dB,
-mean_volume -25.0 dB on a fresh /record start -> speak -> /record stop
-session (parking required > -40 dB). See "Resolution" section at the bottom.
+**Status:** PARTIALLY RESOLVED 2026-05-20 -> 2026-05-21. Three layers of
+bugs found and fixed across one extended debug session. Layers 1 + 2
+verified live. Layer 3 (timing-counter bug; root OGG timeline compressed
+per-user by total speech duration) fix is deployed (commit `7d9c02ff`,
+mumble-track.ts) but UNVERIFIED -- the next real recording is the gate.
+The d81a8e90 demo-session OGGs from 2026-05-20 cannot be salvaged (timing
+corruption is baked into the source bitstream). See "Resolution" section
+at the bottom.
 **Goal (when captured):** root-cause why every Mumble auto-record session
 writes pure-silence OGG files despite the bot's control-channel state
 appearing healthy.
@@ -231,9 +236,91 @@ Three commits on main, in order:
    not in-channel speech). `parseVoicePacket` was requiring target==0.
    Relaxed to "Opus codec only, any target."
 
-Third test was the acceptance gate: 651/651 packets routed, OGG bitrate
-105 kbit/s (vs 2.6 kbit/s silence baseline), volumedetect max_volume
--1.0 dB / mean_volume -25.0 dB on `1-ParadokS.ogg` over 10.4s of speech.
+Third test was the receive-path acceptance gate: 651/651 packets routed,
+OGG bitrate 105 kbit/s (vs 2.6 kbit/s silence baseline), volumedetect
+max_volume -1.0 dB / mean_volume -25.0 dB on `1-ParadokS.ogg` over
+10.4s of speech.
+
+### Layer 2 -- pipeline (slice + upload Mumble-shaped tracks)
+
+Same-day follow-on, surfaced when a real multi-user 78-minute 4on4
+session was captured (504,183 packets parsed across 4 tracks, 98.6 MB
+on disk) but every fast-pipeline slice job failed with
+`Failed to slice null: ... audio/unknown.ogg: failed to create or
+replace stream`. Root cause: `resolvePlayerName` in
+`processing/utils.ts` only looked at `discord_username` /
+`discord_display_name`; both are null for Mumble tracks, so the
+function returned `'unknown'` and all 4 parallel ffmpeg slice jobs
+targeted the same output path.
+
+`902f725a fix(quad/processing): use mumble_username in audio-splitter
+when discord fields are null` extended `resolvePlayerName` with an
+optional `mumbleUsername` fallback before the `'unknown'` sentinel,
+and threaded `track.mumble_username` through the two audio-splitter
+call sites (match-segment + intermission). The voice-uploader was
+already Mumble-aware (`p.discordUserId ?? p.discordUsername ?? p.name`
+lookup key + `voice-recordings/{demoSha256}/{name}.ogg` storage path
+when no Discord ID present) so it required no change.
+
+Acceptance was INITIALLY claimed: the original 78-min session
+(`d81a8e90-43d4-435f-a763-1b473a723496`) was re-sliced via `/process
+rerun` after deleting the collision `unknown.ogg` artifacts, 3 maps +
+4 intermissions appeared in the matchscheduler Recordings tab, and
+spot-checked playback sounded fine. That call was retracted within
+minutes -- on deeper listening the operator heard voices from later
+maps bleeding into earlier slices, growing worse with how heavily a
+user spoke. That observation surfaced Layer 3.
+
+### Layer 3 -- raw OGG timeline compressed per-user (timing-counter bug)
+
+Smoking gun was the raw OGG duration table for `d81a8e90` (wall-clock
+was 4720s = 78m40s):
+
+| Track | OGG duration | Shortfall | File size |
+|---|---|---|---|
+| 1-ParadokS.ogg | 3554s (59m14s) | -1166s | 25.0 MB |
+| 2-razor.ogg | 3623s (60m23s) | -1097s | 23.9 MB |
+| 3-grisling.ogg | 4719s (78m39s) | ~0s | 5.6 MB |
+| 4-zero.ogg | 2436s (40m36s) | -2284s | 48.9 MB |
+
+The shortfall scales 1:1 with each user's total real-voice packets (=
+total speech duration). grisling barely spoke and has near-zero drift;
+zero spoke constantly and his OGG is 38 minutes shorter than wall-clock.
+That linear relationship is the unique fingerprint of a counter that
+mis-attributes packet duration.
+
+Root cause: `MumbleTrack.writeOpusFrame` incremented a `framesWritten`
+counter by 1 per packet, and the silence timer compared `framesWritten
+vs floor(elapsed_ms / 20)` to decide how many `SILENT_OPUS_FRAME`s
+(each 20ms) to write. But Mumble desktop negotiates 10ms Opus packets
+(`config 30 = CELT-FB 10ms` per RFC 6716, verified in the diagnostic
+as `byte0=0x83, head=83 XX XX 80 cc f0 ...`). Each 10ms real packet
+"used up" one 20ms slot in the counter, so the silence timer skipped
+filling in 10ms of silence that should have been there to align the
+OGG with wall-clock. After N real packets, the OGG is N*10ms behind
+wall-clock. ffmpeg slicing is keyed off wall-clock-UTC offsets but
+seeks in OGG-internal seconds; for talkative users, slice windows
+pull content from later in the recording. Per-user, growing over time.
+Hence the bleed-over.
+
+`7d9c02ff fix(quad/mumble): track audio milliseconds, not frame count,
+in MumbleTrack timer` -- replaces the integer frame counter with an
+`audioMsWritten` field accumulating each packet's actual decoded
+duration parsed from the Opus TOC byte (handles SILK 10/20/40/60,
+Hybrid 10/20, CELT 2.5/5/10/20 plus code-3 multi-frame packets).
+Silence timer fills based on ms deficit, not frame deficit. Discord
+side has the same code shape but uses 20ms packets exclusively so
+the math happens to hold there -- deliberately not touched for
+minimal scope.
+
+**STATUS 2026-05-21: deployed but not yet verified.** Operator's
+weekend scrim against the finalists will produce the next test corpus.
+Verification gate: raw OGG durations on the next session must be
+within ~1s of wall-clock for ALL tracks regardless of how much each
+user spoke. If grisling-equivalent (quiet) and zero-equivalent (loud)
+both come out at wall-clock duration, the timing bug is closed.
+If any track still drifts proportional to speech volume, the patch
+is incomplete and needs another round.
 
 ## Carry-forwards / loose ends
 
@@ -255,6 +342,6 @@ Third test was the acceptance gate: 651/651 packets routed, OGG bitrate
 
 ## Memory update
 
-`project_quad_mumble_silent_recording.md` (auto-memory) rewritten to
-RESOLVED status with the root-cause story and fix commits, so future
-sessions don't re-investigate.
+`project_quad_mumble_silent_recording.md` (auto-memory) carries the
+three-layer story with current verification status -- Layers 1 + 2
+verified, Layer 3 deployed but awaiting next live recording.
