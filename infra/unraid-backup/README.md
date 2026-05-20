@@ -14,9 +14,9 @@ pattern.
 
 | Token | Status | Value |
 |---|---|---|
-| `<SYN_SSH>` | RESOLVED (host) / PENDING (user) | `borg-unraid@nas1618` (Tailscale MagicDNS; TS IP `100.112.91.72`; LAN fallback `192.168.1.185`). The `borg-unraid` admin user is `[OP]`-pending on the Synology. |
-| `<SYN_TMPDIR>` | PENDING `[OP]` | Set when the Synology repo dir is created (DSM 7 `/tmp` is noexec). Proposed `/volume1/backup/.borgtmp`. |
-| `<SYN_REPO>` | PENDING `[OP]` | Proposed `/volume1/backup/borg-appdata` (confirm volume name on DSM). |
+| `<SYN_SSH>` | **RESOLVED 2026-05-20** | `borg-unraid@nas1618` (Tailscale MagicDNS; TS IP `100.112.91.72`; LAN fallback `192.168.1.185`). User created (admin group), DSM SSH bound to port 22, firewall allow for Tailscale CGNAT `100.64.0.0/10` (mask `255.192.0.0`) applied; login tested working. |
+| `<SYN_TMPDIR>` | **RESOLVED 2026-05-20** | `/volume1/backup/.borgtmp` -- created, `chown borg-unraid:users`, `chmod 700`. (DSM 7 `/tmp` is noexec; private TMPDIR required.) |
+| `<SYN_REPO>` | **RESOLVED 2026-05-20** | `/volume1/backup/borg-appdata` -- volume1 confirmed, created, `chown borg-unraid:users`, `chmod 700`. |
 | `<PRAGUE_ENV>` | PENDING `[OP]` | How Prague schedules the pull (WSL cron / native / Task Scheduler->WSL). |
 | `<PRAGUE_REPO>` | PENDING `[OP]` | Local repo-copy path on Prague NVMe. |
 | `<HC_PING_URL>` | PENDING `[OP]` | Healthchecks.io check "unraid-borgmatic" (period 1d, grace 6h). |
@@ -56,6 +56,34 @@ mumble        /mnt/user/appdata/quad/mumble-data/mumble-server.sqlite
 
 (`recyclarr` runs but has no DB -- config-only, covered by the file backup.)
 
+## Phase 0 [SSH] discovery findings (2026-05-20, Synology side)
+
+- SynoCommunity `borgbackup` installed; `borg --version` = **`borg 1.4.3`**.
+- borg binary symlink path: **`/usr/local/bin/borg`** -- use this absolute path
+  in the Phase 1 `authorized_keys` forced command (`command="/usr/local/bin/borg
+  serve --append-only --restrict-to-path /volume1/backup/borg-appdata"`).
+- DSM SSH service: bound to port 22 (a prior config had it on a non-standard
+  port 33141; reverted to 22 for simplicity -- standard tools work without
+  `-p`).
+- Firewall: `Tailscale CGNAT (100.64.0.0/10) -> SSH/TCP -> Allow`, placed above
+  the `All/All/All -> Deny` catch-all (DSM evaluates top-to-bottom, first-match
+  wins). Allows every device on the operator's tailnet without per-device
+  edits.
+- Shared Folder ACL: `borg-unraid` has Read/Write on the `backup` share (DSM ->
+  Control Panel -> Shared Folder -> backup -> Permissions). Defence-in-depth;
+  sudo would have bypassed it for the mkdir/chown, but apps that go through
+  the share ACL (SMB, File Station) need this explicit grant.
+- Both `borg-appdata/` and `.borgtmp/` end up `drwx------ borg-unraid users`
+  -- only `borg-unraid` reads/writes. Repo is encrypted at rest regardless.
+
+### Phase 2 version-alignment check (deferred to Phase 2 Task 2.2 Step 4)
+
+The borgmatic container on Unraid (`ghcr.io/borgmatic-collective/borgmatic`)
+must bundle a borg that is **repo-format-compatible with Synology's borg
+1.4.3**. borg 1.x repos are NOT readable by borg 2.x (and vice versa); a major
+version skew would block Phase 1 immediately. Confirm `docker exec borgmatic
+borg --version` reports a 1.4.x at Phase 2.
+
 ### DB password env-var names (values NOT recorded -- read on-box at Phase 2)
 
 - `qwiki-mariadb` root dump: `MARIADB_ROOT_PASSWORD` in
@@ -78,10 +106,9 @@ mumble        /mnt/user/appdata/quad/mumble-data/mumble-server.sqlite
 
 ## Still PENDING for Phase 0 completion (operator)
 
-1. Confirm/override the locked dials above.
-2. Synology: install SynoCommunity `borgbackup`; create admin user `borg-unraid`
-   + repo dir + private TMPDIR (Task 0.2 Steps 2-3).
+1. ~~Confirm/override the locked dials above.~~ **DONE 2026-05-20** -- all four dials confirmed.
+2. ~~Synology: SynoCommunity `borgbackup` + `borg-unraid` user + repo dir + private TMPDIR + firewall + SSH on 22.~~ **DONE 2026-05-20** -- borg 1.4.3 reachable at `ssh borg-unraid@nas1618`; repo + TMPDIR perms locked.
 3. State `<PRAGUE_ENV>` + `<PRAGUE_REPO>` (Task 0.3).
 4. Create Healthchecks check + Discord webhook (Task 0.4).
 
-Phase 1 starts once the above land.
+Phase 1 starts once items 3 and 4 land.
