@@ -236,11 +236,11 @@ sqlite_databases:
     # ...repeat for prowlarr/bazarr/sonarr-anime per Phase 0 Task 0.5
 
 healthchecks:
-    ping_url: "<HC_PING_URL>"
+    ping_url: "${HC_PING_URL}"
 
 apprise:
     services:
-        - url: "<APPRISE_DISCORD>"
+        - url: "${APPRISE_DISCORD}"
           label: discord
     states:
         - fail

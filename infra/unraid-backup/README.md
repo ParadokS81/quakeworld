@@ -19,8 +19,8 @@ pattern.
 | `<SYN_REPO>` | **RESOLVED 2026-05-20** | `/volume1/backup/borg-appdata` -- volume1 confirmed, created, `chown borg-unraid:users`, `chmod 700`. |
 | `<PRAGUE_ENV>` | PENDING `[OP]` | How Prague schedules the pull (WSL cron / native / Task Scheduler->WSL). |
 | `<PRAGUE_REPO>` | PENDING `[OP]` | Local repo-copy path on Prague NVMe. |
-| `<HC_PING_URL>` | PENDING `[OP]` | Healthchecks.io check "unraid-borgmatic" (period 1d, grace 6h). |
-| `<APPRISE_DISCORD>` | PENDING `[OP]` | `discord://{WebhookID}/{WebhookToken}` from a Discord channel webhook. |
+| `<HC_PING_URL>` | **RESOLVED 2026-05-20** | Healthchecks.io check "unraid-borgmatic" (period 1d, grace 6h). Value lives in `/mnt/user/appdata/borgmatic/borg.env` (mode 600, root) under key `HC_PING_URL`; borgmatic YAML references as `${HC_PING_URL}`. NOT in git. |
+| `<APPRISE_DISCORD>` | **RESOLVED 2026-05-20** | `discord://{id}/{token}` from a Discord channel webhook. Value in `/mnt/user/appdata/borgmatic/borg.env` under key `APPRISE_DISCORD`; YAML references as `${APPRISE_DISCORD}`. Webhook smoke-tested: HTTP 204 on POST. NOT in git. |
 | `<ARR_SQLITE>` | RESOLVED | See "SQLite databases" below. |
 
 ## Locked dials (all CONFIRMED 2026-05-20)
@@ -109,6 +109,6 @@ borg --version` reports a 1.4.x at Phase 2.
 1. ~~Confirm/override the locked dials above.~~ **DONE 2026-05-20** -- all four dials confirmed.
 2. ~~Synology: SynoCommunity `borgbackup` + `borg-unraid` user + repo dir + private TMPDIR + firewall + SSH on 22.~~ **DONE 2026-05-20** -- borg 1.4.3 reachable at `ssh borg-unraid@nas1618`; repo + TMPDIR perms locked.
 3. State `<PRAGUE_ENV>` + `<PRAGUE_REPO>` (Task 0.3).
-4. Create Healthchecks check + Discord webhook (Task 0.4).
+4. ~~Create Healthchecks check + Discord webhook (Task 0.4).~~ **DONE 2026-05-20** -- both secrets staged in `/mnt/user/appdata/borgmatic/borg.env`; Discord webhook smoke-tested (HTTP 204 + visible message in channel "Captain Hook" bot post 15:16).
 
-Phase 1 starts once items 3 and 4 land.
+Phase 1 starts once item 3 lands.
