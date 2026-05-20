@@ -29,7 +29,7 @@ pattern.
 - Monitor: Healthchecks hosted free tier (NOT on Unraid -- a dead-man's-switch
   on the watched box cannot report that box down)
 - Schedule: `0 3 * * *` (03:00 nightly; offset from the existing 04:00 Mon tar)
-- Encryption: `repokey-blake2` (passphrase-only, escrowed)
+- Encryption: `repokey-blake2` (passphrase-only, escrowed) -- **CONFIRMED 2026-05-20**; threat model is "personal homelab, not military secrets, attacker would have to physically steal the Synology"; one passphrase to escrow in password manager + printed paper
 
 ## Phase 0 [SSH] discovery findings (2026-05-19)
 
