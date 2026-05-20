@@ -35,7 +35,7 @@ services:
       MUMBLE_SUPERUSER_PASSWORD: "${MUMBLE_SUPERUSER_PASSWORD:-changeme}"
       MUMBLE_CONFIG_WELCOMETEXT: "Welcome to the QuakeWorld Voice Server"
       MUMBLE_CONFIG_USERS: 50
-      MUMBLE_CONFIG_BANDWIDTH: 128000
+      MUMBLE_CONFIG_BANDWIDTH: 192000   # ~160 kbit/s effective Opus after overhead; past voice transparency
       MUMBLE_CONFIG_SERVERPASSWORD: "${MUMBLE_SERVER_PASSWORD:-}"
       MUMBLE_CONFIG_REGISTERNAME: "QuakeWorld Voice"
       MUMBLE_CONFIG_ALLOWRECORDING: "true"
