@@ -139,3 +139,66 @@ unique rows requiring individual seeded re-synth.
 Nothing applied. No L1 row mutated. No re-synth run. This collation is
 the Stage-1 record only; B4 (seeded re-synth via the D6 pipeline) is
 the operator-gated next step.
+
+## Session #8 receipt addendum 2026-05-20 (cluster regrouping)
+
+Surfaced at orchestrator-direct HG2 during B4 fav_go calibration
+receipt (`b4-ledger-fav_go-calibration.md`, 2026-05-20 / `1af966a4`).
+Does NOT overwrite the V-pass Stage-1 reading above; the cluster
+groupings on lines 89-117 reflect what the V-pass found at the time
+of Stage-1. This addendum records what the B4 calibration receipt
+re-derived about two of those clusters via source-oracle re-grep.
+
+**Finding.** The "CF_MATCHLESS additive-misread WI-2 cohort (~7 rows)"
+and the "dead-CF_SPC_ADMIN structural (~3 rows)" groupings need
+correction:
+
+- `droppack` / `dropquad` / `dropring` (3 rows the original grouping
+  placed under CF_MATCHLESS) do **not** carry the CF_MATCHLESS bit at
+  their registrations (commands.c:741-743 = `CF_PLAYER | CF_SPC_ADMIN`
+  only). Their "during a match" clauses are MATCH at the V-pass --
+  enforced by handler-internal `if (match_in_progress) return;` guards
+  (`ToggleDropPack` / `ToggleDropQuad` / `ToggleDropRing`), not via
+  CF_MATCHLESS_ONLY. The V-pass flag on these 3 was on the
+  access-class clause ("Admin toggle"), not on the match-state clause.
+  Source-verified at Session #8: their actual structural defect is
+  the SAME as `race_set_finish` / `upspecs` / `upplayers` --
+  `CF_PLAYER | CF_SPC_ADMIN` with NO `CF_SPECTATOR`, so the
+  `CF_SPC_ADMIN` bit is dead at commands.c:1091 (spec branch returns
+  `DO_WRONG_CLASS` before line 1096's admin check).
+
+**Corrected groupings.**
+
+- **CF_MATCHLESS additive-misread WI-2 cohort = 4 rows** (not 7):
+  `fav_add` / `fav_del` / `fav_all_del` / `fav_next`. **All 4 already
+  re-synthesized in the fav_go cluster** (b4-ledger-fav_go-calibration.md,
+  TRACED-CLEAN). Cohort is **closed**; not a separate future cluster.
+- **Dead-CF_SPC_ADMIN structural cluster = 6 rows** (not 3):
+  `droppack` / `dropquad` / `dropring` / `race_set_finish` / `upspecs`
+  / `upplayers`. All 6 share an identical registration pattern
+  (`CF_PLAYER | CF_SPC_ADMIN`, no `CF_SPECTATOR`) and the same dead
+  CF_SPC_ADMIN consequence at commands.c:1091. Per-row variation:
+  `upspecs` / `upplayers` carry a runtime admin gate via
+  `check_perm(self, cvar("k_allowcountchange"))` at commands.c:8027;
+  the other 4 have no runtime admin gate (any in-game player).
+  Drafted as a single 6-row cluster prompt at
+  `b4-dead-spc-admin-cluster-prompt.md`.
+
+**Net cluster-amortization unchanged.** ~31 rows still cover under
+clusters (4 CF_MATCHLESS done in fav_go + 6 dead-CF_SPC_ADMIN + 2
+midair_minheight + 3 k_on_end_f_* + 2 dmm1/dmm3 + 14 fav_go done).
+Remaining ~65 unique rows for individual seeded re-synth unchanged.
+
+**Why the original grouping was reasonable but wrong.** The
+"CF_MATCHLESS WI-2 cohort" framing collapsed two distinct defect
+classes that share a surface symptom ("during a match" claim in the
+description). For `fav_add` family the symptom is FALSE (the claim is
+not enforced -- CF_MATCHLESS is additive permission). For
+droppack/dropquad/dropring the symptom is TRUE (the claim is
+enforced via the handler's own match_in_progress guard). The V-pass
+WI-2 flag on the latter trio was actually on a different clause
+(access-class), not the match-state clause; the original collation
+read the "WI-2 grouped with the CF_MATCHLESS rows" as evidence they
+shared the CF_MATCHLESS root. They don't.
+
+C4 unchanged: nothing applied. No L1 row mutated.
