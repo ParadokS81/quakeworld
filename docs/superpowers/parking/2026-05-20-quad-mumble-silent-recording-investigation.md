@@ -1,9 +1,12 @@
 # quad Mumble audio receiver -- silent recording investigation handoff
 
 **Captured:** 2026-05-20 mid-flow (continuing parent session at ~500k context).
-**Status:** investigation handoff for fresh terminal. NO FIX without operator go.
-**Goal:** root-cause why every Mumble auto-record session writes pure-silence
-OGG files despite the bot's control-channel state appearing healthy.
+**Status:** RESOLVED 2026-05-20. Acceptance test passed: max_volume -1.0 dB,
+mean_volume -25.0 dB on a fresh /record start -> speak -> /record stop
+session (parking required > -40 dB). See "Resolution" section at the bottom.
+**Goal (when captured):** root-cause why every Mumble auto-record session
+writes pure-silence OGG files despite the bot's control-channel state
+appearing healthy.
 
 ---
 
@@ -200,3 +203,58 @@ have a root cause OR when you hit a wall and need operator input.
 - quad DEPLOYMENT.md "Mumble TLS certificate" section (added 2026-05-19).
 - HANDOVER.md "Future arcs" entry for the Discord-surface enhancements
   arc (companion idea, separately captured today).
+
+## Resolution (2026-05-20, same session that captured this doc)
+
+Three commits on main, in order:
+
+1. `8c928ce1 debug(quad/mumble): instrument voice-receiver to fingerprint
+   silent recordings` -- counters + first-3-packets byte0 log + session-end
+   stats. First test session showed `packetsReceived: 0` over 27 seconds of
+   active speech, which killed all "codec mismatch" hypotheses and pointed
+   straight at "voice packets never reach the bot socket."
+2. `04030c6b fix(quad/mumble): subscribe bot as channel listener so voice
+   forwards from team channels` -- the load-bearing change. Bot was in
+   Root (channel 0) while users record in team subchannels, and Mumble
+   servers only forward voice to clients in the same/listening channel.
+   Fix sends `UserState { listeningChannelAdd: [channelId] }` at session
+   start and `listeningChannelRemove` at stop. Bot stays in Root, no
+   visible move; Mumble desktop clients show "X started listening to your
+   channel" text notifications (and an ear icon next to listener users)
+   which the operator may mis-read as a join -- it isn't. The dep
+   `@tf2pickup-org/mumble-protocol@^1.0.12` was lifted from transitive to
+   direct in apps/quad/package.json.
+3. `2fc5fc22 fix(quad/mumble): accept any target value for Opus voice
+   packets` -- second-layer fix. After #2, packets started arriving
+   (`packetsReceived: 567`) but `packetsParsed: 0`: byte0=0x83 means
+   codec_type=4 (Opus, good) but target=3 (channel-listener forwarded,
+   not in-channel speech). `parseVoicePacket` was requiring target==0.
+   Relaxed to "Opus codec only, any target."
+
+Third test was the acceptance gate: 651/651 packets routed, OGG bitrate
+105 kbit/s (vs 2.6 kbit/s silence baseline), volumedetect max_volume
+-1.0 dB / mean_volume -25.0 dB on `1-ParadokS.ogg` over 10.4s of speech.
+
+## Carry-forwards / loose ends
+
+- **Diagnostic instrumentation is still in the codebase.** It is cheap
+  (counters + 3 INFO log lines per session start + 1 INFO log at stop)
+  and provides useful future observability. Operator may choose to
+  downgrade per-packet logs to debug-level later, or strip entirely. Not
+  acted on yet.
+- **The @tf2pickup-org/mumble-client lib has two parallel issues** that
+  affect any future bot using it for voice receive: (1) `decodeAudio`
+  discards the Opus payload entirely (we monkey-patch around this);
+  (2) the lib's own target check uses `0b000111111 & packet[0] !== 0` so
+  even listener-forwarded packets never emit `speakingStateChange`.
+  Both are arguably upstream bugs; an upstream PR was not opened in this
+  session. Captured for future consideration.
+- **Old silent recordings on disk** (Feb 28, Mar 20, May 19 sessions in
+  `/mnt/user/appdata/quad/recordings/`) are unrecoverable -- nothing was
+  ever captured. No backfill possible.
+
+## Memory update
+
+`project_quad_mumble_silent_recording.md` (auto-memory) rewritten to
+RESOLVED status with the root-cause story and fix commits, so future
+sessions don't re-investigate.
