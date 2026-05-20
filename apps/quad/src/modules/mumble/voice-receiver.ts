@@ -153,10 +153,13 @@ export class VoiceReceiver {
 
     const byte0 = packet[0];
     const codecType = (byte0 >> 5) & 0x07;
-    const target = byte0 & 0x1f;
 
-    // Only handle Opus codec, normal speech (target=0)
-    if (codecType !== OPUS_CODEC_TYPE || target !== 0) return;
+    // Only handle Opus codec. Accept any target value: target=0 is normal
+    // in-channel speech, but Mumble 1.4+ channel-listener forwarding uses
+    // non-zero targets to distinguish from in-channel speech (target=3
+    // observed in practice). Audio is audio regardless of how the server
+    // routed it to us.
+    if (codecType !== OPUS_CODEC_TYPE) return;
 
     try {
       let offset = 1;
