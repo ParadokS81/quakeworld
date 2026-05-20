@@ -23,12 +23,11 @@ pattern.
 | `<APPRISE_DISCORD>` | PENDING `[OP]` | `discord://{WebhookID}/{WebhookToken}` from a Discord channel webhook. |
 | `<ARR_SQLITE>` | RESOLVED | See "SQLite databases" below. |
 
-## Locked dials (defaults; operator may override before Phase 1)
+## Locked dials (all CONFIRMED 2026-05-20)
 
 - Retention: `keep_daily 7`, `keep_weekly 4`, `keep_monthly 6` -- **CONFIRMED 2026-05-20**; no `keep_yearly` tail (6-month horizon deemed sufficient; anything past ~6 months is deleted by design)
-- Monitor: Healthchecks hosted free tier (NOT on Unraid -- a dead-man's-switch
-  on the watched box cannot report that box down)
-- Schedule: `0 3 * * *` (03:00 nightly; offset from the existing 04:00 Mon tar)
+- Monitor: Healthchecks.io hosted free tier (NOT on Unraid -- a dead-man's-switch on the watched box cannot report that box down) -- **CONFIRMED 2026-05-20**; one free account, one ping URL goes in `borg.env` and is treated as a secret
+- Schedule: `0 3 * * *` (03:00 nightly; offset from the existing 04:00 Mon tar) -- **CONFIRMED 2026-05-20**; first run is invoked manually during waking hours (full baseline ~30-60min), then 03:00 cron takes over for nightly incrementals
 - Encryption: `repokey-blake2` (passphrase-only, escrowed) -- **CONFIRMED 2026-05-20**; threat model is "personal homelab, not military secrets, attacker would have to physically steal the Synology"; one passphrase to escrow in password manager + printed paper
 
 ## Phase 0 [SSH] discovery findings (2026-05-19)
