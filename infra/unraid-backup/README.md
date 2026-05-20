@@ -1,6 +1,6 @@
 # Unraid backup redesign -- on-box reference + resolved parameters
 
-**Status:** Phase 0 partial -- `[SSH]` discovery DONE 2026-05-19; `[OP]` items PENDING.
+**Status:** Phase 1 CLOSED 2026-05-20 -- encrypted borg repo on Synology + key escrow verified. Phase 2 can start.
 **Spec:** `docs/superpowers/specs/2026-05-19-unraid-backup-redesign-design.md`
 **Plan:** `docs/superpowers/plans/2026-05-19-unraid-backup-redesign.md`
 
@@ -95,6 +95,74 @@ borg --version` reports a 1.4.x at Phase 2.
   `POSTGRES_USER` value at Phase 2 config time (likely `postgres`; `pg_dumpall`
   needs the superuser).
 
+## Phase 1 execution findings (2026-05-20)
+
+- **Repo initialized.** Encryption: `repokey BLAKE2b`. Location:
+  `ssh://borg-unraid@100.112.91.72/volume1/backup/borg-appdata`. Repo ID:
+  `ee90123fa4a39cad64bde3a00ca3c2f5a2ced69cde91d2307088cd41d1614695`.
+- **SSH key.** `/root/.ssh/borg_syn_ed25519` on Unraid (mode 600, root-only),
+  fingerprint `SHA256:Tq23hehg7dHeQk0sATk+aY/crVOWCuMweW/HiQrDo6E`. Pubkey
+  installed on Synology in `borg-unraid` `~/.ssh/authorized_keys` with
+  forced command: `/usr/local/bin/borg serve --append-only --restrict-to-path
+  /volume1/backup/borg-appdata` plus `restrict` keyword (no pty / port-fwd /
+  agent / X11 / user-rc on this key).
+- **Key escrow.** Passphrase + borg-key-export (13-line `BORG_KEY` block)
+  stored in operator's Google Drive document on 2026-05-20.
+- **Escrow-only restore proof verified 2026-05-20** -- ran
+  `borg list /volume1/backup/borg-appdata` directly on Synology (borg
+  1.4.3, SynoCommunity) with only the escrowed passphrase, against the
+  real repo. Empty archive list returned, exit 0. Proves: passphrase
+  alone decrypts the repo's stored key; no Unraid-resident secret needed
+  for recovery.
+
+### Plan corrections discovered during Phase 1 execution (APPLY AT PHASE 2)
+
+1. **Repo URL form.** Plan template `ssh://<SYN_SSH>/./<SYN_REPO>` with
+   absolute `<SYN_REPO>` substitutes to a *relative-to-home* URL that the
+   `--restrict-to-path` forced command correctly rejects (`Repository path
+   not allowed: /volume1/homes/borg-unraid/volume1/backup/borg-appdata`).
+   **Correct form:** `ssh://<SYN_SSH><SYN_REPO>` -- since `<SYN_REPO>`
+   starts with `/`, this gives `ssh://...host//volume1/...` (borg's
+   absolute-path double-slash). All Phase 2/5/6/7 repo URLs need this fix.
+
+2. **Container `--network=host` required.** Default bridge networking on the
+   borgmatic container cannot reach the Synology at the Tailscale IP
+   (`100.112.91.72`); Tailscale routes live on the Unraid host network
+   stack. Phase 2 `docker create` must add `--network=host`. (Side-effect:
+   docker.sock mount + host network means the container sees host ports
+   directly, which is actually what the DB hooks need anyway.)
+
+3. **borgmatic image strips ALL env vars at entrypoint.** The image's
+   `[custom-init]` wrapper clears the container env BEFORE invoking the
+   user command -- `-e BORG_RSH=...`, `-e BORG_PASSPHRASE=...`, and
+   `--env-file borg.env` all arrive empty. **Implications for Phase 2:**
+   - The plan's `-e BORG_RSH=...` and `--env-file borg.env` in
+     `docker create` won't reach borg/borgmatic. Secrets and SSH options
+     must be passed another way.
+   - Working pattern (used for Phase 1 init): mount a secret file
+     read-only into the container and read it inside `sh -c "..."`
+     (`BORG_PASSPHRASE=$(cat /path) borg ..."`); the env set inside `sh
+     -c` is preserved into its child process even though the entrypoint
+     stripped the outer env.
+   - For borgmatic itself: secrets belong in the borgmatic YAML config
+     (`encryption_passphrase:` etc.) or use borgmatic's
+     `--config-overrides` / passphrase-file pattern. Investigate at
+     Phase 2 Task 2.1 before writing the YAML.
+   - SSH options for borg go via the `--rsh` CLI flag (bypasses env) or
+     `ssh_command:` in the borgmatic YAML, **not** `BORG_RSH`.
+
+4. **Synology home dir POSIX mode broke sshd at first try.** DSM 7
+   provisions user homes with POSIX `0777` + an ACL layer doing the real
+   gating; sshd's `StrictModes yes` (default) only inspects POSIX and
+   silently refused the new key. Fix: `chmod go-w ~` on Synology as
+   `borg-unraid`. **If DSM ever resets these perms** (synouser daemon
+   periodic sync), key auth will silently break -- add a perms check to
+   any Phase 2 health probe.
+
+5. **Container `borg 1.4.4` vs Synology `borg 1.4.3`** -- same major.minor,
+   repo-format compatible. Phase 2 Task 2.2 Step 4 version-alignment
+   check effectively pre-verified.
+
 ## Maintenance (do not let this become the next abandoned plugin)
 
 - **Keep the Synology borg version-aligned with the Unraid borg** (borgmatic
@@ -112,3 +180,5 @@ borg --version` reports a 1.4.x at Phase 2.
 4. ~~Create Healthchecks check + Discord webhook (Task 0.4).~~ **DONE 2026-05-20** -- both secrets staged in `/mnt/user/appdata/borgmatic/borg.env`; Discord webhook smoke-tested (HTTP 204 + visible message in channel "Captain Hook" bot post 15:16).
 
 **Phase 0 CLOSED 2026-05-20.** Phase 1 can start.
+
+**Phase 1 CLOSED 2026-05-20.** Encrypted repo init verified, key escrowed (Google Drive), escrow-only restore proof passed against the real repo. Phase 2 can start -- begin with the corrections logged in "Plan corrections discovered during Phase 1 execution" above.
