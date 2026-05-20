@@ -1102,6 +1102,12 @@ const TeamManagementModal = (function() {
             if (_recordingsInitialized) {
                 _renderRecordingsList();
             }
+            // Mumble tab's "Auto-recording" pill reads _botRegistration.autoRecord.enabled
+            // (single source of truth, written by the Recordings-tab toggle). Without this
+            // re-render, the pill stayed stale on Disabled while the Recordings toggle
+            // wrote live, so toggling appeared to do nothing. _rerenderMumbleTab no-ops
+            // when the Mumble tab DOM isn't mounted, so it's safe to call unconditionally.
+            _rerenderMumbleTab();
         });
     }
 
