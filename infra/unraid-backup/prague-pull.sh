@@ -43,6 +43,7 @@ set -euo pipefail
 # --- resolved parameters -------------------------------------------------------
 
 SYN_SSH="borg-unraid@100.112.91.72"
+SSH_KEY="${HOME}/.ssh/borg_prague_ed25519"
 SYN_REPO="/volume1/backup/borg-appdata"
 LOCAL="/mnt/d/Backups/borg-appdata"
 LOG="${HOME}/.local/state/prague-borg-pull.log"
@@ -78,7 +79,7 @@ ts() { date '+%F %T'; }
   # Reachability gate -- a clean ssh handshake is the surest reachability proof
   # (works through Tailscale's WireGuard tunnel; no dependency on tailscale-cli
   # ping syntax which varies across releases). BatchMode=yes blocks any prompt.
-  if ! ssh -o ConnectTimeout=5 -o BatchMode=yes "${SYN_SSH}" exit 2>/dev/null; then
+  if ! ssh -i "${SSH_KEY}" -o ConnectTimeout=5 -o BatchMode=yes "${SYN_SSH}" exit 2>/dev/null; then
     echo "$(ts) synology unreachable (offline path) -- will catch up next run"
     exit 0
   fi
@@ -90,8 +91,14 @@ ts() { date '+%F %T'; }
   # --delete    prunes chunks that upstream borgmatic dropped via keep_* retention.
   # --partial   keeps half-transferred files on interruption -- resumable.
   # --info=stats1   end-of-transfer one-liner stats; quiet otherwise.
+  # --rsync-path: explicit absolute path to remote rsync. Required because
+  # DSM's /bin/sh returns "Permission denied" (not "command not found") when
+  # invoking bare `rsync` through the restrict-keyword'd authorized_keys
+  # entry, even though /usr/bin is in PATH and `which rsync` resolves.
+  # Some interaction between sshd's restrict mode and DSM's command lookup.
   rsync -a --delete --partial --info=stats1 \
-    -e "ssh -o BatchMode=yes" \
+    --rsync-path="/usr/bin/rsync" \
+    -e "ssh -i ${SSH_KEY} -o BatchMode=yes" \
     "${SYN_SSH}:${SYN_REPO}/" "${LOCAL}/"
 
   echo "$(ts) rsync done; running borg check --verify-data on local copy"
