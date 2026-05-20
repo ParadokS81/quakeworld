@@ -3014,6 +3014,16 @@ const TeamManagementModal = (function() {
             // returning-user branches below use this -- do NOT hand-build a second URL.
             const joinUrl = MumbleConfigService.getJoinUrl(_teamId, _currentUserId);
 
+            // Squad-share URL: userless https:// link that Discord auto-links (which it
+            // won't do for raw mumble:// URLs). A Cloudflare Worker at join.slipgate.me
+            // serves an HTML launch page that fires mumble://. Each clicker connects
+            // with their own saved Mumble identity, not the copier's -- this is for
+            // pasting into team chat, NOT for personal use. Shown in the returning-user
+            // branch only; the first-time URL carries a temp password and must not be
+            // shared.
+            const channelSlug = _mumbleConfig.channelPath?.split('/').pop() || '';
+            const shareUrl = channelSlug ? `https://join.slipgate.me/${channelSlug}` : null;
+
             // User join section
             let userSection = '';
             if (!userEntry) {
@@ -3060,6 +3070,22 @@ const TeamManagementModal = (function() {
                                     </button>
                                 </div>
                             </div>
+                            ${shareUrl ? `
+                                <div class="mt-3 pt-3 border-t border-border">
+                                    <p class="text-xs text-muted-foreground mb-1">Or share with squad (Discord-friendly):</p>
+                                    <div class="flex items-center gap-2">
+                                        <code class="text-xs bg-muted px-2 py-1 rounded font-mono break-all">${_escapeHtml(shareUrl)}</code>
+                                        <button class="mumble-copy-share-url text-xs text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+                                                data-url="${_escapeHtml(shareUrl)}" title="Copy share link">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <p class="text-xs text-muted-foreground mt-1">Each clicker uses their own saved Mumble identity.</p>
+                                </div>
+                            ` : ''}
                         ` : ''}
                     </div>
                 `;
@@ -3157,12 +3183,22 @@ const TeamManagementModal = (function() {
         const retryBtn = document.getElementById('mumble-retry-btn');
         retryBtn?.addEventListener('click', _handleMumbleRetry);
 
-        // Copy URL buttons
+        // Copy URL buttons -- personal mumble:// link
         document.querySelectorAll('.mumble-copy-url').forEach(btn => {
             btn.addEventListener('click', () => {
                 const url = btn.dataset.url;
                 if (url) navigator.clipboard.writeText(url).then(() => {
                     ToastService.showSuccess('Mumble URL copied!');
+                }).catch(() => {});
+            });
+        });
+        // Copy share-URL buttons -- userless https://join.slipgate.me/<slug>
+        // for pasting into Discord. Distinct toast so the user knows which copied.
+        document.querySelectorAll('.mumble-copy-share-url').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const url = btn.dataset.url;
+                if (url) navigator.clipboard.writeText(url).then(() => {
+                    ToastService.showSuccess('Share link copied -- paste in Discord');
                 }).catch(() => {});
             });
         });
