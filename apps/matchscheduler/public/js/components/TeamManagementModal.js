@@ -64,6 +64,17 @@ const TeamManagementModal = (function() {
         _renderModal();
         _attachListeners();
 
+        // Eager-init data globals so cross-tab dependencies don't depend on tab-click order.
+        // The Recordings tab's platform-dropdown gates on _mumbleConfig.status and its toggle
+        // gates on _botRegistration.status -- if either is unloaded (because the user went
+        // straight to Recordings without opening Mumble/Discord first), the dropdown silently
+        // hides. Kicking both initializers off here loads the data in parallel; tab content
+        // still renders lazily on switch via _handleTabSwitch.
+        _voiceBotInitialized = true;
+        _mumbleInitialized = true;
+        _initVoiceBotSection();
+        _initMumbleTab();
+
         // Deep link: switch to requested tab if specified
         if (tab && tab !== 'settings') {
             _handleTabSwitch(tab);
@@ -2900,6 +2911,13 @@ const TeamManagementModal = (function() {
         _mumbleUnsubscribe = MumbleConfigService.onConfigChange(_teamId, (data) => {
             _mumbleConfig = data;
             _rerenderMumbleTab();
+            // Recordings tab's platform-dropdown visibility gates on _mumbleConfig.status;
+            // re-render so it appears once Mumble config arrives (symmetric to the
+            // _rerenderMumbleTab call in the botRegistration listener -- both tabs must
+            // refresh on either source changing).
+            if (_recordingsInitialized) {
+                _renderRecordingsList();
+            }
         });
     }
 
