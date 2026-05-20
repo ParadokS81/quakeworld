@@ -11,6 +11,7 @@
 | Living map of modules, code landmarks, integration points | `OVERVIEW.md` |
 | Local dev setup, commands, env vars, gotchas | `DEVELOPMENT.md` |
 | Production deployment (SSH, Docker, qwvoice-ctl) | `DEPLOYMENT.md` |
+| `join.slipgate.me` Discord-share URL Worker (source + dashboard deploy steps) | `cloudflare-worker/README.md` |
 | Firestore collections, session_metadata contract, Storage | `SCHEMA.md` |
 | External API boundaries (Discord, Hub, Firebase, Mumble, Claude) | `API_CONTRACTS.md` |
 | Implementation roadmap (phases, status) | `PLAN.md` |
