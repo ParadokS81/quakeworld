@@ -1,8 +1,8 @@
 # ezQuake runtime-dead entities (code-bug report -> nano/slime)
 
-**Status:** Verified, ready to route upstream. 2026-05-19.
+**Status:** Verified, ready to route upstream. 2026-05-20.
 **Channel:** upstream code-bug. NOT a help-JSON doc deliverable, NOT a `help_json_classifications.yaml` entry. These entities are documented/declared but do nothing at runtime; the fix is code-side (re-wire or delete), a maintainer call per item.
-**Routing:** ezQuake-native -> nano (head dev) / slime. None are MVDSV-provenance: the `server_*` cmdline params below are defined in ezQuake's own `src/cmdline_params_ids.h` with zero consumers anywhere in the ezQuake tree, so they are ezQuake-side cleanup, not `sv_*`-to-MVDSV.
+**Routing:** ezQuake-native -> nano (head dev) / slime. All entities below live in the ezQuake tree (cvars in `EX_browser_qtvlist.c` / `r_rmain.c`; client_* cmdline params in `src/cmdline_params_ids.h`); not MVDSV-provenance.
 
 ## How these were found (so the evidence is trustable)
 
@@ -24,20 +24,14 @@ Source HEAD `3f9e724f` (#1120 merge). Operator ran a build compiled from that ex
 
 ## Class 3 -- orphaned cmdline params (declared in the X-macro table, never consumed)
 
-ezQuake's modern cmdline system: `src/cmdline_params_ids.h` lists `CMDLINE_DEF(<sym>, "<-flag>")`, generating an enum consumed via `COM_CheckParm(cmdline_param_<sym>)`. A small legacy path uses literal `COM_CheckParm("-flag")`. Each param below has **zero enum-consumers AND zero legacy-literal consumers** across all `.c` files -- declared and documented, but reading nothing.
+ezQuake's modern cmdline system: `src/cmdline_params_ids.h` lists `CMDLINE_DEF(<sym>, "<-flag>")`, generating an enum consumed via `COM_CheckParm(cmdline_param_<sym>)`. A small legacy path uses literal `COM_CheckParm("-flag")`. Each param below has **zero enum-consumers AND zero legacy-literal consumers** across both `.c` and `.h` files (including `.h` macro wrappers that fan out into `.c` call sites) -- declared and documented, but reading nothing.
 
 | flag | enum symbol | `cmdline_params_ids.h` | note |
 |---|---|---|---|
-| `-cheats` | `server_enablecheats` | L72 | ezQuake-native (defined here, consumed nowhere) |
-| `-enablelocalcommand` | `server_enablelocalcommand` | L73 | ezQuake-native |
-| `-progtype` | `server_progtype` | L71 | ezQuake-native |
 | `-noinvlmaps` | `client_noinverselightmaps` | L10 | |
 | `-nolibjpeg` | `client_nolibjpeg` | L42 | likely orphaned when JPEG handling changed |
 | `-nolibpng` | `client_nolibpng` | L41 | sibling of `-nolibjpeg` |
-| `-r-debug` | `client_video_r_debug` | L36 | sibling `-r-trace` has live consumers; debug variant never wired |
 | `-showliberrors` | `client_showlibraryerrors` | L16 | |
-
-Bonus tidy-up (not a ghost, no user impact): `server_democache_kb` is an orphaned enum constant -- the dead half of a string collision where `-democache` is correctly served by `client_democache` (`src/cl_demo.c:5453`). Safe to delete the unused enum alongside the above.
 
 - Disposition: delete the dead `CMDLINE_DEF` lines, or wire a `COM_CheckParm(cmdline_param_<sym>)` consumer if the flag was meant to do something.
 Class 3 is the cmdline-consumer-presence feeder (cmdline-liveness), a SEPARATE concern from the call-graph mechanism -- carried from the prior verified artifact, not call-graph-derived; see decisions.md non-goals / the cmdline-liveness parked sibling.

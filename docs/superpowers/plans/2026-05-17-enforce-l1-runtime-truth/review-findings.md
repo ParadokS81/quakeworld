@@ -828,6 +828,268 @@ introduced + the level-3 safety bound at the Phase-4 RE-VERIFY gate
 MD-correction APPLIED; routed to HANDOVER as a scoped Phase-3-loader
 follow-up; this finding.
 
+### F18 -- Phase-5 check-2 literal "command reverse 129" is a stale pre-Phase-2/3-execution snapshot; post-Track-B-ship it is necessarily 0 (the 129 are now first-class) -- F13-CLASS (legitimate D21-ship consequence; do NOT weaken the gate / recalibrate the banked predicate)
+
+**Correction:** The Phase-5 MD phase-boundary check 2 PASS condition (and
+the Recon-facts re-run line) literally expect `command reverse 129`. That
+figure was measured at DRAFTING time (2026-05-17, when Phases 1-4 were
+APPROVED PLANS, not executed -- the 129 recovered HUD commands were not yet
+in L1). Phase-2 (`3c136826`) + Phase-3 (`895817bb`) then shipped exactly
+those 129 formerly-hidden `HUD_Register` commands as first-class
+`type='command'` L1 entities (D21 / North-Star direction 2 -- "L1 no longer
+HIDES working commands"). Post-ship, the banked `front1-diff.sh` L1-command
+query returns all 631 ezQuake head commands INCLUDING the 129, so
+`comm -13` (runtime cmdlist MINUS L1) = 0. Primary-source-verified at
+Phase-5 execution (executor, 2026-05-19; pin BOTH legs `3f9e724f`; `/mnt/c`
+dump `cmp`-clean vs the in-repo banked dump): L1 head commands = 631;
+`track_b_hud_recovery` carriers = 129, ALL `type='command'`; 129/129 of
+them present in the runtime cmdlist (recovered BECAUSE live); track_b INT
+the 74 Track-A command CANDIDATES = 0 (pools perfectly disjoint); and the
+DECISIVE control -- the reverse-diff with the 129 track_b carriers EXCLUDED
+from L1 = EXACTLY 129. The load-bearing legs are GREEN and EXACT: cvar
+CANDIDATES 92, command CANDIDATES 74, cvar reverse 4, SANITY GATE both legs
+`[PASS]` (sb_qtvlist_url in the candidate pool; no known-live cvar leaked).
+Same `feedback_parking_verified_state_is_hypothesis` / F2 / F13 family: a
+phase-MD literal whose expected value was a point-in-time PRE-execution
+snapshot, now stale because the arc shipped EXACTLY its specified
+deliverable.
+
+**Distinct from F15 (do NOT conflate):** F15 was a genuine
+non-idempotency DEFECT ("F13-inverse" -- do NOT recalibrate, recalibrating
+bakes in the bug). F18 is the OPPOSITE: a legitimate D21-ship consequence,
+the genuine F13 family (the spec / D20 / D21 / North-Star were always
+correct; ONLY the check literal is a stale pre-execution snapshot). The
+substantive gate -- the 92/74 pool the delete-list artifact states + the
+version-pin SANITY GATE both legs + pin both legs `3f9e724f` -- is GREEN;
+only the SECONDARY Track-B-gap diagnostic ("reverse") moved, by design,
+to 0.
+
+**Impact on this arc:** ZERO on Phase-5 deliverables. The autonomous
+delete-list (Track-A, level-3 dump-confirmed genuine-dead) depends on the
+92/74 pool + the level-3 `route_by_level` filter (both EXACT / verified --
+2 level-3 entries `sb_qtvlist_url` callgraph + `gl_outline_scale_world`
+commented-register), NOT on the reverse count. `command reverse` 129 -> 0
+is in fact CORROBORATING evidence that Phase-5 Output 3 / D21 (Track-B
+recovered commands as first-class entities) shipped CORRECTLY -- the 129
+are first-class, hence no longer in the runtime-minus-L1 reverse-diff. NOT
+a Phase-5 blocker; the F13 precedent shipped Phase 3 (DONE_WITH_CONCERNS)
+with exactly this class of finding surfaced for orchestrator routing.
+
+**Action / proposed disposition (orchestrator/operator-routed -- NOT
+executor scope; the F13/F12/F14 narrative-preserved precedent; the
+executor does NOT unilaterally rewrite the locked phase-MD contract and
+does NOT weaken/patch the banked-immutable `front1-diff.sh` -- R6):**
+reconcile the Phase-5 MD check 2 (+ the Recon-facts "129") via an
+orchestrator-applied dated MD-correction -- post-Track-B-ship the expected
+`command reverse` is 0 (the 129 are now first-class; the substantive gate
+remains cvar CANDIDATES 92 / command CANDIDATES 74 / SANITY GATE both legs
+`[PASS]` / pin both legs `3f9e724f`). The banked `front1-diff.sh` stays
+byte-immutable (R6); the predicate is NOT weakened. No `decisions.md`
+D-amendment (D20/D21/X7/North-Star always correct; this is a stale
+calibrated snapshot -- the F13 family, not a refuted premise). Executor
+recommendation: reconcile-check-2 (the values are primary-source-exact and
+the reverse=0 is the literal North-Star direction-2 success; leaving a
+knowingly-FAIL-by-stale-literal gate is the
+`feedback_every_finding_gets_a_track` anti-pattern) -- the orchestrator
+owns the locked-phase-MD-contract edit + the operator ratifies (the
+operator-not-technical-gate model).
+
+**Resolved by:** OPEN (surfaced at Phase-5 execution 2026-05-19;
+primary-source-verified by the executor: pin both legs `3f9e724f`, `/mnt/c`
+vs in-repo dump cmp-clean, L1=631 / track_b=129-all-command / 129-in-cmdlist
+/ disjoint-from-74 / reverse-with-track_b-excluded=129); routed in the
+structured Phase-5 HALT for an orchestrator dated-MD-correction + operator
+ratification; F13/F12/F14 narrative-preserved precedent); this finding.
+
+### F19 -- `gl_program_sky`-class is CORRECTLY build-excluded (verified wired: registered + read in classic-GL, default-ON build); the operator's "absent-from-my-build = dead" heuristic is the exact D3 false-positive. Residual: the arc detects "never-registered" but NOT "registered-but-never-read" functional-deadness (a different, future detection)
+
+> **CORRECTION (2026-05-19): this finding's first framing was REFUTED by
+> primary source and is corrected in place (narrative-preserved -- the
+> verify-don't-explain-away / `feedback_audit_predictions_not_contracts`
+> discipline applied to my own finding).** It was originally written as
+> "the 4-variant model OMITS the renderer-option dimension -> classic-GL
+> cvars MIS-tagged reachable; the D5/F9 precision bound materialized."
+> Live verification refuted the premise: `clang_config.py:58-59` defines
+> BOTH `-DRENDERER_OPTION_CLASSIC_OPENGL` AND
+> `-DRENDERER_OPTION_MODERN_OPENGL`, and `CMakeLists.txt:11`
+> `option(RENDERER_CLASSIC_OPENGL "Enable classic OpenGL renderer" ON)`
+> -- classic-GL is DEFAULT-ON in the real build. The extractor therefore
+> correctly models the default ezQuake build; "reachable all 4" for
+> `gl_program_sky` is ACCURATE, not a model gap. The corrected finding
+> is below.
+
+**Observation (operator-surfaced + executor primary-source-verified
+2026-05-19).** The operator challenged `gl_program_sky` (registered,
+`source_backed` in L1, ABSENT from the pinned-build runtime cvarlist, in
+the 92-cvar candidate pool) as "dead". Primary-source verification of
+the WIRING (the thing I had asserted-not-proven earlier, then verified
+when pressed): `gl_program_sky` is **declared** `glc_main.c:30`,
+**registered** via `gl_program_cvars[]` `glc_main.c:36-44` (the
+classic-GL programs-init array), and **read/consumed** at
+`glc_sky.c:206` AND `:368` -- `if (gl_program_sky.integer &&
+GL_Supported(R_SUPPORT_RENDERING_SHADERS) && GLC_SkyProgramCompile())`,
+gating the classic-GL shader sky path. `CMakeLists.txt:11` makes the
+classic renderer DEFAULT-ON; the extractor defines both renderer macros
+(`clang_config.py:58-59`). So `gl_program_sky` is LIVE, FUNCTIONAL code
+in any default build; it is absent from the pinned runtime ONLY because
+that specific build was modern-GL-only (a non-default build choice).
+The Track-A signal `per_variant all-4 reachable / build-excluded /
+level-2` is **CORRECT and D3-correct**: it is genuinely
+build-conditional, NOT dead; auto-flagging it "delete" would be a false
+accusation that breaks classic-GL sky rendering -- the EXACT
+asymmetric-cost trap D3/D5 exist to prevent. Contrast the shipped 2,
+which ARE the operator's category (declared in L1, NO wiring in ANY
+build): `sb_qtvlist_url` registrar `QTVList_Init()` zero-callers-all-4;
+`gl_outline_scale_world` register line commented out. The operator's
+"I can't reach it in my ezQuake -> dead" heuristic cannot separate
+"dead everywhere" from "absent from my build but wired elsewhere" --
+which is precisely why the arc built a call-graph instead of grepping a
+cvarlist. The arc made that distinction correctly.
+
+**The genuine residual the challenge exposed (NOT a defect of this
+arc):** Track-A detects **registrar-unreachable / never-registered**
+(the ghost class -- the 2). It does NOT detect **registered + present
+in cvarlist + value never read by any consumer** (functionally inert
+despite present) -- a DIFFERENT signal (consumer/read-site liveness,
+not registrar reachability) the North Star + D1 never scoped and this
+arc never built/claimed. `gl_program_sky` is not even that (it IS
+read); but the operator's broader goal ("find cvars L1 implies are
+functional that are not") legitimately includes the
+registered-but-never-read class, which is a candidate FUTURE detection.
+
+**Impact on this arc:** ZERO. The shipped 2 are dead-in-every-variant
+(correct, safe); D3/D5 conservatism HELD and was VINDICATED by the
+`gl_program_sky` case (it correctly refused a false accusation);
+`F1.callgraph_signal_pool_coverage` PASS. No new defect, no Phase-5
+blocker, NO `decisions.md` D-amendment (D3/D5/D1/North-Star already
+govern; the arc behaved exactly as specified and correctly).
+
+**Action / proposed disposition (operator/orchestrator-routed):**
+(a) ACCEPT: the arc classified the `gl_program_sky`-class correctly
+(build-conditional, real, NOT dead); the autonomous-2 is the safe,
+correct deliverable; the ~90 build-excluded residue is correctly
+level-2 (real-but-build-conditional, NOT a delete target).
+(b) Operator-requested REVIEW SURFACE (option A, in flight): a
+read-only triage of the full 92/74 pool with per-entity
+declared/registered/READ-SITE/build-condition evidence, so the operator
+verifies the arc's split themselves (not on my word) and can spot any
+genuinely-dead the conservative call-graph under-reported. It will most
+likely CONFIRM the split (most are real-but-build-conditional like
+`gl_program_sky`; the 2 are the genuine ghosts).
+(c) FUTURE (separate arc, not this one -- X7/D2): a
+registered-but-never-read consumer-liveness detector, if the operator's
+product goal targets functionally-inert-but-present cvars.
+
+**Resolved by:** OPEN (operator-surfaced; first framing
+primary-source-REFUTED + corrected in place 2026-05-19 --
+`clang_config.py:58-59` both renderer macros, `CMakeLists.txt:11`
+classic-GL default-ON, `gl_program_sky` read `glc_sky.c:206/:368`;
+the arc's `build-excluded` classification VERIFIED correct; routed in
+the Phase-5 dialogue for operator direction -- accept / triage-surface
+/ future read-site detector); this finding.
+
+### F20 -- Class 3 cmdline-consumer-presence feeder was .c-only-scoped; missed .h macro wrappers fanning into .c call sites; 5 of 11 shipped Track-A entries were FALSE POSITIVES (live, not dead). Real product defect contained to the delete-list generator; .md regenerated to 6; routed to the parked cmdline-liveness sibling arc for the proper feeder fix
+
+**Observation (operator-surfaced + orchestrator primary-source-verified
+2026-05-20).** The Phase-5 ship (`41965fe2`) of
+`apps/qw-oracle/docs/upstream-prs/ezquake-runtime-dead-entities.md`
+claimed 11 dead entities: 2 cvars (Class 1 callgraph + Class 2
+commented-register) + 8 Class 3 cmdline_params + 1 bonus enum constant.
+At PR-prep, primary-source verification found 5 of the 11 are LIVE,
+consumed via `.h` macro wrappers fanning into `.c` call sites:
+
+| Entity | Wrapper macro | Consumer site(s) |
+|---|---|---|
+| `-cheats` (`server_enablecheats`) | `SV_CommandLineEnableCheats()` @ `server.h:1098` | `sv_ccmds.c:1821` |
+| `-enablelocalcommand` (`server_enablelocalcommand`) | `SV_CommandLineEnableLocalCommand()` @ `server.h:1099` | `sv_ccmds.c:1861` |
+| `-progtype` (`server_progtype`) | `SV_CommandLineProgTypeArgument()` @ `server.h:1101` | `pr2_exec.c:56` |
+| `-r-debug` (`client_video_r_debug`) | `R_DebugProfileContext()` @ `r_local.h:81` + GL wrapper macros @ `gl_local.h:286-379` | 200+ `.c` call sites via the OpenGL wrapper system |
+| `server_democache_kb` (bonus enum) | `SV_CommandLineDemoCacheArgument()` @ `server.h:1100` | `sv_demo.c:1848` |
+
+Orchestrator re-grepped each entity 2026-05-20: the wrapper macros +
+consumer sites verified at pin `3f9e724f`. The 6 actually-dead are
+the 2 cvars (`sb_qtvlist_url` callgraph-unreachable in all 4 variants;
+`gl_outline_scale_world` registration line commented out) + 4
+cmdline_params (`-noinvlmaps`, `-nolibjpeg`, `-nolibpng`,
+`-showliberrors` -- each verified zero-consumer in both `.c` AND `.h`
+under `src/`).
+
+**Root cause.** The Class 3 cmdline-consumer-presence feeder (the
+prior hand-authored, `.c`-only-scoped feeder carried verbatim per D7
+/ OQ-1 -- Class 3 is a SEPARATE non-call-graph feeder) restricted
+its grep to `.c` files only, missing the `.h` macro wrapper layer.
+The libclang call-graph this arc built (Track A, Class 1 + Class 2)
+post-preprocesses and would have caught these false positives if
+Class 3 had run through it; the bug is exclusively in the prior
+hand-authored Class 3 artifact, NOT in this arc's new mechanism.
+
+**Severity classification.** F-class confirmed correction; the
+shipped `.md` overclaimed by 5 of 11. Distinct from F18 (legitimate
+D21-ship consequence, no defect): F20 is a genuine PRODUCT-side
+defect -- 5 cmdline_params in L1 are flagged `dump-confirmed dead`
+when reality is `live`. Distinct from F15 (Phase-3-loader idempotency):
+F20 is UPSTREAM of the loader (the feeder bug); the loader faithfully
+loaded what the feeder produced. Distinct from F19 (correctly
+build-excluded, NOT a defect): F20 is genuine mislabeling.
+
+**Containment.** The level-3 `dump-confirmed dead` signal feeds ONE
+consumer: the delete-list generator
+(`apps/qw-oracle/scripts/build-runtime-dead-entities.py`). It is NOT
+surfaced via MCP tool responses to users. The contained product
+defect: regenerating the .md from a buggy feeder produces 5 false
+claims to nano/slime. Mitigated 2026-05-20 by editing
+`_runtime_dead_entities.py:_CLASS3_BLOCK` to the 4 verified-dead rows
++ `.c`+`.h` methodology accuracy + dropped the bonus tidy-up paragraph
++ updated `_ROUTING` prose; the script regen now produces the correct
+6-entity `.md`.
+
+**Disposition (orchestrator + operator-routed).** The proper fix
+lives in the parked cmdline-liveness sibling arc (`decisions.md`
+non-goals: "`Cmd_AddLegacyCommand` `legacy_alias_of` persistence;
+trailing-comment harvester precision -- metadata-fidelity siblings in
+the feeder doc; future separate L1-extractor arc"). That arc should
+mechanize the cmdline-consumer-presence feeder with proper `.c` +
+`.h` scope, AT WHICH POINT the 5 mislabeled cmdline_params in L1
+reclassify automatically and the `_CLASS3_BLOCK` editorial template
+can retire in favor of feeder-derived rows. This terminal does NOT
+fix the feeder; it routes the finding + corrects the visible artifact.
+
+**Action taken in this terminal (2026-05-20).** (a)
+`_runtime_dead_entities.py:_CLASS3_BLOCK` trimmed to 4 truly-dead
+rows + methodology accuracy edit (`.c`-only -> `.c` and `.h`) +
+bonus tidy-up dropped; (b) `_ROUTING` prose updated to drop the
+`server_*`-specific framing (all 4 surviving cmdline rows are
+`client_*`); (c) `build-runtime-dead-entities.py` REGEN_DATE bumped
+to 2026-05-20; (d) the .md regenerated mechanically via the script
+(Class 1 = 1, Class 2 = 1, Class 3 = 4 -> 6 total); (e) the comment
+above `_CLASS3_BLOCK` updated to note the F20 correction.
+The upstream PR to nano/slime ships 6 entities; the side-findings
+methodology is NOT in the PR body (operator-framed: devs don't care
+about audit methodology, just the prune list).
+
+**Impact on Phase 5 / D20 / D21 / X7.** ZERO on Phase-5 shipped
+deliverables. D20 Output 1 (always-on L1 signal over the 92/74 pool)
+is data-driven from Track-A call-graph and untouched by F20. D20
+Output 2 (the .md) is the routine idempotent re-run on a CORRECTED
+`_CLASS3_BLOCK` constant; the script invariants (X9 ZERO DB writes /
+D1 no-blend / X2 `route_by_level` import) hold. D21 Track-B 129
+first-class HUD commands untouched. No `decisions.md` D-amendment
+(D7 / OQ-1 carry-verbatim was correct in principle; the prior verified
+artifact itself overclaimed -- a defect in the carried content, not
+the carry rule; D5 / D3 / D20 untouched). The arc's call-graph
+mechanism remains the trustworthy signal -- if anything, F20
+reinforces D3 conservatism (a buggy non-call-graph feeder produced
+exactly the false-positive class D3 conservatism avoids for the
+call-graph signal).
+
+**Resolved by:** OPEN (surfaced 2026-05-20 at PR-prep by the
+orchestrator; primary-source-verified by re-grepping each wrapper
+macro + consumer; the visible artifact corrected via mechanical
+regen with the corrected template; the L1 data defect for the 5
+mislabeled cmdline_params persists until the cmdline-liveness
+sibling arc mechanizes the feeder with proper `.c` + `.h` scope;
+F20 is the trigger for that arc when the operator picks it up).
+
 ---
 
 ## R -- implementation residuals (brainstorm-deferred; owning phase resolves)
@@ -971,6 +1233,9 @@ mechanism; **S** = unified schema + loader; **ACC** = acceptance contract;
 | F15 (Phase-4's mandated `extract-tag --force` re-load surfaces a PRE-EXISTING Phase-3-loader source_state idempotency divergence -- 12 Track-B bare-HUD cmds flip source_backed->doc_only; the Phase-5 blocker) | S (pre-existing, own) -> orchestrator+operator (route as Phase-3-loader-idempotency fix-cycle; do NOT recalibrate -- F13-inverse) | FIX SHIPPED 2026-05-18 (`59d34786`, one file `load-hud-commands.ts` +28/-1) + ORCHESTRATOR-RE-GATED GREEN -- 3-way independent (scope/X9-clean; all-project F1 -- ezquake 0-regress + F13-floor-GREEN-not-recalibrated, ktx 2 FAILs proven PRE-EXISTING sibling `log_template` drift, mvdsv/fte/qwcl clean; 3x real `extract-tag --force` re-loads BYTE-IDENTICAL 624/7/62, no period-2 oscillation, ktx untouched); **Phase-4 RE-VERIFY orchestrator-independently-re-gated GREEN 2026-05-18 (s6) -> F15 FULLY RESOLVED, Phase 4 SHIPPED, Phase 5 UNBLOCKED** (own F1 grid: 624/7/62 NOT recalibrated, doc_only 57, cross_type_orphans 0, cmd 693; idempotency held under the RE-VERIFY's ~10 re-loads + FINAL seal); orphan-warning noise routed F16 (benign), the check-4/7 fail-safe-completeness gap routed F17 (pre-existing, NOT-F15, NON-Phase-5-blocking). The path: orchestrator independently primary-source-verified NOT-Task-4-caused (natural-keys.ts `upsertEntity` sets source_state only on INSERT, never on re-load UPDATE; NOT in the Phase-4 diff; `load-hud-commands.ts` source_state write byte-unchanged; the 12 names are simultaneously per-type-command-loader + Track-B-adapter targets on the same row -> clean-vs-reload order-dependent) + NOT a stale calibration (F13-inverse: a genuine "L1 extractors are idempotent" always-on-rule violation; do NOT recalibrate 612/19 -- that bakes in the defect; `feedback_idempotency_before_staleness`). Operator-routed to the checkpoint path: Phase-4 code committed as a checkpoint + F15 the explicit Phase-5 blocker + Verification-8 scoped to exclude the 3 F15-family FAILs (dated Phase-4-MD scoping note) + F15 routes as its own Phase-3-loader-idempotency fix-cycle (X9 re-extract not SQL UPDATE) -> Phase-4 re-verify on a clean idempotent DB -> THEN Phase 5. No D-amendment (X8/F8/F13 family). s4->s5 handoff scopes it. |
 | F16 (F15-fix re-gate's `extract-tag` re-loads emit ~117/run benign `[load-version] fully-orphaned entity` command warnings -- transient intra-run 3e-after-step-3 artifact) | S (log-hygiene, own) -> orchestrator (route HANDOVER) | OPEN (ADVISORY, non-blocking) -- orchestrator-adjudicated benign at the F15 re-gate 2026-05-18 (final-state real orphans=0; `F1.entity_has_version_rows`+`F1.cross_type_orphans` PASS; NOT F15-caused -- emitted by untouched `load-version.ts`); routed HANDOVER log-hygiene small-followup; no D-amendment |
 | F17 (Phase-4 checks 4/7 literal `count==0` not met -- PRE-EXISTING Phase-3-loader fail-safe-completeness gap: toggle-off/RED keeps the level-2 Track-A column on an already-GREEN DB via stale-artifact + `existsSync` 3e/3f + `natural-keys.ts:234` COALESCE) | S (pre-existing, own) -> orchestrator+operator (ship Phase 4 + track NON-blocking; check-4/7 substantive dated MD-correction) | OPEN (tracked, NON-blocking) -- orchestrator primary-source-verified the mechanism + NOT-F15/NOT-RE-VERIFY-introduced (3 root-cause files byte-unchanged since `702421a1`) + the autonomous level-3 tier provably protected (0 dump-confirmed on RED AND broken-pin); operator-ratified ship-Phase-4 + track-F17; check-4/7 dated MD-correction APPLIED (substantive assertion: no new signal + LOUD + validation RED + 0 level-3 + 8-stem byte-identity); F17 routes as its own scoped Phase-3-loader fail-safe follow-up (X9 re-extract; all-project F1 gate; NEVER folded -- the F16 precedent, heavier); NON-Phase-5-blocking; no D-amendment |
+| F18 (Phase-5 check-2 literal "command reverse 129" is a stale pre-Phase-2/3-execution snapshot; post-Track-B-ship it is necessarily 0 -- the 129 recovered HUD cmds are now first-class; F13-CLASS legitimate D21-ship consequence) | APP (surfaced) -> orchestrator+operator (dated MD-correction reconciling check-2 expected reverse 129->0; do NOT weaken the gate / recalibrate banked front1-diff.sh) | OPEN (surfaced + primary-source-verified at Phase-5 exec 2026-05-19: pin both legs 3f9e724f, /mnt/c==in-repo dump cmp-clean, L1=631 / track_b=129-all-command / 129-in-cmdlist / track_b-INT-74-CANDIDATES=0 / reverse-with-track_b-excluded=129; load-bearing 92/74+SANITY-GATE-both-legs GREEN; ZERO Phase-5-deliverable impact -- corroborates D21 Output-3; routed in the Phase-5 HALT; F13/F12/F14 precedent; no D-amendment) |
+| F19 (gl_program_sky-class CORRECTLY build-excluded -- verified WIRED: registered glc_main.c:36-44 + read glc_sky.c:206/:368, classic-GL default-ON CMakeLists.txt:11, extractor defines both renderer macros clang_config.py:58-59; operator's absent-from-my-build=dead is the exact D3 false-positive; first framing "model omits renderer dim" primary-source-REFUTED + corrected in place. Residual: arc detects never-registered NOT registered-but-never-read functional-deadness -- a different future detection) | APP (surfaced) -> operator/orchestrator (ACCEPT arc correct / operator triage-surface option A / future read-site-liveness arc; do NOT widen the autonomous list -- D3/D5) | OPEN (operator-surfaced; first framing primary-source-REFUTED + corrected 2026-05-19 -- extractor models default build correctly, gl_program_sky is live functional classic-GL code, build-excluded VERIFIED correct, D3 conservatism vindicated; shipped 2 dead-in-every-variant; ZERO Phase-5 impact, NOT a defect, NOT a blocker; routed for operator direction; no D-amendment) |
+| F20 (Class 3 cmdline-consumer-presence feeder was .c-only-scoped; missed .h macro wrappers fanning into .c call sites; 5 of 11 shipped Track-A entries -- 4 cmdline_params + 1 bonus enum constant -- are LIVE, not dead; the libclang call-graph mechanism this arc built would have caught these had Class 3 run through it; bug is in the prior hand-authored Class 3 artifact carried per D7/OQ-1, NOT this arc's mechanism) | APP (surfaced post-Phase-5 at PR-prep) -> orchestrator+operator (.md regenerated to 6 via corrected `_CLASS3_BLOCK` template; route to the parked cmdline-liveness sibling arc for the proper feeder fix; L1 data defect contained to the delete-list generator, not surfaced via MCP) | OPEN (surfaced 2026-05-20; primary-source-verified each of the 5 wrapper macros + consumer sites at pin `3f9e724f`; visible artifact corrected this terminal via `_CLASS3_BLOCK` edit + script regen -> 6 entities in `.md`; L1 mislabeling of the 5 cmdline_params persists until the cmdline-liveness sibling arc mechanizes the feeder with proper .c+.h scope; ZERO impact on Phase-5 deliverables -- D20 Output 1 / D21 Track-B untouched, only Output 2 regen affected; no D-amendment -- D7/OQ-1 carry-verbatim correct in principle, the prior artifact itself overclaimed) |
 | R1 (AST-confirm literal) | B | AST probe before literal-only is load-bearing |
 | R2 (D15/D12 field shape) | S | two separate fields; feeder tag structural |
 | R3 (D16 element key) | B (emit) + S (store) | element-grouped provenance |

@@ -37,7 +37,7 @@ from extractor_lib._runtime_dead_entities import render_dead_entities
 POOL_FIGURE = "92 cvars / 74 commands"
 
 # Regen date: the date this generator was last run for the artifact.
-REGEN_DATE = "2026-05-19"
+REGEN_DATE = "2026-05-20"
 
 # The read-only psql transport (mirrors front1-diff.sh consistency).
 # -tA: tuples-only, unaligned. Pipe separator '|' is the default -tA field
