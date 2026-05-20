@@ -1,0 +1,108 @@
+# Unraid -> Synology borgmatic config
+#
+# Reads:  infra/unraid-backup/README.md for resolved parameters, Phase 1
+#         corrections, and on-box secret layout.
+# On-box: /mnt/user/appdata/borgmatic/config/borgmatic.yaml (copy of this file)
+#         /mnt/user/appdata/borgmatic/ssh/ (borg_syn_ed25519 + known_hosts)
+#         /mnt/user/appdata/borgmatic/secrets/<name> (one file per secret, mode 600)
+#
+# Secrets are read via the "{credential container <name>}" syntax, which
+# borgmatic resolves from /run/secrets/<name> inside the container. The
+# borgmatic image's s6-overlay env handling strips docker `-e` and
+# `--env-file` vars before the user command sees them; the credential
+# syntax sidesteps that entirely.
+#
+# Repo URL uses the absolute-path double-slash form (single `/` between
+# host and absolute path). The plan's `/./` template gives a relative-
+# to-home URL that the `--restrict-to-path` forced command on Synology
+# correctly rejects.
+
+source_directories:
+    - /mnt/src/appdata
+
+repositories:
+    - path: ssh://borg-unraid@100.112.91.72/volume1/backup/borg-appdata
+      label: synology
+
+# ssh_command replaces the plan's `-e BORG_RSH=...` (env-stripped).
+# BatchMode=yes prevents fallback to password prompts that fail silently
+# under borg's spawn-no-tty flow.
+ssh_command: ssh -i /root/.ssh/borg_syn_ed25519 -o BatchMode=yes -o StrictHostKeyChecking=accept-new
+
+encryption_passphrase: "{credential container borg_passphrase}"
+
+exclude_patterns:
+    # Plex transient state -- not backup-worthy, large turnover
+    - /mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Cache
+    - /mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Logs
+    - /mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Codecs
+    - /mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Crash Reports
+    - /mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Updates
+    - /mnt/src/appdata/plex/Library/Application Support/Plex Media Server/Diagnostics
+    # DB datadirs excluded -- captured below as logical dumps (a hot file copy is torn)
+    - /mnt/src/appdata/qwiki-beta/mariadb-data
+    - /mnt/src/appdata/qw-oracle-postgres
+
+# Retention dials per locked-in spec (README "Locked dials" section)
+keep_daily: 7
+keep_weekly: 4
+keep_monthly: 6
+
+checks:
+    - name: repository
+      frequency: 1 week
+    - name: archives
+      frequency: 1 week
+
+# qwiki MariaDB -- logical dump via docker exec.
+# password_transport: environment sets MYSQL_PWD in borgmatic's process so the
+# `docker exec --env MYSQL_PWD` forwards it to the mariadb-dump in the other
+# container (the only viable transport across container boundaries).
+mariadb_databases:
+    - name: all
+      hostname: 127.0.0.1
+      username: root
+      password: "{credential container qwiki_mariadb_root_pw}"
+      password_transport: environment
+      mariadb_dump_command: docker exec --env MYSQL_PWD qwiki-mariadb mariadb-dump
+      mariadb_command: docker exec --env MYSQL_PWD qwiki-mariadb mariadb
+
+# qw-oracle Postgres -- pg_dumpall captures all DBs + roles in one shot.
+# PGPASSWORD env var forwarding is postgres's native pattern.
+postgresql_databases:
+    - name: all
+      hostname: 127.0.0.1
+      username: qworacle
+      password: "{credential container qw_oracle_pg_pw}"
+      pg_dump_command: docker exec --env PGPASSWORD qw-oracle-postgres pg_dumpall
+      psql_command: docker exec --env PGPASSWORD qw-oracle-postgres psql
+
+# SQLite DBs -- borgmatic quiesces each via the sqlite hook (no torn copies).
+# Resolved list from Phase 0 Task 0.5 (README "SQLite databases" section).
+# Note: bazarr is nested under db/ (not at appdata root like the other *arr apps).
+# Note: quad is NOT flat-files-only -- Mumble keeps users/channels/ACLs in sqlite.
+sqlite_databases:
+    - name: sonarr
+      path: /mnt/src/appdata/sonarr/sonarr.db
+    - name: radarr
+      path: /mnt/src/appdata/radarr/radarr.db
+    - name: prowlarr
+      path: /mnt/src/appdata/prowlarr/prowlarr.db
+    - name: bazarr
+      path: /mnt/src/appdata/bazarr/db/bazarr.db
+    - name: sonarr-anime
+      path: /mnt/src/appdata/sonarr-anime/sonarr.db
+    - name: mumble
+      path: /mnt/src/appdata/quad/mumble-data/mumble-server.sqlite
+
+# Healthchecks dead-man's-switch ping (off-Unraid by design).
+healthchecks:
+    ping_url: "{credential container hc_ping_url}"
+
+# Apprise -> Discord on failure only (success state is Healthchecks' job).
+apprise:
+    services:
+        - url: "{credential container apprise_discord}"
+          label: discord
+    states:
+        - fail
