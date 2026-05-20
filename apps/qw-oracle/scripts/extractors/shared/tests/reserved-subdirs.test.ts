@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { deriveReservedSubdirs } from "../scripts/derive-reserved-subdirs.js";
+import { deriveReservedSubdirs } from "../derive-reserved-subdirs.ts";
 
 const fixtureSites = [
   { canonical_id: "ezquake:loader_site:a_1", path_source: "computed", path_literal: "textures/charsets/%s", path_template: "textures/charsets/%s" },

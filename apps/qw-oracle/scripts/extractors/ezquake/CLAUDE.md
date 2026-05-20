@@ -10,8 +10,8 @@ ezQuake handlers (libclang). Reference pattern for forks -- unezQuake will subcl
 
 ## Always-on rules
 
-- **Conditional macros (27)** pre-defined in `extract.py` to drive libclang's preprocessor.
-- **Dual client/server parse** -- each entity is the union of two TU parses.
+- **Conditional macros** pre-defined in `extractor_lib/clang_config.py` to drive libclang's preprocessor: `clang_args_for` defines 37 base feature `-D`s for the client variant; per-variant functions add `SERVERONLY`/`SERVER_ONLY` (server), `_WIN32`/`WIN32` + `-U__linux__` (Win), `__APPLE__` + `-U__linux__` (Apple).
+- **4-variant union parse** -- each entity is the union of four TU parses (client / server / Win / Apple).
 - **`_legacy/` retired-handler archive** -- under `_*/` exclusion; not a live handler dir.
 - **`diagnostics/`** holds debug log emissions and a 2026-04-18 AST-vs-regex extraction-spike report (historical decision record). Folder is excluded from orphan detection via the app `## Excluded paths` declaration in `apps/qw-oracle/CLAUDE.md`. **`seeds/`** are hand-authored taxonomies (committed).
 - Don't shape-shift handler signatures without a fork-impact pass against unezQuake.

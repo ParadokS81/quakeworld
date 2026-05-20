@@ -14,7 +14,7 @@ Per-codebase Layer 1 extractors. Three-tier handler architecture: shared `Visito
 | Subfolder | Entry doc | What's there |
 |---|---|---|
 | `extractor_lib/` | `extractor_lib/CLAUDE.md` | Shared Python helpers (Visitor, clang_config, source resolution) |
-| `ezquake/` | `ezquake/CLAUDE.md` | ezQuake handlers (libclang, dual client/server parse, fork hook for unezQuake) |
+| `ezquake/` | `ezquake/CLAUDE.md` | ezQuake handlers (libclang, 4-variant parse [client / server / Win / Apple], fork hook for unezQuake) |
 | `fte/` | `fte/CLAUDE.md` | FTE handlers (plugin source-root, ezhud merge) |
 | `mvdsv/` | `mvdsv/CLAUDE.md` | MVDSV handlers (server-side, MVDSV-introduced types) |
 | `qwcl/` | `qwcl/CLAUDE.md` | QWCL 2.33 handlers (1996-vintage shape) |
