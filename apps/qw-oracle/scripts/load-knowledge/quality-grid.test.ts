@@ -12,6 +12,8 @@ import {
   makeGameplayKindProbe,
   probeJsonbNotStrings,
   probeRuntimeFidelityShape,
+  probeCallgraphSignalPoolCoverage,
+  probeHudRecoveryFirstClass,
 } from './quality-grid.js';
 
 const url = process.env.DATABASE_URL;
@@ -370,7 +372,6 @@ describe('probeRuntimeFidelityShape', () => {
 
 describe('probeJsonbNotStrings -- new track_a/b targets', () => {
   beforeEach(async () => { await seed(); });
-  afterAll(async () => { await sql.end(); });
 
   it('PASS -- track_a_reachability stored as JSONB object (not string scalar)', async () => {
     const now = new Date().toISOString();
@@ -399,5 +400,164 @@ describe('probeJsonbNotStrings -- new track_a/b targets', () => {
     const result = await probeJsonbNotStrings({ sql, project: 'ezquake' });
     expect(result.status).toBe('FAIL');
     expect(result.count).toBeGreaterThan(0);
+  });
+});
+
+// arc: enforce-L1-runtime-truth Phase 5 / Task 3 -- Track-A signal-pool level discipline probe.
+//
+// Verifies that every pool member at version='head' carries a well-formed D13 level:
+//   - build-excluded is permanently level-2 (D20: must NOT be dump-confirmed)
+//   - dump-confirmed may only appear on genuine-dead rows
+// NULL dump_confirmation is always an offender (D21 / no-withholding principle).
+describe('probeCallgraphSignalPoolCoverage', () => {
+  beforeEach(async () => { await seed(); });
+
+  it('PASS -- build-excluded(level-2) + genuine-dead(dump-confirmed) are both well-formed', async () => {
+    const now = new Date().toISOString();
+    const { cvarEntityId, cmdEntityId } = await seedTrackABEntities(now);
+
+    // build-excluded at level-2: correct by D20
+    const buildExcluded = { ...WELL_FORMED_TRACK_A_CALLGRAPH, conclusion: 'build-excluded', dump_confirmation: 'high-confidence-generalized' };
+    await sql`
+      INSERT INTO cvar_versions (entity_id, version, extracted_at, server_only, track_a_reachability)
+      VALUES (${cvarEntityId}, 'head', ${now}, false, ${sql.json(buildExcluded)})
+    `;
+    // genuine-dead at level-3: correct
+    const genuineDead = { ...WELL_FORMED_TRACK_A_CALLGRAPH, conclusion: 'genuine-dead', dump_confirmation: 'dump-confirmed' };
+    await sql`
+      INSERT INTO command_versions (entity_id, version, extracted_at, track_a_reachability)
+      VALUES (${cmdEntityId}, 'head', ${now}, ${sql.json(genuineDead)})
+    `;
+
+    const result = await probeCallgraphSignalPoolCoverage({ sql, project: 'ezquake' });
+    expect(result.status).toBe('PASS');
+    expect(result.count).toBe(0);
+  });
+
+  it('FAIL -- build-excluded row stamped dump-confirmed violates D20', async () => {
+    const now = new Date().toISOString();
+    const { cvarEntityId } = await seedTrackABEntities(now);
+
+    // D20 violation: build-excluded MUST NOT carry dump-confirmed
+    const badRow = { ...WELL_FORMED_TRACK_A_CALLGRAPH, conclusion: 'build-excluded', dump_confirmation: 'dump-confirmed' };
+    await sql`
+      INSERT INTO cvar_versions (entity_id, version, extracted_at, server_only, track_a_reachability)
+      VALUES (${cvarEntityId}, 'head', ${now}, false, ${sql.json(badRow)})
+    `;
+
+    const result = await probeCallgraphSignalPoolCoverage({ sql, project: 'ezquake' });
+    expect(result.status).toBe('FAIL');
+    expect(result.count).toBeGreaterThan(0);
+  });
+
+  it('FAIL -- pool member with NULL dump_confirmation (level withheld)', async () => {
+    const now = new Date().toISOString();
+    const { cvarEntityId } = await seedTrackABEntities(now);
+
+    // NULL dump_confirmation is never acceptable (D21 / no-withholding)
+    const noLevel = { conclusion: 'build-excluded', evidence: WELL_FORMED_TRACK_A_CALLGRAPH.evidence, dump_confirmation: null };
+    await sql`
+      INSERT INTO cvar_versions (entity_id, version, extracted_at, server_only, track_a_reachability)
+      VALUES (${cvarEntityId}, 'head', ${now}, false, ${sql.json(noLevel)})
+    `;
+
+    const result = await probeCallgraphSignalPoolCoverage({ sql, project: 'ezquake' });
+    expect(result.status).toBe('FAIL');
+    expect(result.count).toBeGreaterThan(0);
+  });
+
+  it('skips (PASS) for non-ezquake projects', async () => {
+    const result = await probeCallgraphSignalPoolCoverage({ sql, project: 'fte' });
+    expect(result.status).toBe('PASS');
+    expect(result.summary).toMatch(/skipped/);
+  });
+});
+
+// arc: enforce-L1-runtime-truth Phase 5 / Task 3 -- Track-B HUD recovery first-class gate.
+//
+// Every command_versions.track_b_hud_recovery carrier must be type='command',
+// source_state='source_backed', non-empty evidence.hud_element, and a non-NULL
+// dump_confirmation (D21 nothing withheld -- level-2 is fine, NULL is not).
+// The structural gate asserts cvar_versions has NO track_b_hud_recovery column (D11/R7).
+describe('probeHudRecoveryFirstClass', () => {
+  beforeEach(async () => { await seed(); });
+  afterAll(async () => { await sql.end(); });
+
+  it('PASS -- level-2 HUD recovery command + level-3 HUD recovery command are both first-class', async () => {
+    const now = new Date().toISOString();
+    const { cmdEntityId } = await seedTrackABEntities(now);
+
+    // level-2 (high-confidence-generalized) is the normal recovered-HUD carrier shape
+    const lvl2Track = { ...WELL_FORMED_TRACK_B, dump_confirmation: 'high-confidence-generalized' };
+    await sql`
+      INSERT INTO command_versions (entity_id, version, extracted_at, track_b_hud_recovery)
+      VALUES (${cmdEntityId}, 'head', ${now}, ${sql.json(lvl2Track)})
+    `;
+
+    const result = await probeHudRecoveryFirstClass({ sql, project: 'ezquake' });
+    expect(result.status).toBe('PASS');
+    expect(result.count).toBe(0);
+  });
+
+  it('PASS -- level-3 (dump-confirmed) HUD recovery command is first-class (D21)', async () => {
+    const now = new Date().toISOString();
+    const { cmdEntityId } = await seedTrackABEntities(now);
+
+    // level-3 is also acceptable -- D21 says "non-NULL is first-class"
+    const lvl3Track = { ...WELL_FORMED_TRACK_B, dump_confirmation: 'dump-confirmed' };
+    await sql`
+      INSERT INTO command_versions (entity_id, version, extracted_at, track_b_hud_recovery)
+      VALUES (${cmdEntityId}, 'head', ${now}, ${sql.json(lvl3Track)})
+    `;
+
+    const result = await probeHudRecoveryFirstClass({ sql, project: 'ezquake' });
+    expect(result.status).toBe('PASS');
+    expect(result.count).toBe(0);
+  });
+
+  it('FAIL -- recovered HUD command with NULL dump_confirmation (D21 withheld)', async () => {
+    const now = new Date().toISOString();
+    const { cmdEntityId } = await seedTrackABEntities(now);
+
+    // NULL dump_confirmation violates D21: nothing may be withheld on a recovered command
+    const withheld = { ...WELL_FORMED_TRACK_B, dump_confirmation: null };
+    await sql`
+      INSERT INTO command_versions (entity_id, version, extracted_at, track_b_hud_recovery)
+      VALUES (${cmdEntityId}, 'head', ${now}, ${sql.json(withheld)})
+    `;
+
+    const result = await probeHudRecoveryFirstClass({ sql, project: 'ezquake' });
+    expect(result.status).toBe('FAIL');
+    expect(result.count).toBeGreaterThan(0);
+  });
+
+  it('FAIL -- track_b_hud_recovery on a non-command (cvar) entity violates D11/R7 entity-shape', async () => {
+    // Seed a second command entity pretending to be a cvar by inserting with type='cvar'.
+    // The probe checks entities.type='command'; if type!='command' it is an entity-shape offender.
+    const now = new Date().toISOString();
+    await sql`
+      INSERT INTO entities (project, type, name, canonical_id, source_state, first_seen_version, last_seen_version, created_at, updated_at)
+      VALUES ('ezquake', 'cvar', 'fake_hud_cvar', 'ezquake:cvar:fake_hud_cvar', 'source_backed', 'head', 'head', ${now}, ${now})
+    `;
+    // We must store this in command_versions (which is the only table with the column),
+    // but we seed its entity as type='cvar' to simulate the entity-shape violation the probe catches.
+    const cvarEntityRows = await sql<{ id: number }[]>`
+      SELECT id FROM entities WHERE canonical_id = 'ezquake:cvar:fake_hud_cvar'
+    `;
+    const fakeId = cvarEntityRows[0]!.id;
+    await sql`
+      INSERT INTO command_versions (entity_id, version, extracted_at, track_b_hud_recovery)
+      VALUES (${fakeId}, 'head', ${now}, ${sql.json(WELL_FORMED_TRACK_B)})
+    `;
+
+    const result = await probeHudRecoveryFirstClass({ sql, project: 'ezquake' });
+    expect(result.status).toBe('FAIL');
+    expect(result.count).toBeGreaterThan(0);
+  });
+
+  it('skips (PASS) for non-ezquake projects', async () => {
+    const result = await probeHudRecoveryFirstClass({ sql, project: 'fte' });
+    expect(result.status).toBe('PASS');
+    expect(result.summary).toMatch(/skipped/);
   });
 });

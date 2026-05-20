@@ -725,6 +725,221 @@ export async function probeRuntimeFidelityShape(ctx: ProbeContext): Promise<Prob
   };
 }
 
+// arc: enforce-L1-runtime-truth Phase 5 / Task 3 -- Track-A signal-pool level discipline.
+//
+// Every banked Track-A row (cvar_versions + command_versions) at version='head' must
+// carry a dump_confirmation value that is well-formed per the D13 two-level vocabulary:
+//   - build-excluded -> permanently level-2 (high-confidence-generalized). D20 / Phase-4 OQ-3
+//     forbids stamping build-excluded rows dump-confirmed; this probe enforces that gate.
+//   - genuine-dead   -> level-2 or level-3 (dump-confirmed); dump-confirmed is only valid
+//     when conclusion='genuine-dead' (the pool member was observed absent in the dump).
+//
+// Scoped to ezquake (all Track-A rows are ezquake; other-project runs no-op).
+// Does NOT assert the raw pool count (X7/X2/W4) -- count is the phase-boundary sanity-gate.
+export async function probeCallgraphSignalPoolCoverage(ctx: ProbeContext): Promise<ProbeResult> {
+  if (ctx.project !== 'ezquake') {
+    return {
+      name: 'F1.callgraph_signal_pool_coverage',
+      family: 'regression',
+      description: 'Track-A pool: every member has a valid D13 level; build-excluded is never dump-confirmed (enforce-L1 D20 / Phase-5)',
+      status: 'PASS',
+      count: 0,
+      summary: 'ezquake-scoped probe; skipped for other projects',
+      examples: [],
+    };
+  }
+
+  // Offenders: any Track-A row at version='head' where either:
+  //   (a) dump_confirmation is NULL or outside the two-value vocabulary, OR
+  //   (b) conclusion='build-excluded' AND dump_confirmation='dump-confirmed' (D20 violation), OR
+  //   (c) dump_confirmation='dump-confirmed' AND conclusion != 'genuine-dead' (level-3 on non-dead row).
+  // NULL-safety: IS NULL OR NOT IN form so a NULL dump_confirmation surfaces as an offender.
+  const offenderRows = await ctx.sql<{ canonical_id: string; reason: string }[]>`
+    WITH pool AS (
+      SELECT e.canonical_id,
+             cv.track_a_reachability AS col
+      FROM cvar_versions cv
+      JOIN entities e ON e.id = cv.entity_id
+      WHERE e.project = 'ezquake'
+        AND cv.track_a_reachability IS NOT NULL
+        AND cv.version = 'head'
+      UNION ALL
+      SELECT e.canonical_id,
+             cmv.track_a_reachability AS col
+      FROM command_versions cmv
+      JOIN entities e ON e.id = cmv.entity_id
+      WHERE e.project = 'ezquake'
+        AND cmv.track_a_reachability IS NOT NULL
+        AND cmv.version = 'head'
+    )
+    SELECT canonical_id,
+      CASE
+        WHEN col->>'dump_confirmation' IS NULL
+          OR col->>'dump_confirmation' NOT IN ('high-confidence-generalized', 'dump-confirmed')
+          THEN 'null-or-garbage-level'
+        WHEN col->>'conclusion' = 'build-excluded'
+          AND col->>'dump_confirmation' = 'dump-confirmed'
+          THEN 'build-excluded-stamped-dump-confirmed'
+        WHEN col->>'dump_confirmation' = 'dump-confirmed'
+          AND col->>'conclusion' != 'genuine-dead'
+          THEN 'dump-confirmed-on-non-genuine-dead'
+        ELSE 'ok'
+      END AS reason
+    FROM pool
+    WHERE
+      col->>'dump_confirmation' IS NULL
+      OR col->>'dump_confirmation' NOT IN ('high-confidence-generalized', 'dump-confirmed')
+      OR (col->>'conclusion' = 'build-excluded' AND col->>'dump_confirmation' = 'dump-confirmed')
+      OR (col->>'dump_confirmation' = 'dump-confirmed' AND col->>'conclusion' != 'genuine-dead')
+    ORDER BY canonical_id
+    LIMIT 8
+  `;
+
+  const countRows = await ctx.sql<{ cnt: number }[]>`
+    WITH pool AS (
+      SELECT cv.track_a_reachability AS col
+      FROM cvar_versions cv
+      JOIN entities e ON e.id = cv.entity_id
+      WHERE e.project = 'ezquake'
+        AND cv.track_a_reachability IS NOT NULL
+        AND cv.version = 'head'
+      UNION ALL
+      SELECT cmv.track_a_reachability AS col
+      FROM command_versions cmv
+      JOIN entities e ON e.id = cmv.entity_id
+      WHERE e.project = 'ezquake'
+        AND cmv.track_a_reachability IS NOT NULL
+        AND cmv.version = 'head'
+    )
+    SELECT COUNT(*)::int AS cnt
+    FROM pool
+    WHERE
+      col->>'dump_confirmation' IS NULL
+      OR col->>'dump_confirmation' NOT IN ('high-confidence-generalized', 'dump-confirmed')
+      OR (col->>'conclusion' = 'build-excluded' AND col->>'dump_confirmation' = 'dump-confirmed')
+      OR (col->>'dump_confirmation' = 'dump-confirmed' AND col->>'conclusion' != 'genuine-dead')
+  `;
+  const total = countRows[0]?.cnt ?? 0;
+
+  return {
+    name: 'F1.callgraph_signal_pool_coverage',
+    family: 'regression',
+    description: 'Track-A pool: every member has a valid D13 level; build-excluded is never dump-confirmed (enforce-L1 D20 / Phase-5)',
+    status: total === 0 ? 'PASS' : 'FAIL',
+    count: total,
+    summary: total === 0
+      ? 'all Track-A pool members have a well-formed D13 level; no D20 violation'
+      : `${total} offending row(s): ${offenderRows.map(r => `${r.canonical_id}(${r.reason})`).join(', ')}`,
+    examples: offenderRows.map(r => `${r.canonical_id}(${r.reason})`),
+  };
+}
+
+// arc: enforce-L1-runtime-truth Phase 5 / Task 3 -- Track-B HUD recovery first-class gate.
+//
+// Every row that carries track_b_hud_recovery (the HUD-command recovery signal, Track B)
+// must be a first-class entity: type='command', source_state='source_backed', non-empty
+// evidence.hud_element, and a non-NULL dump_confirmation (D21: nothing withheld -- even a
+// level-2 recovered command must carry a level). The D21 "nothing withheld" principle means
+// NULL dump_confirmation is never acceptable for a recovered HUD command.
+//
+// Structural guard (D11/R7): cvar_versions does NOT have a track_b_hud_recovery column
+// (the column exists only on command_versions). This probe asserts that invariant via
+// information_schema so a schema drift (column accidentally added to cvar_versions) surfaces
+// immediately.
+//
+// Scoped to ezquake.
+export async function probeHudRecoveryFirstClass(ctx: ProbeContext): Promise<ProbeResult> {
+  if (ctx.project !== 'ezquake') {
+    return {
+      name: 'F1.hud_recovery_first_class',
+      family: 'regression',
+      description: 'Every Track-B HUD recovery carrier is a first-class command/source_backed entity with non-NULL level (enforce-L1 D21 + D11/R7 / Phase-5)',
+      status: 'PASS',
+      count: 0,
+      summary: 'ezquake-scoped probe; skipped for other projects',
+      examples: [],
+    };
+  }
+
+  // Structural check: track_b_hud_recovery must NOT exist on cvar_versions.
+  // A count of 0 means the column is absent (correct); >0 means schema drift.
+  const structRows = await ctx.sql<{ cnt: number }[]>`
+    SELECT COUNT(*)::int AS cnt
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'cvar_versions'
+      AND column_name = 'track_b_hud_recovery'
+  `;
+  const cvarColPresent = (structRows[0]?.cnt ?? 0) > 0;
+
+  // Entity-shape offenders: command_versions rows where entity is not type='command'
+  // or not source_state='source_backed', or evidence.hud_element is missing/empty,
+  // or dump_confirmation is NULL or outside vocabulary.
+  const offenderRows = await ctx.sql<{ canonical_id: string; reason: string }[]>`
+    SELECT e.canonical_id,
+      CASE
+        WHEN e.type != 'command' THEN 'not-command-type'
+        WHEN e.source_state != 'source_backed' THEN 'not-source-backed'
+        WHEN cmv.track_b_hud_recovery->'evidence'->>'hud_element' IS NULL
+          OR cmv.track_b_hud_recovery->'evidence'->>'hud_element' = ''
+          THEN 'empty-hud-element'
+        WHEN cmv.track_b_hud_recovery->>'dump_confirmation' IS NULL
+          OR cmv.track_b_hud_recovery->>'dump_confirmation' NOT IN ('high-confidence-generalized', 'dump-confirmed')
+          THEN 'null-or-garbage-dump-confirmation'
+        ELSE 'ok'
+      END AS reason
+    FROM command_versions cmv
+    JOIN entities e ON e.id = cmv.entity_id
+    WHERE e.project = 'ezquake'
+      AND cmv.track_b_hud_recovery IS NOT NULL
+      AND cmv.version = 'head'
+      AND (
+        e.type != 'command'
+        OR e.source_state != 'source_backed'
+        OR cmv.track_b_hud_recovery->'evidence'->>'hud_element' IS NULL
+        OR cmv.track_b_hud_recovery->'evidence'->>'hud_element' = ''
+        OR cmv.track_b_hud_recovery->>'dump_confirmation' IS NULL
+        OR cmv.track_b_hud_recovery->>'dump_confirmation' NOT IN ('high-confidence-generalized', 'dump-confirmed')
+      )
+    ORDER BY e.canonical_id
+    LIMIT 8
+  `;
+  const countRows = await ctx.sql<{ cnt: number }[]>`
+    SELECT COUNT(*)::int AS cnt
+    FROM command_versions cmv
+    JOIN entities e ON e.id = cmv.entity_id
+    WHERE e.project = 'ezquake'
+      AND cmv.track_b_hud_recovery IS NOT NULL
+      AND cmv.version = 'head'
+      AND (
+        e.type != 'command'
+        OR e.source_state != 'source_backed'
+        OR cmv.track_b_hud_recovery->'evidence'->>'hud_element' IS NULL
+        OR cmv.track_b_hud_recovery->'evidence'->>'hud_element' = ''
+        OR cmv.track_b_hud_recovery->>'dump_confirmation' IS NULL
+        OR cmv.track_b_hud_recovery->>'dump_confirmation' NOT IN ('high-confidence-generalized', 'dump-confirmed')
+      )
+  `;
+  const entityTotal = countRows[0]?.cnt ?? 0;
+  const total = entityTotal + (cvarColPresent ? 1 : 0);
+
+  const structNote = cvarColPresent
+    ? ['cvar_versions.track_b_hud_recovery column exists (D11/R7 schema violation)']
+    : [];
+
+  return {
+    name: 'F1.hud_recovery_first_class',
+    family: 'regression',
+    description: 'Every Track-B HUD recovery carrier is a first-class command/source_backed entity with non-NULL level (enforce-L1 D21 + D11/R7 / Phase-5)',
+    status: total === 0 ? 'PASS' : 'FAIL',
+    count: total,
+    summary: total === 0
+      ? 'all Track-B HUD recovery carriers are first-class entities with a well-formed D21 level'
+      : `${total} offending row(s): entity-shape=${entityTotal}; ${[...structNote, ...offenderRows.map(r => `${r.canonical_id}(${r.reason})`)].join(', ')}`,
+    examples: [...structNote, ...offenderRows.map(r => `${r.canonical_id}(${r.reason})`)],
+  };
+}
+
 // C5 probe for the origin-tag vocabulary shape (arc: ktx-mvdsv-l1-describe-fill).
 //
 // Two-part assertion:
@@ -2648,6 +2863,9 @@ const REGRESSION_PROBES: Probe[] = [
   { name: 'F1.jsonb_columns_not_strings', family: 'regression', description: '', run: probeJsonbNotStrings },
   // arc: enforce-L1-runtime-truth -- Track A/B reachability column shape gate (Phase 3 / R2 + D12)
   { name: 'F1.runtime_fidelity_shape', family: 'regression', description: '', run: probeRuntimeFidelityShape },
+  // arc: enforce-L1-runtime-truth Phase 5 / Task 3 -- signal-pool level discipline + Track-B first-class gate
+  { name: 'F1.callgraph_signal_pool_coverage', family: 'regression', description: '', run: probeCallgraphSignalPoolCoverage },
+  { name: 'F1.hud_recovery_first_class', family: 'regression', description: '', run: probeHudRecoveryFirstClass },
   // arc: ktx-mvdsv-l1-describe-fill C5 probes -- origin-tag vocabulary + synthesized-anchor (Phase 1)
   { name: 'F1.describe_fill.origin_vocabulary', family: 'regression', description: '', run: probeDescribeFillOriginVocabulary },
   { name: 'F1.describe_fill.synthesized_requires_anchor', family: 'regression', description: '', run: probeDescribeFillSynthesizedRequiresAnchor },
