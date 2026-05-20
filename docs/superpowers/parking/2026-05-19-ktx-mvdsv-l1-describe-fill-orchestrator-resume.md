@@ -199,6 +199,120 @@ B5 Stage-2 (change report) recorded.
 **The 9 verified batches hold** (do not re-verify absent a new signal
 -- the gates functioned).
 
+### !!! SESSION #7 WRAP 2026-05-20 -> SESSION #8 picks up B4 receipt. !!!
+
+**Session #7 wrapping at a clean milestone:** V-pass complete + B5
+Stage-1 committed + B4 fav_go calibration prompt DRAFTED and ready
+for operator launch. Wrap is judgment-driven (B4 ledger receipt is
+fidelity-critical -- the orchestrator skill's pushback rule favors
+fresh context for verification work, not late-session). Operator
+launches the calibration terminal at their pace.
+
+**Where things are (2026-05-20 17:00 UTC ~):**
+- 9/9 V-pass batches committed + orchestrator-gate-verified (`c6b9bcea` + earlier).
+- B5 Stage-1 collation committed at `v-pass-stage-1-collation.md`
+  (N=571, flavour-C 14.71%, 475 retire-D7-tier-1, 96 flagged B4 cohort).
+- B4 fav_go calibration handover prompt drafted at
+  `docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/b4-fav_go-calibration-prompt.md`.
+  Paste-and-launch shape; operator launches when ready. Calibration =
+  first of 6 systemic clusters; convergence rate at this cluster
+  determines whether to scale.
+- Live nothing in flight (no terminal running until operator launches B4).
+
+**Session #8 reads required (cold, in order):**
+1. This SESSION #7 wrap block (you're reading it) -> the live contract.
+2. `v-pass-stage-1-collation.md` -- what was found + the B4 cohort
+   shape + the 6 systemic clusters.
+3. `b4-fav_go-calibration-prompt.md` -- the prompt that ran, so you
+   know what to verify against.
+4. `decisions.md` D7 Amendment 2026-05-19 (B4 + B5 specifically) --
+   the contract the operator-gated step must honor.
+5. `~/.claude/skills/describe-fill-synthesis/references/enforce-trace-discipline.md`
+   -- the method (same one V-pass used).
+
+**Session #8 first actions on B4 ledger receipt** (when
+`b4-ledger-fav_go-calibration.md` lands committed):
+
+1. **Read the report block (Step 8 of the B4 prompt) for the
+   calibration signals:**
+   - Convergence rate (target >= 13/14 = 92.9%; >= 90% means scale;
+     70-90% means harden-then-scale; < 70% means halt + redesign).
+   - HALT-residue count (these are NOT failures -- they're correct
+     refusals; read each to extract methodology insight).
+   - Per-row attempts (avg ~1.0 = clean; avg ~2.5 = the cluster is
+     marginal even with the shared root; avg ~3 = the architecture
+     needs revisiting).
+   - Orchestrator HG2 re-greps (the terminal's claim; you'll
+     re-do this independently next).
+
+2. **Independent HARD GATE 2 on the new descriptions
+   (orchestrator-direct, NOT relayed):** pick 2-3 rows from the
+   ledger and YOU re-grep the source oracle (`/tmp/ktx-src-67253dc9`
+   @ `1.47-2-g67253dc`). For each:
+   - Does the new description's cited enforcing line actually say
+     what the description claims?
+   - Does the new description's correction actually address the
+     V-pass seed (i.e., the wrong-clause from Stage-1 is now traced
+     to its real enforcing line)?
+   - Pick at least one C-FIX-origin row + one WI2-FIX-origin row
+     (different defect classes test different correction shapes).
+   - Suggest first targets: `20fav_go` (was C-FIX, batch-01-verified
+     by orchestrator at session-#7 start -- cross-check the
+     correction against the known root), `fav_add` (was WI2-FIX
+     CF_MATCHLESS-additive-misread, tests the access-class fix
+     shape).
+   - If the orchestrator re-grep does not hold for a row, the row
+     is contested -- the calibration has surfaced a synth/verify
+     residue Session #8 brings to the operator.
+
+3. **Validate the cluster-shared root held across the
+   re-syntheses:** spot-check 2 new descriptions of `Nfav_go`
+   commands -- do they correctly distinguish `favN_add` (slot
+   populator -> `self->favx[]`) from `fav_add` (generic, distinct
+   array `self->fav[]` -> consumed by `fav_next`)? Two distinct
+   command families, two distinct arrays. If a new description
+   still conflates them, the cluster-shared seed didn't anchor
+   well -> scaling-blocking finding.
+
+4. **Bring the operator the cluster sign-off decision:** plain
+   English, decisive, single recommendation. Three shapes:
+   - **Scale-out** (clean calibration): "Cluster sound, fav_go ledger
+     ready for L1 apply at operator's call. Drafting the next 5
+     cluster prompts + the ~65-unique-row pass under the same
+     template."
+   - **Harden-then-scale** (marginal calibration): "Cluster works but
+     surfaced X residue. Propose Y prompt edit before the next
+     cluster. Operator approves the edit; then scale."
+   - **Halt + redesign**: "Convergence is structurally low / a
+     systemic miss showed up. Diagnosis is Z. Routing to operator;
+     no more clusters fire until resolved."
+
+   In ALL cases: do NOT auto-apply to L1. The cluster ledger is
+   operator-gated input to a SEPARATE step (the actual L1 row
+   update + L1 source_ref/anchor/verdict columns; ultimately fed
+   from B5 Stage-2 once all clusters land).
+
+**Critical rules carried into Session #8:**
+- C4 holds. No L1 row mutated by any B4 terminal or by Session #8.
+  The actual L1 apply is a separate, explicit operator-approved step
+  driven by the cluster ledgers as a batch.
+- HARD GATE 2 is per-cluster + orchestrator-independent. Never relay
+  the B4 terminal's HG2 claim (`feedback_verify_dispatched_terminal_claims`).
+- Halted rows in the calibration ledger are SIGNAL, not failure --
+  read each one for methodology insight before scaling.
+- The 8 verified V-pass batches + 475 TRACED-CLEAN rows already hold;
+  do not re-verify them absent a NEW signal.
+- The B4 prompt template is for ONE cluster per run. After
+  calibration validates, Session #8 (or later) drafts the 5 other
+  cluster prompts (CF_MATCHLESS WI-2 cohort, dead-CF_SPC_ADMIN,
+  midair_minheight pair, k_on_end_f_* trio, dmm1/dmm3 force-off)
+  swapping the cluster spec + shared-root context.
+
+**When in doubt:** route to operator, one question, plain-English
+consequences. `decisions.md` D7 Amendment 2026-05-19 is the detailed
+authority; the SESSION #7 ALL 9 LANDED + B5 Stage-1 collation +
+b4-fav_go-calibration-prompt.md are the concrete artifacts.
+
 ## !!! SESSION #6 WRAP 2026-05-19 (orchestrator @~400k) -> RESUME AS SESSION #7. SUPERSEDES the session-#6 UPDATE + "First three actions" below. !!!
 
 Session #6 hit the ~400k smell zone and clean-wrapped here; next work
