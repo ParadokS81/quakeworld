@@ -78,6 +78,15 @@ export class VoiceReceiver {
   private mumbleSocket: { decodeAudio: (packet: Buffer) => void } | null = null;
   private originalDecodeAudio: ((packet: Buffer) => void) | null = null;
 
+  // Silent-recording investigation diagnostic (2026-05-20).
+  // packetsReceived counts every call into the monkey-patched decodeAudio;
+  // packetsParsed counts those that survived parseVoicePacket's codec/target
+  // checks and were emitted to the handler. A nonzero received with zero
+  // parsed means codec/target rejection (e.g. Mumble 1.5 protobuf audio).
+  private packetsReceived = 0;
+  private packetsParsed = 0;
+  private firstSeenLogged = 0;
+
   /**
    * Attach to the connected MumbleClient's socket.
    * Monkey-patches decodeAudio to also route voice packets to our handler.
@@ -94,6 +103,16 @@ export class VoiceReceiver {
     // Save original and replace with our intercepting version
     this.originalDecodeAudio = this.mumbleSocket.decodeAudio.bind(this.mumbleSocket);
     this.mumbleSocket.decodeAudio = (packet: Buffer) => {
+      this.packetsReceived++;
+      if (this.firstSeenLogged < 3 && packet.length >= 1) {
+        this.firstSeenLogged++;
+        logger.info(`VoiceReceiver decodeAudio packet seen`, {
+          packetIndex: this.packetsReceived,
+          byte0: '0x' + packet[0].toString(16).padStart(2, '0'),
+          length: packet.length,
+          head: packet.subarray(0, Math.min(8, packet.length)).toString('hex'),
+        });
+      }
       // Call the original (emits { source } to the audioPacket observable)
       this.originalDecodeAudio!(packet);
       // Parse and route to our voice handler
@@ -101,6 +120,11 @@ export class VoiceReceiver {
     };
 
     logger.info('VoiceReceiver attached to MumbleSocket');
+  }
+
+  /** Snapshot of receive-side counters. Diagnostic only. */
+  getStats(): { packetsReceived: number; packetsParsed: number } {
+    return { packetsReceived: this.packetsReceived, packetsParsed: this.packetsParsed };
   }
 
   /** Remove the monkey-patch and restore original decodeAudio. */
@@ -158,6 +182,7 @@ export class VoiceReceiver {
 
       const opusData = packet.slice(offset, offset + opusLength);
 
+      this.packetsParsed++;
       this.onVoicePacket({ senderSession, opusData, isTerminator });
     } catch {
       // Malformed packet — ignore silently (may happen on reconnect)

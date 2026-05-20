@@ -163,11 +163,23 @@ export class MumbleRecordingSession {
     this.stopping = true;
     const endTime = new Date();
 
+    // Silent-recording diagnostic (2026-05-20): capture receiver counters
+    // before detach so we can report whether decodeAudio fired at all and
+    // whether parseVoicePacket survived the codec/target checks.
+    const receiverStats = this.voiceReceiver?.getStats() ?? { packetsReceived: 0, packetsParsed: 0 };
+
     // Detach voice receiver first so no more packets are written
     if (this.voiceReceiver) {
       this.voiceReceiver.detach();
       this.voiceReceiver = null;
     }
+
+    logger.info(`Mumble session ${this.sessionId} voice diagnostic`, {
+      packetsReceived: receiverStats.packetsReceived,
+      packetsParsed: receiverStats.packetsParsed,
+      trackCount: this.tracks.size,
+      knownTrackKeys: Array.from(this.tracks.keys()),
+    });
 
     // Stop all tracks
     await Promise.all(Array.from(this.tracks.values()).map((t) => t.stop()));
