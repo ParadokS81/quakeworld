@@ -41,19 +41,27 @@ export async function loadKnowledge<T = Record<string, unknown>>(relativePath: s
 /**
  * Resolve a player's display name for output files.
  *
- * Priority: playerNameMap > discordDisplayName > discordUsername
+ * Priority: playerNameMap > discordDisplayName > discordUsername > mumbleUsername
+ *
+ * mumbleUsername is the fallback for Mumble recordings, where both Discord
+ * fields are null. On the Mumble side the username on the server is the
+ * QW player name directly, so it can be used as the output identifier
+ * without any further mapping.
  */
 export function resolvePlayerName(
   discordUsername: string | null | undefined,
   discordDisplayName: string | null | undefined,
   playerNameMap: Record<string, string>,
+  mumbleUsername?: string | null,
 ): string {
   if (discordUsername) {
     const mapped = playerNameMap[discordUsername.toLowerCase()];
     if (mapped) return mapped;
   }
   if (discordDisplayName) return discordDisplayName;
-  return discordUsername || 'unknown';
+  if (discordUsername) return discordUsername;
+  if (mumbleUsername) return mumbleUsername;
+  return 'unknown';
 }
 
 /**

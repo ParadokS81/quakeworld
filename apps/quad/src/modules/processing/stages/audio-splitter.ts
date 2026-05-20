@@ -284,6 +284,7 @@ export async function splitByTimestamps(
         track.discord_username,
         track.discord_display_name,
         playerNameMap,
+        track.mumble_username,
       );
 
       const offsets = clampOffsets(
@@ -496,6 +497,7 @@ export async function extractIntermissions(
         track.discord_username,
         track.discord_display_name,
         playerNameMap,
+        track.mumble_username,
       );
 
       const offsets = clampOffsets(gapStart, gapEnd, trackDuration);
