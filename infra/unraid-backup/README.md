@@ -25,7 +25,7 @@ pattern.
 
 ## Locked dials (defaults; operator may override before Phase 1)
 
-- Retention: `keep_daily 7`, `keep_weekly 4`, `keep_monthly 6`
+- Retention: `keep_daily 7`, `keep_weekly 4`, `keep_monthly 6` -- **CONFIRMED 2026-05-20**; no `keep_yearly` tail (6-month horizon deemed sufficient; anything past ~6 months is deleted by design)
 - Monitor: Healthchecks hosted free tier (NOT on Unraid -- a dead-man's-switch
   on the watched box cannot report that box down)
 - Schedule: `0 3 * * *` (03:00 nightly; offset from the existing 04:00 Mon tar)
