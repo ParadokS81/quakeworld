@@ -163,9 +163,40 @@ correction:
   access-class clause ("Admin toggle"), not on the match-state clause.
   Source-verified at Session #8: their actual structural defect is
   the SAME as `race_set_finish` / `upspecs` / `upplayers` --
-  `CF_PLAYER | CF_SPC_ADMIN` with NO `CF_SPECTATOR`, so the
-  `CF_SPC_ADMIN` bit is dead at commands.c:1091 (spec branch returns
-  `DO_WRONG_CLASS` before line 1096's admin check).
+  `CF_PLAYER | CF_SPC_ADMIN` at registration with NO `CF_SPECTATOR`.
+
+**2026-05-20 mid-cluster correction (orchestrator response to terminal
+HALT).** The original Session #8 addendum text above asserted
+"CF_SPC_ADMIN is dead at commands.c:1091 (spec branch returns
+DO_WRONG_CLASS before line 1096's admin check)". **That reading is
+incomplete and the cluster's wave-1 blind verifiers caught the gap.**
+Independent orchestrator re-grep confirms: `Init_cmds`
+(commands.c:1427-1458, called unconditionally from g_main.c:493 at mod
+startup) walks cmds[] and promotes CF_SPC_ADMIN -> CF_SPECTATOR at
+commands.c:1448-1451 (also CF_PLR_ADMIN -> CF_PLAYER at 1443-1446 and
+CF_MATCHLESS_ONLY -> CF_MATCHLESS at 1453-1456; the comment is verbatim
+"this let simplify cmds[] table"). No code anywhere clears the
+promoted bits (tree-wide grep returns empty). The registered cmds[]
+flags are a SHORTHAND; the runtime flags include the implied bits.
+After Init_cmds, all 6 cluster members' runtime cf_flags =
+`CF_PLAYER | CF_SPC_ADMIN | CF_SPECTATOR`. So the spec branch at
+commands.c:1091 PASSES, the CF_SPC_ADMIN check at 1096 FIRES, and
+admin spectators DO reach the handler; non-admin spectators get
+DO_ACCESS_DENIED at 1099. **Effective access for all 6: any in-game
+player + admin spectator.** Not "player-only", not "spectator-admin
+only". 5 of 6 V-pass Stage-1 seeds carry the same gap as the original
+addendum text (only the droppack seed reads correctly that "admin
+required only for spectators"). The cluster prompt
+`b4-dead-spc-admin-cluster-prompt.md` has been amended in the same
+2026-05-20 mid-cluster correction to carry the verified root.
+
+**Methodology gain.** The cluster-shared root is itself a hypothesis.
+Going forward, every B4 cluster prompt must V-pass its candidate
+cluster-shared root before drafting -- pick 1-2 falsifiable claims
+from the candidate root, chase each to its enforcing line, tree-wide
+grep for any other source that mutates the same field, then commit.
+This addendum + the cluster prompt are the first artifacts to carry
+the discipline retrospectively.
 
 **Corrected groupings.**
 

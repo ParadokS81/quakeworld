@@ -65,34 +65,48 @@ CLUSTER = [
 
 ## Cluster-shared root context (the seed PREAMBLE for every row)
 
-ESTABLISHED at the source oracle 1.47-2-g67253dc by orchestrator
-re-grep at Session #8 B4 calibration receipt (2026-05-20):
+**CORRECTED 2026-05-20 mid-cluster-execution** -- the initial root
+context drafted at Session #8 B4 calibration receipt was incomplete.
+The terminal's Wave-1 blind verifiers caught a gap (commands.c:1448
+Init_cmds promotion) that the orchestrator's earlier re-grep + 5 of 6
+V-pass Stage-1 seeds also missed. Independently re-verified at the
+source oracle 2026-05-20 (orchestrator response to terminal HALT,
+independent grep across Init_cmds + g_main.c call site + tree-wide
+search for any later CF_SPECTATOR clearing). The corrected reading
+below is what re-dispatch synth uses; previous (wrong) reading is
+preserved in the methodology note below the root for the in-ledger
+"concerns" record.
 
-**The structural pattern (universal across all 6):** every row in this
-cluster is registered with flags `CF_PLAYER | CF_SPC_ADMIN` and NO
-`CF_SPECTATOR` bit. The DoCommand dispatch path at commands.c:1088-1100
-checks the spec branch in this order:
+**The runtime flag promotion (commands.c:1427-1458 / g_main.c:493).**
+Every row in this cluster registers with `CF_PLAYER | CF_SPC_ADMIN`
+at the cmds[] table (lines 741/742/743/980/982/1014) and **no
+CF_SPECTATOR bit**. At mod startup, `void Init_cmds(void)`
+(commands.c:1427) runs unconditionally from g_main.c:493 and walks
+cmds[] applying THREE systematic flag promotions:
 
 ```c
-if (spc)                                          // commands.c:1088
+if (cmds[i].cf_flags & CF_PLR_ADMIN)         // commands.c:1443
 {
-    if (!(cmds[icmd].cf_flags & CF_SPECTATOR))    // commands.c:1091
-    {
-        return DO_WRONG_CLASS;                    // commands.c:1093
-    }
-    if ((cmds[icmd].cf_flags & CF_SPC_ADMIN) && !is_adm(self))   // 1096
-    {
-        ...
-    }
+    cmds[i].cf_flags |= CF_PLAYER;           // 1445
+}
+if (cmds[i].cf_flags & CF_SPC_ADMIN)         // commands.c:1448
+{
+    cmds[i].cf_flags |= CF_SPECTATOR;        // 1450
+}
+if (cmds[i].cf_flags & CF_MATCHLESS_ONLY)    // commands.c:1453
+{
+    cmds[i].cf_flags |= CF_MATCHLESS;        // 1455
 }
 ```
 
-For any command lacking `CF_SPECTATOR`, ALL spectators (including
-admins) hit `DO_WRONG_CLASS` at line 1093 BEFORE the `CF_SPC_ADMIN`
-check at line 1096 ever executes. **CF_SPC_ADMIN is structurally
-dead** for the 6 cluster members. Any description claiming
-"spectator-admin command" or "spectator admin" or analogous is a
-WI-2-FIX -- the access class is player-only at the dispatch level.
+The source comment is verbatim `// this let simplify cmds[] table` --
+the registered flags are intentionally a **shorthand**; the runtime
+flags include the implied bits. No code anywhere clears the promoted
+bits (independent tree-wide grep for `cf_flags &= ~CF_SPECTATOR` /
+`cf_flags ^= ...` returns empty).
+
+**Runtime cf_flags after Init_cmds for all 6 cluster members:**
+`CF_PLAYER | CF_SPC_ADMIN | CF_SPECTATOR`.
 
 **Registration sites:**
 
@@ -105,19 +119,56 @@ commands.c:982  { "upspecs",         DEF(upplayers),    2, CF_PLAYER | CF_SPC_AD
 commands.c:1014 { "race_set_finish", DEF(r_Xset),       3, CF_PLAYER | CF_SPC_ADMIN, ... }
 ```
 
+**Dispatch (DoCommand, commands.c:1088-1110) at runtime:**
+
+```c
+if (spc)                                          // 1088
+{
+    if (!(cmds[icmd].cf_flags & CF_SPECTATOR))    // 1091
+    {
+        return DO_WRONG_CLASS;                    // 1093
+    }
+    if ((cmds[icmd].cf_flags & CF_SPC_ADMIN) && !is_adm(self))   // 1096
+    {
+        G_sprint(self, 2, "You are not an admin\n");
+        return DO_ACCESS_DENIED;                  // 1099
+    }
+}
+```
+
+- **Spec branch:** CF_SPECTATOR set (via Init_cmds promotion) -> 1091
+  passes -> CF_SPC_ADMIN+is_adm gate at 1096 fires. Admin spectators
+  reach the handler; non-admin spectators get DO_ACCESS_DENIED at 1099
+  with "You are not an admin".
+- **Player branch (1106+):** CF_PLAYER set, no CF_PLR_ADMIN -> any
+  in-game player runs without admin status.
+
+**Effective access for all 6 cluster members at runtime: any in-game
+player (no admin required) + admin spectators (with /elect-granted
+admin).** The original L1 descriptions overstate the requirement when
+they say "Admin toggle" or "spectator-admin command" -- admin is NOT
+required on the player path, and admin spectators DO run the command.
+The WI-2 correction states this dual-path access correctly. Do NOT
+state "player-only" or "CF_SPC_ADMIN is structurally dead" -- those
+are wrong (the Init_cmds promotion makes the CF_SPC_ADMIN bit live at
+runtime).
+
 **Per-row runtime admin gate (variation -- trace each row's handler):**
 
 - `upspecs` and `upplayers` BOTH dispatch through the shared `upplayers`
   handler and DO carry a runtime admin gate:
   `commands.c:8027 if (!check_perm(self, cvar("k_allowcountchange"))) { return; }`.
-  So their actual access is "any player whose k_allowcountchange
-  permission is granted" -- a runtime check, not a CF_*_ADMIN
-  compile-time check.
+  This gate fires on BOTH the player and admin-spec paths -- their
+  actual access is "any player or admin spec whose
+  k_allowcountchange permission is granted" -- a runtime check
+  layered on top of the dispatch flag check.
 - `droppack` / `dropquad` / `dropring` -- the V-pass seeds report NO
-  runtime admin gate on the handler path (any in-game player toggles).
-  Verify per row at the handler.
-- `race_set_finish` -- the V-pass seed reports no admin gate (the
-  race-mode check at race.c:2793 is a different gate); verify per row.
+  runtime admin gate on the handler path. Verify per row at the
+  handler. Effective access: any in-game player + admin spec.
+- `race_set_finish` -- the V-pass seed reports a race-mode gate at
+  race.c:2793 (`if (!race_command_checks()) return;`), independent of
+  the admin question. Effective access: any in-game player + admin
+  spec, AND the race-mode preconditions.
 
 **Match-state clause (universal across all 6):** every row carries a
 "refused while a match is in progress" or analogous clause in its
@@ -132,6 +183,27 @@ the access-class clause.
 This shared context is a MANDATORY input to every per-row D6
 re-synth in this cluster -- include it verbatim in each synth
 sub-agent's seed brief.
+
+### Methodology note (cluster-shared root is itself a hypothesis)
+
+Recorded 2026-05-20 mid-cluster after the wave-1 contested-seed halt:
+the cluster-shared root above is itself a falsifiable hypothesis. The
+*initial* drafting at session-#8 receipt re-grepped registration sites
++ dispatch branches and looked correct, but missed `Init_cmds`'s
+startup flag promotion. The terminal's blind verifiers caught it
+because their V-pass chases a closed falsifiable claim ("no spec ever
+runs this") and forced the trace to its actual enforcing line -- which
+exposed the promotion. Going forward (every future B4 cluster prompt):
+the cluster-shared root must be V-passed *before* drafting. Pick 1-2
+falsifiable claims from the candidate root, chase each to its
+enforcing line + tree-wide grep for any other source that mutates the
+same field, then commit the root. Otherwise the synth sub-agents
+inherit the gap and "verify" the wrong corrections.
+
+Ledger entries for this cluster's wave-1 rows MUST carry the
+re-dispatch evidence (attempt-1 outputs preserved as rev=1 rejected
+with the rejection reason "inherited the orchestrator's incomplete
+cluster-shared root; missed Init_cmds promotion at commands.c:1448").
 
 ## ELABORATION DISCIPLINE (carried from fav_go calibration)
 
