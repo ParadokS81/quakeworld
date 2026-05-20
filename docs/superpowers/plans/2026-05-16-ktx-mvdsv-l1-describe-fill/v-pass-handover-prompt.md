@@ -114,6 +114,20 @@ side-effect clause in the row's description:
   clause that could only come from the knob name / an announce-or-redtext
   string / an enum name / a config comment, with no enforcing read-site,
   is flavour-C even if it happens to be true.
+- **Callee-follow on call-chain-mediated clauses (2026-05-20, B4
+  dead-CF_SPC_ADMIN cluster dropquad rev=3 finding).** If a clause
+  asserts an effect that is enforced through a function call (caller
+  invokes a helper that carries the actual gating logic), **follow the
+  call chain into the callee before classifying**. The line in the
+  caller that invokes the helper is NOT the enforcing line if the
+  gating logic the clause asserts lives in the callee. The dropquad
+  worked example (now also in `enforce-trace-discipline.md`): the
+  caller `DropPowerups` plural gates on `dq`/`k_pow_q`/`Get_Powerups`;
+  the callee `DropPowerup` singular at items.c:1874 carries the
+  `match_in_progress != 2` live-match gate. A verifier that stops at
+  the caller false-negatives the live-match clause as UNTRACEABLE
+  even when the synth reasoning names the callee explicitly. Read the
+  callee, classify against the callee's enforcing line.
 
 Classify the row (exactly one):
 
