@@ -18,6 +18,43 @@ import prism from 'prism-media';
 import { logger } from '../../core/logger.js';
 import { SILENT_OPUS_FRAME, FRAME_DURATION_MS } from '../recording/silence.js';
 
+/**
+ * Decode an Opus packet's playback duration from its TOC byte (RFC 6716 sec 3.1).
+ *
+ * Mumble desktop clients negotiate frame sizes per audio-quality setting; the
+ * QW Voice Server's default is 10ms (config 30 = CELT-FB 10ms), but real users
+ * may send other sizes. We need to count REAL audio time per packet (not just
+ * "+1 frame") so the silence-timer math stays aligned with wall-clock; otherwise
+ * each 10ms real packet causes 10ms of silence padding to get skipped, and the
+ * OGG timeline compresses relative to wall-clock by exactly the total speech
+ * duration per track.
+ *
+ * Returns FRAME_DURATION_MS as a safe fallback for unparseable packets.
+ */
+function opusPacketDurationMs(packet: Buffer): number {
+  if (packet.length < 1) return FRAME_DURATION_MS;
+  const toc = packet[0];
+  const config = (toc >> 3) & 0x1f;
+  const c = toc & 0x03;
+
+  // Frame size (in tenths of milliseconds, so we can keep integer arithmetic
+  // through CELT's 2.5ms case). Index = config. RFC 6716 Table 2.
+  //                    SILK-NB              SILK-MB              SILK-WB              Hybrid              CELT-NB         CELT-WB         CELT-SWB        CELT-FB
+  const frameTenthsMs = [100, 200, 400, 600, 100, 200, 400, 600, 100, 200, 400, 600, 100, 200, 100, 200, 25, 50, 100, 200, 25, 50, 100, 200, 25, 50, 100, 200, 25, 50, 100, 200];
+  const baseTenthsMs = frameTenthsMs[config];
+
+  let frameCount = 1;
+  if (c === 1 || c === 2) {
+    frameCount = 2;
+  } else if (c === 3 && packet.length >= 2) {
+    // Code 3 packets carry their frame count in the next byte's low 6 bits.
+    frameCount = packet[1] & 0x3f;
+    if (frameCount === 0) frameCount = 1;
+  }
+
+  return (baseTenthsMs * frameCount) / 10;
+}
+
 export interface MumbleTrackMetadata {
   track_number: number;
   mumble_session_id: number;
@@ -46,7 +83,11 @@ export class MumbleTrack {
   private oggStream: prism.opus.OggLogicalBitstream;
   private fileStream: WriteStream;
   private silenceTimer: ReturnType<typeof setInterval> | null = null;
-  private framesWritten = 0;
+  // Total audio milliseconds written to the OGG stream so far (real packets
+  // contribute their actual decoded duration; silent frames contribute
+  // FRAME_DURATION_MS). The silence timer compares this against wall-clock
+  // elapsed to know how much silence to pad with.
+  private audioMsWritten = 0;
   private trackStartTime = 0;
   private recordingStartTime: Date;
   private failed = false;
@@ -123,7 +164,7 @@ export class MumbleTrack {
       for (let i = 0; i < silentFrames; i++) {
         this.oggStream.write(SILENT_OPUS_FRAME);
       }
-      this.framesWritten += silentFrames;
+      this.audioMsWritten += silentFrames * FRAME_DURATION_MS;
       logger.debug(`Mumble track ${this.trackNumber} prepended ${silentFrames} silent frames (${gapMs}ms gap)`, {
         username: this.username,
       });
@@ -131,22 +172,25 @@ export class MumbleTrack {
 
     this.trackStartTime = this.recordingStartTime.getTime();
 
-    // Silence filler: runs on every FRAME_DURATION_MS tick.
-    // Calculates how many frames SHOULD exist by now vs how many were written,
-    // then fills the deficit. This handles both VAD gaps and the case where
-    // a user is not speaking. Real Opus frames written via writeOpusFrame()
-    // keep framesWritten ahead of the deficit.
+    // Silence filler: runs on every FRAME_DURATION_MS tick. Computes the
+    // current shortfall in audio milliseconds vs wall-clock elapsed, then
+    // writes that many silent frames (each FRAME_DURATION_MS long). Real
+    // packets contribute their actual decoded duration via writeOpusFrame so
+    // the OGG's internal timeline tracks wall-clock 1:1 -- without the
+    // ms-aware accounting, 10ms Mumble packets would each cause 10ms of
+    // silence padding to be skipped, drifting the OGG behind wall-clock by
+    // the total speech duration per track.
     this.silenceTimer = setInterval(() => {
       if (this.failed) return;
 
       const totalElapsedMs = Date.now() - this.trackStartTime;
-      const expectedFrames = Math.floor(totalElapsedMs / FRAME_DURATION_MS);
-      const deficit = Math.max(0, expectedFrames - this.framesWritten);
+      const deficitMs = totalElapsedMs - this.audioMsWritten;
+      const silentFrames = Math.max(0, Math.floor(deficitMs / FRAME_DURATION_MS));
 
-      for (let i = 0; i < deficit; i++) {
+      for (let i = 0; i < silentFrames; i++) {
         this.oggStream.write(SILENT_OPUS_FRAME);
       }
-      this.framesWritten += deficit;
+      this.audioMsWritten += silentFrames * FRAME_DURATION_MS;
     }, FRAME_DURATION_MS);
 
     logger.debug(`Mumble track ${this.trackNumber} started`, { username: this.username });
@@ -155,7 +199,7 @@ export class MumbleTrack {
   /** Write a real Opus frame from a Mumble voice packet. */
   writeOpusFrame(opusData: Buffer): void {
     if (this.failed) return;
-    this.framesWritten++;
+    this.audioMsWritten += opusPacketDurationMs(opusData);
     this.oggStream.write(opusData);
   }
 
