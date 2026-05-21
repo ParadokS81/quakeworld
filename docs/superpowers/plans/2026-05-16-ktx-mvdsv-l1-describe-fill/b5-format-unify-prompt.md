@@ -42,6 +42,15 @@ Set by: server config.
 
 All of those belong in `description_reasoning` (which YOU DO NOT MODIFY) or an L3 concept note.
 
+## Preserve exact command/cvar names verbatim
+
+KTX command + cvar naming is inconsistent across families -- do NOT "correct" names that look pattern-divergent. Two known traps:
+
+- The favourites family: `fav<N>_add` (e.g. `fav1_add`) saves a player to slot N; the companion is `<N>fav_go` (e.g. `1fav_go`), NOT `fav<N>_go`. The suffix order swaps between the two halves.
+- General principle: if the OLD description references a command/cvar by name, copy that reference verbatim into the NEW description. Verify against `research/repos/ktx/src/commands.c` only when the existing reasoning is silent or ambiguous about the name.
+
+If you see a name pattern that looks "inconsistent" within a family, that is usually intentional KTX naming, not a typo. Preserve it.
+
 ## Voting cvars (`k_vp_*`) -- generic-framing hedge
 
 For KTX voting-percentage cvars (`k_vp_map`, `k_vp_captain`, `k_vp_break`, `k_vp_admin`, `k_vp_coach`, `k_vp_pickup`, `k_vp_rpickup`, `k_vp_nospecs`, `k_vp_teamoverlay`, `k_vp_coop`, `k_vp_hookstyle`, `k_vp_antilag`, `k_vp_privategame`, `k_vp_suggestcolor`), **avoid claiming a specific vote-cast command syntax** in the description -- the mechanism varies across cvars in KTX (some are toggle-the-named-command consensus style, e.g. `/break`; others require an explicit approval cmd like `/yes`, e.g. `/captain`). Stick to generic framing like "a captain election" or "a break vote", **not** "(/captain vote)" or "(/break vote)". The cvar value is "percentage of eligible voters required to pass" -- frame around the threshold concept, not the command syntax.
