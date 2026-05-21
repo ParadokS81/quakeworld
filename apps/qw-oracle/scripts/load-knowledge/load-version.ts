@@ -177,6 +177,15 @@ export interface LoadVersionResult {
   // fully deletes its targets. A non-zero count signals either a partial
   // walk that crashed mid-flight or a different bug. Investigate.
   fullyOrphanedEntities: number;
+  // Entity IDs flagged as fully-orphaned at retreat-scan time. Returned so
+  // the caller can re-check them after same-run post-loop adapters (Track-B
+  // HUD commands 3e, Track-A overlay 3f) have populated their version-rows.
+  // Per-entity + summary warnings are NOT emitted from loadVersion -- the
+  // deferred re-check at the extract-tag boundary
+  // (recheckFullyOrphanedAfterPostLoops) fires the warning only for
+  // entities STILL orphaned after every adapter has finished. F16 fix,
+  // 2026-05-21. Empty in steady state.
+  fullyOrphanedEntityIds: number[];
 }
 
 const PARTIAL_DROP_GUARD_RATIO = 0.5;
@@ -707,6 +716,7 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
     // column; match_event uses xsd_path (XSD is source-of-truth).
     let entitiesRetreated = 0;
     let fullyOrphanedEntities = 0;
+    const fullyOrphanedEntityIds: number[] = [];
     let retreatTransitionsLogged = 0;
     if (options.type !== 'asset_category' && options.type !== 'match_event') {
       const retreatScan = await tx<Array<{
@@ -745,12 +755,13 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
           // loudly and surface in result; do NOT touch the entity row
           // (separation of concerns from the cross-type orphan pruner).
           fullyOrphanedEntities += 1;
-          console.warn(
-            `[load-version] fully-orphaned entity: project=${options.project} ` +
-            `type=${options.type} entity_id=${entityId}; ` +
-            `entity row has no rows in ${adapter.versionsTable}. ` +
-            `Skipping retreat -- investigate (partial walk crashed mid-flight, or cross-type orphan pruner failure).`,
-          );
+          fullyOrphanedEntityIds.push(entityId);
+          // Per-entity warning emission is DEFERRED to the extract-tag
+          // boundary (recheckFullyOrphanedAfterPostLoops). The per-type
+          // retreat scan runs before same-run post-loop adapters (Track-B
+          // HUD commands 3e, Track-A overlay 3f) populate their
+          // version-rows; emitting here would fire false positives for
+          // transient inter-step gaps. F16 fix, 2026-05-21.
           continue;
         }
 
@@ -817,12 +828,9 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
           `${options.project}@${options.version}.`,
         );
       }
-      if (fullyOrphanedEntities > 0) {
-        console.warn(
-          `[load-version] ${fullyOrphanedEntities} fully-orphaned ${options.type} entit${fullyOrphanedEntities === 1 ? 'y' : 'ies'} ` +
-          `at ${options.project} (no rows in ${adapter.versionsTable}); see per-entity warnings above.`,
-        );
-      }
+      // Summary warning emission is DEFERRED with the per-entity warnings
+      // (see fullyOrphanedEntityIds + recheckFullyOrphanedAfterPostLoops).
+      // F16 fix, 2026-05-21.
     }
 
     // oracle_meta is the Postgres-side replacement for SQLite's schema_meta
@@ -862,6 +870,7 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
       dbEntityCount: dbCountRows[0]!.n,
       entitiesRetreated,
       fullyOrphanedEntities,
+      fullyOrphanedEntityIds,
     };
   });
 
@@ -875,7 +884,59 @@ export async function loadVersion(options: LoadVersionOptions): Promise<LoadVers
     typeMismatchOrphansPruned: result.orphansPruned,
     entitiesRetreated: result.entitiesRetreated,
     fullyOrphanedEntities: result.fullyOrphanedEntities,
+    fullyOrphanedEntityIds: result.fullyOrphanedEntityIds,
   };
+}
+
+// F16 fix (2026-05-21): re-check orphaned entity IDs after extract-tag's
+// post-loop adapters (Track-B HUD commands 3e, Track-A overlay 3f, KTX
+// modes/taxonomies/tables 3b-3d) have run. The per-type retreat scan in
+// loadVersion runs BEFORE these adapters, so its in-loop "fully-orphaned"
+// determination is necessarily premature for any type whose entities a
+// post-loop adapter populates. This boundary check fires the warning only
+// for entities STILL orphaned after every adapter has finished: real
+// orphans surface loudly; transient inter-step gaps stay quiet.
+//
+// The warning text shape is preserved verbatim so downstream log-scanning
+// tools (validate-extractor, arc-reviewer post-arc grep) continue to
+// recognize the [load-version] fully-orphaned signature.
+export async function recheckFullyOrphanedAfterPostLoops(
+  sql: postgres.Sql<{}>,
+  project: Project,
+  orphansByType: Partial<Record<EntityType, number[]>>,
+): Promise<void> {
+  for (const [type, ids] of Object.entries(orphansByType) as [EntityType, number[]][]) {
+    if (!ids || ids.length === 0) continue;
+    const adapter = ADAPTERS[type];
+    if (!adapter) continue;
+
+    const stillOrphaned = await sql<{ id: number }[]>`
+      SELECT e.id
+      FROM entities e
+      LEFT JOIN ${sql(adapter.versionsTable)} v ON v.entity_id = e.id
+      WHERE e.id = ANY(${ids})
+        AND e.project = ${project}
+        AND e.type = ${type}
+      GROUP BY e.id
+      HAVING COUNT(v.entity_id) = 0
+    `;
+
+    for (const o of stillOrphaned) {
+      console.warn(
+        `[load-version] fully-orphaned entity: project=${project} ` +
+        `type=${type} entity_id=${Number(o.id)}; ` +
+        `entity row has no rows in ${adapter.versionsTable}. ` +
+        `Skipping retreat -- investigate (partial walk crashed mid-flight, or cross-type orphan pruner failure).`,
+      );
+    }
+    if (stillOrphaned.length > 0) {
+      console.warn(
+        `[load-version] ${stillOrphaned.length} fully-orphaned ${type} entit${stillOrphaned.length === 1 ? 'y' : 'ies'} ` +
+        `at ${project} (no rows in ${adapter.versionsTable} after all post-loop adapters); ` +
+        `see per-entity warnings above.`,
+      );
+    }
+  }
 }
 
 // Recursively strip U+0000 NUL bytes from any string in a parsed-JSON tree.

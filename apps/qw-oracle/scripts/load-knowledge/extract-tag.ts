@@ -18,7 +18,7 @@ import { existsSync, readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import type postgres from 'postgres';
-import { loadVersion } from './load-version.js';
+import { loadVersion, recheckFullyOrphanedAfterPostLoops } from './load-version.js';
 import { loadAssets } from './load-assets.js';
 import { loadReleaseNotes, projectHasGithubUpstream } from './load-release-notes.js';
 import { buildAssetBundle } from './build-asset-bundle.js';
@@ -435,6 +435,12 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
 
   // 3. Entity loaders.
   const entitiesLoaded: Partial<Record<EntityType, number>> = {};
+  // F16 fix (2026-05-21): collect fully-orphaned IDs per type so we can
+  // re-check them after post-loop adapters (3e Track-B HUD commands, etc.)
+  // have populated their version-rows. Per-entity + summary warnings are
+  // deferred to recheckFullyOrphanedAfterPostLoops at the boundary below
+  // (step 3g) so transient inter-step gaps don't fire false positives.
+  const orphansByType: Partial<Record<EntityType, number[]>> = {};
   const fileMap = ENTITY_JSON_FILES[options.project];
   for (const [type, jsonFile] of Object.entries(fileMap) as [EntityType, string][]) {
     // asset_category lives only in the asset bundle; skip when the project
@@ -462,6 +468,9 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
       skipPrune: options.skipPrune ?? false,
     });
     entitiesLoaded[type] = result.entityCount;
+    if (result.fullyOrphanedEntityIds.length > 0) {
+      orphansByType[type] = result.fullyOrphanedEntityIds;
+    }
   }
 
   // 3b. KTX modes load (Phase 3 of KTX onboarding arc). After the entity-loader
@@ -635,6 +644,20 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
       );
     }
   }
+
+  // 3g. Deferred fully-orphaned re-check (enforce-L1-runtime-truth F16
+  // fix, 2026-05-21). The per-type retreat scan in load-version.ts ran
+  // BEFORE the post-loop adapters above (3b-3d KTX loaders, 3e Track-B
+  // HUD commands, 3f Track-A overlay) populated their version-rows; any
+  // "fully-orphaned" determination made during step 3 was necessarily
+  // premature for any type whose entities a post-loop adapter populates.
+  // Re-check the collected orphan IDs now that every adapter has finished
+  // -- emit warnings only for entities STILL orphaned. Real orphans
+  // surface loudly; transient inter-step gaps stay quiet. The warning
+  // text shape matches the original load-version one so downstream
+  // log-scanning tools (validate-extractor, arc-reviewer) keep recognizing
+  // the [load-version] fully-orphaned signature.
+  await recheckFullyOrphanedAfterPostLoops(options.sql, options.project, orphansByType);
 
   // 4. Asset bundle. Skipped for projects without one.
   let assets = { extensionsUpserted: 0, pathRulesUpserted: 0, cvarBindingsUpserted: 0, loaderSitesUpserted: 0 };
