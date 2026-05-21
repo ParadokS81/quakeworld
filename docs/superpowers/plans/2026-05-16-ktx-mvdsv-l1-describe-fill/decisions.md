@@ -1230,6 +1230,85 @@ filled when Phase 2/3 run -- coverage logic is idempotent on it, per P3). The
 Phase 1 drafter records the chosen cvar in the Phase 1 MD's "Outputs to next
 phase" so Phase 2/3 drafters know which row is pre-filled.
 
+## D20 -- L1 description template = condensed user-doc; reasoning = audit trail; cross-codebase synthesis = L3 (locked Session #9, 2026-05-21)
+
+**Decision:** L1 `entities.description` is the user-facing prose surface --
+ezquake.com / help_commands.json style. Codebase-scoped. No engine or code
+jargon. The locked template shape:
+
+```
+<1-line what-it-does>
+
+<value> = <meaning>
+<value> = <meaning>
+
+Default: <X>.  [or "Default: X. Recommended: Y." when convention differs from default]
+Set by: <method>.  [server config only / admin command 'foo' / any-player 'bar' / vote / etc.]
+See also: <concept-note slug>.  [optional, only when cross-codebase context exists]
+```
+
+L1 `description_reasoning` carries the audit trail: source-anchored cites
+(file:line, code citations, per-clause enforce-traces). Remains in DB as L1
+data, surfaces to LLM on deep-detail queries. Proves we did not invent the
+description.
+
+Cross-codebase synthesis (e.g. KTX cvar interacting with MVDSV engine +
+ezQuake client + fteqtv proxy) belongs in L3 concept notes. L1 description
+points to the L3 note via `See also:` rather than inlining the synthesis.
+
+**Why:** The Session #9 KTX describe-fill arc shipped the 96-row V-pass
+cohort with descriptions overloaded with file:line refs + engine-jargon
+prose. Operator caught it: "this might sound great for an LLM but its
+practically unreadable for a human." ezquake.com proved the condensed
+help-comment style works for the QW community for ~20 years; we are not
+improving on that by being more verbose -- we're leaking verification
+artifacts (which belong in reasoning) into the user-facing surface (which
+should answer "what does this setting do in my game" without dynamic
+compression). MCP design implication: `lookup_entity` returns the short
+description + concept-note pointers by default; reasoning surfaces on
+deep-detail queries; pay the L1 authoring work once, save round-trips at
+every LLM query.
+
+**Anti-patterns** (never in L1 description):
+- Engine / code jargon ("think handler", "cf_flags", "stuffcmd", "fpd bit 64").
+- File:line refs in prose (e.g. `world.c:1442-1469`).
+- Code citation prose ("the function returns true at...", "the registration sets...").
+- Source-trace synthesis ("MVDSV's spec-filter records into the MVD dem_multiple bitmask...").
+
+All of those belong in description_reasoning OR in an L3 concept note.
+
+**Implication for this arc + queued arcs:**
+
+- The 96-row V-pass-flagged cohort that landed under this arc is correct in
+  content but wrong in shape. It needs a re-write to the new template.
+- The ~543 V-pass-clean longer KTX cvar+command rows (501+ chars on average)
+  ALSO need this template -- same scope.
+- The ~75 already-short rows (<=250 chars) need only light template
+  reformatting (value enum + Default/Set-by lines).
+- All future describe-fill work (KTX 1.48+, MVDSV describe-fill, other
+  forks, other codebases) starts from this template.
+- The `describe-fill-synthesis` skill must encode this as the synthesis
+  discipline; "no engine/code jargon in description" is a QA rule alongside
+  ELABORATION DISCIPLINE.
+
+**Followup arcs (queued, NOT part of this arc):**
+
+- **Format-unify arc** -- rewrite all 618 KTX cvar+command descriptions to
+  this template. Calibrate with the 96-cohort batch first (Sonnet medium
+  fan-out, brief = "read description + reasoning, re-author description per
+  the D20 template, ensure source-trace stays in reasoning"). Scale to the
+  V-pass-clean rows after.
+- **L3 concept note: QW team-chat visibility across the stack** --
+  synthesises the cross-codebase findings (KTX k_spectalk + k_sayteam_to_spec;
+  MVDSV sv_user.c spec-filter + `$\` marker; ezQuake cl_fakename +
+  TP_ShortNick; fteqtv transitive relay; MVD dem_multiple gating). The
+  first L3 concept note that L1 descriptions point to via `See also:`.
+
+**Worked examples:** `docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/b4-ledger-screening-affirmed-rows.md` -- 11 rows authored in this template during Session #9 (dp, dq, dr, k_prewar, k_spectalk, k_sayteam_to_spec, k_dmm4_gren_mode, k_demo_mintime, k_exclusive, k_admins, k_allowvoteadmin).
+
+**Memory anchor:** `feedback_l1_description_template` (in user-global
+memory; cross-arc methodology durable beyond this arc).
+
 ---
 
 *End of decisions. New cross-cutting commitments discovered during phase
