@@ -42,6 +42,10 @@ Set by: server config.
 
 All of those belong in `description_reasoning` (which YOU DO NOT MODIFY) or an L3 concept note.
 
+## Voting cvars (`k_vp_*`) -- generic-framing hedge
+
+For KTX voting-percentage cvars (`k_vp_map`, `k_vp_captain`, `k_vp_break`, `k_vp_admin`, `k_vp_coach`, `k_vp_pickup`, `k_vp_rpickup`, `k_vp_nospecs`, `k_vp_teamoverlay`, `k_vp_coop`, `k_vp_hookstyle`, `k_vp_antilag`, `k_vp_privategame`, `k_vp_suggestcolor`), **avoid claiming a specific vote-cast command syntax** in the description -- the mechanism varies across cvars in KTX (some are toggle-the-named-command consensus style, e.g. `/break`; others require an explicit approval cmd like `/yes`, e.g. `/captain`). Stick to generic framing like "a captain election" or "a break vote", **not** "(/captain vote)" or "(/break vote)". The cvar value is "percentage of eligible voters required to pass" -- frame around the threshold concept, not the command syntax.
+
 ## Your batch
 
 Read your assigned canonical_ids from: `<BATCH_FILE>`
