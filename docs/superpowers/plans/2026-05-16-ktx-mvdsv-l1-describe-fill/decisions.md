@@ -1311,6 +1311,73 @@ memory; cross-arc methodology durable beyond this arc).
 
 ---
 
+## D21 -- Format-unify follow-up SHIPPED (2026-05-21 Session #10)
+
+**Decision:** The format-unify follow-up arc named in D20 ("rewrite all 618
+KTX cvar+command descriptions to this template") shipped 2026-05-21 in
+Session #10. All 607 in-scope KTX cvar+command rows now carry D20-template
+descriptions; the 11 screening-pass anchors were skipped (already in template
+from Session #9). Plan + apply mechanism + retrospective tracked at
+`docs/superpowers/plans/2026-05-21-ktx-l1-format-unify.md`.
+
+**Mechanism:** Sub-agent fan-out (Sonnet medium, 31 batches across 4 waves
+of 8/8/8/7). Each sub-agent read existing `description` + `description_reasoning`
+from Postgres and rewrote only the description per the D20 template -- the
+Session #9 audit trail in `description_reasoning` was left untouched (the
+schema has supported the two-track separation since migration 014, 2026-05-17;
+D21 is the editorial completion). A new apply script
+`apps/qw-oracle/scripts/describe-fill/apply-l1-format-unify.py` (sister to
+`apply-l1-from-ledgers.py`) translated `b5-format-unify-*.md` ledgers to
+idempotent UPDATE SQL with defensive defaults that preserve reasoning +
+provenance columns when the ledger omits NEW <field> blocks.
+
+**Output length distribution (post-apply, 2026-05-21):**
+
+| Bucket | Pre | Post | Δ |
+|---|---:|---:|---:|
+| Long (>=501 chars) | 195 | 56 | -71% |
+| Mid (251-500) | 359 | 483 | +35% |
+| Short (<=250) | 64 | 79 | +23% |
+| has_reasoning | 602 | 602 | 0 |
+
+The 56 surviving long rows are genuinely-complex commands (frogbot waypoint
+editor sub-commands; multi-mode preset commands like `dmm4` / `2on2on2`;
+admin code flows). Sampled at apply-time -- no jargon leakage, all D20
+template shape, multi-arg semantics that don't compress below 500 chars
+without losing user-relevant content.
+
+**Mid-arc discoveries captured in the user-global skill / prompt:**
+
+- **Voting cvars (`k_vp_*`) generic-framing hedge** -- the 14-cvar family
+  has inconsistent vote mechanisms (`/break`-style same-cmd-toggles vs
+  `/captain`-style nominate-then-`/yes`-to-approve). Prompt section + future
+  L3 concept note on QW voting will absorb this. Found 2026-05-21 during
+  k_vp_captain calibration review.
+- **Exact-name preservation** -- KTX command naming is intentionally
+  inconsistent across families (`fav<N>_add` companions are named
+  `<N>fav_go`, NOT `fav<N>_go`). Prompt section + worked example added;
+  one batch (b5-format-unify-batch-23.md) hit this and was sed-fixed post
+  hoc before apply. Found 2026-05-21 at wave 3 spot-check.
+- **Sub-command enumeration variant** -- commands that take sub-args
+  (e.g. `race_pacemaker`, `spawn666time`) gain a sub-command enumeration
+  block, parallel to the value enum block. Sub-agent improvisation, kept.
+- **Intra-KTX See-also pointers** -- sub-agents minted See-also links not
+  only for cross-codebase synthesis (the prompt's specified scope) but also
+  for intra-KTX cross-references (e.g. `gren_mode` cmd -> `k_dmm4_gren_mode`
+  cvar -> future game-mode L3 concept note). Operator validated this
+  expansion -- the See-also graph scaffolds the future L3 concept-note
+  layer.
+
+**Closes:** the KTX describe-fill arc (parent of D20). Five Session #9
+follow-ups remain queued from the parent arc (L3 concept note "QW
+team-chat visibility", arc-reviewer pass for the 96-row cohort, three
+describe-fill-synthesis skill folds); none gate the next arc.
+
+**Next:** MVDSV describe-fill arc mirrors this workflow. Same D20 template,
+same apply-script pattern, same fan-out shape.
+
+---
+
 *End of decisions. New cross-cutting commitments discovered during phase
 drafting append here as D20+ with date + reason. Spec amendments land as dated
 blocks under the original C/D. Never silently override in a phase MD; never
