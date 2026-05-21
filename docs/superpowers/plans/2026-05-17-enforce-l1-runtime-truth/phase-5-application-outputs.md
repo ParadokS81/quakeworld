@@ -72,6 +72,32 @@
 > defaults for operator ratification; they are Phase-5-scoped application
 > choices, NOT refuted premises.)
 
+> **F12 DATED MD-CORRECTION 2026-05-21 (post-arc fresh terminal; F6/F10/F12/F14
+> narrative-preserved precedent -- no redraft, no `decisions.md` D-amendment;
+> the SHIPPED code is correct, only this MD's literal text was wrong;
+> review-findings F12 [propagated from Phase 4] + the 2026-05-21 post-arc
+> analysis "Findings during review" YELLOW are the authoritative record).**
+> One literal-text defect in this MD's verification commands -- the same F12
+> family Phase 4 received its 2026-05-18 dated correction for, surfaced as an
+> unfixed sibling by the post-arc analysis. Phase 5 was DRAFTED 2026-05-17
+> before Phase 4 caught F12 at execution on 2026-05-18; the Phase-4 correction
+> did not propagate to Phase 5's MD. Code/data are correct (the Phase-5
+> executor ran the correct form at execution 2026-05-19); this is an
+> MD-literal-only defect:
+> - **F12 (the F6/F10/F12/F14 copy-run hazard family).** Verification check 3
+>   (the "Full pipeline runs end-to-end" block) literally `bun
+>   scripts/load-knowledge/index.ts load-version --project ezquake --version
+>   head --force` is the WRONG subcommand (`load-version` requires
+>   `--type/--json/--commit` and ingests ONE single-type JSON; a verbatim
+>   copy-run HARD-THROWS and is the wrong semantics for a real
+>   extract+load+post-loop round-trip). The CORRECT entrypoint is `bun
+>   scripts/load-knowledge/index.ts extract-tag --project ezquake --version
+>   head --force --skip-release-notes`. The Phase-5 executor ran the correct
+>   form at execution; the literal line below carries an inline `[F12 ...]`
+>   marker pointing here. The prose mention of `load-version` at line 110 is
+>   descriptive of the pipeline-stage name (not a copy-runnable literal) and
+>   is preserved unchanged.
+
 ## Goal
 
 This phase delivers the two D20 Track-A application outputs + the D21
@@ -704,7 +730,10 @@ nothing depends on it (X2; no Phase 6 -- W4 vacuous).
    ```
    cd /home/paradoks/projects/quakeworld/apps/qw-oracle
    python3 scripts/extractors/ezquake/accept-runtime-truth.py --stage all
-   bun scripts/load-knowledge/index.ts load-version --project ezquake --version head --force
+   # [F12 DATED CORRECTION 2026-05-21: was `index.ts load-version ...` --
+   #  WRONG subcommand (hard-throws). Correct working invocation below;
+   #  see the F12 dated block at the top of this MD.]
+   bun scripts/load-knowledge/index.ts extract-tag --project ezquake --version head --force --skip-release-notes
    PSQL="docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -tAc"
    $PSQL "SELECT count(*) FROM cvar_versions    WHERE track_a_reachability IS NOT NULL;"
    $PSQL "SELECT count(*) FROM command_versions WHERE track_a_reachability IS NOT NULL;"
