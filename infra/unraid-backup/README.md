@@ -1,6 +1,6 @@
 # Unraid backup redesign -- on-box reference + resolved parameters
 
-**Status:** Phase 2 CLOSED 2026-05-20 -- borgmatic container deployed, first 58 GB baseline archive landed on Synology in 17m38s, nightly cron installed. Phases 4-6 next (monitoring already half-validated by induced failures during deploy).
+**Status:** Phase 5 functionally COMPLETE 2026-05-21 -- 3-2-1 in effect. Prague offsite copy (37 GB) verified via `borg check --verify-data`, repo ID matches Synology exactly. Only Task 5.3 (Windows Task Scheduler hookup, operator-only) remains. Phase 6 (restore drill -- the real acceptance gate) is next.
 **Spec:** `docs/superpowers/specs/2026-05-19-unraid-backup-redesign-design.md`
 **Plan:** `docs/superpowers/plans/2026-05-19-unraid-backup-redesign.md`
 
@@ -303,3 +303,82 @@ failures, only the Homepage tile remains as an [OP] task) effectively
 substantially-complete. Next: Phase 5 (Prague offsite pull) + Phase 6
 (restore drill -- the real acceptance gate). The two-week parallel
 soak before Phase 7 cutover begins now.
+
+## Phase 5 execution findings (2026-05-21)
+
+- **3-2-1 in effect.** Unraid (source) + Synology (copy 1, append-only push
+  via Tailscale-tunnelled SSH) + Prague (copy 2, rsync pull over
+  Tailscale to local NVMe). Auth model: ONE borg-unraid user on Synology
+  with TWO authorized keys -- the original Unraid key uses the borg-serve
+  --append-only forced command, the new Prague key uses `restrict`
+  keyword only (no forced command, since rsync needs a plain shell).
+  Trade-off: Prague has shell-level access to the encrypted repo under
+  borg-unraid -- can read/modify (still cannot decrypt without
+  passphrase). Threat model accepts this since Prague is the operator's
+  own dev laptop on the same tailnet.
+- **First pull stats.** rsync 38.79 GB at ~2.8 MB/sec sustained (3h51m,
+  01:13 -> 05:04). `borg check --verify-data` 17m on the local NVMe
+  copy. Total wall-clock 4h08m end-to-end. Local repo size 37 GB
+  matches the Synology repo's deduplicated 38.74 GB (delta is mostly
+  rsync transfer overhead + filesystem block rounding).
+- **Pull throughput is much lower than push.** Unraid->Synology push
+  sustained ~55 MB/sec; Prague->Synology pull only ~2.8 MB/sec. Likely
+  cause: Prague-Synology Tailscale path goes via DERP relay (no direct
+  endpoint) and/or Prague's uplink is the choke. NOT a blocker --
+  steady-state pulls only fetch the day's new chunks (rsync is
+  content-addressed on borg's chunks, so deltas are tiny: an O(GB)
+  archive becomes an O(100MB) incremental pull). First-pull cost only.
+- **Local copy is a perfect mirror.** `borg list /mnt/d/Backups/borg-appdata`
+  shows the same archive name (`ParadokS-2026-05-20T17:46:18.302821`) and
+  fingerprint as on Synology; `borg info` shows the same Repository ID
+  (`ee90123fa4a39cad64bde3a00ca3c2f5a2ced69cde91d2307088cd41d1614695`).
+  Reading via the escrowed passphrase from `~/.config/borg/passphrase`
+  works end-to-end. Disaster recovery path: even if Unraid AND Synology
+  vaporize, Prague + escrow alone get every backed-up file back.
+- **borg version skew acceptable.** Prague's apt-installed `borgbackup`
+  is 1.2.8, Unraid container is 1.4.4, Synology is 1.4.3. borg 1.2.x
+  reads 1.4-created repos via the stable on-disk format -- verified by
+  the successful `borg check --verify-data` traversal of every chunk.
+  Upgrading Prague to 1.4 is a future hygiene task, not a Phase 5 blocker.
+
+### Plan corrections discovered during Phase 5 execution (apply forward)
+
+15. **`prague-pull.sh` needs explicit SSH key.** The plan's template ran
+    `ssh "${SYN_SSH}"` without `-i` -- in the Prague WSL setup the user
+    `paradoks` has no default `~/.ssh/id_*`, so the reachability check
+    failed silently and the script reported "Synology unreachable"
+    despite Tailscale being up. Fix: bake `SSH_KEY=~/.ssh/borg_prague_ed25519`
+    constant at script top, reference in both the reachability ssh
+    and the rsync `-e ssh -i ...` invocations.
+
+16. **`--rsync-path=/usr/bin/rsync` required for DSM rsync.** DSM's
+    `/bin/sh` returns "Permission denied, please try again" (NOT
+    "command not found") when invoking bare `rsync` through a
+    restrict-keyword'd authorized_keys entry, even though `/usr/bin`
+    IS in borg-unraid's PATH and `which rsync` resolves correctly.
+    Some interaction between sshd's restrict mode and DSM's command
+    lookup. Absolute path bypasses it entirely. The plan didn't
+    predict this; baked into the script as a comment.
+
+17. **Reuse-borg-unraid-with-two-keys vs new-user-with-ACL.** The plan
+    suggested a separate `borg-prague` user with read-only access,
+    requiring either POSIX ACLs (setfacl on a DSM Btrfs volume + new
+    default ACL for borg-created files, plus a `--umask` change to the
+    Unraid forced-command line so new chunks have group-read) OR a
+    new `borgreaders` group with setgid-on-dir for chgrp inheritance.
+    Chose the simpler "two keys on one user" approach: ONE user
+    (borg-unraid) with TWO authorized keys, the second key restricted
+    via `restrict` keyword but with no forced command. Documented the
+    Prague-can-shell-as-borg-unraid trade-off above. Future hardening
+    if threat model tightens: add `command="/usr/bin/rrsync -ro
+    /volume1/backup/borg-appdata"` to the Prague key (requires
+    sourcing rrsync onto Synology -- it's a small Perl script, not
+    bundled by DSM).
+
+**Phase 5 functionally COMPLETE 2026-05-21.** First pull + verify
+passed end-to-end. Task 5.3 (Windows Task Scheduler hookup on Prague)
+is operator-only and untimed -- script reads passphrase from
+`~/.config/borg/passphrase` so the Task Scheduler action just needs to
+invoke `wsl -d <distro> bash -lc '<path>/prague-pull.sh'`. After Task
+Scheduler is set up, Phase 5 closes fully and the parallel soak
+continues until Phase 7 cutover.
