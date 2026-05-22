@@ -155,6 +155,25 @@ A unified `search_curated(type, query)` tool is **not** in v1 scope. It is a fol
 
 **Implication:** Phase 6 ships ~9 new tools. Each one mirrors the response shape of its L1 sibling (rows, snippet, match_quality). `lookup_by_nick` is the new shape -- joins across players + clans on alias arrays.
 
+**Amendment 2026-05-06 (API_CONTRACTS audit):** D11's per-type tool surface is **superseded** by the unified-tool shape (Path C from `apps/qw-oracle/API_CONTRACTS.md`). Phase 6 now ships **four** tools instead of ten:
+
+- `search_profiles(query, type, limit)` -- substring + alias retrieval. `type` is required: `'player' | 'clan' | 'tournament'`. The tool branches internally on `type` to query `community.players` / `community.clans` / `community.tournaments`. Returns `ToolResponse<ProfileRecord>` where `ProfileRecord` is a discriminated union (`PlayerRecord | ClanRecord | TournamentRecord`).
+- `lookup_profile(slug, type)` -- canonical-slug lookup with cross-link composition. The composition logic from per-type lookup_player / lookup_clan / lookup_tournament moves into this single tool, branched on `type`. Returns the discriminated union with `clan_eras` / `tournament_results` / `members` populated as appropriate.
+- `lookup_by_nick(nick, limit)` -- **KEPT as a separate tool.** Cross-type alias resolution is a genuinely different verb (resolves a string to entities across types in a single call, returning a `NickHit` discriminated union). Doesn't fit the `search_profiles` / `lookup_profile` shape; survives the API_CONTRACTS.md "different verb" justification.
+- `get_profile_note(slug, type)` -- replaces `get_player_note` / `get_clan_note` / `get_tournament_note`. Reads `apps/qw-oracle/curated/<type>-notes/<slug>.md` (filesystem path constructed from the `type` discriminator).
+
+Tool count math: Phase 6 adds **+4** tools (catalog 12 -> 16) instead of +10 (catalog 12 -> 22).
+
+**Why the amendment:** the MCP tool catalog is loaded into every connecting LLM's context whether the tools are used or not. Healthy ceiling is ~15 tools; hard ceiling ~25 (consumer LLMs start picking wrong tools as the catalog grows). D11's +10 puts the catalog at 22 -- inside the danger zone. The unified-tool approach preserves all functionality with the cost paid once on the server side (each tool branches on `type`) instead of paid forever in every consumer's context budget. The `community.*` schema (D2) is unaffected -- only the MCP surface changes.
+
+**Naming convention:** the schema stays `community.*` (Phase 1 shipped this; immutable). Tool names use `profile` because that's the semantic content shape (a profile of a person / clan / tournament), and tool names are the LLM-facing label. Schema names are storage-internal. The two do not need to match.
+
+**Why `lookup_by_nick` stays separate:** its verb is alias-resolution-across-types, not lookup-by-slug. Different shape (returns a discriminated union of multiple types in one call, where the consumer LLM picks the right one). Justified per the API_CONTRACTS.md "new dataset checklist" step 4 (different verb).
+
+**Implication for the executor:** `phase-6-mcp-tools.md` was drafted against the original D11 (10-tool surface). A deviation banner has been added at the top of that file flagging this amendment as the source of truth. Before Phase 6 executes, a fresh-terminal drafter pass must redraft the phase MD against this amended D11. The TypeScript interfaces (PlayerRecord / ClanRecord / TournamentRecord / NickHit / etc.) defined in the original phase-6 MD's Task 1 stay -- the per-type record shapes are unchanged. What changes is the file inventory (3 tool files instead of 9) and each tool's dispatch logic (branches on `type`).
+
+**Implication for the README non-goals:** the line "Unified `search_curated` MCP tool ... is a follow-up arc" is now obsolete -- the unified tool IS v1, renamed `search_profiles` to match the semantic shape. README.md updated.
+
 ---
 
 ## D12. Snapshot directory is permanent -- commit policy decided in Phase 0

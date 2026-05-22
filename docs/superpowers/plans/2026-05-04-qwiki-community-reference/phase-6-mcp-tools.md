@@ -1,5 +1,16 @@
 # Phase 6 -- MCP tools (per-type retrieval over community.* + curated notes)
 
+> **DEVIATION BANNER 2026-05-06:** This phase MD was drafted against the original D11 (per-type tools, 10 new). D11 was amended on 2026-05-06 by the API_CONTRACTS audit at `apps/qw-oracle/API_CONTRACTS.md`. The amended decision ships **four unified tools** instead of ten:
+>
+> - `search_profiles(query, type, limit)` (replaces search_players + search_clans + search_tournaments)
+> - `lookup_profile(slug, type)` (replaces lookup_player + lookup_clan + lookup_tournament)
+> - `lookup_by_nick(nick, limit)` (KEPT as-is; different verb)
+> - `get_profile_note(slug, type)` (replaces get_player_note + get_clan_note + get_tournament_note)
+>
+> **Before executing this phase, redraft this MD against the amended D11.** The TypeScript record interfaces (Task 1) stay unchanged. The file inventory shrinks (3 tool files instead of 9). Each unified tool branches on `type` internally. Tool catalog growth: 12 -> 16, not 12 -> 22. See `decisions.md` D11 amendment for the full rationale; see `apps/qw-oracle/API_CONTRACTS.md` for the contract.
+>
+> The original-D11 content below stays for historical reference (much of it -- type interfaces, SQL shapes, dispatch wrapping -- is reusable in the redrafted MD). Do NOT execute the original-D11 plan.
+
 > **Drafter checklist before writing this phase:**
 > 1. Read `decisions.md` -- D1 (two outputs), D2 (community schema), D3 (curated/), D5 (two-threshold), D11 (per-type tools, no unified search), D13 (ASCII), D14 (Bun), D18 (note frontmatter mirrors row).
 > 2. Read `review-findings.md` -- F7 (case-variant pairs intentionally distinct -- relevant to lookup_by_nick scoring), F11 (Category:Clans = 822 not 829, used in test seed sanity).

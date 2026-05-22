@@ -48,7 +48,7 @@ Phases land in order. Each phase commits a coherent unit (per `decisions.md` D16
 | 3 | shipped | `phase-3-clans.md` | (drafted; n/a) | Clans parser (2 branches + fallback) + load 829 rows + emit clan-notes | community.clans populated; curated/clan-notes/ has tuned count |
 | 4 | approved | `phase-4-tournaments.md` | (drafted; n/a) | Pilot (~50 pages, schema discovery) + migration 009 + parser + load + emit tournament-notes | community.tournaments populated; curated/tournament-notes/ has tuned count |
 | 5 | approved | `phase-5-cross-link-backfill.md` | (drafted; n/a) | Parse achievements -> tournament_results; parse clan history -> player_clan_eras; match against community.tournaments / community.clans | Cross-link tables populated; sample queries return expected names |
-| 6 | approved | `phase-6-mcp-tools.md` | (drafted; n/a) | search_players / search_clans / search_tournaments / lookup_by_nick / get_*_note tools | MCP server returns community data via per-type tools |
+| 6 | approved (NEEDS REDRAFT per D11 amendment 2026-05-06) | `phase-6-mcp-tools.md` | (drafted; needs redraft) | search_profiles / lookup_profile / lookup_by_nick / get_profile_note tools (4 unified, not 10 per-type) | MCP server returns community data via 4 unified tools (catalog 12 -> 16) |
 | 7 | approved | `phase-7-l2-primer.md` | (drafted; n/a) | Primer artifact for L2 corpus reconstruction analyzer | Primer recognizes reference players (Milton, ParadokS, etc.) with correct nationality + clan affiliation |
 
 When a phase MD lands, change `not started` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
@@ -68,7 +68,7 @@ Per `decisions.md` and the spec's non-goals section:
 - **Quarterly re-scrape automation.** Manual today; ops concern later.
 - **Round-trip editing from quake.world surface.** Designed-for, not built.
 - **Public quake.world community pillar pages** (player profiles, clan pages). They will consume this arc's markdown; building them is platform work, not oracle work.
-- **Unified `search_curated` MCP tool** (cross-type retrieval). Per-type tools ship in v1; unification is a follow-up arc.
+- ~~**Unified `search_curated` MCP tool** (cross-type retrieval). Per-type tools ship in v1; unification is a follow-up arc.~~ **OBSOLETE per D11 amendment 2026-05-06.** The unified tool (`search_profiles` / `lookup_profile`) IS v1; per-type tools are not built. See `apps/qw-oracle/API_CONTRACTS.md` for the contract.
 - **LLM-driven note generation.** D4 locks deterministic extraction; LLM enters only for the Phase 4 tournament schema-discovery pilot (~50 pages, one-time).
 
 If a phase drifts into one of these, that's a scope creep -- flag it.
