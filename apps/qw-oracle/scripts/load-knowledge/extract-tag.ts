@@ -14,7 +14,7 @@
 // extractor; this file stubs them as 'not-yet-supported' errors.
 
 import { execSync, spawnSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, unlinkSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import type postgres from 'postgres';
@@ -375,6 +375,22 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
   // 2. Unified Python extractor (cvar / command / macro / cmdline_param /
   // keyname / hud_element / asset_cvar_bindings / asset_loader_sites).
   const extractorOutputDir = PROJECT_EXTRACTOR_OUTPUT_DIR[options.project];
+
+  // F17 fail-safe-completeness (2026-05-22): unlink the additive 10th
+  // file BEFORE the extractor runs. emit_callgraph_signal.py writes it
+  // IFF the D22 gate is GREEN; on OFF/RED it returns None and the file
+  // is NOT refreshed. Pre-unlinking guarantees existsSync after the
+  // extractor reflects THIS run's GREEN/OFF/RED state, not a prior
+  // GREEN run's stale signal. The 9th file (ezquake-hud-commands-ast.json)
+  // is unconditional (HUD commands are real entities discovered
+  // independently of the callgraph passenger), so it is NOT unlinked here.
+  if (options.project === 'ezquake') {
+    const stale10thPath = join(extractorOutputDir, 'ezquake-callgraph-reachability-ast.json');
+    if (existsSync(stale10thPath)) {
+      unlinkSync(stale10thPath);
+    }
+  }
+
   const unifiedRun = spawnSync(
     'python3',
     [
@@ -612,9 +628,28 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
   // existsSync-guarded + idempotent (the ON CONFLICT path re-supplies the
   // spine each run; the per-type loaders' nulls are COALESCEd so they
   // never wipe it).
+  //
+  // F17 fail-safe-completeness (2026-05-22): the existsSync guard is
+  // necessary but not sufficient -- a prior GREEN run leaves a valid 10th
+  // file on disk that a subsequent OFF/RED run would still consume (the
+  // producer fail-safe-CLOSES by not writing new content but does not
+  // unlink). The pre-extractor unlink (in step 2) closes the
+  // freshness gap so existsSync now reflects THIS run's emit state. We
+  // ADDITIONALLY gate on stageTwoStampSet (the loader-side D22 gate; same
+  // record + GREEN + pin-agreement check the producer applies) -- if the
+  // mechanism is not GREEN at the loaded pin, the overlay is skipped AND
+  // the level-2 column is explicitly wiped (the COALESCE in natural-keys
+  // would otherwise preserve stale prior-GREEN values; the UPDATE below
+  // sidesteps it by writing outside the upsert path). Level-3 / source_state
+  // = 'dump-confirmed' is unaffected by this branch -- it is governed by
+  // the existing stageTwoStampSet null-path on the loader side and was
+  // proven 0 on RED at the Phase-4 RE-VERIFY (the safety property the
+  // North Star rests on).
   if (options.project === 'ezquake') {
     const reachabilityJsonPath = join(extractorOutputDir, 'ezquake-callgraph-reachability-ast.json');
-    if (existsSync(reachabilityJsonPath)) {
+    const artifactPresent = existsSync(reachabilityJsonPath);
+    const gateGreen = stageTwoStampSet !== null;
+    if (artifactPresent && gateGreen) {
       const { loadCallgraphReachabilityFromFile } = await import('./load-callgraph-reachability.js');
       const cgResult = await loadCallgraphReachabilityFromFile(
         options.sql,
@@ -637,11 +672,34 @@ export async function extractTag(options: ExtractTagOptions): Promise<ExtractTag
         );
       }
     } else {
+      // F17 fix: retreat the level-2 track_a_reachability column to NULL
+      // when the mechanism is OFF (no fresh artifact this run) or RED
+      // (D22 gate not GREEN at loaded pin). UPDATE bypasses the COALESCE
+      // in natural-keys (which is load-bearing for command_versions
+      // Track-A <-> Track-B coexistence and must stay).
+      const reason = !artifactPresent
+        ? 'no callgraph signal artifact this run (passenger OFF or D22 RED at emit-side)'
+        : 'D22 gate not GREEN at loaded pin (loader-side stageTwoStampSet null)';
+      const cvarWipe = await options.sql`
+        UPDATE cvar_versions SET track_a_reachability = NULL
+        WHERE entity_id IN (SELECT id FROM entities WHERE project = 'ezquake')
+          AND track_a_reachability IS NOT NULL
+      `;
+      const cmdWipe = await options.sql`
+        UPDATE command_versions SET track_a_reachability = NULL
+        WHERE entity_id IN (SELECT id FROM entities WHERE project = 'ezquake')
+          AND track_a_reachability IS NOT NULL
+      `;
+      const sep = '='.repeat(64);
+      console.warn(sep);
       console.warn(
-        `[extract-tag] ezquake-callgraph-reachability-ast.json missing at ${reachabilityJsonPath}; ` +
-        `skipping Track-A reachability overlay. Re-run extract-tag with the callgraph ` +
-        `passenger ON (default) if this is unexpected.`,
+        `[extract-tag] ezquake Track-A reachability overlay SKIPPED -- ${reason}. ` +
+        `F17 fail-safe-completeness: wiped track_a_reachability on ` +
+        `${cvarWipe.count} cvar_versions + ${cmdWipe.count} command_versions ` +
+        `row(s) (level-2 retreats to NULL when mechanism is OFF/RED; ` +
+        `level-3 safety property unchanged).`,
       );
+      console.warn(sep);
     }
   }
 
