@@ -94,9 +94,50 @@
 >   scripts/load-knowledge/index.ts extract-tag --project ezquake --version
 >   head --force --skip-release-notes`. The Phase-5 executor ran the correct
 >   form at execution; the literal line below carries an inline `[F12 ...]`
->   marker pointing here. The prose mention of `load-version` at line 110 is
->   descriptive of the pipeline-stage name (not a copy-runnable literal) and
->   is preserved unchanged.
+>   marker pointing here. The prose mention of `load-version` in the
+>   "Runnable, verifiable state at the phase boundary" paragraph
+>   ("...acceptance harness -> load-version...") is descriptive of the
+>   pipeline-stage name (not a copy-runnable literal) and is preserved
+>   unchanged.
+
+> **F18 DATED MD-CORRECTION 2026-05-22 (post-arc fresh terminal; F13-class
+> legitimate D21-ship consequence -- the SHIPPED code/data are correct,
+> only the check-2 expected-value literal is now stale because the arc
+> shipped EXACTLY its specified deliverable; review-findings F18 + the
+> 2026-05-21 post-arc analysis "Open YELLOWs" are the authoritative
+> record).** One literal-text defect in this MD's verification check 2 --
+> the PASS condition + the matching FAIL-routing annotation. F13-class
+> staleness (a phase-MD literal whose expected value was a PRE-execution
+> snapshot, now stale because the arc shipped exactly its specified
+> deliverable). DISTINCT from F12 (F6/F10/F12/F14 copy-run hazard) and
+> F15 (non-idempotency defect; do NOT recalibrate). Phase 5 was DRAFTED
+> 2026-05-17 when Phases 1-4 were APPROVED PLANS, not executed; the
+> F2-authoritative pool figure `74/92/129` was RE-DERIVED LIVE that day
+> (the 129 = recoverable `HUD_Register` commands then formerly-hidden
+> from L1). Phase-2 (`3c136826`) + Phase-3 (`895817bb`) then shipped
+> exactly those 129 as first-class `type='command'` L1 entities (D21 /
+> North-Star direction 2 -- "L1 no longer HIDES working commands").
+> Post-ship, the banked `front1-diff.sh` returns all 631 ezQuake head
+> commands INCLUDING the 129, so `comm -13` (runtime cmdlist MINUS L1) =
+> 0. The Phase-5 executor primary-source-verified this at 2026-05-19 (L1
+> head commands = 631; `track_b_hud_recovery` carriers = 129, ALL
+> `type='command'`; 129/129 present in the runtime cmdlist; the decisive
+> reverse-diff with the 129 track_b carriers EXCLUDED from L1 = EXACTLY
+> 129). The fix is literal-only:
+> - **F18 (F13-class stale-PRE-execution-snapshot literal).**
+>   Phase-boundary verification check 2's PASS literal `command reverse
+>   129` is now `command reverse 0` post-ship; the matching FAIL-routing
+>   annotation `not 74/92/129` becomes `not 74/92/0`. The cvar CANDIDATES
+>   92, command CANDIDATES 74, and cvar reverse 4 figures are unchanged.
+>   **Do NOT recalibrate the banked predicate (`front1-diff.sh`)** -- it
+>   is correct and unchanged; only the expected-value literal needs
+>   updating (F13 discipline: a legitimate D21-ship consequence, not a
+>   defect to bake in). The literal lines below carry an inline `[F18 ...]`
+>   marker pointing here. The HISTORICAL drafting-time captures at the
+>   top "F2 74/92/129 RE-DERIVED LIVE this drafting" block and the body
+>   "F2 pool RE-DERIVED LIVE (X8/W2 -- the load-bearing re-check)" section
+>   preserve their `129` figure -- they accurately record what was true
+>   at drafting; the post-ship truth lives here + inline at check 2.
 
 ## Goal
 
@@ -719,13 +760,17 @@ nothing depends on it (X2; no Phase 6 -- W4 vacuous).
    PASS: both print `3f9e724fa608e516040f02b9557808ff3efda53e`. FAIL: they
    differ -- the level-3 stamp Phase 5 filters is version-noise; STOP and
    re-pin/re-extract with the operator (X8/W2).
-2. **X8/W2 sanity-gate re-run -> 74/92/129 (the pool figure the artifact
+2. **X8/W2 sanity-gate re-run -> 74/92/0 (the pool figure the artifact
    states):** re-run the banked `front1-diff.sh` predicate against the
    in-repo dump + the live DB (the Recon-facts re-run; exercises the
    BANKED proxy against the BANKED dump -- NOT a fresh detection capture,
-   X7). PASS: `command CANDIDATES 74 / cvar CANDIDATES 92 / command
-   reverse 129`; SANITY GATE both legs `[PASS]`. FAIL: any other figure,
-   or a SANITY GATE `[FAIL]` -- STOP (the pin/dump disagree; X8/W2).
+   X7). [F18 DATED CORRECTION 2026-05-22: was `74/92/129` at drafting --
+   129 was the recoverable `HUD_Register` set, which Phase 2 + Phase 3
+   shipped as first-class L1 (D21 ship); post-ship the reverse-diff is
+   `0`. See the F18 dated block at the top of this MD.] PASS:
+   `command CANDIDATES 74 / cvar CANDIDATES 92 / command reverse 0`;
+   SANITY GATE both legs `[PASS]`. FAIL: any other figure, or a SANITY
+   GATE `[FAIL]` -- STOP (the pin/dump disagree; X8/W2).
 3. **Full pipeline runs end-to-end + the L1 signal spans the full pool:**
    ```
    cd /home/paradoks/projects/quakeworld/apps/qw-oracle
@@ -993,7 +1038,10 @@ UPDATE):
   stamp Phase 5 filters is version-noise. STOP. Re-pin / re-capture with
   the operator (detection capture is out of scope -- X7; HAVING the
   matched dump is the precondition). Not a code bug.
-- **Sanity gate not 74/92/129 (check 2 FAIL):** the pin/dump disagree, OR
+- **Sanity gate not 74/92/0 (check 2 FAIL):** [F18 DATED CORRECTION
+  2026-05-22: was `74/92/129` at drafting; post-ship the 129 became
+  first-class L1 (D21 ship consequence) so the reverse-diff is `0`. See
+  the F18 dated block at the top of this MD.] the pin/dump disagree, OR
   the banked predicate was perturbed. STOP -- this is the Phase-4 answer
   key; do NOT weaken the gate. Re-confirm the dump + pin with the operator
   (X8/W2).
