@@ -952,7 +952,7 @@ Migration `016_l1_inferred_category.sql`. Pure-additive: two nullable TEXT colum
 
 ### `category_inferred`
 
-LLM-derived function-based category (e.g. `"Admin & permissions"`, `"Voting"`). NULL for ezQuake (which uses source-truth `group_name_in_source`); populated for KTX (and later MVDSV / QWCL) via the b6-categorize fan-out described in `docs/superpowers/plans/2026-05-22-ktx-l1-categorize/README.md`. Value space is a 13-category locked list (see the plan's "Strawman category list (locked during Phase 2 calibration)").
+LLM-derived function-based category (e.g. `"Admin & permissions"`, `"Voting"`). NULL for ezQuake (which uses source-truth `group_name_in_source`); populated for KTX (and later MVDSV / QWCL) via the b6-categorize fan-out described in `docs/superpowers/plans/2026-05-22-ktx-l1-categorize/README.md`. Value space at v2 (LOCKED 2026-05-22) is a 14-category list: the 13 from Phase 2 calibration plus `Player communication` (added at Phase 3 amendment after fan-out surfaced a recurring messaging cluster -- see `docs/superpowers/plans/2026-05-22-ktx-l1-categorize/b6-categorize-overrides.md` for the v2 list and amendment rationale).
 
 ### `category_inferred_origin`
 
