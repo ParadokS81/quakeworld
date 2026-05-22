@@ -330,10 +330,47 @@ body {
 `;
 
 const INLINE_JS = `
-/* placeholder -- replaced in Task 20 */
-function toggleCard(el) { const b = el.parentElement.querySelector('.card-body'); b.hidden = !b.hidden; el.querySelector('.chevron').textContent = b.hidden ? '\\u25B8' : '\\u25BE'; }
-function toggleGroup(el) { const b = el.parentElement.querySelector('.group-body'); b.hidden = !b.hidden; el.querySelector('.chevron').textContent = b.hidden ? '\\u25B8' : '\\u25BE'; }
-function applyFilter() { /* placeholder */ }
+function toggleCard(el) {
+  const body = el.parentElement.querySelector('.card-body');
+  body.hidden = !body.hidden;
+  el.querySelector('.chevron').textContent = body.hidden ? '\\u25B8' : '\\u25BE';
+}
+function toggleGroup(el) {
+  const body = el.parentElement.querySelector('.group-body');
+  body.hidden = !body.hidden;
+  el.querySelector('.chevron').textContent = body.hidden ? '\\u25B8' : '\\u25BE';
+}
+function applyFilter() {
+  const q = (document.getElementById('filter').value || '').toLowerCase().trim();
+  const groups = document.querySelectorAll('.group');
+  groups.forEach(function(g) {
+    const cards = g.querySelectorAll('.card');
+    let visibleCount = 0;
+    cards.forEach(function(c) {
+      const name = (c.getAttribute('data-name') || '').toLowerCase();
+      const first = c.getAttribute('data-first') || '';
+      const match = !q || name.indexOf(q) !== -1 || first.indexOf(q) !== -1;
+      c.classList.toggle('hidden', !match);
+      if (match) visibleCount++;
+    });
+    g.classList.toggle('hidden', visibleCount === 0 && q.length > 0);
+    const countEl = g.querySelector('.group-count');
+    if (countEl) {
+      const total = cards.length;
+      countEl.textContent = q && visibleCount < total ? (visibleCount + ' / ' + total + ' entities') : (total + ' entities');
+    }
+  });
+  if (q.length > 0) {
+    document.querySelectorAll('.group').forEach(function(g) {
+      const body = g.querySelector('.group-body');
+      const chev = g.querySelector('.group-header .chevron');
+      if (!g.classList.contains('hidden') && body.hidden) {
+        body.hidden = false;
+        chev.textContent = '\\u25BE';
+      }
+    });
+  }
+}
 `;
 
 if (import.meta.main) main();
