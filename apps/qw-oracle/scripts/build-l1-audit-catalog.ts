@@ -131,18 +131,21 @@ function buildBadges(r: EntityRow): string {
 
 function renderCard(r: EntityRow): string {
   const desc = escapeHtml(r.description);
-  const firstP = escapeHtml(firstPara(r.description));
+  const firstParaRaw = firstPara(r.description);
+  const firstP = escapeHtml(firstParaRaw);
   const reasoning = r.description_reasoning
     ? escapeHtml(r.description_reasoning)
     : "(anchor row -- no reasoning; D20 template authored by hand)";
   const sourceRef = r.source_file ? `${r.source_file}:${r.source_line}` : "(none)";
   return `
-<div class="card" data-name="${escapeHtml(r.name)}" data-first="${escapeHtml(firstPara(r.description).toLowerCase())}">
+<div class="card" data-name="${escapeHtml(r.name)}" data-first="${escapeHtml(firstParaRaw.toLowerCase())}">
   <div class="card-header" onclick="toggleCard(this)">
-    <span class="chevron">&#x25B8;</span>
-    <code class="entity-name">${escapeHtml(r.name)}</code>
+    <span class="name-cell">
+      <span class="chevron">&#x25B8;</span>
+      <code class="entity-name">${escapeHtml(r.name)}</code>
+    </span>
     <span class="badges">${buildBadges(r)}</span>
-    <div class="first-para">${firstP}</div>
+    <span class="first-para-inline" title="${firstP}">${firstP}</span>
   </div>
   <div class="card-body" hidden>
     <pre class="description">${desc}</pre>
@@ -278,28 +281,63 @@ body {
 .group-header .group-count { font-size: 11px; color: #888; }
 .group-body { padding: 8px 10px 10px; }
 .card {
-  border: 1px solid #333;
-  border-radius: 4px;
-  padding: 10px 12px;
-  margin-bottom: 8px;
+  border: 1px solid #2a2a2a;
+  border-radius: 3px;
+  margin-bottom: 3px;
   background: #1a1a1a;
 }
-.card-header { cursor: pointer; }
-.card-header .chevron { color: #888; margin-right: 6px; }
-.entity-name { color: #9cdcfe; font-weight: 600; font-family: ui-monospace, monospace; }
-.badges { font-size: 10px; color: #777; margin-left: 8px; }
-.badge { display: inline-block; padding: 1px 6px; border: 1px solid #333; border-radius: 3px; margin-right: 4px; }
+.card-header {
+  display: grid;
+  grid-template-columns: 280px auto 1fr;
+  align-items: baseline;
+  gap: 12px;
+  padding: 5px 10px;
+  cursor: pointer;
+  min-height: 26px;
+}
+.card-header:hover { background: #1f1f1f; }
+.name-cell {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  overflow: hidden;
+}
+.card-header .chevron { color: #888; flex-shrink: 0; font-size: 10px; }
+.entity-name {
+  color: #9cdcfe;
+  font-weight: 600;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.badges { font-size: 10px; color: #777; white-space: nowrap; }
+.badge { display: inline-block; padding: 0 5px; border: 1px solid #333; border-radius: 3px; margin-right: 3px; }
 .badge-anchor { color: #ffb454; border-color: #5a4a2a; }
 .badge-seealso { color: #9cdcfe; border-color: #2a4a5a; }
-.first-para { font-size: 12px; color: #bbb; line-height: 1.45; margin: 4px 0 0 18px; }
-.card-body { margin: 8px 0 0 18px; border-top: 1px dashed #333; padding-top: 8px; }
+.first-para-inline {
+  font-size: 12px;
+  color: #bbb;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.card-body {
+  border-top: 1px dashed #333;
+  padding: 10px 12px 12px 40px;
+  background: #161616;
+}
 .description {
   font-family: ui-sans-serif, system-ui, sans-serif;
   white-space: pre-wrap;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.55;
   color: #ddd;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
+  max-width: 90ch;
 }
 .metadata-strip {
   font-size: 11px;
@@ -322,9 +360,11 @@ body {
 }
 .audit-body {
   font-size: 11px;
-  line-height: 1.45;
+  line-height: 1.5;
   color: #aaa;
   font-style: italic;
+  white-space: pre-wrap;
+  max-width: 110ch;
 }
 .card.hidden, .group.hidden { display: none; }
 `;
