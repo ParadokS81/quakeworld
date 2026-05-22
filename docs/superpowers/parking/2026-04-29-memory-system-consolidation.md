@@ -23,9 +23,28 @@ Reopen this entry (and queue an actual brainstorm) when **any** of these fire:
 2. The operator notices arc-receipt content still slipping into `project_*` memories despite arc-history.md existing.
 3. Calendar check: ~3-4 weeks from 2026-04-29 (around 2026-05-20), open this file and re-run the Verification-first command. If thresholds still healthy AND no friction surfaced, close this parking file outright. If thresholds drifted OR friction surfaced, brainstorm.
 
+## 2026-05-22 check-in (trigger #3 fired)
+
+Re-ran the verification command. Thresholds DRIFTED on all three trigger axes:
+
+- Size: 28.1 KB (cap: 20 KB trigger / 24.4 KB load) — index entries individually exceeded ~200 chars, causing session-load truncation.
+- Lines: 193 (cap: 150).
+- Project memories: 36 (cap: 30).
+
+**Mechanical fix applied this session:** bulk hook-compression across all 138 entries (no memory files touched, only the `MEMORY.md` index). Result: 28.1 KB → 24.0 KB, headroom 0.3 KB under load cap. Lines unchanged at 193; project count unchanged at 36.
+
+**What the mechanical fix did NOT address:**
+1. File count drift (138 total, 36 project_*; was 78/?? at 2026-04-29 post-trim baseline).
+2. Lines unchanged — would need entry merging/draining, not just compression.
+3. Reason the pile grew so fast (~60 files in ~3 weeks) — leak-source diagnosis is the brainstorm question.
+
+**Disposition:** trigger #3's brainstorm condition is now real; schedule a dedicated brainstorm pass for the file-count + leak-source question separately. Mechanical compression bought ~1 month of operational headroom; the structural redesign question is parked for that brainstorm.
+
+Pushed calendar entry to 2026-06-22 (~1 month) for the next check.
+
 ## Pressure
 
-Low while watching. Escalates to medium if any trigger fires.
+Medium. Mechanical headroom secured; structural brainstorm still owed.
 
 ## Related
 
