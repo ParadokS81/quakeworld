@@ -725,6 +725,45 @@ export async function probeRuntimeFidelityShape(ctx: ProbeContext): Promise<Prob
   };
 }
 
+// arc: ktx-categorize (2026-05-22) -- v19 / migration 016 XOR integrity gate.
+//
+// Every populated category_inferred must have a populated category_inferred_origin
+// and vice versa, across cvar_versions and command_versions. Scoped to "all" rows
+// (the XOR check is project-agnostic). Trivially passes when both columns are NULL
+// (pre-fan-out). Promoted to a FAIL signal once the b6-categorize ledgers apply and
+// every KTX row carries the pair.
+async function probeCategoryInferredProvenanceIntegrity(ctx: ProbeContext): Promise<ProbeResult> {
+  const rows = await ctx.sql<{ canonical_id: string }[]>`
+    SELECT e.canonical_id FROM cvar_versions cv
+    JOIN entities e ON e.id = cv.entity_id
+    WHERE (cv.category_inferred IS NULL) <> (cv.category_inferred_origin IS NULL)
+    UNION ALL
+    SELECT e.canonical_id FROM command_versions cm
+    JOIN entities e ON e.id = cm.entity_id
+    WHERE (cm.category_inferred IS NULL) <> (cm.category_inferred_origin IS NULL)
+    ORDER BY canonical_id
+    LIMIT 8
+  `;
+  const countRows = await ctx.sql<{ cnt: number }[]>`
+    SELECT (
+      (SELECT COUNT(*) FROM cvar_versions WHERE (category_inferred IS NULL) <> (category_inferred_origin IS NULL))
+      + (SELECT COUNT(*) FROM command_versions WHERE (category_inferred IS NULL) <> (category_inferred_origin IS NULL))
+    )::int AS cnt
+  `;
+  const total = countRows[0]?.cnt ?? 0;
+  return {
+    name: 'F1.category_inferred_provenance_integrity',
+    family: 'regression',
+    description: 'Every category_inferred has a matching category_inferred_origin and vice versa (XOR invariant) -- ktx-categorize v19 / migration 016',
+    status: total === 0 ? 'PASS' : 'FAIL',
+    count: total,
+    summary: total === 0
+      ? 'category_inferred and category_inferred_origin are populated together across cvar_versions + command_versions'
+      : `${total} offending row(s) where one of the pair is populated but the sibling is NULL`,
+    examples: rows.map(r => r.canonical_id),
+  };
+}
+
 // arc: enforce-L1-runtime-truth Phase 5 / Task 3 -- Track-A signal-pool level discipline.
 //
 // Every banked Track-A row (cvar_versions + command_versions) at version='head' must
@@ -2863,6 +2902,8 @@ const REGRESSION_PROBES: Probe[] = [
   { name: 'F1.jsonb_columns_not_strings', family: 'regression', description: '', run: probeJsonbNotStrings },
   // arc: enforce-L1-runtime-truth -- Track A/B reachability column shape gate (Phase 3 / R2 + D12)
   { name: 'F1.runtime_fidelity_shape', family: 'regression', description: '', run: probeRuntimeFidelityShape },
+  // arc: ktx-categorize (2026-05-22) -- category_inferred + provenance sibling XOR gate (v19 / migration 016)
+  { name: 'F1.category_inferred_provenance_integrity', family: 'regression', description: '', run: probeCategoryInferredProvenanceIntegrity },
   // arc: enforce-L1-runtime-truth Phase 5 / Task 3 -- signal-pool level discipline + Track-B first-class gate
   { name: 'F1.callgraph_signal_pool_coverage', family: 'regression', description: '', run: probeCallgraphSignalPoolCoverage },
   { name: 'F1.hud_recovery_first_class', family: 'regression', description: '', run: probeHudRecoveryFirstClass },
