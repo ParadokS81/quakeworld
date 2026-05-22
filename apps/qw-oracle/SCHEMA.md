@@ -131,7 +131,7 @@ What differs is the type-specific payload columns.
 
 Extracted from `var_t`/`cvar_t` struct initializers. Schema v1.
 
-Type-specific columns: `help_desc`, `help_remarks`, `help_values`, `help_group_id`, `help_type`, `default_value`, `flags_raw`, `flag_names`, `on_change`, `min_bound`, `max_bound`, `storage_class`, `group_name_in_source`, `trailing_comment`, `server_only`, `source_root` (nullable, schema v11 -- see `source_root` reference below), `track_a_reachability` (JSONB nullable, migration 015 -- v18 runtime fidelity, see below).
+Type-specific columns: `help_desc`, `help_remarks`, `help_values`, `help_group_id`, `help_type`, `default_value`, `flags_raw`, `flag_names`, `on_change`, `min_bound`, `max_bound`, `storage_class`, `group_name_in_source`, `trailing_comment`, `server_only`, `source_root` (nullable, schema v11 -- see `source_root` reference below), `track_a_reachability` (JSONB nullable, migration 015 -- v18 runtime fidelity, see below), `category_inferred` (TEXT nullable, migration 016 -- v19 LLM-derived category, see below), `category_inferred_origin` (TEXT nullable, migration 016 -- v19 provenance sibling, see below).
 
 **Populated by:** `load-cvars.ts` <- `packages/qw-config/scripts/extract-ezquake-cvars-clang.py` -> `ezquake-variables-ast.json`.
 
@@ -145,7 +145,7 @@ Index: `idx_cvar_versions_source ON (source_file, source_line)`.
 
 Extracted from `Cmd_AddCommand` registration sites. Schema v1.
 
-Type-specific: `help_desc`, `help_remarks`, `help_group_id`, `handler_fn`, `registration_file`, `source_root` (nullable, schema v11 -- see `source_root` reference below), `track_a_reachability` (JSONB nullable, migration 015 -- v18 runtime fidelity, see below), `track_b_hud_recovery` (JSONB nullable, migration 015 -- v18 runtime fidelity, see below).
+Type-specific: `help_desc`, `help_remarks`, `help_group_id`, `handler_fn`, `registration_file`, `source_root` (nullable, schema v11 -- see `source_root` reference below), `track_a_reachability` (JSONB nullable, migration 015 -- v18 runtime fidelity, see below), `track_b_hud_recovery` (JSONB nullable, migration 015 -- v18 runtime fidelity, see below), `category_inferred` (TEXT nullable, migration 016 -- v19 LLM-derived category, see below), `category_inferred_origin` (TEXT nullable, migration 016 -- v19 provenance sibling, see below).
 
 **Populated by:** `load-commands.ts` <- `extract-ezquake-commands-clang.py` -> `ezquake-commands-ast.json`.
 
@@ -943,6 +943,30 @@ These three columns join the `F1.jsonb_columns_not_strings` regression-gate targ
 
 - Spec: `docs/superpowers/specs/2026-05-16-libclang-callgraph-reachability-design.md`
 - Arc: `enforce-L1-runtime-truth` (2026-05-17)
+
+---
+
+## v19 (2026-05-22): KTX L1 categorize -- category_inferred + provenance sibling
+
+Migration `016_l1_inferred_category.sql`. Pure-additive: two nullable TEXT columns on `cvar_versions` and on `command_versions`, no backfill, no index, no constraint.
+
+### `category_inferred`
+
+LLM-derived function-based category (e.g. `"Admin & permissions"`, `"Voting"`). NULL for ezQuake (which uses source-truth `group_name_in_source`); populated for KTX (and later MVDSV / QWCL) via the b6-categorize fan-out described in `docs/superpowers/plans/2026-05-22-ktx-l1-categorize/README.md`. Value space is a 13-category locked list (see the plan's "Strawman category list (locked during Phase 2 calibration)").
+
+### `category_inferred_origin`
+
+Provenance sibling for `category_inferred`. Format: `{model}|{prompt_version}`, e.g. `claude-sonnet-4-6|b6-categorize-v1`. NULL iff `category_inferred` is NULL (XOR invariant gated by `F1.category_inferred_provenance_integrity`).
+
+### F1 regression gate
+
+`F1.category_inferred_provenance_integrity` enforces the XOR invariant across `cvar_versions` and `command_versions`: every populated `category_inferred` has a matching populated `category_inferred_origin`, and vice versa.
+
+### Spec / plan
+
+- Spec: `docs/superpowers/specs/2026-05-22-ktx-l1-audit-visualization-design.md`
+- Plan: `docs/superpowers/plans/2026-05-22-ktx-l1-categorize/README.md`
+- Arc: `arc-ktx-categorize` (2026-05-22)
 
 ---
 
