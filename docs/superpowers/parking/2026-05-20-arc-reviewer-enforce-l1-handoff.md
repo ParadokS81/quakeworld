@@ -1,5 +1,7 @@
 # Arc-reviewer handoff -- enforce-L1-runtime-truth (post-arc review, fresh terminal)
 
+> **STATUS (2026-05-22 housekeeping):** consumed. The arc-reviewer pass ran 2026-05-21 and produced `docs/superpowers/reviews/2026-05-21-enforce-l1-runtime-truth-post-arc-analysis.md` (GREEN at sign-off; commit `0b19c291`). This prompt is preserved as the historical handoff record referenced from the plan README + arc-history; do NOT re-execute. The "Reads required" list below references a sister handoff file that was drained at the same housekeeping pass — broken pointer at line 31 is historical, not actionable.
+
 You are a **fresh-terminal arc-reviewer** (invoke the `arc-reviewer` skill). The arc shipped 2026-05-20; this terminal performs the structural post-arc review that the arc-orchestrator could not -- the orchestrator session was anchored on what executed, the reviewer's value is reading cold. You did NOT execute any phase; you produce the DELIVERED / DELIVERED-DIFFERENT / DEFERRED / MISSING walkthrough vs the spec + locked decisions + every phase MD + cross-phase memory captures.
 
 Repo root: `/home/paradoks/projects/quakeworld`. Arc tag pushed: `arc-enforce-l1-runtime-truth-shipped`.

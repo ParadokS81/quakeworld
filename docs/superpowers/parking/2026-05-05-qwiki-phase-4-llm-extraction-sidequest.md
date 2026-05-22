@@ -301,3 +301,13 @@ This handoff was written by orchestrator session #2 at 2026-05-05, ~150k context
 - Orchestrator session #3 to draft executor + drive Phase 4: ~120-180k expected.
 - Phase 4 executor terminal: ~150-220k expected.
 - All comfortably under 350k smell zone.
+
+## Mid-flow resume artifacts (2026-05-06)
+
+The brainstorm session hit ~400k context after producing concrete intermediate artifacts (5 year cohort extractions under prompt v7 + canonicalization supervisor). Resume handoffs + review work product preserved at:
+
+- `docs/superpowers/parking/2026-05-06-qwiki-phase-4-investigative-resume.md` — mid-flow investigative session resume prompt.
+- `docs/superpowers/parking/2026-05-06-qwiki-phase-4-brand-discovery-resume.md` — fresh-terminal resume for the canonicalization pivot that surfaced after the investigative session.
+- `docs/superpowers/parking/2026-05-06-qwiki-phase-4-canonical/` — companion folder with README + `operator-review.md` (214 rows × 5 year batches of canonicalization edge cases needing operator judgment) + `supervisor-design.md` (canonicalization supervisor design sketch).
+
+Review for relevance when Phase 4 resumes; some decisions in `operator-review.md` may already have been made or rendered moot by D4 pivot to LLM-with-checklist extraction.
