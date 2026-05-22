@@ -2,7 +2,7 @@
 
 > **Doc type: load-bearing slim.** Three-layer design intent, domain inventory at-a-glance, attestation about parked Layer 2 work, code landmarks, integration boundaries. Catalog content (subcommand tables, MCP tool rosters, schema migration lists, extractor directory trees) lives in source — see the pointers below.
 
-**Lifecycle status:** Active. Layer 1 covers six namespaces (ezQuake / FTE / QWCL / MVDSV engine ports + the `qw` game-content namespace) with KTX as the only outstanding port. Schema at v18, Postgres dialect, single-engine since Arc 1 (`docs/superpowers/specs/2026-05-01-qw-oracle-database-architecture-design.md`). Layer 2 ported to Postgres + tsvector (Discord-only); enrichment deferred to Arc 3. Public MCP live at `oracle.slipgate.me/mcp`. Most recent shipped arc: postgres-arc1 (2026-05-03) — see `docs/arc-history.md` for the chronological log.
+**Lifecycle status:** Active. Layer 1 covers six namespaces (ezQuake / FTE / QWCL / MVDSV engine ports + KTX gameplay layer + the `qw` game-content namespace). Schema at v19 (migration 016 -- `category_inferred` + provenance sibling on cvar/command versions), Postgres dialect, single-engine since Arc 1 (`docs/superpowers/specs/2026-05-01-qw-oracle-database-architecture-design.md`). Layer 2 ported to Postgres + tsvector (Discord-only); enrichment deferred to Arc 3. Public MCP live at `oracle.slipgate.me/mcp`. KTX L1 audit catalog published at https://scheduler.quake.world/ktx-documentation.html (regenerable via `bun apps/qw-oracle/scripts/build-l1-audit-catalog.ts --project ktx` + copy to `apps/matchscheduler/public/` + redeploy). See `docs/arc-history.md` for the chronological ship log.
 
 ---
 
