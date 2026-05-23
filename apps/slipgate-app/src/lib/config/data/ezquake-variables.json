@@ -1,7 +1,7 @@
 {
   "schema_version": "snapshot-v1",
-  "generated_at": "2026-05-02T17:14:46.522Z",
-  "oracle_commit": "4cc37abf537ac9acfb2943849d86839a41cc0d05",
+  "generated_at": "2026-05-23T16:16:13.623Z",
+  "oracle_commit": "aecfefc6253049fb915fb296b5913e5d15a3f53d",
   "knowledge_db_schema_version": 18,
   "project": "ezquake",
   "version": "head",
@@ -488,14 +488,6 @@
           "name": "2"
         }
       ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "auth_timeout": {
-      "type": "float",
-      "group-id": "43",
-      "desc": "Not currently used.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -1046,6 +1038,7 @@
       "type": "boolean",
       "group-id": "54",
       "default": "0",
+      "desc": "When 1, applies the walking bob to the camera's vertical position instead of the weapon model, making the entire view oscillate vertically while the gun stays level.",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
@@ -1078,7 +1071,7 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
-    "cl_c2simpulsebackup": {
+    "cl_c2sImpulseBackup": {
       "type": "integer",
       "group-id": "21",
       "default": "3",
@@ -1364,7 +1357,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "cl_deadbodyfilter": {
+    "cl_deadbodyFilter": {
       "type": "enum",
       "group-id": "8",
       "default": "0",
@@ -1528,7 +1521,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "cl_demopinginterval": {
+    "cl_demoPingInterval": {
       "type": "integer",
       "group-id": "7",
       "default": "5",
@@ -1835,7 +1828,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "cl_gibfilter": {
+    "cl_gibFilter": {
       "type": "boolean",
       "group-id": "8",
       "default": "0",
@@ -1918,7 +1911,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "cl_idrive": {
+    "cl_iDrive": {
       "type": "boolean",
       "group-id": "9",
       "default": "0",
@@ -1938,7 +1931,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "cl_independentphysics": {
+    "cl_independentPhysics": {
       "type": "boolean",
       "group-id": "8",
       "default": "1",
@@ -1999,7 +1992,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "cl_loadfragfiles": {
+    "cl_loadFragfiles": {
       "type": "boolean",
       "group-id": "47",
       "default": "1",
@@ -2560,7 +2553,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "cl_parsefrags": {
+    "cl_parseFrags": {
       "type": "boolean",
       "group-id": "47",
       "default": "1",
@@ -2578,7 +2571,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "cl_parsefunchars": {
+    "cl_parseFunChars": {
       "type": "boolean",
       "group-id": "3",
       "default": "1",
@@ -2597,7 +2590,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "cl_parsesay": {
+    "cl_parseSay": {
       "type": "boolean",
       "group-id": "3",
       "default": "1",
@@ -2615,7 +2608,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "cl_parsewhitetext": {
+    "cl_parseWhiteText": {
       "type": "enum",
       "group-id": "3",
       "default": "1",
@@ -2784,6 +2777,7 @@
       "type": "boolean",
       "group-id": "21",
       "default": "0",
+      "desc": "When 1, requests the MVD PEXT1 server-side weapon selection extension during connect; if the server does not support it, weapon scripts fall back to client-side execution.",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
@@ -3187,7 +3181,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "cl_staticsounds": {
+    "cl_staticSounds": {
       "type": "boolean",
       "group-id": "45",
       "default": "1",
@@ -3300,6 +3294,7 @@
       "type": "string",
       "group-id": "0",
       "default": "",
+      "desc": "Username for server authentication. Setting this loads a matching .apikey token file and, if connected, sends a login command to the server; clearing it while logged in sends logout.",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
@@ -3329,9 +3324,10 @@
       "last_seen_version": "head"
     },
     "cl_voip_capturingvol": {
-      "type": "float",
+      "type": "integer",
       "group-id": "45",
       "default": "0.5",
+      "desc": "Volume multiplier applied while capturing, to avoid your audio from being heard by others.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -3620,6 +3616,7 @@
       "type": "string",
       "group-id": "0",
       "default": "https://badplace.eu/",
+      "desc": "Base URL of the central authentication server used by the client to submit challenge-response login tokens. Read-only; set by the server or compile-time default.",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
@@ -4621,6 +4618,72 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "demo_spawnwarn": {
+      "type": "boolean",
+      "group-id": "40",
+      "default": "0",
+      "desc": "Warns during demo playback when the current POV crosses a deathmatch spawn or teleporter exit.",
+      "values": [
+        {
+          "description": "Disable spawn crossing warnings in demos.",
+          "name": "false"
+        },
+        {
+          "description": "Enable spawn crossing warnings in demos.",
+          "name": "true"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "demo_spawnwarn_text": {
+      "type": "string",
+      "group-id": "40",
+      "default": "you crossed a spawn",
+      "desc": "Sets the centerprint text shown when demo_spawnwarn detects a spawn crossing.",
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "demo_voice_enable": {
+      "type": "boolean",
+      "group-id": "7",
+      "default": "1",
+      "desc": "Toggles synchronized demo voice track playback.",
+      "values": [
+        {
+          "description": "Do not play loaded demo voice tracks.",
+          "name": "false"
+        },
+        {
+          "description": "Play loaded demo voice tracks during normal demo playback.",
+          "name": "true"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "demo_voice_team_filter": {
+      "type": "boolean",
+      "group-id": "7",
+      "default": "1",
+      "desc": "Filters synchronized demo voice tracks by the viewed player's team.",
+      "values": [
+        {
+          "description": "Play all loaded demo voice tracks.",
+          "name": "false"
+        },
+        {
+          "description": "Only play tracks matching the viewed player's team.",
+          "name": "true"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "developer": {
       "type": "boolean",
       "group-id": "2",
@@ -4992,6 +5055,7 @@
       "type": "boolean",
       "group-id": "17",
       "default": "0",
+      "desc": "When disabled (default), archive files in the file browser are always sorted by name regardless of the active sort mode; when enabled, archives follow the same sort criteria as regular files.",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
@@ -5401,7 +5465,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "gl_clearcolor": {
+    "gl_clearColor": {
       "type": "string",
       "group-id": "35",
       "default": "0 0 0",
@@ -5621,7 +5685,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "gl_externaltextures_bmodels": {
+    "gl_externalTextures_bmodels": {
       "type": "boolean",
       "group-id": "50",
       "default": "1",
@@ -5640,7 +5704,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "gl_externaltextures_world": {
+    "gl_externalTextures_world": {
       "type": "boolean",
       "group-id": "50",
       "default": "1",
@@ -5977,7 +6041,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "gl_miptexlevel": {
+    "gl_miptexLevel": {
       "type": "float",
       "group-id": "50",
       "default": "0",
@@ -5997,51 +6061,6 @@
           "name": "*"
         }
       ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_motion_blur": {
-      "type": "boolean",
-      "group-id": "8",
-      "default": "0",
-      "desc": "Enables motion blur effect (set gl_motion_blur_* variables to configure)",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_motion_blur_dead": {
-      "type": "float",
-      "group-id": "8",
-      "default": "0.5",
-      "desc": "Level of blending of current scene with previous, when the player is dead.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_motion_blur_fps": {
-      "type": "integer",
-      "group-id": "8",
-      "default": "77",
-      "desc": "How often to copy the current frame to apply motion blur effect. Defaults to 77.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_motion_blur_hurt": {
-      "type": "float",
-      "group-id": "8",
-      "default": "0.5",
-      "desc": "Level of blending of current scene with previous, when the player has recently been hurt.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_motion_blur_norm": {
-      "type": "float",
-      "group-id": "8",
-      "default": "0.5",
-      "desc": "Level of blending of current scene with previous, when the player is alive and not recently hurt.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -6417,15 +6436,6 @@
       "group-id": "36",
       "default": "0",
       "desc": "Determines alternate particles for explosions.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "gl_particle_fasttrails": {
-      "type": "float",
-      "group-id": "36",
-      "default": "0",
-      "desc": "Changes particle trails indicating motion.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -6872,15 +6882,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "gl_powerupshells_size": {
-      "type": "integer",
-      "group-id": "8",
-      "default": "5",
-      "desc": "Size of the powerupshells effect layer.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "gl_program_aliasmodels": {
       "type": "integer",
       "group-id": "35",
@@ -6968,7 +6969,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "gl_scalealphatextures": {
+    "gl_scaleAlphaTextures": {
       "type": "boolean",
       "group-id": "50",
       "default": "0",
@@ -6977,7 +6978,7 @@
       "first_seen_version": "3.6.5",
       "last_seen_version": "head"
     },
-    "gl_scalemodelsimpletextures": {
+    "gl_scaleModelSimpleTextures": {
       "type": "boolean",
       "group-id": "50",
       "default": "0",
@@ -6986,7 +6987,7 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
-    "gl_scalemodeltextures": {
+    "gl_scaleModelTextures": {
       "type": "boolean",
       "group-id": "50",
       "default": "0",
@@ -7004,7 +7005,7 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
-    "gl_scaleturbtextures": {
+    "gl_scaleTurbTextures": {
       "type": "boolean",
       "group-id": "50",
       "default": "1",
@@ -17026,24 +17027,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "hud_score_bar_fixed_order": {
-      "type": "boolean",
-      "group-id": "19",
-      "desc": "If set, order of player names is fixed, irrespective of who is currently being tracked.",
-      "values": [
-        {
-          "description": "Current player is always %t",
-          "name": "0"
-        },
-        {
-          "description": "Fixed order of player names",
-          "name": "1"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "hud_score_bar_format_big": {
       "type": "string",
       "group-id": "19",
@@ -22816,6 +22799,7 @@
       "type": "boolean",
       "group-id": "20",
       "default": "0",
+      "desc": "When enabled, automatically registers respawn clocks for all map items found in entity baselines at match start, so the item timer list is populated without requiring manual tracking commands.",
       "source_state": "source_backed",
       "first_seen_version": "3.2",
       "last_seen_version": "head"
@@ -23436,6 +23420,7 @@
       "type": "boolean",
       "group-id": "20",
       "default": "1",
+      "desc": "Controls sort order of the MVD item respawn-clock list: 1 sorts by next spawn time, 0 preserves insertion order (persistent items always appear first regardless).",
       "source_state": "source_backed",
       "first_seen_version": "3.2",
       "last_seen_version": "head"
@@ -23542,14 +23527,6 @@
           "name": "2"
         }
       ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "not_auth_timeout": {
-      "type": "integer",
-      "group-id": "43",
-      "desc": "Not currently used.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -24701,7 +24678,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_explosionlight": {
+    "r_explosionLight": {
       "type": "float",
       "group-id": "8",
       "default": "1",
@@ -24724,7 +24701,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_explosionlightcolor": {
+    "r_explosionLightColor": {
       "type": "enum",
       "group-id": "8",
       "default": "0",
@@ -24771,7 +24748,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_explosiontype": {
+    "r_explosionType": {
       "type": "enum",
       "group-id": "8",
       "default": "1",
@@ -24872,7 +24849,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_flagcolor": {
+    "r_flagColor": {
       "type": "enum",
       "group-id": "8",
       "default": "0",
@@ -24936,7 +24913,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_fullbrightskins": {
+    "r_fullbrightSkins": {
       "type": "float",
       "group-id": "44",
       "default": "1",
@@ -25125,16 +25102,7 @@
       "first_seen_version": "3.6.1",
       "last_seen_version": "head"
     },
-    "r_glstats": {
-      "type": "float",
-      "group-id": "40",
-      "default": "0",
-      "desc": "When enabled, it creates a window in the top right of the screen showing the number of particles and etc. in use.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "r_grenadetrail": {
+    "r_grenadeTrail": {
       "type": "enum",
       "group-id": "8",
       "default": "1",
@@ -25197,7 +25165,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_instagibtrail": {
+    "r_instagibTrail": {
       "type": "enum",
       "group-id": "8",
       "default": "1",
@@ -25309,7 +25277,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_lgbloodcolor": {
+    "r_lgbloodColor": {
       "type": "integer",
       "group-id": "8",
       "default": "225",
@@ -25349,6 +25317,7 @@
       "type": "boolean",
       "group-id": "8",
       "default": "0",
+      "desc": "Defers lightmap GPU uploads from the start-of-frame batch to per-surface draw time on the GLC renderer path. May reduce stalls on maps with many dynamic lights by spreading upload cost across the draw call sequence.",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
@@ -25357,6 +25326,7 @@
       "type": "integer",
       "group-id": "8",
       "default": "2",
+      "desc": "Controls how map surfaces are sorted when packing lightmaps into atlas textures at map load. 0 = no sort; 1 = largest area first; 2 (default) = tallest-first shelf heuristic. Higher values typically produce fewer lightmap textures, reducing texture switches during rendering.",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
@@ -25455,7 +25425,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_powerupglow": {
+    "r_powerupGlow": {
       "type": "enum",
       "group-id": "8",
       "default": "1",
@@ -25477,7 +25447,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_railtrail": {
+    "r_railTrail": {
       "type": "enum",
       "group-id": "8",
       "default": "1",
@@ -25561,7 +25531,7 @@
       "first_seen_version": "3.6.5",
       "last_seen_version": "head"
     },
-    "r_rlbloodcolor_big": {
+    "r_rlbloodColor_big": {
       "type": "integer",
       "group-id": "8",
       "default": "73",
@@ -25570,7 +25540,7 @@
       "first_seen_version": "3.6.5",
       "last_seen_version": "head"
     },
-    "r_rlbloodcolor_small": {
+    "r_rlbloodColor_small": {
       "type": "integer",
       "group-id": "8",
       "default": "225",
@@ -25579,7 +25549,7 @@
       "first_seen_version": "3.6.5",
       "last_seen_version": "head"
     },
-    "r_rocketlight": {
+    "r_rocketLight": {
       "type": "float",
       "group-id": "8",
       "default": "1",
@@ -25598,7 +25568,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_rocketlightcolor": {
+    "r_rocketLightColor": {
       "type": "enum",
       "group-id": "8",
       "default": "0",
@@ -25641,7 +25611,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_rockettrail": {
+    "r_rocketTrail": {
       "type": "enum",
       "group-id": "8",
       "default": "1",
@@ -25704,7 +25674,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_sgbloodcolor": {
+    "r_sgbloodColor": {
       "type": "integer",
       "group-id": "8",
       "default": "73",
@@ -25975,6 +25945,7 @@
       "type": "boolean",
       "group-id": "40",
       "default": "1",
+      "desc": "Master toggle for the on-screen frag tracker, which displays frag/death/team-kill/pickup notifications with per-event color coding. See r_tracker_frags / r_tracker_streaks / r_tracker_pickups for event filters and r_tracker_color_* for the color palette.",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
@@ -26235,6 +26206,7 @@
       "type": "boolean",
       "group-id": "40",
       "default": "0",
+      "desc": "Includes item pickups (weapons, armor, powerups) in the frag tracker overlay. Default 0 (pickups hidden); set to 1 to surface pickup notifications alongside frag/death events.",
       "source_state": "source_backed",
       "first_seen_version": "3.2",
       "last_seen_version": "head",
@@ -26452,7 +26424,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "r_viewmodelsize": {
+    "r_viewmodelSize": {
       "type": "float",
       "group-id": "54",
       "default": "1",
@@ -27366,7 +27338,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "scr_centermenu": {
+    "scr_centerMenu": {
       "type": "boolean",
       "group-id": "17",
       "default": "1",
@@ -27375,7 +27347,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "scr_centersbar": {
+    "scr_centerSbar": {
       "type": "boolean",
       "group-id": "47",
       "default": "1",
@@ -27434,7 +27406,7 @@
       "type": "boolean",
       "group-id": "40",
       "default": "0",
-      "desc": "Frag messages will be colored according to your teamcolor/enemycolor settings.",
+      "desc": "Frag messages will be colored according to your teamcolor/enemycolor settings, unless scr_coloredfrags_team or scr_coloredfrags_enemy is set.",
       "remarks": "Needs scr_coloredText 1, cl_parsefrags 1, cl_loadfragfiles 1.",
       "values": [
         {
@@ -27450,7 +27422,46 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "scr_coloredtext": {
+    "scr_coloredfrags_enemy": {
+      "type": "string",
+      "group-id": "40",
+      "default": "",
+      "desc": "Overrides the enemy player name color used by scr_coloredfrags. Accepts an RGB value.",
+      "remarks": "Use three values from 0 to 255, for example \"255 64 64\". Leave empty to use the enemy/player color from scr_coloredfrags.",
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "scr_coloredfrags_normalize": {
+      "type": "boolean",
+      "group-id": "40",
+      "default": "0",
+      "desc": "Normalizes player names in colored frag messages by translating red chars to white chars.",
+      "values": [
+        {
+          "description": "Normalization off.",
+          "name": "false"
+        },
+        {
+          "description": "Normalization on.",
+          "name": "true"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "scr_coloredfrags_team": {
+      "type": "string",
+      "group-id": "40",
+      "default": "",
+      "desc": "Overrides the team player name color used by scr_coloredfrags. Accepts an RGB value.",
+      "remarks": "Use three values from 0 to 255, for example \"64 255 64\". Leave empty to use the team/player color from scr_coloredfrags.",
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "scr_coloredText": {
       "type": "enum",
       "group-id": "5",
       "default": "1",
@@ -27474,7 +27485,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "scr_compacthud": {
+    "scr_compactHud": {
       "type": "enum",
       "group-id": "47",
       "default": "0",
@@ -27504,7 +27515,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "scr_compacthudalign": {
+    "scr_compactHudAlign": {
       "type": "boolean",
       "group-id": "47",
       "default": "0",
@@ -27702,7 +27713,7 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
-    "scr_drawhfrags": {
+    "scr_drawHFrags": {
       "type": "enum",
       "group-id": "47",
       "default": "1",
@@ -27730,7 +27741,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "scr_drawvfrags": {
+    "scr_drawVFrags": {
       "type": "enum",
       "group-id": "47",
       "default": "1",
@@ -28119,7 +28130,7 @@
       "first_seen_version": "3.1",
       "last_seen_version": "head"
     },
-    "scr_scalemenu": {
+    "scr_scaleMenu": {
       "type": "float",
       "group-id": "17",
       "default": "2",
@@ -28655,7 +28666,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "scr_spectatormessage": {
+    "scr_spectatorMessage": {
       "type": "boolean",
       "group-id": "40",
       "default": "1",
@@ -29033,81 +29044,6 @@
         }
       ]
     },
-    "scr_weaponstats": {
-      "type": "boolean",
-      "group-id": "40",
-      "desc": "Displays weapons stats on server that support it.",
-      "values": [
-        {
-          "description": "",
-          "name": "false"
-        },
-        {
-          "description": "",
-          "name": "true"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "scr_weaponstats_align_right": {
-      "type": "boolean",
-      "group-id": "40",
-      "values": [
-        {
-          "description": "Displays weapon stats on the left hand side of the screen.",
-          "name": "false"
-        },
-        {
-          "description": "Displays weapon stats on the right hand side of the screen.",
-          "name": "true"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "scr_weaponstats_frame_color": {
-      "type": "string",
-      "group-id": "40",
-      "desc": "Sets the color of the frame around scr_weaponstats display.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "scr_weaponstats_order": {
-      "type": "string",
-      "group-id": "40",
-      "desc": "Accept next tokens %1 %2 %3 ... %8 which expands in to weapons accuracy, %1 - axe, %2 - sg ... %8 - lg.\n\nBut, for axe accuracy is useless, so better use direct hits instead, for that you must use it like #1.\n\nUnrecognized tokens printed as-is, so for axe order will looks like \"axe: #1\" - that means print string \"axe: \" and axe hits.\n\nAlso variable supports ezquake color sequences.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "scr_weaponstats_scale": {
-      "type": "float",
-      "group-id": "40",
-      "desc": "Controls size of scr_weaponstats display.\n1 - Normal text size.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "scr_weaponstats_x": {
-      "type": "integer",
-      "group-id": "40",
-      "desc": "Horizontal placement of the weapon stats table.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "scr_weaponstats_y": {
-      "type": "integer",
-      "group-id": "40",
-      "desc": "Vertical placement of the weapon stats table.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "s_desiredsamples": {
       "type": "integer",
       "group-id": "45",
@@ -29227,23 +29163,6 @@
         },
         {
           "description": "Display that the pause icon is displayed when the game is paused.",
-          "name": "true"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "showram": {
-      "type": "boolean",
-      "group-id": "40",
-      "values": [
-        {
-          "description": "Never display the ram icon.",
-          "name": "false"
-        },
-        {
-          "description": "Display the ram icon when running out of memory.",
           "name": "true"
         }
       ],
@@ -29689,26 +29608,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "s_stereo": {
-      "type": "boolean",
-      "group-id": "26",
-      "desc": "Use stereo or mono sound.",
-      "remarks": "Linux only.\nUse s_restart after you change it.",
-      "values": [
-        {
-          "description": "Mono.",
-          "name": "false"
-        },
-        {
-          "description": "Stereo.",
-          "name": "true"
-        }
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head",
-      "retired_at_version": "3.2"
-    },
     "s_swapstereo": {
       "type": "boolean",
       "group-id": "45",
@@ -29819,23 +29718,11 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_cpserver": {
-      "group-id": "43",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "sv_crypt_rcon": {
       "type": "boolean",
       "group-id": "43",
       "default": "1",
       "server-only": true,
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "sv_cullentities": {
-      "group-id": "43",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -29876,7 +29763,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_democachesize": {
+    "sv_demoCacheSize": {
       "type": "boolean",
       "group-id": "43",
       "default": "0",
@@ -29885,7 +29772,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_democlearold": {
+    "sv_demoClearOld": {
       "type": "boolean",
       "group-id": "43",
       "default": "0",
@@ -29894,7 +29781,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_demodir": {
+    "sv_demoDir": {
       "type": "string",
       "group-id": "43",
       "default": "demos",
@@ -29903,7 +29790,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_demodiralt": {
+    "sv_demoDirAlt": {
       "type": "string",
       "group-id": "43",
       "default": "",
@@ -29912,7 +29799,7 @@
       "first_seen_version": "3.1",
       "last_seen_version": "head"
     },
-    "sv_demoextranames": {
+    "sv_demoExtraNames": {
       "type": "boolean",
       "group-id": "43",
       "default": "0",
@@ -29930,7 +29817,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_demoidlefps": {
+    "sv_demoIdlefps": {
       "type": "integer",
       "group-id": "43",
       "default": "10",
@@ -29939,7 +29826,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_demomaxdirsize": {
+    "sv_demoMaxDirSize": {
       "type": "integer",
       "group-id": "43",
       "default": "102400",
@@ -29948,17 +29835,11 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_demomaxsize": {
+    "sv_demoMaxSize": {
       "type": "integer",
       "group-id": "43",
       "default": "20480",
       "server-only": true,
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "sv_demonovis": {
-      "group-id": "43",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -29972,7 +29853,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_demoprefix": {
+    "sv_demoPrefix": {
       "type": "string",
       "group-id": "43",
       "default": "",
@@ -29981,7 +29862,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_demoregexp": {
+    "sv_demoRegexp": {
       "type": "string",
       "group-id": "43",
       "default": "\\.mvd(\\.(gz|bz2|rar|zip))?$",
@@ -29990,7 +29871,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_demosuffix": {
+    "sv_demoSuffix": {
       "type": "string",
       "group-id": "43",
       "default": "",
@@ -30008,7 +29889,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_demousecache": {
+    "sv_demoUseCache": {
       "type": "boolean",
       "group-id": "43",
       "default": "0",
@@ -30043,12 +29924,6 @@
       "group-id": "43",
       "default": "1",
       "server-only": true,
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "sv_enableprofile": {
-      "group-id": "43",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -30170,13 +30045,6 @@
       "group-id": "43",
       "default": "3",
       "server-only": true,
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "sv_ktpro_mode": {
-      "type": "string",
-      "group-id": "43",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -30431,7 +30299,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_ondemoremove": {
+    "sv_onDemoRemove": {
       "type": "string",
       "group-id": "43",
       "default": "",
@@ -30440,7 +30308,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_onrecordfinish": {
+    "sv_onRecordFinish": {
       "type": "string",
       "group-id": "43",
       "default": "",
@@ -30526,12 +30394,6 @@
       "type": "boolean",
       "group-id": "43",
       "default": "0",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "sv_qwfwd_port": {
-      "group-id": "43",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -30726,12 +30588,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sv_use_internal_cmd_dl": {
-      "group-id": "43",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "sv_voip": {
       "type": "boolean",
       "group-id": "43",
@@ -30830,7 +30686,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "sys_disablewinkeys": {
+    "sys_disableWinKeys": {
       "type": "integer",
       "group-id": "48",
       "default": "0",
@@ -31309,14 +31165,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "telnet_password": {
-      "type": "string",
-      "group-id": "43",
-      "desc": "Password for login via telnet.\nNot currently used.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "timelimit": {
       "type": "integer",
       "group-id": "43",
@@ -31415,7 +31263,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "tp_forcetriggers": {
+    "tp_forceTriggers": {
       "type": "boolean",
       "group-id": "49",
       "default": "0",
@@ -32060,6 +31908,26 @@
       "desc": "SoundTrigger like proxys.\nA SoundTrigger must be terminated by either a CR, LF or filter. The .wav extension is not required at the end.\nTrigger is a character before the sound file.\n\nExample:\nfilter #a\nsay_team I'm at %l ~location.wav\"\nsay_team ~location.wav$\\me: I'm at %l #a\"\nsay_team ~location$\\me: I'm at %l #a\"\nsay_team I'm at %l ~location #a\"",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "tp_tookpriorities": {
+      "type": "boolean",
+      "group-id": "49",
+      "default": "0",
+      "desc": "Controls whether the last item taken macro (%X or $took) uses the order of tp_took as item pickup priority.",
+      "remarks": "When enabled, earlier items in tp_took have higher priority and can prevent lower priority pickups from replacing $took within tp_tooktimeout.\n\nExample:\ntp_took powerups rl lg ra ya ga mega pack gl sng ng ssg rockets cells nails shells health\ntp_tookpriorities 1",
+      "values": [
+        {
+          "description": "Original, default behavior. The latest pickup replaces the previous one.",
+          "name": "false"
+        },
+        {
+          "description": "Use tp_took order as pickup priority.",
+          "name": "true"
+        }
+      ],
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "tp_tooktimeout": {
@@ -32723,6 +32591,7 @@
       "type": "boolean",
       "group-id": "52",
       "default": "1",
+      "desc": "When 1, graphics cvars (resolution, fullscreen, renderer) automatically trigger a video subsystem restart when changed. When 0, changes are deferred until you run vid_reload manually.",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
@@ -33064,7 +32933,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "vm_rtchecks": {
+    "vm_rtChecks": {
       "type": "boolean",
       "group-id": "0",
       "default": "1",

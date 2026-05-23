@@ -1,7 +1,7 @@
 {
   "schema_version": "snapshot-v1",
-  "generated_at": "2026-05-02T17:14:46.522Z",
-  "oracle_commit": "4cc37abf537ac9acfb2943849d86839a41cc0d05",
+  "generated_at": "2026-05-23T16:16:13.623Z",
+  "oracle_commit": "aecfefc6253049fb915fb296b5913e5d15a3f53d",
   "knowledge_db_schema_version": 18,
   "project": "ezquake",
   "version": "head",
@@ -134,9 +134,6 @@
       "last_seen_version": "head"
     },
     "-forcetexturereload": {
-      "flags": [
-        "incomplete"
-      ],
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -340,14 +337,6 @@
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
-    "-nopriority": {
-      "flags": [
-        "incomplete"
-      ],
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "-norjscripts": {
       "flags": [
         "incomplete"
@@ -418,6 +407,7 @@
       "last_seen_version": "head"
     },
     "-r-debug": {
+      "desc": "enables OpenGL debug output.  Must be used in conjunction with -dev",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"

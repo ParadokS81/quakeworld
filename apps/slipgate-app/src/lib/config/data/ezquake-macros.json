@@ -1,7 +1,7 @@
 {
   "schema_version": "snapshot-v1",
-  "generated_at": "2026-05-02T17:14:46.522Z",
-  "oracle_commit": "4cc37abf537ac9acfb2943849d86839a41cc0d05",
+  "generated_at": "2026-05-23T16:16:13.623Z",
+  "oracle_commit": "aecfefc6253049fb915fb296b5913e5d15a3f53d",
   "knowledge_db_schema_version": 18,
   "project": "ezquake",
   "version": "head",
@@ -9,6 +9,7 @@
     "ammo": {
       "desc": "returns amount of ammo held for currently selected weapon",
       "type": "integer",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -16,6 +17,7 @@
     "armor": {
       "desc": "returns current armor value",
       "type": "integer",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -23,6 +25,7 @@
     "armortype": {
       "desc": "returns current armor type",
       "type": "string",
+      "teamplay-restricted": true,
       "related-cvars": [
         "tp_name_armortype_ga",
         "tp_name_armortype_ya",
@@ -36,6 +39,7 @@
     "bestammo": {
       "desc": "returns ammo held for the 'best' weapon",
       "type": "integer",
+      "teamplay-restricted": true,
       "related-cvars": [
         "tp_weapon_order"
       ],
@@ -46,6 +50,7 @@
     "bestweapon": {
       "desc": "returns name of best weapon in inventory",
       "type": "string",
+      "teamplay-restricted": true,
       "related-cvars": [
         "tp_weapon_order",
         "tp_name_sg",
@@ -63,7 +68,6 @@
     "cam_angles": {
       "desc": "returns current camera angles, in format that can be passed to /cam_angles command.",
       "type": "string",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -71,7 +75,6 @@
     "cam_angles_pitch": {
       "desc": "returns current camera pitch (vertical angle).",
       "type": "float",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -79,7 +82,6 @@
     "cam_angles_roll": {
       "desc": "returns current camera roll (not used).",
       "type": "float",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -87,7 +89,6 @@
     "cam_angles_yaw": {
       "desc": "returns current camera yaw (horizontal angle).",
       "type": "float",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -95,7 +96,6 @@
     "cam_pos": {
       "desc": "returns current camera position, in format that can be passed to /cam_pos command.",
       "type": "string",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -103,7 +103,6 @@
     "cam_pos_x": {
       "desc": "returns one component of current camera position.",
       "type": "float",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -111,7 +110,6 @@
     "cam_pos_y": {
       "desc": "returns one component of current camera position.",
       "type": "float",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -119,7 +117,6 @@
     "cam_pos_z": {
       "desc": "returns one component of current camera position.",
       "type": "float",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -127,6 +124,7 @@
     "cells": {
       "desc": "returns number of cells held, regardless of weapon selected",
       "type": "integer",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -134,22 +132,27 @@
     "colored_armor": {
       "desc": "returns $armor, surrounded by color codes so it is displayed in &c0b0red&r, &cff0yellow&r, &e00green&r or &cfffwhite&r",
       "type": "string",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "colored_powerups": {
+      "desc": "current powerups held as color-coded full names (quad, pent, ring), concatenated without separator.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "colored_short_powerups": {
+      "desc": "current powerups held as compact color-coded initials (q=quad blue, r=ring yellow, p=pent red); output order is q-r-p. Returns empty string when no powerups held.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "conheight": {
-      "teamplay-restricted": true,
+      "desc": "console (virtual) resolution height in pixels.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -157,13 +160,12 @@
     "connectiontype": {
       "desc": "returns the current type of the connection",
       "type": "string",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "conwidth": {
-      "teamplay-restricted": true,
+      "desc": "console (virtual) resolution width in pixels.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -171,18 +173,19 @@
     "date": {
       "desc": "returns the current date in the format <day>.<month>.<year>",
       "type": "string",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "dateiso": {
-      "teamplay-restricted": true,
+      "desc": "current local date and time in ISO-adjacent format YYYY-MM-DD_HH-MM.",
       "source_state": "source_backed",
       "first_seen_version": "3.6.5",
       "last_seen_version": "head"
     },
     "deathloc": {
+      "desc": "map location name where the player last died, or tp_name_someplace if no death has been recorded this session.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -190,7 +193,6 @@
     "demolength": {
       "desc": "returns the expected length of the current demo, in seconds",
       "type": "integer",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "3.1",
       "last_seen_version": "head"
@@ -198,7 +200,6 @@
     "demoname": {
       "desc": "returns the name of the current demo, minus extension",
       "type": "string",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "3.1",
       "last_seen_version": "head"
@@ -206,13 +207,12 @@
     "demoplayback": {
       "desc": "returns whether or not the client is current watching a demo",
       "type": "boolean",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "demotime": {
-      "teamplay-restricted": true,
+      "desc": "current demo playback time in seconds (float). Intended for scripted and timed camera movement.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -220,6 +220,7 @@
     "droploc": {
       "desc": "returns the name of the location where the last backpack was dropped by the current player.",
       "type": "string",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -227,6 +228,7 @@
     "droptime": {
       "desc": "returns the number of seconds since the last backpack was dropped by the current player.",
       "type": "integer",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -234,68 +236,78 @@
     "gamedir": {
       "desc": "returns the current gamedir, which is often set when a server is running a mod.\ne.g: 'fortress' for Team Fortress mods",
       "type": "string",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "health": {
       "desc": "the current player's health (0 - 250)",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "lastip": {
-      "teamplay-restricted": true,
+      "desc": "IP address or hostname:port of the last server seen in console output, captured by an internal trigger pattern.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "lastloc": {
+      "desc": "location name at time of last death if death occurred within the past 5 seconds; otherwise current location name.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "lastpowerup": {
+      "desc": "powerups last seen on the enemy within the past 5 seconds (e.g. \"quad pent\"); falls back to the value of tp_name_quad when no recent sighting.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "latency": {
-      "teamplay-restricted": true,
+      "desc": "current network latency in milliseconds, rounded to nearest integer.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "ledpoint": {
+      "desc": "LED color code indicating the type of entity pointed at: red for enemy, green for teammate, yellow for powerup, blue for item.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "ledstatus": {
+      "desc": "LED color code reflecting how many items the player currently needs: green for none, yellow for one, red for two or more.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "location": {
+      "desc": "name of the player's current map location, as defined by the active .loc file.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "matchname": {
-      "teamplay-restricted": true,
+      "desc": "current match name, derived from the active match-format template (e.g. \"duel/playerA_vs_playerB - [dm6]\"). Returns \"No match in progress\" when not connected.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "matchstatus": {
-      "teamplay-restricted": true,
+      "desc": "current match state: one of \"disconnected\", \"standby\", or \"normal\".",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "matchtype": {
-      "teamplay-restricted": true,
+      "desc": "current match type keyword: one of duel, ffa, 2on2, 3on3, 4on4, tdm, arena, tfduel, tfclanwar, solo, coop, race, empty, unknown. Returns \"No match in progress\" when not connected.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -303,50 +315,60 @@
     "nails": {
       "desc": "returns number of nails held, regardless of weapon selected",
       "type": "integer",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "need": {
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
-    "ping": {
       "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "need": {
+      "desc": "separator-delimited list of items the player currently needs based on tp_need_* thresholds (e.g. \"armor health rl\").",
+      "teamplay-restricted": true,
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "ping": {
+      "desc": "current network latency in milliseconds, rounded to nearest integer. Alias for $latency.",
+      "source_state": "source_backed",
+      "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
     "point": {
+      "desc": "name of the nearest item or entity the player is pointing at, as used in location-pointing messages; returns tp_name_nothing when the player is flashed.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "pointatloc": {
+      "desc": "pointed-at item name combined with its location, in \"name at location\" format; bounded by the tp_pointtimeout cvar and returns tp_name_nothing when the player is flashed or the timeout expires.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "pointloc": {
+      "desc": "map location of the entity pointed at, or current location if no specific point location is available; returns tp_name_nothing when the player is flashed.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "powerups": {
+      "desc": "separator-delimited list of powerups currently held (quad, pent, ring, flag for CTF/TF); returns tp_name_none when none held.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "qt": {
       "desc": "returns \" - useful to clear cvars in scripts",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "rand": {
-      "teamplay-restricted": true,
+      "desc": "random float in the range [0, 1).",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -354,12 +376,13 @@
     "rockets": {
       "desc": "returns number of rockets held, regardless of weapon selected",
       "type": "integer",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "serverip": {
-      "teamplay-restricted": true,
+      "desc": "current server IP address and port, in ip:port form.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -367,24 +390,25 @@
     "shells": {
       "desc": "returns number of shells held, regardless of weapon selected",
       "type": "integer",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "team1": {
-      "teamplay-restricted": true,
+      "desc": "name of the Nth team currently playing, alphabetically sorted; $team1 returns the first team, $team2 the second. In FFA (no teamplay), returns player names instead. Falls back to literal \"team1\"/\"team2\" when fewer teams exist.",
       "source_state": "source_backed",
       "first_seen_version": "3.2",
       "last_seen_version": "head"
     },
     "team2": {
-      "teamplay-restricted": true,
+      "desc": "name of the Nth team currently playing, alphabetically sorted; $team1 returns the first team, $team2 the second. In FFA (no teamplay), returns player names instead. Falls back to literal \"team1\"/\"team2\" when fewer teams exist.",
       "source_state": "source_backed",
       "first_seen_version": "3.2",
       "last_seen_version": "head"
     },
     "tf_skin": {
-      "teamplay-restricted": true,
+      "desc": "current player's skin name, with TeamFortress skin prefixes expanded to full class names (e.g. tf_demo -> demoman, tf_eng -> engineer).",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -392,28 +416,33 @@
     "time": {
       "desc": "returns the local time in the format <hours>:<minutes>",
       "type": "string",
-      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "timestamp": {
-      "teamplay-restricted": true,
+      "desc": "current local date and time as a compact filesystem-safe string: YYYYMMDD-HHMM.",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
     "took": {
+      "desc": "name of the last item picked up; returns tp_name_nothing if nothing has been picked up yet.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "tookatloc": {
+      "desc": "last item picked up with its pickup location, in \"name at location\" format; returns tp_name_nothing when no item has been picked up.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "tookloc": {
+      "desc": "map location name where the last item was picked up; returns tp_name_someplace when no item has been picked up.",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
@@ -421,6 +450,7 @@
     "tp_powerups": {
       "desc": "$colored_powerups or $colored_short_powerups, depending on value of tp_poweruptextstyle",
       "type": "boolean",
+      "teamplay-restricted": true,
       "related-cvars": [
         "tp_poweruptextstyle"
       ],
@@ -429,24 +459,26 @@
       "last_seen_version": "head"
     },
     "triggermatch": {
-      "teamplay-restricted": true,
+      "desc": "full text of the console message that last fired a regexp trigger.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "weapon": {
-      "teamplay-restricted": true,
+      "desc": "name of the currently active weapon, using tp_name_* cvar values (e.g. \"rl\", \"lg\").",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "weaponnum": {
-      "teamplay-restricted": true,
+      "desc": "currently active weapon as a slot number (1-8), or pre-selected best weapon number when cl_weaponpreselect is enabled.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "weapons": {
+      "desc": "separator-delimited list of all weapons currently held, ordered from strongest to weakest (lg, rl, gl, sng, ng, ssg, sg, axe).",
+      "teamplay-restricted": true,
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"

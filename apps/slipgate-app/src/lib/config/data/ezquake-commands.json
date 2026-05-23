@@ -1,7 +1,7 @@
 {
   "schema_version": "snapshot-v1",
-  "generated_at": "2026-05-02T17:14:46.522Z",
-  "oracle_commit": "4cc37abf537ac9acfb2943849d86839a41cc0d05",
+  "generated_at": "2026-05-23T16:16:13.623Z",
+  "oracle_commit": "aecfefc6253049fb915fb296b5913e5d15a3f53d",
   "knowledge_db_schema_version": 18,
   "project": "ezquake",
   "version": "head",
@@ -175,6 +175,41 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "ammo": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "ammo1": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "ammo2": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "ammo3": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "ammo4": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "armor": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "armordamage": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "+attack": {
       "group-id": "action",
       "desc": "When active the player will fire the weapon he is currently holding.\nThis is the primary command used to make the player fire the gun.\nFor as long as the key that is bound to this command is held down and this command is active the player will keep on firing the gun.",
@@ -228,6 +263,16 @@
       "desc": "When used the player will stop moving back if \"+back\" is active.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "bar_armor": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "bar_health": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "batteryinfo": {
@@ -318,6 +363,11 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "centerprint": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "centerview": {
       "group-id": "misc",
       "desc": "Centers the player's view ahead after +lookup or +lookdown.",
@@ -391,6 +441,11 @@
       "desc": "Prints amount and size of messages sent from server to ezQuake client.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "clock": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "cl_truelightning": {
@@ -574,6 +629,11 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "democlock": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "demo_controls": {
       "group-id": "demo",
       "source_state": "source_backed",
@@ -645,6 +705,34 @@
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "demo_voice_info": {
+      "group-id": "demo",
+      "desc": "Shows currently loaded demo voice tracks and settings.",
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "demo_voice_load": {
+      "group-id": "demo",
+      "desc": "Loads a synchronized demo voice track.",
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "demo_voice_unload": {
+      "group-id": "demo",
+      "desc": "Unloads one demo voice track, or all tracks if none is specified.",
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "demo_voice_volume": {
+      "group-id": "demo",
+      "desc": "Shows or sets track voice volume. See demo_voice_info for numbers.",
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "describe": {
@@ -813,6 +901,11 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "face": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "filter": {
       "group-id": "stateful",
       "desc": "Message filtering system. Only team messages are filtered.\nUse filter with no parameters to list current filters and filter clear to remove all filters.\n\nExample:\nfilter #a  say_team i can see this message #a.\nsay_team i can't see this message #d.",
@@ -936,11 +1029,31 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "fps": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "fraglogfile": {
       "group-id": "misc",
       "desc": "Enables logging of kills to a file.\nUseful for external frag polling programs.\nThe file name is frag_##.log",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "frags": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "framestats": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "frametime": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "f_ruleset": {
@@ -1013,12 +1126,22 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "gameclock": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "gamedir": {
       "group-id": "misc",
       "desc": "Specifies the directory where the QWPROGS.DAT file is found and other additional files such as maps, models, sound, and skins for Quake modifications.",
       "remarks": "This command can be specified while a game is in progress, after the current map ends this command will take effect.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "gamesummary": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "gamma": {
@@ -1037,37 +1160,16 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "gl_checkmodels": {
-      "group-id": "deprecated",
-      "desc": "Not well implemented yet. Quickly looks at the pmodel and emodel listed in every player's infokey and reports anything unusual it finds.\nBasically it saves you having to type \"users. user x\" and then comparing the models for everyone.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "gl_gammacorrection": {
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
       "last_seen_version": "head"
     },
-    "gl_inferno": {
-      "group-id": "deprecated",
-      "desc": "Clientside (no one else can see it) hard-striking rocket, serves well for your entertainment.",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "gl_lighting_colour": {
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "3.6.0",
-      "last_seen_version": "head"
-    },
-    "gl_setmode": {
-      "group-id": "deprecated",
-      "desc": "Quickly sets many variables to fit pre-defined scheme.\nTry using \"newtrails\" or \"vultwah\".",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
     "gl_smoothfont": {
@@ -1084,10 +1186,105 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "group1": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "group2": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "group3": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "group4": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "group5": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "group6": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "group7": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "group8": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "group9": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "gun": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "gun2": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "gun3": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "gun4": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "gun5": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "gun6": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "gun7": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "gun8": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "hash": {
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "health": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "healthdamage": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "heartbeat": {
@@ -1194,6 +1391,56 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "+hud_bar_armor": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_bar_armor": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_bar_health": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_bar_health": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_centerprint": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_centerprint": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_clock": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_clock": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_democlock": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_democlock": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "hud_editor": {
       "group-id": "hud",
       "desc": "Toggles the HUD editor on or off.",
@@ -1208,10 +1455,110 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "+hud_fps": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_fps": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "hud_fps_min_reset": {
       "group-id": "hud",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "+hud_framestats": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_framestats": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_frametime": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_frametime": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_gameclock": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_gameclock": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_gamesummary": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_gamesummary": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_net": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_net": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_netgraph": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_netgraph": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_notify": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_notify": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_ping": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_ping": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_radar": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_radar": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "hud_recalculate": {
@@ -1221,10 +1568,120 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "+hud_score_bar": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_score_bar": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_speed": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_speed": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_speed2": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_speed2": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_teamholdbar": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_teamholdbar": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_teamholdinfo": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_teamholdinfo": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_teamstackbar": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_teamstackbar": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_tracking": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_tracking": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "+hud_vidlag": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "-hud_vidlag": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "hunk_print": {
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "3.1",
+      "last_seen_version": "head"
+    },
+    "iammo": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "iammo1": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "iammo2": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "iammo3": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "iammo4": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "iarmor": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "if": {
@@ -1301,6 +1758,11 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "itemsclock": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "join": {
       "group-id": "game",
       "desc": "Joins a specified server as player.\nIf no address is specified, join will reconnect to the last visited server as a player.\n\nExample:\njoin 123.124.125.126",
@@ -1327,6 +1789,21 @@
       "desc": "When used the player will stop jumping if \"+jump\" is active.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "key1": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "key2": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "keys": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "kick": {
@@ -1371,13 +1848,6 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "legacyquake": {
-      "group-id": "deprecated",
-      "desc": "Command that turns off new features added to the client that may confuse experienced users who don't like new features :-)",
-      "source_state": "source_backed",
-      "first_seen_version": "v3.0",
-      "last_seen_version": "head"
-    },
     "listip": {
       "group-id": "misc",
       "desc": "Prints out the current list of IPs on the server list. Not to be confused with the status command which prints out the list of the IPs of the connected players.",
@@ -1406,7 +1876,7 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "loadfragfile": {
+    "loadFragfile": {
       "group-id": "misc",
       "desc": "Loads the specified fragfile.",
       "source_state": "source_backed",
@@ -1843,6 +2313,21 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "net": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "netgraph": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "netproblem": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "noclip": {
       "group-id": "game",
       "desc": "You can fly and go thru objects free mode as spectator",
@@ -1855,6 +2340,11 @@
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "notify": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "nslookup": {
@@ -1889,6 +2379,11 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "ownfrags": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "packet": {
       "group-id": "misc",
       "desc": "Sends a packet with specified contents to the destination.\n\nExample:\npacket 123.123.123.123:27500 \"status\"",
@@ -1921,6 +2416,16 @@
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "pent": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "ping": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "place": {
@@ -1974,6 +2479,11 @@
       "desc": "Connects you to internet QTV broadcasting some action, using your local proxy.\nStarts local QTV proxy, tells it what broadcasting proxy it should connect to and by connecting to it you'll see the action broadcasted on the IP you've specified.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "qtv_buffer": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "qtv_close": {
@@ -2048,6 +2558,11 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "quad": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "quit": {
       "group-id": "game",
       "desc": "Exit - disconnects from the server and closes the client.",
@@ -2059,6 +2574,11 @@
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "radar": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "rcon": {
@@ -2182,6 +2702,11 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "ring": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "rm": {
       "group-id": "misc",
       "source_state": "source_backed",
@@ -2288,6 +2813,41 @@
       "desc": "Unmarks all servers sources.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "score_bar": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "scoreclock": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "score_difference": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "score_enemy": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "scoremapname": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "score_position": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "score_team": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "screenshot": {
@@ -2459,6 +3019,26 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "sigil1": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "sigil2": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "sigil3": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "sigil4": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "sizedown": {
       "group-id": "hud",
       "desc": "Reduces the screen size.",
@@ -2583,10 +3163,25 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "speed": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "speed2": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "s_restart": {
       "group-id": "misc",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "static_text": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "status": {
@@ -2634,6 +3229,11 @@
       "desc": "When used the turn left and turn right keys will once again perform their original functions.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "suit": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "svadmin": {
@@ -2777,6 +3377,31 @@
       "remarks": "If only the shirt color is given, the pant color will match.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "teamfrags": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "teamholdbar": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "teamholdinfo": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "teaminfo": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "teamstackbar": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "tempalias": {
@@ -3050,6 +3675,16 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "tracker": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
+    "tracking": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "trackkiller": {
       "group-id": "misc",
       "desc": "Will switch view to the player who killed the player we are tracking at the moment.",
@@ -3113,14 +3748,14 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "unignoreall": {
+    "unignoreAll": {
       "group-id": "misc",
       "desc": "Removes all users from ignore list.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
-    "unignoreall_team": {
+    "unignoreAll_team": {
       "group-id": "misc",
       "desc": "Removes all ignored teams from ignore list.",
       "source_state": "source_backed",
@@ -3236,6 +3871,11 @@
       "first_seen_version": "v3.0",
       "last_seen_version": "head"
     },
+    "vidlag": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
+      "last_seen_version": "head"
+    },
     "vid_modelist": {
       "group-id": "video",
       "desc": "Prints all supported video modes.",
@@ -3317,6 +3957,11 @@
       "desc": "Weapon selection command.\nWill select the best available weapon according to the sequence you choose.",
       "source_state": "source_backed",
       "first_seen_version": "v3.0",
+      "last_seen_version": "head"
+    },
+    "weaponstats": {
+      "source_state": "source_backed",
+      "first_seen_version": "head",
       "last_seen_version": "head"
     },
     "windows": {
