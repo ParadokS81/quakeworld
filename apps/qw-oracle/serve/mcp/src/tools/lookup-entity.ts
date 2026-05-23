@@ -36,7 +36,7 @@ async function fetchEntities(args: LookupEntityArgs): Promise<EntityRow[]> {
 
   return db<EntityRow[]>`
     SELECT id, canonical_id, project, type, name, source_state,
-           first_seen_version, last_seen_version
+           first_seen_version, last_seen_version, description
     FROM entities
     WHERE ${nameClause}
       ${projectClause}
@@ -48,9 +48,14 @@ export async function lookupEntity(args: LookupEntityArgs): Promise<ToolResponse
   const entities = await fetchEntities(args);
   const results = await Promise.all(entities.map((e) => toEntityRecord(e)));
 
+  // Strong = owned L1 description present OR raw extractor help_desc is non-trivial.
+  // The owned description (entities.description, populated by describe-fill arcs +
+  // hand-walks) is the higher-quality signal when present; help_desc is the
+  // extractor's raw CD_ string / source comment, which for KTX is often a one-liner
+  // and for ezQuake is the help_commands.json content.
   let matchQuality: 'strong' | 'weak' | 'none';
   if (results.length === 0) matchQuality = 'none';
-  else if (results.some((r) => r.current.help_desc && r.current.help_desc.length > 20)) matchQuality = 'strong';
+  else if (results.some((r) => (r.description && r.description.length > 20) || (r.current.help_desc && r.current.help_desc.length > 20))) matchQuality = 'strong';
   else matchQuality = 'weak';
 
   return {

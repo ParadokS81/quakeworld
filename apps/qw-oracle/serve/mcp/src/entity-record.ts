@@ -23,6 +23,7 @@ export interface EntityRow {
   source_state: SourceState;
   first_seen_version: string;
   last_seen_version: string;
+  description: string | null;
 }
 
 // Per-type *_versions table. Server-side types from schema v15+ (info_key,
@@ -162,6 +163,7 @@ export async function toEntityRecord(entity: EntityRow): Promise<EntityRecord> {
     source_state: entity.source_state,
     first_seen_version: entity.first_seen_version,
     last_seen_version: entity.last_seen_version,
+    description: entity.description,
     current,
     asset_relations,
     linked_concepts,

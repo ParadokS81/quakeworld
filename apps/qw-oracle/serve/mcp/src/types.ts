@@ -63,6 +63,7 @@ export interface EntityRecord {
   source_state: SourceState;
   first_seen_version: string;
   last_seen_version: string;
+  description: string | null; // entities.description (migration 012) -- the owned L1 prose, distinct from per-version help_desc (raw CD_ string / source comment).
   current: EntityVersionData;
   asset_relations: AssetRelation[];
   linked_concepts: string[];

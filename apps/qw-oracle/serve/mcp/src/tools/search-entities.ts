@@ -36,7 +36,7 @@ async function lexicalCandidates(args: Args, fanout: number): Promise<EntityRow[
     : db`AND type IN ${db(USER_FACING_TYPES)}`;
   return db<EntityRow[]>`
     SELECT id, canonical_id, project, type, name, source_state,
-           first_seen_version, last_seen_version
+           first_seen_version, last_seen_version, description
     FROM entities
     WHERE description_tsv @@ websearch_to_tsquery('english', ${args.query})
       ${projectClause}
@@ -58,7 +58,7 @@ async function semanticCandidates(
     : db`AND type IN ${db(USER_FACING_TYPES)}`;
   return db<EntityRow[]>`
     SELECT id, canonical_id, project, type, name, source_state,
-           first_seen_version, last_seen_version
+           first_seen_version, last_seen_version, description
     FROM entities
     WHERE description_embedding IS NOT NULL
       ${projectClause}
