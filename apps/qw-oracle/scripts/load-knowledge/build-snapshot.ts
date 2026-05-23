@@ -166,6 +166,17 @@ async function loadEnrichment(
 // --- per-version row fetch (current state at the snapshot's version) -------
 
 async function fetchCvarRows(sql: postgres.Sql, project: Project, version: string) {
+  // help_desc synthesized-fallback (2026-05-23): when entities.description_origin
+  // is 'synthesized' AND the per-version help_desc is empty, surface
+  // entities.description in the snapshot so slipgate's ConfigViewer sees
+  // operator-authored prose for entries that have no upstream help-JSON
+  // content yet. Gated on origin='synthesized' specifically to avoid
+  // emitting the deriver's combined form (help_desc + help_remarks + help_values)
+  // for rows where only help_remarks is populated -- in those rows
+  // entities.description contains the combined text which would duplicate
+  // the separately-emitted help_remarks. Synthesized rows are F-D4a-guarded
+  // and contain pure synthesis text only (no combination), so the fallback
+  // is safe in that case.
   return await sql<Array<{
     name: string;
     help_desc: string | null;
@@ -178,7 +189,13 @@ async function fetchCvarRows(sql: postgres.Sql, project: Project, version: strin
     server_only: boolean;
     source_root: string | null;
   }>>`
-    SELECT e.name, cv.help_desc, cv.help_remarks, cv.help_values, cv.help_group_id,
+    SELECT e.name,
+           CASE WHEN e.description_origin = 'synthesized'
+                     AND NULLIF(TRIM(cv.help_desc), '') IS NULL
+                THEN e.description
+                ELSE cv.help_desc
+           END AS help_desc,
+           cv.help_remarks, cv.help_values, cv.help_group_id,
            cv.help_type, cv.default_value, cv.flag_names, cv.server_only, cv.source_root
     FROM cvar_versions cv
     JOIN entities e ON e.id = cv.entity_id
@@ -189,6 +206,7 @@ async function fetchCvarRows(sql: postgres.Sql, project: Project, version: strin
 }
 
 async function fetchCommandRows(sql: postgres.Sql, project: Project, version: string) {
+  // help_desc synthesized-fallback -- see fetchCvarRows for the design note.
   return await sql<Array<{
     name: string;
     help_desc: string | null;
@@ -196,7 +214,13 @@ async function fetchCommandRows(sql: postgres.Sql, project: Project, version: st
     help_group_id: string | null;
     source_root: string | null;
   }>>`
-    SELECT e.name, cv.help_desc, cv.help_remarks, cv.help_group_id, cv.source_root
+    SELECT e.name,
+           CASE WHEN e.description_origin = 'synthesized'
+                     AND NULLIF(TRIM(cv.help_desc), '') IS NULL
+                THEN e.description
+                ELSE cv.help_desc
+           END AS help_desc,
+           cv.help_remarks, cv.help_group_id, cv.source_root
     FROM command_versions cv
     JOIN entities e ON e.id = cv.entity_id
     WHERE e.project = ${project} AND cv.version = ${version}
@@ -207,6 +231,7 @@ async function fetchCommandRows(sql: postgres.Sql, project: Project, version: st
 
 async function fetchMacroRows(sql: postgres.Sql, project: Project, version: string) {
   // related_cvars_json is JSONB; postgres-js auto-decodes it to a JS value.
+  // help_desc synthesized-fallback -- see fetchCvarRows for the design note.
   return await sql<Array<{
     name: string;
     help_desc: string | null;
@@ -215,7 +240,13 @@ async function fetchMacroRows(sql: postgres.Sql, project: Project, version: stri
     related_cvars_json: unknown | null;
     source_root: string | null;
   }>>`
-    SELECT e.name, mv.help_desc, mv.macro_type, mv.teamplay_restricted, mv.related_cvars_json, mv.source_root
+    SELECT e.name,
+           CASE WHEN e.description_origin = 'synthesized'
+                     AND NULLIF(TRIM(mv.help_desc), '') IS NULL
+                THEN e.description
+                ELSE mv.help_desc
+           END AS help_desc,
+           mv.macro_type, mv.teamplay_restricted, mv.related_cvars_json, mv.source_root
     FROM macro_versions mv
     JOIN entities e ON e.id = mv.entity_id
     WHERE e.project = ${project} AND mv.version = ${version}
@@ -226,6 +257,7 @@ async function fetchMacroRows(sql: postgres.Sql, project: Project, version: stri
 
 async function fetchCmdlineRows(sql: postgres.Sql, project: Project, version: string) {
   // systems_json / flags_json are JSONB; postgres-js auto-decodes them.
+  // help_desc synthesized-fallback -- see fetchCvarRows for the design note.
   return await sql<Array<{
     name: string;
     help_desc: string | null;
@@ -234,7 +266,13 @@ async function fetchCmdlineRows(sql: postgres.Sql, project: Project, version: st
     flags_json: unknown | null;
     arguments: string | null;
   }>>`
-    SELECT e.name, cv.help_desc, cv.help_remarks, cv.systems_json, cv.flags_json, cv.arguments
+    SELECT e.name,
+           CASE WHEN e.description_origin = 'synthesized'
+                     AND NULLIF(TRIM(cv.help_desc), '') IS NULL
+                THEN e.description
+                ELSE cv.help_desc
+           END AS help_desc,
+           cv.help_remarks, cv.systems_json, cv.flags_json, cv.arguments
     FROM cmdline_param_versions cv
     JOIN entities e ON e.id = cv.entity_id
     WHERE e.project = ${project} AND cv.version = ${version}
