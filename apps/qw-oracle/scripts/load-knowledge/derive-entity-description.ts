@@ -182,6 +182,18 @@ async function deriveCommand(tx: postgres.TransactionSql<{}>, project: Project, 
 }
 
 async function deriveMacro(tx: postgres.TransactionSql<{}>, project: Project, version: string): Promise<void> {
+  // F-D4a owned-row guard added 2026-05-23 to support the ezquake help-JSON
+  // empty-entries audit's macro pass: operator-reviewed drafts are inserted
+  // into entities.description with description_origin='synthesized' as a
+  // stop-gap until the upstream PR (QW-Group/ezquake-source#1127) lands.
+  // The guard mirrors deriveCvar/deriveCommand/deriveCmdlineParam exactly.
+  // When the upstream PR merges, run the one-line reconciliation:
+  //   UPDATE entities SET description_origin = NULL
+  //   WHERE project='ezquake' AND type='macro' AND description_origin='synthesized'
+  //     AND id IN (SELECT entity_id FROM macro_versions
+  //                WHERE version='head' AND NULLIF(TRIM(help_desc),'') IS NOT NULL);
+  // which releases the guard for rows now backed by help-JSON. Next walk
+  // overrides description from help_desc and writes description_origin='help_json'.
   await tx`
     UPDATE entities SET
       description = vt.help_desc,
@@ -198,6 +210,11 @@ async function deriveMacro(tx: postgres.TransactionSql<{}>, project: Project, ve
       AND entities.project = ${project}
       AND entities.type = 'macro'
       AND entities.last_seen_version = ${version}
+      -- F-D4a owned-row guard (mirrors deriveCvar/deriveCommand/deriveCmdlineParam):
+      -- never re-derive over operator-owned synthesized prose. NULL/source_inline
+      -- rows stay in the UPDATE; only literal 'synthesized'/'shipped_doc' excluded.
+      AND entities.description_origin IS DISTINCT FROM 'synthesized'
+      AND entities.description_origin IS DISTINCT FROM 'shipped_doc'
   `;
 }
 
