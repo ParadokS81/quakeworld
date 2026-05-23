@@ -18,26 +18,32 @@ This file is the load-bearing session record. To continue the discovery walk fro
 4. **Working method per card**: operator picks a card -> verify against source -> draft per templates -> discuss + iterate -> lock into this file with Source / Current / Gap / Proposed / Notes sections.
 5. **Hunt target this work-stream**: new pattern variations that surface new templates or sub-shapes (Shape 1c with mode-precondition + Shape 4b serverinfo-gated were discovered late in session 1; Shapes 1d / 6 / 7a / 7b / 8 + the canonical-card discipline + tooling-mode prereq + shape-composition principle were all discovered in session 2). Bias toward unusual entries to keep surfacing variations.
 6. **Apply path stays parked**: drafts are NOT applied to L1 (`entities.description`) until operator runs the apply pass. Don't touch the DB.
-7. **Session-3 intent (operator-stated end-of-session-2)**: ONE more spot-check pass from a fresh session before the `ktx-l1-rewrite` skill build. Walk 3-5 cards across unfamiliar territory (uncovered categories: Demo & spectator / Internal state / Race / Spectator chat / Server config & network) to confirm the framework holds against unfamiliar shapes. If it does, the skill build is the next major work item. If new shapes surface, lock them first.
+7. **Session-3 outcome (2026-05-23)**: spot-check pass DONE. Framework verdict: v2 universal shape HOLDS against unfamiliar territory. Three cards walked + one verdict-only card; two new shapes locked (Shape 9 with 9a/9b sub-facets; Shape 10). Earn-their-keep discipline note added to the catalog; park-when-ambiguous requirement locked for the upcoming `ktx-l1-rewrite` skill build. **Next major work item: build the skill** (next session). See "State at end of session 3" below.
 
-State at end of session 2 (2026-05-23):
+State at end of session 3 (2026-05-23):
 
-- **45 L1 card drafts** locked: 32 from session 1 + 13 from session 2 (`mmode`, `tot`, `totmode`, `k_tot_mode`, `elect`, `k_ctf_hookstyle`, `k_vp_hookstyle`, `hook_smooth`, `hook_fast`, `hook_classic`, `hook_crhook`, `breakondeath`, `fill`, `addmarker:editor`).
-- **Open findings**: 4 (`handicap` value range; game-mode bidirectional cross-link; `game_mode` mechanics extraction sparseness; `multi` editor-framing + `=` syntax retest).
-- **Follow-up arcs surfaced**: 7 (`admin-and-user-management` L3 note; catalog-wide template-application arc; `game_mode` mechanics extraction; RA-style "modifier on a mode" concept note candidate; `qw-player-messaging` L3 note; `qw-game-modes` L3 note; `ktx-l1-rewrite` skill build).
-- **Templates locked (session 2, 2026-05-23)**:
+- **48 L1 card drafts** locked: 32 from session 1 + 13 from session 2 + 3 from session 3 (`k_entityfile`, `callalias`, `qizmo`). Card #4 (`k_spm_*` family) walked but verdict-only -- no drafts locked (no new shape; mixed-shape feature-family handled by See-also cross-linking; canonical-card pattern does NOT apply). Card #5 (`exclusive` + `k_exclusive` pair) NOT walked -- spot-check terminated early after rate-of-new-finding tapered + framework verdict reached.
+- **Open findings**: 4 (unchanged from session 2: `handicap` value range; game-mode bidirectional cross-link; `game_mode` mechanics extraction sparseness; `multi` editor-framing + `=` syntax retest).
+- **Follow-up arcs surfaced**: 7 (unchanged; `ktx-l1-rewrite` skill entry now includes park-when-ambiguous requirement -- see Follow-up section).
+- **Templates locked (session 3, 2026-05-23)**:
+  - **Shape 9: Engine-written state-mirror cvar** (`[[reference-ktx-cvar-command-pairing]]`) -- no command pair, no safe user-`set` path. Two sub-facets: **9a side-channel-user-set** (user influences via another command's arg syntax, e.g. `k_entityfile` set via `changelevel <map>#<variant>`); **9b engine-only state-mirror** (pure engine bookkeeping, no user influence, e.g. `k_hoonymode_prevmap` / `k_hoonymode_prevspawns`). 3 instances confirmed across the two sub-facets.
+  - **Shape 10: Curated-family help-printer command** (`[[reference-ktx-cvar-command-pairing]]`) -- standalone command whose only job is to print a hardcoded menu of N sibling commands with one-line descriptions. Distinct from Shape 8 (parent-dispatcher) and Shape 7's fan-out modifier. 3 instances confirmed in KTX: `qizmo`, `rules`, `options`.
+  - **Earn-their-keep discipline** (`[[reference-ktx-cvar-command-pairing]]`) -- explicit two-test gate before locking a new shape: (1) template differentiation in load-bearing ways (not cosmetic); (2) 2-3 confirmed instances OR strong cross-codebase pattern expectation. Otherwise: flag as `candidate Shape N` in card Notes, don't lock. Prevents shape proliferation that turns Layer B into noise.
+  - **Park-when-ambiguous** skill requirement (operator-mandated, baked into the `ktx-l1-rewrite` Follow-up entry) -- the skill MUST park entities it cannot confidently classify rather than guessing. Park triggers + park-file mechanism documented in the Follow-up entry. Pair with earn-their-keep: parked pile = empirical data feeding the next round of shape candidates.
+- **KTX shape catalog at end of session 3**: 14+ shape variants (was 12+ at end of session 2). Spans 1 / 1c / 1d / 2 / 3 / 4 / 4b / 5 / 6 / 7-7a-7b / 8 / 9-9a-9b / 10 + canonical-card pattern + command-per-value fan-out modifier + tooling-mode prerequisite.
+- **Templates locked (session 2, 2026-05-23, for archaeology)**:
   - **Universal L1 card shape v2** (`[[feedback-l1-description-template]]` Headliner / Effect / Prerequisites / Permission / Match-state / Default / Example / See-also; action-level not impl-level).
   - **Two-layer architecture** (`[[feedback-mod-l1-documentation-architecture]]` -- Layer A universal shape + Layer B per-codebase shape catalog; replicable across MVDSV / QWFWD / QTV).
-  - **KTX shape catalog extended to 12+ shapes** (`[[reference-ktx-cvar-command-pairing]]`): added Shape 1c (mode-precondition), Shape 1d (preset+cvar+toggle triad), Shape 6 (stateful + one-shot command pair), Shape 7a (election with yes/no), Shape 7b (continuous-toggle vote), Shape 8 (subcommand-of-parent-dispatcher), command-per-value fan-out modifier.
-  - **Tooling-mode prerequisite type** -- distinct from game-mode and match-state. A runtime tooling state (frogbot editor mode) that controls which subcommands are *visible at all* (hide-when-inactive, not refuse-with-message).
-  - **Shape composition**: shapes are facets, not exclusive buckets -- an entity can have multiple shape facets at once (Shape 7 + Shape 4 × 2 on `elect`; Shape 7b + Shape 1c + command-per-value fan-out on hook family).
-  - **Prerequisites must be user-actionable or surprise-bearing** (action-plan-changing); self-state refusals implied by user intent are noise. Audit trail keeps the exhaustive list.
-  - **Subsequent-invocation toggle**: alternate-behavior-on-re-invoke convention (e.g. `elect` started while your own election is pending aborts it).
-  - **Canonical-card pattern**: for N near-identical sibling entities (ksound1..6 or hook_smooth/fast/classic/crhook), ONE canonical card carries the full description; the rest are short reference cards pointing at it. Catalog HTML keeps separate cards for direct `lookup_entity` matches; content is centralized for maintenance.
-- **Skill build deferred**: `ktx-l1-rewrite` skill (against the locked v2 spec) is the next major work item, to be built as its own arc once templates have settled.
+  - **KTX shape catalog extended to 12+ shapes**: added Shape 1c (mode-precondition), Shape 1d (preset+cvar+toggle triad), Shape 6 (stateful + one-shot command pair), Shape 7a (election with yes/no), Shape 7b (continuous-toggle vote), Shape 8 (subcommand-of-parent-dispatcher), command-per-value fan-out modifier.
+  - **Tooling-mode prerequisite type** -- distinct from game-mode and match-state.
+  - **Shape composition**: shapes are facets, not exclusive buckets.
+  - **Prerequisites must be user-actionable or surprise-bearing**.
+  - **Subsequent-invocation toggle** convention.
+  - **Canonical-card pattern** for N near-identical sibling entities (NOT applicable to mixed-shape feature-families like `k_spm_*` -- session 3 finding).
+- **Next major work item**: build `ktx-l1-rewrite` skill via `skill-creator` (see Follow-up section for spec ingredients + park-when-ambiguous requirement). Battle-test on Server config & network category first (partial human-draft ground truth from this session); fan out across remaining categories after validation.
 - No pending tasks.
 
-Per-card drafts below tag their Shape where it fits (e.g. "Shape 1 paired toggle", "Shape 1d preset half"). Session-1 + early-session-2 cards (~32) use the v1 description shape (merged Set-by, no explicit Effect/Prerequisites slots) -- content is correct; shape gets recast during the catalog-wide template-application arc, not retroactively.
+Per-card drafts below tag their Shape where it fits (e.g. "Shape 1 paired toggle", "Shape 1d preset half", "Shape 9a side-channel cvar"). Session-1 + early-session-2 cards (~32) use the v1 description shape (merged Set-by, no explicit Effect/Prerequisites slots) -- content is correct; shape gets recast during the catalog-wide template-application arc, not retroactively.
 
 ## Status legend
 
@@ -2099,6 +2105,205 @@ See also: botcmd (parent dispatcher), removemarker / move (manage
 
 ---
 
+## k_entityfile (KTX cvar, Server config & network -- Shape 9a side-channel cvar)
+
+- **Status**: drafted
+- **Source**: `src/world.c:886` (registration `RegisterCvar("k_entityfile")`); `src/g_utils.c:1702-1732` (`changelevel` -- side-channel set via `#` separator in map arg); `include/g_local.h:1200` (`K_ENTITYFILE_SEPARATOR '#'`); `src/maps.c:80-135` (`GetCustomEntityMapsForDirectory` -- variant auto-discovery from `*.ent` files); `src/admin.c:765-774` (`forcemap` -- user-facing entry point that calls `changelevel`); `src/client.c:800-813` (`set_nextmap` -- sticky propagation across automatic transitions). Consumers: `src/marker_load.c:374` (.bot); `src/bot_commands.c:911` (.bot); `src/teamplay.c:1543` (.loc); `src/race.c:3827` (.route); `src/client.c:565` (samelevel reload); `src/hoonymode.c:1253,1306` (state-mirror reads).
+- **Catalog line**: 15690
+
+### Current description
+
+> Alternate filename stem used when locating per-map auxiliary files (bot markers, race routes, location files). When non-empty, KTX looks for files under this stem instead of the actual map name. Set automatically when a map is loaded with the `<map>#<entityfile>` syntax; the full string including the '#' is stored. Cleared to empty when no '#' is present in the map change request.
+>
+> Default: empty (uses actual map name).
+> Set by: set automatically on map change with `<map>#<entityfile>` syntax; not typically set directly.
+
+### Gap
+
+- **Missing user-facing entry point**: "set automatically" reads as engine-internal magic. Actually user-triggered via `forcemap <map>#<variant>` (the load-bearing path for admins/server operators).
+- **Missing variant-registration prerequisite**: KTX scans `qw/maps/*.ent` on startup; only variants with a present `.ent` file are added to the maplist, and `GetMapNum` is exact-match. Without the file, `forcemap dm6#frogbots` is refused. This is a user-actionable prereq that the original description elides entirely.
+- **Aux-file lookup table missing**: the consumer list ("bot markers, race routes, location files") gestures at the categories but doesn't show the literal lookup pattern `<aux-dir>/<entityfile>.<ext>` -- the on-disk filename contains the literal `#` character.
+- **Missing stickiness across automatic transitions**: `client.c:800-813` propagates `k_entityfile` into `set_nextmap` so the variant persists across end-of-match → nextmap → trigger_changelevel chains. Only an explicit non-`#` changelevel clears it. Operator running an alternate-bots variant for one map gets the same variant on the NEXT map by default (which may surprise them).
+- **"Not typically set directly" understates the risk**: direct `set k_entityfile foo` works syntactically but is overwritten on the next map change AND points downstream consumers at non-existent files unless the variant was registered via `.ent`.
+- **No example.**
+
+### Proposed draft
+
+```
+Filename stem KTX uses when locating per-map auxiliary files (bot routing,
+location names, race routes, entity overrides). When non-empty, each aux
+loader tries '<aux-dir>/<entityfile>.<ext>' first and falls back to the
+bare mapname if the variant file is missing. Lookup paths:
+
+  maps/<entityfile>.bot           bot routing       (marker_load.c)
+  maps/<entityfile>.ent           entity override   (loaded by engine)
+  locs/<entityfile>.loc           location names    (teamplay.c)
+  race/routes/<entityfile>.route  race routes       (race.c)
+
+Set by: side-effect of any 'changelevel <map>#<variant>' (typically issued
+via the 'forcemap' admin command). Stores the FULL string including the
+'#'; sticky across automatic map transitions (end-of-match -> nextmap
+keeps the variant); cleared on any normal map change without '#'. Direct
+'set k_entityfile foo' works syntactically but is overwritten by the next
+map change and points at non-existent files unless the variant was
+registered.
+
+Variant registration: KTX scans qw/maps/ for '*.ent' files on startup; any
+'<map>#<variant>.ent' whose base <map> is also a real map is added to the
+maplist as a virtual entry. This is the only way 'forcemap <map>#<variant>'
+will be accepted.
+
+Default: empty (use actual map name).
+Example: place dm6#frogbots.ent and dm6#frogbots.bot in qw/maps/, then
+         forcemap dm6#frogbots
+         -> server loads map dm6 with the dm6#frogbots aux files.
+
+See also: forcemap, changelevel; k_hoonymode_prevmap and k_hoonymode_prevspawns
+          (sibling Shape 9b engine-only state-mirror cvars).
+```
+
+### Notes (for the apply-pass author)
+
+- **NEW Shape 9 surfaced this card** -- engine-written state-mirror cvar (no command pair, no safe user-`set`). Locked into `[[reference-ktx-cvar-command-pairing]]` with two sub-facets:
+  - **9a side-channel-user-set**: user influences via another command's arg syntax (k_entityfile via `changelevel <map>#<variant>` syntax).
+  - **9b engine-only state-mirror**: pure engine bookkeeping, no user influence (k_hoonymode_prevmap, k_hoonymode_prevspawns).
+- **Shape 9b siblings to draft later**: `k_hoonymode_prevmap`, `k_hoonymode_prevspawns` (registered in `world.c:890-891`; written in `hoonymode.c:1319-1320` by `HM_store_spawns`; read in `hoonymode.c:1262-1265` by `HM_restore_spawns`). Likely more 9b candidates across the catalog -- worth a sweep when the catalog-wide arc starts (grep for `cvar_set(...)` sites in non-handler engine code).
+- **Lookup-table format**: borrowed from mmode/elect cards. When the cvar drives multiple downstream consumers, a small table beats prose. Apply-pass author should preserve the exact path syntax (some consumers prepend `maps/`, some `locs/`, etc.).
+- **Variant-registration paragraph is load-bearing**: without it the reader has no idea WHY their `forcemap dm6#frogbots` is being refused. This is the surprise-bearing prereq the v2 universal shape calls for.
+- **"Stem" terminology kept** -- accurate engineering term; the audit-trail note that the on-disk file literally contains `#` is preserved in the lookup-table comments.
+
+---
+
+## callalias (KTX command, Server config & network -- no Layer B shape, sui generis mechanism)
+
+- **Status**: drafted
+- **Source**: `src/commands.c:993` (registration `CF_BOTH | CF_MATCHLESS | CF_PARAMS`); `src/commands.c:608` (`CD_CALLALIAS "call alias after few secs"`); `src/commands.c:8350-8400` (`callalias` handler -- arg parse + connect-window check + single-shot guard + state install); `src/commands.c:8402-8411` (`check_callalias` -- per-tick expiry check + stuffcmd dispatch); `src/client.c:4308-4334` (`BothPostThink` -- per-tick invocation site for players AND spectators); `include/progs.h:1125-1127` (`callalias` + `callalias_time` fields on player record); `src/g_main.c:78,214-215` (`callalias_buf[MAX_CLIENTS]` storage + per-client initialization).
+- **Catalog line**: (Server config & network category; precise line per grep)
+
+### Current description
+
+> Schedules one of the caller's own client aliases to execute automatically after a delay. Usage: callalias <aliasname> <time>.
+
+### Gap
+
+- **Connect-window restriction unstated** (15 seconds after connect only) -- this is the load-bearing context that makes callalias a connection-time setup tool, NOT a general-purpose scheduler. Without this the reader assumes scheduling-anytime.
+- **Time-clamp unstated** -- `0 < time <= 30` seconds (negative values are made positive via `fabs`, but `0` and `>30` are refused).
+- **Single-shot queue unstated** -- only ONE callalias can be pending per player; install while one is pending is refused with `"you can't install more than 1 alias before previous will execute"`.
+- **Client-side resolution unstated** -- the alias must exist in the CLIENT'S config. Server has no idea what the alias does; the server's role ends with sending `stuffcmd <aliasname>\n` back to the client. If no such alias exists client-side, the stuffcmd silently does nothing.
+- **`cmd` prefix unstated** -- player must invoke as `cmd callalias ...` from their client config (standard QW pattern for server-bound commands).
+- **No example, no use case.**
+
+### Proposed draft
+
+```
+Schedules one of YOUR OWN client-side aliases to execute automatically
+<time> seconds from now. The server stores the alias name + scheduled time
+on your player record and, on expiry, sends 'stuffcmd <aliasname>\n' back
+to your client (which then resolves <aliasname> against your local alias
+definitions and runs it).
+
+Use case: install a client-side action that needs to run AFTER the server
+has finished sending baselines / loading state on connect. The 15-second
+connect-window restriction limits this to connection-time setup
+automation -- not a general-purpose scheduler.
+
+Restrictions:
+  - <time> must be > 0 and <= 30 seconds.
+  - Only ONE callalias can be queued at a time per player; install is
+    refused with "you can't install more than 1 alias before previous
+    will execute" if one is already pending.
+  - Only usable within the first 15 seconds after connect; later attempts
+    are refused with "you can use callalias only during 15 sec after
+    connect".
+  - <aliasname> must resolve to an alias DEFINED IN YOUR CLIENT CONFIG --
+    the server doesn't know what the alias does; it just tells your
+    client to run it. If no such client-side alias exists, the stuffcmd
+    silently does nothing.
+
+Set by: any player or spectator (CF_BOTH | CF_MATCHLESS); usable in-match
+        and out-of-match.
+Example: in your client config (ezquake/fte etc):
+           alias myAutoJoin "team red; ready"
+         after connecting (within 15 seconds):
+           cmd callalias myAutoJoin 5
+         -> 5 seconds later your client runs "myAutoJoin", which expands
+            to "team red; ready".
+```
+
+### Notes (for the apply-pass author)
+
+- **No Layer B shape**: callalias has no entity-pair relationship -- not cvar+command, not command+command, not gating, not voting. It's an "island" in the shape catalog. Per session-2 modeling: the shape catalog captures relationships BETWEEN entities; entities without relationships have no shape tag.
+- **Sui generis mechanism**: server-side timer (per-player record state) + client-side dispatch via `stuffcmd`. Surveyed for siblings across KTX (other `self->*_time` fields, other `stuffcmd_flags` callers) -- found NO matching pattern:
+  - Other `self->*_time` timers (`shownick_time`, `wp_stats_time`, `sc_stats_time`, `pos_move_time`, `pb_old_time`, `rec_start_time`, powerup-cheat timers) are internal display/playback/gameplay state, NOT command-installed deferred dispatch.
+  - Other `stuffcmd_flags(self, ...)` sites (bot_aim, race) are demo-only metadata markers (`//botcmd-desired`, `//ucmd`), not deferred user-action dispatches.
+  - **No "deferred-dispatch player command" family** exists in current KTX. If a future codebase walk (MVDSV / unezQuake / KTX additions) surfaces a sibling, can crystallize a Shape 10-or-later then.
+- **ktpro inheritance**: `// ktpro (c)` comment at `commands.c:8349` confirms this is inherited from ktpro (KTX predecessor mod). Likely many other commands carry the same provenance (worth a separate audit for the catalog-wide arc).
+- **Use case captured from connect-window inference**: the 15-second window is the load-bearing tell that this is for connect-time orchestration. Without that paragraph, readers will think it's a general-purpose `sleep && do X` tool and be confused when 16-second-old attempts are refused.
+
+---
+
+## qizmo (KTX command, Server config & network -- Shape 10 curated-family help-printer)
+
+- **Status**: drafted
+- **Source**: `src/commands.c:777` (registration `CF_PLAYER`); `src/commands.c:409` (`CD_QIZMO "qizmo related commands"`); `src/commands.c:1585-1591` (`ShowQizmo` handler -- 6-line pure print routine); `src/commands.c:784-786` (q* family registrations); `src/commands.c:3686-3733` (sibling handlers `ToggleQLag` / `ToggleQEnemy` / `ToggleQPoint` -- `fpd` serverinfo bitmask toggles); `src/commands.c:414-416` (`CD_QLAG` / `CD_QENEMY` / `CD_QPOINT`).
+- **Catalog line**: (Server config & network category)
+
+### Current description
+
+> Prints a list of qizmo proxy-related commands and what they do.
+
+(per audit trail; verbatim from `CD_QIZMO`)
+
+### Gap
+
+- **Menu contents not enumerated**: reader/LLM consumer has no way to see the q* family roster without running the command in-game.
+- **What is "qizmo"?** -- name is opaque to anyone not steeped in QW community lore. The 'q' prefix and the `redtext("QiZmo ...")` strings in the sibling handlers signal qizmo-protocol features, but the L1 card doesn't explain.
+- **Mechanism not stated** -- the siblings toggle bits in the `fpd` serverinfo key. Without that, "lag settings" / "enemy vicinity reporting" / "point function" are floating phrases with no grounding.
+- **Match-state behaviour of siblings missing** -- all three siblings refuse during `match_in_progress`. The help-printer itself is any-time, but the things it advertises are not.
+- **No example.**
+- **No cross-links to sibling commands** -- discoverability anchor pattern broken.
+
+### Proposed draft
+
+```
+Prints the qizmo command family roster -- three q-prefixed player commands
+that toggle qizmo-protocol features in the server's 'fpd' serverinfo
+bitmask. Read-only; takes no arguments.
+
+Menu contents:
+  qlag........ lag settings        (toggles fpd bit 8)
+  qenemy...... enemy vicinity      (toggles fpd bit 32 -- proximity reports)
+  qpoint...... point function      (toggles fpd bit 128 -- waypoint markers)
+
+The 'q' prefix is historical: these commands were originally features of
+qizmo (a QW client-side proxy that added scripting / spectator features).
+KTX absorbed them as native server-side toggles of the same fpd bits the
+qizmo proxy used to set. Each sibling refuses during a live match
+(pre-match / matchless only).
+
+Set by: any player (CF_PLAYER); the menu itself is usable any time.
+Example: qizmo
+         -> prints the menu above.
+
+See also: qlag, qenemy, qpoint (the family roster); rules (related
+          rule-toggle help printer); options (related match-settings
+          help printer).
+```
+
+### Notes (for the apply-pass author)
+
+- **NEW Shape 10 surfaced this card** -- curated-family help-printer command. Locked into `[[reference-ktx-cvar-command-pairing]]`. Three confirmed KTX instances: `qizmo` + `rules` + `options`. Template implication: Effect section enumerates the menu inline (not "see in-game"); See-also lists every sibling.
+- **Companion-side discipline**: when the q* sibling cards are walked, each one's See-also should reference `qizmo` as the family discovery anchor. Same for the 23 commands `rules` lists and the 16 commands `options` lists.
+- **Distinguished from neighbors** in the catalog memory:
+  - `commands` (ShowCmds) is introspective + filtered + per-caller-dynamic -- NOT Shape 10. 1-of-1 in current KTX; shape-less for now.
+  - `cam` is a usage tutorial -- NOT Shape 10. Different content shape.
+  - `about` is a state report (server identity panel) -- NOT Shape 10.
+  - `dm` is a dual-purpose state/setter -- NOT Shape 10.
+- **'qizmo' lore inference is verifiable from source**: the `CD_QIZMO = "qizmo related commands"` string AND the `redtext("QiZmo X")` strings in the sibling handlers both name qizmo explicitly. The "originally features of qizmo" framing is supported but the L1 card should not claim history beyond what the source mentions. The community lore (qizmo as the QW client-side proxy that introduced these features) is appropriate for an L3 concept note, not L1.
+- **`fpd` bitmask mechanism mentioned briefly** -- the L1 card names the bits but doesn't deep-dive on what `fpd` does. The full `fpd` semantics belong on the `fpd` serverinfo card (if/when it gets one) or in an L3 note on QW server-protocol bitmasks. Don't bloat qizmo with that.
+
+---
+
 ## Follow-up work surfaced
 
 Items flagged during this review walk that go beyond per-card L1 drafts. Capture-only; pick when ready.
@@ -2173,7 +2378,7 @@ Pre-requisite: KTX one-shot commands (`s-p` / `s-r` / `s-m` / `s-l` / `s-t`) and
 
 ### ktx-l1-rewrite skill (tooling, skill-arc)
 
-Surfaced from: session 2 templates lock (2026-05-23). Once the universal shape (v2) + KTX shape catalog (9 shapes) + action-level-vs-implementation-level rule are locked, a sibling skill to `describe-fill-synthesis` becomes worth building.
+Surfaced from: session 2 templates lock (2026-05-23); extended session 3 (2026-05-23) with park-when-ambiguous requirement + battle-test-first plan. Once the universal shape (v2) + KTX shape catalog (14+ shapes) + action-level-vs-implementation-level rule + earn-their-keep discipline are locked, a sibling skill to `describe-fill-synthesis` becomes worth building.
 
 Scope: per-card rewrite skill that takes an existing L1 description and recasts it under the v2 universal shape (Layer A) using the appropriate KTX shape (Layer B). Sub-agent fan-out friendly, designed for the catalog-wide template-application arc.
 
@@ -2184,13 +2389,58 @@ Differences from `describe-fill-synthesis`:
 - **Per-card cost**: low (form application + light verification) vs the synthesis skill's high cost.
 - **Source dive**: verification-level only (description content already exists; verify factual claims against current head, e.g. catch the `mmode` "editor" framing error from session 2).
 
+**Hard requirement -- park-when-ambiguous** (operator-mandated 2026-05-23, session 3):
+
+The skill MUST park entities it cannot confidently classify rather than guessing. Operational counterpart of the earn-their-keep discipline: catalog says "don't lock new shapes on 1-of-1 evidence"; parking says "when the skill encounters 1-of-1 ambiguity, surface it, don't guess." Parked pile becomes empirical data feeding the next round of shape candidates.
+
+Park triggers (skill spec):
+
+1. **No-shape-match**: no shape matches cleanly from the catalog's identification guide.
+2. **Conflicting-shape-match**: multiple shapes match with strong evidence in conflicting ways (composition case the skill cannot resolve which is primary).
+3. **Source-vs-description-contradiction**: source evidence contradicts the existing description AND the skill cannot determine which is authoritative (e.g., the `mmode multi` "editor" framing error -- the description said one thing, source said another).
+4. **Sui-generis-mechanism**: entity has an unusual mechanism that doesn't pattern-match anything in the catalog (the `callalias` scenario -- 1-of-1).
+
+Distinct from "I can classify but the source contradicts the existing description" -- that's still a DRAFT, just with the contradiction flagged in Notes. Different review queues: parked pile = shape gap; flagged drafts = factual fix queue.
+
+Park structure:
+
+- One file per batch: `apps/qw-oracle/docs/reviews/ktx-l1-rewrite-parked-YYYY-MM-DD.md`
+- One section per parked entity with: entity name | source refs | what the skill saw | which trigger fired | suggested manual investigation path.
+- Parked entries don't block fan-out -- skill processes the rest, parked entries accumulate, operator reviews at end of batch.
+
+Park benefits (operator-facing):
+
+- Skill makes confident progress on the easy ~90% of cards.
+- Hard cases stick out -- operator doesn't audit everything.
+- Parked pile = empirical data on where the framework still has gaps (drives the next shape iteration; sibling-rich patterns earn a new Shape N, 1-of-1s stay shape-less in v2).
+
 Build sequence:
 
-1. Lock templates (DONE session 2 2026-05-23).
-2. Build `ktx-l1-rewrite` skill (use `skill-creator` to scaffold; spec from `[[feedback-l1-description-template]]` v2 + `[[feedback-mod-l1-documentation-architecture]]` + `[[reference-ktx-cvar-command-pairing]]`).
-3. Dispatch via sub-agent fan-out across the rest of the KTX catalog (the catalog-wide template-application arc).
+1. Lock templates (DONE session 2 + session 3 2026-05-23).
+2. Build `ktx-l1-rewrite` skill (use `skill-creator` to scaffold; spec ingredients: `[[feedback-l1-description-template]]` v2 + `[[feedback-mod-l1-documentation-architecture]]` + `[[reference-ktx-cvar-command-pairing]]` Layer B catalog at 14+ shapes + park-when-ambiguous requirement above + worked examples from this findings file).
+3. **Battle-test on Server config & network category FIRST** -- partially walked in session 3, so we have human-draft ground truth for `k_entityfile` / `callalias` / `qizmo` to compare against the skill's output. If skill output approximates the human drafts on those three + the parked pile makes sense + the rest of the category cards process cleanly, the skill is validated for fan-out.
+4. After validation: dispatch via sub-agent fan-out across the rest of the KTX catalog (the catalog-wide template-application arc).
 
 Engine-genericity note: the skill should be engine-aware (KTX-specific shape catalog) but the universal-shape application is engine-agnostic. Future MVDSV / QWFWD / QTV rewrites can fork the skill with codebase-specific shape catalogs.
+
+Worked-example references (use these as few-shot prompts when building the skill):
+
+- **Shape 1 (cvar+toggle)**: session-1 cards (`k_fallbunny`/`fallbunny`, `k_dis`/`discharge`, etc.)
+- **Shape 1c (mode-precondition)**: `k_rocketarena`/`arena` (session 2)
+- **Shape 1d (preset+cvar+toggle triad)**: `tot`/`totmode`/`k_tot_mode` (session 2)
+- **Shape 2 (cvar+cycle)**: `k_fp`/`fp` (session 1)
+- **Shape 3 (cvar-only)**: `k_admincode`, the three `k_spm_*` styling cvars (session 3, verdict-only -- no drafts locked, but the shape applies)
+- **Shape 4 (gating cvar)**: `k_admins`, `k_allowvoteadmin` (session 2)
+- **Shape 4b (serverinfo-gated)**: `giveme`/`*cheats` (session 2)
+- **Shape 6 (stateful + one-shot pair)**: `mmode`/`s-X` family (session 2)
+- **Shape 7a (election)**: `elect` (session 2)
+- **Shape 7b (continuous-toggle vote)**: hook family (session 2)
+- **Shape 8 (subcommand of parent-dispatcher)**: `breakondeath`/`fill`/`addmarker:editor` (session 2)
+- **Shape 9a (side-channel cvar)**: `k_entityfile` (session 3)
+- **Shape 9b (engine-only state-mirror)**: `k_hoonymode_prevmap`, `k_hoonymode_prevspawns` (session 3 -- flagged but not drafted)
+- **Shape 10 (curated-family help-printer)**: `qizmo` (session 3)
+- **No shape (sui generis)**: `callalias` (session 3)
+- **Mixed-shape feature-family** (cross-link discipline, not a shape): `k_spm_*` family (session 3, verdict-only)
 
 ### qw-game-modes (L3, cross-layer)
 
