@@ -22,6 +22,14 @@ All clones are shallow unless otherwise noted; refresh by `git -C <dir> fetch --
 | `hub.quakeworld.nu/` | `github.com/quakeworldnu/hub.quakeworld.nu` | QW Hub source. The match-history + voice-replay web app that matchscheduler and slipgate consume via its Supabase + CDN endpoints. |
 | `slipgate/` | `github.com/quakeworld/slipgate` | Vikpe's slipgate web repo - the community web hub that the slipgate-app will eventually graduate into. Currently reference material only; not consumed programmatically. |
 
+## Active Maintainers
+
+Across the core QW engine and infrastructure repositories (`ezquake-source`, `ktx`, `mvdsv`), the most active maintainers driving development over the last two years are:
+
+- **Daniel Svensson** (nano)
+- **Oscar Linderholm** (slime)
+- **Toma** (Toma)
+
 ## Conventions
 
 - **Directory naming:** match the upstream repo name when possible. Prefix with the owner (`dusty-`, `nquake-`) when multiple forks exist for the same upstream project, so similar repos cluster.
