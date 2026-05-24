@@ -17,7 +17,7 @@ The ezQuake help-JSON empty-entries audit has three sub-passes. Two are shipped,
 | **commands** (156) | SHIPPED 2026-05-24 | #1128 OPEN | done | arc-history retrospective just above the macros one |
 | **cmdline** (56) | NOT STARTED | -- | -- | smallest pass; nearly free given the commands-pass machinery is in place |
 
-Plus a separate set of **awaiting-maintainer questions** in PRs #1127 and #1128 (canonical alias pattern, `mvd_name_item` label-discard bug, `unignoreall` lowercase placeholder cleanup, 5 dead/removed entries) — those don't need any new work, just operator response when the maintainers engage.
+Plus a separate set of **awaiting-maintainer questions** in PR #1128 (canonical alias pattern, `mvd_name_item` label-discard bug, 5 dead/removed entries) — those don't need any new work, just operator response when the maintainers engage. PR #1127 carries no questions.
 
 ---
 
@@ -100,7 +100,7 @@ Recommended order: cvar PR first (faster wins, gets all three PRs into maintaine
 
 - **Verify against source HEAD, don't trust drafts blindly.** Cross-grep `research/repos/ezquake-source/src/` for specific factual claims (constants, format strings, build gates, alias relationships) before approving. The commands pass produced 19 corrections from 97 drafts (~20% finding rate).
 
-- **Entry-name verification against source registration** (case-mismatch lesson from commands pass). Before generating prose for entries, verify each entry name matches the case used in source. Catches case-folding bugs like the `unignoreall` lowercase-placeholder issue.
+- **Entry-name verification against source registration** (case-mismatch lesson from commands pass). Before generating prose for entries, verify each entry name matches the case used in source HEAD -- the camelCase `unignoreAll`/`unignoreAll_team` upgrades in PR #1128 (commit `d49491cc`) are the concrete example: drafts initially referenced a lowercased form not present in the file.
 
 - **ASCII only in prose.** Plain English. See `feedback_output_discipline_sentiment` memory.
 
@@ -138,8 +138,6 @@ The operator's domain knowledge of QW + their judgment on maintainer review pref
 
 - **L1-extractor classification arc** -- the 26 host.c `Cmd_AddLegacyCommand` shims + 2 outliers from the commands pass are routed there. Sibling arc; not blocking. Parking doc: `docs/superpowers/parking/2026-05-15-l1-extractor-entity-classification-followups.md`.
 
-- **Maintainer responses on PRs #1127 + #1128** -- 4 questions awaiting. When responses come in, may need follow-up commits or PRs; track those in HANDOVER small followups.
-
-- **`unignoreall` / `unignoreall_team` lowercase placeholder cleanup** -- HANDOVER small followup; do after PR #1128 merges (or fold into the next ezquake-source code-cleanup PR).
+- **Maintainer responses on PR #1128** -- 3 questions awaiting. When responses come in, may need follow-up commits or PRs; track those in HANDOVER small followups. PR #1127 has no open questions.
 
 - **mp3 dead-enum cleanup** -- HANDOVER small followup; surface `mp3info` + `mp3_volume` enum entries in `macro_ids.h` for separate 2-line PR.
