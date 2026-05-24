@@ -1,4 +1,4 @@
-# Gemini CLI Instructions - QuakeWorld Monorepo
+# Antigravity CLI & Cross-Tool Instructions - QuakeWorld Monorepo
 
 ## Core Mandates
 - **Strict Adherence**: Follow all patterns and standards established in `CLAUDE.md` and per-app `CLAUDE.md` files.
