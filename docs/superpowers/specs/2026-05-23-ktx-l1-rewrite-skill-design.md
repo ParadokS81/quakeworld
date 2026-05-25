@@ -1,6 +1,6 @@
 # ktx-l1-rewrite skill design
 
-**Status:** Designed 2026-05-23. **Amended 2026-05-23** (Step 1.5 + shape-less verdict; battle-test validated). **SHIPPED at scale 2026-05-24**: Server config & network category, 57/57 cards drafted (37 drafted + 20 drafted_with_flag + 1 parked callalias); ~35% flag rate caught real factual errors in upstream synthesis output.
+**Status:** Designed 2026-05-23. **Amended 2026-05-23** (Step 1.5 + shape-less verdict; battle-test validated). **SHIPPED at scale 2026-05-24**: Server config & network category, 57/57 cards drafted (37 drafted + 20 drafted_with_flag + 1 parked callalias); ~35% flag rate caught real factual errors in upstream synthesis output. **Amended 2026-05-26** (Shape 11 crystallized -- per-bit XOR toggle on shared bitmask state container, 11a cvar-backed / 11b serverinfo-backed; surfaced when the Spectator chat & visibility batch parked the k_spec_info family and verification found fpd/qizmo as a structural sibling).
 
 **One-liner:** Per-card sub-agent fan-out skill that takes one KTX L1 entity's existing description + source ref + anchor version, classifies it under the Layer B shape catalog (14+ KTX shapes), recasts under the v2 universal shape (Layer A), and emits a structured record. Sibling to `describe-fill-synthesis`; cheaper job (recast + light verification, not full synthesis), Sonnet 4.6 high locked.
 
@@ -9,7 +9,7 @@
 The KTX L1 catalog has ~13,000+ entities. Templates locked across catalog-walk sessions 1–3 (2026-05-22 → 2026-05-23):
 
 - **Layer A** — v2 universal shape (Headliner / Effect / Prerequisites / Permission / Match-state / Default / Example / See-also). See [[feedback-l1-description-template]].
-- **Layer B** — KTX-specific shape catalog at 14+ shapes (1 / 1c / 1d / 2 / 3 / 4 / 4b / 5 / 6 / 7-7a-7b / 8 / 9-9a-9b / 10) + canonical-card pattern + command-per-value fan-out modifier + tooling-mode prerequisite. See [[reference-ktx-cvar-command-pairing]].
+- **Layer B** — KTX-specific shape catalog at 15+ shapes (1 / 1c / 1d / 2 / 3 / 4 / 4b / 5 / 6 / 7-7a-7b / 8 / 9-9a-9b / 10 / 11-11a-11b) + canonical-card pattern + command-per-value fan-out modifier + tooling-mode prerequisite. See [[reference-ktx-cvar-command-pairing]].
 - **Earn-their-keep discipline** — don't lock new shapes on 1-of-1 evidence; flag as candidate, gather siblings, then promote.
 
 48 cards walked + drafted by hand across the three sessions, with one ground-truth card per shape now available as a few-shot reference. Fanning out across the remaining ~13,000 entities mechanically requires a skill. This is that skill.

@@ -302,6 +302,209 @@ See also: k_spectalk (paired cvar this toggles), k_sayteam_to_spec (team-chat-to
 
 ---
 
+## k_spec_info (KTX cvar, Spectator chat & visibility -- Shape 11a)
+
+- **Status**: drafted_with_flag
+- **Source**: src/world.c:965 (registration), src/commands.c:7069-7074 (mi_on/mi_adm_only helpers), src/commands.c:7102-7148 (mi_print consumer), src/commands.c:7151-7175 (moreinfo consumer), src/commands.c:7205-7232 (infolock XORs MI_ADM_ONLY), src/commands.c:7234-7247 (infospec XORs MI_ON)
+- **Catalog line**: 17165
+- **Anchor**: v1.36-1633-g67253dc
+
+### Current description
+
+> Bitmask controlling whether extra player-status info (powerups, armor, weapons) is sent to spectators and who receives it.
+>
+> 0 = no extra info sent to spectators.
+> 1 = extra info sent to all spectators.
+> 2 = extra info sent to admin-status spectators only (add to 1: value 3).
+>
+> Default: 0.
+> Set by: server config or 'infospec' / 'infolock' admin commands in-game.
+
+### Shape classification
+
+Shape 11a (cvar-backed bitmask with per-bit XOR toggle commands).
+
+Two bit constants: `MI_ON (1<<0)` at `include/g_consts.h:282` and `MI_ADM_ONLY (1<<1)` at `include/g_consts.h:283`. Two independent top-level toggle commands: `infospec` reads `cvar("k_spec_info")` into a local int, XORs `MI_ON`, writes back via `cvar_fset` (commands.c:7236-7244); `infolock` does the same for `MI_ADM_ONLY` (commands.c:7207-7222). No `cvar_toggle_msg`. Both handlers have `match_in_progress` early-return. Asymmetric permissions: `infospec` is `CF_PLAYER | CF_SPC_ADMIN` (any player or admin spectator); `infolock` is `CF_BOTH_ADMIN` (full admin only). Asymmetric-permissions variant note from the Shape 11a catalog entry applies.
+
+### Proposed draft
+
+```
+Bitmask that controls whether player-status notifications (item pickups, powerups, armor, weapons)
+are sent to spectators during a match, and which spectators are eligible to receive them.
+
+Effect:
+  bit 0 (MI_ON, value 1) -- master on/off switch for spectator info delivery.
+    0 = no status notifications are sent to any spectator.
+    1 = status notifications are sent to eligible spectators (subject to bit 1 and each
+        spectator's personal detail level, set via the 'moreinfo' command).
+
+  bit 1 (MI_ADM_ONLY, value 2) -- recipient scope, active only when bit 0 is also set.
+    0 = all spectators are eligible to receive notifications.
+    2 = only admin-status spectators are eligible to receive notifications.
+
+  Combined values:
+    0 = off (no info to anyone).
+    1 = on, all spectators eligible.
+    3 = on, admin spectators only (set 'k_spec_info 3' in server.cfg, or toggle both bits
+        in-game: run infospec to enable, then infolock to restrict).
+
+  When bit 0 is off, spectators cannot use 'moreinfo' to adjust their personal detail level
+  (the server reports "Spec info is turned off by server" and refuses the change).
+
+Permission:  server config, or in-game via 'infospec' (any player or admin spectator) and
+             'infolock' (admin only); each toggle command owns one bit -- see per-command cards.
+Match-state: pre-match only (both toggle commands silently refuse during a live match).
+Default:     0.  Effective runtime default is 1 (any mode preset via common_um_init resets
+             k_spec_info to 1 -- see Notes).
+
+Example:
+  # server.cfg -- enable for all spectators (typical)
+  k_spec_info 1
+
+  # server.cfg -- enable for admin spectators only
+  k_spec_info 3
+
+  # In-game: enable notifications (pre-match, any player or admin spectator)
+  infospec
+  # Then restrict to admins only (pre-match, admin only)
+  infolock
+
+See also: infospec (toggles bit 0 -- master on/off), infolock (toggles bit 1 -- admin-only scope),
+          moreinfo (spectator-side command: cycles personal detail level; gated on bit 0),
+          k_spectalk (spectator-chat policy), k_ann (spectator join/leave announcements)
+```
+
+### Notes
+
+- FLAG: The existing description's Set-by line reads "server config or 'infospec' / 'infolock' admin commands in-game." `infospec` is registered as `CF_PLAYER | CF_SPC_ADMIN` -- any player OR admin spectator, NOT admin-only. Describing it as an "admin command" is incorrect. The recast corrects this in the Permission line. Apply-pass-author: confirm the permission split is clear (infospec = any player or admin spec; infolock = admin only).
+- FLAG: The existing description states "Default: 0." `RegisterCvar("k_spec_info")` with no explicit default does evaluate to 0. However, `common_um_init[]` at `commands.c:4185` includes `"k_spec_info 1\n"` and is applied on ANY user-mode preset (1on1, ffa, ctf, ca, tot, etc.). In practice, any server that applies a mode preset gets k_spec_info = 1 as its effective starting value. The recast surfaces this in the Default note. Apply-pass-author: decide whether "Default: 0 (effective runtime default 1 after mode preset)" is the right framing or whether a simpler "Default: 1 (set by mode presets)" is preferred.
+- The two-bit value enum in the existing description is directionally correct: 0 = off, 1 = all specs, 2 = admin only, 3 = both. The existing framing of "2 = admin-only (add to 1: value 3)" implies value 2 alone activates admin-only behavior. Source shows MI_ADM_ONLY without MI_ON has no practical effect (mi_print returns early on `!mi_on()` before the `mi_adm_only()` check). The recast clarifies bit 1 is "active only when bit 0 is also set" -- this is a behavioral nuance the existing description glosses over.
+- `moreinfo` is a valid L1 command entity registered at `commands.c:932` (`CF_SPECTATOR | CF_MATCHLESS`). The gating behavior (spectators cannot cycle their detail level when MI_ON is 0) is source-verified at `commands.c:7154-7159`. This is surprise-bearing (spectators discover their moreinfo command silently refuses) and is surfaced in Effect.
+- Sibling cross-links verified: `infospec` (commands.c:931, CF_PLAYER|CF_SPC_ADMIN), `infolock` (commands.c:930, CF_BOTH_ADMIN), `moreinfo` (commands.c:932, CF_SPECTATOR|CF_MATCHLESS), `k_spectalk` (world.c:860), `k_ann` (world.c:943) -- all confirmed L1 entities.
+- No forward references inserted. Previously this card's See-also included conceptual spectator-info concept notes that do not yet exist; those are omitted per the no-forward-references rule.
+- The previous parked entry (trigger 1, batch 2026-05-25) is superseded by this draft. Operator to clean up the park file separately.
+
+---
+
+## infolock (KTX command, Spectator chat & visibility -- Shape 11a)
+
+- **Status**: drafted
+- **Source**: src/commands.c:930 (registration), src/commands.c:7205-7232 (handler)
+- **Catalog line**: 17229
+- **Anchor**: v1.36-1633-g67253dc
+
+### Current description
+
+> Admin command that toggles who may receive spectator info. When locked, the server announces "Only admins can receive specinfos"; when unlocked, "All spectators can receive specinfos". Has no effect during a live match.
+>
+> Default: unlocked (all spectators).
+> Set by: admin command 'infolock'.
+
+### Shape classification
+
+Shape 11a (per-bit XOR toggle on cvar-backed bitmask, toggle-command side).
+
+Handler reads `cvar("k_spec_info")` into a local int, XORs `MI_ADM_ONLY` (defined as `(1<<1)` = bit 1 = value 2 at `include/g_consts.h:283`), and writes back via `cvar_fset`. No `cvar_toggle_msg`. Handler has `match_in_progress` early-return and `!is_adm(self)` refusal -- consistent with the Shape 11a admin-gated toggle signature. Sibling `infospec` independently owns the other bit (`MI_ON`, bit 0). The operator has pre-crystallized Shape 11a from the confirmed k_spec_info + infospec + infolock family. This is the toggle-command side of Shape 11a; the bitmask enum lives on k_spec_info's card.
+
+### Proposed draft
+
+```
+Toggles the MI_ADM_ONLY bit (bit 1, value 2) of k_spec_info -- controls whether
+spectator-info notifications are restricted to admin spectators only or open to all spectators.
+
+Effect:
+- XORs bit 1 (MI_ADM_ONLY) of k_spec_info and broadcasts the new state:
+    Locked:   "Only admins can receive specinfos"
+    Unlocked: "All spectators can receive specinfos"
+- This bit governs recipient scope only. When bit 0 (MI_ON) is off -- meaning
+  infospec has not enabled spec info -- this toggle's effect is dormant: no
+  notifications are delivered to any spectator regardless of this bit's state.
+
+Permission:  admin only
+Match-state: pre-match only (silently ignored during a live match)
+
+Example:
+  infospec    # first enable spec info delivery (any player or admin spectator)
+  infolock    # then restrict delivery to admin spectators only (admin only)
+  infolock    # toggle back: all spectators are eligible again
+
+See also: k_spec_info (bitmask container; bit enum lives here), infospec (sibling toggle: owns bit 0 -- the master on/off switch), moreinfo (spectator-side command: cycles personal detail level)
+```
+
+### Notes
+
+- The existing description is directionally correct and has no foundational contradiction. Recast is mechanical v1->v2: split "Set by" into Permission + Match-state, add Effect slot with the bit-ownership prose, add the dormancy note (surprise-bearing -- not in existing description).
+- Dormancy note (MI_ON = 0 makes this toggle's effect dormant) is source-verified: `mi_print()` at commands.c:7109-7112 returns early on `!mi_on()` before reaching the `mi_adm_only()` check. User-observable: admin can run `infolock` and get the broadcast but spectators still receive nothing if `infospec` hasn't enabled spec info. Surfaced in Effect as "this toggle's effect is dormant."
+- NO value enum on this card per Shape 11a discipline -- enum lives on k_spec_info.
+- CF_BOTH_ADMIN = admin-only for both players and spectators (i.e. the caller must hold admin status regardless of whether they are a player or spectator). Permission line: "admin only."
+- Match-state: the `match_in_progress` early-return at commands.c:7209-7212 is silent -- no message printed to the invoker. The existing description says "Has no effect during a live match" which is accurate.
+- `moreinfo` is cross-linked (valid L1 entity at commands.c:932) because it is the downstream consumer whose behavior is conditioned on k_spec_info state -- functionally relevant to an admin configuring the spec-info feature. See-also cap is 3 (within 4-5 limit).
+- The previous parked entry (trigger 1, batch 2026-05-25) is superseded by this draft. Operator to clean up the park file separately.
+
+---
+
+## infospec (KTX command, Spectator chat & visibility -- Shape 11a)
+
+- **Status**: drafted
+- **Source**: src/commands.c:931 (registration), src/commands.c:7234-7247 (handler)
+- **Catalog line**: 17257
+- **Anchor**: v1.36-1633-g67253dc
+
+### Current description
+
+> Toggles spectator item-pickup info ("X got Megahealth" notifications) and the 'moreinfo' command on or off for spectators. Broadcasts "Extra info for spectators on/off" to all on each toggle. Has no effect during a live match.
+>
+> When off: 'moreinfo' prints "Spec info is turned off by server".
+>
+> Set by: player or spectator-admin command 'infospec' in-game (refused during a match).
+
+### Shape classification
+
+Shape 11a (per-bit XOR toggle on cvar-backed bitmask, toggle-command side).
+
+Handler reads `cvar("k_spec_info")` into a local int, XORs `MI_ON` (defined as `(1<<0)` = bit 0 = value 1 at `include/g_consts.h:282`), and writes back via `cvar_fset`. No `cvar_toggle_msg`. Handler has a silent `match_in_progress` early-return. Sibling `infolock` independently owns the other bit (`MI_ADM_ONLY`, bit 1). The operator has pre-crystallized Shape 11a from the confirmed k_spec_info + infospec + infolock family. This is the toggle-command side of Shape 11a; the bitmask enum lives on k_spec_info's card. Asymmetric permissions confirmed: infospec is `CF_PLAYER | CF_SPC_ADMIN` vs infolock's `CF_BOTH_ADMIN`.
+
+### Proposed draft
+
+```
+Toggles the MI_ON bit (bit 0, value 1) of k_spec_info -- the master on/off switch for
+spectator item-pickup notifications ("X got Megahealth" style messages).
+
+Effect:
+- XORs bit 0 (MI_ON) of k_spec_info and broadcasts the new state to all players:
+    Enabled:  "Extra info for spectators on"
+    Disabled: "Extra info for spectators off"
+- When MI_ON is on: spectators receive item-pickup notifications during a live match
+  (subject to each spectator's personal detail level, configurable via 'moreinfo').
+- When MI_ON is off: no spectator receives notifications regardless of any other setting;
+  'moreinfo' refuses with "Spec info is turned off by server" (spectators cannot even
+  adjust their personal filter level when the master switch is off).
+
+Permission:  any player or admin spectator
+Match-state: pre-match only (silently ignored during a live match)
+
+Example:
+  infospec    # enable spectator info delivery (broadcasts "Extra info for spectators on")
+  infospec    # disable again (broadcasts "Extra info for spectators off")
+
+  # To also restrict delivery to admin spectators only, follow with:
+  infolock
+
+See also: k_spec_info (bitmask container; bit enum lives here), infolock (sibling toggle: owns bit 1 -- admin-only scope), moreinfo (spectator-side command: cycles personal detail level; gated on this bit)
+```
+
+### Notes
+
+- The existing description is directionally correct and has no foundational contradiction. Recast is mechanical v1->v2: split "Set by" into Permission + Match-state, add Effect slot with the bit-ownership prose.
+- "Refused during a match" wording in the existing description: the handler's `match_in_progress` early-return at commands.c:7238-7241 is silent (no message printed to the invoker). The existing description's "refused" implies a rejection message; technically it's a silent no-op. Recast uses "silently ignored." Low-severity; flagged here for apply-pass-author awareness but not classified as a `drafted_with_flag` because it doesn't affect the user's action plan (either way, the command has no effect during a live match).
+- NO value enum on this card per Shape 11a discipline -- enum lives on k_spec_info.
+- CF_PLAYER | CF_SPC_ADMIN: any player OR admin spectator may invoke. Permission line: "any player or admin spectator."
+- moreinfo gating (commands.c:7155-7159): verified source-backed -- `mi_on()` returns `((int)cvar("k_spec_info") & MI_ON)`. When infospec has not enabled MI_ON, moreinfo's early-return fires with "Spec info is turned off by server". Surfaced in Effect as a surprise-bearing behavioral note.
+- common_um_init[] side-effect (commands.c:4185 resets k_spec_info to 1 on any mode preset): this is a container-cvar side-effect and belongs on the k_spec_info card (already surfaced there as a FLAG in that draft). Not duplicated here per duplication discipline.
+- The previous parked entry (trigger 1, batch 2026-05-25) is superseded by this draft. Operator to clean up the park file separately.
+
+---
+
 ## Cross-card consistency notes
 
 Sweep date: 2026-05-25. Sonnet 4.6 high reasoning. Source verified against KTX `v1.36-1633-g67253dc`.
@@ -385,3 +588,15 @@ k_spectalk and silence were accepted as Shape 1 because they have ONE cvar + ONE
 No cross-card contradiction. Each parked card correctly identifies which bit it toggles and what the user-observable effect is. moreinfo's dependency on MI_ON (blocks with "Spec info is turned off by server" when infospec is off) is correctly surfaced on the infospec card only -- not mis-attributed to infolock.
 
 **Assessment**: Bit ownership is clean. No apply-pass correction needed.
+
+---
+
+### Addendum 2026-05-26: Shape 11 crystallization + F3 obsoleted
+
+After this sweep ran, verification surfaced that the bitmask-cvar-with-per-bit-XOR-toggle pattern is NOT 1-of-1 -- `fpd` (serverinfo bitmask) has the same structural pattern with `ToggleQLag` / `ToggleQEnemy` / `ToggleQPoint` (qizmo family) as siblings. Earn-their-keep gate is met with 2 instance families. **Shape 11** (per-bit XOR toggle on shared bitmask state container) was crystallized in `references/shape-catalog.md` with sub-facets 11a (cvar-backed) and 11b (serverinfo-backed). The 3 previously-parked cards (k_spec_info / infolock / infospec) were re-dispatched as Shape 11a drafts and now appear above in this file (re-dispatched 2026-05-26).
+
+**F3 obsoleted**: k_spec_info is now a drafted L1 entity in this batch, so both k_spectalk and silence may safely cross-link to it in See-also. The "parked / uncertain L1 status" rationale that justified silence's exclusion no longer applies. Apply-pass-author: add k_spec_info to silence's See-also for symmetry (or drop from both for terseness; either choice is consistent now).
+
+**F5, F6 unchanged**: no impact on the Shape 1 cvar_fset classification or bit ownership findings.
+
+**Open follow-up**: Shape 11b candidates -- the qizmo q* family commands (`ToggleQLag` / `ToggleQEnemy` / `ToggleQPoint` at commands.c:3686-3736) and silence's mid-match fpd-bit-64 side effect (Shape 11b composition layered on its primary Shape 1 against k_spectalk) -- currently exist as L1 entities under Shape 10 (qizmo's curated family) but have not been recast under Shape 11b. Queue for a future Spectator-area batch.
