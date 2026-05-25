@@ -1,6 +1,6 @@
 # ktx-l1-rewrite skill design
 
-**Status:** Designed 2026-05-23. Next: scaffold via `skill-creator`, then battle-test on Server config & network category.
+**Status:** Designed 2026-05-23. **Amended 2026-05-23** (Step 1.5 + shape-less verdict; battle-test validated). **SHIPPED at scale 2026-05-24**: Server config & network category, 57/57 cards drafted (37 drafted + 20 drafted_with_flag + 1 parked callalias); ~35% flag rate caught real factual errors in upstream synthesis output.
 
 **One-liner:** Per-card sub-agent fan-out skill that takes one KTX L1 entity's existing description + source ref + anchor version, classifies it under the Layer B shape catalog (14+ KTX shapes), recasts under the v2 universal shape (Layer A), and emits a structured record. Sibling to `describe-fill-synthesis`; cheaper job (recast + light verification, not full synthesis), Sonnet 4.6 high locked.
 
@@ -40,12 +40,37 @@ If any fail: produce no record, emit abort line, halt.
 ## Workflow (all in the locked Sonnet 4.6-high context)
 
 ### Step 1 — Read registration + key read use-sites
-Grep KTX source for the entity registration site + 1–2 key read sites (`<entity>.value`, `<entity>.string`, `Cmd_AddCommand(...)`, gating branches). Output: `source_file:source_line` list + one sentence per site on admin-observable behavior.
+Grep KTX source for the entity registration site + 1–2 key read sites (`<entity>.value`, `<entity>.string`, `Cmd_AddCommand(...)`, gating branches). Output: `source_file:source_line` list + one brief site-purpose label per site (e.g. "bot routing lookup at `maps/<stem>.bot`"). Step 1.5 unpacks these labels into behavioral consequences.
+
+### Step 1.5 — Behavioral unpacking per consumer (amendment 2026-05-23)
+
+For each read use-site listed in Step 1, ask: "what user-observable behavior does this site create that isn't already covered in `existing_description`?"
+
+Not a mechanical site label ("bot routing files") — a behavioral note ("variant stem propagates into the next map's startup via `set_nextmap`, so a forcemap-set variant stays active across end-of-match transitions without re-issuing forcemap").
+
+If a use-site is in a non-handler engine function (e.g. `set_nextmap`, `GetCustomEntityMapsForDirectory`, or anything in `maps.c` / `client.c` that is NOT a `Cmd_AddCommand` handler), Read that function — don't stop at "this site uses the cvar"; unpack what the function does with the value.
+
+Specifically watch for:
+- **Stickiness / transition propagation** — does the cvar persist across map changes, nextmap chains, or `samelevel` loops?
+- **Validation or rejection paths** — does another user-facing command refuse based on this cvar's value or absence?
+- **Pre-conditions** — startup scans, file-existence checks, or registration paths that determine which values are usable.
+- **Surprise-bearing defaults** — implicit fallbacks the user wouldn't predict from the cvar name alone.
+
+ANY behavior surfaced here that isn't already in `existing_description` MUST appear in the v2 Effect / Prerequisites bullets in Step 5. This step's job is converting Step 1's site inventory into Step 5 content; skipping it leaves the recast at the existing description's depth.
+
+(Added after battle-test validated that mechanical site labels from Step 1 were leaving surprise-bearing behaviors unsurfaced. Closed the depth gap on ~30%+ of cards across the Server-config-fanout pass.)
 
 ### Step 2 — Classify Layer B shape
-Match against `references/shape-catalog.md`. Output: shape ID (e.g. "Shape 1c paired toggle with mode-precondition") + reasoning trail.
+Match against `references/shape-catalog.md`. Output: shape ID (e.g. "Shape 1c paired toggle with mode-precondition"), OR the literal token `shape-less` with a one-line rationale (see below), plus reasoning trail.
 
-**Park trigger 1 — no-shape-match:** no shape matches cleanly from the catalog identification guide.
+**Shape-less is a valid Layer B outcome** (amendment 2026-05-23). The catalog captures shapes of *relationships* between entities. Entities that carry no inter-entity relationship are correctly classified `shape-less`. Three common cases:
+- **Pure standalone state-printer** — e.g. `about`, `status1`, `fpslist`. No cvar pairing, no sibling family, no election/gate/side-channel role.
+- **Command-side lever for a Shape X relationship** — e.g. `forcemap` is the lever for the Shape 9a side-channel relationship that lives on `k_entityfile`. The shape tag lives on the cvar; the command is the knob. Cross-link in See-also; the command card itself is `shape-less`.
+- **Leaf of a Shape X family** — e.g. `qenemy` is one of the 3 members the Shape 10 `qizmo` help-printer enumerates. The shape tag lives on the family-head card; leaves are `shape-less`.
+
+In all three cases: continue to Step 3 with `shape-less` as the Layer B slot value. Park triggers 1 and 2 below apply ONLY when the entity HAS inter-entity relationships but the catalog doesn't yet capture them.
+
+**Park trigger 1 — no-shape-match (relational):** the entity HAS inter-entity relationships (paired cvar+command, election, gating cvar+gated command, sibling family with shared behavior, etc.) but no cataloged shape captures the pattern. Park to surface a candidate Shape N for operator review. Do NOT confuse with shape-less standalone/lever/leaf entities — those draft.
 **Park trigger 2 — conflicting-shape-match:** multiple shapes match with strong evidence in conflicting ways; the skill cannot adjudicate which is primary.
 
 ### Step 3 — Spot-check existing description vs source
@@ -72,9 +97,9 @@ Per-batch files (the dispatcher passes `YYYY-MM-DD` to all sub-agents in a batch
 
 ## Verdict enum
 
-- `drafted` — clean recast, shape classified, no contradictions
-- `drafted_with_flag` — recast done, localized factual contradiction with source flagged in Notes
-- `parked` — one of 4 park triggers fired
+- `drafted` — clean recast, no contradictions. Layer B slot filled with either a shape ID/composition OR `shape-less` (with rationale per Step 2 amendment). Goes to drafts file. The v2 universal shape (Layer A) applies fully in both cases — `shape-less` only means no Layer B relationship to tag.
+- `drafted_with_flag` — recast done, localized factual contradiction with source flagged in Notes. Apply-pass-author reviews the factual change before applying.
+- `parked` — one of 4 park triggers fired. Goes to park file. Apply blocked; operator decides manual investigation path.
 
 ## Output formats
 
@@ -89,7 +114,7 @@ Per-batch files (the dispatcher passes `YYYY-MM-DD` to all sub-agents in a batch
 ### Current description
 > <existing>
 ### Shape classification
-<shape ID> + reasoning trail
+<shape ID or `shape-less`> + reasoning trail
 ### Proposed draft
 \`\`\`
 <v2 text>
