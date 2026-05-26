@@ -2149,3 +2149,40 @@ Verified against `vote.c` `is_admins_vote()` calls:
 ### Assessment: Check 12 -- hook_crhook blind-spot in whovote
 
 The whovote card (card 33) explicitly surfaces the hook_crhook blind-spot at line 1880: "hook_crhook votes are NOT shown even when active (source omission -- see Notes)". The hook_crhook reference card Notes (line 1276) record this for the apply-pass-author: "whovote gap (secondary finding): commands.c:2290-2348 whovote display iterates OV_HOOKSMOOTH / OV_HOOKFAST / OV_HOOKCLASSIC tallies but not OV_HOOKCRHOOK." Both cards handle this consistently and correctly.
+
+---
+
+### Finding 5 [PENDING-CROSS-BATCH-VERIFICATION] -- `cm` framing leaks implementation-level mechanism users can't act on
+
+**Cards affected**: cm, k_no_vote_map, k_vp_map, next_map.
+
+**Source / context** (surfaced 2026-05-26 post-sweep by operator empirical test of `/cm`):
+
+The `cm` card's Headliner says "Casts (or redirects) your map vote by list index" -- technically accurate per `commands.c:698`, but `cm` is registered `CF_NOALIAS | CD_NODESC` (internal alias-target, no user description). The user-facing parallel is `votemap` (`commands.c:701`, `CF_PARAMS | CD_VOTEMAP`). `mapslist[]` is per-server-arbitrary and NOT user-exposed -- a user has no way to know "index 3 = e1m2 on this server" before casting the vote. The auto-aliases hide the index entirely.
+
+**What source says**:
+
+- `commands.c:698` -- `cm` is `CF_BOTH | CF_MATCHLESS | CF_NOALIAS`, CD_NODESC.
+- `commands.c:701` -- `votemap` is the user-facing peer, `CF_PARAMS`, CD_VOTEMAP.
+- `maps.c:313` -- KTX stuffs `alias <mapname> cmd cm <index>` on connect (e.g. `alias dm3 cmd cm 3`). Player types `/dm3`; client expands to `cmd cm 3`; user never sees the index.
+- `maps.c:296` -- parallel mechanism stuffs `alias <mapname> "cmd votemap <mapname>"`. Both routes feed OV_MAP.
+- Operator verification 2026-05-26: `cmd cm 3` works (switches to mapslist[2] = e1m2 on default load); `/cm 3` does not work (CF_NOALIAS blocks direct console invocation).
+
+**PENDING cross-batch verification (Match flow batch dependency)**:
+
+`votemap` is NOT yet drafted -- it lives in the Match flow category (catalog line 10122). Its existing L1 description frames it as "switch to a named map IMMEDIATELY" -- but the source handler is `VoteMap`, which strongly implies vote-cast mechanics matching cm's OV_MAP channel. Three possibilities:
+
+(a) votemap is a vote-cast like cm (existing description wrong about "immediately");
+(b) votemap is a dual-mechanism (admin → immediate switch, player → vote-cast);
+(c) something else.
+
+Until the Match flow batch's sub-agent walks `VoteMap`'s source, the apply-pass reframing for cm cannot safely pivot the See-also to `votemap` as the user-facing peer. Other map-mechanism entities also pending in unknown batches: `mapslist_dl` (commands.c:699, client-side list download enabling the auto-aliases); `k_lockmap` (Shape 4 gate referenced in cm + next_map drafts); `break` + `forcebreak` (Match flow; admin-override path for the break vote which next_map aliases).
+
+**Apply-pass correction** (to perform once cross-batch verification lands):
+
+- **cm card**: reframe as internal alias-target, not user-facing. Headliner should clarify it's reachable only via `cmd cm <N>` and is normally invoked by the stuffed map-name aliases. Permission line note `CF_NOALIAS` ("internal command -- direct console invocation blocked; reachable only via stuffed `cmd cm <N>` from the auto-aliased map shortcuts"). Effect should describe the alias-invocation flow (`/dm3` → `cmd cm 3` → votes for mapslist[2]). See-also leads with `votemap` (user-facing peer; framing verified by Match flow batch) and the auto-alias mechanism (sourced in `maps.c`).
+- **k_no_vote_map card**: rewrite Headliner from "Blocks map voting (cm) and /next_map" to "Blocks the map-vote commands (`votemap` + the auto-aliased map shortcuts) and `next_map` in matchless mode." Pivot user-facing reference away from cm.
+- **k_vp_map card**: See-also currently lists `cm` as primary paired peer; pivot to `votemap` as primary, with cm noted as the internal alias-target it routes through.
+- **next_map card**: same reframing on any cross-references to cm.
+
+**Tracking**: tracked as cross-batch follow-up in HANDOVER.md; resolved by the next ktx-l1-rewrite batch's pre-flight investigation. Fresh-terminal handoff at `docs/superpowers/parking/2026-05-26-handoff-cross-batch-map-mechanism-preflight.md` -- next dispatcher folds a ~1-hour source-walk (votemap / mapslist_dl / k_lockmap / break / forcebreak) into batch kickoff, produces a mechanism map, then updates this finding's Apply-pass correction with verified framings + drops the PENDING tag.
