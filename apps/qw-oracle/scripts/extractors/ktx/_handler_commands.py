@@ -39,9 +39,10 @@ any future name overlaps emerge.
 DESCRIPTION SOURCES (priority order per spec 1.5):
   1. CD_* macro at the row's description-field index (Pattern 6 same-file
      #define resolution -- now via self.file_macros from the Phase 1 lift,
-     reaching depth-1 #include'd headers like maps_macros.h or commands.h).
-     Resolved via self.file_macros[ident] when the description-field
-     extent is an all-caps identifier.
+     reaching the transitive #include closure, e.g. maps_macros.h or
+     commands.h, plus deeper headers via depth-N). Resolved via
+     self.file_macros[ident] when the description-field extent is an
+     all-caps identifier.
   2. Inline string literal in the row (frogbot tables already carry
      these as field 2 / 3 of the {name, fn, "desc"} init).
   3. Banner-comment harvest at the handler-function FUNCTION_DECL

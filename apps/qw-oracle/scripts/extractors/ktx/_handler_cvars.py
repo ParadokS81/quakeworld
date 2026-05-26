@@ -15,12 +15,13 @@ default_value.
 PATTERN 6 INTEGRATION (Phase 1 lift). Bot-cvar registrations like
 `RegisterCvar(FB_CVAR_DODGEFACTOR)` at bot_botimp.c:113-117 use
 identifier args. The Phase 1 lift to extractor_lib._source.collect_file_macros
-populates self.file_macros via walk_tu_dispatch with the depth-1
-#include closure of the target file. For KTX this surfaces FB_CVAR_*
-macros defined in bot_default.h via #include in bot_botimp.c. The
-handler consults self.file_macros when arg[0] is a non-literal
-identifier; this is the same shape ezQuake/_handler_commands.py uses
-post-Phase-1.
+populates self.file_macros via walk_tu_dispatch with the transitive
+#include closure of the target file (originally depth-1; bumped to
+depth-N via D4 unpark 2026-05-26 after the k_fb_* family was found
+missing -- world.c's RegisterCvarEx(FB_CVAR_*, ...) calls resolve via
+fb_globals.h which sits depth-2 behind g_local.h). The handler consults
+self.file_macros when arg[0] is a non-literal identifier; this is the
+same shape ezQuake/_handler_commands.py uses post-Phase-1.
 
 CROSS-CODEBASE PORT (D3). Handler inherits from extractor_lib._visitor.Visitor
 only -- NOT a subclass of MVDSV / ezQuake / FTE / QWCL handlers. KTX's
@@ -71,7 +72,7 @@ from extractor_lib._source import literal_string, read_extent  # noqa: E402
 # Identifier-arg fallback regex. When arg[0] of RegisterCvar* is not a
 # literal string, libclang's literal_string() returns None; if the raw
 # extent matches this regex, we look it up in self.file_macros (the
-# Phase 1 lifted depth-1 #include macro map).
+# Phase 1 lifted transitive #include macro map).
 _MACRO_IDENT_RE = re.compile(r"^[A-Z_][A-Z0-9_]+$")
 
 
@@ -171,7 +172,7 @@ class CvarsKtxHandler(Visitor):
             return
 
         # arg[0]: literal-string OR macro-arg fallback via self.file_macros
-        # (Phase 1 lift -- depth-1 #include closure).
+        # (Phase 1 lift -- transitive #include closure).
         name = literal_string(args[0], self.source_bytes)
         if not name:
             raw = read_extent(self.source_bytes, args[0].extent).strip()

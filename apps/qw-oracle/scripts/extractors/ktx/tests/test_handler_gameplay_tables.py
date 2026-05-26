@@ -197,11 +197,13 @@ def test_drop_item_sh40_weapon_big2(handler_with_outputs):
     )
     assert sh40 is not None, "sh40 drop_item row must exist"
     assert sh40["props_json"]["spawnflags_value"] == 1, (
-        f"sh40.spawnflags_value must resolve WEAPON_BIG2 to 1 via Phase 1's "
-        f"depth-1 Pattern 6 lift (commands.c:9053 -- same-file); got "
-        f"{sh40['props_json']['spawnflags_value']}. If None, the depth-1 "
-        f"lift is broken or self.file_macros isn't being threaded into the "
-        f"handler."
+        f"sh40.spawnflags_value must resolve WEAPON_BIG2 to 1 via the "
+        f"_DROPITEM_MACRO_FALLBACK dict (commands.c:9053 -- WEAPON_BIG2 is "
+        f"an integer-bodied macro that the string-literal-only Pattern 6 "
+        f"lift excludes by design, F26); got "
+        f"{sh40['props_json']['spawnflags_value']}. If None, either the "
+        f"fallback dict is missing the entry or the resolver isn't "
+        f"consulting it."
     )
 
 

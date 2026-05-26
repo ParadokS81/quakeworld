@@ -302,9 +302,10 @@ def clang_args_mvdsv_linux_for(mvdsv_src_dir: str) -> list[str]:
 # under <ktx_repo>/include/ -- a SIBLING of <ktx_repo>/src/ (NOT a
 # qwprot submodule like MVDSV uses). Verified at canonical 1.46
 # (CMakeLists.txt:143 -- target_include_directories(... PRIVATE "include")).
-# The Phase 1 lift's depth-1 #include walk over collect_file_macros relies
-# on this -I path so g_local.h's LGCMODE_VARIABLE / TOT_MODE_VARIABLE
-# resolve when commands.c is parsed (Phase 3 modes handler dependency).
+# The Phase 1 lift's #include walk over collect_file_macros relies on this
+# -I path so g_local.h's LGCMODE_VARIABLE / TOT_MODE_VARIABLE resolve when
+# commands.c is parsed (Phase 3 modes handler dependency). The walk is
+# depth-N as of 2026-05-26 -- transitive includes are also reachable.
 
 def clang_args_ktx_for(ktx_src_dir: str) -> list[str]:
     """KTX server-mod variant. ktx_src_dir is the absolute path to

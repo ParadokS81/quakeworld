@@ -12,7 +12,7 @@ Pattern classes consumed:
     initializer is a sequence of adjacent string literals (one cvar
     line per literal). We walk the post-`=` token stream, capturing
     per-literal source lines.
-  - Pattern 6 (depth-1 #include macro lift, D4): common_um_init[]
+  - Pattern 6 (transitive #include macro lift, D4): common_um_init[]
     contains LGCMODE_VARIABLE / TOT_MODE_VARIABLE which are #defined
     in include/g_local.h. We consult self.file_macros (populated by
     walk_tu_dispatch via extractor_lib._source.collect_file_macros)

@@ -259,7 +259,8 @@ class KtxGameplayTablesHandler(Visitor):
         Stores both paths. No eager file-parse stages here (unlike Phase 4's
         Stage 2 deathtype.h parse): all five tables are libclang-walkable via
         INIT_LIST_EXPR per Pattern 4. self.file_macros is provided by
-        walk_tu_dispatch (Phase 1's depth-1 lift) and consulted in
+        walk_tu_dispatch (Phase 1's lift; transitive #include closure
+        since D4 unpark 2026-05-26) and consulted in
         _extract_drop_item_table for spawnflags resolution.
 
         _stat_unresolved_drop_macros is initialized here at handler level so it
@@ -484,7 +485,7 @@ class KtxGameplayTablesHandler(Visitor):
             })
 
     def _extract_drop_item_table(self, node) -> None:
-        """Walk dropitems[] via Pattern 4 + Pattern 6 (depth-1 lift) + fallback dict.
+        """Walk dropitems[] via Pattern 4 + Pattern 6 (transitive lift) + fallback dict.
 
         Struct field layout (commands.c:9044-9051):
           field 0: char *name        -- drop token: "h15", "ssg", "fl_r", ...
@@ -498,11 +499,12 @@ class KtxGameplayTablesHandler(Visitor):
         Macro resolution order for spawnflags (per F11 second amendment +
         F26 finding -- collect_file_macros is string-literal-only):
           1. Literal integer parse
-          2. self.file_macros (Phase 1's depth-1 lift; string-bodied macros
-             only -- excludes integer constants by design)
+          2. self.file_macros (Phase 1's lift; string-bodied macros only --
+             excludes integer constants by design; reaches the full
+             transitive #include closure since D4 unpark 2026-05-26)
           3. _DROPITEM_MACRO_FALLBACK for H_ROTTEN / H_MEGA / WEAPON_BIG2
-             (all integer-bodied; H_ROTTEN/H_MEGA are depth-2 from commands.c,
-             WEAPON_BIG2 is depth-0 same-file but the lift's filter excludes it)
+             (all integer-bodied; the lift's string-literal filter excludes
+             them regardless of include depth)
           4. None -- unknown macro logged to _stat_unresolved_drop_macros
 
         Trailing fields (spawnflags/angle/spawn) are optional in the C array literal;
@@ -701,13 +703,14 @@ class KtxGameplayTablesHandler(Visitor):
         is string-literal-only and excludes integer constants by design):
           1. Empty -> 0 (C struct-init default)
           2. Literal integer parse (most common case: "0")
-          3. self.file_macros lookup (Phase 1 depth-1 lift; string-bodied
-             macros only -- integer constants are excluded by the lift's
-             tokenisation filter at extractor_lib/_source.py:225-229)
+          3. self.file_macros lookup (Phase 1 lift; string-bodied macros
+             only -- integer constants are excluded by the lift's
+             tokenisation filter at extractor_lib/_source.py; the lift
+             reaches the full transitive #include closure since D4 unpark
+             2026-05-26)
           4. _DROPITEM_MACRO_FALLBACK for H_ROTTEN / H_MEGA / WEAPON_BIG2
-             (all integer-bodied macros; H_ROTTEN/H_MEGA are depth-2 from
-             commands.c, WEAPON_BIG2 is same-file but the lift filter still
-             excludes it; frozen 3-entry dict)
+             (all integer-bodied macros; excluded by the string-literal
+             filter regardless of include depth; frozen 3-entry dict)
           5. None -- unresolved; logged to _per_file_unresolved_macros for
              finalize() _stats population
         """
@@ -718,9 +721,10 @@ class KtxGameplayTablesHandler(Visitor):
         parsed = self._parse_int(s)
         if parsed is not None:
             return parsed
-        # Pattern 6 (Phase 1's depth-1 lift)? self.file_macros is provided by
-        # walk_tu_dispatch and contains macros from the target file plus its
-        # depth-1 #include closure.
+        # Pattern 6 (Phase 1's lift)? self.file_macros is provided by
+        # walk_tu_dispatch and contains macros from the target file plus
+        # its full transitive #include closure (depth-N since D4 unpark
+        # 2026-05-26).
         if hasattr(self, "file_macros") and s in (self.file_macros or {}):
             macro_value = self.file_macros[s]
             # macro_value is the literal RHS string from #define; wrap in
@@ -730,10 +734,12 @@ class KtxGameplayTablesHandler(Visitor):
             if v is not None:
                 return v
         # Handler-private fallback for H_ROTTEN and H_MEGA (F11 amendment).
-        # These macros live in include/g_consts.h (depth-2 from commands.c),
-        # outside Phase 1's depth-1 walk scope. The fallback dict is frozen
-        # (only two entries) and does not silently swallow unknowns -- any
-        # macro not listed here falls through to the unresolved path below.
+        # These macros live in include/g_consts.h with integer bodies, so
+        # the string-literal-only filter in collect_file_macros excludes
+        # them regardless of include depth (F26). The fallback dict is
+        # frozen (only two entries) and does not silently swallow unknowns
+        # -- any macro not listed here falls through to the unresolved
+        # path below.
         if s in _DROPITEM_MACRO_FALLBACK:
             return _DROPITEM_MACRO_FALLBACK[s]
         # Unknown: emit None; spawnflags_raw preserves the symbolic token for

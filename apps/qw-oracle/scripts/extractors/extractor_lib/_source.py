@@ -159,20 +159,29 @@ def concat_string_literals_compact(tokens: list[str]) -> Optional[str]:
 
 
 # ---------------------------------------------------------------------------
-# Pattern 6 -- depth-1 #include closure macro collector (D4)
+# Pattern 6 -- transitive #include closure macro collector (D4 unparked)
 # ---------------------------------------------------------------------------
 
 def collect_file_macros(tu, target_file_path: str) -> dict[str, str]:
-    """Walk the depth-1 #include closure of target_file_path and collect
-    string-literal #define macros.
+    """Walk the full transitive #include closure of target_file_path and
+    collect string-literal #define macros.
 
     Returns dict[macro_name, string_body] where string_body has outer quotes
     stripped. Excludes function-like macros, integer/hex constants, and any
     macro whose body is not exactly one string-literal token.
 
-    Scope is depth-1 only: macros in the target file itself plus macros in
-    files that the target file directly #includes. Transitive includes are
-    excluded (D4 -- depth-N revisit parked for a future arc).
+    Scope is depth-N: macros in the target file itself plus macros in every
+    file reachable through transitive #include (matches what the C
+    preprocessor sees when parsing target_file_path). The closure is built
+    from tu.get_includes(), so it mirrors exactly what libclang saw at parse
+    time -- no manual depth bookkeeping. Previously depth-1 only; bumped to
+    full closure (D4 unparked) after KTX's k_fb_* family was found silently
+    missing via world.c -> g_local.h -> fb_globals.h (depth-2 from world.c).
+
+    First-seen-wins on duplicate macro names. libclang emits MACRO_DEFINITION
+    cursors in source order across the flattened TU, so the first definition
+    encountered wins (matches the preprocessor's own behavior when redefining
+    is not at play).
 
     Requires that tu was parsed with PARSE_DETAILED_PROCESSING_RECORD (already
     the default in extractor_lib.clang_config.PARSE_OPTS). Returns {} with a
@@ -182,37 +191,24 @@ def collect_file_macros(tu, target_file_path: str) -> dict[str, str]:
     import sys
     from clang.cindex import CursorKind, TokenKind
 
-    # Single-pass over top-level cursors. Preprocessor cursors are emitted in
-    # source order: an INCLUSION_DIRECTIVE for "g_local.h" at commands.c:21
-    # appears before all MACRO_DEFINITION cursors sourced from g_local.h.
-    # This ordering guarantee lets us build depth1_files on-the-fly as we go.
-    depth1_files = {target_file_path}
+    # Build the full include closure -- every file the preprocessor pulled
+    # in transitively from target_file_path. The target file itself is
+    # always in scope; tu.get_includes() yields one FileInclusion per
+    # #include directive expansion at any depth.
+    closure_files = {target_file_path}
+    for inc in tu.get_includes():
+        if inc.include is not None:
+            closure_files.add(inc.include.name)
+
     result: dict[str, str] = {}
     found_any_macro_def = False
 
     for cursor in tu.cursor.get_children():
-        kind = cursor.kind
-
-        if kind == CursorKind.INCLUSION_DIRECTIVE:
-            loc = cursor.location
-            if loc.file is None or loc.file.name != target_file_path:
-                continue
-            try:
-                included = cursor.get_included_file()
-                if included is not None:
-                    depth1_files.add(included.name)
-            except AssertionError:
-                # clang Python bindings raise AssertionError when the included
-                # file pointer is null (unresolved or system include). Skip.
-                pass
+        if cursor.kind != CursorKind.MACRO_DEFINITION:
             continue
-
-        if kind != CursorKind.MACRO_DEFINITION:
-            continue
-
         found_any_macro_def = True
         loc = cursor.location
-        if loc.file is None or loc.file.name not in depth1_files:
+        if loc.file is None or loc.file.name not in closure_files:
             continue
 
         # Collect tokens: first is the macro name; second (only) is the body.

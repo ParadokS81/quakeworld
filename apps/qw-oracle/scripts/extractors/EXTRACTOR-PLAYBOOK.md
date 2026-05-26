@@ -476,7 +476,7 @@ static char _2on2_um_init[] =
 2. Read the literal's source text via `_read_extent` + `_unescape_c_string` (the standard cvar-handler convenience helpers).
 3. Split on `\n`. For each non-empty line, split on first whitespace into `<token> <value>`. Emit one `mode_default` row per line.
 4. Trailing-comment harvest: each line MAY have a trailing `// ...` comment that documents the cvar-set's intent. Capture as `props_json.comment` for the row.
-5. Macro-prefixed lines: a few lines start with an identifier rather than a literal cvar name (e.g., `LGCMODE_VARIABLE " 0\n"` in KTX `common_um_init`). Resolve the identifier via the handler's `_file_macros` cache (Pattern 6, extended to depth-1 #include closure per the KTX onboarding arc's D4 lift). After resolution, the macro substitutes for the cvar name; emit the row as if the literal name had been written directly.
+5. Macro-prefixed lines: a few lines start with an identifier rather than a literal cvar name (e.g., `LGCMODE_VARIABLE " 0\n"` in KTX `common_um_init`). Resolve the identifier via the handler's `_file_macros` cache (Pattern 6, extended to the transitive #include closure per the KTX onboarding arc's D4 lift -- originally depth-1; bumped to depth-N 2026-05-26 after the KTX `k_fb_*` family was found missing via `world.c -> g_local.h -> fb_globals.h`). After resolution, the macro substitutes for the cvar name; emit the row as if the literal name had been written directly.
 
 **KTX usage (per arc D6):** `_handler_modes.py` walks `common_um_init` (54 baseline rows), the 17 per-mode `<token>_um_init` arrays (~255 overlay rows total), and the `race_settings` initstring. Total: ~309 `mode_default` rows.
 
@@ -556,7 +556,7 @@ Pattern-adjacent doctrine surfaced during the KTX onboarding arc's Phases 3 / 5 
 
 ### F26 -- Pattern 6 cross-header lift is string-literal-only by design (Phase 5)
 
-**Rule:** the `extractor_lib._source.collect_file_macros` lift (Pattern 6, depth-1 cross-header) collects ONLY `#define IDENT "string"` macros. Function-like macros, integer / hex constants, and any macro whose body is not exactly one string-literal token are explicitly excluded.
+**Rule:** the `extractor_lib._source.collect_file_macros` lift (Pattern 6, transitive cross-header) collects ONLY `#define IDENT "string"` macros. Function-like macros, integer / hex constants, and any macro whose body is not exactly one string-literal token are explicitly excluded.
 
 **Why:** Phase 1 of the KTX onboarding arc shipped Pattern 6 cross-header against modes' need (KTX `LGCMODE_VARIABLE " 0\n"` macros, where the macro body IS a string literal used in initstring concatenation). Token-kind filter at `_source.py` lines 167-171 + 225-229 enforces "string-literal-token only." Phase 5 of the same arc surfaced KTX `WEAPON_BIG2 1` (integer body, depth-0 same-file) which the lift does NOT collect -- caught by pytest `test_drop_item_sh40_weapon_big2`. Live runtime probe against KTX `commands.c` TU confirms: `'WEAPON_BIG2' in file_macros: False`, `'LGCMODE_VARIABLE' in file_macros: True`.
 

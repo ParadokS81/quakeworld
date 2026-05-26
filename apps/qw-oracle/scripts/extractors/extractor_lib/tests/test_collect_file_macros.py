@@ -77,13 +77,14 @@ def test_resolves_ktx_cross_header_macros():
 
 
 # ---------------------------------------------------------------------------
-# Test 2: excludes transitive (depth-2) macros
+# Test 2: includes transitive (depth-N) macros via full closure (D4 unparked)
 # ---------------------------------------------------------------------------
 
-def test_excludes_transitive_includes():
-    """DEPTH1_MACRO (defined in depth1.h, directly included by main.c) must
-    appear. DEPTH2_MACRO (defined in depth2.h, included only by depth1.h)
-    must NOT appear -- it's depth-2 from main.c's perspective."""
+def test_includes_transitive_macros():
+    """Both DEPTH1_MACRO (defined in depth1.h, directly included by main.c)
+    and DEPTH2_MACRO (defined in depth2.h, included only by depth1.h) must
+    appear. The collector now walks the full preprocessor include closure,
+    matching what the C compiler itself sees."""
     fixtures = HERE / "fixtures" / "transitive"
     main_c = fixtures / "main.c"
 
@@ -95,9 +96,10 @@ def test_excludes_transitive_includes():
     )
     assert result["DEPTH1_MACRO"] == "depth1_val"
 
-    assert "DEPTH2_MACRO" not in result, (
-        f"DEPTH2_MACRO (depth-2) must be excluded; got: {result}"
+    assert "DEPTH2_MACRO" in result, (
+        f"DEPTH2_MACRO (depth-2) should be in result; got: {result}"
     )
+    assert result["DEPTH2_MACRO"] == "depth2_val"
 
 
 # ---------------------------------------------------------------------------

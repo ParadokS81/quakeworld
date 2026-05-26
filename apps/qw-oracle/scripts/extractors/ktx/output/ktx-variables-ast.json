@@ -1495,6 +1495,276 @@
       }
     },
     {
+      "name": "k_fb_admin_only",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 1061,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_auto_delay",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 1058,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_autoadd_limit",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 1056,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_autoremove_at",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 1057,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_break_on_death",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 1065,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_debug",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 1060,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_easy_skill_mode",
+      "ast": {
+        "default_value": "1",
+        "source_file": "src/world.c",
+        "source_line": 1068,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_enabled",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 1054,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_freeze_prewar",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 1062,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_health",
+      "ast": {
+        "default_value": "100",
+        "source_file": "src/world.c",
+        "source_line": 1063,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_item_pickup_bonus",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 1067,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_options",
+      "ast": {
+        "default_value": "0",
+        "source_file": "src/world.c",
+        "source_line": 1055,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_quad_multiplier",
+      "ast": {
+        "default_value": "4",
+        "source_file": "src/world.c",
+        "source_line": 1066,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_skill",
+      "ast": {
+        "default_value": "10",
+        "source_file": "src/world.c",
+        "source_line": 1059,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "k_fb_weapon",
+      "ast": {
+        "default_value": "2",
+        "source_file": "src/world.c",
+        "source_line": 1064,
+        "source_column": 2,
+        "registration_api": "RegisterCvarEx",
+        "flags_raw": null,
+        "flag_names": null,
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
       "name": "k_fbskill_aim_accuracy",
       "ast": {
         "default_value": null,
@@ -4682,12 +4952,12 @@
     }
   ],
   "_stats": {
-    "source_total": 260,
-    "count": 260,
+    "source_total": 275,
+    "count": 275,
     "by_api": {
       "RegisterCvar": 169,
-      "RegisterCvarEx": 91
+      "RegisterCvarEx": 106
     },
-    "with_default": 91
+    "with_default": 106
   }
 }

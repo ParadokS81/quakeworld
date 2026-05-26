@@ -130,7 +130,7 @@ class HudCommandsEzquakeHandler(Visitor):
         name = literal_string(args[0], self.source_bytes)
         if not name:
             # Fallback: an all-caps identifier is likely a #define'd string
-            # macro -- resolve it via the depth-1 macro table (mirrors
+            # macro -- resolve it via the transitive macro table (mirrors
             # _handler_commands.py:223-229 exactly).
             raw = read_extent(self.source_bytes, args[0].extent).strip()
             if _MACRO_IDENT_RE.match(raw):
