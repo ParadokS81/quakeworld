@@ -12,11 +12,14 @@
 - **Gap:** the loader drops it for lack of a storage column on `command_versions`.
 - **Fix:** schema column (migration 017) + `CommandVersionRow` type + `buildCommandVersionRow` + `upsertCommandVersion`. Optional SCHEMA.md note.
 
-### Item 2 -- bare `COM_CheckParm` detection (~2-3h)
+### Item 2 -- bare `COM_CheckParm` detection (VERIFIED NO-OP, 2026-05-27)
 
-- Cmdline-param extractor only recognizes the `CMDLINE_DEF(...)` registration macro.
-- **Gap:** cmdline params declared via direct `COM_CheckParm("-foo")` calls (example: `-nomouse` in v3.0 source) go silently `doc_only` instead of `source_backed`.
-- **Fix:** add a literal-string-scan pattern in the cmdline-param extractor that captures bare-call sites and emits them with the same shape as `CMDLINE_DEF`-declared params.
+- HANDOVER 128's claim ("extractor only recognizes `CMDLINE_DEF(...)` macros, bare-call params silently become doc_only") is **stale**.
+- Current `_handler_cmdline.py` already detects bare-call sites via the literal-string fallback at line 122 and emits them as `undeclared_source_only` entries with non-null AST blocks.
+- Verified post-extract-tag against ezQuake HEAD: all 11 bare-call sites in source (`COM_CheckParm("-cdaudio")`, `COM_CheckParm("-cheats")`, `COM_CheckParm("-d")`, `COM_CheckParm("-democache")`, `COM_CheckParm("-enablelocalcommand")`, `COM_CheckParm("-heapsize")`, `COM_CheckParm("-mem")`, `COM_CheckParm("-minmemory")`, `COM_CheckParm("-noerrormsgbox")`, `COM_CheckParm("-nohwtimer")`, `COM_CheckParm("-progtype")`) are stored as `source_backed` (10) or `source_retired` (1: `-nomouse`, removed from source).
+- Extractor stats confirm: `source_only_undeclared=3` -- the 3 bare-call params not in `cmdline_params_ids.h` manifest are still emitted correctly.
+- The handler was likely upgraded during an earlier arc between when the HANDOVER finding was logged and now.
+- **No code work required.** HANDOVER 128 is retracted in this arc's commit.
 
 ### Item 3 -- `.h`-aware liveness (~4-6h)
 
