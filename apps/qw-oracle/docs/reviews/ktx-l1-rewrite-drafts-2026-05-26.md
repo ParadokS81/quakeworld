@@ -2152,7 +2152,7 @@ The whovote card (card 33) explicitly surfaces the hook_crhook blind-spot at lin
 
 ---
 
-### Finding 5 [PENDING-CROSS-BATCH-VERIFICATION] -- `cm` framing leaks implementation-level mechanism users can't act on
+### Finding 5 -- `cm` framing leaks implementation-level mechanism users can't act on
 
 **Cards affected**: cm, k_no_vote_map, k_vp_map, next_map.
 
@@ -2168,21 +2168,24 @@ The `cm` card's Headliner says "Casts (or redirects) your map vote by list index
 - `maps.c:296` -- parallel mechanism stuffs `alias <mapname> "cmd votemap <mapname>"`. Both routes feed OV_MAP.
 - Operator verification 2026-05-26: `cmd cm 3` works (switches to mapslist[2] = e1m2 on default load); `/cm 3` does not work (CF_NOALIAS blocks direct console invocation).
 
-**PENDING cross-batch verification (Match flow batch dependency)**:
+**Cross-batch verification COMPLETE 2026-05-26** (pre-flight ship):
 
-`votemap` is NOT yet drafted -- it lives in the Match flow category (catalog line 10122). Its existing L1 description frames it as "switch to a named map IMMEDIATELY" -- but the source handler is `VoteMap`, which strongly implies vote-cast mechanics matching cm's OV_MAP channel. Three possibilities:
+Mechanism map saved at `apps/qw-oracle/docs/reviews/ktx-map-voting-mechanism-map.md`. Per source-walk of `VoteMap` (`maps.c:503`), `VoteMapSpecific` (`maps.c:486`), `DoSelectMap` (`maps.c:392`), `PlayerBreak` (`match.c:2970`), `AdminForceBreak` (`admin.c:708`), `mapslist_dl` (`maps.c:244`), `ToggleMapLock` (`admin.c:849`), and registration rows in `commands.c`:
 
-(a) votemap is a vote-cast like cm (existing description wrong about "immediately");
-(b) votemap is a dual-mechanism (admin → immediate switch, player → vote-cast);
-(c) something else.
+- **votemap = vote-cast (possibility (a))**: `VoteMap` is a thin wrapper that parses arg as mapname, calls `VoteMapSpecific` -> `GetMapNum` -> `DoSelectMap(map_num)`. Same shared body as `cm`. Same OV_MAP channel. Same Shape 7b vote-cast mechanism. **The existing votemap L1 description "switch to a named map IMMEDIATELY" is WRONG** -- a foundational source-vs-description framing error. When `votemap` is drafted in a future Match flow batch, the draft-time spot-check MUST flag this (Park-trigger-3-candidate if the existing framing dominates the description, or `drafted_with_flag` if localized).
+- **Auto-alias mechanism is per-client capability**: `mapslist_dl` at `maps.c:244` branches on `isSupport_Params(self)`. Modern clients (CF_PARAMS-capable) get `alias <mapname> "cmd votemap <mapname>"` (line 296); legacy clients get `alias <mapname> cmd cm <index>` (line 313). NOT both-at-once on a given client. Both ultimately call `DoSelectMap` -- same OV_MAP channel, same threshold (`k_vp_map`), same gates (`k_no_vote_map`, `k_lockmap`).
+- **break + next_map share OV_BREAK** (NOT OV_MAP): `next_map` is registered at `commands.c:995` with handler `PlayerBreak` (same as `break` at `commands.c:709`). The CF_MATCHLESS_ONLY flag does the gating between them. Inside `PlayerBreak` the live-match path is Shape 7b vote-toggle on `self->v.brk` calling `vote_check_break()` -> OV_BREAK; matchless mode just broadcasts a different message ("votes for next map" vs "votes for stopping the match"). Threshold cvar is `k_vp_break`, NOT `k_vp_map`. The Voting-batch's `k_vp_map` draft cross-links to `next_map` -- this is a NAME-RELATED cross-link only; the channel is OV_BREAK.
+- **forcebreak = shape-less admin override** (`admin.c:708`, `AdminForceBreak`, CF_BOTH_ADMIN): immediate `EndMatch(0)` (live match) or `StopTimer(1)` (countdown). NOT a vote-cast, no OV_BREAK feed -- per the Voting-batch finding that OV_BREAK has no `is_admins_vote()` arm, forcebreak is the architecturally-separate override path.
+- **k_lockmap = Shape 1 + Shape 4 composition**: paired toggle command is `lockmap` (`commands.c:756`, handler `ToggleMapLock` at `admin.c:849`, CF_BOTH_ADMIN). Cvar gates `DoSelectMap` against non-admins at `maps.c:434` with "MAP IS LOCKED!". Subsidiary use at `world.c:112` (`CheckDefMap`): suppresses empty-server auto-reload-to-default-map when lockmap is set.
+- **mapslist_dl = shape-less connect-time download** (`maps.c:244`): paginated, self-recursive across frames, opt-out via userinfo `nomaps > 0`. The mechanism head is `StuffMaps(p)` at `maps.c:337`, which also stuffs `ktx_am4` / `ktx_am8` batch-alias-makers for CF_PARAMS clients.
 
-Until the Match flow batch's sub-agent walks `VoteMap`'s source, the apply-pass reframing for cm cannot safely pivot the See-also to `votemap` as the user-facing peer. Other map-mechanism entities also pending in unknown batches: `mapslist_dl` (commands.c:699, client-side list download enabling the auto-aliases); `k_lockmap` (Shape 4 gate referenced in cm + next_map drafts); `break` + `forcebreak` (Match flow; admin-override path for the break vote which next_map aliases).
+See the mechanism map for the full picture including the See-also matrix that should be applied bidirectionally when the 5 pending entities are drafted in future batches.
 
-**Apply-pass correction** (to perform once cross-batch verification lands):
+**Apply-pass correction** (verified framings, ready to apply):
 
-- **cm card**: reframe as internal alias-target, not user-facing. Headliner should clarify it's reachable only via `cmd cm <N>` and is normally invoked by the stuffed map-name aliases. Permission line note `CF_NOALIAS` ("internal command -- direct console invocation blocked; reachable only via stuffed `cmd cm <N>` from the auto-aliased map shortcuts"). Effect should describe the alias-invocation flow (`/dm3` → `cmd cm 3` → votes for mapslist[2]). See-also leads with `votemap` (user-facing peer; framing verified by Match flow batch) and the auto-alias mechanism (sourced in `maps.c`).
-- **k_no_vote_map card**: rewrite Headliner from "Blocks map voting (cm) and /next_map" to "Blocks the map-vote commands (`votemap` + the auto-aliased map shortcuts) and `next_map` in matchless mode." Pivot user-facing reference away from cm.
-- **k_vp_map card**: See-also currently lists `cm` as primary paired peer; pivot to `votemap` as primary, with cm noted as the internal alias-target it routes through.
-- **next_map card**: same reframing on any cross-references to cm.
+- **cm card**: reframe as internal alias-target, not user-facing. Headliner should clarify it's reachable only via `cmd cm <N>` and is normally invoked by the stuffed map-name aliases (legacy-client branch of `mapslist_dl`). Permission line note `CF_NOALIAS` ("internal command -- direct console invocation blocked; reachable only via stuffed `cmd cm <N>` from the auto-aliased map shortcuts for CF_PARAMS-incapable clients"). Effect should describe the alias-invocation flow (`/dm3` -> `cmd cm 3` -> votes for `mapslist[2]`). See-also leads with `votemap` (user-facing peer; Shape 7b vote-cast, same `DoSelectMap`, same OV_MAP) and references `mapslist_dl` (mechanism that stuffs the aliases).
+- **k_no_vote_map card**: rewrite Headliner from "Blocks map voting (cm) and /next_map" to "Blocks the map-vote commands (`votemap` + the auto-aliased map shortcuts) and `next_map` in matchless mode." Pivot user-facing reference away from `cm`. Also note (Effect bullet) that the same matchless gate suppresses `break` per `match.c:3021` ("Voting next map is not allowed") -- multi-consumer gate spanning OV_MAP + OV_BREAK in matchless mode.
+- **k_vp_map card**: See-also currently lists `cm` as primary paired peer; pivot to `votemap` as primary (user-facing pair), with `cm` noted as the internal alias-target it routes through. Clarify in Notes that the cross-link to `next_map` is name-relational only (related map-area entity); `next_map` uses OV_BREAK (governed by `k_vp_break`), NOT OV_MAP.
+- **next_map card**: re-frame any cross-references to `cm` to pivot toward `votemap` (user-facing). Clarify the OV_BREAK channel share with `break` (not OV_MAP).
 
-**Tracking**: tracked as cross-batch follow-up in HANDOVER.md; resolved by the next ktx-l1-rewrite batch's pre-flight investigation. Fresh-terminal handoff at `docs/superpowers/parking/2026-05-26-handoff-cross-batch-map-mechanism-preflight.md` -- next dispatcher folds a ~1-hour source-walk (votemap / mapslist_dl / k_lockmap / break / forcebreak) into batch kickoff, produces a mechanism map, then updates this finding's Apply-pass correction with verified framings + drops the PENDING tag.
+**Tracking**: pre-flight investigation COMPLETE 2026-05-26 (this finding, refined). Parking doc `docs/superpowers/parking/2026-05-26-handoff-cross-batch-map-mechanism-preflight.md` deleted on same commit. Mechanism map at `apps/qw-oracle/docs/reviews/ktx-map-voting-mechanism-map.md` is the cross-batch reference for future ktx-l1-rewrite batches drafting the 5 PENDING entities (`votemap`, `mapslist_dl`, `k_lockmap`, `lockmap`, `break`, `forcebreak`).
