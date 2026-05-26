@@ -53,7 +53,7 @@ Session-shaped tasks. No per-phase MDs, no formal review checkpoints, no executo
   - `docs/superpowers/parking/2026-05-13-l1-extractor-asset-loader-enhancements.md`
   - `docs/superpowers/parking/2026-05-14-l1-extractor-refinement-arc.md`
 - Audit closure: `apps/qw-oracle/docs/arc-history.md` (2026-05-26 ezquake cmdline_params entry)
-- Sibling Arc B (HUD): `docs/superpowers/parking/2026-05-27-l1-extractor-hud-dynamic-names.md`
+- Sibling Arc B (HUD): `docs/superpowers/parking/2026-05-27-l1-extractor-hud-dynamic-names.md` -- **also CLOSED 2026-05-27 (verified no-op)**: the HUD dynamic-name cvar family was already shipped via `_handler_cvars.py`'s `HUD_Register` synthesis (1,463 hud_* cvars in L1, 87 distinct elements), and the HUD command half was shipped via Track-B of the enforce-L1-runtime-truth arc on 2026-05-19. The Arc B parking doc was created on stale premise; same lesson as Items 2-3 here.
 
 ## Exit criteria (closure 2026-05-27)
 
