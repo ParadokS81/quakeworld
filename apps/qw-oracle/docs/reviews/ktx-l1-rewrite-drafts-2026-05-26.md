@@ -32,13 +32,15 @@ Shape 4 -- cvar that gates two commands without toggling them.
 ### Proposed draft
 
 ```
-Blocks map voting (cm) and /next_map in matchless (pickup-style) mode.
+Blocks the matchless map-vote commands (`votemap` plus the auto-aliased map-name shortcuts) and the matchless end-match votes (`next_map`, plus `break` when invoked in matchless mode) in matchless (pickup-style) mode.
 
 Effect:
-  When set to 1, players attempting cm receive "Voting map is not allowed";
-  players attempting next_map receive "Voting next map is not allowed".
+  When set to 1 in matchless mode (excluding Bloodfest):
+  - votemap and its internal cm alias-target receive "Voting map is not allowed" (from DoSelectMap at maps.c:410)
+  - next_map and matchless-mode break receive "Voting next map is not allowed" (from PlayerBreak at match.c:3023)
+  - The auto-aliased map shortcuts (`/dm3` etc.) route through votemap or cm and inherit the gate.
   Outside matchless mode, or during Bloodfest, the gate has no effect --
-  cm and next_map behave as if k_no_vote_map were 0.
+  all commands behave as if k_no_vote_map were 0.
 
 Prerequisites: Only active in matchless mode (k_matchLess) and only when
   Bloodfest is not running. On a standard match server this cvar has no
@@ -47,15 +49,17 @@ Prerequisites: Only active in matchless mode (k_matchLess) and only when
 Permission:    server config only
 Default:       0
 
-0 = cm and next_map operate normally (subject to their own threshold and timing rules).
-1 = cm and next_map are blocked in matchless mode; both commands print a refusal message.
+0 = matchless map-vote and end-match-vote commands operate normally (subject to their own threshold and timing rules).
+1 = matchless map-vote and end-match-vote commands print refusal messages and the vote is rejected.
 
 Example:
   # server.cfg -- lock the map in pickup mode; players vote via other means
   k_no_vote_map 1
 
-See also: cm (gated map vote command), next_map (gated next-map command),
-  k_vp_map (vote-percentage threshold shared by both gated commands)
+See also: votemap (user-facing map-vote command; primary gated consumer),
+  next_map (matchless end-match vote; gated via PlayerBreak), break (also
+  gated when invoked in matchless mode), k_vp_map (vote threshold shared by
+  votemap and the matchless OV_BREAK path used by next_map + matchless break)
 ```
 
 ### Notes
@@ -619,7 +623,7 @@ Percentage of eligible voters (players minus bots) required to pass a map-change
 
 Effect:
   - Values below 51 are clamped to 51; maximum effective value is 100. At 51 (default), just over half of non-bot players must vote for the same map.
-  - Governs both the `cm` (current-map / map selection) vote and the `next_map` vote in matchless mode. In standard matched mode, `k_vp_break` governs the `/break` vote instead.
+  - Governs the `votemap` map-vote (and its internal `cm` alias-target on legacy clients) on the OV_MAP channel. In matchless mode, the same cvar also governs the OV_BREAK tally (`next_map`, and `break` when invoked matchless) via the matchless conditional at `vote.c:245-247`. In non-matchless (standard match) mode, `k_vp_break` governs OV_BREAK instead.
   - In Race mode, when at least one player is race-ready and the match has run for more than 10 seconds, the required vote count switches to the number of race-ready players regardless of the k_vp_map percentage. In all other Race scenarios the standard formula applies.
   - No admin veto path for map votes -- an admin's map preference earns tie-breaking priority when multiple maps are nominated, but does not bypass the threshold.
 
@@ -629,7 +633,7 @@ Default:       51 (stored as 0/empty; clamped to 51 at tally time).
 Example:
   k_vp_map 60   // 60% of non-bot players must vote for the same map
 
-See also: cm (map selection vote, OV_MAP consumer), next_map (next-map vote in matchless mode, OV_BREAK consumer), k_no_vote_map (Shape 4 gate -- disables both cm and next_map in matchless when set), k_vp_break (governs the break vote in standard matched mode)
+See also: votemap (user-facing map-vote command; primary OV_MAP consumer), next_map (matchless end-match vote; matchless OV_BREAK consumer via `vote.c:245-247`), cm (internal alias-target for legacy clients; OV_MAP consumer routing through DoSelectMap), k_no_vote_map (Shape 4 gate disables matchless map+break voting), k_vp_break (governs `break` in non-matchless mode)
 ```
 
 ### Notes
@@ -1052,10 +1056,10 @@ Shape 7b (continuous map vote -- no time-box, no yes/no) + Shape 4 dual gate (k_
 ### Proposed draft
 
 ```
-Casts (or redirects) your map vote to a server map by list index.
+Internal alias-target for casting a map vote by list index. Registered CF_NOALIAS -- direct `/cm` console invocation is blocked. Reachable only as `cmd cm <N>` from a stuffed map-name alias. The server stuffs `alias <mapname> cmd cm <index>` aliases at connect time for clients lacking CF_PARAMS support, so on a legacy client typing `/dm3` expands to `cmd cm 3` under the hood. Modern (CF_PARAMS) clients use the `votemap` route instead, stuffed by the same connect-time mechanism.
 
 Effect:
-- Records your vote for the map at position <index> in the server's map list. Broadcasts one of three messages depending on current vote state: "suggests map X" (first voter), "agrees on map X" (other players also voting for it), or "would rather play on X" (voting for a map no one else picked yet).
+- Records your vote for the map at position <index> in the server's map list. Broadcasts one of three messages depending on current vote state: "suggests map X" (first voter), "agrees on map X" (others also voting for it), or "would rather play on X" (voting for a map no one else picked yet).
 - Re-running with the same index prints "your vote is still good" and does not re-record.
 - Re-running with a different index redirects your vote to the new map.
 - On threshold: the map with the most votes wins. If an admin voted for a map, that map gets tie-breaking priority over maps with equal non-admin votes.
@@ -1068,18 +1072,16 @@ Prerequisites:
 - Non-admin spectators: silently refused.
 - k_lockmap must not be set for non-admins (broadcasts "MAP IS LOCKED!").
 
-Permission:    any player or admin spectator
+Permission:    any player or admin spectator -- but only reachable as `cmd cm <N>` from a stuffed map-name alias; CF_NOALIAS blocks direct `/cm` console invocation
 Match-state:   pre-match (match mode) or matchless countdown phase only; bloodfest mode follows matchless rules without the k_no_vote_map check
 
 Example:
-  // see the map list first
-  mapslist
-  // vote for map #3 in the list
-  cm 3
-  // redirect to a different map
-  cm 7
+  // a legacy (non-CF_PARAMS) client received `alias dm3 cmd cm 3` at connect
+  // via the mapslist_dl mechanism; typing the mapname casts the vote:
+  dm3
+  // direct `/cm 3` does NOT work -- CF_NOALIAS blocks it.
 
-See also: k_vp_map (threshold cvar shared with next_map), next_map (sibling vote command for map change), k_no_vote_map (matchless gate), k_lockmap (map-lock gate)
+See also: votemap (user-facing peer; same DoSelectMap, same OV_MAP channel, used by modern CF_PARAMS clients), mapslist_dl (connect-time mechanism that stuffs the per-mapname aliases routing to either cm or votemap), k_vp_map (vote threshold), k_no_vote_map (matchless gate), k_lockmap (map-lock gate)
 ```
 
 ### Notes
@@ -1420,7 +1422,7 @@ Example:
   next_map          (casts vote; server prints "<you> votes for next map (N needed)")
   next_map          (re-run withdraws; server prints "<you> withdraws his vote")
 
-See also: k_vp_map (threshold cvar, shared with cm), k_no_vote_map (gate -- blocks when non-zero), cm (sibling vote on same OV_BREAK channel in matchless mode)
+See also: break (sibling vote on the OV_BREAK channel; same PlayerBreak handler -- next_map is the CF_MATCHLESS_ONLY variant), k_vp_map (threshold cvar; matchless OV_BREAK reads k_vp_map per `vote.c:245-247`, same cvar that governs the OV_MAP path used by votemap+cm), k_no_vote_map (Shape 4 gate blocks next_map and matchless break), votemap (related map-area vote on the OV_MAP channel; shares the k_vp_map threshold across channels)
 ```
 
 ### Notes
@@ -1885,7 +1887,7 @@ Match-state:   any time
 Example:
   whovote     (prints current tally; or "No election going on" if nothing is active)
 
-See also: elect (starts admin/coach/captain elections), cm (map vote), antilag (antilag vote), nospecs (no-spec vote), k_teamoverlay (teamoverlay state cvar)
+See also: elect (starts admin/coach/captain elections), votemap (map-selection vote), antilag (antilag vote), nospecs (no-spec vote), k_teamoverlay (teamoverlay state cvar)
 ```
 
 ### Notes
@@ -2174,7 +2176,7 @@ Mechanism map saved at `apps/qw-oracle/docs/reviews/ktx-map-voting-mechanism-map
 
 - **votemap = vote-cast (possibility (a))**: `VoteMap` is a thin wrapper that parses arg as mapname, calls `VoteMapSpecific` -> `GetMapNum` -> `DoSelectMap(map_num)`. Same shared body as `cm`. Same OV_MAP channel. Same Shape 7b vote-cast mechanism. **The existing votemap L1 description "switch to a named map IMMEDIATELY" is WRONG** -- a foundational source-vs-description framing error. When `votemap` is drafted in a future Match flow batch, the draft-time spot-check MUST flag this (Park-trigger-3-candidate if the existing framing dominates the description, or `drafted_with_flag` if localized).
 - **Auto-alias mechanism is per-client capability**: `mapslist_dl` at `maps.c:244` branches on `isSupport_Params(self)`. Modern clients (CF_PARAMS-capable) get `alias <mapname> "cmd votemap <mapname>"` (line 296); legacy clients get `alias <mapname> cmd cm <index>` (line 313). NOT both-at-once on a given client. Both ultimately call `DoSelectMap` -- same OV_MAP channel, same threshold (`k_vp_map`), same gates (`k_no_vote_map`, `k_lockmap`).
-- **break + next_map share OV_BREAK** (NOT OV_MAP): `next_map` is registered at `commands.c:995` with handler `PlayerBreak` (same as `break` at `commands.c:709`). The CF_MATCHLESS_ONLY flag does the gating between them. Inside `PlayerBreak` the live-match path is Shape 7b vote-toggle on `self->v.brk` calling `vote_check_break()` -> OV_BREAK; matchless mode just broadcasts a different message ("votes for next map" vs "votes for stopping the match"). Threshold cvar is `k_vp_break`, NOT `k_vp_map`. The Voting-batch's `k_vp_map` draft cross-links to `next_map` -- this is a NAME-RELATED cross-link only; the channel is OV_BREAK.
+- **break + next_map share PlayerBreak handler + OV_BREAK channel**: `next_map` is registered at `commands.c:995` with handler `PlayerBreak` (same as `break` at `commands.c:709`). The CF_MATCHLESS_ONLY flag is the only difference. Inside `PlayerBreak` the live-match path is a Shape 7b vote-toggle on `self->v.brk` calling `vote_check_break()` -> OV_BREAK; matchless mode just broadcasts a different message ("votes for next map" vs "votes for stopping the match"). **Threshold cvar is phase-dependent**: per `vote.c:245-247`, OV_BREAK reads `cvar(k_matchLess ? "k_vp_map" : "k_vp_break")`. So `next_map` (always matchless) always reads `k_vp_map`; `break` reads `k_vp_map` in matchless mode but `k_vp_break` in non-matchless mode. The Voting-batch's `k_vp_map` draft cross-link to `next_map` is a REAL threshold relationship (not just name-related); the existing draft already correctly captures the multi-consumer pattern.
 - **forcebreak = shape-less admin override** (`admin.c:708`, `AdminForceBreak`, CF_BOTH_ADMIN): immediate `EndMatch(0)` (live match) or `StopTimer(1)` (countdown). NOT a vote-cast, no OV_BREAK feed -- per the Voting-batch finding that OV_BREAK has no `is_admins_vote()` arm, forcebreak is the architecturally-separate override path.
 - **k_lockmap = Shape 1 + Shape 4 composition**: paired toggle command is `lockmap` (`commands.c:756`, handler `ToggleMapLock` at `admin.c:849`, CF_BOTH_ADMIN). Cvar gates `DoSelectMap` against non-admins at `maps.c:434` with "MAP IS LOCKED!". Subsidiary use at `world.c:112` (`CheckDefMap`): suppresses empty-server auto-reload-to-default-map when lockmap is set.
 - **mapslist_dl = shape-less connect-time download** (`maps.c:244`): paginated, self-recursive across frames, opt-out via userinfo `nomaps > 0`. The mechanism head is `StuffMaps(p)` at `maps.c:337`, which also stuffs `ktx_am4` / `ktx_am8` batch-alias-makers for CF_PARAMS clients.
@@ -2185,7 +2187,7 @@ See the mechanism map for the full picture including the See-also matrix that sh
 
 - **cm card**: reframe as internal alias-target, not user-facing. Headliner should clarify it's reachable only via `cmd cm <N>` and is normally invoked by the stuffed map-name aliases (legacy-client branch of `mapslist_dl`). Permission line note `CF_NOALIAS` ("internal command -- direct console invocation blocked; reachable only via stuffed `cmd cm <N>` from the auto-aliased map shortcuts for CF_PARAMS-incapable clients"). Effect should describe the alias-invocation flow (`/dm3` -> `cmd cm 3` -> votes for `mapslist[2]`). See-also leads with `votemap` (user-facing peer; Shape 7b vote-cast, same `DoSelectMap`, same OV_MAP) and references `mapslist_dl` (mechanism that stuffs the aliases).
 - **k_no_vote_map card**: rewrite Headliner from "Blocks map voting (cm) and /next_map" to "Blocks the map-vote commands (`votemap` + the auto-aliased map shortcuts) and `next_map` in matchless mode." Pivot user-facing reference away from `cm`. Also note (Effect bullet) that the same matchless gate suppresses `break` per `match.c:3021` ("Voting next map is not allowed") -- multi-consumer gate spanning OV_MAP + OV_BREAK in matchless mode.
-- **k_vp_map card**: See-also currently lists `cm` as primary paired peer; pivot to `votemap` as primary (user-facing pair), with `cm` noted as the internal alias-target it routes through. Clarify in Notes that the cross-link to `next_map` is name-relational only (related map-area entity); `next_map` uses OV_BREAK (governed by `k_vp_break`), NOT OV_MAP.
-- **next_map card**: re-frame any cross-references to `cm` to pivot toward `votemap` (user-facing). Clarify the OV_BREAK channel share with `break` (not OV_MAP).
+- **k_vp_map card**: See-also currently lists `cm` as primary paired peer; pivot to `votemap` as primary (user-facing pair, OV_MAP channel), with `cm` noted as the internal alias-target it routes through. Keep `next_map` cross-link as a REAL multi-channel threshold relationship (the OV_BREAK switch arm at `vote.c:245-247` reads `k_vp_map` when matchless). The existing draft's Effect already correctly says "Governs both the `cm` (current-map / map selection) vote and the `next_map` vote in matchless mode" -- this stays; only the See-also benefits from the votemap pivot.
+- **next_map card**: re-frame any cross-references to `cm` to pivot toward `votemap` (user-facing). The existing draft's See-also line incorrectly says "cm (sibling vote on same OV_BREAK channel in matchless mode)" -- cm is OV_MAP, NOT OV_BREAK; this is a pre-existing factual error to correct alongside the cm-pivot. Clarify the OV_BREAK channel share with `break` (and that the matchless conditional at `vote.c:245-247` makes next_map's threshold `k_vp_map`, not `k_vp_break`).
 
 **Tracking**: pre-flight investigation COMPLETE 2026-05-26 (this finding, refined). Parking doc `docs/superpowers/parking/2026-05-26-handoff-cross-batch-map-mechanism-preflight.md` deleted on same commit. Mechanism map at `apps/qw-oracle/docs/reviews/ktx-map-voting-mechanism-map.md` is the cross-batch reference for future ktx-l1-rewrite batches drafting the 5 PENDING entities (`votemap`, `mapslist_dl`, `k_lockmap`, `lockmap`, `break`, `forcebreak`).

@@ -96,8 +96,8 @@ OV_BREAK has NO admin veto in `is_admins_vote()`. Admin override is the SEPARATE
 | Cvar | Role | Read site | Status |
 |---|---|---|---|
 | `k_no_vote_map` | Matchless-mode gate. Refuses `DoSelectMap` (`maps.c:408`) AND `PlayerBreak` (`match.c:3021`) when set + matchless. Multi-consumer gate. | `maps.c:408`, `match.c:3021` | drafted (Voting batch) |
-| `k_vp_map` | Vote threshold percentage for OV_MAP tally (governs `votemap` + `cm`; does NOT govern `next_map` -- next_map uses OV_BREAK). | read in `get_votes_req(OV_MAP, ...)` | drafted (Voting batch) |
-| `k_vp_break` | Vote threshold percentage for OV_BREAK tally (governs `break` AND `next_map`). | read in `get_votes_req(OV_BREAK, ...)` | drafted (Voting batch) |
+| `k_vp_map` | Vote threshold percentage. Reads for OV_MAP tally (governs `votemap` + `cm`); ALSO reads for OV_BREAK tally when matchless (governs `next_map`, plus `break` invoked in matchless mode). Multi-channel threshold via the matchless-conditional at `vote.c:245-247`. | `get_votes_req(OV_MAP, ...)`; `get_votes_req(OV_BREAK, ...)` when `k_matchLess` | drafted (Voting batch) |
+| `k_vp_break` | Vote threshold percentage for OV_BREAK tally in NON-matchless mode only (governs `break` in standard match mode). NOT consulted in matchless -- the OV_BREAK switch arm at `vote.c:245-247` reads `k_vp_map` instead. | `get_votes_req(OV_BREAK, ...)` when NOT `k_matchLess` | drafted (Voting batch) |
 
 ## Auto-alias mechanism (`maps.c`)
 
@@ -163,7 +163,7 @@ The `mapslist_dl` handler then paginates through `mapslist[]`:
 ### `break`
 - **Registration**: `commands.c:709`, `{ "break", PlayerBreak, 0, CF_BOTH | CF_MATCHLESS, CD_BREAK }`.
 - **Handler**: `PlayerBreak` at `match.c:2970` (shared with `next_map`).
-- **Shape**: **Shape 7b vote-cast** (continuous toggle, OV_BREAK channel, pairs with `k_vp_break` threshold). Per-player vote flag `self->v.brk`.
+- **Shape**: **Shape 7b vote-cast** (continuous toggle, OV_BREAK channel). Threshold cvar is PHASE-DEPENDENT per `vote.c:245-247` -- in non-matchless mode reads `k_vp_break`; in matchless mode reads `k_vp_map` (the same cvar that governs OV_MAP). Per-player vote flag `self->v.brk`.
 - **Mode-conditional facets** (the handler is heavily branched):
   - Race mode (non-match-mode): redirects to `r_changestatus(2)` (race break) -- NOT a vote-cast.
   - Spectator path: refuses unless `k_auto_xonx` + non-matchless; otherwise clears `self->ready` ("lost desire to play").
@@ -200,9 +200,15 @@ The `mapslist_dl` handler then paginates through `mapslist[]`:
 | `break` | `next_map` (matchless-only sibling), `forcebreak` (admin override), `k_vp_break` | mechanism family |
 | `forcebreak` | `break` (vote-cast peer), `forcemap` (sibling admin one-shot), `forcestart` (sibling admin one-shot) | admin command family |
 | `k_no_vote_map` | `votemap`, `cm`, `next_map`, `break` (gated in matchless), `k_vp_map` | Shape 4 gate with multi-consumer |
-| `k_vp_map` | `votemap` (primary user-facing pair), `cm` (internal pair), `k_no_vote_map`. Cross-link `next_map` only as name-related; the channel is OV_BREAK, not OV_MAP. | k_vp_* threshold + channel distinction |
+| `k_vp_map` | `votemap` (primary user-facing pair, OV_MAP channel), `cm` (internal pair, OV_MAP channel), `next_map` (matchless OV_BREAK consumer per `vote.c:245-247`), `k_no_vote_map` | k_vp_* multi-channel threshold |
 
-**Critical caveat**: `next_map` does NOT share the OV_MAP threshold. It uses OV_BREAK. The Voting-batch's `k_vp_map` draft cross-links to `next_map` per existing description; the channel-share is OV_BREAK. Apply-pass should clarify this distinction on the `k_vp_map` card (cross-link is name-relational, not threshold-shared).
+**Critical caveat (corrected 2026-05-26)**: OV_BREAK reads DIFFERENT threshold cvars based on phase. `vote.c:245-247`: `percent = cvar(k_matchLess ? "k_vp_map" : "k_vp_break")`. So:
+- `votemap` + `cm` -> OV_MAP -> `k_vp_map`
+- `next_map` (CF_MATCHLESS_ONLY, always matchless) -> OV_BREAK -> `k_vp_map`
+- `break` in matchless mode -> OV_BREAK -> `k_vp_map`
+- `break` in non-matchless (standard match) mode -> OV_BREAK -> `k_vp_break`
+
+`k_vp_map` is a multi-channel threshold (OV_MAP + matchless OV_BREAK). `k_vp_break` only governs OV_BREAK in non-matchless mode. The Voting-batch's `k_vp_map` draft already correctly captures the dual-consumer pattern ("Governs both the `cm` ... vote and the `next_map` vote in matchless mode").
 
 ## Action-level vs implementation-level discipline (per v2 universal shape)
 
