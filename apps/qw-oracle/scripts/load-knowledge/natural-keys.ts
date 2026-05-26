@@ -241,13 +241,13 @@ export async function upsertCommandVersion(tx: postgres.TransactionSql<{}>, row:
       entity_id, version,
       help_desc, help_remarks, help_group_id,
       handler_fn, source_file, source_line, source_column,
-      registration_file, source_root, raw_ast_hash, extracted_at,
+      registration_file, source_root, legacy_alias_of, raw_ast_hash, extracted_at,
       track_a_reachability, track_b_hud_recovery
     ) VALUES (
       ${row.entity_id}, ${row.version},
       ${row.help_desc}, ${row.help_remarks}, ${row.help_group_id},
       ${row.handler_fn}, ${row.source_file}, ${row.source_line}, ${row.source_column},
-      ${row.registration_file}, ${row.source_root}, ${row.raw_ast_hash}, ${row.extracted_at},
+      ${row.registration_file}, ${row.source_root}, ${row.legacy_alias_of}, ${row.raw_ast_hash}, ${row.extracted_at},
       ${row.track_a_reachability == null ? null : tx.json(row.track_a_reachability as never)},
       ${row.track_b_hud_recovery == null ? null : tx.json(row.track_b_hud_recovery as never)}
     )
@@ -261,6 +261,14 @@ export async function upsertCommandVersion(tx: postgres.TransactionSql<{}>, row:
       source_column     = EXCLUDED.source_column,
       registration_file = EXCLUDED.registration_file,
       source_root       = EXCLUDED.source_root,
+      -- COALESCE so the Track-A overlay / Track-B HUD adapter (both write
+      -- legacy_alias_of=null because they don't own that signal) don't
+      -- wipe a value the per-type load-commands writer set from the AST.
+      -- load-commands itself is the only authoritative writer; a re-run
+      -- that genuinely transitions an entity from "is a legacy alias" to
+      -- "no longer a legacy alias" requires explicit clearing (rare;
+      -- Cmd_AddLegacyCommand removals from source are uncommon).
+      legacy_alias_of   = COALESCE(EXCLUDED.legacy_alias_of, command_versions.legacy_alias_of),
       raw_ast_hash      = EXCLUDED.raw_ast_hash,
       extracted_at      = EXCLUDED.extracted_at,
       -- COALESCE on BOTH provenance columns: the two writers are SEPARATE

@@ -449,6 +449,10 @@ export interface CommandVersionRow {
   source_column: number | null;
   registration_file: string | null;
   source_root: string | null;
+  // Cmd_AddLegacyCommand alias target (migration 017). NULL for normal
+  // Cmd_AddCommand registrations; populated with the canonical command
+  // name when the entity is a deprecated-rename shim.
+  legacy_alias_of: string | null;
   raw_ast_hash: string | null;
   extracted_at: string;
   // L1 runtime-fidelity provenance (migration 015, enforce-L1-runtime-truth

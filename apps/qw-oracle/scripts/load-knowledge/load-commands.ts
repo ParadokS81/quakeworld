@@ -36,6 +36,10 @@ export function buildCommandVersionRow(
     // FTE entries carry source_root as a top-level field; ezQuake/QWCL entries
     // have no source_root field (NULL = "engine" per SCHEMA.md semantics).
     source_root: entry.source_root ?? null,
+    // Cmd_AddLegacyCommand alias target (migration 017). Extractor emits
+    // this when the registration call is Cmd_AddLegacyCommand("old","new");
+    // NULL for normal Cmd_AddCommand registrations.
+    legacy_alias_of: (ast as { legacy_alias_of?: string } | null)?.legacy_alias_of ?? null,
     raw_ast_hash,
     extracted_at: now,
 

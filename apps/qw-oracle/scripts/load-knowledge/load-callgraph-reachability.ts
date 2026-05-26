@@ -102,15 +102,17 @@ async function stampCommand(
   const existing = await tx<Array<Omit<CommandVersionRow, 'entity_id' | 'version'>>>`
     SELECT help_desc, help_remarks, help_group_id, handler_fn, source_file,
            source_line, source_column, registration_file, source_root,
-           raw_ast_hash, extracted_at, track_a_reachability, track_b_hud_recovery
+           legacy_alias_of, raw_ast_hash, extracted_at,
+           track_a_reachability, track_b_hud_recovery
     FROM command_versions
     WHERE entity_id = ${entityId} AND version = ${version}
   `;
   if (existing.length === 0) return false;
   const e = existing[0]!;
   // Reconstruct the row from DB state + the new spine, then re-upsert.
-  // Base columns round-trip unchanged; track_a is replaced; track_b is
-  // carried through (and the upsert COALESCEs it for belt-and-braces).
+  // Base columns round-trip unchanged; track_a is replaced; track_b and
+  // legacy_alias_of are carried through (the upsert COALESCEs them for
+  // belt-and-braces).
   const row: CommandVersionRow = {
     entity_id: entityId,
     version,
@@ -123,6 +125,7 @@ async function stampCommand(
     source_column: e.source_column,
     registration_file: e.registration_file,
     source_root: e.source_root,
+    legacy_alias_of: e.legacy_alias_of,
     raw_ast_hash: e.raw_ast_hash,
     extracted_at: e.extracted_at,
     track_a_reachability: spine,

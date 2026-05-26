@@ -151,6 +151,10 @@ export function buildHudCommandVersionRow(
     // These are ezQuake-native commands; NULL source_root = "engine" per
     // SCHEMA.md (mirrors load-commands.ts for ezQuake entries).
     source_root: null,
+    // HUD commands aren't `Cmd_AddLegacyCommand` shims; this writer never
+    // owns legacy_alias_of. Upsert COALESCEs so a value already set by
+    // load-commands isn't wiped if both writers touch the same row.
+    legacy_alias_of: null,
     // No AST struct hash is meaningful here (the row IS the modeled
     // literal, not a raw libclang AST capture). NULL is consistent with
     // help-only command rows in the regular handler.

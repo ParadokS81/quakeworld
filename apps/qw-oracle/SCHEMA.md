@@ -145,7 +145,7 @@ Index: `idx_cvar_versions_source ON (source_file, source_line)`.
 
 Extracted from `Cmd_AddCommand` registration sites. Schema v1.
 
-Type-specific: `help_desc`, `help_remarks`, `help_group_id`, `handler_fn`, `registration_file`, `source_root` (nullable, schema v11 -- see `source_root` reference below), `track_a_reachability` (JSONB nullable, migration 015 -- v18 runtime fidelity, see below), `track_b_hud_recovery` (JSONB nullable, migration 015 -- v18 runtime fidelity, see below), `category_inferred` (TEXT nullable, migration 016 -- v19 LLM-derived category, see below), `category_inferred_origin` (TEXT nullable, migration 016 -- v19 provenance sibling, see below).
+Type-specific: `help_desc`, `help_remarks`, `help_group_id`, `handler_fn`, `registration_file`, `source_root` (nullable, schema v11 -- see `source_root` reference below), `track_a_reachability` (JSONB nullable, migration 015 -- v18 runtime fidelity, see below), `track_b_hud_recovery` (JSONB nullable, migration 015 -- v18 runtime fidelity, see below), `category_inferred` (TEXT nullable, migration 016 -- v19 LLM-derived category, see below), `category_inferred_origin` (TEXT nullable, migration 016 -- v19 provenance sibling, see below), `legacy_alias_of` (TEXT nullable, migration 017 -- canonical command name this entity aliases via `Cmd_AddLegacyCommand`; NULL for normal `Cmd_AddCommand` registrations).
 
 **Populated by:** `load-commands.ts` <- `extract-ezquake-commands-clang.py` -> `ezquake-commands-ast.json`.
 
