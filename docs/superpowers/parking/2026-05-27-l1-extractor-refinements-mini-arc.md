@@ -1,6 +1,6 @@
 # L1 extractor refinements mini-arc (Arc A)
 
-**Status:** Active, started 2026-05-27 immediately after ezQuake help-JSON empty-entries audit closure (PR #1131).
+**Status:** CLOSED 2026-05-27. Item 1 shipped (commit `c91c5ece`); Items 2-3 verified as mostly-no-op (premises were stale / framework-already-handles-it). One residual extractor framework finding for `-enablelocalcommand` parked separately.
 
 **Genesis:** During the audit, three extractor-side gaps were surfaced as side-findings (parking doc `2026-05-15-l1-extractor-entity-classification-followups.md` consolidates them). They're not blocking, but baking them in now means future ezquake version walks surface these patterns automatically instead of needing manual re-discovery.
 
@@ -21,13 +21,18 @@
 - The handler was likely upgraded during an earlier arc between when the HANDOVER finding was logged and now.
 - **No code work required.** HANDOVER 128 is retracted in this arc's commit.
 
-### Item 3 -- `.h`-aware liveness (~4-6h)
+### Item 3 -- `.h`-aware liveness (MOSTLY VERIFIED NO-OP + 1 residual, 2026-05-27)
 
-- Cmdline-consumer-presence detector scans `.c` files only.
-- **Gap:** params kept alive by `.h`-macro wrappers fanning into `.c` call sites get mislabeled "dead". F20 tactical workaround at `_runtime_dead_entities.py:_CLASS3_BLOCK` covers the 5 currently-known cases via a manual block-list.
-- **Fix:** extend the liveness detector to follow `.h` macro definitions back to their `.c` callsites. Remove `_CLASS3_BLOCK` block-list after the principled detection lands.
+- **Premise was off:** the F20 finding ("5 of 11 shipped Track-A entries were FALSE POSITIVES via `.h` macro wrappers") was assumed to mean 5 currently-mislabeled L1 entities. Empirical check found that 4 of the 5 are already correctly detected by the current `_handler_cmdline.py` via libclang macro-expansion:
+  - `-cheats`: usage_count=1 (sv_ccmds.c, client variant) -- macro `SV_CommandLineEnableCheats()` resolves
+  - `-progtype`: usage_count=1 (pr2_exec.c) -- macro `SV_CommandLineProgTypeArgument()` resolves
+  - `-r-debug`: usage_count=166 across 9 GL files -- GL wrapper macros resolve cleanly
+  - `-democache`: usage_count=2 (cl_demo.c + sv_demo.c)
+- **`_CLASS3_BLOCK` is editorial markdown, not a "block-list":** it's the verbatim Class-3 section of `apps/qw-oracle/docs/upstream-prs/ezquake-runtime-dead-entities.md`, hand-corrected to the 4 verified-dead entries. There's no runtime block-list to remove.
+- **1 residual case** parked separately: `-enablelocalcommand` still has usage_count=0 because its only consumer site (`sv_ccmds.c:1861`, gated by `#ifdef SERVERONLY`) is in the server-variant build path, and the cmdline handler's AST output contains zero server-variant findings (all 307 detected sites are client-variant). The dedup mechanism around `_seen_locations` + `walk_tu_dispatch`'s target-file filter is the likely cause -- root-cause analysis requires deeper extractor framework investigation. Captured as HANDOVER followup; sized ~1-3h for a focused fix once the framework behavior is understood.
+- **No code work in this arc.** Findings recorded in the arc-history entry.
 
-**Total estimated time:** 8-13h across (likely) 3 focused sessions.
+**Total estimated time:** originally 8-13h across 3 sessions; actual ~1.5h total (Item 1 shipped + Items 2-3 verified mostly-no-op).
 
 ## Sequencing
 
@@ -50,9 +55,15 @@ Session-shaped tasks. No per-phase MDs, no formal review checkpoints, no executo
 - Audit closure: `apps/qw-oracle/docs/arc-history.md` (2026-05-26 ezquake cmdline_params entry)
 - Sibling Arc B (HUD): `docs/superpowers/parking/2026-05-27-l1-extractor-hud-dynamic-names.md`
 
-## Exit criteria
+## Exit criteria (closure 2026-05-27)
 
-- All 3 items shipped and verified (column populated / new params detected / liveness reclassifications applied).
-- F1 quality grid clean post-each-item.
-- Tactical workaround `_CLASS3_BLOCK` block-list removed at the end of Item 3 (no longer needed).
-- arc-history entry written summarizing the arc.
+- [x] Item 1 shipped: 37 ezQuake legacy aliases populated at HEAD; F1 clean post prune-cross-type-orphans.
+- [x] Item 2 verified: 11/11 bare-call sites correctly detected; HANDOVER 128 pruned.
+- [x] Item 3 verified mostly-no-op: 4/5 F20 cases already correctly detected by libclang macro-expansion; `_CLASS3_BLOCK` is editorial (not a block-list, nothing to remove); 1 residual (`-enablelocalcommand`) parked to HANDOVER for a focused future session.
+- [x] arc-history entry to be written summarizing all 3 items + the scope-shift findings.
+
+## Lessons learned
+
+- **HANDOVER findings can decay rapidly.** Item 2's premise was stale because an earlier arc closed the gap; Item 3's premise overstated the scope (5 entities claimed, only 1 actually wrong). Re-verify HANDOVER claims against current source before scoping work.
+- **Investigation can beat implementation in time-to-value.** ~30 min of investigation closed two of three items as no-ops; the work avoided was ~10h of estimated implementation.
+- **"Block-list" framing was misleading.** The `_CLASS3_BLOCK` was editorial markdown for the PR digest, not a runtime override mechanism. Reading the actual code structure before scoping work would have caught this earlier.
