@@ -280,7 +280,7 @@ Frogbot path-debug cvar. Registered and cleared by the bot subsystem, but at thi
 
 Effect:
   No source-legible runtime effect at this anchor. The cvar is registered (default 0) and is explicitly cleared to 0 by the bot path-debug completion routine, but no code reads the value to branch behavior.
-  Historical context: an older code path (now commented out at src/bot_commands.c:788) would have set this cvar to 1 when starting a bot path-debug session; that write is disabled and the actual debug toggle lives on `self->fb.debug` (a per-bot C struct field) rather than on this cvar.
+  Historical context: an older code path (now disabled) would have set this cvar to 1 when starting a bot path-debug session; that write is disabled and the actual debug toggle lives on `self->fb.debug` (a per-bot C struct field) rather than on this cvar.
 
 Default: 0.
 
@@ -575,7 +575,7 @@ Effect:
     32 = SHOW_MOVEMENT_LOGIC: include movement logic (velocity, obstruction, last direction) in the dump AND emit live G_sprint movement traces (linked-marker changes, jumps, hazard-avoidance decisions).
     64 = DEMOMARK_ROCKETJUMPS: call DemoMark() each time a bot performs a rocket-jump (writes a //demomark stuffcmd and, during a live match, an entry to the demo-marker table).
     128 = DEBUG_MOVEMENT: stream per-frame //botcmd-desired and //botcmd-modified aim debug lines into bot demos via STUFFCMD_DEMOONLY.
-  Bits 4|8|16|32 = 60 is the composite SHOW_THINKING mask; the bot-thinking dump is enabled whenever any of those four bits is set (`FB_OPTION_SHOW_THINKING` at include/fb_globals.h:16).
+  Bits 4|8|16|32 = 60 is the composite SHOW_THINKING mask; the bot-thinking dump is enabled whenever any of those four bits is set.
 
 Default: 0 (all options off).
 

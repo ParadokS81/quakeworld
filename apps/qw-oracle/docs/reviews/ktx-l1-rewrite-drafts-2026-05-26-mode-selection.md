@@ -1438,7 +1438,7 @@ Enables Bloodfest game mode -- a wave-based cooperative monster survival mode wh
 Effect:
   - Activates the monster-wave AI and spawn scheduler (sp_ai.c, sp_monsters.c).
   - Monsters spawn in waves every 20 seconds; population grows by ~20% each wave, starting at 20 monsters.
-  - Picked-up weapons remain on the ground and ammo/powerup pickups behave as in mode 4 (weapons.c:830, 879).
+  - Picked-up weapons remain on the ground and ammo/powerup pickups behave as in mode 4.
   - All UserMode presets reset k_bloodfest to 0 (common_um_init resets it on mode changes).
 
 Permission:    server config only
