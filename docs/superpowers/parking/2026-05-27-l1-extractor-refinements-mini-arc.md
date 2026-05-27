@@ -1,6 +1,6 @@
 # L1 extractor refinements mini-arc (Arc A)
 
-**Status:** CLOSED 2026-05-27. Item 1 shipped (commit `c91c5ece`); Items 2-3 verified as mostly-no-op (premises were stale / framework-already-handles-it). One residual extractor framework finding for `-enablelocalcommand` parked separately.
+**Status:** CLOSED 2026-05-27. Item 1 shipped (commit `c91c5ece`); Items 2-3 verified as mostly-no-op (premises were stale / framework-already-handles-it). Item 3's `-enablelocalcommand` residual ALSO shipped 2026-05-27 (commit `547038e3` + 15-tag re-walk) -- root cause was libclang reporting macro-expanded literal extents as the macro-invocation source span, not the literal itself; fix walks the cursor tree for STRING_LITERAL the same way `_resolve_enum_constant` walks for enums. Closure detail in Item 3 section below.
 
 **Genesis:** During the audit, three extractor-side gaps were surfaced as side-findings (parking doc `2026-05-15-l1-extractor-entity-classification-followups.md` consolidates them). They're not blocking, but baking them in now means future ezquake version walks surface these patterns automatically instead of needing manual re-discovery.
 
@@ -29,8 +29,8 @@
   - `-r-debug`: usage_count=166 across 9 GL files -- GL wrapper macros resolve cleanly
   - `-democache`: usage_count=2 (cl_demo.c + sv_demo.c)
 - **`_CLASS3_BLOCK` is editorial markdown, not a "block-list":** it's the verbatim Class-3 section of `apps/qw-oracle/docs/upstream-prs/ezquake-runtime-dead-entities.md`, hand-corrected to the 4 verified-dead entries. There's no runtime block-list to remove.
-- **1 residual case** parked separately: `-enablelocalcommand` still has usage_count=0 because its only consumer site (`sv_ccmds.c:1861`, gated by `#ifdef SERVERONLY`) is in the server-variant build path, and the cmdline handler's AST output contains zero server-variant findings (all 307 detected sites are client-variant). The dedup mechanism around `_seen_locations` + `walk_tu_dispatch`'s target-file filter is the likely cause -- root-cause analysis requires deeper extractor framework investigation. Captured as HANDOVER followup; sized ~1-3h for a focused fix once the framework behavior is understood.
-- **No code work in this arc.** Findings recorded in the arc-history entry.
+- **1 residual case** SHIPPED 2026-05-27 (commit `547038e3` + 15-tag re-walk). The dedup-mechanism / target-file-filter hypothesis was wrong; libclang's `walk_tu_dispatch` DID see the cursor in the server TU at `sv_ccmds.c:1861`. The real cause was a layer down: the literal-string fallback in `_handler_cmdline.py` used `read_extent(source_bytes, arg_cursor.extent)`, and for a literal injected via macro expansion (the SERVERONLY branch of `server.h:1090-1096`'s `SV_CommandLine*` macros), libclang reports the literal's `extent` as the macro-invocation source span -- the function-call text `SV_CommandLineEnableLocalCommand()` -- not the underlying `"-enablelocalcommand"`. The slice didn't start with `"`, `literal_string()` returned None, the handler bailed. Fix mirrors `_resolve_enum_constant`'s walk pattern: descend the argument cursor tree for a `STRING_LITERAL` kind and read its `.spelling` (which carries the literal value regardless of extent). Bounded blast radius confirmed pre-walk via v3.0.1 spot-check (4 affected entities' raw_ast_hashes byte-identical to DB) -- macro pattern was introduced between 3.6.2 and 3.6.5, so the fix is a verified no-op on the 10 pre-bug tags and only updates the 5 newest (3.6.5 / 3.6.6 / 3.6.8 / 3.6.9 / head). Net DB delta: `-enablelocalcommand` source_file flipped from `cmdline_params_ids.h` manifest fallback to `sv_ccmds.c:1861` for the 5 post-bug tags; `-heapsize` / `-mem` / `-minmemory` gained a second server-build usage_site at `sv_main.c` (primary-site columns unchanged because primarySite = usage_sites[0]); `entities.description` for all 4 entities untouched per F-D4a deriver guard (`description_origin='synthesized'`). Idempotency verified: HEAD re-extract on disk byte-identical to committed copy.
+- **Code shipped:** `_handler_cmdline.py` gained `_resolve_string_literal()` + visit_cursor fallback chain (enum walk -> string-literal walk -> extent-reader). ~30 LOC. arc-history entry to be appended summarizing this closure.
 
 **Total estimated time:** originally 8-13h across 3 sessions; actual ~1.5h total (Item 1 shipped + Items 2-3 verified mostly-no-op).
 
@@ -59,7 +59,7 @@ Session-shaped tasks. No per-phase MDs, no formal review checkpoints, no executo
 
 - [x] Item 1 shipped: 37 ezQuake legacy aliases populated at HEAD; F1 clean post prune-cross-type-orphans.
 - [x] Item 2 verified: 11/11 bare-call sites correctly detected; HANDOVER 128 pruned.
-- [x] Item 3 verified mostly-no-op: 4/5 F20 cases already correctly detected by libclang macro-expansion; `_CLASS3_BLOCK` is editorial (not a block-list, nothing to remove); 1 residual (`-enablelocalcommand`) parked to HANDOVER for a focused future session.
+- [x] Item 3 verified mostly-no-op AND residual shipped: 4/5 F20 cases already correctly detected by libclang macro-expansion; `_CLASS3_BLOCK` is editorial (not a block-list, nothing to remove); `-enablelocalcommand` residual SHIPPED 2026-05-27 (commit `547038e3` + 15-tag re-walk; STRING_LITERAL cursor-walk fallback in `_handler_cmdline.py`).
 - [x] arc-history entry to be written summarizing all 3 items + the scope-shift findings.
 
 ## Lessons learned
