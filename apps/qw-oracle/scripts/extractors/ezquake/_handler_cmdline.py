@@ -38,6 +38,30 @@ def _resolve_enum_constant(arg_cursor) -> Optional[str]:
     return None
 
 
+def _resolve_string_literal(arg_cursor) -> Optional[str]:
+    """Walk the cursor tree for a STRING_LITERAL and return its unquoted value.
+
+    Mirrors `_resolve_enum_constant`'s walk shape. Independent of source-bytes
+    reads, so it survives macro-expanded literals whose extent libclang reports
+    against the macro-invocation site (e.g. SERVERONLY-branch macros in
+    server.h:1090-1096 expanding to COM_CheckParm("-foo") inside an #ifdef
+    SERVERONLY block in sv_ccmds.c). The literal_string() extent-reader path
+    fails for those because the extent text is the function-call source span,
+    not the literal -- this walk uses the STRING_LITERAL cursor's spelling
+    directly, which carries the literal regardless of extent. Adjacent-literal
+    concatenation falls back to literal_string() below.
+    """
+    stack = [arg_cursor]
+    while stack:
+        n = stack.pop()
+        if n.kind == CursorKind.STRING_LITERAL:
+            sp = n.spelling
+            if sp and len(sp) >= 2 and sp[0] == '"' and sp[-1] == '"':
+                return sp[1:-1]
+        stack.extend(list(n.get_children()))
+    return None
+
+
 class CmdlineEzquakeHandler(Visitor):
     """ezQuake cmdline-params handler (COM_CheckParm* call detection).
 
@@ -119,7 +143,15 @@ class CmdlineEzquakeHandler(Visitor):
         if enum_name and enum_name.startswith("cmdline_param_"):
             name_key = enum_name
         else:
-            lit = literal_string(args[0], self.source_bytes)
+            # Walk the cursor tree for STRING_LITERAL first -- this works for
+            # both direct calls (COM_CheckParm("-cdaudio")) and macro-expanded
+            # literals (SV_CommandLineEnableLocalCommand() -> "-enablelocalcommand"
+            # in server.h's SERVERONLY branch). The literal_string() fallback
+            # below handles adjacent-literal concatenation edge cases that the
+            # walk doesn't merge.
+            lit = _resolve_string_literal(args[0])
+            if lit is None:
+                lit = literal_string(args[0], self.source_bytes)
             if lit:
                 name_key = lit
         if name_key is None:

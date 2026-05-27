@@ -466,8 +466,17 @@
         "manifest_enum": "cmdline_param_server_enablelocalcommand",
         "manifest_file": "cmdline_params_ids.h",
         "manifest_line": 73,
-        "usage_sites": [],
-        "usage_count": 0
+        "usage_sites": [
+          {
+            "source_file": "sv_ccmds.c",
+            "source_line": 1861,
+            "source_column": 6,
+            "enclosing_function": "SV_InitOperatorCommands",
+            "call_form": "COM_CheckParm",
+            "build_variant": "server-build"
+          }
+        ],
+        "usage_count": 1
       },
       "flags": [
         "incomplete"
@@ -618,9 +627,17 @@
             "enclosing_function": "Host_InitMemory",
             "call_form": "COM_CheckParm",
             "build_variant": "client"
+          },
+          {
+            "source_file": "sv_main.c",
+            "source_line": 3857,
+            "source_column": 11,
+            "enclosing_function": "Host_InitMemory",
+            "call_form": "COM_CheckParm",
+            "build_variant": "server-build"
           }
         ],
-        "usage_count": 1
+        "usage_count": 2
       },
       "flags": [
         "incomplete"
@@ -710,9 +727,17 @@
             "enclosing_function": "Host_InitMemory",
             "call_form": "COM_CheckParm",
             "build_variant": "client"
+          },
+          {
+            "source_file": "sv_main.c",
+            "source_line": 3860,
+            "source_column": 11,
+            "enclosing_function": "Host_InitMemory",
+            "call_form": "COM_CheckParm",
+            "build_variant": "server-build"
           }
         ],
-        "usage_count": 1
+        "usage_count": 2
       },
       "flags": [
         "incomplete"
@@ -731,9 +756,17 @@
             "enclosing_function": "Host_InitMemory",
             "call_form": "COM_CheckParm",
             "build_variant": "client"
+          },
+          {
+            "source_file": "sv_main.c",
+            "source_line": 3854,
+            "source_column": 6,
+            "enclosing_function": "Host_InitMemory",
+            "call_form": "COM_CheckParm",
+            "build_variant": "server-build"
           }
         ],
-        "usage_count": 1
+        "usage_count": 2
       },
       "flags": [
         "incomplete"
@@ -3295,8 +3328,8 @@
   },
   "_stats": {
     "manifest_entries": 68,
-    "manifest_with_usage": 61,
-    "manifest_unused_in_source": 7,
+    "manifest_with_usage": 62,
+    "manifest_unused_in_source": 6,
     "help_only": 1,
     "source_only_undeclared": 3,
     "with_help_desc": 15
