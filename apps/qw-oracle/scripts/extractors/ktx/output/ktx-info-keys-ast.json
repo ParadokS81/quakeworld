@@ -6,6 +6,7 @@
       "ast": {
         "scope": "userinfo",
         "operations": [
+          "read",
           "write"
         ],
         "source_file": "src/commands.c",
@@ -16,6 +17,66 @@
             "source_file": "src/commands.c",
             "source_line": 6097,
             "operation": "write"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 6123,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*cheats:userinfo",
+      "bare_name": "*cheats",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 8951,
+        "containing_function": "giveme",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 8951,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 9215,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 9263,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 9341,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*client:userinfo",
+      "bare_name": "*client",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/g_main.c",
+        "source_line": 621,
+        "containing_function": "check_ezquake",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_main.c",
+            "source_line": 621,
+            "operation": "read"
           }
         ]
       }
@@ -26,12 +87,23 @@
       "ast": {
         "scope": "userinfo",
         "operations": [
+          "read",
           "write"
         ],
-        "source_file": "src/g_userinfo.c",
-        "source_line": 226,
-        "containing_function": "cmdinfo_infoset",
+        "source_file": "src/g_main.c",
+        "source_line": 221,
+        "containing_function": "vmMain",
         "all_call_sites": [
+          {
+            "source_file": "src/g_main.c",
+            "source_line": 221,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_userinfo.c",
+            "source_line": 224,
+            "operation": "read"
+          },
           {
             "source_file": "src/g_userinfo.c",
             "source_line": 226,
@@ -46,6 +118,7 @@
       "ast": {
         "scope": "userinfo",
         "operations": [
+          "read",
           "write"
         ],
         "source_file": "src/g_cmd.c",
@@ -56,6 +129,11 @@
             "source_file": "src/g_cmd.c",
             "source_line": 1063,
             "operation": "write"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1139,
+            "operation": "read"
           }
         ]
       }
@@ -66,12 +144,18 @@
       "ast": {
         "scope": "userinfo",
         "operations": [
+          "read",
           "write"
         ],
         "source_file": "src/g_cmd.c",
-        "source_line": 887,
-        "containing_function": "multi_do",
+        "source_line": 368,
+        "containing_function": "ClientSay",
         "all_call_sites": [
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 368,
+            "operation": "read"
+          },
           {
             "source_file": "src/g_cmd.c",
             "source_line": 887,
@@ -84,8 +168,18 @@
           },
           {
             "source_file": "src/g_cmd.c",
+            "source_line": 1099,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
             "source_line": 1147,
             "operation": "write"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1176,
+            "operation": "read"
           },
           {
             "source_file": "src/g_cmd.c",
@@ -94,13 +188,28 @@
           },
           {
             "source_file": "src/g_cmd.c",
+            "source_line": 1189,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
             "source_line": 1191,
             "operation": "write"
           },
           {
             "source_file": "src/g_cmd.c",
+            "source_line": 1206,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
             "source_line": 1208,
             "operation": "write"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1236,
+            "operation": "read"
           },
           {
             "source_file": "src/g_cmd.c",
@@ -121,12 +230,28 @@
       "ast": {
         "scope": "userinfo",
         "operations": [
+          "read",
           "write"
         ],
         "source_file": "src/g_cmd.c",
-        "source_line": 1179,
-        "containing_function": "mmode",
+        "source_line": 372,
+        "containing_function": "ClientSay",
         "all_call_sites": [
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 372,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1165,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1176,
+            "operation": "read"
+          },
           {
             "source_file": "src/g_cmd.c",
             "source_line": 1179,
@@ -141,12 +266,28 @@
       "ast": {
         "scope": "userinfo",
         "operations": [
+          "read",
           "write"
         ],
         "source_file": "src/g_cmd.c",
-        "source_line": 1192,
-        "containing_function": "mmode",
+        "source_line": 383,
+        "containing_function": "ClientSay",
         "all_call_sites": [
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 383,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1187,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1189,
+            "operation": "read"
+          },
           {
             "source_file": "src/g_cmd.c",
             "source_line": 1192,
@@ -161,12 +302,28 @@
       "ast": {
         "scope": "userinfo",
         "operations": [
+          "read",
           "write"
         ],
         "source_file": "src/g_cmd.c",
-        "source_line": 888,
-        "containing_function": "multi_do",
+        "source_line": 387,
+        "containing_function": "ClientSay",
         "all_call_sites": [
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 387,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 824,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 857,
+            "operation": "read"
+          },
           {
             "source_file": "src/g_cmd.c",
             "source_line": 888,
@@ -174,18 +331,1331 @@
           },
           {
             "source_file": "src/g_cmd.c",
+            "source_line": 937,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
             "source_line": 985,
             "operation": "write"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 998,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*state:userinfo",
+      "bare_name": "*state",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 5143,
+        "containing_function": "klist",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 5143,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 1506,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 1523,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*userid:userinfo",
+      "bare_name": "*userid",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 5163,
+        "containing_function": "klist",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 5163,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 1507,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 1628,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/race.c",
+            "source_line": 160,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*version:userinfo",
+      "bare_name": "*version",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/g_main.c",
+        "source_line": 148,
+        "containing_function": "vmMain",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_main.c",
+            "source_line": 148,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Qizmo:userinfo",
+      "bare_name": "Qizmo",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/admin.c",
+        "source_line": 963,
+        "containing_function": "do_force_spec",
+        "all_call_sites": [
+          {
+            "source_file": "src/admin.c",
+            "source_line": 963,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 651,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bottomcolor:userinfo",
+      "bare_name": "bottomcolor",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "write"
+        ],
+        "source_file": "src/bot_commands.c",
+        "source_line": 247,
+        "containing_function": "BuildTeamList",
+        "all_call_sites": [
+          {
+            "source_file": "src/bot_commands.c",
+            "source_line": 247,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/captain.c",
+            "source_line": 324,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/captain.c",
+            "source_line": 391,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 594,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 626,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1262,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1435,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1438,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1442,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1445,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1449,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1452,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/client.c",
+            "source_line": 1673,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/client.c",
+            "source_line": 2954,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/stats_json.c",
+            "source_line": 344,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "di:userinfo",
+      "bare_name": "di",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/combat.c",
+        "source_line": 827,
+        "containing_function": "T_Damage",
+        "all_call_sites": [
+          {
+            "source_file": "src/combat.c",
+            "source_line": 827,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ev:userinfo",
+      "bare_name": "ev",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/g_utils.c",
+        "source_line": 2376,
+        "containing_function": "on_connect",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 2376,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 2459,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 2476,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 2493,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 2510,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 2520,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fpd:userinfo",
+      "bare_name": "fpd",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 2017,
+        "containing_function": "ModStatus2",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 2017,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 3254,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 3688,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 3705,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 3721,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 311,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 1302,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 2114,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fs:userinfo",
+      "bare_name": "fs",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/admin.c",
+        "source_line": 987,
+        "containing_function": "force_spec",
+        "all_call_sites": [
+          {
+            "source_file": "src/admin.c",
+            "source_line": 987,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "gender:userinfo",
+      "bare_name": "gender",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/g_utils.c",
+        "source_line": 1247,
+        "containing_function": "g_his",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 1247,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 1269,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 1291,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ip:userinfo",
+      "bare_name": "ip",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/g_cmd.c",
+        "source_line": 402,
+        "containing_function": "ClientSay",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 402,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 1228,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 2778,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "k:userinfo",
+      "bare_name": "k",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/clan_arena.c",
+        "source_line": 771,
+        "containing_function": "CA_SendTeamInfo",
+        "all_call_sites": [
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 771,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/client.c",
+            "source_line": 4667,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 2568,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 2636,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 4004,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 4104,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/teamplay.c",
+            "source_line": 531,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "k_nick:userinfo",
+      "bare_name": "k_nick",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/clan_arena.c",
+        "source_line": 769,
+        "containing_function": "CA_SendTeamInfo",
+        "all_call_sites": [
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 769,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/client.c",
+            "source_line": 4665,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 2568,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 2632,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 4002,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 4101,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/teamplay.c",
+            "source_line": 528,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "k_sdir:userinfo",
+      "bare_name": "k_sdir",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 3389,
+        "containing_function": "TeamSay",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 3389,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "kf:userinfo",
+      "bare_name": "kf",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/client.c",
+        "source_line": 711,
+        "containing_function": "execute_changelevel",
+        "all_call_sites": [
+          {
+            "source_file": "src/client.c",
+            "source_line": 711,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/client.c",
+            "source_line": 4582,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 3385,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 6624,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 2420,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ktpl:userinfo",
+      "bare_name": "ktpl",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/client.c",
+        "source_line": 3165,
+        "containing_function": "Print_Wp_Stats",
+        "all_call_sites": [
+          {
+            "source_file": "src/client.c",
+            "source_line": 3165,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/client.c",
+            "source_line": 3361,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 4113,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ln:userinfo",
+      "bare_name": "ln",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 4112,
+        "containing_function": "ShowNick",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 4112,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "login:userinfo",
+      "bare_name": "login",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/stats_json.c",
+        "source_line": 346,
+        "containing_function": "json_player_detail",
+        "all_call_sites": [
+          {
+            "source_file": "src/stats_json.c",
+            "source_line": 346,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/stats_xml.c",
+            "source_line": 133,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/vote.c",
+            "source_line": 1607,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "lra:userinfo",
+      "bare_name": "lra",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/arena.c",
+        "source_line": 497,
+        "containing_function": "PrintStats",
+        "all_call_sites": [
+          {
+            "source_file": "src/arena.c",
+            "source_line": 497,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/arena.c",
+            "source_line": 510,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ls:userinfo",
+      "bare_name": "ls",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/client.c",
+        "source_line": 3360,
+        "containing_function": "Print_Scores",
+        "all_call_sites": [
+          {
+            "source_file": "src/client.c",
+            "source_line": 3360,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "lw:userinfo",
+      "bare_name": "lw",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/client.c",
+        "source_line": 3166,
+        "containing_function": "Print_Wp_Stats",
+        "all_call_sites": [
+          {
+            "source_file": "src/client.c",
+            "source_line": 3166,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "lw_x:userinfo",
+      "bare_name": "lw_x",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/client.c",
+        "source_line": 3166,
+        "containing_function": "Print_Wp_Stats",
+        "all_call_sites": [
+          {
+            "source_file": "src/client.c",
+            "source_line": 3166,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "matchtag:userinfo",
+      "bare_name": "matchtag",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/client.c",
+        "source_line": 5796,
+        "containing_function": "PlayerCanPause",
+        "all_call_sites": [
+          {
+            "source_file": "src/client.c",
+            "source_line": 5796,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 286,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 1486,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 2753,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mi:userinfo",
+      "bare_name": "mi",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "write"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 7123,
+        "containing_function": "mi_print",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 7123,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 7162,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 7174,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "nocolors:userinfo",
+      "bare_name": "nocolors",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/g_cmd.c",
+        "source_line": 284,
+        "containing_function": "isSupport_ColoredText",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 284,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "nrb:userinfo",
+      "bare_name": "nrb",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/weapons.c",
+        "source_line": 551,
+        "containing_function": "FireBullets",
+        "all_call_sites": [
+          {
+            "source_file": "src/weapons.c",
+            "source_line": 551,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pbspeed:userinfo",
+      "bare_name": "pbspeed",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 8195,
+        "containing_function": "mv_playback",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 8195,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ping:userinfo",
+      "bare_name": "ping",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/stats_json.c",
+        "source_line": 345,
+        "containing_function": "json_player_detail",
+        "all_call_sites": [
+          {
+            "source_file": "src/stats_json.c",
+            "source_line": 345,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "postmsg:userinfo",
+      "bare_name": "postmsg",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 1828,
+        "containing_function": "SendMessage",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 1828,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "premsg:userinfo",
+      "bare_name": "premsg",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 1822,
+        "containing_function": "SendMessage",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 1822,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "railcolor:userinfo",
+      "bare_name": "railcolor",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/weapons.c",
+        "source_line": 533,
+        "containing_function": "FireInstaBullet",
+        "all_call_sites": [
+          {
+            "source_file": "src/weapons.c",
+            "source_line": 533,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "rate:userinfo",
+      "bare_name": "rate",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/client.c",
+        "source_line": 88,
+        "containing_function": "CheckRate",
+        "all_call_sites": [
+          {
+            "source_file": "src/client.c",
+            "source_line": 88,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "runes:userinfo",
+      "bare_name": "runes",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/runes.c",
+        "source_line": 480,
+        "containing_function": "CheckStuffRune",
+        "all_call_sites": [
+          {
+            "source_file": "src/runes.c",
+            "source_line": 480,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/runes.c",
+            "source_line": 491,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "skin:userinfo",
+      "bare_name": "skin",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 2416,
+        "containing_function": "PlayerStatusS",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 2416,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "team:userinfo",
+      "bare_name": "team",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "write"
+        ],
+        "source_file": "src/clan_arena.c",
+        "source_line": 331,
+        "containing_function": "CA_AddLatePlayer",
+        "all_call_sites": [
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 331,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1449,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1453,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/client.c",
+            "source_line": 1623,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/client.c",
+            "source_line": 1652,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 483,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 531,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 533,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_cmd.c",
+            "source_line": 546,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_utils.c",
+            "source_line": 1189,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/teamplay.c",
+            "source_line": 1722,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ti:userinfo",
+      "bare_name": "ti",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/client.c",
+        "source_line": 4728,
+        "containing_function": "CheckTeamStatus",
+        "all_call_sites": [
+          {
+            "source_file": "src/client.c",
+            "source_line": 4728,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "topcolor:userinfo",
+      "bare_name": "topcolor",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "write"
+        ],
+        "source_file": "src/bot_commands.c",
+        "source_line": 246,
+        "containing_function": "BuildTeamList",
+        "all_call_sites": [
+          {
+            "source_file": "src/bot_commands.c",
+            "source_line": 246,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/captain.c",
+            "source_line": 323,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/captain.c",
+            "source_line": 391,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 593,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 625,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1262,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1435,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1437,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1442,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1444,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1449,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/clan_arena.c",
+            "source_line": 1451,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/client.c",
+            "source_line": 1672,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/client.c",
+            "source_line": 2953,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_userinfo.c",
+            "source_line": 324,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/g_userinfo.c",
+            "source_line": 329,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/stats_json.c",
+            "source_line": 343,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "tp_need_weapon:userinfo",
+      "bare_name": "tp_need_weapon",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/teamplay.c",
+        "source_line": 602,
+        "containing_function": "TeamplayNeedFlags",
+        "all_call_sites": [
+          {
+            "source_file": "src/teamplay.c",
+            "source_line": 602,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "tptook:userinfo",
+      "bare_name": "tptook",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/teamplay.c",
+        "source_line": 106,
+        "containing_function": "TeamplayEventItemTaken",
+        "all_call_sites": [
+          {
+            "source_file": "src/teamplay.c",
+            "source_line": 106,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "w_rank:userinfo",
+      "bare_name": "w_rank",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/items.c",
+        "source_line": 768,
+        "containing_function": "DoWeaponChange",
+        "all_call_sites": [
+          {
+            "source_file": "src/items.c",
+            "source_line": 768,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/weapons.c",
+            "source_line": 1970,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "wps:userinfo",
+      "bare_name": "wps",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/client.c",
+        "source_line": 3167,
+        "containing_function": "Print_Wp_Stats",
+        "all_call_sites": [
+          {
+            "source_file": "src/client.c",
+            "source_line": 3167,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "wpsx:userinfo",
+      "bare_name": "wpsx",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/client.c",
+        "source_line": 4378,
+        "containing_function": "WS_OnSpecPovChange",
+        "all_call_sites": [
+          {
+            "source_file": "src/client.c",
+            "source_line": 4378,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/client.c",
+            "source_line": 4427,
+            "operation": "read"
           }
         ]
       }
     }
   ],
   "_stats": {
-    "source_total_call_sites": 15,
-    "count": 7,
+    "source_total_call_sites": 174,
+    "count": 51,
     "by_scope": {
-      "userinfo": 7
+      "userinfo": 51
+    },
+    "by_ops": {
+      "read,write": 11,
+      "read": 40
     }
   }
 }

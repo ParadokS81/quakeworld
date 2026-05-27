@@ -6,6 +6,20 @@ For current state, see `OVERVIEW.md` (living map) and `HANDOVER.md` (active back
 
 ---
 
+## 2026-05-27 -- KTX info_keys handler all-sites emission + 6 user-facing userinfo recasts -- SHIPPED
+
+Sibling arc to the KTX L1 chunked-mode dispatch arc (post-arc analysis Recommendation #8). Closes the documentation gap on KTX-defined consumer-side userinfo keys (`kf`, `k_nick`, `k`, `k_sdir`, `postmsg`, `premsg`) -- previously read by KTX via `ezinfokey()` / `iKey()` but never surfaced in L1 because the info_keys handler enforced a "producer-only emission" rule (spec 1.6) that filtered out non-`*` keys.
+
+**Architectural change:** dropped the producer-only filter in `apps/qw-oracle/scripts/extractors/ktx/_handler_info_keys.py`. The handler now emits every literal call site for three APIs (`SetUserInfo` write, `ezinfokey` read, `iKey` read) with operation tagging per site -- aligning with MVDSV's existing convention. Decision documented at `docs/superpowers/parking/2026-05-27-ktx-userinfo-consumer-handler-design-decision.md` (supersedes spec 1.6 at `docs/superpowers/specs/2026-05-04-ktx-onboarding-design.md:144-149`). No schema migration -- the loader (`load-info-keys.ts`) is op-agnostic and the existing scope/operations columns absorb all 51 entities cleanly.
+
+**Surface delta:** KTX info_key entity count grew from 7 (producer-side star keys only) to 51. The 6 named user-facing keys shipped with full v2-shape descriptions (`description_origin='synthesized'`, anchor `1.47-2-g67253dc`); 7 producer star keys already had synthesized descriptions; the remaining ~38 entities (cross-engine reads + KTX-semantic candidates with 2-letter names) surfaced with auto-derived stub descriptions and are tracked as a HANDOVER Small followup for sweep triage.
+
+**Notable source-truth find:** the `kf` bitmask documentation block at `research/repos/ktx/include/g_consts.h:244-256` lists 11 bit positions, but only 4 (`KF_KTSOUNDS`, `KF_SCREEN`, `KF_ON_ENTER`, `KF_SPEED`) have live consumers in KTX HEAD. Bit 4 (`use cfgmap`) was explicitly removed (`world.c:1128`: "since we remove k_srvcfgmap, ..."); bits 8 / 16 / 128 / 256 / 512 / 1024 have no consumers anywhere. The corroborating signal is `info_kf_update` (the change-confirmation handler at `g_utils.c:2551-2560`) which only emits per-bit prints for the same 4 named bits. The `kf` description documents only the 4 live bits and flags the dead-bit block explicitly. Lesson recorded as memory `feedback_source_comments_are_hypotheses`: comments adjacent to value declarations are hypotheses; only live consumers are truth.
+
+**Durable wins:** (1) the 6 user-facing knobs now have rich L1 descriptions consumable by MCP `lookup_entity` (prefix-fallback resolves bare names to `<bare>:userinfo`); (2) the previously-applied v2 drafts for `killer`/`victim`/`newcomer` and `ksound1-6` in the player-communication batch now have their See-also targets resolve (the references were dangling at sign-off); (3) cross-codebase convention is now consistent between MVDSV and KTX (all-sites emission with op tagging).
+
+---
+
 ## 2026-05-27 -- L1 extractor refinements mini-arc + HUD dynamic-name verification -- SHIPPED (migration 017 Cmd_AddLegacyCommand persistence; Items 2-3 + Arc B verified no-op)
 
 Day-after-help-JSON-arc-closure mini-arc. Originally scoped as Arc A (3 items: Cmd_AddLegacyCommand persistence, bare-COM_CheckParm detection, .h-aware liveness) + Arc B (HUD dynamic-name family); estimated 10-13h + 1-2 days; actual ~2h.

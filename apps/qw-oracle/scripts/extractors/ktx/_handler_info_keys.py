@@ -1,54 +1,78 @@
 """Info keys handler for the KTX AST extractor.
 
-Detects KTX's producer-side userinfo key writes via the SetUserInfo C
-API. Consumer-only keys (the ~33 keys KTX reads via ezinfokey / infokey)
-are NOT emitted -- they belong conceptually to the producer's project
-(ezQuake CVAR_USERINFO, MVDSV info_key, or other KTX-produced star
-keys). Per spec 1.6 producer-only emission rule.
+Detects userinfo key writes (producer side) AND reads (consumer side) via
+KTX's userinfo C APIs. Three APIs are recognised; each call site contributes
+one operation (read/write) on a key_name.
 
-API DETECTION:
-  SetUserInfo(ent, "*KEY", value, SETUSERINFO_STAR)
+API -> operation map:
 
-The first arg is an entity pointer; the second arg is the key name as a
-literal string starting with '*' (the producer convention for star
-keys); the third is the value (often a va() expression -- not extracted
-here; that is per-call-site state); the fourth is the SETUSERINFO_STAR
-flag. We require the second arg to be a string-literal starting with '*'
-to match the producer-emission shape; non-literal or non-star keys are
-out of scope (they are caller-controlled keys, not KTX-defined).
+  Writes (producer side -- KTX-defined star keys via SETUSERINFO_STAR)
+    SetUserInfo(ent, "*KEY", value, SETUSERINFO_STAR)
+  Reads (consumer side -- KTX interprets the value)
+    ezinfokey(ent, "key")    string-typed read
+    iKey(ent, "key")         int-typed read (e.g. for bitmask interpretation)
+
+All KTX userinfo APIs target the player's userinfo by convention -- scope
+is implicit. Cross-scope reads (serverinfo / localinfo) would need
+API extension.
+
+ALL-SITES EMISSION (supersedes spec 1.6 producer-only rule, 2026-05-27).
+The prior "producer-only" rule (only emit SetUserInfo writes with
+star-prefixed keys) created a documentation gap: keys KTX interprets but
+does not write -- e.g. `kf`, `k_nick`, `postmsg`, `premsg`, `k_sdir`, `k`
+-- never surfaced as L1 entities, leaving downstream v2 drafts for the
+consuming commands (`killer` / `victim` / `newcomer`) referencing them via
+See-also lines that pointed at non-existent rows. The rewrite aligns with
+MVDSV's existing `_handler_info_keys.py` convention: emit every literal
+call site, tag operations per site, let the description layer carry
+semantic ownership. Full rationale at
+`docs/superpowers/parking/2026-05-27-ktx-userinfo-consumer-handler-design-decision.md`.
+
+Semantic-ownership note: not every emitted entity is KTX-defined. Cross-
+engine keys (e.g. `bottomcolor`, `topcolor`, `rate`) surface here as read-
+only entities but their semantics belong to ezQuake CVAR_USERINFO or the
+QW protocol. The L1 row is a flat inventory; the entity-level description
+text resolves ownership ("read by KTX; defined by <other engine>" pointer
+descriptions for cross-engine reads).
 
 CANONICAL NAME (D7 Pattern 14). Suffix `<bare>:userinfo` so the entity
 table's UNIQUE(project, type, name) constraint cleanly disambiguates if
 a future KTX tag adds the same bare key as a serverinfo or localinfo
-write (KTX today emits userinfo only). Mirrors MVDSV's existing
-suffixing convention. Bare name preserved at the top-level `bare_name`
-field for MCP lookup_entity prefix-fallback.
+write. Mirrors MVDSV's existing suffixing convention. Bare name preserved
+at the top-level `bare_name` field for MCP lookup_entity prefix-fallback.
 
 KTX OUT OF SCOPE FOR THIS HANDLER:
-  - ezinfokey / infokey READ sites (91 + 20 occurrences) -- consumer
-    contract, not producer-emission. Per spec 1.6.
-  - SetUserInfo writes whose second arg is NOT a literal star-key (e.g.
-    Cmd_Argv-derived player-controlled keys) -- those are runtime
-    payloads, not KTX-defined system keys.
+  - Call sites whose key (second arg) is NOT a literal string -- runtime-
+    resolved keys (e.g. Cmd_Argv-derived) are out of scope, same as
+    MVDSV's Pattern 1 detection. Pattern 2 (data-flow back through caller
+    chain) is not implemented.
+  - infokey() reads -- not observed in KTX HEAD; add to API_OP_MAP if a
+    future tag introduces them.
 
 CROSS-WORKER AGGREGATION (Approach B, mirrors MVDSV info_keys). Forked
-workers each accumulate per-file primitive rows from end_file.
-Aggregation by bare_name happens once in finalize in the parent, after
-worker results merge.
+workers each accumulate per-file primitive rows from end_file. Aggregation
+by bare_name happens once in finalize in the parent, after worker results
+merge.
 
-Output entity shape (one row per unique bare_name):
+Output entity shape (one row per unique bare_name). Example for a key
+with mixed read/write call sites (none observed today, but the shape is
+union-stable):
 
     {
-      "name": "*is:userinfo",
-      "bare_name": "*is",
+      "name": "kf:userinfo",
+      "bare_name": "kf",
       "ast": {
         "scope": "userinfo",
-        "operations": ["write"],
-        "source_file": "src/g_userinfo.c",  # first-seen anchor
-        "source_line": 226,
-        "containing_function": "SomeFunc",
+        "operations": ["read"],
+        "source_file": "src/client.c",  # first-seen anchor
+        "source_line": 711,
+        "containing_function": "PlayerPreThink",
         "all_call_sites": [
-          {"source_file": "src/g_userinfo.c", "source_line": 226, "operation": "write"}
+          {"source_file": "src/client.c", "source_line": 711, "operation": "read"},
+          {"source_file": "src/client.c", "source_line": 4582, "operation": "read"},
+          {"source_file": "src/g_utils.c", "source_line": 2420, "operation": "read"},
+          {"source_file": "src/commands.c", "source_line": 3385, "operation": "read"},
+          {"source_file": "src/commands.c", "source_line": 6624, "operation": "read"}
         ]
       }
     }
@@ -75,7 +99,7 @@ from extractor_lib._source import literal_string  # noqa: E402
 
 
 class InfoKeysKtxHandler(Visitor):
-    """KTX info-keys handler (SetUserInfo producer-only detection).
+    """KTX info-keys handler (all-sites emission with operation tagging).
 
     Cross-codebase port (D3) -- inherits from Visitor only. Read MVDSV's
     _handler_info_keys.py as a template; do NOT subclass it.
@@ -86,10 +110,15 @@ class InfoKeysKtxHandler(Visitor):
     output_filename = "ktx-info-keys-ast.json"
     payload_field = "info_keys"
 
-    # Single producer API. KTX has no Info_Set / Info_SetStar wrappers
-    # (those are MVDSV-side); the SETUSERINFO_STAR flag is KTX's
-    # producer signal.
-    REGISTRATION_API: str = "SetUserInfo"
+    # Three KTX userinfo APIs: one write (producer), two read (consumer).
+    # Writes are star-key-only by KTX convention; reads target any key
+    # whose value KTX interprets. KTX has no Info_Set / Info_SetStar
+    # wrappers (those are MVDSV-side).
+    API_OP_MAP: dict = {
+        "SetUserInfo":  "write",
+        "ezinfokey":    "read",
+        "iKey":         "read",
+    }
 
     def setup(self, *, ktx_repo: Path, ktx_src: Path) -> None:
         self._repo_root = ktx_repo
@@ -98,10 +127,10 @@ class InfoKeysKtxHandler(Visitor):
     def start_file(self, *, source_path: Path, source_bytes: bytes) -> None:
         super().start_file(source_path=source_path, source_bytes=source_bytes)
         self._rows: list[dict] = []
-        # Per-file dedup key: (line, key_name) so distinct call sites at
-        # the same line (rare) survive while the single-variant walk's
-        # potential re-emission of the same site collapses.
-        self._seen_sites_in_file: set[tuple[int, str]] = set()
+        # Per-file dedup: key by (line, key_name, op) so distinct call
+        # sites at the same line (rare but possible) survive while the
+        # walker's potential re-emission of the same site collapses.
+        self._seen_sites_in_file: set[tuple[int, str, str]] = set()
         self._func_stack: list[str] = []
 
     def enter_function(self, cursor, variant: str) -> None:
@@ -114,7 +143,8 @@ class InfoKeysKtxHandler(Visitor):
     def visit_cursor(self, cursor, variant: str) -> None:
         if cursor.kind != CursorKind.CALL_EXPR:
             return
-        if cursor.spelling != self.REGISTRATION_API:
+        spelling = cursor.spelling
+        if spelling not in self.API_OP_MAP:
             return
 
         args = list(cursor.get_arguments())
@@ -125,17 +155,13 @@ class InfoKeysKtxHandler(Visitor):
         key_name = literal_string(args[1], self.source_bytes)
         if not key_name:
             return
-        # Producer-emission filter: KTX system keys start with '*'. Non-star
-        # keys here are caller-controlled (Cmd_Argv-derived) payloads, not
-        # KTX-defined system keys. Per spec 1.6.
-        if not key_name.startswith("*"):
-            return
 
+        op = self.API_OP_MAP[spelling]
         location = cursor.location
         rel_file = self._relative_source(location.file.name) if location.file else None
         containing_fn = self._func_stack[-1] if self._func_stack else None
 
-        site_key = (location.line, key_name)
+        site_key = (location.line, key_name, op)
         if site_key in self._seen_sites_in_file:
             return
         self._seen_sites_in_file.add(site_key)
@@ -144,8 +170,8 @@ class InfoKeysKtxHandler(Visitor):
         # by bare_name happens in finalize.
         self._rows.append({
             "name": key_name,        # bare key for now; suffixed in finalize
-            "scope": "userinfo",     # KTX writes are userinfo-only per spec 1.6
-            "op": "write",
+            "scope": "userinfo",     # KTX userinfo APIs only; cross-scope would need API extension
+            "op": op,
             "source_file": rel_file,
             "source_line": location.line,
             "containing_function": containing_fn,
@@ -166,7 +192,7 @@ class InfoKeysKtxHandler(Visitor):
 
     def finalize(self, *, all_rows: list[dict], repo_root: Path) -> dict:
         # Approach B aggregation by bare_name. Pattern 14 suffix applied at
-        # canonical-name emission time.
+        # canonical-name emission time. Operations union across all sites.
         aggregated: dict[str, dict] = {}
         for r in all_rows:
             bare = r["name"]
@@ -200,11 +226,17 @@ class InfoKeysKtxHandler(Visitor):
         for r in rows:
             r["ast"]["operations"].sort()
 
+        by_ops: dict[str, int] = {}
+        for r in rows:
+            ops_key = ",".join(r["ast"]["operations"])
+            by_ops[ops_key] = by_ops.get(ops_key, 0) + 1
+
         return {
             "info_keys": rows,
             "_stats": {
                 "source_total_call_sites": len(all_rows),
                 "count": len(rows),
                 "by_scope": {"userinfo": len(rows)},
+                "by_ops": by_ops,
             },
         }
