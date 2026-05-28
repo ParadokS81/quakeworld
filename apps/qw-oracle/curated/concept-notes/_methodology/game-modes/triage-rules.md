@@ -16,7 +16,22 @@ This document gives the scoring rubric, the decision tree, and the path-specific
 
 ## Wiki content scoring rubric
 
-Score the wiki page on three dimensions independently. The combination drives the triage outcome.
+Score the wiki page on three dimensions independently. The combination drives the triage outcome. **Run Step 0 first** -- the length dimension is meaningless if the page is wrong-topic.
+
+### Step 0 -- content-type sanity check
+
+BEFORE applying the length / accuracy / substance dimensions below: confirm the wiki page is actually about the game mode itself, not a wrong-topic page that shares the acronym or name. A 30-second skim of the wiki JSON is enough.
+
+Confirmed wrong-topic cases (treat as `l3-upstream` regardless of char count):
+
+| Wiki page | Wrong-topic content | Surfaced by |
+|---|---|---|
+| `Clan_Arena.json` (1198 chars) | Installing the CACE server-side modification, not playing the ca mode | initial 27-mode triage scan |
+| `LGC.json` (6289 chars) | Lightning Gun Competition tournament series (player leaderboards, week results, crew credits), not the LGC mutation rules | LGC worked example, 2026-05-28 |
+
+Char count alone is a red herring -- LGC.json's 6289 chars would have routed into `wiki-upstream` under the length dimension; the content is unusable for the mutation note. The pattern: when a mode's name doubles as a tournament/competition/install acronym, the wiki page often covers the community concept, not the engine concept.
+
+If the wiki page IS about the game mode, proceed to Dimensions 1-3 below.
 
 ### Dimension 1: Content length
 
@@ -97,7 +112,7 @@ Tentative classification using the rubric, based on the wiki snapshot scan summa
 | Mode | Wiki page | Chars | Mechanical | Tentative triage |
 |---|---|---|---|---|
 | ctf | Capture_the_Flag | 12434 | needs-check | wiki-upstream |
-| lgc | LGC | 6289 | needs-check | wiki-upstream |
+| lgc | LGC | 6289 | wrong-topic (tournament page, not mutation rules) | l3-upstream |
 | instagib | Instagib | 3605 | needs-check | wiki-upstream |
 | wipeout | Wipeout | ~3500 | likely current | wiki-upstream |
 | race | Race | ~2400 | likely partially-current | hybrid |
@@ -119,7 +134,7 @@ Tentative classification using the rubric, based on the wiki snapshot scan summa
 | nosweep | -- absent -- | 0 | n/a | l3-upstream |
 | 10on10, 2on2on2, 3on3, 3on3on3, 4on4on4, XonX, blitz2v2, blitz4v4 | -- absent -- | 0 | n/a | l3-upstream (variant notes are short anyway; little to harvest) |
 
-Distribution: 4 wiki-upstream + ~7-8 hybrid + ~14-15 l3-upstream. Skews L3-upstream because the missing modes (mutations + roster variants) collectively make up half the corpus.
+Distribution: 3 wiki-upstream + ~7-8 hybrid + ~15-16 l3-upstream. Skews L3-upstream because the missing modes (mutations + roster variants) collectively make up half the corpus, and the wrong-topic catch (LGC, CA) pushes two more in.
 
 ## Path-specific workflows
 
@@ -171,9 +186,13 @@ Apply this pattern generically: when multiple wiki pages relate to one mode, the
 
 ### Wrong-topic wiki pages
 
+The Step 0 sanity check above is the primary catcher; this subsection captures the established cases in narrative form.
+
 `Clan_Arena.json` (1198 chars) is mostly about installing the CACE server-side modification, not about playing the ca game mode. Triage outcome: `l3-upstream` (don't harvest the install content; that's a separate concern -- maybe a `cace-server-setup.md` concept note someday).
 
-The author who wrote the wiki page was solving a different problem (how do I host CA?) than our note (what is CA?). Recognize and skip.
+`LGC.json` (6289 chars) is entirely about the Lightning Gun Competition tournament series -- player leaderboards, week results, crew credits. The KTX LGC mutation (cvar `k_lgcmode`) is not described anywhere. Triage outcome: `l3-upstream` (the tournament content could feed a separate `lightning-gun-competition.md` historical concept note someday; not relevant to the mutation's rules).
+
+The author who wrote each wiki page was solving a different problem (how do I host CA? / who won LGC week 4?) than our note (what is CA / LGC the mode?). Recognize and skip.
 
 ### Umbrella / catch-all pages
 

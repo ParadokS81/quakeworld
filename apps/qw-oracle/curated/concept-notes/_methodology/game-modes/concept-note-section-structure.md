@@ -59,7 +59,7 @@ This is NOT a free pass to fragment Rules. The threshold for promoting content t
 Canonical exemplars (drafted 2026-05-28):
 
 - **CTF** has two: "The grappling hook" (`k_ctf_hook` + 4 hook-style variants + `+hook`/`-hook` controls + Threewave-era cultural anchor) and "Runes" (4 named runes + `k_ctf_runes` toggle + tossrune/dropquad commands + balance impact).
-- Future likely cases: **race** has the route-system story (route cvars, route_switch/show_route commands, per-map curated routes); **LGC** has the weapon-mod story (forced LG-only loadout, custom damage tuning).
+- Future likely cases: **race** has the route-system story (route cvars, route_switch/show_route commands, per-map curated routes). Note: Sub-systems is a standalone-only convention; mutations expand their mechanics in the "What it does" section instead. LGC is a mutation (despite its weapon-mod depth) -- its weapon-mod story lives in the mutation section set, not in a Sub-systems section.
 
 A standalone can have 0, 1, or 2+ sub-system sections. Most standalones (ffa, 1on1, 4on4) have none -- the Rules section carries the full mechanical picture without subdivision.
 
@@ -85,21 +85,23 @@ Self-contained; admins jump here from the TOC.
 
 ### 8. Configuration (mandatory)
 
-The `mode_default` cvar table for this mode -- auto-projected from `gameplay_mechanics` via the `mode_default_init_array` frontmatter field. Shows every cvar the mode sets at activation, with current value, default, and link to the cvar's own L1 description.
+The full enforced-settings table lives in L1 (`gameplay_mechanics` rows with `kind='mode_default'` and `props_json.initstring_array = <init array>`). The LLM oracle fetches it on demand via MCP L1 tools; concept-note prose does NOT duplicate the table.
 
-This is the LLM oracle's structured anchor for "what cvars does X mode apply?" queries. It's also the killer feature that the old wiki never had.
-
-**Authoring convention -- standalone / variant:** the concept-note .md body holds a HTML-comment placeholder, NOT a hand-written table. The rendering layer (downstream of this skill) reads the placeholder, looks up `gameplay_mechanics WHERE props_json->>'initstring_array' = '<init-array-from-frontmatter>'`, and emits the populated table at projection time. Format:
+**Authoring convention -- standalone / variant:** a single pointer-sentence orienting the reader to where the full settings live. The frontmatter `mode_default_init_array` is the load-bearing pointer; the Configuration section's body is a 1-2 sentence orientation, not a duplicated data table. Format:
 
 ```markdown
 ## Configuration
 
-<!-- configuration table auto-projected from gameplay_mechanics WHERE props_json->>'initstring_array' = 'wipeout_um_init'. The 22 mode-specific overrides applied on top of common_um_init (52 baseline cvars). Key wipeout-only values: k_clan_arena=2 (wipeout discriminator), k_clan_arena_rounds=9, k_clan_arena_max_respawns=4, k_noitems=1, k_spw=1. -->
+Mode-specific overrides live in `<init_array>` (N cvars on top of `common_um_init`'s 52-cvar baseline). The full enforced-settings table can be fetched from the `gameplay_mechanics` rows with `kind='mode_default'` and `props_json->>'initstring_array' = '<init_array>'`.
 ```
 
-The comment body is the curator's narrative orientation about the table the projection will render -- it does NOT replace the auto-projection. Curators do not hand-edit cvar values.
+Example (wipeout):
 
-Wiki-projection note: the rendered wiki table reads from the live L1 join, so it never drifts from source.
+> Mode-specific overrides live in `wipeout_um_init` (22 cvars on top of `common_um_init`'s 52-cvar baseline). The full enforced-settings table can be fetched from the `gameplay_mechanics` rows with `kind='mode_default'` and `props_json->>'initstring_array' = 'wipeout_um_init'`.
+
+Count N from your pre-flight L1 query against the init array (do not approximate). Do NOT inline any "key values" preview prose -- the LLM fetches the full table on demand; a partial preview just risks drift.
+
+**Rationale**: concept notes optimize for one consumer (the LLM oracle, which already has MCP L1 tools to fetch the table). Duplicating the table in prose creates a drift vector (committed values vs live L1 values diverge). Any future wiki/rendering skill projects the full table from frontmatter pointer + live L1 join -- that responsibility belongs to the renderer, not the concept note.
 
 ### 9. See also (mandatory)
 
@@ -185,6 +187,8 @@ Variant:       Lead | Family delta | Configuration | See also
 
 `(Sub-system N...)` is zero or more optional sections per sub-system, positioned between Rules and Strategy. CTF has two (Grappling hook + Runes); most standalones have zero.
 
+**Optional sections in parentheses above (`(Strategy)`, `(Maps)`, `(History)`, `(Sub-system N...)`) are OMITTED if you have no real content for them.** The canonical ordering above tells you WHERE to put a section IF you have one -- it does NOT require you to ship a stub heading with a placeholder line. An empty section header is anti-pattern; a skipped optional section is correct. Mandatory sections (`Lead`, `How to play`, `Rules`, `Server setup`, `Configuration`, `See also` for standalone) ship in every note even when terse -- but their content is always real, never placeholder.
+
 Standalone has the most reader paths (player skim, player deep, admin setup, LLM retrieval). The 7-then-admin-block ordering serves all four. Mutation has fewer paths and a smaller section set. Variant is the shortest -- mostly defers to the family head.
 
 ## Section length guidance
@@ -224,7 +228,7 @@ When a curator is tempted to violate one of these, the right move is usually to 
 
 ## Open questions
 
-1. **~~Wiki rendering of the auto-projected Configuration table.~~** RESOLVED 2026-05-28 after the killquad + wipeout worked-example pair. Convention locked: standalone/variant use the HTML-comment placeholder (auto-projection at render time); mutation uses a small hand-written table over `activation_cvar` + `auxiliary_cvars`. Documented inline above.
+1. **~~Wiki rendering of the auto-projected Configuration table.~~** RESOLVED 2026-05-28 (post-readability review). Convention locked: standalone/variant use a 1-2 sentence pointer prose to the init array (NO HTML-comment placeholder, NO inline cvar values -- concept notes don't carry rendering scaffolding); the LLM oracle fetches the full table via MCP L1 tools, and any future wiki/rendering skill projects from the frontmatter pointer + live L1 join. Mutation uses a small hand-written table over `activation_cvar` + `auxiliary_cvars`. The earlier HTML-comment-placeholder convention (locked after the killquad + wipeout pair) was retired when readability review surfaced the SQL-syntax-in-prose smell. Documented inline above.
 2. **Section heading style.** Markdown `##` heading or YAML-driven structured sections? Existing concept notes use markdown headings; this convention extends. Worth confirming the wiki-projection tooling handles markdown -> MediaWiki markup cleanly.
 3. **Family head's section delta.** When a standalone is ALSO a family head (hoonymode), should the standalone note include a "Family variants" sub-section listing the variants and their deltas? Or leave to See also? Resolve during hoonymode's authoring.
 4. **Maps section convention for race / midair.** These modes are intrinsically map-coupled. The Maps section here may be denser than for other modes (per-map route lists for race; tested-airborne maps for midair). May warrant a sub-shape note for "map-coupled standalone" but defer until LGC / race drafting surfaces real friction.

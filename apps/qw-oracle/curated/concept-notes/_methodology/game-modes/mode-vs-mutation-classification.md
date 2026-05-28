@@ -144,20 +144,30 @@ Surfaced by the blitz2v2 worked example (2026-05-28): L1 classes blitz2v2 + blit
 
 ## Mutation interlocks (cross-mutation conflicts)
 
-Mutations are not always orthogonal -- some pairs have hard source-level interlocks that prevent stacking. The killquad + wipeout worked-example pair surfaced the first confirmed case: killquad's drop-quad behavior is hard-gated by `!k_berzerk` at `items.c:1974`, so enabling both `k_killquad` and `k_bzk` simultaneously silently breaks killquad's drop path.
+Mutations are not always orthogonal -- some pairs have hard source-level interlocks that prevent stacking.
 
 Capture interlocks in two places:
 
 - **`stacks_with_mutations` frontmatter field** (per [[concept-note-frontmatter-schema]]) -- set to `partial` when the mutation has documented incompatibilities; set to `yes` when it stacks freely.
 - **`related_modes` with `relation: incompatible-with`** -- name the specific other mutation(s) it conflicts with.
 
-Per-mutation audit during authoring: grep the mutation's primary use-site code path for `!k_<other-mutation>` guards. Similar patterns likely exist for:
+### Confirmed interlocks (source-verified)
+
+| Pair | Direction | Guard | Source | Surfaced by |
+|---|---|---|---|---|
+| killquad <-> berzerk | asymmetric (killquad's drop path is `!k_berzerk`-gated; berzerk has no killquad-aware code) | `!k_berzerk` | `items.c:1974` | killquad + wipeout worked example, 2026-05-28 |
+| midair <-> lgc | symmetric (both `ToggleMidair` and `ToggleLGC` guard against the other) | `&& !k_<other>` | `commands.c` toggle paths | LGC worked example, 2026-05-28 |
+| lgc <-> instagib | symmetric (both `ToggleLGC` and `ToggleInstagib` guard against the other) | `&& !k_<other>` | `commands.c` toggle paths | LGC worked example, 2026-05-28 |
+
+### Likely-interlock candidates (audit during per-mutation authoring)
+
+Grep the mutation's primary use-site code path for `!k_<other-mutation>` guards. Candidates to audit:
 
 - `freshteams` and `nosweep` (both dmm1-tuned -- may share or conflict; worth checking)
-- `midair` and `lgc` (both change movement/damage profiles)
 - `bloodfest` against several mutations (it's a heavy ruleset)
+- `midair` and `instagib` (LGC interlocks with both -- worth checking whether midair <-> instagib also interlock by transitivity)
 
-These conflicts are NOT classification gates -- they don't change a mutation into a non-mutation. They are content for the mutation's own concept note. Surface them during per-mutation authoring; do not pre-populate this section speculatively.
+Promote a candidate to Confirmed only after source verification at the guard site. These conflicts are NOT classification gates -- they don't change a mutation into a non-mutation. They are content for the mutation's own concept note. Surface them during per-mutation authoring; do not pre-populate this section speculatively.
 
 ## Open questions for operator
 

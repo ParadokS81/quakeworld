@@ -54,7 +54,7 @@ For `kind: standalone`. These capture the structural identity of a full game mod
 | Field | Type | Mandatory | Notes |
 |---|---|---|---|
 | `um_internal_id` | string | yes | The `UM_*` identifier from `mode_cmd[]` table (e.g., `UM_CTF`, `UM_4ON4`). For race: `(separate)`. |
-| `mode_default_init_array` | string | yes | Name of the `_um_init` array (e.g., `wipeout_um_init`). Joins to `gameplay_mechanics` rows with `kind='mode_default'` and `props_json.initstring_array = <value>`. |
+| `mode_default_init_array` | string | yes | Name of the `_um_init` array (e.g., `wipeout_um_init`). **Load-bearing pointer**: the LLM oracle resolves this via MCP L1 tools to fetch the full enforced-settings table on demand; any future wiki/rendering skill reads this field to project the Configuration section. Concept-note prose does NOT duplicate the table -- the Configuration section is a 1-sentence pointer per [[concept-note-section-structure]]. Joins to `gameplay_mechanics` rows with `kind='mode_default'` and `props_json.initstring_array = <value>`. |
 | `common_baseline_init_array` | string | yes | Usually `common_um_init`. Identifies the baseline cvars applied before mode-specific ones. |
 | `base_um_id` | string | optional | When a standalone is built on another UM's mechanics (e.g., wipeout's `mode_cmd` row says base = `UM_4ON4`). Captures inheritance. |
 | `family_slug` | string | optional | If the standalone is also a family head (e.g., hoonymode), points to itself. Otherwise omit. |
@@ -90,7 +90,7 @@ For `kind: mutation`. Mutations layer on top of a base mode; their frontmatter f
 |---|---|---|---|
 | `activation_cvar` | string | yes | Primary cvar (e.g., `k_bzk` for berzerk, `k_lgcmode` for lgc -- NOT `k_lgc`). |
 | `auxiliary_cvars` | list[string] | optional | Related cvars (duration, parameters): for berzerk, `["k_btime"]`; for freshteams, the ~15-cvar tuning family. |
-| `applies_to` | enum | yes | `any` \| `standalone-modes-only` \| `team-modes-only` \| `dmm1-only` \| ... -- captures which base modes the mutation can layer on |
+| `applies_to` | enum | yes | `any` \| `standalone-modes-only` \| `team-modes-only` \| `dmm1-only` \| `dmm4-only` \| ... -- captures which base modes the mutation can layer on. New values added during per-mutation authoring (LGC surfaced `dmm4-only`, 2026-05-28). |
 | `interaction_summary` | string | yes | One sentence describing what changes: "Applies quad damage to all players in the last `k_btime` seconds of a match." |
 | `stacks_with_mutations` | enum | yes | `yes` (stacks freely with all other mutations) \| `no` (replaces or breaks others; admin should pick one) \| `partial` (stacks with most but has documented conflicts -- specific incompatible mutations listed in `related_modes` with `relation: incompatible-with`). Killquad is the canonical `partial` example: stacks with most mutations but is hard-gated against berzerk by `!k_berzerk` at `items.c:1974`. |
 | `changes_section_set` | list[enum] | optional | Which gameplay sections this mutation affects: `respawn`, `loadout`, `powerups`, `scoring`, `time-window`, `weapon-pickup`, etc. Aids LLM retrieval. |
@@ -115,20 +115,22 @@ related_entities:
   # NO ktx:game_mode:* entries here
 
 related_modes:
-  - {slug: ca, relation: similar-shape}        # arena-style team elimination
+  - {slug: ca, relation: similar-shape}            # arena-style team elimination
   - {slug: bloodfest, relation: similar-loadout}   # full-spawn weapon arsenal
-  - {slug: 1on1, relation: family-cousin}      # closely related family
+  # NO bogus family ref to 1on1 -- wipeout is not in any family (it shares UM_4ON4
+  # with 4on4 + ca at the bit level, but bit-sharing is not family membership;
+  # that question is the sibling-preset candidate -- see Open Q 2a).
 ```
 
 The `relation` value in `related_modes` is a small enum, growing from worked examples. Current recognised values:
 
-- `family-head` -- this mode is the head of the family containing the cross-referenced mode (used in variant -> standalone-head references)
-- `family-cousin` -- both modes belong to the same family but neither is the head
+- `family-head` -- directional child -> head reference (used when a variant points at the standalone family head, e.g., blitz2v2 -> hoonymode)
+- `family-member` -- non-head within-family pairing in either direction (head -> child OR child <-> child, e.g., hoonymode -> blitz2v2, or blitz2v2 -> blitz4v4). Replaces the earlier `family-cousin` value, which was too narrow -- it only covered sibling-to-sibling and didn't have a clean direction for head -> child (surfaced by hoonymode worked example, 2026-05-28).
 - `similar-shape` -- modes share a top-level gameplay shape (arena, race, deathmatch) without family lineage
 - `similar-loadout` -- modes share a distinctive loadout/item-rule pattern
 - `derived-from` -- this mode is a direct evolution or fork of the cross-referenced mode
 - `mutation-of` -- (used on mutation notes pointing at base modes) this mutation primarily applies on top of the cross-referenced mode
-- `incompatible-with` -- mutation-pair conflict; both mutations cannot be active simultaneously (killquad <-> berzerk is the canonical case)
+- `incompatible-with` -- mutation-pair conflict; both mutations cannot be active simultaneously (killquad <-> berzerk, midair <-> lgc, lgc <-> instagib are the canonical cases)
 
 New relation values are added during worked-example authoring; don't invent unilaterally in a fan-out batch.
 
@@ -228,7 +230,7 @@ related_entities:
   - ktx:command:blitz2v2
 related_modes:
   - {slug: hoonymode, relation: family-head}
-  - {slug: blitz4v4, relation: family-cousin}
+  - {slug: blitz4v4, relation: family-member}
 
 note_origin: synthesized
 ---
@@ -348,7 +350,7 @@ Validation runs as part of the apply step in the `game-mode-curate` skill. Valid
 
 ## Open questions
 
-1. **~~`relation` enum lock-in.~~** RESOLVED 2026-05-28 after the killquad + wipeout worked-example pair. Enum locked to: `family-head`, `family-cousin`, `similar-shape`, `similar-loadout`, `derived-from`, `mutation-of`, `incompatible-with`. Documented inline above. New values added during worked-example authoring; not invented in fan-out batches.
+1. **~~`relation` enum lock-in.~~** RESOLVED 2026-05-28 after the killquad + wipeout worked-example pair, REFINED 2026-05-28 (post-hoonymode + LGC). Enum locked to: `family-head`, `family-member`, `similar-shape`, `similar-loadout`, `derived-from`, `mutation-of`, `incompatible-with`. The `family-cousin` value was collapsed into `family-member` (bidirectional within-family non-head ref) when hoonymode surfaced the head -> child direction gap. Documented inline above. New values added during worked-example authoring; not invented in fan-out batches.
 2. **`shape_facets` taxonomy.** Open-ended initially. Lock after ~3-5 standalone modes are drafted and the right vocabulary surfaces.
 2a. **Candidate relation value: `sibling-preset`** (surfaced 2026-05-28 during CTF authoring). Standalones co-resident in the `mode_cmd[]` table (ctf alongside ca / wipeout / tot / ffa / 1on1 / 2on2 / ... / hoonymode) have a structural engine-layer relationship that none of the locked relation values cover cleanly. `similar-shape` is too loose (ctf and ca don't share gameplay shape); `family-*` requires UM-sharing (which ctf doesn't have with anyone). CTF's `related_modes` ended up thin (just `4on4` as `similar-loadout`) because of this gap. **Do NOT add this value yet.** Re-evaluate when ca / tot / ffa / 1on1 authoring confirms the pattern recurs and that authors would otherwise leave `related_modes` thin. Two more cases of the same friction = add. One more case that resolves differently = drop the candidate.
 3. **`family_slug` for hoonymode self-reference.** Hoonymode is both standalone AND head of the hoonymode family. The standalone note's `family_slug` should point to itself; variants point to the same slug. Confirm this self-reference is acceptable rather than introducing a separate "is_family_head" boolean.
