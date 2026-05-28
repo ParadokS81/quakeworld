@@ -76,7 +76,17 @@ The `mode_default` cvar table for this mode -- auto-projected from `gameplay_mec
 
 This is the LLM oracle's structured anchor for "what cvars does X mode apply?" queries. It's also the killer feature that the old wiki never had.
 
-Wiki-projection note: the rendered wiki table reads from the live L1 join, so it never drifts from source. Curators don't hand-edit this section.
+**Authoring convention -- standalone / variant:** the concept-note .md body holds a HTML-comment placeholder, NOT a hand-written table. The rendering layer (downstream of this skill) reads the placeholder, looks up `gameplay_mechanics WHERE props_json->>'initstring_array' = '<init-array-from-frontmatter>'`, and emits the populated table at projection time. Format:
+
+```markdown
+## Configuration
+
+<!-- configuration table auto-projected from gameplay_mechanics WHERE props_json->>'initstring_array' = 'wipeout_um_init'. The 22 mode-specific overrides applied on top of common_um_init (52 baseline cvars). Key wipeout-only values: k_clan_arena=2 (wipeout discriminator), k_clan_arena_rounds=9, k_clan_arena_max_respawns=4, k_noitems=1, k_spw=1. -->
+```
+
+The comment body is the curator's narrative orientation about the table the projection will render -- it does NOT replace the auto-projection. Curators do not hand-edit cvar values.
+
+Wiki-projection note: the rendered wiki table reads from the live L1 join, so it never drifts from source.
 
 ### 9. See also (mandatory)
 
@@ -106,7 +116,17 @@ If `stacks_with_mutations: yes` -- note which other mutations are commonly combi
 
 ### 5. Configuration (mandatory)
 
-The cvars involved: `activation_cvar` + `auxiliary_cvars`. Small table (not a full mode_default projection -- mutations have no `_um_init` array). Each cvar's L1 description is linkable.
+The cvars involved: `activation_cvar` + `auxiliary_cvars`. Small hand-written table (mutations have no `_um_init` array, so the auto-projection placeholder does NOT apply here). Each cvar's L1 description is linkable. Common shape:
+
+```markdown
+## Configuration
+
+| Cvar | Default | Purpose |
+|---|---|---|
+| `k_killquad` | 0 | Activation toggle (1 = enabled) |
+```
+
+For mutations with no auxiliary cvars (e.g., killquad), a 1-row table is the right size -- explicitly call out "no auxiliary cvars" in a sentence below the table rather than padding it. For mutations with rich tuning (e.g., freshteams, which has ~15 sub-cvars), the table grows accordingly; do not split into sub-sections.
 
 ### 6. See also (mandatory)
 
@@ -184,7 +204,7 @@ When a curator is tempted to violate one of these, the right move is usually to 
 
 ## Open questions
 
-1. **Wiki rendering of the auto-projected Configuration table.** The wiki page reads from L1 at render time; concept-note authoring doesn't write cvar values into the note prose. Question: does the concept-note .md show the table at all, or just a placeholder like `<!-- configuration table auto-projected from gameplay_mechanics WHERE initstring_array = '<value>' -->`? Resolve during first worked example.
+1. **~~Wiki rendering of the auto-projected Configuration table.~~** RESOLVED 2026-05-28 after the killquad + wipeout worked-example pair. Convention locked: standalone/variant use the HTML-comment placeholder (auto-projection at render time); mutation uses a small hand-written table over `activation_cvar` + `auxiliary_cvars`. Documented inline above.
 2. **Section heading style.** Markdown `##` heading or YAML-driven structured sections? Existing concept notes use markdown headings; this convention extends. Worth confirming the wiki-projection tooling handles markdown -> MediaWiki markup cleanly.
 3. **Family head's section delta.** When a standalone is ALSO a family head (hoonymode), should the standalone note include a "Family variants" sub-section listing the variants and their deltas? Or leave to See also? Resolve during hoonymode's authoring.
 4. **Maps section convention for race / midair.** These modes are intrinsically map-coupled. The Maps section here may be denser than for other modes (per-map route lists for race; tested-airborne maps for midair). May warrant a sub-shape note for "map-coupled standalone" but defer until LGC / race drafting surfaces real friction.

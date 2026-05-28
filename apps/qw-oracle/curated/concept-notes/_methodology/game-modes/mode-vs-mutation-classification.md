@@ -122,6 +122,23 @@ This keeps per-variant work proportional to community demand. The XonX family ge
 - **`ca` / `wipeout` / `tot`** are standalones built on a base UM (UM_4ON4 or UM_FFA) but differ enough in rules that they merit standalone treatment, not variant treatment. Source signal: they have their own `_um_init` arrays with substantial overrides, not minimal deltas.
 - **`instagib`** activation cvar appears to be a custom server setup pattern -- no master `k_instagib` toggle; servers set `k_instagib_*` family cvars to activate. Worth verifying during instagib's own concept-note drafting.
 
+## Mutation interlocks (cross-mutation conflicts)
+
+Mutations are not always orthogonal -- some pairs have hard source-level interlocks that prevent stacking. The killquad + wipeout worked-example pair surfaced the first confirmed case: killquad's drop-quad behavior is hard-gated by `!k_berzerk` at `items.c:1974`, so enabling both `k_killquad` and `k_bzk` simultaneously silently breaks killquad's drop path.
+
+Capture interlocks in two places:
+
+- **`stacks_with_mutations` frontmatter field** (per [[concept-note-frontmatter-schema]]) -- set to `partial` when the mutation has documented incompatibilities; set to `yes` when it stacks freely.
+- **`related_modes` with `relation: incompatible-with`** -- name the specific other mutation(s) it conflicts with.
+
+Per-mutation audit during authoring: grep the mutation's primary use-site code path for `!k_<other-mutation>` guards. Similar patterns likely exist for:
+
+- `freshteams` and `nosweep` (both dmm1-tuned -- may share or conflict; worth checking)
+- `midair` and `lgc` (both change movement/damage profiles)
+- `bloodfest` against several mutations (it's a heavy ruleset)
+
+These conflicts are NOT classification gates -- they don't change a mutation into a non-mutation. They are content for the mutation's own concept note. Surface them during per-mutation authoring; do not pre-populate this section speculatively.
+
 ## Open questions for operator
 
 None at HIGH confidence -- all 27 modes are classifiable from source signals. Items to confirm during per-mode authoring:

@@ -25,10 +25,12 @@ Coarse signal that captures whether there is anything substantive to harvest.
 | Length band | Bucket | Notes |
 |---|---|---|
 | 0 chars (no page) | absent | No wiki page exists in the snapshot for this mode |
-| 1-500 chars | minimal | One paragraph or less; usually identity + activation command |
-| 500-1500 chars | thin | Identity + a paragraph of rules; rarely more |
-| 1500-3500 chars | medium | Lead + 2-3 sections; usable scaffold |
+| 1-499 chars | minimal | One paragraph or less; usually identity + activation command |
+| 500-1499 chars | thin | Identity + a paragraph of rules; rarely more |
+| 1500-3499 chars | medium | Lead + 2-3 sections; usable scaffold |
 | 3500+ chars | substantial | Multiple sections; harvest-worthy on its own |
+
+Boundaries are strict (< vs >=); when a wikitext length sits exactly on a boundary (within ~50 chars), default to **hybrid** regardless of which side the rule would otherwise route to. Wipeout's wikitext landed at ~1500 chars (boundary between thin and medium); the worked-example pair confirmed the default-to-hybrid rule -- hybrid handled both the thin-path harvesting (Lead + Rules from wiki) and the medium-path obligations (verify mechanical claims, draft missing sections) without forcing a clean classification call.
 
 ### Dimension 2: Mechanical accuracy vs current KTX
 
