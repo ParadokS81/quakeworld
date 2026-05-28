@@ -50,6 +50,19 @@ Bullets or short paragraphs covering: spawns, loadout, items, respawn behavior, 
 
 This is the longest mandatory section for most standalone modes.
 
+### Sub-systems (optional, between Rules and Strategy)
+
+For standalones with substantive mechanical sub-systems that have their own cvars + commands + cultural anchor, author one top-level section PER sub-system, positioned between Rules and Strategy. Name each section after the sub-system (not generic "Sub-systems"). Keep each ~100-200 words.
+
+This is NOT a free pass to fragment Rules. The threshold for promoting content to a sub-system section: the sub-system has its own dedicated cvar family (e.g., `k_ctf_hook*`, `k_ctf_rune*`), its own commands, its own player-facing mechanic that experienced players talk about as a distinct thing, AND the prose would be ~100+ words on that one sub-system if forced into Rules. If any of those is missing, the content goes in Rules instead.
+
+Canonical exemplars (drafted 2026-05-28):
+
+- **CTF** has two: "The grappling hook" (`k_ctf_hook` + 4 hook-style variants + `+hook`/`-hook` controls + Threewave-era cultural anchor) and "Runes" (4 named runes + `k_ctf_runes` toggle + tossrune/dropquad commands + balance impact).
+- Future likely cases: **race** has the route-system story (route cvars, route_switch/show_route commands, per-map curated routes); **LGC** has the weapon-mod story (forced LG-only loadout, custom damage tuning).
+
+A standalone can have 0, 1, or 2+ sub-system sections. Most standalones (ffa, 1on1, 4on4) have none -- the Rules section carries the full mechanical picture without subdivision.
+
 ### 4. Strategy / tactics (optional)
 
 Player-facing tactical advice. Curator-authored or community-imported. Skip for modes where strategy hasn't been documented or where the mode is too obscure to support real strategy notes (yawnmode, killquad).
@@ -165,10 +178,12 @@ Family head + sibling variants + any cross-family related modes.
 ## Section ordering -- canonical position
 
 ```
-Standalone:    Lead | How to play | Rules | (Strategy) | (Maps) | (History) | Server setup | Configuration | See also
+Standalone:    Lead | How to play | Rules | (Sub-system N...) | (Strategy) | (Maps) | (History) | Server setup | Configuration | See also
 Mutation:      Lead | What it does | How to enable | Interaction with base modes | Configuration | See also
 Variant:       Lead | Family delta | Configuration | See also
 ```
+
+`(Sub-system N...)` is zero or more optional sections per sub-system, positioned between Rules and Strategy. CTF has two (Grappling hook + Runes); most standalones have zero.
 
 Standalone has the most reader paths (player skim, player deep, admin setup, LLM retrieval). The 7-then-admin-block ordering serves all four. Mutation has fewer paths and a smaller section set. Variant is the shortest -- mostly defers to the family head.
 
