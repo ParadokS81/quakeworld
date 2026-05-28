@@ -1,6 +1,6 @@
 ---
 title: "KillQuad (mutation)"
-summary: "Mutation that replaces the normal Quad Damage pickup with a one-shot dropped quad: when the player carrying quad dies, a 10-second quad pickup spawns at their death position -- but only if no other player currently holds quad and no quad item is already on the level."
+summary: "Mutation that replaces the normal Quad Damage pickup with a kill-transferred dropped quad: when the quad-carrier dies, a 10-second quad pickup spawns at their death location -- but only if no living player currently holds quad and no quad item is already on the level."
 slug: killquad
 topic: game-mode-reference
 status: draft
@@ -13,13 +13,13 @@ kind: mutation
 canonical_id: ktx:game_mode:killquad
 gameplay_source_id: ktx
 source_ref: world.c:969
-activation_summary: "Server admin sets `k_killquad 1` in server.cfg, or any player runs `killquad` in warmup to toggle it pre-match."
+activation_summary: "Server admin sets k_killquad 1 in server.cfg, or any player runs the killquad command in warmup to toggle it."
 wiki_status: l3-upstream
 note_anchor_version: 1.47-2-g67253dc
 
 activation_cvar: k_killquad
 applies_to: any
-interaction_summary: "At match start the normal Quad Damage item is removed from the map. When the player carrying quad dies, a 10-second quad pickup spawns at their corpse -- but only if no one else holds quad and no quad item is already on the level. Cannot stack with berzerk (the quad-drop path is gated by `!k_berzerk`)."
+interaction_summary: "At match start the normal Quad Damage item is removed from the level. When the quad-carrier dies, a 10-second quad pickup spawns at their corpse -- provided no living player holds quad and no quad item exists on the level. Cannot stack with berzerk: the drop path is hard-gated by !k_berzerk at items.c:1974."
 stacks_with_mutations: partial
 changes_section_set: [powerups, drop_item]
 
@@ -37,50 +37,39 @@ note_origin: synthesized
 
 ## Lead
 
-KillQuad is a KTX mutation that changes how Quad Damage enters play. Instead of a fixed quad pickup that respawns on the map, the quad becomes a "kill the carrier" objective: the normal quad is removed at match start, and the only quad that appears during the match is the one dropped when a quad-carrier dies. The mode is orthogonal to which game mode is being played -- it modifies the item economy, not the rules of the match.
+KillQuad is a KTX mutation that transforms Quad Damage from a map pickup into a kill-the-carrier objective. The normal quad is stripped from the level at match start; the only quad that can appear during the match is the one dropped when the carrier is killed. Any base mode -- 1on1, 4on4, CTF, or anything else -- can run with KillQuad active.
 
 ## What it does
 
-When `k_killquad` is enabled, two changes apply across the match:
+At match start, KTX removes every `item_artifact_super_damage` entity from the level (`match.c:951-955`). No quad will appear from map placement.
 
-1. **At match start**, every `item_artifact_super_damage` entity on the map is removed (`match.c:951`). No quad will spawn from map placement during the match.
-2. **When the quad-carrier dies**, a quad pickup is dropped at the death position with a 10-second pickup window -- but only if no other player is currently carrying quad and no quad item already exists on the level. This makes the carrier-kill the only way to introduce a fresh quad into play.
+When the quad-carrier dies, `DropPowerups` fires (`items.c:1974`). Before spawning a dropped quad it calls `NeedDropQuad` (`items.c:1952-1969`), which passes only if two conditions hold: no living player has `super_damage_finished > 0` (nobody currently carries quad), and no `item_artifact_super_damage` entity exists anywhere on the level. When the guard passes, a quad pickup spawns at the corpse. Its `nextthink` is set to `g_globalvars.time + 10` with `KillQuadThink` as the callback (`items.c:1894-1895`). If nobody picks it up within 10 seconds, `KillQuadThink` removes the entity (`items.c:1864-1867`).
 
-The mechanism keeps quad as a contested objective rather than a respawn-based pickup. Once the carrier dies and another player picks up the dropped quad, the cycle continues. If the dropped quad expires without being picked up, the next quad only enters play when the current (or next) carrier dies again.
+The quad is therefore always a contested single item. If the dropped quad expires uncollected, no quad exists on the level until the next carrier is killed.
 
 ## How to enable
 
-Set `k_killquad 1` in `server.cfg`, or have any player run `killquad` in warmup to toggle the state (`commands.c:3130`). The toggle command is allowed pre-match only; once a match is live the cvar is locked.
-
-```
-# server.cfg
-k_killquad 1
-
-# in-game (warmup)
-killquad
-```
+Set `k_killquad 1` in `server.cfg`. Any player can also type `killquad` in the console during warmup to toggle the setting (`commands.c:3123-3131`); the command is blocked once a match is in progress (`commands.c:3125-3128`).
 
 ## Interaction with base modes
 
-KillQuad applies to any base mode. The quad-removal and quad-drop logic run from the shared item code paths (`items.c:1892`, `items.c:1974`), not from any per-mode init, so it layers on 1on1, 4on4, ctf, ffa, or any other standalone mode equally.
+KillQuad layers on any base mode. The quad-removal and drop logic live in shared item code paths, not in any per-mode init array, so the mutation works identically across 1on1, 4on4, CA, CTF, FFA, and everything else.
 
-**Conflict with `berzerk`**: the quad-drop spawn path is guarded by `&& !k_berzerk` (`items.c:1974`). When both mutations are active, the dropped quad will not spawn -- effectively neutering killquad while berzerk handles its own end-of-match quad-damage application. The two mutations should be treated as mutually exclusive even though there is no master interlock at activation time.
+**Conflict with berzerk**: the drop path is guarded by `!k_berzerk` at `items.c:1974`. When berzerk is also active, the entire killquad drop block is skipped -- no quad spawns on death. There is no activation-time interlock; admins must treat the two as mutually exclusive and not set both to 1.
 
-**Other mutations**: killquad is orthogonal to bloodfest, midair, nosweep, yawnmode, lgc, instagib, and freshteams. These all change rules outside the quad-item path, so they stack cleanly with killquad.
+**Other mutations**: no other confirmed interlocks in the drop code path. KillQuad stacks cleanly with mutations that operate outside the quad-item path.
 
 ## Configuration
 
-| cvar | default | what it does |
+| Cvar | Default | Purpose |
 |---|---|---|
-| `k_killquad` | `0` | Master toggle. `0` = standard quad spawn rules. `1` = killquad mode active. |
+| `k_killquad` | 0 | Activation toggle (1 = enabled) |
 
-KillQuad has no auxiliary tuning cvars; the mechanic is a single on/off switch. Related cvars (`dq`, `k_pow_q`) govern the standard quad-drop behavior that killquad bypasses when active.
+No auxiliary cvars. The 10-second pickup window and the single-quad guard are hardcoded at `items.c:1894` and `items.c:1952-1969` respectively.
 
 ## See also
 
-- `killquad` -- in-game toggle command (paired with the cvar; pre-match only)
-- `berzerk` -- incompatible mutation; activation flag `k_bzk`
-- `dq` -- standard quad-drop cvar that killquad overrides
-- `k_pow_q` -- enable/disable quad powerup family
+- `berzerk` -- incompatible mutation; both cannot be active simultaneously (`k_bzk`)
+- `dq` / `k_pow_q` -- the separate standard quad-drop system; distinct from killquad's kill-transfer mechanic
 
-<!-- triage notes: l3-upstream. No wiki page exists for killquad. Mechanical content drafted from the L1 description on `k_killquad` plus the use-sites grep across KTX source (world.c:969 + items.c:1974 + match.c:951 + commands.c:3130 + g_utils.c:1785). Berzerk-incompatibility derived from the `&& !k_berzerk` guard in items.c:1974. -->
+<!-- triage notes: l3-upstream. No killquad.json or close alias in the 2026-05-04 wiki snapshot. All mechanical claims verified against KTX source: quad removal at match.c:951-955, drop-spawn path at items.c:1974-1982, NeedDropQuad guard at items.c:1952-1969, 10-second window literal at items.c:1894 (g_globalvars.time + 10), KillQuadThink at items.c:1864-1867, toggle command at commands.c:3123-3131, match-in-progress guard at commands.c:3125-3128, cvar registration at world.c:969. The !k_berzerk guard at items.c:1974 is the only confirmed cross-mutation interlock in the drop path. KTX git log: introduction commit 69cf598 and follow-up fix 60cb10c ("remove normal quad in killquad mode"). No wiki narrative exists to harvest. -->
