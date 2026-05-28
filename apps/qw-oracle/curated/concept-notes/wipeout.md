@@ -11,7 +11,7 @@ engines_covered: [ktx]
 
 kind: standalone
 canonical_id: ktx:game_mode:wipeout
-gameplay_source_id: ktx@1.47-2-g67253dc
+gameplay_source_id: ktx
 source_ref: commands.c:4551
 activation_summary: "Type `/wipeout` on KTX 1.41+ servers where `k_allowed_free_modes` includes the `UM_4ON4` bit (value 8) -- the same bit that enables 4on4 and ca (wipeout, 4on4, and ca all share UM_4ON4; tot uses UM_FFA instead)."
 wiki_status: hybrid

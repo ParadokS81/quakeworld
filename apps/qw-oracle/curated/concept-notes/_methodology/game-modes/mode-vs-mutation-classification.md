@@ -115,6 +115,26 @@ The frontmatter `kind` field captures the category. The section structure spec (
 
 This keeps per-variant work proportional to community demand. The XonX family gets ~3 substantial per-variant pages + ~6 stubs + 1 family page.
 
+## L1 `mode_class` is advisory; methodology classification governs
+
+The Layer 1 extractor populates `gameplay_mechanics.props_json.mode_class` with a two-bucket signal: `standalone` or `mutator`. As of 2026-05-28 the live values are:
+
+| L1 `mode_class` | Count | Modes |
+|---|---|---|
+| `standalone` | 7 | 1on1, blitz2v2, blitz4v4, ca, hoonymode, race, wipeout (sampled) |
+| `mutator` | 2+ | berzerk, killquad (sampled) |
+
+The L1 signal is a structural classifier: anything registered in `mode_cmd[]` with its own `_um_init` array reads as `standalone`; anything activated via cvar toggle without a `_um_init` reads as `mutator`. The L1 extractor doesn't see family relationships (UM-shared variants like blitz2v2 reading as standalone because they ARE structurally standalone in source) or umbrella concepts.
+
+The methodology's three-bucket classification (standalone / variant / mutation) is a **user-facing curation overlay** on top of the L1 signal:
+
+- L1 `standalone` -> methodology `standalone` OR `variant` depending on whether the mode is a family head or a family member
+- L1 `mutator` -> methodology `mutation` (no further distinction)
+
+This means **the concept-note `kind` field can disagree with `props_json.mode_class`** -- intentionally. Concept-note authoring follows the methodology classification (the table earlier in this doc), not the L1 signal. The L1 signal answers "is this in `mode_cmd[]` with an init array?"; the methodology answers "what user-facing category does this belong to?" Both are valid abstractions answering different questions.
+
+Surfaced by the blitz2v2 worked example (2026-05-28): L1 classes blitz2v2 + blitz4v4 + hoonymode all as `standalone`; methodology classes blitz2v2 + blitz4v4 as `variant` (with hoonymode as standalone + family head). No L1-side change required; the existing L1 signal remains useful for "tell me the mutators" queries.
+
 ## Cross-classification quirks
 
 - **`race`** is standalone but uses a separate-activation pattern (own `/race` command, own code in `race.c`), not the `mode_cmd[]` + `_um_init` pattern. Its `mode_default` rows are minimal compared to other standalones.

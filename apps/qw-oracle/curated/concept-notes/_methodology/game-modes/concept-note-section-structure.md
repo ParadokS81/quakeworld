@@ -145,9 +145,14 @@ Example (blitz2v2):
 
 ### 2. Family delta (mandatory)
 
-The substance: what differs from the family head. Often just 1-3 bullets (roster size, specific cvars that differ, win condition tweaks).
+The substance: what differs from the family head. The length band depends on variant sub-shape:
 
-For pure roster variants (1on1 / 2on2 / 4on4 / 10on10 / XonX -- all team-deathmatch family) the delta may be only "Roster: NvN." Note that this is *enough* -- a stub variant page is the right size.
+- **Pure roster variants** (1on1 / 2on2 / 3on3 / 4on4 / 10on10 / 2on2on2 / 3on3on3 / 4on4on4 / XonX -- all team-deathmatch family). The delta is just "Roster: NvN." 1-3 bullets, ~30-80 words is the right size. Padding past this is anti-pattern.
+- **Structural variants** (blitz2v2 / blitz4v4 -- vary from hoonymode along multiple axes: roster, teamplay model, time/frag scoring, round structure, powerups). The delta is the substantive content; 5-9 bullets covering each differing axis, ~150-250 words is the right size. The blitz family is the canonical example -- it differs from hoonymode across ~9 cvars, not just roster.
+
+Sub-shape is decided per variant during authoring, not declared upfront in the schema. If the per-pre-flight diff of the variant's `_<variant>_um_init` vs the family head's init array shows >3 cvars differing on axes other than roster (team-count cvars), it's a structural variant.
+
+Avoid the trap of forcing structural variants into the pure-roster band -- the resulting delta will mislead readers about how distinctively the variant plays.
 
 ### 3. Configuration (mandatory)
 

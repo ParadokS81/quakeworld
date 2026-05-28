@@ -11,7 +11,7 @@ engines_covered: [ktx]
 
 kind: mutation
 canonical_id: ktx:game_mode:killquad
-gameplay_source_id: ktx@1.47-2-g67253dc
+gameplay_source_id: ktx
 source_ref: world.c:969
 activation_summary: "Server admin sets `k_killquad 1` in server.cfg, or any player runs `killquad` in warmup to toggle it pre-match."
 wiki_status: l3-upstream

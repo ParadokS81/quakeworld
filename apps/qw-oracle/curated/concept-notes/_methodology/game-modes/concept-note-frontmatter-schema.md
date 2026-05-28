@@ -38,7 +38,7 @@ Added for every game-mode concept note regardless of `kind`.
 |---|---|---|---|
 | `kind` | enum | yes | `standalone` \| `variant` \| `mutation` -- per [[mode-vs-mutation-classification]] |
 | `canonical_id` | string | yes | `ktx:game_mode:<name>` -- matches `gameplay_mechanics.name`'s canonical L1 id |
-| `gameplay_source_id` | string | yes | Joins to `gameplay_sources` row (carries source-version + commit). Tracks which KTX snapshot the note was anchored to. |
+| `gameplay_source_id` | string | yes | The `gameplay_sources.id` value verbatim (`ktx` for KTX modes, `id1` for vanilla QuakeWorld). Does NOT carry version info; that goes in `note_anchor_version`. Do NOT write `ktx@<version>` or similar invented composites -- that won't join. |
 | `source_ref` | string | yes | `<file>:<line>` where the mode is defined in KTX source (e.g., `commands.c:4551` for wipeout) |
 | `activation_summary` | string | yes | One sentence: "Type `/wipeout` on KTX 1.41+ servers where admin has enabled the wipeout bit in `k_allowed_free_modes`." Captures the player-facing activation path. |
 | `wiki_status` | enum | yes | `l3-upstream` (no useful wiki content; concept note is the source) \| `wiki-upstream` (wiki has substantial harvest-worthy content) \| `hybrid` (wiki has some, augment with L1) -- per [[triage-rules]] |
@@ -161,14 +161,14 @@ engines_covered: [ktx]
 
 kind: standalone
 canonical_id: ktx:game_mode:wipeout
-gameplay_source_id: ktx@v1.36-1633-g67253dc
+gameplay_source_id: ktx
 source_ref: commands.c:4551
 activation_summary: "Type /wipeout on KTX 1.41+ servers where k_allowed_free_modes includes the UM_4ON4 bit (value 8) -- the same bit that enables 4on4 and ca. See bit-sharing patterns below."
 wiki_status: hybrid
 wiki_page_slug: Wipeout
 introduced_by: Dusty
 introduced_in_version: KTX 1.41
-note_anchor_version: v1.36-1633-g67253dc
+note_anchor_version: 1.47-2-g67253dc
 
 um_internal_id: UM_4ON4
 mode_default_init_array: wipeout_um_init
@@ -211,11 +211,11 @@ engines_covered: [ktx]
 
 kind: variant
 canonical_id: ktx:game_mode:blitz2v2
-gameplay_source_id: ktx@v1.36-1633-g67253dc
+gameplay_source_id: ktx
 source_ref: commands.c:4545
-activation_summary: "Type /blitz2v2 on KTX servers."
+activation_summary: "Type /blitz2v2 on KTX servers where k_allowed_free_modes includes the UM_1ON1HM bit (value 128) -- the same bit that enables hoonymode and blitz4v4. See bit-sharing patterns below."
 wiki_status: l3-upstream
-note_anchor_version: v1.36-1633-g67253dc
+note_anchor_version: 1.47-2-g67253dc
 
 family_slug: hoonymode
 family_head_canonical_id: ktx:game_mode:hoonymode
@@ -250,11 +250,11 @@ engines_covered: [ktx]
 
 kind: mutation
 canonical_id: ktx:game_mode:berzerk
-gameplay_source_id: ktx@v1.36-1633-g67253dc
+gameplay_source_id: ktx
 source_ref: match.c:689
 activation_summary: "Server admin sets k_bzk to 1 in server.cfg, and optionally k_btime to set the duration in seconds."
 wiki_status: l3-upstream
-note_anchor_version: v1.36-1633-g67253dc
+note_anchor_version: 1.47-2-g67253dc
 
 activation_cvar: k_bzk
 auxiliary_cvars: [k_btime]
@@ -291,11 +291,11 @@ engines_covered: [ktx]
 
 kind: mutation
 canonical_id: ktx:game_mode:killquad
-gameplay_source_id: ktx@v1.36-1633-g67253dc
+gameplay_source_id: ktx
 source_ref: world.c:969
 activation_summary: "Server admin sets k_killquad 1 in server.cfg, or any player runs killquad in warmup to toggle it pre-match."
 wiki_status: l3-upstream
-note_anchor_version: v1.36-1633-g67253dc
+note_anchor_version: 1.47-2-g67253dc
 
 activation_cvar: k_killquad
 applies_to: any
