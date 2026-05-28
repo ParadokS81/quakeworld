@@ -11,6 +11,7 @@ Authoring conventions, frontmatter shape, voice/length tiers, and the human-faci
 | Authoring conventions, frontmatter, voice/length tiers, human-facing notes table | `README.md` |
 | Stewardship playbook (feeding paths, lifecycle, feedback loop) | `OPERATIONS.md` |
 | Contributor-onboarding seed for the ezquake.com gap report | `_gap-report.md` |
+| Game-mode concept-note methodology (kind classification / frontmatter schema / section structure / triage rules) | `_methodology/game-modes/` |
 | `.kmap` legacy keymap system + nQuake persistence | `kmap-legacy-keymap-system.md` |
 | Engine-internal vs player-facing files classifier | `engine-internal-vs-player-facing-files.md` |
 | Skywind animated skyboxes ported from IronWail | `skywind-animated-skyboxes.md` |
