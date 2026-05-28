@@ -54,7 +54,7 @@ Wipeout is a round-based team mode in KTX where players spawn with a full weapon
 
 ## How to play
 
-Type `/wipeout` in the console on a KTX server (1.41 or later) where `k_allowed_free_modes` includes the `UM_4ON4` bit (value 8). Most public servers that allow 4on4, Clan Arena, or ToT also implicitly allow Wipeout, since the four modes share the same bit. Players join a team and ready up; the round begins when both teams are ready. Standard team-switch and late-join commands apply (`/team`, `/latejoin <team>`).
+Type `/wipeout` in the console on a KTX server (1.41 or later) where `k_allowed_free_modes` includes the `UM_4ON4` bit (value 8). Most public servers that allow 4on4 or Clan Arena also implicitly allow Wipeout, since the three modes share the same UM_4ON4 bit (ToT uses UM_FFA instead). Players join a team and ready up; the round begins when both teams are ready. Standard team-switch and late-join commands apply (`/team`, `/latejoin <team>`).
 
 The mode operates on top of the Clan Arena machinery (`k_clan_arena 2` is the wipeout discriminator throughout `clan_arena.c`), so the player-facing rhythm is familiar: queue up, ready up, play the series, see end-of-round stats.
 
@@ -120,7 +120,7 @@ KTX 1.41 was the first stable release to ship wipeout. The mode is designed afte
 
 ## Server setup
 
-Set `k_allowed_free_modes` to include the `UM_4ON4` bit (value 8). The same bit also enables 4on4, Clan Arena, and ToT -- KTX does not assign a separate bit per shared-family mode (see `g_local.h:693-704` for the bit map). KTX 1.41 or later is required.
+Set `k_allowed_free_modes` to include the `UM_4ON4` bit (value 8). The same bit also enables 4on4 and Clan Arena -- KTX does not assign a separate bit per shared-family mode (see `g_local.h:693-704` for the bit map; ToT shares UM_FFA with FFA, not UM_4ON4). KTX 1.41 or later is required.
 
 Beyond that, no per-mode hosting setup is needed -- the mode plays on any standard QW map; per-map spawn configs are shipped in source for `dm3` and fall back to default spawns elsewhere.
 
