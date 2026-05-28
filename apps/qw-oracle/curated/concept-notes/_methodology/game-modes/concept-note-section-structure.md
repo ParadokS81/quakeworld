@@ -79,29 +79,37 @@ When the mode was introduced, who authored it, what game it was inspired by, wha
 
 ### 7. Server setup (mandatory)
 
-Admin-facing prerequisites: KTX version, `k_allowed_free_modes` bit, hosting notes, master server registration. Often very short (1-2 sentences for hoonymode-style: "Add 128 to k_allowed_free_modes").
-
-Self-contained; admins jump here from the TOC.
-
-### 8. Configuration (mandatory)
-
-The full enforced-settings table lives in L1 (`gameplay_mechanics` rows with `kind='mode_default'` and `props_json.initstring_array = <init array>`). The LLM oracle fetches it on demand via MCP L1 tools; concept-note prose does NOT duplicate the table.
-
-**Authoring convention -- standalone / variant:** a single pointer-sentence orienting the reader to where the full settings live. The frontmatter `mode_default_init_array` is the load-bearing pointer; the Configuration section's body is a 1-2 sentence orientation, not a duplicated data table. Format:
-
-```markdown
-## Configuration
-
-Mode-specific overrides live in `<init_array>` (N cvars on top of `common_um_init`'s 52-cvar baseline). The full enforced-settings table can be fetched from the `gameplay_mechanics` rows with `kind='mode_default'` and `props_json->>'initstring_array' = '<init_array>'`.
-```
+Admin-facing prerequisites: KTX version, `k_allowed_free_modes` bit, hosting notes, master server registration. Include a concrete `# server.cfg` code block showing the activation bit and any cvars an admin needs to set. Surrounding prose explains the bit-sharing if it applies (per the schema's bit-sharing patterns table).
 
 Example (wipeout):
 
-> Mode-specific overrides live in `wipeout_um_init` (22 cvars on top of `common_um_init`'s 52-cvar baseline). The full enforced-settings table can be fetched from the `gameplay_mechanics` rows with `kind='mode_default'` and `props_json->>'initstring_array' = 'wipeout_um_init'`.
+```
+# server.cfg
+// UM_4ON4 bit (8) -- enables wipeout, 4on4, and ca
+setadd k_allowed_free_modes 8
+```
 
-Count N from your pre-flight L1 query against the init array (do not approximate). Do NOT inline any "key values" preview prose -- the LLM fetches the full table on demand; a partial preview just risks drift.
+KTX 1.41 or later. No per-mode hosting setup is needed beyond the bit.
 
-**Rationale**: concept notes optimize for one consumer (the LLM oracle, which already has MCP L1 tools to fetch the table). Duplicating the table in prose creates a drift vector (committed values vs live L1 values diverge). Any future wiki/rendering skill projects the full table from frontmatter pointer + live L1 join -- that responsibility belongs to the renderer, not the concept note.
+The code block is mandatory. Self-contained; admins jump here from the TOC.
+
+### 8. Configuration (mandatory)
+
+Narrative prose covering the mode's key cvars -- the 3-7 that define the mode's character and that a reader cares about. For each, name the cvar and explain what it controls in this mode's context, with as much depth as it warrants. Don't enumerate every cvar in the init array; the frontmatter `mode_default_init_array` is the structured pointer for anyone who needs the full set (LLM oracle queries L1 directly via its MCP tools; a future wiki/rendering skill projects the full table from there).
+
+**Authoring convention -- standalone / variant:** pick the cvars worth discussing by their gameplay impact:
+
+- **Discriminator cvars** that distinguish this mode from siblings (`k_clan_arena 2` for wipeout, `k_hoonymode 1` for hoonymode, `k_mode N` where mode-number matters)
+- **Defining tunables** that a server admin might actually change (`k_clan_arena_rounds`, `k_clan_arena_max_respawns`, `k_noitems` for wipeout; `k_hoonyrounds` for hoonymode)
+- **Surprising values** -- anything that surprises a player familiar with the base mode (wipeout's `deathmatch 5` for example, vs the 3 a 4on4 player would expect)
+
+Skip the housekeeping cvars (`k_lockmin`, baseline `teamplay`, default `timelimit`, etc.) -- they live in the L1 table and aren't worth a reader's attention here.
+
+Use **prose paragraphs** when the explanation is more than 1-2 words per cvar (the typical case). Use a **small table** only when each cvar can be summarized in a single phrase.
+
+**Authoring convention -- mutation:** small hand-written table over `activation_cvar` + `auxiliary_cvars`. For mutations with no auxiliary cvars (like killquad), a 1-row table is correct -- say "no auxiliary cvars" in a sentence below; do not pad.
+
+The pre-flight L1 query gives you the full init array. Your job is to curate down to the load-bearing subset and explain it well.
 
 ### 9. See also (mandatory)
 
@@ -121,7 +129,19 @@ Mechanical description: the effect on gameplay. Distinct from Lead in that it ge
 
 ### 3. How to enable (mandatory)
 
-Admin-facing activation. Typically: "Set `k_<name>` to 1 in server.cfg." May include the auxiliary cvars (e.g., for berzerk: "`k_bzk 1` enables; `k_btime <seconds>` sets the duration window").
+Admin-facing activation. Include a concrete `# server.cfg` code block showing the literal cvars an admin needs to set with their target values. Brief surrounding prose explains what's happening if it isn't obvious from the snippet.
+
+Example (berzerk):
+
+```
+# server.cfg
+k_bzk 1
+k_btime 30
+```
+
+The `k_btime` value (seconds) is optional; default is 30.
+
+The code block is mandatory -- do not replace it with prose-only instructions ("set k_bzk to 1 in server.cfg"). Concrete copy-paste beats inference.
 
 ### 4. Interaction with base modes (mandatory)
 
@@ -191,25 +211,16 @@ Variant:       Lead | Family delta | Configuration | See also
 
 Standalone has the most reader paths (player skim, player deep, admin setup, LLM retrieval). The 7-then-admin-block ordering serves all four. Mutation has fewer paths and a smaller section set. Variant is the shortest -- mostly defers to the family head.
 
-## Section length guidance
+## Section length
 
-Stub vs full page bands per section (approximate, not enforced):
+**Length follows content, not a target.** Say what's true and useful; cut what doesn't earn its place. There is no word-count guidance -- a section is the right length when removing more would lose substance, and adding more would pad.
 
-| Section | Stub | Full page |
-|---|---|---|
-| Lead | 50-100 words | 100-200 words |
-| How to play | 30-80 words | 100-300 words |
-| Rules | 100-300 words | 500-1500 words |
-| Strategy | -- (omit) | 200-2000 words |
-| Maps | -- (omit) | 100-1000 words |
-| History | -- (omit) | 50-500 words |
-| Server setup | 20-50 words | 100-300 words |
-| Configuration | Auto-projected | Auto-projected |
-| See also | 30-50 words | 50-200 words |
+Two failure modes to avoid:
 
-Stub example (Yawnmode mutation): Lead (60w) + What it does (120w) + How to enable (30w) + Interaction (80w) + Configuration (auto) + See also (40w) ~= ~330 words + auto-projected config table.
+- **Padding** -- explaining the obvious, enumerating cvars available via L1, restating the Lead in a later section, hypothetical examples that don't reflect actual play
+- **Skipping substance** -- omitting a key rule, dropping the activation snippet, glossing over an interlock or surprising value because "the section is getting long"
 
-Full page example (CTF standalone): Lead + How to play + Rules + Strategy + Maps + History + Server setup + Configuration (auto) + See also = 1500-2500 words. CTF's existing wiki page is 12434 chars (~2000 words). Harvest path keeps that scale, anchored with mechanical Configuration.
+A mutation note may be ~300 words or ~1500 words depending on its mechanical depth. A standalone note may be ~800 words or ~3000 words. Both are correct when the content is real. The weapon-scripts concept note (~3000 words) and the killquad concept note (~400 words) are both correct shapes -- their topics warrant different depths.
 
 ## Anti-patterns
 
@@ -228,7 +239,7 @@ When a curator is tempted to violate one of these, the right move is usually to 
 
 ## Open questions
 
-1. **~~Wiki rendering of the auto-projected Configuration table.~~** RESOLVED 2026-05-28 (post-readability review). Convention locked: standalone/variant use a 1-2 sentence pointer prose to the init array (NO HTML-comment placeholder, NO inline cvar values -- concept notes don't carry rendering scaffolding); the LLM oracle fetches the full table via MCP L1 tools, and any future wiki/rendering skill projects from the frontmatter pointer + live L1 join. Mutation uses a small hand-written table over `activation_cvar` + `auxiliary_cvars`. The earlier HTML-comment-placeholder convention (locked after the killquad + wipeout pair) was retired when readability review surfaced the SQL-syntax-in-prose smell. Documented inline above.
+1. **~~Wiki rendering of the auto-projected Configuration table.~~** RESOLVED 2026-05-28, REFINED 2026-05-28 (post-readability review, v3). Final convention: standalone/variant Configuration is **narrative prose covering the 3-7 cvars that define the mode's character** -- discriminator cvars, defining tunables, surprising values vs base mode. NOT a full table (frontmatter `mode_default_init_array` is the structured pointer for the full set via LLM L1 tools / future renderer). NOT a pointer-only sentence (that was v2; the body has substance to discuss). NOT an HTML-comment placeholder (that was v1; retired -- concept notes are reader-facing, not rendering scaffolds). Mutation uses a small hand-written table over `activation_cvar` + `auxiliary_cvars`. Documented inline above.
 2. **Section heading style.** Markdown `##` heading or YAML-driven structured sections? Existing concept notes use markdown headings; this convention extends. Worth confirming the wiki-projection tooling handles markdown -> MediaWiki markup cleanly.
 3. **Family head's section delta.** When a standalone is ALSO a family head (hoonymode), should the standalone note include a "Family variants" sub-section listing the variants and their deltas? Or leave to See also? Resolve during hoonymode's authoring.
 4. **Maps section convention for race / midair.** These modes are intrinsically map-coupled. The Maps section here may be denser than for other modes (per-map route lists for race; tested-airborne maps for midair). May warrant a sub-shape note for "map-coupled standalone" but defer until LGC / race drafting surfaces real friction.
