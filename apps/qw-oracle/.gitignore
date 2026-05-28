@@ -6,6 +6,7 @@ data/*.db.bak-*
 data/*.db.pre-*
 data/*.db.bak
 data/knowledge.db.*
+data/backups/
 exports/
 *.log
 .env
