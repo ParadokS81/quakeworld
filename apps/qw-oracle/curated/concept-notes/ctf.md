@@ -126,7 +126,7 @@ The three things a team is always balancing are flag control, rune control, and 
 
 CTF runs on two kinds of maps. **Dedicated CTF maps** ship with built-in flag-spawn entities; **standard QuakeWorld maps** are made playable through KTX's entity-file overlay (`sv_loadentfiles_dir ctf`), which loads CTF-specific flag and spawn definitions over a vanilla map without touching its BSP.
 
-The long-loved set includes `e2m2` (the most-played non-dedicated CTF map), `e2m5`, `e3m6`, and the classic Threewave maps `ctf5`, `ctf8`, `ctf2m1`, and `ctf2m3`. Modern competitive rotations have added maps like `mammoth` and `qwrctf1`. Mirrored CTF maps are symmetric and fair to both sides; episode maps usually favor one base over the other (closer items, easier to hold), so teams sometimes pick a side. Individual maps can carry per-map config overrides -- a map cfg can force the hook and runes off for that map, for instance.
+Among the adapted episode maps the long-loved set includes `e2m2` (the most-played non-dedicated CTF map), `e2m5`, `e1m5`, `e3m6`, and `e4m3`; among the dedicated maps, the classic Threewave set `ctf1`, `ctf5`, `ctf8`, `ctf2m1`, `ctf2m3`, `ctf2m8`, and `ctf3m2`, plus the `rctf` series. Modern competitive rotations add purpose-built maps like `mammoth`, `qwrctf1`, `pound`, `capit`, `boom`, `gym`, and `head` (gathered on the community's `maphub_v2` server hub). Mirrored CTF maps are symmetric and fair to both sides; episode maps usually favor one base over the other (closer items, easier to hold), so teams sometimes pick a side. Individual maps can carry per-map config overrides -- a map cfg can force the hook and runes off for that map, for instance.
 
 ## History
 
