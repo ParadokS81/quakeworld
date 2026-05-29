@@ -30,6 +30,7 @@ related_entities:
   - ktx:cvar:k_instagib
   - ktx:cvar:k_dmgfrags
 related_modes:
+  - {slug: dmm4, relation: similar-shape}
   - {slug: midair, relation: incompatible-with}
   - {slug: instagib, relation: incompatible-with}
 ---

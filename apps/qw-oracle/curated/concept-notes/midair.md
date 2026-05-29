@@ -27,6 +27,7 @@ related_entities:
   - ktx:cvar:k_midair_minheight
   - ktx:cvar:k_instagib
 related_modes:
+  - {slug: dmm4, relation: similar-shape}
   - {slug: lgc, relation: incompatible-with}
   - {slug: instagib, relation: incompatible-with}
 ---
