@@ -41,9 +41,11 @@ The experience in prose — what the mode feels like to play, the defining mecha
 
 How a player starts or joins the mode.
 
+**This is the player's path in** -- it carries only what a player does: the console command or warmup toggle they type, a vote they cast, being on the right map, readying up. A `# server.cfg` block never appears here (a player does not edit server.cfg); server-side prerequisites get a one-line pointer ("needs the mode enabled / needs dmm4 -- see Hosting & settings"), not a re-explanation. Everything an admin does to make the mode available lives in `Hosting & settings`. (Actor-split: a step lives in the section matching who performs it; cross-reference, never duplicate.)
+
 - **Take the activation command from the `cmds[]` table, not the slug.** `ca` activates via `/carena` — the lone slug≠command case in KTX (see [[experience-group-classification]]). Every other mode's command equals its slug, but verify rather than assume.
 - Note the version requirement when relevant and what happens on activation (pre-match only; teams ready up; etc.).
-- **For match-modifiers this is "enable, then play any base mode," not "start a match."** A modifier is a toggle: set `k_<name> 1` in `server.cfg` *or* run the warmup command, then start whatever base mode you want — the modifier layers on top. (killquad's worked example is the template.)
+- **For match-modifiers this is "enable, then play any base mode," not "start a match."** A player enables it with the warmup command (`/<name>`); the admin's `server.cfg` toggle (`k_<name> 1`) belongs in `Hosting & settings`, pointed to in one line here. Then start whatever base mode you want -- the modifier layers on top. (killquad's worked example is the template.)
 
 ### 4. `## Strategy` (conditional)
 
@@ -59,7 +61,7 @@ Origin, author, inspiration, mod lineage. Ship only when there's a real story to
 
 ### 7. `## Hosting & settings` (core — admin block, last)
 
-Admin-facing, placed last so players read the experience first and admins jump here from the TOC. Absorbs the old `Server setup` + `Configuration`. Contents:
+Admin-facing, placed last so players read the experience first and admins jump here from the TOC. Absorbs the old `Server setup` + `Configuration`. **This is the only section that carries a `# server.cfg` block**, and it owns all server-side setup -- the enable cvar/bit, server prerequisites (dmm4, votecoop, a compatible map), and the defining cvars. Contents:
 
 - **A concrete `# server.cfg` code block** showing the literal activation an admin types. Mandatory — do not replace with prose-only instructions. For standalones, show the `k_allowed_free_modes` bit context; for modifiers, the toggle cvar.
 
