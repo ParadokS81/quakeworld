@@ -1,309 +1,157 @@
 # Game-mode concept-note frontmatter schema
 
+**Reconciled to the experience-first model:** 2026-05-29. Anchored to KTX `1.47-2-g67253dc`. (Supersedes the kind-driven 3-layer schema; see [[experience-group-classification]] for the reframe.)
+
 ## Purpose
 
-Defines the YAML frontmatter shape for game-mode concept notes (one note per `gameplay_mechanics` row with `kind='game_mode'`, with the family-page exception noted in [[mode-vs-mutation-classification]]).
+Defines the YAML frontmatter for game-mode concept notes — one note per `gameplay_mechanics` row with `kind='game_mode'`. Frontmatter is the structured contract the LLM oracle can query without parsing prose; the body carries the narrative.
 
-Game-mode notes extend the existing concept-note frontmatter convention (see `apps/qw-oracle/curated/concept-notes/README.md`) with structured factual data the LLM oracle can query directly, without having to parse prose.
+There is **one uniform field set for all 27 modes**. The engine mechanism (is this a `mode_cmd[]` standalone or a `k_<name>` cvar toggle) is retained as a single metadata field (`kind`), not as a structural driver. The old three-layer split (universal / standalone-only / variant-only / mutation-only) is retired along with the kind-driven structure — there are no kind-specific frontmatter layers. What varies between a standalone mode and a match-modifier is which of the *optional queryable facts* apply (a modifier has no roster/loadout/init-array of its own), handled by the absent-not-empty rule below, not by a separate schema layer.
 
-The schema has three layers:
-1. **Universal concept-note fields** (inherited from existing convention; non-negotiable for any concept note)
-2. **Game-mode universal fields** (all three kinds: standalone / variant / mutation)
-3. **Kind-specific fields** (only present when applicable to that kind)
+## Layer 1 — universal concept-note fields (inherited)
 
-Frontmatter is the structured contract; prose body holds the narrative. The LLM oracle reads both.
-
-## Layer 1 -- universal concept-note fields (inherited)
-
-These mirror the existing concept-notes convention. See `README.md` in this directory's parent for the source. All concept notes carry these; game-mode notes are no exception.
+Mirror the existing concept-notes convention (`README.md` in the parent dir). All concept notes carry these.
 
 | Field | Type | Mandatory | Notes |
 |---|---|---|---|
-| `title` | string | yes | Quoted. Display title. `"Wipeout"`, `"Clan Arena"`, `"Berzerk (mutation)"`, etc. |
-| `summary` | string | yes | One-paragraph hook (~1-3 sentences). What the mode is and its central rule. |
-| `slug` | string | yes | Filename basis. Matches `gameplay_mechanics.name` **strictly** (lowercased, exact, no expansion). So `ca` not `clan-arena`; `tot` not `tribe-of-tjernobyl`; `wipeout` as-is; `1on1` as-is. Alignment with `canonical_id` (`ktx:game_mode:<slug>`) is required so cross-references in `related_modes` resolve unambiguously. The expanded human-readable form goes in `title`, not slug. |
-| `topic` | enum | yes | New value for this sub-shape: `game-mode-reference`. (Existing values: `domain-guide`, etc. -- not appropriate here.) |
+| `title` | string | yes | Quoted display title. `"4on4"`, `"Clan Arena"`, `"Wipeout"`, `"KillQuad"`. No `(mutation)` suffix — `kind` carries the mechanism. |
+| `summary` | string | yes | The hook (~1-3 sentences): what the mode is and its central rule. Kept tight; the body's `## Summary` elaborates. |
+| `slug` | string | yes | Matches `gameplay_mechanics.name` **strictly** (lowercased, exact, no expansion): `ca` not `clan-arena`; `tot` not `tribe-of-tjernobyl`; `1on1`/`wipeout` as-is. Must align with `canonical_id` so `related_modes` cross-refs resolve. The expanded name goes in `title`. |
+| `topic` | enum | yes | `game-mode-reference`. |
 | `status` | enum | yes | `draft` \| `reviewed` \| `published` |
-| `authored_by` | string | yes | `qw-oracle` for skill-authored; `<handle>` for human curator |
-| `last_updated` | date | yes | ISO date |
-| `scope` | enum | yes | `engine-scoped` (game modes are engine-scoped to KTX) |
+| `authored_by` | string | yes | `qw-oracle` for skill-authored; `<handle>` for human curator. |
+| `last_updated` | date | yes | ISO date. |
+| `scope` | enum | yes | `engine-scoped` (game modes are KTX-scoped). |
 | `engines_covered` | list[string] | yes | `[ktx]` |
-| `related_entities` | list[canonical_id] | yes | L1 entity refs the note draws from. See "Relations" below for game-mode-specific shape. |
+| `related_entities` | list[canonical_id] | yes | L1 entity refs (cvars/commands) the note draws from. See "Relations" below. |
 
-## Layer 2 -- game-mode universal fields (all kinds)
+## Layer 2 — game-mode fields (uniform across all 27 modes)
 
-Added for every game-mode concept note regardless of `kind`.
-
-| Field | Type | Mandatory | Notes |
-|---|---|---|---|
-| `kind` | enum | yes | `standalone` \| `variant` \| `mutation` -- per [[mode-vs-mutation-classification]] |
-| `canonical_id` | string | yes | `ktx:game_mode:<name>` -- matches `gameplay_mechanics.name`'s canonical L1 id |
-| `gameplay_source_id` | string | yes | The `gameplay_sources.id` value verbatim (`ktx` for KTX modes, `id1` for vanilla QuakeWorld). Does NOT carry version info; that goes in `note_anchor_version`. Do NOT write `ktx@<version>` or similar invented composites -- that won't join. |
-| `source_ref` | string | yes | `<file>:<line>` where the mode is defined in KTX source (e.g., `commands.c:4551` for wipeout) |
-| `activation_summary` | string | yes | One sentence: "Type `/wipeout` on KTX 1.41+ servers where admin has enabled the wipeout bit in `k_allowed_free_modes`." Captures the player-facing activation path. |
-| `wiki_status` | enum | yes | `l3-upstream` (no useful wiki content; concept note is the source) \| `wiki-upstream` (wiki has substantial harvest-worthy content) \| `hybrid` (wiki has some, augment with L1) -- per [[triage-rules]] |
-| `wiki_page_slug` | string | optional | Page name in local snapshot, if exists (e.g., `Capture_the_Flag`, `Clan_Arena`) |
-| `introduced_by` | string | optional | Author / mod credit when known (e.g., `Dusty` for wipeout, `Molgrum` for yawnmode) |
-| `introduced_in_version` | string | optional | KTX version (e.g., `1.41`) or original mod name (e.g., `KTPro` for legacy modes ported into KTX) |
-| `note_anchor_version` | string | yes | KTX corpus version this note was anchored to (e.g., `v1.36-1633-g67253dc`). Used for stewardship: re-review when the corpus advances. |
-
-## Layer 3a -- standalone-only fields
-
-For `kind: standalone`. These capture the structural identity of a full game mode.
+### Identity + provenance (every mode)
 
 | Field | Type | Mandatory | Notes |
 |---|---|---|---|
-| `um_internal_id` | string | yes | The `UM_*` identifier from `mode_cmd[]` table (e.g., `UM_CTF`, `UM_4ON4`). For race: `(separate)`. |
-| `mode_default_init_array` | string | yes | Name of the `_um_init` array (e.g., `wipeout_um_init`). **Load-bearing pointer**: the LLM oracle resolves this via MCP L1 tools to fetch the full enforced-settings table on demand; any future wiki/rendering skill reads this field to project the Configuration section. Concept-note prose does NOT duplicate the table -- the Configuration section is a 1-sentence pointer per [[concept-note-section-structure]]. Joins to `gameplay_mechanics` rows with `kind='mode_default'` and `props_json.initstring_array = <value>`. |
-| `common_baseline_init_array` | string | yes | Usually `common_um_init`. Identifies the baseline cvars applied before mode-specific ones. |
-| `base_um_id` | string | optional | When a standalone is built on another UM's mechanics (e.g., wipeout's `mode_cmd` row says base = `UM_4ON4`). Captures inheritance. |
-| `family_slug` | string | optional | If the standalone is also a family head (e.g., hoonymode), points to itself. Otherwise omit. |
-| `team_count` | enum | yes | `solo` \| `team` \| `multi-team` \| `variable` |
-| `roster` | string | yes | "1v1", "4v4", "variable (2v2 / 3v3 / 4v4)", etc. |
-| `loadout` | enum | yes | `full-spawn` (CA, wipeout) \| `item-pickup` (1on1, 4on4) \| `mixed` (race?) |
-| `items_on_map` | enum | yes | `all` \| `partial` \| `none` |
-| `respawn_behavior` | string | yes | Short tag: `instant`, `increasing-delay-on-death`, `round-based-no-respawn`, `none`. |
-| `objective` | string | yes | Short tag: `frag-leader-at-timelimit`, `eliminate-all-enemies`, `capture-most-flags`, `fastest-time`, etc. |
-| `score_system` | string | yes | Short tag: `frags`, `rounds-won`, `flag-captures`, `time-best`, etc. |
-| `shape_facets` | list[string] | optional | Cross-cutting tags: `arena`, `team_elimination`, `round_based`, `capture_objective`, etc. Aids LLM retrieval. |
+| `experience_group` | enum | yes | **The primary user-facing axis.** One of the 10 slugs from [[experience-group-classification]]: `standard-game` / `free-for-all` / `arena` / `spawn-rotation` / `objective` / `movement` / `solo-pve` / `aim-practice` / `match-modifier` / `novelty`. |
+| `kind` | enum | yes | Engine mechanism **metadata** = the L1 `props_json.mode_class` value: `standalone` (registered in `mode_cmd[]` with a `_um_init` array) \| `mutator` (activated by a `k_<name>` cvar toggle, no init array). Answers "how is it built," not "what is it to a player." NOT the retired three-bucket {standalone/variant/mutation}. |
+| `canonical_id` | string | yes | `ktx:game_mode:<slug>`. |
+| `gameplay_source_id` | string | yes | `ktx` verbatim (the `gameplay_sources.id`). No version composites (`ktx@<v>` won't join). |
+| `source_ref` | string | yes | `<file>:<line>` where the mode is defined (`commands.c:4540` for 4on4; `world.c:969` for killquad). |
+| `activation_summary` | string | yes | One sentence, player/admin-facing. **Take the activation command from the `cmds[]` table, not the slug** — `ca` activates via `/carena`, the lone slug≠command case (see [[experience-group-classification]]). For modifiers: how to toggle it (`k_<name>` in server.cfg / the warmup command) then start any base mode. |
+| `wiki_status` | enum | yes | `l3-upstream` \| `wiki-upstream` \| `hybrid` — per [[triage-rules]]. |
+| `wiki_page_slug` | string | optional | Snapshot page name when wiki was consulted (`Clan_Arena`, `Wipeout`). |
+| `introduced_by` | string | optional | Author/mod credit when known (`Dusty` for wipeout). |
+| `introduced_in_version` | string | optional | KTX version (`KTX 1.41`) or origin mod (`KTPro`). |
+| `note_anchor_version` | string | yes | KTX corpus version the note was anchored to (`1.47-2-g67253dc`). Drives stewardship re-review. |
+| `note_origin` | enum | yes | `synthesized` \| `curator` \| `harvested` \| `hybrid`. |
 
-## Layer 3b -- variant-only fields
+### Queryable gameplay facts (apply only when the mode has its own — absent-not-empty)
 
-For `kind: variant`. Variants live in families; the family page carries shared content, the variant page carries deltas.
+These are the few facts worth querying structurally. A **standalone mode** carries the ones that apply to it; a **match-modifier inherits the base mode's** and so **omits** them (it has no roster/loadout/objective/init-array of its own — omit the field, do not write `n/a`). Same discipline as the body's conditional sections.
 
-| Field | Type | Mandatory | Notes |
+| Field | Type | When | Notes |
 |---|---|---|---|
-| `family_slug` | string | yes | Slug of the family page this variant belongs to (e.g., `xonx`, `hoonymode` -- the latter doubles as standalone head per cross-classification quirks in [[mode-vs-mutation-classification]]) |
-| `family_head_canonical_id` | string | yes | Canonical id of the family head's L1 entity |
-| `um_internal_id` | string | yes | Variant's UM identifier (often shared with family: `UM_1ON1HM` for both blitz2v2 and blitz4v4) |
-| `mode_default_init_array` | string | yes | Variant's own `_um_init` array name |
-| `roster` | string | yes | "1v1", "2v2", "3-team 2v2v2", etc. -- the variant delta dimension |
-| `family_delta` | string | yes | One sentence: what differs from the family base. "Roster size 2v2; otherwise identical to hoonymode rules." |
+| `deathmatch_flag` | int | mode sets its own `deathmatch` | `1` (4on4 / team dm1), `3` (1on1 / 2on2 / ffa), `5` (arena). Omit for modifiers. |
+| `roster` | string | mode defines a roster | `"4v4"`, `"up to 4v4 (8-player cap)"`. Omit for modifiers. |
+| `loadout` | enum | mode defines spawn loadout | `item-pickup` (4on4) \| `full-spawn` (ca/wipeout). Omit for modifiers. |
+| `objective` | string | — | Short tag: `frag-leader-at-timelimit`, `eliminate-all-enemies`, `capture-most-flags`, `fastest-time`. Omit for modifiers. |
+| `score_system` | string | optional | `frags`, `rounds-won`, `flag-captures`, `time-best`. |
+| `mode_default_init_array` | string | `kind: standalone` | Name of the `_um_init` array (`_4on4_um_init`, `carena_um_init`). **Load-bearing pointer**: the oracle resolves it via L1 MCP tools to fetch the full enforced-settings table; joins to `gameplay_mechanics` rows with `kind='mode_default'` and `props_json.initstring_array = <value>`. Omit for modifiers (no init array). |
 
-Variants inherit `objective` / `score_system` / `loadout` / etc. from the family page; they're not repeated in the variant frontmatter.
+### Retired fields (do NOT carry — dropped with the kind-driven model)
 
-## Layer 3c -- mutation-only fields
+`um_internal_id`, `common_baseline_init_array`, `base_um_id` (UM/bit internals — bit-sharing belongs in Hosting prose); `team_count`, `items_on_map`, `respawn_behavior`, `shape_facets` (over-specified — the prose carries these); `family_slug`, `family_head_canonical_id`, `family_delta` (the variant/family overlay is gone — replaced by `experience_group` + `similar-shape`); `activation_cvar`, `auxiliary_cvars`, `applies_to`, `interaction_summary`, `stacks_with_mutations`, `changes_section_set` (mutation-specific heavy fields — the cvars live in `related_entities`, the interaction in prose).
 
-For `kind: mutation`. Mutations layer on top of a base mode; their frontmatter focuses on the activation cvar and interaction effects.
+## Relations — the namespace split between `related_entities` and `related_modes`
 
-| Field | Type | Mandatory | Notes |
-|---|---|---|---|
-| `activation_cvar` | string | yes | Primary cvar (e.g., `k_bzk` for berzerk, `k_lgcmode` for lgc -- NOT `k_lgc`). |
-| `auxiliary_cvars` | list[string] | optional | Related cvars (duration, parameters): for berzerk, `["k_btime"]`; for freshteams, the ~15-cvar tuning family. |
-| `applies_to` | enum | yes | `any` \| `standalone-modes-only` \| `team-modes-only` \| `dmm1-only` \| `dmm4-only` \| ... -- captures which base modes the mutation can layer on. New values added during per-mutation authoring (LGC surfaced `dmm4-only`, 2026-05-28). |
-| `interaction_summary` | string | yes | One sentence describing what changes: "Applies quad damage to all players in the last `k_btime` seconds of a match." |
-| `stacks_with_mutations` | enum | yes | `yes` (stacks freely with all other mutations) \| `no` (replaces or breaks others; admin should pick one) \| `partial` (stacks with most but has documented conflicts -- specific incompatible mutations listed in `related_modes` with `relation: incompatible-with`). Killquad is the canonical `partial` example: stacks with most mutations but is hard-gated against berzerk by `!k_berzerk` at `items.c:1974`. |
-| `changes_section_set` | list[enum] | optional | Which gameplay sections this mutation affects: `respawn`, `loadout`, `powerups`, `scoring`, `time-window`, `weapon-pickup`, etc. Aids LLM retrieval. |
+Two fields, two namespaces. **Do not mix them.**
 
-Mutations do NOT carry `mode_default_init_array` (they have no init array). They DO carry `related_entities` for the cvars they use.
+- `related_entities` — canonical IDs that resolve to `entities` rows: cvars, commands, macros, info_keys, etc. The `scripts/load-concepts/upsert.ts` loader joins this list to `entities`; anything that doesn't resolve is silently skipped. Game-mode IDs (`ktx:game_mode:*`) live in `gameplay_mechanics`, NOT `entities`, so they do NOT belong here.
+- `related_modes` — typed cross-references to other game-mode concept notes; resolves slug-to-slug within `curated/concept-notes/`.
 
-## Relations -- the namespace split between `related_entities` and `related_modes`
+Never self-reference (don't list the note's own id in either).
 
-There are two relation fields and they cover different namespaces. **Do not mix them.**
+`relation` enum (leaned to the experience-first model):
 
-- `related_entities` -- canonical IDs that resolve to rows in the `entities` table: cvars, commands, macros, info_keys, hud_elements, etc. The `scripts/load-concepts/upsert.ts` loader joins this list to `entities` at upsert time; anything that doesn't resolve there is silently skipped. Game-mode IDs (e.g., `ktx:game_mode:ca`) live in `gameplay_mechanics`, not `entities`, so they DO NOT belong here.
-- `related_modes` -- typed cross-references to other game-mode concept notes. Resolves slug-to-slug within `curated/concept-notes/`. Game-mode-to-game-mode references go here, exclusively.
+- `similar-shape` — **the primary relation**: modes in the same `experience_group` (4on4 ↔ 3on3/2on2/1on1; ca ↔ wipeout; killquad ↔ berzerk as match-modifiers).
+- `similar-loadout` — shared distinctive loadout/item rule across groups.
+- `derived-from` — direct evolution or fork of the referenced mode.
+- `incompatible-with` — a **source-verified** toggle mutual-exclusion: both cvars cannot be active at once because each `Toggle<X>` guards `&& !k_<other>` (midair ↔ lgc, lgc ↔ instagib). **Verify at the toggle handler before using it** — do NOT assume a conflict from a gate. killquad and berzerk are NOT incompatible: they coexist, and berzerk's end-window merely suppresses the killquad drop (`items.c:1974`, window-scoped `k_berzerk`). They are `similar-shape`, not `incompatible-with`.
 
-Do NOT include the note's own canonical_id in either list (no self-references).
+**Retired relations:** `family-head`, `family-member` (the variant/family overlay is gone), `mutation-of` (modifiers layer on any base — not useful).
 
-```yaml
-# wipeout's frontmatter -- correct shape:
-related_entities:
-  - ktx:command:wipeout            # entities-table ref (a command)
-  - ktx:cvar:k_clan_arena          # entities-table ref (a cvar)
-  - ktx:cvar:k_allowed_free_modes  # entities-table ref (a cvar)
-  # NO ktx:game_mode:* entries here
+**Bit-sharing is NOT a relation.** 4on4 / ca / wipeout share the `UM_4ON4` bit, but that's an engine hosting detail, not a gameplay relationship — it goes in `## See also` **prose**, not in `related_modes`. (This closes the old `sibling-preset` open question: prose, no enum value.)
 
-related_modes:
-  - {slug: ca, relation: similar-shape}            # arena-style team elimination
-  - {slug: bloodfest, relation: similar-loadout}   # full-spawn weapon arsenal
-  # NO bogus family ref to 1on1 -- wipeout is not in any family (it shares UM_4ON4
-  # with 4on4 + ca at the bit level, but bit-sharing is not family membership;
-  # that question is the sibling-preset candidate -- see Open Q 2a).
-```
+## Worked examples
 
-The `relation` value in `related_modes` is a small enum, growing from worked examples. Current recognised values:
-
-- `family-head` -- directional child -> head reference (used when a variant points at the standalone family head, e.g., blitz2v2 -> hoonymode)
-- `family-member` -- non-head within-family pairing in either direction (head -> child OR child <-> child, e.g., hoonymode -> blitz2v2, or blitz2v2 -> blitz4v4). Replaces the earlier `family-cousin` value, which was too narrow -- it only covered sibling-to-sibling and didn't have a clean direction for head -> child (surfaced by hoonymode worked example, 2026-05-28).
-- `similar-shape` -- modes share a top-level gameplay shape (arena, race, deathmatch) without family lineage
-- `similar-loadout` -- modes share a distinctive loadout/item-rule pattern
-- `derived-from` -- this mode is a direct evolution or fork of the cross-referenced mode
-- `mutation-of` -- (used on mutation notes pointing at base modes) this mutation primarily applies on top of the cross-referenced mode
-- `incompatible-with` -- mutation-pair conflict; both mutations cannot be active simultaneously (killquad <-> berzerk, midair <-> lgc, lgc <-> instagib are the canonical cases)
-
-New relation values are added during worked-example authoring; don't invent unilaterally in a fan-out batch.
-
-## Provenance fields (universal extensions)
-
-Game-mode notes are mechanical enough that we want explicit provenance tracking beyond the existing `last_updated` convention.
-
-| Field | Type | Mandatory | Notes |
-|---|---|---|---|
-| `note_origin` | enum | yes | `synthesized` (sub-agent draft) \| `curator` (human-authored) \| `harvested` (harvested from wiki narrative) \| `hybrid` (synthesized + curator-polished) |
-| `note_anchor_version` | string | yes | Already in Layer 2; restated here for emphasis. The L1 corpus version. |
-| `note_last_verified` | date | optional | Last time a curator confirmed the note matches current source. Used by stewardship sweeps to find stale notes. |
-| `note_rereview_flag` | bool | optional | When source signals the note may be stale (e.g., the underlying mode_default rows changed in a later KTX version), set this for curator attention. |
-
-## Worked examples (one per kind)
-
-### Standalone: wipeout
+### Standalone: ca (arena)
 
 ```yaml
 ---
-title: "Wipeout"
-summary: "Round-based team mode where players spawn with full weapons and items are absent from the map; a round ends when all enemy players are eliminated, with respawn delay growing on consecutive deaths."
-slug: wipeout
+title: "Clan Arena"
+summary: "Round-based team elimination -- every player spawns each round with the full arsenal and red armor, there are no items on the map, and a round ends when one team is wiped out. First team to a majority of rounds takes the series."
+slug: ca
 topic: game-mode-reference
 status: draft
 authored_by: qw-oracle
-last_updated: 2026-05-28
+last_updated: 2026-05-29
 scope: engine-scoped
 engines_covered: [ktx]
 
+experience_group: arena
 kind: standalone
-canonical_id: ktx:game_mode:wipeout
-gameplay_source_id: ktx
-source_ref: commands.c:4551
-activation_summary: "Type /wipeout on KTX 1.41+ servers where k_allowed_free_modes includes the UM_4ON4 bit (value 8) -- the same bit that enables 4on4 and ca. See bit-sharing patterns below."
-wiki_status: hybrid
-wiki_page_slug: Wipeout
-introduced_by: Dusty
-introduced_in_version: KTX 1.41
-note_anchor_version: 1.47-2-g67253dc
-
-um_internal_id: UM_4ON4
-mode_default_init_array: wipeout_um_init
-common_baseline_init_array: common_um_init
-base_um_id: UM_4ON4
-team_count: team
-roster: "variable (2v2 / 3v3 / 4v4)"
+deathmatch_flag: 5
+roster: "up to 4v4 (8-player cap)"
 loadout: full-spawn
-items_on_map: none
-respawn_behavior: increasing-delay-on-death
 objective: eliminate-all-enemies
 score_system: rounds-won
-shape_facets: [arena, team_elimination, round_based]
+
+canonical_id: ktx:game_mode:ca
+gameplay_source_id: ktx
+source_ref: commands.c:4552
+mode_default_init_array: carena_um_init
+activation_summary: "Type /carena on a KTX server -- the console command is carena, not ca (there is no /ca command). Clan Arena rides on the UM_4ON4 bit (value 8, shared with 4on4 and wipeout). Pre-match only."
+wiki_status: hybrid
+wiki_page_slug: Clan_Arena
+note_anchor_version: 1.47-2-g67253dc
+note_origin: synthesized
 
 related_entities:
-  - ktx:command:wipeout
-  - ktx:cvar:k_mode
+  - ktx:command:carena
+  - ktx:cvar:k_clan_arena
+  - ktx:cvar:k_clan_arena_rounds
+  - ktx:cvar:k_noitems
   - ktx:cvar:k_allowed_free_modes
 related_modes:
-  - {slug: ca, relation: similar-shape}
-  - {slug: bloodfest, relation: similar-loadout}
-
-note_origin: synthesized
+  - {slug: wipeout, relation: similar-shape}
 ---
 ```
 
-### Variant: blitz2v2
+### Match-modifier: killquad (mutator)
+
+Note the omitted queryable facts — a modifier inherits the base mode's roster/loadout/dm/init-array, so it carries none.
 
 ```yaml
 ---
-title: "Blitz 2v2"
-summary: "Two-team variant of Hoonymode -- spawn-rotation duel mechanics extended to 2-on-2."
-slug: blitz2v2
-topic: game-mode-reference
-status: draft
-authored_by: qw-oracle
-last_updated: 2026-05-28
-scope: engine-scoped
-engines_covered: [ktx]
-
-kind: variant
-canonical_id: ktx:game_mode:blitz2v2
-gameplay_source_id: ktx
-source_ref: commands.c:4545
-activation_summary: "Type /blitz2v2 on KTX servers where k_allowed_free_modes includes the UM_1ON1HM bit (value 128) -- the same bit that enables hoonymode and blitz4v4. See bit-sharing patterns below."
-wiki_status: l3-upstream
-note_anchor_version: 1.47-2-g67253dc
-
-family_slug: hoonymode
-family_head_canonical_id: ktx:game_mode:hoonymode
-um_internal_id: UM_1ON1HM
-mode_default_init_array: _2on2hm_um_init
-roster: "2v2"
-family_delta: "Roster size 2v2; otherwise identical to hoonymode's spawn-rotation rules."
-
-related_entities:
-  - ktx:command:blitz2v2
-related_modes:
-  - {slug: hoonymode, relation: family-head}
-  - {slug: blitz4v4, relation: family-member}
-
-note_origin: synthesized
----
-```
-
-### Mutation: berzerk (stacks_with_mutations: yes)
-
-```yaml
----
-title: "Berzerk (mutation)"
-summary: "Late-game mutation that grants Quad Damage to all players during the final seconds of a match. Layered on top of any base mode."
-slug: berzerk
-topic: game-mode-reference
-status: draft
-authored_by: qw-oracle
-last_updated: 2026-05-28
-scope: engine-scoped
-engines_covered: [ktx]
-
-kind: mutation
-canonical_id: ktx:game_mode:berzerk
-gameplay_source_id: ktx
-source_ref: match.c:689
-activation_summary: "Server admin sets k_bzk to 1 in server.cfg, and optionally k_btime to set the duration in seconds."
-wiki_status: l3-upstream
-note_anchor_version: 1.47-2-g67253dc
-
-activation_cvar: k_bzk
-auxiliary_cvars: [k_btime]
-applies_to: any
-interaction_summary: "Applies quad damage to all players during the last k_btime seconds of a match. Internal state k_berzerk transitions 0 -> 1 at the threshold time."
-stacks_with_mutations: yes
-changes_section_set: [powerups, time-window]
-
-related_entities:
-  - ktx:cvar:k_bzk
-  - ktx:cvar:k_btime
-related_modes:
-  - {slug: killquad, relation: incompatible-with}
-
-note_origin: synthesized
----
-```
-
-### Mutation: killquad (stacks_with_mutations: partial)
-
-Demonstrates the `partial` enum value for `stacks_with_mutations` and the `incompatible-with` relation pattern.
-
-```yaml
----
-title: "KillQuad (mutation)"
-summary: "Mutation that replaces the normal Quad Damage pickup with a one-shot dropped quad: when the player carrying quad dies, a 10-second quad pickup spawns at their death position -- but only if no other player currently holds quad and no quad item is already on the level."
+title: "KillQuad"
+summary: "A 'kill the carrier' match modifier: the Quad has no map spawn, only a dropped one. While a player holds it no one else can get one, and whenever no Quad is in play a new one drops on the next killed body. Layers on top of any base mode."
 slug: killquad
 topic: game-mode-reference
 status: draft
 authored_by: qw-oracle
-last_updated: 2026-05-28
+last_updated: 2026-05-29
 scope: engine-scoped
 engines_covered: [ktx]
 
-kind: mutation
+experience_group: match-modifier
+kind: mutator
+
 canonical_id: ktx:game_mode:killquad
 gameplay_source_id: ktx
 source_ref: world.c:969
-activation_summary: "Server admin sets k_killquad 1 in server.cfg, or any player runs killquad in warmup to toggle it pre-match."
+activation_summary: "Set k_killquad 1 in server.cfg, or any player toggles it with the killquad command during warmup (blocked once a match is live). Then start any base mode -- KillQuad layers on top."
 wiki_status: l3-upstream
 note_anchor_version: 1.47-2-g67253dc
-
-activation_cvar: k_killquad
-applies_to: any
-interaction_summary: "At match start the normal Quad Damage item is removed. When the quad-carrier dies, a 10-second quad pickup spawns at the corpse -- but only if no one else holds quad and no quad item is on the level. Cannot stack with berzerk: the drop path is hard-gated by !k_berzerk at items.c:1974."
-stacks_with_mutations: partial
-changes_section_set: [powerups, drop_item]
+note_origin: synthesized
 
 related_entities:
   - ktx:cvar:k_killquad
@@ -312,49 +160,25 @@ related_entities:
   - ktx:cvar:dq
   - ktx:cvar:k_bzk
 related_modes:
-  - {slug: berzerk, relation: incompatible-with}
-
-note_origin: synthesized
+  - {slug: berzerk, relation: similar-shape}
 ---
 ```
 
-## UM bit-sharing patterns (load-bearing for activation_summary prose)
-
-`k_allowed_free_modes` is a bitmask of `UM_*` flags (defined at `include/g_local.h:693-704`). KTX defines only 13 UM bits: `UM_1ON1`, `UM_2ON2`, `UM_3ON3`, `UM_4ON4`, `UM_10ON10`, `UM_FFA`, `UM_CTF`, `UM_1ON1HM`, `UM_2ON2ON2`, `UM_3ON3ON3`, `UM_4ON4ON4`, `UM_XONX`, `UM_RACEMODE`. The activation gate at `commands.c:4730` is `um_list[umode].um_flags & k_allowed_free_modes`.
-
-Several standalones reuse base-mode bits rather than having their own. **A standalone's `activation_summary` MUST name the bit it actually uses, NOT a fictional per-mode bit.** Bit-sharing groups:
-
-| Shared bit | Modes that activate from it |
-|---|---|
-| `UM_4ON4` (value 8) | 4on4, ca, wipeout |
-| `UM_FFA` (value 32) | ffa, tot |
-| `UM_1ON1HM` (value 128) | hoonymode, blitz2v2, blitz4v4 |
-| `UM_RACEMODE` (1<<31) | race only |
-| Each `UM_<N>ON<N>` (1on1, 2on2, 3on3, 10on10, 2on2on2, 3on3on3, 4on4on4, XonX) | own bit each |
-| `UM_CTF` (value 64) | ctf only |
-
-When drafting the activation_summary for ca, wipeout, tot, blitz2v2, or blitz4v4, name the shared bit explicitly and note which sibling modes also activate from it. Do not write "the wipeout bit" / "the ca bit" / "the tot bit" -- those bits do not exist.
-
-This is also reflected in the `base_um_id` frontmatter field for standalones (which captures the bit the mode reuses) and in `um_internal_id` for variants (which carries the family-shared UM).
-
 ## Schema validation rules
 
-- `kind` is the discriminator -- it determines which kind-specific layer applies.
-- `canonical_id` MUST match the pattern `ktx:game_mode:<slug-lowercased>` (or the engine namespace appropriate when this skill ports to other engines).
-- `mode_default_init_array` (for standalone/variant) MUST be a real `gameplay_mechanics.props_json.initstring_array` value.
-- `activation_cvar` (for mutation) MUST be a real `ktx:cvar:<name>` entity in L1.
-- `related_modes` slugs MUST resolve to other concept-note slugs in this directory (or be marked as `pending`).
+- `experience_group` MUST be one of the 10 slugs in [[experience-group-classification]].
+- `kind` ∈ {`standalone`, `mutator`} — the L1 `mode_class` value (verify against `gameplay_mechanics.props_json.mode_class`).
+- `canonical_id` MUST match `ktx:game_mode:<slug>` (slug = `gameplay_mechanics.name` strictly).
+- `mode_default_init_array` (standalone) MUST be a real `gameplay_mechanics.props_json.initstring_array` value.
+- `related_modes` slugs MUST resolve to concept-note slugs in this directory (or be marked `pending`).
+- `related_entities` MUST resolve to `entities` rows (non-resolving refs are silently dropped by the loader).
 - `wiki_page_slug` (when present) MUST match a file in `apps/qw-oracle/data/wiki-snapshots/2026-05-04/articles/`.
 
-Validation runs as part of the apply step in the `game-mode-curate` skill. Validation failures halt the note authoring and surface to operator.
+Validation runs in the `game-mode-curate` skill's apply step; failures halt and surface to operator.
 
 ## Open questions
 
-1. **~~`relation` enum lock-in.~~** RESOLVED 2026-05-28 after the killquad + wipeout worked-example pair, REFINED 2026-05-28 (post-hoonymode + LGC). Enum locked to: `family-head`, `family-member`, `similar-shape`, `similar-loadout`, `derived-from`, `mutation-of`, `incompatible-with`. The `family-cousin` value was collapsed into `family-member` (bidirectional within-family non-head ref) when hoonymode surfaced the head -> child direction gap. Documented inline above. New values added during worked-example authoring; not invented in fan-out batches.
-2. **`shape_facets` taxonomy.** Open-ended initially. Lock after ~3-5 standalone modes are drafted and the right vocabulary surfaces.
-2a. **Candidate relation value: `sibling-preset`** (surfaced 2026-05-28 during CTF authoring). Standalones co-resident in the `mode_cmd[]` table (ctf alongside ca / wipeout / tot / ffa / 1on1 / 2on2 / ... / hoonymode) have a structural engine-layer relationship that none of the locked relation values cover cleanly. `similar-shape` is too loose (ctf and ca don't share gameplay shape); `family-*` requires UM-sharing (which ctf doesn't have with anyone). CTF's `related_modes` ended up thin (just `4on4` as `similar-loadout`) because of this gap. **Do NOT add this value yet.** Re-evaluate when ca / tot / ffa / 1on1 authoring confirms the pattern recurs and that authors would otherwise leave `related_modes` thin. Two more cases of the same friction = add. One more case that resolves differently = drop the candidate.
-3. **`family_slug` for hoonymode self-reference.** Hoonymode is both standalone AND head of the hoonymode family. The standalone note's `family_slug` should point to itself; variants point to the same slug. Confirm this self-reference is acceptable rather than introducing a separate "is_family_head" boolean.
-4. **`mode_default_init_array` indirection.** Variants' init arrays (e.g., `_2on2hm_um_init`) are explicit in commands.c. Verify all 11 variant init arrays are populated as `gameplay_mechanics` rows during per-variant drafting -- if any are absent, that's a Layer 1 extractor gap to report rather than a frontmatter problem.
-5. **Concept-loader directory recursion.** The current loader (`scripts/load-concepts/index.ts:21`) reads only the top level of `curated/concept-notes/`, so subdir layouts are silently skipped. V1 of the game-mode notes ships flat alongside existing concept notes. If the directory grows unwieldy, extend the loader to recurse rather than reshape the naming convention; this is a future-arc question, not a v1 blocker.
+1. **`mode_default_init_array` indirection for standard-game rosters.** The roster modes (`1on1`/`2on2`/`3on3`/...) each have their own `_<roster>_um_init`. Verify the array rows exist in `gameplay_mechanics` during drafting; an absent array is an L1 extractor gap to report, not a frontmatter problem.
+2. **`score_system` taxonomy.** Kept optional and open-ended; lock the vocabulary if a wiki/renderer consumer needs a closed set.
 
-These are not authoring blockers. The killquad + wipeout pair resolved #1 (the enum lock) and surfaced the bit-sharing patterns + namespace-split + slug-strictness refinements applied above.
+(Resolved by the reconciliation: the relation enum re-lean, the `shape_facets` removal, and the `sibling-preset` candidate — all handled above.)
