@@ -26,8 +26,9 @@ Confirmed wrong-topic cases (treat as `l3-upstream` regardless of char count):
 
 | Wiki page | Wrong-topic content | Surfaced by |
 |---|---|---|
-| `Clan_Arena.json` (1198 chars) | Installing the CACE server-side modification, not playing the ca mode | initial 27-mode triage scan |
 | `LGC.json` (6289 chars) | Lightning Gun Competition tournament series (player leaderboards, week results, crew credits), not the LGC mutation rules | LGC worked example, 2026-05-28 |
+
+(`Clan_Arena.json` initially read here as wrong-topic -- install instructions for the CACE server mod -- but the `ca` worked example found it also carries a usable gameplay lead, so it routed `hybrid`, not `l3-upstream`. The Step-0 acronym heuristic flags *candidates*; confirm by reading before treating a page as wrong-topic.)
 
 Char count alone is a red herring -- LGC.json's 6289 chars would have routed into `wiki-upstream` under the length dimension; the content is unusable for the mutation note. The pattern: when a mode's name doubles as a tournament/competition/install acronym, the wiki page often covers the community concept, not the engine concept.
 
@@ -107,7 +108,7 @@ Default when uncertain: `hybrid`. The harvest path is strictly more cautious tha
 
 ## Applied triage -- 27 modes
 
-Tentative classification using the rubric, based on the wiki snapshot scan summarized in [[mode-vs-mutation-classification]]. Per-mode mechanical-accuracy assessment is preliminary and gets verified during the actual authoring of each note.
+Tentative classification using the rubric, based on the initial 27-mode wiki snapshot scan. Per-mode mechanical-accuracy assessment is preliminary and gets verified during the actual authoring of each note.
 
 | Mode | Wiki page | Chars | Mechanical | Tentative triage |
 |---|---|---|---|---|
@@ -119,7 +120,7 @@ Tentative classification using the rubric, based on the wiki snapshot scan summa
 | bloodfest | Bloodfest | 2204 | needs-check | hybrid |
 | hoonymode | Hoonymode | ~2000 | likely current | hybrid |
 | 4on4 | 4on4 | 1306 | likely current | hybrid |
-| ca | Clan_Arena | 1198 | WRONG (page is about installing CACE mod, not playing ca) | l3-upstream |
+| ca | Clan_Arena | 1198 | mixed -- install (CACE) content but a usable gameplay lead | hybrid |
 | tot | ToT_Mode | 1161 | needs-check | hybrid |
 | 1on1 | 1on1 | 753 | likely current but thin | hybrid |
 | yawnmode | Yawnmode | 736 | needs-check | hybrid |
@@ -188,7 +189,7 @@ Apply this pattern generically: when multiple wiki pages relate to one mode, the
 
 The Step 0 sanity check above is the primary catcher; this subsection captures the established cases in narrative form.
 
-`Clan_Arena.json` (1198 chars) is mostly about installing the CACE server-side modification, not about playing the ca game mode. Triage outcome: `l3-upstream` (don't harvest the install content; that's a separate concern -- maybe a `cace-server-setup.md` concept note someday).
+`Clan_Arena.json` (1198 chars) leads with installing the CACE server-side modification, but also carries a usable gameplay lead for the ca mode. Triage outcome (per the `ca` worked example): `hybrid` -- harvest the gameplay lead, leave the install content (a separate concern, maybe a `cace-server-setup.md` note someday). It is NOT a clean wrong-topic page; the install framing made it look like one until a closer read. Contrast `LGC.json`, which is genuinely wrong-topic (a tournament page with no mutation rules at all).
 
 `LGC.json` (6289 chars) is entirely about the Lightning Gun Competition tournament series -- player leaderboards, week results, crew credits. The KTX LGC mutation (cvar `k_lgcmode`) is not described anywhere. Triage outcome: `l3-upstream` (the tournament content could feed a separate `lightning-gun-competition.md` historical concept note someday; not relevant to the mutation's rules).
 
