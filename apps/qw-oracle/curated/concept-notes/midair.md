@@ -37,13 +37,22 @@ Midair is an aim mutator built on dmm4: every player spawns with the full arsena
 
 ## How it plays
 
-The base is dmm4 -- full weapons on spawn, no item pickups, played on the small aim maps (`povdmm4` and the airborne-friendly arenas; there is even a dedicated `nacmidair`). What midair changes is what scores: a frag only registers if the victim is off the ground and above a minimum height when they die. So the entire game becomes about catching people in the air. You bait jumps, watch rocket-jumpers, and lead your rocket or grenade to where the target will be at the top of their arc; kills are announced with a height-based rank, so a clean high one is its own reward. It rewards prediction and splash placement rather than the continuous tracking that the lightning gun demands, which is why it sits alongside LGC as the other half of the dmm4 aim-practice pair.
+The base is dmm4, with a fixed loadout: every player spawns with 250 health, 200 red armour, the Rocket Launcher and the axe, and a full load of rockets, on a small aim map with no item pickups. What midair changes is the scoring rule, and it changes it hard. Two rules define the game:
 
-The minimum height that makes a kill count is tunable: `k_midair_minheight` runs from 1 (128 units, the default) up to 4 (1024 units), so a server can demand higher and higher airborne kills.
+- **Only airborne targets can be hurt.** A rocket or grenade does nothing to a player who is on or too near the ground; the victim has to be above a minimum height for any damage to apply. So the whole game is about catching people in the air -- you bait jumps, watch the rocket-jumpers, and lead your shot to where the target will be at the top of their arc.
+- **A clean midair hit is an instant kill.** When a rocket or grenade connects with a high-enough airborne player it kills regardless of their stack -- there is no chipping someone down, every qualifying hit is a frag. It is splash weapons only; the lightning gun and the rest do not count.
+
+The reward scales with height: a kill is graded by how high the victim was and worth more the higher it lands -- bronze for a low one, then silver, gold and platinum for the highest air (worth roughly 2, 4 and 8 frags), each announced with its height and rank, so a towering platinum frag is its own trophy. The minimum height that makes a kill count is itself tunable -- `k_midair_minheight` runs from 1 (128 units, the default) up to 4 (1024 units) -- so a server can demand higher and higher air. Because it rewards prediction and splash placement rather than the continuous tracking the lightning gun demands, midair sits alongside LGC as the other half of the dmm4 aim-practice pair.
+
+Then there is the comeback mechanic that gives midair its rhythm. **Dead players drop backpacks, and each one you pick up adds 10 health.** String enough together to climb past 300 without dying and you are granted 30 seconds of **Quad** -- but in midair the Quad is not about damage (every hit already one-shots). Its real effect is that **your rockets fly twice as fast** (2000 versus the usual 1000), which makes leading an airborne target dramatically easier: a 30-second window where you can barely miss. When it runs out your health is knocked back down to 100, so the big stack is spent rather than kept.
 
 ## Starting a game
 
 Midair runs on a dmm4 server. On one, any player can turn it on in warmup by typing `/midair` -- it is refused unless dmm4 is set. Because it is an aim mutator rather than a match format, you then just play on a dmm4 aim map, against a bot or another player. It cannot run alongside `instagib` or `LGC`; enabling it switches those off.
+
+## Maps
+
+Midair plays on small arena aim maps with the headroom to get airborne. **`endif`** is the staple, with `povdmm4` and the purpose-built `nacmidair` also well suited; any compact map with enough vertical space works.
 
 ## Hosting & settings
 
