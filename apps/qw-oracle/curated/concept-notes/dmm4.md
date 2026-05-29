@@ -41,11 +41,17 @@ Bare dmm4 is the aim-practice mode: you spawn with every weapon, full armor and 
 
 ## How it plays
 
-The defining choice is that the mode hands you everything up front and then gets out of the way. You spawn with the full weapon set, red armor (200), 250 health and 255 of every ammo type, and your ammo never depletes -- the per-weapon decrement is skipped entirely whenever `deathmatch` is 4 (`weapons.c:830`, `:879`, and throughout). There is nothing to pick up that matters, so item control -- the spine of a normal Quake duel -- simply isn't part of the game. What's left is the shooting: tracking with the lightning gun, predicting and placing rockets, dodging in the air. That is the whole point, and it's why dmm4 is where players go to drill aim rather than to play a "real" duel.
+You spawn on a full stack and fight; there is no item game to play. Every spawn is:
 
-A few dmm4 quirks follow from that framing. The Quad, if one is on the map, is renamed **OctaPower** (`items.c:2341`). Spawns can grant a short burst of invincibility so you aren't fragged the instant you respawn into a small arena -- the duration is `dmm4_invinc_time` (a default applies when it's left at 0, and a negative value disables it; `client.c`), and an invincible player is skipped by the item-touch logic (`items.c:293`, `:463`). You spawn holding the rocket launcher by default. Entering dmm4 also pins the match length short -- `ChangeDM` sets `timelimit 3` on entry (`commands.c`).
+- **250 health, 200 red armor**
+- **all weapons, with unlimited ammo** (the per-weapon decrement is skipped whenever `deathmatch` is 4 -- `weapons.c:830`, `:879`)
+- **2 seconds of invincibility**, so you aren't fragged the instant you appear in a tight arena (the default; tunable -- see Hosting & settings)
 
-dmm4 is the base layer for the aim-practice family. Toggling midair or instagib is refused unless dmm4 is already set (`world.c:1760-1769`), and leaving dmm4 force-disables both (`commands.c:2889-2894`); LGC works the same way. So midair, LGC and instagib are best understood as "dmm4 plus one rule" -- midair scores only airborne kills, LGC rewards the lightning gun, instagib swaps in a one-shot weapon.
+From there the whole game is aim, movement and rocket placement. With nothing worth picking up and ammo that never drains, the item control that anchors a normal duel just isn't part of the mode -- and which weapon you hold on spawn is irrelevant, since everyone runs weapon scripts.
+
+The one piece of item economy that remains is the backpack. A dropped pack gives **+10 health**, stacking past 250, and crossing **300 health grants 30 seconds of bonus powers** -- in normal dmm4 that is both the Pentagram (invincibility) and the Quad, which dmm4 renames **"OctaPower"** (`items.c:2430`). The variants tune it: midair grants only the Quad, instagib a Ring of Shadows instead, and LGC and ToT switch the bonus off entirely (health just caps at 300).
+
+dmm4 is the base layer for the aim-practice family: toggling midair or instagib is refused unless dmm4 is already set (`world.c:1760-1769`), and leaving dmm4 force-disables them (`commands.c:2889-2894`). So midair, LGC and instagib are each "dmm4 plus one rule."
 
 ## Starting a game
 
@@ -74,14 +80,14 @@ set deathmatch 4
 
 The tunables that shape dmm4 specifically:
 
-- **`dmm4_invinc_time`** -- seconds of spawn invincibility (0 = the built-in default; negative disables). The respawn shield that keeps small-arena practice from devolving into spawn-fragging.
-- **`k_dmm4_gren_mode`** -- grenade-only variant; spawns you holding the grenade launcher instead of the RL.
+- **`dmm4_invinc_time`** -- spawn-invincibility seconds: unset/0 uses the 2-second default (`DMM4_INVINCIBLE_DEFAULT`, `g_consts.h:317`), a positive value sets it (max 30), negative disables it. The respawn shield that keeps small-arena practice from devolving into spawn-fragging.
+- **`k_dmm4_gren_mode`** -- a grenade-practice variant: grenades only detonate on a direct hit (the 2.5s timed explosion is replaced with removal, `weapons.c:1433`). Requires dmm4; midair and instagib switch it off.
 - **`k_disallow_weapons`** -- a bitmask of weapons banned in dmm4 (default `16`, which bans the grenade launcher; `commands.c:4173`). The disallow command that edits it is itself dmm4-only (`commands.c:5257`).
 - Match length is auto-set to `timelimit 3` when dmm4 is entered.
 
 ## See also
 
-- `deathmatch-modes` -- the reference for the `deathmatch` flag values; dmm4 is value 4 (full arsenal, no item respawn, ammo never depletes).
+- `deathmatch-modes` -- the reference for the `deathmatch` flag values; dmm4 is value 4 (full arsenal, unlimited ammo).
 - `midair`, `lgc` -- the aim-practice siblings, each dmm4 with one scoring rule added; both require dmm4 and are mutually exclusive with each other.
 - `instagib` -- also built on dmm4 (a novelty FFA rather than aim drill).
 - `tot`, `bloodfest`, `race` -- other KTX modes that run on the dmm4 ruleset for different reasons (bots, monsters, movement).
