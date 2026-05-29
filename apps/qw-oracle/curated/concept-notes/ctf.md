@@ -1,39 +1,37 @@
 ---
 title: "Capture the Flag"
-summary: "Goal-oriented team mode where two teams (red and blue) fight to grab the enemy flag and return it to their own base for a capture. KTX implements David Zoid Kirsch's Threewave CTF lineage with optional grappling hook, four runes, and 15-point captures with 10-point team bonuses."
+summary: "Two teams, red and blue, fight to carry the enemy flag back to their own stand for a capture -- but only while their own flag is home. A capture is worth 15 points to the carrier and 10 to each teammate, so one capture outweighs a fistful of frags. KTX runs David Zoid Kirsch's Threewave CTF lineage, with an optional grappling hook and four runes as its distinctive layer."
 slug: ctf
 topic: game-mode-reference
 status: draft
 authored_by: qw-oracle
-last_updated: 2026-05-28
+last_updated: 2026-05-29
 scope: engine-scoped
 engines_covered: [ktx]
 
+experience_group: objective
 kind: standalone
+deathmatch_flag: 3
+roster: "5on5 native; also 4on4 / 2on2 / 1on1 (16-player cap)"
+loadout: item-pickup
+objective: capture-most-flags
+score_system: capture-points
+
 canonical_id: ktx:game_mode:ctf
 gameplay_source_id: ktx
 source_ref: commands.c:4543
-activation_summary: "Type `/ctf` on a KTX server where `k_allowed_free_modes` includes the `UM_CTF` bit (value 64). UM_CTF is its own bit -- no other mode shares it, so servers that allow CTF allow only CTF from that bit."
+mode_default_init_array: ctf_um_init
+activation_summary: "Type /ctf on a KTX server whose k_allowed_free_modes includes the UM_CTF bit (value 64) -- its own bit, shared with no other mode. Pre-match only; pick a side with /team red or /team blue, then ready up."
 wiki_status: wiki-upstream
 wiki_page_slug: Capture_the_Flag
-introduced_by: "David \"Zoid\" Kirsch (original Threewave CTF, 1996)"
-introduced_in_version: "predates KTX 1.0 (source in tree since the SVN era, pre-2007)"
+introduced_by: "David \"Zoid\" Kirsch (Threewave CTF)"
+introduced_in_version: "Threewave CTF (1996)"
 note_anchor_version: 1.47-2-g67253dc
-
-um_internal_id: UM_CTF
-mode_default_init_array: ctf_um_init
-common_baseline_init_array: common_um_init
-team_count: team
-roster: "variable (2v2 / 4on4 / 5v5)"
-loadout: item-pickup
-items_on_map: all
-respawn_behavior: instant
-objective: capture-most-flags
-score_system: capture-points-plus-frags
-shape_facets: [capture_objective, team_based, special_powerups, mobility_modifier]
+note_origin: hybrid
 
 related_entities:
   - ktx:command:ctf
+  - ktx:command:mctf
   - ktx:cvar:k_mode
   - ktx:cvar:k_allowed_free_modes
   - ktx:cvar:k_ctf_based_spawn
@@ -41,155 +39,132 @@ related_entities:
   - ktx:cvar:k_ctf_hook
   - ktx:cvar:k_ctf_hookstyle
   - ktx:cvar:k_ctf_runes
+  - ktx:cvar:k_ctf_rune_power_hst
   - ktx:cvar:k_ctf_rune_bounce
   - ktx:cvar:k_ctf_custom_models
   - ktx:cvar:k_ctf_hurt_items
+  - ktx:cvar:k_dis
   - ktx:command:tossrune
   - ktx:command:tossflag
   - ktx:command:flagstatus
   - ktx:command:dropquad
-  - ktx:command:noga
   - ktx:command:nohook
   - ktx:command:norunes
-  - ktx:command:practice
+  - ktx:command:noga
 related_modes:
   - {slug: 4on4, relation: similar-loadout}
-
-note_origin: hybrid
 ---
 
-## Lead
+## Summary
 
-Capture the Flag is a goal-oriented team mode where two teams (red and blue) fight to grab the enemy flag and return it to their own base for a capture. Each team's flag spawns at a flag stand inside their base; carrying the enemy flag to your own stand scores 15 points for the capture and 10 for each teammate, plus assist bonuses for returns and carrier-kills. KTX implements David "Zoid" Kirsch's 1996 Threewave CTF lineage, with the grappling hook and four runes (Haste, Regeneration, Strength, Resistance) as the distinctive mechanical layer.
+Capture the Flag is QuakeWorld's objective team mode: two teams, red and blue, each defend a flag at a stand inside their base and try to carry the *enemy* flag back to their own stand. The catch that makes it a game and not a footrace is that you can only score while your own flag is home -- if the enemy has taken your flag, you have to survive holding theirs until a teammate returns yours. A capture is worth 15 points to the carrier plus 10 to every teammate (45 in a four-player team), so a single capture is worth far more than a run of frags, and the whole match bends around the flag rather than the kill count. KTX implements David "Zoid" Kirsch's Threewave CTF, the 1996 mod that started the genre, carrying forward its two signature toys: an optional grappling hook for mobility and four collectible runes.
 
-## How to play
+## How it plays
 
-Type `/ctf` in the console on a KTX server where `k_allowed_free_modes` includes the `UM_CTF` bit (value 64). UM_CTF is its own bit -- no other modes share it, so enabling CTF in a server's mode allowlist enables only CTF from that bit (unlike `UM_4ON4`, which simultaneously enables 4on4 + ca + wipeout). Players pick a side with `/team red` or `/team blue` and ready up. Matches default to 10-minute rounds (`timelimit 10`) with optional 5-minute overtime (`k_overtime 1`, `k_exttime 5`).
+Two teams fight over two flags. Each team's flag sits on a stand in its base; grabbing the enemy flag is just a matter of touching it, and from that moment you are the carrier -- a marked player the whole enemy team wants dead. You score by carrying it to your own stand, but **only if your own flag is sitting at home**. If your flag has been taken, the touch does nothing; you have to stay alive with the enemy flag until a teammate kills their carrier or returns your flag, and then complete the capture. This single rule is what turns CTF into a back-and-forth of pressure and counter-pressure instead of a one-way race.
 
-A matchtag for demo naming can be passed as an optional argument: `ctf <matchtag>`.
+When a flag carrier dies, the flag drops where they fell. Either team can reach it: the attacking team re-grabs it and the run continues, while a single touch from the defending team instantly teleports it home. A flag left lying on the ground returns to its base on its own after 30 seconds, so a dropped flag is a brief window, not a permanent loss.
 
-## Rules
+Unlike 4on4, CTF runs `deathmatch 3` -- weapons stay on the floor after they are picked up, the same economy as a duel. So CTF is not the weapon-denial game that team deathmatch is; the map's job is to feed an ongoing fight, not to be controlled and starved. Powerups are live, and the Quad in particular is decisive: a Quad on your flag carrier, or hunting the enemy carrier, swings a round. Friendly fire follows KTX's CTF teamplay model (`teamplay 4`): teammates take **no damage** from each other's weapons, but the *knockback* still applies, so a well-placed rocket can boost a teammate (and the carrier) across a gap.
 
-- **Two teams**, blue and red. Each team has a base on the map; the flag spawns at a flag stand inside the base. Player count caps at 16 (`maxclients 16`, `k_maxclients 16`).
-- **Scoring** (constants at `ctf.c:25-31`):
-  - **Capture** = 15 to the capturer + 10 to each teammate. In 4-player teams, each capture is worth 45 frag-equivalents.
-  - **Return** = 1 for returning your own flag to its stand.
-  - **Carrier-kill assist** = 2 for killing the enemy carrier within 6 seconds of a capture by your team.
-  - **Return assist** = 1 for returning your own flag within 4 seconds of a capture.
-  - Regular frags count 1 each.
-- **Capture conditions**: the enemy flag must be touched to your team's flag stand WHILE your own flag is at your stand. If your flag has been taken, you cannot score -- carry the enemy flag until your own returns.
-- **Flag mechanics**: when a flag carrier is killed, the flag drops at the death position. The attacking team can re-grab it; the defending team's touch instantly returns the flag to its home stand.
-- **Loadout**: standard item-pickup. No full-spawn -- players spawn with the starting weapon and pick up weapons / ammo / armor / powerups on the map.
-- **Spawn placements**: `k_ctf_based_spawn 1` puts each team on their own base side. On maps that don't support per-team spawns (e.g. qwq3wcp9 which has only one `info_player_deathmatch`), KTX falls back automatically to default DM spawns.
-- **Discharge rule**: `k_dis 2` -- no out-of-water LG discharges, suppressing the classic frag-for-suicide exploit in CTF.
-- **Spawn protection**: 50 green armor on respawn (`k_ctf_ga 1`) reduces spawn-kill volatility. Disabled per-server with `/noga`.
-- **Teamplay model**: `teamplay 4` -- KTX CTF teamplay mode with friendly-fire / team-kill rules distinct from standard DM teamplay.
+Scoring rewards the whole flag economy, not just the capture:
 
-## The grappling hook
+- **Capture** -- 15 to the carrier, 10 to each teammate (so 45 total in a 4-player team).
+- **Killing the enemy flag carrier** -- 2 bonus points on top of the frag.
+- **Assists** -- 2 more if you fragged the enemy carrier within 6 seconds of your team's capture, 1 if you returned your own flag within 4 seconds of the capture.
+- **Defending** -- 2 points for fragging an enemy near your flag, 2 for fragging someone who was attacking your flag carrier, 1 for a frag near your own carrier. Defending genuinely scores; the source comment puts it plainly -- "Defending the flag is now two bonus points rather than one."
+- **Frags** -- 1 each, as usual.
 
-The grapple is CTF's defining mobility tool. Off by default in KTX (`k_ctf_hook 0`); when enabled it fires with `+fire 22` or `impulse 22`. KTX supports four hook styles via `k_ctf_hookstyle`:
+The team with the most points when the clock runs out wins; matches default to 10-minute rounds with a 5-minute overtime on a draw. Two small house rules round it out: every player spawns with 50 green armor to take the edge off spawn-fragging, and you cannot suicide in the first 10 seconds of a match.
 
-- `hook_classic` -- the original Threewave hook
-- `hook_fast` -- accelerated reel-in
-- `hook_smooth` -- smoothed motion
-- `hook_crhook` -- the "CR hook" variant (refined in PR #277 by inf1niti)
+### The grappling hook
 
-> "...As for the grapple, after seeing how it was being used so effectively in CTF, I felt it was too fast. A player could be gone before you had a chance to even blink and that made it too powerful. But, it became part of the game and players worked to accommodate it." -- David "Zoid" Kirsch (Threewave-era quote, harvested from the wiki)
+The grapple is CTF's signature mobility tool and the skill that most separates good CTF players from the rest -- a fast carrier who can hook out of a base before the defense reacts is the engine of a team. It is **off by default** in KTX (`k_ctf_hook 0`); when an admin enables it, every player gets the hook in their inventory and fires it with `impulse 22` (or the autofire form `+fire 22` on a bind). Most players set it up through CTF-specific binds -- see Starting a game.
 
-CTF without hook is sometimes called "classic CTF" or "pure CTF" in other games; in QuakeWorld hook-on is the norm in active competitive play.
+KTX ships four hook styles, selected by `k_ctf_hookstyle` (1 = classic, 2 = fast, 3 = smooth, 4 = crhook). The style can be set in the server config, but players can also **vote** it mid-session with the `hook_classic` / `hook_fast` / `hook_smooth` / `hook_crhook` commands, with `k_vp_hookstyle` setting the percentage needed to pass. The styles differ in how the hook reels you in and whether it can be cancelled in mid-throw.
 
-## Runes
+The hook was contentious from the start. Zoid himself thought it was too strong:
 
-CTF is one of the few QW modes with its own special powerups. Four runes can spawn on the map (master toggle `k_ctf_runes 1`; off by default):
+> "...As for the grapple, after seeing how it was being used so effectively in CTF, I felt it was too fast. A player could be gone before you had a chance to even blink and that made it too powerful. But, it became part of the game and players worked to accommodate it."
 
-| Rune | Theme | Effect |
-|---|---|---|
-| **Haste** | Hell Magic | Doubles movement speed and rocket fire rate |
-| **Regeneration** | Elder Magic | Slowly restores armor + health up to 150; megahealth doesn't drain |
-| **Strength** | Black Magic | Doubles damage dealt (8x with quad) |
-| **Resistance** | Earth Magic | Halves damage received |
+CTF without the hook (and runes) is the older "pure" or "classic" style -- KTX exposes it directly through the `mctf` command, which turns both hook and runes off in one shot. In QuakeWorld, though, hook-on is the norm in active play.
 
-Each player can carry only one rune at a time. The `/tossrune` command drops the held rune for a teammate (`bind r tossrune` is a common convention). Per-rune disable is supported via `k_ctf_rune_power_*` cvars (PR #252 -- setting a rune's power to 0 disables that rune individually). Rune bouncing behavior is controlled by `k_ctf_rune_bounce` (PR #290); PR #288 added randomized rune spawn locations.
+### Runes
+
+CTF is one of the only QuakeWorld modes with its own special powerups. Four runes can spawn on the map, each a persistent buff you keep until you die or drop it. They are **off by default** (`k_ctf_runes 0`), and a player can carry only one at a time -- the `tossrune` command drops your rune for a teammate or to swap for a better one (`bind r tossrune` is a common setup).
+
+Each rune's strength -- and whether it spawns at all -- is set by its own power cvar (`k_ctf_rune_power_res` / `_str` / `_hst` / `_rgn`), each defaulting to `2.0`; setting one to `0` removes that rune from the rotation. At the default power:
+
+- **Resistance** (Earth Magic) -- halves the damage you take. Quietly the strongest rune in a firefight.
+- **Strength** (Black Magic) -- doubles the damage you deal. Stacked with a Quad that becomes 8x damage.
+- **Regeneration** (Elder Magic) -- regrows both health and armor by 5 every half-second up to 150. The health it gives you above 100 slowly rots back down once you lose the rune, unless you are holding a megahealth.
+- **Haste** (Hell Magic) -- speeds up your movement and weapon refire. At the default power this is roughly a 25% movement boost; the famous Threewave "double speed" Haste corresponds to a higher setting (`k_ctf_rune_power_hst 8`), which KTX does not ship by default.
+
+Zoid framed the runes as a control mechanic rather than raw power: *"The runes are all about control, control the runes and you can take control of the level. Good CTF teams take great care in protecting their rune bearers and placing them in strategic positions."*
+
+## Starting a game
+
+On a KTX server, type `/ctf` in the console. As with the other modes this only sets a match up -- it does not interrupt one in progress -- so it is a pre-match action. Then pick a side with `/team red` or `/team blue` and ready up. You can append a match tag for demo and QTV naming: `ctf EQL`.
+
+If the server has the hook enabled, bind it before the match. The grapple fires on `impulse 22`, and the mode supports an `on_enter_ctf` alias that runs automatically when the server switches to CTF, which is the tidy place to set your CTF binds:
+
+```
+alias on_enter_ctf "+scores; bind q impulse 22; bind r tossrune"
+```
+
+`+scores` brings up the CTF-aware status bar (score, time, your rune, which flags are taken). The server has to allow CTF and decides whether the hook and runes are on -- see Hosting & settings. One thing to know going in: CTF and bots are mutually exclusive, so a server can't run CTF with frogbots enabled.
 
 ## Strategy
 
-Classic CTF strategy revolves around three concurrent priorities:
+CTF play organizes around roles. A team usually fields a designated **flag runner** -- typically the fastest player and the best with the hook -- whose job is to get in, grab, and get out, evading fights rather than seeking them. The carrier is the team's whole score engine, so keeping them alive is the single most important and most overlooked skill in competitive CTF; good carriers read the map and lean on teammate cover and hook mobility to disengage.
 
-- **Flag carrier survival**. The carrier is the team's score engine. Skilled CTF play involves carrying the flag toward your base via hook mobility, evading engagements rather than seeking them. Carriers stay alive by reading the map and using teammate cover.
-- **Map control and quad timing**. Standard QW quad-control instincts still apply; in CTF a teammate carrying quad-and-flag is the highest-value player on the map. Coordinating rotations to time quad with a flag run is canonical CTF play.
-- **Pressure vs defense balance**. Modern strategy emphasizes controlling the map center and threatening the enemy flag rather than purely camping your own base. If their flag is constantly being challenged, your defense has less to do.
+Around the runner sit **defenders** holding the base (a rune-bearer on defense is especially hard to shift) and **map-control** players who cycle between contesting the Quad and pressuring the enemy flag. The modern consensus is that the best defense is offense: controlling the center of the map and keeping constant pressure on the enemy flag means their team is busy defending and has little left to attack you with. Over-investing in your own base while ignoring the enemy flag tends to lose to a team that just captures faster.
 
-Typical team setups have a designated flag runner (the fastest player, often a hook specialist), one or two defenders, and one or two map-control players cycling between quad runs and offense.
-
-<!-- verify: Strategy section is harvested from the Capture_the_Flag wiki page; the "modern strategy" framing reflects 2022-2024 competitive practice (CTF Showdown era). Curator pass should ground or trim against community testimony. -->
+The three things a team is always balancing are flag control, rune control, and the Quad. A teammate carrying both the Quad and the enemy flag is the highest-value player on the map, and coordinating a Quad timing with a flag run is canonical CTF play.
 
 ## Maps
 
-CTF plays on dedicated CTF maps (those with built-in flag spawn metadata) and on standard QW maps via the entfile overlay system (`sv_loadentfiles_dir ctf` loads CTF-specific entity definitions for vanilla maps).
+CTF runs on two kinds of maps. **Dedicated CTF maps** ship with built-in flag-spawn entities; **standard QuakeWorld maps** are made playable through KTX's entity-file overlay (`sv_loadentfiles_dir ctf`), which loads CTF-specific flag and spawn definitions over a vanilla map without touching its BSP.
 
-Common CTF maps in competitive play:
-
-| Map | Notes |
-|---|---|
-| `ctf2m1` | Classic Threewave; Showdown 4on4 staple |
-| `ctf2m3` | 2on2 tournament map |
-| `ctf2m8` | 2on2 / 4on4 |
-| `ctf5` | Classic Threewave |
-| `ctf8` | Classic Threewave; tournament staple |
-| `e1m5` | Vanilla SP map adapted via entfile |
-| `e2m2` | Vanilla SP adapted; the most-played non-dedicated CTF map |
-| `e2m5` | Vanilla SP adapted |
-| `e3m6` | Vanilla SP adapted |
-| `mammoth` | Modern competitive map by Alice (2023+) |
-
-Some custom maps require per-map cfg overrides for hook/rune toggles -- see `qwq3wcp9.cfg` for a working example that disables both hook and runes for that single map.
+The long-loved set includes `e2m2` (the most-played non-dedicated CTF map), `e2m5`, `e3m6`, and the classic Threewave maps `ctf5`, `ctf8`, `ctf2m1`, and `ctf2m3`. Modern competitive rotations have added maps like `mammoth` and `qwrctf1`. Mirrored CTF maps are symmetric and fair to both sides; episode maps usually favor one base over the other (closer items, easier to hold), so teams sometimes pick a side. Individual maps can carry per-map config overrides -- a map cfg can force the hook and runes off for that map, for instance.
 
 ## History
 
-CTF was created by **David "Zoid" Kirsch** as Threewave CTF, released in late 1996 -- the first goal-oriented teamplay mod for Quake. The community embraced it quickly; many CTF players never played plain deathmatch and built a parallel scene around the mode.
+Capture the Flag was created by **David "Zoid" Kirsch** as Threewave CTF, and the first Threewave server went up in late 1996. It was the first goal-oriented teamplay mod for Quake and was adopted almost immediately; CTF grew its own community, many of whom played CTF more or less exclusively and never touched plain deathmatch.
 
-The CTF serverside evolved in several stages:
+The server side went through a lineage of mods -- the original Threewave, then PureCTF, then PureCTF Pro -- before KTX absorbed CTF as a built-in mode; the CTF source has been in the KTX tree since its pre-git SVN era. Competitive practice has also shifted: matches today run 10-minute rounds, where the older Threewave-era games used 20-minute rounds that left more room to recover from an early deficit.
 
-1. **Threewave CTF** (1996+) -- the original.
-2. **PureCTF / PureCTF Pro** (early 2000s) -- community-maintained server-side forks.
-3. **KTX integration** -- src/ctf.c has been in KTX since the pre-git SVN era (earliest commit visible in tree dated 2007-07-18; the mode predates the git migration).
-4. **Modern KTX CTF era** (2018-2025) -- substantial maintenance and feature work via the qw-ctf GitHub org. Notable PRs: per-team based spawns (#240), destructable runes + flags (#242), randomized rune spawns (#288), per-rune disable (#252), bouncing-rune control (#290), CTF monsters (#289), hook-style refinements (#277, inf1niti), CSQC additions (#392), map limits + HUD-key flag display (#445).
-5. **Competitive revival** (May 2022+) -- after a long quiet period in QW CTF, Shining + Elguapo organized **CTF Showdown** (May 2022, 4on4, won by Creature Condors), followed by **CTF Showdown 2** (Sept 2023, 2on2). Weekly community games run on Mondays and Thursdays.
+After a long quiet period, QuakeWorld CTF saw a competitive revival from 2022. **CTF Showdown** (16 May 2022, 4on4) was organized by Shining with Elguapo and Velocity, followed by **CTF Showdown 2** (December 2022, 4on4) on a rotation that included `mammoth` and `qwrctf1`, and a 2on2 Showdown in September 2023. Weekly community games have run alongside the tournaments.
 
-Wiki commentary notes that competitive practice has converged on 10-minute rounds; older Threewave-era play used 20-minute rounds and allowed more comeback potential.
+## Hosting & settings
 
-## Server setup
+CTF rides on the `UM_CTF` bit, value `64` -- and unlike the arena modes it has its own bit all to itself, so enabling CTF enables nothing else and no other mode enables CTF. On a stock KTX or nquake server `k_allowed_free_modes` defaults to `4095`, which already includes CTF; you only set the mask explicitly to *restrict* a server to a subset of modes.
 
-Set `k_allowed_free_modes` to include the `UM_CTF` bit (value 64). UM_CTF is its own bit -- no co-flag is needed; enabling CTF does not enable any other mode.
+```
+# server.cfg -- 4095 is the stock default and already allows CTF (the 64 bit)
+set k_allowed_free_modes 4095
 
-Common server-side toggles applied on top of the `/ctf` preset for competitive setups:
+# the two big toggles, both OFF by default -- most competitive servers turn them on
+set k_ctf_hook 1
+set k_ctf_runes 1
+```
 
-- `k_ctf_hook 1` -- enable grapple (off by default)
-- `k_ctf_runes 1` -- enable runes (off by default)
-- `k_ctf_ga 0` -- disable spawn green armor (default on)
-- `k_ctf_hookstyle <classic|fast|smooth|crhook>` -- pick a hook style server-wide
+The cvars that define a CTF server, all applied on top of the `/ctf` preset:
 
-Per-map cfgs in `maps/<mapname>.cfg` can override these per map. The `/ctf` preset refuses to apply while bots are active (must run `/botcmd disable` first) and while `k_auto_xonx` is on; hoonymode-only maps block all preset switches.
+- **`k_ctf_hook`** (default `0`) and **`k_ctf_hookstyle`** (`1`=classic, `2`=fast, `3`=smooth, `4`=crhook) -- the grapple and its physics. Players can also vote the style in-game (`hook_classic` etc.); `k_vp_hookstyle` sets the vote threshold.
+- **`k_ctf_runes`** (default `0`) and the per-rune **`k_ctf_rune_power_res` / `_str` / `_hst` / `_rgn`** (default `2.0` each) -- the rune master switch and individual strengths. Set a rune's power to `0` to drop just that rune from the rotation; `k_ctf_rune_bounce` (default `3`) controls how dropped runes bounce.
+- **`k_ctf_ga`** (default `1`) -- the 50 green armor every player spawns with, to cut down spawn-fragging. Disable per-server, or in-game with `noga`.
+- **`k_ctf_based_spawn`** (default `1`) -- spawns each team on its own base side; KTX forces it off automatically on maps that lack per-team spawn points.
+- **`k_ctf_custom_models`** and **`k_ctf_hurt_items`** -- cosmetic flag/hook models, and whether flags and runes are destroyed by lava and damage triggers.
 
-## Configuration
+The preset itself sets the surprising values an admin should recognize: `deathmatch 3` (weapons stay on the floor), `teamplay 4` (KTX's CTF teamplay -- no friendly damage but knockback applies), `k_dis 2` (no out-of-water lightning-gun discharge, killing the suicide-frag exploit), `timelimit 10`, and `maxclients 16`. The full enforced settings are in the `ctf_um_init` array reachable from this note's `mode_default_init_array` pointer.
 
-<!-- configuration table auto-projected from gameplay_mechanics WHERE props_json->>'initstring_array' = 'ctf_um_init'. The 21 CTF-specific overrides applied on top of common_um_init. Key CTF-only values: k_mode=4 (CTF game type), teamplay=4 (CTF teamplay model), deathmatch=3 (weapons stay on floor after pickup), timelimit=10, maxclients=16, k_ctf_based_spawn=1, k_ctf_hook=0 (hook OFF by default), k_ctf_runes=0 (runes OFF by default), k_ctf_ga=1 (50 green armor spawn ON), k_dis=2 (no out-of-water discharges). Also sets pm_airstep=1, k_pow=1, k_spw=1, k_lockmin=1, k_lockmax=2, k_overtime=1, k_exttime=5, k_membercount=0, sv_loadentfiles_dir=ctf (entfile overlay loader). -->
+Two operational notes: CTF cannot run with bots, so disable them (`botcmd disable`) before switching; and the `mctf` command is the one-shot way to turn the hook and runes both off for a "pure CTF" game without editing the config.
 
 ## See also
 
-- `/ctf` -- activation command (`commands.c:4543`).
-- `k_mode` -- game-type discriminator; `4` = CTF.
-- `k_allowed_free_modes` -- bitmask of allowed presets; bit 64 (UM_CTF) gates CTF.
-- `k_ctf_hook` / `k_ctf_hookstyle` -- grapple master toggle + style selector.
-- `k_ctf_runes` -- master rune toggle; per-rune disable via `k_ctf_rune_power_hst|res|rgn|str`.
-- `k_ctf_ga` -- spawn green armor toggle (default on).
-- `k_ctf_based_spawn` -- per-team spawn placement.
-- `/tossrune`, `/tossflag` -- drop carried rune or flag.
-- `/flagstatus` -- detailed flag state (who holds what, where).
-- `/dropquad` -- toggle the rule that quad-holders drop quad on death.
-- `/norunes`, `/nohook`, `/noga` -- in-game disable shortcuts.
-- `/practice` -- enter practice mode (useful for warming up hook + rune routes).
-- `+scores` -- CTF-aware status bar overlay.
-- `4on4` -- shares item-pickup teamplay loadout (similar economic shape but no capture objective).
-
-<!-- triage notes: wiki-upstream. Capture_the_Flag.json (~12.4K chars) provided Lead / History / Concept / Objectives / Hook / Runes / Strategy / Maps / Special Commands; all mechanical claims (scoring constants, defaults, k_ctf_* cvars, hook + rune toggles) verified against ctf_um_init at commands.c:4438 and src/ctf.c constants (CAPTURE_BONUS=15, TEAM_BONUS=10, RETURN_BONUS=1, CARRIER_ASSIST_BONUS=2, RETURN_ASSIST_BONUS=1, CARRIER_ASSIST_TIME=6, RETURN_ASSIST_TIME=4). Wiki claim of "defending bonuses" not source-confirmed (CARRIER_ASSIST and RETURN_ASSIST exist; no separate FLAG_DEFENSE_BONUS in ctf.c constants) -- omitted from prose. Showdown + Showdown_2 satellite pages contributed competitive-revival history. Map list synthesized from wiki overview + tournament map rotations. Hook styles enumerated from entities-table grep, not from wiki. -->
+- `4on4` -- the flagship team mode and the natural comparison: same item-pickup teamplay, but 4on4 is `deathmatch 1` (weapons disappear on pickup, so map control is the game) where CTF is `deathmatch 3` (weapons stay) and the objective, not the frag count, decides it.
+- CTF is the sole member of the **objective** experience group -- it has no same-shape sibling. It also occupies the `UM_CTF` bit alone, so there are no bit-sharing siblings to be aware of (unlike 4on4 / ca / wipeout, which share one bit).
+- `tossrune` / `tossflag` -- drop your carried rune or flag for a teammate. `flagstatus` -- print exactly who holds which flag and where. `dropquad` -- toggle whether a Quad holder drops the Quad when killed.
+- `nohook` / `norunes` / `noga` -- in-game toggles for the hook, runes, and spawn armor; `mctf` turns hook and runes off together.
+- `deathmatch-modes` (pending) -- reference note on the `deathmatch` flag values, including why CTF uses `deathmatch 3`.
