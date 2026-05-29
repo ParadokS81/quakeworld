@@ -46,18 +46,16 @@ So the Quad stops being a spot on the map and becomes the player holding it: pic
 
 ## Starting a game
 
-KillQuad is a toggle, not a mode you start. Enable it one of two ways, then start whatever base mode you want to play:
+KillQuad is a toggle, not a mode you start. On a live server, any player can type `/killquad` in the console during warmup to switch it on or off; the command is refused once a match is in progress. (An admin can also preset it server-side -- see Hosting & settings.) With the toggle on, start a normal game (`/4on4`, `/1on1`, `/ctf`, ...) and KillQuad's quad rules apply on top of it.
+
+## Hosting & settings
+
+The quad-removal and drop logic live in KTX's shared item code, not in any per-mode preset, so KillQuad behaves identically no matter which base mode it is layered onto. An admin enables it with one cvar in `server.cfg`, then starts any base mode:
 
 ```
 # server.cfg
 k_killquad 1
 ```
-
-Or, on a live server, any player can type `killquad` in the console during warmup to toggle it on or off. The command is refused once a match is in progress -- it can only be changed before the match starts. With the toggle on, start a normal game (`/4on4`, `/1on1`, `/ctf`, ...) and KillQuad's quad rules apply on top of it.
-
-## Hosting & settings
-
-The quad-removal and drop logic live in KTX's shared item code, not in any per-mode preset, so KillQuad behaves identically no matter which base mode it is layered onto. There is one cvar:
 
 - **`k_killquad 1`** -- the activation toggle (default `0`).
 
