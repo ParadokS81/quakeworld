@@ -147,6 +147,14 @@ npm run load-knowledge --silent --no-workspaces -- re-derive
 # 2. re-embed any rows whose description text changed (hash-skip handles no-ops)
 npm run embed:entities
 
+# 2b. (if Layer 3 concept notes changed) load the notes into dev and embed their
+#     chunks. This is the Layer 3 analogue of steps 0-2 and is REQUIRED whenever a
+#     .md under curated/concept-notes/ was added or edited -- the loader is the only
+#     thing that copies file content into the DB. Skipping it means the edited/new
+#     note never reaches the dump, and so never reaches prod. Idempotent + hash-skips
+#     unchanged notes' embeddings, so it is safe to run on every refresh.
+bun scripts/load-concepts/index.ts
+
 # 3. dump from the dev container. Default is a full dump for safety;
 #    per-table dumps are an optimisation worth it for big infrequent refreshes.
 docker exec qw-oracle-postgres-dev pg_dump -U qworacle -d qw_oracle \
@@ -167,9 +175,10 @@ ssh root@100.114.81.91 'cd /mnt/user/appdata/qw-oracle/dumps && \
 ssh root@100.114.81.91 \
   'docker exec -i qw-oracle-postgres psql -1 -U qworacle -d qw_oracle < /tmp/qw_oracle.sql'
 
-# 7. sanity check from WSL via the Tailscale connection string
+# 7. sanity check from WSL via the Tailscale connection string. Counts Layer 1
+#    entities AND Layer 3 concepts so a missed step-2b shows up here.
 DATABASE_URL=postgresql://qworacle:<prod-password>@100.114.81.91:5432/qw_oracle \
-  bun -e 'import postgres from "postgres"; const sql = postgres(process.env.DATABASE_URL); const r = await sql`SELECT count(*) FROM entities WHERE description IS NOT NULL`; console.log(r); await sql.end()'
+  bun -e 'import postgres from "postgres"; const sql = postgres(process.env.DATABASE_URL); const e = await sql`SELECT count(*) FROM entities WHERE description IS NOT NULL`; const c = await sql`SELECT count(*) FROM concepts`; console.log({ entities: e[0].count, concepts: c[0].count }); await sql.end()'
 ```
 
 No MCP image rebuild is needed -- the server reads live Postgres on each
