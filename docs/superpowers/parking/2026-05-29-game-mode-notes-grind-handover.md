@@ -58,8 +58,9 @@ v3 recasts: treat v3 content as hypothesis, re-verify against source; harvest ge
 ## First three actions
 
 1. Read this handover + `experience-group-classification.md` + the 4 exemplars cold.
-2. Pick the next note. Suggested: **`ctf`** — the only mode that exercises the `###`-subsections-in-How-it-plays path (grappling hook + runes), so it stress-tests the uniform structure on a content-heavy standalone. Or knock out quick standard-game roster wins (`2on2`/`3on3`/…) to build momentum. Operator's sequencing call.
-3. Draft → operator polish → commit. Then grind: 4 v3 recasts + 19 new + extras.
+2. **Recast the 4 stale v3 notes FIRST — before any new notes.** They are non-conformant on disk right now (`kind: variant`/`mutation` are invalid values; no `experience_group`; retired sections like `## Lead` / `## What it does` / `## Configuration`). Clearing them makes "all game-mode notes current" true before anything new is added, and stress-tests the directives on the known-hard cases. **Treat each v3 as a hypothesis, not a reformat** — re-verify every claim against source. The v3s carried real errors (wipeout's v3 fabricated its spawn loadout; killquad's v3 had the berzerk + seeding bugs), so analysis-before-draft is mandatory. Harvest genuine content (maps tables, history) from the `_backup-pre-methodology-v2/` copies, but verify it against KTX source.
+   - Suggested order: **`hoonymode`** (spawn-rotation standalone / family head) → **`blitz2v2`** (leads with its delta vs hoonymode — do it after) → **`lgc`** (mutator; wiki is wrong-topic, so `l3-upstream`) → **`ctf`** (content-heavy capstone: its v3 has `## The grappling hook` + `## Runes` as top-level sections that must become `###` inside `How it plays`). Flip `ctf` to first if you'd rather validate the content-heavy `###` path early.
+3. Per note: **analyze v3 vs source → draft recast → operator polish → commit** (stage only the note file). Once all 4 are clean and "all game-mode notes are current" is true, THEN move to the 19 new + ~3 extras.
 
 ## Out of scope
 
