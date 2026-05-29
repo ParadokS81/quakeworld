@@ -75,4 +75,4 @@ The rest is left to you on purpose. The opponent and skill are configured separa
 - `midair` -- the other main dmm4 aim mutator (score only for mid-air kills). Mutually exclusive with LGC: enabling either one turns the other off.
 - `instagib` -- also mutually exclusive with LGC, and likewise built on dmm4.
 - `dmgfrags` -- the standalone damage-frag scoring toggle. LGC uses the same scoring path, so `dmgfrags` is switched off and refused while LGC is on.
-- `deathmatch-modes` (pending) -- reference on the `deathmatch` flag values, including dmm4, the full-arsenal aim-map ruleset LGC is built on.
+- `deathmatch-modes` -- reference on the `deathmatch` flag values, including dmm4, the full-arsenal aim-map ruleset LGC is built on.

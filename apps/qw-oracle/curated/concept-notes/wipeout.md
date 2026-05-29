@@ -88,4 +88,4 @@ Everything else matches Clan Arena: `deathmatch 5`, `k_noitems 1`, `k_dmgfrags 1
 
 - `ca` -- standard Clan Arena: the same arena, but a single life per round (`k_clan_arena 1`, no respawns) instead of Wipeout's respawn budget. The shared loadout, no-items, and no-self-damage rules are documented there.
 - `4on4` -- shares wipeout's activation bit (`UM_4ON4`) on the server, but plays as a normal item-pickup team game.
-- `deathmatch-modes` (pending) -- reference on the `deathmatch` flag values, including why the arena modes run `deathmatch 5`.
+- `deathmatch-modes` -- reference on the `deathmatch` flag values, including why the arena modes run `deathmatch 5`.

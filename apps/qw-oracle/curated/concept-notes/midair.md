@@ -73,4 +73,4 @@ Enabling midair clears the cvars it conflicts with -- `k_instagib`, `k_lgcmode`,
 
 - `lgc` -- the other dmm4 aim mutator (score by lightning-gun damage). Mutually exclusive with midair: enabling either turns the other off.
 - `instagib` -- also a dmm4 mutator and likewise mutually exclusive with midair.
-- `deathmatch-modes` (pending) -- reference on the `deathmatch` flag values, including dmm4, the full-arsenal aim-map base midair is built on.
+- `deathmatch-modes` -- reference on the `deathmatch` flag values, including dmm4, the full-arsenal aim-map base midair is built on.

@@ -99,4 +99,4 @@ The route files themselves live server-side per map; the in-game `race_set_*` co
 - `race_ready` / `race_break` -- sign in and out as a runner; `race_cancel` aborts the current attempt and resets you to the start.
 - `race_show_toptimes` / `race_dl_record_demo` -- the record table and the downloadable record-run demo, the heart of how race maps are learned.
 - `race_route_switch` / `race_show_route` -- move between and inspect a map's pre-built routes.
-- `deathmatch-modes` (pending) -- reference on the `deathmatch` flag values; race is built on dmm4 but strips it down to pure movement.
+- `deathmatch-modes` -- reference on the `deathmatch` flag values; race is built on dmm4 but strips it down to pure movement.

@@ -100,4 +100,4 @@ The full enforced settings are in the `tot_um_init` array reachable from this no
 - `bloodfest` -- the other solo/PvE mode, where the opponents are waves of Quake monsters rather than bots.
 - `lgc` -- another KTX benchmark format built for self-measurement (lightning-gun aim) rather than a match against people.
 - `botcmd` -- the frogbot control command; `botcmd fill` populates the server, `botcmd enable` / `disable` gate bots on the server.
-- `deathmatch-modes` (pending) -- reference on the `deathmatch` flag values, including dmm4, the full-arsenal base ToT is built on.
+- `deathmatch-modes` -- reference on the `deathmatch` flag values, including dmm4, the full-arsenal base ToT is built on.

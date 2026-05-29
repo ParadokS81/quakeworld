@@ -73,4 +73,4 @@ The defining settings, applied by `/2on2on2`:
 
 - `3on3on3`, `4on4on4` -- the larger three-team modes; same three-cornered dynamic at three and four players a side (and on `deathmatch 1`).
 - `2on2` -- the two-team version of this roster: the same `deathmatch 3` economy, but a straight fight rather than a three-way standoff.
-- `deathmatch-modes` (pending) -- reference note on the `deathmatch` flag values.
+- `deathmatch-modes` -- reference note on the `deathmatch` flag values.

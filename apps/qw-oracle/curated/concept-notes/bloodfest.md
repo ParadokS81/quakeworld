@@ -78,4 +78,4 @@ The wave sizing, the 100-monster / projectile ceilings, the per-monster kill rew
 - `tot` (Tribe of Tjernobyl) -- the other solo/PvE mode, where the opponents are frogbots rather than monsters; both are a break from player-vs-player KTX.
 - `ffa` -- the closest player-vs-player cousin in spirit: drop-in, chaotic, score-by-kills, but against people instead of monsters.
 - `k_monster_spawn_time` -- the wave-interval cvar.
-- `deathmatch-modes` (pending) -- reference on the `deathmatch` flag values; Bloodfest, like the other dmm4-family modes, runs with ammo that never depletes.
+- `deathmatch-modes` -- reference on the `deathmatch` flag values; Bloodfest, like the other dmm4-family modes, runs with ammo that never depletes.

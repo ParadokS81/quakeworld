@@ -78,4 +78,4 @@ The admin-relevant feature is **`k_auto_xonx`**: with it set, the server watches
 
 - `4on4` -- the fixed-roster format whose economy XonX flexes; a small XonX game is effectively a 4on4 with a different team size.
 - `10on10` -- the fixed big-team mode; XonX covers the same large-roster ground when the count is not exactly ten a side.
-- `deathmatch-modes` (pending) -- reference note on the `deathmatch` flag values.
+- `deathmatch-modes` -- reference note on the `deathmatch` flag values.

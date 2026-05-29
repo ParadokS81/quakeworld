@@ -167,4 +167,4 @@ Two operational notes: CTF cannot run with bots, so disable them (`botcmd disabl
 - CTF is the sole member of the **objective** experience group -- it has no same-shape sibling. It also occupies the `UM_CTF` bit alone, so there are no bit-sharing siblings to be aware of (unlike 4on4 / ca / wipeout, which share one bit).
 - `tossrune` / `tossflag` -- drop your carried rune or flag for a teammate. `flagstatus` -- print exactly who holds which flag and where. `dropquad` -- toggle whether a Quad holder drops the Quad when killed.
 - `nohook` / `norunes` / `noga` -- in-game toggles for the hook, runes, and spawn armor; `mctf` turns hook and runes off together.
-- `deathmatch-modes` (pending) -- reference note on the `deathmatch` flag values, including why CTF uses `deathmatch 3`.
+- `deathmatch-modes` -- reference note on the `deathmatch` flag values, including why CTF uses `deathmatch 3`.

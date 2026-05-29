@@ -82,4 +82,4 @@ Enabling Instagib clears the cvars it conflicts with: `k_midair`, `k_lgcmode`, t
 - `midair` -- the other main dmm4 aim mutator (score only for mid-air kills). Mutually exclusive with Instagib: enabling either one turns the other off.
 - `lgc` -- the Lightning Gun-only dmm4 mutator, also mutually exclusive with Instagib.
 - `ffa` -- the free-for-all setup Instagib is usually played on; like Instagib it leans on `dq`/`dr` powerup play in its normal form, though Instagib strips the game down to the Coilgun.
-- `deathmatch-modes` (pending) -- reference on the `deathmatch` flag values, including dmm4, the full-arsenal aim-map ruleset Instagib is built on.
+- `deathmatch-modes` -- reference on the `deathmatch` flag values, including dmm4, the full-arsenal aim-map ruleset Instagib is built on.

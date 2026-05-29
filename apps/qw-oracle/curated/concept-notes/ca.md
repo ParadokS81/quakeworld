@@ -87,4 +87,4 @@ There is no time limit, no overtime, and no powerups -- a round ends only by eli
 
 - `wipeout` -- the respawn-based arena variant (`k_clan_arena 2`): the same full-spawn, no-items arena, but each player gets a limited number of respawns per round on a growing delay, rather than being out on the first death.
 - `4on4` -- shares ca's activation bit (`UM_4ON4`) on the server, but plays as its opposite: item pickups and map control instead of equal full-spawns.
-- `deathmatch-modes` (pending) -- reference on the `deathmatch` flag values, including why the arena modes run `deathmatch 5`.
+- `deathmatch-modes` -- reference on the `deathmatch` flag values, including why the arena modes run `deathmatch 5`.

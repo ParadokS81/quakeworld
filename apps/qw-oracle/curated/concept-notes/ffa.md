@@ -93,4 +93,4 @@ The `/ffa` preset itself sets the values that define the mode: `k_mode 3` (the F
 - `tot` (Tribe of Tjernobyl) -- not an FFA itself, but it occupies the same `UM_FFA` bit (value 32), so the single bit in `k_allowed_free_modes` makes the slot available to both.
 - `instagib` -- the novelty gimmick set up as an FFA (a railgun imported from Quake 2/3), played casually for a few rounds rather than as a competitive format.
 - `dq` / `dr` -- the drop-on-death toggles that make powerups FFA's central currency.
-- `deathmatch-modes` (pending) -- reference note on the `deathmatch` flag values, including why FFA uses `deathmatch 3` (weapons stay).
+- `deathmatch-modes` -- reference note on the `deathmatch` flag values, including why FFA uses `deathmatch 3` (weapons stay).
