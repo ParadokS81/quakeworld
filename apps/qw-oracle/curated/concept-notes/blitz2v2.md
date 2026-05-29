@@ -1,76 +1,89 @@
 ---
-title: "Blitz 2v2"
-summary: "Two-team variant of Hoonymode: the spawn-rotation duel mechanic extended to 2v2 with time-limited rounds, teamplay enabled, and powerups live on the map."
+title: "Blitz (2v2)"
+summary: "The two-team version of hoonymode: the same spawn-rotation format, but played 2v2 over four timed rounds instead of as a single-frag duel. Friendly fire is on, powerups are live, and the team with the most total frags across the four rounds wins."
 slug: blitz2v2
 topic: game-mode-reference
 status: draft
 authored_by: qw-oracle
-last_updated: 2026-05-28
+last_updated: 2026-05-29
 scope: engine-scoped
 engines_covered: [ktx]
 
-kind: variant
+experience_group: spawn-rotation
+kind: standalone
+deathmatch_flag: 3
+roster: "2v2"
+loadout: item-pickup
+objective: most-frags-over-rounds
+score_system: frags
+
 canonical_id: ktx:game_mode:blitz2v2
 gameplay_source_id: ktx
 source_ref: commands.c:4545
-activation_summary: "Type /blitz2v2 on KTX servers where k_allowed_free_modes includes the UM_1ON1HM bit (value 128) -- the same bit that enables hoonymode and blitz4v4."
-wiki_status: l3-upstream
-note_anchor_version: 1.47-2-g67253dc
-
-family_slug: hoonymode
-family_head_canonical_id: ktx:game_mode:hoonymode
-um_internal_id: UM_1ON1HM
 mode_default_init_array: _2on2hm_um_init
-roster: "2v2"
-family_delta: "Roster 2v2 (4 players); time-based rounds (3 min) instead of frag-based; fraglimit 0; 4 rounds per series instead of 12; teamplay 2; powerups live; overtime disabled."
+activation_summary: "Type /blitz2v2 on a KTX server -- the command matches the slug. Blitz (2v2) rides on the UM_1ON1HM bit (value 128), shared with hoonymode and blitz4v4, which standard servers enable by default. Pre-match only."
+wiki_status: l3-upstream
+introduced_by: "meag"
+note_anchor_version: 1.47-2-g67253dc
+note_origin: synthesized
 
 related_entities:
   - ktx:command:blitz2v2
+  - ktx:command:pickspawn
   - ktx:cvar:k_hoonymode
   - ktx:cvar:k_hoonyrounds
   - ktx:cvar:k_pow
-  - ktx:cvar:k_allowed_free_modes
   - ktx:cvar:k_mode
-  - ktx:cvar:k_lockmin
+  - ktx:cvar:k_allowed_free_modes
 related_modes:
-  - {slug: hoonymode, relation: family-head}
-  - {slug: blitz4v4, relation: family-member}
-
-note_origin: synthesized
+  - {slug: hoonymode, relation: similar-shape}
+  - {slug: blitz4v4, relation: similar-shape}
 ---
 
-## Lead
+## Summary
 
-Blitz 2v2 is the two-team variant of Hoonymode. It keeps the spawn-rotation structure -- players pick their spawns, rounds swap sides after every two rounds -- but recasts the duel as a team game: 2v2 rosters, 3-minute time-limited rounds, teamplay on, and powerups live. The duel's single-frag round-ender and 12-round series are replaced with a 4-round timed format. The 2v2 and 4v4 blitz variants were added by meag in 2017 and renamed from "hoonymode TDM" to "Blitz" in 2020.
+Blitz (2v2) is the two-team version of hoonymode. It keeps hoonymode's spawn-rotation format -- players pick their spawns, and the two sides swap spawns each round-pair so neither keeps a spawn advantage -- but plays it as a 2v2 team game over four timed rounds rather than as a single-frag duel. Friendly fire is on and powerups are live on the map, and the team with the most total frags across the four rounds takes the match.
 
-## Family delta
+## How it plays
 
-Blitz 2v2 shares `k_hoonymode 1` and the spawn-rotation machinery with the family head, but `_2on2hm_um_init` diverges from `_1on1hm_um_init` across nine cvars -- this is not a pure roster swap:
+Blitz takes hoonymode's spawn-rotation idea and turns it into a team game. The spawn machinery is the same: players nominate spawns in warmup, and the two sides swap spawns after each round-pair so both teams play each spawn the same number of times. (See `hoonymode` for how the rotation works.) What changes is everything around it.
 
-- **Roster**: `maxclients 4` / `k_maxclients 4`. Locked to exactly two teams (`k_lockmin 1`, `k_lockmax 2`) with at least one player each (`k_membercount 1`). Hoonymode is strictly two players, no team locks.
-- **Teamplay**: `teamplay 2` -- players can damage teammates (real teams, friendly fire on). Hoonymode uses `teamplay 0` (duel FFA).
-- **Round end**: time-based -- `timelimit 3` (3-minute rounds), `fraglimit 0`. No single kill ends the round; the clock does. Hoonymode sets `fraglimit 1` / `timelimit 0` -- every frag ends the round immediately.
-- **Series length**: `k_hoonyrounds 4` (4 rounds, 2 sets of spawn sides). Hoonymode defaults to 12 rounds with the tennis-style tiebreaker.
-- **Powerups**: `k_pow 1` -- Quad, Pent, and Ring spawn on the map. Hoonymode suppresses all powerups (`k_pow 0`). Quad becomes a team map-control objective.
-- **Overtime**: `k_overtime 0` -- rounds end at 3 minutes, no extension. Hoonymode has `k_overtime 1` with a 3-minute extension window (`k_exttime 3`).
-- **Mode flag**: `k_mode 2` (team mode) vs `k_mode 1` (duel).
+Instead of a 1v1 duel, Blitz is 2v2 with friendly fire on (`teamplay 2`) and powerups live on the map (`k_pow 1`) -- Quad, Pentagram, and Ring all spawn, so contesting them is part of the round. And instead of ending each round on the first frag, Blitz rounds are timed: each one runs three minutes (`timelimit 3`, `fraglimit 0`), and a series is four rounds long (`k_hoonyrounds 4`, two spawn-pairs). Frags carry across all four rounds rather than resetting, so the match is decided on aggregate -- when the fourth round ends, the team with the higher total frag count wins. If the totals are level it goes to extra rounds until one team is ahead.
 
-The `isHoonyModeTDM()` guard at `hoonymode.c:97` routes the spawn-rotation logic for team contexts -- both blitz2v2 and blitz4v4 go through this path.
+The result plays quite differently from the duel it grew out of. Hoonymode is a tense one-frag race where a single spawn can decide a round; Blitz is a rolling team deathmatch where the spawn rotation keeps the sides even and a team builds a lead over twelve minutes of play rather than in a single exchange.
 
-## Configuration
+## Starting a game
+
+Type `/blitz2v2` in the console on a KTX server.
+
+In warmup, players nominate spawns for their team with `/pickspawn` -- stand by the spawn you want and run the command; repeat it to cycle through nearby spawns.
+
+## History
+
+Blitz began as meag's 2017 extension of hoonymode into team play, adding the 2v2 and 4v4 formats on top of the same spawn-rotation machinery. The team modes were originally labelled "hoonymode TDM" and were renamed under the "Blitz" banner in 2020 (the same change also retimed the Pentagram and Ring respawns).
+
+## Hosting & settings
+
+On a standard KTX or nquake server, Blitz (2v2) is available out of the box: `k_allowed_free_modes` defaults to `4095` (every standard mode), and it rides on the `UM_1ON1HM` bit (value `128`, shared with hoonymode and blitz4v4). You set the bitmask explicitly only to *restrict* a server to a subset of modes; any mask that includes 128 keeps it available:
 
 ```
-# server.cfg
-// UM_1ON1HM bit (128) -- enables hoonymode, blitz2v2, and blitz4v4
-setadd k_allowed_free_modes 128
+# server.cfg -- the standard default; the 128 bit covers hoonymode / blitz2v2 / blitz4v4
+set k_allowed_free_modes 4095
 ```
 
-The cvars an admin might tune: `k_hoonyrounds` (series length; default 4) and `timelimit` (round duration; default 3 minutes). `k_pow` defaults to 1 -- set it to 0 to remove powerups, which brings the rules closer to the duel head's no-powerup model.
+The ruleset is applied by the `/blitz2v2` command. The settings that define it:
+
+- **`k_hoonymode 1`** -- selects the spawn-rotation logic; with a team roster the engine runs its team-round handling rather than the duel's single-frag rounds.
+- **`k_hoonyrounds 4`** -- the series length: four rounds, two full spawn-pairs.
+- **`timelimit 3` / `fraglimit 0`** -- three-minute timed rounds, no frag-based round end.
+- **`teamplay 2`** -- two real teams with friendly fire on.
+- **`k_pow 1`** -- powerups spawn on the map.
+- **`k_mode 2`** -- team mode (the duel head uses `1`).
+- **`maxclients 4`**, with `k_membercount 1` / `k_lockmin 1` / `k_lockmax 2` -- exactly two teams of up to two.
+
+Maps authored as hoonymode-only (a `hoony_timelimit` or `hoony_defaultwinner` `.ent` field) apply their preset automatically at load, the same as for the duel.
 
 ## See also
 
-- `hoonymode` -- family head; 1v1 duel with frag-based rounds and 12-round tennis series
-- `blitz4v4` -- sibling variant; same init structure, 4v4 roster
-- `k_hoonymode` -- mode-state cvar; 1 = spawn-rotation logic active across all three family members
-- `k_hoonyrounds` -- series length; default 4 for blitz2v2
-- `k_allowed_free_modes` -- server bitmask; must include `UM_1ON1HM` (value 128)
+- `hoonymode` -- the 1v1 duel Blitz extends; the spawn-rotation mechanic and the `/pickspawn` nomination are documented there. It shares Blitz's activation bit (`UM_1ON1HM`).
+- `blitz4v4` -- the 4v4 version of the same format at a larger roster, sharing the same bit and machinery.
