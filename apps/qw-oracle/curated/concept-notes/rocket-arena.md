@@ -23,6 +23,8 @@ related_entities:
   - ktx:command:arena
   - ktx:command:ra_break
   - ktx:cvar:k_rocketarena
+  - ktx:cvar:k_allowed_free_modes
+  - ktx:cvar:k_defmode
 related_modes:
   - {slug: ca, relation: similar-shape}
 ---
@@ -53,12 +55,17 @@ The winner-stays arena is a long-standing Quake duel tradition, and QuakeWorld r
 
 ## Hosting & settings
 
-Rocket Arena is a player-toggled mode -- any KTX server in 1on1 mode lets a player run `/arena`. To fix it on, an admin sets the cvar and the duel base:
+Rocket Arena is **not** one of the "free modes." The `k_allowed_free_modes` bitmask gates which UserModes a player may switch to (4on4, ca, wipeout, ...); Rocket Arena is not a UserMode and has no bit there, so the bitmask neither enables nor restricts it. Availability is simpler: any KTX server sitting in 1on1 mode lets a player toggle it with `/arena` pre-match -- nothing has to be enabled server-side for it to be reachable, and the default `k_rocketarena 0` does not hide it.
+
+To run a server that **boots straight into** Rocket Arena, make the duel the default mode and force the toggle on:
 
 ```
-# server.cfg -- run a Rocket Arena server (1on1 base required)
-set k_rocketarena 1
+# server.cfg
+set k_defmode 1on1     // boot into the 1on1 base (Rocket Arena needs the duel)
+set k_rocketarena 1    // force Rocket Arena on
 ```
+
+Setting `k_rocketarena 1` on its own is not enough: `isRA()` is `isDuel() && k_rocketarena`, so without the 1on1 base the cvar does nothing.
 
 The ruleset KTX loads with it (`configs/usermodes/1on1/ra/default.cfg`):
 
