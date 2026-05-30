@@ -45,7 +45,7 @@ How a player starts or joins the mode.
 
 - **Take the activation command from the `cmds[]` table, not the slug.** `ca` activates via `/carena` — the lone slug≠command case in KTX (see [[experience-group-classification]]). Every other mode's command equals its slug, but verify rather than assume.
 - Note the version requirement when relevant and what happens on activation (pre-match only; teams ready up; etc.).
-- **For match-modifiers this is "enable, then play any base mode," not "start a match."** A player enables it with the warmup command (`/<name>`); the admin's `server.cfg` toggle (`k_<name> 1`) belongs in `Hosting & settings`, pointed to in one line here. Then start whatever base mode you want -- the modifier layers on top. (killquad's worked example is the template.)
+- **For cvar-toggle modes this is "get into the base, then toggle," not "start a match."** The player enables it with the warmup command (`/<name>`) on the required base mode -- e.g. `/dmm4` then `/midair`, `/1on1` then `/arena`. There is **no** admin `server.cfg` step to point to: these toggle cvars are reset on every mode change (`common_um_init`), so the command is the only activation -- never tell the reader to "set `k_<name> 1` in server.cfg." (killquad layers on any base; arena/midair need a specific one.)
 
 ### 4. `## Strategy` (conditional)
 
@@ -61,19 +61,11 @@ Origin, author, inspiration, mod lineage. Ship only when there's a real story to
 
 ### 7. `## Hosting & settings` (core — admin block, last)
 
-Admin-facing, placed last so players read the experience first and admins jump here from the TOC. Absorbs the old `Server setup` + `Configuration`. **This is the only section that carries a `# server.cfg` block**, and it owns all server-side setup -- the enable cvar/bit, server prerequisites (dmm4, votecoop, a compatible map), and the defining cvars. Contents:
+Admin-facing, placed last so players read the experience first. This is the **admin half** of the actor-split (the user half is `Starting a game`): it answers *"as a server admin, what -- if anything -- do I do for this mode, and what can I tune?"* It is **not** "how to stand up a server" -- the default-mode setting (`k_defmode`), the `k_allowed_free_modes` bitmask mechanics in depth, and the force-a-dedicated-server path all live once in the separate **server-setup** note, never repeated per mode. Two things only:
 
-- **A concrete `# server.cfg` code block** showing the literal activation an admin types. Mandatory — do not replace with prose-only instructions. For standalones, show the `k_allowed_free_modes` bit context; for modifiers, the toggle cvar.
+- **Availability — usually one line.** On a stock KTX server every mode is already reachable: `ktx.cfg` ships `k_allowed_free_modes 4095` (all UserModes enabled — a *config* default, not an engine one: the bare cvar is `0`), and the cvar-toggle modes (arena, midair, killquad, ...) are never in the bitmask at all. So for most modes this is just *"available by default; nothing to enable."* Add a line only for a real exception: a genuine prerequisite (`needs dmm4`), or that a UserMode can be **removed** from `k_allowed_free_modes` to restrict it — with the bit-sharing caveat (ca/wipeout/4on4 share one bit, so you can't drop one without the others). **Never write "set `k_<name> 1` to enable" for a toggle mode** — it does not work: `common_um_init` resets those cvars on every mode change, so the command (in `Starting a game`) is the only activation.
 
-  ```
-  # server.cfg -- the standard default; the 8 bit covers 4on4 / ca / wipeout
-  set k_allowed_free_modes 4095
-  ```
-
-- **The defining cvars** — the 3-7 that shape the mode's character, as prose or a small bulleted list. Pick: **discriminators** (`k_clan_arena 2` for wipeout), **defining tunables** an admin might change (`k_clan_arena_rounds`, `k_clan_arena_max_respawns`), and **surprising values** vs the base mode (arena's `deathmatch 5`). Skip housekeeping cvars (`k_lockmin`, baseline `teamplay`, default `timelimit`) — the full init array is reachable via the `mode_default_init_array` frontmatter pointer (oracle resolves it through L1 MCP tools); the note curates the load-bearing subset and explains it.
-- **Any admin-relevant interaction notes** — e.g. killquad's Berzerk-window interaction lives here.
-
-Explain bit-sharing in prose where it applies (`UM_4ON4` value 8 shared by 4on4/ca/wipeout). `k_allowed_free_modes` defaults to `4095` (every standard mode) on a stock KTX/nquake server; it's set explicitly only to *restrict* — say so, so admins don't think they must enable each mode.
+- **The defining cvars — the 3-7 that tune the mode's character.** Discriminators (`k_clan_arena 2` for wipeout), tunables an admin might change (`k_clan_arena_rounds`, `k_clan_arena_max_respawns`), surprising values vs the base (arena's `deathmatch 5`). A `# server.cfg` block is for these *tuning* knobs and is **optional** — include one only when there's a real knob to show; do not manufacture an "enable" block. Skip housekeeping cvars (`k_lockmin`, baseline `teamplay`, default `timelimit`); the full init array is reachable via the `mode_default_init_array` frontmatter pointer (oracle resolves it through L1 MCP tools). Admin-relevant interaction notes (killquad's Berzerk-window interaction) live here too.
 
 ### 8. `## See also` (core)
 

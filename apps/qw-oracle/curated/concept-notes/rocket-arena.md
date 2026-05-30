@@ -47,7 +47,14 @@ This is what separates Rocket Arena from Clan Arena. CA is two *teams* of up to 
 
 ## Starting a game
 
-Rocket Arena layers on the duel, so the order matters: set **1on1 mode first**, then type **`/arena`** in the console (pre-match). `/arena` runs `ToggleArena` (`commands.c:8842`), which refuses unless you're already in duel mode ("Set 1 on 1 mode first") and then toggles `k_rocketarena`, loading `configs/usermodes/1on1/ra/default.cfg`. Run `/arena` again to toggle it back off. Do not confuse it with `/carena`, the separate Clan Arena command.
+Rocket Arena rides on the duel, so it's two steps, both pre-match:
+
+```
+/1on1     // enter the duel base
+/arena    // toggle Rocket Arena on
+```
+
+`/arena` only works once you're in a duel (it answers "Set 1 on 1 mode first" otherwise); run it again to switch back off. Don't confuse it with `/carena`, which is the separate Clan Arena mode.
 
 ## History
 
@@ -55,25 +62,12 @@ The winner-stays arena is a long-standing Quake duel tradition, and QuakeWorld r
 
 ## Hosting & settings
 
-Rocket Arena is **not** one of the "free modes." The `k_allowed_free_modes` bitmask gates which UserModes a player may switch to (4on4, ca, wipeout, ...); Rocket Arena is not a UserMode and has no bit there, so the bitmask neither enables nor restricts it. Availability is simpler: any KTX server sitting in 1on1 mode lets a player toggle it with `/arena` pre-match -- nothing has to be enabled server-side for it to be reachable, and the default `k_rocketarena 0` does not hide it.
+There is nothing to enable. Rocket Arena isn't in the `k_allowed_free_modes` menu (it's not a UserMode) and needs no server-side switch -- on any KTX server a player enters a duel and types `/arena`. You can't even pin it on from `server.cfg`: `k_rocketarena` is reset to `0` by the common user-mode init on every mode change (`commands.c:4161`), so it's runtime state the `/arena` command owns, not a config setting. (A dedicated, always-Rocket-Arena server is the per-usermode-config-override path -- see the server-setup note; it runs against KTX's switch-anytime design.)
 
-To run a server that **boots straight into** Rocket Arena, make the duel the default mode and force the toggle on:
+**Tunables** (in the ruleset `/arena` loads, `configs/usermodes/1on1/ra/default.cfg`):
 
-```
-# server.cfg
-set k_defmode 1on1     // boot into the 1on1 base (Rocket Arena needs the duel)
-set k_rocketarena 1    // force Rocket Arena on
-```
-
-Setting `k_rocketarena 1` on its own is not enough: `isRA()` is `isDuel() && k_rocketarena`, so without the 1on1 base the cvar does nothing.
-
-The ruleset KTX loads with it (`configs/usermodes/1on1/ra/default.cfg`):
-
-- **`fraglimit 10`, `timelimit 0`** -- a round is won at 10 frags; there is no clock.
-- **`k_mode 1`** -- duel mode (Rocket Arena requires it; `isRA()` is false otherwise).
+- **`fraglimit 10`** -- frags to win a round; no timelimit.
 - **`maxclients 10`** -- the arena plus up to eight queued challengers.
-
-Players manage their own place in the queue with **`ra_break`** (out for a break / back in line, five-minute cap); idling through your turn disconnects you.
 
 ## See also
 
