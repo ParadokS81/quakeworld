@@ -128,20 +128,23 @@ async function buildTeamLookup() {
 }
 
 /**
- * Get all existing big4FixtureIds from scheduledMatches.
- * Returns Set<number> for O(1) dedup checks.
+ * Get all existing big4-imported matches keyed by fixture_id.
+ * Returns Map<number, { id, ...data }> for O(1) dedup + reschedule checks.
+ * .has(fixtureId) keeps the original Set-shaped call sites working.
  */
 async function getExistingFixtureIds() {
     const snapshot = await db.collection('scheduledMatches')
         .where('origin', '==', 'big4_import')
         .get();
 
-    const ids = new Set();
+    const byFixtureId = new Map();
     snapshot.forEach(doc => {
-        const fixtureId = doc.data().big4FixtureId;
-        if (fixtureId != null) ids.add(fixtureId);
+        const data = doc.data();
+        if (data.big4FixtureId != null) {
+            byFixtureId.set(data.big4FixtureId, { id: doc.id, ...data });
+        }
     });
-    return ids;
+    return byFixtureId;
 }
 
 /**
@@ -175,6 +178,7 @@ async function syncBig4Games() {
     const summary = {
         fetched: 0,
         created: 0,
+        rescheduled: 0,
         skippedExisting: 0,
         skippedMatched: 0,
         skippedUnknownTeam: 0,
@@ -182,6 +186,7 @@ async function syncBig4Games() {
         warnings: []
     };
     const created = [];
+    const rescheduled = [];
 
     // 1. Fetch from Big4
     console.log('📡 Fetching Big4 scheduled games...');
@@ -203,14 +208,55 @@ async function syncBig4Games() {
         const { fixture_id, division, scheduled_date, scheduled_time, team1, team2 } = game;
         const label = `[${fixture_id}] ${team1} vs ${team2}`;
 
-        // 3a. Already imported?
+        // 3a. Compute schedule fields up-front so we can detect Big4 reschedules.
+        const utcDate = big4ToUtcDate(scheduled_date, scheduled_time);
+        const slotId = computeSlotId(utcDate);
+        const weekYear = getISOWeekYear(utcDate);
+        const weekNum = getISOWeekNumber(utcDate);
+        const weekId = `${weekYear}-${String(weekNum).padStart(2, '0')}`;
+        const scheduledDate = utcDate.toISOString().split('T')[0];
+
+        // 3b. Already imported? Detect reschedule vs unchanged.
         if (existingFixtureIds.has(fixture_id)) {
-            summary.skippedExisting++;
-            console.log(`   ⏭️  ${label} — already imported`);
+            const existing = existingFixtureIds.get(fixture_id);
+            const dateChanged = existing.scheduledDate !== scheduledDate || existing.slotId !== slotId;
+
+            if (!dateChanged) {
+                summary.skippedExisting++;
+                console.log(`   ⏭️  ${label} — already imported`);
+                continue;
+            }
+
+            // Big4 moved this fixture. Update our record.
+            // If our copy was auto-completed by the stale-date cron and the new
+            // date is still in the future, revive it; otherwise leave status alone
+            // (preserves legitimate manual completions / past games).
+            const update = {
+                scheduledDate,
+                slotId,
+                blockedSlot: slotId,
+                weekId
+            };
+            if (existing.status === 'completed' && utcDate > now) {
+                update.status = 'upcoming';
+                update.completedAt = null;
+            }
+
+            await db.collection('scheduledMatches').doc(existing.id).update(update);
+
+            summary.rescheduled++;
+            rescheduled.push({
+                matchId: existing.id,
+                fixtureId: fixture_id,
+                from: { date: existing.scheduledDate, slot: existing.slotId },
+                to: { date: scheduledDate, slot: slotId },
+                revived: update.status === 'upcoming'
+            });
+            console.log(`   🔄 ${label} — rescheduled ${existing.scheduledDate} ${existing.slotId} → ${scheduledDate} ${slotId}${update.status === 'upcoming' ? ' (revived)' : ''}`);
             continue;
         }
 
-        // 3b. Resolve teams
+        // 3c. Resolve teams (only required for new imports)
         const teamA = teamLookup.get(team1.toLowerCase());
         const teamB = teamLookup.get(team2.toLowerCase());
 
@@ -223,23 +269,14 @@ async function syncBig4Games() {
             continue;
         }
 
-        // 3c. Convert CET → UTC and compute schedule fields
-        const utcDate = big4ToUtcDate(scheduled_date, scheduled_time);
-
-        // Skip if in the past
+        // 3d. Skip if in the past (new imports only — existing imports are handled above)
         if (utcDate <= now) {
             summary.skippedPast++;
             console.log(`   ⏭️  ${label} — in the past`);
             continue;
         }
 
-        const slotId = computeSlotId(utcDate);
-        const weekYear = getISOWeekYear(utcDate);
-        const weekNum = getISOWeekNumber(utcDate);
-        const weekId = `${weekYear}-${String(weekNum).padStart(2, '0')}`;
-        const scheduledDate = utcDate.toISOString().split('T')[0];
-
-        // 3d. Check if these teams already have a match on this day (any origin)
+        // 3e. Check if these teams already have a match on this day (any origin)
         const alreadyMatched = await teamsHaveMatchOnDate(teamA.id, teamB.id, scheduledDate);
         if (alreadyMatched) {
             summary.skippedMatched++;
@@ -247,7 +284,7 @@ async function syncBig4Games() {
             continue;
         }
 
-        // 3e. Create scheduledMatch
+        // 3f. Create scheduledMatch
         const matchRef = db.collection('scheduledMatches').doc();
 
         await matchRef.set({
@@ -278,7 +315,7 @@ async function syncBig4Games() {
             createdAt: now
         });
 
-        // 3f. Event log (one entry per team involved)
+        // 3g. Event log (one entry per team involved)
         const eventIdA = generateEventId(teamA.teamName, 'match_big4_imported');
         await db.collection('eventLog').doc(eventIdA).set({
             eventId: eventIdA,
@@ -316,7 +353,7 @@ async function syncBig4Games() {
         console.log(`   ✅ ${label} → ${matchRef.id} (${scheduledDate} ${slotId})`);
     }
 
-    return { summary, created };
+    return { summary, created, rescheduled };
 }
 
 // ─── Cloud Function: Admin-triggered sync ───────────────────────────────────
@@ -333,14 +370,15 @@ exports.syncBig4Matches = functions
 
             console.log(`🔄 Big4 sync triggered by ${context.auth.uid}`);
 
-            const { summary, created } = await syncBig4Games();
+            const { summary, created, rescheduled } = await syncBig4Games();
 
             console.log('📊 Sync summary:', JSON.stringify(summary));
 
             return {
                 success: true,
                 summary,
-                created
+                created,
+                rescheduled
             };
 
         } catch (error) {
@@ -360,13 +398,18 @@ exports.scheduledBig4Sync = functions
         console.log(`⏰ Scheduled Big4 sync at ${new Date().toISOString()}`);
 
         try {
-            const { summary, created } = await syncBig4Games();
+            const { summary, created, rescheduled } = await syncBig4Games();
 
             if (summary.created > 0) {
                 console.log(`🆕 Imported ${summary.created} new match(es):`,
                     created.map(c => `${c.teamA} vs ${c.teamB} (${c.date})`).join(', '));
-            } else {
-                console.log(`✅ All synced (${summary.fetched} checked, 0 new)`);
+            }
+            if (summary.rescheduled > 0) {
+                console.log(`🔄 Rescheduled ${summary.rescheduled} match(es):`,
+                    rescheduled.map(r => `fixture ${r.fixtureId} ${r.from.date} ${r.from.slot} → ${r.to.date} ${r.to.slot}${r.revived ? ' (revived)' : ''}`).join(', '));
+            }
+            if (summary.created === 0 && summary.rescheduled === 0) {
+                console.log(`✅ All synced (${summary.fetched} checked, 0 new, 0 moved)`);
             }
 
             return null;
