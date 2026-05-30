@@ -259,11 +259,18 @@ async function probeEntityHasVersionRows(ctx: ProbeContext): Promise<ProbeResult
 export async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResult> {
   // Phase 2 is first to write entities.description_provenance JSONB at volume
   // for ktx; this branch is the C5/F-C5a regression gate for that column.
-  if (ctx.project === 'ktx') {
+  // Phase 4 (MVDSV describe-fill) extends it to mvdsv -- the first phase to
+  // write mvdsv entities.description_provenance JSONB (C5: the probe lands in
+  // the phase that first writes the shape at that project; the pm_* movement
+  // batch is the first MVDSV describe-fill batch, cold-synth rows carry NULL
+  // provenance so this is vacuously green until a shipped_doc batch writes a
+  // real array -- the gate is in place for that batch). Same fail-if-string-
+  // scalar semantics as ktx; ezQuake branch (below) unchanged.
+  if (ctx.project === 'ktx' || ctx.project === 'mvdsv') {
     const rows = await ctx.sql<{ canonical_id: string }[]>`
       SELECT canonical_id
       FROM entities
-      WHERE project = 'ktx'
+      WHERE project = ${ctx.project}
         AND description_provenance IS NOT NULL
         AND jsonb_typeof(description_provenance) = 'string'
       ORDER BY canonical_id
@@ -272,7 +279,7 @@ export async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResu
     const countRows = await ctx.sql<{ cnt: number }[]>`
       SELECT COUNT(*)::int AS cnt
       FROM entities
-      WHERE project = 'ktx'
+      WHERE project = ${ctx.project}
         AND description_provenance IS NOT NULL
         AND jsonb_typeof(description_provenance) = 'string'
     `;
@@ -284,8 +291,8 @@ export async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResu
       status: total === 0 ? 'PASS' : 'FAIL',
       count: total,
       summary: total === 0
-        ? 'no JSONB string scalars in entities.description_provenance for ktx'
-        : `${total} JSONB string scalar(s) in entities.description_provenance for ktx`,
+        ? `no JSONB string scalars in entities.description_provenance for ${ctx.project}`
+        : `${total} JSONB string scalar(s) in entities.description_provenance for ${ctx.project}`,
       examples: rows.map(r => r.canonical_id),
     };
   }
