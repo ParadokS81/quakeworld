@@ -30,6 +30,7 @@ apps/qw-oracle/data/*.db
 apps/qw-oracle/data/*.db-journal
 apps/qw-oracle/data/*.db-wal
 apps/qw-oracle/data/*.db-shm
+apps/qw-oracle/*.db
 apps/quad/recordings/
 apps/quad/exports/
 
@@ -50,7 +51,10 @@ Thumbs.db
 
 # Claude Code / tooling artifacts (per-machine, never committed)
 .claude/projects/
+.claude/*.lock
 .superpowers/
+# Gemini "antigravity" CLI project symlink (points into ~/.gemini)
+.antigravitycli/
 
 # Ad-hoc diagnostic output (local, never committed)
 test-output/
