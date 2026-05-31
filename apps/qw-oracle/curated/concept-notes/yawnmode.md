@@ -1,11 +1,11 @@
 ---
 title: "Yawnmode"
-summary: "An informal modifier, created by Molgrum, that changes the feel of a duel rather than its rules: fall damage is removed, nailgun hits knock harder, green armor protects more, and spawns and respawn behavior are retuned. A rarely-used 1on1 oddity layered on a normal game, not a competitive format."
+summary: "An informal, for-fun modifier by Molgrum that changes the feel of a game rather than its objective: no fall damage, a harder-hitting nailgun, stronger green armor, a beefed-up axe and super shotgun, and always respawning with your last weapon. A rarely-used 1on1 oddity layered on a normal game, not a competitive format."
 slug: yawnmode
 topic: game-mode-reference
 status: draft
 authored_by: qw-oracle
-last_updated: 2026-05-29
+last_updated: 2026-05-31
 scope: engine-scoped
 engines_covered: [ktx]
 
@@ -15,7 +15,6 @@ kind: mutator
 canonical_id: ktx:game_mode:yawnmode
 gameplay_source_id: ktx
 source_ref: world.c:1011
-activation_summary: "Set k_yawnmode 1 in server.cfg (or toggle it with the yawnmode command during warmup). Then start a base mode -- it was built as a 1on1 modification -- and Yawnmode's tweaks layer on top."
 wiki_status: hybrid
 wiki_page_slug: Yawnmode
 introduced_by: Molgrum
@@ -26,36 +25,38 @@ related_entities:
   - ktx:command:yawnmode
   - ktx:cvar:k_yawnmode
 related_modes:
-  - {slug: 1on1, relation: derived-from}
-  - {slug: berzerk, relation: similar-shape}
+  - {slug: killquad, relation: similar-shape}
 ---
 
 ## Summary
 
-Yawnmode is an informal match-modifier built by Molgrum as a variation on the duel. It does not change the objective -- you still frag to win -- but it retunes the feel of the game: fall damage is gone, nailgun hits push harder, green armor is worth more, and spawns and respawns behave differently from a normal match. It is a quirky, rarely-used oddity rather than a competitive format, layered on a base mode with a single toggle.
+Yawnmode is an informal, for-fun modifier built by Molgrum that changes the *feel* of a game rather than its objective -- you still frag to win. It bundles a set of tweaks onto a base mode (a duel is its natural home): fall damage is gone, the nailgun shoves harder, green armor protects more, the axe and super shotgun hit harder, and you always respawn with your last weapon. It's a quirky, rarely-used oddity, not a competitive format. You arm it with `/yawnmode`.
+
+## Activate
+
+Yawnmode is a toggle, not a mode you start on its own. Get into a base mode first -- it was written as a 1on1 modification, so a duel is its natural home -- then type `/yawnmode` in the console during warmup to arm it (run it again to disarm). Any player can do it, and like any rules change it only takes during warmup.
+
+## Basic ruleset
+
+Yawnmode inherits the base mode's objective and locks in a bundle of feel tweaks. The characteristic ones:
+
+- **No fall damage.** You keep your velocity on landing instead of taking the usual hit -- the source calls it "no broken ankle."
+- **Harder nailgun.** Nails deliver more kickback (and skip the usual alternating-nail pattern), so the nailgun shoves harder.
+- **Stronger green armor.** Green armor absorbs more than standard (0.4 instead of 0.3); yellow and red are unchanged.
+- **Beefier axe and super shotgun.** The axe hits for far more (50 instead of 20 in dmm3), and the SSG fires more pellets with a wider spread and more damage.
+- **Respawn with your last weapon.** You always come back holding the weapon you had, rather than dropping to the default.
+- Plus smaller tweaks to backpack drops, fireball damage, and self-discharge.
 
 ## How it plays
 
-The underlying game (typically a 1on1) is unchanged in its goal; what Yawnmode alters is the movement and combat feel, through a bundle of tweaks. The clearest ones: fall damage is removed -- you keep your velocity on landing instead of taking the usual hit (the source calls it "no broken ankle") -- and nailgun spikes land with extra kickback, so the nailgun shoves harder than usual. Green armor gives more protection than standard (0.4 absorption rather than 0.3), and spawn placement is reweighted to different spots than a normal game uses. The community wiki documents further small changes (respawn timing, always respawning with your last weapon, corpse and fireball handling). The net result is a looser, bouncier duel -- a mode kept around for variety, not for serious play. While it is active it also blocks some admin commands.
-
-## Starting a game
-
-Yawnmode is enabled by an admin, not started as its own match. Set it on the server (see Hosting & settings), or toggle it in warmup with the `yawnmode` command, then start a base mode -- it was written as a 1on1 modification, so a duel is its natural home. Its tweaks apply automatically; there is nothing extra for a player to do.
+The underlying game -- usually a 1on1 -- keeps its goal; what Yawnmode changes is how it feels to move and fight. With fall damage gone you can throw yourself around the map freely, the buffed melee and shotgun make close range punchier, and the armor and weapon tweaks add up to a looser, bouncier, sillier duel. It's kept around for variety, not for serious play. While it's active it also blocks a handful of admin commands, reporting "command blocked because yawnmode is active."
 
 ## Hosting & settings
 
-Yawnmode is a single cvar toggle, not gated by `k_allowed_free_modes`:
-
-```
-# server.cfg (Yawnmode -- a modifier toggle)
-set k_yawnmode 1
-```
-
-- **`k_yawnmode`** (default `0`) -- the only cvar; the `yawnmode` warmup command flips it. Its effects (fall-damage removal, nail kickback, armor and spawn changes) are built in rather than individually tunable.
-
-Note that Yawnmode blocks certain admin commands while it is active, reporting "command blocked because yawnmode is active."
+Yawnmode is a toggle mode, so it isn't part of the `k_allowed_free_modes` allow-list and there's no bit to manage. Its effects are all built in -- `k_yawnmode` is the only cvar, a plain on/off with nothing to tune. It does **not** stick in `server.cfg`: KTX resets it to `0` on every mode activation (the `common_um_init` block), so the warmup `/yawnmode` command is the only way to arm it per match; a dedicated server pins it on through the per-usermode config that execs after that reset (see *server-setup*).
 
 ## See also
 
-- `1on1` -- the duel Yawnmode was built to modify.
-- `berzerk`, `killquad` -- other match-modifiers that layer a single change onto a base game.
+- The match-modifier group -- `berzerk`, `killquad`, `freshteams`, `nosweep` -- other single-toggle modes layered on a base game. Yawnmode is the odd one out: where those change one rule, it bundles a grab-bag of feel tweaks.
+- `1on1` -- the duel Yawnmode was written to modify, and its natural home.
+- `server-setup` -- how toggle modes are armed, and the dedicated-server path for pinning one on.
