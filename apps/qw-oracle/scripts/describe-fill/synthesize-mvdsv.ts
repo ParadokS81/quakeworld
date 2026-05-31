@@ -44,7 +44,7 @@
 // in description_reasoning -- mirrors synthesize-ktx.ts, preserves cross-engine
 // serializer consistency).
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import type postgres from 'postgres';
 import { sql, closeSql } from '../load-knowledge/db.js';
 
@@ -142,27 +142,119 @@ function isTerminalOwned(origin: string | null, verdict: string | null): boolean
   return false;
 }
 
-async function persistRecords(recordsPath: string, dryRun: boolean, overrideSet: Set<string>): Promise<void> {
-  // --- 1. Load + parse the records file ---
+type ErrorEntry = { knob: string; reason: string };
 
+// --persist <records.json>: the original explicit-array path (a JSON array of
+// D6Record). Kept for the operator-override review-tail path + any externally
+// assembled batch.
+async function persistRecords(recordsPath: string, dryRun: boolean, overrideSet: Set<string>): Promise<void> {
   if (!existsSync(recordsPath)) {
     throw new Error(`--persist: records file not found: ${recordsPath}`);
   }
-  let records: unknown;
+  let parsed: unknown;
   try {
-    records = JSON.parse(readFileSync(recordsPath, 'utf-8'));
+    parsed = JSON.parse(readFileSync(recordsPath, 'utf-8'));
   } catch (err) {
     throw new Error(
       `--persist: failed to parse records file as JSON: ${err instanceof Error ? err.message : String(err)}`,
     );
   }
-  if (!Array.isArray(records)) {
+  if (!Array.isArray(parsed)) {
     throw new Error('--persist: records file must be a JSON array');
   }
+  await applyRecords(parsed as D6Record[], recordsPath, dryRun, overrideSet);
+}
 
-  // --- 2. Categorise before touching the DB ---
+// --from-ledger <glob>: assemble the records array from per-knob committed
+// ledger files. Each ledger carries exactly one fenced ```json block = its
+// D6Record. This is the fix-#1 durable artifact: the ledgers are git-committed
+// and the DB is reconstructable from them, with NO gitignored intermediate
+// records.json (batch-1's gap). The bulky description_reasoning / enforce-trace
+// lives on disk and goes disk -> DB without ever passing through the
+// orchestrator's conversation context.
+async function persistFromLedgers(glob: string, dryRun: boolean, overrideSet: Set<string>): Promise<void> {
+  const files = globLedgers(glob);
+  if (files.length === 0) {
+    throw new Error(`--from-ledger: no files matched glob: ${glob}`);
+  }
+  const records: D6Record[] = [];
+  const parseErrors: string[] = [];
+  for (const file of files) {
+    try {
+      records.push(extractLedgerRecord(file));
+    } catch (err) {
+      parseErrors.push(`${file}: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+  // A malformed ledger must abort the whole batch -- a partial persist from a
+  // glob is the silent-data-loss failure mode (C4). Fix the ledger, re-run.
+  if (parseErrors.length > 0) {
+    throw new Error(
+      `--from-ledger: ${parseErrors.length} ledger(s) did not yield a D6Record:\n  ${parseErrors.join('\n  ')}`,
+    );
+  }
+  await applyRecords(records, `${files.length} ledger(s) via ${glob}`, dryRun, overrideSet);
+}
 
-  type ErrorEntry = { knob: string; reason: string };
+// Resolve a `dir/pattern` glob (single '*' wildcard in the basename) to sorted
+// file paths. Dependency-free (readdirSync + a basename regex) -- the only glob
+// shape the ledger flow needs.
+function globLedgers(glob: string): string[] {
+  const slash = glob.lastIndexOf('/');
+  const dir = slash >= 0 ? glob.slice(0, slash) : '.';
+  const pattern = slash >= 0 ? glob.slice(slash + 1) : glob;
+  const re = new RegExp('^' + pattern.split('*').map(escapeRegExp).join('.*') + '$');
+  if (!existsSync(dir)) {
+    throw new Error(`--from-ledger: directory not found: ${dir}`);
+  }
+  return readdirSync(dir)
+    .filter((f) => re.test(f))
+    .sort()
+    .map((f) => `${dir}/${f}`);
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Extract the single fenced ```json block from a ledger and parse it as a
+// D6Record. A ledger MUST carry exactly one such block (the contract the
+// synthesis sub-agent writes); zero or >1 is an error the caller surfaces (it
+// means the ledger drifted from the contract -- never guess which block wins).
+function extractLedgerRecord(path: string): D6Record {
+  const text = readFileSync(path, 'utf-8');
+  const blocks = [...text.matchAll(/```json\s*\n([\s\S]*?)\n```/g)];
+  if (blocks.length === 0) {
+    throw new Error('no ```json block found');
+  }
+  if (blocks.length > 1) {
+    throw new Error(`${blocks.length} \`\`\`json blocks found (expected exactly 1)`);
+  }
+  let rec: unknown;
+  try {
+    rec = JSON.parse(blocks[0]![1]!);
+  } catch (err) {
+    throw new Error(`json block did not parse: ${err instanceof Error ? err.message : String(err)}`);
+  }
+  if (typeof rec !== 'object' || rec === null) {
+    throw new Error('json block is not a JSON object');
+  }
+  return rec as D6Record;
+}
+
+// Shared persist core: apply an already-assembled D6Record[] inside one
+// transaction. Both --persist and --from-ledger funnel through here so the
+// F-D9b clobber-guard, tx.json provenance binding, in-tx fingerprint, and
+// dry-run / error rollback are identical regardless of where the records came
+// from.
+async function applyRecords(
+  records: D6Record[],
+  sourceLabel: string,
+  dryRun: boolean,
+  overrideSet: Set<string>,
+): Promise<void> {
+  // --- Categorise before touching the DB ---
+
   const toApply: D6Record[] = [];
   const errors: ErrorEntry[] = [];
 
@@ -174,7 +266,7 @@ async function persistRecords(recordsPath: string, dryRun: boolean, overrideSet:
     toApply.push(rec as unknown as D6Record);
   }
 
-  // --- 3. Execute inside a transaction so --dry-run can roll back ---
+  // --- Execute inside a transaction so --dry-run can roll back ---
 
   await sql.begin(async (tx) => {
     let persisted = 0;
@@ -260,9 +352,9 @@ async function persistRecords(recordsPath: string, dryRun: boolean, overrideSet:
     const fingerprint = await computeFingerprint(tx);
 
     // --- 5. Summary ---
-    process.stdout.write('\n=== synthesize-mvdsv --persist summary ===\n');
+    process.stdout.write('\n=== synthesize-mvdsv persist summary ===\n');
     process.stdout.write(`mode:             ${dryRun ? 'DRY-RUN (rolls back)' : 'LIVE'}\n`);
-    process.stdout.write(`records file:     ${recordsPath}\n`);
+    process.stdout.write(`source:           ${sourceLabel}\n`);
     process.stdout.write(`records parsed:   ${records.length}\n`);
     process.stdout.write(`persisted:        ${persisted}\n`);
     process.stdout.write(
@@ -338,6 +430,19 @@ async function statusReport(): Promise<void> {
 // main() -- flag dispatch (Bun P1 -- import.meta.main guard)
 // ---------------------------------------------------------------------------
 
+// Shared --operator-override parser (D11 review-tail override): a
+// comma-separated knob list whose terminal-owned rows --persist / --from-ledger
+// may re-write. Absent -> empty set -> the F-D9b clobber-guard skips terminal
+// rows.
+function parseOverrideSet(args: string[]): Set<string> {
+  const ovIdx = args.indexOf('--operator-override');
+  return new Set<string>(
+    ovIdx >= 0 && args[ovIdx + 1] && !args[ovIdx + 1]!.startsWith('--')
+      ? args[ovIdx + 1]!.split(',').map((s) => s.trim()).filter(Boolean)
+      : [],
+  );
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   try {
@@ -348,16 +453,15 @@ async function main(): Promise<void> {
         process.stderr.write('synthesize-mvdsv --persist: missing records file.\nUsage: --persist <records.json> [--dry-run] [--operator-override <name,name>]\n');
         process.exit(1);
       }
-      // --operator-override <comma-separated knob names>: re-write these
-      // terminal-owned rows at the operator's direction (D11 review-tail
-      // override). Without it the clobber-guard skips terminal rows.
-      const ovIdx = args.indexOf('--operator-override');
-      const overrideSet = new Set<string>(
-        ovIdx >= 0 && args[ovIdx + 1] && !args[ovIdx + 1]!.startsWith('--')
-          ? args[ovIdx + 1]!.split(',').map((s) => s.trim()).filter(Boolean)
-          : [],
-      );
-      await persistRecords(recordsPath, args.includes('--dry-run'), overrideSet);
+      await persistRecords(recordsPath, args.includes('--dry-run'), parseOverrideSet(args));
+    } else if (args.includes('--from-ledger')) {
+      const idx = args.indexOf('--from-ledger');
+      const glob = args[idx + 1];
+      if (!glob || glob.startsWith('--')) {
+        process.stderr.write('synthesize-mvdsv --from-ledger: missing glob.\nUsage: --from-ledger <glob> [--dry-run] [--operator-override <names>]\n');
+        process.exit(1);
+      }
+      await persistFromLedgers(glob, args.includes('--dry-run'), parseOverrideSet(args));
     } else if (args.includes('--fingerprint')) {
       await fingerprintCmd();
     } else if (args.includes('--status')) {
@@ -365,7 +469,7 @@ async function main(): Promise<void> {
     } else {
       process.stderr.write(
         'synthesize-mvdsv: no mode specified.\n' +
-        'Modes: --persist <file> [--dry-run] | --fingerprint | --status\n',
+        'Modes: --persist <file> [--dry-run] | --from-ledger <glob> [--dry-run] | --fingerprint | --status\n',
       );
       process.exit(1);
     }
