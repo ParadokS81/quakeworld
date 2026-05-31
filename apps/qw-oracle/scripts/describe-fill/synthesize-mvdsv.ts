@@ -142,7 +142,7 @@ function isTerminalOwned(origin: string | null, verdict: string | null): boolean
   return false;
 }
 
-async function persistRecords(recordsPath: string, dryRun: boolean): Promise<void> {
+async function persistRecords(recordsPath: string, dryRun: boolean, overrideSet: Set<string>): Promise<void> {
   // --- 1. Load + parse the records file ---
 
   if (!existsSync(recordsPath)) {
@@ -179,6 +179,7 @@ async function persistRecords(recordsPath: string, dryRun: boolean): Promise<voi
   await sql.begin(async (tx) => {
     let persisted = 0;
     const skippedTerminal: string[] = [];
+    const operatorOverrides: string[] = [];
 
     for (const rec of toApply) {
       const knob = rec.knob;
@@ -209,10 +210,17 @@ async function persistRecords(recordsPath: string, dryRun: boolean): Promise<voi
 
       const row = matched[0]!;
 
-      // F-D9b clobber-guard: skip terminal-owned rows whole.
+      // F-D9b clobber-guard: skip terminal-owned rows whole -- UNLESS the
+      // operator explicitly authorized re-writing this knob at the review tail
+      // (D11 operator-override; named, logged, intentional -- NOT a blind re-run
+      // or a sibling-arc clobber, which is what the guard protects against).
       if (isTerminalOwned(row.description_origin, row.description_verdict)) {
-        skippedTerminal.push(knob);
-        continue;
+        if (overrideSet.has(knob)) {
+          operatorOverrides.push(knob);
+        } else {
+          skippedTerminal.push(knob);
+          continue;
+        }
       }
 
       // WHY tx.json: postgres-js encodes a JS array/object passed as tx.json()
@@ -259,6 +267,9 @@ async function persistRecords(recordsPath: string, dryRun: boolean): Promise<voi
     process.stdout.write(`persisted:        ${persisted}\n`);
     process.stdout.write(
       `skipped-terminal: ${skippedTerminal.length}${skippedTerminal.length > 0 ? ` (${skippedTerminal.join(', ')})` : ''}\n`,
+    );
+    process.stdout.write(
+      `operator-override:${operatorOverrides.length}${operatorOverrides.length > 0 ? ` (${operatorOverrides.join(', ')})` : ''}\n`,
     );
     process.stdout.write(`errors:           ${errors.length}\n`);
     for (const e of errors) process.stdout.write(`  ERROR knob=${e.knob}: ${e.reason}\n`);
@@ -334,10 +345,19 @@ async function main(): Promise<void> {
       const idx = args.indexOf('--persist');
       const recordsPath = args[idx + 1];
       if (!recordsPath || recordsPath.startsWith('--')) {
-        process.stderr.write('synthesize-mvdsv --persist: missing records file.\nUsage: --persist <records.json> [--dry-run]\n');
+        process.stderr.write('synthesize-mvdsv --persist: missing records file.\nUsage: --persist <records.json> [--dry-run] [--operator-override <name,name>]\n');
         process.exit(1);
       }
-      await persistRecords(recordsPath, args.includes('--dry-run'));
+      // --operator-override <comma-separated knob names>: re-write these
+      // terminal-owned rows at the operator's direction (D11 review-tail
+      // override). Without it the clobber-guard skips terminal rows.
+      const ovIdx = args.indexOf('--operator-override');
+      const overrideSet = new Set<string>(
+        ovIdx >= 0 && args[ovIdx + 1] && !args[ovIdx + 1]!.startsWith('--')
+          ? args[ovIdx + 1]!.split(',').map((s) => s.trim()).filter(Boolean)
+          : [],
+      );
+      await persistRecords(recordsPath, args.includes('--dry-run'), overrideSet);
     } else if (args.includes('--fingerprint')) {
       await fingerprintCmd();
     } else if (args.includes('--status')) {

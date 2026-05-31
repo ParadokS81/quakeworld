@@ -197,6 +197,33 @@ validating the safeguard end to end on the real volume batch.
   "four" describe_fill probes) was a placeholder in `synthesize-ktx.ts` and was
   never registered -- only 3 describe_fill probes exist live.
 
+## Post-V-pass correction (2026-05-31, operator review)
+
+**pm_airstep Set-by corrected.** The synthesized Set-by described the MVDSV ENGINE
+airstep command (set-or-query, `airstep 0|1`). Operator review caught that the
+real player-facing command is a TOGGLE. Verified: the engine airstep command is
+registered `overrideable=true` (sv_user.c:3346) and KTX OVERRIDES it
+(ktx commands.c:999 -> commands.c:8580 `cvar_toggle_msg`; doc CD_AIRSTEP
+"toggle airstep"). On real KTX servers `/airstep` toggles + prints state; the
+engine set-or-query path is unused. Corrected to the KTX toggle via the new
+`synthesize-mvdsv.ts --operator-override pm_airstep` path (D11 review-tail
+override; the other 5 rows stayed clobber-guard-protected). New in-scope
+fingerprint `2fc714487d69a7a27bcc6e280a5b08ea`. The cvar PHYSICS is unaffected
+(MVDSV pmove, not overridden). reasoning carries the correction note.
+
+## FINDING F-MV1 -- overrideable MVDSV engine commands are replaced by the mod (KTX)
+
+Single-codebase synthesis of an in-game command's UX documents the MVDSV engine
+FALLBACK, which is unused when a mod overrides the command. `airstep` is the live
+case (engine set-or-query vs KTX toggle). The V-pass cannot catch it -- its oracle
+is MVDSV-only (the cross-codebase analog of F-C3c, where mvdsv `cmdlist` was blind
+to KTX commands). **Implication for batch 2 + the 108-command MVDSV bucket:** for
+any in-game command, or any cvar whose "Set by:" cites a command, cross-check the
+KTX override table (`ktx/src/commands.c`) BEFORE synthesizing its UX -- or keep
+the MVDSV row's command-UX minimal and let the KTX command row own it. The cvar
+PHYSICS half is unaffected (engine-owned). Promote to review-findings.md as the
+arc-wide method correction.
+
 ## Next-batch recommendation
 
 Loop fully validated on the real volume batch (persisted, idempotent,
