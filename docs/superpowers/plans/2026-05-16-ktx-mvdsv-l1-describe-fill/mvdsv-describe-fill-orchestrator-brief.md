@@ -35,7 +35,7 @@ prep in the workers.
    suspect-pool status. **If the live count differs from the plan, confirm scope with the
    operator before fanning out** (batch 2 lesson: the prompt's "no in-game command" was
    wrong; recon caught it).
-1. **Synthesis fan-out.** One `describe-fill-synthesis` worker per knob (template below).
+1. **Synthesis fan-out.** One `describe-fill-synthesis` worker per UP TO 4 knobs (batch template below).
 2. **F-D6a grep-verify.** Independently grep every returned source_ref vs live source
    BEFORE trusting it. A fabricated line is a shipped lie.
 3. **V-pass.** Independent cold-context workers, knob+description only (template below),
@@ -62,33 +62,44 @@ prep in the workers.
   - `--operator-override <name,name>` -- D11 review-tail re-write of a terminal-owned row
 - Probes: `bun scripts/load-knowledge/index.ts quality-grid --project mvdsv --family regression`
 
-## SPAWN: synthesis worker (1 per knob; model `opus`, MAX reasoning)
+## SPAWN: synthesis worker (UP TO 4 knobs per agent; model `opus`, MAX reasoning)
 
-Dispatch in waves of ~6. Fill `<KNOB>` / `<REG_REF>` / `<DEFAULT>` (from recon). The worker
-loads the skill itself; you supply only the 9 non-inferential facts + the output contract.
+Batch mode (operator-locked 2026-05-31): each agent loads the methodology ONCE, then
+synthesizes up to 4 knobs -- amortizing the ~22k skill+references read instead of re-burning
+it per knob (caching does NOT dedupe it across sibling agents; each is a separate context).
+Assign 4 knobs per agent, dispatch the agents concurrently, and fill the per-knob facts from
+recon. Hard ceiling 4: beyond that the agent's OWN context climbs into the bloat zone and the
+later knobs synthesize in a heavy context. The independent V-pass is the quality gate, so
+batching synthesis is safe -- any dilution on a later knob gets caught downstream.
 
 ```
-Invoke the `describe-fill-synthesis` skill and run it on EXACTLY ONE MVDSV knob. The skill
-is the unit -- it hard-codes the D5/D20 rubric, enforce-trace, the confabulation guard, and
-its locked Opus-4.7-MAX dial. Do not re-derive or lower them. Run at MAXIMUM reasoning.
+Invoke the `describe-fill-synthesis` skill to load its method + 6 references ONCE, then apply
+that full discipline to EACH of your assigned knobs (up to 4) in turn. The skill hard-codes the
+D5/D20 rubric, enforce-trace, the confabulation guard, and its locked Opus-4.7-MAX dial -- do not
+re-derive or lower them. Run at MAXIMUM reasoning. CRITICAL: do each knob fully (grep its
+use-sites, enforce-trace every clause, write its ledger), then DROP that knob's source greps /
+file-reads from your working set before the next knob -- treat each knob's investigation fresh so
+your context does not climb across the 4. Do NOT re-read the references between knobs (already
+loaded -- that is the point of batching).
 
-Facts (do not infer): project=mvdsv ; knob=`<KNOB>` (C cvar_t var may differ in case --
-grep both) ; anchor=`1.11-53-g18d0362` ; mechanical_candidate=none (cold-synth; evaluate
-anyway) ; suspect_pool_member=<FALSE unless in the C3 pool> ; source root=
-`/home/paradoks/projects/quakeworld/research/repos/mvdsv` (decl at `<REG_REF>`,
-extractor default `<DEFAULT>` -- LOCATOR AIDS; find the READ use-sites + enforce-trace every
-clause to its enforcing line). HARD GATE: `git -C <root> describe --tags` == `1.11-53-g18d0362`.
+Shared facts (all knobs): project=mvdsv ; anchor=`1.11-53-g18d0362` ; mechanical_candidate=none
+(cold-synth; evaluate anyway) ; source root=`/home/paradoks/projects/quakeworld/research/repos/mvdsv`.
+HARD GATE before tracing: `git -C <root> describe --tags` == `1.11-53-g18d0362`.
+Per-knob facts (one line per assigned knob): knob=`<KNOB>` (C cvar_t var may differ in case --
+grep both) ; decl at `<REG_REF>` ; extractor default `<DEFAULT>` ; suspect_pool_member=<FALSE
+unless in the C3 pool>. Decl + default are LOCATOR AIDS; find the READ use-sites + enforce-trace
+every clause to its enforcing line -- the registration is NOT the citation.
 
 These are simple config cvars -- LEAN D20 description (1-line what + value/unit + Default +
 Set-by). NO file:line / engine jargon in `description` (those go in description_reasoning).
 
-Output: write your full record to ONE file
+Output: write ONE ledger file PER knob at
 `docs/superpowers/plans/2026-05-16-ktx-mvdsv-l1-describe-fill/mvdsv-<cluster>-ledger-<KNOB>.md`
 with EXACTLY ONE fenced ```json block = the D6Record below (parsed by --from-ledger; 0 or >1
 block is a hard error), plus a human per-clause enforce-trace table around it. VALID JSON
 (escape quotes; no raw newlines inside strings; keep description_reasoning single-line).
-provenance stays null (cold-synth). Do NOT touch DB/git/commit. RETURN ONLY: (a) one-line
-verdict, (b) the description verbatim, (c) the source_ref(s). Keep reasoning in the ledger.
+provenance stays null (cold-synth). Do NOT touch DB/git/commit. RETURN ONLY, per knob: (a) one-line
+verdict, (b) the description verbatim, (c) the source_ref(s). Keep all reasoning in the ledgers.
 
 ```json
 { "project":"mvdsv","knob":"<KNOB>","type":"cvar","description":"...",
@@ -97,7 +108,7 @@ verdict, (b) the description verbatim, (c) the source_ref(s). Keep reasoning in 
   "description_reasoning":"...","description_proposed":null }
 ```
 (hedged/residue_routed -> set verdict accordingly, origin stays "synthesized"; never fabricate.)
-Out-of-scope: ONLY `<KNOB>`. If it doesn't resolve to a live MVDSV entity, abort + report.
+Out-of-scope: ONLY your assigned knobs. If a knob doesn't resolve to a live MVDSV entity, skip it + report (don't improvise on others).
 ```
 
 After the wave: `--from-ledger '<glob>' --dry-run` to confirm all parse + resolve (0 errors).
@@ -187,6 +198,11 @@ the main risk) + at least one TRACED-CLEAN control (catches over-flaggers).
   localcmd/cvar_fset, never overrides). **HG2 caught a V-pass FALSE-positive** (sv_demotxt) ->
   HG2 is load-bearing in BOTH directions, not just against rubber-stamping. qtv_password lists
   CCITT/MD4/SHA3-512 -- pending trim (method names -> reasoning/L3) via --operator-override.
+- [process change 2026-05-31, operator-locked] Synthesis batched to **4 knobs/agent** (was 1) to
+  amortize the ~22k method-load (caching does NOT dedupe it across sibling agents -- separate
+  contexts). Agent loads the skill once, loops up to 4 knobs, drops per-knob source detail between
+  them; ceiling 4 so the agent stays under the bloat zone. Re-dispatch granularity is now
+  per-agent. V-pass unchanged (6+1) -- it remains the quality gate that makes batching safe.
 
 ## BETWEEN-BATCH IMPROVEMENT RITUAL (the "get better each batch" loop)
 
