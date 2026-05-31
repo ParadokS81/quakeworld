@@ -47,9 +47,9 @@ You spawn on a full stack and fight; there is no item game to play. Every spawn 
 - **all weapons, with unlimited ammo** (the per-weapon decrement is skipped whenever `deathmatch` is 4 -- `weapons.c:830`, `:879`)
 - **2 seconds of invincibility**, so you aren't fragged the instant you appear in a tight arena (the default; tunable -- see Hosting & settings)
 
-From there the whole game is aim, movement and rocket placement. With nothing worth picking up and ammo that never drains, the item control that anchors a normal duel just isn't part of the mode -- and which weapon you hold on spawn is irrelevant, since everyone runs weapon scripts.
+From there the whole game is aim, movement and rocket placement. With nothing worth picking up and ammo that never drains, the item control that anchors a normal duel just isn't part of the mode.
 
-The one piece of item economy that remains is the backpack. A dropped pack gives **+10 health**, stacking past 250, and crossing **300 health grants 30 seconds of bonus powers** -- in normal dmm4 that is both the Pentagram (invincibility) and the Quad, which dmm4 renames **"OctaPower"** (`items.c:2430`). The variants tune it: midair grants only the Quad, instagib a Ring of Shadows instead, and LGC and ToT switch the bonus off entirely (health just caps at 300).
+The one piece of item economy that remains is the backpack. A dropped pack gives **+10 health**, stacking past 250, and reaching **300 health grants 30 seconds of bonus powers** -- in normal dmm4 that is both the Pentagram (invincibility) and the Quad, which dmm4 renames **"OctaPower"** (`items.c:2430`). Lightning gun is disabled while bonus power is active. The variants tune it: midair grants only the Quad, instagib a Ring of Shadows instead, and LGC and ToT switch the bonus off entirely (health just caps at 300).
 
 dmm4 is the base layer for the aim-practice family: toggling midair or instagib is refused unless dmm4 is already set (`world.c:1760-1769`), and leaving dmm4 force-disables them (`commands.c:2889-2894`). So midair, LGC and instagib are each "dmm4 plus one rule."
 
