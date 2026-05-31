@@ -106,7 +106,7 @@ One arc, **floor-first**: land the reachability floor + its Discovery/doc re-tru
 - **Do not change the data** — verified sound; the fix is tools + docs.
 - **Do not touch concept-note files or the concept loader** — the body-complete refactor runs in a parallel terminal; `describe_mode` only *reads* `concepts` by slug and degrades to `null`.
 - The 10 non-exposed `entities` types (log_template, info_key, keyname, …) are a possible separate audit, not this arc.
-- The top-level `truncated` field on the two `search_*` responses (not in `ToolResponse<T>`) is pre-existing minor drift — fold into `meta` only if cheap; not load-bearing.
+- No response-shape change: `ToolResponse<T>` already declares optional `count?`/`truncated?` (`types.ts:12-13`), so the `search_*` tools' `truncated` is conformant — there is no drift to fix here. (Corrects a first-pass note.)
 - MVDSV's L1 data will route through this same checklist when it lands.
 
 ## Acceptance
