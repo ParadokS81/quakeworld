@@ -50,14 +50,18 @@ F-D6a, HG2, the operator prose-gate, and ALL DB/git writes. You never synthesize
    short, what-it-does + values + Default + Set-by, no bloat. Apply concision edits to the ledgers;
    if a pattern repeats, tighten the chunk rules for next time. Chunks 1-3 reviewed; then spot-check.
 7. **Emit + persist.** `node describe-fill-emit-ledgers.cjs <result.output> <cluster>` -> per-knob
-   ledgers. Then from `apps/qw-oracle/`:
+   ledgers. **Curate the chunk's issue-worthy flags** (suspected-bug / security / cross-mod-L3 /
+   perf / behavior-quirk / dead-suspect -- NOT routine trace notes) and append one row per finding to
+   `mvdsv-describe-fill-findings.md` (verify each cited file:line against live source first -- a
+   fabricated finding-line is as bad as a fabricated description). Then from `apps/qw-oracle/`:
    `bun scripts/describe-fill/synthesize-mvdsv.ts --from-ledger '<plandir>/mvdsv-<cluster>-ledger-*.md' --dry-run`
    (0 errors) -> live -> re-run (idempotency: skipped-terminal = N, stable fingerprint) ->
    `bun scripts/load-knowledge/index.ts quality-grid --project mvdsv --family regression`
    (the 3 describe_fill gates + jsonb PASS; `origin_vocabulary` RED is the unchanged KTX baseline --
    verify 0 mvdsv contribution: mvdsv origins = source_inline + synthesized only).
 8. **Improve + commit.** Append a learnings line below + update the cursor. Commit ONLY this chunk's
-   files (`git diff --cached --stat` between add and commit). Push. Then HALT.
+   files -- ledgers, the DB-touch, the updated `mvdsv-describe-fill-findings.md`, and this brief
+   (`git diff --cached --stat` between add and commit). Push. Then HALT.
 
 ### args config shape (step 3)
 ```
@@ -111,9 +115,10 @@ Counts re-derive from `--status` each chunk; the table is the route, not the tru
 
 ## Cursor (update each chunk)
 
-- **150/347 done; 197 remaining.** Buckets: cvar 120, command 66, cmdline_param 11 (info_key 45/45 DONE).
-- Synthesized-origin rows: 48. Last workflow commit: `6514b869` (allow_download* pilot, 4). Fingerprint then `09a0...`.
+- **160/347 done; 187 remaining.** Buckets: cvar 110, command 66, cmdline_param 11 (info_key 45/45 DONE).
+- Synthesized-origin rows: 58. Last chunk: 1 `c3-dead-network` (10 cvars). In-scope MVDSV fingerprint now `0d12f55a`.
 - Download cluster 4/8 (skins/sounds/demos/pakmaps remain -- fold into chunk 8 or a quick warm-up).
+- Chunk-size: front-risk chunks (1-) ran at 10; SCALE UP from here (orchestration/canary overhead is per-chunk, so 25-40-cvar chunks amortize far better). Next per plan: chunk 2 physics (~15, F-MV1 at scale).
 
 ## Learnings log (append one line per chunk)
 
@@ -123,3 +128,15 @@ Counts re-derive from `--status` each chunk; the table is the route, not the tru
   de-risks shape-by-shape). `flags_for_review` added after the pilot V-pass surfaced 2 refinements only in
   free-text notes. args can arrive as a string -> runner parses defensively. No per-agent effort knob in the
   Workflow API (model only) -> run the session at `/effort max`; the canary is the safety net if effort sags.
+- [chunk 1 c3-dead-network, 10 cvars] All 10 synthesized high-conf, ZERO dead_stamps. The 4 C3 suspect-pool
+  members (sv_www_*, sys_sleep) are build/platform-excluded (curl `#ifdef` / Windows-only), NOT genuine-dead
+  -> document-as-live per the F-C3b deferral; `suspect=FALSE` + Phase-0 liveness context folded into
+  `chunk.rules` was the right call (workers traced central.c wiring, no mis-stamp). The cold V-pass caught 3
+  REAL over-claims -- KTX-vs-engine attribution (sv_www_address stats/race is a KTX consumer, not engine
+  behavior), VIP-not-admin (sv_getrealip has no IP-keyed admin table), spectator-too-narrow (sv_broadcast_enabled
+  also shows to all players when the receiver has no game) -- all source-confirmed in HG2 + edited before persist.
+  Canary worked: wave-1 mis-classified one, sharpened re-dispatch fixed it. BUT the old runner re-ran ALL 12 reals
+  on that single miss (~2x chunk cost) -> TUNED to re-run only the failed canary, escalate to HG1 halt on a
+  persistent miss (operator: canary is an honesty trip-wire, not worth doubling budget). Added the cross-chunk
+  `mvdsv-describe-fill-findings.md` (operator ask) -- 7 issues seeded incl an upstream-bug candidate
+  (`central.c:694` `this=this` stub) + a plaintext-authkey security note; step 7 now auto-feeds it each chunk.
