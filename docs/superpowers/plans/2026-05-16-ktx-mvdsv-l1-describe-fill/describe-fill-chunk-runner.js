@@ -183,16 +183,28 @@ async function runVpass(sharpen) {
   ))
 }
 
+const computeCanaries = (rawArr) => waveItems.map((it, i) => it.canary ? { knob: it.knob, groundTruth: it.groundTruth, classification: rawArr[i] ? rawArr[i].classification : null, pass: !!(rawArr[i] && passes(rawArr[i].classification, it.groundTruth)) } : null).filter(Boolean)
+
 let raw = await runVpass(false)
-let canaryResults = waveItems.map((it, i) => it.canary ? { knob: it.knob, groundTruth: it.groundTruth, classification: raw[i] ? raw[i].classification : null, pass: !!(raw[i] && passes(raw[i].classification, it.groundTruth)) } : null).filter(Boolean)
+let canaryResults = computeCanaries(raw)
 let canaryAllPass = canaryResults.every(c => c.pass)
 let redispatched = false
 
+// Blast-radius-limited re-dispatch (campaign tuning from the chunk-1 learning): a canary is a
+// stochastic honesty trip-wire, NOT evidence that every real-knob V-pass is wrong. On a miss,
+// re-run ONLY the failed canary(ies), sharpened -- a one-off fluke recovers for ~1 agent; a
+// persistent miss escalates to the orchestrator (HG1 halt) instead of bulk-re-running the wave.
+// Wave-1 real-knob results stand; they are independently gated by MAIN's F-D6a + HG2 + the
+// operator prose-gate. (The old behavior re-ran ALL reals on any canary miss -> ~2x chunk cost.)
 if (!canaryAllPass) {
-  log(`HG1 FAIL: ${canaryResults.filter(c => !c.pass).map(c => c.knob + '=' + c.classification).join(', ')} -- one bounded sharpened V-pass re-dispatch.`)
+  const failedIdx = waveItems.map((it, i) => (it.canary && !(raw[i] && passes(raw[i].classification, it.groundTruth))) ? i : -1).filter(i => i >= 0)
+  log(`HG1 FAIL: ${canaryResults.filter(c => !c.pass).map(c => c.knob + '=' + c.classification).join(', ')} -- re-dispatching ONLY the ${failedIdx.length} failed canary(ies), sharpened; reals untouched.`)
   redispatched = true
-  raw = await runVpass(true)
-  canaryResults = waveItems.map((it, i) => it.canary ? { knob: it.knob, groundTruth: it.groundTruth, classification: raw[i] ? raw[i].classification : null, pass: !!(raw[i] && passes(raw[i].classification, it.groundTruth)) } : null).filter(Boolean)
+  const recheck = await parallel(failedIdx.map(i => () =>
+    agent(vpassPrompt(waveItems[i].knob, waveItems[i].description, true), { schema: VPASS_SCHEMA, model: 'opus', label: `vpass:${waveItems[i].knob}(sharp-recheck)`, phase: 'V-pass' })
+  ))
+  failedIdx.forEach((i, k) => { raw[i] = recheck[k] })
+  canaryResults = computeCanaries(raw)
   canaryAllPass = canaryResults.every(c => c.pass)
 }
 
