@@ -108,17 +108,25 @@ Counts re-derive from `--status` each chunk; the table is the route, not the tru
   raise a `cross-mod-override` flag and describe what actually governs play."
 - **Commands (chunks 3-5):** "Locate the handler FUNCTION (the cmd_t/command registration -> its Cmd_*_f),
   then the enforcing logic, which may live in another file (comparator/list/format helpers -- the demo/qtv
-  'newest-first' trap). State who may issue it (rcon/admin vs any client). F-MV1: grep ktx/src for an override."
+  'newest-first' trap). State who may issue it (rcon/admin vs any client). ACCESS-CLASS (proven chunk 3):
+  client stringcmds dispatch ONLY through ucmds[] (sv_user.c:3299) + QC progs; SV_ExecuteUserCommand
+  (sv_user.c:3399) prints 'Bad user command' on no match -- NO fall-through to console commands, so a
+  Cmd_AddCommand-only registration = admin-only (verify the command is not ALSO in ucmds[] before claiming
+  dual-access, e.g. sv_demoinfo / 'cmd demoinfo'). Include a WORKED EXAMPLE with real values for any
+  non-trivial-arg command (operator ask, v2 'show usage' shape); skip no-arg commands. If a command takes an
+  address/range, verify the PARSER before documenting syntax -- QW has NO CIDR/'/mask'; StringToFilter derives
+  the mask from zero octets (ANY 0 octet is a wildcard), so never write a '[/mask]' form (chunk-3 cold V-pass
+  caught that hallucination on vip_addip AND vip_removeip). F-MV1: grep ktx/src for an override."
 - **cmdline (chunk 6):** "Find where the arg is parsed (COM_CheckParm / Sys_*). Document what the launch flag
   does at startup + whether it takes a value. Single-letter flags (-d/-g/-t/-u) are cryptic -- if the parse
   site does not make the effect legible, hedge + flag rather than guess."
 
 ## Cursor (update each chunk)
 
-- **175/347 done; 172 remaining.** Buckets: cvar 95, command 66, cmdline_param 11 (info_key 45/45 DONE).
-- Synthesized-origin rows: 73. Last chunk: 2 `physics-movement` (15 cvars). In-scope MVDSV fingerprint now `31ad65f4`.
+- **189/347 done; 158 remaining.** Buckets: cvar 95, command 52, cmdline_param 11 (info_key 45/45 DONE).
+- Synthesized-origin rows: 87. Last chunk: 3 `admin-ban` (14 commands). In-scope MVDSV fingerprint now `1481b71c`.
 - Download cluster 4/8 (skins/sounds/demos/pakmaps remain -- fold into chunk 8 or a quick warm-up).
-- Chunk-size: chunks 1+2 ran at 10+15, both clean. SCALE UP further (orchestration/canary overhead is per-chunk). Next per plan: chunk 3 commands admin/ban (~14, NEW shape -- handler-locator + comparator trap + F-MV1).
+- Chunk-size: chunks 1+2+3 ran at 10+15+14, all clean (chunk 3 = NEW command shape, held at MAX). SCALE UP further (orchestration/canary overhead is per-chunk). Next per plan: chunk 4 commands server-control + logging (~26, command shape now PROVEN -- handler-locator + comparator trap + F-MV1 + worked examples).
 
 ## Learnings log (append one line per chunk)
 
@@ -153,3 +161,26 @@ Counts re-derive from `--status` each chunk; the table is the route, not the tru
   explicit disambiguation from the naive reading -- worth a synth-prompt nudge if it recurs. Findings +6: 2
   in-source FIXMEs (sv_user.c:451/458), sv_safestrafe.pending_direction written-never-read, KTX haste via
   sv_maxspeed (L3), sv_nailhack inverted-name-default, physics-leave-at-defaults (L3).
+- [chunk 3 admin-ban, 14 commands] NEW command shape held at MAX; all 14 synthesized high-conf. HG1 clean on
+  the FIRST wave (0 re-dispatch). 3 source-grounded canaries -- `stop` (effect-inversion: claimed delete when
+  SV_MVDStop(0) saves), `qtv_status` (access-class inversion: claimed client-issuable), `record` (TRACED-CLEAN
+  control) -- all classified correctly; the access-class canary proved workers verify the NO-client-path NEGATIVE,
+  not just effects. The recon-derived access-class model folded into chunk.rules was load-bearing: SV_ExecuteUserCommand
+  (sv_user.c:3399) has NO fall-through from client stringcmds to console commands, so Cmd_AddCommand-only = admin-only;
+  workers stated who-may-issue correctly for all 14 (no over/under-claim). Cold V-pass caught 3 REAL defects:
+  vip_addip AND vip_removeip both FABRICATED a `<ip>[/mask]` CIDR syntax (StringToFilter has no slash parse; the mask
+  is octet-zero-derived) -- two independent workers converging is the strongest C-FIX signal yet; vip_addip also
+  over-generalized the level clause (engine keeps the HIGHEST level + forwards the number to the mod via *VIP, not
+  'boolean-only' -- the defect lived in sv_user.c, a different file than registration, exactly the callee-follow the
+  discipline mandates); addip C-NEAR-MISS on 'safe' scope (protects vs ban/banip, NOT addip-ban's type-agnostic
+  overwrite) + 'trailing 0' vs 'any 0 octet' wildcard. All HG2-source-confirmed + MAIN-edited before persist (no
+  re-synth dispatch needed -- surgical edits, chunk-1/2 practice). OPERATOR prose-gate (last full one) added worked
+  examples chunk-wide (v2 'show usage') and caught that my `203.0.113.0` example contradicted the any-0-octet rule
+  (matches 203.x.113.x, not 203.0.113.x -- two zeros) -> fixed to `198.51.100.0`; also flagged that 'permanent until
+  restart' implied auto-persist (bans are memory-only; writeip + exec, never auto-loaded -- engine comment sv_main.c:1988).
+  Findings +5: vip_addip no-zero-guard (`vip_addip 0` = everyone-VIP, upstream-bug med), SV_SavePenaltyFilter guards on
+  MAX_IPFILTERS(1024) but penfilters[] is MAX_PENFILTERS(512) -> OOB at 512+ penalties (upstream-bug med), mute chat-block
+  bypassed when a mod consumes `say` (cross-mod/L3 med), filterban allow-list inversion (behavior-quirk), penaltyremove
+  re-index gotcha (behavior-quirk). LESSON folded into the command rule block for chunks 4-5: (a) the no-fall-through
+  access-class fact is now stated so workers don't re-derive it; (b) WORKED EXAMPLE for non-trivial-arg commands; (c)
+  verify address/range PARSERS before documenting syntax -- QW has no CIDR, octet-zero wildcards only.
