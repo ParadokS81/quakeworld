@@ -111,6 +111,15 @@ verdict, (b) the description verbatim, (c) the source_ref(s). Keep all reasoning
 Out-of-scope: ONLY your assigned knobs. If a knob doesn't resolve to a live MVDSV entity, skip it + report (don't improvise on others).
 ```
 
+**COMMAND-MODE addendum** (when the batch is commands, per B3): give the worker the handler
+FUNCTION name as the locator -- the registration file (`sv_demo.c`) is usually NOT the handler
+file (handlers live in `sv_demo_misc.c` / `sv_demo_qtv.c` / etc.). Use the D20-command shape. Two
+trace traps that bit B3 and the worker MUST be warned about: (1) ordering/sort claims live in a
+COMPARATOR that may be in another file (e.g. `Sys_compare_by_date`, sv_main.c) -- trace it, never
+assert newest/oldest from intuition; (2) any clause mirroring a nearby code COMMENT must still be
+traced to enforcing code -- comments over-state (e.g. a "no sub-directories" comment the guard
+does not actually enforce).
+
 After the wave: `--from-ledger '<glob>' --dry-run` to confirm all parse + resolve (0 errors).
 
 ## SPAWN: V-pass worker (waves of ~6 real + 1 blind canary; model `opus`, MAX, READ-ONLY)
@@ -145,7 +154,8 @@ the main risk) + at least one TRACED-CLEAN control (catches over-flaggers).
 
 ## PERSIST + idempotency + probes + commit
 
-1. `--from-ledger '<glob>'` (live). Confirm persisted = N, errors = 0.
+1. `--from-ledger '<glob>'` (live; glob must be ABSOLUTE -- the script resolves it relative to
+   cwd `apps/qw-oracle`, but ledgers live at monorepo-root `docs/...`). Confirm persisted = N, errors = 0.
 2. Idempotency: run `--from-ledger` again -> must skip all N as terminal-owned, byte-identical
    fingerprint (also `--fingerprint`). Clobber-guard (F-D9b) protects owned rows.
 3. Probes (mvdsv): `jsonb_columns_not_strings` PASS, `describe_fill.synthesized_requires_anchor`
@@ -163,6 +173,13 @@ the main risk) + at least one TRACED-CLEAN control (catches over-flaggers).
   shipped-doc/multi-source DATA only). -> still pending fold into decisions.md D11.
 - **D20 split:** description = condensed ezquake.com-style user-doc, no file:line/jargon; all
   enforce-trace cites -> description_reasoning. Lean scales to the entity (config cvars run lean).
+- **D20-command shape** (B3): for COMMANDS, description = 1-line what-it-does + invocation
+  syntax/example (angle = required arg, square = optional) + Set-by (server console / rcon);
+  NO "Default value" line. Same no-jargon rule; cites -> reasoning.
+- **D-alias-pairs** (B3): bare<->namespaced command aliases bound to the SAME handler with no
+  `Cmd_Argv(0)` name-branching get a full self-contained description on EACH row, cross-referenced
+  ("Short alias of `X`." / "Also registered as `Y`."); synthesize the handler once, co-locate the
+  pair in one worker. Verify "no name-branching" before treating them as identical.
 - **F-MV1:** before documenting any in-game-command UX (or a cvar whose Set-by cites a command),
   grep `research/repos/ktx/src/commands.c` for a KTX override. Failure mode = documenting the
   dead engine fallback when a mod OVERRIDES the command (the `pm_airstep` case). Note: KTX
@@ -176,15 +193,16 @@ the main risk) + at least one TRACED-CLEAN control (catches over-flaggers).
 
 ## CURSOR (update each batch)
 
-- **24/347 evaluated** (calibration not persisted; pm_* 6 + sv_demo/qtv 18 persisted). Remaining 323.
-- Buckets: cvar 24 eval / 159 remaining ; command 0/108 ; cmdline_param 0/11 ; info_key 0/45.
-- Last commit: `66cf40bc` (batch 2, sv_demo/qtv 18 cvars). Fingerprint `a32ffbe170b0b208fe49503aed52b53f`.
+- **44/347 evaluated** (pm_* 6 + sv_demo/qtv cvars 18 + demo/qtv commands 20 persisted). Remaining 303.
+- Buckets: cvar 24 eval / 159 remaining ; command 20 eval / 88 remaining ; cmdline_param 0/11 ; info_key 0/45.
+- Last commit: this batch -- demo/qtv COMMANDS (20). Fingerprint `43cb33b58858b3aa95a09eddae2ffecd`.
 - C3 suspect pool (the only runtime-dead MVDSV knobs): `sv_www_*` / `sv_web_*` / `sv_login_web` /
   `sys_sleep` / `localcommand`. Everything else = suspect_pool_member FALSE.
-- **Next-batch candidates:** (a) sv_demo/qtv COMMANDS (16: record/stop/list/cancel/remove/info*
-  + qtv list/close/status) + 6 already-commented entries (affirm-or-synth path) -- first real
-  F-MV1-on-commands test; (b) `allow_download*` (~8); (c) the C3 suspect cluster -- first
-  exercise of the C3 dead-stamp path.
+- **Next-batch candidates:** (a) remaining COMMANDS (88: the non-demo console/admin/server cmds --
+  addip/kick/ban + logging + give/god/noclip + cvar/cmd list, etc.) PLUS the 3 demo-file-co-located
+  non-demo cmds deliberately skipped here (`sv_lastscores`, `script`, `sv_usercmdtrace`);
+  (b) `allow_download*` (~8 cvars); (c) the C3 suspect cluster -- first exercise of the C3
+  dead-stamp path.
 
 ## LEARNINGS LOG (append 1 line per batch -- this is how the process improves)
 
@@ -203,6 +221,18 @@ the main risk) + at least one TRACED-CLEAN control (catches over-flaggers).
   contexts). Agent loads the skill once, loops up to 4 knobs, drops per-knob source detail between
   them; ceiling 4 so the agent stays under the bloat zone. Re-dispatch granularity is now
   per-agent. V-pass unchanged (6+1) -- it remains the quality gate that makes batching safe.
+- [B3 demo/qtv commands, 20] First COMMAND batch + first F-MV1-on-commands test. F-MV1 MOOT
+  (KTX registers none of the 20; `cmd demoinfo` stuffcmd = consumption not override). Command
+  D20 shape established (what + usage/example + Set-by; NO Default). 5 alias pairs (same handler,
+  verified no `Cmd_Argv(0)` name-branching) -> synth once, write both ledgers cross-referenced,
+  co-locate pairs in one worker. **V-pass earned its keep:** caught a CLUSTER C-FIX all 5
+  Opus-MAX synth workers missed -- "newest first" inverted on ALL 3 listing cmds because the sort
+  lives in a comparator in ANOTHER file (`Sys_compare_by_date`, sv_main.c:4192), never traced;
+  plus a comment-sourced unenforced claim (`sv_demoembedinfo` "no sub-directories" -- only a
+  comment, `FS_UnsafeFilename` doesn't enforce it) + 2 near-misses. HG1 5/5 canaries, HG2 zero
+  false-positives, B4 re-synth + re-V-pass cleared all 6. Glob gotcha: `--from-ledger` needs an
+  ABSOLUTE glob (script resolves relative to cwd `apps/qw-oracle`; ledgers live at monorepo-root
+  `docs/...`).
 
 ## BETWEEN-BATCH IMPROVEMENT RITUAL (the "get better each batch" loop)
 
