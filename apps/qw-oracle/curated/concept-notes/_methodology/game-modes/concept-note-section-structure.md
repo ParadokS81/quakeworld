@@ -1,6 +1,6 @@
 # Game-mode concept-note section structure
 
-**Reconciled to the experience-first model:** 2026-05-29. Anchored to KTX `1.47-2-g67253dc`. Proven on the four shipped notes (`4on4`, `ca`, `wipeout`, `killquad`). Supersedes the kind-driven section sets; see [[experience-group-classification]] for the reframe.
+**Reconciled to the experience-first model:** 2026-05-29; refined to the audience-split structure 2026-05-31; modifier shape + structured-settings refinement 2026-06-01. Anchored to KTX `1.47-2-g67253dc`. Proven on the v2 exemplars (`ctf` + `4on4` standalone, `berzerk` modifier); the earlier notes (`ca`, `wipeout`, `killquad`, and `4on4`'s first cut) used the superseded v1 section set and are pending migration. Supersedes the kind-driven section sets; see [[experience-group-classification]] for the experience-first reframe.
 
 ## Purpose
 
@@ -14,87 +14,111 @@ Fixed top-level order. **Core** sections ship in every note (content always real
 
 | # | Section | Core/conditional | Carries |
 |---|---|---|---|
-| 1 | `## Summary` | core | The hook + the complete short answer (2-4 sentences). |
-| 2 | `## How it plays` | core | The whole experience, in prose. The mechanical heart. |
-| 3 | `## Starting a game` | core | How a player starts/joins it — the console command + activation. |
-| 4 | `## Strategy` | conditional | Player tactics — only with real, verified content. |
-| 5 | `## Maps` | conditional | Map list + applicability — only for map-coupled modes. |
-| 6 | `## History` | conditional | Origin/author/lineage — only when there's a real story. |
-| 7 | `## Hosting & settings` | core | Admin block (last): activation bit + `server.cfg` snippet + the defining cvars. |
-| 8 | `## See also` | core | Cross-references. |
+| 1 | `## Summary` | core | The hook + objective + a bare command teaser. The complete short answer (2-4 sentences). |
+| 2 | `## Activate` | core | The console command(s) only — how a player turns the mode on. |
+| 3 | `## Basic ruleset` | core / cond | The enforced defaults the mode locks in, scannable. **Body-complete.** Core for standalones; conditional for modifiers (omit when the single delta is already in `Summary`). |
+| 4 | `## Settings to tune` | conditional | The **player** commands the mode unlocks beyond the locked ruleset — in-game console commands any player can type. Omit when it has none. |
+| 5 | `## How it plays` | core | The whole experience, in prose. The mechanical heart — Strategy folds in here. |
+| 6 | `## Maps` | conditional | Map list + applicability — only for map-coupled modes. |
+| 7 | `## History` | conditional | Origin / author / lineage — only when there's a real story. |
+| 8 | `## Hosting & settings` | core | Admin block (last): availability + the server-side cvars worth editing for this mode + its hosting wrinkle. |
+| 9 | `## See also` | core | Cross-references. |
 
-This consolidates the old sets: the old `Lead` → `Summary`; `Rules` + `Sub-systems` + the mutation `What it does` all fold into `How it plays`; the old `How to play` + mutation `How to enable` (player half) → `Starting a game`; the old `Server setup` + `Configuration` merge into `Hosting & settings`.
+This refines the v1 set proven 2026-05-29 (`Summary` / `How it plays` / `Starting a game` / `Strategy` / `Maps` / `History` / `Hosting & settings` / `See also`). Three changes came out of the `ctf` + `4on4` restructure:
+
+1. **`Starting a game` → `Activate`, moved up to position 2** and narrowed to *just the command(s)*. A reader's first two questions are "what is it" (`Summary`) and "how do I turn it on" (`Activate`); the rules and the experience follow.
+2. **The mode's settings split by audience and access.** The v1 "defining cvars (3-7)" bullet lived inside `Hosting & settings` and mixed enforced presets with tunable knobs, deferring the remainder to an L1 pointer that does not resolve. v2 splits them by *who can reach the setting*: **`Basic ruleset`** = the enforced defaults the mode locks (body-complete, listed once); **`Settings to tune`** = the *player* commands a mode unlocks (in-game, conditional); **`Hosting & settings`** = the *admin* surface (availability + the `server.cfg` cvars worth editing). The access test decides the split: a player typing a console command → `Settings to tune`; a setting that needs `server.cfg`/rcon → `Hosting & settings`.
+3. **`Strategy` folds into `How it plays`.** A standalone Strategy section invited thin tactics; the experience, objective, and strategy now live in one prose section, with a distinct named mechanic promoted to a `###` subsection only when it earns it.
 
 ### 1. `## Summary` (core)
 
-2-4 sentences. A reader who reads only this gets a usable answer: the experience plus the central rule. Slightly longer than the `summary:` frontmatter; the rest of the note elaborates. Keep it tight — push detail down into `How it plays` (the killquad worked example: Summary is the "kill the carrier" hook, the seeding/30s detail lives below).
+2-4 sentences. A reader who reads only this gets a usable answer: the experience, the central rule, and a *bare* command teaser (`/4on4`) — the name of the command, not the procedure. **No cvar names** (save them for `Basic ruleset` / `Settings to tune`) and **no activation steps** (those are `Activate`). Slightly longer than the `summary:` frontmatter; the rest of the note elaborates. (Kept as `## Summary` per the concept-notes convention — no body H1.)
 
-### 2. `## How it plays` (core)
+### 2. `## Activate` (core)
 
-The experience in prose — what the mode feels like to play, the defining mechanic, and why it plays the way it does. This is the longest core section for most modes and the substantive heart the oracle leans on.
-
-- **Standalone modes** describe the mode directly (4on4's `deathmatch 1` → map-control game; ca's full-spawn no-items arena).
-- **Match-modifiers and variant-like modes lead with the delta against the base game** — "In a normal game X; this changes it to Y." (killquad: "In a normal game the Quad spawns on a timer… KillQuad removes that and…"; wipeout leads with "Clan Arena with a respawn budget".)
-- **Content-heavy modes use `###` subsections inside `How it plays`** as the pressure-release valve. CTF will need this — e.g. `### The grappling hook` and `### Runes`, each its own dedicated mechanic with its own cvar family and player-facing identity. This replaces the old top-level "Sub-systems" convention; the subsystems now live *within* How it plays rather than as sibling sections. Promote content to a `###` only when it's a distinct mechanic players talk about as its own thing with its own cvars/commands — otherwise keep it in the flowing prose.
-
-### 3. `## Starting a game` (core)
-
-How a player starts or joins the mode.
-
-**This is the player's path in** -- it carries only what a player does: the console command or warmup toggle they type, a vote they cast, being on the right map, readying up. A `# server.cfg` block never appears here (a player does not edit server.cfg); server-side prerequisites get a one-line pointer ("needs the mode enabled / needs dmm4 -- see Hosting & settings"), not a re-explanation. Everything an admin does to make the mode available lives in `Hosting & settings`. (Actor-split: a step lives in the section matching who performs it; cross-reference, never duplicate.)
+The command(s) a player types to turn the mode on, and nothing more — `/ctf`, `/4on4`, optionally the match-tag form (`ctf EQL`).
 
 - **Take the activation command from the `cmds[]` table, not the slug.** `ca` activates via `/carena` — the lone slug≠command case in KTX (see [[experience-group-classification]]). Every other mode's command equals its slug, but verify rather than assume.
-- Note the version requirement when relevant and what happens on activation (pre-match only; teams ready up; etc.).
-- **For cvar-toggle modes this is "get into the base, then toggle," not "start a match."** The player enables it with the warmup command (`/<name>`) on the required base mode -- e.g. `/dmm4` then `/midair`, `/1on1` then `/arena`. There is **no** admin `server.cfg` step to point to: these toggle cvars are reset on every mode change (`common_um_init`), so the command is the only activation -- never tell the reader to "set `k_<name> 1` in server.cfg." (killquad layers on any base; arena/midair need a specific one.)
+- **Universal activation behaviour lives once in `server-setup`, not here.** The pre-match-only gate (`is_rules_change_allowed`) and the ready-up flow are the same for every mode — state them in `server-setup` and don't repeat them per note. A note's `Activate` carries only what's specific to this mode: its command, its match-tag form, and any per-mode refusal (4on4 is refused on hoonymode-only maps and while auto-XonX is active).
+- **For cvar-toggle modes this is "get into the base, then toggle," not "start a match."** The player enables it with the warmup command (`/<name>`) on the required base mode — `/dmm4` then `/midair`, `/1on1` then `/arena`. There is **no** admin `server.cfg` step to point to: these toggle cvars are reset on every mode change (`common_um_init`), so the command is the only activation — never tell the reader to "set `k_<name> 1` in server.cfg."
 
-### 4. `## Strategy` (conditional)
+### 3. `## Basic ruleset` (core for standalones; conditional for modifiers)
 
-Player-facing tactics. Ship only when there's real, verified or curator-worthy content. Fold a single strategic implication into `How it plays` rather than spinning up a thin section (killquad: the hunt-the-carrier point sits in How it plays, no Strategy section).
+The enforced defaults the mode locks in when it activates — the fixed preset, listed scannably so a reader sees the shape of the game at a glance. Each enforced value (the `deathmatch` flag, `teamplay`, `timelimit`, `maxclients`, the mode's signature locks) appears **once**, here; its *effect or feel* goes to `How it plays`.
 
-### 5. `## Maps` (conditional)
+- **Body-complete — never defer to the L1 pointer.** The `mode_default_init_array` frontmatter pointer (`ctf_um_init`, `_4on4_um_init`) has **no MCP resolver today** (verified: zero code consumers), so a reader cannot follow it to the settings. Write the key enforced values into this section in full; do not write "see the init array" or lean on the pointer to carry the ruleset.
+- **Enforced, not tunable.** This section is what the mode *fixes*; what a *player* can change goes to `Settings to tune`, and the server cvars an *admin* edits go to `Hosting & settings`. A value that is both surprising and locked (CTF's `deathmatch 3`, arena's `deathmatch 5`) belongs here, with its rationale deferred to `How it plays`.
+- **Curate the defining values, not the whole array.** The 5-8 enforced values that characterise the mode, not every housekeeping cvar (`k_lockmin`, baseline timers). The pointer stays in frontmatter as latent metadata for a future resolver; this section is the source of truth until one exists.
+- **Conditional for modifiers (resolved 2026-06-01 on `berzerk`).** A match-modifier carries `Basic ruleset` only when it locks **several distinct changes** worth listing scannably (killquad: no map quad / one-at-a-time / drop-on-death / fresh-30s / powerups-forced-on). When the whole delta is a **single rule already stated in `Summary`**, omit the section — repeating it just duplicates the Summary (berzerk's "quad for everyone in the closing window" *is* the entire ruleset, so berzerk has no `Basic ruleset`). Standalone modes always carry it (their preset is always multi-valued).
 
-Map list with applicability notes. Ship for genuinely map-coupled modes — 4on4's classic set (`dm3`/`dm2`/`e1m2`/…), wipeout's roster-graded arena maps, race's per-map routes, midair's airborne-friendly arenas. Omit for modes that play on standard maps without preference, and for modifiers (which inherit the base mode's maps). For map-heavy modes the per-roster suitability table from the wiki is a good shape (wipeout).
+### 4. `## Settings to tune` (conditional)
 
-### 6. `## History` (conditional)
+The **player** commands a mode unlocks beyond its locked ruleset — the in-game console commands any player can type during a game, each with what it does. **This section is for the player, not the admin.** **Omit it entirely when the mode unlocks no player commands of its own** (4on4 applies a fixed competitive preset with no extra player toggles → no section).
 
-Origin, author, inspiration, mod lineage. Ship only when there's a real story to tell — not just an "introduced in 1.41" line (that belongs in the `introduced_in_version` frontmatter). ca has a History (the CACE-mod era → folded into KTX) but no Maps; 4on4 has History (KTPro → KTX, the leagues) and Maps; both are real.
+- **The access test decides which home.** If a player changes it by typing a console command, it lives here; if it needs `server.cfg` or rcon, it is an admin setting and lives in `Hosting & settings`. The "gamehost" trap: typing `/4on4` or `/dmm4` does not make a player a host — they are still a player, and these are the commands available to them.
+- **The player command, not the cvar behind it.** Where an in-game command and a server cvar are two faces of one setting, the *command* lives here and the *cvar* lives in `Hosting & settings`. dmm4's `no_lg` / `no_gl` live here — aliases for `noweapon lg` / `noweapon gl`, and the general `noweapon <weapon>` can ban any weapon (worth naming the option even though lg and gl are what players actually disable). The `k_disallow_weapons` cvar an admin sets in `server.cfg` lives in Hosting.
+- **Unlocked, not enforced; command, not feel.** What a command *does* lives here; the locked defaults live in `Basic ruleset`; how it *feels in play* lives in `How it plays`.
+- **Render as a structured list, not prose.** One line per command — name then what it does — so the reader sees the menu, not a story (same shape as `Basic ruleset` and the Hosting cvar list).
 
-### 7. `## Hosting & settings` (core — admin block, last)
+### 5. `## How it plays` (core)
 
-Admin-facing, placed last so players read the experience first. This is the **admin half** of the actor-split (the user half is `Starting a game`): it answers *"as a server admin, what -- if anything -- do I do for this mode, and what can I tune?"* It is **not** "how to stand up a server" -- the default-mode setting (`k_defmode`), the `k_allowed_free_modes` bitmask mechanics in depth, and the force-a-dedicated-server path all live once in the separate **server-setup** note, never repeated per mode. Two things only:
+The experience in prose — what the mode feels like to play, the defining mechanic, the objective, the strategy, and why it plays the way it does. The v1 `Strategy` section folds in here. This is the longest core section for most modes and the substantive heart the oracle leans on.
 
-- **Availability — usually one line.** On a stock KTX server every mode is already reachable: `ktx.cfg` ships `k_allowed_free_modes 4095` (all UserModes enabled — a *config* default, not an engine one: the bare cvar is `0`), and the cvar-toggle modes (arena, midair, killquad, ...) are never in the bitmask at all. So for most modes this is just *"available by default; nothing to enable."* Add a line only for a real exception: a genuine prerequisite (`needs dmm4`), or that a UserMode can be **removed** from `k_allowed_free_modes` to restrict it — with the bit-sharing caveat (ca/wipeout/4on4 share one bit, so you can't drop one without the others). **Never write "set `k_<name> 1` to enable" for a toggle mode** — it does not work: `common_um_init` resets those cvars on every mode change, so the command (in `Starting a game`) is the only activation.
+- **Ground it in the local wiki rip, not inherited prose.** Inherited gameplay prose can be subtly or flatly wrong — 4on4's original "weapon denial" framing was wrong (dmm1 weapons respawn on a ~30s timer; the real game is armour control, powerup running, item timing, and reporting). Consult the mode's wiki page plus `Deathmatch.json` / `Teamplay_Guide.json` under `data/wiki-snapshots/2026-05-04/` before writing. **Restructuring an existing note is not a license to trust its prose** — re-verify each claim as you reshape it (berzerk's inherited "spectator-friendly free-for-all" was wrong: frags still count in a team base mode, so it's a blood-frenzy, not an FFA).
+- **Standalone modes** describe the mode directly (4on4's `deathmatch 1` → a map-control game).
+- **Match-modifiers and variant-like modes lead with the delta against the base game** — "In a normal game X; this changes it to Y."
+- **Content-heavy modes use `###` subsections** as the pressure-release valve. Promote a mechanic to a `###` only when it's a distinct thing players talk about as its own, with its own cvar family and identity — CTF's `### The grappling hook` and `### Runes`. (Proven at CTF's scale; this resolves the v1 open question about within-section subsection depth.) Otherwise keep it in flowing prose.
 
-- **The defining cvars — the 3-7 that tune the mode's character.** Discriminators (`k_clan_arena 2` for wipeout), tunables an admin might change (`k_clan_arena_rounds`, `k_clan_arena_max_respawns`), surprising values vs the base (arena's `deathmatch 5`). A `# server.cfg` block is for these *tuning* knobs and is **optional** — include one only when there's a real knob to show; do not manufacture an "enable" block. Skip housekeeping cvars (`k_lockmin`, baseline `teamplay`, default `timelimit`); the full init array is reachable via the `mode_default_init_array` frontmatter pointer (oracle resolves it through L1 MCP tools). Admin-relevant interaction notes (killquad's Berzerk-window interaction) live here too.
+### 6. `## Maps` (conditional)
 
-### 8. `## See also` (core)
+Map list with applicability notes. Ship for genuinely map-coupled modes — 4on4's classic pool, CTF's dedicated vs adapted sets, wipeout's roster-graded arenas, race's per-map routes. Omit for modes that play on standard maps without preference, and for modifiers (which inherit the base mode's maps).
 
-Cross-references: related modes (with the `relation` tag from `related_modes`), key commands, related concept notes (`deathmatch-modes`, etc.). **Bit-sharing siblings go here in prose, not in `related_modes`** — ca/wipeout mention sharing 4on4's `UM_4ON4` bit in See-also prose while listing only the genuine gameplay sibling in `related_modes`.
+- **Community-tiered and structured.** Group by category and name the scene's tiers as the wiki frames them — 4on4's "TB3 / the big three" core vs the wider "Kenya" pool; CTF's dedicated Threewave set vs adapted episode maps vs modern competitive. Keep it parseable for future automation.
+- **Format (provisional):** comma-separated lists under bolded category labels, as `ctf` + `4on4` ship it. Whether to move to one-per-row or a per-roster suitability table is an open operator decision at fan-out (see Open questions); follow the exemplars until it's locked.
+
+### 7. `## History` (conditional)
+
+Origin, author, inspiration, mod lineage. Ship only when there's a real story — not an "introduced in 1.41" line (that belongs in `introduced_in_version` frontmatter). CTF has a rich one (Zoid's Threewave → PureCTF → KTX, the 2022 revival); 4on4 has KTPro → KTX and the leagues. A lean modifier may have none.
+
+### 8. `## Hosting & settings` (core — admin block, last)
+
+Admin-facing, placed last so players read the experience first. This is the home for everything that needs **server-side access** — `server.cfg` or rcon — which a player cannot reach. It answers two admin questions: *is this mode available, and which server-side settings shape it?*
+
+- **Availability — usually one line (the `4095` reframe).** On a stock KTX server every mode is already reachable: `ktx.cfg` ships `k_allowed_free_modes 4095` (all UserModes on — a *config* default, not an engine one: the bare cvar is `0`), and cvar-toggle modes are never in the bitmask at all. So for most modes this is *"available by default; you only touch the mask to restrict."* Name the mode's bit and any bit-sharing caveat (4on4/ca/wipeout share `UM_4ON4`, so you can't drop one without the others; CTF owns `UM_CTF` alone). The bitmask mechanics themselves live once in `server-setup`.
+- **The server-side cvars worth editing for this mode.** The mode's `k_<name>` config cvars an admin sets in `server.cfg` — the admin counterpart to the player commands in `Settings to tune` (CTF's `set k_ctf_hook 1` / `set k_ctf_runes 1` to turn the hook and rune families on; dmm4's `set k_disallow_weapons <mask>`). Curate the mode-relevant ones, not housekeeping. A **config cvar** that shapes an already-running mode (sticks in `server.cfg`) is different from a **mode-activation toggle** (`k_midair`, reset by `common_um_init`): config cvars belong here; **never tell a reader to "set `k_<name> 1`" to *enable a mode*** — that does not stick, and the command in `Activate` is the only activation. **Render the cvars as a structured list:** one line each — name, default/range (or, for an enum, each value's meaning), one-line effect — pulled from L1, not narrated in a paragraph with the values buried in it.
+- **This mode's hosting wrinkle, if any.** A genuine prerequisite; the per-usermode `configs/usermodes/<mode>/*.cfg` exec hook; a real constraint (CTF cannot run with bots). For a **gimmick toggle** (berzerk, yawnmode) **omit the always-on / dedicated-server path entirely** — nobody runs a permanent berzerk server, and surfacing it just hands a newbie a bad default. **Never restate gameplay rules here**, not even to call them "hardcoded" (killquad's one-quad / ten-second rules live in `How it plays`, not repeated in Hosting to note they aren't tunable). **Never the enforced-defaults list** (`Basic ruleset`) **and never the player commands** (`Settings to tune`).
+
+The deep hosting model — `k_defmode`, the full `k_allowed_free_modes` bitmask mechanics, the force-a-dedicated-server path — lives once in **server-setup** and is never repeated per mode.
+
+### 9. `## See also` (core)
+
+Cross-references: related modes (with the `relation` tag from `related_modes`), key commands, related concept notes (`deathmatch-modes`, `server-setup`). **Bit-sharing siblings go here in prose, not in `related_modes`** — ca/wipeout mention sharing 4on4's `UM_4ON4` bit in See-also prose while listing only the genuine gameplay sibling in `related_modes`. **Keep entries terse** — a cross-ref and a few words, not a gameplay summary; the related mode has its own note, so don't re-explain it here.
 
 ## Section design principles
 
-1. **Player-first ordering.** The common reader is a player or onlooker; they take precedence in page order. The admin block (`Hosting & settings`) sits at the bottom for the reader who jumps to it. Matches wiki convention (Wikipedia, Arch wiki, ezquake.com/docs).
-2. **Core sections enforce a baseline.** Every note ships the five core sections (`Summary`, `How it plays`, `Starting a game`, `Hosting & settings`, `See also`) so cold readers know where to look — but their content is always real, never a placeholder heading.
-3. **Section size follows content, not a template.** "Hosting & settings" for a simple modifier is a few lines; CTF's `How it plays` runs long with `###` subsections. Slots fill with what's real; don't pad, don't truncate.
-4. **Conditional sections appear only when warranted.** No empty headings. No Maps section for a mode without map preferences; no History without a story; no Strategy without verified tactics. Absent, not empty.
-5. **Mechanical accuracy, reader-facing voice.** The substance is source-verified facts (cvars, loadouts, timings), but presented as confident expert prose — not an audit log. Source-line citations live in the commit body, not the prose (quote a source line in-prose only when the line itself is the evidence). Match the `weapon-scripts.md` voice bar.
+1. **Player-first ordering.** The common reader is a player or onlooker, so the note front-loads the quick reference they want — what it is, how to start it, the rules it locks, the dials it offers — then the long-form experience, with the admin block (`Hosting & settings`) last for the reader who jumps to it. Matches wiki convention (Wikipedia, Arch wiki, ezquake.com/docs).
+2. **Core sections enforce a baseline.** Every note ships the core sections (`Summary`, `Activate`, `How it plays`, `Hosting & settings`, `See also`) so cold readers know where to look — content always real, never a placeholder heading. `Basic ruleset` is core for standalones but conditional for modifiers (a one-rule modifier omits it).
+3. **Section size follows content, not a template.** `Hosting & settings` for a simple modifier is a couple of lines; CTF's `How it plays` runs long with `###` subsections. Slots fill with what's real; don't pad, don't truncate.
+4. **Conditional sections appear only when warranted.** No empty headings: no `Settings to tune` for a mode with no tunables of its own, no `Maps` for a mode without map preferences, no `History` without a story. Absent, not empty.
+5. **Mechanical accuracy, reader-facing voice.** The substance is source-verified facts (cvars, loadouts, timings) and wiki-grounded gameplay, presented as confident expert prose — not an audit log. Source-line citations live in the commit body, not the prose (quote a source line in-prose only when the line itself is the evidence). Match the `weapon-scripts.md` voice bar.
+6. **One fact, one home; no audience whiplash.** Each fact appears in exactly one section. The player sections (`Summary` / `Basic ruleset` / `How it plays`) carry gameplay; the admin section (`Hosting & settings`) carries server-side setup and never reaches back into gameplay; `See also` is cross-refs, not summaries. A reader moves player-first → admin once, not bouncing between audiences.
 
 ## Section ordering — canonical position
 
 ```
-Summary | How it plays (+ optional ### subsections) | Starting a game | (Strategy) | (Maps) | (History) | Hosting & settings | See also
+Summary | Activate | Basic ruleset | (Settings to tune) | How it plays (+ optional ### subsections) | (Maps) | (History) | Hosting & settings | See also
 ```
 
-Sections in parentheses are **conditional** — they appear in this position *if* they have real content, and are omitted entirely otherwise. The order tells you WHERE a section goes IF you have one; it never requires a stub. The four shipped notes demonstrate the spread: 4on4 (Maps, no Strategy, has History), ca (History, no Maps), wipeout (both Maps and History), killquad (neither — a lean modifier: Summary / How it plays / Starting a game / Hosting & settings / See also).
+Sections in parentheses are **conditional** — they appear in this position *if* they have real content, and are omitted entirely otherwise. The order tells you WHERE a section goes IF you have one; it never requires a stub. The two v2 exemplars demonstrate the spread: `ctf` carries all three conditional sections (a rich `Settings to tune`, tiered `Maps`, a deep `History`); `4on4` omits `Settings to tune` (its preset isn't tuned per match) and keeps `Maps` + `History`.
 
 ## Section length
 
-**Length follows content, not a target.** There is no word-count band (the old per-kind bands are retired). A section is the right length when removing more would lose substance and adding more would pad. A lean modifier note may be ~400 words; CTF may run to several thousand. Both are correct when the content is real.
+**Length follows content, not a target.** There is no word-count band (the old per-kind bands are retired). A section is the right length when removing more would lose substance and adding more would pad. A lean modifier note may be ~400 words; CTF runs to several thousand. Both are correct when the content is real.
 
 Two failure modes to avoid:
 
-- **Padding** — explaining the obvious, enumerating cvars the L1 pointer already covers, restating the Summary later, hypothetical examples that don't reflect real play.
-- **Skipping substance** — omitting a key rule, dropping the `server.cfg` snippet, glossing an interlock or surprising value because "the section is getting long."
+- **Padding** — explaining the obvious, enumerating every housekeeping cvar in the init array (curate the defining ones into `Basic ruleset`), restating the Summary later, hypothetical examples that don't reflect real play.
+- **Skipping substance** — omitting a key enforced value from `Basic ruleset`, dropping a real `Settings to tune` knob, glossing an interlock or surprising value because "the section is getting long."
 
 ## Anti-patterns
 
@@ -102,29 +126,33 @@ Content that does NOT belong in a given section:
 
 | Section | Anti-pattern |
 |---|---|
-| Summary | Cvar names, source-file references, detailed rules. (Save for How it plays / Hosting & settings.) |
-| How it plays | Admin setup details / `server.cfg` snippets. (Save for Hosting & settings.) |
-| Starting a game | The full ruleset. (Just activation — the rules are How it plays.) |
-| Strategy | Mechanical rule statements. (Those are How it plays.) |
-| Hosting & settings | Player-facing "how do I start it." (That's Starting a game.) Citation-dense audit prose. |
+| Summary | Cvar names, source-file references, full activation steps, detailed rules. (Save for `Activate` / `Basic ruleset` / `Settings to tune` / `How it plays`.) |
+| Activate | The ruleset, or a `server.cfg` step for a toggle mode. (Just the command; the rules are `Basic ruleset` + `How it plays`.) |
+| Basic ruleset | Deferring enforced values to the `mode_default_init_array` pointer (it has no resolver). Tunable knobs (those are `Settings to tune`). Effect/feel prose (that's `How it plays`). |
+| Settings to tune | Server-side cvars set via `server.cfg`/rcon — players can't change those (they are `Hosting & settings`). Enforced/locked values (those are `Basic ruleset`). Effect/feel prose (that is `How it plays`). |
+| How it plays | Admin setup details / `server.cfg` snippets (`Hosting & settings`). Inherited gameplay prose not checked against the wiki rip. |
+| Maps | An unstructured dump. (Keep it tiered and parseable.) |
+| Hosting & settings | The enforced-defaults list (`Basic ruleset`). Player console commands (those are `Settings to tune`). Player-facing "how do I start it" (`Activate`). "Set `k_<name> 1` to enable" a toggle *mode* (`Activate`'s command is the only activation — though config cvars that shape a *running* mode do belong here). Citation-dense audit prose. |
 | See also | Bit-sharing as a `related_modes` entry. (Bit-sharing is See-also prose; `related_modes` is gameplay relations.) |
 
-When tempted to violate one, the fix is usually to extend `How it plays` or `Hosting & settings` rather than mix reader paths.
+When tempted to violate one, the fix is usually to extend `How it plays` or to move the line to its rightful section rather than mix reader paths.
 
 ## Exemplars
 
-Calibrate against the shipped notes at `apps/qw-oracle/curated/concept-notes/`:
+Calibrate against the v2 exemplar notes at `apps/qw-oracle/curated/concept-notes/`:
 
-- **`4on4.md`** — primary standard-game exemplar (Maps + History, no Strategy).
-- **`ca.md`** — arena standalone (History, no Maps).
-- **`wipeout.md`** — arena, variant-like: leads `How it plays` with the delta vs ca and leans on ca for shared mechanics.
-- **`killquad.md`** — match-modifier: the lean shape, delta-led, `Starting a game` = enable-then-play, no conditional sections.
+- **`ctf.md`** — the rich standalone: all three conditional sections (`Settings to tune`, tiered `Maps`, a deep `History`) and `###` subsections inside `How it plays` for the grappling hook and runes. The calibration point for content-heavy modes — **but it predates the 2026-05-31 access split**, so its hook/rune *cvars* still sit under `Settings to tune` and belong in `Hosting & settings` now (see Open questions). Calibrate `Settings to tune` and `Hosting & settings` against the definitions above, not ctf's current cut.
+- **`4on4.md`** — the lean standalone: a fixed competitive preset (no `Settings to tune`), `Maps` + `History`, and a `How it plays` grounded in the wiki rip (armour and powerup control, not "weapon denial").
+- **`berzerk.md`** — the lean modifier: a single-rule delta, so **no `Basic ruleset`** (the rule is the Summary), a one-paragraph `How it plays`, and a `Hosting & settings` that is just the structured `k_btime` line. The calibration point for match-modifiers.
 
-Avoid the `_backup-pre-methodology-v2/` copies — they use the retired kind-driven sections (`## Lead` / `## What it does` / `## How to enable` / `## Configuration`).
+The notes still on the **v1 section set** are pending migration; don't calibrate against them yet. (`killquad` is already on the v2 structure but predates the 2026-06-01 de-dup rules — its `Hosting & settings` restates gameplay — so touch it up alongside ctf.) Avoid the `_backup-pre-methodology-v2/` copies entirely (retired kind-driven sections: `## Lead` / `## What it does` / `## How to enable` / `## Configuration`).
 
 ## Open questions
 
-1. **Map-coupled modes (race / midair).** The `Maps` section for these may be denser than elsewhere (per-map route lists for race; tested-airborne maps for midair). May warrant a sub-shape convention; defer until race/midair drafting surfaces real friction.
-2. **CTF `How it plays` `###` depth.** CTF is the first mode that will need multiple `###` subsections (grappling hook, runes). Confirm the within-section subsection convention holds up at CTF's scale during its drafting; if the section gets unwieldy, reconsider whether a mechanic earns a top-level section after all.
+1. **Maps format.** comma-by-category-with-tiers (what `ctf` + `4on4` ship) vs one-per-row vs a per-roster suitability table. An operator decision at fan-out planning; follow the exemplars until it's locked.
+2. **Mutator `Basic ruleset` / `Settings to tune`** — *resolved 2026-06-01 on `berzerk`.* `Basic ruleset` is conditional for modifiers: keep it for a multi-rule delta (killquad), omit it for a single-rule delta already in `Summary` (berzerk). A modifier carries `Settings to tune` only if it unlocks a player command of its own (berzerk/killquad don't).
+3. **`server-setup` completeness (prerequisite for fan-out).** Per-mode `Hosting & settings` defers the universal mechanics to `server-setup`, but it's a WIP draft; deferral drops facts it doesn't yet hold (the `k_allowed_free_modes` read-at-map-load → restart caveat, the universal pre-match gate). Complete `server-setup` before fanning out.
 
-(Resolved by the reconciliation: the per-kind section sets, the per-kind length bands, and the auto-projected Configuration table are all retired in favor of the uniform structure + content-driven length + curated-cvars-in-Hosting above.)
+4. **Re-check the two v2 exemplars against the access split.** `ctf` and `4on4` were written before the 2026-05-31 player/admin refinement. 4on4 has no `Settings to tune` (unaffected); ctf needs its hook/rune server cvars moved from `Settings to tune` to `Hosting & settings`, leaving only the in-game `mctf` command under `Settings to tune`. Re-touch ctf when convenient.
+
+(Resolved by the v2 refinement: the v1 CTF `###`-depth question — it held at CTF's scale. The per-kind section sets, per-kind length bands, and the auto-projected Configuration table — retired earlier, not revived.)

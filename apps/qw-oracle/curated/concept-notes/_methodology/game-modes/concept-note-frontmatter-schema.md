@@ -1,6 +1,6 @@
 # Game-mode concept-note frontmatter schema
 
-**Reconciled to the experience-first model:** 2026-05-29. Anchored to KTX `1.47-2-g67253dc`. (Supersedes the kind-driven 3-layer schema; see [[experience-group-classification]] for the reframe.)
+**Reconciled to the experience-first model:** 2026-05-29; refined to the audience-split structure 2026-05-31. Anchored to KTX `1.47-2-g67253dc`. (Supersedes the kind-driven 3-layer schema; see [[experience-group-classification]] for the reframe and [[concept-note-section-structure]] for the v2 body skeleton. The 2026-05-31 refinement drops `activation_summary` — see Retired fields.)
 
 ## Purpose
 
@@ -36,7 +36,6 @@ Mirror the existing concept-notes convention (`README.md` in the parent dir). Al
 | `canonical_id` | string | yes | `ktx:game_mode:<slug>`. |
 | `gameplay_source_id` | string | yes | `ktx` verbatim (the `gameplay_sources.id`). No version composites (`ktx@<v>` won't join). |
 | `source_ref` | string | yes | `<file>:<line>` where the mode is defined (`commands.c:4540` for 4on4; `world.c:969` for killquad). |
-| `activation_summary` | string | yes | One sentence, player/admin-facing. **Take the activation command from the `cmds[]` table, not the slug** — `ca` activates via `/carena`, the lone slug≠command case (see [[experience-group-classification]]). For modifiers: how to toggle it (`k_<name>` in server.cfg / the warmup command) then start any base mode. |
 | `wiki_status` | enum | yes | `l3-upstream` \| `wiki-upstream` \| `hybrid` — per [[triage-rules]]. |
 | `wiki_page_slug` | string | optional | Snapshot page name when wiki was consulted (`Clan_Arena`, `Wipeout`). |
 | `introduced_by` | string | optional | Author/mod credit when known (`Dusty` for wipeout). |
@@ -55,11 +54,13 @@ These are the few facts worth querying structurally. A **standalone mode** carri
 | `loadout` | enum | mode defines spawn loadout | `item-pickup` (4on4) \| `full-spawn` (ca/wipeout). Omit for modifiers. |
 | `objective` | string | — | Short tag: `frag-leader-at-timelimit`, `eliminate-all-enemies`, `capture-most-flags`, `fastest-time`. Omit for modifiers. |
 | `score_system` | string | optional | `frags`, `rounds-won`, `flag-captures`, `time-best`. |
-| `mode_default_init_array` | string | `kind: standalone` | Name of the `_um_init` array (`_4on4_um_init`, `carena_um_init`). **Load-bearing pointer**: the oracle resolves it via L1 MCP tools to fetch the full enforced-settings table; joins to `gameplay_mechanics` rows with `kind='mode_default'` and `props_json.initstring_array = <value>`. Omit for modifiers (no init array). |
+| `mode_default_init_array` | string | `kind: standalone` | Name of the `_um_init` array (`_4on4_um_init`, `carena_um_init`). **Latent metadata, not a live pointer:** it has no MCP resolver today (zero code consumers), so nothing turns `carena_um_init` into its settings. The note's `## Basic ruleset` section is the body-complete source of truth for the enforced values; this field is retained for a future resolver that would join to `gameplay_mechanics` rows with `kind='mode_default'` and `props_json.initstring_array = <value>`. Omit for modifiers (no init array). |
 
 ### Retired fields (do NOT carry — dropped with the kind-driven model)
 
 `um_internal_id`, `common_baseline_init_array`, `base_um_id` (UM/bit internals — bit-sharing belongs in Hosting prose); `team_count`, `items_on_map`, `respawn_behavior`, `shape_facets` (over-specified — the prose carries these); `family_slug`, `family_head_canonical_id`, `family_delta` (the variant/family overlay is gone — replaced by `experience_group` + `similar-shape`); `activation_cvar`, `auxiliary_cvars`, `applies_to`, `interaction_summary`, `stacks_with_mutations`, `changes_section_set` (mutation-specific heavy fields — the cvars live in `related_entities`, the interaction in prose).
+
+**Dropped 2026-05-31 (audience-split refinement):** `activation_summary` — zero code consumers, and the body `## Activate` section (see [[concept-note-section-structure]]) is the canonical, richer home for how a player turns the mode on. Take the activation command from the `cmds[]` table there (`ca` → `/carena`, the lone slug≠command case), not in frontmatter.
 
 ## Relations — the namespace split between `related_entities` and `related_modes`
 
@@ -109,7 +110,6 @@ canonical_id: ktx:game_mode:ca
 gameplay_source_id: ktx
 source_ref: commands.c:4552
 mode_default_init_array: carena_um_init
-activation_summary: "Type /carena on a KTX server -- the console command is carena, not ca (there is no /ca command). Clan Arena rides on the UM_4ON4 bit (value 8, shared with 4on4 and wipeout). Pre-match only."
 wiki_status: hybrid
 wiki_page_slug: Clan_Arena
 note_anchor_version: 1.47-2-g67253dc
@@ -148,7 +148,6 @@ kind: mutator
 canonical_id: ktx:game_mode:killquad
 gameplay_source_id: ktx
 source_ref: world.c:969
-activation_summary: "Set k_killquad 1 in server.cfg, or any player toggles it with the killquad command during warmup (blocked once a match is live). Then start any base mode -- KillQuad layers on top."
 wiki_status: l3-upstream
 note_anchor_version: 1.47-2-g67253dc
 note_origin: synthesized

@@ -29,27 +29,23 @@ related_modes:
 
 ## Summary
 
-Berzerk is a match-modifier you layer on any base mode; it changes only the ending -- for the match's closing stretch (around 20 seconds by default), every living player is given a Quad. You arm it with `/berzerk`.
+Berzerk is a match-modifier you layer on any base mode; it changes only the ending. For the match's closing stretch (~20s by default), every living player gets a Quad. Arm it with `/berzerk`.
 
 ## Activate
 
-Get into the base mode you want to play, then type `/berzerk` during warmup to arm it (run it again to disarm). Any player can, and like any rules change it is refused once the match is live.
-
-## Basic ruleset
-
-Berzerk leaves the base mode untouched and changes only the finish:
-
-- **Quad for everyone at the end.** When the match clock reaches the berzerk window, every living player gets a Quad that lasts to the end; anyone who respawns inside the window comes back quadded too.
+Get into the base mode you want, then `/berzerk` to toggle it on/off.
 
 ## How it plays
 
-Until the window opens, berzerk does nothing -- you play the base mode straight. Then it triggers, with a loud "BERZERK!!!!" and a flash of the map lighting, and the finish turns deliberately chaotic: with everyone quadded at once a single rocket kills, the careful armour-and-position game dissolves, and the last seconds become a spectator-friendly free-for-all rather than a competitive decider.
+Until the window opens, berzerk does nothing -- you play the base mode straight. Then it triggers, with a loud "BERZERK!!!!" and a flash of the map lighting: every living player is quadded at once (and so is anyone who respawns inside the window), a single rocket kills, and the careful armour-and-position game dissolves into a spectator-friendly blood-frenzy.
 
 ## Hosting & settings
 
-Berzerk isn't in the `k_allowed_free_modes` allow-list (toggle modes never are), so it's available on any server. Its one setting is **`k_btime`** -- the window length in seconds, set in `server.cfg` (default `20`; e.g. `60` for a one-minute frenzy, `0` to disable). The mode itself is armed in-game with `/berzerk`, not from `server.cfg` -- the `k_bzk` toggle resets on every mode change (a dedicated always-berzerk server pins it on via the per-usermode config; see *server-setup*).
+Available on any server (toggle modes are never in the `k_allowed_free_modes` allow-list). Server-side setting:
+
+- **`k_btime`** -- berzerk window length, in seconds. Default `20`; `0` disables it.
 
 ## See also
 
-- `killquad` -- the other Quad-themed modifier (a single kill-the-carrier prize all match, vs berzerk's Quad-for-everyone at the end). The two coexist: berzerk's window simply suppresses KillQuad's drop.
-- `server-setup` -- arming toggle modes and the dedicated-server path.
+- `killquad` -- the other Quad-themed match-modifier (coexists with berzerk).
+- `server-setup` -- how KTX modes are enabled and hosted.
