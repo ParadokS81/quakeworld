@@ -115,10 +115,10 @@ Counts re-derive from `--status` each chunk; the table is the route, not the tru
 
 ## Cursor (update each chunk)
 
-- **160/347 done; 187 remaining.** Buckets: cvar 110, command 66, cmdline_param 11 (info_key 45/45 DONE).
-- Synthesized-origin rows: 58. Last chunk: 1 `c3-dead-network` (10 cvars). In-scope MVDSV fingerprint now `0d12f55a`.
+- **175/347 done; 172 remaining.** Buckets: cvar 95, command 66, cmdline_param 11 (info_key 45/45 DONE).
+- Synthesized-origin rows: 73. Last chunk: 2 `physics-movement` (15 cvars). In-scope MVDSV fingerprint now `31ad65f4`.
 - Download cluster 4/8 (skins/sounds/demos/pakmaps remain -- fold into chunk 8 or a quick warm-up).
-- Chunk-size: front-risk chunks (1-) ran at 10; SCALE UP from here (orchestration/canary overhead is per-chunk, so 25-40-cvar chunks amortize far better). Next per plan: chunk 2 physics (~15, F-MV1 at scale).
+- Chunk-size: chunks 1+2 ran at 10+15, both clean. SCALE UP further (orchestration/canary overhead is per-chunk). Next per plan: chunk 3 commands admin/ban (~14, NEW shape -- handler-locator + comparator trap + F-MV1).
 
 ## Learnings log (append one line per chunk)
 
@@ -140,3 +140,16 @@ Counts re-derive from `--status` each chunk; the table is the route, not the tru
   persistent miss (operator: canary is an honesty trip-wire, not worth doubling budget). Added the cross-chunk
   `mvdsv-describe-fill-findings.md` (operator ask) -- 7 issues seeded incl an upstream-bug candidate
   (`central.c:694` `this=this` stub) + a plaintext-authkey security note; step 7 now auto-feeds it each chunk.
+- [chunk 2 physics-movement, 15 cvars] All synthesized; canary clean on the FIRST wave (0 re-dispatch -- the
+  blast-radius fix held). Big TRAP-2 win: movement cvars enforce through the `movevars` struct
+  (sv_phys.c:1124 global + sv_user.c:3789 per-client -> pmove.c), NOT at registration; the chunk rule naming
+  that bridge + pmove.c paid off. Flavour-C trap caught + HEDGED: sv_airaccelerate is registered + bridged +
+  broadcast to clients/demos but has NO server pmove consumer -- server air-accel uses sv_accelerate; setting
+  sv_airaccelerate changes only what clients/demos are told. 3 V-pass near-misses (sv_accelerate implied
+  ground-only but also drives air; sv_wateraccelerate 'is sv_maxspeed' -> real swim cap is 0.7x; sv_safestrafe
+  off-by-one on a direct flip) all source-confirmed + edited. OPERATOR prose-gate added 2 more: sv_stopspeed
+  massaged (it is the low-speed *finish* floor, NOT the braking rate -- that is sv_friction) + sv_friction<->
+  sv_stopspeed cross-links. LESSON: counterintuitively-named knobs (stopspeed / nailhack / airaccelerate) need
+  explicit disambiguation from the naive reading -- worth a synth-prompt nudge if it recurs. Findings +6: 2
+  in-source FIXMEs (sv_user.c:451/458), sv_safestrafe.pending_direction written-never-read, KTX haste via
+  sv_maxspeed (L3), sv_nailhack inverted-name-default, physics-leave-at-defaults (L3).
