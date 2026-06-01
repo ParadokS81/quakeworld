@@ -5,7 +5,7 @@ slug: ctf
 topic: game-mode-reference
 status: draft
 authored_by: qw-oracle
-last_updated: 2026-05-30
+last_updated: 2026-06-01
 scope: engine-scoped
 engines_covered: [ktx]
 
@@ -62,7 +62,7 @@ Capture the Flag is QuakeWorld's objective team mode: two teams, red and blue, e
 
 On a KTX server, type `/ctf` in the console, then pick a side with `/team red` or `/team blue` and ready up. You can append a match tag for demo and QTV naming: `ctf EQL`.
 
-CTF is reachable on a stock server; whether the grappling hook and runes are switched on is a server setting (see *Settings to tune* and *Hosting & settings*).
+CTF is reachable on a stock server; whether the grappling hook and runes are on is a server setting (see *Hosting & settings*), though a player can switch them off in-game (see *Settings to tune*).
 
 ## Basic ruleset
 
@@ -74,19 +74,17 @@ Activating CTF locks in the server state that defines the mode:
 - **`timelimit 10`**, with a 5-minute overtime on a draw.
 - **`maxclients 16`** -- 5on5 native, also 4on4 / 2on2 / 1on1.
 
-Two house rules round it out: every player spawns with 50 green armor to blunt spawn-fragging (tunable -- see *Settings to tune*), and you cannot suicide in the first 10 seconds of a match.
+Two house rules round it out: every player spawns with 50 green armor to blunt spawn-fragging (tunable -- `k_ctf_ga` in *Hosting & settings*, or `noga` to drop it in-game), and you cannot suicide in the first 10 seconds of a match.
 
 ## Settings to tune
 
-CTF's distinctive knobs -- the dials a server (or a pickup host) changes to shape the game. The two big ones default **off**:
+The hook and runes ship off, and an admin enables them server-side (see *Hosting & settings*). Once a game is running, these are the toggles any player can reach in-game:
 
-- **`k_ctf_hook`** (default `0`) -- the grappling hook. Most competitive servers turn it on; players toggle it off in-game with `nohook`. See *How it plays* for what it does.
-- **`k_ctf_hookstyle`** (`1` classic / `2` fast / `3` smooth / `4` crhook) -- the hook's reel-in physics and whether it can be cancelled mid-throw. Players can also **vote** the style mid-session (`hook_classic` / `hook_fast` / `hook_smooth` / `hook_crhook`; `k_vp_hookstyle` sets the threshold).
-- **`k_ctf_runes`** (default `0`) -- the four collectible runes; off in-game with `norunes`.
-- **`k_ctf_rune_power_res` / `_str` / `_hst` / `_rgn`** (default `2.0` each) -- per-rune strength; set one to `0` to drop that rune from the rotation. The famous Threewave "double-speed" Haste is `k_ctf_rune_power_hst 8`, which KTX does not ship. `k_ctf_rune_bounce` (default `3`) controls how dropped runes bounce.
-- **`k_ctf_ga`** (default `1`) -- the 50 green spawn armor; disable per-server or in-game with `noga`.
-- **`k_ctf_based_spawn`** (default `1`) -- spawn each team on its own base side; KTX forces it off on maps without per-team spawn points.
-- **`k_ctf_custom_models`** / **`k_ctf_hurt_items`** -- cosmetic flag/hook models; whether flags and runes are destroyed by lava and damage triggers.
+- **`nohook`** -- turn the grappling hook off.
+- **`norunes`** -- turn the runes off.
+- **`mctf`** -- turn both hook and runes off in one shot ("pure"/classic CTF).
+- **`noga`** -- turn off the 50 green spawn armor.
+- **`hook_smooth` / `hook_fast` / `hook_classic` / `hook_crhook`** -- vote the hook's reel-in style mid-session (majority vote or admin veto; `k_vp_hookstyle` sets the threshold).
 
 ## How it plays
 
@@ -116,7 +114,7 @@ The grapple is CTF's signature mobility tool and the skill that most separates s
 alias on_enter_ctf "bind q impulse 22; bind r tossrune"
 ```
 
-To see the CTF-aware status bar (score, time, your rune, which flags are taken), bind the `+scores` command to a key you hold -- e.g. `bind tab +scores`. Don't put `+scores` in `on_enter_ctf`: it's a hold (`+`/`-`) command, so firing it once on entry leaves the bar stuck on until you run `-scores`. The four hook styles differ in how the hook reels you in and whether it can be cancelled mid-throw (set or voted via `k_ctf_hookstyle` -- see *Settings to tune*).
+To see the CTF-aware status bar (score, time, your rune, which flags are taken), bind the `+scores` command to a key you hold -- e.g. `bind tab +scores`. Don't put `+scores` in `on_enter_ctf`: it's a hold (`+`/`-`) command, so firing it once on entry leaves the bar stuck on until you run `-scores`. The four hook styles differ in how the hook reels you in and whether it can be cancelled mid-throw (set via `k_ctf_hookstyle` in *Hosting & settings*, or voted in-game -- see *Settings to tune*).
 
 The hook was contentious from the start. Zoid himself thought it too strong:
 
@@ -126,7 +124,7 @@ CTF without the hook and runes is the older "pure" or "classic" style -- the `mc
 
 ### Runes
 
-CTF is one of the only QuakeWorld modes with its own special powerups. Four runes can spawn on the map, each a persistent buff you keep until you die or drop it, and a player can carry only one at a time -- the `tossrune` command drops your rune for a teammate or to swap for a better one (`bind r tossrune` is a common setup). Each rune's strength, and whether it spawns at all, is set by its own power cvar (see *Settings to tune*). At the default strength:
+CTF is one of the only QuakeWorld modes with its own special powerups. Four runes can spawn on the map, each a persistent buff you keep until you die or drop it, and a player can carry only one at a time -- the `tossrune` command drops your rune for a teammate or to swap for a better one (`bind r tossrune` is a common setup). Each rune's strength, and whether it spawns at all, is set by its own power cvar (see *Hosting & settings*). At the default strength:
 
 - **Resistance** (Earth Magic) -- halves the damage you take. Quietly the strongest rune in a firefight.
 - **Strength** (Black Magic) -- doubles the damage you deal. Stacked with a Quad, that is 8x damage.
@@ -162,7 +160,17 @@ set k_ctf_hook 1
 set k_ctf_runes 1
 ```
 
-The full dial list -- styles, rune strengths, spawn armor, base spawns -- is under *Settings to tune*.
+The server-side cvars that shape CTF:
+
+- **`k_ctf_hook`** -- `0` / `1`, default `0`. The grappling hook.
+- **`k_ctf_hookstyle`** -- `1` smooth · `2` fast · `3` classic · `4` crhook. The hook's reel-in physics and whether it can be cancelled mid-throw. (Players can also vote it -- see *Settings to tune*.)
+- **`k_ctf_runes`** -- `0` / `1`, default `0`. The four collectible runes.
+- **`k_ctf_rune_power_res` / `_str` / `_hst` / `_rgn`** -- per-rune strength, default `2.0` each; set one to `0` to drop that rune from the rotation. (The famous Threewave double-speed Haste is `k_ctf_rune_power_hst 8`, which KTX does not ship.)
+- **`k_ctf_rune_bounce`** -- default `3`; how dropped runes bounce.
+- **`k_ctf_ga`** -- `0` / `1`, default `1`. The 50 green spawn armor.
+- **`k_ctf_based_spawn`** -- `0` / `1`, default `1`. Spawn each team on its own base side; KTX forces it off on maps without per-team spawn points.
+- **`k_ctf_custom_models`** -- cosmetic flag/hook models.
+- **`k_ctf_hurt_items`** -- whether flags and runes are destroyed by lava and damage triggers.
 
 One real constraint: **CTF cannot run with bots.** Disable them (`botcmd disable`) before switching a server to CTF.
 
@@ -171,5 +179,4 @@ One real constraint: **CTF cannot run with bots.** Disable them (`botcmd disable
 - `4on4` -- the flagship team mode and the natural comparison: same item-pickup teamplay, but 4on4 is `deathmatch 1` (weapons disappear on pickup, so map control is the game) where CTF is `deathmatch 3` (weapons stay) and the objective, not the frag count, decides it.
 - CTF is the sole member of the **objective** experience group -- it has no same-shape sibling, and it occupies the `UM_CTF` bit alone, so there are no bit-sharing siblings to be aware of (unlike 4on4 / ca / wipeout, which share one bit).
 - `tossrune` / `tossflag` -- drop your carried rune or flag for a teammate. `flagstatus` -- print exactly who holds which flag and where. `dropquad` -- toggle whether a Quad holder drops the Quad when killed.
-- `nohook` / `norunes` / `noga` -- in-game toggles for the hook, runes, and spawn armor; `mctf` turns the hook and runes off together for a "pure CTF" game.
 - `deathmatch-modes` -- reference note on the `deathmatch` flag values, including why CTF uses `deathmatch 3`.
