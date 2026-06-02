@@ -5,7 +5,7 @@ slug: nosweep
 topic: game-mode-reference
 status: draft
 authored_by: qw-oracle
-last_updated: 2026-05-31
+last_updated: 2026-06-02
 scope: engine-scoped
 engines_covered: [ktx]
 
@@ -50,5 +50,5 @@ NoSweep is a toggle mode, so it isn't part of the `k_allowed_free_modes` allow-l
 
 ## See also
 
-- `freshteams` -- the broader sibling for the same dmm1 concern: where NoSweep simply blocks re-picking-up an owned weapon, FreshTeams instead *caps* the sweep ammo and also retunes weapon timers and pack ammo. Both target sweeping and can be set together.
+- `freshteams` -- the broader sibling on the same concern: it caps sweep ammo and also retunes weapon and pack timers. The two can run together.
 - `server-setup` -- how toggle modes like NoSweep are armed, and the dedicated-server path for pinning one on.

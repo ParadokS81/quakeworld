@@ -5,7 +5,7 @@ slug: freshteams
 topic: game-mode-reference
 status: draft
 authored_by: qw-oracle
-last_updated: 2026-05-31
+last_updated: 2026-06-02
 scope: engine-scoped
 engines_covered: [ktx]
 
@@ -67,5 +67,5 @@ FreshTeams is a toggle mode, so it isn't part of the `k_allowed_free_modes` allo
 
 ## See also
 
-- `nosweep` -- the simpler sibling for the same dmm1 concern: where FreshTeams *caps* the ammo from sweeping a weapon you own, NoSweep blocks the re-pickup outright. Both target sweeping, and they can run together -- NoSweep is the stronger of the two, since you leave the weapon entirely.
+- `nosweep` -- the stricter sibling on the same sweeping concern: it removes the re-pickup entirely rather than capping the ammo. The two can run together.
 - `server-setup` -- how toggle modes like FreshTeams are armed, and the dedicated-server path for pinning one on.

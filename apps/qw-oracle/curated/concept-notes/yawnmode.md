@@ -5,7 +5,7 @@ slug: yawnmode
 topic: game-mode-reference
 status: draft
 authored_by: qw-oracle
-last_updated: 2026-05-31
+last_updated: 2026-06-02
 scope: engine-scoped
 engines_covered: [ktx]
 
@@ -53,7 +53,7 @@ The underlying game -- usually a 1on1 -- keeps its goal; what Yawnmode changes i
 
 ## Hosting & settings
 
-Yawnmode is a toggle mode, so it isn't part of the `k_allowed_free_modes` allow-list and there's no bit to manage. Its effects are all built in -- `k_yawnmode` is the only cvar, a plain on/off with nothing to tune. It does **not** stick in `server.cfg`: KTX resets it to `0` on every mode activation (the `common_um_init` block), so the warmup `/yawnmode` command is the only way to arm it per match; a dedicated server pins it on through the per-usermode config that execs after that reset (see *server-setup*).
+Yawnmode is a toggle mode, so it isn't part of the `k_allowed_free_modes` allow-list and there's no bit to manage. Its effects are all built in -- `k_yawnmode` is the only cvar, a plain on/off with nothing to tune. It resets to `0` on every mode change (`common_um_init`), so the warmup `/yawnmode` command is the only way to arm it -- per match, each time.
 
 ## See also
 
