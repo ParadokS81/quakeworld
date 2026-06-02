@@ -68,7 +68,7 @@ CTF is reachable on a stock server; whether the grappling hook and runes are on 
 
 Activating CTF locks in the server state that defines the mode:
 
-- **`deathmatch 3`** -- weapons stay on the floor after pickup (a duel-style economy, not 4on4's weapon-denial game).
+- **`deathmatch 3`** -- weapons stay on the floor after pickup (a duel-style economy).
 - **`teamplay 4`** -- KTX's CTF teamplay: teammates take no damage from each other's weapons, but knockback still applies (a rocket can boost a teammate).
 - **`k_dis 2`** -- no out-of-water lightning-gun discharge, which closes the suicide-frag exploit.
 - **`timelimit 10`**, with a 5-minute overtime on a draw.
@@ -92,7 +92,7 @@ Two teams fight over two flags. Each team's flag sits on a stand in its base; gr
 
 When a flag carrier dies, the flag drops where they fell. Either team can reach it: the attacking team re-grabs it and the run continues, while a single touch from the defending team instantly teleports it home. A flag left lying on the ground returns to its base on its own after 30 seconds, so a dropped flag is a brief window, not a permanent loss.
 
-Weapons stay on the floor after pickup -- the same economy as a duel -- so CTF is not the weapon-denial game team deathmatch is; the map's job is to feed an ongoing fight, not to be controlled and starved. Powerups are live, and the Quad in particular is decisive: a Quad on your flag carrier, or hunting the enemy carrier, swings a round. Friendly fire deals no damage but knockback still applies, so a well-placed rocket can boost a teammate (and the carrier) across a gap.
+Weapons stay on the floor after pickup, so the map's job is to feed an ongoing fight, not to be controlled and starved. Powerups are live, and the Quad in particular is decisive: a Quad on your flag carrier, or hunting the enemy carrier, swings a round. Friendly fire deals no damage but knockback still applies, so a well-placed rocket can boost a teammate (and the carrier) across a gap.
 
 Scoring rewards the whole flag economy, not just the capture:
 
@@ -151,7 +151,14 @@ After a long quiet period, QuakeWorld CTF saw a competitive revival from 2022. *
 
 ## Hosting & settings
 
-On a stock KTX or nquake server CTF is **available by default** -- it occupies the `UM_CTF` bit (value `64`) all to itself, with no bit-sharing, and the default `k_allowed_free_modes` (`4095`) already includes it. You only touch the mask to *restrict* a server; remove the bit to take CTF off the menu. The bitmask mechanics live once in *server-setup*, not here.
+On a stock KTX or nquake server CTF is available by default -- the allow-list (`k_allowed_free_modes`) defaults to `4095`, every mode. For a CTF-only server:
+
+```
+set k_defmode ctf
+set k_allowed_free_modes 64    // allow nothing else  (default 4095 = all modes)
+```
+
+See *server-setup* for the bitmask details.
 
 The optional toys are off by default, and most competitive servers turn them on in `server.cfg`:
 
@@ -176,7 +183,7 @@ One real constraint: **CTF cannot run with bots.** Disable them (`botcmd disable
 
 ## See also
 
-- `4on4` -- the flagship team mode and the natural comparison: same item-pickup teamplay, but 4on4 is `deathmatch 1` (weapons disappear on pickup, so map control is the game) where CTF is `deathmatch 3` (weapons stay) and the objective, not the frag count, decides it.
-- CTF is the sole member of the **objective** experience group -- it has no same-shape sibling, and it occupies the `UM_CTF` bit alone, so there are no bit-sharing siblings to be aware of (unlike 4on4 / ca / wipeout, which share one bit).
+- `4on4` -- the flagship team mode; shares CTF's item-pickup teamplay but is decided by frags, not an objective.
+- CTF is the sole member of the **objective** experience group -- it has no same-shape sibling, and it occupies the `UM_CTF` bit alone, so there are no bit-sharing siblings to be aware of.
 - `tossrune` / `tossflag` -- drop your carried rune or flag for a teammate. `flagstatus` -- print exactly who holds which flag and where. `dropquad` -- toggle whether a Quad holder drops the Quad when killed.
 - `deathmatch-modes` -- reference note on the `deathmatch` flag values, including why CTF uses `deathmatch 3`.
