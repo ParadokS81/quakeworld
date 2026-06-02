@@ -67,7 +67,7 @@ A round is won when an entire team is dead at the same time -- and a teammate wa
 
 ## Maps
 
-Wipeout plays on compact arena maps sized to the roster -- a map that suits 2v2 is usually too sparse for 4v4 and vice versa, so the community keeps a tested-maps list graded by team size:
+Wipeout plays on compact arena maps sized to the roster -- a map that suits 2v2 is usually too sparse for 4v4 and vice versa. The map pool is gathered on the community's `maphub_v2` hub; the QuakeWorld wiki grades the same maps by team size:
 
 - **2v2:** `naked6` (a trimmed CMT3), `qtdm3`, `shifter`, `rwild`, `Halo`
 - **3v3:** `rwild`, `bloodwalk` / `aerorun`, `katla`, `Schloss`, `vaporize_beta103`, `a2`, `ht_almostlost`
