@@ -1,11 +1,11 @@
 ---
 title: "3on3on3"
-summary: "Three-team deathmatch at three players a side -- red, blue and green, each against the other two. Same three-cornered standoff as 2on2on2, but on deathmatch 1, so it carries 3on3's weapon-control economy: map and item control matter, now split three ways. Most frags at the 15-minute mark wins."
+summary: "Three-team deathmatch at three a side -- red, blue and green, each against the other two. Picked-up weapons vanish and respawn, so it is a map-control game split three ways. Most frags at the 15-minute mark wins."
 slug: 3on3on3
 topic: game-mode-reference
 status: draft
 authored_by: qw-oracle
-last_updated: 2026-05-29
+last_updated: 2026-06-02
 scope: engine-scoped
 engines_covered: [ktx]
 
@@ -20,7 +20,6 @@ canonical_id: ktx:game_mode:3on3on3
 gameplay_source_id: ktx
 source_ref: commands.c:4548
 mode_default_init_array: _3on3on3_um_init
-activation_summary: "Type /3on3on3 on a KTX server whose k_allowed_free_modes includes the UM_3ON3ON3 bit (value 512, its own bit). Pre-match only; three teams (red, blue, green) ready up."
 wiki_status: l3-upstream
 note_anchor_version: 1.47-2-g67253dc
 note_origin: synthesized
@@ -40,37 +39,45 @@ related_modes:
 
 ## Summary
 
-3on3on3 is three-team deathmatch at three players a side: three teams -- red, blue and green -- fighting all at once, each against the other two. It is the same three-cornered standoff as 2on2on2 but a roster up and on `deathmatch 1`, so it carries 3on3's weapon-control economy rather than the small-format one. The team with the most frags after 15 minutes wins.
+3on3on3 is three-team deathmatch at three a side -- red, blue and green, each against the other two. Picked-up weapons vanish and respawn, so it is a map-control game split three ways: holding a region and its item timers is harder with two rivals contesting it. Most frags at 15 minutes wins. You start a game with `/3on3on3`.
+
+## Activate
+
+On a KTX server, type `/3on3on3` in the console. Players split across three teams (red, blue, green) and ready up (`ready`) to begin. A match tag can be appended for demo and QTV naming.
+
+## Basic ruleset
+
+Activating 3on3on3 applies a fixed preset:
+
+- **`k_lockmax 3`** -- three teams (red, blue, green); the three-cornered game.
+- **`deathmatch 1`** -- weapons vanish on pickup and respawn on a timer; map control is the game.
+- **`teamplay 2` / `k_mode 2`** -- team mode; friendly fire on within your team.
+- **`maxclients 9`** -- three teams of three.
+- **`k_pow 1`** -- powerups live.
+- **`timelimit 15`**, with **`k_overtime 1` / `k_exttime 5`** -- 15-minute matches; a draw goes to a 5-minute overtime.
+- **`k_membercount 2`** -- two ready players per team to start.
 
 ## How it plays
 
-Three teams, not two (`k_lockmax 3` locks it to three), so the three-cornered logic of 2on2on2 applies here too: you balance against two opponents at once, the leader draws fire from both other teams, and a smart team lets the other two wear each other down. With three players a side there is more room for a team to split duties -- press one enemy while watching the other -- than in the 2v2v2 version.
+Three teams, not two, so the three-cornered logic applies -- balance two opponents at once, the leader draws both teams' fire, and a smart team lets the other two wear each other down. With three a side there is room to press one enemy while watching the other. Weapons vanish on pickup, so map and item control decide it, now contested three ways.
 
-The economy is 3on3's: `deathmatch 1`, so picked-up weapons vanish and map control is the game, now contested three ways instead of two, which makes holding a region and its item timers harder than in a normal 3on3. Friendly fire is on within a team (`teamplay 2`), powerups are live (`k_pow 1`), and matches run 15 minutes with a 5-minute overtime.
+## Maps
 
-## Starting a game
-
-On a KTX server, type `/3on3on3` in the console -- a pre-match action. Players split across three teams (red, blue, green) and ready up; each team needs two ready players to start (`k_membercount 2`). A match tag can be appended for demo and QTV naming. The server has to allow the mode (see Hosting & settings).
+No dedicated map pool -- a rarely-played format; when it runs it needs maps with room for three teams of three.
 
 ## Hosting & settings
 
-3on3on3 rides on the `UM_3ON3ON3` bit, value `512` -- its own bit. On a stock KTX or nquake server `k_allowed_free_modes` defaults to `4095`, so it is available out of the box; set the mask explicitly only to *restrict* the server.
+On a stock KTX or nquake server 3on3on3 is available by default -- the allow-list (`k_allowed_free_modes`) defaults to `4095`, every mode. For a 3on3on3-only server:
 
 ```
-# server.cfg -- 4095 is the stock default and already allows 3on3on3 (the 512 bit)
-set k_allowed_free_modes 4095
+set k_defmode 3on3on3          // boot into 3on3on3
+set k_allowed_free_modes 512   // allow nothing else  (default 4095 = all modes)
 ```
 
-The defining settings, applied by `/3on3on3`:
-
-- **`k_lockmax 3`** -- three teams (red, blue, green); the three-cornered game.
-- **`deathmatch 1`** -- weapons vanish on pickup, 3on3's map-control economy.
-- **`k_mode 2` / `teamplay 2`** -- team mode, friendly fire on within a team.
-- **`maxclients 9`** -- three teams of three.
-- **`timelimit 15`** with **`k_overtime 1` / `k_exttime 5`**; **`k_pow 1`** -- powerups live.
+See *server-setup* for the bitmask details.
 
 ## See also
 
-- `2on2on2`, `4on4on4` -- the other three-team modes; the same dynamic at two and four players a side.
-- `3on3` -- the two-team version of this roster: the same `deathmatch 1` map-control game, fought straight up between two teams instead of three.
+- `2on2on2`, `4on4on4` -- the same three-cornered game at other rosters.
+- `3on3` -- the two-team version of this roster, fought straight up.
 - `deathmatch-modes` -- reference note on the `deathmatch` flag values.
