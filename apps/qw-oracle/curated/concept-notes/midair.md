@@ -34,7 +34,7 @@ related_modes:
 
 ## Summary
 
-Midair is an aim mutator built on dmm4. Instead of the full dmm4 arsenal, every player spawns with just the Rocket Launcher and axe, and the scoring rule is changed so that **only a kill against an airborne opponent counts**. You score by reading where a jumping or rocket-jumping player will be and catching them in the air with a rocket -- a target at floor level can't be hit at all, and a clean airborne hit is an instant kill. It is the splash-prediction counterpart to LGC's lightning-gun benchmark, and like LGC it is mutually exclusive with the other dmm4 mutators. You start it with `/midair` on a dmm4 server.
+Midair, as the name implies, is an aim mode where only mid-air hits count. You start with only a rocket launcher. It is the splash-prediction counterpart to LGC's lightning-gun benchmark, and like LGC it is mutually exclusive with the other dmm4 mutators. You start it with `/midair` on a dmm4 server.
 
 ## Activate
 
@@ -42,18 +42,25 @@ Midair runs on dmm4. Get into dmm4 first (`/dmm4`, or join a dmm4 server), then 
 
 ## Basic ruleset
 
-Midair is a toggle on dmm4 that replaces both the loadout and the scoring:
+Midair is a toggle on dmm4 that swaps the loadout and the scoring:
 
-- **Stripped loadout** -- 250 health, 200 red armour, and only the Rocket Launcher and axe (255 rockets, no other ammo). The full dmm4 arsenal is gone, and there is nothing to pick up.
-- **Airborne targets only** -- a rocket counts only if the target is at least 128 units off the ground (the airgib minimum, `k_midair_minheight`; raisable to 256, 512 or 1024). You cannot score on a target at floor level, and every non-rocket weapon does nothing.
-- **A clean hit is an instant kill** -- a qualifying rocket kills regardless of the victim's stack.
-- **Frags scale with height** -- the higher the target is above you when you connect, the bigger the frag: **+1** bronze, **+2** silver (over 256), **+4** gold (over 512), **+8** platinum (over 1024), each announced with its height and rank.
+- **Stripped loadout** -- 250 health, 200 red armour, the Rocket Launcher and axe, unlimited rockets. The full dmm4 arsenal is gone, and there is nothing to pick up.
+- **Rockets only, airborne only** -- only a rocket scores, only against an airborne target, and a clean hit is an instant kill regardless of the victim's stack. How high the target is sets the frag value (see *How it plays*).
 
 ## How it plays
 
-The base is dmm4 -- a 1on1 aim drill on a small arena map -- but midair narrows it to a single discipline: catching people in the air. The whole game is prediction. You bait jumps, watch the rocket-jumpers, and lead your shot to where the target will be at the top of its arc; there is no tracking and no chipping a stack down, and the higher the air, the bigger the frag, so a towering platinum is its own trophy.
+The base is dmm4 -- a 1on1 aim drill on a small arena map -- but midair narrows it to one discipline: catching people in the air. Since a target only counts while airborne, the play is to lift your opponent off the ground -- rockets at their feet -- then catch them at the top of the arc. The higher above you they are when you connect, the bigger the frag.
 
-Then there is the comeback rhythm. Dead players drop backpacks, and each one adds 10 health; string enough together to climb past 300 without dying and you are granted 30 seconds of Quad. In midair the Quad is not about damage -- every hit already one-shots -- its effect is that your rockets fly twice as fast (the missiles turn blue), which makes leading an airborne target far easier: a 30-second window where you can barely miss. When it runs out your health drops back to 100, so the big stack is spent rather than kept.
+A rocket only scores if the target is at least **128 units off the ground** -- the airgib minimum. Past that, the frag is set by the **height gap between you and the target**:
+
+| Tier | Frags | Gap (target above you) |
+|---|---|---|
+| bronze | +1 | up to 256 |
+| silver | +2 | over 256 |
+| gold | +4 | over 512 |
+| platinum | +8 | over 1024 |
+
+Dead players drop backpacks worth +10 health; string about five frags together to break 300 health without dying and you're granted 30 seconds of Quad. In midair the Quad isn't about damage -- every hit already one-shots -- its effect is that your rockets fly twice as fast, which makes leading an airborne target far easier: a 30-second window where you can barely miss. When it runs out your health drops back to 100, so the big stack is spent rather than kept.
 
 ## Maps
 
