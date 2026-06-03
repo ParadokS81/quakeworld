@@ -17,6 +17,7 @@ Authoring conventions, frontmatter shape, voice/length tiers, and the human-faci
 | Skywind animated skyboxes ported from IronWail | `skywind-animated-skyboxes.md` |
 | Completing legacy FTE protocol extensions in ezQuake 3.6.6 | `completing-legacy-fte-protocol-extensions.md` |
 | Client-side server-exec allowlist (security policy) | `client-side-server-exec-allowlist.md` |
+| userinfo/serverinfo protocol -- how client, server, and KTX share player state | `qw-userinfo-serverinfo-protocol.md` |
 | QW competitive ruleset anti-script restriction pattern | `ruleset-anti-script-restriction-pattern.md` |
 | QuakeWorld weapon scripts -- the three practical methods | `weapon-scripts.md` |
 | Customizing the Lightning Gun | `lightning-gun-customization.md` |
