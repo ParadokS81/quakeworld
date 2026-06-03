@@ -1,11 +1,11 @@
 ---
 title: "Instagib"
-summary: "A novelty gimmick imported from Quake 2/3: everyone carries one hitscan weapon -- the Coilgun -- that kills in a single hit from any range, with unlimited ammo. Built on dmm4 and set up as an FFA, it is played casually for a few rounds rather than as a competitive QuakeWorld format. Mutually exclusive with the other dmm4 mutators (midair, lgc)."
+summary: "A novelty mode built on dmm4: every player spawns with KTX's Coilgun -- a railgun-style hitscan weapon that kills in one hit from any range, with unlimited ammo. The gametype is imported from Quake 2's railgun (Quake 1 has no rail) and is usually played free-for-all; it is a for-fun mode, not a competitive format, and cannot run alongside the other dmm4 mutators (midair, LGC)."
 slug: instagib
 topic: game-mode-reference
 status: draft
 authored_by: qw-oracle
-last_updated: 2026-05-29
+last_updated: 2026-06-03
 scope: engine-scoped
 engines_covered: [ktx]
 
@@ -16,10 +16,9 @@ score_system: frags
 canonical_id: ktx:game_mode:instagib
 gameplay_source_id: ktx
 source_ref: world.c:975
-activation_summary: "Requires dmm4. Set deathmatch 4, then enable Instagib with k_instagib in server.cfg or the /instagib warmup toggle (refused if dmm4 is not active, and once a match is live). /instagib cycles through off and three reload speeds (slow / fast / extreme). Enabling it turns off midair, lgc, ToT and grenade mode, which it is mutually exclusive with."
 wiki_status: hybrid
 wiki_page_slug: Instagib
-introduced_by: "Deurk (KTX implementation, 2007); concept from KTPro, originally a Quake 2 gametype"
+introduced_by: "Deurk (KTX rebuild, October 2007); concept from Quake 2 via KTPro"
 note_anchor_version: 1.47-2-g67253dc
 note_origin: hybrid
 
@@ -31,55 +30,70 @@ related_entities:
   - ktx:cvar:k_cg_kb
   - ktx:cvar:k_midair
   - ktx:cvar:k_lgcmode
-  - ktx:cvar:k_dmgfrags
+related_modes:
+  - {slug: midair, relation: incompatible-with}
+  - {slug: lgc, relation: incompatible-with}
 ---
 
 ## Summary
 
-Instagib is a novelty gimmick borrowed from Quake 2/3: every player spawns with a single hitscan weapon -- the **Coilgun** -- that is guaranteed to kill in one hit from any range, with unlimited ammo. There is nothing to pick up and nowhere to hide, so a round is pure aim and movement. Quake 1 never had a railgun, so this is an imported concept rather than a native QuakeWorld format; in KTX it is built on dmm4, set up as an FFA, and played for fun for a few rounds rather than as a competitive mode. It is one of the dmm4 mutators and cannot run at the same time as midair or LGC.
+Instagib is a novelty mode: every player spawns with KTX's **Coilgun** -- a railgun-style hitscan weapon that kills in one hit from any range, with unlimited ammo. The gametype came from Quake 2's railgun (Quake 1 has no rail), so it is an import rather than a native format; in KTX it rides on dmm4, is usually played free-for-all, and is run for fun, not competition. Start it with `/instagib` on a dmm4 server -- it is a dmm4 mutator and cannot run with midair or LGC.
+
+## Activate
+
+On a KTX server (dmm4 required):
+
+```
+/dmm4
+/instagib    // toggle; type again to cycle  slow -> fast -> extreme -> off
+```
+
+Enabling it switches off the other dmm4 mutators (midair, LGC).
+
+## Basic ruleset
+
+A toggle on dmm4 that replaces the arsenal with one lethal weapon:
+
+- **Coilgun + axe only** -- 250 health, **no armour** (lethal hits make it moot), the Coilgun, the axe, unlimited ammo. Nothing on the map you need to pick up to fight.
+- **Every hit kills** -- a Coilgun shot is a guaranteed kill at any range, whatever the target's armour or health.
+- **Three firing speeds** -- slow / fast / extreme, cycled with `/instagib`.
+- **Fast spawns** -- brief spawn invulnerability, 2-second respawn.
 
 ## How it plays
 
-Every shot kills. The Coilgun is a hitscan weapon that does effectively unlimited damage on any hit, so range, armour and health do not matter -- if you are on target, the other player dies. Ammo is unlimited, so the whole game collapses to two things: putting the crosshair on someone first, and not being where their crosshair is. With no items to collect and no weapon to hunt for, Instagib plays on any map and is as much about dodging as aiming.
+With one-shot kills and nothing to collect, the game is two things: hit them first, and don't be where their crosshair is. Armour is moot and there's no weapon to hunt, so instagib is as much dodging and movement as aim -- and it plays on any map.
 
-You actually carry two ways to kill. The Coilgun is the main weapon -- a high-velocity hitscan shot that punches through a player and keeps going until it hits a wall, so it can gib more than one person in a line. You also keep the **Axe**, and an axe kill is worth more than a coil kill because landing it is so much harder. Killing someone by **stomping** them (landing on their head) is worth the most of all. The end-of-match stats break your game down by coil gibs, axe gibs, stomps, multi-gibs and airborne gibs.
+The Coilgun is a hitscan shot that **punches through a player and keeps going** to the wall, so one shot can gib a line of opponents (KTX tracks your multi-gibs). You also keep the **axe**, and scoring rewards the harder kill: a coil frag is worth **1**, an axe frag **2**, and a **stomp** -- landing on someone's head -- **4**. End-of-match stats split your kills into coil, axe, stomp and multi-gibs.
 
-The Coilgun has rocket-launcher-style kickback, which means you can **coiljump** -- the same idea as a rocket jump, but with a hitscan shot and no explosion. KTX also measures the height of airborne kills, so fragging someone while you are both off the ground ("airgibs") is tracked and shown in the stats, giving skilled players something to chase beyond the raw frag count.
+The Coilgun has rocket-launcher kickback, so you can **coiljump** -- a rocket jump without the explosion or the self-damage. KTX also measures how high an airborne victim was: a kill on someone in the air is an **airgib**, announced with its height (plain / Great / Amazing) and tracked for players chasing more than raw frags.
 
-Because every shot is lethal, staying alive is hard, and KTX rewards a survival streak. **Each backpack you pick up adds 10 health**; if you string together enough packs to climb past 300 health without dying in between, you are granted **30 seconds of invisibility** (the Ring) -- a hunter's reward that makes you briefly much harder to see while you press the advantage. Dying resets the climb.
-
-`/instagib` is not a simple on/off. It cycles through four states -- off, then three reload speeds: **slow**, **fast** and **extreme** -- each step making the weapon fire faster and the round more frantic. (Older KTPro instagib offered only two shotgun-based speeds; current KTX has the three-speed cycle.)
-
-## Starting a game
-
-Instagib runs on a dmm4 server. On one, any player can turn it on during warmup by typing `/instagib` in the console -- each use steps to the next speed (off, slow, fast, extreme) and it is refused once a match is in progress. It cannot run alongside `midair` or `LGC`; enabling Instagib automatically turns those off (along with ToT and grenade mode). An admin can also preset it server-side -- see Hosting & settings.
-
-Because Quake 1 has no native railgun, the Coilgun uses a borrowed weapon model -- the shotgun and super-shotgun models by default, or a dedicated Coilgun model and sound if the server enables custom models. There is nothing else for a player to set up; pick your fights and shoot first.
+Surviving is hard when every shot kills, so KTX rewards a streak: **each backpack adds 10 health**, and climbing past 300 without dying (about five packs) grants **30 seconds of invisibility** (the Ring) -- brief cover to close in for an axe kill and its double frags.
 
 ## History
 
-The instagib gametype began in Quake 2 with the railgun and spread widely -- it became especially popular in Unreal Tournament, often combined with CTF and deathmatch. In QuakeWorld it first appeared in **KTPro**, where (on dmm8) it repurposed the Lightning Gun as a rail-like instant-kill weapon. After a few dormant years, **Deurk** of the KTX team revived and rebuilt it for KTX in October 2007, replacing the LG approach with the purpose-built Coilgun -- a hitscan weapon with its own model (by Orion), sound, and the through-target penetration that lets a single shot gib a line of players. It remains a for-fun curiosity in QuakeWorld rather than a competitive discipline.
+The instagib gametype began with Quake 2's railgun and spread widely, big in Unreal Tournament (often with CTF/DM). In QuakeWorld it first appeared in **KTPro**, repurposing the Lightning Gun (on dmm8) as a rail-like instant-kill. After some dormant years **Deurk** rebuilt it for KTX in October 2007, swapping the LG for the purpose-built **Coilgun** -- a hitscan weapon with its own model (by **Orion**), sound and through-target penetration. It stays a for-fun curiosity, not a competitive discipline.
 
 ## Hosting & settings
 
-Instagib is a dmm4 mutator, not one of the server's free modes, so there is no `k_allowed_free_modes` bit for it. An admin enables it on top of a dmm4 server -- and because it is FFA-flavoured, usually a matchless/FFA box:
+Instagib is a dmm4 mutator, not a free mode, so it has no `k_allowed_free_modes` bit -- an admin enables it on a dmm4 server (usually a matchless/FFA box):
 
 ```
 # server.cfg -- Instagib rides on dmm4
 deathmatch 4
-set k_instagib 1            // 1 slow, 2 fast, 3 extreme (0 = off)
+set k_instagib 1                 // 1 slow, 2 fast, 3 extreme (0 = off)
 set k_instagib_custom_models 1   // use the Coilgun model instead of the SG/SSG models
 ```
 
-- **`k_instagib`** (default `0`) -- the activation level. `1`/`2`/`3` are the slow/fast/extreme reload speeds; the `/instagib` command cycles `0 -> 1 -> 2 -> 3 -> 0`. Setting it requires dmm4 (`deathmatch 4`).
-- **`k_instagib_custom_models`** -- swap the borrowed shotgun models for the dedicated Coilgun model and sound.
-- **`k_cg_kb`** (Coilgun kickback) -- enables the rocket-jump-style kickback that makes coiljumps possible; KTX turns it on automatically whenever Instagib is enabled. The `/instagib_coilgun_kickback` command toggles it.
+- **`k_instagib`** (default `0`) -- activation level / firing speed: `1` slow (1.2s reload), `2` fast (0.7s), `3` extreme (0.5s). Requires `deathmatch 4`; `/instagib` cycles `0 -> 1 -> 2 -> 3 -> 0`.
+- **`k_instagib_custom_models`** (default `0`) -- swap the borrowed SG/SSG models for the dedicated Coilgun model and sound.
+- **`k_cg_kb`** (default `1`) -- Coilgun kickback, what makes coiljumps possible. KTX forces it on with instagib; `/instagib_coilgun_kickback` toggles it.
 
-Enabling Instagib clears the cvars it conflicts with: `k_midair`, `k_lgcmode`, the ToT toggle and `k_dmm4_gren_mode` are all set to `0`. It is mutually exclusive with midair and LGC in both directions -- enabling either of those turns Instagib off in turn.
+Enabling instagib zeroes the cvars it conflicts with -- `k_midair`, `k_lgcmode`, the ToT toggle and dmm4 gren-mode -- so only one dmm4 mutator runs at once. A per-server or per-map preset can go in `configs/usermodes/instagib/default.cfg` (or `<mapname>.cfg`), exec'd automatically on toggle.
 
 ## See also
 
-- `midair` -- the other main dmm4 aim mutator (score only for mid-air kills). Mutually exclusive with Instagib: enabling either one turns the other off.
-- `lgc` -- the Lightning Gun-only dmm4 mutator, also mutually exclusive with Instagib.
-- `ffa` -- the free-for-all setup Instagib is usually played on; like Instagib it leans on `dq`/`dr` powerup play in its normal form, though Instagib strips the game down to the Coilgun.
-- `deathmatch-modes` -- reference on the `deathmatch` flag values, including dmm4, the full-arsenal aim-map ruleset Instagib is built on.
+- `midair` -- the other dmm4 aim mutator (score only for mid-air kills). Mutually exclusive: enabling either turns the other off.
+- `lgc` -- the Lightning Gun-only dmm4 mutator, also mutually exclusive.
+- `dmm4` -- the full-arsenal aim base instagib strips down and builds on.
+- `ffa` -- the free-for-all setup instagib is usually played on.
+- `deathmatch-modes` -- reference on the `deathmatch` flag values, including dmm4.
