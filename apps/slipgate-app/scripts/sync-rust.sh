@@ -4,7 +4,10 @@
 set -euo pipefail
 
 MONOREPO="$HOME/projects/quakeworld/apps/slipgate-app"
-WINDOWS="/mnt/c/Users/Administrator/projects/slipgate-app"
+# Windows-side build mirror user. Defaults to the home workstation (Administrator);
+# override per-machine, e.g. the travel laptop: export SLIPGATE_WIN_USER=mfrak
+WINUSER="${SLIPGATE_WIN_USER:-Administrator}"
+WINDOWS="/mnt/c/Users/$WINUSER/projects/slipgate-app"
 
 # Copy bundle from src/lib/config/data/ into src-tauri/resources/ so the include_str!
 # in browse.rs stays self-contained inside src-tauri/ (the Windows mirror only syncs

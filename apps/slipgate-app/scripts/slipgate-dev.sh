@@ -4,7 +4,9 @@
 set -euo pipefail
 
 MONOREPO="$HOME/projects/quakeworld/apps/slipgate-app"
-WINDOWS_CMD="C:\\Users\\Administrator\\projects\\slipgate-app\\dev-no-vite.cmd"
+# Windows-side build mirror user; override per-machine (laptop: export SLIPGATE_WIN_USER=mfrak)
+WINUSER="${SLIPGATE_WIN_USER:-Administrator}"
+WINDOWS_CMD="C:\\Users\\$WINUSER\\projects\\slipgate-app\\dev-no-vite.cmd"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 cleanup() {
