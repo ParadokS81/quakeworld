@@ -15,7 +15,7 @@ Mirror the existing concept-notes convention (`README.md` in the parent dir). Al
 | Field | Type | Mandatory | Notes |
 |---|---|---|---|
 | `title` | string | yes | Quoted display title. `"4on4"`, `"Clan Arena"`, `"Wipeout"`, `"KillQuad"`. No `(mutation)` suffix — `kind` carries the mechanism. |
-| `summary` | string | yes | The hook (~1-3 sentences): what the mode is and its central rule. Kept tight; the body's `## Summary` elaborates. |
+| `summary` | string | yes | The hook (~1-3 sentences): what the mode is and its central rule. **Read in isolation** — the MCP `search_concepts` tool returns it as a standalone result field, so it must be self-contained: carry *what the mode is*, not activation steps or the full ruleset. Kept tight; the body's `## Summary` is a distinct surface (the searchable lead) that elaborates it with minimal overlap — see [[concept-note-section-structure]]. |
 | `slug` | string | yes | Matches `gameplay_mechanics.name` **strictly** (lowercased, exact, no expansion): `ca` not `clan-arena`; `tot` not `tribe-of-tjernobyl`; `1on1`/`wipeout` as-is. Must align with `canonical_id` so `related_modes` cross-refs resolve. The expanded name goes in `title`. |
 | `topic` | enum | yes | `game-mode-reference`. |
 | `status` | enum | yes | `draft` \| `reviewed` \| `published` |
