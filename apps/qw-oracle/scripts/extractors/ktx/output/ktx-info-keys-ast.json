@@ -1,36 +1,10 @@
 {
   "info_keys": [
     {
-      "name": "*at:userinfo",
-      "bare_name": "*at",
-      "ast": {
-        "scope": "userinfo",
-        "operations": [
-          "read",
-          "write"
-        ],
-        "source_file": "src/commands.c",
-        "source_line": 6097,
-        "containing_function": "AutoTrack",
-        "all_call_sites": [
-          {
-            "source_file": "src/commands.c",
-            "source_line": 6097,
-            "operation": "write"
-          },
-          {
-            "source_file": "src/commands.c",
-            "source_line": 6123,
-            "operation": "read"
-          }
-        ]
-      }
-    },
-    {
-      "name": "*cheats:userinfo",
+      "name": "*cheats:serverinfo",
       "bare_name": "*cheats",
       "ast": {
-        "scope": "userinfo",
+        "scope": "serverinfo",
         "operations": [
           "read"
         ],
@@ -56,6 +30,207 @@
           {
             "source_file": "src/commands.c",
             "source_line": 9341,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*version:serverinfo",
+      "bare_name": "*version",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/g_main.c",
+        "source_line": 148,
+        "containing_function": "vmMain",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_main.c",
+            "source_line": 148,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fpd:serverinfo",
+      "bare_name": "fpd",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 2017,
+        "containing_function": "ModStatus2",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 2017,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 3254,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 3688,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 3705,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 3721,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 311,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 1302,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 2114,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mapname:serverinfo",
+      "bare_name": "mapname",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/g_main.c",
+        "source_line": 184,
+        "containing_function": "vmMain",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_main.c",
+            "source_line": 184,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "matchtag:serverinfo",
+      "bare_name": "matchtag",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/client.c",
+        "source_line": 5796,
+        "containing_function": "PlayerCanPause",
+        "all_call_sites": [
+          {
+            "source_file": "src/client.c",
+            "source_line": 5796,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 4602,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 4607,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 286,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 1486,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 2497,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 2753,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/stats_json.c",
+            "source_line": 459,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/stats_xml.c",
+            "source_line": 227,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "modelname:serverinfo",
+      "bare_name": "modelname",
+      "ast": {
+        "scope": "serverinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/g_main.c",
+        "source_line": 185,
+        "containing_function": "vmMain",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_main.c",
+            "source_line": 185,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "*at:userinfo",
+      "bare_name": "*at",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "write"
+        ],
+        "source_file": "src/commands.c",
+        "source_line": 6097,
+        "containing_function": "AutoTrack",
+        "all_call_sites": [
+          {
+            "source_file": "src/commands.c",
+            "source_line": 6097,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/commands.c",
+            "source_line": 6123,
             "operation": "read"
           }
         ]
@@ -348,6 +523,26 @@
       }
     },
     {
+      "name": "*spectator:userinfo",
+      "bare_name": "*spectator",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/match.c",
+        "source_line": 54,
+        "containing_function": "WeirdCountPlayers",
+        "all_call_sites": [
+          {
+            "source_file": "src/match.c",
+            "source_line": 54,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
       "name": "*state:userinfo",
       "bare_name": "*state",
       "ast": {
@@ -372,6 +567,11 @@
           {
             "source_file": "src/g_utils.c",
             "source_line": 1523,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/match.c",
+            "source_line": 61,
             "operation": "read"
           }
         ]
@@ -407,26 +607,6 @@
           {
             "source_file": "src/race.c",
             "source_line": 160,
-            "operation": "read"
-          }
-        ]
-      }
-    },
-    {
-      "name": "*version:userinfo",
-      "bare_name": "*version",
-      "ast": {
-        "scope": "userinfo",
-        "operations": [
-          "read"
-        ],
-        "source_file": "src/g_main.c",
-        "source_line": 148,
-        "containing_function": "vmMain",
-        "all_call_sites": [
-          {
-            "source_file": "src/g_main.c",
-            "source_line": 148,
             "operation": "read"
           }
         ]
@@ -608,61 +788,6 @@
           {
             "source_file": "src/g_utils.c",
             "source_line": 2520,
-            "operation": "read"
-          }
-        ]
-      }
-    },
-    {
-      "name": "fpd:userinfo",
-      "bare_name": "fpd",
-      "ast": {
-        "scope": "userinfo",
-        "operations": [
-          "read"
-        ],
-        "source_file": "src/commands.c",
-        "source_line": 2017,
-        "containing_function": "ModStatus2",
-        "all_call_sites": [
-          {
-            "source_file": "src/commands.c",
-            "source_line": 2017,
-            "operation": "read"
-          },
-          {
-            "source_file": "src/commands.c",
-            "source_line": 3254,
-            "operation": "read"
-          },
-          {
-            "source_file": "src/commands.c",
-            "source_line": 3688,
-            "operation": "read"
-          },
-          {
-            "source_file": "src/commands.c",
-            "source_line": 3705,
-            "operation": "read"
-          },
-          {
-            "source_file": "src/commands.c",
-            "source_line": 3721,
-            "operation": "read"
-          },
-          {
-            "source_file": "src/match.c",
-            "source_line": 311,
-            "operation": "read"
-          },
-          {
-            "source_file": "src/match.c",
-            "source_line": 1302,
-            "operation": "read"
-          },
-          {
-            "source_file": "src/match.c",
-            "source_line": 2114,
             "operation": "read"
           }
         ]
@@ -1074,41 +1199,6 @@
       }
     },
     {
-      "name": "matchtag:userinfo",
-      "bare_name": "matchtag",
-      "ast": {
-        "scope": "userinfo",
-        "operations": [
-          "read"
-        ],
-        "source_file": "src/client.c",
-        "source_line": 5796,
-        "containing_function": "PlayerCanPause",
-        "all_call_sites": [
-          {
-            "source_file": "src/client.c",
-            "source_line": 5796,
-            "operation": "read"
-          },
-          {
-            "source_file": "src/match.c",
-            "source_line": 286,
-            "operation": "read"
-          },
-          {
-            "source_file": "src/match.c",
-            "source_line": 1486,
-            "operation": "read"
-          },
-          {
-            "source_file": "src/match.c",
-            "source_line": 2753,
-            "operation": "read"
-          }
-        ]
-      }
-    },
-    {
       "name": "mi:userinfo",
       "bare_name": "mi",
       "ast": {
@@ -1140,6 +1230,26 @@
       }
     },
     {
+      "name": "name:userinfo",
+      "bare_name": "name",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/g_main.c",
+        "source_line": 200,
+        "containing_function": "vmMain",
+        "all_call_sites": [
+          {
+            "source_file": "src/g_main.c",
+            "source_line": 200,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
       "name": "nocolors:userinfo",
       "bare_name": "nocolors",
       "ast": {
@@ -1154,6 +1264,26 @@
           {
             "source_file": "src/g_cmd.c",
             "source_line": 284,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "nomaps:userinfo",
+      "bare_name": "nomaps",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/maps.c",
+        "source_line": 251,
+        "containing_function": "mapslist_dl",
+        "all_call_sites": [
+          {
+            "source_file": "src/maps.c",
+            "source_line": 251,
             "operation": "read"
           }
         ]
@@ -1648,14 +1778,15 @@
     }
   ],
   "_stats": {
-    "source_total_call_sites": 174,
-    "count": 51,
+    "source_total_call_sites": 185,
+    "count": 56,
     "by_scope": {
-      "userinfo": 51
+      "serverinfo": 6,
+      "userinfo": 50
     },
     "by_ops": {
-      "read,write": 11,
-      "read": 40
+      "read": 45,
+      "read,write": 11
     }
   }
 }

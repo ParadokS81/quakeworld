@@ -2601,8 +2601,13 @@ const KTX_FLOOR_PROBES: Probe[] = [
   makeFloorSourceStateProbe('ktx', 'cvar', { source_backed: 260 }),
   makeFloorCountProbe('ktx', 'command', 358),
   makeFloorSourceStateProbe('ktx', 'command', { source_backed: 358 }),
-  makeFloorCountProbe('ktx', 'info_key', 7),
-  makeFloorSourceStateProbe('ktx', 'info_key', { source_backed: 7 }),
+  // info_key 56 = 47 userinfo (all-sites consumer emission 2026-05-27 +
+  // cross-engine re-synth) + 6 serverinfo world-reads + 3 new userinfo,
+  // after the _handler_info_keys.py entity-aware-scope + infokey() fix
+  // (2026-06-04, source-walked). Prior floor 7 was the old producer-only
+  // star keys and predated the all-sites emission arc.
+  makeFloorCountProbe('ktx', 'info_key', 56),
+  makeFloorSourceStateProbe('ktx', 'info_key', { source_backed: 56 }),
   makeFloorCountProbe('ktx', 'log_template', 1195),
   makeFloorSourceStateProbe('ktx', 'log_template', { source_backed: 1195 }),
   makeFloorCountProbe('ktx', 'match_event', 7),
