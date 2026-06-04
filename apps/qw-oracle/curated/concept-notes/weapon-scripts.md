@@ -1,6 +1,6 @@
 ---
 title: "QuakeWorld weapon scripts: the three practical methods"
-summary: "How to create weapon scripts for manual selection or quickfire. Covers weapon select priorities and settings to not drop weapons in backpack on death."
+summary: "How to create weapon scripts for manual selection or quickfire. Covers weapon select priorities, settings to not drop weapons in backpack on death, and the server-side weapon-switching option (w_rank) for lossy or high-ping connections."
 slug: weapon-scripts
 topic: domain-guide
 status: draft
@@ -32,9 +32,12 @@ related_entities:
   - ezquake:commit:7c328aa4
   - ezquake:commit:ab813f8a
   - ezquake:commit:db269539
+  - ezquake:cvar:cl_pext_serversideweapon
+  - mvdsv:info_key:w_rank:userinfo
+  - ktx:info_key:w_rank:userinfo
 scope: cross-engine
-engines_covered: [ezquake, fte]
-last_updated: 2026-04-25
+engines_covered: [ezquake, fte, mvdsv, ktx]
+last_updated: 2026-06-04
 ---
 
 # QuakeWorld weapon scripts: the three practical methods
@@ -217,6 +220,12 @@ bind mouse1 "+fire_ar 7 6"
 
 Each step is the engine absorbing complexity the user had been expressing manually. Legacy configs still work -- nothing was removed. The recommendation isn't a rule, it's the form the engine has made optimal.
 
+## Server-side weapon switching (`w_rank`)
+
+The three methods above run **client-side**: your client picks the weapon and sends the selection impulse to the server. ezQuake can instead push the switch to the **server**, through server-side weapon switching (the `MVD_PEXT1_SERVERSIDEWEAPON` protocol extension, enabled with `cl_pext_serversideweapon`). When it is active, ezQuake sends your weapon-switch order to mvdsv, which stores it in the `w_rank` userinfo key -- a string of weapon-impulse digits in priority order (`1` axe, `2` shotgun, `3` super shotgun, `4` nailgun, `5` super nailgun, `6` grenade launcher, `7` rocket launcher, `8` lightning gun). The swap is then decided server-side, so it stays reliable under **packet loss and high ping**, where a client-side selection impulse can be dropped or arrive a frame late. KTX reads `w_rank` too (when it is set) to drive its auto-switch on weapon pickup.
+
+This does **not** replace your weapon scripts -- it changes *where* the switch they request is executed, not how you bind them. It is the modern, maintained server-side weapon path. KTX's older `wreg` (see Legacy patterns below) took a different, now-legacy approach -- registering a weapon and simulating the *shot* server-side -- which pre-dates and conflicts with modern `antilag`; prefer server-side weapon switching today.
+
 ## Legacy patterns you may encounter
 
 Older configs and community-shared scripts commonly contain:
@@ -225,7 +234,7 @@ Older configs and community-shared scripts commonly contain:
 - **Weapon+attack two-command form** (`alias +rl "weapon 7 6; +attack"`) -- step-2 era. Modern equivalent: `bind X "+fire_ar 7 6"` for quickfire semantics, or keep the original if you genuinely want manual select+fire.
 - **Explicit hide in `-alias`** (`alias -rl "-attack; weapon 2"`) -- step-2 era. Modern equivalent: set `cl_weaponhide 1` and let the engine handle it.
 - **Hand-rolled multi-key rollover** -- elaborate alias chains that track which fire key was held last so the previous weapon resumes on release. The pattern `+fire_ar` now handles natively (see meag's commit message reference to [forum topic/5900](https://www.quakeworld.nu/forum/topic/5900)). Modern equivalent: plain `bind X "+fire_ar ..."` on each fire key, no custom rollover bookkeeping needed.
-- **`wreg` (KTX-only)** -- server-side KTX command for high-ping weapon switching; client issues `cmd wreg X` and the KTX server stores a per-client weapon registration and simulates the attack server-side. "Legendary but rarely used" (per BLooD_DoG, 2026-04-24) and no longer works cleanly with `antilag 1`. Pre-dates the modern antilag-compensation flow. Mentioned for recognition value when encountered in old configs/discussions; full treatment deferred until KTX enters Layer 1 (Phase 2e).
+- **`wreg` (KTX-only)** -- the *older* server-side weapon mechanism, superseded by server-side weapon switching (`w_rank`, above). The client issues `cmd wreg X` and KTX registers a per-client weapon and simulates the *attack* server-side. "Legendary but rarely used" (per BLooD_DoG, 2026-04-24) and no longer works cleanly with `antilag 1` -- it pre-dates the modern antilag-compensation flow, which is why the `w_rank` switching path is preferred today. Mentioned for recognition value when encountered in old configs/discussions.
 
 All legacy client-side forms still function in current ezQuake and FTE. Modernizing is optional -- gains are packet efficiency, rollover handling, and readability, not compatibility.
 
