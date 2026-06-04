@@ -1320,6 +1320,17 @@ descriptions; the 11 screening-pass anchors were skipped (already in template
 from Session #9). Plan + apply mechanism + retrospective tracked at
 `docs/superpowers/plans/2026-05-21-ktx-l1-format-unify.md`.
 
+**Amendment 2026-06-04 -- `recast_v2` origin folded into `synthesized`.** The
+apply stamped these rows `description_origin='recast_v2'` (the interim
+format-unify owned tag). Operator decision 2026-06-04: a v2 recast is
+operator-authored prose like any other synthesized description, so the 633 rows
+were relabeled to `synthesized` -- the origin the F-D4a re-derive guard and the
+`origin_vocabulary` probe already recognize, which also closes the long-standing
+`origin_vocabulary` RED without a vocab/guard special-case. The format-unify
+marker survives in `shape_classification`. `apply-ktx-l1-recasts.ts` now writes
+`synthesized`. Supersedes the apply-pass runbook's planned "add recast_v2 to the
+vocab" follow-up (no longer needed).
+
 **Mechanism:** Sub-agent fan-out (Sonnet medium, 31 batches across 4 waves
 of 8/8/8/7). Each sub-agent read existing `description` + `description_reasoning`
 from Postgres and rewrote only the description per the D20 template -- the

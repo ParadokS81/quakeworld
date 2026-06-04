@@ -2597,8 +2597,11 @@ const KTX_FLOOR_PROBES: Probe[] = [
   // post-Phase-6 snapshot per the post-v17 probe convention; bump the
   // expected value when KTX source legitimately gains/loses entries
   // (verified by source-walk).
-  makeFloorCountProbe('ktx', 'cvar', 260),
-  makeFloorSourceStateProbe('ktx', 'cvar', { source_backed: 260 }),
+  // cvar 275 (was 260 at the Phase-6 onboarding snapshot): source-backed cvar
+  // count grew since; all 275 are source_backed (no doc_only inflation, dupes
+  // impossible under UNIQUE(project,type,name)). Bumped 2026-06-04.
+  makeFloorCountProbe('ktx', 'cvar', 275),
+  makeFloorSourceStateProbe('ktx', 'cvar', { source_backed: 275 }),
   makeFloorCountProbe('ktx', 'command', 358),
   makeFloorSourceStateProbe('ktx', 'command', { source_backed: 358 }),
   // info_key 56 = 47 userinfo (all-sites consumer emission 2026-05-27 +
@@ -2608,8 +2611,10 @@ const KTX_FLOOR_PROBES: Probe[] = [
   // star keys and predated the all-sites emission arc.
   makeFloorCountProbe('ktx', 'info_key', 56),
   makeFloorSourceStateProbe('ktx', 'info_key', { source_backed: 56 }),
-  makeFloorCountProbe('ktx', 'log_template', 1195),
-  makeFloorSourceStateProbe('ktx', 'log_template', { source_backed: 1195 }),
+  // log_template 1196 (was 1195 at the Phase-6 onboarding snapshot): +1
+  // source-backed since; all source_backed. Bumped 2026-06-04.
+  makeFloorCountProbe('ktx', 'log_template', 1196),
+  makeFloorSourceStateProbe('ktx', 'log_template', { source_backed: 1196 }),
   makeFloorCountProbe('ktx', 'match_event', 7),
   makeFloorSourceStateProbe('ktx', 'match_event', { source_backed: 7 }),
 ];

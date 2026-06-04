@@ -201,7 +201,7 @@ async function applyCard(card: Card, apply: boolean): Promise<ApplyOutcome> {
     const shape = card.shape_classification || null;
     if (
       e.description === card.proposed_body &&
-      e.description_origin === 'recast_v2' &&
+      e.description_origin === 'synthesized' &&
       e.description_anchor_version === card.anchor &&
       e.shape_classification === shape
     ) {
@@ -212,10 +212,15 @@ async function applyCard(card: Card, apply: boolean): Promise<ApplyOutcome> {
       return { status: 'updated' };
     }
 
+    // description_origin is 'synthesized' (folded from the former 'recast_v2'
+    // tag 2026-06-04): a v2 recast is operator-authored prose like any other
+    // synthesized description; the format-unify marker lives in
+    // shape_classification, and 'synthesized' is the origin the F-D4a re-derive
+    // guard and the origin_vocabulary probe already recognize.
     await sql`
       UPDATE entities
       SET description = ${card.proposed_body},
-          description_origin = 'recast_v2',
+          description_origin = 'synthesized',
           description_anchor_version = ${card.anchor},
           description_embedding_stale = TRUE,
           description_rereview = FALSE,
