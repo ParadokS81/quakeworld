@@ -234,15 +234,14 @@ export async function loadKtxShippedConfigFromFile(
       }
 
       const provenance = buildProvenance(recs);
-      // The authoritative entry is the first after the deterministic
-      // source-precedence ordering. Its raw_comment is the staged
-      // description (Phase 3 affirms-or-synthesizes from here).
-      const authoritative = provenance[0]!;
 
+      // shipped_doc RETIRED (D11 amendment 2026-06-04): this loader now
+      // populates ONLY description_provenance -- the retained reference/
+      // evidence layer. description + description_origin are owned by the
+      // synthesis path (always 'synthesized'); a shipped-config comment is
+      // reference evidence to source-verify against, never a served origin.
       const result = await tx`
         UPDATE entities SET
-          description            = ${authoritative.raw_comment},
-          description_origin     = 'shipped_doc',
           description_provenance = ${tx.json(provenance as never)},
           updated_at             = now()
         WHERE id = ${entity.id}

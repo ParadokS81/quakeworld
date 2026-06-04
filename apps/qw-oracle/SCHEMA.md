@@ -103,15 +103,15 @@ The shared identity table: one row per canonical engine feature across all its o
 
 The `description_origin` vocabulary:
 
-- **Column-wide superset:** `help_json` / `source_inline` / `inherited` / `synthesized` / `shipped_doc` / NULL.
+- **Column-wide superset:** `help_json` / `source_inline` / `inherited` / `synthesized` / NULL. (`shipped_doc` RETIRED 2026-06-04 -- see below.)
   - `help_json` -- from external dev-curated metadata (help-JSON for ezQuake/FTE; asset YAML for asset_category). ezQuake/FTE-only -- KTX/MVDSV have no help-JSON track, which is exactly the gap the describe-fill arc closes.
   - `source_inline` -- from source code (trailing-comment harvest, struct-init fields, templated derivers).
   - `inherited` -- borrowed from another entity's description. Reserved-unused: the QWCL cross-engine borrow arc's slot, not yet written by any loader.
   - `synthesized` -- LLM/operator prose authored from code behavior, not present in source or external curation. Carries `description_anchor_version` (D2/D4).
-  - `shipped_doc` -- mechanically lifted from a shipped human-authored artifact (a shipped config, the `mvdsv.6` man page, ezquake.com docs). Which file is a `description_provenance` entry, not its own tag (D11).
+  - `shipped_doc` -- **RETIRED 2026-06-04 (D11 amendment).** Was "mechanically lifted from a shipped human-authored artifact." The arc's model is always-synthesize: a shipped-config comment is reference evidence we source-verify, never a served origin (0 rows ever final -- Phase-2 lifts were recast to `synthesized`). The lifted text is retained in `description_provenance` (raw_comment), which is the evidence layer, not an origin.
   - `NULL` -- `description` IS NULL.
-- **KTX/MVDSV configurable buckets this arc fills** are restricted to `source_inline` / `synthesized` / `shipped_doc` (D2/D11). `help_json` is ezQuake/FTE-only; `inherited` is the reserved-unused QWCL slot.
-- **Enforcement:** the vocabulary is enforced by the F1 quality-grid probe `F1.describe_fill.origin_vocabulary`, NOT a CHECK constraint. Migration 012 deliberately left `description_origin` an unconstrained TEXT so new origins can be added without a heavyweight CHECK-rebuild migration; per C5 the honesty guarantee is made real by the probe (it fails loudly at the phase-boundary gate on any out-of-vocabulary tag), not by the schema. The probe's column-wide guard permits the five-set `{help_json, source_inline, inherited, synthesized, shipped_doc}` (NULL only where `description` IS NULL); its arc-scoped guard restricts the KTX/MVDSV configurable buckets to the three this arc writes (`source_inline` / `synthesized` / `shipped_doc`).
+- **KTX/MVDSV configurable buckets this arc fills** are restricted to `source_inline` / `synthesized` (D2/D11; `shipped_doc` retired 2026-06-04). `help_json` is ezQuake/FTE-only; `inherited` is the reserved-unused QWCL slot.
+- **Enforcement:** the vocabulary is enforced by the F1 quality-grid probe `F1.describe_fill.origin_vocabulary`, NOT a CHECK constraint. Migration 012 deliberately left `description_origin` an unconstrained TEXT so new origins can be added without a heavyweight CHECK-rebuild migration; per C5 the honesty guarantee is made real by the probe (it fails loudly at the phase-boundary gate on any out-of-vocabulary tag), not by the schema. The probe's column-wide guard permits the four-set `{help_json, source_inline, inherited, synthesized}` (NULL only where `description` IS NULL); its arc-scoped guard restricts the KTX/MVDSV configurable buckets to the two this arc writes (`source_inline` / `synthesized`).
 
 ---
 

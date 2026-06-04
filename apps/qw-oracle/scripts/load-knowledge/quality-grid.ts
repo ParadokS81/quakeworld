@@ -263,7 +263,7 @@ export async function probeJsonbNotStrings(ctx: ProbeContext): Promise<ProbeResu
   // write mvdsv entities.description_provenance JSONB (C5: the probe lands in
   // the phase that first writes the shape at that project; the pm_* movement
   // batch is the first MVDSV describe-fill batch, cold-synth rows carry NULL
-  // provenance so this is vacuously green until a shipped_doc batch writes a
+  // provenance so this is vacuously green until a provenance batch writes a
   // real array -- the gate is in place for that batch). Same fail-if-string-
   // scalar semantics as ktx; ezQuake branch (below) unchanged.
   if (ctx.project === 'ktx' || ctx.project === 'mvdsv') {
@@ -997,7 +997,7 @@ export async function probeHudRecoveryFirstClass(ctx: ProbeContext): Promise<Pro
 //        owns (project IN ('ktx','mvdsv') AND type IN ('cvar','command',
 //        'cmdline_param','info_key')) every row with a non-NULL description
 //        must have an in-vocabulary origin from the narrower owned-track
-//        set {source_inline, synthesized, shipped_doc}.
+//        set {source_inline, synthesized}.
 //        help_json is ezquake-only and must not appear here; 'inherited'
 //        is the full-vocabulary extension but is not an arc-owned origin.
 //
@@ -1016,7 +1016,7 @@ async function probeDescribeFillOriginVocabulary(ctx: ProbeContext): Promise<Pro
     FROM entities
     WHERE (
       description_origin IS NOT NULL
-      AND description_origin NOT IN ('help_json', 'source_inline', 'inherited', 'synthesized', 'shipped_doc')
+      AND description_origin NOT IN ('help_json', 'source_inline', 'inherited', 'synthesized')
     )
     OR (
       description_origin IS NULL
@@ -1035,7 +1035,7 @@ async function probeDescribeFillOriginVocabulary(ctx: ProbeContext): Promise<Pro
     FROM entities
     WHERE (
       description_origin IS NOT NULL
-      AND description_origin NOT IN ('help_json', 'source_inline', 'inherited', 'synthesized', 'shipped_doc')
+      AND description_origin NOT IN ('help_json', 'source_inline', 'inherited', 'synthesized')
     )
     OR (
       description_origin IS NULL
@@ -1046,8 +1046,8 @@ async function probeDescribeFillOriginVocabulary(ctx: ProbeContext): Promise<Pro
 
   // Part (ii): ARC-SCOPED guard -- D1 configurable buckets for ktx + mvdsv.
   // A row is an offender when description IS NOT NULL but description_origin
-  // is NULL or outside the owned-track set {source_inline, synthesized,
-  // shipped_doc}. The IS NULL OR ... NOT IN form is mandatory so a NULL
+  // is NULL or outside the owned-track set {source_inline, synthesized}.
+  // The IS NULL OR ... NOT IN form is mandatory so a NULL
   // origin (not in NOT IN's truth domain) is caught as an offender (F-C5b).
   const arcSlotsNeeded = 8 - examples.length;
   if (arcSlotsNeeded > 0) {
@@ -1059,7 +1059,7 @@ async function probeDescribeFillOriginVocabulary(ctx: ProbeContext): Promise<Pro
         AND description IS NOT NULL
         AND (
           description_origin IS NULL
-          OR description_origin NOT IN ('source_inline', 'synthesized', 'shipped_doc')
+          OR description_origin NOT IN ('source_inline', 'synthesized')
         )
       ORDER BY canonical_id
       LIMIT ${arcSlotsNeeded}

@@ -998,6 +998,38 @@ migration, no benefit). Cross-cutting: Phase 3 + the D11/D15 serializer + any
 Phase 1 executor consume the element shape, recorded here. P2 still binds JS
 values, never pre-stringified.
 
+**Amendment 2026-06-04 (operator decision, post-arc review -- `shipped_doc`
+origin RETIRED; provenance DATA retained).** The `shipped_doc` origin tag is
+withdrawn from the served/enforced vocabulary. Rationale: the arc's model is
+always-synthesize -- a shipped-config comment is reference evidence we
+source-verify, never text we serve verbatim. A post-arc spot-check confirmed
+this empirically: of a KTX sample, ~half the config comments aligned with the
+synthesized text and the rest ranged from useless dev-chatter (`maxfps`: "got
+tired from serverinfo, let it be cvar") to actively wrong -- `k_disallow_weapons`'s
+comment said "weapons allowed" (the cvar disallows), `k_noframechecks`'s two
+shipped configs contradicted each other on polarity, and `timing_players_action`'s
+comment listed an `8=autokpause` bit that is dead in source (`client.c:126`
+`TA_ALL = TA_INFO|TA_GLOW|TA_INVINCIBLE = 1|2|4`; the cvar is masked with
+TA_ALL at read, so bit 8 can never fire). Serving any of those verbatim would
+have shipped a wrong doc. Live state already reflects the retirement: 0
+`shipped_doc` rows exist (the Phase-2 mechanical lifts were all recast to
+`synthesized` by D20/D21). **Retained:** the `description_provenance` JSONB
+(raw_comment + shipped_value + source_file + structured_choices) stays -- it is
+NOT an origin but the reference/evidence layer (the comment-vs-ours trail that
+powers the upstream pitch and the D4 staleness watch; the spot-check above was
+only possible because it is kept). **Mechanism:** (a) the served origin
+vocabulary is now `{source_inline, help_json, synthesized}` (+ `inherited`
+reserved for QWCL); (b) `F1.describe_fill.origin_vocabulary` drops `shipped_doc`
+from both its column-wide and arc-scoped sets; (c) `load-ktx-shipped-config.ts`
+becomes a provenance-only loader (writes `description_provenance`, never
+`description`/`description_origin`); (d) the F-D4a owned-row guard in
+`derive-entity-description.ts` KEEPS its `IS DISTINCT FROM 'shipped_doc'`
+clauses -- a harmless dead predicate in load-bearing code, deliberately not
+touched. No migration (migration 012 left `description_origin` unconstrained
+TEXT; there was never a CHECK). Dormant arc execution scripts
+(`synthesize-ktx/mvdsv.ts`, `smoke-one-cvar.ts`) retain historical `shipped_doc`
+references as the record of how the arc ran.
+
 ## D12 -- Cheap-probe bundle is arc Phase 0
 
 **Decision:** Three cheap probes run as **arc Phase 0**, inside the arc
