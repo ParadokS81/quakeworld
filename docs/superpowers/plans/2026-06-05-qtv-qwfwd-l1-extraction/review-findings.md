@@ -71,6 +71,26 @@ While drafting each phase MD:
 
 **Evidence:** `~/.claude/skills/describe-fill-synthesis/SKILL.md` line 102 hard-aborts when `project is not exactly 'ktx' or 'mvdsv'`. QTV/QWFWD are outside that scope, so Phase 3's describe workers cannot dispatch until the gate is widened. Independent verification + operator eyes-on (2026-06-05) confirmed the skill has no project-branching logic beyond the gate; widening it to `{'ktx','mvdsv','qtv','qwfwd'}` is the complete functional fix (safe-additive -- cannot change ktx/mvdsv behavior). Also update the FOUR doc references that name only ktx/mvdsv: SKILL.md lines 4 / 53 / 354 and `references/subagent-brief-template.md:17`. The skill's own frontmatter calls it "engine-agnostic." Resolved: Q-SKILL Option A.
 
+### F9 -- Phase 0 constraint-introspection / V2 query is doubly broken (verification tooling, NOT the DDL)
+
+**Status:** Found at orchestrator pre-flight (2026-06-05, before Phase 0 kickoff), by running the query against the live Postgres 16 catalog. Touches Phase 0. The migration DDL (the 10 ALTER TABLE pairs) is correct and unchanged; only the introspection/verification query needs a two-line fix, carried in the Phase-0 executor prompt augmentation.
+
+**Evidence:** The `pg_constraint` introspection query in Phase 0 Task 1 step 1 AND verification probe V2 (identical text; the D2-implication query shares bug 2) fail against live Postgres for two independent reasons:
+1. `ORDER BY tbl::text` -- Postgres rejects an output-alias with a cast applied in ORDER BY: `ERROR: column "tbl" does not exist`. The query cannot run as written (Task 1 step 1 and V2 both error out immediately).
+2. `WHERE pg_get_constraintdef(oid) ILIKE '%project%'` over-matches `gameplay_entity_defs_kind_check`, whose definition lists `'projectile'::text` (the substring "project"). The query returns **11 rows, not the 10** the plan asserts. V2's PASS condition ("exactly 10 rows; every row contains qwfwd+qtv") would FAIL on the 11th (kind) row post-migration.
+
+The 10 genuine project-CHECK clauses and their constraint names exactly match D2/F1 and the Task-1 DROP CONSTRAINT assumptions (re-verified live 2026-06-05): F1's "10 clauses" is confirmed; the migration's DROP/ADD names are all correct.
+
+**Corrected query (use in Task 1 step 1 and V2 -- keys on the allow-list signature, returns exactly the 10):**
+```sql
+SELECT conrelid::regclass AS tbl, conname, pg_get_constraintdef(oid)
+FROM pg_constraint
+WHERE contype = 'c'
+  AND pg_get_constraintdef(oid) ILIKE '%ezquake%'
+ORDER BY 1, 2;
+```
+Post-020 this returns exactly 10 rows, every one containing `ezquake` (allow-list retains it) AND `qwfwd` + `qtv` -- so V2's "exactly 10 / every row has qwfwd+qtv" passes cleanly.
+
 ---
 
 ## Findings the design got right (carry forward)
@@ -86,7 +106,7 @@ While drafting each phase MD:
 
 | Phase | Findings to verify before sign-off |
 |---|---|
-| Phase 0 (Schema + plumbing) | F1, F4 |
+| Phase 0 (Schema + plumbing) | F1, F4, F9 |
 | Phase 1 (QWFWD extractor + vendored load path) | F2, F5, F6, F7 |
 | Phase 2 (QTV Go extractor) | F2, F5, F7 |
 | Phase 3 (Describe-fill) | F8 (skill gate); D6 guard is the load-bearing item |
