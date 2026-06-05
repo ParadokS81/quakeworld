@@ -33,16 +33,17 @@ Source: qwiki-community-reference arc D18 (2026-05-08). The open-drift item #2 b
 
 Enforced structurally, not by convention: `entities.name_fold` (migration 013, `lower(name)` except `token_primitive`) is the match key for `lookup_entity`, the loader's existence/alias checks, and the cross-type-orphan prune. A consumer that compares against raw `name` re-introduces the bug -- match on `name_fold` (or call `lookup_entity`, which does). The sole carve-out is `token_primitive`: `$B` (blue LED) and `$b` (glyph) are deliberately distinct and case-sensitive.
 
-## Tool catalog (current 12)
+## Tool catalog (current 13)
 
 Tools are organized by **verb shape**, not by data category. Adding a new data category does not justify a new tool unless the verb is genuinely new.
 
 | Layer | Tools | Verb |
 |---|---|---|
-| L1 entities (cvar / command / macro / cmdline_param / ruleset) | `lookup_entity`, `search_entities` | name-known vs free-text retrieval |
+| L1 entities (cvar / command / macro / cmdline_param / ruleset / match_event) | `lookup_entity`, `search_entities` | name-known vs free-text retrieval |
 | L1 maps | `lookup_map`, `search_maps` | name-known vs filtered listing |
 | L1 mechanics | `lookup_mechanic`, `search_mechanics` | name-known vs filtered listing |
 | L1 gameplay entities (weapons / items / projectiles) | `lookup_gameplay_entity`, `search_gameplay_entities` | name-known vs filtered listing |
+| L1 game modes (KTX) | `describe_mode` | composite assembly (catalog + settings + activation + concept note) |
 | L2 chat sessions | `search_solved_issues` | full-text retrieval |
 | L3 concept notes | `search_concepts`, `get_concept_note` | hybrid retrieval vs full body fetch |
 | Honest failure | `redirect_to_human` | escape valve |
@@ -64,7 +65,7 @@ interface ToolResponse<T> {
 
 **Rule:** every tool returns `ToolResponse<T>`. Filter-style tools (no relevance ranking, just SQL predicates) still wrap in this shape with binary `match_quality` (`'strong'` if rows, `'none'` if empty). Lookup-style tools (single named record) wrap with binary too.
 
-**Drift today:** 6 tools (`lookup_map`, `search_maps`, `lookup_mechanic`, `search_mechanics`, `lookup_gameplay_entity`, `search_gameplay_entities`) return ad-hoc shapes (`{ found, record }`, `{ rows, count, truncated }`). Migration: wrap their existing data in `ToolResponse<T>`; SQL underneath unchanged. Until migrated, the orientation blob's promise that "every search response includes match_quality" is partially false on these 6.
+All tools return `ToolResponse<T>`; the filter-style tools set the optional `count`/`truncated` fields where meaningful. (Historical: the 6 once-ad-hoc tools were unified in the 2026-05-06 cleanup.)
 
 ## `match_quality` semantics
 
@@ -88,6 +89,7 @@ Per-tool calibration:
 | `lookup_map` / `search_maps` | binary by row-presence | OK |
 | `lookup_mechanic` / `search_mechanics` | binary by row-presence | OK |
 | `lookup_gameplay_entity` / `search_gameplay_entities` | binary by row-presence | OK |
+| `describe_mode` | binary by catalog-row presence | OK |
 | `redirect_to_human` | binary by row-presence | OK |
 
 **Calibration discipline:** thresholds for ranked retrieval tools get tuned against a labeled eval set; calibration data lives at `eval/calibration-queries.json` (disjoint from `eval/eval-queries.json` per D10). Run `bun run calibrate` from `apps/qw-oracle/` to sweep candidate thresholds against the calibration set; write the printed values into `.env` (dev) or `/mnt/user/appdata/qw-oracle/.env` (prod). Recalibrate after any extension to the calibration set or any change to the embedding model. The L2 (`search_solved_issues`) threshold pair has its own env vars (`L2_TS_RANK_*`) and currently uses placeholders -- a Layer 2 calibration set is a future deliverable, dependent on Arc 3 chat-corpus rebuild landing the L2 embedding pipeline.
@@ -156,5 +158,7 @@ The pattern is proven by the qwiki arc (Phases 1-3 shipped); Phase 6 (MCP tools)
 | 2 | ~920 markdown files in `curated/player-notes/` and `curated/clan-notes/` are not exposed via MCP | Critical for the in-flight L3 expansion arc | Path C: `profiles` + `profile_chunks` tables, `search_profiles` + `get_profile` tools. |
 
 Drift items closed in the 2026-05-06 cleanup pass: response-shape unification across the 6 ad-hoc tools (now all return `ToolResponse<T>`); `search_concepts`/`search_entities` calibration confirmed (live thresholds match the optimum on the 5-query calibration set); `search_solved_issues` switched from count-based to `ts_rank`-based bucketing; `info_key` doc leak stripped from `lookup_entity` description; orientation blob reordered to L1/L2/L3.
+
+Drift items closed in the 2026-05-31 MCP-KTX-realignment pass: KTX gameplay serving realigned (source-default now searches all sources; KTX `kind`s + a `mode` filter on `search_mechanics`; `monster` on `search_gameplay_entities`; `match_event` exposed in the entity enum; new `describe_mode` composite verb); orientation + tool descriptions re-truthed; server bumped to v0.6.0. Deliberate scope: the 10 non-user-facing `entities` types (`log_template`, `info_key`, `keyname`, ...) remain unexposed pending demand.
 
 Remaining drift items get closed as the work that touches the relevant area happens. Item #2 is the natural opener for the next L3 arc.
