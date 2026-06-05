@@ -39,31 +39,27 @@ export async function lookupMechanic(args: LookupMechanicArgs): Promise<LookupMe
     server_version: SERVER_VERSION,
     queried_at: new Date().toISOString(),
   };
-  const source = args.gameplay_source ?? 'id1';
+  const sourceClause = args.gameplay_source ? db`AND gameplay_source_id = ${args.gameplay_source}` : db``;
   const rows = await db<GameplayMechanicRow[]>`
-    SELECT gameplay_source_id, kind, name, value_numeric, value_text,
+    SELECT DISTINCT ON (gameplay_source_id)
+           gameplay_source_id, kind, name, value_numeric, value_text,
            ruleset_gate_json, source_ref, props_json, notes
     FROM gameplay_mechanics
     WHERE name ILIKE ${args.name}
-      AND gameplay_source_id = ${source}
-    ORDER BY length(ruleset_gate_json::text) ASC, ruleset_gate_json::text
-    LIMIT 1
+      ${sourceClause}
+    ORDER BY gameplay_source_id, length(ruleset_gate_json::text) ASC, ruleset_gate_json::text
   `;
-  const row = rows[0];
 
-  if (!row) {
+  if (rows.length === 0) {
     return {
       results: [],
       match_quality: 'none',
-      suggested_fallback: `No mechanic named '${args.name}' in source '${source}'. Try search_mechanics with a kind filter or a substring query.`,
+      suggested_fallback: `No mechanic named '${args.name}'. Omit gameplay_source to search all sources, or use search_mechanics with a kind/mode filter.`,
       meta,
     };
   }
-  const { props_json, ruleset_gate_json, ...rest } = row;
-  return {
-    results: [{ ...rest, props: props_json, ruleset_gate: ruleset_gate_json }],
-    match_quality: 'strong',
-    suggested_fallback: null,
-    meta,
-  };
+  const results = rows.map(({ props_json, ruleset_gate_json, ...rest }) => ({
+    ...rest, props: props_json, ruleset_gate: ruleset_gate_json,
+  }));
+  return { results, match_quality: 'strong', suggested_fallback: null, meta };
 }

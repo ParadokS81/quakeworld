@@ -375,12 +375,12 @@ const TOOL_LIST = [
   {
     name: 'lookup_mechanic',
     description:
-      'Look up a QuakeWorld game-mechanics rule by name. Returns the rule\'s value, kind (constant, env_hazard, player_stat, powerup_behavior, armor_model, death_rule, spawn_rule, dm_mode_rule), source_ref pointing at the canonical id1 QuakeC line, and any ruleset gate. Examples: lava, slime, drowning, fall_damage, telefrag, quad_damage_multiplier, armor_absorb_formula, sv_gravity_default, spawn_invul_dm4, dm4_rules. Case-insensitive. To enumerate by category use search_mechanics with kind filter; for a specific weapon/item use lookup_gameplay_entity.',
+      'Look up a QuakeWorld game-mechanics rule by name. Returns the rule\'s value, kind (constant, env_hazard, player_stat, powerup_behavior, armor_model, death_rule, spawn_rule, dm_mode_rule), source_ref pointing at the canonical id1 QuakeC line, and any ruleset gate. Examples: lava, slime, drowning, fall_damage, telefrag, quad_damage_multiplier, armor_absorb_formula, sv_gravity_default, spawn_invul_dm4, dm4_rules. Case-insensitive. To enumerate a category or a mode\'s settings use search_mechanics (kind + mode filters); for a whole game mode use describe_mode; for a specific weapon/item use lookup_gameplay_entity.',
     inputSchema: {
       type: 'object',
       properties: {
         name: { type: 'string', description: 'Mechanic name. Case-insensitive.' },
-        gameplay_source: { type: 'string', description: 'Defaults to id1.' },
+        gameplay_source: { type: 'string', description: 'Omit to search all sources (id1 + ktx); a name in both returns one row per source. Pass "ktx"/"id1" to scope.' },
       },
       required: ['name'],
     },
