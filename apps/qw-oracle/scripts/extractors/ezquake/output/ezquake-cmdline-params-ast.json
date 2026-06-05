@@ -4,7 +4,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_allowmultipleclients",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 20,
+        "manifest_line": 18,
         "usage_sites": [
           {
             "source_file": "sys_win.c",
@@ -26,7 +26,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_filesystem_basedir",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 53,
+        "manifest_line": 49,
         "usage_sites": [
           {
             "source_file": "fs.c",
@@ -46,7 +46,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_video_bpp",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 29,
+        "manifest_line": 27,
         "usage_sites": [
           {
             "source_file": "vid_sdl2.c",
@@ -66,7 +66,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_cd_audio",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 44,
+        "manifest_line": 40,
         "usage_sites": [
           {
             "source_file": "cd_linux.c",
@@ -95,7 +95,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_cd_device",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 45,
+        "manifest_line": 41,
         "usage_sites": [
           {
             "source_file": "cd_linux.c",
@@ -119,7 +119,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_server_enablecheats",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 72,
+        "manifest_line": 68,
         "usage_sites": [
           {
             "source_file": "sv_ccmds.c",
@@ -138,7 +138,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_net_clientport",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 64,
+        "manifest_line": 60,
         "usage_sites": [
           {
             "source_file": "net.c",
@@ -159,7 +159,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_console_buffersize",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 67,
+        "manifest_line": 63,
         "usage_sites": [
           {
             "source_file": "console.c",
@@ -180,7 +180,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_console_debug",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 68,
+        "manifest_line": 64,
         "usage_sites": [
           {
             "source_file": "console.c",
@@ -239,7 +239,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_video_conheight",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 34,
+        "manifest_line": 32,
         "usage_sites": [
           {
             "source_file": "vid_sdl2.c",
@@ -258,7 +258,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_video_conwidth",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 33,
+        "manifest_line": 31,
         "usage_sites": [
           {
             "source_file": "vid_sdl2.c",
@@ -296,7 +296,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_filesystem_data",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 57,
+        "manifest_line": 53,
         "usage_sites": [
           {
             "source_file": "fs.c",
@@ -314,7 +314,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_server_democache_kb",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 74,
+        "manifest_line": 70,
         "usage_sites": [
           {
             "source_file": "cl_demo.c",
@@ -343,7 +343,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_detailtrails",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 12,
+        "manifest_line": 11,
         "usage_sites": [
           {
             "source_file": "r_particles_qmb.c",
@@ -362,7 +362,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_developer_mode",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 69,
+        "manifest_line": 65,
         "usage_sites": [
           {
             "source_file": "cl_main.c",
@@ -406,7 +406,7 @@
           },
           {
             "source_file": "r_rmain.c",
-            "source_line": 744,
+            "source_line": 742,
             "source_column": 6,
             "enclosing_function": "R_Init",
             "call_form": "COM_CheckParm",
@@ -444,7 +444,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_video_displaynumber",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 32,
+        "manifest_line": 30,
         "usage_sites": [
           {
             "source_file": "vid_sdl2.c",
@@ -465,7 +465,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_server_enablelocalcommand",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 73,
+        "manifest_line": 69,
         "usage_sites": [
           {
             "source_file": "sv_ccmds.c",
@@ -486,7 +486,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_forcetexturereload",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 15,
+        "manifest_line": 14,
         "usage_sites": [
           {
             "source_file": "r_texture_load.c",
@@ -504,7 +504,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_video_frequency",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 28,
+        "manifest_line": 26,
         "usage_sites": [
           {
             "source_file": "vid_sdl2.c",
@@ -525,7 +525,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_filesystem_game",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 56,
+        "manifest_line": 52,
         "usage_sites": [
           {
             "source_file": "fs.c",
@@ -546,7 +546,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_gamma",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 23,
+        "manifest_line": 21,
         "usage_sites": [
           {
             "source_file": "cl_view.c",
@@ -567,7 +567,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_forwardonlyprofile",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 11,
+        "manifest_line": 10,
         "usage_sites": [],
         "usage_count": 0
       }
@@ -576,7 +576,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_printopenglextensions",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 22,
+        "manifest_line": 20,
         "usage_sites": [
           {
             "source_file": "vid_common_gl.c",
@@ -597,7 +597,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_video_glsl_renderer",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 35,
+        "manifest_line": 33,
         "usage_sites": [
           {
             "source_file": "vid_sdl2.c",
@@ -618,7 +618,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_host_memory_kb",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 60,
+        "manifest_line": 56,
         "usage_sites": [
           {
             "source_file": "host.c",
@@ -647,7 +647,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_video_height",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 31,
+        "manifest_line": 29,
         "usage_sites": [
           {
             "source_file": "vid_sdl2.c",
@@ -668,7 +668,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_net_ipaddress",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 63,
+        "manifest_line": 59,
         "usage_sites": [
           {
             "source_file": "net.c",
@@ -697,7 +697,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_maximum2textureunits",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 13,
+        "manifest_line": 12,
         "usage_sites": [
           {
             "source_file": "gl_state.c",
@@ -718,7 +718,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_host_memory_mb",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 61,
+        "manifest_line": 57,
         "usage_sites": [
           {
             "source_file": "host.c",
@@ -747,7 +747,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_host_memory_minimum",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 59,
+        "manifest_line": 55,
         "usage_sites": [
           {
             "source_file": "host.c",
@@ -776,7 +776,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_unaccelerated_visuals",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 21,
+        "manifest_line": 19,
         "usage_sites": [
           {
             "source_file": "vid_sdl2.c",
@@ -824,7 +824,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_no24bittextures",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 14,
+        "manifest_line": 13,
         "usage_sites": [
           {
             "source_file": "r_texture_load.c",
@@ -869,7 +869,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_noatlas",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 46,
+        "manifest_line": 42,
         "usage_sites": [
           {
             "source_file": "r_atlas.c",
@@ -887,7 +887,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_nostdinput",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 39,
+        "manifest_line": 37,
         "usage_sites": [
           {
             "source_file": "sys_posix.c",
@@ -908,7 +908,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_video_nodesktopres",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 43,
+        "manifest_line": 39,
         "usage_sites": [
           {
             "source_file": "vid_sdl2.c",
@@ -961,7 +961,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_filesystem_nohome",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 54,
+        "manifest_line": 50,
         "usage_sites": [
           {
             "source_file": "fs.c",
@@ -982,7 +982,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_nohardwaregamma",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 24,
+        "manifest_line": 22,
         "usage_sites": [
           {
             "source_file": "vid_sdl2.c",
@@ -1011,7 +1011,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_nohardwaretimers",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 19,
+        "manifest_line": 17,
         "usage_sites": [],
         "usage_count": 0
       },
@@ -1041,37 +1041,19 @@
       ]
     },
     "-noinvlmaps": {
-      "ast": {
-        "manifest_enum": "cmdline_param_client_noinverselightmaps",
-        "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 10,
-        "usage_sites": [],
-        "usage_count": 0
-      },
+      "ast": null,
       "flags": [
         "incomplete"
       ]
     },
     "-nolibjpeg": {
-      "ast": {
-        "manifest_enum": "cmdline_param_client_nolibjpeg",
-        "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 42,
-        "usage_sites": [],
-        "usage_count": 0
-      },
+      "ast": null,
       "flags": [
         "incomplete"
       ]
     },
     "-nolibpng": {
-      "ast": {
-        "manifest_enum": "cmdline_param_client_nolibpng",
-        "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 41,
-        "usage_sites": [],
-        "usage_count": 0
-      },
+      "ast": null,
       "flags": [
         "incomplete"
       ]
@@ -1092,7 +1074,7 @@
           },
           {
             "source_file": "r_rmain.c",
-            "source_line": 321,
+            "source_line": 320,
             "source_column": 7,
             "enclosing_function": "R_ConfigureFog",
             "call_form": "COM_CheckParm",
@@ -1100,7 +1082,7 @@
           },
           {
             "source_file": "r_rmain.c",
-            "source_line": 673,
+            "source_line": 672,
             "source_column": 6,
             "enclosing_function": "R_Init",
             "call_form": "COM_CheckParm",
@@ -1204,7 +1186,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_nostdoutput",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 40,
+        "manifest_line": 38,
         "usage_sites": [
           {
             "source_file": "sys_posix.c",
@@ -1225,7 +1207,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_oldgammabehaviour",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 25,
+        "manifest_line": 23,
         "usage_sites": [
           {
             "source_file": "r_palette.c",
@@ -1243,7 +1225,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_particlecount",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 18,
+        "manifest_line": 16,
         "usage_sites": [
           {
             "source_file": "r_part.c",
@@ -1264,7 +1246,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_net_serverport",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 65,
+        "manifest_line": 61,
         "usage_sites": [
           {
             "source_file": "net.c",
@@ -1285,7 +1267,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_server_progtype",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 71,
+        "manifest_line": 67,
         "usage_sites": [
           {
             "source_file": "pr2_exec.c",
@@ -1306,7 +1288,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_video_r_debug",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 36,
+        "manifest_line": 34,
         "usage_sites": [
           {
             "source_file": "gl_buffers.c",
@@ -2645,7 +2627,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_video_r_dump_shaders",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 38,
+        "manifest_line": 36,
         "usage_sites": [
           {
             "source_file": "gl_program.c",
@@ -2664,7 +2646,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_no_amd_fix",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 51,
+        "manifest_line": 47,
         "usage_sites": [
           {
             "source_file": "vid_common_gl.c",
@@ -2682,7 +2664,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_nocallback",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 49,
+        "manifest_line": 45,
         "usage_sites": [
           {
             "source_file": "gl_debug.c",
@@ -2708,7 +2690,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_nomultibind",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 50,
+        "manifest_line": 46,
         "usage_sites": [
           {
             "source_file": "gl_state.c",
@@ -2726,7 +2708,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_novao",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 48,
+        "manifest_line": 44,
         "usage_sites": [
           {
             "source_file": "glc_vao.c",
@@ -2744,7 +2726,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_video_r_trace",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 37,
+        "manifest_line": 35,
         "usage_sites": [
           {
             "source_file": "gl_buffers.c",
@@ -3178,7 +3160,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_verify_glstate",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 47,
+        "manifest_line": 43,
         "usage_sites": [
           {
             "source_file": "gl_debug.c",
@@ -3196,7 +3178,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_ruleset",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 17,
+        "manifest_line": 15,
         "usage_sites": [
           {
             "source_file": "rulesets.c",
@@ -3214,13 +3196,7 @@
       ]
     },
     "-showliberrors": {
-      "ast": {
-        "manifest_enum": "cmdline_param_client_showlibraryerrors",
-        "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 16,
-        "usage_sites": [],
-        "usage_count": 0
-      },
+      "ast": null,
       "flags": [
         "incomplete"
       ]
@@ -3229,7 +3205,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_startwindowed",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 27,
+        "manifest_line": 25,
         "usage_sites": [
           {
             "source_file": "vid_sdl2.c",
@@ -3250,7 +3226,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_filesystem_userdir",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 55,
+        "manifest_line": 51,
         "usage_sites": [
           {
             "source_file": "fs.c",
@@ -3271,7 +3247,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_video_width",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 30,
+        "manifest_line": 28,
         "usage_sites": [
           {
             "source_file": "vid_sdl2.c",
@@ -3292,7 +3268,7 @@
       "ast": {
         "manifest_enum": "cmdline_param_client_windowedmode",
         "manifest_file": "cmdline_params_ids.h",
-        "manifest_line": 26,
+        "manifest_line": 24,
         "usage_sites": [
           {
             "source_file": "vid_sdl2.c",
@@ -3327,10 +3303,10 @@
     }
   },
   "_stats": {
-    "manifest_entries": 68,
+    "manifest_entries": 64,
     "manifest_with_usage": 62,
-    "manifest_unused_in_source": 6,
-    "help_only": 1,
+    "manifest_unused_in_source": 2,
+    "help_only": 5,
     "source_only_undeclared": 3,
     "with_help_desc": 15
   }

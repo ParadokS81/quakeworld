@@ -3729,7 +3729,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Pixel offset applied to the multiview inset window along the X axis. Positive values shift the inset right; combine with cl_mvinset_offset_y to fine-tune inset placement relative to its corner anchor."
     },
     "cl_mvinset_offset_y": {
       "type": "boolean",
@@ -3749,7 +3750,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Pixel offset applied to the multiview inset window along the Y axis. Positive values shift the inset down on screen. See cl_mvinset_offset_x."
     },
     "cl_mvinset_right": {
       "type": "boolean",
@@ -3769,7 +3771,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "When 1 (default), anchors the multiview inset to the right side of the screen; when 0, anchors it to the left. Pairs with cl_mvinset_top."
     },
     "cl_mvinset_size_x": {
       "type": "float",
@@ -3789,7 +3792,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Width of the multiview inset window as a fraction of the total view width (default 0.333 = one third)."
     },
     "cl_mvinset_size_y": {
       "type": "float",
@@ -3809,7 +3813,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Height of the multiview inset window as a fraction of the total view height (default 0.333 = one third). See cl_mvinset_size_x."
     },
     "cl_mvinset_top": {
       "type": "boolean",
@@ -3829,7 +3834,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "When 1 (default), anchors the multiview inset to the top of the screen; when 0, anchors it to the bottom. Pairs with cl_mvinset_right."
     },
     "cl_mvinsetcrosshair": {
       "type": "boolean",
@@ -5586,7 +5592,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "Record VOIP in demo."
-      }
+      },
+      "desc": "Controls whether VoIP audio is recorded into demos; currently registered but the flag is not read in existing code -- may be reserved for future implementation."
     },
     "cl_voip_micamp": {
       "type": "integer",
@@ -9063,7 +9070,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "When enabled (default), save games are written under the ezQuake home directory: `~/.ezquake/<gamedir>/save/` on Linux/macOS, `Documents\\ezQuake\\<gamedir>\\save\\` on Windows. When disabled, saves go to the game directory alongside the pak files."
     },
     "gender": {
       "type": "enum",
@@ -10798,7 +10806,7 @@
       "ast": {
         "c_ident": "gl_outline_color_enemy",
         "source_file": "r_rmain.c",
-        "source_line": 245,
+        "source_line": 244,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -10842,7 +10850,7 @@
       "ast": {
         "c_ident": "gl_outline_color_team",
         "source_file": "r_rmain.c",
-        "source_line": 244,
+        "source_line": 243,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -10885,7 +10893,7 @@
       "ast": {
         "c_ident": "gl_outline_scale_model",
         "source_file": "r_rmain.c",
-        "source_line": 238,
+        "source_line": 237,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -10899,26 +10907,6 @@
       "desc": "Determines the scale of model outlines. Allows values 0 to 1 for rulesets smackdown, smackdrive and qcon, and 0 to 5 for other rulesets.",
       "remarks": "Requires vid_renderer 1"
     },
-    "gl_outline_scale_world": {
-      "type": "boolean",
-      "group-id": "0",
-      "default": "1",
-      "server-only": false,
-      "ast": {
-        "c_ident": "gl_outline_scale_world",
-        "source_file": "r_rmain.c",
-        "source_line": 237,
-        "source_column": 8,
-        "storage_class": "none",
-        "flags_raw": "",
-        "flag_names": [],
-        "on_change": null,
-        "group_name_in_source": null,
-        "min_bound": null,
-        "max_bound": null,
-        "trailing_comment": null
-      }
-    },
     "gl_outline_use_player_color": {
       "type": "boolean",
       "group-id": "35",
@@ -10927,7 +10915,7 @@
       "ast": {
         "c_ident": "gl_outline_use_player_color",
         "source_file": "r_rmain.c",
-        "source_line": 241,
+        "source_line": 240,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -10949,7 +10937,7 @@
       "ast": {
         "c_ident": "gl_outline_world_depth_threshold",
         "source_file": "r_rmain.c",
-        "source_line": 239,
+        "source_line": 238,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -10976,7 +10964,7 @@
       "ast": {
         "c_ident": "gl_outline_world_normal_threshold",
         "source_file": "r_rmain.c",
-        "source_line": 240,
+        "source_line": 239,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -12190,7 +12178,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Baseline color level for the first powerup-shell layer (0-1, default 0.05). Adds a faint floor to all color channels regardless of which powerup is active."
     },
     "gl_powerupshells_base2level": {
       "type": "float",
@@ -12210,7 +12199,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Baseline color level for the second powerup-shell layer (0-1, default 0.1). See gl_powerupshells_base1level."
     },
     "gl_powerupshells_effect1level": {
       "type": "float",
@@ -12230,7 +12220,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Color intensity for the first powerup-shell layer (0-1, default 0.75). Higher values make the powerup's color more saturated (e.g., blue for Quad, red for Pentagram)."
     },
     "gl_powerupshells_effect2level": {
       "type": "float",
@@ -12250,7 +12241,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Color intensity for the second powerup-shell layer (0-1, default 0.4). See gl_powerupshells_effect1level."
     },
     "gl_powerupshells_size": {
       "type": "integer",
@@ -12656,7 +12648,7 @@
       "ast": {
         "c_ident": "gl_smoothmodels",
         "source_file": "r_rmain.c",
-        "source_line": 247,
+        "source_line": 246,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -12678,7 +12670,7 @@
       "ast": {
         "c_ident": "gl_spec_xray",
         "source_file": "r_rmain.c",
-        "source_line": 242,
+        "source_line": 241,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -12700,7 +12692,7 @@
       "ast": {
         "c_ident": "gl_spec_xray_distance",
         "source_file": "r_rmain.c",
-        "source_line": 243,
+        "source_line": 242,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -13105,7 +13097,7 @@
       "ast": {
         "c_ident": "gl_vbo_clientmemory",
         "source_file": "r_rmain.c",
-        "source_line": 249,
+        "source_line": 248,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "CVAR_LATCH_GFX",
@@ -15342,7 +15334,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Replace the armor value with \"666\" while carrying the Pentagram of Protection (invulnerability), mimicking the classic status bar display."
     },
     "hud_armor_place": {
       "type": "string",
@@ -18359,7 +18352,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "How many seconds before the minimum-FPS tracker resets its baseline (default 30); once elapsed, the lowest observed FPS is replaced by the current value."
     },
     "hud_fps_order": {
       "type": "integer",
@@ -29783,7 +29777,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Look-ahead window in seconds for pending item respawns. Live items on the map are always shown regardless of this setting. Default 5."
     },
     "hud_key1_align_x": {
       "type": "string",
@@ -30947,7 +30942,7 @@
       "ast": {
         "c_ident": "hud_netgraph_align_x",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -30968,7 +30963,7 @@
       "ast": {
         "c_ident": "hud_netgraph_align_y",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -30989,7 +30984,7 @@
       "ast": {
         "c_ident": "hud_netgraph_alpha",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31010,7 +31005,7 @@
       "ast": {
         "c_ident": "hud_netgraph_draw",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31030,7 +31025,7 @@
       "ast": {
         "c_ident": "hud_netgraph_frame",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31051,7 +31046,7 @@
       "ast": {
         "c_ident": "hud_netgraph_frame_color",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31072,7 +31067,7 @@
       "ast": {
         "c_ident": "hud_netgraph_height",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31093,7 +31088,7 @@
       "ast": {
         "c_ident": "hud_netgraph_inframes",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31114,7 +31109,7 @@
       "ast": {
         "c_ident": "hud_netgraph_item_opacity",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31134,7 +31129,7 @@
       "ast": {
         "c_ident": "hud_netgraph_lostscale",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31161,7 +31156,7 @@
       "ast": {
         "c_ident": "hud_netgraph_order",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31182,7 +31177,7 @@
       "ast": {
         "c_ident": "hud_netgraph_place",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31203,7 +31198,7 @@
       "ast": {
         "c_ident": "hud_netgraph_ploss",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31224,7 +31219,7 @@
       "ast": {
         "c_ident": "hud_netgraph_pos_x",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31245,7 +31240,7 @@
       "ast": {
         "c_ident": "hud_netgraph_pos_y",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31266,7 +31261,7 @@
       "ast": {
         "c_ident": "hud_netgraph_scale",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31287,7 +31282,7 @@
       "ast": {
         "c_ident": "hud_netgraph_show",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31308,7 +31303,7 @@
       "ast": {
         "c_ident": "hud_netgraph_swap_x",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31329,7 +31324,7 @@
       "ast": {
         "c_ident": "hud_netgraph_swap_y",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31350,7 +31345,7 @@
       "ast": {
         "c_ident": "hud_netgraph_width",
         "source_file": "r_rmain.c",
-        "source_line": 771,
+        "source_line": 769,
         "source_column": 18,
         "storage_class": "generated",
         "flags_raw": "",
@@ -31921,7 +31916,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Seconds each console notification line stays visible in the notify HUD element. Default 4."
     },
     "hud_ownfrags_align_x": {
       "type": "string",
@@ -32201,7 +32197,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Seconds the \"You fragged <player>\" banner stays visible before disappearing. Default 3. (A fade alpha is computed but not currently applied at the draw call.)"
     },
     "hud_pent_align_x": {
       "type": "string",
@@ -35072,7 +35069,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Horizontal alignment of the score-difference readout ('left' | 'center' | 'right'). See hud_score_difference_digits."
     },
     "hud_score_difference_align_x": {
       "type": "string",
@@ -35132,7 +35130,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Colorization mode for the score-difference readout (0 = off, 1 = red when negative, 2 = always red). See hud_score_difference_digits."
     },
     "hud_score_difference_digits": {
       "type": "boolean",
@@ -35152,7 +35151,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Controls the score_difference HUD element: minimum character width (digits, 0=auto), text alignment (align: left/center/right), and colorization (colorize: 0=off, 1=red when losing/negative, 2=always red) for the team-minus-enemy score delta. Default colorize=1 so the number turns red automatically when behind."
     },
     "hud_score_difference_draw": {
       "type": "boolean",
@@ -35412,7 +35412,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Horizontal alignment of the enemy score readout ('left' | 'center' | 'right'). See hud_score_enemy_digits."
     },
     "hud_score_enemy_align_x": {
       "type": "string",
@@ -35472,7 +35473,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Colorization mode for the enemy score readout (0 = off, 1 = red when negative, 2 = always red). See hud_score_enemy_digits."
     },
     "hud_score_enemy_digits": {
       "type": "boolean",
@@ -35492,7 +35494,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Controls the score_enemy HUD element: minimum character width (digits, 0=auto), text alignment (align: left/center/right), and colorization (colorize: 0=off, 1=red when negative, 2=always red) for the top enemy score. In non-teamplay, shows the highest-scoring opponent; in teamplay, shows the enemy team total."
     },
     "hud_score_enemy_draw": {
       "type": "boolean",
@@ -35752,7 +35755,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Horizontal alignment of the position-rank readout ('left' | 'center' | 'right'). See hud_score_position_digits."
     },
     "hud_score_position_align_x": {
       "type": "string",
@@ -35812,7 +35816,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Colorization mode for the position-rank readout (0 = off, 1 = red when negative, 2 = always red). See hud_score_position_digits."
     },
     "hud_score_position_digits": {
       "type": "boolean",
@@ -35832,7 +35837,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Controls the score_position HUD element: minimum character width (digits, 0=auto), text alignment (align: left/center/right), and colorization (colorize: 0=off, 1=red when not in 1st place, 2=always red) for the current scoreboard rank. Counts teams in teamplay, players in FFA. Default colorize=1."
     },
     "hud_score_position_draw": {
       "type": "boolean",
@@ -36092,7 +36098,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Horizontal alignment of the own-team score readout ('left' | 'center' | 'right'). See hud_score_team_digits."
     },
     "hud_score_team_align_x": {
       "type": "string",
@@ -36152,7 +36159,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Colorization mode for the own-team score readout (0 = off, 1 = red when negative, 2 = always red). See hud_score_team_digits."
     },
     "hud_score_team_digits": {
       "type": "boolean",
@@ -36172,7 +36180,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Controls the score_team HUD element: minimum character width (digits, 0=auto), text alignment (align: left/center/right), and colorization (colorize: 0=off, 1=red when negative, 2=always red) for the own-team score display."
     },
     "hud_score_team_draw": {
       "type": "boolean",
@@ -42082,7 +42091,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Format string controlling which fields appear in each teaminfo row; tokens include %p (powerup), %n (name), %l (location), %a (armor), %H (health), %w (weapon), with $x10/$x11 for column separators."
     },
     "hud_teaminfo_loc_width": {
       "type": "integer",
@@ -42123,7 +42133,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Health threshold below which a teammate's health value is rendered in red (default 25)."
     },
     "hud_teaminfo_name_width": {
       "type": "integer",
@@ -45695,7 +45706,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Secret token used to authenticate remote-control command packets sent from a local server browser or front-end; once set, command packets without a matching token are rejected."
     },
     "log_dir": {
       "type": "string",
@@ -46089,7 +46101,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Authentication token for the challenge-mode log upload service; included in the SHA1 hash used to verify match authenticity, and cannot be changed during a live match."
     },
     "match_auto_logurl": {
       "type": "string",
@@ -46109,7 +46122,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "URL endpoint where match logs are posted after a challenge-mode game; default targets the quakeworld.nu log upload service."
     },
     "match_auto_minlength": {
       "type": "integer",
@@ -47538,7 +47552,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "FIXME: non-ascii chars"
-      }
+      },
+      "desc": "Format string for per-player rows in the MVD info overlay; supports % tokens: %n name, %l location, %h health, %a armor, %w current weapon, %W best weapon, %f frags, %P ping, %v value."
     },
     "mvd_info_show_header": {
       "type": "boolean",
@@ -49999,7 +50014,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": "disables hud rendering"
-      }
+      },
+      "desc": "Toggles HUD rendering. 1 (default) draws the HUD; 0 hides it."
     },
     "r_drawparticles": {
       "type": "boolean",
@@ -50146,7 +50162,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Setting to 0 suppresses world (BSP brush) draw during timedemos only; no effect during normal play."
     },
     "r_dspeeds": {
       "type": "boolean",
@@ -51616,7 +51633,7 @@
       "ast": {
         "c_ident": "r_remove_collinear_vertices",
         "source_file": "r_rmain.c",
-        "source_line": 251,
+        "source_line": 250,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -52378,7 +52395,7 @@
       "ast": {
         "c_ident": "r_tracker",
         "source_file": "vx_tracker.c",
-        "source_line": 93,
+        "source_line": 94,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -52399,7 +52416,7 @@
       "ast": {
         "c_ident": "amf_tracker_align_right",
         "source_file": "vx_tracker.c",
-        "source_line": 101,
+        "source_line": 102,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -52430,7 +52447,7 @@
       "ast": {
         "c_ident": "amf_tracker_color_bad",
         "source_file": "vx_tracker.c",
-        "source_line": 110,
+        "source_line": 111,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "CVAR_TRACKERCOLOR",
@@ -52453,7 +52470,7 @@
       "ast": {
         "c_ident": "amf_tracker_color_fragonme",
         "source_file": "vx_tracker.c",
-        "source_line": 114,
+        "source_line": 115,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "CVAR_TRACKERCOLOR",
@@ -52476,7 +52493,7 @@
       "ast": {
         "c_ident": "amf_tracker_color_good",
         "source_file": "vx_tracker.c",
-        "source_line": 109,
+        "source_line": 110,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "CVAR_TRACKERCOLOR",
@@ -52499,7 +52516,7 @@
       "ast": {
         "c_ident": "amf_tracker_color_myfrag",
         "source_file": "vx_tracker.c",
-        "source_line": 113,
+        "source_line": 114,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "CVAR_TRACKERCOLOR",
@@ -52514,6 +52531,71 @@
       },
       "desc": "Color to use when reporting a frag by current player."
     },
+    "r_tracker_color_quadfrag": {
+      "type": "string",
+      "group-id": "40",
+      "default": "",
+      "server-only": false,
+      "ast": {
+        "c_ident": "amf_tracker_color_quadfrag",
+        "source_file": "vx_tracker.c",
+        "source_line": 117,
+        "source_column": 15,
+        "storage_class": "static",
+        "flags_raw": "CVAR_TRACKERCOLOR",
+        "flag_names": [
+          "CVAR_TRACKERCOLOR"
+        ],
+        "on_change": null,
+        "group_name_in_source": "Screen Settings",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": "use this color for player name when they have quad"
+      },
+      "desc": "Color to apply to the killer's name when they have quad damage. Uses tracker color format (3 digits 0-9, e.g. 099 for cyan). Empty string disables the feature."
+    },
+    "r_tracker_color_quadfrag_colorfix": {
+      "type": "boolean",
+      "group-id": "40",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "amf_tracker_color_quadfrag_colorfix",
+        "source_file": "vx_tracker.c",
+        "source_line": 118,
+        "source_column": 15,
+        "storage_class": "static",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Screen Settings",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": "apply quad color to both names"
+      },
+      "desc": "When enabled, r_tracker_color_quadfrag applies to both the killer and victim names instead of just the killer."
+    },
+    "r_tracker_color_quadfrag_noicon": {
+      "type": "boolean",
+      "group-id": "40",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "amf_tracker_color_quadfrag_noicon",
+        "source_file": "vx_tracker.c",
+        "source_line": 119,
+        "source_column": 15,
+        "storage_class": "static",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Screen Settings",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": "hide quad icon when quad color is active"
+      },
+      "desc": "When enabled, hides the quad icon from the weapon image area when r_tracker_color_quadfrag is active."
+    },
     "r_tracker_color_suicide": {
       "type": "string",
       "group-id": "40",
@@ -52522,7 +52604,7 @@
       "ast": {
         "c_ident": "amf_tracker_color_suicide",
         "source_file": "vx_tracker.c",
-        "source_line": 115,
+        "source_line": 116,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "CVAR_TRACKERCOLOR",
@@ -52545,7 +52627,7 @@
       "ast": {
         "c_ident": "amf_tracker_color_tkbad",
         "source_file": "vx_tracker.c",
-        "source_line": 112,
+        "source_line": 113,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "CVAR_TRACKERCOLOR",
@@ -52568,7 +52650,7 @@
       "ast": {
         "c_ident": "amf_tracker_color_tkgood",
         "source_file": "vx_tracker.c",
-        "source_line": 111,
+        "source_line": 112,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "CVAR_TRACKERCOLOR",
@@ -52591,7 +52673,7 @@
       "ast": {
         "c_ident": "amf_tracker_colorfix",
         "source_file": "vx_tracker.c",
-        "source_line": 99,
+        "source_line": 100,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -52612,7 +52694,7 @@
       "ast": {
         "c_ident": "amf_tracker_flags",
         "source_file": "vx_tracker.c",
-        "source_line": 94,
+        "source_line": 95,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -52644,7 +52726,7 @@
       "ast": {
         "c_ident": "amf_tracker_frags",
         "source_file": "vx_tracker.c",
-        "source_line": 95,
+        "source_line": 96,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -52680,7 +52762,7 @@
       "ast": {
         "c_ident": "amf_tracker_frame_color",
         "source_file": "vx_tracker.c",
-        "source_line": 107,
+        "source_line": 108,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "CVAR_COLOR",
@@ -52710,7 +52792,7 @@
       "ast": {
         "c_ident": "amf_tracker_images_scale",
         "source_file": "vx_tracker.c",
-        "source_line": 108,
+        "source_line": 109,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -52737,7 +52819,7 @@
       "ast": {
         "c_ident": "amf_tracker_inconsole",
         "source_file": "vx_tracker.c",
-        "source_line": 103,
+        "source_line": 104,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -52777,7 +52859,7 @@
       "ast": {
         "c_ident": "amf_tracker_inconsole_colored_weapon",
         "source_file": "vx_tracker.c",
-        "source_line": 104,
+        "source_line": 105,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -52809,7 +52891,7 @@
       "ast": {
         "c_ident": "amf_tracker_messages",
         "source_file": "vx_tracker.c",
-        "source_line": 98,
+        "source_line": 99,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -52831,7 +52913,7 @@
       "ast": {
         "c_ident": "amf_tracker_name_width",
         "source_file": "vx_tracker.c",
-        "source_line": 121,
+        "source_line": 125,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -52852,7 +52934,7 @@
       "ast": {
         "c_ident": "amf_tracker_own_frag_prefix",
         "source_file": "vx_tracker.c",
-        "source_line": 122,
+        "source_line": 126,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -52873,7 +52955,7 @@
       "ast": {
         "c_ident": "amf_tracker_pickups",
         "source_file": "vx_tracker.c",
-        "source_line": 100,
+        "source_line": 101,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -52894,7 +52976,7 @@
       "ast": {
         "c_ident": "amf_tracker_positive_enemy_suicide",
         "source_file": "vx_tracker.c",
-        "source_line": 123,
+        "source_line": 127,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -52915,7 +52997,7 @@
       "ast": {
         "c_ident": "amf_tracker_positive_enemy_vs_enemy",
         "source_file": "vx_tracker.c",
-        "source_line": 124,
+        "source_line": 128,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -52936,7 +53018,7 @@
       "ast": {
         "c_ident": "amf_tracker_proportional",
         "source_file": "vx_tracker.c",
-        "source_line": 125,
+        "source_line": 129,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -52949,6 +53031,27 @@
       },
       "desc": "Enable TrueType fonts on tracker text."
     },
+    "r_tracker_reverse": {
+      "type": "boolean",
+      "group-id": "40",
+      "default": "0",
+      "server-only": false,
+      "ast": {
+        "c_ident": "amf_tracker_reverse",
+        "source_file": "vx_tracker.c",
+        "source_line": 132,
+        "source_column": 15,
+        "storage_class": "static",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "group_name_in_source": "Screen Settings",
+        "min_bound": null,
+        "max_bound": null,
+        "trailing_comment": null
+      },
+      "desc": "Reverse the display order of tracker messages so the most recent frag appears at the top."
+    },
     "r_tracker_row_spacing": {
       "type": "integer",
       "group-id": "40",
@@ -52957,7 +53060,7 @@
       "ast": {
         "c_ident": "amf_tracker_row_spacing",
         "source_file": "vx_tracker.c",
-        "source_line": 127,
+        "source_line": 131,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -52978,7 +53081,7 @@
       "ast": {
         "c_ident": "amf_tracker_scale",
         "source_file": "vx_tracker.c",
-        "source_line": 102,
+        "source_line": 103,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -53000,7 +53103,7 @@
       "ast": {
         "c_ident": "amf_tracker_streaks",
         "source_file": "vx_tracker.c",
-        "source_line": 96,
+        "source_line": 97,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -53021,7 +53124,7 @@
       "ast": {
         "c_ident": "amf_tracker_string_died",
         "source_file": "vx_tracker.c",
-        "source_line": 117,
+        "source_line": 121,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -53043,7 +53146,7 @@
       "ast": {
         "c_ident": "amf_tracker_string_enemy",
         "source_file": "vx_tracker.c",
-        "source_line": 119,
+        "source_line": 123,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -53065,7 +53168,7 @@
       "ast": {
         "c_ident": "amf_tracker_string_inconsole_prefix",
         "source_file": "vx_tracker.c",
-        "source_line": 120,
+        "source_line": 124,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -53087,7 +53190,7 @@
       "ast": {
         "c_ident": "amf_tracker_string_suicides",
         "source_file": "vx_tracker.c",
-        "source_line": 116,
+        "source_line": 120,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -53097,7 +53200,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Label appended to suicide frag-tracker messages; contrasted with r_tracker_string_died (world kills) and r_tracker_string_teammate / r_tracker_string_enemy."
     },
     "r_tracker_string_teammate": {
       "type": "string",
@@ -53107,7 +53211,7 @@
       "ast": {
         "c_ident": "amf_tracker_string_teammate",
         "source_file": "vx_tracker.c",
-        "source_line": 118,
+        "source_line": 122,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -53117,7 +53221,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Teammate role label shown in team-kill tracker lines -- appears as either the killer or the victim label depending on which player is the teammate in the event; contrasts with r_tracker_string_enemy (opponent kills) and r_tracker_string_suicides."
     },
     "r_tracker_time": {
       "type": "float",
@@ -53127,7 +53232,7 @@
       "ast": {
         "c_ident": "amf_tracker_time",
         "source_file": "vx_tracker.c",
-        "source_line": 97,
+        "source_line": 98,
         "source_column": 8,
         "storage_class": "none",
         "flags_raw": "",
@@ -53155,7 +53260,7 @@
       "ast": {
         "c_ident": "amf_tracker_weapon_first",
         "source_file": "vx_tracker.c",
-        "source_line": 126,
+        "source_line": 130,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -53176,7 +53281,7 @@
       "ast": {
         "c_ident": "amf_tracker_x",
         "source_file": "vx_tracker.c",
-        "source_line": 105,
+        "source_line": 106,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -53204,7 +53309,7 @@
       "ast": {
         "c_ident": "amf_tracker_y",
         "source_file": "vx_tracker.c",
-        "source_line": 106,
+        "source_line": 107,
         "source_column": 15,
         "storage_class": "static",
         "flags_raw": "",
@@ -53607,7 +53712,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Capture group 2 from the most recent re_trigger or re_trigger_match. Empty if no such group existed. See re_trigger_match_0."
     },
     "re_trigger_match_3": {
       "type": "string",
@@ -53629,7 +53735,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Capture group 3 from the most recent re_trigger or re_trigger_match. Empty if no such group existed. See re_trigger_match_0."
     },
     "re_trigger_match_4": {
       "type": "string",
@@ -53651,7 +53758,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Capture group 4 from the most recent re_trigger or re_trigger_match. Empty if no such group existed. See re_trigger_match_0."
     },
     "re_trigger_match_5": {
       "type": "string",
@@ -53673,7 +53781,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Capture group 5 from the most recent re_trigger or re_trigger_match. Empty if no such group existed. See re_trigger_match_0."
     },
     "re_trigger_match_6": {
       "type": "string",
@@ -53695,7 +53804,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Capture group 6 from the most recent re_trigger or re_trigger_match. Empty if no such group existed. See re_trigger_match_0."
     },
     "re_trigger_match_7": {
       "type": "string",
@@ -53717,7 +53827,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Capture group 7 from the most recent re_trigger or re_trigger_match. Empty if no such group existed. See re_trigger_match_0."
     },
     "re_trigger_match_8": {
       "type": "string",
@@ -53739,7 +53850,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Capture group 8 from the most recent re_trigger or re_trigger_match. Empty if no such group existed. See re_trigger_match_0."
     },
     "re_trigger_match_9": {
       "type": "string",
@@ -53761,7 +53873,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Capture group 9 from the most recent re_trigger or re_trigger_match. Empty if no such group existed. See re_trigger_match_0."
     },
     "registered": {
       "type": "boolean",
@@ -54735,7 +54848,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Excludes specific proxies from the automatic best-route ping lookup. Example: `sb_ignore_proxy \"1.2.3.4:27500 5.6.7.8:27500\"`. Leave empty to allow all discovered proxies; only relevant when sb_findroutes is enabled."
     },
     "sb_info_filter": {
       "type": "string",
@@ -55124,26 +55238,6 @@
         "trailing_comment": null
       },
       "desc": "Timeout period (in ms) before a proxy connection times out."
-    },
-    "sb_qtvlist_url": {
-      "type": "string",
-      "group-id": "42",
-      "default": "http://qtv.quakeworld.nu/?rss",
-      "server-only": false,
-      "ast": {
-        "c_ident": "sb_qtvlist_url",
-        "source_file": "EX_browser_qtvlist.c",
-        "source_line": 30,
-        "source_column": 8,
-        "storage_class": "none",
-        "flags_raw": "",
-        "flag_names": [],
-        "on_change": null,
-        "group_name_in_source": "Server Browser",
-        "min_bound": null,
-        "max_bound": null,
-        "trailing_comment": null
-      }
     },
     "sb_showaddress": {
       "type": "boolean",
@@ -56561,7 +56655,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Enables floating damage numbers above the point of impact (default 0 = off); when active, damage indicators are projected into 3D space and drift upward with gravity applied over their lifetime."
     },
     "scr_damage_hitbeep": {
       "type": "boolean",
@@ -56581,7 +56676,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "When enabled, plays dmg-notification.wav each time damage is dealt (default 0 = off); fires independently of scr_damage_floating so the audio cue can be enabled without the floating numbers."
     },
     "scr_damage_offset_ingame": {
       "type": "integer",
@@ -56601,7 +56697,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Vertical world-space offset applied to the spawn origin of floating damage numbers when playing (default 14 units); shifts the indicator above the impact point so it is readable at head-height. Compare scr_damage_offset_spectator."
     },
     "scr_damage_offset_spectator": {
       "type": "integer",
@@ -56621,7 +56718,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Vertical world-space offset for floating damage numbers when spectating (default 28 units, twice the ingame default); higher because spectators typically view from a wider angle and need more separation from the model."
     },
     "scr_damage_proportional": {
       "type": "boolean",
@@ -56662,7 +56760,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Text scale multiplier for floating damage numbers (default 1 = normal size); values of 0 or below are treated as 1."
     },
     "scr_drawHFrags": {
       "type": "enum",
@@ -57699,7 +57798,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "RGB tint applied to the login-name column when shown via scr_scoreboard_login_names. Default `255 255 192` (warm yellow)."
     },
     "scr_scoreboard_login_flagfile": {
       "type": "string",
@@ -57719,7 +57819,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Image atlas file for country flags drawn next to logged-in players on the scoreboard. Default `flags`. When a player has no country flag (or the atlas does not include theirs), scr_scoreboard_login_indicator is shown instead."
     },
     "scr_scoreboard_login_indicator": {
       "type": "string",
@@ -57739,7 +57840,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Marker shown next to logged-in players who don't have a country flag drawn; accepts ezQuake colour codes. Default `&cffc*&r` (yellow asterisk). See scr_scoreboard_login_flagfile for the country-flag source."
     },
     "scr_scoreboard_login_names": {
       "type": "boolean",
@@ -57759,7 +57861,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Shows the QuakeWorld.nu login-name column on the scoreboard for authenticated players. Default 1. See scr_scoreboard_login_color for the name tint."
     },
     "scr_scoreboard_posx": {
       "type": "integer",
@@ -66346,7 +66449,8 @@
         "min_bound": null,
         "max_bound": null,
         "trailing_comment": null
-      }
+      },
+      "desc": "Bitmask enabling runtime safety checks in the x86 JIT VM: bit 1 = stack underflow, bit 2 = opstack overflow, bit 4 = pointer bounds, bit 8 = data segment mask. Disable specific checks with care; disabling all (0) reduces safety for untrusted progs."
     },
     "volume": {
       "type": "float",
@@ -66484,15 +66588,15 @@
     }
   },
   "_stats": {
-    "source_total": 5603,
-    "client": 2579,
+    "source_total": 5605,
+    "client": 2581,
     "server_only": 162,
-    "with_flags": 221,
+    "with_flags": 222,
     "with_onchange": 137,
     "with_bounds": 0,
-    "with_group": 2443,
-    "with_help_desc": 1908,
-    "comment_only_no_help_desc": 24,
+    "with_group": 2446,
+    "with_help_desc": 1970,
+    "comment_only_no_help_desc": 21,
     "flag_histogram": {
       "CVAR_COLOR": 48,
       "CVAR_ROM": 32,
@@ -66509,7 +66613,7 @@
       "CVAR_SERVERINFO": 20,
       "CVAR_ARCHIVE": 3,
       "CVAR_NO_RESET": 12,
-      "CVAR_TRACKERCOLOR": 7
+      "CVAR_TRACKERCOLOR": 8
     },
     "_out_of_scope_estimate": {
       "bucket1_plugin_unvisited": 0,

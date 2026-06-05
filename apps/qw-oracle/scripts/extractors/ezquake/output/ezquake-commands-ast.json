@@ -1799,7 +1799,7 @@
       "ast": {
         "handler_fn": "R_ReadPointFile_f",
         "source_file": "r_rmain.c",
-        "source_line": 609,
+        "source_line": 608,
         "source_column": 2,
         "enclosing_function": "R_Init",
         "build_variant": "client"
@@ -3513,11 +3513,11 @@
     "observeqtv": {
       "group-id": "misc",
       "ast": {
-        "handler_fn": "QTVList_Observeqtv_f",
-        "source_file": "EX_browser_qtvlist.c",
-        "source_line": 587,
+        "handler_fn": "qtvlist_qtv_cmd",
+        "source_file": "EX_qtvlist.c",
+        "source_line": 635,
         "source_column": 2,
-        "enclosing_function": "QTVList_Init",
+        "enclosing_function": "qtvlist_init",
         "build_variant": "client"
       }
     },
@@ -5064,7 +5064,7 @@
       "ast": {
         "handler_fn": "R_TimeRefresh_f",
         "source_file": "r_rmain.c",
-        "source_line": 607,
+        "source_line": 606,
         "source_column": 2,
         "enclosing_function": "R_Init",
         "build_variant": "client"
@@ -5970,7 +5970,7 @@
     }
   },
   "_stats": {
-    "source_total": 513,
+    "source_total": 512,
     "with_handler": 450,
     "with_help_desc": 295,
     "server_build_only": 14,

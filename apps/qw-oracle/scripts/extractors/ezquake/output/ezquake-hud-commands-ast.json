@@ -1,0 +1,1692 @@
+{
+  "hud_commands": {
+    "+hud_bar_armor": {
+      "hud_family": "plus",
+      "hud_element": "bar_armor",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_armor.c",
+        "source_line": 268,
+        "source_column": 2,
+        "enclosing_function": "Armor_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_bar_health": {
+      "hud_family": "plus",
+      "hud_element": "bar_health",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_health.c",
+        "source_line": 119,
+        "source_column": 2,
+        "enclosing_function": "Health_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_centerprint": {
+      "hud_family": "plus",
+      "hud_element": "centerprint",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_centerprint.c",
+        "source_line": 228,
+        "source_column": 2,
+        "enclosing_function": "CenterPrint_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_clock": {
+      "hud_family": "plus",
+      "hud_element": "clock",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_clock.c",
+        "source_line": 378,
+        "source_column": 2,
+        "enclosing_function": "Clock_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_democlock": {
+      "hud_family": "plus",
+      "hud_element": "democlock",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_clock.c",
+        "source_line": 393,
+        "source_column": 2,
+        "enclosing_function": "Clock_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_fps": {
+      "hud_family": "plus",
+      "hud_element": "fps",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_performance.c",
+        "source_line": 303,
+        "source_column": 2,
+        "enclosing_function": "Performance_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_framestats": {
+      "hud_family": "plus",
+      "hud_element": "framestats",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_performance.c",
+        "source_line": 345,
+        "source_column": 2,
+        "enclosing_function": "Performance_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_frametime": {
+      "hud_family": "plus",
+      "hud_element": "frametime",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_performance.c",
+        "source_line": 319,
+        "source_column": 2,
+        "enclosing_function": "Performance_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_gameclock": {
+      "hud_family": "plus",
+      "hud_element": "gameclock",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_clock.c",
+        "source_line": 406,
+        "source_column": 2,
+        "enclosing_function": "Clock_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_gamesummary": {
+      "hud_family": "plus",
+      "hud_element": "gamesummary",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_gamesummary.c",
+        "source_line": 236,
+        "source_column": 2,
+        "enclosing_function": "GameSummary_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_net": {
+      "hud_family": "plus",
+      "hud_element": "net",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_net.c",
+        "source_line": 346,
+        "source_column": 2,
+        "enclosing_function": "Net_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_netgraph": {
+      "hud_family": "plus",
+      "hud_element": "netgraph",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "r_rmain.c",
+        "source_line": 769,
+        "source_column": 18,
+        "enclosing_function": "R_Init",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_notify": {
+      "hud_family": "plus",
+      "hud_element": "notify",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_common.c",
+        "source_line": 948,
+        "source_column": 2,
+        "enclosing_function": "CommonDraw_Init",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_ping": {
+      "hud_family": "plus",
+      "hud_element": "ping",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_net.c",
+        "source_line": 366,
+        "source_column": 2,
+        "enclosing_function": "Net_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_radar": {
+      "hud_family": "plus",
+      "hud_element": "radar",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_radar.c",
+        "source_line": 1422,
+        "source_column": 2,
+        "enclosing_function": "Radar_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_score_bar": {
+      "hud_family": "plus",
+      "hud_element": "score_bar",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_scores.c",
+        "source_line": 837,
+        "source_column": 2,
+        "enclosing_function": "Scores_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_speed": {
+      "hud_family": "plus",
+      "hud_element": "speed",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_speed.c",
+        "source_line": 679,
+        "source_column": 2,
+        "enclosing_function": "Speed_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_speed2": {
+      "hud_family": "plus",
+      "hud_element": "speed2",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_speed.c",
+        "source_line": 702,
+        "source_column": 2,
+        "enclosing_function": "Speed_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_teamholdbar": {
+      "hud_family": "plus",
+      "hud_element": "teamholdbar",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "stats_grid.c",
+        "source_line": 1390,
+        "source_column": 16,
+        "enclosing_function": "TeamHold_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_teamholdinfo": {
+      "hud_family": "plus",
+      "hud_element": "teamholdinfo",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "stats_grid.c",
+        "source_line": 1375,
+        "source_column": 17,
+        "enclosing_function": "TeamHold_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_teamstackbar": {
+      "hud_family": "plus",
+      "hud_element": "teamstackbar",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_common.c",
+        "source_line": 996,
+        "source_column": 2,
+        "enclosing_function": "CommonDraw_Init",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_tracking": {
+      "hud_family": "plus",
+      "hud_element": "tracking",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_tracking.c",
+        "source_line": 67,
+        "source_column": 2,
+        "enclosing_function": "Tracking_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "+hud_vidlag": {
+      "hud_family": "plus",
+      "hud_element": "vidlag",
+      "ast": {
+        "handler_fn": "HUD_Plus_f",
+        "source_file": "hud_performance.c",
+        "source_line": 334,
+        "source_column": 2,
+        "enclosing_function": "Performance_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_bar_armor": {
+      "hud_family": "minus",
+      "hud_element": "bar_armor",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_armor.c",
+        "source_line": 268,
+        "source_column": 2,
+        "enclosing_function": "Armor_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_bar_health": {
+      "hud_family": "minus",
+      "hud_element": "bar_health",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_health.c",
+        "source_line": 119,
+        "source_column": 2,
+        "enclosing_function": "Health_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_centerprint": {
+      "hud_family": "minus",
+      "hud_element": "centerprint",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_centerprint.c",
+        "source_line": 228,
+        "source_column": 2,
+        "enclosing_function": "CenterPrint_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_clock": {
+      "hud_family": "minus",
+      "hud_element": "clock",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_clock.c",
+        "source_line": 378,
+        "source_column": 2,
+        "enclosing_function": "Clock_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_democlock": {
+      "hud_family": "minus",
+      "hud_element": "democlock",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_clock.c",
+        "source_line": 393,
+        "source_column": 2,
+        "enclosing_function": "Clock_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_fps": {
+      "hud_family": "minus",
+      "hud_element": "fps",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_performance.c",
+        "source_line": 303,
+        "source_column": 2,
+        "enclosing_function": "Performance_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_framestats": {
+      "hud_family": "minus",
+      "hud_element": "framestats",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_performance.c",
+        "source_line": 345,
+        "source_column": 2,
+        "enclosing_function": "Performance_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_frametime": {
+      "hud_family": "minus",
+      "hud_element": "frametime",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_performance.c",
+        "source_line": 319,
+        "source_column": 2,
+        "enclosing_function": "Performance_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_gameclock": {
+      "hud_family": "minus",
+      "hud_element": "gameclock",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_clock.c",
+        "source_line": 406,
+        "source_column": 2,
+        "enclosing_function": "Clock_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_gamesummary": {
+      "hud_family": "minus",
+      "hud_element": "gamesummary",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_gamesummary.c",
+        "source_line": 236,
+        "source_column": 2,
+        "enclosing_function": "GameSummary_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_net": {
+      "hud_family": "minus",
+      "hud_element": "net",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_net.c",
+        "source_line": 346,
+        "source_column": 2,
+        "enclosing_function": "Net_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_netgraph": {
+      "hud_family": "minus",
+      "hud_element": "netgraph",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "r_rmain.c",
+        "source_line": 769,
+        "source_column": 18,
+        "enclosing_function": "R_Init",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_notify": {
+      "hud_family": "minus",
+      "hud_element": "notify",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_common.c",
+        "source_line": 948,
+        "source_column": 2,
+        "enclosing_function": "CommonDraw_Init",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_ping": {
+      "hud_family": "minus",
+      "hud_element": "ping",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_net.c",
+        "source_line": 366,
+        "source_column": 2,
+        "enclosing_function": "Net_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_radar": {
+      "hud_family": "minus",
+      "hud_element": "radar",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_radar.c",
+        "source_line": 1422,
+        "source_column": 2,
+        "enclosing_function": "Radar_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_score_bar": {
+      "hud_family": "minus",
+      "hud_element": "score_bar",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_scores.c",
+        "source_line": 837,
+        "source_column": 2,
+        "enclosing_function": "Scores_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_speed": {
+      "hud_family": "minus",
+      "hud_element": "speed",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_speed.c",
+        "source_line": 679,
+        "source_column": 2,
+        "enclosing_function": "Speed_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_speed2": {
+      "hud_family": "minus",
+      "hud_element": "speed2",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_speed.c",
+        "source_line": 702,
+        "source_column": 2,
+        "enclosing_function": "Speed_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_teamholdbar": {
+      "hud_family": "minus",
+      "hud_element": "teamholdbar",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "stats_grid.c",
+        "source_line": 1390,
+        "source_column": 16,
+        "enclosing_function": "TeamHold_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_teamholdinfo": {
+      "hud_family": "minus",
+      "hud_element": "teamholdinfo",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "stats_grid.c",
+        "source_line": 1375,
+        "source_column": 17,
+        "enclosing_function": "TeamHold_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_teamstackbar": {
+      "hud_family": "minus",
+      "hud_element": "teamstackbar",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_common.c",
+        "source_line": 996,
+        "source_column": 2,
+        "enclosing_function": "CommonDraw_Init",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_tracking": {
+      "hud_family": "minus",
+      "hud_element": "tracking",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_tracking.c",
+        "source_line": 67,
+        "source_column": 2,
+        "enclosing_function": "Tracking_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "-hud_vidlag": {
+      "hud_family": "minus",
+      "hud_element": "vidlag",
+      "ast": {
+        "handler_fn": "HUD_Minus_f",
+        "source_file": "hud_performance.c",
+        "source_line": 334,
+        "source_column": 2,
+        "enclosing_function": "Performance_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddRemCommand"
+      }
+    },
+    "ammo": {
+      "hud_family": "bare",
+      "hud_element": "ammo",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_ammo.c",
+        "source_line": 439,
+        "source_column": 2,
+        "enclosing_function": "Ammo_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "ammo1": {
+      "hud_family": "bare",
+      "hud_element": "ammo1",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_ammo.c",
+        "source_line": 454,
+        "source_column": 2,
+        "enclosing_function": "Ammo_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "ammo2": {
+      "hud_family": "bare",
+      "hud_element": "ammo2",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_ammo.c",
+        "source_line": 465,
+        "source_column": 2,
+        "enclosing_function": "Ammo_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "ammo3": {
+      "hud_family": "bare",
+      "hud_element": "ammo3",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_ammo.c",
+        "source_line": 476,
+        "source_column": 2,
+        "enclosing_function": "Ammo_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "ammo4": {
+      "hud_family": "bare",
+      "hud_element": "ammo4",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_ammo.c",
+        "source_line": 487,
+        "source_column": 2,
+        "enclosing_function": "Ammo_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "armor": {
+      "hud_family": "bare",
+      "hud_element": "armor",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_armor.c",
+        "source_line": 229,
+        "source_column": 2,
+        "enclosing_function": "Armor_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "armordamage": {
+      "hud_family": "bare",
+      "hud_element": "armordamage",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_armor.c",
+        "source_line": 255,
+        "source_column": 2,
+        "enclosing_function": "Armor_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "bar_armor": {
+      "hud_family": "bare",
+      "hud_element": "bar_armor",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_armor.c",
+        "source_line": 268,
+        "source_column": 2,
+        "enclosing_function": "Armor_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "bar_health": {
+      "hud_family": "bare",
+      "hud_element": "bar_health",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_health.c",
+        "source_line": 119,
+        "source_column": 2,
+        "enclosing_function": "Health_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "centerprint": {
+      "hud_family": "bare",
+      "hud_element": "centerprint",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_centerprint.c",
+        "source_line": 228,
+        "source_column": 2,
+        "enclosing_function": "CenterPrint_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "clock": {
+      "hud_family": "bare",
+      "hud_element": "clock",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_clock.c",
+        "source_line": 378,
+        "source_column": 2,
+        "enclosing_function": "Clock_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "democlock": {
+      "hud_family": "bare",
+      "hud_element": "democlock",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_clock.c",
+        "source_line": 393,
+        "source_column": 2,
+        "enclosing_function": "Clock_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "face": {
+      "hud_family": "bare",
+      "hud_element": "face",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_face.c",
+        "source_line": 85,
+        "source_column": 2,
+        "enclosing_function": "Face_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "fps": {
+      "hud_family": "bare",
+      "hud_element": "fps",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_performance.c",
+        "source_line": 303,
+        "source_column": 2,
+        "enclosing_function": "Performance_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "frags": {
+      "hud_family": "bare",
+      "hud_element": "frags",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_frags.c",
+        "source_line": 1535,
+        "source_column": 2,
+        "enclosing_function": "Frags_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "framestats": {
+      "hud_family": "bare",
+      "hud_element": "framestats",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_performance.c",
+        "source_line": 345,
+        "source_column": 2,
+        "enclosing_function": "Performance_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "frametime": {
+      "hud_family": "bare",
+      "hud_element": "frametime",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_performance.c",
+        "source_line": 319,
+        "source_column": 2,
+        "enclosing_function": "Performance_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "gameclock": {
+      "hud_family": "bare",
+      "hud_element": "gameclock",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_clock.c",
+        "source_line": 406,
+        "source_column": 2,
+        "enclosing_function": "Clock_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "gamesummary": {
+      "hud_family": "bare",
+      "hud_element": "gamesummary",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_gamesummary.c",
+        "source_line": 236,
+        "source_column": 2,
+        "enclosing_function": "GameSummary_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "group1": {
+      "hud_family": "bare",
+      "hud_element": "group1",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_groups.c",
+        "source_line": 206,
+        "source_column": 2,
+        "enclosing_function": "Groups_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "group2": {
+      "hud_family": "bare",
+      "hud_element": "group2",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_groups.c",
+        "source_line": 218,
+        "source_column": 2,
+        "enclosing_function": "Groups_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "group3": {
+      "hud_family": "bare",
+      "hud_element": "group3",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_groups.c",
+        "source_line": 230,
+        "source_column": 2,
+        "enclosing_function": "Groups_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "group4": {
+      "hud_family": "bare",
+      "hud_element": "group4",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_groups.c",
+        "source_line": 242,
+        "source_column": 2,
+        "enclosing_function": "Groups_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "group5": {
+      "hud_family": "bare",
+      "hud_element": "group5",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_groups.c",
+        "source_line": 254,
+        "source_column": 2,
+        "enclosing_function": "Groups_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "group6": {
+      "hud_family": "bare",
+      "hud_element": "group6",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_groups.c",
+        "source_line": 266,
+        "source_column": 2,
+        "enclosing_function": "Groups_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "group7": {
+      "hud_family": "bare",
+      "hud_element": "group7",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_groups.c",
+        "source_line": 278,
+        "source_column": 2,
+        "enclosing_function": "Groups_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "group8": {
+      "hud_family": "bare",
+      "hud_element": "group8",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_groups.c",
+        "source_line": 290,
+        "source_column": 2,
+        "enclosing_function": "Groups_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "group9": {
+      "hud_family": "bare",
+      "hud_element": "group9",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_groups.c",
+        "source_line": 302,
+        "source_column": 2,
+        "enclosing_function": "Groups_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "gun": {
+      "hud_family": "bare",
+      "hud_element": "gun",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_guns.c",
+        "source_line": 358,
+        "source_column": 2,
+        "enclosing_function": "Guns_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "gun2": {
+      "hud_family": "bare",
+      "hud_element": "gun2",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_guns.c",
+        "source_line": 367,
+        "source_column": 2,
+        "enclosing_function": "Guns_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "gun3": {
+      "hud_family": "bare",
+      "hud_element": "gun3",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_guns.c",
+        "source_line": 375,
+        "source_column": 2,
+        "enclosing_function": "Guns_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "gun4": {
+      "hud_family": "bare",
+      "hud_element": "gun4",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_guns.c",
+        "source_line": 383,
+        "source_column": 2,
+        "enclosing_function": "Guns_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "gun5": {
+      "hud_family": "bare",
+      "hud_element": "gun5",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_guns.c",
+        "source_line": 391,
+        "source_column": 2,
+        "enclosing_function": "Guns_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "gun6": {
+      "hud_family": "bare",
+      "hud_element": "gun6",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_guns.c",
+        "source_line": 399,
+        "source_column": 2,
+        "enclosing_function": "Guns_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "gun7": {
+      "hud_family": "bare",
+      "hud_element": "gun7",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_guns.c",
+        "source_line": 407,
+        "source_column": 2,
+        "enclosing_function": "Guns_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "gun8": {
+      "hud_family": "bare",
+      "hud_element": "gun8",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_guns.c",
+        "source_line": 415,
+        "source_column": 2,
+        "enclosing_function": "Guns_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "health": {
+      "hud_family": "bare",
+      "hud_element": "health",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_health.c",
+        "source_line": 135,
+        "source_column": 2,
+        "enclosing_function": "Health_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "healthdamage": {
+      "hud_family": "bare",
+      "hud_element": "healthdamage",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_health.c",
+        "source_line": 148,
+        "source_column": 2,
+        "enclosing_function": "Health_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "iammo": {
+      "hud_family": "bare",
+      "hud_element": "iammo",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_ammo.c",
+        "source_line": 500,
+        "source_column": 2,
+        "enclosing_function": "Ammo_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "iammo1": {
+      "hud_family": "bare",
+      "hud_element": "iammo1",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_ammo.c",
+        "source_line": 510,
+        "source_column": 2,
+        "enclosing_function": "Ammo_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "iammo2": {
+      "hud_family": "bare",
+      "hud_element": "iammo2",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_ammo.c",
+        "source_line": 516,
+        "source_column": 2,
+        "enclosing_function": "Ammo_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "iammo3": {
+      "hud_family": "bare",
+      "hud_element": "iammo3",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_ammo.c",
+        "source_line": 522,
+        "source_column": 2,
+        "enclosing_function": "Ammo_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "iammo4": {
+      "hud_family": "bare",
+      "hud_element": "iammo4",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_ammo.c",
+        "source_line": 528,
+        "source_column": 2,
+        "enclosing_function": "Ammo_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "iarmor": {
+      "hud_family": "bare",
+      "hud_element": "iarmor",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_armor.c",
+        "source_line": 244,
+        "source_column": 2,
+        "enclosing_function": "Armor_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "itemsclock": {
+      "hud_family": "bare",
+      "hud_element": "itemsclock",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_common.c",
+        "source_line": 970,
+        "source_column": 2,
+        "enclosing_function": "CommonDraw_Init",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "key1": {
+      "hud_family": "bare",
+      "hud_element": "key1",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_items.c",
+        "source_line": 244,
+        "source_column": 2,
+        "enclosing_function": "Items_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "key2": {
+      "hud_family": "bare",
+      "hud_element": "key2",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_items.c",
+        "source_line": 253,
+        "source_column": 2,
+        "enclosing_function": "Items_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "keys": {
+      "hud_family": "bare",
+      "hud_element": "keys",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_common.c",
+        "source_line": 961,
+        "source_column": 2,
+        "enclosing_function": "CommonDraw_Init",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "net": {
+      "hud_family": "bare",
+      "hud_element": "net",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_net.c",
+        "source_line": 346,
+        "source_column": 2,
+        "enclosing_function": "Net_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "netgraph": {
+      "hud_family": "bare",
+      "hud_element": "netgraph",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "r_rmain.c",
+        "source_line": 769,
+        "source_column": 18,
+        "enclosing_function": "R_Init",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "netproblem": {
+      "hud_family": "bare",
+      "hud_element": "netproblem",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_net.c",
+        "source_line": 357,
+        "source_column": 2,
+        "enclosing_function": "Net_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "notify": {
+      "hud_family": "bare",
+      "hud_element": "notify",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_common.c",
+        "source_line": 948,
+        "source_column": 2,
+        "enclosing_function": "CommonDraw_Init",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "ownfrags": {
+      "hud_family": "bare",
+      "hud_element": "ownfrags",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_scores.c",
+        "source_line": 852,
+        "source_column": 2,
+        "enclosing_function": "Scores_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "pent": {
+      "hud_family": "bare",
+      "hud_element": "pent",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_items.c",
+        "source_line": 271,
+        "source_column": 2,
+        "enclosing_function": "Items_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "ping": {
+      "hud_family": "bare",
+      "hud_element": "ping",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_net.c",
+        "source_line": 366,
+        "source_column": 2,
+        "enclosing_function": "Net_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "qtv_buffer": {
+      "hud_family": "bare",
+      "hud_element": "qtv_buffer",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_qtv.c",
+        "source_line": 87,
+        "source_column": 2,
+        "enclosing_function": "Qtv_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "quad": {
+      "hud_family": "bare",
+      "hud_element": "quad",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_items.c",
+        "source_line": 289,
+        "source_column": 2,
+        "enclosing_function": "Items_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "radar": {
+      "hud_family": "bare",
+      "hud_element": "radar",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_radar.c",
+        "source_line": 1422,
+        "source_column": 2,
+        "enclosing_function": "Radar_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "ring": {
+      "hud_family": "bare",
+      "hud_element": "ring",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_items.c",
+        "source_line": 262,
+        "source_column": 2,
+        "enclosing_function": "Items_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "score_bar": {
+      "hud_family": "bare",
+      "hud_element": "score_bar",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_scores.c",
+        "source_line": 837,
+        "source_column": 2,
+        "enclosing_function": "Scores_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "score_difference": {
+      "hud_family": "bare",
+      "hud_element": "score_difference",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_scores.c",
+        "source_line": 812,
+        "source_column": 2,
+        "enclosing_function": "Scores_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "score_enemy": {
+      "hud_family": "bare",
+      "hud_element": "score_enemy",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_scores.c",
+        "source_line": 799,
+        "source_column": 2,
+        "enclosing_function": "Scores_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "score_position": {
+      "hud_family": "bare",
+      "hud_element": "score_position",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_scores.c",
+        "source_line": 825,
+        "source_column": 2,
+        "enclosing_function": "Scores_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "score_team": {
+      "hud_family": "bare",
+      "hud_element": "score_team",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_scores.c",
+        "source_line": 786,
+        "source_column": 2,
+        "enclosing_function": "Scores_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "scoreclock": {
+      "hud_family": "bare",
+      "hud_element": "scoreclock",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_clock.c",
+        "source_line": 421,
+        "source_column": 2,
+        "enclosing_function": "Clock_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "scoremapname": {
+      "hud_family": "bare",
+      "hud_element": "scoremapname",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_gamesummary.c",
+        "source_line": 251,
+        "source_column": 2,
+        "enclosing_function": "GameSummary_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "sigil1": {
+      "hud_family": "bare",
+      "hud_element": "sigil1",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_items.c",
+        "source_line": 299,
+        "source_column": 2,
+        "enclosing_function": "Items_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "sigil2": {
+      "hud_family": "bare",
+      "hud_element": "sigil2",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_items.c",
+        "source_line": 308,
+        "source_column": 2,
+        "enclosing_function": "Items_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "sigil3": {
+      "hud_family": "bare",
+      "hud_element": "sigil3",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_items.c",
+        "source_line": 317,
+        "source_column": 2,
+        "enclosing_function": "Items_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "sigil4": {
+      "hud_family": "bare",
+      "hud_element": "sigil4",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_items.c",
+        "source_line": 326,
+        "source_column": 2,
+        "enclosing_function": "Items_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "speed": {
+      "hud_family": "bare",
+      "hud_element": "speed",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_speed.c",
+        "source_line": 679,
+        "source_column": 2,
+        "enclosing_function": "Speed_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "speed2": {
+      "hud_family": "bare",
+      "hud_element": "speed2",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_speed.c",
+        "source_line": 702,
+        "source_column": 2,
+        "enclosing_function": "Speed_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "static_text": {
+      "hud_family": "bare",
+      "hud_element": "static_text",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_common.c",
+        "source_line": 983,
+        "source_column": 2,
+        "enclosing_function": "CommonDraw_Init",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "suit": {
+      "hud_family": "bare",
+      "hud_element": "suit",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_items.c",
+        "source_line": 280,
+        "source_column": 2,
+        "enclosing_function": "Items_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "teamfrags": {
+      "hud_family": "bare",
+      "hud_element": "teamfrags",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_frags.c",
+        "source_line": 1567,
+        "source_column": 2,
+        "enclosing_function": "Frags_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "teamholdbar": {
+      "hud_family": "bare",
+      "hud_element": "teamholdbar",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "stats_grid.c",
+        "source_line": 1390,
+        "source_column": 16,
+        "enclosing_function": "TeamHold_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "teamholdinfo": {
+      "hud_family": "bare",
+      "hud_element": "teamholdinfo",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "stats_grid.c",
+        "source_line": 1375,
+        "source_column": 17,
+        "enclosing_function": "TeamHold_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "teaminfo": {
+      "hud_family": "bare",
+      "hud_element": "teaminfo",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_teaminfo.c",
+        "source_line": 908,
+        "source_column": 2,
+        "enclosing_function": "TeamInfo_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "teamstackbar": {
+      "hud_family": "bare",
+      "hud_element": "teamstackbar",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_common.c",
+        "source_line": 996,
+        "source_column": 2,
+        "enclosing_function": "CommonDraw_Init",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "tracker": {
+      "hud_family": "bare",
+      "hud_element": "tracker",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_common.c",
+        "source_line": 936,
+        "source_column": 2,
+        "enclosing_function": "CommonDraw_Init",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "tracking": {
+      "hud_family": "bare",
+      "hud_element": "tracking",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_tracking.c",
+        "source_line": 67,
+        "source_column": 2,
+        "enclosing_function": "Tracking_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "vidlag": {
+      "hud_family": "bare",
+      "hud_element": "vidlag",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_performance.c",
+        "source_line": 334,
+        "source_column": 2,
+        "enclosing_function": "Performance_HudInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    },
+    "weaponstats": {
+      "hud_family": "bare",
+      "hud_element": "weaponstats",
+      "ast": {
+        "handler_fn": "HUD_Func_f",
+        "source_file": "hud_weapon_stats.c",
+        "source_line": 226,
+        "source_column": 2,
+        "enclosing_function": "WeaponStats_HUDInit",
+        "build_variant": "client",
+        "registration_api": "Cmd_AddCommand"
+      }
+    }
+  },
+  "r1": {
+    "nonliteral_first_arg_sites": [],
+    "nonliteral_count": 0
+  },
+  "_stats": {
+    "source_total": 129,
+    "bare": 83,
+    "plus": 23,
+    "minus": 23,
+    "elements": 83
+  }
+}
