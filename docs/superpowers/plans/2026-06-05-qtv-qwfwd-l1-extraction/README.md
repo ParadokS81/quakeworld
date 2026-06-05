@@ -5,7 +5,7 @@
 
 **Goal:** Make both QuakeWorld streaming/forwarding tools first-class Layer 1 citizens, same shape as the engine ports -- every tunable knob extracted as a source-backed L1 entity carrying a source-verified description, MCP-queryable. Targets: Go QTV (`QW-Group/qtv`, slug `qtv`) + C QWFWD (qqshka, slug `qwfwd`), both vendored under `apps/slipgate-app/reference/`. Concept-note authoring is deferred to an evidence-based decision after the describe pass.
 
-**Status:** Planning. Scaffold committed; slicing locked (5 phases, tracer-bullet through the load integration). Per-phase MDs are drafted by fresh terminals following `handoff-prompt.md`, each verified by a sub-agent before operator review. Phases land in commit order; each boundary is operator-reviewed before the next begins.
+**Status:** Planning COMPLETE (2026-06-05). All 5 phase MDs (0-4) drafted, sub-agent + independent-Explore verified, and operator-approved. Orchestrator handoff written at `docs/superpowers/parking/2026-06-05-qtv-qwfwd-l1-extraction-orchestrator-handoff.md`. Ready for execution (arc-orchestrator wave 2, or operator-driven executor terminals per phase). Phases land in commit order; each boundary is operator-reviewed before the next begins.
 
 ---
 
@@ -31,7 +31,7 @@ Phases land in order. Each commits a coherent runnable unit (decisions.md D11). 
 | 1 | approved | `phase-1-qwfwd-extractor.md` | QWFWD libclang extractor on `extractor_lib` rails + the vendored `load-version --json` procedure established | QWFWD L1 rows loaded + MCP-queryable; extractor reproducible + idempotent |
 | 2 | approved | `phase-2-qtv-extractor.md` | QTV native `go/ast` extractor (first non-C front-end) -> same per-type JSON, reusing Phase-1 load path | QTV L1 rows loaded + MCP-queryable; reproducible + idempotent |
 | 3 | approved | `phase-3-describe-fill.md` | Per-knob `describe-fill-synthesis` (both tools), source-verified, C-vs-Go QTV guard, mother-ledger | Every qtv/qwfwd knob carries a source-verified description in MCP |
-| 4 | not started | `phase-4-validate-decision.md` | `validate-extractor` (Postgres) + F1 floor probes for both + the if/which concept-note decision | Both extractors validated; concept-note decision documented; arc complete |
+| 4 | approved | `phase-4-validate-decision.md` | `validate-extractor` (Postgres) + F1 floor probes for both + the if/which concept-note decision | Both extractors validated; concept-note decision documented; arc complete |
 
 Status flow: `not started` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
 
