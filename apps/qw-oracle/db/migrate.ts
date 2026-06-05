@@ -56,6 +56,12 @@ export async function runMigrations(sql: postgres.Sql): Promise<void> {
 
 export async function resetDb(sql: postgres.Sql): Promise<void> {
   await sql`DROP SCHEMA IF EXISTS public CASCADE`;
+  // Migration 008 creates the `community` schema (community.players etc.).
+  // resetDb must drop it too -- otherwise a re-run reaches 008's
+  // CREATE TABLE community.players on a surviving table ("already exists"),
+  // which aborts mid-suite and corrupts the shared public schema for the
+  // remaining test files. community is rebuilt by 008's CREATE SCHEMA IF NOT EXISTS.
+  await sql`DROP SCHEMA IF EXISTS community CASCADE`;
   await sql`CREATE SCHEMA public`;
   await sql`GRANT ALL ON SCHEMA public TO public`;
 }
