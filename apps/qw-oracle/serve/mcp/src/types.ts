@@ -21,7 +21,7 @@ export interface ToolResponse<T = unknown> {
 // User-facing entity types. Layer 1 also stores keyname/hud_element/
 // token_primitive/flag_bit/asset_category for internal classifier use, but
 // those are not directly looked up by humans and stay out of the MCP surface.
-export type EntityType = 'cvar' | 'command' | 'macro' | 'cmdline_param' | 'ruleset';
+export type EntityType = 'cvar' | 'command' | 'macro' | 'cmdline_param' | 'ruleset' | 'match_event';
 
 export type SourceState =
   | 'source_backed'

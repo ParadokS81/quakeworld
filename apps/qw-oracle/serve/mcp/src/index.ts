@@ -54,7 +54,7 @@ function summariseFilterArgs(args: Record<string, unknown>): string | null {
   return compact.length > 200 ? compact.slice(0, 197) + '...' : compact;
 }
 
-const ENTITY_TYPE_ENUM: EntityType[] = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset'];
+const ENTITY_TYPE_ENUM: EntityType[] = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset', 'match_event'];
 const VERIFY_TTL_HOURS = parseFloat(process.env.EMBEDDING_VERIFY_TTL_HOURS ?? '24');
 
 async function maybeVerifyEmbeddingSpace(): Promise<void> {
@@ -203,7 +203,7 @@ const TOOL_LIST = [
   {
     name: 'lookup_entity',
     description:
-      'Look up a QuakeWorld entity by name across the four engine projects (ezquake, ktx, fte, mvdsv) and the five user-facing entity types (cvar, command, macro, cmdline_param, ruleset). Case-insensitive. Returns rich Layer 1 records: identity + project + type + source_state (live | retired | doc-only | dynamically-registered) + first_seen_version + last_seen_version + current per-version snapshot (default value, help text, type, flags, source file:line, plus any type-specific columns) + asset relations for cvars (which file categories the cvar controls) + linked Layer 3 concept notes that reference this entity. One call returns everything the asking LLM needs about the entity at its current state. For community discussion about the entity, call search_solved_issues with the entity name afterwards.',
+      'Look up a QuakeWorld entity by name across the four engine projects (ezquake, ktx, fte, mvdsv) and the six user-facing entity types (cvar, command, macro, cmdline_param, ruleset, match_event). Case-insensitive. Returns rich Layer 1 records: identity + project + type + source_state (live | retired | doc-only | dynamically-registered) + first_seen_version + last_seen_version + current per-version snapshot (default value, help text, type, flags, source file:line, plus any type-specific columns) + asset relations for cvars (which file categories the cvar controls) + linked Layer 3 concept notes that reference this entity. One call returns everything the asking LLM needs about the entity at its current state. For community discussion about the entity, call search_solved_issues with the entity name afterwards.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -219,7 +219,7 @@ const TOOL_LIST = [
           type: 'string',
           enum: ENTITY_TYPE_ENUM,
           description:
-            'Optional. Restrict to one entity type. Default returns matches across all five types.',
+            'Optional. Restrict to one entity type. Default returns matches across all six types.',
         },
       },
       required: ['name'],
@@ -244,7 +244,7 @@ const TOOL_LIST = [
           type: 'string',
           enum: ENTITY_TYPE_ENUM,
           description:
-            'Optional. Restrict to one entity type. Default searches all five types.',
+            'Optional. Restrict to one entity type. Default searches all six types.',
         },
         limit: {
           type: 'number',
