@@ -113,6 +113,13 @@ The `description_origin` vocabulary:
 - **KTX/MVDSV configurable buckets this arc fills** are restricted to `source_inline` / `synthesized` (D2/D11; `shipped_doc` retired 2026-06-04). `help_json` is ezQuake/FTE-only; `inherited` is the reserved-unused QWCL slot.
 - **Enforcement:** the vocabulary is enforced by the F1 quality-grid probe `F1.describe_fill.origin_vocabulary`, NOT a CHECK constraint. Migration 012 deliberately left `description_origin` an unconstrained TEXT so new origins can be added without a heavyweight CHECK-rebuild migration; per C5 the honesty guarantee is made real by the probe (it fails loudly at the phase-boundary gate on any out-of-vocabulary tag), not by the schema. The probe's column-wide guard permits the four-set `{help_json, source_inline, inherited, synthesized}` (NULL only where `description` IS NULL); its arc-scoped guard restricts the KTX/MVDSV configurable buckets to the two this arc writes (`source_inline` / `synthesized`).
 
+**Embedding freshness (entities + concept_chunks):** Two booleans named `*_stale` exist but play **opposite** roles -- a TRUE flag does **not** mean the vector is out of date, so do not query the boolean to decide what needs re-embedding. The embedding columns themselves (`description_embedding vector(1024)`, `description_embedding_sha256`, `description_embedding_stale`) were added by migration 003 (`layer1_entities_search`); the hnsw index is `idx_entities_description_embedding`.
+
+- **`entities`:** the authoritative re-embed signal is the content hash `description_embedding_sha256`. `embed-entities.ts` re-embeds a row iff `sha256(description)` differs from the stored hash, and **ignores** `description_embedding_stale`. Many write paths (`re-derive`, describe-fill synthesize/format-unify, ktx recasts, help-json synthesis) set the boolean TRUE whenever they touch a row, even when the resulting text is byte-identical, so it over-reports heavily (8092 flagged vs 1026 actually stale-by-hash, measured 2026-06-05). Nothing reads it as a decision (`serve/` never reads it); it is observability/legacy and a safe drop candidate.
+- **`concept_chunks`:** here the flag **is** functional. `embed-chunks.ts` re-embeds `WHERE embedding IS NULL OR embedding_stale = TRUE`. The loader's primary path is DELETE+INSERTing chunks when `concepts.body_sha256` changes (so a changed chunk arrives with a NULL embedding); `embedding_stale = TRUE` is the secondary Voyage-failure retry signal. Cleared FALSE on successful embed.
+
+Both columns carry a `COMMENT ON COLUMN` recording this (migration 019), so `\d+` / information_schema state it at the point a reader meets the column.
+
 ---
 
 ## Per-type snapshot tables
