@@ -12,8 +12,9 @@ but it needs os.fork(), which adds multiprocessing complexity and a
 potential for orphaned worker processes if the gate assertions abort.
 Serial is deterministic, simpler, and the post-walk BFS is in this
 process by construction (no pickling, no inter-process signalling).
-The run is slower (~3-5 min for the full ezquake src) but this script
-is a one-time-per-fork gate; wall-time is not a concern here.
+The run parses a small committed synthetic fixture (probe_fixture.c via
+--repo-root), not the live ezQuake tree, so it completes in seconds and
+the three known-answer cvars cannot be deleted by upstream cleanup.
 
 X2 / W4 compliance: ALL assertions query reachable() and the feeder tag
 only -- NO L1 column read (no schema until Phase 3), NO combined/cross-
@@ -40,6 +41,21 @@ from pathlib import Path
 # assertions works regardless of the caller's working directory.
 HERE = Path(__file__).resolve().parent
 EXTRACTORS_ROOT = HERE.parent  # apps/qw-oracle/scripts/extractors/
+
+# The committed synthetic fixture tree the probe parses INSTEAD of the live
+# ezQuake source. We own it; no upstream dead-cvar cleanup can delete the
+# three known-answer cases (the disease that retired the live-source
+# fixtures). extract.main() resolves --repo-root to <root>/src when that holds
+# .c files, so FIXTURE_ROOT points at the dir CONTAINING src/.
+FIXTURE_ROOT = HERE / "fixtures" / "callgraph-probe"
+# The cvar names the fixture registers, one per gate (see probe_fixture.c).
+FIXTURE_CVAR_DEAD_CALLGRAPH = "fix_dead_cg"          # GATE 1
+FIXTURE_CVAR_DEAD_COMMENTED = "fix_dead_commented"   # GATE 2
+FIXTURE_CVAR_REACHABLE = "fix_reachable"             # GATE 3
+# GATE 2's commented-register cite. Coupled to the fixture (which is stable
+# and self-owned) -- if probe_fixture.c is edited so the disabled line moves,
+# update this line number to match (grep `// Cvar_Register` in the fixture).
+FIXTURE_COMMENTED_CITE = "probe_fixture.c:88"
 
 if str(EXTRACTORS_ROOT) not in sys.path:
     sys.path.insert(0, str(EXTRACTORS_ROOT))
@@ -77,7 +93,7 @@ import extract  # noqa: E402 -- the ezquake extractor
 
 
 def _run_extractor(tmp_dir: str) -> int:
-    """Drive extract.main() in this process, serial, into tmp_dir.
+    """Drive extract.main() in this process, serial, over the FIXTURE tree.
 
     Serial (--workers 1) is chosen because _run_serial's parent-side
     post-walk executes in the calling process, guaranteeing _callgraph
@@ -86,14 +102,25 @@ def _run_extractor(tmp_dir: str) -> int:
     serial avoids forked-worker teardown complexity and is fully
     deterministic for a gate script.
 
-    Source pin: the extractor defaults to research/repos/ezquake-source
-    (HEAD 3f9e724f, the validated pin). We do not override --repo-root
-    so the extractor uses its own default, which is the pin used during
-    all the mechanism validation recon.
+    Source: --repo-root points at the committed synthetic fixture tree
+    (FIXTURE_ROOT), NOT the live ezQuake checkout. The three known-answer
+    cases live in probe_fixture.c, so no upstream dead-cvar cleanup can
+    delete them, and the ~90-line fixture parses in a fraction of a second
+    (vs ~minutes for the 308-file tree).
+
+    Handlers: --handlers "" runs ZERO entity handlers. The call-graph
+    passenger is a Visitor-independent observer (D6 zero shared state); it
+    runs and its post-walk populates _callgraph._RESULT regardless of the
+    handler list. Skipping the handlers avoids their finalize() steps,
+    which read ezQuake help-JSON files (help_commands.json, ...) absent
+    from the fixture -- and keeps the probe decoupled from the handler
+    roster (it tests the passenger, not the handlers).
     """
     old_argv = sys.argv[:]
     sys.argv = [
         "extract.py",
+        "--repo-root", str(FIXTURE_ROOT),
+        "--handlers", "",          # observer-only: no handler finalize (D6)
         "--output-dir", tmp_dir,
         "--workers", "1",          # serial: parent-side post-walk in THIS process
         "--progress-every", "0",   # suppress progress noise in gate output
@@ -124,14 +151,14 @@ def _loud_fail(gate: int, expected: dict, actual: dict, notes: str = "") -> None
 
 
 def _check_gate_1(actual: dict) -> bool:
-    """sb_qtvlist_url -- genuine-dead via call-graph feeder.
+    """fix_dead_cg -- genuine-dead via call-graph feeder.
 
-    QTVList_Init has zero callers anywhere in the ezquake src; its cvar
-    registration is therefore unreachable in every compiled variant.
-    This is the D5 'genuine-dead core' path (unreachable everywhere
-    compiled AND compiled in >=1 variant).
+    NeverCalled (probe_fixture.c) has zero callers and its address is never
+    taken, so its cvar registration is unreachable in every compiled
+    variant -- yet libclang compiles its body. This is the D5 'genuine-dead
+    core' path (unreachable everywhere compiled AND compiled in >=1 variant).
 
-    RED conditions (per phase MD):
+    RED conditions:
       - conclusion is build-excluded (wrong: the registrar IS compiled,
         just never called)
       - feeder is commented-register (wrong: the Cvar_Register IS in the
@@ -172,28 +199,30 @@ def _check_gate_1(actual: dict) -> bool:
 
 
 def _check_gate_2(actual: dict) -> bool:
-    """gl_outline_scale_world -- genuine-dead via commented-register feeder.
+    """fix_dead_commented -- genuine-dead via commented-register feeder.
 
-    The SOLE Cvar_Register for this cvar is commented out at r_rmain.c:730.
+    The SOLE Cvar_Register for this fixture cvar is commented out (the
+    `// Cvar_Register(&fix_dead_commented);` line in probe_fixture.c).
     libclang strips comments, so feeder-a sees NO registration call and
     signals _no_registration. reachable() then consults feeder-b (the
     textual scanner), which must find the commented line and return:
       conclusion: genuine-dead
       feeder:     commented-register
-      evidence:   {commented_register: "r_rmain.c:730"}
+      evidence:   {commented_register: FIXTURE_COMMENTED_CITE}
 
-    RED conditions (per phase MD):
+    RED conditions:
       - feeder is callgraph (wrong: feeder-a must be blind to a commented-
         out Cvar_Register -- this would mean the commented-register scanner
         is not being consulted or feeder-a somehow "sees" the comment)
       - no commented_register cite in evidence (feeder-b found nothing)
-      - cite basename != r_rmain.c (wrong file)
-      - cite line != 730 (wrong line)
+      - cite basename != probe_fixture.c (wrong file)
+      - cite line != the fixture's disabled-line number (wrong line)
     """
+    expected_base, expected_line = FIXTURE_COMMENTED_CITE.rsplit(":", 1)
     expected_shape = {
         "conclusion": CONCLUSION_GENUINE_DEAD,
         "feeder": FEEDER_COMMENTED_REGISTER,
-        "evidence": {"commented_register": "r_rmain.c:730"},
+        "evidence": {"commented_register": FIXTURE_COMMENTED_CITE},
     }
     ok = True
     notes = []
@@ -230,15 +259,15 @@ def _check_gate_2(actual: dict) -> bool:
             notes.append(f"cite '{cite}' is not in 'file:line' format")
         else:
             cite_base, cite_line = parts
-            if cite_base != "r_rmain.c":
+            if cite_base != expected_base:
                 ok = False
                 notes.append(
-                    f"cite basename: expected 'r_rmain.c', got '{cite_base}'"
+                    f"cite basename: expected '{expected_base}', got '{cite_base}'"
                 )
-            if cite_line != "730":
+            if cite_line != expected_line:
                 ok = False
                 notes.append(
-                    f"cite line: expected '730', got '{cite_line}'"
+                    f"cite line: expected '{expected_line}', got '{cite_line}'"
                 )
 
     if not ok:
@@ -247,29 +276,26 @@ def _check_gate_2(actual: dict) -> bool:
 
 
 def _check_gate_3(actual: dict) -> bool:
-    """cl_bobhead -- build-excluded; reachable client/win/apple AND server.
+    """fix_reachable -- build-excluded; reachable in all 4 variants.
 
-    Cvar_Register(&cl_bobhead) is inside V_Init (cl_view.c:1127), reachable
-    from the client/win/apple entry cascade (main -> Host_Init -> CL_Init
-    -> V_Init). F9 / decisions.md D5 AMENDMENT 2026-05-17 (operator-
-    ratified): not-compiled is PREPROCESSOR-derivable only. ezQuake-source
-    has ONE build target over one 309-file source list and CMake never
-    sets SERVERONLY; cl_view.c has NO file-scope SERVERONLY guard, so it
-    parses non-empty under -DSERVERONLY and V_Init resolves `reachable` in
-    the server variant -- NEVER `not-compiled`. The load-bearing assertion
-    is the conclusion `build-excluded` (a live client cvar; D3 intact),
-    UNCHANGED by F9. not-compiled stays correctly derivable for genuinely
-    #ifdef-guarded code; the refuted premise was the drafter's expected
-    value, not the mechanism.
+    Cvar_Register(&fix_reachable) is inside RegisterReachable
+    (probe_fixture.c), reached via the normal main -> Host_Init ->
+    RegisterReachable cascade. The fixture has NO #ifdef guards, so the
+    registrar compiles and resolves `reachable` in every variant --
+    including server (nothing removes its TU under -DSERVERONLY). A
+    reachable-anywhere registrar yields conclusion `build-excluded` (the
+    cleared/live-cvar bucket; verdict() in _callgraph.py), which is the
+    load-bearing assertion here. not-compiled stays correctly derivable
+    for genuinely #ifdef-guarded code -- the fixture simply has none.
 
-    RED conditions (per revised phase MD + D5 AMENDMENT + OQ-3):
+    RED conditions (per D5 AMENDMENT + OQ-3):
       - conclusion != build-excluded (load-bearing -- genuine-dead would
-        mean a live client cvar was false-accused)
-      - server evidence is not-compiled (the refuted historical-qwsv
-        premise leaking back; ezQuake-source has no dedicated-server
-        source list -- D5 AMENDMENT)
-      - address_taken_residue is True (cl_bobhead's registrar V_Init is
-        reached via the normal entry cascade, not via address-taken forcing)
+        mean a live cvar was false-accused)
+      - server evidence is not-compiled (would mean the registrar's TU was
+        excluded under -DSERVERONLY -- the fixture is unguarded, so server
+        must resolve `reachable`, never `not-compiled`)
+      - address_taken_residue is True (fix_reachable's registrar is reached
+        via the normal entry cascade, not via address-taken forcing)
     """
     expected_shape = {
         "conclusion": CONCLUSION_BUILD_EXCLUDED,
@@ -298,8 +324,9 @@ def _check_gate_3(actual: dict) -> bool:
 
     evidence = actual.get("evidence", {})
 
-    # The three client-family variants must all be reachable (V_Init is in
-    # the unguarded CL_Init -> V_Init cascade for client/win/apple).
+    # The three client-family variants must all be reachable
+    # (RegisterReachable sits in the unguarded main -> Host_Init ->
+    # RegisterReachable cascade, identical across client/win/apple).
     for v in (VARIANT_CLIENT, VARIANT_WIN, VARIANT_APPLE):
         if evidence.get(v) != STATE_REACHABLE:
             ok = False
@@ -307,36 +334,36 @@ def _check_gate_3(actual: dict) -> bool:
                 f"evidence['{v}']: expected '{STATE_REACHABLE}', got '{evidence.get(v)}'"
             )
 
-    # F9 / decisions.md D5 AMENDMENT 2026-05-17 (operator-ratified):
-    # not-compiled is PREPROCESSOR-derivable only. cl_view.c is unguarded
-    # and ezQuake-source has one build target (no per-variant source list),
-    # so V_Init resolves `reachable` in the server variant. The ratified
-    # RED predicate is narrow: server == not-compiled is RED (the refuted
-    # historical-qwsv premise leaking back). reachable AND unreachable are
-    # both acceptable here -- the load-bearing assertion is the conclusion
-    # build-excluded (checked above). Do NOT RED on server == unreachable:
-    # that would be stricter than the operator-ratified contract.
+    # decisions.md D5 AMENDMENT 2026-05-17 (operator-ratified): not-compiled
+    # is PREPROCESSOR-derivable only. The fixture has no #ifdef guards, so
+    # RegisterReachable's TU is present under -DSERVERONLY and it resolves
+    # `reachable` in the server variant. The ratified RED predicate is
+    # narrow: server == not-compiled is RED (a TU that should be present
+    # going missing). reachable AND unreachable are both acceptable here --
+    # the load-bearing assertion is the conclusion build-excluded (checked
+    # above). Do NOT RED on server == unreachable: that would be stricter
+    # than the operator-ratified contract.
     server_state = evidence.get(VARIANT_SERVER)
     if server_state == STATE_NOT_COMPILED:
         ok = False
         notes.append(
-            f"evidence['{VARIANT_SERVER}']: got '{STATE_NOT_COMPILED}' -- the"
-            " refuted historical-qwsv premise (decisions.md D5 AMENDMENT"
-            " 2026-05-17 / review-findings F9): ezQuake-source has no"
-            " dedicated-server source list and cl_view.c is unguarded, so"
-            f" server must resolve '{STATE_REACHABLE}' (or unreachable),"
-            f" never '{STATE_NOT_COMPILED}'"
+            f"evidence['{VARIANT_SERVER}']: got '{STATE_NOT_COMPILED}' --"
+            " violates decisions.md D5 AMENDMENT 2026-05-17: the fixture is"
+            " unguarded, so RegisterReachable's TU is present under"
+            f" -DSERVERONLY and server must resolve '{STATE_REACHABLE}' (or"
+            f" unreachable), never '{STATE_NOT_COMPILED}'"
         )
 
-    # OQ-3 tightening: cl_bobhead's registrar V_Init is reached via the
-    # normal entry cascade. If the residue flag is True it would mean V_Init
-    # is only a root because its address is taken, which is wrong.
+    # OQ-3 tightening: fix_reachable's registrar RegisterReachable is reached
+    # via the normal entry cascade. If the residue flag is True it would mean
+    # RegisterReachable is only a root because its address is taken, which is
+    # wrong (the fixture never takes its address).
     residue = evidence.get("address_taken_residue")
     if residue is not False:
         ok = False
         notes.append(
             f"evidence['address_taken_residue']: expected False, got {residue!r}"
-            " (OQ-3: cl_bobhead's registrar is normally-reachable, not residue-forced)"
+            " (OQ-3: fix_reachable's registrar is normally-reachable, not residue-forced)"
         )
 
     if not ok:
@@ -362,10 +389,11 @@ def main() -> int:
     # JSON files are written by the handler finalize() steps and are not
     # consulted by any gate.
 
-    # Query the mechanism's own output for each of the three probes.
-    r1 = cg.reachable("sb_qtvlist_url", "cvar")
-    r2 = cg.reachable("gl_outline_scale_world", "cvar")
-    r3 = cg.reachable("cl_bobhead", "cvar")
+    # Query the mechanism's own output for each of the three probes (the
+    # fixture cvars from probe_fixture.c).
+    r1 = cg.reachable(FIXTURE_CVAR_DEAD_CALLGRAPH, "cvar")   # GATE 1
+    r2 = cg.reachable(FIXTURE_CVAR_DEAD_COMMENTED, "cvar")   # GATE 2
+    r3 = cg.reachable(FIXTURE_CVAR_REACHABLE, "cvar")        # GATE 3
 
     g1 = _check_gate_1(r1)
     g2 = _check_gate_2(r2)
