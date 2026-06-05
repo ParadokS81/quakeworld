@@ -408,13 +408,14 @@ const TOOL_LIST = [
   {
     name: 'search_mechanics',
     description:
-      'Filter QuakeWorld game-mechanics rules by kind or substring. Returns compact rows ordered by kind+name. Use this for "all environmental hazards" (kind:env_hazard), "all spawn rules" (kind:spawn_rule), "anything mentioning quad" (query:quad), or "all death rules" (kind:death_rule). For a specific named rule use lookup_mechanic.',
+      'Filter QuakeWorld game-mechanics rows by kind, mode, or substring. Returns rows (with gameplay_source_id + ruleset_gate_json + props_json) ordered by source+kind+name. Base-game (id1) kinds: constant, env_hazard, player_stat, powerup_behavior, armor_model, death_rule, spawn_rule, dm_mode_rule. KTX kinds: game_mode (mode catalog), mode_default (per-cvar settings a mode applies -- filter to one mode with the mode parameter, e.g. mode="ca"), election_type, score_system, drop_item, loc_macro, teamplay_message, plus death_rule (shared with base-game -- KTX adds 27 of its own). Omit gameplay_source to search all sources (id1 + ktx). For a whole game mode assembled in one call use describe_mode; for a single named rule use lookup_mechanic.',
     inputSchema: {
       type: 'object',
       properties: {
         query: { type: 'string', description: 'Substring match on name, value_text, or notes (case-insensitive).' },
-        kind: { type: 'string', enum: ['constant','env_hazard','player_stat','powerup_behavior','armor_model','death_rule','spawn_rule','dm_mode_rule'], description: 'Restrict to one kind.' },
-        gameplay_source: { type: 'string', description: 'Defaults to id1.' },
+        kind: { type: 'string', enum: ['constant','env_hazard','player_stat','powerup_behavior','armor_model','death_rule','spawn_rule','dm_mode_rule','game_mode','mode_default','election_type','score_system','drop_item','loc_macro','teamplay_message'], description: 'Restrict to one kind.' },
+        mode: { type: 'string', description: 'For kind=mode_default: restrict to one mode token (ruleset_gate_json->>"mode"), e.g. ca, wipeout, 1on1, or common for the baseline.' },
+        gameplay_source: { type: 'string', description: 'Omit to search all sources (id1 base Quake + ktx). Pass "ktx" or "id1" to scope.' },
         limit: { type: 'number', description: 'Max rows. Default 50, max 100.' },
       },
     },
