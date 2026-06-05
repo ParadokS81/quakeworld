@@ -65,6 +65,12 @@ While drafting each phase MD:
 
 **Evidence:** The design's knob counts (QWFWD ~13-14 cvars / ~30 commands; QTV ~41 cvars / ~12 commands) are exploration-agent hand-counts; the scout already found one knob (`sys_readstdin`) an earlier inventory missed. Registration-idiom greps during planning roughly corroborate (QWFWD: 36 `Cmd_AddCommand`, ~18 `Cvar_Get`/`Cvar_Register`; QTV: 41 `qvs.Reg`/`RegEx`, 13 `cmd.Register`). Phase 1/2 verification counts what the extractor finds and records that as the F1 baseline (D12); it does not gate on the design's hand-counts.
 
+### F8 -- describe-fill-synthesis skill pre-flight blocks qtv/qwfwd
+
+**Status:** Flagged during Phase 3 drafting. Resolved by Q-SKILL Option A (operator to confirm -- shared user-global skill change).
+
+**Evidence:** `~/.claude/skills/describe-fill-synthesis/SKILL.md` line 102 hard-aborts when `project is not exactly 'ktx' or 'mvdsv'`. QTV/QWFWD are outside that scope, so Phase 3's describe workers cannot dispatch until the gate is widened. Independent verification (2026-06-05) confirmed the skill has no project-branching logic beyond the gate + three doc references (lines 4 / 53 / 354); widening the gate to `{'ktx','mvdsv','qtv','qwfwd'}` (plus those 3 doc lines) is the complete functional fix. The skill's own frontmatter calls it "engine-agnostic."
+
 ---
 
 ## Findings the design got right (carry forward)
@@ -83,7 +89,7 @@ While drafting each phase MD:
 | Phase 0 (Schema + plumbing) | F1, F4 |
 | Phase 1 (QWFWD extractor + vendored load path) | F2, F5, F6, F7 |
 | Phase 2 (QTV Go extractor) | F2, F5, F7 |
-| Phase 3 (Describe-fill) | (D6 guard is the load-bearing item; no F-finding) |
+| Phase 3 (Describe-fill) | F8 (skill gate); D6 guard is the load-bearing item |
 | Phase 4 (Validate + concept-note decision) | F3, F7 |
 
 ---
