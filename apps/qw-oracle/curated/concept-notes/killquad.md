@@ -5,7 +5,7 @@ slug: killquad
 topic: game-mode-reference
 status: draft
 authored_by: qw-oracle
-last_updated: 2026-05-31
+last_updated: 2026-06-05
 scope: engine-scoped
 engines_covered: [ktx]
 
@@ -58,9 +58,9 @@ So the fight stops orbiting a spawn point and starts orbiting whoever holds the 
 
 ## Hosting & settings
 
-KillQuad isn't in the `k_allowed_free_modes` allow-list (toggle modes never are), so it's reachable on any server; players turn it on per game with `/killquad`. `k_killquad` is a plain on/off with nothing to tune -- for an always-on server, see *server-setup*.
+KillQuad isn't in the `k_allowed_free_modes` allow-list (toggle modes never are), so it's reachable on any server; `k_killquad` is a plain on/off with nothing to tune. For an always-on server, see *server-setup*.
 
-**One real constraint: KillQuad does not work with bots.** With frogbots in the game the death-drop never fires -- the Quad simply never appears, with no error to explain why -- so KillQuad needs real players. (The bot system leaves the stripped map Quad lingering invisibly in place, which makes the engine think a Quad is already in play.)
+**One real constraint: KillQuad does not work with bots.** With frogbots in the game the Quad never appears, with no error to explain why -- the bot system leaves the stripped map Quad lingering invisibly, so the engine thinks one is already in play and the death-drop never fires. KillQuad needs real players.
 
 ## See also
 
