@@ -18,6 +18,9 @@ const PROJECT_REPOS: Record<Project, { owner: string; repo: string } | null> = {
   ktx:     { owner: 'QW-Group', repo: 'ktx' },
   qwcl:    null,
   qw:      null,
+  // frozen vendored snapshots; no PR enrichment flow (D1)
+  qtv:   null,
+  qwfwd: null,
 };
 
 export interface EnrichOptions {

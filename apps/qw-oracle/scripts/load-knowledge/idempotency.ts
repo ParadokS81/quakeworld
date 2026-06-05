@@ -30,9 +30,10 @@ import { HEAD_ORDINAL } from './constants.js';
 import type { Project } from './types.js';
 
 // Project type carries 'qw' (game-content namespace; no engine source)
-// alongside the 5 extracted projects. The idempotency gate scopes to the
-// 5 extracted projects only.
-type IdempotencyProject = Exclude<Project, 'qw'>;
+// alongside the extracted projects. The idempotency gate scopes to the
+// 5 actively-extracted projects only; qtv/qwfwd are frozen vendored
+// snapshots that bypass extract-tag entirely (D1).
+type IdempotencyProject = Exclude<Project, 'qw' | 'qtv' | 'qwfwd'>;
 
 const PROJECTS: readonly IdempotencyProject[] = [
   'ezquake',

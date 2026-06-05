@@ -689,6 +689,8 @@ const PROJECT_DEFAULT_SNAPSHOT_VERSION: Record<Project, string> = {
   ktx:     'head',
   qwcl:    '2.33',
   qw:      'static',
+  qtv:     'head', // provisional; Phase 1/2 updates to the real version constant once source recon pins it
+  qwfwd:   'head', // provisional; Phase 1/2 updates to the real version constant once source recon pins it
 };
 
 export async function buildSnapshot(opts: BuildSnapshotOptions): Promise<BuildSnapshotResult> {

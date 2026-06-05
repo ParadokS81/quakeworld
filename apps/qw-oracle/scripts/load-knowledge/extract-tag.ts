@@ -41,6 +41,9 @@ const PROJECT_REPO_PATH: Record<Project, string> = {
   qwcl:    join(MONOREPO_ROOT, 'research', 'repos', 'qwcl-original'),
   // qw is the game-itself namespace; it has no engine source repo.
   qw:      '',
+  // qtv/qwfwd are frozen vendored snapshots; no live source repo clone needed.
+  qtv:     join(MONOREPO_ROOT, 'apps', 'slipgate-app', 'reference', 'qtv'),
+  qwfwd:   join(MONOREPO_ROOT, 'apps', 'slipgate-app', 'reference', 'qwfwd'),
 };
 
 const EXTRACTORS_ROOT = join(MONOREPO_ROOT, 'apps', 'qw-oracle', 'scripts', 'extractors');
@@ -52,6 +55,9 @@ const PROJECT_EXTRACTOR: Record<Project, string | null> = {
   ktx: join(EXTRACTORS_ROOT, 'ktx', 'extract.py'),
   qwcl: join(EXTRACTORS_ROOT, 'qwcl', 'extract.py'),
   qw: null,
+  // frozen vendored snapshots -- bypass extract-tag entirely (D1)
+  qtv: null,
+  qwfwd: null,
 };
 
 const PROJECT_EXTRACTOR_OUTPUT_DIR: Record<Project, string> = {
@@ -61,6 +67,8 @@ const PROJECT_EXTRACTOR_OUTPUT_DIR: Record<Project, string> = {
   ktx:     join(EXTRACTORS_ROOT, 'ktx', 'output'),
   qwcl:    join(EXTRACTORS_ROOT, 'qwcl', 'output'),
   qw:      '',  // no engine source; maps are extracted separately
+  qtv:     join(EXTRACTORS_ROOT, 'qtv', 'output'),
+  qwfwd:   join(EXTRACTORS_ROOT, 'qwfwd', 'output'),
 };
 
 // The `head` version is not a git tag — it's a moving snapshot of each
@@ -77,6 +85,8 @@ const PROJECT_DEFAULT_BRANCH: Record<Project, string> = {
   ktx: 'master',
   qwcl: 'bf4ac42',
   qw: '',  // no source repo; extract-tag is not used for qw
+  qtv:   'main',
+  qwfwd: 'main',
 };
 
 // Per-project version-label-to-git-ref aliases. The version label is what
@@ -92,6 +102,8 @@ const PROJECT_VERSION_ALIASES: Record<Project, Record<string, string>> = {
   ktx:     {},
   qwcl:    { '2.33': 'bf4ac42' },
   qw:      {},  // no source repo; no version aliases needed
+  qtv:     {},
+  qwfwd:   {},
 };
 
 // Projects with hand-authored asset taxonomy (seed YAMLs + bundle output +
@@ -106,6 +118,8 @@ const PROJECT_HAS_ASSET_BUNDLE: Record<Project, boolean> = {
   ktx:     false,
   qwcl:    false,
   qw:      false,  // maps table stands alone; no asset bundle taxonomy
+  qtv:     false,
+  qwfwd:   false,
 };
 
 // Slipgate absorbed the bundle location during qw-config dissolution Half 2a
@@ -288,6 +302,16 @@ const ENTITY_JSON_FILES: Record<Project, Partial<Record<EntityType, string>>> = 
     match_event:  'ktx-match-events-ast.json',
   },
   qw:    {},  // no entity types; maps live in the maps table, not entities
+  qtv: {
+    cvar:    'qtv-variables-ast.json',
+    command: 'qtv-commands-ast.json',
+  },
+  qwfwd: {
+    cvar:         'qwfwd-variables-ast.json',
+    command:      'qwfwd-commands-ast.json',
+    cmdline_param: 'qwfwd-cmdline-params-ast.json',
+    info_key:     'qwfwd-info-keys-ast.json',
+  },
 };
 
 // Per-project asset bundle filename. The bundle output dir is shared
@@ -299,6 +323,8 @@ const ASSET_BUNDLE_FILE: Record<Project, string> = {
   ktx:     '',  // unused; PROJECT_HAS_ASSET_BUNDLE.ktx === false
   qwcl:    '',  // unused; PROJECT_HAS_ASSET_BUNDLE.qwcl === false
   qw:      '',  // unused; PROJECT_HAS_ASSET_BUNDLE.qw === false
+  qtv:     '',  // unused; PROJECT_HAS_ASSET_BUNDLE.qtv === false
+  qwfwd:   '',  // unused; PROJECT_HAS_ASSET_BUNDLE.qwfwd === false
 };
 
 // Legacy single-purpose extractors not yet folded into the unified driver.

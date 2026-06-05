@@ -59,6 +59,9 @@ const PROJECT_SRC_PREFIX_FALLBACK: Record<Project, string> = {
   qwcl:    'QW/client/',
   // qw is the game-itself namespace (maps table); it has no engine source tree.
   qw:      '',
+  // unused -- frozen single-version snapshots; extract-tag never runs for qtv/qwfwd (D1)
+  qtv:   '',
+  qwfwd: 'src/',
 };
 
 function detectSrcPrefix(

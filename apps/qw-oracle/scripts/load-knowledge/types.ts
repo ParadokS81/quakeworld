@@ -5,7 +5,7 @@
 // scripts in apps/qw-oracle/scripts/extractors/ezquake/_legacy/)
 // (output: apps/qw-oracle/scripts/extractors/ezquake/output/ezquake-variables-ast.json).
 
-export type Project = 'ezquake' | 'fte' | 'mvdsv' | 'ktx' | 'qwcl' | 'qw';
+export type Project = 'ezquake' | 'fte' | 'mvdsv' | 'ktx' | 'qwcl' | 'qw' | 'qtv' | 'qwfwd';
 export type EntityType =
   | 'cvar'
   | 'command'

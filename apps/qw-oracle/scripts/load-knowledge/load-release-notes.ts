@@ -33,6 +33,9 @@ const PROJECT_REPOS: Record<Project, { owner: string; repo: string } | null> = {
   qwcl:    null,
   // qw is the game-itself namespace; no GitHub repo for release notes.
   qw:      null,
+  // frozen vendored snapshots; no release-notes flow (D1)
+  qtv:   null,
+  qwfwd: null,
 };
 
 export function projectHasGithubUpstream(project: Project): boolean {

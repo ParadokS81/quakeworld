@@ -91,6 +91,16 @@ ORDER BY 1, 2;
 ```
 Post-020 this returns exactly 10 rows, every one containing `ezquake` (allow-list retains it) AND `qwfwd` + `qtv` -- so V2's "exactly 10 / every row has qwfwd+qtv" passes cleanly.
 
+### F10 -- The Record<Project> surface is 13 sites, not 12 (a derived Exclude type the F4 grep missed)
+
+**Status:** Found during Phase 0 execution (2026-06-05). Touches Phase 0 (resolved here) and Phase 4 (reproducibility-validation implication, below).
+
+**Evidence:** F4's `grep -rn 'Record<Project'` found 12 literal sites. It missed `scripts/load-knowledge/idempotency.ts`, which types its config as `Record<IdempotencyProject, ...>` where `IdempotencyProject = Exclude<Project, 'qw'>`. Widening the `Project` union made `tsc` error there too -- a 13th site. The correct fix is NOT to add qtv/qwfwd config entries: `runIdempotency` (idempotency.ts:282) re-runs `extractTag(... force:true)`, and per D1 `PROJECT_EXTRACTOR[qtv|qwfwd]` is `null` (extract-tag throws by design on a null extractor). Including qtv/qwfwd in the idempotency scope would crash the probe. So the type was narrowed to `Exclude<Project, 'qw' | 'qtv' | 'qwfwd'>` -- qtv/qwfwd join `qw` as projects the extract-tag-coupled idempotency probe does not cover. V3 (tsc green) confirms the full surface (13 sites) is now addressed. Same class of miss as F1: a literal-string grep undercounting a derived form.
+
+**Resolved by:** Phase 0 Task 3 (the narrowing edit, verified by V3 tsc-green).
+
+**Phase 4 implication:** the `idempotency --project` CLI deliberately rejects qtv/qwfwd (exit 2, "must be one of ezquake|fte|qwcl|mvdsv|ktx"). Phase 4's reproducibility validation for qtv/qwfwd must therefore use the standalone-extractor-rerun + git-diff-on-output method (the Phase 1/2 reproducibility approach), NOT this extract-tag-coupled probe. The F1 floor-count + source-state probes in quality-grid.ts (D12) are separate and DO cover qtv/qwfwd.
+
 ---
 
 ## Findings the design got right (carry forward)
@@ -106,11 +116,11 @@ Post-020 this returns exactly 10 rows, every one containing `ezquake` (allow-lis
 
 | Phase | Findings to verify before sign-off |
 |---|---|
-| Phase 0 (Schema + plumbing) | F1, F4, F9 |
+| Phase 0 (Schema + plumbing) | F1, F4, F9, F10 |
 | Phase 1 (QWFWD extractor + vendored load path) | F2, F5, F6, F7 |
 | Phase 2 (QTV Go extractor) | F2, F5, F7 |
 | Phase 3 (Describe-fill) | F8 (skill gate); D6 guard is the load-bearing item |
-| Phase 4 (Validate + concept-note decision) | F3, F7 |
+| Phase 4 (Validate + concept-note decision) | F3, F7, F10 (reproducibility-method implication) |
 
 ---
 
