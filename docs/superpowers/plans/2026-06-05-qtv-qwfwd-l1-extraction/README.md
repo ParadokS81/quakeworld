@@ -27,7 +27,7 @@ Phases land in order. Each commits a coherent runnable unit (decisions.md D11). 
 
 | Phase | Status | MD | Deliverable | Runnable state at end |
 |---|---|---|---|---|
-| 0 | not started | `phase-0-schema-plumbing.md` | Migration 020 (10 CHECKs / 9 tables) + `Project` union widened + 12 `Record<Project>` sites filled + `versions` rows | DB accepts `qtv`/`qwfwd` rows; `tsc --noEmit` green |
+| 0 | approved | `phase-0-schema-plumbing.md` | Migration 020 (10 CHECKs / 9 tables) + `Project` union widened + 12 `Record<Project>` sites filled (`versions` rows deferred to Phase 1/2 first load) | DB accepts `qtv`/`qwfwd` rows; `tsc --noEmit` green |
 | 1 | not started | `phase-1-qwfwd-extractor.md` | QWFWD libclang extractor on `extractor_lib` rails + the vendored `load-version --json` procedure established | QWFWD L1 rows loaded + MCP-queryable; extractor reproducible + idempotent |
 | 2 | not started | `phase-2-qtv-extractor.md` | QTV native `go/ast` extractor (first non-C front-end) -> same per-type JSON, reusing Phase-1 load path | QTV L1 rows loaded + MCP-queryable; reproducible + idempotent |
 | 3 | not started | `phase-3-describe-fill.md` | Per-knob `describe-fill-synthesis` (both tools), source-verified, C-vs-Go QTV guard, mother-ledger | Every qtv/qwfwd knob carries a source-verified description in MCP |
