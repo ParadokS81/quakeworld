@@ -1,0 +1,11 @@
+# apps/qw-oracle/quake/ -- reserved staging dir for headless ezquake runs.
+#
+# NEVER commit the contents:
+#   - id1/pak1.pak is registered/commercial id Software data (not redistributable)
+#   - ~51 MB of game data + client binaries do not belong in git history
+#
+# Populate from a legally-owned QuakeWorld install. The operator's source copy
+# lives at /mnt/c/Games/QuakeWorld/QuakeWorld/ (reachable from WSL).
+*
+!.gitignore
+!README.md
