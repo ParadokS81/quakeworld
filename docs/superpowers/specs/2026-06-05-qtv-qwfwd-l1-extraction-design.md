@@ -40,10 +40,11 @@ Hand-counts below are from exploration agents and are **not** authoritative; the
   ```
   This is the pipeline's **first non-C extractor** -- precedent-setting. `go/ast` chosen over tree-sitter-go: native AST resolves the literal cvar/command registrations precisely, Go is already a build dep for QTV, and the extractor is a reusable asset for any future Go QW tooling.
 - **Both -> same downstream.** Existing loader adapters (`load-cvars.ts`, `load-commands.ts`, `load-cmdline.ts`, `load-info-keys.ts`), idempotent natural-key upserts, the diff/snapshot path. Nothing downstream of the JSON changes.
+- **Load path (the arc's one integration unknown -- promoted to the Phase-1 crux).** `extract-tag.ts` is hardwired to `git checkout` + `python3 extract.py`, so it **cannot** drive a vendored no-`.git` snapshot or a Go extractor. Bypass it: run each extractor as a standalone step writing JSON to `scripts/extractors/<project>/output/`, then ingest via the existing `index.ts` subcommand `load-version --project <p> --version <v> --json <path> --commit <sha> [--ordinal <n>]` (drives `loadVersion()` directly -> the entity/`*_versions` machinery; no git, no python). This is an already-canonical entrypoint (same shape as `load-assets`, `load-ktx-modes`), not a workaround. Open Phase-1 detail: what to pass for `--commit` when the vendored copy has no local sha (upstream sha if known, else the version constant).
 
 ## Schema change
 
-One additive migration (`db/migrations/<NNN>_qtv_qwfwd_projects.sql`): extend the `project` CHECK allow-list from `('ezquake','fte','mvdsv','ktx','qwcl')` to add `'qwfwd'` and `'qtv'`, across `entities` **and** the ~5 per-version tables that carry a `project` CHECK (grep `002_layer1_schema.sql`). Update `SCHEMA.md`. Mirror any project allow-list in the loader and MCP project filters.
+One additive migration (`db/migrations/020_qtv_qwfwd_projects.sql` -- next number is 020): extend the `project` allow-list from `('ezquake','fte','mvdsv','ktx','qwcl')` to add `'qwfwd'` and `'qtv'`, across the **10 CHECK clauses on 9 tables** in `002_layer1_schema.sql` (8 `project` columns + `cvar_alias_versions`'s `target_project` **and** `mimics_project`). Postgres `ALTER TABLE ... DROP CONSTRAINT / ADD CONSTRAINT` per clause. Update `SCHEMA.md`. Widen the `Project` TS union too -- that compiler-forces the ~12 `Record<Project, ...>` sites to be filled (completeness enforced by `tsc`). Mirror any project allow-list in the loader and MCP project filters.
 
 ## Describe pass (reuse `describe-fill-synthesis`)
 
@@ -84,8 +85,8 @@ Authoring is **not** in this arc's committed scope -- the describe pass produces
 Indicative, not binding -- planner sets the real slices, verification regimes, and per-task execution modes:
 
 - **Phase 0 -- schema + scaffold:** the project-CHECK migration; extractor dir scaffold for both tools.
-- **Phase 1 -- QWFWD extractor (libclang port):** handlers + clang config -> JSON -> load -> count/smoke. Lower-risk (reuses rails).
-- **Phase 2 -- QTV extractor (`go/ast`):** the novel front-end -> same JSON -> load -> count/smoke. Highest-risk/novel phase.
+- **Phase 1 -- QWFWD extractor (libclang port) + vendored load path [tracer bullet]:** handlers + clang config -> JSON -> **establish the git-less `load-version --json` procedure** -> count/smoke. Fires a lean end-to-end slice through the novel load-integration risk using the *lower-risk* extractor, retiring that risk before the Go front-end lands.
+- **Phase 2 -- QTV extractor (`go/ast`):** the novel front-end -> same JSON -> reuse Phase-1 load path -> count/smoke. One new variable (the Go walker) on a now-proven load path.
 - **Phase 3 -- describe-fill (both):** mother-ledger, batched, source-verified, C/Go guard enforced.
 - **Phase 4 -- validate + concept-note decision:** `validate-extractor`; then decide if/which of the 3 candidates to author.
 
