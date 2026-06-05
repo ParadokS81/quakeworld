@@ -326,7 +326,7 @@ The adapter (`load-cmdline-params.ts`) reads ONLY `ast.source_file`, `ast.source
 {
   "params": [
     {
-      "name": "[ip]",
+      "name": "ip",
       "ast": {
         "source_file": "src/main.c",
         "source_line": 229,
@@ -336,7 +336,7 @@ The adapter (`load-cmdline-params.ts`) reads ONLY `ast.source_file`, `ast.source
       }
     },
     {
-      "name": "[port]",
+      "name": "port",
       "ast": {
         "source_file": "src/main.c",
         "source_line": 228,
@@ -350,7 +350,7 @@ The adapter (`load-cmdline-params.ts`) reads ONLY `ast.source_file`, `ast.source
 }
 ```
 
-Note: the `[port]` and `[ip]` names with square brackets follow the Unix optional-arg convention shown in the usage string. The loader treats these as entity names verbatim (they are unique in QWFWD's entity namespace).
+Note: entity names are the plain semantic labels `port` and `ip` -- NOT bracketed. QWFWD's args are positional (`qwfwd 27500 1.2.3.4`), so there is no flag token to carry (unlike MVDSV's `-port` style); the name is necessarily a clean label. Optionality and the `qwfwd [port [ip]]` usage string belong in the Phase-3 description (show-usage-drop-algorithm), not in the name. The `cmdline_param` entity type already distinguishes these from cvars, so no bracket or prefix is needed to disambiguate -- and bracketed names would break substring lookup (the `name_fold` search key). The flag-vs-positional difference from MVDSV (`-port`) is accurate source-truth, not an inconsistency.
 
 **Steps:**
 
@@ -379,8 +379,8 @@ QWFWD Info_* call sites with literal key names (excluding `info.c` implementatio
 - `svc.c:228` -- `Info_ValueForKey(userinfo, "protocol", ...)` -- scope=userinfo, op=read
 - `svc.c:232` -- `Info_ValueForKey(userinfo, "qport", ...)` -- scope=userinfo, op=read
 - `svc.c:235` -- `Info_ValueForKey(userinfo, "challenge", ...)` -- scope=userinfo, op=read
-- `svc.c:247` -- `Info_ValueForKey(userinfo, QWFWD_PRX_KEY, ...)` -- non-literal key (QWFWD_PRX_KEY = "prx" macro); Pattern 1 detection skips this, Pattern 6 macro resolution would recover it; see open question Q-INFO
-- `svc.c:264` -- `Info_SetValueForKeyEx(userinfo, QWFWD_PRX_KEY, ...)` -- non-literal (same)
+- `svc.c:247` -- `Info_ValueForKey(userinfo, QWFWD_PRX_KEY, ...)` -- key is the macro `QWFWD_PRX_KEY` (= "prx", defined `qwfwd.h:125`). RESOLVE via cross-header macro resolution (`collect_file_macros` from `_source.py`) so this yields the `prx` key. scope=userinfo, op=read.
+- `svc.c:264` -- `Info_SetValueForKeyEx(userinfo, QWFWD_PRX_KEY, ...)` -- same macro; resolves to `prx`. scope=userinfo, op=write.
 - `svc.c:290` -- `Info_SetValueForStarKey(userinfo, "*qwfwd", ...)` -- scope=userinfo, op=write; literal key `*qwfwd`
 
 Additionally, `main.c:57` and `main.c:88` have `Info_ValueForKey(ps.info, Cmd_Argv(1), ...)` and `Info_SetValueForKey(ps.info, key, ...)` -- non-literal key names, skipped by Pattern 1.
@@ -393,14 +393,15 @@ The MVDSV `_classify_scope` helper maps scope from first-arg text. QWFWD uses: "
 
 The API_OP_MAP mirrors MVDSV's but with a QWFWD-specific addition: `Info_SetValueForKeyEx` (svc.c:264) maps to `write`.
 
-**Expected literal-key entities (with Pattern 1 only, QWFWD_PRX_KEY deferred to Q-INFO):**
+**Expected info_key entities (literal keys + the macro-resolved `prx`):**
 - `challenge:userinfo` (userinfo read + write across svc.c + clc.c)
 - `name:userinfo` (userinfo read)
 - `protocol:userinfo` (userinfo read)
 - `qport:userinfo` (userinfo read)
 - `*qwfwd:userinfo` (userinfo write)
+- `prx:userinfo` (userinfo read + write; key resolved from the `QWFWD_PRX_KEY` macro -- the userinfo marker the proxy injects so the downstream server knows the connection is forwarded; ecosystem-real, same tier as `qport`/`challenge`)
 
-That is 5 info_key entities (Pattern 1, literal keys only). With macro resolution of `QWFWD_PRX_KEY` = "prx", two more sites would add `prx:userinfo` (read + write). Q-INFO below flags this.
+Do NOT hand-target the final count -- per F7 the extractor reports the truth (literal keys + macro-resolved `prx`). `prx` is included because exhaustive mapping forbids importance-based subset exclusions; whether it is "internal" is a judgment that belongs in the Phase-3 description, not in an extraction filter.
 
 **AST field shape (must match `load-info-keys.ts` exactly):**
 
@@ -423,7 +424,7 @@ That is 5 info_key entities (Pattern 1, literal keys only). With macro resolutio
       }
     }
   ],
-  "_stats": { "source_total_call_sites": 7, "count": 5, "by_scope": {"userinfo": 5} }
+  "_stats": { "source_total_call_sites": 9, "count": 6, "by_scope": {"userinfo": 6} }
 }
 ```
 
@@ -435,6 +436,7 @@ The `load-info-keys.ts` adapter reads: `ast.scope`, `ast.operations` (JSON-strin
 - [ ] Subclass `Visitor` (cross-codebase port).
 - [ ] Class attributes: `name = "info_keys"`, `output_filename = "qwfwd-info-keys-ast.json"`, `payload_field = "info_keys"`.
 - [ ] `API_OP_MAP` -- mirrors MVDSV's plus `"Info_SetValueForKeyEx": "write"` (QWFWD-specific variant seen in svc.c:264).
+- [ ] **Macro-resolved keys (Q-INFO, required):** when the key argument is an identifier (not a string literal), resolve it through `collect_file_macros` from `extractor_lib._source` (cross-header transitive `#define` scan) BEFORE skipping it. `QWFWD_PRX_KEY` (defined `qwfwd.h:125` as "prx") MUST resolve so the `svc.c:247`/`264` sites yield the `prx` key. Only skip a non-literal key if it is a genuine runtime variable (e.g. `var->name`, `Cmd_Argv(1)`) with no macro definition.
 - [ ] `_classify_scope` override: add `if "ps.info" in s: return "serverinfo"` before the other checks (QWFWD's proxy serverinfo uses `ps.info`, not `svs.info`).
 - [ ] Exclude `info.c` via file-level check in `start_file` (mirrors the F6 pattern; `info.c` contains the Info_* implementation, not registrations).
 - [ ] `setup`, `start_file`, `visit_cursor`, `end_file`, `finalize` -- mirror MVDSV `_handler_info_keys.py` structure exactly, substituting `qwfwd_repo`/`qwfwd_src` for `mvdsv_repo`/`mvdsv_src`.
@@ -714,19 +716,15 @@ After Phase 1:
 
 ## Open questions / deferred items
 
-**Q-INFO -- QWFWD_PRX_KEY macro resolution in the info_keys handler**
-Two `Info_*` call sites in `svc.c` (lines 247 and 264) use `QWFWD_PRX_KEY` as the key argument instead of a string literal. `QWFWD_PRX_KEY` is defined as `"prx"` in `qwfwd.h:125`. Pattern 6 macro resolution (same-file `#define` scan) would recover this as a `prx:userinfo` entity, but `QWFWD_PRX_KEY` is defined in `qwfwd.h` (a header), not same-file. Cross-header Pattern 6 resolution (using `collect_file_macros` from `_source.py`) would recover it.
-Default chosen for Phase 1: omit `prx:userinfo` (emit only the 5 literal-key entities). The info_key surface for QWFWD is small and `prx` is an internal proxy protocol key, not an admin-facing config knob.
-Who can resolve: Phase 1 executor may implement the header-macro resolution if the effort is low (the `collect_file_macros` infrastructure already exists in `_source.py`). Otherwise Phase 3 describe pass notes the gap. Flag explicitly in the Phase 1 executor report if omitted.
+**Q-INFO -- QWFWD_PRX_KEY macro resolution [RESOLVED 2026-06-05: include]**
+Two `Info_*` sites in `svc.c` (247, 264) key on the macro `QWFWD_PRX_KEY` (= `"prx"`, `qwfwd.h:125`) rather than a string literal. Operator decision (eyes-on): **include `prx` via cross-header macro resolution** (`collect_file_macros`, already in `_source.py`). The drafter's earlier omit-default was an importance-based subset exclusion ("internal proxy key"), which the exhaustive-mapping principle forbids -- and on the merits `prx` is the userinfo marker the proxy injects so the downstream server knows a connection is forwarded, as ecosystem-real as `qport`/`challenge` (both included). Any "internal" judgment belongs in the Phase-3 description, not in an extraction filter. Resolved in Task 6 (macro-resolution step). Do not hand-target the count (F7).
 
 **Q-CVARFULLSET -- Cvar_FullSet is a registration API in QWFWD**
 QWFWD's `Cvar_FullSet` at `cvar.c:219-225` creates a new cvar if it doesn't already exist (same semantics as Cvar_Get). In `net.c`, `Cvar_FullSet("net_ip", ...)` and `Cvar_FullSet("net_port", ...)` are used when command-line args override cfg values. These ARE registration sites (they create the cvar on first call). The cvars handler MUST include `Cvar_FullSet` in `REGISTRATION_APIS` (specified in Task 3). Confirmed by live source reading: `cvar.c:219-228` shows `Cvar_FullSet` creates the cvar via `Cvar_Get` internally.
 Default chosen: both `Cvar_Get` and `Cvar_FullSet` in `REGISTRATION_APIS`. Resolved in Task 3.
 
-**Q-CMDLINE-NAMES -- Positional arg naming convention**
-The positional args use `[port]` and `[ip]` as entity names (square-bracket Unix convention from the usage string). The load-version entity table requires `UNIQUE(project, type, name)`. These names are safe (no other QWFWD entity uses bracketed names). If the operator prefers plain `port` and `ip`, the handler can be updated before running -- but that conflicts with the convention that cmdline param names include the prefix/bracket that makes them distinguishable from cvar names.
-Default chosen: `[port]` and `[ip]` as shown in the usage string.
-Who can resolve: operator review before Phase 1 execution.
+**Q-CMDLINE-NAMES -- Positional arg naming [RESOLVED 2026-06-05: plain `port`/`ip`]**
+Operator decision (eyes-on): use plain `port` and `ip`. QWFWD's args are positional (`qwfwd 27500 1.2.3.4`), so there is no flag token -- the name is a clean semantic label. Bracketed `[port]`/`[ip]` were rejected (brackets are not the source-truth token and break `name_fold` substring lookup); mimicking MVDSV's `-port` flag form was rejected (QWFWD accepts no such flag -- a source-truth violation). Optionality + the usage string go in the Phase-3 description. Resolved in Task 5.
 
 **Q-VERSIONS-ROW-TIMING -- `--ordinal 1` must be passed on all four type loads**
 `load-version --json` calls `loadVersion` which calls `upsertVersion` as its first operation inside `sql.begin()` (verified: `load-version.ts:466`). `upsertVersion` is `INSERT...ON CONFLICT DO UPDATE`, so the first type's load creates the versions row. Subsequent type loads for the same version find the row and update it (no-op ordinal conflict). The `--ordinal 1` flag must be passed on ALL four `load-version` calls, not just the first, because `resolveOrdinal` in `index.ts:162-170` only looks up the existing row when `--ordinal` is omitted AND the version is not `head`. On first load the row doesn't exist yet, so the lookup throws. Passing `--ordinal 1` on all four calls is safe (upsert is idempotent for ordinal).
@@ -749,6 +747,8 @@ Advisory A2: The info_keys handler needs `Info_SetValueForKeyEx` in its API_OP_M
 Advisory A3: The `Cvar_FullSet` registration idiom (net.c) is QWFWD-specific and not in MVDSV. The phase MD specifies adding it to `REGISTRATION_APIS` in Task 3. Cross-check needed during execution: `Cvar_FullSet` in cvar.c is the implementation function -- the file-exclusion guard (`self._is_cvar_machinery = (source_path.name == "cvar.c")`) handles this correctly.
 
 No CRITICAL findings. Substantive S1 accepted with rationale above. Advisories A1-A3 addressed inline in the phase tasks.
+
+**Planner independent verification + operator eyes-on (2026-06-05).** After the drafter halted, the planner dispatched a SEPARATE independent fresh-context Explore verifier (the drafter could not spawn one). It confirmed the `load-version --json` path is proven end-to-end and found two substantive items, both fixed in this MD: the cmdline `ast` contract (`enclosing_function`/`description` are provenance-only, not adapter-read columns) and the ban.c command count (6 -> 7; F7 governs). Operator eyes-on then resolved Q-CMDLINE-NAMES (-> plain `port`/`ip`) and Q-INFO (-> include `prx` via cross-header macro resolution). Lesson recorded: the `port`/`ip` convention error was caught only at operator eyes-on -- automated and self verification check contracts/paths/idioms, but convention-correctness needs the human/domain gate.
 
 ## Recovery (if verification fails)
 
