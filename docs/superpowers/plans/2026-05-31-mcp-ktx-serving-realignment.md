@@ -23,6 +23,20 @@
 
 ---
 
+## Pre-execution state (added 2026-06-05 -- READ THIS FIRST)
+
+> Added by the audit session that preceded execution, to reconcile the plan with what is already done. Phases 0/A/B/C below are unchanged; **Phase D (deploy) is new** (end of file).
+
+**Already done on dev this session -- do NOT redo:**
+- **Data-health (never part of this plan).** All 29 L3 game-mode notes are loaded (`concepts` 10 -> 42; chunks embedded) and all 8,432 entity descriptions are embedded (the 1,026 ktx/mvdsv reworks were re-embedded). All 27 `game_mode` catalog rows have a matching note slug, so `describe_mode.concept_note` will populate for every mode once Phase B lands. Re-run `load-concepts` / `embed-entities` only if you edit notes/descriptions.
+- **Embedding-flag doc fix (commit `188ffadd`).** Migration `019_embedding_freshness_comments.sql` is applied (latest). It is COMMENT-only. **This plan adds no migrations** -- A/B/C are code-only against the existing schema.
+
+**Dev is canonical; prod is stale.** `oracle.slipgate.me` runs an old image (omits `entities.description`, reports `0.5.0`) over an older dump of dev. Nothing -- this plan's code or the data-health above -- reaches consumers until **Phase D**. Run A/B/C against dev (`DATABASE_URL` -> localhost), verify on dev, then deploy.
+
+**Fold into Phase C (extra staleness found 2026-06-05):** VISION.md also says "Layer 3 has 9 hand-authored concept notes" (now 42) plus other `v0.4.0`-era phrasing beyond what C2 lists -- sweep it. C3's `:67`/`:158` fix is confirmed still needed (the 6 tools *do* return `ToolResponse<T>`, verified live).
+
+---
+
 ## File map
 
 | File | Action | Responsibility |
@@ -871,6 +885,33 @@ Expected: no matches (every stale claim removed).
 git tag -a arc-mcp-ktx-realignment-shipped -m "MCP realignment to KTX-era data: floor reachability + describe_mode + doc re-truth"
 git push && git push --tags
 ```
+
+---
+
+## Phase D — Deploy to prod (added 2026-06-05)
+
+Ships this plan's code **and** the already-done data-health to `oracle.slipgate.me`. `DEPLOYMENT.md` is the command source of truth; this is the spine. **Production + outward-facing -- confirm prerequisites and get an explicit operator go before running D.**
+
+Prereqs (`DEPLOYMENT.md` "Prerequisites"): Tailscale up (`ssh root@100.114.81.91 'echo ok'`), recent `gh auth status` + `docker login ghcr.io`, prod `.env` password on hand for D4.
+
+### Task D1: Build + push the MCP image (carries the code change)
+
+- [ ] From the monorepo root: `docker build -f apps/qw-oracle/Dockerfile -t ghcr.io/paradoks81/qw-oracle-mcp:<tag> -t ghcr.io/paradoks81/qw-oracle-mcp:latest .`, then `docker push` both tags. (`DEPLOYMENT.md` "Routine redeploy".)
+
+### Task D2: Redeploy the prod MCP container
+
+- [ ] `ssh root@100.114.81.91 'cd /mnt/user/appdata/qw-oracle && docker compose -f docker-compose.prod.yml pull mcp && docker compose -f docker-compose.prod.yml up -d mcp'`. Postgres state survives the image swap; only the MCP container is replaced.
+
+### Task D3: Push dev data -> prod (data + schema, incl. migration 019)
+
+- [ ] Run `DEPLOYMENT.md` "Routine corpus refresh": `pg_dump` from `qw-oracle-postgres-dev` -> scp to Unraid -> archive previous dump (rolling 5) -> `psql -1` restore into the prod `qw-oracle-postgres` container. Migrations reach prod **through the dump's `schema_migrations`** -- do NOT run `migrate.ts` against prod. This carries: the KTX gameplay rows, the 42 concept notes + embeddings, the 1,026 re-embedded descriptions, and migration 019.
+
+### Task D4: Verify prod (against `oracle.slipgate.me` and the Tailscale connection string)
+
+- [ ] `meta.server_version` reads `0.6.0` (proves the new image is live -- this is what the C1 bump is for).
+- [ ] `describe_mode('ca')` returns a populated `concept_note` (proves L3 reached prod).
+- [ ] A `search_entities` hit carries a top-level `description` (proves the new record shape, the field the old image dropped).
+- [ ] Dev/prod counts match (`DEPLOYMENT.md` sanity check): `entities WHERE description IS NOT NULL`, and `concepts`.
 
 ---
 
