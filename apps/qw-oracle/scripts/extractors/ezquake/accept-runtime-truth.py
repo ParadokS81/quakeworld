@@ -14,8 +14,8 @@ descriptor and drives the three shared stages:
   stage 2  -- proxy-gated conservative runtime-dump cross-check: invokes the
               Task-2 version-pin-proxy.sh as the HARD sub-gate, reads the
               Phase-3 rows READ-ONLY, applies the conservative slot-3 mapping,
-              writes level3-stamp-set-3f9e724f.json. ZERO DB mutation here
-              (the Task-4 loader applies the stamp-set via X9).
+              writes level3-stamp-set-<pin>.json (pin = e4a2c20a). ZERO DB
+              mutation here (the Task-4 loader applies the stamp-set via X9).
   stage 3  -- the pure route_by_level predicate is smoke-checked (it is total;
               "STAGE 3 OK" means it imports and the predicate is total).
 
@@ -56,13 +56,13 @@ _DETECTION_DIR = REPO_ROOT / "apps" / "qw-oracle" / "data" / "detection"
 
 EZQUAKE_DESCRIPTOR = {
     "fork": "ezquake",
-    "validation_commit": "3f9e724f",
+    "validation_commit": "e4a2c20a",
     "probe_scripts": [
         str(HERE / "verify-callgraph-probes.py"),  # Phase 1 -- Track A
         str(HERE / "verify-hud-probes.py"),        # Phase 2 -- Track B
     ],
     "tracks": ["A", "B"],
-    "dump": str(_DETECTION_DIR / "entities-runtime-dump-3f9e724f.txt"),
+    "dump": str(_DETECTION_DIR / "entities-runtime-dump-e4a2c20a.txt"),
     "proxy": str(_DETECTION_DIR / "version-pin-proxy.sh"),
 }
 

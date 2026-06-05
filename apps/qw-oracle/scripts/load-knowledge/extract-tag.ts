@@ -138,10 +138,12 @@ function pinsAgree(a: string | null | undefined, b: string | null | undefined): 
 // governs whether the stamp is APPLIED). Returns the parsed stamp-set ONLY
 // when ALL hold:
 //   - the SHIPPED acceptance-validated-ezquake.json exists AND status==GREEN
-//   - its validation_commit prefix-agrees with the current oracle_meta pin
-//     (ezquake:source_repo_commit) -- i.e. the loaded `version` IS the
-//     pinned-dump version (Phase-3 rows are all at version='head' and that
-//     is what the pin certifies)
+//   - its validation_commit prefix-agrees with the loaded version's
+//     per-version commit (versions.commit_sha WHERE version=<version>) -- i.e.
+//     the loaded `version` IS the pinned-dump version (Phase-3 rows are all at
+//     version='head' and that is what the pin certifies). NB: per-version
+//     commit_sha, not the global oracle_meta pin, which a stable-tag backfill
+//     clobbers off head.
 //   - level3-stamp-set-<validation_commit>.json exists and parses
 // Otherwise returns null -> the loaders run with NO stamp-set ->
 // Phase-3 level-2 behaviour EXACTLY (D18/D22 fail-safe-CLOSED). Any
@@ -171,13 +173,24 @@ async function resolveStageTwoStampSet(
       return null;
     }
 
-    // The loaded version's certifying pin lives in oracle_meta (the full
-    // 40-char hash). The validation record holds the short token. They must
-    // prefix-agree for this version to BE the pinned-dump version.
-    const pinRows = await sql<{ value: string }[]>`
-      SELECT value FROM oracle_meta WHERE key = 'ezquake:source_repo_commit'
+    // The loaded version's certifying commit is its PER-VERSION provenance in
+    // versions.commit_sha (the full 40-char hash). The validation record holds
+    // the short token. They must prefix-agree for this version to BE the
+    // pinned-dump version.
+    //
+    // WHY versions.commit_sha and NOT oracle_meta:source_repo_commit (the
+    // original source): oracle_meta:source_repo_commit is GLOBAL and records
+    // whatever extraction ran LAST. A stable-tag backfill (e.g. 3.6.7) run
+    // after a head walk CLOBBERS it to the tag's commit, even though the head
+    // entities are still at the head commit -> the pin would spuriously fail on
+    // a correct head dump (verified 2026-06-05: 3.6.7 backfill clobbered
+    // oracle_meta to 7b2f0552 while versions head = e4a2c20a). The per-version
+    // commit_sha is head-stable across backfills.
+    const pinRows = await sql<{ commit_sha: string }[]>`
+      SELECT commit_sha FROM versions
+      WHERE project = 'ezquake' AND version = ${version}
     `;
-    const currentPin = pinRows.length > 0 ? pinRows[0]!.value : null;
+    const currentPin = pinRows.length > 0 ? pinRows[0]!.commit_sha : null;
     if (!pinsAgree(record.validation_commit, currentPin)) {
       console.warn(
         `[extract-tag] D22 (loader): version='${version}' pin ` +

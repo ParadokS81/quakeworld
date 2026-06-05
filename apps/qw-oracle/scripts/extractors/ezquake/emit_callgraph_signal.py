@@ -188,15 +188,25 @@ def build_signal(commands_finalize: dict, cvars_finalize: dict) -> dict:
 # is fork-parameterized and engine-agnostic (extractor_lib house rule).
 _FORK = "ezquake"
 
-# The oracle_meta key that records the FULL 40-char source commit the DB was
-# extracted at. _acceptance.validation_record_ok is prefix-tolerant: the
-# validation record holds the SHORT pin token, this value is the full hash
-# (the F7 dump self-certifies via the short prefix).
-_PIN_META_KEY = "ezquake:source_repo_commit"
+# The DB's per-version head commit (versions.commit_sha WHERE version='head') is
+# the FULL 40-char source commit the head entities were extracted at.
+# _acceptance.validation_record_ok is prefix-tolerant: the validation record holds
+# the SHORT pin token, this value is the full hash (F7 self-certifies via the prefix).
+#
+# WHY versions.commit_sha and NOT oracle_meta:source_repo_commit (the original
+# source): oracle_meta:source_repo_commit is GLOBAL and records whatever extraction
+# ran LAST -- a stable-tag backfill after a head walk clobbers it to the tag's commit,
+# closing this gate on a correctly-validated head (verified 2026-06-05: a 3.6.7
+# backfill clobbered oracle_meta to 7b2f0552 while versions head = e4a2c20a). The
+# per-version commit_sha is head-stable: it reflects the LAST head load and persists
+# until the next one -- exactly the "is the loaded head mechanism-validated" question.
+_PIN_HEAD_SQL = (
+    "SELECT commit_sha FROM versions WHERE project='ezquake' AND version='head'"
+)
 
 
 def _current_pin() -> str:
-    """Read the current source-repo commit from oracle_meta.
+    """Read the loaded head commit from versions.commit_sha.
 
     Uses the SAME read-only psql invocation _acceptance.run_stage2 uses
     (extractor_lib._acceptance._PSQL) -- one psql shape across the gate.
@@ -205,8 +215,7 @@ def _current_pin() -> str:
     read is a pin we do not trust)."""
     try:
         proc = subprocess.run(
-            _acceptance._PSQL
-            + [f"SELECT value FROM oracle_meta WHERE key='{_PIN_META_KEY}'"],
+            _acceptance._PSQL + [_PIN_HEAD_SQL],
             capture_output=True,
             text=True,
         )
