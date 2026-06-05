@@ -10,7 +10,7 @@ import { SERVER_VERSION } from '../version.ts';
 
 export type SearchGameplayEntitiesArgs = {
   query?: string;
-  kind?: 'item' | 'weapon' | 'projectile';
+  kind?: 'item' | 'weapon' | 'projectile' | 'monster';
   has_splash?: boolean;
   min_damage?: number;
   max_damage?: number;
@@ -22,6 +22,7 @@ export type SearchGameplayEntitiesArgs = {
 };
 
 export interface SearchGameplayEntityRow {
+  gameplay_source_id: string;
   kind: string;
   name: string;
   classname: string | null;
@@ -46,9 +47,9 @@ export async function searchGameplayEntities(args: SearchGameplayEntitiesArgs): 
     server_version: SERVER_VERSION,
     queried_at: new Date().toISOString(),
   };
-  const source = args.gameplay_source ?? 'id1';
   const limit = Math.min(args.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
 
+  const sourceClause = args.gameplay_source ? db`AND gameplay_source_id = ${args.gameplay_source}` : db``;
   const queryClause = args.query
     ? db`AND (name ILIKE ${'%' + args.query + '%'}
               OR classname ILIKE ${'%' + args.query + '%'})`
@@ -67,10 +68,11 @@ export async function searchGameplayEntities(args: SearchGameplayEntitiesArgs): 
   const ammoClause = args.ammo_type ? db`AND props_json->>'ammo_type' = ${args.ammo_type}` : db``;
 
   const rowsPlusOne = await db<SearchGameplayEntityRow[]>`
-    SELECT kind, name, classname, damage, splash_damage, splash_radius,
+    SELECT gameplay_source_id, kind, name, classname, damage, splash_damage, splash_radius,
            refire_seconds, respawn_seconds, pickup_amount, duration_seconds, source_ref
     FROM gameplay_entity_defs
-    WHERE gameplay_source_id = ${source}
+    WHERE TRUE
+      ${sourceClause}
       ${queryClause}
       ${kindClause}
       ${splashClause}
@@ -79,7 +81,7 @@ export async function searchGameplayEntities(args: SearchGameplayEntitiesArgs): 
       ${minRespawnClause}
       ${maxRespawnClause}
       ${ammoClause}
-    ORDER BY kind, name
+    ORDER BY gameplay_source_id, kind, name
     LIMIT ${limit + 1}
   `;
   const truncated = rowsPlusOne.length > limit;
@@ -89,7 +91,7 @@ export async function searchGameplayEntities(args: SearchGameplayEntitiesArgs): 
     results: rows,
     match_quality: rows.length > 0 ? 'strong' : 'none',
     suggested_fallback: rows.length === 0
-      ? `No gameplay entities match the given filters in source '${source}'. Try broadening the kind filter or removing the substring query.`
+      ? `No gameplay entities match the given filters. Omit gameplay_source to search all sources, or broaden the kind/substring filters.`
       : null,
     truncated,
     meta,
