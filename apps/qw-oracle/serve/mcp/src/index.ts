@@ -32,6 +32,7 @@ import { lookupGameplayEntity } from './tools/lookup-gameplay-entity.ts';
 import { searchGameplayEntities } from './tools/search-gameplay-entities.ts';
 import { searchConcepts } from './tools/search-concepts.ts';
 import { redirectToHuman } from './tools/redirect-to-human.ts';
+import { describeMode } from './tools/describe-mode.ts';
 
 import type { EntityType } from './types.ts';
 import type { SearchMapsArgs } from './tools/search-maps.ts';
@@ -180,6 +181,11 @@ export function createServer(): Server {
         return dispatchAndLog(
           { tool: 'search_mechanics', queryText: summariseFilterArgs(args) },
           () => searchMechanics(args as SearchMechanicsArgs),
+        );
+      case 'describe_mode':
+        return dispatchAndLog(
+          { tool: 'describe_mode', queryText: typeof args.mode === 'string' ? args.mode : null },
+          () => describeMode(args as { mode: string; gameplay_source?: string }),
         );
       case 'redirect_to_human':
         return dispatchAndLog(
@@ -418,6 +424,19 @@ const TOOL_LIST = [
         gameplay_source: { type: 'string', description: 'Omit to search all sources (id1 base Quake + ktx). Pass "ktx" or "id1" to scope.' },
         limit: { type: 'number', description: 'Max rows. Default 50, max 100.' },
       },
+    },
+  },
+  {
+    name: 'describe_mode',
+    description:
+      'Describe a complete KTX game mode in one call. Returns the catalog row (name, labels, mode_class standalone|mutator, init mechanism, wiki ref, source refs), an activation block (how to turn it on: activation cvar for mutators, um label for standalone), applied_settings (the per-cvar settings the mode enforces -- the common baseline plus the mode overlays, ordered by apply_order; empty for mutators / race / bloodfest which have no overlays), related_entities (the cvars/commands that gate it, resolved to Layer 1), and the linked Layer 3 concept note when one is loaded (summary, experience_group, roster/loadout/objective, related modes). Use this for "tell me about / set up mode X" (e.g. ca, wipeout, 1on1, instagib, midair). For one named setting use lookup_mechanic; to enumerate a mode\'s overlays use search_mechanics(kind="mode_default", mode="X").',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        mode: { type: 'string', description: 'Mode name (gameplay_mechanics game_mode name): ca, wipeout, 1on1, instagib, midair, race, bloodfest, ... Case-insensitive.' },
+        gameplay_source: { type: 'string', description: 'Optional. Modes are KTX-only today; omit to resolve across sources.' },
+      },
+      required: ['mode'],
     },
   },
 
