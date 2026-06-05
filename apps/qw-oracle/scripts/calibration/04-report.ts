@@ -14,7 +14,8 @@ import { SCRATCH, PAIR_DIR } from './config.ts';
 const PROMPT_VERSION = 'v1';
 const MODEL = 'sonnet';
 const MARGIN = 0.10; // within +-10pp of 50% counts as "tracks closely / tie"
-const OUT = join(import.meta.dir, '../../../docs/superpowers/parking/2026-06-05-layer2-calibration-test-results.md');
+// calibration -> scripts -> qw-oracle -> apps -> repo root (4 levels up), then docs/.
+const OUT = join(import.meta.dir, '../../../../docs/superpowers/parking/2026-06-05-layer2-calibration-test-results.md');
 
 interface Verdict { pair: string; winner: 'arm1' | 'arm2' | 'tie'; reason: string }
 interface Judged { qid: string; verdicts: Verdict[] }
@@ -32,12 +33,15 @@ function main(): void {
   const summary = JSON.parse(readFileSync(join(SCRATCH, 'units-summary.json'), 'utf8'));
   const wfbInput = JSON.parse(readFileSync(join(SCRATCH, 'wf-b-input.json'), 'utf8')) as { queryIds: string[]; cohIds: string[] };
 
-  // qid -> {channel group, kind}
+  // qid -> {channel group, kind}; also tally arm-A [NO HIT] (FTS whiff) + reverse-gen count.
   const meta = new Map<string, { group: string; kind: string }>();
+  let aNoHit = 0, rgCount = 0;
   for (const qid of wfbInput.queryIds) {
     try {
       const p = JSON.parse(readFileSync(join(PAIR_DIR, `${qid}.json`), 'utf8'));
       meta.set(qid, { group: groupOf(p.channel), kind: p.kind });
+      if ((p.hits?.A?.text ?? '') === '[NO HIT]') aNoHit++;
+      if (p.kind === 'reverse-gen') rgCount++;
     } catch { meta.set(qid, { group: 'unknown', kind: 'unknown' }); }
   }
 
@@ -151,6 +155,12 @@ function main(): void {
   if (verdicts.length === 0) verdicts.push('- Inconclusive on the mechanical thresholds -- inspect the per-pair tables and reasons directly.');
   L.push(...verdicts, '');
   L.push('> Tiebreaker (verbatim): a close call defaults to the cheaper arm. Margin = +-10pp of 50%.', '');
+
+  L.push('', '## Caveats (honest framing)', '');
+  L.push(`- **Arm A (lexical FTS) returned [NO HIT] on ${aNoHit}/${wfbInput.queryIds.length} queries.** B/C/D always return a cosine top-k hit; A returns nothing without token overlap. So "D-vs-A 100%" mostly means "embedding returns something, lexical returns nothing" -- it shows embeddings are load-bearing for symptom-phrased help queries, NOT that D's threads are flawless. The load-bearing comparisons are D-vs-C and D-vs-B.`);
+  L.push(`- **Arm B held the source session** for the ${rgCount} reverse-gen queries (the answer conversation is literally one of B's units -- a self-recall advantage). D still beat B on reverse-gen (helpdesk ${pctNum(rate('D-B', 'helpdesk', 'D'))}, quakeworld ${pctNum(rate('D-B', 'quakeworld', 'D'))}), which strengthens the result rather than inflating it.`);
+  L.push(`- **Small n (${wfbInput.queryIds.length} queries).** Directional, not a production-grade eval. The 12 Phase-8 anchors are 2026-sourced and partly un-answerable from a 2021 slice, so that subset is noisier (and is where C closes the gap: D-vs-C anchor ${pctNum(rate('D-C', 'anchor', 'D'))}).`);
+  L.push(`- **Per-channel:** D wins on BOTH channels (D-vs-C helpdesk ${pctNum(rate('D-C', 'helpdesk', 'D'))} / quakeworld ${pctNum(rate('D-C', 'quakeworld', 'D'))}) -- no "cheap arm is fine on one channel" asymmetry. Fence everywhere, not selectively.`);
 
   Bun.write(OUT, L.join('\n'));
   console.log(`[04] wrote ${OUT}`);
