@@ -2,11 +2,14 @@
 """ezQuake Track-B known-answer probe harness for the HUD_Register COMMAND
 handler (_handler_hud.py).
 
-Drives the ezQuake extractor IN-PROCESS (parallel workers, default) into a
-temp dir, loads the emitted `ezquake-hud-commands-ast.json`, and asserts:
-  - ANCHOR 1: radar bare command present with correct fields
-  - ANCHOR 2: +hud_radar and -hud_radar present with correct fields
-  - ANCHOR 3: togglehud NOT present; no orphan +/- without its bare element
+Drives the ezQuake extractor IN-PROCESS (parallel workers, default) over a
+committed synthetic fixture (fixtures/hud-probe/ via --repo-root, NOT the
+live source) into a temp dir, loads the emitted
+`ezquake-hud-commands-ast.json`, and asserts:
+  - ANCHOR 1: the fixture bare command present with correct fields
+  - ANCHOR 2: +hud_<elem> and -hud_<elem> present with correct fields
+  - ANCHOR 3: the fixture plain command NOT present; no orphan +/- without
+    its bare element
   - R7: zero cvar-shaped output in the JSON
   - R1: AST-confirm 0 non-literal HUD_Register first args
 
@@ -44,6 +47,18 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 EXTRACTORS_ROOT = HERE.parent  # apps/qw-oracle/scripts/extractors/
 
+# The committed synthetic fixture tree the probe parses INSTEAD of the live
+# ezQuake source. We own it; no HUD refactor / element rename / file move can
+# flip the anchors RED for a reason unrelated to the extractor mechanism, and
+# it parses in a fraction of a second (sibling of fixtures/callgraph-probe/).
+# extract.main() resolves --repo-root to <root>/src when that holds .c files,
+# so FIXTURE_ROOT points at the dir CONTAINING src/.
+FIXTURE_ROOT = HERE / "fixtures" / "hud-probe"
+# The fixture HUD element + symbols the anchors assert (see hud_fixture.c).
+FIXTURE_ELEMENT = "fixradar"            # HUD_PLUSMINUS + show -> bare + +/- (ANCHOR 1/2)
+FIXTURE_SOURCE_FILE = "hud_fixture.c"   # the fixture's source basename (ANCHOR 1)
+FIXTURE_PLAIN_COMMAND = "fixtoggle"     # plain Cmd_AddCommand -> must be absent (ANCHOR 3)
+
 if str(EXTRACTORS_ROOT) not in sys.path:
     sys.path.insert(0, str(EXTRACTORS_ROOT))
 if str(HERE) not in sys.path:
@@ -70,21 +85,27 @@ _ALLOWED_TOP_KEYS = {"hud_commands", "r1", "_stats"}
 
 
 def _run_extractor(tmp_dir: str) -> int:
-    """Drive extract.main() in this process into tmp_dir.
+    """Drive extract.main() in this process over the FIXTURE tree into tmp_dir.
 
     Parallel workers (default) are correct here because this handler's output
     is a JSON file -- no in-process module-level state depends on which
     process ran the walk (unlike the callgraph sibling). We suppress progress
-    noise with --progress-every 0 (same flag the callgraph sibling uses).
+    noise with --progress-every 0.
 
-    Source pin: the extractor defaults to research/repos/ezquake-source
-    (HEAD 3f9e724f, the validated pin). We do not override --repo-root.
+    Source: --repo-root points at the committed synthetic fixture
+    (FIXTURE_ROOT -> hud_fixture.c), NOT the live ezQuake checkout, so the
+    five anchors are pinned to fixture symbols we own and the parse takes a
+    fraction of a second. --handlers hud-commands runs ONLY this handler --
+    its finalize reads no ezQuake files, and skipping the others avoids their
+    help-JSON reads; the probe consumes only this handler's JSON anyway.
     """
     old_argv = sys.argv[:]
     sys.argv = [
         "extract.py",
+        "--repo-root", str(FIXTURE_ROOT),
+        "--handlers", "hud-commands",   # only the handler this probe reads
         "--output-dir", tmp_dir,
-        "--progress-every", "0",  # suppress progress noise in gate output
+        "--progress-every", "0",        # suppress progress noise in gate output
     ]
     try:
         rc = extract.main()
@@ -118,22 +139,24 @@ def _loud_fail(probe: str, notes: list[str], extra: object = None) -> None:
 
 
 def _check_anchor_1(hud_commands: dict) -> bool:
-    """Anchor 1: radar bare command present with all expected field values.
+    """Anchor 1: the fixture bare command present with all expected field values.
 
-    Ground truth (live-verified at hud_radar.c:1422, pinned HEAD 3f9e724f):
-      HUD_Register("radar", ..., HUD_PLUSMINUS, ..., "0", ...)
-      -> bare command "radar" emitted unconditionally (hud.c:1232)
-      -> hud_family=bare, hud_element=radar
+    Ground truth (fixture -- hud_fixture.c):
+      HUD_Register("fixradar", 0, 0, HUD_PLUSMINUS, 0, 0, 0, "0")
+      -> bare command emitted unconditionally (live analogue: hud.c:1232)
+      -> hud_family=bare, hud_element=<FIXTURE_ELEMENT>
       -> ast.handler_fn=HUD_Func_f, ast.registration_api=Cmd_AddCommand
-      -> ast.source_file=hud_radar.c
+      -> ast.source_file=<FIXTURE_SOURCE_FILE>
 
     Dump cross-check is Phase 4 / D19 -- NOT asserted here (X2).
     """
-    entry = hud_commands.get("radar")
+    entry = hud_commands.get(FIXTURE_ELEMENT)
     notes = []
 
     if entry is None:
-        notes.append("hud_commands['radar'] absent -- bare command not emitted")
+        notes.append(
+            f"hud_commands[{FIXTURE_ELEMENT!r}] absent -- bare command not emitted"
+        )
         _loud_fail("ANCHOR 1", notes, entry)
         return False
 
@@ -141,9 +164,9 @@ def _check_anchor_1(hud_commands: dict) -> bool:
         notes.append(
             f"hud_family: expected 'bare', got {entry.get('hud_family')!r}"
         )
-    if entry.get("hud_element") != "radar":
+    if entry.get("hud_element") != FIXTURE_ELEMENT:
         notes.append(
-            f"hud_element: expected 'radar', got {entry.get('hud_element')!r}"
+            f"hud_element: expected {FIXTURE_ELEMENT!r}, got {entry.get('hud_element')!r}"
         )
 
     ast = entry.get("ast", {})
@@ -156,9 +179,9 @@ def _check_anchor_1(hud_commands: dict) -> bool:
             f"ast.registration_api: expected 'Cmd_AddCommand',"
             f" got {ast.get('registration_api')!r}"
         )
-    if ast.get("source_file") != "hud_radar.c":
+    if ast.get("source_file") != FIXTURE_SOURCE_FILE:
         notes.append(
-            f"ast.source_file: expected 'hud_radar.c',"
+            f"ast.source_file: expected {FIXTURE_SOURCE_FILE!r},"
             f" got {ast.get('source_file')!r}"
         )
 
@@ -169,88 +192,90 @@ def _check_anchor_1(hud_commands: dict) -> bool:
 
 
 def _check_anchor_2(hud_commands: dict) -> bool:
-    """Anchor 2: +hud_radar and -hud_radar both present with correct fields.
+    """Anchor 2: +hud_<elem> and -hud_<elem> both present with correct fields.
 
-    Ground truth (hud_radar.c:1422 -- live-verified):
-      arg3 (flags) = HUD_PLUSMINUS -> gate_plusminus passes
+    Ground truth (fixture -- hud_fixture.c):
+      arg3 (flags) carries HUD_PLUSMINUS -> gate_plusminus passes
       arg7 (show)  = "0" (non-NULL string literal) -> gate_show passes
-      Both gates pass => handler MUST emit +hud_radar and -hud_radar.
+      Both gates pass => handler MUST emit +hud_<elem> and -hud_<elem>.
       handler_fn: HUD_Plus_f / HUD_Minus_f
       registration_api: Cmd_AddRemCommand (both)
-      hud_element: "radar" (the literal arg0, D16)
+      hud_element: <FIXTURE_ELEMENT> (the literal arg0, D16)
     """
     notes = []
+    plus_key = f"+hud_{FIXTURE_ELEMENT}"
+    minus_key = f"-hud_{FIXTURE_ELEMENT}"
 
-    plus_entry = hud_commands.get("+hud_radar")
-    minus_entry = hud_commands.get("-hud_radar")
+    plus_entry = hud_commands.get(plus_key)
+    minus_entry = hud_commands.get(minus_key)
 
     if plus_entry is None:
         notes.append(
-            "hud_commands['+hud_radar'] absent -- +/- gate should pass"
+            f"hud_commands[{plus_key!r}] absent -- +/- gate should pass"
             " (flags=HUD_PLUSMINUS, show='0' non-NULL)"
         )
     if minus_entry is None:
         notes.append(
-            "hud_commands['-hud_radar'] absent -- +/- gate should pass"
+            f"hud_commands[{minus_key!r}] absent -- +/- gate should pass"
             " (flags=HUD_PLUSMINUS, show='0' non-NULL)"
         )
 
     if notes:
         _loud_fail("ANCHOR 2", notes, {
-            "+hud_radar": plus_entry,
-            "-hud_radar": minus_entry,
+            plus_key: plus_entry,
+            minus_key: minus_entry,
         })
         return False
 
     # Both exist -- verify field values.
-    if plus_entry.get("hud_element") != "radar":
+    if plus_entry.get("hud_element") != FIXTURE_ELEMENT:
         notes.append(
-            f"+hud_radar hud_element: expected 'radar',"
+            f"{plus_key} hud_element: expected {FIXTURE_ELEMENT!r},"
             f" got {plus_entry.get('hud_element')!r}"
         )
     if plus_entry.get("hud_family") != "plus":
         notes.append(
-            f"+hud_radar hud_family: expected 'plus',"
+            f"{plus_key} hud_family: expected 'plus',"
             f" got {plus_entry.get('hud_family')!r}"
         )
     plus_ast = plus_entry.get("ast", {})
     if plus_ast.get("handler_fn") != "HUD_Plus_f":
         notes.append(
-            f"+hud_radar ast.handler_fn: expected 'HUD_Plus_f',"
+            f"{plus_key} ast.handler_fn: expected 'HUD_Plus_f',"
             f" got {plus_ast.get('handler_fn')!r}"
         )
     if plus_ast.get("registration_api") != "Cmd_AddRemCommand":
         notes.append(
-            f"+hud_radar ast.registration_api: expected 'Cmd_AddRemCommand',"
+            f"{plus_key} ast.registration_api: expected 'Cmd_AddRemCommand',"
             f" got {plus_ast.get('registration_api')!r}"
         )
 
-    if minus_entry.get("hud_element") != "radar":
+    if minus_entry.get("hud_element") != FIXTURE_ELEMENT:
         notes.append(
-            f"-hud_radar hud_element: expected 'radar',"
+            f"{minus_key} hud_element: expected {FIXTURE_ELEMENT!r},"
             f" got {minus_entry.get('hud_element')!r}"
         )
     if minus_entry.get("hud_family") != "minus":
         notes.append(
-            f"-hud_radar hud_family: expected 'minus',"
+            f"{minus_key} hud_family: expected 'minus',"
             f" got {minus_entry.get('hud_family')!r}"
         )
     minus_ast = minus_entry.get("ast", {})
     if minus_ast.get("handler_fn") != "HUD_Minus_f":
         notes.append(
-            f"-hud_radar ast.handler_fn: expected 'HUD_Minus_f',"
+            f"{minus_key} ast.handler_fn: expected 'HUD_Minus_f',"
             f" got {minus_ast.get('handler_fn')!r}"
         )
     if minus_ast.get("registration_api") != "Cmd_AddRemCommand":
         notes.append(
-            f"-hud_radar ast.registration_api: expected 'Cmd_AddRemCommand',"
+            f"{minus_key} ast.registration_api: expected 'Cmd_AddRemCommand',"
             f" got {minus_ast.get('registration_api')!r}"
         )
 
     if notes:
         _loud_fail("ANCHOR 2", notes, {
-            "+hud_radar": plus_entry,
-            "-hud_radar": minus_entry,
+            plus_key: plus_entry,
+            minus_key: minus_entry,
         })
         return False
     return True
@@ -260,10 +285,11 @@ def _check_anchor_3(hud_commands: dict) -> bool:
     """Anchor 3: additivity and literal-control gate.
 
     Two assertions:
-    (a) 'togglehud' must NOT appear in hud_commands. It is a plain
-        Cmd_AddCommand at hud.c:819, NOT a HUD_Register -- the handler must
-        not over-reach into the literal commands _handler_commands.py owns.
-        (Analogue of Track A's cl_bobhead gate -- D10.)
+    (a) The fixture's plain command (FIXTURE_PLAIN_COMMAND, a bare
+        Cmd_AddCommand -- live analogue 'togglehud' at hud.c:819) must NOT
+        appear in hud_commands. The handler visits only HUD_Register, so it
+        must not over-reach into the literal commands _handler_commands.py
+        owns. (Analogue of Track A's cl_bobhead gate -- D10.)
     (b) No orphan +/- command: for every key starting with '+hud_' or '-hud_',
         strip the '+hud_' or '-hud_' prefix to get the element stem, and assert
         a bare key equal to that stem exists in hud_commands with hud_family
@@ -274,12 +300,13 @@ def _check_anchor_3(hud_commands: dict) -> bool:
     notes = []
     offending: list[str] = []
 
-    if "togglehud" in hud_commands:
+    if FIXTURE_PLAIN_COMMAND in hud_commands:
         notes.append(
-            "'togglehud' is present in hud_commands -- handler over-reached;"
-            " togglehud is a plain Cmd_AddCommand at hud.c:819, NOT HUD_Register"
+            f"{FIXTURE_PLAIN_COMMAND!r} is present in hud_commands -- handler"
+            f" over-reached; it is a plain Cmd_AddCommand (live analogue"
+            f" 'togglehud' at hud.c:819), NOT HUD_Register"
         )
-        offending.append("togglehud")
+        offending.append(FIXTURE_PLAIN_COMMAND)
 
     # Check for orphan +/- without a corresponding bare element.
     for key in hud_commands:
