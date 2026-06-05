@@ -367,7 +367,7 @@ const TOOL_LIST = [
       type: 'object',
       properties: {
         name: { type: 'string', description: 'Entity name. Case-insensitive snake_case.' },
-        gameplay_source: { type: 'string', description: 'Defaults to id1.' },
+        gameplay_source: { type: 'string', description: 'Omit to search all sources (id1 + ktx). Pass "ktx"/"id1" to scope.' },
       },
       required: ['name'],
     },
