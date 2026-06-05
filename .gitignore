@@ -34,6 +34,9 @@ apps/qw-oracle/*.db
 apps/quad/recordings/
 apps/quad/exports/
 
+# Layer 2 calibration probe -- throwaway scratch (slice.sqlite, embed cache, per-chunk/session/pair JSON)
+apps/qw-oracle/scripts/calibration/scratch/
+
 # Research repos (cloned, not tracked)
 research/repos/*/
 
