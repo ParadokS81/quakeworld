@@ -1,7 +1,7 @@
 # QTV / QWFWD documentation -- arc capture
 
 **Captured:** 2026-05-31 by arc-classifier mode S (shelved -- "park" = defer).
-**Status:** shelved (awaiting trigger).
+**Status:** TRIGGERED 2026-06-05 -- design approved at `docs/superpowers/specs/2026-06-05-qtv-qwfwd-l1-extraction-design.md`. Go-toolchain decision resolved (native `go/ast`). Ready for `arc-planner`.
 **Trigger to start:** operator-initiated -- when QW streaming/proxy infra is wanted in the oracle (natural follow-on to the MVDSV describe-fill arc, or when the QTV viewer/hub work needs an authoritative config reference). No hard dependency; can start any time after the Go-toolchain decision below is made.
 
 > Captured warm during the MVDSV `sv_demo*`/qtv describe-fill batch-2 conversation (2026-05-31). The landscape below was established from source + a server-admin ground-truth check, so the future brainstorm does NOT need to re-derive it.
