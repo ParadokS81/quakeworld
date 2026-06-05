@@ -1,6 +1,6 @@
 # Layer 2 corpus reconstruction -- arc-scope design
 
-**Status:** in progress. Pass 1 complete 2026-05-04; **Pass 1.5 reshape ratification complete 2026-06-05** (architecture reshaped -- primer prerequisite dropped, lazy/query-time retrieval adopted; see the Reshape section); Passes 2-5 pending.
+**Status:** in progress. Pass 1 complete 2026-05-04; **Pass 1.5 reshape ratification complete 2026-06-05** (architecture reshaped -- primer prerequisite dropped, lazy/query-time retrieval adopted; see the Reshape section); Pass 2 complete 2026-06-05 (calibration gate -- sample-test designed + methods-research validated); Passes 3-5 pending.
 **Author:** ParadokS + Claude (Opus 4.7 Pass 1; Opus 4.8 Pass 1.5).
 **Arc parking doc:** `docs/superpowers/parking/2026-05-04-layer2-corpus-reconstruction.md`.
 **Spec for:** arc-planner scaffolding once brainstorm exits at Pass 5 close.
@@ -150,6 +150,65 @@ Comprehension uncertainty is the bigger failure mode for v1 because it produces 
 
 1. **Empirical discovery over top-down rubric.** Author-role-list seeding and bucket-rubric depth are answered by "run on a sample, see what emerges, then commit." This shapes the arc's Phase 0/1 -- the first runs are partly diagnostic, not just productive. Stage 0's primer-loop and Stage 1's heuristic-derivation already follow this shape; the same discipline extends to role-list seeding and bucket-rubric expansion.
 2. **Prep-work calibration ("bigger brain insurance"). INVERTED Pass 1.5:** the knowledge is cheap *query-time* insurance (lazy MCP lookups resolved on demand), not an upfront index-time investment. ~~Glossary + L1-lookup + role-list + per-channel character notes are cheap index-time insurance worth investing in.~~ The "do NOT gold-plate" discipline survives and now applies to the query-time community-knowledge track: build profiles as queries demand them, not exhaustively ahead of evidence.
+
+## Pass 2 outputs (settling -- 2026-06-05): Calibration gate
+
+**Status:** COMPLETE (2026-06-05). All Pass 2 decisions locked. Test arm set, eval scoring, and decision rule confirmed against the methods-research pass (`docs/research/2026-06-05-chat-corpus-retrieval-methods.md`). Fills the "Pass 2" placeholder in the scope section below. **Next action: build + run the calibration test (implementation, not brainstorm) before Pass 3** -- Pass 3 is scoped by the result.
+
+### Corpus slice (locked)
+
+- **Channels: `#helpdesk` + `#quakeworld`.** They bracket the disentanglement-difficulty axis -- `#helpdesk` is the channel `search_solved_issues` serves and the EASY (reply-threaded Q&A) case; `#quakeworld` is the HARD (high-volume, interleaved) case. `#dev-corner` / `#antilag` sit between the extremes and are covered by the bracket; dropped from the test.
+- **Temporal: one contiguous window in 2021.** The only era where BOTH channels are dense (verified per-year: `#helpdesk` peaks 2021 at 28,642; `#quakeworld` strong at 42,250). Contiguous, NOT scattered, because the load-bearing measurement is within-window interleaving (Stage 2 disentanglement); scattered slices would break the interleaving signal. Exact months TBD via a per-month density drill before the run.
+- **Size: ~2-3 months, ballpark 12k (2mo) to 18k (3mo) messages** before prune.
+
+### Prune prerequisite (locked)
+
+- Use the EXISTING deterministic classifier labels (`message_labels.category`): drop `reaction` / `bot` / `system`, keep `chat` + `link`. Verified live (2026-06-05) this removes only ~2.5% of `#helpdesk` (2,633 / 106,352) and ~4.8% of `#quakeworld` (19,047 / 393,170) -- the obvious junk only.
+- **Do NOT build the spine's Stage 1 banter-pruner as a test prerequisite.** Correction to a prior assumption: that heuristic was never built; only the lightweight classifier exists, and it does NOT "cut a lot." Under the reshape (LLM fences, does not analyze) we WANT the fencer to see banter so it fences banter into a throwaway thread instead of letting it bleed into a real thread's embedding. The test MEASURES whether banter volume hurts cost/quality; a positive result is what would justify building the pruner -- it is not assumed up front.
+
+### Test arms (FINAL -- confirmed by methods research 2026-06-05)
+
+Four construction methods, NO arm E. The methods research found every modern technique either needs a topic-coherent thread to ALREADY exist (Contextual Retrieval, late chunking, proposition/parent-doc/sentence-window -- wrong pipeline layer) or collapses into C/D. Each arm embedded with Voyage v4 and queried identically:
+
+- **A -- FTS keyword baseline** (as shipped: session tsvector, no embedding).
+- **B -- embed existing 15-min sessions as-is** (no re-segmentation).
+- **C -- cheap mechanical-signal segments** (time gaps + reply edges + participant overlap; NO LLM). **+ CODI** (github.com/USIREVEAL/CODI, MIT, classical Max-Entropy reply-to classifier -- the only open tool benchmarked on Discord/IRC) folded in as a zero-cost reference baseline (no F-score published -> comparative datapoint, not a quality anchor).
+- **D -- LLM-fenced topic threads** (the reshape job: group co-referent messages, one-line label, no domain priming). Cost: ~200-500 lull-chunked LLM calls -- a few dollars for the test slice; ~$90 production ballpark stands. Do NOT inherit the literature's ~28k-call / $168 figure (it prices a naive sliding-window architecture). Lull-chunking already mitigates the message-ID-hallucination / lost-in-the-middle risk.
+
+Hypothesis to watch: C looks fine on `#helpdesk`, falls apart on `#quakeworld` -- that per-channel asymmetry is the headline calibration signal (LLM needed everywhere vs only on messy channels vs nowhere).
+
+**Skipped + revisit-later (research-backed, NOT arms).** Semantic similarity-trough chunking SKIPPED -- the strongest negative result in the research, it fails on short conversational data (confirms C is the right cheap arm). Late chunking HARD-BLOCKED -- the Voyage REST API exposes no token-level vectors (verified in `apps/qw-oracle/shared/embedding.ts:66-79`). Proposition/parent-doc/sentence-window SKIPPED -- they need coherent input or inject cross-thread noise. Revisit only AFTER an arm wins: Anthropic Contextual Retrieval (per-thread enrichment on the winner, cheap with prompt caching); voyage-context-3/4 (2025/2026 contextualized-chunk-embedding model, REST-accessible, but outside the locked voyage-4 pair -- revisit if that constraint relaxes); proposition as a within-thread sub-chunker (only if Stage-3 merged threads approach the 32K ceiling). Full rationale: `docs/research/2026-06-05-chat-corpus-retrieval-methods.md`.
+
+### Eval substrate (locked)
+
+Two separate measurements; the gold-pair problem only touches the second.
+
+1. **Disentanglement quality** (per arm): message-ID hallucination rate (objective, scriptable -- did the arm emit IDs not in the chunk?) + a coherence spot-check on a sample of fenced threads. No gold pairs needed.
+2. **Retrieval quality** (the headline): measured on the **2021 window, NOT 2026**, because fencing only improves retrieval where sessions are badly interleaved -- scoring on thin 2026 `#helpdesk` would undersell the LLM arm.
+   - **Query set:** ~20-30 questions reverse-generated from real 2021 threads (an LLM writes the naive-user, symptom-phrased question each answers; vocabulary deliberately != the thread's, to test semantic not lexical retrieval) PLUS the 12 real 2026 `#helpdesk` questions from `apps/qw-oracle/docs/phase-8-eval-candidates.md` as a real-phrasing cross-check + human anchor. Reverse-generation is now a QUERY SOURCE only.
+   - **Scoring: pairwise LLM-as-judge (REVISED 2026-06-05; replaces self-recall).** Per query, put two arms' top hits head-to-head and have an LLM pick the more relevant, with **position-swap** (verdict counts only if it survives flipping the order) and an explicit **length-penalty rubric** (so a long mushy unit does not win by bulk). Anchor the judge against the Phase 8 hand-labeled set. Why the change (research finding 6): synthetic-query self-recall ("did the source thread come back") CANNOT discriminate the arms -- all four index the same corpus content, so the source unit lands top-k for its own generated query regardless of fencing quality; it measures the fencer, not retrieval. Do NOT use ARES (needs ~150 labels + classifier fine-tuning -- not a cheap gate).
+   - Read judge outputs as RELATIVE pairwise signal only, never absolute scores ("No Free Labels", arxiv 2503.05061). Open risk (research uncharted #4): whether the judge can split MODERATE from GOOD fencing on short chat units is itself unproven -- swap + length-penalty are the designed mitigations; operator spot-check backstops it.
+3. **Cost** (per arm D): tokens + $ recorded. Test LLM arm ~= 2% of corpus ~= a few dollars; production ballpark ~$90 at current corpus size, likely lower under the fence-only reshape.
+
+### Decision rule (confirmed 2026-06-05)
+
+No precise numeric threshold -- ~20-30 gold pairs cannot resolve a 5-point difference honestly. Pre-register the patterns + a cost-default tiebreaker:
+
+- **C tracks D closely** -> cheap signals win; skip the LLM (big recurring-cost win).
+- **B tracks D closely** -> do not even re-segment; just embed sessions.
+- **D clearly separates from both C and B** -> LLM fencing earns its cost. "How deep" is read off the disentanglement metrics (low hallucination at large chunks = LLM-cheap; needs small chunks + careful prompting = LLM-expensive).
+- **Per-channel split** (C fine on `#helpdesk`, fails on `#quakeworld`) -> the likeliest outcome -> LLM only where it is messy, volume-weighted.
+- **A (FTS) ties everything** -> embedding is not the bottleneck; park the whole lever.
+
+Tiebreaker: a close call defaults to the cheaper arm -- the LLM must VISIBLY earn its recurring cost. Research-backed: the methods report's "uncharted" section explicitly anticipates the B-or-C-within-margin-of-D outcome that would kill the expensive Stage 2.
+
+(Scoring technique -- pairwise LLM-as-judge -- is resolved above under Eval substrate.)
+
+### Verified probes (2026-06-05, live `qw_oracle`)
+
+- Category split (`message_labels.category`): `#helpdesk` chat 101,144 / link 2,575 / reaction 2,589 / system 40 / bot 4. `#quakeworld` chat 363,052 / link 11,071 / reaction 15,840 / bot 3,142 / system 65.
+- Per-year density (messages): `#helpdesk` 2020 14,712 / 2021 28,642 / 2022 14,255 / 2023 18,929 / 2024 12,693 / 2025 11,626. `#quakeworld` 2016 16,114 / 2017 60,151 / 2018 65,096 / 2019 48,575 / 2020 55,689 / 2021 42,250 / 2022 19,257 / 2023 20,615 / 2024 28,508 / 2025 27,854.
+- Live corpus totals at probe time: 728,863 messages / 86,423 sessions (grown from the 717,389 / 84,369 port baseline via bot-live ingest).
 
 ## Pass 2-5 scope (reshaped Pass 1.5; replaces the original Pass 2-4 placeholders)
 

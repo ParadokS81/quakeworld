@@ -1,9 +1,36 @@
 # Layer 2 corpus reconstruction -- arc capture
 
 **Captured:** 2026-05-04 by arc-classifier mode D.
-**Status:** Pass 1 complete (2026-05-04). **Pass 1.5 reshape ratification complete (2026-06-05)** -- architecture reshaped to lazy/query-time retrieval; primer prerequisite dropped; embedding arc decoupled from the community-knowledge arc. Forward passes 2-5 reshaped (see Pass 1.5 status below); Pass 2 (calibration gate) pending in fresh terminal -- handoff at `docs/superpowers/parking/2026-06-05-layer2-corpus-reconstruction-pass2-handoff.md` (supersedes the 2026-05-04 pass2 handoff).
+**Status:** Pass 1 complete (2026-05-04). **Pass 1.5 reshape ratification complete (2026-06-05)** -- architecture reshaped to lazy/query-time retrieval; primer prerequisite dropped; embedding arc decoupled from the community-knowledge arc. Forward passes 2-5 reshaped (see Pass 1.5 status below); **Pass 2 (calibration gate) COMPLETE (2026-06-05; see Pass 2 status below).** Next action: build + run the calibration test (implementation, not brainstorm), which gates Pass 3.
 **Design spec:** `docs/superpowers/specs/2026-05-04-layer2-corpus-reconstruction-design.md` (source of truth from Pass 1 onward).
 **Trigger to start:** operator-initiated; arc-brainstormer in fresh terminal.
+
+---
+
+## Pass 2 status -- COMPLETE (2026-06-05)
+
+Pass scope: calibration gate -- design the cheap sample-test that decides how much LLM disentanglement the chunker needs, before Pass 3 specs the chunker. Full locked detail in the design spec's "Pass 2 outputs" section; this is the summary.
+
+**Sub-questions resolved:**
+- Corpus slice -- `#helpdesk` (easy / reply-threaded) + `#quakeworld` (hard / interleaved), bracketing the difficulty axis; one contiguous 2021 window (the only era both are dense), ~2-3 months / ~12-18k messages; exact months via a per-month density drill before the run.
+- Prune prerequisite -- light-prune via existing classifier labels (drop reaction/bot/system ~3-5%, keep chat+link); do NOT build the spine's banter-pruner as a prereq (reshape makes it likely unnecessary; the test measures whether banter volume hurts). Verified live: classifier only removes ~2.5% (`#helpdesk`) / ~4.8% (`#quakeworld`).
+- Test arms -- A FTS / B sessions-as-is / C cheap-signal (+CODI) / D LLM-fenced. NO arm E (methods research: every modern method needs a clean thread to already exist, or collapses into C/D).
+- Eval substrate -- disentanglement quality (message-ID hallucination + coherence spot-check) + retrieval quality (pairwise LLM-as-judge, position-swap + length-penalty; reverse-generated queries as the query SOURCE + the 2026 Phase 8 set as anchor) + cost.
+- Scoring technique -- pairwise LLM-as-judge, NOT synthetic-query self-recall (cannot discriminate arms over a shared corpus). Resolved by the methods research.
+- Decision rule -- pattern-based + cost-default tiebreaker (the LLM must visibly earn its recurring cost); no precise numeric threshold given the ~20-30 gold-pair sample.
+
+**Methods research (background agent-team, 13 agents, ~625k tokens):** committed at `docs/research/2026-06-05-chat-corpus-retrieval-methods.md`. Validated the four-arm design (zero new arms), lifted CODI into C, corrected arm-D cost (~200-500 calls, not ~28k / $168), set the eval harness (pairwise judge over self-recall), and named revisit-later paths (Contextual Retrieval, voyage-context-3/4).
+
+**Drain destinations updated:** design spec ("Pass 2 outputs" section -- arms, eval, decision rule, verified probes + top status line); new research doc; this parking doc (this section + status line).
+
+**Carry-forwards (with tracks):**
+- BUILD + RUN the calibration test -- IMPLEMENTATION, not brainstorm. Next action; it GATES Pass 3 (Pass 3 is scoped by the test result). Execute via arc-planner (scaffold the test as a prerequisite probe) or as a standalone scripted probe -- operator's call. -> NEXT ACTION
+- Chunk-size sweep (500/1500/3000), the actual chunker mechanics, quiet-hour cut definitions -> Pass 3 (calibrated inside the test run).
+- Stage 3 cross-session merging (cosine ~0.85 + participant overlap + reply-graph) -- research flags merge quality may need its OWN follow-on probe -> Pass 3 / possible separate probe.
+- `chat_threads` + `thread_messages` schema -> Pass 3.
+- Revisit-later optimizations (Contextual Retrieval enrichment on the winning arm; voyage-context-3/4; proposition within-thread sub-chunker) -> post-calibration / Pass 5 optimization track.
+
+**Pass plan revision:** none to the pass list (3 / 4 / 5 stand). Structural note: an IMPLEMENTATION step (build + run the test) sits BETWEEN Pass 2 and Pass 3 -- Pass 3 brainstorm resumes once the calibration result is in hand.
 
 ---
 
