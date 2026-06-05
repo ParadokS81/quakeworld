@@ -18,6 +18,8 @@ The two operator review targets for this phase are written here, before the temp
 
 **The operator is reviewing this phase specifically for whether the D6 C-vs-Go QTV guard is load-bearing -- enforced, not merely cited.** This section names the four mechanisms that make it structural rather than advisory, and the apply-mechanism section resolves the integration question from source. Both are written first so the operator can verify the full picture before reading the tasks.
 
+**Where the teeth actually are (read this before trusting the probes):** the D6 guarantee rests on LAYER 1 (Phase 2 extracted Go only -- the C-only knobs have no L1 row to describe) and LAYER 4 (the enforce-trace + V-pass in Task 4 -- per-clause grep against the Go source, the ONLY thing that catches paraphrased C semantics in a correctly-anchored Go knob's prose). V6 Probe A/B are mechanical BACKSTOPS: Probe B re-confirms anchoring (it reads the extractor's `source_file`, not the description text), Probe A catches literal C-knob name mentions. Prose fidelity is not SQL-probeable, so **at execution the V-pass cannot be skipped or rushed** -- it is the semantic gate.
+
 ### Mechanism 1 -- Seed exclusion (what the workers MAY read)
 
 The ONLY valid describe seeds for QTV knobs are:
@@ -850,12 +852,19 @@ Default: follow B1-B5 as written. No operator action needed.
 
 ---
 
-**Planner independent verification (2026-06-05).** A separate independent fresh-context Explore verifier (the drafter could not spawn one) confirmed against live source:
-- The D6 guard is genuinely load-bearing -- all four mechanisms are present and concrete. V6 Probe B (the Go `source_file` anchor under `pkg/`, run on BOTH `cvar_versions` and `command_versions`) is the structural teeth; Probe A (the C-only-name ILIKE scan) is the name-mention backstop. A description silently seeded from C-QTV without naming the four knobs is caught by Probe B (it would lack a Go register-site anchor).
-- The `describe-fill-synthesis` skill has NO project-branching logic beyond the line-102 gate and three documentation references (lines 4 / 53 / 354), so Q-SKILL Option A (widen the gate + update those 3 lines) is the COMPLETE functional fix.
-- The apply mechanism is source-accurate: `synthesize-mvdsv.ts` hardcodes the project (so per-project `synthesize-qtv.ts` / `synthesize-qwfwd.ts` are required); the `F-D4a` derive guard in `derive-entity-description.ts` is project-agnostic (`IS DISTINCT FROM 'synthesized'`, no project literal) and protects qtv/qwfwd unchanged; `'synthesized'` is the in-vocabulary origin token; the quality-grid probe extension covers the 6 arc-scoped clauses (count confirmed).
+**Review history (2026-06-05) -- recorded honestly because each pass caught different things:**
+- *Drafter self-review* (checklist line 7): the drafter could not spawn an Agent sub-agent, so it self-verified -- catches its own mechanical slips only.
+- *Planner independent Explore verifier:* confirmed the apply mechanism is source-accurate (`synthesize-mvdsv.ts` hardcodes the project, so per-project `synthesize-qtv.ts`/`synthesize-qwfwd.ts` are required; the `F-D4a` derive guard in `derive-entity-description.ts` is project-agnostic -- `IS DISTINCT FROM 'synthesized'`, no project literal -- and protects qtv/qwfwd unchanged; `'synthesized'` is the in-vocabulary origin token; the quality-grid extension covers 6 arc-scoped clauses), and that the `describe-fill-synthesis` skill has NO project-branching logic beyond the line-102 gate + the doc references, so Q-SKILL Option A is the complete functional fix.
+- *Operator eyes-on:* corrected a framing error neither prior pass caught (same lesson as Phase 1 -- the human gate catches what mechanical/independent passes miss).
 
-Fixes applied post-verification: the `ktv` -> `ktx` typo (Mechanism descriptions + Q-SKILL); the `synthesize-mvdsv.ts` occurrence enumeration; Q-SKILL Option A expanded to name the 3 skill doc lines. Open for operator eyes-on: the D6 guard (this phase's review target) and the Q-SKILL decision (a shared user-global skill change -- the operator's call).
+**D6 guard -- corrected framing (where the teeth actually are):**
+- LAYER 1 (the real floor, unshakeable): Phase 2 extracted Go source only, so the C-only knobs (`mvdport`/`admin_password`/`floodprot`/`allow_http`) have NO L1 row -- you cannot describe a knob that has no row. Seed exclusion + the reject-list reinforce this.
+- LAYER 4 (the SEMANTIC teeth): the enforce-trace + V-pass (Task 4) -- per-clause grep against Go source during synthesis, plus an independent cold re-derivation (B1-B5). This is the ONLY layer that catches the subtle case: a real Go knob (e.g. `fp_message`) described with paraphrased C semantics that never names a C knob. It is worker process verified by the V-pass, NOT a boundary probe (prose fidelity is not SQL-probeable). **At execution the V-pass is the step that cannot be skipped or rushed.**
+- Probes A/B are mechanical BACKSTOPS, not the teeth. Correction to an earlier planner note: V6 Probe B filters on `source_file LIKE 'pkg/%'` -- the value the Phase-2 extractor set, never the description text. So Probe B RE-CONFIRMS anchoring (re-proves Layer 1); it does NOT detect C-semantics in a correctly-anchored Go knob's prose. Probe A catches literal C-knob name mentions only.
+
+**Q-SKILL resolved (operator, eyes-on): Option A.** Widen the line-102 gate to `{'ktx','mvdsv','qtv','qwfwd'}` -- verified safe-additive (cannot change ktx/mvdsv behavior; no consumer depends on qtv/qwfwd being rejected) and the only logic branch. Also update the FOUR doc references that still name only ktx/mvdsv so a warm-reading worker is not misled: SKILL.md frontmatter `description:` (line 4), `Inputs` (line 53), `Escape hatches` (line 354), and `references/subagent-brief-template.md:17` ("project -- ktx or mvdsv"). The `:123`/`:302` path+example refs can stay as illustrations. Option B (tell workers to ignore a hard ABORT) was rejected as strictly worse (leaves the contract lying).
+
+**Status: approved (operator eyes-on 2026-06-05).**
 
 ---
 

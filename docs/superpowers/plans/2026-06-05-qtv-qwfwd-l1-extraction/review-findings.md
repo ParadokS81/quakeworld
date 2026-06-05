@@ -69,7 +69,7 @@ While drafting each phase MD:
 
 **Status:** Flagged during Phase 3 drafting. Resolved by Q-SKILL Option A (operator to confirm -- shared user-global skill change).
 
-**Evidence:** `~/.claude/skills/describe-fill-synthesis/SKILL.md` line 102 hard-aborts when `project is not exactly 'ktx' or 'mvdsv'`. QTV/QWFWD are outside that scope, so Phase 3's describe workers cannot dispatch until the gate is widened. Independent verification (2026-06-05) confirmed the skill has no project-branching logic beyond the gate + three doc references (lines 4 / 53 / 354); widening the gate to `{'ktx','mvdsv','qtv','qwfwd'}` (plus those 3 doc lines) is the complete functional fix. The skill's own frontmatter calls it "engine-agnostic."
+**Evidence:** `~/.claude/skills/describe-fill-synthesis/SKILL.md` line 102 hard-aborts when `project is not exactly 'ktx' or 'mvdsv'`. QTV/QWFWD are outside that scope, so Phase 3's describe workers cannot dispatch until the gate is widened. Independent verification + operator eyes-on (2026-06-05) confirmed the skill has no project-branching logic beyond the gate; widening it to `{'ktx','mvdsv','qtv','qwfwd'}` is the complete functional fix (safe-additive -- cannot change ktx/mvdsv behavior). Also update the FOUR doc references that name only ktx/mvdsv: SKILL.md lines 4 / 53 / 354 and `references/subagent-brief-template.md:17`. The skill's own frontmatter calls it "engine-agnostic." Resolved: Q-SKILL Option A.
 
 ---
 
