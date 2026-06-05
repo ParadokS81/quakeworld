@@ -1,9 +1,9 @@
 # Layer 2 corpus reconstruction -- arc-scope design
 
-**Status:** in progress (Pass 1 complete 2026-05-04; Passes 2-4 pending).
-**Author:** ParadokS + Claude (Opus 4.7).
+**Status:** in progress. Pass 1 complete 2026-05-04; **Pass 1.5 reshape ratification complete 2026-06-05** (architecture reshaped -- primer prerequisite dropped, lazy/query-time retrieval adopted; see the Reshape section); Passes 2-5 pending.
+**Author:** ParadokS + Claude (Opus 4.7 Pass 1; Opus 4.8 Pass 1.5).
 **Arc parking doc:** `docs/superpowers/parking/2026-05-04-layer2-corpus-reconstruction.md`.
-**Spec for:** arc-planner scaffolding once brainstorm exits at Pass 4 close.
+**Spec for:** arc-planner scaffolding once brainstorm exits at Pass 5 close.
 
 ---
 
@@ -17,11 +17,56 @@ The arc folds three previously-parked items into one cohesive piece of work:
 2. **Author trust weighting in retrieval ranking** (HANDOVER future-arc) -- only carries signal once threads are the retrieval unit (frequency-weighted-by-thread-resolution-status).
 3. **Layer 2 hygiene leftovers #2 + #6** (HANDOVER recently-opened) -- both superseded by Stage 2's quiet-hour chunking + Stage 3's cross-session merging + Stage 3's reply-graph signal.
 
-## Pipeline shape (locked from 2026-05-03 thread-reconstruction parking doc)
+## Reshape (Pass 1.5 -- 2026-06-05): lazy retrieval; primer dropped as prerequisite
 
-Five stages, primer-grounded, junk-pruned, lull-chunked. Each stage produces a durable artifact the next consumes; each is independently inspectable.
+Pass 1 assumed a Stage 0 "glossary primer" had to be built and the corpus pre-annotated with community-recognition vocabulary *before* Claude could analyze conversations. Pass 1.5 retired that assumption. The reasoning, settled in conversation 2026-06-05:
 
-- **Stage 0:** Iterative glossary primer bootstrap (LLM-uncertainty-sampling loop until convergence).
+**Three jobs, not one.** Segmentation (deciding where a conversation starts/ends), embedding (turning a span of text into a vector), and retrieval (matching a query to stored vectors) are distinct. The primer was conceived to help the first. But:
+
+- **Embedding is knowledge-free.** Voyage places a span on its meaning-map by reading the raw text; Claude knowing or not knowing what a nick / clan / tournament means at index time does not move the vector. The primer never touches the embedding.
+- **Segmentation needs text-comprehension, not background knowledge.** To bound or disentangle a conversation, Claude reads the visible messages and groups co-referent ones ("foppa's frag" <-> "foppa is nuts") without needing to know foppa is a player. Proper-noun recognition helps only on a narrow proper-noun-dense subset -- marginal, not load-bearing.
+- **Retrieval recovers the "what" symmetrically.** "Who was the best clan in 2010" embeds into the same region as the 2010 chatter regardless of what Claude knew when it chunked. Pre-knowledge is not required for recall.
+
+**What actually drives retrieval quality is boundary coherence**, not knowledge: a one-topic-ish chunk embeds to a sharp coordinate; a 10-topic blob embeds to mush; a 5-way fragment embeds five weak signals. Effort belongs on getting good-enough boundaries, and embeddings are forgiving of fuzzy ones.
+
+### Lazy / agentic retrieval (where the community knowledge actually lives)
+
+The historical knowledge (players / clans / tournaments / glossary) is not wasted -- it moves to the **other end of the pipe, at query time**:
+
+1. User asks a question.
+2. Embedding retrieval returns the relevant conversations (knowledge-free).
+3. Claude reads the hits, spots tokens it cannot resolve, and calls back into the MCP (`lookup_player` / `lookup_clan` / `lookup_tournament`) to turn nicks and clan tags into rich profiles.
+4. Claude writes the grounded answer.
+
+This is the same tool-using loop the oracle already runs for L1 facts. Two properties make it strictly better than the index-time primer: (a) **disambiguation is easier at query time** -- Claude has the conversation context plus the user's question in hand, so "which Acid" is resolved by evidence rather than guessed-and-frozen at index time; (b) **the expensive artifact (embeddings) stays immutable while the cheap artifact (profiles) stays live** -- improving a profile tomorrow enriches every future answer retroactively, with no re-embedding.
+
+### Decoupling
+
+The embedding arc and the community-knowledge arc are now **independent tracks that meet only at the query-time lookup seam**:
+
+- **Embedding arc (this spec):** prune -> segment -> embed -> retrieve. No glossary bootstrap, no primer dependency. Unblocked today.
+- **Community-knowledge arc (the half-built qwiki community-reference arc):** parallel, never blocks the embedding arc. Its keystone deliverable is the **MCP lookup tools (its Phase 6)** -- the only piece the query-time loop calls. Tournaments / cross-links (its Phase 4/5) add incremental richness; the L2 primer (its Phase 7) is dropped/superseded by live lookups + Claude's judgment + the existing `match_quality` guard.
+
+### Amended Pass-1 locks
+
+| Pass-1 commitment | Reshape disposition |
+|---|---|
+| Stage 0 "glossary primer bootstrap" pipeline stage | **DELETED.** Embedding is knowledge-free; no index-time primer. |
+| Lock "Author role hints in primer" (iterative role-list) | **RE-HOMED to query-time.** Author-trust / role signal, if kept, is a retrieval-time concern (Pass 5), not an index-time primer field. |
+| Meta-pattern #2 "bigger brain insurance" (glossary as index-time investment) | **INVERTED.** The knowledge is cheap *query-time* insurance, lazy and optional -- not an upfront index-time investment. |
+| Abstain reason "primer does not cover this vocabulary" | **REWORDED.** Abstain now signals topic-boundary uncertainty, not missing glossary coverage. |
+
+### Implication: the sample-test is promoted to the first forward pass
+
+Pass 2 ("calibration gate") now runs the cheap sample-test *first* -- it decides how much LLM disentanglement the chunker actually needs before the chunker is specced. Previously this was buried in Pass 3/4.
+
+---
+
+## Pipeline shape (locked 2026-05-03; Stage 0 struck Pass 1.5)
+
+Stages, junk-pruned and lull-chunked. Each stage produces a durable artifact the next consumes; each is independently inspectable. How much of Stage 2's LLM disentanglement is actually needed -- vs cheap mechanical signals (time gaps, reply edges, participant overlap) -- is the open calibration question settled by the Pass 2 sample-test.
+
+- **Stage 0:** ~~Iterative glossary primer bootstrap~~ **STRUCK (Pass 1.5)** -- embedding is knowledge-free; entity recognition moves to query-time lazy lookups.
 - **Stage 1:** Heuristic junk pruning (LLM-bootstrap on 10% sample, then deterministic-script production pass on 90%).
 - **Stage 2:** Within-session disentanglement (primer-grounded LLM, quiet-hour chunked).
 - **Stage 3:** Cross-session topic merging (embedding clustering + reply-graph signal).
@@ -38,10 +83,12 @@ Pass 2 of the brainstorm refines per-stage sub-questions; this section captures 
 | Cross-fork disambiguation | Light L1 inclusion of Dusty's antilag-focused ezQuake/MVDSV/KTX fork plus 1-2 concept notes on when-to-care-about-the-fork. NOT a Stage 4 metadata field. |
 | Time / era awareness | Out of scope for L2 prep. Lives at MCP query-time discretion: the consumer LLM decides relevance across L1/L2/L3 hits. |
 | Reply edges as Stage 2 signal | Within-chunk explicit-reply pairs go in the same sub-thread. Stage 3 still uses reply-edges as cross-session similarity signal. |
-| Author role hints in primer | Iterative skill-baked role-list. Operator-verified seed per channel before any production run; analyzer suggests additions per-chunk when someone stands out. Couples to author-trust weighting (Pass 3). |
+| Author role hints in primer | **AMENDED Pass 1.5: re-homed to query-time (no index-time primer).** Author / role signal, if kept, is a retrieval-time concern -- see Pass 5. ~~Iterative skill-baked role-list; operator-verified seed per channel; analyzer suggests additions per-chunk.~~ |
 | Bucket rubric depth | Empirical discovery via 3-6 month sample run. The 9 buckets + multi-tag stand; new buckets or rubric rules added only when patterns make obvious gaps. |
 
 ### Analyzer output format
+
+> **Pass 1.5 note:** retained as the broad output shape, subject to Pass 3 refinement under the reshape -- the `role_suggestions` field re-homes to query-time, and the abstain reason is reworded from "primer does not cover this vocabulary" to topic-boundary uncertainty.
 
 LLMs emit text. That text needs to be parseable so a loader script can convert thread proposals into `chat_threads` + `thread_messages` rows. JSON is the format -- Anthropic native structured-output mode, parser-robust, machine-interchange (not a UX surface).
 
@@ -102,36 +149,29 @@ Comprehension uncertainty is the bigger failure mode for v1 because it produces 
 ### Meta-patterns shaping the arc
 
 1. **Empirical discovery over top-down rubric.** Author-role-list seeding and bucket-rubric depth are answered by "run on a sample, see what emerges, then commit." This shapes the arc's Phase 0/1 -- the first runs are partly diagnostic, not just productive. Stage 0's primer-loop and Stage 1's heuristic-derivation already follow this shape; the same discipline extends to role-list seeding and bucket-rubric expansion.
-2. **Prep-work calibration ("bigger brain insurance").** Glossary + L1-lookup + role-list + per-channel character notes are cheap insurance worth investing in; do NOT gold-plate (no exhaustive role lists, no bucket rubrics ahead of evidence). Marginal benefit per primer item is uncertain, but the floor cost is low and the artifacts are durable.
+2. **Prep-work calibration ("bigger brain insurance"). INVERTED Pass 1.5:** the knowledge is cheap *query-time* insurance (lazy MCP lookups resolved on demand), not an upfront index-time investment. ~~Glossary + L1-lookup + role-list + per-channel character notes are cheap index-time insurance worth investing in.~~ The "do NOT gold-plate" discipline survives and now applies to the query-time community-knowledge track: build profiles as queries demand them, not exhaustively ahead of evidence.
 
-## Pass 2-4 scope (placeholders, to fill in via fresh-terminal passes)
+## Pass 2-5 scope (reshaped Pass 1.5; replaces the original Pass 2-4 placeholders)
 
-### Pass 2: Stage-by-stage refinement
+The original Pass 2-4 placeholders assumed the primer pipeline. Reshaped:
 
-Walk Stages 0 through 4 in order. Per stage, confirm shape, surface deltas vs the 2026-05-03 thread-reconstruction parking doc, and settle stage-tied open questions:
+### Pass 2: Calibration gate (sample-test)
 
-- **Stage 0:** primer artifact location (extend `packages/qw-knowledge/terminology` vs new file under qw-oracle); active L1 auto-lookup loop placement; convergence criterion (current draft: <5% unknown-rate).
-- **Stage 1:** heuristic-pruning bootstrap scope (10% sample stratification, banter-signal feature list); recall-precision tradeoff calibration.
-- **Stage 2:** chunk-size sweep parameters (current draft: 500/1500/3000/6000); quiet-hour gap definitions (multi-hour / overnight / weekend); within-chunk reply-edge integration mechanics.
-- **Stage 3:** cosine-similarity threshold (current draft: 0.85); participant-overlap weight; reply-graph edge weight; clustering algorithm choice (HDBSCAN / Louvain / etc.).
-- **Stage 4:** schema confirmation (`chat_threads` + `thread_messages` shape from 2026-05-03 doc); bucket-tagging integration (single Stage 4 prompt vs separate post-Stage-4 pass); how role-list iteration is wired into the prompt.
+Promoted to first. Decide how much LLM disentanglement the chunker actually needs *before* speccing the chunker. Settle: which corpus slice (3-6 months, which channels), which pipelines to compare (the four-way -- FTS baseline / per-session embed / cheap-signal segments / LLM-disentangled threads -- trimmed now the primer is gone), the "good-enough" bar, and the decision it unblocks (cheap-signal segmentation vs LLM disentanglement, and how deep). Folds in Stage 1 junk-pruning as a test prerequisite. Reuses the live Layer 2 store (`messages` / `sessions` / `session_references`) as the substrate.
 
-Conditional carry-forward: multi-language handling, config-dump signal, re-run idempotency policy -- surface only if a specific stage needs them.
+### Pass 3: Index mechanics
 
-### Pass 3: Cross-cutting decisions
+The "build the index" pass, scoped by Pass 2's calibration result. Chunk boundaries / quiet-hour chunking, cross-session merging (cosine + participant-overlap + reply-graph), embed granularity, `chat_threads` + `thread_messages` schema (from the 2026-05-03 spine: vector(1024), CHECK enum on `resolution_status`, GIN tsvector, junction PK), `resolution_status` + `buckets` metadata, similarity threshold (draft 0.85) + clustering algorithm (HDBSCAN / Louvain). Reshape-adjusts the analyzer JSON shapes (`role_suggestions` out, abstain reworded).
 
-- Author trust weighting placement (Stage 4 metadata vs retrieval-time re-rank vs both).
-- Trigger discipline: skip the post-Phase-8-deploy + `query_log`-evidence gate given architectural conviction has hardened, or hold to evidence-based unblocking?
-- Pipeline ordering (serialize all five stages, or run Stage 0 + Stage 1 in parallel since they produce independent artifacts).
-- Cost model refresh ($130-140 estimate from 2026-05-03 doc; verify against current Voyage + Sonnet pricing and corpus growth).
-- Sample-test scope (four-pipeline comparison with L3 first-class status changing the comparison set).
+### Pass 4: Query-time seam (new)
 
-### Pass 4: Phase decomposition + arc-planner handoff
+Where the two decoupled arcs meet. The lazy-retrieval answer loop; which community MCP lookup tools to finish (the keystone Phase 6 of the community-reference arc); how Claude decides which tokens are worth resolving (and a lookup budget / latency cap); the `match_quality` guard that keeps lookups honest. Output includes the concrete "what to resurrect vs drop" call on the stalled community arc (finish Phase 6 MCP tools; Phase 4/5 incremental; drop Phase 7 primer).
 
-- Phase shape (Stage 0 alone? Stage 2+3 bundled? sample test as Phase 0 prerequisite? schema migration phase?).
-- Spec-to-scaffold handoff: this design spec frozen, what arc-planner needs to scaffold against.
-- HANDOVER cleanup plan for three superseded items.
-- Arc-planner handoff prompt at `docs/superpowers/parking/2026-05-XX-layer2-corpus-reconstruction-planner-handoff.md`.
+### Pass 5: Cross-cutting + phase decomposition + planner handoff
+
+Author-trust weighting placement (now a query-time / retrieval concern, not Stage 4 metadata), pipeline ordering, cost model refresh (lower now -- no Stage 0 primer, possibly less Stage 2 LLM), trigger discipline. Then phase decomposition + the arc-planner handoff prompt at `docs/superpowers/parking/2026-05-XX-layer2-corpus-reconstruction-planner-handoff.md`. Also: HANDOVER cleanup plan for the three superseded items.
+
+Conditional carry-forwards (surface only if a stage needs them): multi-language handling, config-dump signal, re-run idempotency policy.
 
 ## Inputs (input artifacts, not to be modified)
 

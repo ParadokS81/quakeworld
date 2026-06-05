@@ -1,9 +1,35 @@
 # Layer 2 corpus reconstruction -- arc capture
 
 **Captured:** 2026-05-04 by arc-classifier mode D.
-**Status:** Pass 1 complete (2026-05-04). Pass 2 (stage-by-stage refinement) pending in fresh terminal -- handoff prompt at `docs/superpowers/parking/2026-05-04-layer2-corpus-reconstruction-pass2-handoff.md`.
+**Status:** Pass 1 complete (2026-05-04). **Pass 1.5 reshape ratification complete (2026-06-05)** -- architecture reshaped to lazy/query-time retrieval; primer prerequisite dropped; embedding arc decoupled from the community-knowledge arc. Forward passes 2-5 reshaped (see Pass 1.5 status below); Pass 2 (calibration gate) pending in fresh terminal -- handoff at `docs/superpowers/parking/2026-06-05-layer2-corpus-reconstruction-pass2-handoff.md` (supersedes the 2026-05-04 pass2 handoff).
 **Design spec:** `docs/superpowers/specs/2026-05-04-layer2-corpus-reconstruction-design.md` (source of truth from Pass 1 onward).
 **Trigger to start:** operator-initiated; arc-brainstormer in fresh terminal.
+
+---
+
+## Pass 1.5 status -- RESHAPE RATIFICATION COMPLETE (2026-06-05)
+
+Captured-and-formalized the architecture reshape that emerged in conversation 2026-06-05 (the arc had been shelved since Pass 1 on a prerequisite that turned out not to be required). Full reasoning + amended locks live in the design spec's "Reshape (Pass 1.5)" section; this is the status summary.
+
+**The reshape in one paragraph.** The Stage 0 glossary / historical-data primer is NOT a prerequisite. Embedding is knowledge-free (Voyage embeds raw text; Claude's index-time knowledge does not move the vector); segmentation needs text-comprehension, not background knowledge; retrieval recovers the "what" symmetrically. What drives retrieval quality is boundary coherence, not knowledge. The community knowledge (players / clans / tournaments / glossary) moves to query time as **lazy / agentic retrieval**: embedding returns conversations, then Claude resolves unknown tokens on demand via MCP `lookup_*` tools. The embedding arc and the community-knowledge arc are decoupled and meet only at that query-time seam.
+
+**Amended Pass-1 locks:** Stage 0 primer DELETED; "author role hints in primer" RE-HOMED to query-time; "bigger brain insurance" meta-pattern INVERTED (query-time, not index-time); abstain reason REWORDED (boundary-uncertainty, not missing glossary).
+
+**Revised pass plan (replaces original Pass 2/3/4):**
+- Pass 2 -- Calibration gate (sample-test elevated to first; decides chunker depth).
+- Pass 3 -- Index mechanics (prune / chunk / merge / embed; schema).
+- Pass 4 -- Query-time seam (new; lazy-retrieval loop + which community MCP tools to finish).
+- Pass 5 -- Cross-cutting + phase decomposition + arc-planner handoff.
+
+**Carry-forwards (with tracks):**
+- The whole community-knowledge track is now a SEPARATE parallel arc (the half-built qwiki community-reference arc: players 5,900 + clans 822 loaded; tournaments / MCP-tools / primer not shipped). Track: its keystone is finishing the MCP lookup tools (its Phase 6); tournaments / cross-links (Phase 4/5) incremental; L2 primer (Phase 7) dropped. The concrete resurrect-vs-drop call lands in Pass 4. Not a blocker for the embedding arc.
+- Sample-test design -> Pass 2.
+- Analyzer JSON shape + abstain reshape-adjustments -> Pass 3.
+- Author-trust weighting (re-homed to query-time) -> Pass 5.
+
+**Drain destinations updated:** design spec (Reshape section + amended locks + new Pass 2-5 scope); this parking doc (this section + status line); new Pass 2 handoff; memory `project_l2_lazy_retrieval_reshape.md`.
+
+**Pass plan revision:** the original 3 forward passes (2 stage-refinement / 3 cross-cutting / 4 decomposition) became 4 (calibration / index / query-seam / cross-cutting+decomposition); net +1 because the query-time seam earned its own pass while the deleted Stage 0 shrank the stage-refinement surface.
 
 ---
 
