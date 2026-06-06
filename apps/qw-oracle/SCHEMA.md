@@ -1128,3 +1128,72 @@ One row per player tournament result. Soft reference to `community.tournaments` 
 **No FK on `tournament_slug`** -- soft reference; Phase 5 backfill loads cross-link rows before Phase 4 populates `community.tournaments`, so a hard FK would cause insertion failures (F8).
 
 Indexes: `player_slug`, partial `tournament_slug WHERE tournament_slug IS NOT NULL`, `year`.
+
+---
+
+## Layer 2 thread corpus (migration 021, 2026-06-06)
+
+Reconstructed conversation threads over the Layer 2 Discord message corpus. Two tables: `chat_threads` (one row per reconstructed thread) and `thread_messages` (many-to-many junction linking threads to their constituent `messages` rows).
+
+Migration file: `db/migrations/021_layer2_threads.sql`. Spec decisions D3/D4/D7 (corpus reconstruction arc).
+
+### `chat_threads`
+
+One row per reconstructed conversation thread. The `thread_key` column is the idempotency anchor: the reconstruction loader always produces the same key for the same source messages, so re-runs are safe upserts. `content` is the raw concatenated member messages (D3 -- not a summary), which drives both the FTS column (`content_tsv`) and the semantic embedding column (`topic_embedding`).
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | BIGINT IDENTITY PK | Surrogate key |
+| `thread_key` | TEXT NOT NULL UNIQUE | Idempotency anchor -- deterministic key produced by the reconstruction loader from source message IDs / channel / time range |
+| `channel_name` | TEXT NOT NULL | Discord channel the thread originates from |
+| `platform` | TEXT NOT NULL CHECK = 'discord' | Locked to `'discord'`; same pattern as `messages.platform` |
+| `date_range_start` | TIMESTAMPTZ NOT NULL | Timestamp of the earliest message in the thread |
+| `date_range_end` | TIMESTAMPTZ NOT NULL | Timestamp of the latest message in the thread |
+| `participant_count` | INTEGER NOT NULL | Number of distinct authors; always computable at reconstruction time |
+| `participants_json` | JSONB nullable | Array of participant author names / IDs; nullable for sparse threads |
+| `message_count` | INTEGER NOT NULL | Number of member messages; always computable at reconstruction time |
+| `topic_label` | TEXT NOT NULL | Short human-readable topic label assigned by the reconstruction loader |
+| `content` | TEXT NOT NULL | Raw concatenated member messages (D3) -- the embedded and FTS-indexed body |
+| `content_tsv` | tsvector GENERATED STORED | `to_tsvector('simple', coalesce(content, ''))`. Config `'simple'` (D7): corpus is mixed-language Discord content; English stemming would mangle non-English tokens. |
+| `topic_embedding` | vector(1024) nullable | voyage-4-large embedding of `content`. NULL until the embedding worker fills it. Dimension matches `concept_chunks.embedding` (005_layer3_concepts.sql). |
+| `embedding_stale` | BOOLEAN NOT NULL DEFAULT FALSE | Voyage API retry signal: set TRUE on embedding failure, cleared FALSE on success. Same convention as `concept_chunks.embedding_stale`. |
+| `resolution_status` | TEXT nullable CHECK | One of `'solved'` / `'unresolved'` / `'informational'`. NULL until the LLM classification phase fills it (later arc phase). |
+| `buckets_question` | JSONB nullable | Question-bucket classification output. NULL until the classification phase fills it. |
+| `buckets_answer` | JSONB nullable | Answer-bucket classification output. NULL until the classification phase fills it. |
+| `reconstruction_version` | TEXT NOT NULL | Version string of the reconstruction script / prompt that produced this row |
+| `reconstructed_at` | TIMESTAMPTZ NOT NULL DEFAULT now() | When this thread was reconstructed |
+
+**Natural key:** `thread_key` (UNIQUE). Loader upserts on `ON CONFLICT (thread_key)`.
+
+**Populated by:** corpus reconstruction loader (later arc phase). `topic_embedding` filled by the embedding worker after reconstruction.
+
+**Consumed by:** Layer 2 hybrid retrieval (FTS via `content_tsv_gin`, vector ANN via `embedding_hnsw`); MCP `search_solved_issues` (future widening); downstream classification phases that fill `resolution_status` / `buckets_*`.
+
+Indexes:
+- `chat_threads_channel_started ON (channel_name, date_range_start)` -- channel-scoped time-range queries
+- `chat_threads_status ON (resolution_status)` -- filter by classification outcome
+- `chat_threads_embedding_hnsw USING hnsw (topic_embedding vector_cosine_ops)` -- ANN semantic retrieval; cosine metric matches voyage-4-large normalised embedding space
+- `chat_threads_content_tsv_gin USING GIN (content_tsv)` -- lexical FTS over raw thread content
+- `chat_threads_thread_key_key` (implicit from UNIQUE) -- idempotency lookups
+
+### `thread_messages`
+
+Many-to-many junction between `chat_threads` and `messages`. One row per (thread, message) pair.
+
+Many-to-many (not a direct FK on `messages`) because a message can participate in multiple reconstructed threads: a seed message that anchors two overlapping threads, or a message in a cross-channel reply chain. The junction lets `chat_threads` own the thread-level aggregate while `messages` retains the canonical per-message record intact (raw-is-immutable principle from CLAUDE.md).
+
+| Column | Type | Notes |
+|---|---|---|
+| `thread_id` | BIGINT NOT NULL FK | References `chat_threads(id) ON DELETE CASCADE` |
+| `message_id` | TEXT NOT NULL FK | References `messages(id) ON DELETE CASCADE` |
+
+**PK:** `(thread_id, message_id)`.
+
+**ON DELETE CASCADE on both FKs:** deleting a thread prunes its junction rows; deleting a message prunes its junction rows.
+
+**Populated by:** corpus reconstruction loader alongside `chat_threads` rows.
+
+**Consumed by:** reverse lookups ("which threads contain this message?") and thread hydration ("fetch the raw messages for this thread").
+
+Indexes:
+- `thread_messages_message ON (message_id)` -- reverse lookup: which threads reference a given message ID
