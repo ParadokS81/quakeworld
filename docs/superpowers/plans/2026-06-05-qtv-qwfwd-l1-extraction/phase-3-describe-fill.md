@@ -41,7 +41,7 @@ Every QTV describe worker brief carries this hard check verbatim:
 > Go equivalents for orientation (do NOT invent C-knob descriptions; use these Go knobs instead):
 > - `mvdport` -> `listen_address` (Go: `http.go`, `qVarFlagInitOnly`)
 > - `admin_password` -> `qtv_password` (Go: `downstream_storage.go`)
-> - `floodprot` (C command) -> `fp_time`, `fp_limit`, `fp_message` (Go triplet in `downstream_storage.go`)
+> - `floodprot` (C command) -> `fp_messages`, `fp_persecond`, `fp_secondsdead` (Go triplet in `downstream_storage.go`) [F16 2026-06-06: corrected from fp_time/fp_limit/fp_message -- those do not exist in pkg/]
 > - `allow_http` (C) -> `http_enabled`, `http_address` (Go: `http.go`)
 >
 > These C knobs exist ONLY in `fteqtv/` (D13 scope fence). Presence in a community config does not make them Go QTV knobs.
@@ -300,7 +300,7 @@ it and re-source from the Go register-site. The Go equivalents are:
 
 - `mvdport` -> `listen_address` (Go: `http.go`, `qVarFlagInitOnly`)
 - `admin_password` -> `qtv_password` (Go: `downstream_storage.go`)
-- `floodprot` (C command) -> `fp_time`, `fp_limit`, `fp_message` (Go triplet, `downstream_storage.go`)
+- `floodprot` (C command) -> `fp_messages`, `fp_persecond`, `fp_secondsdead` (Go triplet, `downstream_storage.go`) [F16 2026-06-06: corrected from fp_time/fp_limit/fp_message -- those do not exist in pkg/]
 - `allow_http` (C) -> `http_enabled`, `http_address` (Go: `http.go`)
 
 QWFWD workers are not affected by this rule (QWFWD has no C-vs-Go split).
@@ -859,7 +859,7 @@ Default: follow B1-B5 as written. No operator action needed.
 
 **D6 guard -- corrected framing (where the teeth actually are):**
 - LAYER 1 (the real floor, unshakeable): Phase 2 extracted Go source only, so the C-only knobs (`mvdport`/`admin_password`/`floodprot`/`allow_http`) have NO L1 row -- you cannot describe a knob that has no row. Seed exclusion + the reject-list reinforce this.
-- LAYER 4 (the SEMANTIC teeth): the enforce-trace + V-pass (Task 4) -- per-clause grep against Go source during synthesis, plus an independent cold re-derivation (B1-B5). This is the ONLY layer that catches the subtle case: a real Go knob (e.g. `fp_message`) described with paraphrased C semantics that never names a C knob. It is worker process verified by the V-pass, NOT a boundary probe (prose fidelity is not SQL-probeable). **At execution the V-pass is the step that cannot be skipped or rushed.**
+- LAYER 4 (the SEMANTIC teeth): the enforce-trace + V-pass (Task 4) -- per-clause grep against Go source during synthesis, plus an independent cold re-derivation (B1-B5). This is the ONLY layer that catches the subtle case: a real Go knob (e.g. `fp_persecond`) described with paraphrased C semantics that never names a C knob. It is worker process verified by the V-pass, NOT a boundary probe (prose fidelity is not SQL-probeable). **At execution the V-pass is the step that cannot be skipped or rushed.**
 - Probes A/B are mechanical BACKSTOPS, not the teeth. Correction to an earlier planner note: V6 Probe B filters on `source_file LIKE 'pkg/%'` -- the value the Phase-2 extractor set, never the description text. So Probe B RE-CONFIRMS anchoring (re-proves Layer 1); it does NOT detect C-semantics in a correctly-anchored Go knob's prose. Probe A catches literal C-knob name mentions only.
 
 **Q-SKILL resolved (operator, eyes-on): Option A.** Widen the line-102 gate to `{'ktx','mvdsv','qtv','qwfwd'}` -- verified safe-additive (cannot change ktx/mvdsv behavior; no consumer depends on qtv/qwfwd being rejected) and the only logic branch. Also update the FOUR doc references that still name only ktx/mvdsv so a warm-reading worker is not misled: SKILL.md frontmatter `description:` (line 4), `Inputs` (line 53), `Escape hatches` (line 354), and `references/subagent-brief-template.md:17` ("project -- ktx or mvdsv"). The `:123`/`:302` path+example refs can stay as illustrations. Option B (tell workers to ignore a hard ABORT) was rejected as strictly worse (leaves the contract lying).

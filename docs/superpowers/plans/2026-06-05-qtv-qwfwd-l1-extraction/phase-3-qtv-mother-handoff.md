@@ -20,10 +20,10 @@ Invoke the `arc-executor` skill (you are the per-phase executor + mother, D10).
 
 ## D6 -- the load-bearing item (the operator reviews Phase 3 for this)
 
-The C-QTV config knobs (`mvdport`, `admin_password`, `floodprot`, `allow_http`) DO NOT exist in Go QTV (they live in `fteqtv/`). LAYER 1 floor holds (Phase 2 confirmed 0 of these in the qtv rows). The SEMANTIC teeth are the **V-pass** (independent cold re-derivation, enforce-trace-discipline.md): a real Go knob (e.g. `fp_message`) described with paraphrased C semantics is the subtle failure ONLY the V-pass catches. **The V-pass cannot be skipped or rushed.**
+The C-QTV config knobs (`mvdport`, `admin_password`, `floodprot`, `allow_http`) DO NOT exist in Go QTV (they live in `fteqtv/`). LAYER 1 floor holds (Phase 2 confirmed 0 of these in the qtv rows). The SEMANTIC teeth are the **V-pass** (independent cold re-derivation, enforce-trace-discipline.md): a real Go knob (e.g. `fp_persecond`) described with paraphrased C semantics is the subtle failure ONLY the V-pass catches. **The V-pass cannot be skipped or rushed.**
 
 - Every QTV worker brief carries the SR-2 D6 REJECT-LIST verbatim.
-- **Dispatch an independent Opus V-pass worker (B3 cold-context) on every D6-sensitive QTV knob:** the `fp_*` triplet (fp_time/fp_limit/fp_message), `http_*` (http_enabled/http_address/...), `listen_address`, `qtv_password`, `maxclients` (SR-3: source 1000 vs nquake 100 -- describe 1000), `parse_delay`, `tick_time`, `masters`. Plus one canary per non-sensitive wave.
+- **Dispatch an independent Opus V-pass worker (B3 cold-context) on every D6-sensitive QTV knob:** the `fp_*` triplet (fp_messages/fp_persecond/fp_secondsdead) [F16: corrected from fp_time/fp_limit/fp_message], `http_*` (http_enabled/http_address/...), `listen_address`, `qtv_password`, `maxclients` (SR-3: source 1000 vs nquake 100 -- describe 1000), `parse_delay`, `tick_time`, `masters`. Plus one canary per non-sensitive wave.
 - V6 Probes A (no C-only knob name in any qtv description = 0 rows) + B (every described qtv entity anchors to `pkg/%` = 0 rows) are mechanical BACKSTOPS, not the teeth.
 
 ## Proven worker-brief pattern (from the QWFWD half -- reuse verbatim, swap QTV facts)
