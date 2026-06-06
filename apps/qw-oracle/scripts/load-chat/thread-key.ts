@@ -14,6 +14,10 @@ import type { Sql } from 'postgres';
 // old scope is explicitly deleted.
 export const RECONSTRUCTION_VERSION = 'fence-sonnet-v1';
 
+// v1 = increment-1 probe scaffolding (cap 750 / 3h gap, Feb-Mar 2021 only);
+// v2 = production full-corpus (12h gap / cap 1500 + resolution_status passenger).
+export const PRODUCTION_VERSION = 'fence-sonnet-v2';
+
 export interface ThreadKeyParts {
   channel: string;
   reconstructionVersion: string;
