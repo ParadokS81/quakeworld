@@ -91,6 +91,12 @@ While drafting / executing each phase:
 
 **Evidence:** In increment 1, `chat_threads` holds ONLY the Feb-Mar 2021 slice (~1,008 threads). The old `search_solved_issues` session-FTS searches the WHOLE corpus (all years). A query whose best answer lives outside 2021 would unfairly favor the old tool (the new path has no out-of-slice threads yet) -- which would read as "threads lose" for the wrong reason. The gate therefore compares on the **30 reverse-generated queries** (generated FROM 2021 sessions -> guaranteed in-slice); the 12 Phase-8 anchors are 2026-sourced and a noisier cross-check, not the primary signal. The gate procedure states this explicitly.
 
+### R13 -- fence-agent Read tool caps at 256KB (~2,700 msgs); the Read cap, not Sonnet's context, bounds single-file chunk size
+
+**Discovered by:** Phase B cap-sweep (2026-06-06). **Phase C must respect.**
+
+**Evidence:** A Workflow fence agent ingests its chunk via the Read tool, which hard-caps at 256KB / ~25k tokens per file. At ~94 bytes/msg in the chunk JSON (~59-char content + author + indices), a single-file chunk truncates above ~2,700 messages -- a 3000-msg file is ~280KB (truncated), a 6000-msg file ~560KB (badly truncated). This is LOWER than the ~5-9k Sonnet-context wall named in the D9 amendment, so it is the ACTUAL binding constraint on chunk size. The cap-sweep was therefore run at 750/1500/2500 (the single-file-readable range); 3000/6000 were not tested (they would feed agents truncated input, a fake ceiling). **Implication for Phase C:** lull-chunking at cap <= ~2,700 guarantees every chunk is single-file-readable; do NOT raise the cap above ~2,700 without switching the fence agent to multi-file (or offset/limit) chunk delivery. `sweep-prep.ts` enforces a <256KB guard at write time -- mirror that guard in `backfill-batch.ts`. The recommended cap (1500) sits comfortably under the limit.
+
 ---
 
 ## Phase ownership of risks
@@ -98,8 +104,8 @@ While drafting / executing each phase:
 | Phase | Risks to verify before sign-off |
 |---|---|
 | A -- Increment 1 (gate) | R1, R2, R3, R4, R8, R9, R10, R11, R12 |
-| B -- Chunk-size sweep | R7 |
-| C -- Batched backfill | R5, R6, R7, R8 |
+| B -- Chunk-size sweep | R7, R13 (discovered) |
+| C -- Batched backfill | R5, R6, R7, R8, R13 |
 | buckets-E -- enrichment | R7, R8 |
 | D / author-trust / clustering (deferred stubs) | (none until their trigger opens) |
 
