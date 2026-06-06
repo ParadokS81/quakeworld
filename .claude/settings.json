@@ -61,6 +61,16 @@
             "type": "command",
             "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
             "if": "Bash(gh pr edit*)"
+          },
+          {
+            "type": "command",
+            "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
+            "if": "Bash(git commit*)"
+          },
+          {
+            "type": "command",
+            "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
+            "if": "Bash(git push*)"
           }
         ]
       }
