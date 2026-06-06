@@ -77,6 +77,34 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
+  // Step 1.5: SUPERSEDE FOOTGUN GUARD. This loader writes the v1 probe slice and
+  // its core does a version-AGNOSTIC range-delete (see thread-loader-core.ts
+  // header). Once reset-day's production v2 full-year-2021 backfill supersedes
+  // the probe slice, re-running this loader would DELETE those v2 rows and
+  // regress 2021 to v1 -- the documented footgun. Refuse if any non-v1 thread
+  // already occupies the delete scope, unless --force is passed. (A legitimate
+  // Phase A run / idempotent re-run sees only v1 here, so the guard is silent.)
+  const force = process.argv.includes('--force');
+  const intruders = await db<{ n: number }[]>`
+    SELECT count(*)::int AS n FROM chat_threads
+    WHERE channel_name IN ('#helpdesk','#quakeworld')
+      AND reconstruction_version <> ${RECONSTRUCTION_VERSION}
+      AND date_range_start >= ${WINDOW_START}::timestamptz
+      AND date_range_start <  ${WINDOW_END}::timestamptz
+  `;
+  if (intruders[0]!.n > 0 && !force) {
+    console.error('');
+    console.error('============================================================');
+    console.error(`[load-threads] REFUSING: ${intruders[0]!.n} non-${RECONSTRUCTION_VERSION} thread(s) already`);
+    console.error(`occupy the 2021 probe window (#helpdesk/#quakeworld, ${WINDOW_START}..${WINDOW_END}).`);
+    console.error('This loader\'s version-agnostic range-delete would CLOBBER them and regress');
+    console.error('2021 to v1 probe threads (the documented supersede footgun). Production');
+    console.error('backfill uses backfill-batch.ts, not this loader. Pass --force only if you');
+    console.error('deliberately want to restore the v1 probe slice over production threads.');
+    console.error('============================================================');
+    process.exit(1);
+  }
+
   // Step 2: Open cache (NOT readonly -- misses are written back).
   const cache = new Database(CACHE_PATH);
   cache.run('CREATE TABLE IF NOT EXISTS emb (k TEXT PRIMARY KEY, vec TEXT)');

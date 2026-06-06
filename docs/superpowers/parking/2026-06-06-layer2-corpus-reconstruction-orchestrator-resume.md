@@ -8,7 +8,7 @@
 
 A + B + C-PREP shipped and orchestrator-verified (not trusted -- each re-checked against live DB/source at its boundary). C RUN is gated on quota reset (~2026-06-08). buckets-E + D are downstream.
 
-- **Phase A (shipped):** migration `021_layer2_threads.sql` (chat_threads + thread_messages); `search_solved_issues` rewired to hybrid RRF over threads (mirrors search_entities); 1,008 `fence-sonnet-v1` threads (Feb-Mar 2021, #helpdesk + #quakeworld). Gate GREEN (orchestrator-assessed gate-A-compare 24/24-vs-9/24 + a live tire-kick of 11 real queries). Golden state: 1008 / 0-null-emb / 1008 distinct thread_key.
+- **Phase A (shipped):** migration `021_layer2_threads.sql` (chat_threads + thread_messages); `search_solved_issues` rewired to hybrid RRF over threads (mirrors search_entities); 1,008 `fence-sonnet-v1` threads (Feb-Mar 2021, #helpdesk + #quakeworld). Gate GREEN -- operator-formalized 2026-06-06 (gate-A-compare 24/24-vs-9/24; the orchestrator tire-kick of 11 real queries was the pre-read, not the decision). Golden state: 1008 / 0-null-emb / 1008 distinct thread_key.
 - **Phase B (shipped):** lull gap **12h** (locked) + cap **1500** (ratified -- cleaner partition than 2500) -> **~3,796 fence agents**. D9 cost model corrected ~25x (was ~650-750; the gap, not the cap, was the lever). R13: the fence agent's 256KB Read cap (~2,700 msgs) is the real chunk ceiling, below Sonnet's context.
 - **Phase C PREP (shipped):** pipeline built -- `thread-loader-core.ts` (shared staging + idempotent version-agnostic-range-delete), `load-threads.ts` (thin Phase A wrapper over the core), `backfill-batch.ts` (count/prep/load, 12h/1500, 256KB guard, live batch-64 embed), `wf-backfill-fence.js` (v2 fence, optional resolution_status), `fence-stats.ts`, `backfill-ledger.md`. Validated end-to-end on #antilag-2026: idempotency PASS, supersede PASS (synthetic v1 row cleared), straddle PASS (structural), kill-switch KEEP (provisional). DB now: 1008 v1 + 67 v2 (#antilag-2026), 0 null emb.
 - **Phase C RUN (pending reset):** 34 remaining batches / ~3,796 agents. `backfill-ledger.md` is the playbook.
@@ -42,8 +42,8 @@ A + B + C-PREP shipped and orchestrator-verified (not trusted -- each re-checked
 2. **At-scale firsts** (first live on reset, all low-risk): real 1008-row 2021 supersede; real New-Year straddle; cap-forced 1500-chunks through the C pipeline; stale-embed retry path; fence at ~150 agents. Batch-1 is the shakedown.
 3. **Per-batch coverage** -- `fence-stats` per batch; coarse content (#antilag-style debates) drops ~1-4%. Accept or investigate per batch.
 4. **Provisional RRF thresholds (R10)** -- `match_quality` reads mostly "weak"; Phase D recalibrates. **PUBLIC deploy is gated on Phase D** (until then a consuming LLM under-trusts good hits via the orientation honest-failure rule).
-5. **Typecheck scope** -- `load-chat/` now in tsconfig (fixed a latent bigint->string annotation). `load-knowledge/` + `load-concepts/` likely have the same blind spot -- repo hygiene, not an arc risk.
-6. **load-threads.ts footgun** -- guarded in ledger + RUN prompt; don't run it post-2021-supersede.
+5. **Typecheck scope** -- DONE (2026-06-06). `load-concepts/` added to tsconfig; `load-knowledge/` was already in scope (the handoff guess was half-right). `bunx tsc --noEmit` clean. The prep `load-chat/` bigint->string fix stands.
+6. **load-threads.ts footgun** -- HARDENED (2026-06-06). load-threads.ts now refuses if any non-v1 thread occupies the 2021 #helpdesk/#quakeworld delete scope (`--force` override), so the supersede cannot be undone by a stray manual run. Ledger + RUN-prompt notes remain as belt-and-suspenders.
 
 ## After C RUN
 

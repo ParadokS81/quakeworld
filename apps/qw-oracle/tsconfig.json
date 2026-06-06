@@ -17,6 +17,6 @@
     "allowImportingTsExtensions": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["scripts/load-knowledge/**/*", "scripts/load-community/**/*", "scripts/describe-fill/**/*", "scripts/load-chat/**/*", "db/**/*", "scripts/generate-pg-migration.ts"],
+  "include": ["scripts/load-knowledge/**/*", "scripts/load-community/**/*", "scripts/load-concepts/**/*", "scripts/describe-fill/**/*", "scripts/load-chat/**/*", "db/**/*", "scripts/generate-pg-migration.ts"],
   "exclude": ["node_modules", "data"]
 }
