@@ -89,6 +89,10 @@ CREATE INDEX thread_messages_message ON thread_messages(message_id);
 
 **Implication:** The batch DELETE predicate MUST exactly cover what its INSERT writes (R5) -- express the scope as `WHERE channel_name = $1 AND reconstruction_version = $2 AND date_range_start >= $3 AND date_range_start < $4` (or a `thread_key LIKE` prefix), and verify it matches the key construction. `reconstruction_version` is part of the key so a re-fence at a new model/prompt version coexists with the old until explicitly superseded.
 
+### Amendment 2026-06-06 (Phase C prep execution) -- production load uses version-AGNOSTIC range-delete (supersede), not version-scoped
+
+**Do not revert.** The production loader (`scripts/load-chat/thread-loader-core.ts`, shared by both Phase A's `load-threads.ts` and Phase C's `backfill-batch.ts`) deletes by **(channel, date_range_start window) ONLY -- NOT scoped by reconstruction_version**. Rationale: the retrieval index wants exactly ONE version per (channel, date) range. Phase A's `fence-sonnet-v1` threads are increment-1 probe scaffolding (cap 750 / probe gap) to be REPLACED by production `fence-sonnet-v2` (12h / 1500), not to coexist. A version-agnostic range-delete makes the reset-day full-year-2021 v2 batch automatically supersede A's v1 (the "fold #1" supersede the orchestrator flagged at the prep checkpoint) with no orphaned v1 rows. Idempotency is preserved: re-running a batch deletes its date range (including what it just inserted) then re-inserts identically; `thread_key` UNIQUE is the tie-breaker. The version-scoped `batchScopeClause` in `thread-key.ts` REMAINS available for any future safe-coexistence migration, but the production load deliberately does NOT use it. This supersedes D5's original implication (version-scoped delete + "coexists until explicitly superseded") for the production path. Verified in prep: a synthetic prior-version row was cleared by reload while v2 stayed intact (fold #1 PASS).
+
 ---
 
 ## D6. Hybrid retrieval rewire -- copy `search_entities` exactly
