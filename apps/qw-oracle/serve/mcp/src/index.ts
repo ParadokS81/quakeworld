@@ -278,24 +278,24 @@ const TOOL_LIST = [
   {
     name: 'search_solved_issues',
     description:
-      'Full-text search over the QuakeWorld community chat corpus: 2.66M denoised messages from QuakeNet IRC (2005-2016, 1.94M) and the Quake.World Discord (2016-present, 717K). Returns ranked session transcripts so the asking LLM reads what people actually said. Sessions with fewer than 5 chat messages are excluded to drop pickup-callout noise. Use this for community discussion about cvars, commands, gameplay topics, troubleshooting, history. Discord hits include deep links back to the original message.',
+      'Hybrid retrieval (full-text tsvector + semantic pgvector, fused via Reciprocal Rank Fusion) over the QuakeWorld community Discord chat corpus (~728k messages), reconstructed into topic-coherent threads. Returns ranked thread transcripts (the raw member messages) so the asking LLM reads what people actually said. Discord hits include deep links back to the original message. Use for community discussion / troubleshooting / history about cvars, commands, gameplay, errors. Corpus is Discord-only; pre-2016 IRC content is not indexed.',
     inputSchema: {
       type: 'object',
       properties: {
         query: {
           type: 'string',
           description:
-            'Full-text query. Supports Postgres `websearch_to_tsquery` syntax: phrase matching with double-quotes, AND/OR boolean operators, leading minus for exclude. E.g. "rpickup", "crosshair size", "weapon priority", "-bot".',
+            'Free-text query. Supports Postgres `websearch_to_tsquery` syntax: phrase matching with double-quotes, AND/OR boolean operators, leading minus for exclude. E.g. "rpickup", "crosshair size", "weapon priority", "-bot".',
         },
         limit: {
           type: 'number',
           description:
-            'Max session hits to return. Default 3. Raising past 5 is usually wasteful; rank drops off fast.',
+            'Max thread hits to return. Default 3. Raising past 5 is usually wasteful; rank drops off fast.',
         },
         max_messages_per_session: {
           type: 'number',
           description:
-            'Max chat messages per session transcript. Default 40. Long sessions get truncated; the asking LLM still gets enough context to synthesise.',
+            'Max chat messages per thread transcript. Default 40. Long threads get truncated; the asking LLM still gets enough context to synthesise.',
         },
       },
       required: ['query'],

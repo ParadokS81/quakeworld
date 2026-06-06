@@ -44,7 +44,7 @@ Tools are organized by **verb shape**, not by data category. Adding a new data c
 | L1 mechanics | `lookup_mechanic`, `search_mechanics` | name-known vs filtered listing |
 | L1 gameplay entities (weapons / items / projectiles) | `lookup_gameplay_entity`, `search_gameplay_entities` | name-known vs filtered listing |
 | L1 game modes (KTX) | `describe_mode` | composite assembly (catalog + settings + activation + concept note) |
-| L2 chat sessions | `search_solved_issues` | full-text retrieval |
+| L2 chat threads | `search_solved_issues` | hybrid (vector + FTS via RRF) retrieval |
 | L3 concept notes | `search_concepts`, `get_concept_note` | hybrid retrieval vs full body fetch |
 | Honest failure | `redirect_to_human` | escape valve |
 
@@ -73,7 +73,7 @@ Three buckets, per-tool meaning:
 
 | Bucket | What it means | Consumer LLM behavior |
 |---|---|---|
-| `strong` | Result is good enough to synthesise from | Cite by `canonical_id` / slug / `session_id`; build the answer |
+| `strong` | Result is good enough to synthesise from | Cite by `canonical_id` / slug / or chat thread (topic + channel); build the answer |
 | `weak` | A result exists but quality is borderline | Either request follow-up via another tool, or call `redirect_to_human`; never confabulate |
 | `none` | Corpus does not cover this | Call `redirect_to_human` or state plainly that the corpus does not cover the question |
 
@@ -85,14 +85,14 @@ Per-tool calibration:
 | `search_entities` | RRF fused score with shared `MATCH_QUALITY_*` thresholds | OK (calibrated 2026-05-06: STRONG=0.02 WEAK=0.005) |
 | `search_concepts` | RRF fused score, same shared thresholds | OK (calibrated 2026-05-06, same values) |
 | `get_concept_note` | binary by id presence | OK |
-| `search_solved_issues` | top-result `ts_rank` against `L2_TS_RANK_*` thresholds | Logic OK; thresholds placeholder (STRONG=0.05 WEAK=0.005) pending an L2 calibration set |
+| `search_solved_issues` | top-result RRF score against `L2_RRF_*` thresholds (STRONG=0.02 WEAK=0.005, PROVISIONAL -- borrowed from search_entities, not yet calibrated for thread retrieval; pending Phase D recalibration on the full fenced-thread backfill) | Logic OK; thresholds provisional |
 | `lookup_map` / `search_maps` | binary by row-presence | OK |
 | `lookup_mechanic` / `search_mechanics` | binary by row-presence | OK |
 | `lookup_gameplay_entity` / `search_gameplay_entities` | binary by row-presence | OK |
 | `describe_mode` | binary by catalog-row presence | OK |
 | `redirect_to_human` | binary by row-presence | OK |
 
-**Calibration discipline:** thresholds for ranked retrieval tools get tuned against a labeled eval set; calibration data lives at `eval/calibration-queries.json` (disjoint from `eval/eval-queries.json` per D10). Run `bun run calibrate` from `apps/qw-oracle/` to sweep candidate thresholds against the calibration set; write the printed values into `.env` (dev) or `/mnt/user/appdata/qw-oracle/.env` (prod). Recalibrate after any extension to the calibration set or any change to the embedding model. The L2 (`search_solved_issues`) threshold pair has its own env vars (`L2_TS_RANK_*`) and currently uses placeholders -- a Layer 2 calibration set is a future deliverable, dependent on Arc 3 chat-corpus rebuild landing the L2 embedding pipeline.
+**Calibration discipline:** thresholds for ranked retrieval tools get tuned against a labeled eval set; calibration data lives at `eval/calibration-queries.json` (disjoint from `eval/eval-queries.json` per D10). Run `bun run calibrate` from `apps/qw-oracle/` to sweep candidate thresholds against the calibration set; write the printed values into `.env` (dev) or `/mnt/user/appdata/qw-oracle/.env` (prod). Recalibrate after any extension to the calibration set or any change to the embedding model. The L2 (`search_solved_issues`) threshold pair has its own env vars (`L2_RRF_STRONG_THRESHOLD` / `L2_RRF_WEAK_THRESHOLD`); embeddings + hybrid retrieval landed in Layer 2 increment 1 (layer2-corpus-reconstruction arc, Phase A). The thresholds are currently provisional (borrowed from search_entities; not yet calibrated for thread retrieval). Recalibration against a Layer 2 eval set is a Phase D deliverable, after the full fenced-thread backfill completes.
 
 ## Orientation contract
 
@@ -101,7 +101,7 @@ The orientation blob (`serve/mcp/src/orientation.ts`) ships to every connecting 
 - The three layers and which tools cover each.
 - Recommended iteration order (start with `search_concepts` for how-to, `search_entities` for facts, `search_solved_issues` for community history).
 - The `match_quality` honest-failure protocol.
-- Citation discipline (`canonical_id` / slug / `session_id`; "the AI says" is not a citation).
+- Citation discipline (`canonical_id` / slug / chat thread (topic + channel); "the AI says" is not a citation).
 
 **Update rule:** every new tool, new layer, or change to citation discipline requires an edit to the orientation blob in the same commit. Adding a tool without orientation update is invisible to consumers and silently breaks Discovery.
 
@@ -154,7 +154,7 @@ The pattern is proven by the qwiki arc (Phases 1-3 shipped); Phase 6 (MCP tools)
 
 | # | Drift | Severity | Fix |
 |---|---|---|---|
-| 1 | L2 `search_solved_issues` thresholds (`L2_TS_RANK_STRONG_THRESHOLD` / `_WEAK_THRESHOLD`) are placeholders | Medium (L2 match_quality bucket boundaries are guess-grade until calibrated) | Build an L2-shaped calibration set after Arc 3 lands embeddings on Layer 2; rerun the sweep. |
+| 1 | L2 `search_solved_issues` thresholds (`L2_RRF_STRONG_THRESHOLD` / `L2_RRF_WEAK_THRESHOLD`) are provisional -- borrowed from search_entities, not calibrated for thread retrieval | Medium (L2 match_quality bucket boundaries are approximate until calibrated) | Build an L2-shaped calibration set; Phase D deliverable (after full fenced-thread backfill). Embeddings + hybrid retrieval have landed (layer2-corpus-reconstruction arc, Phase A); the remaining work is calibration only. |
 | 2 | ~920 markdown files in `curated/player-notes/` and `curated/clan-notes/` are not exposed via MCP | Critical for the in-flight L3 expansion arc | Path C: `profiles` + `profile_chunks` tables, `search_profiles` + `get_profile` tools. |
 
 Drift items closed in the 2026-05-06 cleanup pass: response-shape unification across the 6 ad-hoc tools (now all return `ToolResponse<T>`); `search_concepts`/`search_entities` calibration confirmed (live thresholds match the optimum on the 5-query calibration set); `search_solved_issues` switched from count-based to `ts_rank`-based bucketing; `info_key` doc leak stripped from `lookup_entity` description; orientation blob reordered to L1/L2/L3.

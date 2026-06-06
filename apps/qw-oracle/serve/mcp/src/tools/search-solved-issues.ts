@@ -1,49 +1,51 @@
 // apps/qw-oracle/serve/mcp/src/tools/search-solved-issues.ts
 //
-// Layer 2 lexical search. Queries session_search.session_tsv (tsvector, config
-// 'simple' per D7), joins back to sessions for metadata, then materialises
-// each hit by reading message_labels + messages for the chat transcript.
-// Sessions with fewer than 5 chat messages are filtered out (one-line
-// callouts hit but contain no signal).
+// Hybrid retrieval over chat_threads (Layer 2 corpus reconstruction). Fuses:
+//   - lexical: content_tsv @@ websearch_to_tsquery('simple', query) -- same
+//     'simple' config as the sessions-era tsvector (D7: language-agnostic for
+//     mixed-language Discord corpus).
+//   - semantic: pgvector cosine kNN on topic_embedding (voyage-4-lite query).
+// Fusion via Reciprocal Rank Fusion (k=60). Lexical-only degraded path on
+// Voyage API failure -- no throw, error logged to embedding_api_log.
+//
+// Thresholds (R10 PROVISIONAL): L2_RRF_STRONG_THRESHOLD / L2_RRF_WEAK_THRESHOLD
+// default to 0.02 / 0.005 -- borrowed from search_entities calibration, not yet
+// calibrated against a Layer 2 eval set. Pending Phase D recalibration on the
+// full fenced-thread backfill.
 
 import { db } from '../db.ts';
-import type { SessionHit, SessionMessage, ToolResponse } from '../types.ts';
+import { embedTexts } from '../../../../shared/embedding.ts';
+import { reciprocalRankFusion } from '../../../../shared/rrf.ts';
+import type { ThreadHit, SessionMessage, ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
-// ts_rank thresholds for match_quality bucketing. Placeholders pending eval-set
-// calibration (API_CONTRACTS.md drift #2). Distinct env vars from RRF tools
-// because ts_rank and RRF scores live in different statistical regimes.
-const STRONG_THRESHOLD = parseFloat(process.env.L2_TS_RANK_STRONG_THRESHOLD ?? '0.05');
-const WEAK_THRESHOLD = parseFloat(process.env.L2_TS_RANK_WEAK_THRESHOLD ?? '0.005');
+const QUERY_MODEL = process.env.EMBEDDING_MODEL_QUERY ?? 'voyage-4-lite';
+// PROVISIONAL thresholds (R10): borrowed from search_entities (STRONG=0.02,
+// WEAK=0.005). Not yet calibrated for thread retrieval. Pending Phase D
+// recalibration on the full fenced-thread backfill.
+const STRONG_THRESHOLD = parseFloat(process.env.L2_RRF_STRONG_THRESHOLD ?? '0.02');
+const WEAK_THRESHOLD = parseFloat(process.env.L2_RRF_WEAK_THRESHOLD ?? '0.005');
 
-function bucket(rank: number): 'strong' | 'weak' | 'none' {
-  if (rank >= STRONG_THRESHOLD) return 'strong';
-  if (rank >= WEAK_THRESHOLD) return 'weak';
-  return 'none';
-}
-
-interface SearchSolvedIssuesArgs {
+interface Args {
   query: string;
   limit?: number;
   max_messages_per_session?: number;
 }
 
-interface FtsHitRow {
-  session_id: string; // BIGINT comes back as string from postgres-js
-  rank: number;
-}
-
-interface SessionMetaRow {
-  id: string;
+interface ThreadRow {
+  thread_id: string;       // BIGINT -> string via ::text cast
+  topic_label: string;
   channel_name: string;
   platform: string;
-  started_at: string;
-  ended_at: string;
-  chat_message_count: number;
-  participants: string[] | null;
+  date_range_start: string;
+  date_range_end: string;
+  participant_count: number;
+  participants_json: string[] | null;
+  message_count: number;
+  resolution_status: string | null;
 }
 
-interface ChatRow {
+interface MessageRow {
   message_id: string;
   author_name: string;
   created_at: string;
@@ -53,107 +55,128 @@ interface ChatRow {
   guild_id: string | null;
 }
 
-function canonicalSessionId(meta: SessionMetaRow): string {
-  return `session:${meta.platform}:${meta.channel_name}:${meta.started_at}`;
+async function lexicalCandidates(query: string, fanout: number): Promise<ThreadRow[]> {
+  try {
+    return await db<ThreadRow[]>`
+      SELECT id::text AS thread_id, topic_label, channel_name, platform,
+             date_range_start, date_range_end, participant_count,
+             participants_json, message_count, resolution_status
+      FROM chat_threads
+      WHERE content_tsv @@ websearch_to_tsquery('simple', ${query})
+      ORDER BY ts_rank(content_tsv, websearch_to_tsquery('simple', ${query})) DESC
+      LIMIT ${fanout}
+    `;
+  } catch {
+    // Defensive: tsquery can reject malformed queries. Return empty and let
+    // the semantic path (or empty result) handle it gracefully.
+    return [];
+  }
 }
 
-async function hydrateSession(
-  sessionId: string,
-  maxMessages: number,
-  rank: number,
-): Promise<SessionHit | null> {
-  const metaRows = await db<SessionMetaRow[]>`
-    SELECT id::text, channel_name, platform, started_at, ended_at,
-           chat_message_count, participants_json AS participants
-    FROM sessions
-    WHERE id = ${sessionId}::bigint
+async function semanticCandidates(vec: number[], fanout: number): Promise<ThreadRow[]> {
+  const vecLiteral = `[${vec.join(',')}]`;
+  return db<ThreadRow[]>`
+    SELECT id::text AS thread_id, topic_label, channel_name, platform,
+           date_range_start, date_range_end, participant_count,
+           participants_json, message_count, resolution_status
+    FROM chat_threads
+    WHERE topic_embedding IS NOT NULL
+    ORDER BY topic_embedding <=> ${vecLiteral}::vector
+    LIMIT ${fanout}
   `;
-  const meta = metaRows[0];
-  if (!meta) return null;
+}
 
-  const rows = await db<ChatRow[]>`
+async function hydrateThread(threadId: string, maxMessages: number): Promise<MessageRow[]> {
+  return db<MessageRow[]>`
     SELECT m.id AS message_id, m.author_name, m.created_at, m.content,
            m.platform, dc.channel_id, dc.guild_id
-    FROM messages m
-    JOIN message_labels l ON l.message_id = m.id
+    FROM thread_messages tm
+    JOIN messages m ON m.id = tm.message_id
     LEFT JOIN discord_channels dc ON dc.channel_name = m.channel_name
-    WHERE l.session_id = ${sessionId}::bigint
-      AND l.category = 'chat'
+    WHERE tm.thread_id = ${threadId}::bigint
     ORDER BY m.created_at
     LIMIT ${maxMessages}
   `;
-
-  const messages: SessionMessage[] = rows.map((r) => {
-    const m: SessionMessage = {
-      author: r.author_name,
-      at: r.created_at,
-      text: r.content ?? '',
-    };
-    if (r.platform === 'discord' && r.guild_id && r.channel_id) {
-      m.discord_url = `https://discord.com/channels/${r.guild_id}/${r.channel_id}/${r.message_id}`;
-    }
-    return m;
-  });
-
-  // platform column has a CHECK constraint locking to 'discord' (D9-revised);
-  // TS narrowing has no view of that, so cast through the literal.
-  return {
-    session_id: canonicalSessionId(meta),
-    numeric_id: Number(meta.id),
-    channel: meta.channel_name,
-    platform: meta.platform as 'discord',
-    started_at: meta.started_at,
-    ended_at: meta.ended_at,
-    chat_message_count: meta.chat_message_count,
-    participants: meta.participants ?? [],
-    messages,
-    rank,
-  };
 }
 
-export async function searchSolvedIssues(args: SearchSolvedIssuesArgs): Promise<ToolResponse<SessionHit>> {
+function rowToMessage(r: MessageRow): SessionMessage {
+  const m: SessionMessage = {
+    author: r.author_name,
+    at: r.created_at,
+    text: r.content ?? '',
+  };
+  if (r.platform === 'discord' && r.guild_id && r.channel_id) {
+    m.discord_url = `https://discord.com/channels/${r.guild_id}/${r.channel_id}/${r.message_id}`;
+  }
+  return m;
+}
+
+export async function searchSolvedIssues(args: Args): Promise<ToolResponse<ThreadHit>> {
   const limit = args.limit ?? 3;
   const maxMessages = args.max_messages_per_session ?? 40;
+  const fanout = limit * 4;
 
-  let ftsRows: FtsHitRow[];
+  // Kick off lexical candidates immediately (no Voyage dependency).
+  const lexPromise = lexicalCandidates(args.query, fanout);
+
+  // Attempt semantic embedding; degrade to lexical-only on failure.
+  let semHits: ThreadRow[] = [];
   try {
-    ftsRows = await db<FtsHitRow[]>`
-      SELECT ss.session_id::text AS session_id,
-             ts_rank(ss.session_tsv, websearch_to_tsquery('simple', ${args.query})) AS rank
-      FROM session_search ss
-      WHERE ss.session_tsv @@ websearch_to_tsquery('simple', ${args.query})
-        AND ss.chat_message_count >= 5
-      ORDER BY rank DESC
-      LIMIT ${limit}
+    const result = await embedTexts([args.query], QUERY_MODEL, 'query');
+    await db`
+      INSERT INTO embedding_api_log (source, model, input_tokens, latency_ms)
+      VALUES ('mcp-query', ${result.model}, ${result.tokensInput}, ${result.latencyMs})
     `;
+    semHits = await semanticCandidates(result.vectors[0]!, fanout);
   } catch (err) {
-    return {
-      results: [],
-      match_quality: 'none',
-      suggested_fallback: `tsvector rejected the query "${args.query}": ${(err as Error).message}. Try a simpler term or quote the full phrase.`,
-      meta: {
-        tool: 'search_solved_issues',
-        server_version: SERVER_VERSION,
-        queried_at: new Date().toISOString(),
-      },
-    };
+    await db`
+      INSERT INTO embedding_api_log (source, model, input_tokens, error)
+      VALUES ('mcp-query', ${QUERY_MODEL}, 0, ${(err as Error).message})
+    `;
+    // Lexical-only degraded path; no throw.
   }
 
-  const results: SessionHit[] = [];
-  for (const row of ftsRows) {
-    const hit = await hydrateSession(row.session_id, maxMessages, row.rank);
-    if (hit) results.push(hit);
-  }
+  const lexHits = await lexPromise;
 
-  const matchQuality: 'strong' | 'weak' | 'none' =
-    results.length === 0 ? 'none' : bucket(ftsRows[0]?.rank ?? 0);
+  const fused = reciprocalRankFusion([lexHits, semHits], (t) => t.thread_id);
+  const top = fused.slice(0, limit);
+
+  // Hydrate each top thread with its messages.
+  const results: ThreadHit[] = await Promise.all(
+    top.map(async (f) => {
+      const row = f.item;
+      const msgRows = await hydrateThread(row.thread_id, maxMessages);
+      const messages = msgRows.map(rowToMessage);
+      return {
+        thread_id: row.thread_id,
+        topic_label: row.topic_label,
+        channel: row.channel_name,
+        platform: 'discord' as const,
+        date_range_start: row.date_range_start,
+        date_range_end: row.date_range_end,
+        participant_count: row.participant_count,
+        participants: row.participants_json ?? [],
+        message_count: row.message_count,
+        resolution_status: (row.resolution_status as ThreadHit['resolution_status']) ?? null,
+        messages,
+        score: f.score,
+      };
+    }),
+  );
+
+  // match_quality from top fused score vs PROVISIONAL thresholds (R10).
+  let matchQuality: 'strong' | 'weak' | 'none';
+  if (top.length === 0) matchQuality = 'none';
+  else if (top[0]!.score >= STRONG_THRESHOLD) matchQuality = 'strong';
+  else if (top[0]!.score >= WEAK_THRESHOLD) matchQuality = 'weak';
+  else matchQuality = 'none';
 
   return {
     results,
     match_quality: matchQuality,
     suggested_fallback:
       matchQuality === 'none'
-        ? `No indexed chat sessions with >=5 chat messages match "${args.query}". The denoising pass is structural only (bot/system/reaction filter); semantic noise like pickup callouts is still in the corpus. Try a more specific query or ask in #ezquake on Discord.`
+        ? `No community threads matched "${args.query}". Try a more specific term or ask directly in #ezquake on the Quake.World Discord.`
         : null,
     meta: {
       tool: 'search_solved_issues',

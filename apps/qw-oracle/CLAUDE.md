@@ -2,11 +2,13 @@
 
 **Status:** Active development. Five codebases loaded into Layer 1 (ezQuake / FTE / QWCL / MVDSV / KTX) plus the `qw` namespace for game content (maps + game mechanics). Schema state lives in `db/migrations/` + the `schema_migrations` table (see `SCHEMA.md`); there is no hand-maintained schema-version number. For chronological ship history see [`docs/arc-history.md`](docs/arc-history.md). For active backlog see `HANDOVER.md` (root).
 
-### Layer 2 status (Arc 1 / Phase 3 -- Postgres + tsvector, Discord-only)
+### Layer 2 status (Postgres + tsvector + pgvector, Discord-only; threads = retrieval unit)
 
 - Authoritative store: Postgres `qw_oracle`, tables `messages`,
   `discord_channels`, `import_log`, `processing_log`, `sessions`,
-  `message_labels`, `session_search`, `session_references`.
+  `message_labels`, `session_search`, `session_references`, plus
+  `chat_threads` + `thread_messages` (the topic-coherent thread retrieval
+  unit; layer2-corpus-reconstruction arc, migration 021).
 - tsvector config: `'simple'` (language-agnostic). Discord corpus is
   mixed-language (Swedish, Russian, German handles and snippets);
   English stemming would mangle non-English tokens. See decisions.md D7.
@@ -17,10 +19,17 @@
   no IRC tables. Arc 3 reconsiders only if (a) a codepage re-import makes
   IRC content trustworthy AND (b) operator demand for IRC-era queries
   emerges; otherwise IRC stays out indefinitely.
-- Layer 2 in v1 is port-only. No segmentation rework, no summarisation,
-  no embeddings. `search_solved_issues` is lexical-only, same shape as
-  before. Arc 3 (separate plan) adds session-summary embeddings and
-  hybrid retrieval over Layer 2.
+- Retrieval unit is the topic-coherent THREAD (layer2-corpus-reconstruction
+  arc, Phase A increment 1). Discord chat is fenced into threads
+  (`chat_threads`); each thread's RAW member messages are concatenated,
+  embedded (voyage-4-large), and FTS-indexed, and `search_solved_issues` is
+  hybrid (vector-primary + FTS via RRF k=60), mirroring `search_entities`. A
+  summary is NOT embedded -- raw messages are (decisions.md D3). `sessions` /
+  `session_search` remain as raw timestamp-grouped adjacent-context, no longer
+  the retrieval unit. RRF `match_quality` thresholds (`L2_RRF_*`) are
+  provisional pending Phase D recalibration on the full backfill. Increment 1
+  loaded only the Feb-Mar 2021 probe slice (~1008 threads); the full-corpus
+  backfill is Phase C, gated on the Phase A go/no-go.
 - Hygiene tightenings absorbed into the port (decisions.md D18):
   filter-then-segment session boundaries, nullable `message_labels.session_id`
   for bot/reaction/system messages, `BOT_COMMAND_PATTERNS` removed (Discord

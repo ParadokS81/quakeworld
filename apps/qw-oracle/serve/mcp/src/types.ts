@@ -77,8 +77,28 @@ export interface SessionMessage {
   discord_url?: string;
 }
 
+// Layer 2 thread hit: one reconstructed topic-coherent thread from the Discord
+// corpus. Returned by search_solved_issues (hybrid retrieval over chat_threads).
+// score is the fused RRF score from the lexical + semantic retrieval pass.
+export interface ThreadHit {
+  thread_id: string;         // chat_threads.id as string (postgres-js BIGINT -> string)
+  topic_label: string;
+  channel: string;
+  platform: 'discord';
+  date_range_start: string;
+  date_range_end: string;
+  participant_count: number;
+  participants: string[];
+  message_count: number;
+  resolution_status: 'solved' | 'unresolved' | 'informational' | null;
+  messages: SessionMessage[]; // reuses SessionMessage (author/at/text/discord_url)
+  score: number;              // fused RRF score
+}
+
 // D9-revised: Layer 2 corpus is Discord-only in Arc 1; the prior 'irc' option
 // and the | string SQLite-era hedge are gone.
+// SessionHit is retained for adjacent context (loader / session tables); it is
+// no longer the return shape of search_solved_issues (which returns ThreadHit).
 export interface SessionHit {
   session_id: string;
   numeric_id: number;
