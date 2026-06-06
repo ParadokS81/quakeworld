@@ -994,7 +994,7 @@ export async function probeHudRecoveryFirstClass(ctx: ProbeContext): Promise<Pro
 //        where description is also NULL (a NULL origin on a populated
 //        description field is a loader bug, not an absent description).
 //   (ii) ARC-SCOPED guard: for the D1 configurable buckets this arc
-//        owns (project IN ('ktx','mvdsv') AND type IN ('cvar','command',
+//        owns (project IN ('ktx','mvdsv','qtv','qwfwd') AND type IN ('cvar','command',
 //        'cmdline_param','info_key')) every row with a non-NULL description
 //        must have an in-vocabulary origin from the narrower owned-track
 //        set {source_inline, synthesized}.
@@ -1044,7 +1044,7 @@ async function probeDescribeFillOriginVocabulary(ctx: ProbeContext): Promise<Pro
   `;
   const globalTotal = globalCountRows[0]?.cnt ?? 0;
 
-  // Part (ii): ARC-SCOPED guard -- D1 configurable buckets for ktx + mvdsv.
+  // Part (ii): ARC-SCOPED guard -- D1 configurable buckets for ktx + mvdsv + qtv + qwfwd.
   // A row is an offender when description IS NOT NULL but description_origin
   // is NULL or outside the owned-track set {source_inline, synthesized}.
   // The IS NULL OR ... NOT IN form is mandatory so a NULL
@@ -1054,7 +1054,7 @@ async function probeDescribeFillOriginVocabulary(ctx: ProbeContext): Promise<Pro
     const arcRows = await ctx.sql<{ canonical_id: string }[]>`
       SELECT canonical_id
       FROM entities
-      WHERE project IN ('ktx', 'mvdsv')
+      WHERE project IN ('ktx', 'mvdsv', 'qtv', 'qwfwd')
         AND type IN ('cvar', 'command', 'cmdline_param', 'info_key')
         AND description IS NOT NULL
         AND (
@@ -1072,7 +1072,7 @@ async function probeDescribeFillOriginVocabulary(ctx: ProbeContext): Promise<Pro
   const arcCountRows = await ctx.sql<{ cnt: number }[]>`
     SELECT COUNT(*)::int AS cnt
     FROM entities
-    WHERE project IN ('ktx', 'mvdsv')
+    WHERE project IN ('ktx', 'mvdsv', 'qtv', 'qwfwd')
       AND type IN ('cvar', 'command', 'cmdline_param', 'info_key')
       AND description IS NOT NULL
       AND (
@@ -1100,7 +1100,7 @@ async function probeDescribeFillOriginVocabulary(ctx: ProbeContext): Promise<Pro
 // ktx-mvdsv-l1-describe-fill).
 //
 // ARC-SCOPED ONLY -- mirrors the part (ii) predicate of
-// probeDescribeFillOriginVocabulary exactly: project IN ('ktx','mvdsv')
+// probeDescribeFillOriginVocabulary exactly: project IN ('ktx','mvdsv','qtv','qwfwd')
 // AND type IN ('cvar','command','cmdline_param','info_key').
 //
 // Assertion: every arc-scoped row with description_origin='synthesized'
@@ -1118,7 +1118,7 @@ async function probeDescribeFillSynthesizedRequiresAnchor(ctx: ProbeContext): Pr
   const rows = await ctx.sql<{ canonical_id: string }[]>`
     SELECT canonical_id
     FROM entities
-    WHERE project IN ('ktx', 'mvdsv')
+    WHERE project IN ('ktx', 'mvdsv', 'qtv', 'qwfwd')
       AND type IN ('cvar', 'command', 'cmdline_param', 'info_key')
       AND description_origin = 'synthesized'
       AND description_anchor_version IS NULL
@@ -1129,7 +1129,7 @@ async function probeDescribeFillSynthesizedRequiresAnchor(ctx: ProbeContext): Pr
   const countRows = await ctx.sql<{ cnt: number }[]>`
     SELECT COUNT(*)::int AS cnt
     FROM entities
-    WHERE project IN ('ktx', 'mvdsv')
+    WHERE project IN ('ktx', 'mvdsv', 'qtv', 'qwfwd')
       AND type IN ('cvar', 'command', 'cmdline_param', 'info_key')
       AND description_origin = 'synthesized'
       AND description_anchor_version IS NULL
@@ -1155,13 +1155,13 @@ async function probeDescribeFillSynthesizedRequiresAnchor(ctx: ProbeContext): Pr
 // provenance, a JSONB string scalar (pre-stringify loader regression), or an
 // empty array all represent the same failure -- the loader did not retain the
 // source evidence for the description it wrote. Arc-scoped to
-// project IN ('ktx','mvdsv') + the four entity types Phase 2 fills, exactly
+// project IN ('ktx','mvdsv','qtv','qwfwd') + the four entity types Phase 2 fills, exactly
 // like sibling probes origin_vocabulary and synthesized_requires_anchor.
 async function probeDescribeFillProvenanceEntryExists(ctx: ProbeContext): Promise<ProbeResult> {
   const rows = await ctx.sql<{ canonical_id: string }[]>`
     SELECT canonical_id
     FROM entities
-    WHERE project IN ('ktx', 'mvdsv')
+    WHERE project IN ('ktx', 'mvdsv', 'qtv', 'qwfwd')
       AND type IN ('cvar', 'command', 'cmdline_param', 'info_key')
       AND description_origin = 'shipped_doc'
       AND (
@@ -1176,7 +1176,7 @@ async function probeDescribeFillProvenanceEntryExists(ctx: ProbeContext): Promis
   const countRows = await ctx.sql<{ cnt: number }[]>`
     SELECT COUNT(*)::int AS cnt
     FROM entities
-    WHERE project IN ('ktx', 'mvdsv')
+    WHERE project IN ('ktx', 'mvdsv', 'qtv', 'qwfwd')
       AND type IN ('cvar', 'command', 'cmdline_param', 'info_key')
       AND description_origin = 'shipped_doc'
       AND (
