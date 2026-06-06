@@ -689,7 +689,7 @@ const PROJECT_DEFAULT_SNAPSHOT_VERSION: Record<Project, string> = {
   ktx:     'head',
   qwcl:    '2.33',
   qw:      'static',
-  qtv:     'head', // provisional; Phase 1/2 updates to the real version constant once source recon pins it
+  qtv:     '1.16-dev', // QTV frozen snapshot; version verified from pkg/qtv/qtv.go:29 qtvRelease
   qwfwd:   '1.40-dev', // QWFWD frozen snapshot; version verified from qwfwd.h:118 QWFWD_VERSION_SHORT
 };
 

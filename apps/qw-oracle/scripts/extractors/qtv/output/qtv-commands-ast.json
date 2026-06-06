@@ -1,0 +1,142 @@
+{
+  "commands": [
+    {
+      "name": "close",
+      "ast": {
+        "handler_fn": "closeCmd",
+        "source_file": "pkg/qtv/upstream_storage.go",
+        "source_line": 140,
+        "source_column": 2,
+        "enclosing_function": null,
+        "description": null
+      }
+    },
+    {
+      "name": "cmdlist",
+      "ast": {
+        "handler_fn": "cmdListCmd",
+        "source_file": "pkg/qtv/cmd.go",
+        "source_line": 38,
+        "source_column": 2,
+        "enclosing_function": null,
+        "description": null
+      }
+    },
+    {
+      "name": "dclose",
+      "ast": {
+        "handler_fn": "dCloseCmd",
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 218,
+        "source_column": 2,
+        "enclosing_function": null,
+        "description": null
+      }
+    },
+    {
+      "name": "dlist",
+      "ast": {
+        "handler_fn": "dListCmd",
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 219,
+        "source_column": 2,
+        "enclosing_function": null,
+        "description": null
+      }
+    },
+    {
+      "name": "echo",
+      "ast": {
+        "handler_fn": "echoCmd",
+        "source_file": "pkg/qtv/cmd.go",
+        "source_line": 35,
+        "source_column": 2,
+        "enclosing_function": null,
+        "description": null
+      }
+    },
+    {
+      "name": "exec",
+      "ast": {
+        "handler_fn": "execCmd",
+        "source_file": "pkg/qtv/cmd.go",
+        "source_line": 37,
+        "source_column": 2,
+        "enclosing_function": null,
+        "description": null
+      }
+    },
+    {
+      "name": "list",
+      "ast": {
+        "handler_fn": "listCmd",
+        "source_file": "pkg/qtv/upstream_storage.go",
+        "source_line": 141,
+        "source_column": 2,
+        "enclosing_function": null,
+        "description": null
+      }
+    },
+    {
+      "name": "playdemo",
+      "ast": {
+        "handler_fn": "playDemoCmd",
+        "source_file": "pkg/qtv/upstream_storage.go",
+        "source_line": 139,
+        "source_column": 2,
+        "enclosing_function": null,
+        "description": null
+      }
+    },
+    {
+      "name": "qtv",
+      "ast": {
+        "handler_fn": "qtvCmd",
+        "source_file": "pkg/qtv/upstream_storage.go",
+        "source_line": 138,
+        "source_column": 2,
+        "enclosing_function": null,
+        "description": null
+      }
+    },
+    {
+      "name": "quit",
+      "ast": {
+        "handler_fn": "quitCmd",
+        "source_file": "pkg/qtv/cmd.go",
+        "source_line": 36,
+        "source_column": 2,
+        "enclosing_function": null,
+        "description": null
+      }
+    },
+    {
+      "name": "status",
+      "ast": {
+        "handler_fn": "statusCmd",
+        "source_file": "pkg/qtv/qtv.go",
+        "source_line": 446,
+        "source_column": 2,
+        "enclosing_function": null,
+        "description": null
+      }
+    },
+    {
+      "name": "varlist",
+      "ast": {
+        "handler_fn": "varListCmd",
+        "source_file": "pkg/qtv/var.go",
+        "source_line": 87,
+        "source_column": 2,
+        "enclosing_function": null,
+        "description": null
+      }
+    }
+  ],
+  "_stats": {
+    "source_total_call_sites": 12,
+    "count": 12,
+    "with_handler": 12,
+    "with_description": 0
+  }
+}

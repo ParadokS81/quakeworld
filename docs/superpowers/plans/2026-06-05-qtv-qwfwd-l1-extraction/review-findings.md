@@ -144,6 +144,18 @@ Canonical order is **head-first then tag** (tag-first works but logs spurious `r
 
 **Proposed disposition (operator judgment):** low impact -- the proxy version is already surfaced via the `versions` row (`1.40-dev`) and the `*qwfwd:userinfo` info_key (`QWFWD_VERSION_SHORT`). Capturing `*version:serverinfo` for cross-engine parity would require routing `*`-prefixed `Cvar_Get` names into the info_keys output (cross-handler) -- a Phase-3/follow-up enhancement, surfaced for the operator to decide, not a Phase-1 fix.
 
+### F14 -- QTV `*version` dropped by the loader (same `*`-prefixed-cvar class as F13); QTV loads 40 cvars, not 41
+
+**Status:** Found during Phase 2 execution (2026-06-06). The loader skip is CORRECT behavior (identical mechanism to F13 for QWFWD); the residual is the same cross-engine-consistency judgment F13 deferred to the operator. NOT a Phase-2 blocker.
+
+**Evidence:** The extractor emits 41 cvars (source truth, F7), including `*version` (registered at `pkg/qtv/qtv.go:206` via `qvs.RegEx("*version", "QTVGO "+qtvRelease, qVarFlagReadOnly|qVarFlagServerInfo, nil)`, default resolves to `"QTVGO 1.16-dev"`). On load, `load-version` skips it: `[load-version] skipping entity with invalid name: *version` -- cvar names cannot begin with `*` (the established convention: `*`-prefixed names are `info_key`, never `cvar`; DB confirms zero `*`-cvars across all projects). So 40 cvars load, not 41. Verified live: `SELECT count(*) FROM entities WHERE project='qtv' AND name='*version'` returns 0 -- captured in neither type, since QTV has 0 `Info_*` call-sites (the same between-two-handlers gap as QWFWD F13).
+
+**Phase MD correction:** the phase MD's `*version` note (line 344, "consistent with MVDSV's `*version` cvar") is WRONG -- MVDSV's `*version` is an `info_key` (`*version:serverinfo`), not a cvar (F13 established this). The phase MD (drafted 2026-06-05) predates the F13 discovery (Phase 1, 2026-06-06). The executor prompt's F7 caveat ("if the live count differs from 41/12, the live count wins -- report it and note the cause") anticipated exactly this.
+
+**Floor-baseline implication (Phase 4):** the QTV F1 floor-count baseline is **cvar=40, command=12** (52 entities total), NOT 41/12 (53). All 52 are `source_backed`.
+
+**Proposed disposition (operator judgment, same as F13):** low impact -- the QTV version is already surfaced via the `versions` row (`1.16-dev`), and the dropped registration's default (`QTVGO 1.16-dev`) is preserved in the extractor JSON. Capturing `*version:serverinfo` for cross-engine parity would require routing `*`-prefixed cvar registrations into the info_keys output (cross-handler) -- a follow-up enhancement, not a Phase-2 fix. Resolve identically to whatever F13's disposition becomes.
+
 ---
 
 ## Findings the design got right (carry forward)
@@ -161,7 +173,7 @@ Canonical order is **head-first then tag** (tag-first works but logs spurious `r
 |---|---|
 | Phase 0 (Schema + plumbing) | F1, F4, F9, F10 |
 | Phase 1 (QWFWD extractor + vendored load path) | F2, F5, F6, F7; F12 (head-load recipe fix, RESOLVED); F13 (*version drop, surfaced) |
-| Phase 2 (QTV Go extractor) | F2, F5, F7; **F12 (head+tag load recipe -- LOAD-BEARING, inherit corrected 8-call recipe)** |
+| Phase 2 (QTV Go extractor) | F2, F5, F7; **F12 (head+tag load recipe -- LOAD-BEARING, inherit corrected 8-call recipe)**; F14 (*version drop -- 40 cvars not 41, surfaced) |
 | Phase 3 (Describe-fill) | F8 (skill gate); D6 guard is the load-bearing item; F11 (net_ip/net_port real defaults) |
 | Phase 4 (Validate + concept-note decision) | F3, F7, F10 (reproducibility-method implication) |
 

@@ -1,0 +1,737 @@
+{
+  "vars": [
+    {
+      "name": "*version",
+      "ast": {
+        "default_value": "QTVGO 1.16-dev",
+        "flags_raw": "qVarFlagReadOnly|qVarFlagServerInfo",
+        "flag_names": [
+          "qVarFlagReadOnly",
+          "qVarFlagServerInfo"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/qtv.go",
+        "source_line": 206,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "address",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/qtv.go",
+        "source_line": 210,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 202,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download_demos",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 207,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download_maps",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 206,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download_models",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 204,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download_other",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 208,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download_skins",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 203,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "allow_download_sounds",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 205,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "demo_dir",
+      "ast": {
+        "default_value": "demos",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/qtv.go",
+        "source_line": 213,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "dstream_read_buf_size",
+      "ast": {
+        "default_value": "32768",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 212,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "dstream_timeout",
+      "ast": {
+        "default_value": "30",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 214,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "dstream_write_buf_size",
+      "ast": {
+        "default_value": "65536",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 213,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "fp_messages",
+      "ast": {
+        "default_value": "4",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 209,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "fp_persecond",
+      "ast": {
+        "default_value": "2",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 210,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "fp_secondsdead",
+      "ast": {
+        "default_value": "2",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 211,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "hostname",
+      "ast": {
+        "default_value": "unnamed",
+        "flags_raw": "qVarFlagServerInfo",
+        "flag_names": [
+          "qVarFlagServerInfo"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/qtv.go",
+        "source_line": 211,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "http_enabled",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": "qVarFlagInitOnly",
+        "flag_names": [
+          "qVarFlagInitOnly"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/http.go",
+        "source_line": 51,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "http_idletimeout",
+      "ast": {
+        "default_value": "60",
+        "flags_raw": "qVarFlagInitOnly",
+        "flag_names": [
+          "qVarFlagInitOnly"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/http.go",
+        "source_line": 54,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "http_readtimeout",
+      "ast": {
+        "default_value": "45",
+        "flags_raw": "qVarFlagInitOnly",
+        "flag_names": [
+          "qVarFlagInitOnly"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/http.go",
+        "source_line": 52,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "http_server_cert_file",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "qVarFlagInitOnly",
+        "flag_names": [
+          "qVarFlagInitOnly"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/http.go",
+        "source_line": 58,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "http_server_key_file",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "qVarFlagInitOnly",
+        "flag_names": [
+          "qVarFlagInitOnly"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/http.go",
+        "source_line": 59,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "http_upload_enabled",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": "qVarFlagInitOnly",
+        "flag_names": [
+          "qVarFlagInitOnly"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/http.go",
+        "source_line": 55,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "http_upload_file_limit",
+      "ast": {
+        "default_value": "33554432",
+        "flags_raw": "qVarFlagInitOnly",
+        "flag_names": [
+          "qVarFlagInitOnly"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/http.go",
+        "source_line": 57,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "http_upload_total_limit",
+      "ast": {
+        "default_value": "67108864",
+        "flags_raw": "qVarFlagInitOnly",
+        "flag_names": [
+          "qVarFlagInitOnly"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/http.go",
+        "source_line": 56,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "http_writetimeout",
+      "ast": {
+        "default_value": "600",
+        "flags_raw": "qVarFlagInitOnly",
+        "flag_names": [
+          "qVarFlagInitOnly"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/http.go",
+        "source_line": 53,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "listen_address",
+      "ast": {
+        "default_value": ":28000",
+        "flags_raw": "qVarFlagInitOnly",
+        "flag_names": [
+          "qVarFlagInitOnly"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/qtv.go",
+        "source_line": 209,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "log_level",
+      "ast": {
+        "default_value": "info",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": "logLevelOnChange",
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/log.go",
+        "source_line": 15,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "log_pretty",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": "logPrettyOnChange",
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/log.go",
+        "source_line": 17,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "log_timeformat",
+      "ast": {
+        "default_value": "2006-01-02T15:04:05.000",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": "logTimeFormatOnChange",
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/log.go",
+        "source_line": 16,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "masters",
+      "ast": {
+        "default_value": "master.quakeworld.nu master.quakeservers.net qwmaster.fodquake.net",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/udp.go",
+        "source_line": 67,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "maxchains",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/upstream_storage.go",
+        "source_line": 87,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "maxclients",
+      "ast": {
+        "default_value": "1000",
+        "flags_raw": "qVarFlagServerInfo",
+        "flag_names": [
+          "qVarFlagServerInfo"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 201,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "maxservers",
+      "ast": {
+        "default_value": "100",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/upstream_storage.go",
+        "source_line": 86,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "network",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "qVarFlagInitOnly",
+        "flag_names": [
+          "qVarFlagInitOnly"
+        ],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/qtv.go",
+        "source_line": 208,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "parse_delay",
+      "ast": {
+        "default_value": "7",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/upstream_storage.go",
+        "source_line": 85,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "qtv_password",
+      "ast": {
+        "default_value": "",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/downstream_storage.go",
+        "source_line": 200,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "tick_time",
+      "ast": {
+        "default_value": "100",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/qtv.go",
+        "source_line": 212,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "ustream_read_buf_size",
+      "ast": {
+        "default_value": "327680",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/upstream_storage.go",
+        "source_line": 88,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "ustream_timeout",
+      "ast": {
+        "default_value": "60",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/upstream_storage.go",
+        "source_line": 90,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "ustream_write_buf_size",
+      "ast": {
+        "default_value": "32768",
+        "flags_raw": null,
+        "flag_names": [],
+        "on_change": null,
+        "min_bound": null,
+        "max_bound": null,
+        "source_file": "pkg/qtv/upstream_storage.go",
+        "source_line": 89,
+        "source_column": 2,
+        "storage_class": null,
+        "group_name_in_source": null,
+        "trailing_comment": null
+      }
+    }
+  ],
+  "_stats": {
+    "source_total": 41,
+    "count": 41,
+    "with_flags": 14,
+    "with_onchange": 3,
+    "with_trailing_comment": 0
+  }
+}
