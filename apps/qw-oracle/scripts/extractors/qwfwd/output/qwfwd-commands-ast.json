@@ -1,0 +1,330 @@
+{
+  "commands": [
+    {
+      "name": "addip",
+      "ast": {
+        "handler_fn": "SV_AddIP_f",
+        "source_file": "src/ban.c",
+        "source_line": 510,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "alias",
+      "ast": {
+        "handler_fn": "Cmd_Alias_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1073,
+        "source_column": 2,
+        "description": "Creates a new command that executes a command string (possibly ; seperated)",
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "banip",
+      "ast": {
+        "handler_fn": "SV_Cmd_Banip_f",
+        "source_file": "src/ban.c",
+        "source_line": 515,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "banlist",
+      "ast": {
+        "handler_fn": "SV_BanList_f",
+        "source_file": "src/ban.c",
+        "source_line": 517,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "banremove",
+      "ast": {
+        "handler_fn": "SV_Cmd_Banremove_f",
+        "source_file": "src/ban.c",
+        "source_line": 516,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "cllist",
+      "ast": {
+        "handler_fn": "FWD_Cmd_ClList_f",
+        "source_file": "src/peer.c",
+        "source_line": 423,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "cmdlist",
+      "ast": {
+        "handler_fn": "Cmd_CmdList_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1075,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "cvarlist",
+      "ast": {
+        "handler_fn": "Cvar_CvarList_f",
+        "source_file": "src/cvar.c",
+        "source_line": 524,
+        "source_column": 2,
+        "description": "List all cvars TODO: allow cvar name mask as a parameter, e.g. cvarlist cl_*",
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "echo",
+      "ast": {
+        "handler_fn": "Cmd_Echo_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1072,
+        "source_column": 2,
+        "description": "Just prints the rest of the line to the console",
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "exec",
+      "ast": {
+        "handler_fn": "Cmd_Exec_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1071,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "heartbeat",
+      "ast": {
+        "handler_fn": "QRY_Cmd_Heartbeat_f",
+        "source_file": "src/query.c",
+        "source_line": 703,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "help",
+      "ast": {
+        "handler_fn": "Cmd_Help_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1076,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "if",
+      "ast": {
+        "handler_fn": "Cmd_If_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1079,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "inc",
+      "ast": {
+        "handler_fn": "Cvar_Inc_f",
+        "source_file": "src/cvar.c",
+        "source_line": 527,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "listip",
+      "ast": {
+        "handler_fn": "SV_ListIP_f",
+        "source_file": "src/ban.c",
+        "source_line": 512,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "quit",
+      "ast": {
+        "handler_fn": "Cmd_Quit_f",
+        "source_file": "src/main.c",
+        "source_line": 136,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "removeip",
+      "ast": {
+        "handler_fn": "SV_RemoveIP_f",
+        "source_file": "src/ban.c",
+        "source_line": 511,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "serverinfo",
+      "ast": {
+        "handler_fn": "SV_Serverinfo_f",
+        "source_file": "src/main.c",
+        "source_line": 137,
+        "source_column": 2,
+        "description": "Examine or change the serverinfo string",
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "set",
+      "ast": {
+        "handler_fn": "Cvar_Set_f",
+        "source_file": "src/cvar.c",
+        "source_line": 526,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "svlist",
+      "ast": {
+        "handler_fn": "QRY_Cmd_SvList_f",
+        "source_file": "src/query.c",
+        "source_line": 702,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "toggle",
+      "ast": {
+        "handler_fn": "Cvar_Toggle_f",
+        "source_file": "src/cvar.c",
+        "source_line": 525,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "unalias",
+      "ast": {
+        "handler_fn": "Cmd_UnAlias_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1078,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "unaliasall",
+      "ast": {
+        "handler_fn": "Cmd_UnAliasAll_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1077,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "wait",
+      "ast": {
+        "handler_fn": "Cmd_Wait_f",
+        "source_file": "src/cmd.c",
+        "source_line": 1074,
+        "source_column": 2,
+        "description": "Causes execution of the remainder of the command buffer to be delayed until next frame.  This allows commands like: bind g \"impulse 5 ; +attack ; wait ; -attack ; impulse 2\"",
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "whitelist",
+      "ast": {
+        "handler_fn": "Cmd_Whitelist_f",
+        "source_file": "src/whitelist.c",
+        "source_line": 16,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "whitelistadd",
+      "ast": {
+        "handler_fn": "Cmd_WhitelistAdd_f",
+        "source_file": "src/whitelist.c",
+        "source_line": 17,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "whitelistpurge",
+      "ast": {
+        "handler_fn": "Cmd_WhitelistPurge_f",
+        "source_file": "src/whitelist.c",
+        "source_line": 19,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "whitelistremove",
+      "ast": {
+        "handler_fn": "Cmd_WhitelistRemove_f",
+        "source_file": "src/whitelist.c",
+        "source_line": 18,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    },
+    {
+      "name": "writeip",
+      "ast": {
+        "handler_fn": "SV_WriteIP_f",
+        "source_file": "src/ban.c",
+        "source_line": 513,
+        "source_column": 2,
+        "description": null,
+        "enclosing_function": null
+      }
+    }
+  ],
+  "_stats": {
+    "source_total_call_sites": 29,
+    "function_defs_indexed": 211,
+    "count": 29,
+    "with_handler": 29,
+    "with_description": 5
+  }
+}

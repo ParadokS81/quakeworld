@@ -1,0 +1,149 @@
+{
+  "info_keys": [
+    {
+      "name": "*qwfwd:userinfo",
+      "bare_name": "*qwfwd",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "write"
+        ],
+        "source_file": "src/svc.c",
+        "source_line": 290,
+        "containing_function": "SVC_DirectConnect",
+        "all_call_sites": [
+          {
+            "source_file": "src/svc.c",
+            "source_line": 290,
+            "operation": "write"
+          }
+        ]
+      }
+    },
+    {
+      "name": "challenge:userinfo",
+      "bare_name": "challenge",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "write"
+        ],
+        "source_file": "src/clc.c",
+        "source_line": 116,
+        "containing_function": "CL_SendConnectPacket_Q3",
+        "all_call_sites": [
+          {
+            "source_file": "src/clc.c",
+            "source_line": 116,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/svc.c",
+            "source_line": 235,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "name:userinfo",
+      "bare_name": "name",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/peer.c",
+        "source_line": 76,
+        "containing_function": "FWD_peer_new",
+        "all_call_sites": [
+          {
+            "source_file": "src/peer.c",
+            "source_line": 76,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "protocol:userinfo",
+      "bare_name": "protocol",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/svc.c",
+        "source_line": 228,
+        "containing_function": "SVC_DirectConnect",
+        "all_call_sites": [
+          {
+            "source_file": "src/svc.c",
+            "source_line": 228,
+            "operation": "read"
+          }
+        ]
+      }
+    },
+    {
+      "name": "prx:userinfo",
+      "bare_name": "prx",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read",
+          "remove",
+          "write"
+        ],
+        "source_file": "src/svc.c",
+        "source_line": 247,
+        "containing_function": "SVC_DirectConnect",
+        "all_call_sites": [
+          {
+            "source_file": "src/svc.c",
+            "source_line": 247,
+            "operation": "read"
+          },
+          {
+            "source_file": "src/svc.c",
+            "source_line": 264,
+            "operation": "write"
+          },
+          {
+            "source_file": "src/svc.c",
+            "source_line": 269,
+            "operation": "remove"
+          }
+        ]
+      }
+    },
+    {
+      "name": "qport:userinfo",
+      "bare_name": "qport",
+      "ast": {
+        "scope": "userinfo",
+        "operations": [
+          "read"
+        ],
+        "source_file": "src/svc.c",
+        "source_line": 232,
+        "containing_function": "SVC_DirectConnect",
+        "all_call_sites": [
+          {
+            "source_file": "src/svc.c",
+            "source_line": 232,
+            "operation": "read"
+          }
+        ]
+      }
+    }
+  ],
+  "_stats": {
+    "source_total_call_sites": 9,
+    "count": 6,
+    "by_scope": {
+      "userinfo": 6
+    }
+  }
+}

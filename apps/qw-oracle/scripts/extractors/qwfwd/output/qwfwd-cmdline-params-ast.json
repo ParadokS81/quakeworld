@@ -1,0 +1,28 @@
+{
+  "params": [
+    {
+      "name": "ip",
+      "ast": {
+        "source_file": "src/main.c",
+        "source_line": 229,
+        "source_column": null,
+        "enclosing_function": "main",
+        "description": "Local IP address on which QWFWD will listen. Optional; defaults to all interfaces (0.0.0.0). Takes the second positional argument when present and when it does not start with - or +."
+      }
+    },
+    {
+      "name": "port",
+      "ast": {
+        "source_file": "src/main.c",
+        "source_line": 228,
+        "source_column": null,
+        "enclosing_function": "main",
+        "description": "UDP port on which QWFWD will listen. Optional; defaults to QWFWD_DEFAULT_PORT (30000). Takes the first positional argument when present."
+      }
+    }
+  ],
+  "_stats": {
+    "source_total": 2,
+    "count": 2
+  }
+}

@@ -1,0 +1,226 @@
+{
+  "vars": [
+    {
+      "name": "*version",
+      "ast": {
+        "default_value": "QWFWD_VERSION",
+        "flags_raw": "CVAR_READONLY | CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_READONLY",
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/main.c",
+        "source_line": 127,
+        "source_column": 14,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "city",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/main.c",
+        "source_line": 132,
+        "source_column": 11,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "coords",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/main.c",
+        "source_line": 133,
+        "source_column": 13,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "countrycode",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/main.c",
+        "source_line": 131,
+        "source_column": 17,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "developer",
+      "ast": {
+        "default_value": "0",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/main.c",
+        "source_line": 126,
+        "source_column": 15,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "hostname",
+      "ast": {
+        "default_value": "unnamed qwfwd",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/main.c",
+        "source_line": 128,
+        "source_column": 14,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "hostport",
+      "ast": {
+        "default_value": "",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/main.c",
+        "source_line": 130,
+        "source_column": 14,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "masters",
+      "ast": {
+        "default_value": "QW_DEFAULT_MASTER_SERVERS",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/query.c",
+        "source_line": 699,
+        "source_column": 18,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "masters_filter_servers",
+      "ast": {
+        "default_value": "QW_DEFAULT_SV_FILTER",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/query.c",
+        "source_line": 700,
+        "source_column": 27,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "masters_heartbeat",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/query.c",
+        "source_line": 698,
+        "source_column": 22,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "masters_query",
+      "ast": {
+        "default_value": "1",
+        "flags_raw": "",
+        "flag_names": [],
+        "on_change": null,
+        "source_file": "src/query.c",
+        "source_line": 697,
+        "source_column": 19,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "maxclients",
+      "ast": {
+        "default_value": "128",
+        "flags_raw": "CVAR_SERVERINFO",
+        "flag_names": [
+          "CVAR_SERVERINFO"
+        ],
+        "on_change": null,
+        "source_file": "src/main.c",
+        "source_line": 129,
+        "source_column": 16,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "net_ip",
+      "ast": {
+        "default_value": "ip",
+        "flags_raw": "CVAR_NOSET",
+        "flag_names": [
+          "CVAR_NOSET"
+        ],
+        "on_change": null,
+        "source_file": "src/net.c",
+        "source_line": 277,
+        "source_column": 13,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    },
+    {
+      "name": "net_port",
+      "ast": {
+        "default_value": "port",
+        "flags_raw": "CVAR_NOSET",
+        "flag_names": [
+          "CVAR_NOSET"
+        ],
+        "on_change": null,
+        "source_file": "src/net.c",
+        "source_line": 282,
+        "source_column": 14,
+        "storage_class": null,
+        "trailing_comment": null
+      }
+    }
+  ],
+  "_stats": {
+    "source_total": 14,
+    "count": 14,
+    "with_flags": 9,
+    "with_onchange": 0,
+    "with_trailing_comment": 0
+  }
+}

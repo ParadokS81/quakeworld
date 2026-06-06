@@ -101,6 +101,49 @@ Post-020 this returns exactly 10 rows, every one containing `ezquake` (allow-lis
 
 **Phase 4 implication:** the `idempotency --project` CLI deliberately rejects qtv/qwfwd (exit 2, "must be one of ezquake|fte|qwcl|mvdsv|ktx"). Phase 4's reproducibility validation for qtv/qwfwd must therefore use the standalone-extractor-rerun + git-diff-on-output method (the Phase 1/2 reproducibility approach), NOT this extract-tag-coupled probe. The F1 floor-count + source-state probes in quality-grid.ts (D12) are separate and DO cover qtv/qwfwd.
 
+### F11 -- QWFWD `net_ip` / `net_port` carry a variable-name `default_value`, not a resolved literal
+
+**Status:** Found during Phase 1 execution (2026-06-06) by the cvars-handler sub-agent; verified against live source. Touches Phase 3 (describe-fill). Does NOT block Phase 1 -- the extractor behavior is correct; the consequence is a describe-pass handoff.
+
+**Evidence:** `net.c:277-284` registers both cvars with a *variable* as the default arg, not a string literal:
+```c
+char *ip = (*ps.params.ip) ? ps.params.ip : "0.0.0.0";
+char port[64] = {0};
+snprintf(port, sizeof(port), "%d", ps.params.port ? ps.params.port : QWFWD_DEFAULT_PORT);
+net_ip   = Cvar_FullSet("net_ip",   ip,   CVAR_NOSET);   // arg1 = `ip`   (a char*)
+net_ip   = Cvar_Get    ("net_ip",   ip,   CVAR_NOSET);
+net_port = Cvar_FullSet("net_port", port, CVAR_NOSET);   // arg1 = `port` (a char[64])
+net_port = Cvar_Get    ("net_port", port, CVAR_NOSET);
+```
+The handler faithfully records the call-site arg text, so it emits `default_value="ip"` for `net_ip` and `default_value="port"` for `net_port`. An AST extractor cannot data-flow-resolve these to the real runtime defaults (`0.0.0.0` when no `-ip` cmdline; `QWFWD_DEFAULT_PORT` = 30000 when no port cmdline). This is the expected limitation for dynamically-computed defaults; capturing the call-site arg is correct extractor behavior (F7 -- the extractor reports source truth), not a bug to fix in the handler.
+
+**Proposed disposition (Phase 3 owns):** the describe pass is source-register-site verified (D6); the describe author reads `net.c` and surfaces the real defaults (`0.0.0.0` / 30000, both cmdline-overridable) in the `description`. Whether to ALSO correct the `default_value` column for these two cvars (vs. leaving the source-true variable name) is a Phase-3 judgment for the operator -- a static override is the only mechanism, since re-extraction will always re-emit the variable name. The other ~11 QWFWD cvars use string-literal defaults and are unaffected.
+
+### F12 -- Single-version frozen projects need a `head` load, not only a tag (Phase-1 recipe was incomplete) -- LOAD-BEARING for Phase 2
+
+**Status:** Found AND fixed during Phase 1 execution (2026-06-06). Phase 1 resolved (recipe corrected, verified). **Phase 2 (QTV) MUST inherit the corrected recipe -- this is the load-bearing carry-forward.**
+
+**Evidence:** `load-version` marks an entity `source_backed` only if its per-type `*_versions` rows reach `HEAD_ORDINAL` (999999). The mechanism is the entity-state-retreat block (`diff-versions.ts` `removed_from_head`; arc `2026-05-15-entity-state-retreat-loader-bug`): any entity whose max version ordinal is below head is retired to `source_retired`. The phase MD Task-7 recipe loaded each type ONLY as the tag (`--version 1.40-dev --ordinal 1`), so all 50 QWFWD entities loaded `source_retired` -- V5 (expects `source_backed`) would have failed. Verified against the two established single-version precedents: **mvdsv** loads as `head` (ordinal 999999); **qwcl** loads as BOTH the tag `2.33` (ordinal 233) AND `head` (999999), same commit -> entities `source_backed`. The phase MD's mental model (a tag load yields a live source-backed snapshot) was wrong: the live snapshot lives at HEAD; tags are historical.
+
+**Fix (applied + verified):** load each type TWICE, both `--commit 1.40-dev`:
+1. `--version head` (NO `--ordinal`; `head` auto-resolves to HEAD_ORDINAL) -- establishes the live source-backed snapshot.
+2. `--version 1.40-dev --ordinal 1` -- the labeled tag identity (D4; satisfies V6 + `build-snapshot` default).
+Canonical order is **head-first then tag** (tag-first works but logs spurious `removed_from_head` -> `re_added` transition churn). End state matches qwcl exactly: `versions = {1.40-dev ord1, head ord999999}`, all 50 entities `source_backed`, fully idempotent (re-load logs 0 transitions, counts stable).
+
+**Phase 2 implication (LOAD-BEARING):** the Task-7 "reuse verbatim" recipe is now 8 calls (4 head + 4 tag), not 4. QTV is also a single frozen vendored snapshot; loading only the tag would retire every QTV entity identically. Substitute `qtv` + the QTV version label and run the head pass too.
+
+**V6 implication:** the phase MD V6 "exactly 1 versions row" is superseded -- the correct state has 2 rows (tag + head), matching qwcl.
+
+### F13 -- QWFWD `*version` is registered via `Cvar_Get` but dropped by the loader (starred serverinfo key)
+
+**Status:** Found during Phase 1 execution (2026-06-06). The cvar-skip is CORRECT loader behavior; the residual is a cross-engine-consistency judgment for the operator. Not a Phase-1 blocker.
+
+**Evidence:** `main.c` registers `*version` via `Cvar_Get("*version", QWFWD_VERSION, ...)`. The extractor correctly emits it (cvar count 14). The loader skips it (`[load-version] skipping entity with invalid name: *version`) because cvar names cannot begin with `*` -- the established, correct convention: `*`-prefixed names are `info_key` entities, never cvars. DB confirms across all projects: `*`-names exist only as `info_key` (mvdsv 18, ktx 13, including `*version:serverinfo`); zero as cvar. Same validation class as F24 (KTX colon-suffixed commands). So 13 cvars load, not 14, and the skip is right.
+
+**The gap:** QWFWD sets `*version` via the cvar system, NOT via `Info_SetValueForStarKey`, so the info_keys handler (which detects `Info_*` call sites) does not capture it either. Net: `*version` is captured in neither type. mvdsv/ktx capture `*version:serverinfo` because they set it through `Info_*` calls; QWFWD's Cvar-registration idiom falls between the two handlers.
+
+**Proposed disposition (operator judgment):** low impact -- the proxy version is already surfaced via the `versions` row (`1.40-dev`) and the `*qwfwd:userinfo` info_key (`QWFWD_VERSION_SHORT`). Capturing `*version:serverinfo` for cross-engine parity would require routing `*`-prefixed `Cvar_Get` names into the info_keys output (cross-handler) -- a Phase-3/follow-up enhancement, surfaced for the operator to decide, not a Phase-1 fix.
+
 ---
 
 ## Findings the design got right (carry forward)
@@ -117,9 +160,9 @@ Post-020 this returns exactly 10 rows, every one containing `ezquake` (allow-lis
 | Phase | Findings to verify before sign-off |
 |---|---|
 | Phase 0 (Schema + plumbing) | F1, F4, F9, F10 |
-| Phase 1 (QWFWD extractor + vendored load path) | F2, F5, F6, F7 |
-| Phase 2 (QTV Go extractor) | F2, F5, F7 |
-| Phase 3 (Describe-fill) | F8 (skill gate); D6 guard is the load-bearing item |
+| Phase 1 (QWFWD extractor + vendored load path) | F2, F5, F6, F7; F12 (head-load recipe fix, RESOLVED); F13 (*version drop, surfaced) |
+| Phase 2 (QTV Go extractor) | F2, F5, F7; **F12 (head+tag load recipe -- LOAD-BEARING, inherit corrected 8-call recipe)** |
+| Phase 3 (Describe-fill) | F8 (skill gate); D6 guard is the load-bearing item; F11 (net_ip/net_port real defaults) |
 | Phase 4 (Validate + concept-note decision) | F3, F7, F10 (reproducibility-method implication) |
 
 ---

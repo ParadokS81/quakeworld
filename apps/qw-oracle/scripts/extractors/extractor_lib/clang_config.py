@@ -329,3 +329,58 @@ def clang_args_ktx_for(ktx_src_dir: str) -> list[str]:
         "-w",
         "-DBOT_SUPPORT=1",
     ]
+
+
+# ---------- QWFWD (apps/slipgate-app/reference/qwfwd/) ----------
+#
+# UDP QW forwarder/proxy. Vendored frozen snapshot; no .git dir.
+# Version: QWFWD_VERSION "qwfwd 1.40-dev" (qwfwd.h:117).
+#
+# CMakeLists.txt target_include_directories is empty -- the entire
+# codebase lives in a flat src/ directory, all headers are peers.
+# No project-level defines are set in the CMakeLists (-D args are absent);
+# QWFWD relies on POSIX availability and the compiler's built-ins.
+#
+# Platform split: two variants.
+#   1. Server-base (Unix/POSIX): no extra defines.
+#   2. Server+Win: -D_WIN32 + Windows SDK stubs for sys.c and net.c
+#      which include <winsock2.h> under #ifdef _WIN32.
+# All registration sites verified to be unconditional (not platform-gated):
+#   - main.c Cvar_Get block (lines 126-133) has no surrounding #ifdef.
+#   - net.c Cvar_Get/FullSet block (lines 277-284) has no surrounding #ifdef.
+#   - query.c Cvar_Get block (lines 697-700) has no surrounding #ifdef.
+#   - Cmd_AddCommand sites across ban.c/cmd.c/main.c/peer.c/query.c/
+#     whitelist.c/cvar.c are unconditional.
+# Therefore a single-variant base parse is sufficient; the Win variant
+# is provided for completeness (it does not add new registration sites).
+
+def clang_args_qwfwd_for(qwfwd_src_dir: str) -> list[str]:
+    """Base (POSIX) variant for QWFWD src/ tree.
+
+    qwfwd_src_dir is the absolute path to
+    apps/slipgate-app/reference/qwfwd/src/; all .h headers
+    live here as peers of the .c files (flat layout, no submodule).
+
+    No project-level #define macros are needed -- CMakeLists.txt ships
+    none and all registration sites are unconditionally compiled.
+    """
+    return [
+        "-x", "c",
+        f"-I{qwfwd_src_dir}",
+        "-w",
+    ]
+
+
+def clang_args_qwfwd_win_for(qwfwd_src_dir: str) -> list[str]:
+    """Windows variant: adds _WIN32 and Windows SDK stubs.
+
+    Activates sys.c and net.c Windows code paths (winsock2.h include
+    under #ifdef _WIN32). No registration sites are gated behind
+    these guards (verified by source walk), so this variant is
+    correctness-additive, not coverage-additive. Mirrors the MVDSV
+    Windows variant pattern.
+    """
+    return clang_args_qwfwd_for(qwfwd_src_dir) + [
+        "-D_WIN32",
+        f"-I{_STUBS_WINDOWS}",
+    ]

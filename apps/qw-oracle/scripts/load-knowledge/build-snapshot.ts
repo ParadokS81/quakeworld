@@ -690,7 +690,7 @@ const PROJECT_DEFAULT_SNAPSHOT_VERSION: Record<Project, string> = {
   qwcl:    '2.33',
   qw:      'static',
   qtv:     'head', // provisional; Phase 1/2 updates to the real version constant once source recon pins it
-  qwfwd:   'head', // provisional; Phase 1/2 updates to the real version constant once source recon pins it
+  qwfwd:   '1.40-dev', // QWFWD frozen snapshot; version verified from qwfwd.h:118 QWFWD_VERSION_SHORT
 };
 
 export async function buildSnapshot(opts: BuildSnapshotOptions): Promise<BuildSnapshotResult> {
