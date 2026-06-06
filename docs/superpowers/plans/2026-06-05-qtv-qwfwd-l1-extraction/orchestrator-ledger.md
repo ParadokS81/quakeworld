@@ -23,9 +23,9 @@ Running cross-phase memory for the arc-orchestrator session. Append-only per pha
 |---|---|---|---|
 | 0 schema+plumbing | **SHIPPED** (commit bf944a3f) | **YES (2026-06-06)** | F9 fix used; F10 found+fixed by executor (13th Record site) |
 | 1 qwfwd extractor | **SHIPPED** (commit 161c6c1a) | **YES (2026-06-06)** | F12 head+tag recipe fix (D4 amended); F11->Phase3; F13 open operator Q |
-| 2 qtv extractor | ready (Go 1.24.4 installed) | -- | inherit F12 head+tag recipe (4 calls, in prompt); count-capture -> Phase 4 baselines |
-| 3 describe-fill | not started | -- | needs Q-SKILL gate-widening first; F11 (net_ip/net_port real defaults) |
-| 4 validate+decide | not started | -- | F10: standalone-rerun+git-diff for reproducibility, NOT `idempotency --project`; QWFWD floor baselines below |
+| 2 qtv extractor | **SHIPPED** (commit cc80ea6a) | **YES (2026-06-06)** | F12 head+tag worked (52 source_backed); F14 (*version drop, cvar=40 not 41) |
+| 3 describe-fill | next up (Q-SKILL gate **DONE**) | -- | mother-ledger + batched describe; F11 (net_ip/net_port real defaults); D6 guard load-bearing |
+| 4 validate+decide | not started | -- | F10: standalone-rerun+git-diff, NOT `idempotency --project`; floor baselines below (qwfwd 13/29/2/6, qtv 40/12) |
 
 ---
 
@@ -38,12 +38,15 @@ Running cross-phase memory for the arc-orchestrator session. Append-only per pha
      - `cmdline_param = 2`
      - `info_key = 6`
    - Phase 4 `makeFloorCountProbe('qwfwd', <type>, N)` + `makeFloorSourceStateProbe('qwfwd', <type>, { source_backed: N })` for each.
-2. **Phase 2 V4 QTV counts.** Known: cvar=41, command=12 (Phase-2 V4 hardcoded + grep-verified). Re-confirm against live count at Phase-2 boundary; feed `QTV_FLOOR_PROBES`.
-   - STATE: pending (Phase 2 not run).
+2. **Phase 2 V4 QTV counts -> Phase 4 QTV_FLOOR_PROBES.**
+   - **STATE: CAPTURED (orchestrator-verified live, 2026-06-06), all `source_backed`:**
+     - `cvar = 40` -- **NOT 41.** Extractor emits 41 (source truth), loader drops `*version` (F14, same class as F13 -- `*`-names are info_key, never cvar). Use 40.
+     - `command = 12`
+   - (52 total qtv entities.)
 3. **Phase 3 `[L3 breadcrumb: <candidate>]` tags -> Phase 4 concept-note decision evidence.** New convention (mother-ledger SR-5; absent from sibling arc) written into `entities.description_reasoning`. Phase 4 Task 3 Step 0 queries these. If the `parse_delay`/`tick_time` harvest comes back empty, Phase 4 defers candidate (b) per the endorsed bias.
    - STATE: pending (Phase 3 not run).
-4. **Q-SKILL Option A gate-widening BEFORE Phase 3 Task 4.** `~/.claude/skills/describe-fill-synthesis/SKILL.md` line 102 hard-aborts when project not in `{ktx,mvdsv}`. Widen to `{ktx,mvdsv,qtv,qwfwd}` + update 4 doc refs (SKILL.md lines 4/53/354 + `references/subagent-brief-template.md:17`). Operator-approved (Option A). Safe-additive. Shared user-global skill edit.
-   - STATE: pending (apply before Phase 3 executes).
+4. **Q-SKILL Option A gate-widening (describe-fill-synthesis skill).**
+   - **STATE: DONE (orchestrator, 2026-06-06).** `~/.claude/skills/describe-fill-synthesis/SKILL.md` gate (live line 102) widened `{ktx,mvdsv}` -> `{ktx,mvdsv,qtv,qwfwd}` (the FUNCTIONAL fix). Verified live: grep confirms the gate was the ONLY project-equality branch (F8's claim holds). Scope-hygiene doc refs also widened: SKILL.md lines 4 (desc) / 56 (anchor_version) / 352 (escape-hatch) + `references/subagent-brief-template.md` lines 17 + 43 (worker-facing out-of-scope marker). Remaining `KTX/MVDSV` mentions are trigger-context, not scope-fences. This is an out-of-repo user-global skill edit (not in the quakeworld git history); recorded here. Phase 3 describe workers can now dispatch for qtv/qwfwd.
 
 ## Concept-note decision bias (Phase 4, operator-endorsed starting point; live breadcrumbs refine; operator ratifies)
 - (a) master-server registration/heartbeat = AUTHOR (strong).
@@ -93,3 +96,16 @@ Independently re-ran the boundary (commit 161c6c1a):
 - CAVEAT (not a blocker): V5 MCP round-trip could not be confirmed against the dev DB -- the session's live qw-oracle MCP server targets PROD, so `lookup_entity(qwfwd,...)` returns empty there. Verified at the data layer instead (row + fields + source_backed). The tracer-bullet's load path is proven; MCP-against-dev (and eventual prod refresh) is a separate deploy concern.
 
 Sign-off: Phase 1 SHIPPED. D4 amended (F12). Open items surfaced to operator: F13 disposition; the EXTRACTOR-PLAYBOOK head+tag-rule recommendation (executor's idea -- fold "single-version projects load head+tag" into the playbook/onboard-extractor skill so future onboardings don't repeat F12; surfaced, not done -- shared-tooling change, operator's call).
+
+### Phase 2 -- VERIFIED GREEN (orchestrator, 2026-06-06)
+
+Independently re-ran the boundary (commit cc80ea6a):
+- counts x source_state: **cvar 40 + command 12, all 52 source_backed**, 0 non-source_backed (F12 head+tag worked for QTV). -> Phase-4 baselines captured above (40/12, NOT 41/12).
+- versions: `{1.16-dev ord1, head ord999999}`, both `ok`, commit `1.16-dev`.
+- F14 confirmed: extractor JSON emits 41 cvars incl `*version` (source truth); loader drops `*version` (`*`-names are info_key) -> 40 in DB. `SELECT ... name='*version'` returns 0.
+- D6 sanity: the 4 C-only knobs (mvdport/admin_password/floodprot/allow_http) absent from qtv entities (0) -- the Go extractor leaked no C knobs (reinforces Phase-3 D6 Layer-1 floor).
+- Field spot-check `qtv_password`: source_backed, default `''`, `pkg/qtv/downstream_storage.go`.
+- V9 tsc exit 0; V8 reproducibility: independent `go run` re-extract -> empty git diff (Go extractor deterministic).
+- Commit scope clean (extract.go + go.mod + 2 output JSON + build-snapshot + review-findings). cc80ea6a ancestor of HEAD.
+
+Sign-off: Phase 2 SHIPPED. No decision amendment (F14 consistent with F13 + loader name-validation). Q-SKILL gate-widening landed (obligation #4 DONE) -> Phase 3 unblocked. Open items: F13+F14 are now a paired operator question (capture `*version:serverinfo` for qwfwd+qtv cross-engine parity, or defer? both low-impact -- version already in versions row + `*qwfwd:userinfo`).
