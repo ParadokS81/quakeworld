@@ -1,6 +1,6 @@
 You are executing Phase C (batched backfill) of the Layer 2 corpus reconstruction arc (2026-06-06-layer2-corpus-reconstruction). Use the `arc-executor` skill.
 
-[RUN MODE -- reset day. PREP (build the pipeline + the batch ledger + validate on a tiny slice + the resolution_status kill-switch decision) is done separately via phase-C-prep-executor-prompt.md BEFORE the quota reset. This prompt RUNS the real ~4,058-agent backfill on reset: loop the batches 1-2/session per backfill-ledger.md, re-fencing the 2021 slice under the production reconstruction_version. Corrected scale (12h gap, cap from Phase B): decisions.md Amendment under D9.]
+[RUN MODE -- reset day. PREP (build the pipeline + the batch ledger + validate on a tiny slice + the resolution_status kill-switch decision) is done separately via phase-C-prep-executor-prompt.md BEFORE the quota reset. This prompt RUNS the real ~3,796-agent backfill on reset: loop the batches 1-2/session per backfill-ledger.md, re-fencing the 2021 slice under the production reconstruction_version. Scale (12h gap, cap 1500): decisions.md Amendment under D9. R13: keep chunks <256KB (~2,700 msgs); cap 1500 is safe.]
 
 PRECONDITION -- STOP if not met: Phase A's go/no-go gate is GREEN (decisions.md D2) and Phase B's fence cap is chosen. If the gate is not green, this phase does not run.
 

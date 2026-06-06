@@ -1,8 +1,8 @@
 You are executing Phase C in PREP MODE (build + validate ONLY -- NO full backfill) of the Layer 2 corpus reconstruction arc (2026-06-06-layer2-corpus-reconstruction). Use the `arc-executor` skill.
 
-WHY PREP MODE: the operator's LLM quota is exhausted this week and resets ~2026-06-08. The full ~4,058-agent backfill (the quota chew) MUST WAIT for reset. This pass builds + proves the pipeline on ONE tiny slice so reset-day is pure execution. Do NOT run the real batches.
+WHY PREP MODE: the operator's LLM quota is exhausted this week and resets ~2026-06-08. The full ~3,796-agent backfill (the quota chew) MUST WAIT for reset. This pass builds + proves the pipeline on ONE tiny slice so reset-day is pure execution. Do NOT run the real batches.
 
-PRECONDITION: Phase A gate assessed GREEN by the orchestrator (operator proceeding); Phase B gap LOCKED at 12h, cap = Phase B's swept value (>=750). If B's cap is not yet reported, build cap-parameterized and validate at 750, to be re-confirmed at the final cap.
+PRECONDITION: Phase A gate assessed GREEN by the orchestrator (operator proceeding); Phase B DONE -- gap LOCKED at 12h, cap RATIFIED at 1500. Build cap-parameterized with 1500 as the production value.
 
 ARC IDENTIFICATION: this arc fences Discord chat into THREADS and rewires search_solved_issues. Phase C fences+embeds+loads the corpus in idempotent (channel x year) batches at the 12h gap. You are in the WRONG arc if you touch engine-entity extraction, KTX/MVDSV/QTV/QWFWD, or community profiles, or are asked to merge threads at retrieval time -- STOP.
 
@@ -27,7 +27,7 @@ PREP TASKS (build + validate; NO full backfill):
 
 1. Batch plan / ledger: write `scripts/load-chat/backfill-ledger.md` listing all ~38 (channel,year) batches with a per-batch agent estimate at 12h/cap and a checkbox each. Order #helpdesk + #quakeworld first (high value), #dev-corner + #antilag as the tail (#antilag = cross-fork antilag-netcode discussion, NOT competitive gameplay). Use the BATCH MAP above as input; exact per-batch chunk/agent counts come from chunking at 12h in Task 2.
 
-2. `scripts/load-chat/backfill-batch.ts`: (channel, year) -> pull that window from Postgres -> lull-chunk at the 12h gap with cap = B's value (reuse the 02-prep-chunks lullChunks logic; pass gap + cap as params, do NOT import the pinned CHUNK_CAP/gap) -> write chunk files -> fence via the Workflow recipe (Sonnet, conc-5, paced waves, recovery+retry, HONEST counts, startup log() banner, args normalized as a JSON string -- D9/R7) -> load via the existing load-threads.ts / thread-key.ts / batchScopeClause (idempotent DELETE-scope-then-INSERT, R5; embed live via the embed-entities.ts pattern -- the probe cache only covers 2021; JSONB as JS values, D12; DISTINCT on junction counts, R8).
+2. `scripts/load-chat/backfill-batch.ts`: (channel, year) -> pull that window from Postgres -> lull-chunk at the 12h gap with cap = 1500 (reuse the 02-prep-chunks lullChunks logic; pass gap + cap as params, do NOT import the pinned CHUNK_CAP/gap) -> write chunk files (R13: mirror sweep-prep.ts's <256KB write-time guard so the fence agent's Read tool never truncates; cap 1500 is comfortably under the ~2,700-msg limit) -> fence via the Workflow recipe (Sonnet, conc-5, paced waves, recovery+retry, HONEST counts, startup log() banner, args normalized as a JSON string -- D9/R7) -> load via the existing load-threads.ts / thread-key.ts / batchScopeClause (idempotent DELETE-scope-then-INSERT, R5; embed live via the embed-entities.ts pattern -- the probe cache only covers 2021; JSONB as JS values, D12; DISTINCT on junction counts, R8).
 
 3. resolution_status passenger: extend the fence schema + prompt so each thread MAY carry resolution_status in {solved, unresolved, informational} (per-conversation LOCAL truth only, never cross-conversation synthesis -- D7).
 
