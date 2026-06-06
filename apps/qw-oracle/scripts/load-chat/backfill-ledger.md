@@ -136,4 +136,55 @@ larger chunks. Confirms the D9-amendment cost model.)
 
 ## Validation (prep, 2026-06-06) -- #antilag-2026 slice
 
-_Filled in after the prep validation run (Task 4)._
+Pipeline proven end-to-end on the smallest batch (#antilag 2026, 1,029 msgs, 21
+chunks). Trial: 1 agent cleared the throttle (quota available pre-reset). Then
+both kill-switch passes (21 agents each) ran 0-failure.
+
+**Kill-switch (R6 / D7) -- KEEP, provisional.** Same 21 chunks fenced with vs
+without `resolution_status` (`bun scripts/load-chat/fence-stats.ts` measures
+both):
+
+| metric | without (baseline) | with (passenger) |
+|---|---|---|
+| index-hallucination | 0% | 0% |
+| coverage | 97.76% | 100% |
+| threads | 51 | 67 |
+| resolution_status | n/a | 14 solved / 13 unresolved / 40 informational / 0 none |
+
+The passenger did NOT perturb fencing: index-hallucination held at 0% (probe
+baseline), coverage held (100% >= 97.76%; the gap is within run-to-run fencer
+variance, not a passenger effect). Spot-read of the with-pass threads: coherent,
+finer partition than the without run, accurate resolution labels (e.g. a Q&A on
+the sv_antilag value -> solved; the safestrafe deep-dive -> informational).
+**DECISION: keep resolution_status riding.** This is PROVISIONAL -- #antilag is
+atypical (low-traffic, netcode-only). D7's binding gate is batch-1 at reset
+(#helpdesk or #quakeworld); RE-CONFIRM the with-vs-without delta there before
+committing it to the whole backfill.
+
+**Idempotency (R5): PASS.** Loaded the with-pass output, then re-ran the same
+batch -- identical state both times: 67 threads, 0 NULL embeddings, identical
+thread_key set (md5 `77cfea5f615c26b24df88a06b313d1e8`), identical resolution
+distribution. DELETE-scope-then-INSERT replaced, did not duplicate.
+
+**Supersede (fold #1): PASS.** Injected a synthetic prior-version row
+(`fence-sonnet-v1-PROBE`) into the #antilag-2026 range; the next load's
+version-agnostic range-DELETE cleared it (off-version-in-range 1 -> 0) while the
+67 v2 threads stayed intact. Confirms reset-day's full-year-2021 v2 batch will
+supersede Phase A's v1 probe threads.
+
+**Straddle (fold #4): PASS (structural).** All 67 loaded v2 threads have
+`date_range_start` inside [2026,2027) (min 2026-01-26, max 2026-05-02; 0 below,
+0 above), so exactly one batch's range-DELETE covers each. (#antilag-2026 starts
+Jan 26, so no real New-Year split is present in this slice to observe; the
+documented split behavior for a true straddle stands.)
+
+**Retrieval (4a): PASS.** `search_solved_issues` returns #antilag-2026 threads
+for all three antilag-specific probe queries (top-3 all #antilag), with exact
+topic hits and `resolution_status` surfaced. Semantic + lexical hybrid working
+on the new slice. (match_quality reads weak/strong on provisional R10 thresholds
+-- Phase D recalibrates.)
+
+**State left for reset:** chat_threads = 1008 v1 (Phase A 2021 probe, untouched)
++ 67 v2 (#antilag-2026). The #antilag-2026 batch stays loaded; reset-day RUN
+re-runs it idempotently (it is `[x]` above). Fence outputs cached at
+`scratch/backfill/antilag-2026/fence-{nores,withres}.json` (gitignored).
