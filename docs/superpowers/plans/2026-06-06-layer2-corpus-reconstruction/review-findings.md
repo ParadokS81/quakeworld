@@ -79,13 +79,25 @@ While drafting / executing each phase:
 
 **Evidence:** The borrowed `search_entities` thresholds (STRONG=0.02 / WEAK=0.005) were calibrated for the L1 entity RRF-score regime, not for fenced-thread retrieval. Phase A's gate is an operator-run side-by-side comparison (threads vs sessions), which tolerates provisional `match_quality`. But the tool must not report `match_quality: 'strong'` as a calibrated signal until Phase D recalibrates -- note the provisional status in the tool comment and `API_CONTRACTS.md`.
 
+### R11 -- the `search_solved_issues` tool description is stale (claims IRC + 2.66M)
+
+**Resolved by:** D6 (the rewire rewrites the description).
+
+**Evidence:** `serve/mcp/src/index.ts:281` still describes the tool as "2.66M denoised messages from QuakeNet IRC (2005-2016, 1.94M) and the Quake.World Discord (2016-present, 717K)". That contradicts Arc 1 D9-revised (IRC excluded entirely; corpus is Discord-only, ~728k messages) and even contradicts `orientation.ts:14`, which correctly says "Discord-only; pre-2016 IRC content is not in this corpus". The rewire rewrites the description to threads + Discord-only + correct scale, resolving the contradiction in the same commit (Discovery contract).
+
+### R12 -- gate fairness: increment-1 threads are 2021-only
+
+**Resolved by:** Phase A gate procedure (D2 / D11).
+
+**Evidence:** In increment 1, `chat_threads` holds ONLY the Feb-Mar 2021 slice (~1,008 threads). The old `search_solved_issues` session-FTS searches the WHOLE corpus (all years). A query whose best answer lives outside 2021 would unfairly favor the old tool (the new path has no out-of-slice threads yet) -- which would read as "threads lose" for the wrong reason. The gate therefore compares on the **30 reverse-generated queries** (generated FROM 2021 sessions -> guaranteed in-slice); the 12 Phase-8 anchors are 2026-sourced and a noisier cross-check, not the primary signal. The gate procedure states this explicitly.
+
 ---
 
 ## Phase ownership of risks
 
 | Phase | Risks to verify before sign-off |
 |---|---|
-| A -- Increment 1 (gate) | R1, R2, R3, R4, R8, R9, R10 |
+| A -- Increment 1 (gate) | R1, R2, R3, R4, R8, R9, R10, R11, R12 |
 | B -- Chunk-size sweep | R7 |
 | C -- Batched backfill | R5, R6, R7, R8 |
 | buckets-E -- enrichment | R7, R8 |

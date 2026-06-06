@@ -1,0 +1,26 @@
+You are executing Phase C (batched backfill) of the Layer 2 corpus reconstruction arc (2026-06-06-layer2-corpus-reconstruction). Use the `arc-executor` skill.
+
+PRECONDITION -- STOP if not met: Phase A's go/no-go gate is GREEN (decisions.md D2) and Phase B's fence cap is chosen. If the gate is not green, this phase does not run.
+
+ARC IDENTIFICATION -- confirm before touching anything. This arc fences Discord chat into THREADS and rewires search_solved_issues. Phase C fences + embeds + loads the WHOLE corpus in idempotent (channel x ~1yr) batches, paced to quota. You are in the WRONG arc if you find yourself touching engine-entity extraction, KTX/MVDSV/QTV/QWFWD, or community profiles, or being asked to merge threads at retrieval time. If so, STOP.
+
+Working directory: /home/paradoks/projects/quakeworld  (qw-oracle is at apps/qw-oracle/.)
+
+REQUIRED READING (all, before executing):
+1. docs/superpowers/plans/2026-06-06-layer2-corpus-reconstruction/README.md
+2. docs/superpowers/plans/2026-06-06-layer2-corpus-reconstruction/decisions.md  (D5 idempotency, D7 resolution_status passenger, D9 Workflow recipe)
+3. docs/superpowers/plans/2026-06-06-layer2-corpus-reconstruction/review-findings.md  (Phase C owns R5, R6, R7, R8)
+4. docs/superpowers/plans/2026-06-06-layer2-corpus-reconstruction/phase-A-increment-1.md  (C REUSES A's load-threads.ts + thread-key.ts -- do NOT write a second loader)
+5. docs/superpowers/plans/2026-06-06-layer2-corpus-reconstruction/phase-C-batched-backfill.md  -- YOUR SPEC.
+6. Live source: apps/qw-oracle/scripts/calibration/wf-a-fence-queries.js (the recipe) + scripts/embed/embed-entities.ts (production embed at backfill scale -- the probe cache only covers 2021) + the per-year density table in docs/superpowers/specs/2026-05-04-layer2-corpus-reconstruction-design.md Pass 2 (covers only #helpdesk + #quakeworld; query #dev-corner + #antilag density live).
+
+EXECUTION RULES: follow decisions.md. Highlights: idempotency is a HARD requirement -- deterministic thread_key, DELETE-scope-then-INSERT with the predicate matching the key (D5/R5); the resolution_status passenger has a batch-1 kill-switch that MUST actually run the with-vs-without comparison (D7/R6); Workflow fence = Sonnet/conc-5/paced/recovery+retry/honest counts + startup log() + args-as-JSON-string (D9/R7); embed live via the embed-entities.ts pattern; JSONB gets JS values (D12); DISTINCT on junction counts (R8). Pace 1-2 batches per session to quota; trial a small wave first.
+
+STEP-BY-STEP:
+1. Read all required files. Confirm the precondition (A gate green + B cap).
+2. Critically review the phase MD against decisions.md + review-findings.md.
+3. Execute: Task 1 (batch plan + ledger, incl. the live density query for the two unprobed channels), Task 2 (resolution_status passenger + batch-1 kill-switch), Task 3 (per-batch pipeline -- the repeating unit, 1-2 batches/session), Task 4 (idempotency probe). Commit per batch; update the ledger with honest fail-counts.
+4. Run the phase-boundary verification (full corpus fenced + embedded + retrievable, idempotent, honest counts).
+5. Halt with a structured status report + which batches are done / remaining + the resolution_status keep/drop decision.
+
+This phase spans multiple sessions by design. Each session: pick up the ledger, run 1-2 batches, halt. Do NOT run the whole corpus at once.
