@@ -4,6 +4,7 @@
 **Author:** ParadokS + Claude (Opus 4.7 Pass 1; Opus 4.8 Pass 1.5).
 **Arc parking doc:** `docs/superpowers/parking/2026-05-04-layer2-corpus-reconstruction.md`.
 **Spec for:** arc-planner scaffolding once brainstorm exits at Pass 5 close.
+**Arc plan (arc-planner COMPLETE 2026-06-06):** `docs/superpowers/plans/2026-06-06-layer2-corpus-reconstruction/` (scaffold + 4 spine phase MDs A/B/C/buckets-E, verified). Execution handoff: `docs/superpowers/parking/2026-06-06-layer2-corpus-reconstruction-orchestrator-handoff.md`.
 
 ---
 
