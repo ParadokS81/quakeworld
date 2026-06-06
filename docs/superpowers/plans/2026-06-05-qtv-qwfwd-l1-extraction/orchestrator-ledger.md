@@ -4,6 +4,7 @@ Running cross-phase memory for the arc-orchestrator session. Append-only per pha
 
 **Role:** orchestrator (coordination only -- does NOT modify project code; dispatches arc-executor terminals per phase, verifies boundaries independently).
 **Execution mode chosen:** fresh arc-executor terminal per phase (operator decision, 2026-06-05).
+**Session boundary (2026-06-06):** the founding orchestrator session approached its context budget after verifying Phase 2; it wrote the Phase-3 executor prompt + a fresh-orchestrator resume handoff at `docs/superpowers/parking/2026-06-06-qtv-qwfwd-l1-extraction-orchestrator-resume.md`. A FRESH orchestrator picks up at the Phase-3 boundary (verify P3 -> drive P4 -> arc ship -> arc-reviewer).
 
 ---
 
@@ -24,7 +25,7 @@ Running cross-phase memory for the arc-orchestrator session. Append-only per pha
 | 0 schema+plumbing | **SHIPPED** (commit bf944a3f) | **YES (2026-06-06)** | F9 fix used; F10 found+fixed by executor (13th Record site) |
 | 1 qwfwd extractor | **SHIPPED** (commit 161c6c1a) | **YES (2026-06-06)** | F12 head+tag recipe fix (D4 amended); F11->Phase3; F13 open operator Q |
 | 2 qtv extractor | **SHIPPED** (commit cc80ea6a) | **YES (2026-06-06)** | F12 head+tag worked (52 source_backed); F14 (*version drop, cvar=40 not 41) |
-| 3 describe-fill | next up (Q-SKILL gate **DONE**) | -- | mother-ledger + batched describe; F11 (net_ip/net_port real defaults); D6 guard load-bearing |
+| 3 describe-fill | prompt handed off (Q-SKILL **DONE**) | pending -> fresh orchestrator | mother-ledger + batched describe; F11; D6 load-bearing; breadcrumbs -> P4 |
 | 4 validate+decide | not started | -- | F10: standalone-rerun+git-diff, NOT `idempotency --project`; floor baselines below (qwfwd 13/29/2/6, qtv 40/12) |
 
 ---
