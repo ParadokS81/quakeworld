@@ -1,4 +1,5 @@
-# apps/qw-oracle/quake/ -- reserved staging dir for headless ezquake runs.
+# apps/qw-oracle/quake/ -- staging dir for local QW engine testing
+# (headless ezquake dumps + a local mvdsv/KTX server).
 #
 # NEVER commit the contents:
 #   - id1/pak1.pak is registered/commercial id Software data (not redistributable)
@@ -9,3 +10,4 @@
 *
 !.gitignore
 !README.md
+!run-server.sh
