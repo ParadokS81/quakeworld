@@ -1,6 +1,6 @@
 # Layer 2 corpus reconstruction -- arc-scope design
 
-**Status:** in progress. Pass 1 complete 2026-05-04; **Pass 1.5 reshape ratification complete 2026-06-05** (architecture reshaped -- primer prerequisite dropped, lazy/query-time retrieval adopted; see the Reshape section); Pass 2 complete 2026-06-05 (calibration gate -- sample-test designed + methods-research validated); Passes 3-5 pending.
+**Status:** in progress. Pass 1 complete 2026-05-04; **Pass 1.5 reshape ratification complete 2026-06-05** (architecture reshaped -- primer prerequisite dropped, lazy/query-time retrieval adopted; see the Reshape section); Pass 2 complete 2026-06-05 (calibration gate -- sample-test designed + methods-research validated); **Pass 3 complete 2026-06-06 (index mechanics -- v1 = prune / fence / embed-raw-messages / hybrid-retrieve; merge + summary + labels deferred or dropped)**; Passes 4-5 pending.
 **Author:** ParadokS + Claude (Opus 4.7 Pass 1; Opus 4.8 Pass 1.5).
 **Arc parking doc:** `docs/superpowers/parking/2026-05-04-layer2-corpus-reconstruction.md`.
 **Spec for:** arc-planner scaffolding once brainstorm exits at Pass 5 close.
@@ -210,6 +210,51 @@ Tiebreaker: a close call defaults to the cheaper arm -- the LLM must VISIBLY ear
 - Per-year density (messages): `#helpdesk` 2020 14,712 / 2021 28,642 / 2022 14,255 / 2023 18,929 / 2024 12,693 / 2025 11,626. `#quakeworld` 2016 16,114 / 2017 60,151 / 2018 65,096 / 2019 48,575 / 2020 55,689 / 2021 42,250 / 2022 19,257 / 2023 20,615 / 2024 28,508 / 2025 27,854.
 - Live corpus totals at probe time: 728,863 messages / 86,423 sessions (grown from the 717,389 / 84,369 port baseline via bot-live ingest).
 
+## Pass 3 outputs (settled 2026-06-06): Index mechanics
+
+**Status:** COMPLETE (2026-06-06). All seven sub-questions locked. Scoped by the Pass 2 calibration verdict (arm D wins; Sonnet; embeddings load-bearing; fence both channels; 0% hallucination at cap 750). Builds on the verdict; does not relitigate it. Full results: `docs/superpowers/parking/2026-06-05-layer2-calibration-test-results.md`.
+
+### The v1 pipeline (locked)
+
+Four steps. Cross-session merge, per-thread summary, and per-thread labels are deliberately deferred or dropped (see Carry-forwards):
+
+1. **Prune** -- drop `bot` / `reaction` / `system` via `message_labels.category`; keep `chat` + `link`. Conversational banter is NOT pre-stripped -- the fencer quarantines it into throwaway threads (reshape logic). (Locked Pass 2; reaffirmed.)
+2. **Fence** -- Sonnet groups each lull-chunk's messages into topic-coherent threads (one-line `topic_label` + `member_indices`). The proven arm-D recipe (`scripts/calibration/wf-a-fence-queries.js`).
+3. **Embed** -- each thread's **raw member messages** (`author: content`, concatenated) embedded with voyage-4-large. NOT a summary.
+4. **Store + retrieve** -- `chat_threads` + `thread_messages`; hybrid retrieval (vector primary + FTS secondary via RRF), reranker deferred.
+
+### Locked decisions
+
+**3.1 -- Cross-session merge: DECOUPLED.** v1 ships within-chunk fenced threads, separate-and-tagged. A recurring topic returns as N hits, not one merged thread; the query-time consumer LLM reads them and judges (and per-conversation status is preserved instead of flattened). The 72% win was measured WITHOUT merge -- merge is an unproven optimization on top, with zero schema cost to defer. Becomes its own follow-on probe + later increment, built only if "N hits not 1" proves to bother anyone in practice.
+
+**3.2 -- Production chunk size: sweep up before the big backfill.** Probe proved 0% hallucination + 4.38/5 coherence at cap 750. Bigger chunks = fewer fence agents = the budget/throttle lever. Sweep method: 1 fence agent each at 750 / 1500 / 3000 on a worst-case (busy, interleaved) `#quakeworld` chunk; gate = 0% hallucination AND coherence ~4+; take the largest passing size for the backfill. Per-chunk hallucination check at backfill is the backstop (an out-of-range index is mechanically detectable). Increment 1 is already fenced at 750, so the sweep blocks nothing.
+
+**3.3 -- Channel + time scope: all 4 channels, full history.** helpdesk / quakeworld / dev-corner / antilag, no time cutoff. Fencing is a one-time cost; staleness is handled at query-time (era-relevance is consumer-LLM discretion, locked Pass 1). Scope becomes a backfill *ordering* (helpdesk + quakeworld first; antilag is tiny, a cheap tail), not a wall. **Correction:** the spine's "#antilag = competitive gameplay" (input doc `2026-05-03-layer2-thread-reconstruction.md`) is wrong -- #antilag is a community channel debating the antilag netcode feature (two active mvdsv/ktx antilag combos, different styles, with the attendant controversy); high-value cross-fork technical content, smallest channel.
+
+**3.4 -- Rollout: increment-gated, batched, budget-paced.**
+- **Increment 1 = the already-fenced Feb-Mar 2021 slice**, promoted from the probe's `scratch/` output. A thin loader (embeddings already cached) -> `chat_threads` -> wire `search_solved_issues` to threads. Proves the whole pipeline end-to-end for ~zero new cost, AND is the go/no-go gate: does thread-retrieval beat session-FTS on live queries? Underwhelms -> stop before the expensive backfill. Delivers -> greenlight the backfill.
+- **Move 2 = batched incremental backfill.** Batch = channel x ~1-year, sized by the per-year density table to stay inside the probe's proven-safe agent zone (biggest batch -- quakeworld 2018 -- is ~80 agents at cap 750, ~20 at 3000; the probe safely ran 251). Proven recipe per batch: Sonnet, conc-5, paced waves, recovery-retry, honest fail-count. One or two batches per session -- never the whole corpus at once -- paced to the operator's Max-subscription quota. The chunk-size sweep (3.2) is the budget dial: whole backfill is ~650-750 agents at 750, ~150-200 at 3000 (less than one probe run). HARD REQUIREMENT for the planner: each batch must be **idempotent** -- re-running replaces its threads, never duplicates.
+
+**3.5 -- Retrieval shape: hybrid, reranker deferred.** Vector primary (pure-FTS killed -- arm A whiffed `[NO HIT]` on 32/36 symptom queries). FTS retained as a cheap secondary via RRF for literal-name queries (a typed cvar appears verbatim in the thread text). Reranker deferred -- add only if hybrid shows precision problems in practice.
+
+**3.6 -- Embed representation + deferred enrichment.**
+- **Embed the raw member messages** (the proven arm-D representation), NOT a distilled summary. The spine's "embed the summary" was never validated; the 72% was earned on raw messages.
+- **Summary: DROPPED.** It was a crutch for keyword search; embeddings read raw text directly, and the answering LLM reading the real conversation beats reading a lossy summary (same logic as the no-merge decision). Likely permanent.
+- **Per-thread labels (`resolution_status` + `buckets`): DEFERRED** to a post-gate enrichment pass. They are operator-side metadata (authoring backlog, L3 cross-domain flagging), not retrieval signal. v1 ships retrieval; labels follow once search is proven.
+- **Schema:** spine's `chat_threads` + `thread_messages` (many-to-many junction, `vector(1024)`, GIN tsvector, `ON DELETE CASCADE`) + add the missing `buckets_question` / `buckets_answer` (JSONB, queryable) + make `resolution_status` and the rich summary nullable (relax the spine's `NOT NULL`) so increment 1 ships before enrichment. Arc-planner writes the migration.
+
+**3.7 -- Analyzer JSON: aligned to the proven shape.** The v1 fence emission is the proven `FENCE_SCHEMA`: `{abstained, threads:[{topic_label, member_indices}]}` (integer indices, not string message-IDs). `role_suggestions` is gone (it lived in the deferred Stage 4 emission, and was re-homed to query-time anyway). The abstain path is reason-free in v1 (abstain=true drops the chunk to a review pile); the spec's earlier "reword the abstain reason" note is moot -- there is no reason field in the proven shape. The Stage 2 / Stage 4 emission examples earlier in this doc (the `member_message_ids` / `topic_summary` / `role_suggestions` shapes) are SUPERSEDED by this for v1.
+
+### Carry-forwards
+
+- **Cross-session merge** -> its own follow-on probe (cluster existing fenced threads by embedding similarity + participant overlap; cosine ~0.85 / HDBSCAN / Louvain are the untested hypotheses) + a later increment. Track: **Pass 5** phase-decomposition as a deferred, gated phase. Built only if "N hits not 1" proves to matter.
+- **Stage 4 enrichment (`resolution_status` + `buckets`)** -> a post-gate enrichment pass feeding the operator-side workflows + the L3 lockstep-flagging architecture. Track: **Pass 5** phase-decomposition.
+- **Chunk-size sweep run** -> implementation task at backfill time; method locked above. Track: arc-planner / executor.
+- **Batch idempotency keying** -> implementation. Track: arc-planner.
+- **Summary** -> dropped; revisit only if a future human-browse UI needs scannable descriptions (unlikely; the consumer is an LLM). Track: resolved.
+
+Pass 4 (query-time seam) and Pass 5 (cross-cutting + phase decomposition + planner handoff) remain. Pass 5 grew slightly: it now also decomposes the deferred merge increment and the Stage 4 enrichment pass into phases.
+
 ## Pass 2-5 scope (reshaped Pass 1.5; replaces the original Pass 2-4 placeholders)
 
 The original Pass 2-4 placeholders assumed the primer pipeline. Reshaped:
@@ -220,7 +265,7 @@ Promoted to first. Decide how much LLM disentanglement the chunker actually need
 
 ### Pass 3: Index mechanics
 
-The "build the index" pass, scoped by Pass 2's calibration result. Chunk boundaries / quiet-hour chunking, cross-session merging (cosine + participant-overlap + reply-graph), embed granularity, `chat_threads` + `thread_messages` schema (from the 2026-05-03 spine: vector(1024), CHECK enum on `resolution_status`, GIN tsvector, junction PK), `resolution_status` + `buckets` metadata, similarity threshold (draft 0.85) + clustering algorithm (HDBSCAN / Louvain). Reshape-adjusts the analyzer JSON shapes (`role_suggestions` out, abstain reworded).
+**COMPLETE (2026-06-06) -- see the "Pass 3 outputs" section above for the locked decisions.** v1 = prune -> fence -> embed raw messages -> hybrid retrieve. Cross-session merge decoupled, per-thread summary dropped, `resolution_status` + `buckets` labels deferred to a post-gate enrichment pass; clustering algorithm / similarity-threshold questions move with the merge carry-forward to its own follow-on probe.
 
 ### Pass 4: Query-time seam (new)
 
@@ -228,7 +273,7 @@ Where the two decoupled arcs meet. The lazy-retrieval answer loop; which communi
 
 ### Pass 5: Cross-cutting + phase decomposition + planner handoff
 
-Author-trust weighting placement (now a query-time / retrieval concern, not Stage 4 metadata), pipeline ordering, cost model refresh (lower now -- no Stage 0 primer, possibly less Stage 2 LLM), trigger discipline. Then phase decomposition + the arc-planner handoff prompt at `docs/superpowers/parking/2026-05-XX-layer2-corpus-reconstruction-planner-handoff.md`. Also: HANDOVER cleanup plan for the three superseded items.
+Author-trust weighting placement (now a query-time / retrieval concern, not Stage 4 metadata), pipeline ordering, cost model refresh (lower now -- no Stage 0 primer, possibly less Stage 2 LLM), trigger discipline. Then phase decomposition + the arc-planner handoff prompt at `docs/superpowers/parking/2026-05-XX-layer2-corpus-reconstruction-planner-handoff.md`. Also: HANDOVER cleanup plan for the three superseded items. Plus phase-decompose the two Pass-3 deferrals -- the cross-session merge increment (+ its follow-on probe) and the Stage 4 enrichment pass (`resolution_status` + `buckets`).
 
 Conditional carry-forwards (surface only if a stage needs them): multi-language handling, config-dump signal, re-run idempotency policy.
 
