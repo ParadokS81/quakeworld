@@ -1,9 +1,30 @@
 # Layer 2 corpus reconstruction -- arc capture
 
 **Captured:** 2026-05-04 by arc-classifier mode D.
-**Status:** Passes 1-4 COMPLETE (Pass 1 2026-05-04; Pass 1.5 reshape 2026-06-05; Pass 2 calibration gate 2026-06-05; Pass 3 index mechanics 2026-06-06; **Pass 4 query-time seam 2026-06-06**). The calibration test was built + run between Pass 2 and Pass 3 (arm D -- LLM-fenced threads -- won). Pass 5 (cross-cutting + phase decomposition + arc-planner handoff) is the last pass. Per-pass detail lives in the design spec's "Pass N outputs" sections; this doc carries the status summaries. Next action: Pass 5 in a fresh terminal -- handoff at `docs/superpowers/parking/2026-06-06-layer2-pass5-handoff.md`.
+**Status:** Passes 1-5 COMPLETE (Pass 1 2026-05-04; Pass 1.5 reshape 2026-06-05; Pass 2 calibration gate 2026-06-05; Pass 3 index mechanics 2026-06-06; Pass 4 query-time seam 2026-06-06; **Pass 5 cross-cutting + phase decomposition 2026-06-06**). The calibration test was built + run between Pass 2 and Pass 3 (arm D -- LLM-fenced threads -- won). **The brainstorm is COMPLETE -- all five passes closed; remaining unknowns are implementation-shaped.** Per-pass detail lives in the design spec's "Pass N outputs" sections; this doc carries the status summaries. Next action: **arc-planner** -- handoff at `docs/superpowers/parking/2026-06-06-layer2-corpus-reconstruction-planner-handoff.md`.
 **Design spec:** `docs/superpowers/specs/2026-05-04-layer2-corpus-reconstruction-design.md` (source of truth from Pass 1 onward).
 **Trigger to start:** operator-initiated; arc-brainstormer in fresh terminal.
+
+---
+
+## Pass 5 status -- COMPLETE (2026-06-06) -- BRAINSTORM EXITS
+
+Pass scope: cross-cutting + phase decomposition + arc-planner handoff. The last pass. Full locked detail in the design spec's "Pass 5 outputs" section; this is the summary. Pass 5 formalized Pass 3.4's rollout into named phases, captured the vision framing (the "why" -- three-layer division of labor + FAQ-discovery as the second payoff), refreshed the cost model, and closed the last Pass-1 carry-forwards.
+
+**The pass in one paragraph.** The hard architecture was already done (Pass 3 index + Pass 4 seam); Pass 5 is decomposition. v1 decomposes into a 3-phase spine -- A (migration + increment-1 + wire-up = the go/no-go gate), B (chunk-size sweep), C (batched backfill) -- plus a planned buckets-E enrichment pass (promoted to first-class because FAQ-discovery, the operator's concept-note-targeting payoff, is a primary deliverable). `resolution_status` rides C as a passenger with a batch-1 kill-switch. Cross-session merge is dropped from the phase list (embeddings + no-merge + the FAQ-frequency signal all argue against it), surviving only as a clustering-for-analysis contingency. D (threshold recalibration) + the author-trust note + the clustering contingency are gated stubs the planner scaffolds but does not detail-plan until their triggers open.
+
+**Sub-questions resolved:**
+- 5.1 phase decomposition -- spine A/B/C + planned buckets-E; `resolution_status` passenger-on-C (batch-1 kill-switch); D / author-trust-note / clustering-contingency stubbed; merge demoted from phase to contingency.
+- 5.2 migration shape -- confirmed locked (`chat_threads` + `thread_messages` junction + JSONB buckets + nullable `resolution_status`; summary dropped; both metadata cols nullable from migration time). Arc-planner writes SQL.
+- 5.3 cost model -- refreshed off the obsolete $130-140; LLM work is Max-quota (paced, not billed), only Voyage embedding is real dollars (small); constraint = quota pacing (~650-750 agents@750 / ~150-200@3000 whole backfill, the sweep is the dial).
+- 5.4 trigger + ordering -- trigger discipline IS the increment-1 gate; ordering A+B (parallel) -> gate -> C -> buckets-E -> D; old serialize/parallel Stage-0/1 question moot (Stage 0 deleted).
+- 5.5 HANDOVER cleanup -- remove the "author-trust weighting in retrieval ranking" future-arc line (superseded by Pass 4); hygiene #2/#6 already pruned (claim decayed); update the stale arc-tracker line.
+
+**Drain destinations updated:** design spec ("Pass 5 outputs" section + status line + Pass 5 scope blurb marked COMPLETE); this parking doc (this section + status line); HANDOVER (author-trust line removed + arc-tracker line updated); new arc-planner handoff `docs/superpowers/parking/2026-06-06-layer2-corpus-reconstruction-planner-handoff.md`; memory `project_l2_lazy_retrieval_reshape.md` (Pass 5 close).
+
+**Carry-forwards (with tracks):** all implementation-shaped -> arc-planner. Migration SQL / idempotency keying / loader wiring / fence-prompt `resolution_status` extension + batch-1 validation (executor); D + author-trust note + clustering-contingency (planner scaffolds as gated stubs); #3 crosswalk + Phase 6 community tools stay with the community-reference arc (NOT L2 scope).
+
+**Pass plan revision:** none -- Pass 5 was the last pass. The brainstorm is COMPLETE; all five passes closed. Next step is arc-planner, not another pass.
 
 ---
 

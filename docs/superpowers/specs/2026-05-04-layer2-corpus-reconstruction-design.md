@@ -1,6 +1,6 @@
 # Layer 2 corpus reconstruction -- arc-scope design
 
-**Status:** in progress. Pass 1 complete 2026-05-04; **Pass 1.5 reshape ratification complete 2026-06-05** (architecture reshaped -- primer prerequisite dropped, lazy/query-time retrieval adopted; see the Reshape section); Pass 2 complete 2026-06-05 (calibration gate -- sample-test designed + methods-research validated); Pass 3 complete 2026-06-06 (index mechanics -- v1 = prune / fence / embed-raw-messages / hybrid-retrieve; merge + summary + labels deferred or dropped); **Pass 4 complete 2026-06-06 (query-time seam -- lazy-resolve-mentions loop dropped; community profile tools split off as their own arc; author-trust = soft synthesis-time nudge)**; Pass 5 pending.
+**Status:** brainstorm COMPLETE (all 5 passes 2026-06-06); ready for arc-planner. Pass 1 complete 2026-05-04; **Pass 1.5 reshape ratification complete 2026-06-05** (architecture reshaped -- primer prerequisite dropped, lazy/query-time retrieval adopted; see the Reshape section); Pass 2 complete 2026-06-05 (calibration gate -- sample-test designed + methods-research validated); Pass 3 complete 2026-06-06 (index mechanics -- v1 = prune / fence / embed-raw-messages / hybrid-retrieve; merge + summary + labels deferred or dropped); **Pass 4 complete 2026-06-06 (query-time seam -- lazy-resolve-mentions loop dropped; community profile tools split off as their own arc; author-trust = soft synthesis-time nudge)**; **Pass 5 complete 2026-06-06 (cross-cutting + phase decomposition -- v1 decomposed into spine A/B/C + planned buckets-E; brainstorm EXITS to arc-planner)**.
 **Author:** ParadokS + Claude (Opus 4.7 Pass 1; Opus 4.8 Pass 1.5).
 **Arc parking doc:** `docs/superpowers/parking/2026-05-04-layer2-corpus-reconstruction.md`.
 **Spec for:** arc-planner scaffolding once brainstorm exits at Pass 5 close.
@@ -314,6 +314,71 @@ The one piece of community knowledge that *does* bear on troubleshooting quality
 - **`search_solved_issues` `L2_TS_RANK_*` recalibration** (placeholder -> calibrated against fenced-thread retrieval) -- Track: **Pass 5 phase decomposition** (post-backfill calibration phase).
 - **Phase 6 / 4 / 5 / 7 disposition** -- drained to the qwiki community-reference parking doc. Track: **community-reference arc's own resumption**, independent of L2.
 
+## Pass 5 outputs (settled 2026-06-06): Cross-cutting + phase decomposition
+
+**Status:** COMPLETE (2026-06-06). The brainstorm EXITS here. Pass 5 formalized Pass 3.4's rollout into named phases, folded in the deferred work, refreshed the cost model, and closed the last Pass-1 carry-forwards. Remaining unknowns are implementation-shaped (migration SQL, idempotency keying, loader wiring, the fence-prompt `resolution_status` extension) -- sized for arc-planner. Handoff: `docs/superpowers/parking/2026-06-06-layer2-corpus-reconstruction-planner-handoff.md`.
+
+### Vision framing (the "why", captured for the planner)
+
+Three layers, three jobs. **L1** is the pre-digested shortcut: every tunable knob + its relations + a real description, across client / server / proxy, so the consumer LLM does not re-derive answers from raw source on every question. **L3** is curated best-practice for the known-hard questions where source alone does not settle it (weapon scripts: many answers, one good method). **L2** (this arc) is the community-prose layer: it fills L1/L3 blanks and answers the questions that are in no codebase -- map-choice debates, tournament-structure arguments, community history.
+
+L2 has **two payoffs, and they validate at different points**:
+1. **Retrieval** (chatbot answers users): proven by the increment-1 gate on the small slice. The calibration already cleared the primary "better than the old time-chunked FTS" bar (D beat embedded-sessions 69%; pure FTS whiffed 32/36 symptom queries).
+2. **FAQ-discovery** (concept-note targeting for the operator): only materializes after the full backfill + buckets. Tag the clean threads, look across them, and the recurring problems light up -- *this* came up 15 times, *that* one is usually solved -- which is the L3 authoring priority list. Largely independent of how big the retrieval win is: even a modest improvement still yields a mineable FAQ map. Read the gate-A result with that in mind.
+
+This reframes the buckets / resolution metadata: not enrichment for its own sake, but the **bridge to L3** -- the substrate that turns recurring-solved issues into concept notes, the durable fix for channel participation-drift (the same FAQ never reliably answered because the right person was not online). It also re-justifies **no-merge**: frequency *is* the FAQ signal; merging N instances of one issue into a single thread would erase the count that identifies it as a FAQ.
+
+### 5.1 -- Phase decomposition (spine + deferred tier)
+
+Pass 3.4 wrote the rollout; Pass 5 names the phases.
+
+**Spine -- the go/no-go path (plan in full):**
+
+| Phase | Work | Gate / depends on |
+|---|---|---|
+| **A -- Increment 1 (THE gate)** | migration (create tables, task 1) -> thin loader promotes the already-fenced Feb-Mar 2021 slice from the probe's `scratch/` (embeddings already cached) -> wire `search_solved_issues` to threads (hybrid: vector primary + FTS via RRF). | Nothing upstream. Go/no-go: does thread-retrieval beat session-FTS on live queries? Underwhelms -> stop before the backfill. Delivers -> greenlight C. |
+| **B -- Chunk-size sweep** | 1 fence agent each at 750 / 1500 / 3000 on a worst-case `#quakeworld` chunk; gate = 0% hallucination AND coherence ~4+; take the largest passing size. | Independent of A (fresh fence agents). Output = the cap that sizes C. Runs parallel to A. |
+| **C -- Batched backfill** | channel x ~1yr batches (per-year density table; biggest ~= qw-2018 ~80 agents@750), idempotent re-runnable, Sonnet / conc-5 / paced waves / recovery-retry / honest fail-count, 1-2 batches per session, quota-paced. **`resolution_status` rides this pass as a passenger** (see below). | Gated on A green + B's cap. |
+| **buckets-E -- FAQ-substrate enrichment** | LLM labels each thread with `buckets_question` / `buckets_answer` (the 9-bucket taxonomy); operator-side metadata feeding the L3 lockstep-flagging / authoring queue. Planned in full (not stubbed) because FAQ-discovery is a primary payoff. | Post-backfill; can lag (not a retrieval signal). Cheap (headline-readable; re-runnable over fixed threads without re-fencing -- the taxonomy is still discovered empirically, so keep it decoupled from the expensive fence pass). |
+
+**`resolution_status` placement (passenger with a kill-switch).** The solved / unresolved / informational label needs the conversation (a headline cannot tell you whether a problem was fixed) -- and the fence pass already has the conversation in its context window when it groups each thread. So `resolution_status` rides the C fence call as a passenger, *kept only if batch-1 fencing stays clean* (0% hallucination + coherence held -- the existing backfill backstop). If it perturbs fencing at all, fall back to a separate per-thread pass. The rubric is stable (3 fixed values), so re-run risk is low -- unlike buckets, which stays separate. Per-conversation resolution is *local* truth; the cross-conversation "solved somewhere in the cluster" truth is recovered at query time by the consumer LLM reading the retrieved set (same principle as no-merge -- do not pre-compute cross-conversation synthesis).
+
+**Deferred tier (scaffold as named gated stubs -- detailed-planned only when the trigger opens):**
+
+| Item | Work | Trigger |
+|---|---|---|
+| **D -- Threshold recalibration** | retune `search_solved_issues` `L2_TS_RANK_*` (placeholders set for 15-min sessions) against fenced-thread retrieval. | Post-backfill (enough corpus loaded). |
+| **Author-trust note** | tiny hand-curated author-authority reference (~dozen devs + domains); consumer-side synthesis nudge, never overrides L1. A small task, not a full phase. | Build when convenient. |
+| **Clustering-for-analysis contingency** (formerly "merge") | the dropped cross-session merge, repurposed: clustering (cosine ~0.85 / HDBSCAN / Louvain -- untested) as an *analysis* tool to *count* FAQ recurrence, never a retrieval-time merge. | Only if N-separate-hits ever annoys a real consumer, or FAQ-counting wants automation. Genuinely conditional -- captured so it is not lost; not planned work. |
+
+**Merge demoted.** Pass 3.1 decoupled cross-session merge; Pass 5 drops it from the phase list entirely. With vector embeddings each conversation stands on its own and surfaces independently; merging blurs the embedding (the "10-topic blob embeds to mush" logic), destroys the FAQ-frequency signal, and forces an unprincipled merge-granularity choice (topics have sub-topics). The 72% win was measured without merge. It survives only as the clustering-for-analysis contingency above.
+
+### 5.2 -- Migration shape: confirmed locked
+
+`chat_threads` + `thread_messages` (many-to-many junction, `vector(1024)`, GIN tsvector, `ON DELETE CASCADE`) + `buckets_question` / `buckets_answer` (JSONB, queryable) + `resolution_status` relaxed to nullable; rich summary dropped. Both metadata columns ship **nullable from migration time** and are backfilled by their passes (`resolution_status` during C, buckets during buckets-E). Arc-planner writes the SQL; Pass 5 confirms the shape.
+
+### 5.3 -- Cost model: refreshed down, and off-dollars
+
+The original $130-140 is obsolete -- it priced a Stage 0 primer + a naive sliding-window architecture against a metered API. Under v1: no primer, fence-only, and the dominant cost (the LLM fence + label work) runs on the **Max subscription quota** -- paced, not billed per token. The only real dollar cost is Voyage embedding (small). The binding constraint is **quota pacing**, expressed in fence agents: whole backfill ~= 650-750 agents at cap 750, ~= 150-200 at cap 3000 (the chunk-size sweep is the dial; the smaller figure is less than one calibration probe run). Biggest single batch ~80 agents (qw-2018 @ 750); 1-2 batches per session. buckets-E adds one cheap clean-thread labeling pass; `resolution_status` rides C for free.
+
+### 5.4 -- Trigger discipline + pipeline ordering: resolved
+
+**Trigger discipline** *is* the increment-1 go/no-go gate (Phase A). The old "post-Phase-8 deploy + `query_log` evidence" gate is not needed -- the calibration supplied the architectural evidence, and increment-1 is the cheap empirical confirm before the expensive backfill. **Pipeline ordering:** A + B (parallel) -> (gate) -> C (resolution_status rides) -> buckets-E -> D; author-trust note + clustering-contingency are gated stubs to the side. The Pass-1 "serialize vs parallel Stage 0/1" question is moot -- Stage 0 was deleted in the Pass-1.5 reshape.
+
+### 5.5 -- HANDOVER cleanup
+
+- **"Author trust weighting in retrieval ranking"** (Future-arcs) -- superseded: Pass 4 rejected the retrieval-ranking placement and folded it into this arc as the stubbed synthesis-time note. **Remove the line.**
+- **L2 hygiene leftovers #2 + #6** -- already pruned from HANDOVER in a prior pass (the parking doc's "HANDOVER recently-opened" claim had decayed). Nothing to remove.
+- **The L2 arc tracker line** ("Next move: Pass 3") -- stale. **Update** to "Pass 5 complete -> arc-planner handoff."
+
+### Carry-forwards (all to arc-planner / execution)
+
+- Migration SQL details, batch idempotency keying, loader wiring, the fence-prompt `resolution_status` extension + batch-1 validation -- all implementation-shaped. Track: arc-planner scaffold + executors.
+- D threshold recalibration, author-trust note, clustering-for-analysis contingency -- gated stubs. Track: arc-planner scaffolds as named gated phases.
+- #3 author-identity -> player-profile crosswalk + the community profile tools (Phase 6) -- NOT L2 scope; the community-reference arc owns them (Pass 4 disposition).
+
+**The brainstorm is COMPLETE.** All five passes closed; remaining unknowns are implementation-shaped. Next: arc-planner.
+
 ## Pass 2-5 scope (reshaped Pass 1.5; replaces the original Pass 2-4 placeholders)
 
 The original Pass 2-4 placeholders assumed the primer pipeline. Reshaped:
@@ -331,6 +396,8 @@ Promoted to first. Decide how much LLM disentanglement the chunker actually need
 **COMPLETE (2026-06-06) -- see the "Pass 4 outputs" section above.** The seam came in far thinner than sketched: the lazy-resolve-mentions loop is dropped for v1 (L2 answers stand on their own; community profiles are a separate retrieval surface, not an L2 enrichment pass), so 4.1 (loop locus) and 4.3 (lookup budget) dissolve. Phase 6 profile tools split off as their own arc (L2 no longer depends on them); 4.4 rides the standard `ToolResponse<T>` contract. Author-trust (4.5) survives as a soft synthesis-time nudge with a deferred build. Concrete community-arc call: Phase 6 resurrect (own arc) / Phase 4-5 incremental / Phase 7 drop.
 
 ### Pass 5: Cross-cutting + phase decomposition + planner handoff
+
+**COMPLETE (2026-06-06) -- see the "Pass 5 outputs" section above for the locked decomposition. The brainstorm EXITS here; next step is arc-planner.**
 
 Author-trust weighting placement (now a query-time / retrieval concern, not Stage 4 metadata), pipeline ordering, cost model refresh (lower now -- no Stage 0 primer, possibly less Stage 2 LLM), trigger discipline. Then phase decomposition + the arc-planner handoff prompt at `docs/superpowers/parking/2026-05-XX-layer2-corpus-reconstruction-planner-handoff.md`. Also: HANDOVER cleanup plan for the three superseded items. Plus phase-decompose the two Pass-3 deferrals -- the cross-session merge increment (+ its follow-on probe) and the Stage 4 enrichment pass (`resolution_status` + `buckets`).
 
