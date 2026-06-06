@@ -1,9 +1,36 @@
 # Layer 2 corpus reconstruction -- arc capture
 
 **Captured:** 2026-05-04 by arc-classifier mode D.
-**Status:** Pass 1 complete (2026-05-04). **Pass 1.5 reshape ratification complete (2026-06-05)** -- architecture reshaped to lazy/query-time retrieval; primer prerequisite dropped; embedding arc decoupled from the community-knowledge arc. Forward passes 2-5 reshaped (see Pass 1.5 status below); **Pass 2 (calibration gate) COMPLETE (2026-06-05; see Pass 2 status below).** Next action: build + run the calibration test (implementation, not brainstorm), which gates Pass 3.
+**Status:** Passes 1-4 COMPLETE (Pass 1 2026-05-04; Pass 1.5 reshape 2026-06-05; Pass 2 calibration gate 2026-06-05; Pass 3 index mechanics 2026-06-06; **Pass 4 query-time seam 2026-06-06**). The calibration test was built + run between Pass 2 and Pass 3 (arm D -- LLM-fenced threads -- won). Pass 5 (cross-cutting + phase decomposition + arc-planner handoff) is the last pass. Per-pass detail lives in the design spec's "Pass N outputs" sections; this doc carries the status summaries. Next action: Pass 5 in a fresh terminal -- handoff at `docs/superpowers/parking/2026-06-06-layer2-pass5-handoff.md`.
 **Design spec:** `docs/superpowers/specs/2026-05-04-layer2-corpus-reconstruction-design.md` (source of truth from Pass 1 onward).
 **Trigger to start:** operator-initiated; arc-brainstormer in fresh terminal.
+
+---
+
+## Pass 4 status -- COMPLETE (2026-06-06)
+
+Pass scope: query-time seam -- where the embedding arc and the community-knowledge arc meet. Full locked detail in the design spec's "Pass 4 outputs" section; this is the summary. (Pass 3 detail also lives in the spec -- this parking doc never got a Pass 3 status section; the spec is SoT for per-pass detail.)
+
+**The pass in one paragraph.** The seam came in far thinner than the Pass-1.5 reshape sketched. For the dominant L2 query (troubleshooting), a chat answer's value is invariant under anonymizing the nicks it mentions -- so v1 builds NO lazy-resolve-mentions loop over L2. Community/historical questions are served by the profile tools as their own separate retrieval surface, not by enriching L2 hits. That drop completes the arc severance (L2 no longer depends on the community tools), so the community profile tools (Phase 6) split off as their own arc. The only community signal that survives at the L2 seam is author-trust, as a soft synthesis-time nudge.
+
+**Sub-questions resolved:**
+- 4.1 lazy-resolve loop + locus -- **DISSOLVED.** No v1 mention-resolution over L2; answers stand alone; rare-case lookups are ordinary consumer tool use.
+- 4.2 which community tools to finish -- **Phase 6 splits off as its own small arc.** Disposition: Phase 6 resurrect (keystone; `lookup_by_nick` with Discord-ID-alias forward-compat) / Phase 4 (tournaments) + Phase 5 (cross-links) incremental / Phase 7 (L2 primer) drop.
+- 4.3 lookup budget / cap -- **DISSOLVED** with the loop.
+- 4.4 match_quality guard -- **rides the standard `ToolResponse<T>` contract** (defined at Phase 6 build). L2-specific tail: `search_solved_issues` `L2_TS_RANK_*` recalibration -> Pass 5.
+- 4.5 author-trust -- **soft synthesis-time nudge, consumer-side**, a tiny curated author-authority note (build deferred), riding #3's crosswalk long-term. Retrieval-ranking placement + corpus-derived version both rejected. Pass 4 owns the placement.
+
+**Vocabulary correction (drove the pass):** author (always present) vs entities-mentioned-in-text (the lazy-loop target, now dropped) vs author-identity->profile crosswalk (#3, a separate later data-join).
+
+**Drain destinations updated:** design spec ("Pass 4 outputs" section + status line + Pass 4 scope blurb marked COMPLETE); this parking doc (this section + status line); qwiki community-reference parking doc (the Phase 6/4/5/7 disposition + decoupling note); memory `project_l2_lazy_retrieval_reshape.md` (Pass 4 refinement) + the MEMORY.md index hook.
+
+**Carry-forwards (with tracks):**
+- #3 author-identity -> player-profile crosswalk -- separate later capability; the matchscheduler Discord-OAuth login table is the partial crosswalk asset today; the community site will carry the real identity DB; `lookup_by_nick` Discord-ID-alias design locked now. Track: own future capability, cross-refs the Phase 6 arc; NOT L2 scope.
+- Author-trust tiny curated note -- Track: Pass 5 / implementation (build deferred).
+- `search_solved_issues` `L2_TS_RANK_*` recalibration -- Track: Pass 5 phase decomposition (post-backfill calibration phase).
+- Phase 6/4/5/7 community-arc disposition -- Track: community-reference arc's own resumption, independent of L2.
+
+**Pass plan revision:** none. Pass 5 (cross-cutting + phase decomposition + arc-planner handoff) stands as the last pass, and now also folds the author-trust note build + the L2 threshold recalibration into its decomposition. Pass 5 handoff written at `docs/superpowers/parking/2026-06-06-layer2-pass5-handoff.md`.
 
 ---
 

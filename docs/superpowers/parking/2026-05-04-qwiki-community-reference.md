@@ -1,9 +1,26 @@
 # QWiki community-reference layer -- arc capture
 
 **Captured:** 2026-05-04 by brainstorm session in main terminal.
-**Status:** Design spec complete. Snapshot landed. Ready for arc-planner in fresh terminal.
+**Status:** Storage shipped (Phases 1-3: players + clans). Phase 6 (profile MCP tools) is the keystone resumption -- see the "L2 Pass-4 disposition" section below. NOW FULLY DECOUPLED from the L2 arc.
 **Design spec:** `docs/superpowers/specs/2026-05-04-qwiki-community-reference-design.md` (source of truth from this point forward).
-**Trigger to start:** L2 corpus reconstruction primer requires nick + clan + tournament recognition. Operator-initiated.
+**Trigger to start:** API_CONTRACTS open-drift #2 (~920 authored player/clan notes invisible via MCP). NOTE: the original "L2 primer needs nick recognition" trigger is DEAD (L2 Pass 4, 2026-06-06 -- L2 no longer resolves community nicks). Operator-initiated.
+
+---
+
+## L2 Pass-4 disposition (2026-06-06) -- this arc is now FULLY DECOUPLED from L2
+
+The Layer 2 corpus-reconstruction brainstorm reached Pass 4 (query-time seam) on 2026-06-06 and **severed its dependency on this arc.** The reshape had assumed L2 would resolve community nicks at query time via this arc's lookup tools; Pass 4 found L2 troubleshooting answers stand on their own (a fix is invariant under anonymizing the nicks a thread mentions), so L2 builds no lazy-resolve loop and does NOT call these tools. Community/historical questions are served by these tools **as their own retrieval surface**, not as an L2 enrichment pass.
+
+Consequence -- the original trigger ("L2 primer requires nick/clan/tournament recognition") is DEAD. This arc resumes on its own merits, driven by API_CONTRACTS open-drift #2 (~920 authored player/clan notes are invisible via MCP). Concrete resurrect-vs-drop call from L2 Pass 4:
+
+| Phase | Call | Note |
+|---|---|---|
+| **Phase 6** -- profile MCP tools (`search_profiles` / `lookup_profile` / `get_profile_note` / `lookup_by_nick`) | **RESURRECT -- keystone, own small arc** | Build `lookup_by_nick` so a **Discord-ID is an alias key** into a profile (forward-compat for the future author->profile crosswalk: matchscheduler Discord-OAuth logins now, community-site identity DB later). Unblocks drift #2. |
+| **Phase 4** -- tournaments (Haiku extraction, paused) | **Incremental** | Players + clans ship first; tournaments follow opportunistically. |
+| **Phase 5** -- cross-link backfill | **Incremental** | Richness, not blocking. |
+| **Phase 7** -- L2 primer | **DROP** | Dead twice over (Pass-1.5 reshape + Pass-4 lazy-loop drop). |
+
+Author-trust note: L2 Pass 4 also parked a tiny curated "author-authority" reference (a dozen known community devs + domains) as a soft synthesis-time nudge -- once Phase 6's profiles carry an authority signal, that note merges into the profile data. See the L2 design spec's "Pass 4 outputs" section.
 
 ---
 

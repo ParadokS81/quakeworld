@@ -1,6 +1,6 @@
 # Layer 2 corpus reconstruction -- arc-scope design
 
-**Status:** in progress. Pass 1 complete 2026-05-04; **Pass 1.5 reshape ratification complete 2026-06-05** (architecture reshaped -- primer prerequisite dropped, lazy/query-time retrieval adopted; see the Reshape section); Pass 2 complete 2026-06-05 (calibration gate -- sample-test designed + methods-research validated); **Pass 3 complete 2026-06-06 (index mechanics -- v1 = prune / fence / embed-raw-messages / hybrid-retrieve; merge + summary + labels deferred or dropped)**; Passes 4-5 pending.
+**Status:** in progress. Pass 1 complete 2026-05-04; **Pass 1.5 reshape ratification complete 2026-06-05** (architecture reshaped -- primer prerequisite dropped, lazy/query-time retrieval adopted; see the Reshape section); Pass 2 complete 2026-06-05 (calibration gate -- sample-test designed + methods-research validated); Pass 3 complete 2026-06-06 (index mechanics -- v1 = prune / fence / embed-raw-messages / hybrid-retrieve; merge + summary + labels deferred or dropped); **Pass 4 complete 2026-06-06 (query-time seam -- lazy-resolve-mentions loop dropped; community profile tools split off as their own arc; author-trust = soft synthesis-time nudge)**; Pass 5 pending.
 **Author:** ParadokS + Claude (Opus 4.7 Pass 1; Opus 4.8 Pass 1.5).
 **Arc parking doc:** `docs/superpowers/parking/2026-05-04-layer2-corpus-reconstruction.md`.
 **Spec for:** arc-planner scaffolding once brainstorm exits at Pass 5 close.
@@ -255,6 +255,65 @@ Four steps. Cross-session merge, per-thread summary, and per-thread labels are d
 
 Pass 4 (query-time seam) and Pass 5 (cross-cutting + phase decomposition + planner handoff) remain. Pass 5 grew slightly: it now also decomposes the deferred merge increment and the Stage 4 enrichment pass into phases.
 
+## Pass 4 outputs (settled 2026-06-06): Query-time seam
+
+**Status:** COMPLETE (2026-06-06). This is where the two decoupled arcs (embedding + community-knowledge) were supposed to meet. Pass 4 found the seam is far thinner than the Pass-1.5 reshape sketched: the lazy-resolve-mentions loop is dropped for v1, the community profile tools split off entirely, and the only community signal that survives at the L2 seam is a soft author-trust nudge. Three of the five sub-questions dissolved or fold into the standard contract.
+
+### The vocabulary correction that drove the pass
+
+A retrieved L2 thread carries three distinct "nick" concepts, conflated in the reshape's "Claude resolves unknown nicks" phrasing:
+
+1. **The author** (the `gombo:` prefix on each message) -- always present; nothing to resolve.
+2. **Entities mentioned in the message text** (`foppa`, `slackers`, `EQL` talked *about*) -- raw strings; resolving them to profiles needs a `community.*` lookup. This is what the reshape's lazy loop targeted.
+3. **Author identity -> player profile** -- mapping the Discord handle that authored a message to a canonical player. A data-JOIN (the handle != the Quake nick), not a per-query text lookup. Depends on a crosswalk that barely exists yet.
+
+### 4.1 -- Lazy-resolve-mentions loop: DROPPED for v1 (dissolved)
+
+The reshape called the lazy-resolve loop "where the community knowledge actually lives." Pass 4 found that for the dominant L2 query class -- troubleshooting / "has this been debugged before" -- **the answer's value is invariant under anonymizing the mentioned nicks**. "X found disabling HDR fixed the flicker" is exactly as useful as "andeh found...". Resolving a mentioned entity adds nothing to a fix, and does not even help retrieval (the nick strings are already plain text in the indexed thread, so embedding + FTS match them without any lookup).
+
+The other query class -- community/historical ("who was the best clan in 2010", "tell me about foppa") where the entity *is* the subject -- is served by querying the **profile tools directly as their own retrieval surface**, NOT by enriching L2 chat hits. So the community knowledge earns its keep as a parallel surface the consumer combines at its discretion, not as a designed loop over L2.
+
+Consequence: **v1 builds no lazy-resolve loop over L2.** Chat answers stand on their own; mentions are left as-is. If some rare query makes a mentioned entity matter, the consumer LLM can call a profile tool -- ordinary tool use, nothing to design. The "who orchestrates resolution -- MCP-internal vs consumer-discretion" question dissolves with the loop. (Aligned with the architecture's "policy lives at the consumer, not the server.")
+
+### 4.3 -- Lookup budget / latency cap: DISSOLVED
+
+No per-query mention-resolution loop means no unbounded-lookup risk, so there is nothing to cap. The question existed only to bound the loop that 4.1 dropped.
+
+### 4.2 -- Community profile tools (Phase 6): SPLIT OFF as their own arc
+
+The reshape decoupled the embedding arc from the community-knowledge arc; Pass 4's drop of the lazy loop **completes the severance** -- the L2 arc no longer depends on the community tools at all. Folding Phase 6 into this arc would silently re-couple them. So Phase 6 resumes in its own home (the qwiki community-reference arc) as its own small focused piece. The L2 arc exits clean at prune / fence / embed / retrieve.
+
+Concrete resurrect-vs-drop call on the stalled community-reference arc (Pass 4's cross-arc deliverable; also drained to that arc's parking doc):
+
+| Community-arc phase | Call |
+|---|---|
+| **Phase 6** -- profile MCP tools (`search_profiles` / `lookup_profile` / `get_profile_note` / `lookup_by_nick`) | **Resurrect** as its own small arc. Keystone: unblocks API_CONTRACTS open-drift #2 (~920 authored player/clan notes invisible via MCP today). Build `lookup_by_nick` with **Discord-ID-as-alias-key** forward-compat so #3 (author->profile) lights up later with zero rework. Independent of L2; ship whenever the community surface is wanted live. |
+| **Phase 4** -- tournaments (Haiku extraction, paused) | **Incremental.** Thinnest / most heterogeneous set; not needed for player/clan querying. Players + clans first; tournaments follow opportunistically. |
+| **Phase 5** -- cross-link backfill (`player_clan_eras` / `tournament_results`) | **Incremental.** Richness, not blocking. |
+| **Phase 7** -- L2 primer | **Drop.** Dead twice over: superseded by the Pass-1.5 reshape, and now by the Pass-4 drop of the lazy-resolve loop it was meant to feed. |
+
+### 4.4 -- match_quality guard: rides the standard contract
+
+The profile tools' honest-failure behavior is just the existing `ToolResponse<T>` contract (`apps/qw-oracle/API_CONTRACTS.md`): `strong` / `weak` / `none`, where `weak` -> request follow-up or `redirect_to_human`, `none` -> redirect or state plainly; **never confabulate a profile for an unrecognized nick**. Calibrated when Phase 6 ships, inside that arc. Nothing L2-specific to decide here.
+
+The one genuine L2-arc honesty item is separate: `search_solved_issues`'s `L2_TS_RANK_*` thresholds are placeholders (open-drift #1) and need recalibrating once fenced threads replace 15-min sessions as the retrieval unit. That is a post-backfill implementation task -> Pass 5 decomposition (a calibration phase gated on the embeddings landing).
+
+### 4.5 -- Author-trust / role signal: soft synthesis-time nudge (Pass 4 owns it)
+
+The one piece of community knowledge that *does* bear on troubleshooting quality (it touches whose answer to believe, not which entity is mentioned). Disposition:
+
+- **Placement: answer-synthesis, NOT retrieval ranking.** The consumer LLM weights answers *within* already-retrieved threads by author authority. The original arc's "author-trust weighting in retrieval ranking" is **rejected** -- boosting a thread because an authority posted in it corrupts relevance with a popularity prior.
+- **Mechanism: a tiny curated author-authority reference** (a dozen known community devs + their domains, e.g. `spoike -> FTE internals`). NOT the killed index-time primer -- a different, much smaller synthesis-time artifact consumed when writing the answer. Converges with #3: once the author->profile crosswalk exists, a profile that says "FTE lead dev" *is* the authority signal, and the hand-seeded note is just the v1 shortcut.
+- **Guardrail: soft nudge only.** Never overrides a verifiable L1 fact (a trusted dev's 2017 answer can be stale; current L1 wins). Breaks ties between conflicting chat answers; never substitutes for checking the claim.
+- **Value: modest** (a tiebreaker on the ambiguous minority; content-judgment covers most cases) -> **build deferred** to Pass 5 / implementation, shipped only when convenient. The heavier corpus-derived version (frequency x resolution-status) is blocked on Pass 3's deferred labels and is speculative -- skip it.
+
+### Carry-forwards
+
+- **#3 author-identity -> player-profile crosswalk** -- a separate, later capability, driven by external data maturing: the matchscheduler site's Discord-OAuth logins already hold a partial Discord-ID <-> Quake-nick correlation (thin -- only players who log in, no rich profile), and the future community site will carry a real player/team identity DB. Design constraint locked now: `lookup_by_nick` takes a Discord-ID as an alias key (4.2). Track: **its own future capability; cross-references the Phase 6 resurrection arc.** NOT L2-arc scope.
+- **Author-trust tiny curated note** -- build deferred. Track: **Pass 5 / implementation.**
+- **`search_solved_issues` `L2_TS_RANK_*` recalibration** (placeholder -> calibrated against fenced-thread retrieval) -- Track: **Pass 5 phase decomposition** (post-backfill calibration phase).
+- **Phase 6 / 4 / 5 / 7 disposition** -- drained to the qwiki community-reference parking doc. Track: **community-reference arc's own resumption**, independent of L2.
+
 ## Pass 2-5 scope (reshaped Pass 1.5; replaces the original Pass 2-4 placeholders)
 
 The original Pass 2-4 placeholders assumed the primer pipeline. Reshaped:
@@ -269,7 +328,7 @@ Promoted to first. Decide how much LLM disentanglement the chunker actually need
 
 ### Pass 4: Query-time seam (new)
 
-Where the two decoupled arcs meet. The lazy-retrieval answer loop; which community MCP lookup tools to finish (the keystone Phase 6 of the community-reference arc); how Claude decides which tokens are worth resolving (and a lookup budget / latency cap); the `match_quality` guard that keeps lookups honest. Output includes the concrete "what to resurrect vs drop" call on the stalled community arc (finish Phase 6 MCP tools; Phase 4/5 incremental; drop Phase 7 primer).
+**COMPLETE (2026-06-06) -- see the "Pass 4 outputs" section above.** The seam came in far thinner than sketched: the lazy-resolve-mentions loop is dropped for v1 (L2 answers stand on their own; community profiles are a separate retrieval surface, not an L2 enrichment pass), so 4.1 (loop locus) and 4.3 (lookup budget) dissolve. Phase 6 profile tools split off as their own arc (L2 no longer depends on them); 4.4 rides the standard `ToolResponse<T>` contract. Author-trust (4.5) survives as a soft synthesis-time nudge with a deferred build. Concrete community-arc call: Phase 6 resurrect (own arc) / Phase 4-5 incremental / Phase 7 drop.
 
 ### Pass 5: Cross-cutting + phase decomposition + planner handoff
 
