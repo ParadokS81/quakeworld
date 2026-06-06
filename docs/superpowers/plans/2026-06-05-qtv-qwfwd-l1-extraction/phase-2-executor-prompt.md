@@ -6,12 +6,15 @@ You are the **arc-executor** for **Phase 2 -- QTV Go extractor (`go/ast`)** -- t
 
 **Working directory:** `/home/paradoks/projects/quakeworld` (qw-oracle at `apps/qw-oracle/`).
 
-## PREREQUISITE GATE -- check Go FIRST (P6), halt if absent
+## PREREQUISITE GATE -- Go is installed; just confirm your shell can see it
+
+Go **1.24.4 is installed at `/usr/local/go/bin`** (orchestrator-verified 2026-06-06; satisfies qtv/go.mod's `go 1.24.0`). Confirm your shell finds it:
 
 ```bash
-go version    # expect go1.24.x or newer (qtv/go.mod requires go 1.24.0)
+go version || { export PATH="$PATH:/usr/local/go/bin"; go version; }
 ```
-The orchestrator confirmed Go was NOT on PATH at arc start. If `go version` fails or is < 1.24, **HALT and tell the operator to install Go** -- do NOT work around it (prerequisites.md footer). Phase 0/1 did not need Go; Phase 2 does. Everything else below assumes Go is present.
+
+If bare `go` is not on your Bash-tool PATH (non-interactive shells early-return in `~/.bashrc` before its PATH line), use `/usr/local/go/bin/go` directly, OR prepend `export PATH="$PATH:/usr/local/go/bin" && ` to each `go` command below. Each Bash-tool call is a FRESH shell, so set PATH per-call (an `export` in one call does not carry to the next). Do NOT halt for a missing-Go reason -- it is installed; this is only a PATH-visibility concern.
 
 ## Read first (in this order)
 
@@ -31,6 +34,7 @@ The MD Task-2 recipe loads tag-only, which would mark every QTV entity `source_r
 
 ```bash
 # Step 0: build the extractor output (from the qtv extractor dir, which carries its own go.mod)
+# If bare `go` is not on PATH, prepend:  export PATH="$PATH:/usr/local/go/bin" &&
 cd apps/qw-oracle/scripts/extractors/qtv
 go run . --src ../../../../slipgate-app/reference/qtv --out output
 ls -la output/    # qtv-variables-ast.json (vars) + qtv-commands-ast.json (commands)

@@ -11,7 +11,7 @@ Running cross-phase memory for the arc-orchestrator session. Append-only per pha
 
 - All 5 phase MDs `approved`; full scaffold + spec + seed + all phase MDs read cold. Cross-phase contract chain consistent 0->1->2->3->4.
 - **Prerequisites:** P1 PASS (Postgres up+healthy, migrator clean at `019`, 0 pending). P2 PASS (qtv/qwfwd sources present, no `.git` in either -- D1/F2 holds). P5 PASS (libclang-18 + python3-clang clean).
-- **P6 (Go 1.24) -- ABSENT.** `go` not on PATH nor in `/usr/local/go` / `~/go`. Needed before **Phase 2** (not Phase 0/1). MUST be installed before Phase 2 kickoff. <-- carry-forward.
+- **P6 (Go 1.24) -- RESOLVED 2026-06-06.** Go **1.24.4** installed at `/usr/local/go/bin` (operator ran the tarball install; orchestrator persisted the PATH to `~/.bashrc` line 149 -- the operator's "line 3" was a literal `#` comment, a no-op). `~/.bashrc` early-returns for non-interactive shells, so the Phase-2 executor prompt is hardened with a `/usr/local/go/bin` fallback. Phase 2 unblocked.
 - **F9 recorded** (review-findings.md): Phase 0 introspection/V2 query doubly broken (ORDER BY alias-cast error + `ILIKE '%project%'` projectile false-positive -> 11 rows not 10). Migration DDL correct. Corrected query (key on `'ezquake'`) verified to return exactly 10. Fix carried in `phase-0-executor-prompt.md`, not the approved MD.
 - psql access: host `psql` NOT installed; use `docker exec -i qw-oracle-postgres-dev psql "$DATABASE_URL"` (DATABASE_URL from `apps/qw-oracle/.env`).
 
@@ -23,7 +23,7 @@ Running cross-phase memory for the arc-orchestrator session. Append-only per pha
 |---|---|---|---|
 | 0 schema+plumbing | **SHIPPED** (commit bf944a3f) | **YES (2026-06-06)** | F9 fix used; F10 found+fixed by executor (13th Record site) |
 | 1 qwfwd extractor | **SHIPPED** (commit 161c6c1a) | **YES (2026-06-06)** | F12 head+tag recipe fix (D4 amended); F11->Phase3; F13 open operator Q |
-| 2 qtv extractor | next up | -- | **needs Go (P6) first**; **inherit F12 8-call head+tag recipe** (in executor prompt) |
+| 2 qtv extractor | ready (Go 1.24.4 installed) | -- | inherit F12 head+tag recipe (4 calls, in prompt); count-capture -> Phase 4 baselines |
 | 3 describe-fill | not started | -- | needs Q-SKILL gate-widening first; F11 (net_ip/net_port real defaults) |
 | 4 validate+decide | not started | -- | F10: standalone-rerun+git-diff for reproducibility, NOT `idempotency --project`; QWFWD floor baselines below |
 
