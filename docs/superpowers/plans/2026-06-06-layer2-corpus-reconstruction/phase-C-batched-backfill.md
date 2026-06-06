@@ -1,5 +1,7 @@
 # Phase C -- Batched backfill
 
+> **CORRECTED SCALE + PREP/RUN SPLIT (2026-06-06) -- see `decisions.md` Amendment under D9.** Gap LOCKED at 12h; cap = Phase B's swept value (>=750); backfill ~4,058 agents at cap 750 (fewer if the cap is higher), NOT D9's ~650-750. Task 1's density for the two unprobed channels is DONE -- batch map: #quakeworld 374k / #dev-corner 196k / #helpdesk 104k / #antilag 19k chat+link msgs, ~38 (channel,year) batches over 2016-2026. Re-fence the 2021 slice under the production gap+version. Watch the year-boundary straddle in `batchScopeClause`. **PREP vs RUN:** the operator's quota resets ~2026-06-08; PRE-reset, run `phase-C-prep-executor-prompt.md` to BUILD the pipeline + VALIDATE on the smallest slice (#antilag 2026, ~1k msgs) then HALT; the full backfill (this MD / `phase-C-executor-prompt.md`) runs on reset.
+
 > **Executor checklist:** read `decisions.md` (D5 idempotency, D7 resolution_status passenger, D9 Workflow recipe), `review-findings.md` (this phase owns R5, R6, R7, R8). Reuse Phase A's `load-threads.ts` + `thread-key.ts` -- do NOT write a second loader.
 >
 > **PRECONDITION: Phase A gate is GREEN (decisions.md D2).** If the gate is not green, STOP -- this phase does not run.
