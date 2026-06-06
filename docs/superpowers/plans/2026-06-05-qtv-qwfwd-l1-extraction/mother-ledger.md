@@ -158,3 +158,4 @@ a static column override is out of this phase's scope).
 
 <!-- Executor appends one line per wave: [date wave knob-count verdict-summary] -->
 - 2026-06-06 | QWFWD cvars (QWFWD-1, incl. calibration) | 13/13 synthesized, all TRACED-CLEAN | F-D6a + V-pass(masters) green | findings: stale S2M_HEARTBEAT comment (caught), F11 CLI is positional not -ip flag (descriptions correct), 4 master-registration breadcrumbs. See batch-ledger-qwfwd-cvars.md.
+- 2026-06-06 | QWFWD commands (QWFWD-2/3) | 29/29 synthesized, all TRACED-CLEAN | F-D6a structural grep-verify green (ban shared-list, whitelist dest-gate+cap, no-own-rcon) | 5 SR-7 stubs converted (cvarlist/alias/echo/wait/serverinfo); access model = console/config only; heartbeat breadcrumb. See batch-ledger-qwfwd-commands.md.
