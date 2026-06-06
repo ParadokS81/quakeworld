@@ -170,6 +170,16 @@ The other 91 rows (all 52 qtv; qwfwd's 13 cvars + 2 cmdline_params + 24 commands
 
 **Resolved by (Phase 3, premise correction only -- no code, no decision amendment):** the describe pass owns+synthesizes ALL 11 (end state `description_origin='synthesized'`). Justified three ways: V2 already requires it; none of the 11 stubs clear the v2 user-doc shape (raw comments / templated placeholders), so there is nothing worth affirming; and the sibling KTX/MVDSV describe arc set every one of its info_keys (ktx 56, mvdsv 45) to `synthesized` with 0 `source_inline` -- the precedent is convert, not affirm. The Phase-3 executor prompt's pre-flight bullet is corrected to state the true pre-state and instruct convert-the-11; the phase MD line-180 premise is superseded by this finding (no MD edit -- the executor reads this finding via the prompt). V1/V2 enforce the end state; no probe change.
 
+### F16 -- QTV Go flood-protection triplet is `fp_messages`/`fp_persecond`/`fp_secondsdead`, NOT the `fp_time`/`fp_limit`/`fp_message` named in the planning docs
+
+**Status:** Found during Phase 3 QTV-half execution (2026-06-06) by the QTV mother during pre-flight source-grep. NON-blocking; the QTV ledgers used the correct names. Touches planning PROSE only -- no DB/probe/output impact.
+
+**Evidence:** mother-ledger SR-2, phase MD Mechanism 2 (the D6 reject-list "Go equivalents" hint), and the `phase-3-qtv-mother-handoff.md` all give the C-`floodprot` Go-equivalent as `fp_time`/`fp_limit`/`fp_message`. Those identifiers do not exist in Go QTV (`grep -rn 'fp_time\|fp_limit\|fp_message' pkg/` = 0). The real Go flood triplet is `fp_messages` (downstream_storage.go:209), `fp_persecond` (:210), `fp_secondsdead` (:211), read in downstream_client_commands.go:635-648. The reject-list's CORE function (reject the 4 C knobs `mvdport`/`admin_password`/`floodprot`/`allow_http`) is intact and source-confirmed -- all 4 are absent from `pkg/` (D6 Layer-1 floor holds); only the Go-equivalent ORIENTATION HINT for `floodprot` named non-existent cvars.
+
+**Impact (contained):** none on output. The QTV workers described the real `fp_*` knobs from their per-knob facts; all three are V-pass TRACED-CLEAN, and the `fp_persecond` name-vs-arithmetic trap (it is a seconds-window, not a per-second rate) was actively caught. The only risk was a worker reading the SR-2 hint cold and being confused; the mother's briefs supplied corrected names verbatim.
+
+**Proposed disposition (orchestrator/operator):** doc-only correction of the orientation hint in `mother-ledger.md` SR-2 + `phase-3-describe-fill.md` Mechanism 2 (`fp_time`/`fp_limit`/`fp_message` -> `fp_messages`/`fp_persecond`/`fp_secondsdead`) for future readers. The mother did NOT retroactively edit the committed contract docs (append-only mother ledger; the phase MD is the contract) -- the correction is the orchestrator's call, consistent with the retroactive-change discipline. No code, no decision amendment.
+
 ---
 
 ## Findings the design got right (carry forward)
@@ -188,7 +198,7 @@ The other 91 rows (all 52 qtv; qwfwd's 13 cvars + 2 cmdline_params + 24 commands
 | Phase 0 (Schema + plumbing) | F1, F4, F9, F10 |
 | Phase 1 (QWFWD extractor + vendored load path) | F2, F5, F6, F7; F12 (head-load recipe fix, RESOLVED); F13 (*version drop, surfaced) |
 | Phase 2 (QTV Go extractor) | F2, F5, F7; **F12 (head+tag load recipe -- LOAD-BEARING, inherit corrected 8-call recipe)**; F14 (*version drop -- 40 cvars not 41, surfaced) |
-| Phase 3 (Describe-fill) | F8 (skill gate); D6 guard is the load-bearing item; F11 (net_ip/net_port real defaults); **F15 (11 qwfwd source_inline stubs -> own+synthesize all 11; pre-state premise corrected)** |
+| Phase 3 (Describe-fill) | F8 (skill gate); D6 guard is the load-bearing item; F11 (net_ip/net_port real defaults); **F15 (11 qwfwd source_inline stubs -> own+synthesize all 11; pre-state premise corrected)**; F16 (QTV Go floodprot triplet is fp_messages/fp_persecond/fp_secondsdead not the planning-docs' fp_time/fp_limit/fp_message -- surfaced, doc-only) |
 | Phase 4 (Validate + concept-note decision) | F3, F7, F10 (reproducibility-method implication) |
 
 ---
