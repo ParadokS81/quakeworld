@@ -25,7 +25,7 @@ Running cross-phase memory for the arc-orchestrator session. Append-only per pha
 | 0 schema+plumbing | **SHIPPED** (commit bf944a3f) | **YES (2026-06-06)** | F9 fix used; F10 found+fixed by executor (13th Record site) |
 | 1 qwfwd extractor | **SHIPPED** (commit 161c6c1a) | **YES (2026-06-06)** | F12 head+tag recipe fix (D4 amended); F11->Phase3; F13 open operator Q |
 | 2 qtv extractor | **SHIPPED** (commit cc80ea6a) | **YES (2026-06-06)** | F12 head+tag worked (52 source_backed); F14 (*version drop, cvar=40 not 41) |
-| 3 describe-fill | prompt F15-corrected; **PRE-FLIGHT GREEN (fresh orch 2026-06-06)** | awaiting executor dispatch | mother-ledger + batched describe; F11; D6 load-bearing; **F15 (11 qwfwd source_inline stubs -> own+synthesize)**; breadcrumbs -> P4 |
+| 3 describe-fill | **SHIPPED** (commits c5aa4092 -> 14b1e2d2; QWFWD+QTV halves) | **YES (orchestrator, 2026-06-06)** | 102/102 synthesized; V6 D6 gate clean (A=0,B=0/0); F15 resolved; F16 doc-only; breadcrumbs harvested -> P4 (cand-b NOT thin) |
 | 4 validate+decide | not started | -- | F10: standalone-rerun+git-diff, NOT `idempotency --project`; floor baselines below (qwfwd 13/29/2/6, qtv 40/12) |
 
 ---
@@ -45,7 +45,7 @@ Running cross-phase memory for the arc-orchestrator session. Append-only per pha
      - `command = 12`
    - (52 total qtv entities.)
 3. **Phase 3 `[L3 breadcrumb: <candidate>]` tags -> Phase 4 concept-note decision evidence.** New convention (mother-ledger SR-5; absent from sibling arc) written into `entities.description_reasoning`. Phase 4 Task 3 Step 0 queries these. If the `parse_delay`/`tick_time` harvest comes back empty, Phase 4 defers candidate (b) per the endorsed bias.
-   - STATE: pending (Phase 3 not run).
+   - **STATE: CAPTURED (orchestrator-verified live 2026-06-06).** 11 breadcrumb tags harvested from `description_reasoning`: (a) 6 [qtv masters + qwfwd masters/masters_heartbeat/masters_query/masters_filter_servers/heartbeat], (b) 4 [qtv parse_delay, tick_time, qtv, address] -- **NOT thin**, (c) 1 [qtv qtv_password]. See the concept-note bias section for the Phase-4 implication.
 4. **Q-SKILL Option A gate-widening (describe-fill-synthesis skill).**
    - **STATE: DONE (orchestrator, 2026-06-06).** `~/.claude/skills/describe-fill-synthesis/SKILL.md` gate (live line 102) widened `{ktx,mvdsv}` -> `{ktx,mvdsv,qtv,qwfwd}` (the FUNCTIONAL fix). Verified live: grep confirms the gate was the ONLY project-equality branch (F8's claim holds). Scope-hygiene doc refs also widened: SKILL.md lines 4 (desc) / 56 (anchor_version) / 352 (escape-hatch) + `references/subagent-brief-template.md` lines 17 + 43 (worker-facing out-of-scope marker). Remaining `KTX/MVDSV` mentions are trigger-context, not scope-fences. This is an out-of-repo user-global skill edit (not in the quakeworld git history); recorded here. Phase 3 describe workers can now dispatch for qtv/qwfwd.
 
@@ -53,6 +53,13 @@ Running cross-phase memory for the arc-orchestrator session. Append-only per pha
 - (a) master-server registration/heartbeat = AUTHOR (strong).
 - (b) MVD streaming + `parse_delay` ghosting = author-lean; DEFER if breadcrumbs thin.
 - (c) `qtv_password` auth matrix = DEFER (MVDSV ledger already documents the matrix; QTV row See-also-links to it).
+
+**Harvest result (Phase-3 boundary, orchestrator-verified live 2026-06-06):** breadcrumbs are in.
+- (a) AUTHOR (strong) STANDS -- 6 knobs tagged (qtv `masters` + qwfwd `masters`/`masters_heartbeat`/`masters_query`/`masters_filter_servers`/`heartbeat`); the QTV side is the heartbeat *sender*, pairs with qwfwd + the ezquake client querier.
+- (b) **bias shifts DEFER-if-thin -> AUTHOR-LEAN.** The "defer if thin" trigger did NOT fire: 4 knobs tagged (qtv `parse_delay` = live-stream hold-back / anti-ghosting, `tick_time` = centralized tick pacing of both up/downstream loops, `qtv` command's per-stream delay overriding parse_delay, `address`). A real mechanism cluster, not a lone knob.
+- (c) DEFER STANDS -- 1 knob (qtv `qtv_password`), See-also the shipped MVDSV qtv_password ledger.
+
+Phase 4 DECIDES which to author (D9: decide-not-author; the FINAL call is the operator at P4 sign-off). Authoring, if greenlit, is a separate follow-on arc.
 
 ---
 
@@ -132,3 +139,18 @@ The Phase-3 executor reached context budget after the 50 QWFWD knobs and handed 
 - Executor-surfaced enforce-trace wins (stale S2M_HEARTBEAT comment, whitelist dest-vs-source trap, protocol `#if 0` non-enforcement) confirm the V-pass is biting, not rubber-stamping -- the same scrutiny carries to the D6-critical QTV half.
 
 QWFWD half pushed as a verified safety checkpoint (50 Opus-MAX knobs are expensive to regenerate). Next: operator dispatches the QTV mother (`phase-3-qtv-mother-handoff.md`); this orchestrator verifies the FULL Phase-3 boundary (V1-V11 incl. the load-bearing V6 D6 Probes A+B + the SR-5 breadcrumb harvest) when it halts.
+
+### Phase 3 -- VERIFIED GREEN (orchestrator, 2026-06-06); arc describe-fill COMPLETE
+
+QTV mother halted DONE_WITH_CONCERNS (every V1-V11 self-reported green; concerns = F16 doc-only + the known MCP-PROD gap + a non-defect narrowing). Independently re-ran the full boundary on the COMPLETE 102-knob set -- did not trust the PASS:
+
+- V1/V2: 102/102 described, ALL `synthesized` (qtv 52, qwfwd 50) -- 0 source_inline, 0 null.
+- V3: 0 synthesized rows missing anchor. V4 `describe_fill.origin_vocabulary` PASS + V5 `describe_fill.synthesized_requires_anchor` PASS + `provenance_entry_exists` PASS, for BOTH qtv and qwfwd (Task-3 extension confirmed live; quality-grid exit 0, no FAILs).
+- **V6 [LOAD-BEARING D6 GATE]: Probe A = 0 (no C-only knob name -- mvdport/admin_password/floodprot/allow_http -- in any qtv description), Probe B = 0 for BOTH cvar and command (every qtv knob anchors `pkg/%`).** The D6 semantic gate holds on independent re-run.
+- V7 provenance string-scalars = 0. V9 F-D4a owned-row guard present in all four derivers (`IS DISTINCT FROM 'synthesized'`, derive-entity-description.ts:150/179/216/245). V11 `bunx tsc --noEmit` exit 0.
+- V8/V10 accepted from executor evidence: V8 fingerprint stable + the V9 guard confirm idempotency mechanically (did not re-run the write path on the shared DB); V10 PROD-MCP gap is known -- data-layer verified (qtv:qtv_password, qwfwd:masters synthesized + anchored).
+- **F16 CONFIRMED:** the qtv fp_* knobs in the DB are `fp_messages`/`fp_persecond`/`fp_secondsdead` (the real triplet); the planning-doc D6-hint's `fp_time`/`fp_limit`/`fp_message` are non-existent in `pkg/`. Descriptions were written against the real knobs (V-pass TRACED-CLEAN; the `fp_persecond` seconds-window-not-rate trap was actively caught). Doc-only residual.
+- **Breadcrumb harvest CONFIRMED, candidate (b) NOT thin** (obligation #3 + bias section updated).
+- The D6 V-passes bit, not rubber-stamped: independent cold re-derivations confirmed `masters` excludes the qwfwd-C host:port/max-8 clauses; `qtv_password` is real SHA3-512 (not the crypto.go XXH3 decoy); `exec` is case-sensitive .cfg and collapses-not-rejects `..` (diverging from the qwfwd C sibling). Each flavour-C trap was a discrimination win.
+
+Sign-off: **Phase 3 SHIPPED** (commits c5aa4092 -> 14b1e2d2; pushed at this boundary). Zero defects. No decision amendment. Open operator items (none block Phase 4): (1) **F16 doc-correction** -- recommend correcting the phase MD Mechanism-2 + `phase-3-qtv-mother-handoff.md` hint (`fp_time/fp_limit/fp_message` -> the real triplet) with a dated F16 note; leave the append-only mother-ledger untouched (the executor correctly did not retro-edit it); (2) F13/F14 `*version:serverinfo` cross-engine parity -- still the paired low-impact deferral. Next: generate `phase-4-executor-prompt.md` (breadcrumbs ready; candidate (b) now leans author; floor baselines qtv 40/12 + qwfwd 13/29/2/6 captured), then drive the Phase-4 boundary -> arc ship + arc-reviewer handoff.
