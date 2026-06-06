@@ -2619,6 +2619,34 @@ const KTX_FLOOR_PROBES: Probe[] = [
   makeFloorSourceStateProbe('ktx', 'match_event', { source_backed: 7 }),
 ];
 
+const QWFWD_FLOOR_PROBES: Probe[] = [
+  // QWFWD (qqshka UDP forwarder/proxy) -- frozen vendored snapshot, source-only
+  // (no help-JSON), so every entity is source_backed. Baselines are the Phase-1
+  // V4 loaded counts (F7: the loaded DB count is truth, not the design hand-count).
+  // cvar 13 not 14: the extractor emits *version, the loader drops *-prefixed
+  // names as info_key-only (F13). Post-v17 these are equality assertions.
+  makeFloorCountProbe('qwfwd', 'cvar', 13),
+  makeFloorSourceStateProbe('qwfwd', 'cvar', { source_backed: 13 }),
+  makeFloorCountProbe('qwfwd', 'command', 29),
+  makeFloorSourceStateProbe('qwfwd', 'command', { source_backed: 29 }),
+  makeFloorCountProbe('qwfwd', 'cmdline_param', 2),
+  makeFloorSourceStateProbe('qwfwd', 'cmdline_param', { source_backed: 2 }),
+  makeFloorCountProbe('qwfwd', 'info_key', 6),
+  makeFloorSourceStateProbe('qwfwd', 'info_key', { source_backed: 6 }),
+];
+
+const QTV_FLOOR_PROBES: Probe[] = [
+  // QTV (QW-Group Go proxy) -- frozen vendored snapshot, source-only, all
+  // source_backed. cvar 40 not 41: the extractor emits *version, the loader
+  // drops it as a *-prefixed info_key-only name (F14); 12 commands (a 13th,
+  // a commented-out cmd.Register, is skipped by go/ast). No cmdline_param, no
+  // info_key (qtv has neither surface).
+  makeFloorCountProbe('qtv', 'cvar', 40),
+  makeFloorSourceStateProbe('qtv', 'cvar', { source_backed: 40 }),
+  makeFloorCountProbe('qtv', 'command', 12),
+  makeFloorSourceStateProbe('qtv', 'command', { source_backed: 12 }),
+];
+
 const KTX_GAMEPLAY_KIND_PROBES: Probe[] = [
   // Phase 7 (KTX onboarding) -- per-kind equality probes for the gameplay
   // tables. Counts are LIVE values at Phase 6 ship; mode_default=317 is the
@@ -2960,6 +2988,8 @@ const REGRESSION_PROBES: Probe[] = [
   ...MVDSV_FLOOR_PROBES,
   ...QWCL_FLOOR_PROBES,
   ...KTX_FLOOR_PROBES,
+  ...QWFWD_FLOOR_PROBES,
+  ...QTV_FLOOR_PROBES,
   ...KTX_GAMEPLAY_KIND_PROBES,
   // Phase 6 anchor probes (added 2026-04-28) -- per-project load-bearing invariants.
   { name: 'F1.ezquake.anchor.gl_lightmode_ping_pong', family: 'regression', description: '', run: probeEzquakeGlLightmodePingPong },

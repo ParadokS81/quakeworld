@@ -180,6 +180,24 @@ The other 91 rows (all 52 qtv; qwfwd's 13 cvars + 2 cmdline_params + 24 commands
 
 **Proposed disposition (orchestrator/operator):** doc-only correction of the orientation hint in `mother-ledger.md` SR-2 + `phase-3-describe-fill.md` Mechanism 2 (`fp_time`/`fp_limit`/`fp_message` -> `fp_messages`/`fp_persecond`/`fp_secondsdead`) for future readers. The mother did NOT retroactively edit the committed contract docs (append-only mother ledger; the phase MD is the contract) -- the correction is the orchestrator's call, consistent with the retroactive-change discipline. No code, no decision amendment.
 
+### F17 -- QTV Go extractor emits `flags_raw=null` for unflagged cvars; C extractors emit the `''` sentinel -- fails the runbook 3.2.1 negative bar
+
+**Status:** Found during Phase 4 validation (2026-06-06) by the cross-front-end adapter audit (sub-agent 4c) and the Section 3.2.1 negative-bar query against live Postgres. Touches the QTV extractor + the post-v17 flags contract. NOT a phase blocker; NOT data loss; caught by NO quality-grid probe.
+
+**Evidence:** The QTV `Reg(name, default)` registration form takes no flag argument; `extract.go`'s `resolveFlags` returns nil for such cvars, so the JSON emits `flags_raw: null` (verified: `address`, `allow_download`, ... all `flags_raw=None`, `flag_names=[]` in `qtv-variables-ast.json`). `load-cvars.ts:52` (`flags_raw: ast?.flags_raw ?? null`) preserves it as NULL. The C extractors (incl QWFWD via `normalize_flags_raw`) emit the post-v17 empty-string sentinel `''` instead (verified: qwfwd `developer`/`masters` flags_raw=`''`). Live DB: qtv has 54 cvar version-rows (27 distinct cvars x 2 versions) with `flags_raw IS NULL` and 0 with `''`; qwfwd has 10 `''` and 0 NULL. The 3.2.1 negative bar (`flags_raw IN ('0','CVAR_NONE') OR IS NULL` for source_backed cvars -> expect 0 rows) FAILS for qtv (54 rows), PASSES for qwfwd (0). The phase MD's claim "Phase-2 extractor's `resolveFlags` emits `""` for 0" is false against live data -- it emits nil. This is the negative-bar sibling of the already-deferred Q-QTV-FLAGS-CONTRACT (the positive `qVarFlag*` contract).
+
+**Why it is not data loss:** `flag_names=[]` correctly encodes "no flags"; the cvars genuinely have none. NULL-vs-`''` is a representation choice. No consumer breaks (MCP serves `entities.description`, not `flags_raw`); no quality-grid probe (regression floor or the 19 anomaly probes) asserts on it.
+
+**Proposed disposition (operator judgment -- surfaced, NOT deferred by the executor):** recommend a small follow-up qtv-extractor normalization -- `resolveFlags` returns `""` (not nil) for the no-flags case, bringing the Go front-end into sentinel-parity with the C front-ends; then re-extract + re-load + re-run V1-V6. Alternative: document a qtv carve-out mirroring Q-QTV-FLAGS-CONTRACT. NOT fixed in-phase: it touches shipped Phase-2 extractor code and the phase MD scoped qtv flags handling as future-arc work; fixing in-phase is scope drift the executor prompt did not authorize. Operator decides fix-now vs follow-up vs carve-out.
+
+### F18 -- V6 full-grid surfaced pre-existing ezquake floor-baseline drift (NOT a Phase-4 regression)
+
+**Status:** Found during Phase 4 V6 (2026-06-06, the full 7-project regression grid). Touches ezquake floor baselines only; NOT caused by this arc; out of Phase-4 scope.
+
+**Evidence:** `quality-grid --project ezquake --family regression` reports 8 failures: `F1.ezquake.floor.cvar_count` (live 2996 vs baseline 2992), `command_count` (699 vs 693), `cvar_source_state` / `command_source_state` / `cmdline_param_source_state` (doc_only/source_retired shifts), `F1.first_seen_min_ordinal` (117 stale `first_seen_version`), `gl_lightmode_ping_pong` (18 vs 15), `doc_only_count` (61 vs 57). These are NOT this arc's regression: the Phase-4 Task-2 edit is purely additive (`git diff` = 30 insertions, 0 deletions, 0 lines touching ezquake; 19 added lines reference qtv/qwfwd), and no ezquake load ran in this phase (the idempotency reload was scoped to `project IN ('qtv','qwfwd')`). The ezquake floor baselines are stale vs live dev-head data -- the recurring "floor counts are snapshots" situation (`reference_qw_oracle_floor_vs_clean_reload`). The other four existing projects (fte/mvdsv/qwcl/ktx) and both new projects (qtv/qwfwd) are all grid-clean.
+
+**Proposed disposition:** out of Phase-4 scope. Recommend a separate ezquake floor re-baseline pass (source-walk to confirm the new counts are legitimate dev-head growth, then bump the `EZQUAKE_FLOOR_PROBES` expected values, per the KTX 2026-06-04 bump precedent). Surfaced to the operator/orchestrator for routing; the executor did not self-route to HANDOVER nor bump the baselines (that is a separate, source-walk-gated decision).
+
 ---
 
 ## Findings the design got right (carry forward)
@@ -199,7 +217,7 @@ The other 91 rows (all 52 qtv; qwfwd's 13 cvars + 2 cmdline_params + 24 commands
 | Phase 1 (QWFWD extractor + vendored load path) | F2, F5, F6, F7; F12 (head-load recipe fix, RESOLVED); F13 (*version drop, surfaced) |
 | Phase 2 (QTV Go extractor) | F2, F5, F7; **F12 (head+tag load recipe -- LOAD-BEARING, inherit corrected 8-call recipe)**; F14 (*version drop -- 40 cvars not 41, surfaced) |
 | Phase 3 (Describe-fill) | F8 (skill gate); D6 guard is the load-bearing item; F11 (net_ip/net_port real defaults); **F15 (11 qwfwd source_inline stubs -> own+synthesize all 11; pre-state premise corrected)**; F16 (QTV Go floodprot triplet is fp_messages/fp_persecond/fp_secondsdead not the planning-docs' fp_time/fp_limit/fp_message -- surfaced, doc-only) |
-| Phase 4 (Validate + concept-note decision) | F3, F7, F10 (reproducibility-method implication) |
+| Phase 4 (Validate + concept-note decision) | F3, F7, F10 (reproducibility-method implication); **found in execution: F17 (qtv flags_raw null-vs-sentinel -- operator decision), F18 (pre-existing ezquake floor drift -- out of scope)** |
 
 ---
 
