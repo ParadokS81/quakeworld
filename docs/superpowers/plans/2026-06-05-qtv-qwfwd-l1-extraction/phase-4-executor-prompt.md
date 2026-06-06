@@ -11,7 +11,7 @@ You are the **arc-executor** for **Phase 4 -- validate + concept-note decision**
 1. `.../README.md`
 2. `.../decisions.md` -- D12 (validate against Postgres, NOT sqlite -- the runbook's sqlite commands are stale, F3), D9 (concept notes DEFERRED -- decide if/which, author nothing), D13 (non-goals: fteqtv-as-target / web QTV viewer / re-opening MVDSV qtv_* rows / authoring are scope creep), D7 (ASCII).
 3. `.../review-findings.md` -- **Phase 4 owns F3 (sqlite stale -> Postgres), F7 (extractor counts are truth), F10 (reproducibility method)**; plus the LOAD-BEARING F13/F14 (`*version` loader-drop -> the count-reconciliation delta below) + F16 (qtv flood-triplet names).
-4. `.../phase-4-validate-decision.md` -- the phase MD. Read cold + critically. **It was drafted 2026-06-05, BEFORE Phase 1/2 execution surfaced F12/F13/F14**, so it carries stale counts + a stale load recipe + a stale MCP expectation. **Where the MD and this prompt disagree, THIS PROMPT WINS** (it carries the execution-discovered corrections, orchestrator-verified live 2026-06-06).
+4. `.../phase-4-validate-decision.md` -- the phase MD. Read cold + critically. It was drafted 2026-06-05 (before Phase 1/2 execution surfaced F12/F13/F14); the orchestrator has since **patched its counts/recipe/MCP-framing to match execution reality** (each fix carries a dated `[F12]`/`[F13/F14]` tag), so the MD and this prompt AGREE. The load-bearing points are restated below as reminders -- the subtleties that bite if skimmed.
 
 ## Orchestrator pre-flight (already done -- do NOT redo)
 
@@ -21,11 +21,11 @@ You are the **arc-executor** for **Phase 4 -- validate + concept-note decision**
 - versions head+tag for both: `{1.40-dev ord1, head ord999999}` (qwfwd), `{1.16-dev ord1, head ord999999}` (qtv).
 - Phase-3 describe pass complete, V6 D6 gate clean, breadcrumb harvest captured (see the concept-note section).
 
-## LOAD-BEARING -- the MD predates F12/F13/F14; these OVERRIDE the MD
+## LOAD-BEARING reminders (now reflected in BOTH the MD and this prompt)
 
 ### 1. The `*version` count delta (F13/F14) -- the count-reconciliation trap
 
-The MD's V2 + Task-1 Section 1.2 say "every per-type DB count equals the JSON `_stats.count`." That is WRONG for the **cvar** type of BOTH projects. The extractor emits `*version` as a cvar (source truth: qtv JSON=41, qwfwd JSON=14), but the loader correctly DROPS it (`*`-prefixed names are `info_key`-only, never `cvar` -- F13/F14). So the cvar reconciliation is **JSON minus 1 = DB**:
+The count reconciliation (V2 + Task-1 Section 1.2) is exact for every type EXCEPT **cvar**, where it is **JSON minus 1 = DB**. The extractor emits `*version` as a cvar (source truth: qtv JSON=41, qwfwd JSON=14), but the loader correctly DROPS it (`*`-prefixed names are `info_key`-only, never `cvar` -- F13/F14):
 - **qtv cvar:** JSON `_stats.count` = **41** -> DB = **40** (delta 1 = `*version`; documented drop, NOT silent loss).
 - **qwfwd cvar:** JSON `_stats.count` = **14** -> DB = **13** (delta 1 = `*version`).
 - **Every OTHER type reconciles EXACTLY** (JSON = DB): qwfwd command 29 / cmdline_param 2 / info_key 6; qtv command 12.
@@ -34,7 +34,7 @@ Record the cvar `-1` as the expected F13/F14 behavior in Section 1.2 + V2. A fin
 
 ### 2. The head+tag load recipe (F12) -- the idempotency re-run is 8 / 4 calls, not 4 / 2
 
-The MD's V3 + Section 1.3 say "re-run the 4 qwfwd / 2 qtv `load-version` calls." STALE. Per F12 (the D4 amendment) the recipe is **head+tag**: qwfwd = **8 calls** (4 types x {head, tag}), qtv = **4 calls** (2 types x {head, tag}). Re-run the COMPLETE recipe and confirm `inserted: 0` for every call. The reload is **F-D4a-safe** -- the owned-row guard (`derive-entity-description.ts` `... IS DISTINCT FROM 'synthesized'`) means the Phase-3 synthesized descriptions SURVIVE (proven at Phase-3 V9). After the reload, spot-confirm one described row still carries its description -- verify, do not assume.
+The idempotency re-run (V3 + Section 1.3) uses the F12 **head+tag** recipe: qwfwd = **8 calls** (4 types x {head, tag}), qtv = **4 calls** (2 types x {head, tag}). Re-run the COMPLETE recipe and confirm `inserted: 0` for every call. The reload is **F-D4a-safe** -- the owned-row guard (`derive-entity-description.ts` `... IS DISTINCT FROM 'synthesized'`) means the Phase-3 synthesized descriptions SURVIVE (proven at Phase-3 V9). After the reload, spot-confirm one described row still carries its description -- verify, do not assume.
 
 ### 3. Floor baselines (Task 2) -- use these EXACT numbers (captured live, all `source_backed`)
 

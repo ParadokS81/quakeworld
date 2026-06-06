@@ -23,7 +23,7 @@
 **Source-state shape (verified):** `upsertEntity` in `natural-keys.ts:154-155` sets `source_state` from the adapter input on INSERT; for a first-load source-only project with no help-JSON origin (D2 implication: qtv/qwfwd have no ezquake/fte help-JSON), every row is `source_backed`. No `doc_only`, no `source_retired` (those require a help-JSON seed or a prior-version retirement, neither of which exists for a single frozen snapshot). MVDSV confirms the pattern.
 
 **Phase-1/2 V4 baselines (the floor-probe `expected` values):**
-- **QTV** (Phase-2 V4, hardcoded AND grep-verified during planning): `cvar = 41`, `command = 12`. (My recon grep returns 41 cvar registration call-sites and 13 `cmd.Register` call-sites; the 13th is the commented-out `// qtv.cmd.Register("set", setCmd)` at `var.go:86`, which `go/ast` skips -- so the extractor yields 12, matching the Phase-2 V4 hardcode. This is exactly the F7 lesson: the extractor count is truth, a raw grep is not.) `cmdline_param = 0`, `info_key = 0` (no probes for absent types).
+- **QTV** (Phase-2 V4 + F14 execution correction): `cvar = 40` LOADED (the extractor emits 41 registration sites incl `*version`; the loader drops `*version` as a `*`-prefixed info_key-only name -> 40 in DB, F14), `command = 12`. (My recon grep returns 41 cvar registration call-sites and 13 `cmd.Register` call-sites; the 13th is the commented-out `// qtv.cmd.Register("set", setCmd)` at `var.go:86`, which `go/ast` skips -- so the extractor yields 12, matching the Phase-2 V4 hardcode. This is exactly the F7 lesson: the extractor count is truth, a raw grep is not.) `cmdline_param = 0`, `info_key = 0` (no probes for absent types).
 - **QWFWD** (Phase-1 V4, NOT hardcoded -- F7 governs, counts recorded at execution): planning recon expects approximately `cvar ~12-14`, `command ~30`, `cmdline_param = 2`, `info_key = 6`. These are NOT authoritative. The executor reads the LIVE Phase-1 V4 counts from Postgres and uses those exact numbers as the floor-probe `expected` (Task 2 step 1 below). The probes are written with placeholder tokens the executor replaces.
 
 **Three concept-note candidate anchors (all verified against live source):**
@@ -47,7 +47,7 @@ This phase closes the arc: it runs the `validate-extractor` / VALIDATION-RUNBOOK
 
 Phase 3 outputs (all must be verified before Phase 4 begins):
 
-- Every `project='qtv'` entity (41 cvars + 12 commands) has `description IS NOT NULL`, `description_origin='synthesized'`, `description_anchor_version='1.16-dev'`.
+- Every `project='qtv'` entity (40 cvars + 12 commands -- F14: `*version` is dropped by the loader, so 40 not 41) has `description IS NOT NULL`, `description_origin='synthesized'`, `description_anchor_version='1.16-dev'`.
 - Every `project='qwfwd'` entity (all four types) has `description IS NOT NULL`, `description_origin='synthesized'`, `description_anchor_version='1.40-dev'`.
 - Phase-3 V6 green: no QTV description references a C-only knob; all QTV descriptions anchor to a Go `source_file` under `pkg/`.
 - `description_reasoning` carries `[L3 breadcrumb: <candidate>]` tags (SR-5) for any knob touching the three concept-note candidates. THESE TAGS ARE THE DECISION INPUT for Task 3.
@@ -110,7 +110,7 @@ psql "$DATABASE_URL" -c "<query>"
   SELECT project, version, commit_sha, ordinal, parse_state
   FROM versions WHERE project = '<project>';
   ```
-  PASS: exactly 1 row; `version`/`commit_sha` = the frozen label (`1.40-dev` qwfwd, `1.16-dev` qtv per D4), `parse_state='ok'`. There is no `git rev-parse` cross-check (no `.git`); the version constant IS the identity (D4/F5). Schema-version check (runbook lines 45-46, `PRAGMA user_version`): replaced by confirming migration 020 is applied --
+  PASS: exactly 2 rows -- F12 head+tag (the labeled tag at ordinal 1 + the `head` anchor at ordinal 999999, same `commit_sha`); `version`/`commit_sha` = the frozen label (`1.40-dev` qwfwd, `1.16-dev` qtv per D4), `parse_state='ok'`. There is no `git rev-parse` cross-check (no `.git`); the version constant IS the identity (D4/F5). Schema-version check (runbook lines 45-46, `PRAGMA user_version`): replaced by confirming migration 020 is applied --
   ```sql
   SELECT filename FROM schema_migrations WHERE filename = '020_qtv_qwfwd_projects.sql';
   ```
@@ -129,7 +129,7 @@ psql "$DATABASE_URL" -c "<query>"
   ```
   PASS: both `git diff --stat output/` are empty. FAIL: non-empty -> non-deterministic finalize sort or absolute-vs-relative path (runbook 1.1 common causes; Phase-1 V8 / Phase-2 V8 recovery notes apply). Record wall time for the report.
 
-- [ ] **Section 1.2 + 1.3 -- Count reconciliation source->JSON->DB + idempotency (Postgres + load-version, NOT extract-tag).** D1: qtv/qwfwd never use `extract-tag`; the load path is `load-version --json`. Re-run the Phase-1/2 load recipe (the four `load-version` calls for qwfwd; the two for qtv) a SECOND time and confirm idempotency, then reconcile counts JSON->DB:
+- [ ] **Section 1.2 + 1.3 -- Count reconciliation source->JSON->DB + idempotency (Postgres + load-version, NOT extract-tag).** D1: qtv/qwfwd never use `extract-tag`; the load path is `load-version --json`. Re-run the Phase-1/2 load recipe -- F12 head+tag: **8 `load-version` calls for qwfwd** (4 types x {head, tag}), **4 for qtv** (2 types x {head, tag}) -- a SECOND time and confirm idempotency (the reload is F-D4a-safe, so the Phase-3 synthesized descriptions survive), then reconcile counts JSON->DB:
   ```bash
   # the _stats.count from each output JSON is the JSON-side count
   python3 -c "import json,glob;
@@ -139,7 +139,7 @@ psql "$DATABASE_URL" -c "<query>"
   -- DB-side count
   SELECT type, COUNT(*)::int AS n FROM entities WHERE project = '<project>' GROUP BY type ORDER BY type;
   ```
-  PASS: per-type DB count == the corresponding JSON `_stats.count` (source->JSON->DB exact, runbook 1.2 acceptance); the second load-version run reports `inserted: 0` for every type (runbook 1.3 idempotency). FAIL: any mismatch -> silent data loss (a load-version drop) or an idempotency break (re-run inflation -- the `feedback_idempotency_before_staleness` failure mode).
+  PASS: per-type DB count == the corresponding JSON `_stats.count` for every type EXCEPT cvar, where DB == JSON minus 1 -- the loader drops `*version` (a `*`-prefixed info_key-only name), so qtv cvar JSON 41 -> DB 40 and qwfwd cvar JSON 14 -> DB 13 (F13/F14, documented behavior, NOT loss); the second load-version run reports `inserted: 0` for every call (runbook 1.3 idempotency). FAIL: any NON-cvar type mismatch, OR a cvar delta that is not exactly the single `*version` row -> silent data loss (a load-version drop); a count ABOVE JSON -> idempotency break (re-run inflation, the `feedback_idempotency_before_staleness` failure mode).
 
 - [ ] **Section 2 -- Runtime cross-validation: N/A, documented as a SKIP with reason.** Both targets are frozen vendored snapshots with no live build / no runtime dump (no `cvarlist`/`cmdlist` capture) in this environment (`project_qw_dev_head_not_releases` notes the dev-head self-build model applies to the engine ports, not these two frozen proxies). Section 2's three-bucket diff requires a runtime dump that does not exist. Record this as "Section 2: not applicable (no runtime dump for a frozen vendored snapshot)" in the report -- a documented skip, not a silent omission (runbook discipline line 15). This is NOT a finding; it is a precondition failure flagged per Section 0 guidance.
 
@@ -252,16 +252,16 @@ The first query gives the `makeFloorCountProbe` `expected` per type; the second 
   ];
 
   // QTV (QW-Group Go proxy) -- frozen vendored snapshot, source-only, all
-  // source_backed. Baselines = the Phase-2 V4 loaded counts (grep-verified
-  // during planning: 41 cvars + 12 commands; 0 cmdline_param, 0 info_key).
+  // source_backed. Baselines = the loaded DB counts (F14: 40 cvars not 41 --
+  // the extractor emits *version, the loader drops it; 12 commands; 0 cmdline_param, 0 info_key).
   const QTV_FLOOR_PROBES: Probe[] = [
-    makeFloorCountProbe('qtv', 'cvar', 41),
-    makeFloorSourceStateProbe('qtv', 'cvar', { source_backed: 41 }),
+    makeFloorCountProbe('qtv', 'cvar', 40),
+    makeFloorSourceStateProbe('qtv', 'cvar', { source_backed: 40 }),
     makeFloorCountProbe('qtv', 'command', 12),
     makeFloorSourceStateProbe('qtv', 'command', { source_backed: 12 }),
   ];
   ```
-  NOTE on the QTV baselines: 41 / 12 are the Phase-2 V4 hardcoded-and-verified counts. The executor MUST still confirm them against Step 0's live query (F7 -- if the executed extractor produced a different count, the live number wins and this comment is updated). The QWFWD baselines have NO planning hardcode (Phase-1 V4 deferred to execution per F7) -- the `<N>` tokens are mandatory replacements from Step 0.
+  NOTE on the QTV baselines: 40 / 12 are the loaded DB counts (F14 correction: the Phase-2 V4 hardcode said 41, but the loader drops `*version`, so the loaded cvar count is 40 -- orchestrator-verified live 2026-06-06). The executor MUST still confirm them against Step 0's live query (F7 -- the live DB count wins). The QWFWD baselines have NO planning hardcode (Phase-1 V4 deferred to execution per F7) -- the `<N>` tokens are mandatory replacements from Step 0 (orchestrator-captured live: cvar 13 / command 29 / cmdline_param 2 / info_key 6).
 - [ ] Spread both arrays into `REGRESSION_PROBES` (line 2913), immediately after the `...KTX_FLOOR_PROBES,` line (currently 2962):
   ```typescript
     ...KTX_FLOOR_PROBES,
@@ -460,14 +460,14 @@ python3 -c "import json,glob;
 [print(p.split('/')[-1], json.load(open(p))['_stats'].get('count')) for p in sorted(glob.glob('apps/qw-oracle/scripts/extractors/qwfwd/output/*-ast.json')+glob.glob('apps/qw-oracle/scripts/extractors/qtv/output/*-ast.json'))]"
 ```
 
-PASS condition: every per-type DB count equals the matching JSON `_stats.count`. QTV: cvar=41, command=12 (and JSON matches). QWFWD: each type matches its JSON (no silent loss).
-FAIL condition: any DB count != JSON count -> the loader dropped rows (silent data loss).
+PASS condition: every per-type DB count equals the matching JSON `_stats.count` EXCEPT cvar, where DB == JSON minus 1 (the documented `*version` drop -- F13/F14). QTV: cvar JSON=41 -> DB=40, command=12. QWFWD: cvar JSON=14 -> DB=13; command/cmdline_param/info_key each match JSON exactly.
+FAIL condition: any NON-cvar type with DB != JSON, OR a cvar delta that is not exactly the single `*version` row -> the loader dropped rows (silent data loss).
 
 ---
 
 ### V3 -- Idempotency: re-load produces no new rows (both projects)
 
-Re-run the Phase-1 load recipe (4 `load-version` calls, qwfwd) and the Phase-2 recipe (2 calls, qtv) a second time, then:
+Re-run the full F12 head+tag load recipe (8 `load-version` calls for qwfwd = 4 types x {head, tag}; 4 for qtv = 2 types x {head, tag}) a second time, then:
 ```sql
 SELECT project, COUNT(*)::int AS n FROM entities WHERE project IN ('qwfwd','qtv') GROUP BY project;
 ```
@@ -560,15 +560,19 @@ FAIL condition: a report missing, or a findings table with un-dispositioned rows
 
 ---
 
-### V10 -- MCP smoke: described knobs return through the live service
+### V10 -- MCP smoke: described knobs present (verified at the DATA LAYER -- the live MCP is PROD-scoped)
 
-```
-lookup_entity(project="qwfwd", name="masters")
-lookup_entity(project="qtv",   name="qtv_password")
+The session's qw-oracle MCP targets PROD (scope: ezquake/fte/mvdsv/ktx/qwcl); it has NO qtv/qwfwd dev rows, so `lookup_entity` via the live MCP returns EMPTY for these projects -- the known PROD-refresh gap (Phases 1/2/3 all hit it), NOT a failure. Verify at the DATA LAYER instead:
+
+```sql
+SELECT e.project, e.name, (e.description IS NOT NULL) AS has_desc, e.description_origin, cv.source_file
+FROM entities e
+JOIN cvar_versions cv ON cv.entity_id = e.id AND cv.version = 'head'
+WHERE (e.project='qwfwd' AND e.name='masters') OR (e.project='qtv' AND e.name='qtv_password');
 ```
 
-PASS condition: both return a row with non-null `description`, `description_origin='synthesized'`, and the expected `source_file` (qwfwd `query.c`, qtv `downstream_storage.go`).
-FAIL condition: `null` / no match -> the MCP server is not pointed at the Postgres `$DATABASE_URL`, or Phase 3's describe pass did not persist.
+PASS condition: both rows return with `has_desc=t`, `description_origin='synthesized'`, and the expected `source_file` (qwfwd `query.c`, qtv `downstream_storage.go`). Record "live MCP PROD-scoped (known gap); verified at data layer."
+FAIL condition: no row at the DATA LAYER -> Phase 3's describe pass did not persist (the live-MCP-empty result is EXPECTED and is NOT this failure).
 
 ---
 
@@ -595,7 +599,7 @@ This is the LAST phase. After Phase 4 approval there is no next phase -- the arc
 
 **Q-QWFWD-BASELINES -- the QWFWD floor-probe baselines are NOT known at planning time**
 - **Question:** Task 2's QWFWD `<N>` baseline tokens depend on the Phase-1 V4 executed counts (F7: Phase-1 V4 deliberately did NOT hardcode them; the extractor count is truth).
-- **Default chosen for now:** Task 2 Step 0 reads the live per-type counts from Postgres before writing the probes. The QTV baselines (41/12) ARE known (Phase-2 V4 hardcoded + grep-verified) but the executor still re-confirms them against Step 0.
+- **Default chosen for now:** Task 2 Step 0 reads the live per-type counts from Postgres before writing the probes. The QTV baselines (40/12 -- F14: 40 cvar not 41, `*version` dropped by the loader) ARE known (orchestrator-verified live) but the executor still re-confirms them against Step 0.
 - **Who can resolve:** the executor, at execution time (read Step 0; substitute). No operator action needed -- this is the F7 discipline working as designed.
 
 **Q-SECTION2-NA -- runtime cross-validation is not applicable**
@@ -614,7 +618,7 @@ This is the LAST phase. After Phase 4 approval there is no next phase -- the arc
 The `Agent` tool for dispatching a `subagent_type=Explore` sub-agent was not available in this drafting session. The verification brief (bottom of `phase-template.md`) was performed INLINE by the drafter against live source. The planner runs an INDEPENDENT Explore verifier after this halts. What the drafter verified inline:
 - All "Files touched" paths: `quality-grid.ts` exists (modified target); `docs/superpowers/reviews/` exists (parent of the two Created reports; the report files correctly do NOT exist yet -- paper plan). VERIFIED.
 - Quality-grid factory signatures + names: `makeFloorCountProbe(project: Project, type: string, expected: number)` at 2367; `makeFloorSourceStateProbe(project: Project, type: string, expected: Record<string,number>)` at 2407; the five per-project arrays + `REGRESSION_PROBES` at 2913 with spreads at 2958-2962. VERIFIED against live source.
-- Floor-probe baselines: QTV 41/12 match the Phase-2 V4 hardcode AND a fresh grep (41 cvar sites; 13 raw cmd.Register minus 1 commented = 12). QWFWD baselines are NOT planning-knowable (Phase-1 V4 deferred per F7) -> Task 2 Step 0 reads them live. VERIFIED the discipline; the QWFWD numbers are intentionally placeholder tokens.
+- Floor-probe baselines: QTV 40/12 -- F14: the loaded cvar count is 40, not 41 (the extractor emits 41 cvar sites incl `*version`; the loader drops `*version` -> 40 loaded); 13 raw cmd.Register minus 1 commented = 12. QWFWD baselines (cvar 13 / command 29 / cmdline_param 2 / info_key 6) were Phase-1-deferred per F7 -> orchestrator-captured live. VERIFIED the discipline; the QWFWD floor tokens read live at Step 0.
 - Source-state shape `{ source_backed: N }`: verified via `natural-keys.ts:154-155` (INSERT sets from input) + the MVDSV analog (pure source_backed, no doc_only/source_retired for a source-only C port). VERIFIED.
 - Three concept-note candidate anchors: `masters` (qtv udp.go:67, qwfwd query.c:697-700), `parse_delay`/`tick_time` (qtv upstream_storage.go:85 / qtv.go:212), `qtv_password` (qtv downstream_storage.go:200, mvdsv ledger). All three shipped MVDSV See-also ledgers exist. VERIFIED against live source + the ledger files.
 - Every DB command is Postgres: no `sqlite3` appears in this draft; the stale runbook/skill sqlite commands are explicitly flagged as translated. The load path is `load-version` (D1), not `extract-tag`. The runner is `bun`. VERIFIED by self-review of the draft.
@@ -632,7 +636,7 @@ The `Agent` tool for dispatching a `subagent_type=Explore` sub-agent was not ava
 Per-failure-mode, anticipatable failures only:
 
 - **V1 (reproducibility) non-empty diff:** a finalize sort regressed or a path went absolute. For QWFWD, check each handler's `finalize()` sorts by name + uses `_relative_source` (Phase-1 V8 recovery). For QTV, check Phase C sorts by name before marshalling (Phase-2 V8 recovery). This re-confirms a per-phase invariant; a failure here means something changed since the phase shipped (investigate git history of the output dir / extractor).
-- **V2/V3 (count reconciliation / idempotency):** a DB count below the JSON count = silent loss in a `load-version` adapter; a count ABOVE = re-run inflation (suspect idempotency first, `feedback_idempotency_before_staleness`). Re-run the load with `--force` only after confirming the natural-key dedup is correct.
+- **V2/V3 (count reconciliation / idempotency):** a DB count below the JSON count = silent loss in a `load-version` adapter -- EXCEPT the documented cvar `-1` (the `*version` drop, F13/F14), which is correct; a count ABOVE = re-run inflation (suspect idempotency first, `feedback_idempotency_before_staleness`). Re-run the load with `--force` only after confirming the natural-key dedup is correct.
 - **V5 (floor probe FAIL):** the baseline `expected` does not match the live count. F7: the live count is the truth -- re-read Task 2 Step 0 and update the baseline (do NOT force the extractor to match a stale planning estimate). If the live count itself looks wrong, that is an extractor regression (re-open Task 1 Section 1/3).
 - **V6 (prior-project regression):** the Task-2 edit should be purely additive (two new arrays + two spread lines). A prior-project FAIL means a syntax slip merged the new array into an existing one, or a `REGRESSION_PROBES` spread landed mid-array. Re-read the edit; the additions go AFTER `...KTX_FLOOR_PROBES,`.
 - **V8 (D9 violation -- a note was authored):** if `git status` shows a new `curated/` file, the executor over-stepped D9. Delete the authored note (it is a follow-on-arc deliverable, not Phase-4 scope); keep only the decision prose in the report.
