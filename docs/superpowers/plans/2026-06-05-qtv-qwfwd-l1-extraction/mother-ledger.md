@@ -157,3 +157,4 @@ a static column override is out of this phase's scope).
 ## BATCH LOG (append one line per batch wave)
 
 <!-- Executor appends one line per wave: [date wave knob-count verdict-summary] -->
+- 2026-06-06 | QWFWD cvars (QWFWD-1, incl. calibration) | 13/13 synthesized, all TRACED-CLEAN | F-D6a + V-pass(masters) green | findings: stale S2M_HEARTBEAT comment (caught), F11 CLI is positional not -ip flag (descriptions correct), 4 master-registration breadcrumbs. See batch-ledger-qwfwd-cvars.md.
