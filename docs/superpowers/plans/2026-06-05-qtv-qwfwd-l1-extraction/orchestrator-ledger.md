@@ -25,7 +25,7 @@ Running cross-phase memory for the arc-orchestrator session. Append-only per pha
 | 0 schema+plumbing | **SHIPPED** (commit bf944a3f) | **YES (2026-06-06)** | F9 fix used; F10 found+fixed by executor (13th Record site) |
 | 1 qwfwd extractor | **SHIPPED** (commit 161c6c1a) | **YES (2026-06-06)** | F12 head+tag recipe fix (D4 amended); F11->Phase3; F13 open operator Q |
 | 2 qtv extractor | **SHIPPED** (commit cc80ea6a) | **YES (2026-06-06)** | F12 head+tag worked (52 source_backed); F14 (*version drop, cvar=40 not 41) |
-| 3 describe-fill | prompt handed off (Q-SKILL **DONE**) | pending -> fresh orchestrator | mother-ledger + batched describe; F11; D6 load-bearing; breadcrumbs -> P4 |
+| 3 describe-fill | prompt F15-corrected; **PRE-FLIGHT GREEN (fresh orch 2026-06-06)** | awaiting executor dispatch | mother-ledger + batched describe; F11; D6 load-bearing; **F15 (11 qwfwd source_inline stubs -> own+synthesize)**; breadcrumbs -> P4 |
 | 4 validate+decide | not started | -- | F10: standalone-rerun+git-diff, NOT `idempotency --project`; floor baselines below (qwfwd 13/29/2/6, qtv 40/12) |
 
 ---
@@ -110,3 +110,13 @@ Independently re-ran the boundary (commit cc80ea6a):
 - Commit scope clean (extract.go + go.mod + 2 output JSON + build-snapshot + review-findings). cc80ea6a ancestor of HEAD.
 
 Sign-off: Phase 2 SHIPPED. No decision amendment (F14 consistent with F13 + loader name-validation). Q-SKILL gate-widening landed (obligation #4 DONE) -> Phase 3 unblocked. Open items: F13+F14 are now a paired operator question (capture `*version:serverinfo` for qwfwd+qtv cross-engine parity, or defer? both low-impact -- version already in versions row + `*qwfwd:userinfo`).
+
+### Phase 3 -- PRE-FLIGHT GREEN (fresh orchestrator, 2026-06-06); NOT yet dispatched
+
+New orchestrator session (the founding session hit ~500k writing the Phase-3 prompt + resume handoff). Before the operator dispatches the Phase-3 executor, re-verified the whole arc state cold AND critically reviewed the 500k-authored `phase-3-executor-prompt.md` against live source:
+
+- Scope check GREEN: migration 020 applied (102 qtv/qwfwd rows exist), baselines match exactly (`qtv cvar 40 / command 12`; `qwfwd cvar 13 / command 29 / cmdline_param 2 / info_key 6`, all `source_backed`), versions head+tag for both (`{label ord1, head ord999999}`, F12), `bunx tsc --noEmit` exit 0, Q-SKILL gate still `{ktx,mvdsv,qtv,qwfwd}` (SKILL.md line 103). Phase 3 genuinely not started (no commit, no artifacts; 91/102 descriptions NULL).
+- **F15 found + corrected (the prompt's one defect):** the prompt + phase MD line 180 claim "descriptions NULL for all" -- live DB shows **11 qwfwd rows already carry `source_inline` stubs** (5 commands = raw C comments, all 6 info_keys = adapter placeholders). The worklist (by name+type, phase MD line 486) reaches them, but a worker affirming a stub would leave `source_inline` and fail V2. Disposition: own+synthesize all 11 (matches V2 + the sibling-arc info_key precedent: ktx 56 / mvdsv 45 info_keys all `synthesized`, 0 `source_inline`). Logged to review-findings.md (F15) + ownership table; the prompt's pre-flight bullet now states the true pre-state and instructs convert-the-11.
+- Everything else in the prompt verified correct against live source: counts, `source_backed`, `*version` dropped (F13/F14), the 3 breadcrumb candidates, F11 net_ip/net_port defaults, the `1.16-dev`/`1.40-dev` anchors. The prompt is clean to dispatch.
+
+Next: operator dispatches the corrected Phase-3 executor in a fresh terminal. This orchestrator waits for the executor halt, then verifies the Phase-3 boundary independently (V1 coverage incl. the 11 converted; V2 origin all `synthesized`; V6 D6 Probes A/B; origin_vocabulary + synthesized_requires_anchor regressions; idempotency + F-D4a; the breadcrumb harvest for P4). Then generates the Phase-4 executor prompt.

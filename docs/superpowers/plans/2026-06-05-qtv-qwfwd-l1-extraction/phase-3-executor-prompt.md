@@ -15,9 +15,10 @@ You are the **arc-executor** (and the **mother terminal**, D10) for **Phase 3 --
 
 ## Orchestrator pre-flight (already done -- do NOT redo)
 
-- **Phases 0, 1, 2 SHIPPED + independently re-verified green.** 102 L1 rows are loaded, descriptions NULL, all `source_backed`:
+- **Phases 0, 1, 2 SHIPPED + independently re-verified green.** 102 L1 rows loaded, all `source_backed`:
   - **qwfwd (50):** cvar 13 / command 29 / cmdline_param 2 / info_key 6.
   - **qtv (52):** cvar 40 / command 12.
+- **Description pre-state (orchestrator-verified live 2026-06-06, F15 -- the earlier "descriptions NULL" claim was WRONG):** 91 of 102 are NULL; **11 qwfwd rows already carry `source_inline` stubs** -- 5 commands (`alias`, `cvarlist`, `echo`, `serverinfo`, `wait`; raw C source-comment text, one with a literal `TODO`) + all 6 info_keys (adapter placeholders shaped `userinfo info key: <name>; ops [...]`). None are real user-doc. The describe worklist enumerates by name+type (NOT `WHERE description IS NULL`; phase MD line 486), so it already reaches all 11 -- but you MUST **own+synthesize all 11** so the end state is `description_origin='synthesized'`. V2 forbids `source_inline`, and none of the 11 stubs clear the v2 user-doc shape, so do NOT let a worker affirm-and-keep them. (Sibling KTX/MVDSV arc precedent: every info_key there is `synthesized`, 0 source_inline.) Finding **F15** (review-findings.md).
 - **Q-SKILL (F8) is RESOLVED.** The orchestrator already widened the `describe-fill-synthesis` gate to `{ktx,mvdsv,qtv,qwfwd}` (+ scope doc-refs), verified live as the only project-branch. **Your describe workers WILL dispatch for qtv/qwfwd -- do NOT re-edit the skill; do NOT halt on the line-102 gate.** (If a worker still reports an abort on project scope, STOP and tell the orchestrator -- the edit regressed.)
 - `*version` is NOT a queryable entity (dropped by the loader, F13/F14) -- it gets NO describe row. Describe only the 102 loaded entities.
 - Go binary is at `/usr/local/go/bin` if you need to read-run anything, but Phase 3 only READS the qtv Go source (`pkg/`) for register-site verification -- no `go run`.

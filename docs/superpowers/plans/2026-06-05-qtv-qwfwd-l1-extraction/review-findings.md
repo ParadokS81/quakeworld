@@ -156,6 +156,20 @@ Canonical order is **head-first then tag** (tag-first works but logs spurious `r
 
 **Proposed disposition (operator judgment, same as F13):** low impact -- the QTV version is already surfaced via the `versions` row (`1.16-dev`), and the dropped registration's default (`QTVGO 1.16-dev`) is preserved in the extractor JSON. Capturing `*version:serverinfo` for cross-engine parity would require routing `*`-prefixed cvar registrations into the info_keys output (cross-handler) -- a follow-up enhancement, not a Phase-2 fix. Resolve identically to whatever F13's disposition becomes.
 
+### F15 -- 11 QWFWD entities arrive at Phase 3 with `source_inline` descriptions, not NULL (the phase MD + executor-prompt "descriptions NULL" premise is false)
+
+**Status:** Found at orchestrator Phase-3 pre-flight (2026-06-06), before Phase 3 kickoff, by querying live DB description coverage. The Phase-3 executor prompt was authored at ~500k context (orchestrator failure zone), so every factual claim in it was re-verified live -- this is the one that did not hold. Touches Phase 3. NOT a blocker (the worklist already reaches the rows); the fix is a premise correction + an explicit convert instruction so V2 passes.
+
+**Evidence:** Live `entities` shows 11 of 102 qtv/qwfwd rows already carry a non-null `description` with `description_origin='source_inline'`, all on `project='qwfwd'`:
+- 5 commands -- `alias`, `cvarlist`, `echo`, `serverinfo`, `wait` -- raw C source-comment text captured by the `load-commands` adapter (e.g. `cvarlist` = `List all cvars TODO: allow cvar name mask as a parameter, e.g. cvarlist cl_*` -- carries a literal `TODO`; `alias` misspells "seperated").
+- All 6 info_keys -- adapter-generated placeholders shaped `userinfo info key: <name>; ops [...]` (e.g. `challenge:userinfo` = `userinfo info key: challenge; ops ["read"]`).
+
+The other 91 rows (all 52 qtv; qwfwd's 13 cvars + 2 cmdline_params + 24 commands) are genuinely NULL. The phase MD line 180 ("`description` is NULL for all qtv/qwfwd rows") and the Phase-3 executor prompt ("102 L1 rows loaded, descriptions NULL") both mis-state the pre-state. `source_inline` is a legitimate in-vocabulary origin (the load adapters set it from source comments / templated stubs); nothing is broken -- the premise was just inaccurate.
+
+**Impact (contained, not catastrophic):** the describe worklist enumerates `SELECT name, type FROM entities WHERE project='<p>' ORDER BY type, name` (phase MD line 486 -- by name+type, NOT `WHERE description IS NULL`), so all 11 are dispatched regardless. But (a) the mother terminal could be confused finding 11 non-NULL rows the prompt said do not exist, and (b) the `describe-fill-synthesis` skill's native contract is "affirm existing comment OR synthesize" -- if a worker AFFIRMS one of these stubs and leaves `description_origin='source_inline'`, the V2 boundary probe (phase MD line 635: "only `synthesized` ... no `source_inline`") FAILS, and the executor prompt's "origin MUST be exactly `synthesized`" is violated.
+
+**Resolved by (Phase 3, premise correction only -- no code, no decision amendment):** the describe pass owns+synthesizes ALL 11 (end state `description_origin='synthesized'`). Justified three ways: V2 already requires it; none of the 11 stubs clear the v2 user-doc shape (raw comments / templated placeholders), so there is nothing worth affirming; and the sibling KTX/MVDSV describe arc set every one of its info_keys (ktx 56, mvdsv 45) to `synthesized` with 0 `source_inline` -- the precedent is convert, not affirm. The Phase-3 executor prompt's pre-flight bullet is corrected to state the true pre-state and instruct convert-the-11; the phase MD line-180 premise is superseded by this finding (no MD edit -- the executor reads this finding via the prompt). V1/V2 enforce the end state; no probe change.
+
 ---
 
 ## Findings the design got right (carry forward)
@@ -174,7 +188,7 @@ Canonical order is **head-first then tag** (tag-first works but logs spurious `r
 | Phase 0 (Schema + plumbing) | F1, F4, F9, F10 |
 | Phase 1 (QWFWD extractor + vendored load path) | F2, F5, F6, F7; F12 (head-load recipe fix, RESOLVED); F13 (*version drop, surfaced) |
 | Phase 2 (QTV Go extractor) | F2, F5, F7; **F12 (head+tag load recipe -- LOAD-BEARING, inherit corrected 8-call recipe)**; F14 (*version drop -- 40 cvars not 41, surfaced) |
-| Phase 3 (Describe-fill) | F8 (skill gate); D6 guard is the load-bearing item; F11 (net_ip/net_port real defaults) |
+| Phase 3 (Describe-fill) | F8 (skill gate); D6 guard is the load-bearing item; F11 (net_ip/net_port real defaults); **F15 (11 qwfwd source_inline stubs -> own+synthesize all 11; pre-state premise corrected)** |
 | Phase 4 (Validate + concept-note decision) | F3, F7, F10 (reproducibility-method implication) |
 
 ---
