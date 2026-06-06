@@ -27,8 +27,8 @@ Spine = the go/no-go path, planned in full. Deferred tier = named gated stubs, d
 
 | Phase | Status | MD | Deliverable | Runnable state at end | Gate / depends on |
 |---|---|---|---|---|---|
-| **A** -- Increment 1 | drafted (verified) | `phase-A-increment-1.md` | migration (`chat_threads` + `thread_messages`) -> thin loader promotes the 1,008 already-fenced probe threads -> rewire `search_solved_issues` to hybrid thread retrieval | `search_solved_issues` answers from threads on the Feb-Mar 2021 slice; old session path retired | **THE GATE.** Nothing upstream. Go/no-go: do threads beat session-FTS on live queries? |
-| **B** -- Chunk-size sweep | drafted (verified) | `phase-B-chunk-size-sweep.md` | 3 fence agents (750 / 1500 / 3000) on a worst-case `#quakeworld` chunk; pick the largest size holding 0% hallucination + coherence ~4+ | the production fence cap is chosen | Independent of A; runs in parallel. Output sizes C. |
+| **A** -- Increment 1 | in execution | `phase-A-increment-1.md` | migration (`chat_threads` + `thread_messages`) -> thin loader promotes the 1,008 already-fenced probe threads -> rewire `search_solved_issues` to hybrid thread retrieval | `search_solved_issues` answers from threads on the Feb-Mar 2021 slice; old session path retired | **THE GATE.** Nothing upstream. Go/no-go: do threads beat session-FTS on live queries? |
+| **B** -- Chunk-size sweep | in execution | `phase-B-chunk-size-sweep.md` | 3 fence agents (750 / 1500 / 3000) on a worst-case `#quakeworld` chunk; pick the largest size holding 0% hallucination + coherence ~4+ | the production fence cap is chosen | Independent of A; runs in parallel. Output sizes C. |
 | **C** -- Batched backfill | drafted (verified) | `phase-C-batched-backfill.md` | channel x ~1yr idempotent batches over the full corpus (Sonnet / conc-5 / paced / honest counts); `resolution_status` rides as a passenger | the whole corpus is fenced + embedded + retrievable | PRECONDITION: A gate green + B's cap. |
 | **buckets-E** -- FAQ-substrate enrichment | drafted (verified) | `phase-buckets-E-enrichment.md` | a re-runnable Workflow pass labels each thread `buckets_question` / `buckets_answer` (9-bucket taxonomy) | threads carry bucket tags; FAQ-discovery queries are possible | Post-backfill; decoupled from fencing. |
 | **D** -- Threshold recalibration | stub | (detail-planned on trigger) | retune `L2_RRF_*` against fenced-thread retrieval | calibrated `match_quality` for `search_solved_issues` | Trigger: enough corpus backfilled. |
@@ -38,6 +38,10 @@ Spine = the go/no-go path, planned in full. Deferred tier = named gated stubs, d
 Status transitions: `not started` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
 
 **Pipeline ordering:** A + B (parallel) -> [A gate] -> C (`resolution_status` rides) -> buckets-E -> D. author-trust + clustering are to-the-side stubs.
+
+**Execution status (2026-06-06):** Operator approved spine execution; Phase A + Phase B kicked off in parallel (they are independent). Orchestrator verified prereqs green: Postgres up (qw-oracle-postgres-dev, healthy), 728,863 messages / 86,423 sessions loaded, probe output intact (221 chunks / 1008 threads / 30 queries, embed-cache.sqlite present), migration 021 free at kickoff (R9 -- A re-checks at exec time). `chat_threads` / `thread_messages` absent (clean additive migration). C / buckets-E remain gated on A's operator-run go/no-go (D2).
+
+**Update (2026-06-06, post Phase A ship + Phase B measurement):** Phase A shipped + independently verified green by the orchestrator (migration 021, 1008 threads all embedded, hybrid RRF rewire mirroring `search_entities`, tsc + 18/18 MCP tests clean, orientation/index/API_CONTRACTS truthed) -- the operator-run gate is the only thing pending for A. Phase B re-scoped (executor finding, orchestrator-ratified): the read-only gap-sweep corrected D9's backfill estimate ~25x (3h/cap750 = 18,365 agents, not ~650-750) and inverted the swept dial from chunk-cap to **lull-gap**; cap held at 750, **operating point 12h/750 = ~4,058 agents** (78% fewer than 3h). Full detail in `decisions.md` Amendment under D9.
 
 ---
 

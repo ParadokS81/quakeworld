@@ -129,6 +129,28 @@ CREATE INDEX thread_messages_message ON thread_messages(message_id);
 
 **Implication:** `args` reaches a workflow script as a JSON string -- normalize `const A = typeof args === 'string' ? JSON.parse(args) : (args ?? {})` at the top of every workflow script. Backfill scale (B's cap is the dial): whole backfill ~650-750 agents @ cap 750, ~150-200 @ cap 3000; biggest single batch ~80 agents (qw-2018 @ 750). Voyage embedding (small) is the only real dollar cost. Trial a small wave before a full batch to confirm the config clears the throttle.
 
+### Amendment 2026-06-06 (Phase B execution) -- D9 backfill estimate corrected ~25x; swept dial inverts cap -> gap
+
+**Do not revert.** Phase B's read-only gap-sweep, run over the FULL 728k-message corpus (a direct measurement, not an extrapolation), found D9's "~650-750 agents @ cap 750" badly wrong: it divided messages by the cap and ignored that lull-chunking cuts at quiet gaps, so the cap almost never binds. At the planned **3h gap / cap 750 the real backfill is 18,365 agents** (median bite 9 messages -- the 3h gap shatters the corpus into ~18k scraps and splits overnight Q&A across the gaps). The calibration probe's 221 chunks for 2 months x 2 channels extrapolates to ~18k for the full corpus, confirming the measurement.
+
+**Corrected decision:** the swept dial is the **lull gap**, not the chunk cap. The cap stays at the proven **750** -- the attention ceiling. The cap chops any over-750 bite into <=750-message chunks, so each agent's per-call load is unchanged regardless of gap, and the size calibration already proved 750 clean (0% index-hallucination). Raising the gap only moves where cuts fall; it does not make any single agent's job harder. **Backfill operating point: 12h gap / cap 750 -> ~4,058 agents** (78% fewer than 3h), median bite 42. Measured sweep:
+
+| gap | agents @cap750 | vs 3h | median bite | max bite | note |
+|---|---|---|---|---|---|
+| 3h | 18,365 | 100% | 9 | 2,115 | original plan; Q&A split overnight |
+| 6h | 9,495 | 52% | 22 | 4,139 | |
+| **12h** | **4,058** | **22%** | **42** | **22,673** | **knee -- chosen operating point** |
+| 24h | 1,778 | 10% | 77 | 62,125 | peak year = one 62k blob, 698 forced cuts -- REJECTED (loses natural boundaries) |
+| 48h | 1,189 | 6% | 107 | 62,125 | diminishing; mostly cap-chopping |
+
+**Residual (the quantified catch):** at 12h, ~400 of the ~4,058 cuts are cap-FORCED mid-marathon rather than lull-bounded. Far fewer bad cuts than 3h's pervasive overnight-splitting, but NOT zero. So Phase B's quality gate MUST fence a 12h sample that INCLUDES at least one cap-forced (marathon-slice) chunk and confirm coherence ~4 there -- forced cuts are the one new failure mode the gap-raise introduces. Optional follow-on: sweep cap 1500/3000 on the 34 bites >=3000 that 12h produces (3h produced zero, so the original cap question was untestable until now) to see whether the ceiling can rise and trim the forced cuts -- polish, not required.
+
+**Architecture check:** this stays inside D1. The lull gap is a parameter of the chunking step that FEEDS the fencer; it does not touch the locked-out items (retrieval-time merge, embedded summary, query-time lazy-resolve, author-authority ranking). The pipeline stages are unchanged.
+
+**Phase C impact:** C must budget ~4,058 agents at 12h (NOT D9's ~650-750), and re-fence the 2021 slice under the production gap + `reconstruction_version` for consistency (C's open-question resolves to re-fence). Watch a year-boundary straddle in `batchScopeClause` -- a 12h+ bite can cross Dec 31 -> Jan 1; scope C's idempotent DELETE so a straddling thread is covered exactly once. The orchestrator augments C's executor prompt with this corrected scale at kickoff.
+
+**Incremental-update note (future arc, NOT this one):** backfill maximizes the gap (12h) for cheapness; daily incremental pulls want a TIGHTER gap (~6h on busy channels) so a frequent safe boundary exists (at 12h, peak #quakeworld has a clean lull only ~every 2 weeks). The two gaps need not match.
+
 ---
 
 ## D10. Phase A reuses the probe's cached embeddings

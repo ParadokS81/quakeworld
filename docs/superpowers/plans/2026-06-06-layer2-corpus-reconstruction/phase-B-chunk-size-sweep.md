@@ -1,6 +1,8 @@
 # Phase B -- Chunk-size sweep
 
-> **Executor checklist:** read `decisions.md` (D9 governs the Workflow recipe), `review-findings.md` (this phase owns R7). Reuse the probe's scripts -- do NOT rebuild lull-chunking from scratch.
+> **RE-SCOPED 2026-06-06 -- see `decisions.md` Amendment under D9.** The read-only gap-sweep showed the chunk CAP is the dead dial (lull-chunking cuts at quiet gaps, so the cap rarely binds) and corrected D9's backfill estimate ~25x (3h/cap750 = 18,365 agents, not ~650-750). The live dial is the **lull gap**: cap held at the proven 750 (attention ceiling), gap swept. **Chosen operating point: 12h gap / cap 750 -> ~4,058 agents.** The cap-sweep Tasks 1-3 below are SUPERSEDED; the re-aimed Phase B is: (1) measure agent-count vs gap [DONE], (2) fence a 12h sample INCLUDING a cap-forced marathon-slice chunk + run the quality gate (0% hallucination + coherence ~4), (3) optional cap-confirm on the 34 bites >=3000. Output to C: gap=12h, cap=750.
+
+> **Executor checklist:** read `decisions.md` (D9 + its 2026-06-06 amendment govern the recipe + the swept dial), `review-findings.md` (this phase owns R7). Reuse the probe's scripts -- do NOT rebuild lull-chunking from scratch.
 
 ## Goal
 
