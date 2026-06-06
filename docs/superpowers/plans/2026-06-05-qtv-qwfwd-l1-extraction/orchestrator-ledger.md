@@ -22,17 +22,22 @@ Running cross-phase memory for the arc-orchestrator session. Append-only per pha
 | Phase | Status | Boundary verified by orchestrator? | Notes |
 |---|---|---|---|
 | 0 schema+plumbing | **SHIPPED** (commit bf944a3f) | **YES (2026-06-06)** | F9 fix used; F10 found+fixed by executor (13th Record site) |
-| 1 qwfwd extractor | next up | -- | needs P5 (have it); executor prompt pending |
-| 2 qtv extractor | not started | -- | **needs Go toolchain (P6) installed first** |
-| 3 describe-fill | not started | -- | **needs Q-SKILL gate-widening applied first** |
-| 4 validate+decide | not started | -- | F10: use standalone-rerun+git-diff for qtv/qwfwd reproducibility, NOT `idempotency --project` |
+| 1 qwfwd extractor | **SHIPPED** (commit 161c6c1a) | **YES (2026-06-06)** | F12 head+tag recipe fix (D4 amended); F11->Phase3; F13 open operator Q |
+| 2 qtv extractor | next up | -- | **needs Go (P6) first**; **inherit F12 8-call head+tag recipe** (in executor prompt) |
+| 3 describe-fill | not started | -- | needs Q-SKILL gate-widening first; F11 (net_ip/net_port real defaults) |
+| 4 validate+decide | not started | -- | F10: standalone-rerun+git-diff for reproducibility, NOT `idempotency --project`; QWFWD floor baselines below |
 
 ---
 
 ## Cross-phase capture obligations (the wires that silently break)
 
-1. **Phase 1 V4 QWFWD per-type counts -> Phase 4 floor baselines.** NOT hardcoded (F7: extractor count is truth). Record the exact `entities` per-type counts for `project='qwfwd'` at the Phase-1 boundary; they become `QWFWD_FLOOR_PROBES` `expected` values in Phase 4 Task 2.
-   - STATE: pending (Phase 1 not run).
+1. **Phase 1 V4 QWFWD per-type counts -> Phase 4 floor baselines.** NOT hardcoded (F7: extractor count is truth).
+   - **STATE: CAPTURED (orchestrator-verified live, 2026-06-06).** `QWFWD_FLOOR_PROBES` `expected` values for Phase 4 Task 2, all `source_state=source_backed`:
+     - `cvar = 13` (extractor emitted 14; loader correctly drops `*version` -- F13)
+     - `command = 29` (`cvar_hash_print` excluded -- `#ifdef CVAR_DEBUG` off; F7 holds)
+     - `cmdline_param = 2`
+     - `info_key = 6`
+   - Phase 4 `makeFloorCountProbe('qwfwd', <type>, N)` + `makeFloorSourceStateProbe('qwfwd', <type>, { source_backed: N })` for each.
 2. **Phase 2 V4 QTV counts.** Known: cvar=41, command=12 (Phase-2 V4 hardcoded + grep-verified). Re-confirm against live count at Phase-2 boundary; feed `QTV_FLOOR_PROBES`.
    - STATE: pending (Phase 2 not run).
 3. **Phase 3 `[L3 breadcrumb: <candidate>]` tags -> Phase 4 concept-note decision evidence.** New convention (mother-ledger SR-5; absent from sibling arc) written into `entities.description_reasoning`. Phase 4 Task 3 Step 0 queries these. If the `parse_delay`/`tick_time` harvest comes back empty, Phase 4 defers candidate (b) per the endorsed bias.
@@ -49,7 +54,7 @@ Running cross-phase memory for the arc-orchestrator session. Append-only per pha
 
 ## Decision amendments log
 
-(none yet -- amendments land as dated blocks in decisions.md, mirrored here. F10 is consistent with D1; no amendment.)
+- **D4 amended 2026-06-06 (F12).** "Insert exactly one versions row per target" SUPERSEDED -> single frozen snapshots need head+tag (2 rows): `head` (ord 999999, source-backed anchor) + `<label>` (ord 1, identity). Per-type recipe is 8 calls (qwfwd, 4 types) / 4 calls (qtv, 2 types). Dated block landed under D4 in decisions.md. LOAD-BEARING for Phase 2. (F10 stays consistent with D1; no D1 amendment.)
 
 ---
 
@@ -75,3 +80,16 @@ Independently re-ran every boundary probe (did not trust the executor's PASS):
 - Phase 0->1 contract confirmed: `build-snapshot.ts` qtv/qwfwd = `'head'` provisional (lines 692-693); 0 versions rows for qtv/qwfwd; SCHEMA.md updated.
 
 Sign-off: Phase 0 SHIPPED. No decision amendments. F10 captured (review-findings.md) with Phase-4 reproducibility-method implication already consistent with Phase 4's load-version-rerun idempotency (V3) -- no Phase-4 MD change needed.
+
+### Phase 1 -- VERIFIED GREEN (orchestrator, 2026-06-06)
+
+Independently re-ran the boundary (commit 161c6c1a):
+- Per-type counts x source_state: **all 50 source_backed** (cvar 13 / command 29 / cmdline_param 2 / info_key 6); 0 non-source_backed. -> Phase-4 baselines captured above.
+- versions: `{1.40-dev ord1, head ord999999}`, both `ok`, commit_sha `1.40-dev` -- confirms the F12 head+tag fix.
+- Field spot-check `masters_query`: source_backed, default `1`, `src/query.c:697`.
+- V9 tsc exit 0; V8 reproducibility: independent re-extract (workers 1) -> empty git diff.
+- Commit scope clean (12 files: clang_config + 4 handlers + extract.py + 4 output JSON + build-snapshot + review-findings). 161c6c1a ancestor of HEAD.
+- F12 deviation handled: D4 amended (above). F11 -> Phase 3 (net_ip/net_port real defaults via describe). F13 -> open operator Q (capture `*version:serverinfo` for cross-engine parity? low impact -- version already in versions row + `*qwfwd:userinfo`).
+- CAVEAT (not a blocker): V5 MCP round-trip could not be confirmed against the dev DB -- the session's live qw-oracle MCP server targets PROD, so `lookup_entity(qwfwd,...)` returns empty there. Verified at the data layer instead (row + fields + source_backed). The tracer-bullet's load path is proven; MCP-against-dev (and eventual prod refresh) is a separate deploy concern.
+
+Sign-off: Phase 1 SHIPPED. D4 amended (F12). Open items surfaced to operator: F13 disposition; the EXTRACTOR-PLAYBOOK head+tag-rule recommendation (executor's idea -- fold "single-version projects load head+tag" into the playbook/onboard-extractor skill so future onboardings don't repeat F12; surfaced, not done -- shared-tooling change, operator's call).
