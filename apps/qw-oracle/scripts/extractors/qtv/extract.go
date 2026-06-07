@@ -411,11 +411,16 @@ func extractCvar(call *ast.CallExpr, method string, relPath string, pos token.Po
 	}
 
 	ast_ := cvarAst{
+		// flags_raw defaults to the empty-string sentinel (NOT null) so an
+		// unflagged cvar matches the C extractors' post-v17 convention
+		// (cross-front-end parity; runbook 3.2.1 negative bar). RegEx with real
+		// flags overrides below; Reg/Regf (no flags arg) keep the sentinel. [F17]
+		FlagsRaw:          strPtr(""),
 		FlagNames:         []string{},
 		SourceFile:        relPath,
 		SourceLine:        pos.Line,
 		SourceColumn:      pos.Column,
-		// Fields QTV does not carry: remain null (zero-value pointer).
+		// Other fields QTV does not carry remain null (zero-value pointer).
 	}
 
 	switch method {

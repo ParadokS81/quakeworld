@@ -24,7 +24,7 @@
       "name": "address",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -41,7 +41,7 @@
       "name": "allow_download",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -58,7 +58,7 @@
       "name": "allow_download_demos",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -75,7 +75,7 @@
       "name": "allow_download_maps",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -92,7 +92,7 @@
       "name": "allow_download_models",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -109,7 +109,7 @@
       "name": "allow_download_other",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -126,7 +126,7 @@
       "name": "allow_download_skins",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -143,7 +143,7 @@
       "name": "allow_download_sounds",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -160,7 +160,7 @@
       "name": "demo_dir",
       "ast": {
         "default_value": "demos",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -177,7 +177,7 @@
       "name": "dstream_read_buf_size",
       "ast": {
         "default_value": "32768",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -194,7 +194,7 @@
       "name": "dstream_timeout",
       "ast": {
         "default_value": "30",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -211,7 +211,7 @@
       "name": "dstream_write_buf_size",
       "ast": {
         "default_value": "65536",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -228,7 +228,7 @@
       "name": "fp_messages",
       "ast": {
         "default_value": "4",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -245,7 +245,7 @@
       "name": "fp_persecond",
       "ast": {
         "default_value": "2",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -262,7 +262,7 @@
       "name": "fp_secondsdead",
       "ast": {
         "default_value": "2",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -488,7 +488,7 @@
       "name": "log_level",
       "ast": {
         "default_value": "info",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": "logLevelOnChange",
         "min_bound": null,
@@ -505,7 +505,7 @@
       "name": "log_pretty",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": "logPrettyOnChange",
         "min_bound": null,
@@ -522,7 +522,7 @@
       "name": "log_timeformat",
       "ast": {
         "default_value": "2006-01-02T15:04:05.000",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": "logTimeFormatOnChange",
         "min_bound": null,
@@ -539,7 +539,7 @@
       "name": "masters",
       "ast": {
         "default_value": "master.quakeworld.nu master.quakeservers.net qwmaster.fodquake.net",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -556,7 +556,7 @@
       "name": "maxchains",
       "ast": {
         "default_value": "1",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -592,7 +592,7 @@
       "name": "maxservers",
       "ast": {
         "default_value": "100",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -628,7 +628,7 @@
       "name": "parse_delay",
       "ast": {
         "default_value": "7",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -645,7 +645,7 @@
       "name": "qtv_password",
       "ast": {
         "default_value": "",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -662,7 +662,7 @@
       "name": "tick_time",
       "ast": {
         "default_value": "100",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -679,7 +679,7 @@
       "name": "ustream_read_buf_size",
       "ast": {
         "default_value": "327680",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -696,7 +696,7 @@
       "name": "ustream_timeout",
       "ast": {
         "default_value": "60",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
@@ -713,7 +713,7 @@
       "name": "ustream_write_buf_size",
       "ast": {
         "default_value": "32768",
-        "flags_raw": null,
+        "flags_raw": "",
         "flag_names": [],
         "on_change": null,
         "min_bound": null,
