@@ -111,6 +111,8 @@ Updates fire on **operator discretion** -- no automation, no cron, no webhooks. 
 | MVDSV | Tagged + active head | New stable tag upstream |
 | FTE | Rolling head only (no real tags) | Operator-cadenced head re-walk on whatever schedule feels right |
 | QWCL | Frozen archive (1999 GPL release) | Loaded once at v2.33; never updates |
+| QTV | Frozen vendored snapshot (Go `QW-Group/qtv`) | Loaded once at 1.16-dev; re-vendor to update (no `.git`) |
+| QWFWD | Frozen vendored snapshot (C qqshka) | Loaded once at 1.40-dev; re-vendor to update (no `.git`) |
 
 Authoritative trigger model + per-codebase scope rationale: `docs/superpowers/specs/2026-05-04-oracle-prod-update-lifecycle.md`.
 
