@@ -49,6 +49,15 @@ The attractive shortcut -- copy the ezQuake description text onto the matching Q
 - Inventing a new `description_origin` value -- end state is `synthesized`, QWCL-anchored.
 - Any QWCL *extractor* change -- QWCL is already extracted and loaded (380 rows); this is description-only.
 
+## Prior art -- this topic was already parked (2026-05-07), with a DIFFERENT mechanism
+
+This seed was written 2026-06-07 before noticing `docs/superpowers/parking/2026-05-07-qwcl-cross-engine-description-borrow.md`, which already parked the QWCL coverage idea. The two are NOT in conflict -- they are the two candidate mechanisms the future arc must pick between:
+
+- **(A) Inherit-column (the 2026-05-07 doc).** Add `cvar_versions.description_inherited_canonical_id` + a deriver fallback + a backfill script; the QWCL row inherits the ezquake description by reference, stamped `description_origin='inherited'` (migration 012 already ships that value). Cheap and honest about WHERE the text came from -- but it inherits ezquake's text WITHOUT verifying it against QWCL source, so the help_json drift above (ezquake describing 25-years-newer behavior) rides straight in.
+- **(B) Describe-fill-with-prior (this doc).** Run `describe-fill-synthesis` per knob with the ezquake row as a source-verified PRIOR; end state `description_origin='synthesized'`, anchored to QWCL source. Catches the drift, but costs an Opus-MAX pass per knob (~283 fast affirm-the-prior + ~97 cold).
+
+**Correction to "No honest provenance" in the methodology section above:** that reason was overstated -- the `'inherited'` origin IS an honest provenance value for a cross-codebase borrow, so provenance is NOT the discriminator between A and B. The real discriminator is **source-verification**: B reads QWCL source and catches drift; A trusts the ezquake text. Given QWCL is a frozen client nobody runs, A's cheapness may well win -- the operator picks at arc-plan time. The drift analysis in this doc is the input that informs that choice either way.
+
 ## Related
 
 - Post-arc review that surfaced the gap: `docs/superpowers/reviews/2026-06-06-qtv-qwfwd-l1-extraction-post-arc-analysis.md`.
