@@ -2,7 +2,7 @@
 date: 2026-06-07
 type: vision-roadmap-parking
 arc-slug: quake-world-docs-federation
-status: architecture LOCKED; per-arc execution pending (a) operator quota reset and (b) two vikpe coordination items (see "Open coordination items"). Triggers from the 2026-05-27 vision have fired.
+status: architecture LOCKED; build-in-workshop + self-host decided 2026-06-07 (don't wait on infiniti's design package or vikpe's community site). Per-arc execution pending operator quota; only open item is arc order (docs-first recommended). Triggers from the 2026-05-27 vision have fired.
 supersedes: docs/superpowers/parking/2026-05-27-docs-quake-world-vision.md
   -- overturns its wiki-first content direction (now note-first) and its implied Firebase hosting (now Cloudflare). Its cross-link contract + "why not MediaWiki" + free-L1-enhancements sections still stand; read it for that detail.
 related:
@@ -94,6 +94,8 @@ Platform bet: **Cloudflare**. Build-tool through-line: **Vite**. Verified from `
 
 This makes the VitePress(Vue)/oracle(Solid) framework split a non-issue: same Vite tooling, same CF deploy, same daisyUI look; only literal component *code* doesn't cross the Vue/Solid line (no need for it to).
 
+**Design is a swappable layer -- build functionality now, theme later.** The palette/fonts are a thin token layer; adopting daisyUI now and refining later (infiniti's promised design package, or any better theme) is a CSS-variable swap, not a functional change. daisyUI v5 is already **OKLCH-native**, so the OKLCH color ramps that were the point of waiting on infiniti are already in hand -- nothing about docs/oracle *functionality* depends on the final palette. So: do not block on infiniti's package or on vikpe's community site existing; build the surfaces now, adapt the look later without rework.
+
 ## Monorepo layout
 
 | Thing | Lives in | Note |
@@ -115,11 +117,14 @@ Build the two frontends on vikpe's stack so they **graduate** cleanly to `quakew
 
 **New-version workflow** is NOT a separate arc -- it's a deliverable inside Arc 2 (the admin console that renders the staleness queue) + existing pipeline mechanics (the 2026-05-04 prod-update-lifecycle CLI entry points + the 2026-05-03 lockstep-flag design). What's missing is wiring flag-detection into the loader + an admin view. The operator's instinct ("the workflow shapes up as we build the oracle page") is correct.
 
-## Open coordination items (the only undecided things)
+## Coordination items
 
-1. **Frontend repo location** -- operator's workshop (`apps/`, graduate later) vs vikpe's `quakeworld/slipgate` web monorepo directly (which already has `web/apps/website`). Backend + wiki stay in the workshop either way. *Lean: workshop, then graduate.* Resolve with vikpe (touches his repo).
-2. **Arc order** -- docs-first (recommended; lowest risk, proves everything cheaply) vs oracle-first (only if recruiting urgency or new-version pain is acute; then start with the staleness *backend*, which is UI-independent). Operator's call.
-3. **oracle.quake.world: standalone app vs section of the community site** -- doesn't change the stack; folds into item 1.
+**Resolved 2026-06-07** (operator decision -- build it ourselves, don't block on external deps):
+1. **Frontend repo location -- RESOLVED:** build in the **operator's workshop** (`apps/`) + **self-host on Cloudflare Pages**; vikpe points the `quake.world` subdomain at it (the `scheduler.quake.world` pattern). Graduation into his `quakeworld/slipgate` monorepo is a later option, not a blocker. (Backend + wiki were always staying in the workshop.)
+3. **oracle standalone vs section -- RESOLVED with #1:** standalone app in the workshop, integrating with the community site via shared-Cloudflare data, not a section of it.
+
+**Still open:**
+2. **Arc order** -- docs-first (recommended; lowest risk, proves the stack/pipeline/design cheaply) vs oracle-first (only if recruiting urgency or the new-version pain is acute; then start with the staleness *backend*, which is UI-independent). Operator's call when execution starts.
 
 ## Deferred (explicitly not this work)
 
