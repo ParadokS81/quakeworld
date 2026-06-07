@@ -155,3 +155,15 @@ Ordered smallest scope first. The operator picks what fits.
 ---
 
 The arc shipped clean -- 0 MISSING, all spec sections delivered, every Phase-4 claim independently re-verified against the live DB -- but it is **not yet closed**: no tag, no arc-history entry, no post-arc handoff. Recommendation #1 is the gap to mind before this arc can be called done.
+
+---
+
+## Post-arc disposition (2026-06-07)
+
+Close-out session after the cold review. Arc-history entry added + `arc-qtv-qwfwd-l1-shipped` tag pushed; the two pre-prod fixes (embed 102 + orientation) committed; prod deploy deliberately bundled with the imminent Phase-C L2 deploy (operator: no real MCP consumers yet). The three open YELLOWs were dispositioned:
+
+- **F17 -- FIXED** (`caebc96b`). qtv `extract.go` now defaults `cvarAst.FlagsRaw` to the `''` sentinel (RegEx with real flags still overrides), re-extracted + re-loaded qtv cvars head+tag. Live: 54 cvar-version rows flipped NULL->`''`, runbook 3.2.1 negative bar 54->0 violations, counts unchanged (40/12), descriptions intact, quality-grid 147/147 clean. No re-embed (descriptions unchanged).
+- **F13/F14 -- ACCEPTED as-is** (no code). `*version` stays captured-in-neither-type. Rationale: the version is already surfaced via the `versions` row (`1.16-dev`/`1.40-dev`) and, for qwfwd, `*qwfwd:userinfo`; a dedicated `*version:serverinfo` would be redundant and would require cross-handler routing in two languages (Go + Python libclang) touching shipped extractor code for near-zero consumer value. Decision recorded so it is not re-flagged.
+- **F18 -- FILED, not blind-fixed.** Pre-existing ezquake floor-baseline drift, not qtv/qwfwd-caused. Bumping `EZQUAKE_FLOOR_PROBES` is source-walk-gated (confirm the +4 cvar / +6 command drift is legitimate dev-head growth, not a regression, before baking it into the baseline -- `feedback_idempotency_before_staleness`). Routed to HANDOVER as a standalone ezquake re-baseline task.
+
+With F17 fixed and F13/F14/F18 dispositioned, the arc is **closed**. Remaining forward items (prod deploy bundled with Phase C; concept-note authoring arc for candidates a+b; QWCL describe-fill seed; the ezquake re-baseline) live in HANDOVER as backlog, not arc work.
