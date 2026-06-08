@@ -40,6 +40,27 @@ is "validated on batch 1" = the first HIGH-VALUE batch (#helpdesk or #quakeworld
 at reset -- RE-CONFIRM the with-vs-without delta there before letting the
 passenger ride the whole backfill.
 
+**RESOLVED 2026-06-08 -- binding gate KEEP (RUN batch-1 = #helpdesk 2026).** The
+with-vs-without comparison ran on the first high-value batch and OVERRIDES the
+#antilag provisional KEEP:
+
+| metric | without (baseline) | with (passenger) |
+|---|---|---|
+| index-hallucination | 0% | 0% |
+| coverage | 100% | 99.96% (99.15% pre-splice -- see below) |
+| threads | 357 | 373 (finer partition) |
+| resolution_status | n/a | 185 solved / 85 unresolved / 102 informational / 1 none |
+
+The hard gate (index-hallucination) held at 0% in BOTH passes. The only coverage
+gap in the WITH pass was a single chunk (helpdesk-041, 86% -- one contiguous
+44-msg sub-conversation dropped). A repeat WITH-resolution fence of that same
+chunk hit 100% coverage, proving the drop was run-to-run fencer NONDETERMINISM,
+not a passenger effect (the #antilag prep saw the reverse-direction delta for the
+same reason). The better helpdesk-041 re-fence was spliced into the loaded batch
+output, lifting batch coverage to 99.96% (2 msgs of 5,400 short -- normal fencer
+variance). **DECISION: KEEP resolution_status riding every remaining batch** --
+single-pass with `withResolution: true` from here on (no more dual-pass needed).
+
 ### 3. Year-boundary straddle (documented so RUN does not "fix" it)
 
 Year batches pull strictly `created_at` in [year, year+1). A conversation
@@ -74,7 +95,7 @@ validation slice.
 | [ ] | 2023 | 18,533 | 146 | 0 |
 | [ ] | 2024 | 12,410 | 193 | 0 |
 | [ ] | 2025 | 11,433 | 179 | 0 |
-| [ ] | 2026 | 5,400 | 61 | 1 |
+| [x] | 2026 | 5,400 | 61 | 1 | -- BATCH-1 (D7 binding gate); loaded 2026-06-08, 373 threads
 
 ### #quakeworld (849 agents, 11 batches)
 
@@ -188,3 +209,42 @@ on the new slice. (match_quality reads weak/strong on provisional R10 thresholds
 + 67 v2 (#antilag-2026). The #antilag-2026 batch stays loaded; reset-day RUN
 re-runs it idempotently (it is `[x]` above). Fence outputs cached at
 `scratch/backfill/antilag-2026/fence-{nores,withres}.json` (gitignored).
+
+## RUN session log
+
+### Session 1 -- 2026-06-08 (reset day)
+
+Baseline re-confirmed before first write: chat_threads = 1075 (1008 v1 + 67 v2),
+0 null/stale embeddings. Trial 1-agent fence cleared the post-reset shared
+throttle (fence 1/1, 0 fail, 20.7s) -- Sonnet/conc-5 config good.
+
+**Batch #helpdesk 2026 -- LOADED, verified.** 61 chunks, max 215.8KB (< 256KB
+R13 cap). Fenced BOTH ways (D7 kill-switch, 61 agents each, 0 failures each).
+Decision: KEEP passenger (see section 2 above). Loaded the WITH-resolution output
+(helpdesk-041 re-fence spliced in):
+- threads inserted: 373; junction rows: 5398 (DISTINCT == rows, R8 clean)
+- 0 OOB drops, 0 missing-msg warnings, 0 stale embeds, 1 R4 truncation (>30000
+  chars -- one large thread; embedding tail cut, full content stored; logged)
+- resolution: 185 solved / 85 unresolved / 102 informational / 1 null
+- **idempotency (R5/D5): PASS** -- re-ran load, identical state (373 threads,
+  total 1448 not 1821, thread_key set md5 `1326de4b587542ea416ed355d042a443`
+  unchanged). DELETE-scope-then-INSERT replaced, did not duplicate.
+- **retrieval: PASS** -- ran the SHIPPED rewired `searchSolvedIssues` handler
+  against the dev DB; 2026-specific queries return #helpdesk-2026 threads as
+  thread-shaped top hits with `resolution_status` (e.g. "ping higher than
+  terminal ping" -> the cl_physfps_spectator thread, strong, solved). Cross-year
+  hybrid retrieval working (2021 + #antilag threads surface where relevant).
+
+**Concern (deployment, NOT a Phase C defect):** the live `mcp__qw-oracle__*`
+tools route to the PRODUCTION MCP server (server_version 0.6.0), which still runs
+PRE-Phase-A session-FTS code (stale "2.66M IRC" description; old `session_id`
+hit shape) and queries the production DB, NOT this dev DB. The Phase A hybrid
+rewire is shipped in source (commit 58b30656) but not deployed to prod, and the
+full-corpus backfill lands in the DEV DB. Production will not serve threads until
+the rewire is deployed AND the prod DB is backfilled/promoted -- a post-arc
+deploy step (deploy skill), outside Phase C scope. Retrieval was therefore
+verified via the shipped handler against dev (the correct Phase-C check), not via
+the stale prod MCP tool.
+
+DB state after session 1: chat_threads = 1448 (1008 v1 #helpdesk/#quakeworld 2021
+probe + 67 v2 #antilag-2026 + 373 v2 #helpdesk-2026), 0 null embeddings.
