@@ -91,7 +91,7 @@ validation slice.
 |---|---|---|---|---|
 | [x] | 2020 | 14,244 | 97 | 0 | -- BATCH-2; loaded 2026-06-08, 715 threads (CONC=8)
 | [ ] | 2021 | 27,806 | 151 | 1 |
-| [ ] | 2022 | 13,893 | 178 | 0 |
+| [x] | 2022 | 13,893 | 178 | 0 | -- loaded 2026-06-09 (CONC=10 shakedown), 1015 threads
 | [ ] | 2023 | 18,533 | 146 | 0 |
 | [ ] | 2024 | 12,410 | 193 | 0 |
 | [ ] | 2025 | 11,433 | 179 | 0 |
@@ -278,3 +278,35 @@ same channel" idempotency probe the next validation pass should add).
 DB state after session 1 (final): chat_threads = **2163** -- 1008 v1 (2021 probe,
 untouched) + 1155 v2 (#helpdesk 2020 [715] + #helpdesk 2026 [373] + #antilag 2026
 [67]), 0 null embeddings, all v2 keys year-scoped.
+
+### Session 2 -- 2026-06-09 (CONC=10 shakedown)
+
+Baseline re-confirmed before first write: chat_threads = 2163 (1008 v1 + 1155 v2),
+0 null/stale. CONC stepped 8->10 (authorized by batch-2's clean 0-failure run; the
+in-file guardrail was re-anchored at 10, not removed -- drop-back-on-dirty-signal
+rule preserved). nproc=24 -> harness cap min(16,22)=16, so 10 is live (not clipped).
+
+**Batch #helpdesk 2022 -- LOADED, verified.** 178 chunks, max 89.8KB (< 256KB R13
+cap), 0 forced cuts. Fenced single-pass with-resolution at **CONC=10 / WAVE_PAUSE
+500ms**. **CONC=10 throttle outcome: CLEAN -- failures.fence = 0 (178/178), retry
+pass did NOT fire.** Wall-clock: fence 17.5 min for 178 chunks (5.9s/chunk -- vs
+batch-2's 12.6s/chunk at CONC=8; faster per-chunk, 2022 chunks avg 78 msgs vs
+2020's 147). **0 failures => CONC=10 proven; clear to hold 10 next session.**
+Load: 1015 threads, 13,886 junction rows (13,885 DISTINCT msgs -- one message
+legitimately in two threads, the R8 m2m case; DISTINCT guard handles it), 0 OOB /
+0 missing / 0 stale / 0 truncations, **0% index-hallucination / 99.94% coverage**,
+resolution 575 solved / 206 unresolved / 233 informational / 1 none.
+Idempotency (R5): PASS -- re-ran load, identical state (1015 threads, GLOBAL total
+held at 3178 not 4193, thread_key md5 `894eeca66e8702804ab017da5b09b631` unchanged).
+Retrieval: PASS -- ran the SHIPPED rewired `searchSolvedIssues` against the dev DB;
+all three 2022-specific queries return #helpdesk-2022 threads in the top-3 with
+`resolution_status` surfaced (Ryzen-stutter/USB3 solved, cl_proxyaddr-chaining
+solved, r_lgbloodcolor solved). Cross-year hybrid working (2020/2021/2026 threads
+co-surface where relevant; match_quality reads weak on provisional R10 thresholds
+-- Phase D recalibrates). Same prod-vs-dev deployment caveat as session 1 applies
+(live mcp__qw-oracle__* still routes to pre-Phase-A prod; verified via shipped
+handler against dev, the correct Phase-C check).
+
+DB state after session 2: chat_threads = **3178** -- 1008 v1 (2021 probe, untouched)
++ 2170 v2 (#helpdesk 2020 [715] + #helpdesk 2022 [1015] + #helpdesk 2026 [373] +
+#antilag 2026 [67]), 0 null embeddings, all v2 keys year-scoped.
