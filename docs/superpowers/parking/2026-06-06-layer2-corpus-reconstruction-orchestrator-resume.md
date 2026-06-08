@@ -1,57 +1,50 @@
-# Layer 2 corpus reconstruction -- orchestrator resume handoff (mid-arc, pre-RUN)
+# Layer 2 corpus reconstruction -- orchestrator resume (mid-RUN)
 
-**For:** a fresh terminal -- either (a) a cold review of what's shipped + the loose ends, or (b) driving the reset-day Phase C RUN. Written at a 2-day quota-pause boundary.
-**Created:** 2026-06-06 (orchestrator session that shipped A + B + C-PREP).
+**Updated:** 2026-06-08 (orchestrator session that drove RUN session 1: 2 real batches + the R14 fix).
+**For:** a fresh ORCHESTRATOR terminal continuing the Phase C backfill. You coordinate + verify; you do NOT run batch code -- that's the executor terminal via `phase-C-run-continue-kickoff.md`.
 **Arc:** `docs/superpowers/plans/2026-06-06-layer2-corpus-reconstruction/`
 
 ## Where things are
 
-A + B + C-PREP shipped and orchestrator-verified (not trusted -- each re-checked against live DB/source at its boundary). C RUN is gated on quota reset (~2026-06-08). buckets-E + D are downstream.
+RUN in progress, paced 1-2 batches/session. **DB: 2163 threads** = 1008 v1 probe (Feb-Mar 2021: #helpdesk 374 + #quakeworld 634, UNTOUCHED) + 1155 v2 (#helpdesk 2026=373, #helpdesk 2020=715, #antilag 2026=67). 0 null embeds; all keys unique + year-scoped.
 
-- **Phase A (shipped):** migration `021_layer2_threads.sql` (chat_threads + thread_messages); `search_solved_issues` rewired to hybrid RRF over threads (mirrors search_entities); 1,008 `fence-sonnet-v1` threads (Feb-Mar 2021, #helpdesk + #quakeworld). Gate GREEN -- operator-formalized 2026-06-06 (gate-A-compare 24/24-vs-9/24; the orchestrator tire-kick of 11 real queries was the pre-read, not the decision). Golden state: 1008 / 0-null-emb / 1008 distinct thread_key.
-- **Phase B (shipped):** lull gap **12h** (locked) + cap **1500** (ratified -- cleaner partition than 2500) -> **~3,796 fence agents**. D9 cost model corrected ~25x (was ~650-750; the gap, not the cap, was the lever). R13: the fence agent's 256KB Read cap (~2,700 msgs) is the real chunk ceiling, below Sonnet's context.
-- **Phase C PREP (shipped):** pipeline built -- `thread-loader-core.ts` (shared staging + idempotent version-agnostic-range-delete), `load-threads.ts` (thin Phase A wrapper over the core), `backfill-batch.ts` (count/prep/load, 12h/1500, 256KB guard, live batch-64 embed), `wf-backfill-fence.js` (v2 fence, optional resolution_status), `fence-stats.ts`, `backfill-ledger.md`. Validated end-to-end on #antilag-2026: idempotency PASS, supersede PASS (synthetic v1 row cleared), straddle PASS (structural), kill-switch KEEP (provisional). DB now: 1008 v1 + 67 v2 (#antilag-2026), 0 null emb.
-- **Phase C RUN (pending reset):** 34 remaining batches / ~3,796 agents. `backfill-ledger.md` is the playbook.
+- **D7 RESOLVED -> KEEP, binding** -- resolution_status rides every batch (decisions.md D7 amendment 2026-06-08). Single-pass from here; the kill-switch is done.
+- **R14 found + fixed in-session** -- year-less chunk ids collided across same-channel batches (the load DELETE is year-scoped, the key was not = R5 violation). Fixed by year-scoped chunk id; both loaded v2 batches re-keyed by reload (no re-fence). review-findings.md R14.
+- **Cadence tuned:** CONC proven clean at 8 (0 failures, ~20% faster/chunk). **CONC=10 approved next** (confirm `nproc`>=12 or it caps at 8 via the harness `min(16,cores-2)` limit). WAVE_PAUSE=500.
+- **Remaining: 32 batches** -- #helpdesk 2021-2025, then #quakeworld / #dev-corner / #antilag tails. `backfill-ledger.md` is the live tracker (`[x]` = done).
 
 ## Reads required (in order)
 
-1. `<arc>/README.md` -- execution-status note at the top.
-2. `<arc>/decisions.md` -- esp. the **D9 amendment** (gap/cap/cost + cap-sweep result) and the **D5 amendment** (version-agnostic supersede). Architecture is locked (D1).
-3. `apps/qw-oracle/scripts/load-chat/backfill-ledger.md` -- the reset-day RUN playbook (35 batches, exact counts, the 3 guards, validation evidence).
-4. `<arc>/phase-C-executor-prompt.md` -- RUN-mode prompt (carries the load-threads footgun guard).
-5. `apps/qw-oracle/scripts/load-chat/thread-loader-core.ts` + `backfill-batch.ts` -- the pipeline.
-6. `docs/superpowers/parking/2026-06-06-layer2-cap-sweep-results.md` -- Phase B's evidence.
+1. `apps/qw-oracle/scripts/load-chat/backfill-ledger.md` -- live batch tracker + per-batch validation evidence.
+2. `<arc>/decisions.md` -- esp. D7 (RESOLVED->KEEP amendment), D9 (cost/recipe amendment), D5 (version-agnostic supersede amendment).
+3. `<arc>/review-findings.md` -- R5, R13, **R14** (the keying bug + the "two-batches-same-channel" validation probe to add to the runbook).
+4. `<arc>/phase-C-run-continue-kickoff.md` -- the executor prompt for the next batch.
+5. pipeline: `backfill-batch.ts` + `thread-loader-core.ts` + `wf-backfill-fence.js` + `fence-stats.ts`.
 
-## Critical rules (reset-day RUN)
+## Critical rules (mid-RUN)
 
-- **Quota-paced:** 1-2 batches/session, trial 1 agent first (D9). Biggest single batch = #helpdesk 2024 (193 agents) < the 251-agent wave proven clean in calibration.
-- **Re-confirm the resolution_status kill-switch** (with-vs-without) on batch-1 (#helpdesk or #quakeworld) BEFORE it rides the whole backfill (D7). The #antilag KEEP is provisional (atypical channel).
-- **Do NOT run `load-threads.ts` after a 2021 v2 batch supersedes A's v1** -- its range-delete would regress 2021 to v1 probe threads. RUN uses `backfill-batch.ts` only.
-- **Check `fence-stats` coverage per batch** -- coarse/debate content drops ~1-4% of messages (logged, not silent).
-- **Architecture locked (D1):** no retrieval-time merge, no embedded summary, no query-time lazy-resolve, no author-authority ranking. A phase wandering there is reopening settled work -- STOP.
+- **You verify, you don't run.** Dispatch a fresh executor terminal (the continue-kickoff). Cold-verify each batch at its boundary against the **dev DB** (NOT the `mcp__qw-oracle__*` tools -- those hit pre-rewire prod).
+- **Cold-verify the at-scale FIRSTS the first time each fires** (the R14 lesson: prep/single-batch validation cannot prove cross-batch behavior):
+  - **#helpdesk 2021 = the supersede** -- after it loads, confirm 0 v1 #helpdesk rows survive in [2021,2022) and #quakeworld v1 stays 634.
+  - **First New-Year straddle** -- a Dec->Jan conversation splits into 2 threads, one per year, each covered by exactly one batch.
+  - **First cap-forced 1500-msg #quakeworld chunk** (dense years 2017/2018/2020) -- coverage holds + chunk <256KB (R13).
+- Per-batch cold-verify: total threads, v1 untouched, 0 null, distinct keys = count (no collision), 0 orphans, year-scoped keys, coverage logged.
+- **Architecture locked (D1).** Single-pass + resolution_status passenger. No retrieval-merge / summary-embed / lazy-resolve / author-ranking -- a phase wandering there is reopening settled work; STOP.
+- `load-threads.ts` is code-guarded (refuses post-supersede). RUN uses `backfill-batch.ts` ONLY.
 
-## First three actions (reset-day RUN)
+## First three actions
 
-1. Verify quota reset; confirm DB state unchanged (1008 v1 + 67 v2, 0 null emb).
-2. **Batch-1 = the kill-switch shakedown:** pick a small typical high-value batch (e.g. #helpdesk-2026, 61 agents). Fence it with + without resolution_status; compare via `fence-stats` (index-hallucination + coverage); decide keep/drop and record in the ledger. This is also the first at-scale run of the C pipeline -- watch coverage + the recovery/retry pass.
-3. Fan out the rest 1-2/session per the ledger (high-value channels first). The 2021 batches (#helpdesk-2021, #quakeworld-2021, #dev-corner-2021, #antilag-2021) are full-year v2 fences that supersede A's v1 -- the real supersede happens here; verify no v1 rows survive in those ranges afterward.
+1. Re-confirm DB baseline unchanged: 2163 / 1008 v1 / 1155 v2 / 0 null (one SQL).
+2. Dispatch next batch: operator opens a fresh executor terminal, `@<arc>/phase-C-run-continue-kickoff.md`. Next undone batch per ledger (high-value first). If it's #helpdesk 2021, that's the supersede -- you cold-verify after.
+3. When the executor halts, cold-verify its claims against the dev DB before accepting (do not trust "PASS"). Capture cross-phase memory yourself (decisions amendments, new R-findings); the executor owns the ledger.
 
-## Loose ends (the "look at these" list)
+## Downstream (NOT grind blockers)
 
-1. **resolution_status keep is PROVISIONAL** -- binding D7 gate is reset batch-1 on a high-value channel. (Open decision.)
-2. **At-scale firsts** (first live on reset, all low-risk): real 1008-row 2021 supersede; real New-Year straddle; cap-forced 1500-chunks through the C pipeline; stale-embed retry path; fence at ~150 agents. Batch-1 is the shakedown.
-3. **Per-batch coverage** -- `fence-stats` per batch; coarse content (#antilag-style debates) drops ~1-4%. Accept or investigate per batch.
-4. **Provisional RRF thresholds (R10)** -- `match_quality` reads mostly "weak"; Phase D recalibrates. **PUBLIC deploy is gated on Phase D** (until then a consuming LLM under-trusts good hits via the orientation honest-failure rule).
-5. **Typecheck scope** -- DONE (2026-06-06). `load-concepts/` added to tsconfig; `load-knowledge/` was already in scope (the handoff guess was half-right). `bunx tsc --noEmit` clean. The prep `load-chat/` bigint->string fix stands.
-6. **load-threads.ts footgun** -- HARDENED (2026-06-06). load-threads.ts now refuses if any non-v1 thread occupies the 2021 #helpdesk/#quakeworld delete scope (`--force` override), so the supersede cannot be undone by a stray manual run. Ledger + RUN-prompt notes remain as belt-and-suspenders.
-
-## After C RUN
-
-- **buckets-E** (FAQ-substrate enrichment) -- 9-bucket labeling, re-runnable Workflow pass over the fixed threads; the FAQ-discovery query is the L3 authoring-priority payoff. Gated on C complete.
-- **Phase D** (RRF threshold recalibration) -- REQUIRED before public deploy. Trigger: enough corpus backfilled.
-- **Public deploy** -- out of arc scope; oracle.slipgate.me picks up the rewired tool on the next normal deploy; gate it on Phase D.
-- **arc-reviewer** -- fresh terminal, post-arc, spec-vs-shipped walkthrough. Run after C RUN + buckets-E + D.
+- **Phase D** (RRF threshold recalibration) -- post-backfill; gates PUBLIC deploy; the "weak" match_quality labels are this. Does not block batches.
+- **Prod deploy** -- out of arc scope; rewired tool + dev->prod data sync on a post-arc deploy, gated on Phase D.
+- **buckets-E** + the FAQ-discovery clustering -- post-backfill offline analysis (vector-cluster threads -> rank by frequency x unresolved -> L3 authoring priority; resolution_status is the signal/noise filter, ~27% of #helpdesk is informational banter).
+- **Validation runbook:** add the "two batches, same channel" idempotency probe (R14).
 
 ## When in doubt
 
-Architecture is locked in the spec + decisions.md -- treat it as settled; implementation questions become dated decisions.md amendments, never silent overrides. The operator is the intent-gate (the go/no-go was green; the backfill spend is quota-paced at their pace); the overseer/orchestrator runs the technical phase-boundary verification. One question at a time, plain-English consequences (`feedback_operator_not_technical_review_gate`, `feedback_one_question_at_a_time`).
+Architecture is locked in spec + decisions.md -- settled. The operator is the intent-gate (backfill is quota-paced at their pace); you run the technical phase-boundary verification. One question at a time, plain-English consequences (`feedback_operator_not_technical_review_gate`, `feedback_one_question_at_a_time`).
