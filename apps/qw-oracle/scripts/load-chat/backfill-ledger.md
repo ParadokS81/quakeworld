@@ -90,7 +90,7 @@ validation slice.
 | done | year | msgs | agents | forced |
 |---|---|---|---|---|
 | [x] | 2020 | 14,244 | 97 | 0 | -- BATCH-2; loaded 2026-06-08, 715 threads (CONC=8)
-| [ ] | 2021 | 27,806 | 151 | 1 |
+| [x] | 2021 | 27,806 | 151 | 1 | -- SUPERSEDE batch; loaded 2026-06-09, 1346 threads (v1 #helpdesk 374->0)
 | [x] | 2022 | 13,893 | 178 | 0 | -- loaded 2026-06-09 (CONC=10 shakedown), 1015 threads
 | [ ] | 2023 | 18,533 | 146 | 0 |
 | [ ] | 2024 | 12,410 | 193 | 0 |
@@ -307,6 +307,44 @@ co-surface where relevant; match_quality reads weak on provisional R10 threshold
 (live mcp__qw-oracle__* still routes to pre-Phase-A prod; verified via shipped
 handler against dev, the correct Phase-C check).
 
-DB state after session 2: chat_threads = **3178** -- 1008 v1 (2021 probe, untouched)
-+ 2170 v2 (#helpdesk 2020 [715] + #helpdesk 2022 [1015] + #helpdesk 2026 [373] +
-#antilag 2026 [67]), 0 null embeddings, all v2 keys year-scoped.
+DB state after the 2022 batch: chat_threads = 3178 -- 1008 v1 (2021 probe,
+untouched) + 2170 v2 (#helpdesk 2020 [715] + 2022 [1015] + 2026 [373] + #antilag
+2026 [67]), 0 null embeddings, all v2 keys year-scoped.
+
+**Batch #helpdesk 2021 -- LOADED, verified. THE SUPERSEDE BATCH (fold #1).** 151
+chunks (1 forced -- the marathon-slice helpdesk-2021-145, 1500 msgs, fenced at
+**100% coverage**: the R9-amendment forced-cut failure mode did NOT materialize).
+Fenced single-pass with-resolution at CONC=10. **failures.fence = 0 (151/151),
+retry pass did NOT fire** -- CONC=10 holds on the densest #helpdesk year. Wall-clock
+37 min (the forced marathon chunk + denser 2021 conversations). 0% index-
+hallucination / 99.92% coverage (lowest chunk 93% is a NATURAL dense chunk, 0 OOB
+-- the forced chunk was 100%). Load: 1346 threads, 27,786 junction rows (27,784
+DISTINCT -- 2 R8 m2m messages), 0 OOB / 0 missing / 0 stale, **3 R4 truncations**
+(>30000-char marathon-derived threads; embedding tail cut, full content stored,
+logged). resolution 768 solved / 258 unresolved / 320 informational / 0 none.
+
+**Supersede cold-verify (the reason 2021 is gated) -- ALL PASS** (before-state
+orchestrator-locked: v1 #helpdesk=374 all-2021, v1 #quakeworld=634 all-2021, no v2
+#helpdesk-2021):
+- v1 #helpdesk 374 -> **0** (version-agnostic range-delete cleanly dropped the
+  Feb-Mar 2021 probe slice); the 2021 #helpdesk scope now contains ONLY v2.
+- v1 #quakeworld **634 unchanged** (different channel, untouched).
+- v2 #helpdesk siblings **untouched**: 2020=715, 2022=1015, 2026=373.
+- new v2 #helpdesk-2021 = **1346** inserted.
+- GLOBAL 3178 -> **4150** (-374 v1 + 1346 v2). 0 null/stale embeddings.
+
+**Idempotency (R5): PASS** -- re-ran the supersede load, identical state (GLOBAL
+held at 4150 not 5496, v1 #helpdesk still 0, thread_key md5
+`52fb11499f6be0ce20bc72de3b881849` unchanged). The supersede does not resurrect v1
+or duplicate v2 on re-run. **Retrieval: PASS** -- 2021-specific queries (FOV-130
+fix, KTX offline bots, register_qwurl_protocol) return #helpdesk-2021 threads
+carrying `resolution_status` (= v2; no NULL(v1) labels appeared), confirming the
+v1->v2 transition is reflected in retrieval. Cross-year hybrid working.
+
+**Remaining v1 supersede:** only #quakeworld-2021 (634 v1 threads) is left to
+supersede -- it falls out automatically when the #quakeworld 2021 batch runs.
+
+DB state after session 2 (final): chat_threads = **4150** -- 634 v1 (#quakeworld
+2021 probe ONLY; #helpdesk 2021 v1 now superseded) + 3516 v2 (#helpdesk 2020 [715]
++ 2021 [1346] + 2022 [1015] + 2026 [373] + #antilag 2026 [67]), 0 null embeddings,
+all v2 keys year-scoped.
