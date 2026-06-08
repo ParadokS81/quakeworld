@@ -191,7 +191,13 @@ async function cmdPrep(channel: string, year: number): Promise<void> {
   let maxBytes = 0;
 
   chunks.forEach((c, i) => {
-    const id = `${slug}-${String(i + 1).padStart(3, '0')}`;
+    // R14: the year MUST be in the chunk id. The thread_key embeds chunkId, and
+    // the idempotent load DELETEs by (channel, year) range. A year-less chunk id
+    // (`helpdesk-001`) makes the SAME key for every year of a channel, so the
+    // first second-batch of any channel collides with its already-loaded sibling
+    // (the DELETE is year-scoped and correctly spares the sibling). Year-scoping
+    // the id realigns the key with the delete scope (R5).
+    const id = `${slug}-${year}-${String(i + 1).padStart(3, '0')}`;
     chunkIds.push(id);
 
     const payload = JSON.stringify({

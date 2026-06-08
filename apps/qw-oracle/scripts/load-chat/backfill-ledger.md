@@ -89,7 +89,7 @@ validation slice.
 
 | done | year | msgs | agents | forced |
 |---|---|---|---|---|
-| [ ] | 2020 | 14,244 | 97 | 0 |
+| [x] | 2020 | 14,244 | 97 | 0 | -- BATCH-2; loaded 2026-06-08, 715 threads (CONC=8)
 | [ ] | 2021 | 27,806 | 151 | 1 |
 | [ ] | 2022 | 13,893 | 178 | 0 |
 | [ ] | 2023 | 18,533 | 146 | 0 |
@@ -246,5 +246,35 @@ deploy step (deploy skill), outside Phase C scope. Retrieval was therefore
 verified via the shipped handler against dev (the correct Phase-C check), not via
 the stale prod MCP tool.
 
-DB state after session 1: chat_threads = 1448 (1008 v1 #helpdesk/#quakeworld 2021
+DB state after batch-1: chat_threads = 1448 (1008 v1 #helpdesk/#quakeworld 2021
 probe + 67 v2 #antilag-2026 + 373 v2 #helpdesk-2026), 0 null embeddings.
+
+**Batch-2 #helpdesk 2020 -- LOADED, verified.** 97 chunks, max 196.1KB, fenced
+single-pass with-resolution at **CONC=8 / WAVE_PAUSE 500ms** (raised from 5/2000
+this session, solo-run). **CONC=8 throttle outcome: CLEAN -- failures.fence = 0
+(97/97), retry pass did NOT fire.** Wall-clock: fence 20.4 min for 97 chunks
+(12.6s/chunk) vs batch-1's 15.8s/chunk at CONC=5 -- ~20% faster per chunk despite
+2020 chunks being ~66% larger (147 vs 88 msgs/chunk avg). **0 failures => clear to
+step CONC to 10 next session.** Load: 715 threads, 14,203 junction rows
+(14,202 DISTINCT msgs -- one message legitimately in two threads, the R8 m2m
+case; DISTINCT guard handles it), 0 OOB / 0 missing / 0 stale / 0 truncations,
+0% hallucination / 99.71% coverage, resolution 389 solved / 152 unresolved /
+174 informational. Idempotency (R5): PASS -- re-run identical (715 threads,
+thread_key md5 `d1f3a77764adfa7987937d75fb9ce6e4`). Retrieval: PASS -- 2020
+topics return as thread hits (gl_outline/thunderdome strong+solved, ServeMe bot
+solved, k_random_maplist solved).
+
+**BUG FOUND + FIXED this session -- R14 (concrete R5 violation).** The first load
+of #helpdesk 2020 CRASHED on a `thread_key` UNIQUE collision: chunk ids were
+year-less (`helpdesk-001`), so every year of a channel produced the SAME key, and
+the year-scoped DELETE spared the already-loaded sibling year. Fix: year-scope the
+chunk id in `backfill-batch.ts` prep (`{slug}-{year}-{NNN}`). The two already-loaded
+v2 batches (#helpdesk 2026, #antilag 2026) were RE-KEYED by reloading from cached
+fence output (no re-fence). Post-fix: 0 old-format v2 keys remain; whole v2 corpus
+on one id format. New per-batch thread_key md5s: #helpdesk-2026 `7b931c60...`,
+#antilag-2026 `d9ff5ba4...`. See review-findings.md R14 (incl. the "two batches,
+same channel" idempotency probe the next validation pass should add).
+
+DB state after session 1 (final): chat_threads = **2163** -- 1008 v1 (2021 probe,
+untouched) + 1155 v2 (#helpdesk 2020 [715] + #helpdesk 2026 [373] + #antilag 2026
+[67]), 0 null embeddings, all v2 keys year-scoped.

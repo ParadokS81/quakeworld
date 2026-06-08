@@ -97,6 +97,16 @@ While drafting / executing each phase:
 
 **Evidence:** A Workflow fence agent ingests its chunk via the Read tool, which hard-caps at 256KB / ~25k tokens per file. At ~94 bytes/msg in the chunk JSON (~59-char content + author + indices), a single-file chunk truncates above ~2,700 messages -- a 3000-msg file is ~280KB (truncated), a 6000-msg file ~560KB (badly truncated). This is LOWER than the ~5-9k Sonnet-context wall named in the D9 amendment, so it is the ACTUAL binding constraint on chunk size. The cap-sweep was therefore run at 750/1500/2500 (the single-file-readable range); 3000/6000 were not tested (they would feed agents truncated input, a fake ceiling). **Implication for Phase C:** lull-chunking at cap <= ~2,700 guarantees every chunk is single-file-readable; do NOT raise the cap above ~2,700 without switching the fence agent to multi-file (or offset/limit) chunk delivery. `sweep-prep.ts` enforces a <256KB guard at write time -- mirror that guard in `backfill-batch.ts`. The recommended cap (1500) sits comfortably under the limit.
 
+### R14 -- thread_key must encode the same year-discriminator the idempotent DELETE uses (concrete R5 instance)
+
+**Discovered by:** Phase C RUN session 1 (2026-06-08), on the FIRST second-batch-of-a-channel (#helpdesk 2020, loaded after #helpdesk 2026). **Resolved in-session** (year-scoped chunk id).
+
+**Evidence:** `backfill-batch.ts` prep built chunk ids as `{slug}-{NNN}` -- WITHOUT the year. The `thread_key` is `{channel}:{version}:{chunkId}:{threadIndex}` (D5), so a year-less chunk id makes the SAME key for every year of a channel: #helpdesk 2020's `helpdesk-001` and #helpdesk 2026's `helpdesk-001` both produce `#helpdesk:fence-sonnet-v2:helpdesk-001:0`. The idempotent load DELETEs by `(channel, date_range_start in [year, year+1))` -- correctly year-scoped -- so loading a channel's second batch does NOT clear the already-loaded sibling-year rows, and the INSERT then collides on the `thread_key` UNIQUE constraint. This is a textbook R5 violation: the key was NOT consistent with the delete scope (the delete carried a year discriminator; the key did not). The transaction is atomic (`db.begin`), so the failed load rolled back cleanly -- no partial state.
+
+**Fix:** year-scope the chunk id (`{slug}-{year}-{NNN}`) in `backfill-batch.ts` prep, realigning the key with the delete scope. The already-loaded v2 batches (#helpdesk 2026, #antilag 2026) were re-keyed by RELOADING from their cached fence output (no re-fence -- fencing is unchanged, only the id/key label differs); the v1 probe is a separate version namespace and gets superseded anyway, so it was left. Post-fix: 0 old-format v2 keys remain (whole v2 corpus on one id format).
+
+**Validation blind spot (for the next validation pass):** prep + batch-1 could NOT catch this -- both were first-batches-of-a-channel, so there was nothing to collide with. The bug can only surface on the first SECOND batch of a channel. A **"two batches, same channel" idempotency probe** would have caught it: load year A then year B of the same channel, assert both coexist with disjoint `thread_key` sets and the expected per-year counts (not a collision, not a mutual wipe). Add one to the Phase C / cross-project validation runbook.
+
 ---
 
 ## Phase ownership of risks
@@ -105,7 +115,7 @@ While drafting / executing each phase:
 |---|---|
 | A -- Increment 1 (gate) | R1, R2, R3, R4, R8, R9, R10, R11, R12 |
 | B -- Chunk-size sweep | R7, R13 (discovered) |
-| C -- Batched backfill | R5, R6, R7, R8, R13 |
+| C -- Batched backfill | R5, R6, R7, R8, R13, R14 (discovered) |
 | buckets-E -- enrichment | R7, R8 |
 | D / author-trust / clustering (deferred stubs) | (none until their trigger opens) |
 

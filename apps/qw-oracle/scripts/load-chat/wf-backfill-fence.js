@@ -25,8 +25,10 @@ export const meta = {
 }
 
 const MODEL = 'sonnet'   // NOT opus -- fencing is a grouping task; sonnet is the production model
-const CONC = 5           // peak concurrent agents -- proven clean at 251 agents in calibration
-const WAVE_PAUSE_MS = 2000
+const CONC = 8           // solo-run probe (2026-06-08): raised 5->8 post-reset throttle-clean.
+                         // Harness caps at min(16, nproc-2); 24-core box -> cap 16, so 8 is live.
+                         // If failures.fence>0 or the retry pass fires, drop back -- do NOT step to 10.
+const WAVE_PAUSE_MS = 500 // raised cadence (was 2000) for solo runs; marginal vs CONC but cheap
 const RETRY_RECOVER_MS = 8000
 
 // args may arrive as an object or (harness-dependent) a JSON string; normalize (R7).
