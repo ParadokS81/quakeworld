@@ -113,6 +113,10 @@ CREATE INDEX thread_messages_message ON thread_messages(message_id);
 
 **Implication:** Phase A promotes the probe's threads, which were fenced WITHOUT `resolution_status` -- A writes it NULL (R1). The fence schema in C gains an optional `resolution_status` per thread. C's batch-1 task includes the explicit kill-switch comparison (R6). NEVER a retrieval filter -- all threads stay in the index regardless of status (survivorship-bias lesson; `2026-05-03-layer2-thread-reconstruction.md:267`).
 
+### Amendment 2026-06-08 (RUN batch-1) -- D7 RESOLVED: KEEP, binding
+
+The binding gate ran on RUN batch-1 = **#helpdesk 2026** (first high-value channel; supersedes the #antilag prep provisional KEEP). Same 61 chunks fenced with vs without `resolution_status`: **0% index-hallucination both ways**; the one WITH-pass coverage gap was a single chunk's run-to-run fencer nondeterminism (helpdesk-041 re-fenced + spliced -> 5398/5400 msgs covered), NOT a passenger effect. **DECISION: KEEP `resolution_status` riding every remaining batch.** Loaded #helpdesk-2026 distribution: 185 solved / 85 unresolved / 102 informational / 1 none. Evidence + nondeterminism investigation: `scripts/load-chat/backfill-ledger.md`.
+
 ---
 
 ## D8. buckets-E is decoupled from fencing and re-runnable
