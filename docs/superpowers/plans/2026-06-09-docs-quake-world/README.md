@@ -6,7 +6,7 @@
 
 **Goal:** Build the human-browsable, per-codebase Layer 1 reference for the QuakeWorld ecosystem -- every tunable knob (cvars, commands, macros, cmdline params, info keys, ...) auto-projected from the QW Oracle's L1 corpus, across 6 codebases (ezQuake / KTX / MVDSV / QTV / QWFWD / QWCL), as filterable per-type lists with inline entity cards, player-facing type words, source links, ezQuake version-walk, and cross-links to the wiki. VitePress + Tailwind v4 / daisyUI on Cloudflare Pages.
 
-**Status:** Planning. Scaffold built; **slicing proposed below, pending operator lock.** Per-phase MDs are drafted by fresh terminals following `handoff-prompt.md`, verified by a sub-agent, operator-reviewed at each boundary.
+**Status:** Planning. Scaffold built; **slicing LOCKED (6 phases, operator-approved 2026-06-09).** Phase 1 MD drafted + sub-agent-verified (awaiting operator review); Phases 2a-5 not yet drafted. Per-phase MDs are drafted by fresh terminals following `handoff-prompt.md`, verified by a sub-agent, operator-reviewed at each boundary.
 
 ---
 
@@ -22,13 +22,13 @@ If you are the fresh terminal about to draft a phase, also read **[`handoff-prom
 
 ---
 
-## Phase index (PROPOSED -- pending operator slicing lock)
+## Phase index (slicing LOCKED -- operator-approved 2026-06-09)
 
 This refines the spec's suggested 5-phase breakdown (spec section 12). The one change: **Phase 2 is split** into 2a (scaffold + design system) and 2b (ezQuake template / generic renderer), because the scaffold-boots state and the ezQuake-renders state are independently-runnable commits and keeping them together projects into the context smell zone. See the slicing analysis (delivered with this scaffold) for the rationale and budget projections.
 
 | Phase | Status | MD | Deliverable | Runnable state at end |
 |---|---|---|---|---|
-| 1 | not started | `phase-1-l1-export.md` | Extend build-snapshot: uniform docs JSON for all 6 codebases + 3 probes (slipgate-parity, uniform-shape, category-coverage) | `apps/docs-web/data/*.json` exists for 6 codebases in the uniform shape; slipgate's consumed files untouched |
+| 1 | drafted (awaiting review) | `phase-1-l1-export.md` | Extend build-snapshot (in-file docs section): uniform docs JSON for all 6 codebases + 3 probes (slipgate-parity, uniform-shape, category-coverage) | `apps/docs-web/data/*.json` exists for 6 codebases in the uniform shape; slipgate's consumed files untouched |
 | 2a | not started | `phase-2a-scaffold.md` | VitePress scaffold in `apps/docs-web` (pnpm + Tailwind v4 + daisyUI tokens); data-loading module skeleton; routing | dev server boots and serves a landing page with daisyUI tokens applied |
 | 2b | not started | `phase-2b-ezquake-template.md` | Type-generic browse + card components; friendly-type module; category Flat/Grouped toggle; source links; ezQuake version-walk -- all proven on ezQuake | ezQuake browse views render end-to-end: filter, group, inline-expand cards |
 | 3 | not started | `phase-3-fanout.md` | The other 5 codebases wired through the SAME components (data + config only); per-codebase landing pages; graceful degradation | all 6 codebases browse-able |
