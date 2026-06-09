@@ -68,6 +68,7 @@ Each finding: what it is, the evidence, severity, and which decision resolves it
 | F4 ezQuake AST-groups dependency | ADVISORY | Phase 1 (+ prereqs Task 0) | D17 |
 | F5 category only on cvar+command | ADVISORY | Phase 2 (renderer) / Phase 3 (fan-out) | D17, D11 |
 | F6 qtv/qwfwd upstream_commit is a version-string, not a SHA | ADVISORY | Phase 4 (source links) | D8, D11 |
+| F7 ezQuake's 129 uncategorized commands are ~all HUD (L1 categorization gap) | ADVISORY | qw-oracle L1 enrichment (pre-launch); renders fine in docs v1 | D17, D11 |
 
 New findings append below with the next sequential F-number and a phase owner.
 
@@ -82,3 +83,13 @@ New findings append below with the next sequential F-number and a phase owner.
 **Severity:** ADVISORY. Phase 1 is correct; the risk is latent in Phase 4.
 
 **Resolved by:** Phase 4's source-URL builder branches on whether `upstream_commit` looks like a SHA vs a version tag, OR resolves qtv/qwfwd to a tag-based URL (`/blob/<tag>/...`). If neither resolves, omit the source link (graceful degradation, D11). No Phase 1 action.
+
+## F7. ezQuake's 129 uncategorized commands are ~all HUD-element commands (an L1 categorization gap, not a missing group)
+
+**What:** 129 of ezQuake's 624 commands carry no `help_group_id`, so the docs render places them in the single "(uncategorized)" group (D11/D17 -- correct + graceful). On inspection ~128 of the 129 are HUD-element commands: 46 are `+hud_*` / `-hud_*` show/hide action pairs (23 elements), and ~82 are the bare HUD-element registration commands (`health`, `fps`, `ammo`, `gun1`-`gun8`, `group1`-`group9`, `score_*`, `radar`, `tracking`, `sigil1`-`sigil4`, `teamholdbar`, ...). The lone genuine outlier is `qtv_buffer` (a QTV command). ezQuake ALREADY HAS a `hud` command group (one of its 14), so this is a categorization GAP, not a missing group: these commands are registered by `HUD_Register` / recovered by the Track-B HUD command handler (`load-hud-commands.ts`), which does not stamp `help_group_id`.
+
+**Evidence (`apps/docs-web/data/ezquake-command.json`, 2026-06-09):** 495/624 categorized; the 129 uncategorized enumerated above. Existing command groups include `hud = HUD`. The Track-B HUD loader knows each recovered command's `hud_family` + `hud_element` (SCHEMA `command_versions.track_b_hud_recovery`), so the HUD identity is available at extraction time -- the group is simply not written.
+
+**Severity:** ADVISORY. v1 renders correctly with the "(uncategorized)" bucket (this is the bucket-as-worklist payoff; D21's "category-granularity curation -- later refinement"). The risk is launch polish: shipping 128 HUD commands in a junk bucket.
+
+**Resolved by:** A small L1 enrichment in **qw-oracle (NOT a docs-arc phase):** stamp `help_group_id='hud'` for the Track-B-recovered HUD commands (provably HUD -- filling a source-gap, not overriding a real group), `qtv_buffer` -> `demo`, then re-run extract/load + `build-docs-snapshot`. This belongs in L1 (these ARE HUD -- an L1 fact, benefiting docs + slipgate + MCP), NOT a docs-side override (which would be docs-only + editorial). Recommended BEFORE launch (Phase 5); NOT blocking Phases 2a-4. Owner: a qw-oracle L1 enrichment follow-on (cf. the docs-l1-enrichment precursor). Until then, Phase 2b/3's Grouped view must render "(uncategorized)" as a first-class group (D11).
