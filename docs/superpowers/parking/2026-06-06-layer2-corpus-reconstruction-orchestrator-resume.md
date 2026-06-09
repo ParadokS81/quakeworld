@@ -1,5 +1,7 @@
 # Layer 2 corpus reconstruction -- orchestrator resume (mid-RUN)
 
+> **PAUSED 2026-06-09 + PIVOTED.** Backfill stopped at a clean checkpoint after **#helpdesk completed (7/7, all cold-verified)** -- this session shipped #helpdesk 2022 / 2021-SUPERSEDE / 2023 / 2024 / 2025 + #quakeworld 2016. Work pivoted to **FAQ-discovery on #helpdesk** (weekly budget + highest-yield channel); next phase is a product brainstorm -> see `docs/superpowers/parking/2026-06-09-helpdesk-faq-product-brainstorm-kickoff.md`. To RESUME the backfill (#quakeworld / #dev-corner / #antilag), `apps/qw-oracle/scripts/load-chat/backfill-ledger.md` is the live tracker -- re-verify DB state first. Gated at-scale-firsts still pending: #quakeworld 2021 supersede, first dense year (qw 2017), first New-Year straddle.
+
 **Updated:** 2026-06-08 (orchestrator session that drove RUN session 1: 2 real batches + the R14 fix).
 **For:** a fresh ORCHESTRATOR terminal continuing the Phase C backfill. You coordinate + verify; you do NOT run batch code -- that's the executor terminal via `phase-C-run-continue-kickoff.md`.
 **Arc:** `docs/superpowers/plans/2026-06-06-layer2-corpus-reconstruction/`
