@@ -67,5 +67,18 @@ Each finding: what it is, the evidence, severity, and which decision resolves it
 | F3 category-version inversion | SUBSTANTIVE | Phase 1 | D16 + coverage probe |
 | F4 ezQuake AST-groups dependency | ADVISORY | Phase 1 (+ prereqs Task 0) | D17 |
 | F5 category only on cvar+command | ADVISORY | Phase 2 (renderer) / Phase 3 (fan-out) | D17, D11 |
+| F6 qtv/qwfwd upstream_commit is a version-string, not a SHA | ADVISORY | Phase 4 (source links) | D8, D11 |
 
 New findings append below with the next sequential F-number and a phase owner.
+
+---
+
+## F6. qtv/qwfwd `upstream_commit` carries the version string, not a git SHA (surfaced in Phase 1 execution)
+
+**What:** The docs export writes `_meta.upstream_commit` from `versions.commit_sha` for each (codebase, frozen version). For qtv and qwfwd that column holds the version string itself (`"1.16-dev"` / `"1.40-dev"`) rather than a 40-char git commit SHA. Phase 4 builds source-link URLs from `_meta.upstream_commit` + `source_ref.{file,line}`; a URL template that assumes a SHA (e.g. `github.com/<repo>/blob/<sha>/<file>#L<line>`) will produce a broken link for those two codebases.
+
+**Evidence (verified against live DB, 2026-06-09):** `SELECT commit_sha FROM versions` -> ezquake `e4a2c20a...`, ktx `67253dc9...`, mvdsv `18d03621...`, qwcl `bf4ac424...` (all real SHAs); qtv@1.16-dev = `1.16-dev`, qwfwd@1.40-dev = `1.40-dev` (NOT SHAs). Phase 1 emits the column verbatim as instructed (the phase MD said emit `versions.commit_sha`), so this is a Phase 4 consumer concern, not a Phase 1 emit bug -- Phase 1 ships the correct raw value.
+
+**Severity:** ADVISORY. Phase 1 is correct; the risk is latent in Phase 4.
+
+**Resolved by:** Phase 4's source-URL builder branches on whether `upstream_commit` looks like a SHA vs a version tag, OR resolves qtv/qwfwd to a tag-based URL (`/blob/<tag>/...`). If neither resolves, omit the source link (graceful degradation, D11). No Phase 1 action.
