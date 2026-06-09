@@ -1,5 +1,7 @@
 # Handoff: docs.quake.world arc -- planning done, drafting + orchestration next
 
+> **SUPERSEDED 2026-06-10 (partial).** Phase 1 (L1 export) is now DRAFTED + EXECUTED + SHIPPED (`0979d4ad`); decisions amended (guides render on docs.quake.world, not the wiki -- D1/D7/D19/D21 + new D22; see `decisions.md`); findings F6/F7 captured (`review-findings.md`). Live arc status = the `README.md` status column. The "Stage 0: draft all 6 MDs first" framing below is stale -- the arc settled into **per-phase draft-then-execute** (Phase 1 proved it). **Next action: draft Phase 2a in a fresh terminal via `@docs/superpowers/plans/2026-06-09-docs-quake-world/phase-2a-drafter-prompt.md` (now informed by Phase 1's real `apps/docs-web/data/`), review at the boundary, then execute.** Use the sections below only for the planning rationale + the still-valid critical rules.
+
 > Paste into a fresh `claude` terminal in the quakeworld monorepo (main tree),
 > or tell it: *"Read `docs/superpowers/parking/2026-06-09-docs-quake-world-orchestrator-handoff.md` and follow it."*
 
