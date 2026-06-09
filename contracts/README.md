@@ -6,6 +6,7 @@ This directory holds cross-project design specs and data contracts. Active work 
 
 - **`active/UNIFIED-AUTO-RECORD-CONTRACT.md`** - unifying auto-record behavior across Discord and Mumble with shared per-team settings managed from matchscheduler and from Discord's `/record` command
 - **`active/UNIFIED-AUTO-RECORD-LAUNCH.md`** - execution launch pad with copy-paste prompts for each phase of the unified auto-record rollout
+- **`active/DOCS-GUIDES-VS-REFERENCE-CONTRACT.md`** - divides QuakeWorld documentation across three surfaces (per-codebase L1 reference at docs.quake.world/&lt;codebase&gt;, cross-codebase L3-rendered guides on the docs.quake.world portal, social/strategy on the wiki); single source of truth for guides = L3 concept notes; coordinates the `docs-quake-world` and `demand-driven-l3-concept-authoring` arcs
 
 ## Completed
 
