@@ -93,7 +93,7 @@ validation slice.
 | [x] | 2021 | 27,806 | 151 | 1 | -- SUPERSEDE batch; loaded 2026-06-09, 1346 threads (v1 #helpdesk 374->0)
 | [x] | 2022 | 13,893 | 178 | 0 | -- loaded 2026-06-09 (CONC=10 shakedown), 1015 threads
 | [x] | 2023 | 18,533 | 146 | 0 | -- loaded 2026-06-09 (session 3), 1220 threads (CONC=10 clean)
-| [ ] | 2024 | 12,410 | 193 | 0 |
+| [x] | 2024 | 12,410 | 193 | 0 | -- loaded 2026-06-09 (session 3), 1025 threads (CONC=10 clean)
 | [ ] | 2025 | 11,433 | 179 | 0 |
 | [x] | 2026 | 5,400 | 61 | 1 | -- BATCH-1 (D7 binding gate); loaded 2026-06-08, 373 threads
 
@@ -381,3 +381,28 @@ DB state after the 2023 batch: chat_threads = 5370 -- 634 v1 (#quakeworld 2021
 probe ONLY) + 4736 v2 (#helpdesk 2020 [715] + 2021 [1346] + 2022 [1015] + 2023
 [1220] + 2026 [373] + #antilag 2026 [67]), 0 null embeddings, all v2 keys
 year-scoped.
+
+**Batch #helpdesk 2024 -- LOADED, verified (2nd batch this session).** 193 chunks
+(the corpus's biggest single batch by agent count), max 74.5KB, 0 forced cuts.
+Fenced single-pass with-resolution at **CONC=10 / WAVE_PAUSE 500ms**. **CONC=10
+throttle outcome: CLEAN -- failures.fence = 0 (193/193), retry pass did NOT fire.**
+Wall-clock: fence 14.8 min for 193 chunks (4.6s/chunk -- faster than 2023's
+7.9s/chunk; 2024 chunks avg smaller, max 74.5KB vs 177.1KB; 5.63M subagent tokens,
+408 tool-uses). **0 failures => CONC=10 held the biggest batch.** Load: 1025
+threads, 12,397 junction rows (12,396 DISTINCT msgs -- 1 message legitimately in
+two threads, the R8 m2m case), 0 OOB / 0 missing / 0 stale / 0 truncations,
+**0% index-hallucination / 99.89% coverage** (lowest chunk 95.8% with 0 OOB =
+natural dense-chunk variance), resolution 557 solved / 250 unresolved / 218
+informational / 0 none. Idempotency (R5): PASS -- re-ran load, identical state
+(1025 threads, GLOBAL held at 6395 not 7420, thread_key md5
+`d5bf160d15fefebeb9b7bc53737c5435` unchanged). Retrieval: PASS -- shipped
+`searchSolvedIssues` on dev DB; all three 2024-specific queries return
+#helpdesk-2024 threads in the top-3 with `resolution_status` (AMD-RX6700x-mesa-bug
+solved [top hit], TeamFortress-Hamachi-gamedir solved [top hit], anisotropic-
+filtering informational -- sweeps top-3). Cross-year hybrid working; same prod-vs-dev
+caveat as sessions 1/2 (verified via shipped handler against dev).
+
+DB state after session 3 (final): chat_threads = **6395** -- 634 v1 (#quakeworld
+2021 probe ONLY) + 5761 v2 (#helpdesk 2020 [715] + 2021 [1346] + 2022 [1015] +
+2023 [1220] + 2024 [1025] + 2026 [373] + #antilag 2026 [67]), 0 null embeddings,
+all v2 keys year-scoped. #helpdesk now has only 2025 remaining ([ ], 179 agents).
