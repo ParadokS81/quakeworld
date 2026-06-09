@@ -148,6 +148,12 @@ Derived in a pure data module (D15), not inside a component. Raw type stays visi
 
 **Implication:** Type badge + value-list are ezQuake/QWCL-only at the L1 source (data appendix). Codebases without a `help_type` degrade to no friendly type word in the collapsed row (the Type column is simply blank). The derivation module is unit-coverable in isolation (pure function).
 
+**Amendment 2026-06-10 (Phase 2a recon -- value-list is ezQuake-only at the L1 source):** The implication line above ("Type badge + value-list are ezQuake/QWCL-only") is HALF-STALE. Corrected against the live Phase-1 emit (verified across all 20 files / 5016 records, 2026-06-10):
+- **Type badge (`raw_type`)** -- ezQuake + QWCL, as stated (ezQuake cvar: boolean 843 / enum 166 / float 718 / integer 295 / string 721; QWCL cvar: boolean 112 / float 30 / integer 35 / string 10 -- QWCL has NO `enum`).
+- **Value-list (`values`)** -- ezQuake cvar ONLY (624 of 2743 carry one). QWCL emits ZERO `values` arrays (0 of 187). The spec data-appendix line the original implication paraphrased was stale on this point.
+
+Consequence for the 2b friendly-type derivation (D18 mapping): QWCL's reachable friendly types are **toggle / number / text only**. `choice` is UNREACHABLE for QWCL in v1 -- both `choice` branches are empty for it (no `enum` raw_type, no value-list). `lib/derive.ts` and its unit tests should treat `choice` as an ezQuake-only outcome in v1. The MAPPING rules themselves (toggle/choice/number/text <- ...) are UNCHANGED and correct; only the stale "QWCL has value-lists" implication is corrected. Phase 2a's `lib/types.ts` already encodes this (`values?` = "ezquake cvar ONLY", `raw_type?` = "ezquake + qwcl ONLY"); this block lands the same correction in the contract so the 2b drafter does not re-derive from the stale line.
+
 ## D19. Cross-link scope
 
 **Decision:** cvar->cvar auto-linking resolves a mentioned cvar name against **the same codebase's** entity-name set only (not cross-fork). The entity->wiki "Used in" reverse-index is built at docs-build time from concept-note `related_entities` (typed L1 anchors); a link renders only where a note actually anchors that entity.
@@ -193,3 +199,7 @@ Derived in a pure data module (D15), not inside a component. Raw type stays visi
 A post-lock brainstorm (companion cross-arc contract being written at `contracts/active/` by the `2026-06-09-demand-driven-l3-concept-authoring` planner -- canonical record once present) moved player-facing guides (= L3 concept notes, deterministically rendered from L3) to render ON docs.quake.world as a user/admin guides portal, narrowed the wiki to social/strategy/culture only, and retargeted the entity->"Used in" cross-link from the wiki to the docs guides portal (same reverse-index mechanism, new destination). Full dated blocks are inline under D1, D7, D19, D21 above.
 
 Net effect on THIS arc: framing correction + cross-link retarget ONLY. v1 scope is UNCHANGED -- L1 reference, Phases 1-3 exactly as planned; the guides portal is a later docs-web surface downstream of the concept-notes arc; the entity->guide reverse-index (Phase 4) is dormant in v1 (nothing to render until concept notes ship). Phase 1 (drafted) is unaffected (L1 JSON export, no cross-links). The pre-written scaffold prompts `phase-4-drafter-prompt.md`, `handoff-prompt.md`, and `phase-template.md` were RETARGETED 2026-06-09 (wiki -> docs guides portal; entity->guide dormant-in-v1 framing). **D22** (above) was added the same day for the guide->entity stable-anchor requirement the contract places on this arc (Phase 2b owns it).
+
+### 2026-06-10 -- Phase 2a recon correction (D18)
+
+Phase 2a drafting verified the docs-snapshot contract against the live Phase-1 emit and found D18's "value-list ... ezQuake/QWCL-only" implication half-stale: value-lists are ezQuake-ONLY (QWCL carries `raw_type` but zero `values`). Dated block inline under D18. Net effect: one 2b derivation note (`choice` is ezQuake-only in v1) -- NO change to the friendly-type mapping rules and NO change to v1 scope. Phase 2a `lib/types.ts` already encodes the corrected shape; this lands it in the contract.
