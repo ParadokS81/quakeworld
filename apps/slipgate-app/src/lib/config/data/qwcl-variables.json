@@ -1,523 +1,473 @@
 [
   {
-    "name": "_snd_mixahead",
-    "default": "0.1",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "_vid_default_mode",
-    "default": "0",
-    "description": "This variable sets the default video mode that the client uses.",
-    "category": "Miscellaneous",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "_vid_default_mode_win",
-    "default": "3",
-    "description": "This variable sets the default video mode that the client uses when windowed.",
-    "category": "Miscellaneous",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "_vid_wait_override",
-    "default": "0",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "_windowed_mouse",
-    "default": "0",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
     "name": "ambient_fade",
     "default": "100",
-    "description": "",
+    "description": "Controls how quickly looping ambient (environmental) sounds fade in or out as the player moves toward or away from their source.",
     "category": "Sound",
-    "descriptionSource": "none",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "ambient_level",
     "default": "0.3",
-    "description": "",
+    "description": "Sets the baseline volume of ambient world sounds such as water, wind, and slime. 0 silences them.",
     "category": "Sound",
-    "descriptionSource": "none",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "baseskin",
     "default": "base",
     "description": "Defines what skin you see other people using if you don't have their skin and don't have skin forcing on.",
-    "category": "Miscellaneous",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "bgmbuffer",
     "default": "4096",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "Size, in samples, of the buffer used for background music playback.",
+    "category": "Sound",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "bgmvolume",
     "default": "1",
     "description": "This variable sets the volume of the CD music.",
-    "category": "Miscellaneous",
+    "category": "Sound",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "block_switch",
     "default": "0",
-    "description": "",
+    "description": "Do not block task-switching. Block task-switching",
     "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "bottomcolor",
     "default": "0",
-    "description": "Sets the pants color.",
-    "category": "Player",
+    "description": "Sets the pants color.. 0: White. 1: Brown. 2: Lavender. 3: Khaki. 4: Red. 5: Lt Brown. 6: Peach. 7: Lt Peach. 8: Purple. 9: Dk Purple. 10: Tan. 11: Green. 12: Yellow. 13: Blue. 14: Orange.. 15: Bright red.. 16: Black.",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_anglespeedkey",
     "default": "1.5",
     "description": "This variable sets multiplier by which your \"cl_yawspeed\" (how fast you turn) is multiplied when running (+speed).",
-    "category": "Client",
+    "category": "Input",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_backspeed",
     "default": "200",
-    "description": "This allows you to set your backward speed.\nObviously this is also limited by the server, usually to \"320\".",
-    "category": "Client",
+    "description": "This allows you to set your backward speed.\nObviously this is also limited by the server, usually to \"320\".. Sign of the value is ignored.",
+    "category": "Input",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_bob",
     "default": "0.02",
     "description": "This variable controls how much your weapon moves up and down when walking.",
-    "category": "Client",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_bobcycle",
     "default": "0.6",
     "description": "This variable determines how quickly your weapon moves up and down when walking.",
-    "category": "Client",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_bobup",
     "default": "0.5",
     "description": "This variable controls how long your weapon stays up before cycling when walking.",
-    "category": "Client",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_chasecam",
     "default": "0",
-    "description": "Toggle between 3rd-person view and 1st-person view while observing or during demo playback.",
-    "category": "Client",
+    "description": "Toggle between 3rd-person view and 1st-person view while observing or during demo playback.. Third-person view.. First-person (\"through-eyes\") view.",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_crossx",
     "default": "0",
     "description": "This variable allows you to move the position of the crosshair on the X-axis by the specified amount of pixels.",
-    "category": "Client",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_crossy",
     "default": "0",
     "description": "This variable allows you to move the position of the crosshair on the Y-axis by the specified amount of pixels.",
-    "category": "Client",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_forwardspeed",
     "default": "200",
-    "description": "This allows you to set your forward speed.\nObviously this is also limited by the server, usually to \"320\".",
-    "category": "Client",
+    "description": "This allows you to set your forward speed.\nObviously this is also limited by the server, usually to \"320\".. Sign of the value is ignored.",
+    "category": "Input",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_hightrack",
     "default": "0",
     "description": "Turns auto-tracking player with most frags ON when spectating or watching a demo.",
-    "category": "Client",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_hudswap",
     "default": "0",
-    "description": "",
-    "category": "Client",
-    "descriptionSource": "none",
+    "description": "The inventory is drawn on the right side of the screen.. The inventory is drawn on the left side of the screen.",
+    "category": "HUD",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_maxfps",
     "default": "0",
     "description": "This variable sets the maximum limit for frames-per-second while in-game. Please see cl_maxfps_menu, vid_vsync, cl_independentphysics, and cl_physfps.",
-    "category": "Client",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_movespeedkey",
     "default": "2.0",
-    "description": "This variable is the multiplier for how fast you move when running (+speed) in relation to when walking (-speed).",
-    "category": "Client",
+    "description": "This variable is the multiplier for how fast you move when running (+speed) in relation to when walking (-speed).. Sign of the value is ignored.",
+    "category": "Input",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_nodelta",
     "default": "0",
-    "description": "Control the network packet delta compression.\nWhen you get blue lines in your netgraph, you should set 'cl_nodelta 1'.",
-    "category": "Client",
+    "description": "Control the network packet delta compression.\nWhen you get blue lines in your netgraph, you should set 'cl_nodelta 1'.. Enable delta compression.. Disable delta compression.",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_nopred",
     "default": "0",
-    "description": "For debugging, disables movement prediction for your character; other players are still predicted.",
-    "category": "Client",
+    "description": "For debugging, disables movement prediction for your character; other players are still predicted.. Predict movement. Don't predict movement",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_pitchspeed",
     "default": "150",
     "description": "This variable determines how fast you you turn up/down when using \"+lookup\" and \"+lookdown\".",
-    "category": "Client",
+    "category": "Input",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_predict_players",
     "default": "1",
     "description": "This toggles the prediction for other players' movement. Unless you are having problems this variable should be left at \"1\".",
-    "category": "Client",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_predict_players2",
     "default": "1",
-    "description": "",
-    "category": "Client",
-    "descriptionSource": "none",
+    "description": "A second toggle, working alongside cl_predict_players, that controls client-side prediction of other players' movement; prediction is disabled only when both are off.",
+    "category": "Multiplayer",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_rollangle",
     "default": "2.0",
     "description": "This variable controls how much your screen tilts when strafing.",
-    "category": "Client",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_rollspeed",
     "default": "200",
     "description": "This variable controls how quickly you and other players straighten out after strafing.",
-    "category": "Client",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_sbar",
     "default": "0",
-    "description": "",
-    "category": "Client",
-    "descriptionSource": "none",
+    "description": "Use the new transparent HUD.. Use the old status bar.",
+    "category": "HUD",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_shownet",
     "default": "0",
-    "description": "This variable toggles the display of current net info.",
-    "category": "Client",
+    "description": "This variable toggles the display of current net info.. 0: Do not display any information.. 1: Print current incoming packet size in byte.. 2: Print information about the current in coming packet and it's size.",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_sidespeed",
     "default": "350",
-    "description": "This allows you to set your strafe speed.\nObviously this is also limited by the server, usually to \"320\".",
-    "category": "Client",
+    "description": "This allows you to set your strafe speed.\nObviously this is also limited by the server, usually to \"320\".. Sign of the value is ignored.",
+    "category": "Input",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_solid_players",
     "default": "1",
     "description": "If not set then client will not perform collision detection against other players.",
-    "category": "Client",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_timeout",
     "default": "60",
     "description": "This variable defines the timeout value in seconds until the client considers himself to be disconnected from the server.",
-    "category": "Client",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_upspeed",
     "default": "200",
-    "description": "This allows you to set the speed with which you move up and down in liquids or in spectator mode.\nObviously this is also limited by the server, usually to 320*0.7 = 224 when being in liquid and to 500 in spectator mode.",
-    "category": "Client",
+    "description": "This allows you to set the speed with which you move up and down in liquids or in spectator mode.\nObviously this is also limited by the server, usually to 320*0.7 = 224 when being in liquid and to 500 in spectator mode.. Sign of the value is ignored.",
+    "category": "Input",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_warncmd",
     "default": "0",
-    "description": "",
-    "category": "Client",
-    "descriptionSource": "none",
+    "description": "Note: Not saved to config with cfg_save command.. Disable the unknown command messages.. Enable the unknown command messages.",
+    "category": "Miscellaneous",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "cl_yawspeed",
     "default": "140",
     "description": "This variable defines how quickly you turn left (+left) or right (+right).",
-    "category": "Client",
+    "category": "Input",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "con_notifytime",
     "default": "3",
     "description": "How long console messages stay on screen.",
-    "category": "System",
+    "category": "HUD",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "crosshair",
     "default": "0",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "0: Crosshair off.. 1: Conchar crosshair (messagemode1 +).. 2: Quakeworld crosshair.. 3: A small cross crosshair.. 4: A dot crosshair.. 5: Star wars crosshair.. 6: F22 simulator crosshair.. 7: (same as 6)",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "crosshaircolor",
     "default": "79",
     "description": "This variable defines the color of the crosshair.",
-    "category": "Miscellaneous",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "d_mipcap",
-    "default": "0",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "d_mipscale",
-    "default": "1",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "d_subdiv16",
-    "default": "1",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "developer",
     "default": "0",
     "description": "Enables debug mode which prints more messages into the console than for normal user.",
-    "category": "System",
+    "category": "Miscellaneous",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
+  },
+  {
+    "name": "d_mipcap",
+    "default": "0",
+    "description": "0: High texture detail.. 1: Medium texture detail.. 2: Low texture detail.. 3: Minimum texture detail.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "d_mipscale",
+    "default": "1",
+    "description": "0: Full object detail. 1: Some object detail. 2: Medium object detail. 3: Low object detail",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "d_subdiv16",
+    "default": "1",
+    "description": "Precise texture mapping (slower, more accurate).. Perspective correction only every 16 pixels (faster, less accurate).",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
   },
   {
     "name": "entlatency",
     "default": "20",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "Sets the latency window (in milliseconds) the client uses when interpolating other entities' movement between server updates.",
+    "category": "Multiplayer",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "fov",
     "default": "90",
-    "description": "This variable defines your field of vision, which determines how close your vision field is to the objects.",
-    "category": "HUD",
+    "description": "This variable defines your field of vision, which determines how close your vision field is to the objects.. While the default is 90, many players prefer using a higher FOV.\nNote that this would typically be scaled up when using a monitor with widescreen aspect ratio.",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gamma",
     "default": "1",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "Adjusts the display gamma (brightness) of the rendered image. Values below 1 brighten the picture.",
+    "category": "Graphics",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_affinemodels",
     "default": "0",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "gl_clear",
-    "default": "0",
-    "description": "Clears the screen with gl_clearcolor between each frame.\nPrevents hall-of-mirrors glitches, e.g. when flying out of the map.",
+    "description": "Makes texture rendering quality better if set to 1.\nNote: 3dfx thing, not sure. //fuh check this.",
     "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
+  },
+  {
+    "name": "gl_clear",
+    "default": "0",
+    "description": "Clears the screen with gl_clearcolor between each frame.\nPrevents hall-of-mirrors glitches, e.g. when flying out of the map.. This can cause problems when going through the surface of a liquid, as you may see a colored flash where the liquid texture would normally glitch.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
   },
   {
     "name": "gl_cshiftpercent",
@@ -527,47 +477,47 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_cull",
     "default": "1",
-    "description": "",
+    "description": "This variable toggles the use of internal OpenGL functions for removing covered \nobjects. When this variable is set to \"1\" the game will depend on the OpenGL \ndriver to use it's culling functions to remove certain objects from the \ncalculations because they are covered up and would not be seen anyways. It is a \ngood idea to leave this toggle enabled because it will increase rendering \nperformance.. Do not use culling to increase rendering performance.. Use the OpenGL driver's culling functions.",
     "category": "Graphics",
-    "descriptionSource": "none",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_finish",
     "default": "0",
-    "description": "Wait until OpenGL has finished working to start rendering the next frame.",
+    "description": "Wait until OpenGL has finished working to start rendering the next frame.. In the past, this setting might have helped (or worsened) some types of graphics glitches and timing issues.\nIt is mostly there for compatibility reasons and best left disabled unless you have bugs, performance problems, an unusual setup (in any combination).",
     "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_flashblend",
     "default": "1",
-    "description": "This variable affects when glow bubbles are displayed in the client. You can change the color of the rocket glow by r_rocketLightColor, the color of explosions by r_explosionLightColor, and the color of flag carriers by r_flagColor.",
+    "description": "This variable affects when glow bubbles are displayed in the client. You can change the color of the rocket glow by r_rocketLightColor, the color of explosions by r_explosionLightColor, and the color of flag carriers by r_flagColor.. 0: No glow bubbles.. 1: A glow bubble will appear on explosions and flag/quad/pent carrier.. 2: Same as (1), but also around rockets in the air.",
     "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_keeptjunctions",
     "default": "1",
-    "description": "",
+    "description": "Controls whether T-junctions in world geometry are kept; keeping them avoids visible cracks between adjacent polygons at the cost of extra vertices.",
     "category": "Graphics",
-    "descriptionSource": "none",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_max_size",
@@ -577,17 +527,17 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_nobind",
     "default": "0",
-    "description": "",
+    "description": "Developer toggle that skips binding textures, drawing surfaces untextured -- used to measure texture-binding cost.",
     "category": "Graphics",
-    "descriptionSource": "none",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_nocolors",
@@ -597,27 +547,27 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_picmip",
     "default": "0",
-    "description": "Determines the level of detail for world textures.",
+    "description": "Determines the level of detail for world textures.. Does not apply to models, liquids, simple icons, but you can also picmip these with the gl_playermip and gl_scale* cvars.. 0: Original size.. 1: Half the dimensions.. 2: One-fourth the dimensions.. x: Etc...",
     "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_playermip",
     "default": "0",
-    "description": "Determines the level of detail of player model textures.",
+    "description": "Determines the level of detail of player model textures.. 0: Full detail.. 1: Medium detail.. 2: Low detail.. x: Etc...",
     "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_polyblend",
@@ -627,27 +577,27 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_reporttjunctions",
     "default": "0",
-    "description": "",
+    "description": "Developer toggle that prints the number of T-junctions found in the level geometry to the console.",
     "category": "Graphics",
-    "descriptionSource": "none",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_smoothmodels",
     "default": "1",
-    "description": "Toggles between flat-shaded and smooth shaded models.",
+    "description": "Toggles between flat-shaded and smooth shaded models.. Applies to GLSL OpenGL renderer only.",
     "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_subdivide_size",
@@ -657,47 +607,47 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_texsort",
     "default": "1",
-    "description": "",
+    "description": "Controls whether world surfaces are sorted by texture before drawing (the multitexture render path); turning it off uses the simpler single-texture path.",
     "category": "Graphics",
-    "descriptionSource": "none",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_triplebuffer",
     "default": "1",
-    "description": "Triple buffering of HUD graphics. If you have problems with screen graphics, turn this on.",
+    "description": "Triple buffering of HUD graphics. If you have problems with screen graphics, turn this on.. This has nothing to do with 3D rendering, it will not increase graphics \"lag\" or anything like that. It only affects 2D HUD graphics.",
     "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "gl_ztrick",
     "default": "1",
-    "description": "",
+    "description": "This variables toggles the use of a trick to prevent the clearning of the \nz-buffer between frames. When this variable is set to \"1\", the game will not \nclear the z-buffer between frames. This will result in increased performance \nbut might cause problems for some display hardware.. Do not use the z-buffer trick.. Use the z-buffer trick.",
     "category": "Graphics",
-    "descriptionSource": "none",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "host_speeds",
     "default": "0",
-    "description": "",
-    "category": "System",
-    "descriptionSource": "none",
+    "description": "Developer toggle that prints per-frame timing -- server, graphics, and total milliseconds -- to the console each frame.",
+    "category": "Miscellaneous",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joyadvanced",
@@ -707,7 +657,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joyadvaxisr",
@@ -717,7 +667,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joyadvaxisu",
@@ -727,7 +677,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joyadvaxisv",
@@ -737,17 +687,17 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joyadvaxisx",
     "default": "0",
-    "description": "Mapping for joystick's X axis.  joyadvanced must be enabled.",
+    "description": "Mapping for joystick's X axis.  joyadvanced must be enabled.. 0: Unmapped (axis input ignored).. 1: Map to forward/backward motion.. 2: Map to pitch up/down.. 3: Map to strafing motion.. 4: Map to turning left/right.. 5: Map to vertical motion.",
     "category": "Miscellaneous",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joyadvaxisy",
@@ -757,7 +707,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joyadvaxisz",
@@ -767,7 +717,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joyforwardsensitivity",
@@ -777,7 +727,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joyforwardthreshold",
@@ -787,7 +737,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joyname",
@@ -797,7 +747,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joypitchsensitivity",
@@ -807,7 +757,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joypitchthreshold",
@@ -817,7 +767,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joysidesensitivity",
@@ -827,7 +777,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joysidethreshold",
@@ -837,37 +787,37 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joystick",
     "default": "0",
-    "description": "Enables usage of joystick device.",
+    "description": "Enables usage of joystick device.. Do not use joystick.. Use joystick input.",
     "category": "Miscellaneous",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joywwhack1",
     "default": "0.0",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "Joystick axis workaround: when nonzero, shifts the joystick's U-axis reading, a fix for certain controllers or drivers.",
+    "category": "Input",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joywwhack2",
     "default": "0.0",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "Companion joystick axis workaround to joywwhack1 for adjusting problematic controller axis behavior.",
+    "category": "Input",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joyyawsensitivity",
@@ -877,7 +827,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "joyyawthreshold",
@@ -887,47 +837,47 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "lcd_x",
     "default": "0",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "Sets the horizontal eye-offset for the legacy LCD shutter-glasses stereo 3D mode. 0 disables the stereo split.",
+    "category": "Graphics",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "loadas8bit",
     "default": "0",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "Controls whether sound samples are converted to 8-bit when loaded, trading audio quality for lower memory use.",
+    "category": "Sound",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "localid",
     "default": "",
-    "description": "",
+    "description": "Secret token used to authenticate remote-control command packets sent from a local server browser or front-end; once set, command packets without a matching token are rejected.",
     "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "lookspring",
     "default": "0",
-    "description": "This variable toggles the centering of the screen after the -klook command.",
+    "description": "This variable toggles the centering of the screen after the -klook command.. Disable automatic force_centerview.. Enable automatic force_centerview.",
     "category": "Input",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "lookstrafe",
@@ -937,7 +887,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "m_filter",
@@ -947,7 +897,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "m_forward",
@@ -957,7 +907,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "m_pitch",
@@ -967,7 +917,17 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
+  },
+  {
+    "name": "msg",
+    "default": "1",
+    "description": "0: Maximum reporting of messages.. 1: Parsed reporting of messages.. 2: Limited reporting of messages.. 3: Minimal reporting of messages.. 4: No reporting of messages.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
   },
   {
     "name": "m_side",
@@ -977,7 +937,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "m_yaw",
@@ -987,87 +947,77 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "msg",
-    "default": "1",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "name",
     "default": "unnamed",
     "description": "Player's name.",
-    "category": "Player",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "noaim",
     "default": "0",
-    "description": "This variable toggles whether a server-sided aiming-help should be used when shooting rockets (not possible when the server variable \"sv_aim\" is set to \"0\").",
-    "category": "Miscellaneous",
+    "description": "This variable toggles whether a server-sided aiming-help should be used when shooting rockets (not possible when the server variable \"sv_aim\" is set to \"0\").. Enable server-side aiming help for rockets (if allowed by the server).. Disable server-side aiming help for rockets.",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "noskins",
     "default": "0",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "0: Enable skins.. 1: Disable skins.. 2: Enable skins but do not download new skins.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "nosound",
     "default": "0",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "Disables all sound output when set to 1.",
+    "category": "Sound",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "password",
     "default": "",
-    "description": "Password players have to use to connect to local server.",
-    "category": "Miscellaneous",
+    "description": "Password players have to use to connect to local server.. Server-side.",
+    "category": "Server",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "precache",
     "default": "1",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "Controls whether sounds are precached (preloaded) at level start rather than loaded on first use.",
+    "category": "Sound",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "pushlatency",
     "default": "-999",
-    "description": "",
-    "category": "Network",
-    "descriptionSource": "none",
+    "description": "This variable is outdated and exists for compatibility with old configs.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "qport",
@@ -1077,7 +1027,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "r_aliastransadj",
@@ -1087,7 +1037,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "r_aliastransbase",
@@ -1097,7 +1047,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "r_ambient",
@@ -1107,7 +1057,17 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
+  },
+  {
+    "name": "rate",
+    "default": "2500",
+    "description": "Sets the maximum amount of bytes per second that the server should send to the client.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
   },
   {
     "name": "r_clearcolor",
@@ -1117,277 +1077,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_drawentities",
-    "default": "1",
-    "description": "This variable can be used to disable that any object entities are drawn.\nThis command is useful to map authors who wish to take a look at their map without drawing any objects such as lifts, buttons, platforms or items.",
-    "category": "Graphics",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_drawflat",
-    "default": "0",
-    "description": "Replaces wall/floor textures with a solid color (/r_wallcolor or /r_floorcolor, depending on the angle of the surface).",
-    "category": "Graphics",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_draworder",
-    "default": "0",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_drawviewmodel",
-    "default": "1",
-    "description": "Controls transparency level of the currently-held weapon.",
-    "category": "Graphics",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_dspeeds",
-    "default": "0",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_dynamic",
-    "default": "1",
-    "description": "Controls dynamic lighting (muzzle-flash, quad & rocket glow, etc) on world surfaces.",
-    "category": "Graphics",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_fullbright",
-    "default": "0",
-    "description": "This variable toggles the use of lights at full brightness on the map.\nThis allows map authors to remove all of the lighting effects from the map, effectively removing all shadows.",
-    "category": "Graphics",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_graphheight",
-    "default": "15",
-    "description": "This variable used to set the number of lines displayed in the \"r_timegraph\" command.",
-    "category": "Graphics",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_lightmap",
-    "default": "0",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_maxedges",
-    "default": "0",
-    "description": "This variable sets the maximum number of plane surface edges to be rendered.\nActual default (and minimal) value is 2000.\nOn some new maps you may need to increase this value.\nSee also r_maxsurfs, r_reportedgeout, r_reportsurfout.",
-    "category": "Graphics",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_maxsurfs",
-    "default": "0",
-    "description": "This variable sets the maximum number of plane surfaces to be rendered.\nActual default (and minimal) value is 2000.\nOn some new maps you may need to increase this value.\nSee also r_maxedges, r_reportedgeout, r_reportsurfout.",
-    "category": "Graphics",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_mirroralpha",
-    "default": "1",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_netgraph",
-    "default": "0",
-    "description": "Netgraph is a diagnostic tool to help you tweak your rate.\nIf you find that you suffer from short pauses in the game and you see red spikes in your netgraph, you should try setting the rate down a bit.\nThe height of the pink lines towards the bottom is your latency on received packets.\nRed lines are lost packets. (bad)\nYellow lines are from the rate command kicking in, it's data that wasn't sent to you because you didn't have the bandwidth for it. (OK)\nBlue lines are very bad, they invalid delta's, and are related to the U_REMOVE warnings.",
-    "category": "Graphics",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_norefresh",
-    "default": "0",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_novis",
-    "default": "0",
-    "description": "This variable toggles the use of VIS information from the map data.\nWhen this variable is set to \"1\" the game will calculate it's own VIS information on the fly instead of using the information stored in the map data, this will cause a severe performance penalty in the game.\nWhen \"r_novis\" is set to \"1\", the variable \"gl_turbalpha\" has a value lower than \"1\" and the server allows the client to display liquid transparently the player will be able to see through liquids.\nThis is a nice effect to see but it is not recommended to keep this variable set to \"1\" because of the huge performance penalty.\nIt is possible to enable transparent liquids and still keep this variable set to \"0\" (and thus not experience such a severe performance drop) by using maps that are VISed accordingly.\nYou can visit the official Water VIS site at \"http://www.sod.net/\" and download the vispatch program along with the patch data files which you would use to update the VIS data for all of your game maps.\nThere are also map packs available that contain VISed versions of the original ID maps.",
-    "category": "Graphics",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_numedges",
-    "default": "0",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_numsurfs",
-    "default": "0",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_polymodelstats",
-    "default": "0",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_reportedgeout",
-    "default": "0",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_reportsurfout",
-    "default": "0",
-    "description": "Toggle the display of how many surfaces where not displayed.\nThis shouldn't happen during normal game play, only when in noclip mode.",
-    "category": "Graphics",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_shadows",
-    "default": "0",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_speeds",
-    "default": "0",
-    "description": "Toggles the displaying of drawing time and stats of what is currently being viewed.\nExample:\n32.7 ms 267/196/ 74 poly   3 surf\n38.6 ms 267/196/ 74 poly  20 surf\n60.4 ms 267/196/ 74 poly  18 surf\n38.2 ms 267/196/ 73 poly  18 surf",
-    "category": "Graphics",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_timegraph",
-    "default": "0",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_wateralpha",
-    "default": "1",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_waterwarp",
-    "default": "1",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "r_zgraph",
-    "default": "0",
-    "description": "",
-    "category": "Graphics",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "rate",
-    "default": "2500",
-    "description": "Sets the maximum amount of bytes per second that the server should send to the client.",
-    "category": "Network",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "rcon_address",
@@ -1397,7 +1087,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "rcon_password",
@@ -1407,37 +1097,297 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_drawentities",
+    "default": "1",
+    "description": "This variable can be used to disable that any object entities are drawn.\nThis command is useful to map authors who wish to take a look at their map without drawing any objects such as lifts, buttons, platforms or items.. Display no entities.. Display all entities.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_drawflat",
+    "default": "0",
+    "description": "Replaces wall/floor textures with a solid color (/r_wallcolor or /r_floorcolor, depending on the angle of the surface).. Usually used for performance improvements at the expense of eyecandy. See /r_wallcolor, /r_floorcolor & /r_drawflat_mode.\nCan not be changed during a match.. 0: Use textures for walls and floors.. 1: Use custom colored walls and floors.. 2: Use colored floors and textured walls.. 3: Use colored walls and textured floors.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_draworder",
+    "default": "0",
+    "description": "Allows you to see through object - for development purposes only.. Not allowed in multiplayer. See 'developer 1' too.. Standard behaviour - first draws object far from you then closer to you.. First draws closest object, then the more distanced ones.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_drawviewmodel",
+    "default": "1",
+    "description": "Controls transparency level of the currently-held weapon.. Example: 0.5 = 50% transparency.\nr_drawviewmodel 2 will cause weapon to be hidden when fov > 90.. 0: Fully transparent.. 1: Fully opaque.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_dspeeds",
+    "default": "0",
+    "description": "Do not display renderer speed statistics.. Display renderer speed statistics.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_dynamic",
+    "default": "1",
+    "description": "Controls dynamic lighting (muzzle-flash, quad & rocket glow, etc) on world surfaces.. 0: Do not display dynamic lighting.. 1: Display dynamic lighting (calculated on CPU). 2: Display dynamic lighting (calculated on GPU - GLSL only)",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
   },
   {
     "name": "registered",
     "default": "0",
-    "description": "",
+    "description": "Read-only flag indicating whether the registered (full, non-shareware) Quake data is present, which unlocks the complete content set.",
     "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_fullbright",
+    "default": "0",
+    "description": "This variable toggles the use of lights at full brightness on the map.\nThis allows map authors to remove all of the lighting effects from the map, effectively removing all shadows.. This variable can only be used when the server is running with cheats enabled (for example \"mvdsv -cheats\" or sv_cheats 1), because it could be used as a cheat by making it easier to see players in shadows.. Do not fullbright the map.. Fullbrights the map (need -cheats or sv_cheats 1 enabled in server)",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_graphheight",
+    "default": "15",
+    "description": "This variable used to set the number of lines displayed in the \"r_timegraph\" command.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_lightmap",
+    "default": "0",
+    "description": "Disable light sources on the map.. Enable light sources on the map.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_maxedges",
+    "default": "0",
+    "description": "This variable sets the maximum number of plane surface edges to be rendered.\nActual default (and minimal) value is 2000.\nOn some new maps you may need to increase this value.\nSee also r_maxsurfs, r_reportedgeout, r_reportsurfout.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_maxsurfs",
+    "default": "0",
+    "description": "This variable sets the maximum number of plane surfaces to be rendered.\nActual default (and minimal) value is 2000.\nOn some new maps you may need to increase this value.\nSee also r_maxedges, r_reportedgeout, r_reportsurfout.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_mirroralpha",
+    "default": "1",
+    "description": "Sets the opacity of mirror surfaces; values below 1 make mirrors partly see-through.",
+    "category": "Graphics",
+    "descriptionSource": "self",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_netgraph",
+    "default": "0",
+    "description": "Netgraph is a diagnostic tool to help you tweak your rate.\nIf you find that you suffer from short pauses in the game and you see red spikes in your netgraph, you should try setting the rate down a bit.\nThe height of the pink lines towards the bottom is your latency on received packets.\nRed lines are lost packets. (bad)\nYellow lines are from the rate command kicking in, it's data that wasn't sent to you because you didn't have the bandwidth for it. (OK)\nBlue lines are very bad, they invalid delta's, and are related to the U_REMOVE warnings.. If during your play, you frequently see a string of messages with the term \"U_REMOVE\" in them, and your play seems to freeze for serveral seconds, use the console command cl_nodelta 1. This is a slightly less efficient way for QuakeWorld to work, but if your ISP is overloaded or has some configuration problems, it may not pass packets to QuakeWorld properly and cause difficulty.. Do not display the netgraph.. Display the netgraph.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_norefresh",
+    "default": "0",
+    "description": "Developer toggle that stops the 3D world from being redrawn, leaving only the 2D elements -- used for profiling.",
+    "category": "Graphics",
+    "descriptionSource": "self",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_novis",
+    "default": "0",
+    "description": "This variable toggles the use of VIS information from the map data.\nWhen this variable is set to \"1\" the game will calculate it's own VIS information on the fly instead of using the information stored in the map data, this will cause a severe performance penalty in the game.\nWhen \"r_novis\" is set to \"1\", the variable \"gl_turbalpha\" has a value lower than \"1\" and the server allows the client to display liquid transparently the player will be able to see through liquids.\nThis is a nice effect to see but it is not recommended to keep this variable set to \"1\" because of the huge performance penalty.\nIt is possible to enable transparent liquids and still keep this variable set to \"0\" (and thus not experience such a severe performance drop) by using maps that are VISed accordingly.\nYou can visit the official Water VIS site at \"http://www.sod.net/\" and download the vispatch program along with the patch data files which you would use to update the VIS data for all of your game maps.\nThere are also map packs available that contain VISed versions of the original ID maps.. Do not calculate VIS information for unVISed maps.. Calculate VIS information for unVISed maps.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_numedges",
+    "default": "0",
+    "description": "Do not print information about the number of edges.. Print information about the number of edges.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_numsurfs",
+    "default": "0",
+    "description": "Do not print information about the number of surfaces.. Print information about the number of surfaces.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_polymodelstats",
+    "default": "0",
+    "description": "Do not print polygon model statistics.. Print polygon model statistics.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_reportedgeout",
+    "default": "0",
+    "description": "Do not report when running out of edges.. Report when running out of edges.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_reportsurfout",
+    "default": "0",
+    "description": "Toggle the display of how many surfaces where not displayed.\nThis shouldn't happen during normal game play, only when in noclip mode.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_shadows",
+    "default": "0",
+    "description": "Do not display shadows for entities.. Display shadows for entities.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_speeds",
+    "default": "0",
+    "description": "Toggles the displaying of drawing time and stats of what is currently being viewed.\nExample:\n32.7 ms 267/196/ 74 poly   3 surf\n38.6 ms 267/196/ 74 poly  20 surf\n60.4 ms 267/196/ 74 poly  18 surf\n38.2 ms 267/196/ 73 poly  18 surf",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_timegraph",
+    "default": "0",
+    "description": "Do not display the timegraph.. Display the timegraph.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_wateralpha",
+    "default": "1",
+    "description": "Sets the opacity of translucent liquid surfaces; values below 1 let you see through water, slime, and lava.",
+    "category": "Graphics",
+    "descriptionSource": "self",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_waterwarp",
+    "default": "1",
+    "description": "Controls the underwater screen-warp (ripple) distortion effect. 0 disables it.",
+    "category": "Graphics",
+    "descriptionSource": "self",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "r_zgraph",
+    "default": "0",
+    "description": "Do not display the z-graph.. Display the z-graph.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
   },
   {
     "name": "scr_allowsnap",
     "default": "1",
-    "description": "",
-    "category": "HUD",
-    "descriptionSource": "none",
+    "description": "Disable.. Allow screenshot uploads to be requested by server.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "scr_centertime",
     "default": "2",
-    "description": "This variable sets the amount of time in seconds that centerprinted messages stay on the screen.",
-    "category": "HUD",
+    "description": "This variable sets the amount of time in seconds that centerprinted messages stay on the screen.. 0: Do not display any centerprints.. 1: Display centerprints for 1 second.. 2: Display centerprints for 2 seconds.",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "scr_conspeed",
@@ -1447,17 +1397,17 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "scr_printspeed",
     "default": "8",
-    "description": "",
-    "category": "HUD",
-    "descriptionSource": "none",
+    "description": "This variable controls how fast the text is displayed at the end of the single player episodes.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "sensitivity",
@@ -1467,267 +1417,177 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "show_fps",
-    "default": "0",
-    "description": "",
-    "category": "System",
-    "descriptionSource": "none",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "showdrop",
     "default": "0",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "Disable text dump printing dropped packets.. Enable text dump printing dropped packets.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
+  },
+  {
+    "name": "show_fps",
+    "default": "0",
+    "description": "Disables the display of the frames-per-second value.. Enables the display of the frames-per-second value.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
   },
   {
     "name": "showpackets",
     "default": "0",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "0: Do not display information about all network packets.. 1: Display information about all network packets.. 2: Display information about incoming network packets only.. 3: Display information about outgoing network packets only.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "showpause",
     "default": "1",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "Never display the pause icon.. Display that the pause icon is displayed when the game is paused.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "showram",
     "default": "1",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "Never display the ram icon.. Display the ram icon when running out of memory.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "showturtle",
     "default": "0",
     "description": "Sets the value at which the turtle icon will be displayed. For example, if showturtle is set to 70, the turtle will appear when the FPS drops to 70 or below.",
-    "category": "Miscellaneous",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "skin",
     "default": "",
     "description": "Sets the skin name for the player.",
-    "category": "Player",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
+  },
+  {
+    "name": "_snd_mixahead",
+    "default": "0.1",
+    "description": "Sets how far ahead, in seconds, the sound engine mixes audio. Larger values reduce stutter but add audio latency.",
+    "category": "Sound",
+    "descriptionSource": "self",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
   },
   {
     "name": "snd_noextraupdate",
     "default": "0",
-    "description": "",
+    "description": "Developer toggle that disables the extra mid-frame sound update, used to study sound timing.",
     "category": "Sound",
-    "descriptionSource": "none",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "snd_show",
     "default": "0",
-    "description": "",
+    "description": "Developer toggle that prints the currently playing sound channels to the console each frame.",
     "category": "Sound",
-    "descriptionSource": "none",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "spectator",
     "default": "",
-    "description": "",
-    "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "description": "Join to server as player.. Join to server as spectator.",
+    "category": "Multiplayer",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "sys_linerefresh",
     "default": "0",
-    "description": "",
+    "description": "Developer/debug toggle for the line-by-line screen refresh on the Linux build.",
     "category": "Miscellaneous",
-    "descriptionSource": "none",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "team",
     "default": "",
     "description": "Set the team name.",
-    "category": "Player",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "topcolor",
     "default": "0",
-    "description": "Sets the shirt color.",
-    "category": "Player",
+    "description": "Sets the shirt color.. 0: White.. 1: Brown.. 2: Lavender.. 3: Khaki.. 4: Red.. 5: Lt Brown.. 6: Peach.. 7: Lt Peach.. 8: Purple.. 9: Dk Purple.. 10: Tan.. 11: Green.. 12: Yellow.. 13: Blue.. 14: Orange.. 15: Bright red.. 16: Black.",
+    "category": "Multiplayer",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "v_centermove",
     "default": "0.15",
     "description": "This variable sets the distance that the player must move before the screen automatically centers itself when \"lookspring\" is set to \"1\".\nThis variable is only useful to people who only play with the keyboard, have \"lookspring\" set to \"1\" and do not have \"+klook\" or \"+mlook\" enabled at that time.\nWhen the player nmoves the distance specified in this variable the screen will pop back to the center position.",
-    "category": "Miscellaneous",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "v_centerspeed",
     "default": "500",
     "description": "This variable sets how quickly your view returns to the center after looking up or down and moving after that and \"lookspring\" is set to \"1\".\nThis variable is only useful to people who only play with the keyboard, have \"lookspring\" set to \"1\" and do not have \"+klook\" or \"+mlook\" enabled at that time.\nWhen the player moves the distance specified in this variable the screen will pop back to the center position.",
-    "category": "Miscellaneous",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "v_contentblend",
     "default": "1",
-    "description": "Turning this variable on will temporarily change the hue of your screen when inside liquid (water/slime/lava) (requires gl_polyblend 1)",
-    "category": "Miscellaneous",
+    "description": "Turning this variable on will temporarily change the hue of your screen when inside liquid (water/slime/lava) (requires gl_polyblend 1). Specify a percentage value, between 0 and 1.  0 turns the effect off.",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "v_idlescale",
-    "default": "0",
-    "description": "This variable controls the amount that the screen should sway automatically.\nWhen this variable is set to a value above \"0\" the screen will start swaying in all directions, similar as if the player was drunk of had a concussion.\nIf you want to have some real fun, set this variable to a value of \"100\" and run around some maps.\nThe larger the value for this variable the more the screen will sway from side to side.",
-    "category": "Miscellaneous",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "v_ipitch_cycle",
-    "default": "1",
-    "description": "This variable controls the speed at which the screen should sway up and down when \"v_idlescale\" is set to a value above \"0\".",
-    "category": "Miscellaneous",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "v_ipitch_level",
-    "default": "0.3",
-    "description": "This variable controls the distance that the screen should sway up and down when \"v_idlescale\" is set to a value above \"0\".",
-    "category": "Miscellaneous",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "v_iroll_cycle",
-    "default": "0.5",
-    "description": "This variable controls the speed at which the screen should roll clockwise and counter clockwise when \"v_idlescale\" is set to a value above \"0\".",
-    "category": "Miscellaneous",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "v_iroll_level",
-    "default": "0.1",
-    "description": "This variable controls the distance the screen should roll clockwise and counter clockwise when \"v_idlescale\" is set to a value above \"0\".",
-    "category": "Miscellaneous",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "v_iyaw_cycle",
-    "default": "2",
-    "description": "Sets how quickly you look left and right when v_idlescale is active.",
-    "category": "Miscellaneous",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "v_iyaw_level",
-    "default": "0.3",
-    "description": "Sets how far you look left and right when v_idlescale is active.",
-    "category": "Miscellaneous",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "v_kickpitch",
-    "default": "0.6",
-    "description": "This variable controls the distance that the screen should move up or down when the player is shot.\nMost players set this variable to \"0\" in order to remove the screen tilting effect when they are injured by a shot.\nThis allows them to keep a perfect aim while being fired upon.",
-    "category": "Miscellaneous",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "v_kickroll",
-    "default": "0.6",
-    "description": "This variable controls the distance that the screen should roll clockwise or counter clockwise when the player is shot.\nMost players set this variable to \"0\" in order to remove the screen tilting effect when they are injured by a shot.\nThis allows them to keep a perfect aim while being fired upon.",
-    "category": "Miscellaneous",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "v_kicktime",
-    "default": "0.5",
-    "description": "This variable controls the amount of time v_kickpitch and v_kickroll take effect.",
-    "category": "Miscellaneous",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "vid_config_x",
@@ -1737,7 +1597,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "vid_config_y",
@@ -1747,7 +1607,27 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
+  },
+  {
+    "name": "_vid_default_mode",
+    "default": "0",
+    "description": "This variable sets the default video mode that the client uses.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "_vid_default_mode_win",
+    "default": "3",
+    "description": "This variable sets the default video mode that the client uses when windowed.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
   },
   {
     "name": "vid_fullscreen_mode",
@@ -1757,7 +1637,17 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
+  },
+  {
+    "name": "v_idlescale",
+    "default": "0",
+    "description": "This variable controls the amount that the screen should sway automatically.\nWhen this variable is set to a value above \"0\" the screen will start swaying in all directions, similar as if the player was drunk of had a concussion.\nIf you want to have some real fun, set this variable to a value of \"100\" and run around some maps.\nThe larger the value for this variable the more the screen will sway from side to side.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
   },
   {
     "name": "vid_mode",
@@ -1767,7 +1657,7 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "vid_nopageflip",
@@ -1777,67 +1667,57 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "vid_redrawfull",
     "default": "0",
-    "description": "",
+    "description": "Forces a full-screen redraw each frame on the Linux GL build, working around partial-refresh artifacts.",
     "category": "Graphics",
-    "descriptionSource": "none",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "vid_stretch_by_2",
     "default": "1",
-    "description": "",
+    "description": "This variable toggles whether in \"vid_mode 2\" the picture should be rendered at half-resolution in each direction and stretched up to the specified size.. Disable.. Enable.",
     "category": "Graphics",
-    "descriptionSource": "none",
+    "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "vid_wait",
     "default": "0",
-    "description": "",
+    "description": "Controls whether the video update waits for vertical retrace (an early form of vertical sync).",
     "category": "Graphics",
-    "descriptionSource": "none",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "vid_waitforrefresh",
     "default": "0",
-    "description": "",
+    "description": "Linux-build toggle to wait for the monitor's refresh before presenting a frame, reducing tearing.",
     "category": "Graphics",
-    "descriptionSource": "none",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
-    "name": "vid_window_x",
+    "name": "_vid_wait_override",
     "default": "0",
-    "description": "This variable sets the x-axis location of the top left corner of the game window on the desktop.",
+    "description": "Internal override governing the vid_wait vertical-retrace behavior.",
     "category": "Graphics",
-    "descriptionSource": "ezquake",
+    "descriptionSource": "self",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
-  },
-  {
-    "name": "vid_window_y",
-    "default": "0",
-    "description": "This variable sets the y-axis location of the top left corner of the game window on the desktop.",
-    "category": "Graphics",
-    "descriptionSource": "ezquake",
-    "source_state": "source_backed",
-    "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
   },
   {
     "name": "vid_windowed_mode",
@@ -1847,26 +1727,146 @@
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
+  },
+  {
+    "name": "vid_window_x",
+    "default": "0",
+    "description": "This variable sets the x-axis location of the top left corner of the game window on the desktop.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "vid_window_y",
+    "default": "0",
+    "description": "This variable sets the y-axis location of the top left corner of the game window on the desktop.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
   },
   {
     "name": "viewsize",
     "default": "100",
-    "description": "This variable determines how large the viewable screen size is.",
-    "category": "Miscellaneous",
+    "description": "This variable determines how large the viewable screen size is.. Range is 30-120.\nValues 100 & 110 are affected by cl_sbar.. 30: Minimum screen size.. 100: Normal screen size.. 110: Large screen size, without the weapons status bar.. 120: Maximum screen size, without any status bars.",
+    "category": "Graphics",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
+  },
+  {
+    "name": "v_ipitch_cycle",
+    "default": "1",
+    "description": "This variable controls the speed at which the screen should sway up and down when \"v_idlescale\" is set to a value above \"0\".",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "v_ipitch_level",
+    "default": "0.3",
+    "description": "This variable controls the distance that the screen should sway up and down when \"v_idlescale\" is set to a value above \"0\".",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "v_iroll_cycle",
+    "default": "0.5",
+    "description": "This variable controls the speed at which the screen should roll clockwise and counter clockwise when \"v_idlescale\" is set to a value above \"0\".",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "v_iroll_level",
+    "default": "0.1",
+    "description": "This variable controls the distance the screen should roll clockwise and counter clockwise when \"v_idlescale\" is set to a value above \"0\".",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "v_iyaw_cycle",
+    "default": "2",
+    "description": "Sets how quickly you look left and right when v_idlescale is active.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "v_iyaw_level",
+    "default": "0.3",
+    "description": "Sets how far you look left and right when v_idlescale is active.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "v_kickpitch",
+    "default": "0.6",
+    "description": "This variable controls the distance that the screen should move up or down when the player is shot.\nMost players set this variable to \"0\" in order to remove the screen tilting effect when they are injured by a shot.\nThis allows them to keep a perfect aim while being fired upon.. v_kicktime must be >0 for this to take effect.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "v_kickroll",
+    "default": "0.6",
+    "description": "This variable controls the distance that the screen should roll clockwise or counter clockwise when the player is shot.\nMost players set this variable to \"0\" in order to remove the screen tilting effect when they are injured by a shot.\nThis allows them to keep a perfect aim while being fired upon.. v_kicktime must be >0 for this to take effect.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
+  },
+  {
+    "name": "v_kicktime",
+    "default": "0.5",
+    "description": "This variable controls the amount of time v_kickpitch and v_kickroll take effect.",
+    "category": "Graphics",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
   },
   {
     "name": "volume",
     "default": "0.7",
-    "description": "Sets sound volume.",
-    "category": "Miscellaneous",
+    "description": "Sets sound volume.. This can go above 1, but sound will get more and more distorted.",
+    "category": "Sound",
     "descriptionSource": "ezquake",
     "source_state": "source_backed",
     "first_seen_version": "2.33",
-    "last_seen_version": "2.33"
+    "last_seen_version": "head"
+  },
+  {
+    "name": "_windowed_mouse",
+    "default": "0",
+    "description": "Disable windowed mouse support so you can use the mouse in other applications.. Enabled windowed mouse support so you can use the mouse in the client.",
+    "category": "Input",
+    "descriptionSource": "ezquake",
+    "source_state": "source_backed",
+    "first_seen_version": "2.33",
+    "last_seen_version": "head"
   }
 ]

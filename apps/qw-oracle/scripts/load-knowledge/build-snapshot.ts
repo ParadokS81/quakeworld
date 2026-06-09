@@ -439,23 +439,11 @@ async function emitEzqCmdline(
 //
 // The legacy slipgate qwcl-variables.json is a flat array
 // `[{name, default, description, category, descriptionSource}]`. Preserved
-// here so slipgate's qwcl loader needs no structural change. Description
-// cross-reference from ezQuake (when available) is computed against the same
-// knowledge.db rather than reading legacy JSONs -- keeps Oracle as the single
-// producer of truth.
-
-function inferQwclCategory(name: string): string {
-  if (name.startsWith('cl_')) return 'Client';
-  if (name.startsWith('sv_')) return 'Server';
-  if (name.startsWith('gl_') || name.startsWith('r_') || name.startsWith('vid_')) return 'Graphics';
-  if (name.startsWith('snd_') || name.startsWith('cd_') || name === 'ambient_level' || name === 'ambient_fade') return 'Sound';
-  if (name.startsWith('net_') || name === 'rate' || name === 'pushlatency') return 'Network';
-  if (name.startsWith('m_') || name === 'sensitivity' || name === 'lookspring' || name === 'lookstrafe') return 'Input';
-  if (['name', 'team', 'skin', 'topcolor', 'bottomcolor'].includes(name)) return 'Player';
-  if (name === 'fov' || name.startsWith('scr_')) return 'HUD';
-  if (['con_notifytime', 'developer', 'host_speeds', 'show_fps'].includes(name)) return 'System';
-  return 'Miscellaneous';
-}
+// here so slipgate's qwcl loader needs no structural change. As of the
+// docs-l1-enrichment arc (2026-06-09) description and category are owned in
+// L1 (entities.description + cvar_versions.category_inferred), so this emit is
+// a straight read -- no snapshot-time ezquake cross-ref, no name-prefix
+// category guess.
 
 async function emitQwclVariables(
   sql: postgres.Sql,
@@ -464,28 +452,38 @@ async function emitQwclVariables(
   outputDir: string,
 ): Promise<{ count: number; bytes: number }> {
   const enrichment = await loadEnrichment(sql, 'qwcl', 'cvar');
-  const rows = await fetchCvarRows(sql, 'qwcl', version);
 
-  // Cross-reference description from ezquake when available (only for cvars
-  // shared by name). Same producer, single trip through the DB.
-  const ezqDescs = new Map<string, string>();
-  const ezqRows = await sql<Array<{ name: string; help_desc: string }>>`
-    SELECT e.name, cv.help_desc
-    FROM cvar_versions cv JOIN entities e ON e.id = cv.entity_id
-    WHERE e.project = 'ezquake' AND cv.version = 'head' AND cv.help_desc IS NOT NULL
+  // Description carries the borrowed-from-ezquake ('inherited') or
+  // QWCL-authored ('synthesized') text; category_inferred carries the
+  // category (ezquake major-group for borrowed cvars, assigned for QWCL-only).
+  const rows = await sql<Array<{
+    name: string;
+    default_value: string | null;
+    description: string | null;
+    description_origin: string | null;
+    category_inferred: string | null;
+  }>>`
+    SELECT e.name, cv.default_value, e.description, e.description_origin,
+           cv.category_inferred
+    FROM cvar_versions cv
+    JOIN entities e ON e.id = cv.entity_id
+    WHERE e.project = 'qwcl' AND cv.version = ${version}
+      AND e.source_state IN ('source_backed', 'dynamically_registered')
+    ORDER BY e.name
   `;
-  for (const r of ezqRows) ezqDescs.set(r.name, r.help_desc);
 
   const out: Array<Record<string, unknown>> = [];
   for (const r of rows) {
-    const description = r.help_desc ?? ezqDescs.get(r.name) ?? '';
-    const descriptionSource = r.help_desc ? 'self'
-      : (ezqDescs.has(r.name) ? 'ezquake' : 'none');
+    // descriptionSource preserves the legacy field's contract: 'ezquake' for a
+    // description borrowed from ezquake, 'self' for QWCL-authored prose.
+    const descriptionSource = r.description_origin === 'inherited' ? 'ezquake'
+      : r.description_origin === 'synthesized' ? 'self'
+      : (r.description ? 'self' : 'none');
     const entry: Record<string, unknown> = {
       name: r.name,
       default: r.default_value ?? '',
-      description,
-      category: inferQwclCategory(r.name),
+      description: r.description ?? '',
+      category: r.category_inferred ?? 'Miscellaneous',
       descriptionSource,
     };
     const enr = enrichment.get(r.name);
