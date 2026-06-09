@@ -58,7 +58,7 @@ Output file: docs/superpowers/plans/2026-06-09-docs-quake-world/phase-<N>-<slug>
                 theme block to lift), the Phase 1 output JSON shape,
                 Context7 for VitePress + Tailwind v4 + daisyUI current docs
      - Phase 4: apps/qw-oracle/curated/ (concept-note related_entities for the
-                wiki reverse-index)
+                entity->guide reverse-index, targeting the docs guides portal)
      - Phase 5: the deploy skill, infra patterns for CF Pages>
 ```
 
@@ -81,8 +81,9 @@ Output file: docs/superpowers/plans/2026-06-09-docs-quake-world/phase-<N>-<slug>
 - Presentation/logic decoupling (D15) + type-generic renderer (D14): no
   data-fetch or derivation inside .vue files; components are codebase- and
   type-agnostic. (Render phases.)
-- Cross-link scope (D19): cvar->cvar within one codebase; entity->wiki only
-  where a note anchors the entity (no dead links). (Phase 4.)
+- Cross-link scope (D19, amended 2026-06-09): cvar->cvar within one codebase;
+  entity->guide (docs guides portal, NOT wiki) only where a note anchors the
+  entity (no dead links; dormant in v1 -- no notes/portal yet). (Phase 4.)
 - If a step ships file content, ship the FULL content, not a sketch. "Engineer
   ports X" is a smell -- inline it or split it.
 - Phase MDs have no length cap; don't cut tasks to fit. Split only per the

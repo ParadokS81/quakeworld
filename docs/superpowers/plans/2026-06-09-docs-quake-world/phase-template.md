@@ -148,15 +148,17 @@ Then verify, item by item:
 7. Type-generic renderer (D14): for render phases, is the browse/card component
    codebase-agnostic and type-agnostic (data + config in, render out)? Flag any
    per-codebase or per-type branching baked into a component.
-8. Cross-link scope (D19): for the cross-link phase, does cvar->cvar resolve
-   WITHIN one codebase's entity set (not cross-fork)? Does entity->wiki render
-   only where a note anchors the entity (no dead links)? Flag violations.
+8. Cross-link scope (D19, amended 2026-06-09): for the cross-link phase, does
+   cvar->cvar resolve WITHIN one codebase's entity set (not cross-fork)? Does the
+   entity->guide "Used in" link render only where a note anchors the entity (no
+   dead links) and target the docs guides portal (NOT the wiki)? Flag violations.
 9. Execution-mode annotations: does every task carry an execution mode
    (inline | subagent (model effort)) with a rationale? Flag any task missing it.
    Is anything code-synthesis-shaped marked inline? Flag it.
-10. Scope creep (D21): does the phase drift into a non-goal (FTE, wiki
-    authoring, cross-engine, faceted search, ranges, deploy automation,
-    community data)? Flag it.
+10. Scope creep (D21, amended 2026-06-09): does the phase drift into a non-goal
+    (FTE, L3-guide/concept-note authoring, the guides-portal render surface,
+    cross-engine, faceted search, ranges, deploy automation, community data)?
+    Flag it.
 11. "Engineer ports X" / "fills in details" / TODO smell -- list any.
 
 Report findings under 400 words:
