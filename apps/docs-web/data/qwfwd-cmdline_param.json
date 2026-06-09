@@ -1,0 +1,32 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.973Z",
+    "codebase": "qwfwd",
+    "type": "cmdline_param",
+    "snapshot_version": "1.40-dev",
+    "upstream_commit": "1.40-dev"
+  },
+  "entries": [
+    {
+      "name": "ip",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Sets the local IP address the proxy binds to, for hosts with more than one network interface. Given as the second positional argument on the command line: qwfwd [port [ip]] (a port must be given first). An address given here overrides any net_ip value set in the config file.\n\nDefault: 0.0.0.0, which binds to all available network interfaces.\nSet by: command line (second positional argument).\nSee also: net_ip.",
+      "source_ref": {
+        "file": "src/main.c",
+        "line": 229
+      }
+    },
+    {
+      "name": "port",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Sets the UDP port the proxy listens on. Given as the first positional argument on the command line: qwfwd [port [ip]]. A port given here overrides any net_port value set in the config file.\n\nDefault: 30000 (when no port is given on the command line).\nSet by: command line (first positional argument).\nSee also: net_port.",
+      "source_ref": {
+        "file": "src/main.c",
+        "line": 228
+      }
+    }
+  ]
+}

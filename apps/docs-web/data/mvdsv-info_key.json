@@ -1,0 +1,507 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.910Z",
+    "codebase": "mvdsv",
+    "type": "info_key",
+    "snapshot_version": "head",
+    "upstream_commit": "18d036218004f31cf701bb5060448012652de6d1"
+  },
+  "entries": [
+    {
+      "name": "address:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A QTV relay's self-reported network address, supplied by the relay inside the USERINFO field of its QTV connection handshake (alongside its name and stream id). The server reads it when a relay opens a stream connection and stores it with that stream's destination record, where it identifies the relay in the server's QTV stream listing (shown as streamid@address). It is a free-form display/identification string, not a verified or enforced value.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 46
+      }
+    },
+    {
+      "name": "*admin:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Holds free-form contact text for the person who runs the server, so players and server-browser tools can see who to reach about the server. The server publishes this whenever its admin-info setting is non-empty and removes the key when that setting is blank; the value is whatever the admin typed (by convention a name and/or email address), with no enforced format.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3890
+      }
+    },
+    {
+      "name": "*auth:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Holds a player's verified login (account) name once the server has authenticated them, either against the central account web service or a local account list. Because it is server-stamped and clients cannot set it, it is a trusted identity that other players' clients read to show a login indicator and account name on the scoreboard alongside the chosen nickname. It is empty when the player is not logged in, and is cleared when they log out.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/central.c",
+        "line": 217
+      }
+    },
+    {
+      "name": "bottomcolor:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The player's pants (lower-body) color, set by the client as a Quake palette color index (0-13). The server reads it to report each client's colors in status query responses and to mirror it to other clients, and it rewrites legacy NetQuake color updates into this key when bridging older protocols.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 639
+      }
+    },
+    {
+      "name": "chat:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Bitmask reporting the local player's chat/AFK presence, set automatically by the client (not user-settable) and read by other clients to draw a balloon icon over that player. Bit 0 (value 1) means the player is not in the game -- they are in the console, a menu, or typing a message (mm1/mm2); bit 1 (value 2) means the application has lost focus or been minimized (AFK). The two bits can combine; an empty or absent value means the player is in-game and focused. ezQuake always reports this state, while FTE gates reporting behind a client cvar.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 4712
+      }
+    },
+    {
+      "name": "*cheats:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Server-published serverinfo flag that signals whether cheats are enabled for the current session. The server sets it to \"ON\" when cheats are active -- enabled via the sv_cheats cvar, a devmap load, or the -cheats command-line parameter -- and clears it to empty otherwise; the value is re-evaluated and re-stamped on every map change. The mod reads it to gate cheat-only commands (rejecting them when the flag is empty), and connected clients read it to permit cheat-dependent behavior and to display that cheats are enabled.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1825
+      }
+    },
+    {
+      "name": "*client:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Holds the connecting client's engine name and build revision as a free-form string (for example \"ezQuake 12345\" -- alphabetic engine name followed by a numeric build/revision), published by the client itself into its own userinfo as a server-protected star-key. The mvdsv server reads this per-client value to identify ezQuake clients and parse their revision number, then uses it to gate engine-specific protocol extensions -- notably disabling the alpha-transparency (FTE_PEXT_TRANS) extension for client builds known to render it incorrectly.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 370
+      }
+    },
+    {
+      "name": "*csprogsname:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Names the client-side game-code file (CSQC progs) the server is running -- a filename string, default csprogs.dat -- so each connecting client knows which file to load (downloading it if needed). The server stamps it from its own CSQC progname setting and leaves it blank when no client-side progs file is in use. It travels alongside the matching checksum and byte-size keys that let the client verify the file. Only CSQC-aware clients (FTE) act on it; clients without client-side QuakeC ignore it.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/sv_init.c",
+        "line": 224
+      }
+    },
+    {
+      "name": "*csprogs:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Holds a checksum of the server's client-side game code (the CSQC `csprogs.dat` program), written as a hex string (e.g. `0x1a2b3c4d`). The server stamps it when CSQC support is compiled in, alongside `*csprogssize` (the file's byte size) and `*csprogsname` (its filename, default `csprogs.dat`). A connecting CSQC-capable client reads this value to confirm it already has the exact matching program and, if not, to download the correct version before joining. All three keys are blank when the server runs no client-side progs.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/sv_init.c",
+        "line": 221
+      }
+    },
+    {
+      "name": "*csprogssize:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Holds the byte size of the server's CSQC client-side game module (the csprogs.dat file named by sv_csqc_progname), so connecting clients can confirm the copy they download or already have matches the server's. The server stamps this protected key when it loads a CSQC module and leaves it blank on servers that don't use one; it pairs with the module's checksum and filename keys. CSQC is an FTE protocol extension, so only FTE clients act on this key.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/sv_init.c",
+        "line": 223
+      }
+    },
+    {
+      "name": "dev:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A debug flag a client opts into by setting it to \"1\" via setinfo. When set, the server's server-side weapon-switching logic prints verbose diagnostics back to that client -- which weapon and impulse it selected as \"best\", hide-on-death decisions, firing-state transitions, and whether each switch attempt succeeded or failed. Any other value (or absence) keeps this trace output silent. Purely a per-client diagnostic toggle; it does not affect gameplay.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 3996
+      }
+    },
+    {
+      "name": "drate:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A client's requested download bandwidth, in bytes per second, used to throttle the rate at which the server sends files (maps, demos) to that client. It applies only while a download is in progress; ordinary gameplay traffic is governed by the rate key instead. The server treats the value as a request, not a guarantee: an empty or zero value falls back to a default, and the figure is clamped to the server's configured download-rate caps and to fixed minimum and maximum bounds. The producing client cvar is defined by FTE (default 3000000); ezquake does not publish this key.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 1569
+      }
+    },
+    {
+      "name": "dupe:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Number of extra duplicate copies of each server-to-client packet, requested by the client to ride out packet loss on a lossy connection at the cost of bandwidth. The client sets it directly with setinfo (there is no dedicated cvar that publishes it), and the server reads it to drive its outgoing-packet duplication: a value of 0 means no duplication (one packet, the normal case) and a value of N sends N+1 copies. mvdsv clamps the value to the range 0-3 and disables duplication entirely while the client is downloading.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3841
+      }
+    },
+    {
+      "name": "emodel:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Holds the CRC checksum of the client's eyes model file (progs/eyes.mdl, the floating \"eyes\" model drawn for an invisible player who has the Ring of Shadows). The client engine computes it and publishes it automatically at spawn; players cannot set it themselves. At spawn the server compares this value against the checksum of its own eyes model and broadcasts a warning if the checksums differ (or if the key is missing), flagging a non-standard or modified model as a possible cheat. The value is a decimal integer; only equality against the server's own checksum is meaningful.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 1010
+      }
+    },
+    {
+      "name": "epoch:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Records the wall-clock time at which an MVD demo recording begins, as a Unix timestamp (seconds since 1970). The server writes it into serverinfo when it sends the initial gamestate at recording start, so the value is embedded in the demo stream and lets playback tools and parsers report when the demo was actually captured.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1309
+      }
+    },
+    {
+      "name": "*flag:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A login flag identifier the server stamps onto a player after a successful account login. The value is supplied by the central login (web auth) service and the server stores it verbatim; a client cannot set it. The client resolves the string against its scoreboard flag image set and renders the matching small icon (conventionally a country/region flag) next to the player on the scoreboard; the string is opaque to the server. It is cleared when the player logs out.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/central.c",
+        "line": 232
+      }
+    },
+    {
+      "name": "*gamedir:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Names the game directory clients should treat the server as running, e.g. \"qw\" or \"ktx\"; clients read it to know which folder to load and auto-download maps, models, and other content from, and it is also written into the MVD demo header. The server stamps this key (clients cannot set it) and defaults the value to \"qw\" when unset. It is normally set together with the real server gamedir by the gamedir console command or the +gamedir / -game startup parameter; the separate sv_gamedir command sets only this advertised value, letting it differ from the directory the server actually loads files from.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/fs.c",
+        "line": 561
+      }
+    },
+    {
+      "name": "map:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Holds the name of the map the server is currently running, as a bare map name with no path or file extension (for example, dm3). The server stamps this into the global serverinfo string at the end of each level load, so clients and server browsers can read and display the active map.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/sv_init.c",
+        "line": 659
+      }
+    },
+    {
+      "name": "msg:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The client's console message-filter level, published by the player's `msg` cvar in ezquake and FTE (default 1). The server stores it per-client and uses it as a minimum-importance threshold: it sends a print only when the message's level is at or above this value, so a higher setting suppresses more. Levels are 0 = pickup messages, 1 = death/obituary messages, 2 = critical messages, 3 = chat.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3847
+      }
+    },
+    {
+      "name": "mtu:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Client-published userinfo key holding the maximum transmission unit the client requests for the server-to-client connection, as an integer byte count (set from the ezQuake/FTE client-side mtu cvar). The server reads it once at connect time and uses it to size that client's network channel buffer: an empty or zero value keeps the legacy fixed buffer size, otherwise the server deducts the packet-header overhead and clamps the result to a sane range (no smaller than 1350 bytes, no larger than its own buffer ceiling). It is therefore a client suggestion the server honors within those bounds.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 1411
+      }
+    },
+    {
+      "name": "name:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The player's in-game display name (netname). The client publishes it from its `name` cvar (default \"player\"); the server does not accept it verbatim but enforces a valid, unique value: it strips names containing illegal characters (backslash, quote, semicolon, `$`, `#`, newlines), reserved or spoofing strings (\"console\", color-reset codes), and empty values back to the server's default name; trims leading and trailing spaces; and resolves collisions by prefixing a duplicate with `(N)`. When `sv_forcenick` is set and the client is logged in, the server overrides the name to match the login account and rejects further changes. The resolved value becomes the netname the mod reads for scoreboards, messages, and gameplay.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 45
+      }
+    },
+    {
+      "name": "needpass:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Advisory flag the server publishes to tell clients which passwords it requires. The value is a bitmask: 1 if a player (game) password is set, 2 if a spectator password is set, 4 if a VIP password is set, summed when more than one applies. The key is left empty when no password is set. Client status displays and server browsers read it to show whether a player or spectator password is needed; the value tracks the server's password, spectator_password, and vip_password settings.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3243
+      }
+    },
+    {
+      "name": "password:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A connect-time credential a player supplies to enter a password-protected server. The client publishes it from its own `password` cvar; the server reads it from the connecting player's userinfo and compares it against the server's configured entry password, refusing the connection on mismatch. The same value is also matched against the server's VIP password list -- a correct match grants VIP status even when the regular password does not apply. The server removes the key from the player's userinfo immediately after the check, so it is never stored or visible to others.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 1044
+      }
+    },
+    {
+      "name": "pmodel:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Holds the CRC checksum of the client's player model file (progs/player.mdl), computed and published by the client engine itself with a dedicated setinfo command at spawn -- it is not a user-settable cvar, and the client explicitly refuses any attempt to set pmodel or emodel by hand. The server reads it when a client spawns and broadcasts a warning if it is missing, or if it matches neither of the two checksums the server accepts for a standard player model; the check is advisory and does not block play.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 1009
+      }
+    },
+    {
+      "name": "*progs:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A server-stamped serverinfo key identifying the game logic the server is running. For classic QuakeCode mods it holds a numeric checksum of the loaded progs file; for a QVM bytecode mod it holds the checksum of the .qvm image; for a native compiled mod (DLL/shared object) it instead holds the dynamic-library file extension (\"so\", \"dll\", or \"dylib\") rather than a checksum. Clients and the server browser read this value to tell which mod a server is running (for example, a value of \"666\" flags a Qizmo proxy).",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/pr_edict.c",
+        "line": 1187
+      }
+    },
+    {
+      "name": "Qizmo:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Presence marker injected into a client's userinfo by the Qizmo proxy when a player connects through it. The value is never parsed -- only its presence matters -- so any client routed via Qizmo is recognized as proxied. The server reads it at connect time (alongside *qtv) and, when set, skips protocol-extension negotiation that cannot survive the proxy's passthrough; the mod also reads it to choose proxy-aware reconnect commands when forcing a player to spectator.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 1398
+      }
+    },
+    {
+      "name": "*qtv:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Presence marker injected by a QTV proxy into the userinfo of the connection it makes to the game server on behalf of spectators. Only its presence matters -- the value string is not interpreted. When the server sees this key at connect time, it disables FTE protocol-extension negotiation for that connection, since those extensions do not work through a relaying proxy. As a protected star key, a normal client cannot set it; the proxy software is the only party that stamps it.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 1399
+      }
+    },
+    {
+      "name": "qul:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Client-set opt-in flag (value \"1\") that subscribes the client to QTV user-list notifications. When set, the server pushes //qul messages to that client whenever a QTV spectator joins, leaves, or changes (and an initial full list on connect); the client's scoreboard renders those QTV viewers. Value \"0\" or absent means the client is not subscribed.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 934
+      }
+    },
+    {
+      "name": "*qvm:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A server-stamped serverinfo flag indicating that the server loaded its game module as a native compiled shared library rather than as interpreted QVM bytecode. The server sets this key only on the native-load path, and its value is the platform's native dynamic-library extension (\"dll\" on Windows, \"so\" on Linux, \"dylib\" on macOS); the key is absent when the server runs the game module from an interpreted .qvm image. The presence of the key, not its particular value, is the meaningful signal, so it serves as a quick indicator of how the running game logic was built.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/vm.c",
+        "line": 1224
+      }
+    },
+    {
+      "name": "rate:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Client-published userinfo value (set from the ezQuake/FTE `rate` cvar): the maximum bytes per second the client asks the server to send it. The mvdsv server reads this per client to throttle its outgoing packet stream, clamping the requested value to the server's allowed range (an empty value means \"use the server maximum\").",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 4971
+      }
+    },
+    {
+      "name": "*skill:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Holds a bot's AI skill level as a decimal integer string (range 0-20). KTX stamps it on each bot's userinfo as a server-protected star key when the bot is spawned, so a human client cannot set or change it. The server reads it for bot clients and reports it in place of a real network ping (defaulting to 10 if the value is empty); it is also broadcast in the short userinfo other clients receive.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 476
+      }
+    },
+    {
+      "name": "skin:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The skin name string the player selects, set by the client's `skin` userinfo cvar, naming which player-model skin to display. On mvdsv this value is client-set and not server-protected (it sits in the allow-list of short userinfo keys a client may freely set); the server reads it when reporting per-player status and copies it into the short-info context for delta compression.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 660
+      }
+    },
+    {
+      "name": "*spectator:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Server-stamped flag in a client's userinfo marking that the client is connected as a spectator rather than a participating player. The server sets it (value \"1\") when someone connects as a spectator, supplies the spectator password, is moved to spectator because the player slots are full, fails the ping requirement, or switches to observing without reconnecting; it is removed when a spectator joins as an active player. Consumers treat the key's presence as the boolean: present means spectator, absent means player.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 1066
+      }
+    },
+    {
+      "name": "spectator:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Client-published userinfo key requesting a spectator slot at connect time. Empty or \"0\" means connect as a player; any other value requests spectator entry, and that same value doubles as the spectator password the server validates (against the server's spectator password, or a VIP pass/IP). On a successful spectator join the server consumes this key -- it strips the client's \"spectator\" entry and stamps the protected \"*spectator\" flag instead -- so this raw key reflects the client's request, not the persistent spectator state.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 1032
+      }
+    },
+    {
+      "name": "sp:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Client-set bitmask that lets a spectator opt in to receiving game messages that are aimed at the player they are currently tracking. The bits are: 1 (0x1) centerprints, 2 (0x2) sprints (regular console/chat-style prints), and 4 (0x4) stuffed commands; values are additive (e.g. 7 = all three). The opt-in is gated by the server: each message type is forwarded only when the server has globally enabled that type (via its sv_specprint setting) AND this key has the matching bit set, and only to spectators whose tracked target is the message's recipient. If the key is absent, the spectator falls back to the server's default behavior.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3852
+      }
+    },
+    {
+      "name": "status:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A serverinfo key holding the current match-phase as a free-form display string. The KTX mod writes it throughout a game's lifecycle: \"Standby\" at map load and whenever a match is idle or a countdown is aborted, \"Countdown\" while the pre-match countdown is running, \"Forcestart\" when an admin force-starts, and \"N min left\" giving the time remaining during an active match. The server reads it back to decide whether a game is in progress -- any value other than \"Standby\" is treated as started -- which gates QTV chat handling and blocks mid-game changes to physics settings such as pm_airstep unless the value is \"Standby\".",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 732
+      }
+    },
+    {
+      "name": "streamid:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "An optional numeric stream identifier that a connecting QTV proxy/relay places in the USERINFO line of its QTV handshake when it links to the server to pull the live MVD stream. The server reads it as an integer and keeps it only to label that relay in the server-side \"qtv\" stream listing, where it is shown as streamid@address to identify which upstream stream the proxy is relaying. It is reported by the proxy for identification/display and does not select or bind to any stream slot on the server; the server assigns its own separate connection id.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 47
+      }
+    },
+    {
+      "name": "svf:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A client-set userinfo bitmask expressing a player's preference for how the server should treat their connection when all player slots are full. The server reads it only while the \"force spectator on full\" server setting is active. Bit value 1 opts the client IN to being automatically connected as a spectator when player slots are full but spectator slots remain; bit value 2 opts the client OUT of that automatic spectator fallback. Which bit applies depends on the server's force-spectator-on-full mode: the opt-in bit is honoured in the more aggressive mode, the opt-out bit in the milder default-on mode.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 1354
+      }
+    },
+    {
+      "name": "team:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Holds a player's team name, a free-form string the client sets (via the ezQuake/FTE `team` userinfo cvar or `setinfo team`) to group itself with teammates in team games. The mvdsv server stores it per client, sanitizes it (a value containing the color-code sequences `&c` or `&r` is rejected and replaced with \"none\"), and copies it into the client's team field; the mod reads it to decide which players are on the same team. Empty or unset means no team.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3831
+      }
+    },
+    {
+      "name": "topcolor:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The player's shirt (top) color index, a Quake palette color number set by the client through its topcolor userinfo cvar. On this engine the server reads it per client when answering status queries, reporting the player's color (clamped to the 0-16 range) alongside name and ping; it also propagates the value to other clients and applies an anti-flood guard against rapid color changes.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 638
+      }
+    },
+    {
+      "name": "*version:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Identifies the server software and version that a connected client is talking to. MVDSV stamps this at startup as the server name followed by its version (for example \"MVDSV 1.20-dev\"); other server implementations populate it differently, so the value also carries the software identity (e.g. clients and mods test it for \"MVDSV\", \"FTE\", \"qwfwd\", or \"qtv \" prefixes to detect the host type). Clients, server browsers, and the mod read it to learn which server build is running.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3684
+      }
+    },
+    {
+      "name": "*VIP:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Records a connected client's VIP rights as an integer bitmask. The server sets it at connect time, derived from a matching VIP password or an allowlisted IP; a non-zero value grants reserved-slot access and lets the player join even when the server is otherwise full. The bits encode privileges the mod (KTX) acts on: 1 = normal VIP, 2 = not-kickable by elected admins, 4 = in-game admin rights, 32 = rcon admin rights (with 8 and 16 reserved for demo-admin and judge rights). It is stamped only on the client's own userinfo, is not broadcast to other players, and cannot be set by the client.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 1437
+      }
+    },
+    {
+      "name": "w_rank:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A player's weapon-switch order, written into their userinfo by mvdsv's server-side weapon switching as a string of weapon-impulse digits, highest priority first (1=axe, 2=shotgun, 3=super shotgun, 4=nailgun, 5=super nailgun, 6=grenade launcher, 7=rocket launcher, 8=lightning gun), derived from the client's switch instructions. A mod reads it and selects the first weapon in the order the player owns and has ammo for.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 4212
+      }
+    },
+    {
+      "name": "*z_ext:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Advertises which optional ZQuake protocol extensions the server supports, as a numeric bitmask that clients read when connecting. Each bit corresponds to one extension (such as server-authoritative game time, view-height stat, pitch limits, on-the-fly join/observe switching, and the VWEP visible-weapon model); the value the server stamps here lists every extension it offers. The features a connection actually uses are the overlap between the bits set here and the bits the client itself advertises, so an extension activates only when both sides claim support for it.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3685
+      }
+    },
+    {
+      "name": "*z_ext:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Holds a decimal bitmask of the optional ZQuake protocol extensions that a connecting client implements (reliable jump and the new PM_FLY/PM_SPECTATOR pmove types, the view-height and server-time stats, pitch-limit serverinfo, on-the-fly join/observe switching, the PF_ONGROUND and PF_SOLID playerinfo flags, and VWEP active-weapon models). The client publishes this value in its connect-time userinfo; the server reads it once at connect, records the set of extensions for that client, then removes the key so it does not persist in the stored userinfo. The recorded bits gate which extended features the server later sends to that specific client.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 1425
+      }
+    }
+  ]
+}

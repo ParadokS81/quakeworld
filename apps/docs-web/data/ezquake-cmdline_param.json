@@ -1,0 +1,668 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.807Z",
+    "codebase": "ezquake",
+    "type": "cmdline_param",
+    "snapshot_version": "head",
+    "upstream_commit": "e4a2c20ad7c747e1275eb61a5fb72f8b333f3287"
+  },
+  "entries": [
+    {
+      "name": "-allowmultiple",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "On Windows, launch multiple copies of ezQuake rather than re-using the existing instance",
+      "source_ref": {
+        "file": "sys_win.c",
+        "line": 682
+      }
+    },
+    {
+      "name": "-basedir",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "The \"base\" directory is the path to the directory holding the quake.exe and all game directories.\n\nThis can be overridden with the \"-basedir\" command line parm to allow code debugging in a different directory.",
+      "arguments": "<path>",
+      "source_ref": {
+        "file": "fs.c",
+        "line": 736
+      }
+    },
+    {
+      "name": "-bpp",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Allows setting of 'r_colorbits' cvar during start-up",
+      "arguments": "<integer>",
+      "source_ref": {
+        "file": "vid_sdl2.c",
+        "line": 1711
+      }
+    },
+    {
+      "name": "-cdaudio",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Enables CD audio playback in builds compiled against `cd_linux.c` or `cd_win.c`; the default build links `cd_null.c` which is a no-op.",
+      "source_ref": {
+        "file": "cd_linux.c",
+        "line": 457
+      }
+    },
+    {
+      "name": "-cddev",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "On Linux, specifies the cd device to use.  Must specify -cdaudio for this to have effect",
+      "remarks": "(is this only used in meson build?)",
+      "arguments": "<path>",
+      "source_ref": {
+        "file": "cd_linux.c",
+        "line": 460
+      }
+    },
+    {
+      "name": "-cheats",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "enable cheats on local server (/noclip etc)",
+      "source_ref": {
+        "file": "sv_ccmds.c",
+        "line": 1821
+      }
+    },
+    {
+      "name": "-clientport",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets the local UDP port the client socket binds to on startup (`-clientport <number>`), overriding the `cl_net_clientport` cvar default (27001). If the requested port is unavailable, a dynamic port is assigned. Use to pin the client to a specific outbound port.",
+      "source_ref": {
+        "file": "net.c",
+        "line": 1512
+      }
+    },
+    {
+      "name": "-conbufsize",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "set size of console buffer",
+      "remarks": "between 32KB & 4MB, default is 64KB",
+      "arguments": "<size-in-kb>",
+      "source_ref": {
+        "file": "console.c",
+        "line": 445
+      }
+    },
+    {
+      "name": "-condebug",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "log all console output to qw/qconsole.log",
+      "source_ref": {
+        "file": "console.c",
+        "line": 438
+      }
+    },
+    {
+      "name": "-conheight",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "set vid_conheight during startup",
+      "source_ref": {
+        "file": "vid_sdl2.c",
+        "line": 1746
+      }
+    },
+    {
+      "name": "-conwidth",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "set vid_conwidth during startup",
+      "source_ref": {
+        "file": "vid_sdl2.c",
+        "line": 1742
+      }
+    },
+    {
+      "name": "-d",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "source_ref": {
+        "file": "sv_sys_win.c",
+        "line": 806
+      }
+    },
+    {
+      "name": "-data",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Adds `<datadir>` as an additional game data directory on top of the standard search path (`-data <path>`); may be specified multiple times.",
+      "source_ref": {
+        "file": "fs.c",
+        "line": 798
+      }
+    },
+    {
+      "name": "-democache",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "create memory buffer during startup, used instead of writing directly to disk when recording demos",
+      "remarks": "Minimum value 2048KB",
+      "arguments": "<size-in-kb>",
+      "source_ref": {
+        "file": "cl_demo.c",
+        "line": 5453
+      }
+    },
+    {
+      "name": "-detailtrails",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "sets /gl_particle_fulldetail 1 during startup",
+      "source_ref": {
+        "file": "r_particles_qmb.c",
+        "line": 336
+      }
+    },
+    {
+      "name": "-dev",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Enables developer mode, which unlocks development-only commands (`devmap` plus the `dev_*` family including `dev_physicsnormalset`, `dev_help_issues`, `dev_help_verify_config`, `dev_dump_defaults`) and extra cvars (`r_speeds`), and activates Vulkan validation layers when using the Vulkan renderer.",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 2036
+      }
+    },
+    {
+      "name": "-display",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Selects the monitor index (0-based) for rendering (`-display <index>`). Sets `vid_displaynumber` in fullscreen mode or `vid_win_displaynumber` in windowed mode (when `-window` is also present).",
+      "source_ref": {
+        "file": "vid_sdl2.c",
+        "line": 1722
+      }
+    },
+    {
+      "name": "-enablelocalcommand",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Enables the server-side `localcommand` console command, which executes an arbitrary OS shell command on the server host. SERVERONLY builds only. **Security note:** the implementation calls `system()` with unsanitized input and is marked \"REMOVE ME\" in source; use only as a diagnostic tool in controlled environments.",
+      "source_ref": {
+        "file": "sv_ccmds.c",
+        "line": 1861
+      }
+    },
+    {
+      "name": "-forcetexturereload",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Forces textures to reload from disk on every load call, bypassing the in-memory cache check that normally skips re-uploading a texture whose path and dimensions already match.",
+      "source_ref": {
+        "file": "r_texture_load.c",
+        "line": 47
+      }
+    },
+    {
+      "name": "-freq",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets the fullscreen display refresh rate in Hz at startup (`-freq <hz>`), overriding `vid_displayfrequency`. A value of 0 (default) lets the engine auto-select.",
+      "source_ref": {
+        "file": "vid_sdl2.c",
+        "line": 1707
+      }
+    },
+    {
+      "name": "-game",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets the active game directory to `<modname>` (`-game <modname>`), overriding the default mod search path; affects which directory generated files are read from and written to (subject to `-nohome` / `+gamedir` interaction).",
+      "source_ref": {
+        "file": "fs.c",
+        "line": 815
+      }
+    },
+    {
+      "name": "-gamma",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets the initial gamma value at startup (`-gamma <float>`, range 0.3-3.0), overriding the `gl_gamma` cvar default before the first frame.",
+      "source_ref": {
+        "file": "cl_view.c",
+        "line": 1207
+      }
+    },
+    {
+      "name": "-gl_ext",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Prints the GL_EXTENSIONS string to the console at startup. Non-Windows/non-Linux only; on modern OpenGL reports `(using modern OpenGL)` instead of the extension list.",
+      "source_ref": {
+        "file": "vid_common_gl.c",
+        "line": 340
+      }
+    },
+    {
+      "name": "-gl-forward-only-profile",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Requests an OpenGL forward-compatibility context flag (`SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG`) when creating a core-profile GL context on non-Apple platforms. No effect on compatibility-profile contexts or macOS.",
+      "source_ref": {
+        "file": "cmdline_params_ids.h",
+        "line": 10
+      }
+    },
+    {
+      "name": "-glsl-renderer",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Forces the GLSL (modern OpenGL) renderer by setting `vid_renderer` to 1 at startup. Only available in builds compiled with `EZ_MULTIPLE_RENDERERS` and `RENDERER_OPTION_MODERN_OPENGL`.",
+      "source_ref": {
+        "file": "vid_sdl2.c",
+        "line": 1751
+      }
+    },
+    {
+      "name": "-heapsize",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets the hunk memory allocation to `<kilobytes>` (`-heapsize <kb>`, e.g. `-heapsize 65536` for 64 MB). Legacy KB-denominated form; if both `-heapsize` and `-mem` are present, `-mem` wins.",
+      "source_ref": {
+        "file": "host.c",
+        "line": 446
+      }
+    },
+    {
+      "name": "-height",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets the vertical resolution in pixels (`-height <pixels>`). Applies to `vid_height` (fullscreen) or `vid_win_height` (windowed, when `-window` is present). Should be paired with `-width`.",
+      "source_ref": {
+        "file": "vid_sdl2.c",
+        "line": 1720
+      }
+    },
+    {
+      "name": "-ip",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Binds all network sockets to the specified local IP address rather than all interfaces (`-ip <address>`). Affects both UDP and TCP listen sockets (client and server). Default is `INADDR_ANY`.",
+      "source_ref": {
+        "file": "net.c",
+        "line": 1211
+      }
+    },
+    {
+      "name": "-maxtmu2",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Caps the number of active texture units to 2 even if the hardware reports more. Use on older hardware where multitexturing with more than 2 TMUs causes rendering problems.",
+      "source_ref": {
+        "file": "gl_state.c",
+        "line": 1480
+      }
+    },
+    {
+      "name": "-mem",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets the hunk memory allocation to `<megabytes>` (`-mem <mb>`, e.g. `-mem 64`). Canonical form; overrides `-heapsize` when both are specified.",
+      "source_ref": {
+        "file": "host.c",
+        "line": 449
+      }
+    },
+    {
+      "name": "-minmemory",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets the hunk allocation to the engine minimum (~5.3 MB); takes no argument. Superseded by any subsequent `-heapsize` or `-mem` on the same command line. Use when testing under minimal memory conditions.",
+      "source_ref": {
+        "file": "host.c",
+        "line": 443
+      }
+    },
+    {
+      "name": "-no24bit",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Disables loading of 24-bit (high-resolution) replacement textures (PNG/TGA external files), forcing the engine to use original 8-bit palette textures only. Runtime equivalent: `gl_no24bit` cvar.",
+      "source_ref": {
+        "file": "r_texture_load.c",
+        "line": 69
+      }
+    },
+    {
+      "name": "-no-accel-visuals",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Requests un-accelerated graphics (used in debugging to create OpenGL 1.1 context)",
+      "source_ref": {
+        "file": "vid_sdl2.c",
+        "line": 1450
+      }
+    },
+    {
+      "name": "-noatlas",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Disables texture-atlas batching of HUD/UI graphics; each draw call binds its own texture instead of sampling from a packed atlas. Use to work around atlas-related rendering issues.",
+      "source_ref": {
+        "file": "r_atlas.c",
+        "line": 458
+      }
+    },
+    {
+      "name": "-noconinput",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Disables reading console commands from stdin. POSIX/Linux only.",
+      "source_ref": {
+        "file": "sys_posix.c",
+        "line": 341
+      }
+    },
+    {
+      "name": "-nodesktopres",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Disables use of the desktop resolution for fullscreen mode, forcing the engine to apply an explicit resolution instead of matching the current desktop size.",
+      "source_ref": {
+        "file": "vid_sdl2.c",
+        "line": 1715
+      }
+    },
+    {
+      "name": "-noerrormsgbox",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "source_ref": {
+        "file": "sv_sys_win.c",
+        "line": 374
+      }
+    },
+    {
+      "name": "-nohome",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Disables the per-user home directory (`Documents\\ezQuake` on Windows, `~/.ezquake` on Linux/macOS), forcing all file I/O to use the base game directory only.",
+      "source_ref": {
+        "file": "fs.c",
+        "line": 760
+      }
+    },
+    {
+      "name": "-nohwgamma",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Disables hardware gamma ramp support. Has no effect under the `mtfl` ruleset, which blocks this override.",
+      "source_ref": {
+        "file": "vid_sdl2.c",
+        "line": 535
+      }
+    },
+    {
+      "name": "-nohwtimer",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Disables the Windows high-resolution hardware timer (`QueryPerformanceCounter`) and falls back to the multimedia timer at 1 ms resolution. Windows only. Use when `QueryPerformanceCounter` produces unreliable results on certain hardware or VM configurations.",
+      "source_ref": {
+        "file": "cmdline_params_ids.h",
+        "line": 17
+      }
+    },
+    {
+      "name": "-noindphys",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Disables independent physics tick rate by setting `cl_independentPhysics` to 0 and `cl_nolerp` to 1, restoring the classic coupled rendering-and-physics frame timing.",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1995
+      }
+    },
+    {
+      "name": "-nomtex",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Disables OpenGL multitexturing in the Classic renderer (prevents loading of `glMultiTexCoord2f`, `glActiveTexture`, and `glClientActiveTexture`), and additionally disables fog rendering engine-wide. Use when multitexturing causes corruption on old or non-standard GL drivers.",
+      "source_ref": {
+        "file": "gl_state.c",
+        "line": 1457
+      }
+    },
+    {
+      "name": "-nonpot",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Disables NPOT (non-power-of-two) texture support, forcing the renderer to treat `GL_ARB_texture_non_power_of_two` as unavailable regardless of hardware capability.",
+      "source_ref": {
+        "file": "vid_common_gl.c",
+        "line": 307
+      }
+    },
+    {
+      "name": "-norjscripts",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Disables movement scripting at startup; alias for `-noscripts` with identical runtime effect.",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1987
+      }
+    },
+    {
+      "name": "-noscripts",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Disables movement scripting at startup by setting `allow_scripts` to 0, preventing use of advanced movement scripts such as rocket-jump or bunny-hop automation. Default allow_scripts is 2 (all scripts enabled).",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1987
+      }
+    },
+    {
+      "name": "-nosound",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Skips SDL audio initialization entirely, leaving all sound subsystems inactive for the session. Distinct from the `s_nosound` cvar, which allows initialization but suppresses playback at runtime.",
+      "source_ref": {
+        "file": "snd_main.c",
+        "line": 484
+      }
+    },
+    {
+      "name": "-nostdout",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Suppresses stdout output on POSIX by setting `sys_nostdout=1` before `Host_Init`. POSIX/Linux only.",
+      "source_ref": {
+        "file": "sys_posix.c",
+        "line": 344
+      }
+    },
+    {
+      "name": "-no-triple-gl-buffer",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Disables persistent-mapped triple-buffering of GPU streaming buffers (VBOs used for once-per-frame uploads). When enabled, streaming buffers are allocated at 3x size, persistently mapped, and rotated with `glFenceSync` to avoid CPU/GPU stalls. Requires modern OpenGL with buffer-storage, sync, and map-buffer-range extensions; auto-disabled when any are absent. Use to fall back to standard mutable-buffer uploads when persistent mapping causes driver issues.",
+      "source_ref": {
+        "file": "gl_buffers.c",
+        "line": 657
+      }
+    },
+    {
+      "name": "-oldgamma",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Switches gamma correction to the legacy palette-baking method, applying `vid_gamma_table` to texture data at load time instead of using the hardware gamma ramp. Distinct from `-nohwgamma`, which disables hardware gamma without activating palette baking.",
+      "source_ref": {
+        "file": "r_palette.c",
+        "line": 96
+      }
+    },
+    {
+      "name": "-particles",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets the maximum number of simultaneously active particles to `<count>` (`-particles <count>`), overriding the `r_particles_count` cvar at startup. Default is 2048; the active particle subsystem clamps to its own range (classic: 512-8192, QMB: 256-32768).",
+      "source_ref": {
+        "file": "r_part.c",
+        "line": 740
+      }
+    },
+    {
+      "name": "-port",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets the UDP port the internal server listens on (`-port <number>`), overriding the default of 27500. No effect on the client's outbound socket (see `-clientport`).",
+      "source_ref": {
+        "file": "net.c",
+        "line": 1618
+      }
+    },
+    {
+      "name": "-progtype",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets the QuakeC VM interpreter type used by the server (`-progtype <int>`), overriding `sv_progtype`. Valid values: 0 = none/legacy QWC, 1 = native (.so/.dll), 2 = bytecode, 3 = compiled. Out-of-range values silently fall back to 0.",
+      "source_ref": {
+        "file": "pr2_exec.c",
+        "line": 56
+      }
+    },
+    {
+      "name": "-r-debug",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "enables OpenGL debug output.  Must be used in conjunction with -dev",
+      "source_ref": {
+        "file": "gl_buffers.c",
+        "line": 166
+      }
+    },
+    {
+      "name": "-r-dump-shaders",
+      "first_seen": "3.6.9",
+      "last_seen": "head",
+      "description": "Write expanded shader source to qw/shaders/<name>.<type>",
+      "source_ref": {
+        "file": "gl_program.c",
+        "line": 840
+      }
+    },
+    {
+      "name": "-r-no-amd-fix",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Disables the ATI/AMD driver workaround that avoids `glBindTextures` and forces `glMultiDrawArrays` in place of `glDrawArrays` on driver version strings containing `.13399` (github bug #416). Forces the standard code paths active regardless of detected GPU vendor.",
+      "source_ref": {
+        "file": "vid_common_gl.c",
+        "line": 162
+      }
+    },
+    {
+      "name": "-r-nocallback",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Disables `glDebugMessageCallback` and `glDebugMessageControl` setup when the GL debug context is active (i.e. `-r-debug` with `-dev`, or `-r-trace` alone). Use when the driver's debug callback delivery is unreliable but GL error checking is still needed.",
+      "source_ref": {
+        "file": "gl_debug.c",
+        "line": 113
+      }
+    },
+    {
+      "name": "-r-nomultibind",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Disables use of `glBindTextures` (GL 4.4 / `GL_ARB_multi_bind`) for batched texture-unit binding. The engine auto-disables this on known-broken AMD driver versions (github bug #416); use this flag to force the same workaround on other drivers.",
+      "source_ref": {
+        "file": "gl_state.c",
+        "line": 878
+      }
+    },
+    {
+      "name": "-r-novao",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Disables Vertex Array Object support in the Classic renderer; falls back to manual vertex-attribute setup per draw call.",
+      "source_ref": {
+        "file": "glc_vao.c",
+        "line": 81
+      }
+    },
+    {
+      "name": "-r-trace",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Enables full per-call GL API tracing to timestamped text files. Activates all of `-r-debug` without requiring `-dev`, and additionally logs GL function calls (function name, args where instrumented, and call site) to `qw/trace/frame_<timestamp>.txt` (one file per frame). Tracing starts before `Host_Init` completes.",
+      "source_ref": {
+        "file": "gl_buffers.c",
+        "line": 129
+      }
+    },
+    {
+      "name": "-ruleset",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets the active ruleset at startup by name (`-ruleset <name>`), applied before any config loads. Reliably-working values at HEAD: `smackdown`, `thunderdome`, `mtfl`. Unrecognized values fall back to default.",
+      "source_ref": {
+        "file": "rulesets.c",
+        "line": 619
+      }
+    },
+    {
+      "name": "-r-verify",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "Enables per-frame GL state verification: calls `GL_VerifyState` each frame to download actual OpenGL state from the driver and diff it against ezQuake's internal state tracker, logging any mismatches. Available only in builds compiled with `WITH_RENDERING_TRACE`.",
+      "source_ref": {
+        "file": "gl_debug.c",
+        "line": 298
+      }
+    },
+    {
+      "name": "-startwindowed",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Starts ezQuake in windowed (non-fullscreen) mode. Similar to `-window` but does not affect how `-width`, `-height`, or `-display` are routed to cvars.",
+      "source_ref": {
+        "file": "vid_sdl2.c",
+        "line": 1703
+      }
+    },
+    {
+      "name": "-userdir",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets a named user-data subdirectory and path layout (`-userdir <dirname> <type>`), where `<type>` is an integer 0-5 selecting the path-construction formula (case 0 = relative to game directory, cases 1-4 = base-directory variants, case 5 = relative to home directory). Two-argument form; inherited from QW262.",
+      "source_ref": {
+        "file": "fs.c",
+        "line": 811
+      }
+    },
+    {
+      "name": "-width",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Sets the horizontal resolution in pixels (`-width <pixels>`). Applies to `vid_width` (fullscreen) or `vid_win_width` (windowed, when `-window` is present). Should be paired with `-height`.",
+      "source_ref": {
+        "file": "vid_sdl2.c",
+        "line": 1719
+      }
+    },
+    {
+      "name": "-window",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "Starts ezQuake in windowed mode and routes `-width`, `-height`, and `-display` to the windowed resolution cvars (`vid_win_*`) instead of the fullscreen ones. Distinct from `-startwindowed`, which sets windowed mode without affecting cvar routing.",
+      "source_ref": {
+        "file": "vid_sdl2.c",
+        "line": 1703
+      }
+    }
+  ]
+}

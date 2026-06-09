@@ -1,0 +1,492 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.953Z",
+    "codebase": "qtv",
+    "type": "cvar",
+    "snapshot_version": "1.16-dev",
+    "upstream_commit": "1.16-dev"
+  },
+  "entries": [
+    {
+      "name": "address",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "",
+      "description": "The proxy's own publicly reachable address and port, as other machines should connect to it. The game server is told this address when the proxy connects to it, and it is used to build the \"Watch now\" links on the proxy's web page. Set this when the proxy sits behind NAT or a different public hostname than the one it listens on. If left empty, the proxy does not advertise an address to the game server, and the web page links fall back to whatever address the visitor used to reach the page.\n\nDefault: empty.\nSet by: server config.",
+      "category": "Network & identity",
+      "source_ref": {
+        "file": "pkg/qtv/qtv.go",
+        "line": 210
+      }
+    },
+    {
+      "name": "allow_download",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Master switch for serving file downloads to connected viewers. When off, the proxy refuses every file a viewer asks to download, no matter what the per-category download settings are set to. When on, each request is then checked against the matching per-category setting (allow_download_skins, allow_download_models, allow_download_sounds, allow_download_maps, allow_download_demos, allow_download_other), and the file is sent only if that category also allows it. Some files are always refused regardless of this setting: configuration and key files, names starting with a dot, absolute paths, and files not inside a subdirectory.\n\n1 = downloads permitted (subject to the per-category settings).\n0 = all downloads refused.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Downloads",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 202
+      }
+    },
+    {
+      "name": "allow_download_demos",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether connected viewers may download recorded demos from the proxy. A viewer requests a demo with a path beginning demos/, which the proxy serves from its configured demo directory. This setting only takes effect when the master allow_download setting is on; if downloads are disabled overall, demos are refused regardless of this value. Even when enabled, only files with a recognized demo extension are served (.mvd, .gz, .zip, .bz2); any other extension is refused. As with all downloads, configuration and key files, names starting with a dot, absolute paths, and files not inside a subdirectory are always refused.\n\n1 = demo downloads permitted (when downloads are enabled overall and the extension is recognized).\n0 = demo downloads refused.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Downloads",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 207
+      }
+    },
+    {
+      "name": "allow_download_maps",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether connected viewers may download map files from the proxy -- the files Quake stores in its maps folder. This setting only takes effect when the master allow_download setting is on; if downloads are disabled overall, map files are refused regardless of this value. As with all downloads, configuration and key files, names starting with a dot, absolute paths, and files not inside a subdirectory are always refused.\n\n1 = map downloads permitted (when downloads are enabled overall).\n0 = map downloads refused.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Downloads",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 206
+      }
+    },
+    {
+      "name": "allow_download_models",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether connected viewers may download model files from the proxy -- the player and weapon model files Quake stores in its progs folder. This setting only takes effect when the master allow_download setting is on; if downloads are disabled overall, model files are refused regardless of this value. As with all downloads, configuration and key files, names starting with a dot, absolute paths, and files not inside a subdirectory are always refused.\n\n1 = model downloads permitted (when downloads are enabled overall).\n0 = model downloads refused.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Downloads",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 204
+      }
+    },
+    {
+      "name": "allow_download_other",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether connected viewers may download files that do not fall into any of the specific download categories -- anything in a subdirectory that is not a skin, model, sound, map, or demo. This is the catch-all setting: a request that passes the basic safety checks but does not match one of the dedicated categories is governed by this toggle. It only takes effect when the master allow_download setting is on; if downloads are disabled overall, these files are refused regardless of this value. As with all downloads, configuration and key files, names starting with a dot, absolute paths, and files not inside a subdirectory are always refused.\n\n1 = downloads of uncategorized files permitted (when downloads are enabled overall).\n0 = downloads of uncategorized files refused.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Downloads",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 208
+      }
+    },
+    {
+      "name": "allow_download_skins",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether connected viewers may download player skin files from the proxy -- the files whose path is under the skins folder. This setting only takes effect when the master allow_download setting is on; if downloads are disabled overall, skin files are refused regardless of this value. As with all downloads, configuration and key files, names starting with a dot, absolute paths, and files not inside a subdirectory are always refused.\n\n1 = skin downloads permitted (when downloads are enabled overall).\n0 = skin downloads refused.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Downloads",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 203
+      }
+    },
+    {
+      "name": "allow_download_sounds",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether connected viewers may download sound files from the proxy -- the files Quake stores in its sound folder. This setting only takes effect when the master allow_download setting is on; if downloads are disabled overall, sound files are refused regardless of this value. As with all downloads, configuration and key files, names starting with a dot, absolute paths, and files not inside a subdirectory are always refused.\n\n1 = sound downloads permitted (when downloads are enabled overall).\n0 = sound downloads refused.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Downloads",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 205
+      }
+    },
+    {
+      "name": "demo_dir",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "demos",
+      "description": "The folder where this proxy keeps demo files. The proxy lists the demos in this folder, serves them for playback and download, and saves uploaded demos here. It must be a single plain folder name using only letters, digits, and underscores (no slashes, dots, or path separators); any other value is ignored and the proxy uses the \"demos\" folder instead.\n\nDefault: demos.\nSet by: server config.",
+      "category": "Downloads",
+      "source_ref": {
+        "file": "pkg/qtv/qtv.go",
+        "line": 213
+      }
+    },
+    {
+      "name": "dstream_read_buf_size",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "32768",
+      "description": "The size, in bytes, of the input buffer QTV allocates for each connected downstream client (a viewer or relay proxy that connects to this QTV to pull the stream). This buffer holds data received from that client -- its initial handshake request and any later requests. A larger value lets QTV hold more pending incoming data per client before it is processed; a smaller value uses less memory per client. This is the per-downstream read buffer; the matching outgoing buffer is dstream_write_buf_size, and the upstream (source) connection has its own separate ustream_read_buf_size.\n\nDefault: 32768.\nSet by: server config.",
+      "category": "Downstream viewers",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 212
+      }
+    },
+    {
+      "name": "dstream_timeout",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "30",
+      "description": "How long, in seconds, QTV waits while streaming to a connected downstream client (a viewer or relay proxy pulling the stream) before giving up and dropping that connection. The deadline is refreshed every time QTV successfully sends data to the client, so a healthy client that keeps receiving the stream is never dropped; a client that stops accepting data is disconnected once this many seconds pass with no successful send. Values are clamped to between 1 and 999999 seconds. This is the downstream (viewer-side) timeout; the upstream (source) connection has its own separate ustream_timeout.\n\nDefault: 30.\nSet by: server config.",
+      "category": "Downstream viewers",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 214
+      }
+    },
+    {
+      "name": "dstream_write_buf_size",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "65536",
+      "description": "The size, in bytes, of the output buffer QTV allocates for each connected downstream client (a viewer or relay proxy that connects to this QTV to pull the stream). This buffer holds the stream data and replies that QTV has queued to send to that client. A larger value lets QTV queue more outgoing data per client before it must wait for the client to catch up; a smaller value uses less memory per client. This is the per-downstream write buffer; the matching incoming buffer is dstream_read_buf_size, and the upstream (source) connection has its own separate ustream_write_buf_size.\n\nDefault: 65536.\nSet by: server config.",
+      "category": "Downstream viewers",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 213
+      }
+    },
+    {
+      "name": "fp_messages",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "4",
+      "description": "Part of this QTV proxy's chat flood protection for downstream viewers. It sets how many chat messages a viewer may send within the time window before being treated as flooding. If a viewer sends this many messages and the oldest of them was within the window (set by fp_persecond), the viewer is silenced for a period (set by fp_secondsdead). Values are limited to the range 1 to 10.\n\nDefault: 4.\nSet by: server config.\nSee also: fp_persecond, fp_secondsdead.",
+      "category": "Downstream viewers",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 209
+      }
+    },
+    {
+      "name": "fp_persecond",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "2",
+      "description": "Part of this QTV proxy's chat flood protection for downstream viewers. Despite its name, it sets a time window in seconds, not a per-second rate: if a viewer sends fp_messages chat messages and the oldest of them arrived less than this many seconds ago, the viewer is treated as flooding and is silenced for a period (set by fp_secondsdead). A larger value makes flood protection stricter (the same burst of messages counts as flooding over a longer span); a smaller value makes it more lenient. Values are limited to the range 1 to 999999 seconds.\n\nDefault: 2.\nSet by: server config.\nSee also: fp_messages, fp_secondsdead.",
+      "category": "Downstream viewers",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 210
+      }
+    },
+    {
+      "name": "fp_secondsdead",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "2",
+      "description": "Part of this QTV proxy's chat flood protection for downstream viewers. It sets how many seconds a viewer who has been judged to be flooding chat is silenced -- during that time the viewer's chat messages are blocked and they are told how many seconds remain. The countdown begins at the moment flooding is detected (set by fp_messages and fp_persecond). Values are limited to the range 1 to 999999 seconds.\n\nDefault: 2.\nSet by: server config.\nSee also: fp_messages, fp_persecond.",
+      "category": "Downstream viewers",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 211
+      }
+    },
+    {
+      "name": "hostname",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "unnamed",
+      "description": "The display name of this proxy. It appears in the server browser, on the proxy's web page, and in front of each stream's name so viewers can tell which proxy they are watching through and which game server the stream comes from. For a live game the stream is labelled as live; for a recorded demo it is labelled as recorded.\n\nDefault: unnamed.\nSet by: server config.",
+      "category": "Network & identity",
+      "source_ref": {
+        "file": "pkg/qtv/qtv.go",
+        "line": 211
+      }
+    },
+    {
+      "name": "http_enabled",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Turns the proxy's built-in web interface on or off. When on, the proxy runs an HTTP(S) server that lets people browse and download the recorded demos, see what is playing live, and upload demos. The web server listens on the same address and port as the proxy itself (the two protocols share one port), so no extra port is needed. When off, no web pages are served and the proxy still works as a normal QTV stream relay.\n\n0 = off (no web interface).\n1 = on.\nDefault: 1 (on).\nSet by: server config (can only be set before the proxy starts; changing it on a running proxy has no effect).",
+      "category": "Web interface",
+      "source_ref": {
+        "file": "pkg/qtv/http.go",
+        "line": 51
+      }
+    },
+    {
+      "name": "http_idletimeout",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "60",
+      "description": "How long the proxy's built-in web server keeps a reusable (keep-alive) connection open while it is idle, waiting for the client's next request, before closing it. Lower values free up idle connections sooner; higher values let a client reuse the same connection for longer between requests. The value is in seconds and is capped at 60 seconds (values above 60 are treated as 60, values below 1 as 1). Only applies when the web interface is enabled.\n\nValue: time in seconds (1 to 60).\nDefault: 60.\nSet by: server config (can only be set before the proxy starts; changing it on a running proxy has no effect).",
+      "category": "Web interface",
+      "source_ref": {
+        "file": "pkg/qtv/http.go",
+        "line": 54
+      }
+    },
+    {
+      "name": "http_readtimeout",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "45",
+      "description": "How long the proxy's built-in web server will wait to read an incoming request from a web client before giving up on it. Lower values drop slow or stalled clients sooner; higher values give clients on slow connections more time to send their request. The value is in seconds and is capped at 60 seconds (values above 60 are treated as 60, values below 1 as 1). Only applies when the web interface is enabled.\n\nValue: time in seconds (1 to 60).\nDefault: 45.\nSet by: server config (can only be set before the proxy starts; changing it on a running proxy has no effect).",
+      "category": "Web interface",
+      "source_ref": {
+        "file": "pkg/qtv/http.go",
+        "line": 52
+      }
+    },
+    {
+      "name": "http_server_cert_file",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "",
+      "description": "Path to the TLS certificate file the QTV web server uses to serve pages over HTTPS instead of plain HTTP.\n\nHTTPS is enabled only when both this and http_server_key_file are set to non-empty paths. If either is left empty, the web server runs as plain HTTP. When HTTPS is enabled but the certificate file cannot be found or read, the web server fails to start and QTV shuts down.\n\nDefault: empty (plain HTTP, no TLS).\nSet by: server config (read once at startup; cannot be changed while QTV is running).\nSee also: http_server_key_file (the matching private key; both are required for HTTPS).",
+      "category": "Web interface",
+      "source_ref": {
+        "file": "pkg/qtv/http.go",
+        "line": 58
+      }
+    },
+    {
+      "name": "http_server_key_file",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "",
+      "description": "Path to the TLS private key file (the key that matches http_server_cert_file) the QTV web server uses to serve pages over HTTPS instead of plain HTTP.\n\nHTTPS is enabled only when both this and http_server_cert_file are set to non-empty paths. If either is left empty, the web server runs as plain HTTP. When HTTPS is enabled but the key file cannot be found or read, the web server fails to start and QTV shuts down.\n\nDefault: empty (plain HTTP, no TLS).\nSet by: server config (read once at startup; cannot be changed while QTV is running).\nSee also: http_server_cert_file (the matching certificate; both are required for HTTPS).",
+      "category": "Web interface",
+      "source_ref": {
+        "file": "pkg/qtv/http.go",
+        "line": 59
+      }
+    },
+    {
+      "name": "http_upload_enabled",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether the built-in QTV web server accepts demo file uploads (the \"upload demo\" form on the demo-listing page, served at /upload/).\n\n1 = uploads accepted. 0 = uploads refused; the server answers any upload attempt with an HTTP 403 \"Upload is not allowed\" response.\n\nDefault: 1 (uploads accepted).\nSet by: server config (read once at startup; cannot be changed while QTV is running).",
+      "category": "Web interface",
+      "source_ref": {
+        "file": "pkg/qtv/http.go",
+        "line": 55
+      }
+    },
+    {
+      "name": "http_upload_file_limit",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "33554432",
+      "description": "The largest size, in bytes, allowed for a single demo file uploaded to the QTV web server. An upload whose body exceeds this size is cut off and rejected.\n\nValue is in bytes. Raising it allows larger individual demos to be uploaded; lowering it rejects them sooner. Out-of-range values are clamped: anything below 1 MiB (1048576 bytes) is treated as 1 MiB, and anything above 128 MiB (134217728 bytes) is treated as 128 MiB.\n\nDefault: 33554432 bytes (32 MiB).\nSet by: server config (read once at startup; cannot be changed while QTV is running).\nSee also: http_upload_total_limit (the combined disk budget for all uploaded demos).",
+      "category": "Web interface",
+      "source_ref": {
+        "file": "pkg/qtv/http.go",
+        "line": 57
+      }
+    },
+    {
+      "name": "http_upload_total_limit",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "67108864",
+      "description": "The combined disk space, in bytes, that uploaded demo files are allowed to occupy on the QTV server. This is a total budget across all uploads, not a per-file limit.\n\nValue is in bytes. A background task checks periodically how much space the uploaded demos take up, and when the total exceeds this budget it deletes the oldest uploaded demos until the total is back under the limit. Out-of-range values are clamped: anything below 1 MiB (1048576 bytes) is treated as 1 MiB, and anything above 2 GiB (2147483648 bytes) is treated as 2 GiB.\n\nDefault: 67108864 bytes (64 MiB).\nSet by: server config (read once at startup; cannot be changed while QTV is running).\nSee also: http_upload_file_limit (the maximum size of a single uploaded demo).",
+      "category": "Web interface",
+      "source_ref": {
+        "file": "pkg/qtv/http.go",
+        "line": 56
+      }
+    },
+    {
+      "name": "http_writetimeout",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "600",
+      "description": "How long the proxy's built-in web server is allowed to take sending a complete response to a web client before timing out. This is the overall limit for a whole transfer, so it is set generously to let clients on slow connections finish downloading a demo. Lower values cut off slow downloads sooner; higher values give them more time. The value is in seconds and is capped at 900 seconds, i.e. 15 minutes (values above 900 are treated as 900, values below 1 as 1). Only applies when the web interface is enabled.\n\nValue: time in seconds (1 to 900).\nDefault: 600 (10 minutes).\nSet by: server config (can only be set before the proxy starts; changing it on a running proxy has no effect).",
+      "category": "Web interface",
+      "source_ref": {
+        "file": "pkg/qtv/http.go",
+        "line": 53
+      }
+    },
+    {
+      "name": "listen_address",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": ":28000",
+      "description": "The local address and port this proxy listens on for incoming connections. The same address and port is used for both the QuakeTV viewer protocol and the built-in web interface (they share one port), and for the proxy's UDP socket. Written as host:port; if the host part is left empty (just \":port\"), the proxy listens on all of the machine's network interfaces.\n\nDefault: :28000 (all interfaces, port 28000).\nSet by: server config (only while the proxy is still starting up; it cannot be changed once running).",
+      "category": "Network & identity",
+      "source_ref": {
+        "file": "pkg/qtv/qtv.go",
+        "line": 209
+      }
+    },
+    {
+      "name": "log_level",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "info",
+      "description": "Sets how much detail the server writes to its log. Each message has a severity, and only messages at or above the chosen level are written; everything below it is suppressed. The lowest level logs the most, the highest level logs the least.\n\ntrace = log everything, including the most fine-grained tracing.\ndebug = log debugging detail and above.\ninfo = log normal operational messages and above.\nwarn = log warnings and above only.\nerror = log errors and above only.\nfatal = log only fatal errors.\npanic = log only panics.\ndisabled = turn logging off entirely.\n\nThe level name is not case-sensitive. An unrecognized value is rejected and the current level is kept.\n\nDefault: info.\nSet by: server config.",
+      "category": "Logging",
+      "source_ref": {
+        "file": "pkg/qtv/log.go",
+        "line": 15
+      }
+    },
+    {
+      "name": "log_pretty",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Chooses how log output is formatted.\n\n1 = human-readable console output, with the fields laid out for reading directly in a terminal.\n0 = compact machine-readable JSON, one object per line, suited to log files and log-processing tools.\n\nAny non-zero value is treated as 1.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Logging",
+      "source_ref": {
+        "file": "pkg/qtv/log.go",
+        "line": 17
+      }
+    },
+    {
+      "name": "log_timeformat",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "2006-01-02T15:04:05.000",
+      "description": "Sets the format of the timestamp shown at the start of each log line. The format is written using Go's reference-time layout, where a fixed example moment (Mon Jan 2 15:04:05 2006) is rewritten in the layout you want -- for example, the field positions stand for the year, month, day, hour, minute, second, and fractional second. The same format is used whether the log is in plain JSON or in the readable console output.\n\nDefault: 2006-01-02T15:04:05.000 (date and time down to the millisecond, for example 2026-06-06T14:30:05.123).\nSet by: server config.",
+      "category": "Logging",
+      "source_ref": {
+        "file": "pkg/qtv/log.go",
+        "line": 16
+      }
+    },
+    {
+      "name": "masters",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "master.quakeworld.nu master.quakeservers.net qwmaster.fodquake.net",
+      "description": "The list of QuakeWorld master servers this QTV proxy registers with by sending periodic heartbeats, so that it shows up in server browsers that read those masters. Entries are hostnames separated by spaces; each is contacted on the standard QuakeWorld master port (27000), which is added automatically, so entries are plain hostnames without a port. Duplicate entries are ignored. Changing the list rebuilds the set of masters, and the addresses are also re-resolved once a day in case their DNS records change.\n\nDefault: the 3 built-in QuakeWorld master servers (master.quakeworld.nu, master.quakeservers.net, qwmaster.fodquake.net).\nSet by: server config.",
+      "category": "Network & identity",
+      "source_ref": {
+        "file": "pkg/qtv/udp.go",
+        "line": 67
+      }
+    },
+    {
+      "name": "maxchains",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "1",
+      "description": "The maximum length of a chained upstream address QTV will accept. QTV can connect through other QTV proxies by chaining addresses with the `@` separator (for example `host3@host2@host1`, which connects via host1, then host2, then host3). This setting limits how many `@`-linked hops such an address may contain; an address with more hops than allowed is rejected. The effective limit is capped at 5 even if a higher value is set.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Upstream sources",
+      "source_ref": {
+        "file": "pkg/qtv/upstream_storage.go",
+        "line": 87
+      }
+    },
+    {
+      "name": "maxclients",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "1000",
+      "description": "Limits how many downstream connections this QTV proxy will accept at once -- that is, how many viewers and relay proxies can be pulling the stream from it simultaneously. When the limit is already reached, any further incoming connection is closed immediately without being served. Setting it to 0 refuses all downstream connections. Values above the built-in ceiling of 2048 are treated as 2048. The current limit is published in the proxy's server info so it is visible to server browsers.\n\nDefault: 1000.\nSet by: server config.",
+      "category": "Downstream viewers",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 201
+      }
+    },
+    {
+      "name": "maxservers",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "100",
+      "description": "The maximum number of upstream connections QTV will keep open at the same time. Each upstream is one game server (or demo) that QTV is pulling a stream from. Once this many are already open, any attempt to open another upstream is refused until one closes. The effective limit is capped at 1024 even if a higher value is set.\n\nDefault: 100.\nSet by: server config.",
+      "category": "Upstream sources",
+      "source_ref": {
+        "file": "pkg/qtv/upstream_storage.go",
+        "line": 86
+      }
+    },
+    {
+      "name": "network",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "",
+      "description": "Forces the IP protocol family used for all of this proxy's network connections (both its listening sockets and the outbound connections it makes to game servers). Leave empty to let the system choose; set it to restrict the proxy to IPv4 only or IPv6 only.\n\n(empty) = system default (either IPv4 or IPv6).\n4 = IPv4 only.\n6 = IPv6 only.\nDefault: empty.\nSet by: server config (only while the proxy is still starting up; it cannot be changed once running).",
+      "category": "Network & identity",
+      "source_ref": {
+        "file": "pkg/qtv/qtv.go",
+        "line": 208
+      }
+    },
+    {
+      "name": "parse_delay",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "7",
+      "description": "How far behind the live game QTV holds the stream before sending it on to connected viewers, in seconds. This deliberate delay keeps QTV slightly behind real time so it always has enough buffered data to play out smoothly, which prevents \"ghosting\" (players appearing to flicker or jump because the stream ran out of data). Demos played back through QTV are never delayed -- this applies only to live game streams. A larger value adds more delay and a bigger safety margin; a smaller value keeps viewers closer to live. Values above 15 seconds have no extra effect. Opening an upstream with an explicit per-stream delay option overrides this setting for that stream.\n\nDefault: 7 (seconds).\nSet by: server config; per-stream override via the upstream open command's `delay <seconds>` option.",
+      "category": "Upstream sources",
+      "source_ref": {
+        "file": "pkg/qtv/upstream_storage.go",
+        "line": 85
+      }
+    },
+    {
+      "name": "qtv_password",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets the password that protects this QTV proxy. It is used in two directions. As a server, this is the password a downstream viewer or relay proxy must supply before this QTV will accept its connection and send the stream; while set, a downstream that does not present the matching password is refused. As a client, this is the password this QTV presents when connecting to an upstream source that requires one, unless a per-upstream password has been configured for that source. The password can be sent as plaintext or proven through a challenge-response (SHA3-512) without sending the password itself. When empty, downstream connections require no password and any viewer or proxy is allowed to receive the stream.\n\nDefault: empty (no password required).\nSet by: server config.\nSee also: qtv_password (the MVDSV server-side setting for the same QTV auth handshake).",
+      "category": "Network & identity",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 200
+      }
+    },
+    {
+      "name": "tick_time",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "100",
+      "description": "How often, in milliseconds, the proxy wakes up to do its periodic work, including relaying stream data from game servers to viewers. A larger value makes the proxy wake less often, which lowers its CPU use but makes it relay slightly less smoothly; a smaller value relays more frequently at higher CPU cost. Values are kept within 100 to 1000 milliseconds (anything lower or higher is clamped to that range).\n\nDefault: 100 (milliseconds).\nSet by: server config.",
+      "category": "Network & identity",
+      "source_ref": {
+        "file": "pkg/qtv/qtv.go",
+        "line": 212
+      }
+    },
+    {
+      "name": "ustream_read_buf_size",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "327680",
+      "description": "The size, in bytes, of the input buffer used for each upstream connection. This is where data arriving from the source game server is held before QTV parses and relays it. A larger buffer can hold more incoming data before it must be processed; a smaller one uses less memory per upstream. The buffer is created when an upstream connection is opened, so changing this affects upstreams opened afterward.\n\nDefault: 327680 (bytes, i.e. 320 KB).\nSet by: server config.",
+      "category": "Upstream sources",
+      "source_ref": {
+        "file": "pkg/qtv/upstream_storage.go",
+        "line": 88
+      }
+    },
+    {
+      "name": "ustream_timeout",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "60",
+      "description": "How long, in seconds, QTV waits for data from an upstream connection before giving up on that read. Each time QTV reads from a source game server it sets this as a deadline; if no data arrives within the window, the read fails and QTV treats the upstream as dropped (it will then reconnect or close). A larger value tolerates longer silences from the source; a smaller value detects a stalled or dead upstream sooner. The effective value is at least 1 second and at most 999999 seconds.\n\nDefault: 60 (seconds).\nSet by: server config.",
+      "category": "Upstream sources",
+      "source_ref": {
+        "file": "pkg/qtv/upstream_storage.go",
+        "line": 90
+      }
+    },
+    {
+      "name": "ustream_write_buf_size",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "default": "32768",
+      "description": "The size, in bytes, of the output buffer used for each upstream connection. This is where data QTV sends back to the source game server (such as the initial handshake and keep-alive traffic) is held before it is transmitted. A larger buffer can queue more outgoing data; a smaller one uses less memory per upstream. The buffer is created when an upstream connection is opened, so changing this affects upstreams opened afterward.\n\nDefault: 32768 (bytes, i.e. 32 KB).\nSet by: server config.",
+      "category": "Upstream sources",
+      "source_ref": {
+        "file": "pkg/qtv/upstream_storage.go",
+        "line": 89
+      }
+    }
+  ]
+}

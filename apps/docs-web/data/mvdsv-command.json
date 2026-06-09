@@ -1,0 +1,1200 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.904Z",
+    "codebase": "mvdsv",
+    "type": "command",
+    "snapshot_version": "head",
+    "upstream_commit": "18d036218004f31cf701bb5060448012652de6d1"
+  },
+  "entries": [
+    {
+      "name": "acc_block",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Blocks a local login account so it can no longer log in to the server. The account is matched by its login name (case-insensitive); if a player is currently connected under that account, they are immediately disconnected. A blocked account is refused at every future login attempt until it is unblocked. The block is saved to the server's account list file so it persists across restarts and map changes.\n\nacc_block <login> = block the account with that login name.\n\nSet by: server console / rcon.\nSee also: acc_unblock.",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_login.c",
+        "line": 566
+      }
+    },
+    {
+      "name": "acc_create",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Creates a server login account that players can use to authenticate (see sv_login). Two forms are accepted: a name/password login, or a name tied to a connecting IP address.\n\nacc_create <login> [<password>] = create a password account; if the password is omitted, the login name is also used as the password. Login and password may contain only letters, digits, '.' and '_', and must be at least 3 characters (only the first 40 are stored).\nacc_create <address> <username> = create an account that logs in automatically from the given IP address (a 0 in any address octet matches any value there); no password is used.\n\nA duplicate login name is rejected, and no more than 1000 accounts can exist. The account list is saved to disk immediately.\n\nSet by: server console / rcon (admin only).",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_login.c",
+        "line": 562
+      }
+    },
+    {
+      "name": "acc_list",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Prints the server's stored accounts (both password and IP-based, loaded from the accounts file plus any added this session) to the console: one login per line, with 'blocked' shown next to any account that has been blocked, followed by the total count.\n\nIf no accounts exist, prints that the list is empty.\n\nSet by: server console / rcon (admin only).",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_login.c",
+        "line": 564
+      }
+    },
+    {
+      "name": "acc_remove",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Deletes a server login account (the kind created with acc_create).\n\nacc_remove <login> = remove the account with this login name. If the account is not found, a message is printed and nothing changes.\n\nWhen logins are required (sv_login 1) and the server keeps local account files, any player currently connected under that login is logged out and disconnected. The updated account list is saved to disk immediately.\n\nSet by: server console / rcon (admin only).",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_login.c",
+        "line": 563
+      }
+    },
+    {
+      "name": "acc_unblock",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Unblocks a previously blocked local login account so it can log in again. The account is matched by its login name (case-insensitive). Unblocking also clears the account's failed-login counter, which matters because accounts are auto-blocked after too many failed login attempts -- so this reverses both a manual acc_block and an automatic lockout. If the named account is not currently blocked, nothing changes. The result is saved to the server's account list file.\n\nacc_unblock <login> = unblock the account with that login name.\n\nSet by: server console / rcon.\nSee also: acc_block.",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_login.c",
+        "line": 565
+      }
+    },
+    {
+      "name": "addip",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Adds an IP address to the server's connection filter list. By default the address is banned: any connection from a matching IP is refused with a \"banned\" message and its packets are dropped.\n\naddip <ip> [type] [time] = filter the given address.\n  <ip> = a dotted address where any 0 octet is a wildcard (non-zero octets must match exactly). A trailing 0 covers a range -- 198.51.100.0 matches all of 198.51.100.x -- but because a 0 in any position is wild, 10.0.0.5 would match 10.x.x.5, not just that one host.\n  type = ban (default) refuses the address; safe marks it as protected, so the ban / banip commands refuse to ban it.\n  time = how long the ban lasts. A leading + (e.g. +600) means that many seconds from now; a bare number is an absolute Unix timestamp; omitted means no expiry (lasts until removed or the server restarts).\n\nExample: addip 198.51.100.0 ban +3600 -- ban the whole 198.51.100.x range for one hour.\n\nBans are held in memory and are not saved automatically -- they are lost on restart unless you run writeip (which dumps them to listip.cfg) and exec that file at startup.\n\nSet by: server console / rcon.",
+      "category": "Access control & VIP",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3617
+      }
+    },
+    {
+      "name": "alias",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Defines a named shortcut on the server console that runs one or more commands when its name is typed. The named commands are run as if typed directly; multiple commands are separated with semicolons.\n\nalias = with no arguments, list all currently defined aliases and what they run.\nalias <name> <command-string> = create or replace the alias <name> so that typing <name> runs <command-string>.\n\nAliases are local to the server console (they are not sent to connecting clients) and are commonly defined in server config files.\n\nSet by: server config / console / rcon (admin only).",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1070
+      }
+    },
+    {
+      "name": "cache_print",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Console diagnostic that lists every entry currently held in the server's data-cache memory, one line per entry showing its size in kilobytes and its name. It only reports state; it allocates and frees nothing. Takes no arguments. On a dedicated server the data cache is normally empty, so this typically prints nothing.\n\nSet by: server console / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/zone.c",
+        "line": 593
+      }
+    },
+    {
+      "name": "cache_report",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Console diagnostic that prints how much of the server's data-cache memory is free, as \"free of total\" in megabytes. The free figure is the server memory arena's current free space; nothing is allocated, freed, or changed. Takes no arguments.\n\nSet by: server console / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/zone.c",
+        "line": 594
+      }
+    },
+    {
+      "name": "cancel",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Stops the server-side MVD demo currently being recorded and deletes the partial demo file (and its accompanying .txt file) instead of keeping it. Use this to abandon a recording you do not want, where the plain stop command would save it. Unless silent recording is enabled, a \"Server recording canceled, demo removed\" message is broadcast to players. If no demo is being recorded it replies \"Not recording a demo.\"\n\nSet by: server console / rcon.\n\nShort alias of `sv_democancel`.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1939
+      }
+    },
+    {
+      "name": "check_maps",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Rebuilds the server's custom-map vote list by scanning the map folders (the id1 and qw maps directories) and recording every map found. After running it, the up-to-date list is what players see when they use the 'maps' command to vote for a map by name. Run it after adding new map files so they become votable without restarting.\n\nSet by: server console / rcon.\nSee also: maps.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1832
+      }
+    },
+    {
+      "name": "chmod",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Changes the Unix file-permission bits of a file on the server (non-Windows servers only; the command is not registered on Windows).\n\nchmod <mode> <file> = set <file> to octal permission <mode>, e.g. `chmod 644 ktx/configs/match.cfg`. <mode> must be exactly three octal digits (0-7 each). The path is relative to the server's working directory; paths that are absolute (start with /) or contain `..` traversal are refused with \"Unable to chmod\".\n\nSet by: server console, or master rcon (master_rcon_password). The regular rcon password cannot run chmod.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1853
+      }
+    },
+    {
+      "name": "cmdlist",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Prints the names of every console command the server knows, sorted alphabetically. An optional name pattern filters the list (supports * and ? wildcards, case-insensitive); without one, every command is shown.\n\ncmdlist = list all commands.\ncmdlist <pattern> = list only commands whose name matches the wildcard pattern (e.g. cmdlist sv_*).\n\nSet by: server console / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1072
+      }
+    },
+    {
+      "name": "cuff",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Temporarily prevents a player from firing or switching weapons. The player can still move, chat, and otherwise play; only attacking is disabled for the duration.\n\ncuff <userid/name> <minutes> [reason] = cuff the player for <minutes> (an optional reason is shown to them and announced in chat).\ncuff <userid/name> 0 = cancel an active cuff (un-cuff).\n\nExample: cuff Bob 5 -- cuff the player named Bob for 5 minutes.\n\nThe penalty follows the player's IP: if they disconnect and reconnect while still cuffed, the remaining time is re-applied. It is held in memory only and is cleared by a server restart.\n\nDefault: 0.5 minutes when no time is given; values above 1200 (or negative) are clamped to 1200.\nSet by: server console / rcon.\nSee also: penaltylist.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1847
+      }
+    },
+    {
+      "name": "cvardump",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Lists every cvar (alphabetically) with its current value; an 's' in the left margin marks a cvar that is published in the server info. An optional name pattern (with * and ? wildcards, case-insensitive) limits the list to matching cvars, and a count of matches is printed at the end. This command is an exact alias of cvarlist (same handler, identical output).\n\ncvardump = list all cvars.\ncvardump cl_* = list only cvars whose name matches cl_*.\n\nSet by: server console / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/cvar.c",
+        "line": 565
+      }
+    },
+    {
+      "name": "cvarlist",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Prints every cvar the server knows, sorted alphabetically, each with its current value. An optional name pattern filters the list (supports * and ? wildcards, case-insensitive); without one, the full list is shown. A leading 's' next to a cvar marks it as mirrored into the server info (visible to connecting clients). cvardump is an exact alias of this command.\n\ncvarlist = list all cvars.\ncvarlist <pattern> = list only cvars whose name matches the wildcard pattern (e.g. cvarlist sv_*).\n\nSet by: server console / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/cvar.c",
+        "line": 564
+      }
+    },
+    {
+      "name": "devmap",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Loads a new map exactly like the map command, but forces server cheats ON for the loaded level (regardless of the sv_cheats setting). The map file must already be present on the server (looked up as maps/<levelname>.bsp); if it cannot be found, nothing changes. Clients are told to reconnect to the new level.\n\ndevmap <levelname> [<entityfile>] = switch to <levelname> with cheats enabled; the optional <entityfile> loads an alternate entity layout.\n\nSet by: server console / rcon (admin only).\nSee also: map.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1861
+      }
+    },
+    {
+      "name": "easyrecord",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Starts recording a server-side MVD demo, automatically naming the file from the current game. With no argument the name is built from the players and map: a teamplay game becomes a NonN team-versus-team name, a 2-player game becomes a duel name, and any other game becomes an FFA name. Pass an optional name to use it instead of the auto-generated one. The configured demo prefix and suffix are applied, and a numeric suffix is added if a demo of that name already exists so an earlier recording is never overwritten.\n\neasyrecord [name] = start recording; [name] overrides the auto-generated filename.\n\nSet by: server console / rcon.\n\nShort alias of `sv_demoeasyrecord`.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1930
+      }
+    },
+    {
+      "name": "echo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Prints the rest of the command line back to the server console, separated by spaces. Mainly used inside config scripts and aliases to print status or progress messages.\n\necho <text...> = print <text> to the console.\n\nSet by: server console / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1069
+      }
+    },
+    {
+      "name": "edict",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Debugging command that dumps every field of one server entity to the console. The argument is the entity's slot number; values run from 0 up to the current entity count.\n\nedict <num> = print all fields of entity <num>.\n\nWith no argument (or a wrong number of arguments) it prints a usage line; an out-of-range slot prints \"No such edict\". Produces output only when the server is running interpreted QuakeC progs -- under a native or bytecode game module it does nothing.\n\nSet by: server console / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/pr2_exec.c",
+        "line": 67
+      }
+    },
+    {
+      "name": "edictcount",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Debugging command that prints a summary count of the server's entities to the console: the total number of entity slots in use, how many are active (not freed), and breakdowns of how many have a model, are solid (can be touched), or use stepping movement.\n\nTakes no arguments.\n\nSet by: server console / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/pr2_exec.c",
+        "line": 69
+      }
+    },
+    {
+      "name": "edicts",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Debugging command that dumps every field of every server entity to the console, prefixed by a total entity count. It is the all-entities version of the edict command and takes no arguments.\n\nProduces output only when the server is running interpreted QuakeC progs -- under a native or bytecode game module it does nothing.\n\nSet by: server console / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/pr2_exec.c",
+        "line": 68
+      }
+    },
+    {
+      "name": "exec",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Runs the commands contained in a script file as if they had been typed at the console. The file is located within the server's configured file folders (gamedir and loaded packs), not by arbitrary disk path. Its commands are inserted at the front of the command queue, so they run before any commands already waiting.\n\nexec <filename> = read <filename> and execute every command line in it.\n\nSet by: server console / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1068
+      }
+    },
+    {
+      "name": "floodprot",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Configures server-side chat flood protection: a player who sends too many chat messages too quickly is silenced for a set time. With no arguments it prints the current settings.\n\nfloodprot <messages> <seconds> <silence> = silence a player who sends more than <messages> chat lines within <seconds>, for <silence> seconds. <messages> must be 1-10; all three values must be positive.\n\nDefault: 4 messages per 4 seconds, silence for 10 seconds.\nSet by: server console / rcon.\nSee also: floodprotmsg (sets the message shown to a silenced player).",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1898
+      }
+    },
+    {
+      "name": "floodprotmsg",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Sets the custom message a player sees when flood protection silences them for chatting too quickly. While set, a silenced player is shown \"FloodProt: <message>\"; if left empty, they instead see the built-in \"FloodProt: You can't talk for N seconds\" notice. Issued with no argument, it prints the message currently in effect.\n\nfloodprotmsg \"<message>\" = set the silence notice to <message>.\n\nDefault: empty (built-in notice is used).\nSet by: server console / rcon.\nSee also: floodprot (sets how many messages in how many seconds trigger the silence and for how long).",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1899
+      }
+    },
+    {
+      "name": "flush",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Frees all data held in the engine's memory cache, forcing it to be reloaded on next use. On a dedicated server this cache is not populated by anything, so the command has no observable effect; it is a leftover of the shared Quake memory allocator.\n\nDefault: no arguments.\nSet by: server console / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/zone.c",
+        "line": 592
+      }
+    },
+    {
+      "name": "fraglogfile",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Toggles a plain-text frag log on or off (no arguments -- run it once to start logging, again to stop). While on, the server appends one line per kill recording the killer and victim names; if the frag_log_type cvar is set to 1, each line also includes both teams and a date/time stamp. Each time logging is switched on a fresh numbered file is opened.\n\nLog file: written to the server's log directory (sv_logdir, default the working directory) as frag_<port>_NNNN.log, where NNNN is the next unused number.\n\nDefault: off.\nSet by: server console / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 223
+      }
+    },
+    {
+      "name": "gamedir",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Switches the server's active game directory, changing which folder it loads maps, configs and the game progs from. With no argument it prints the current game directory.\n\ngamedir <dir> = load game data from <dir> (e.g. gamedir ktx). Accepts a single folder name only; values containing a path separator, drive letter, or '..' are rejected.\n\nDefault: no argument (prints current).\nSet by: server console / rcon.\nSee also: sv_gamedir (sets only the advertised *gamedir info key, without changing the loaded directory).",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1893
+      }
+    },
+    {
+      "name": "give",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Cheat command that hands a player weapons, ammunition, or health. It only works when the server has cheats enabled; otherwise it prints \"Cheats are not allowed on this server\" and does nothing.\n\ngive <2-9> = give a weapon: 2 = Shotgun, 3 = Super Shotgun, 4 = Nailgun, 5 = Super Nailgun, 6 = Grenade Launcher, 7 = Rocket Launcher, 8 = Lightning Gun, 9 = Super Lightning Gun.\ngive s <n> / n <n> / r <n> / c <n> = set shells / nails / rockets / cells to <n>.\ngive h <n> = set health to <n>.\n\nWhen run from the server console or rcon the target player is named first: give <userid> <item> [amount]. When a connected player runs it themselves, the target is always that player, so the userid is omitted: give <item> [amount].\n\nSet by: a connected player on themselves when cheats are enabled (sv_cheats 1 or a devmap), and the server console / rcon on any player.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1882
+      }
+    },
+    {
+      "name": "god",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Toggles god mode (invulnerability) for the issuing player. Only works when the server is running with cheats enabled; otherwise it reports that cheats are not allowed. Each use flips the state and prints 'godmode ON' or 'godmode OFF'.\n\nDefault: no arguments (toggles the caller).\nSet by: server console / rcon, or by a player at their own console when cheats are enabled. Cheats are enabled via sv_cheats, a devmap, or the -cheats command-line flag.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1881
+      }
+    },
+    {
+      "name": "heartbeat",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Forces the server to send a heartbeat to its configured master server(s) on the next server frame, instead of waiting for the normal interval. A heartbeat tells the master server this server is alive and reports its current player count, which keeps it listed in server browsers. The server normally heartbeats automatically every five minutes; this command triggers one immediately. It has no effect if no master server is configured.\n\nSet by: server console / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1870
+      }
+    },
+    {
+      "name": "hunk_print",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Console diagnostic that prints a map of the server's main memory arena (the \"hunk\"): total size, each allocation's name and size, the kilobytes still remaining, the running block count, and how much of the low and high ends are in use. It only reports memory state; it allocates and frees nothing.\n\nhunk_print = group allocations that share a name and print one total line per name (the default).\nhunk_print <any arg> = print every individual allocation block separately, no grouping.\n\nSet by: server console / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/zone.c",
+        "line": 596
+      }
+    },
+    {
+      "name": "if",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Compares two values and runs a command only when the comparison is true, with an optional command to run when it is false. Both sides are compared as numbers when both look numeric, otherwise as text.\n\nif <a> <op> <b> <command> [else <command>] = if 'a op b' holds, run the first command; otherwise run the command after 'else' (if given). An optional 'then' keyword may follow the comparison before the command.\n\n<op> can be:\n== or = = equal; != or <> = not equal\n> < >= <= = numeric greater / less / greater-or-equal / less-or-equal\nisin = true when <a> appears as text inside <b>; !isin = true when it does not\n\nSet by: server console + master rcon only.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1075
+      }
+    },
+    {
+      "name": "inc",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Adds a number to a cvar's current value. With no amount given it adds 1; pass a negative amount to subtract.\n\ninc <cvar> = add 1 to <cvar>.\ninc <cvar> <amount> = add <amount> (may be negative) to <cvar>.\n\nSet by: server console / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/cvar.c",
+        "line": 568
+      }
+    },
+    {
+      "name": "kick",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Disconnects a connected player from the server. Identifies the player by their user-id number (the number shown beside each player in the status list), not their name. An optional reason can be added; it is shown to everyone as \"<player> was kicked (<reason>)\" and the kicked player is told they were kicked.\n\nkick <userid> [reason] = drop the player with that user-id, optionally citing a reason.\n\nExample: kick 3 cheating  ->  drops the player whose user-id is 3 and announces \"<name> was kicked (cheating)\".\n\nSet by: server console / rcon.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1835
+      }
+    },
+    {
+      "name": "listip",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Prints the server's connection filter list (the entries managed by addip). For each entry it shows the address, whether it is a ban or a safe (protected) entry, and -- for time-limited entries -- the seconds remaining before the entry expires.\n\nlistip = print the filter list. Takes no arguments.\n\nSet by: server console / rcon.",
+      "category": "Access control & VIP",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3619
+      }
+    },
+    {
+      "name": "load",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Loads a previously saved single-player game from a file on the server, restarting the server on the saved map and restoring the saved entity and player state. The save file must match this server's savegame format version (currently 6); a file written in a different format version is rejected.\n\nload <name> = load the game saved as <name>.sav from the server's save folder.\n\nSet by: server console / rcon.\nSee also: save.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1872
+      }
+    },
+    {
+      "name": "localcommand",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Runs its argument string as a command on the server's host operating system (a shell command), then prints whatever that command wrote to standard output/error back to the console. A debug/maintenance escape hatch, off by default.\n\nlocalcommand <command> [args...] = run \"<command> args...\" as an OS shell command on the machine hosting the server and echo its output.\n\nThis command only exists if the server was started with the -enablelocalcommand command-line option; otherwise it is not registered. It is also restricted to the local server console and the master rcon password -- it cannot be run over the ordinary rcon password.\n\nSet by: server console + master rcon only (and only when -enablelocalcommand was given at launch).",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1857
+      }
+    },
+    {
+      "name": "localinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Examines or changes the server's localinfo string -- a server-side-only set of key/value pairs the server keeps for itself and its mod (game logic). Unlike serverinfo, localinfo is not sent to connected clients. With no arguments it lists every localinfo key and value; with one argument it prints that single key's value; with two arguments it sets a key to a value. Keys beginning with '*' are reserved and cannot be changed.\n\nlocalinfo                  = show all localinfo keys and values.\nlocalinfo <key>            = show the value of one key.\nlocalinfo <key> <value>    = set <key> to <value>.\n\nExample: localinfo maxteams 4  ->  stores maxteams=4 in localinfo for the running mod to read.\n\nSet by: server console / rcon.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1886
+      }
+    },
+    {
+      "name": "logerrors",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Toggles server error logging. With no argument, the command flips the log on if it is off and off if it is on. While on, server error messages are written (with a date/time stamp) to a separate log file; turning it off prints \"Error logging off.\" and closes the file. The file is named qerror_<port>_<NNNN>.log (the server's UDP port plus a number) and lives under the directory set by sv_logdir.\n\nDefault: off; sv_logdir defaults to the server's working directory (\".\").\nSet by: server console, or master rcon (master_rcon_password); the regular rcon password cannot run log commands. Clients cannot issue it.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 220
+      }
+    },
+    {
+      "name": "logfile",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Toggles server console logging. With no argument, the command flips the log on if it is off and off if it is on. While on, every line the server prints to its console is also written (with a date/time stamp) to a log file in the server's log directory; turning it off prints \"File logging off.\" and closes the file. The file is named qconsole_<port>_<NNNN>.log (the server's UDP port plus a number) and lives under the directory set by sv_logdir.\n\nDefault: off; sv_logdir defaults to the server's working directory (\".\").\nSet by: server console, or master rcon (master_rcon_password); the regular rcon password cannot run log commands. Clients cannot issue it.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 219
+      }
+    },
+    {
+      "name": "logplayers",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Toggles a player-activity log on or off (no arguments -- run it once to start logging, again to stop). While on, the server appends a timestamped line for notable per-player events such as connect, disconnect, name changes, and certain anti-spam kicks. Each line records the event, the player name, their user id, their connecting and real IP addresses, the port, and the player's userinfo string.\n\nLog file: written to the server's log directory (sv_logdir, default the working directory) as player_<port>_NNNN.log.\n\nDefault: off.\nSet by: server console, or master rcon (master_rcon_password); the regular rcon password cannot run log commands. Clients cannot issue it.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 224
+      }
+    },
+    {
+      "name": "logrcon",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Toggles remote-console (rcon) logging. With no argument, the command flips the log on if it is off and off if it is on. While on, every rcon request the server receives is recorded (with a date/time stamp) in a separate log file: the sender's IP address and the command text for accepted rcon, plus failed/bad rcon attempts and rcon from banned addresses. Turning it off prints \"Rcon logging off.\" and closes the file. The file is named rcon_<port>_<NNNN>.log (the server's UDP port plus a number) and lives under the directory set by sv_logdir. Useful as an audit trail of who is issuing remote admin commands.\n\nDefault: off; sv_logdir defaults to the server's working directory (\".\").\nSet by: server console, or master rcon (master_rcon_password); the regular rcon password cannot run log commands. Clients cannot issue it.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 221
+      }
+    },
+    {
+      "name": "logtelnet",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Toggles telnet logging. With no argument, the command flips the log on if it is off and off if it is on. While on, it opens a log file named qtelnet_<port>_<NNNN>.log (the server's UDP port plus a number) under the directory set by sv_logdir; turning it off prints \"Telnet logging off.\" and closes the file. Note: in this build no telnet-console output is actually written to that file, so it stays empty (see below).\n\nDefault: off; sv_logdir defaults to the server's working directory (\".\").\nSet by: server console, or master rcon (master_rcon_password); the regular rcon password cannot run log commands. Clients cannot issue it.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 222
+      }
+    },
+    {
+      "name": "ls",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Lists the files and subdirectories inside a directory on the server, relative to the directory the server was launched from (its working directory) -- note this is not the gamedir, so list a gamedir's own contents with e.g. ls qw/demos. Files show their size (directories are listed without one); an optional match argument keeps only entries whose name contains that text. Paths that try to escape the server directory (those containing '..' or a leading slash, or a drive letter on Windows) are refused.\n\nls <directory> [match] = list the contents of <directory>, optionally limited to names containing <match>.\n\nExample: ls demos .mvd  ->  lists everything under the demos directory whose name contains \".mvd\".\n\nSet by: server console + master rcon only.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1844
+      }
+    },
+    {
+      "name": "map",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Loads a new map and continues play on it. The server tells all connected clients to reconnect to the new level. The map file must already be present on the server (it is looked up as maps/<levelname>.bsp); if it cannot be found, nothing changes. Server cheats are left in whatever state sv_cheats sets (use devmap instead to force cheats on).\n\nmap <levelname> [<entityfile>] = switch to <levelname>; the optional <entityfile> loads an alternate entity layout for that map.\n\nSet by: server console / rcon (admin only).\nSee also: devmap.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1859
+      }
+    },
+    {
+      "name": "master_rcon_password",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Sets the master rcon password -- a privileged remote-admin password, separate from the ordinary rcon_password. Rcon commands authenticated with the master password run unrestricted, whereas commands sent with the ordinary rcon_password are blocked from filesystem and other sensitive operations (such as rm, rmdir, ls, chmod, localcommand, and the log commands). Leaving it empty (the default) means no master password is in effect.\n\nmaster_rcon_password <password> = set the master password to <password>.\n\nThis can only be set while server.cfg is still loading at startup; issuing it afterward is refused.\n\nDefault: empty (unset).\nSet by: server.cfg at startup only.",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1902
+      }
+    },
+    {
+      "name": "mod",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Forwards a console command to the server's currently loaded game mod, letting the mod handle it. The command and any arguments are passed through to the mod, which decides what (if anything) to do. If the command's source address matches a connected player (in practice, rcon issued from that player's machine), the server also tells the mod which player it came from; a connected client cannot invoke 'mod' from its own console. If no mod that accepts console commands is loaded (for example a plain QuakeC mod), nothing happens. What 'mod <args>' actually does therefore depends entirely on the game mod running.\n\nSet by: server console / rcon.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/pr2_exec.c",
+        "line": 71
+      }
+    },
+    {
+      "name": "modfraglogfile",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Toggles a mod-frag log on or off (no arguments -- run it once to start logging, again to stop). While on, the server inspects broadcast game messages (kill/event announcements) against its mod-message patterns and, on a match, appends a normalized frag record -- killer, victim, weapon, and a Unix timestamp -- so kills can be logged even for mods that do not use the standard frag-log path. Each time logging is switched on a fresh numbered file is opened.\n\nLog file: written to the server's log directory (sv_logdir, default the working directory) as modfrag_<port>_NNNN.log.\n\nDefault: off.\nSet by: server console / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 225
+      }
+    },
+    {
+      "name": "mute",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Temporarily silences a player. While muted the player cannot send chat messages, cannot change their name, and cannot transmit voice (VOIP). They can still move and play normally.\n\nmute <userid/name> <minutes> [reason] = mute the player for <minutes> (an optional reason is shown to them and announced in chat).\nmute <userid/name> *<minutes> = same, but prefixing the minutes with * mutes them silently (no public announcement).\nmute <userid/name> 0 = cancel an active mute (un-mute).\n\nExample: mute Bob 10 -- mute the player named Bob for 10 minutes.\n\nThe penalty follows the player's IP: if they disconnect and reconnect while still muted, the remaining time is re-applied. It is held in memory only and is cleared by a server restart.\n\nDefault: 0.5 minutes when no time is given; values above 1200 (or negative) are clamped to 1200.\nSet by: server console / rcon.\nSee also: penaltylist.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1846
+      }
+    },
+    {
+      "name": "noclip",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Toggles no-clipping mode for a player, letting them move freely through walls and other solid objects. Issuing it again turns it back off. The server only honours this when cheats are enabled; otherwise it prints that cheats are not allowed and does nothing.\n\nSet by: a connected player on themselves when cheats are enabled (sv_cheats 1 or a devmap), and the server console / rcon (target a player by userid: noclip <userid>).",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1883
+      }
+    },
+    {
+      "name": "nslookup",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Performs a reverse DNS lookup on an IP address from the server console, printing the hostname that address resolves to.\n\nnslookup <IP address> = print the resolved hostname and the address, e.g. `nslookup 192.246.40.37`. If the address cannot be resolved, prints \"Couldn't resolve <IP>\".\n\nSet by: server console / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1831
+      }
+    },
+    {
+      "name": "path",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Prints the server's current file search path to the console: the ordered list of game directories and .pak files the server searches when it loads a file (such as a map, model, or config). A separator line marks where the base id1/qw paths begin.\n\nSet by: server console / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/fs.c",
+        "line": 506
+      }
+    },
+    {
+      "name": "penaltylist",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Lists the mute and cuff penalties currently in effect, in two sections:\n\nActive Penalty List = penalties on players who are connected right now. Each line shows the player's userid, name, the penalty type (mute or cuff), and the seconds remaining.\nSaved Penalty List = penalties belonging to players who have since disconnected, kept so the penalty can be re-applied if they reconnect from the same IP. Each line shows an index number, the type (Mute or Cuff), the saved IP, and the seconds remaining.\n\nThe index shown in the Saved list is the number passed to penaltyremove to clear that entry. The saved list is held in memory only and is lost on a server restart.\n\nSet by: server console / rcon.\nSee also: cuff, mute, penaltyremove.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1849
+      }
+    },
+    {
+      "name": "penaltyremove",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Removes one entry from the Saved Penalty List -- the stored mute or cuff penalties belonging to disconnected players that would otherwise be re-applied when they reconnect.\n\npenaltyremove <num> = remove the saved penalty whose index is <num> (the index shown by penaltylist).\n\nThis only clears a SAVED (disconnected-player) penalty; it does not lift a mute or cuff on a player who is currently connected -- use mute/cuff with 0 minutes for that. Prints \"Removed.\" on success, or a not-found message if no saved entry has that index.\n\nSet by: server console / rcon.\nSee also: penaltylist, mute, cuff.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1850
+      }
+    },
+    {
+      "name": "profile",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Prints a performance report for a server running legacy Quake-C game code, listing the ten game functions that have used the most CPU since the last report (and resetting those counters). It only produces output while a map is active. On servers whose game mod runs as a compiled module or bytecode (the common case, including KTX), this command does nothing. Takes no arguments.\n\nSet by: server console / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/pr2_exec.c",
+        "line": 70
+      }
+    },
+    {
+      "name": "qtv_close",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Disconnects one or all QTV (QuakeTV) proxies currently attached to the server's demo stream. Usage: qtv_close <#id | all>. Give the numeric id of a connection (as shown by qtv_list) to drop that one proxy, or the word all to drop every connected proxy. The selected proxies are flagged and disconnected shortly after the command is run. Prints a not-found message if no connection has the given id, or reports the list is empty when no QTV proxies are connected.\n\nSet by: server console / rcon.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 1520
+      }
+    },
+    {
+      "name": "qtv_list",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Lists the QTV (QuakeTV) proxy connections currently attached to the server's demo stream. Prints a table with each connection's numeric id and network address. If no QTV proxies are connected it prints \"QTV list: empty\". Takes no arguments.\n\nSet by: server console / rcon.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 1519
+      }
+    },
+    {
+      "name": "qtv_status",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Shows an overview of the server's QTV (QuakeTV) broadcasting subsystem: whether the QTV listen socket is open (\"listen\") or not (\"invalid\"), the port it listens on, the number of QTV proxies currently streaming, and the number of streams still being set up (pending). Takes no arguments.\n\nSet by: server console / rcon.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 1521
+      }
+    },
+    {
+      "name": "quit",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Shuts down the server and exits the process. All connected clients are disconnected, any in-progress MVD demo recording is stopped, and open server log files are closed before the process terminates. The server does not relaunch (use restart for that).\n\nSet by: server console / rcon / stdin (admin only).\nSee also: restart.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1876
+      }
+    },
+    {
+      "name": "record",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Starts recording a server-side MVD (multi-view demo) of the current game to a named file. An MVD captures every player's point of view in one file, so it can be replayed from any player's perspective afterward.\n\nrecord <demoname> = begin recording to <demoname>. A .mvd extension is added if you do not include one; the configured demo prefix, suffix, and demo directory are applied to the final filename.\n\nThe server must be running a map (it refuses with \"Not active yet.\" otherwise). Use stop to finish and save the recording.\n\nSet by: server console / rcon.\n\nShort alias of `sv_demorecord`.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1929
+      }
+    },
+    {
+      "name": "removeip",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Removes an address from the server's connection filter list (the list managed by addip). The address must be given exactly as it was added, including any wildcard (0) octets.\n\nremoveip <ip> = delete the matching filter entry. Prints \"Removed.\" on success, or \"Didn't find <ip>.\" if no entry matches.\n\nExample: removeip 198.51.100.0 -- lift the 198.51.100.x range ban added with addip.\n\nSet by: server console / rcon.",
+      "category": "Access control & VIP",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3618
+      }
+    },
+    {
+      "name": "restart",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Shuts down and relaunches the server. All connected clients are disconnected, any in-progress MVD demo recording is stopped, and log files are closed; the server then re-executes itself with the same command-line arguments it was started with, coming back up freshly. This restarts the whole server process -- it is not a map reload.\n\nSet by: server console / rcon / stdin (admin only).\nSee also: quit.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1877
+      }
+    },
+    {
+      "name": "rm",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Deletes one or more files from a directory on the server, relative to the directory the server was launched from (its working directory). A second argument names what to delete: an exact filename, '*<text>' to delete every file whose name contains <text>, or '*' on its own to delete all files in the directory. Directory paths beginning with '../' or containing '/../', an absolute path, a '/' inside the filename, or a Windows drive letter are refused. It removes files only, not subdirectories.\n\nrm <directory> <filename>   = delete one named file.\nrm <directory> *<token>     = delete every file whose name contains <token>.\nrm <directory> *            = delete all files in <directory>.\n\nExample: rm demos *2024  ->  deletes every file under the demos directory whose name contains \"2024\".\n\nSet by: server console + master rcon only.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1843
+      }
+    },
+    {
+      "name": "rmdir",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Deletes an empty directory on the server's filesystem (relative to the server's working directory). The directory must already be empty; non-empty directories are not removed.\n\nrmdir <directory> = remove the named empty directory.\n\nPaths that try to escape the working directory are refused: a name beginning with \"../\", containing \"/../\", beginning with \"/\", or (on Windows) carrying a drive letter is rejected.\n\nSet by: server console + master rcon only.\nSee also: ls, rm.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1842
+      }
+    },
+    {
+      "name": "save",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Saves the current single-player game to a file on the server, recording the map, player spawn parameters, skill level, and all entity state so it can be reloaded later with 'load'. Only works for a local, non-deathmatch game with one human player who is alive; it refuses to save while a multiplayer match is running.\n\nsave <name> = write the current game to <name>.sav in the server's save folder.\n\nSet by: server console / rcon.\nSee also: load.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1871
+      }
+    },
+    {
+      "name": "say",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Broadcasts a chat message from the server console to every spawned (in-game) player, shown in their chat as a line prefixed with \"console: \". The message is also written to the running MVD demo (if one is recording), and printed to the server console; it is also written to the console log only when console logging is enabled (see qconsole_log_say).\n\nsay <message> = send <message> to all players as the server/console.\n\nSet by: server console / rcon. A player typing \"say\" in their own client uses a separate path that sends their normal player chat, not this server broadcast.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1875
+      }
+    },
+    {
+      "name": "script",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Runs an external server-side script on the machine hosting the server -- a file named <name>.qws in the active game directory (e.g. qw/, or a loaded mod dir like ktx/); on Linux it is run directly, on Windows through sh.exe. Anything after the name is passed to the script as arguments (with $key / @key serverinfo/localinfo macros expanded first). Most '..' paths are rejected, but note one gap: a single leading '../' is accepted and reaches one directory above the game directory.\n\nThis is the same mechanism the automatic demo hooks use (sv_onrecordfinish / sv_ondemoremove run a .qws when a recording finishes or a demo is deleted); running 'script' by hand invokes such a script directly.\n\nscript <name> [args...] = run <name>.qws with the given arguments.\n\nSet by: server console / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1954
+      }
+    },
+    {
+      "name": "serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Shows or changes the server's serverinfo keys (the public server settings broadcast to connecting clients). When a key changes, the new value is pushed to clients already on the server.\n\nserverinfo = list every serverinfo key and value, plus the total length used.\nserverinfo <key> = show the current value of one key.\nserverinfo <key> <value> = set that key to the given value.\n\nSetting a key to \"0\" clears it (stores an empty value). Keys beginning with \"*\" (star keys, set by the server itself) cannot be changed this way. If the key is also a serverinfo cvar, that cvar is updated as well.\n\nSet by: server console / rcon. (Any connected client can also run 'cmd serverinfo' to dump the serverinfo string read-only, but cannot change it.)",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1889
+      }
+    },
+    {
+      "name": "set",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Assigns a value to a server cvar. If the named cvar does not exist, it is created as a new user variable holding that value (unless the name is already a command, which is rejected).\n\nset <cvar> <value> = set <cvar> to <value>, creating it if it does not already exist.\n\nSet by: server console / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/cvar.c",
+        "line": 567
+      }
+    },
+    {
+      "name": "setmaster",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Sets which master servers this server announces itself to (the master servers feed the public server browsers). Replaces any previously configured masters, immediately pings each address, and triggers a heartbeat so the server registers right away.\n\nsetmaster <addr> [<addr> ...] = use the listed master servers (up to 8). A port may be appended; if omitted it defaults to 27000.\nsetmaster none = announce to no master (disables public listing).\n\nIf an argument is \"none\" or an address that cannot be resolved, the server stops processing the rest of the line there: any masters listed before it stay configured, and the immediate heartbeat is skipped. To announce to no master at all, make \"none\" the first argument.\n\nSet by: server console / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1867
+      }
+    },
+    {
+      "name": "snap",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Requests a screenshot from a connected player and saves it on the server. The server tells the targeted client to capture its current view; the client uploads the image, which is written to the server as a .pcx file under the gamedir's snap/ folder (named <userid>-NN.pcx, numbered 00-99). The targeted player can refuse it, which is announced to the other players.\n\nsnap <userid> = request a screenshot from the player with that user id, e.g. `snap 7`. Prints \"userid not found\" if no connected client has that id.\n\nSet by: server console / rcon (admin only).",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1833
+      }
+    },
+    {
+      "name": "snapall",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Requests a screenshot from every connected player at once (spectators are skipped). Each targeted client is told to capture its current view and uploads the image, which the server saves as a .pcx file under the gamedir's snap/ folder (named <userid>-NN.pcx). Each targeted player can refuse it, which is announced to the other players. Takes no arguments.\n\nSet by: server console / rcon (admin only).",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1834
+      }
+    },
+    {
+      "name": "status",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Prints the current server status to the console: the server's net address, overall and demo-recording CPU usage, average response time, packets per frame, and a table of every connected client (name, ping, frags, userid, address, real IP, and whether they are a spectator or still connecting).\n\nSet by: server console / rcon.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1838
+      }
+    },
+    {
+      "name": "stop",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Stops and finalizes the current server-side MVD recording, saving the demo file so it can be played back. Writes the end-of-demo marker, closes the file, and (unless silent recording is enabled) announces \"Server recording completed\" to players. If no demo is being recorded it replies \"Not recording a demo.\" Any active QTV stream keeps running -- only the local MVD file recording is stopped.\n\nstop = finish the recording in progress (takes no arguments).\n\nSet by: server console / rcon.\n\nShort alias of `sv_demostop`.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1931
+      }
+    },
+    {
+      "name": "svadmin",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Marks the connected player who issues it as the current \"Rcon Watch\" recipient, and prints a confirmation to the server console. Issued again with the argument \"off\" by that same player, it clears the watch. If a watch is already held by another player, it reports who holds it.\n\nsvadmin = claim the Rcon Watch (must be issued by a player connected to this server).\nsvadmin off = release the watch (only the holder can release it).\n\nNote: in the current server source nothing reads this \"Rcon Watch\" selection to actually forward rcon commands or their output to the watcher, so beyond the console confirmation and the held/released state the command has no further observable effect here.\n\nSet by: a connected player (resolved by the issuer's network address); the watch is auto-released if that player disconnects.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3614
+      }
+    },
+    {
+      "name": "sv_democancel",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Stops the server-side MVD demo currently being recorded and deletes the partial demo file (and its accompanying .txt file) instead of keeping it. Use this to abandon a recording you do not want, where the plain stop command would save it. Unless silent recording is enabled, a \"Server recording canceled, demo removed\" message is broadcast to players. If no demo is being recorded it replies \"Not recording a demo.\"\n\nSet by: server console / rcon.\n\nAlso registered as `cancel`.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1941
+      }
+    },
+    {
+      "name": "sv_demoeasyrecord",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Starts recording a server-side MVD demo, automatically naming the file from the current game. With no argument the name is built from the players and map: a teamplay game becomes a NonN team-versus-team name, a 2-player game becomes a duel name, and any other game becomes an FFA name. Pass an optional name to use it instead of the auto-generated one. The configured demo prefix and suffix are applied, and a numeric suffix is added if a demo of that name already exists so an earlier recording is never overwritten.\n\nsv_demoeasyrecord [name] = start recording; [name] overrides the auto-generated filename.\n\nSet by: server console / rcon.\n\nAlso registered as `easyrecord`.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1935
+      }
+    },
+    {
+      "name": "sv_demoembedinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Embeds the contents of a file into the demo/QTV stream that is currently being recorded or broadcast. The file is read from the server's game directory and stored as a hidden block inside the stream, where it travels with the demo but is ignored by normal playback. Usage: sv_demoembedinfo <filename>. The file may not be a .cfg file, and the filename may not be an absolute path or contain \"..\"; rejected filenames report \"Unsafe filename detected\". Only files up to about 200 KB are embedded.\n\nSet by: server console / rcon.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1952
+      }
+    },
+    {
+      "name": "sv_demoinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Prints the contents of a recorded demo's companion info file (the plain-text file stored alongside the demo that holds its notes, scores, or other metadata). If no info file exists for that demo, it prints (empty).\n\nsv_demoinfo <number> = show the info file of the demo at that list position.\nsv_demoinfo * = show the info file of the demo currently being recorded.\n\nSet by: server console / rcon. Also runnable by a connected player as 'cmd demoinfo <number>', which prints the demo's info to that player's own console.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1951
+      }
+    },
+    {
+      "name": "sv_demoinfoadd",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Appends a line of text to a recorded demo's companion info file (a plain-text file stored alongside the demo, used to hold notes, scores, or other metadata about that demo). The text is added as a new line; it does not overwrite existing info.\n\nsv_demoinfoadd <number> <text...> = append <text...> to the info file of the demo at that list position.\nsv_demoinfoadd * <text...> = append <text...> to the info file of the demo currently being recorded.\nsv_demoinfoadd ** <filename> = append the raw contents of <filename> (taken from the game directory) to the info file of the demo currently being recorded.\n\nSet by: server console / rcon.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1949
+      }
+    },
+    {
+      "name": "sv_demoinforemove",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Deletes a demo's companion info file (the plain-text file stored alongside a recorded demo that holds its notes, scores, or other metadata). Only the info file is removed; the demo recording itself is left in place.\n\nsv_demoinforemove <number> = delete the info file of the demo at that list position.\nsv_demoinforemove * = delete the info file of the demo currently being recorded.\n\nSet by: server console / rcon.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1950
+      }
+    },
+    {
+      "name": "sv_demolist",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Lists the server-side MVD demo files stored in the demo directory, oldest first. With no arguments it lists every demo; each extra argument is a plain text filter and a demo is shown only if its filename contains all of the given words. Each line shows an index number, the filename, and its size; a demo that is currently being recorded is marked with a leading '*'. During a live game, if more than 100 demos match, only the 100 most recent are shown. After the list it prints the total size of the demo directory, and (when a maximum directory size is configured) the remaining free space.\n\nsv_demolist [word] [word] ... = list demos whose filename contains every given word.\n\nSet by: server console / rcon.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1944
+      }
+    },
+    {
+      "name": "sv_demolistr",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Lists the server-side MVD demo files stored in the demo directory, oldest first, filtering by regular expression. With no arguments it lists every demo; each argument is a case-insensitive regular expression and a demo is shown only if its filename matches all of the given expressions. Each line shows an index number, the filename, and its size; a demo that is currently being recorded is marked with a leading '*'. During a live game, if more than 100 demos match, only the 100 most recent are shown. After the list it prints the total size of the demo directory, and (when a maximum directory size is configured) the remaining free space. This is the regex-matching counterpart to sv_demolist, which filters by plain text instead.\n\nsv_demolistr [regex] [regex] ... = list demos whose filename matches every given expression.\n\nSet by: server console / rcon. Also registered as `sv_demolistregex`.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1945
+      }
+    },
+    {
+      "name": "sv_demolistregex",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Lists the server-side MVD demo files stored in the demo directory, oldest first, filtering by regular expression. With no arguments it lists every demo; each argument is a case-insensitive regular expression and a demo is shown only if its filename matches all of the given expressions. Each line shows an index number, the filename, and its size; a demo that is currently being recorded is marked with a leading '*'. During a live game, if more than 100 demos match, only the 100 most recent are shown. After the list it prints the total size of the demo directory, and (when a maximum directory size is configured) the remaining free space. This is the regex-matching counterpart to sv_demolist, which filters by plain text instead.\n\nsv_demolistregex [regex] [regex] ... = list demos whose filename matches every given expression.\n\nSet by: server console / rcon. Also registered as `sv_demolistr`.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1946
+      }
+    },
+    {
+      "name": "sv_demonumremove",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Deletes a recorded server-side demo by its position number in the demo list (the number shown by the demo listing / lastscores commands), rather than by filename. The demo's saved info/scores text file is removed along with it.\n\nsv_demonumremove <number> = delete the demo at that list position. Counting starts at 1 for the oldest demo.\n\nSet by: server console / rcon.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1948
+      }
+    },
+    {
+      "name": "sv_demorecord",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Starts recording a server-side MVD (multi-view demo) of the current game to a named file. An MVD captures every player's point of view in one file, so it can be replayed from any player's perspective afterward.\n\nsv_demorecord <demoname> = begin recording to <demoname>. A .mvd extension is added if you do not include one; the configured demo prefix, suffix, and demo directory are applied to the final filename.\n\nThe server must be running a map (it refuses with \"Not active yet.\" otherwise). Use sv_demostop to finish and save the recording.\n\nSet by: server console / rcon.\n\nAlso registered as `record`.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1934
+      }
+    },
+    {
+      "name": "sv_demoremove",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Deletes server-side MVD demo files from the demo directory. It takes exactly one argument and supports three forms; with no argument it just prints its usage.\n\nsv_demoremove <demoname> = delete the single named demo (the .mvd extension is assumed if you omit it).\nsv_demoremove *<token> = delete every demo whose filename contains <token>.\nsv_demoremove * = delete every demo.\n\nThe matching text file alongside each demo is removed too, and if a demo being deleted is currently recording, that recording is stopped first. It reports how many demos were removed, or that no match was found.\n\nSet by: server console / rcon.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1947
+      }
+    },
+    {
+      "name": "sv_demostop",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Stops and finalizes the current server-side MVD recording, saving the demo file so it can be played back. Writes the end-of-demo marker, closes the file, and (unless silent recording is enabled) announces \"Server recording completed\" to players. If no demo is being recorded it replies \"Not recording a demo.\" Any active QTV stream keeps running -- only the local MVD file recording is stopped.\n\nsv_demostop = finish the recording in progress (takes no arguments).\n\nSet by: server console / rcon.\n\nAlso registered as `stop`.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1936
+      }
+    },
+    {
+      "name": "sv_gamedir",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Shows or changes only the *gamedir value reported in the server's serverinfo (the game-directory name clients see), without changing the directory the server actually loads game files from. Use it to advertise a different gamedir name than the one in use.\n\nsv_gamedir = show the current advertised *gamedir.\nsv_gamedir <name> = set the advertised *gamedir to <name>.\n\n<name> must be a single directory name: values containing \"..\", \"/\", \"\\\", or \":\" are rejected.\n\nSet by: server console / rcon.\nSee also: gamedir.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1894
+      }
+    },
+    {
+      "name": "sv_lastscores",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Prints the saved score summary for the most recent recorded demos -- the first line of each demo's companion text file, listing the match result. It lists the most recent demos, printed oldest-first (the newest demo is the last line).\n\nsv_lastscores [<count>] = list the last <count> demos; omitting <count>, or giving 0 or less, lists the last 10. The count is reduced to 10 while a match is in progress.\n\nThe identical listing is available to any connected player via the client command 'lastscores'.\n\nDefault: 10 demos.\nSet by: server console / rcon (the player-issued form is 'lastscores').",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1943
+      }
+    },
+    {
+      "name": "sv_status",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Same as the 'status' command -- prints the current server status (net address, CPU usage, response time, packets per frame, and the connected-client table) to the console. This prefixed name exists so the status display still works when a connected client has bound its own 'status' alias that would otherwise shadow the plain command.\n\nSet by: server console / rcon.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1839
+      }
+    },
+    {
+      "name": "sv_usercmdtrace",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Turns recording of a single player's raw movement input on or off inside the MVD demo currently being recorded. While enabled for a player, the demo captures that player's per-frame input -- view angles, forward/side/up movement, buttons and impulse -- as hidden blocks alongside the normal demo data, for later inspection. While disabled (the default), this extra input data is not recorded for that player.\n\nsv_usercmdtrace <userid> on = start recording that player's raw input; sv_usercmdtrace <userid> off = stop. The userid must match a connected player.\n\nDefault: off for every player.\nSet by: server console / rcon (and used internally by some mods, e.g. the KTX race mode).",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 1956
+      }
+    },
+    {
+      "name": "sv_web_get",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Sends an HTTP request from the server to the configured web/stats backend (sv_www_address). It is a generic server-to-backend call for server-side automation; the shipped KTX mod does not use this command (it uses sv_web_post for race attempts and sv_web_postfile for stats), so sv_web_get has no built-in caller. You give it a path on that backend, a request id (an opaque tag stored with the request), and any number of key/value pairs to send.\n\nsv_web_get <path> <request-id> [<key> <value>]... = contact sv_www_address/<path>, attaching each <key> <value> pair.\n\nDoes nothing (\"Address not set - functionality disabled\") unless sv_www_address is configured. Despite the name it does not issue an HTTP GET -- it sends a POST, identically to sv_web_post.\n\nSet by: server console / rcon.\nSee also: sv_www_address, sv_web_post.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/central.c",
+        "line": 765
+      }
+    },
+    {
+      "name": "sv_web_post",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Sends an HTTP request from the server to the configured web/stats backend (sv_www_address), used by server-side automation -- KTX uses it to report race attempts (game-stats and top-file uploads go through sv_web_postfile instead). You give it a path on that backend, a request id (an opaque tag stored with the request), and any number of key/value pairs to send along.\n\nsv_web_post <path> <request-id> [<key> <value>]... = post to sv_www_address/<path>, attaching each <key> <value> pair.\n\nDoes nothing (\"Address not set - functionality disabled\") unless sv_www_address is configured. (sv_web_get behaves identically -- both send a POST.)\n\nSet by: server console / rcon.\nSee also: sv_www_address, sv_web_postfile.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/central.c",
+        "line": 766
+      }
+    },
+    {
+      "name": "sv_web_postfile",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Uploads a file from the server's game directory to the configured web/stats backend (sv_www_address) as a multipart file upload -- this is how KTX ships game-stats and race top files to the backend. You give it a path on that backend, a request id (an opaque tag stored with the request; KTX passes it empty), the file to send, and optionally extra key/value pairs.\n\nsv_web_postfile <path> <request-id> <file> [<key> <value>]... = upload <file> (relative to the game directory) to sv_www_address/<path>.\nsv_web_postfile <path> <request-id> * [<key> <value>]... = upload the text-summary companion of the demo currently being recorded.\n\n.cfg files and paths that escape the game directory are rejected (\"Filename invalid\"); a missing file gives \"Failed to open file\"; with no demo recording, * gives \"Not recording demo!\". Does nothing (\"Address not set - functionality disabled\") unless sv_www_address is configured.\n\nSet by: server console / rcon.\nSee also: sv_www_address, sv_web_post.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/central.c",
+        "line": 767
+      }
+    },
+    {
+      "name": "toggle",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Flips a cvar between off and on. If the cvar's current value is nonzero it is set to 0; otherwise it is set to 1.\n\ntoggle <cvar> = if <cvar> is currently nonzero set it to 0, else set it to 1.\n\nSet by: server console / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/cvar.c",
+        "line": 566
+      }
+    },
+    {
+      "name": "unalias",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Removes a single alias that was previously defined with the alias command. The alias name is matched case-insensitively. If no alias by that name exists, a message is printed and nothing is removed.\n\nunalias <alias> = erase the alias named <alias>.\n\nSet by: server console / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1074
+      }
+    },
+    {
+      "name": "unaliasall",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Removes every command alias that has been defined on the server (the whole alias list at once), leaving no aliases in place. Takes no arguments. To remove a single alias instead, use 'unalias <name>'.\n\nSet by: server console / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1073
+      }
+    },
+    {
+      "name": "updatebroadcasts",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Immediately refreshes the server's list of peer QuakeWorld servers used for cross-server broadcasts, by re-querying the configured master servers. The automatic refresh runs on its own (about every 10 minutes); this command forces one right away. It does nothing and prints a notice if broadcasting is turned off (sv_broadcast_enabled 0) or if a game has already started -- the list can only be rebuilt while the server is idle in Standby.\n\nSet by: server console / rcon (admin only).\nSee also: sv_broadcast_enabled.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1868
+      }
+    },
+    {
+      "name": "user",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Prints a connected player's user info (their name, color, rate, and other client settings) to the server console.\n\nuser <userid> = show the user info for the player whose id is <userid>. The userid is the number shown next to each player by the 'status' command (e.g. 'user 3' prints player id 3's settings). Prints \"Userid N is not on the server\" if no connected player has that id.\n\nSet by: server console / rcon.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 1890
+      }
+    },
+    {
+      "name": "vip_addip",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Adds an IP address (or a dotted-decimal prefix covering a range) to the server's VIP spectator list, with an optional priority level. A connecting spectator whose real IP is on this list is treated as a VIP: they can take one of the reserved VIP spectator slots (set by maxvip_spectators) even after the public spectator slots (maxspectators) are full. The list is held in memory only -- use vip_writeip to save it.\n\nvip_addip <ip-prefix> [level] = add this address/range; widen the range like addip by using 0 octets as wildcards (e.g. 198.51.100.0 covers that whole class-C block). level is an optional priority number forwarded to the mod; if it is omitted or below 1 it is set to 1.\n\nExample: vip_addip 198.51.100.42 5 -- mark 198.51.100.42 as a VIP (priority 5).\n\nDefault: none (the VIP list starts empty).\nSet by: server console / rcon.\nSee also: vip_listip, vip_writeip, vip_removeip.",
+      "category": "Access control & VIP",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3621
+      }
+    },
+    {
+      "name": "vip_listip",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Prints the server's current VIP spectator list to the console: each entry's IP address and its priority level.\n\nvip_listip = list the VIP entries. Output begins with \"VIP list:\" followed by one line per entry showing the address and \"level <n>\". Takes no arguments.\n\nThe address shown is the stored value, so an entry added as a wildcard range may display differently from how it was typed.\n\nDefault: none.\nSet by: server console / rcon.\nSee also: vip_addip, vip_removeip, vip_writeip.",
+      "category": "Access control & VIP",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3623
+      }
+    },
+    {
+      "name": "vip_removeip",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Removes an entry from the server's VIP spectator list. The address must match an existing entry exactly -- type it the same way it was added (dotted-decimal, where 0 octets are wildcards, just like vip_addip).\n\nvip_removeip <ip> = remove the matching VIP entry. Prints \"Removed.\" on success, or \"Didn't find <address>.\" if no entry matches.\n\nExample: vip_removeip 198.51.100.42 -- drop that VIP entry.\n\nThis edits the in-memory list only; it does not rewrite the saved vip_ip.cfg file (use vip_writeip to persist the change).\n\nDefault: none.\nSet by: server console / rcon.\nSee also: vip_addip, vip_listip, vip_writeip.",
+      "category": "Access control & VIP",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3622
+      }
+    },
+    {
+      "name": "vip_writeip",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Saves the server's current VIP spectator list to a file so it can be restored later. The file is written to vip_ip.cfg in the active game directory, with one vip_addip line per entry.\n\nvip_writeip = write the current VIP list to <gamedir>/vip_ip.cfg. Prints the full path it is writing (\"Writing <path>.\"), or \"Couldn't open <path>\" if the file cannot be created. Takes no arguments.\n\nThe file is not loaded automatically at startup -- exec vip_ip.cfg from your server config to restore the list.\n\nDefault: none.\nSet by: server console / rcon.\nSee also: vip_addip, vip_listip, vip_removeip.",
+      "category": "Access control & VIP",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3624
+      }
+    },
+    {
+      "name": "vminfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Prints a report of the virtual machine(s) the server has loaded to run its game mod (currently a single game-mod VM). For each one it lists the machine's name and how it is being run -- native code, compiled-on-load, or interpreted -- and for the compiled/interpreted forms three byte sizes: code length, instruction-table length, and data length. Read-only; takes no arguments.\n\nSet by: server console / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/pr2_exec.c",
+        "line": 73
+      }
+    },
+    {
+      "name": "wait",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Pauses execution of the rest of the current command line or script until the next server frame; any commands after the 'wait' run on the following frame instead of immediately. Used inside aliases and config scripts to spread a sequence of commands across consecutive frames.\n\nSet by: server console / rcon (also usable inside aliases and exec'd config scripts).",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1071
+      }
+    },
+    {
+      "name": "writeip",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Saves the server's current connection filter list (the entries managed by addip) to a file so the bans can be restored later. The file is written into the active game directory as listip.cfg, with one addip line per entry; safe (protected) entries are written first, then bans.\n\nwriteip = write the filter list to <gamedir>/listip.cfg. Takes no arguments.\n\nThe list is not loaded automatically at startup -- to restore the bans, exec listip.cfg from your server config.\n\nSet by: server console / rcon.",
+      "category": "Access control & VIP",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3620
+      }
+    }
+  ]
+}

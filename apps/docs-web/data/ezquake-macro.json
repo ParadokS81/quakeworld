@@ -1,0 +1,700 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.802Z",
+    "codebase": "ezquake",
+    "type": "macro",
+    "snapshot_version": "head",
+    "upstream_commit": "e4a2c20ad7c747e1275eb61a5fb72f8b333f3287"
+  },
+  "entries": [
+    {
+      "name": "ammo",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns amount of ammo held for currently selected weapon",
+      "macro_type": "integer",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1223
+      }
+    },
+    {
+      "name": "armor",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns current armor value",
+      "macro_type": "integer",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1208
+      }
+    },
+    {
+      "name": "armortype",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns current armor type",
+      "macro_type": "string",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1207
+      }
+    },
+    {
+      "name": "bestammo",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns ammo held for the 'best' weapon",
+      "macro_type": "integer",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1226
+      }
+    },
+    {
+      "name": "bestweapon",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns name of best weapon in inventory",
+      "macro_type": "string",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1225
+      }
+    },
+    {
+      "name": "cam_angles",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns current camera angles, in format that can be passed to /cam_angles command.",
+      "macro_type": "string",
+      "source_ref": {
+        "file": "cl_cam.c",
+        "line": 822
+      }
+    },
+    {
+      "name": "cam_angles_pitch",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns current camera pitch (vertical angle).",
+      "macro_type": "float",
+      "source_ref": {
+        "file": "cl_cam.c",
+        "line": 819
+      }
+    },
+    {
+      "name": "cam_angles_roll",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns current camera roll (not used).",
+      "macro_type": "float",
+      "source_ref": {
+        "file": "cl_cam.c",
+        "line": 821
+      }
+    },
+    {
+      "name": "cam_angles_yaw",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns current camera yaw (horizontal angle).",
+      "macro_type": "float",
+      "source_ref": {
+        "file": "cl_cam.c",
+        "line": 820
+      }
+    },
+    {
+      "name": "cam_pos",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns current camera position, in format that can be passed to /cam_pos command.",
+      "macro_type": "string",
+      "source_ref": {
+        "file": "cl_cam.c",
+        "line": 818
+      }
+    },
+    {
+      "name": "cam_pos_x",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns one component of current camera position.",
+      "macro_type": "float",
+      "source_ref": {
+        "file": "cl_cam.c",
+        "line": 815
+      }
+    },
+    {
+      "name": "cam_pos_y",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns one component of current camera position.",
+      "macro_type": "float",
+      "source_ref": {
+        "file": "cl_cam.c",
+        "line": 816
+      }
+    },
+    {
+      "name": "cam_pos_z",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns one component of current camera position.",
+      "macro_type": "float",
+      "source_ref": {
+        "file": "cl_cam.c",
+        "line": 817
+      }
+    },
+    {
+      "name": "cells",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns number of cells held, regardless of weapon selected",
+      "macro_type": "integer",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1217
+      }
+    },
+    {
+      "name": "colored_armor",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns $armor, surrounded by color codes so it is displayed in &c0b0red&r, &cff0yellow&r, &e00green&r or &cfffwhite&r",
+      "macro_type": "string",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1209
+      }
+    },
+    {
+      "name": "colored_powerups",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "current powerups held as color-coded full names (quad, pent, ring), concatenated without separator.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1210
+      }
+    },
+    {
+      "name": "colored_short_powerups",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "current powerups held as compact color-coded initials (q=quad blue, r=ring yellow, p=pent red); output order is q-r-p. Returns empty string when no powerups held.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1211
+      }
+    },
+    {
+      "name": "conheight",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "console (virtual) resolution height in pixels.",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 2033
+      }
+    },
+    {
+      "name": "connectiontype",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns the current type of the connection",
+      "macro_type": "string",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 2026
+      }
+    },
+    {
+      "name": "conwidth",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "console (virtual) resolution width in pixels.",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 2032
+      }
+    },
+    {
+      "name": "date",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns the current date in the format <day>.<month>.<year>",
+      "macro_type": "string",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1203
+      }
+    },
+    {
+      "name": "dateiso",
+      "first_seen": "3.6.3",
+      "last_seen": "head",
+      "description": "current local date and time in ISO-adjacent format YYYY-MM-DD_HH-MM.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1204
+      }
+    },
+    {
+      "name": "deathloc",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "map location name where the player last died, or tp_name_someplace if no death has been recorded this session.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1231
+      }
+    },
+    {
+      "name": "demolength",
+      "first_seen": "3.1",
+      "last_seen": "head",
+      "description": "returns the expected length of the current demo, in seconds",
+      "macro_type": "integer",
+      "source_ref": {
+        "file": "cl_demo.c",
+        "line": 5506
+      }
+    },
+    {
+      "name": "demoname",
+      "first_seen": "3.1",
+      "last_seen": "head",
+      "description": "returns the name of the current demo, minus extension",
+      "macro_type": "string",
+      "source_ref": {
+        "file": "cl_demo.c",
+        "line": 5505
+      }
+    },
+    {
+      "name": "demoplayback",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns whether or not the client is current watching a demo",
+      "macro_type": "boolean",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 2027
+      }
+    },
+    {
+      "name": "demotime",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "current demo playback time in seconds (float). Intended for scripted and timed camera movement.",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 2028
+      }
+    },
+    {
+      "name": "droploc",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns the name of the location where the last backpack was dropped by the current player.",
+      "macro_type": "string",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1243
+      }
+    },
+    {
+      "name": "droptime",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns the number of seconds since the last backpack was dropped by the current player.",
+      "macro_type": "integer",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1244
+      }
+    },
+    {
+      "name": "gamedir",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns the current gamedir, which is often set when a server is running a mod.\ne.g: 'fortress' for Team Fortress mods",
+      "macro_type": "string",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1247
+      }
+    },
+    {
+      "name": "health",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "the current player's health (0 - 250)",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1206
+      }
+    },
+    {
+      "name": "lastip",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "IP address or hostname:port of the last server seen in console output, captured by an internal trigger pattern.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1197
+      }
+    },
+    {
+      "name": "lastloc",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "location name at time of last death if death occurred within the past 5 seconds; otherwise current location name.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1253
+      }
+    },
+    {
+      "name": "lastpowerup",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "powerups last seen on the enemy within the past 5 seconds (e.g. \"quad pent\"); falls back to the value of tp_name_quad when no recent sighting.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1254
+      }
+    },
+    {
+      "name": "latency",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "current network latency in milliseconds, rounded to nearest integer.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1199
+      }
+    },
+    {
+      "name": "ledpoint",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "LED color code indicating the type of entity pointed at: red for enemy, green for teammate, yellow for powerup, blue for item.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1250
+      }
+    },
+    {
+      "name": "ledstatus",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "LED color code reflecting how many items the player currently needs: green for none, yellow for one, red for two or more.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1251
+      }
+    },
+    {
+      "name": "location",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "name of the player's current map location, as defined by the active .loc file.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1230
+      }
+    },
+    {
+      "name": "matchname",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "current match name, derived from the active match-format template (e.g. \"duel/playerA_vs_playerB - [dm6]\"). Returns \"No match in progress\" when not connected.",
+      "source_ref": {
+        "file": "match_tools.c",
+        "line": 1149
+      }
+    },
+    {
+      "name": "matchstatus",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "current match state: one of \"disconnected\", \"standby\", or \"normal\".",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 2030
+      }
+    },
+    {
+      "name": "matchtype",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "current match type keyword: one of duel, ffa, 2on2, 3on3, 4on4, tdm, arena, tfduel, tfclanwar, solo, coop, race, empty, unknown. Returns \"No match in progress\" when not connected.",
+      "source_ref": {
+        "file": "match_tools.c",
+        "line": 1150
+      }
+    },
+    {
+      "name": "nails",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns number of nails held, regardless of weapon selected",
+      "macro_type": "integer",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1215
+      }
+    },
+    {
+      "name": "need",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "separator-delimited list of items the player currently needs based on tp_need_* thresholds (e.g. \"armor health rl\").",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1241
+      }
+    },
+    {
+      "name": "ping",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "current network latency in milliseconds, rounded to nearest integer. Alias for $latency.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1200
+      }
+    },
+    {
+      "name": "point",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "name of the nearest item or entity the player is pointing at, as used in location-pointing messages; returns tp_name_nothing when the player is flashed.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1239
+      }
+    },
+    {
+      "name": "pointatloc",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "pointed-at item name combined with its location, in \"name at location\" format; bounded by the tp_pointtimeout cvar and returns tp_name_nothing when the player is flashed or the timeout expires.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1237
+      }
+    },
+    {
+      "name": "pointloc",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "map location of the entity pointed at, or current location if no specific point location is available; returns tp_name_nothing when the player is flashed.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1238
+      }
+    },
+    {
+      "name": "powerups",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "separator-delimited list of powerups currently held (quad, pent, ring, flag for CTF/TF); returns tp_name_none when none held.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1228
+      }
+    },
+    {
+      "name": "qt",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns \" - useful to clear cvars in scripts",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1198
+      }
+    },
+    {
+      "name": "rand",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "random float in the range [0, 1).",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 2029
+      }
+    },
+    {
+      "name": "rockets",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns number of rockets held, regardless of weapon selected",
+      "macro_type": "integer",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1216
+      }
+    },
+    {
+      "name": "serverip",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "current server IP address and port, in ip:port form.",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 2031
+      }
+    },
+    {
+      "name": "shells",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns number of shells held, regardless of weapon selected",
+      "macro_type": "integer",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1214
+      }
+    },
+    {
+      "name": "team1",
+      "first_seen": "3.2",
+      "last_seen": "head",
+      "description": "name of the Nth team currently playing, alphabetically sorted; $team1 returns the first team, $team2 the second. In FFA (no teamplay), returns player names instead. Falls back to literal \"team1\"/\"team2\" when fewer teams exist.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1256
+      }
+    },
+    {
+      "name": "team2",
+      "first_seen": "3.2",
+      "last_seen": "head",
+      "description": "name of the Nth team currently playing, alphabetically sorted; $team1 returns the first team, $team2 the second. In FFA (no teamplay), returns player names instead. Falls back to literal \"team1\"/\"team2\" when fewer teams exist.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1257
+      }
+    },
+    {
+      "name": "tf_skin",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "current player's skin name, with TeamFortress skin prefixes expanded to full class names (e.g. tf_demo -> demoman, tf_eng -> engineer).",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1246
+      }
+    },
+    {
+      "name": "time",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "returns the local time in the format <hours>:<minutes>",
+      "macro_type": "string",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1202
+      }
+    },
+    {
+      "name": "timestamp",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "current local date and time as a compact filesystem-safe string: YYYYMMDD-HHMM.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1201
+      }
+    },
+    {
+      "name": "took",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "name of the last item picked up; returns tp_name_nothing if nothing has been picked up yet.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1235
+      }
+    },
+    {
+      "name": "tookatloc",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "last item picked up with its pickup location, in \"name at location\" format; returns tp_name_nothing when no item has been picked up.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1233
+      }
+    },
+    {
+      "name": "tookloc",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "map location name where the last item was picked up; returns tp_name_someplace when no item has been picked up.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1234
+      }
+    },
+    {
+      "name": "tp_powerups",
+      "first_seen": "3.6.0",
+      "last_seen": "head",
+      "description": "$colored_powerups or $colored_short_powerups, depending on value of tp_poweruptextstyle",
+      "macro_type": "boolean",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1212
+      }
+    },
+    {
+      "name": "triggermatch",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "full text of the console message that last fired a regexp trigger.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1249
+      }
+    },
+    {
+      "name": "weapon",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "name of the currently active weapon, using tp_name_* cvar values (e.g. \"rl\", \"lg\").",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1221
+      }
+    },
+    {
+      "name": "weaponnum",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "currently active weapon as a slot number (1-8), or pre-selected best weapon number when cl_weaponpreselect is enabled.",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1219
+      }
+    },
+    {
+      "name": "weapons",
+      "first_seen": "v3.0",
+      "last_seen": "head",
+      "description": "separator-delimited list of all weapons currently held, ordered from strongest to weakest (lg, rl, gl, sng, ng, ssg, sg, axe).",
+      "source_ref": {
+        "file": "teamplay.c",
+        "line": 1220
+      }
+    }
+  ]
+}

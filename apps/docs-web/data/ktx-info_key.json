@@ -1,0 +1,628 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.866Z",
+    "codebase": "ktx",
+    "type": "info_key",
+    "snapshot_version": "head",
+    "upstream_commit": "67253dc9ab4f643f1e6523a923a41caab9ea587f"
+  },
+  "entries": [
+    {
+      "name": "*at:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Server-set star userinfo key recording the client's current autotrack type (the numeric atKTPRO/atBest/atPow/... enum value). The server writes it when the player's autotrack selection changes so the chosen autotrack mode can be restored after a level change.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/commands.c",
+        "line": 6097
+      }
+    },
+    {
+      "name": "bottomcolor:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The player's lower-body (pants) color, set by the client as an integer color index from 0 to 13 selecting one of the standard Quake palette colors. The mod reads it for team-related logic -- building team-color lists, captain-mode same-color checks, and Clan Arena color enforcement -- and also writes it itself to force a player onto a team color (or to set a bot's color), overriding the client's chosen value.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/bot_commands.c",
+        "line": 247
+      }
+    },
+    {
+      "name": "*cheats:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Server-protected flag that signals whether cheat commands are permitted in the current server session. The server stamps it (value \"ON\") when cheats are enabled and clears it to empty when they are not; it cannot be set by a client. KTX reads it to gate cheat-only commands such as \"giveme\", and clients read it to allow client-side cheat behavior.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/commands.c",
+        "line": 8951
+      }
+    },
+    {
+      "name": "*client:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Client identity string the client publishes into its own userinfo, naming the client program and its build; ezQuake writes \"ezQuake <revision>\" where <revision> is the build number. KTX reads it to detect ezQuake and parse out that revision, which it then uses to gate version-dependent behavior (for example, enabling alias-parameter support and choosing the default hideplayers setting for older builds).",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/g_main.c",
+        "line": 621
+      }
+    },
+    {
+      "name": "di:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Client-set opt-in for KTX's pre-match damage-indicator feed. During warmup/standby (no match in progress), if a player's userinfo carries a nonzero \"di\", KTX sends that player a per-hit \"//ktx di\" callback after each hit they land, which the client (ezquake/FTE) renders as an on-screen damage indicator. Value 1 sends a callback only for damage dealt to other players (self-damage excluded); value 2 additionally sends callbacks for self-inflicted damage (e.g. rocket jumps); 0 or absent disables it. There is no corresponding client cvar -- the player publishes this key directly with setinfo, and its meaning is defined entirely by KTX.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/combat.c",
+        "line": 827
+      }
+    },
+    {
+      "name": "ev:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A client-set bitmask that opts the player into KTX's server-event alias callbacks: when a selected event fires, the server stuffs the matching console alias (e.g. on_connect, on_matchstart, on_matchend, on_matchbreak, on_admin, on_unadmin) for the client to execute, with separate spectator/observer variants. Each event is off unless its bit is set: 1 = connect, 4 = match start, 8 = match end, 16 = match break, 128 = granted admin, 256 = lost admin. Bits 2 (weapon switch), 32 (map change), and 64 (deathmatch-mode change) are reserved in the source but not implemented.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/g_utils.c",
+        "line": 2376
+      }
+    },
+    {
+      "name": "fpd:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "An integer bitmask (FAQ-Proxy Data, originally from the Qizmo proxy) that the server publishes to restrict client-side conveniences and anti-cheat-sensitive features during a game. KTX computes the value and writes it into serverinfo; the playing clients read it back and disable the corresponding behaviour. Load-bearing bits: 2 disables powerup/respawn timers; 4 disables sound triggers; 8 disables fake-lag features; 32 silences enemy-vicinity (%e) reporting so the reporter does not see their own message; 64 prevents spectators and players from talking to each other (used to enforce spec silence during a match); 128 silences pointing macros (%x/%y); 256 disables enemy skin forcing; 512 disables enemy colour forcing; 16384 limits pitch (anti-script aimbot/jump assist); 32768 limits yaw; 65536 enables team player-count macros. KTX itself only toggles the proxy/spectalk bits (8, 32, 64, 128) via its admin commands and reads bit 2 for status display; the skin/colour/aim-limit bits are enforced entirely by the client, and the value is reset to 0 during demo playback.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/commands.c",
+        "line": 2017
+      }
+    },
+    {
+      "name": "fs:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Stores an admin's default target for KTX's force_spec command. An admin sets it with setinfo fs \"<value>\", where the value is \"*\" to force-spec all not-ready players, or a player name or numeric player id to target one player (a negative number selects a spectator slot). When an admin runs force_spec without an explicit argument, KTX reads this stored value and uses it as the target; if it is empty, the command prints usage instructions instead.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/admin.c",
+        "line": 987
+      }
+    },
+    {
+      "name": "gender:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The player's gender, published by the ezQuake client from its `gender` userinfo cvar (default empty). The mod reads it only to pick pronouns in generated text such as obituary and event messages: a value of exactly \"f\" selects the feminine forms (she / her / herself); any other value, including empty or unset, selects the masculine forms (he / his / himself).",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/g_utils.c",
+        "line": 1247
+      }
+    },
+    {
+      "name": "ip:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The connecting client's network address as a dotted-quad IP string (address only, no port), as seen by the server on the active connection. It is not part of the stored userinfo string and cannot be set by the client; the server resolves it on demand from the client's connection whenever a player entity's \"ip\" key is read, and it is one of the keys the server protects against client writes. This is the connection-facing address, which differs from \"realip\" when a client connects through a proxy. KTX reads it for RCON and admin audit log lines, for the \"Your IP is\" / IP-list output, and to build address-based ban commands.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/g_cmd.c",
+        "line": 402
+      }
+    },
+    {
+      "name": "*is:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Server-set star userinfo flag marking that KTX has already sent the one-time \"infoset\" alias bootstrap to this client. On connect the server checks it: if empty it sets *is to 1 and stuffs the infoset/ktx_infoset (or sinfoset for spectators) aliases plus an ack; if already 1 it skips re-sending. Prevents the infoset handshake from running more than once per client.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/g_main.c",
+        "line": 221
+      }
+    },
+    {
+      "name": "kf:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "KTX \"kombat flags\" -- bitmask of client-side preferences and features.\nEach bit toggles one KTX behavior on or off for your player.\n\nEffect:\n  Four bits are consumed by KTX HEAD:\n\n      1   KF_KTSOUNDS   accept incoming KTSounds (ksound voice\n                        commands) from teammates\n      2   KF_SCREEN     auto-screenshot at intermission (end-of-match\n                        scoreboard)\n     32   KF_ON_ENTER   SUPPRESS KTX's on_enter user alias on every\n                        map change (default behavior: alias IS called;\n                        set this bit to opt out)\n     64   KF_SPEED      show prewar speed indicator -- KTX encodes\n                        your velocity into HUD ammo/armor registers\n                        while waiting for match start\n\n  Combine bits by adding them: 1 + 2 + 32 = 35 enables KTSounds +\n  auto-screenshot + on_enter suppression.\n\n  Changing kf prints a per-bit confirmation line (\"KTSounds: ON\" etc.)\n  in your console.\n\n  Note: the source header at include/g_consts.h:244-256 lists additional\n  bit positions (4, 8, 16, 128, 256, 512, 1024) labeled as \"use cfgmap\",\n  female sounds, menu_in.cfg, etc. Those were planned or removed\n  features; no code path in KTX HEAD consumes them. Setting them has no\n  effect.\n\nSet via:  setinfo kf <bits>\nDefault:  0 (all flags off)\n\nExample:\n  setinfo kf 35\n  (enables KTSounds, auto-screenshot, and on_enter suppression.)\n\nSee also: k_sdir (KTSound directory; only consulted when bit 1 is set),\n  ksound1...ksound6 (KTSound trigger commands), sh_speed (toggles bit\n  64 via XOR)\n",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/client.c",
+        "line": 711
+      }
+    },
+    {
+      "name": "k_nick:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "KTX tournament/scoring display name. Sets a stable identifier that\nappears where KTX wants a short, consistent label instead of your\nregular `name` cvar.\n\nEffect:\n  KTX consults `k_nick` (then falls back to `k`, then to your `name`) in\n  these contexts:\n    - `report` command output (prefix on the weapon/armor announce)\n    - Team-overlay snapshots stuffed to other clients (the `//sn` data\n      lines used by hud_teaminfo) -- truncated to 4 characters at this\n      site\n    - Clan-arena stats and frag-console annotations\n    - Teamplay name-resolution helpers\n  Setting `k_nick` does NOT replace your in-game `name` -- only these\n  KTX contexts.\n\nSet via:  setinfo k_nick \"<text>\"\nDefault:  unset (KTX falls back to `k`, then to `name`)\n\nExample:\n  setinfo k_nick \"ParadokS\"\n  setinfo k \"PdS\"\n  (KTX uses \"ParadokS\" in the report / snapshot / teaminfo contexts. If\n  k_nick were missing it would use \"PdS\". If both were missing it would\n  use the value of your `name` cvar.)\n\nSee also: k (short fallback identifier), name (client cvar with your\n  in-game name)\n",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/clan_arena.c",
+        "line": 769
+      }
+    },
+    {
+      "name": "k_sdir:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Custom sound directory for KTX's KTSound system. Controls where YOUR\nclient looks for the audio file when another player triggers a KTSound\naddressed to your team.\n\nEffect:\n  When a teammate triggers `ksoundN`, KTX stuffs your client a\n      play <k_sdir>/ktsound<N>.wav\n  command. If `k_sdir` is set, the file is loaded from\n  `sound/<k_sdir>/ktsound<N>.wav`; if unset, it's loaded from the\n  gamedir root. You only hear KTSounds at all if your `kf` has bit 1\n  (KF_KTSOUNDS) enabled.\n\nSet via:  setinfo k_sdir \"<directory>\"\nDefault:  unset (KTX loads ktsound<N>.wav from the gamedir root)\n\nExample:\n  setinfo k_sdir \"myvoice\"\n  setinfo kf 1\n  (Now any incoming ksound plays from sound/myvoice/ktsound<N>.wav;\n  bit 1 enables KTSounds in the first place.)\n\nSee also: kf (bit 1 = KF_KTSOUNDS gates whether you hear KTSounds at all),\n  ksound1...ksound6 (KTSound trigger commands)\n",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/commands.c",
+        "line": 3389
+      }
+    },
+    {
+      "name": "ktpl:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A client-set userinfo flag that puts KTX's continuous centerprint displays (weapon stats from +wp_stats, scores from +scores, and the tracked-player nick) into KTPro-compatibility mode. KTPro is the predecessor mod whose ln/ls/lw layout keys positioned these overlays differently; when ktpl is present (read as an integer and treated as on for any non-zero value, off when absent or zero), KTX adjusts the vertical placement math so configs written for KTPro line up correctly -- it adds 12 lines of top padding to the weapon-stats (lw) and scores (ls) overlays, forces the nick padding (ln) to abs(ln+2) so KTPro's negative ln values still work, and selects KTPro-style weapon-stats formatting. It is set manually with setinfo (legacy KTPro convention) and is read only by KTX for display layout; it does not change gameplay.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/client.c",
+        "line": 3165
+      }
+    },
+    {
+      "name": "k:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Short KTX identifier -- fallback used when `k_nick` is unset.\n\nEffect:\n  KTX reads `k` whenever it looks up your `k_nick` and finds nothing.\n  Same call sites as `k_nick`:\n    - `report` command output\n    - Team-overlay snapshot lines (`//sn`)\n    - Clan-arena stats / frag console\n    - Teamplay name resolution\n  If both `k_nick` and `k` are unset, KTX falls back to your `name`\n  cvar.\n\nSet via:  setinfo k \"<text>\"\nDefault:  unset (KTX falls back to `name`)\n\nExample:\n  setinfo k_nick \"ParadokS\"\n  setinfo k \"PdS\"\n  (k_nick is preferred when set; k is used only if k_nick is empty.)\n\nSee also: k_nick (preferred over `k` when both set), name (client cvar\n  with your in-game name)\n",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/clan_arena.c",
+        "line": 771
+      }
+    },
+    {
+      "name": "ln:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "An optional integer the player sets (setinfo ln) to nudge the vertical position of the \"shownick\" centerprint popup -- the small info box KTX draws for the player you are pointing at when you use the shownick command. A positive value inserts that many blank lines above the box (pushing it down the screen); a negative value inserts blank lines below it. It has no effect unless shownick is used, and defaults to no offset when unset. (A separate ktpl compatibility key, when set, biases this offset to match KTPro's behaviour.)",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/commands.c",
+        "line": 4112
+      }
+    },
+    {
+      "name": "login:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Holds the authenticated account name of a logged-in player, or an empty string if the player has not logged in. The value is set by the server when a client successfully authenticates -- either against the server's local account file (login command plus password) or against the central authentication website -- and is cleared on logout; clients cannot set or spoof it, because the server stores it in a protected per-client field that the infokey lookup returns directly instead of from the player's regular userinfo. KTX reads it to record the player's login name in the match-stats XML and JSON output and to decide whether a player counts as logged in for vote and admin gating (a non-empty value means logged in).",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/stats_json.c",
+        "line": 346
+      }
+    },
+    {
+      "name": "lra:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A client-set userinfo value that vertically positions the round-end stats line KTX's Rocket Arena (RA) mode centerprints to a waiting/spectating player -- a one-line summary of the winner's and loser's armor and health. A positive number inserts that many blank lines above the stats line; a negative number inserts that many blank lines below it; zero or unset leaves it flush. It only affects RA stat display and has no effect in other game modes.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/arena.c",
+        "line": 497
+      }
+    },
+    {
+      "name": "ls:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Number of blank lines KTX inserts above a player's or spectator's continuous score display (the block shown by the +scores command). KTX reads this integer from the client's userinfo and prepends that many empty lines, pushing the score block down the screen; if the legacy KTPro-layout key \"ktpl\" is also set, 12 extra lines are added. The client sets it manually (setinfo ls N); a missing or non-positive value means no offset. Inherited from KTPro, where the \"ln\"/\"ls\"/\"lw\" keys positioned the name/score/weapon-stats overlays.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/client.c",
+        "line": 3360
+      }
+    },
+    {
+      "name": "lw:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Vertical position offset for the +wp_stats weapon-accuracy centerprint overlay. A positive value pushes the stats block down the screen by inserting that many blank lines before it; a negative value inserts blank lines after it. The player sets this themselves via setinfo (a ktx/ktpro convention, not a client cvar); it pairs with lw_x, which applies a horizontal offset.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/client.c",
+        "line": 3166
+      }
+    },
+    {
+      "name": "lw_x:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Horizontal indent for the +wp_stats weapon-accuracy overlay, the centerprint of per-weapon hit stats KTX shows while a player or spectator is tracking a target. A positive value prepends that many space characters before the stats content; a negative value appends that many spaces after it. Set by the player on their own client (a plain userinfo number, default 0); it is the horizontal companion to the lw key, which shifts the same overlay vertically with blank lines.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/client.c",
+        "line": 3166
+      }
+    },
+    {
+      "name": "mapname:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The name of the map the server is currently running, as a bare name with no path or file extension (for example dm3). The server provides it on request through the world entity; KTX reads it once at level start and uses it for logging, demo filenames, map-cycle matching, and the match-stats map field.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/g_main.c",
+        "line": 184
+      }
+    },
+    {
+      "name": "matchtag:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A free-text label naming the event a match belongs to (for example \"EQL semifinal\"), set by KTX as part of the usermode / match-type setup and cleared on a rules reset. While set, the label is shown to spectators and QTV as a hint about what the game is, printed in the ready and match-start announcements, and embedded in the exported match-stats JSON/XML. Its presence also acts as a \"this is a real/organized match\" flag: it lets players pause (unless pausing without a tag is explicitly allowed), blocks the casual demo-cancel shortcut, and enables the forced match-integrity announcements (modified-settings, ruleset, and version) at match start and end.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/client.c",
+        "line": 5796
+      }
+    },
+    {
+      "name": "mi:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Per-spectator subscription level (integer 0-4) for KTX's live \"more info\" pickup feed, which prints item-pickup notifications to spectators during a game. The spectator cycles the value with the spectator-only `moreinfo` command, which reads the current level off the spectator's own userinfo, advances it (wrapping 0 -> 4 -> 0), and writes it back. Each level selects a different item-class filter (not a strict widening): 0 = off; 1 = powerups, armors, megahealth, and the rocket launcher; 2 = those plus grenade launcher and lightning gun; 3 = powerups, armors, megahealth, and all weapons; 4 = powerups only. Out-of-range values are treated as 0. The feed only operates when the server enables it via the k_spec_info cvar (which can also restrict it to admin spectators).",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/commands.c",
+        "line": 7123
+      }
+    },
+    {
+      "name": "*ml:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Server-set star userinfo key holding the most-recently-set non-zero mmode value -- i.e. the latest value the server wrote to `*mm` (excluding transitions to NONE). Updated by `info_sys_mm_update` whenever the active mmode (`*mm`) changes to a different non-zero value; if the new value equals the current `*mm` or is NONE the function returns early without writing. The \"mmode last\" command (`mmode last`) reads this key to re-select the latest non-zero mode -- effectively a \"restore the last non-zero mmode I was in\" lookup that is useful after the user has transitioned `*mm` to NONE (or to another mode and then back). The value is the MMODE enum: 0 = none, 1 = player, 2 = team, 3 = multi, 4 = rcon, 5 = name. (The \"last\" / \"ml\" naming reflects the user-facing \"mmode last\" command; the stored value is the latest non-zero mmode, not the value `*mm` held before the most recent change.)",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/g_cmd.c",
+        "line": 1063
+      }
+    },
+    {
+      "name": "*mm:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Server-set star userinfo key holding the client's current mmode (message/redirect mode), which selects where a typed message or tracking action is routed. MMODE enum: 0 = none, 1 = player (route to the single player in *mp), 2 = team (route to the team named in *mt), 3 = multi (route to the player-set bitmask in *mu), 4 = rcon, 5 = name. The server reads *mm to dispatch the routing and rewrites it when the mode changes.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/g_cmd.c",
+        "line": 368
+      }
+    },
+    {
+      "name": "modelname:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The file path of the current map's world model -- the .bsp file, for example maps/dm3.bsp. The server provides it on request through the world entity; KTX reads it once at level start to set the world entity's model.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/g_main.c",
+        "line": 185
+      }
+    },
+    {
+      "name": "*mp:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Server-set star userinfo key holding the target player id used when the client's mmode (*mm) is player mode (1). When a message is sent in player mmode the server resolves the player by this id (SpecPlayer_by_id) and routes the message to that single player. Updated by the \"mmode player\" command when the chosen target changes.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/g_cmd.c",
+        "line": 372
+      }
+    },
+    {
+      "name": "*mt:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Server-set star userinfo key holding the target team name (string) used when the client's mmode (*mm) is team mode (2). When a message is sent in team mmode the server routes it to the team named here. Updated by the \"mmode team\" command when the chosen team changes.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/g_cmd.c",
+        "line": 383
+      }
+    },
+    {
+      "name": "*mu:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Server-set star userinfo key holding the multi-target player set as a bitmask (bit i = client index i) used when the client's mmode (*mm) is multi mode (3). When a message is sent in multi mmode the server routes it to every player whose bit is set in this mask. Updated by the multi/mmode multi commands when the selected player set changes.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/g_cmd.c",
+        "line": 387
+      }
+    },
+    {
+      "name": "name:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The player's in-game display name (netname). The client publishes it from its name cvar and the server enforces a valid, unique value, sanitizing illegal or reserved names and resolving duplicates. KTX reads it when a client connects to initialize that player's netname, which it then uses for scoreboards, messages, and stats.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/g_main.c",
+        "line": 200
+      }
+    },
+    {
+      "name": "nocolors:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Client-set opt-out flag declaring that the client cannot render Quake colored-text codes. KTX reads it per recipient when relaying say/chat: a non-zero value makes KTX send that client the plain, color-stripped version of each message instead of the colored one. The key is read as an integer, so a value of 0 (or the key being absent) leaves colored text enabled; only a non-zero value suppresses it.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/g_cmd.c",
+        "line": 284
+      }
+    },
+    {
+      "name": "nomaps:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Client-set opt-out flag for the server's map list. When set to a non-zero value, KTX skips stuffing the server's map list to that client (the list that powers votemap name completion); absent or 0 leaves normal map-list delivery in place. The player sets it with setinfo nomaps.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/maps.c",
+        "line": 251
+      }
+    },
+    {
+      "name": "nrb:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Non-random bullets toggle. When a player sets this to a nonzero value (typically 1), their shotgun and super-shotgun pellets fire in a fixed, deterministic spread pattern instead of the normal randomized spread, making practice/aim training reproducible. The effect from this key applies only while no match is in progress (it is ignored once a match starts). The deterministic pattern is also forced server-wide whenever yawnmode is active, independent of this key.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/weapons.c",
+        "line": 551
+      }
+    },
+    {
+      "name": "pbspeed:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Sets the playback speed, as a percentage, for KTX's trx movement-replay feature (the trx_rec / trx_play commands that record a player's own movement and replay it as a ghost). The value is clamped to 0-200: 100 is normal speed, 50 is half speed, 200 is double speed; 0 (or an unset key) also plays at normal speed.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/commands.c",
+        "line": 8195
+      }
+    },
+    {
+      "name": "ping:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A client's current connection latency in milliseconds. The server computes this value on demand (averaged round-trip time over recent frames) rather than storing it as a published userinfo field, so a client cannot set it; KTX reads it per player when building the end-of-match ktxstats JSON and writes it as each player's \"ping\". Connecting/not-yet-spawned clients report 999, a client with no usable timing samples reports 9999, and bots report their configured skill value instead.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/stats_json.c",
+        "line": 345
+      }
+    },
+    {
+      "name": "postmsg:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Custom suffix that KTX automatically appends to messages built by the\nkiller, victim, and newcomer commands.\n\nEffect:\n  When you invoke `killer`, `victim`, or `newcomer`, KTX builds a\n  pre-filled `say` line of the form\n      say <premsg> <target_name> <postmsg>\n  and stuffs it to your console. You can edit or send it from there.\n  If postmsg is unset, the suffix is omitted.\n\nSet via:  setinfo postmsg \"<text>\"\nDefault:  unset (suffix omitted)\n\nExample:\n  setinfo premsg \"Hah, I killed\"\n  setinfo postmsg \"again, he is so easy!\"\n  bind HOME victim\n  After fragging \"Ranger\", pressing HOME opens the console pre-filled with:\n      say  Hah, I killed Ranger again, he is so easy!\n\nSee also: premsg (prefix counterpart), killer, victim, newcomer\n",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/commands.c",
+        "line": 1828
+      }
+    },
+    {
+      "name": "premsg:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Custom prefix that KTX automatically prepends to messages built by the\nkiller, victim, and newcomer commands.\n\nEffect:\n  When you invoke `killer`, `victim`, or `newcomer`, KTX builds a\n  pre-filled `say` line of the form\n      say <premsg> <target_name> <postmsg>\n  and stuffs it to your console. You can edit or send it from there.\n  If premsg is unset, the prefix is omitted.\n\nSet via:  setinfo premsg \"<text>\"\nDefault:  unset (prefix omitted)\n\nExample:\n  setinfo premsg \"Hah, I killed\"\n  setinfo postmsg \"again, he is so easy!\"\n  bind HOME victim\n  After fragging \"Ranger\", pressing HOME opens the console pre-filled with:\n      say  Hah, I killed Ranger again, he is so easy!\n\nSee also: postmsg (suffix counterpart), killer, victim, newcomer\n",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/commands.c",
+        "line": 1822
+      }
+    },
+    {
+      "name": "Qizmo:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Presence marker injected into a client's userinfo by the Qizmo proxy when that client connects through it; only its presence is meaningful, not its value. KTX reads it to choose how to force a player to reconnect: a Qizmo-routed client cannot act on a plain disconnect/reconnect, so KTX instead issues the proxy's own command sequence (used when an admin or vote forces a player to spectator, and when a player is force-spectated for exceeding the matchless idle-time limit).",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/admin.c",
+        "line": 963
+      }
+    },
+    {
+      "name": "railcolor:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Selects the color of a player's instagib rail/coilgun trail. The player sets it client-side through the ezquake \"railcolor\" userinfo cvar; ktx reads it off the firing player when drawing the coilgun beam (and the debug hitbox-check shotgun, which renders the same trail). Valid values are the integers 1 through 7, each choosing one trail color; an empty or out-of-range value falls back to color 1.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/weapons.c",
+        "line": 533
+      }
+    },
+    {
+      "name": "rate:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Client-set userinfo value (from the ezQuake/FTE `rate` cvar) giving the maximum bytes per second the server should send to this client; the server uses it to pace the client's network channel. KTX reads it to enforce the server's rate policy: if a player's rate exceeds `sv_maxrate` or falls below `k_minrate`, KTX warns the player and forces their rate back to the allowed bound. An empty rate is treated as \"maximum allowed\" and is left alone.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/client.c",
+        "line": 88
+      }
+    },
+    {
+      "name": "runes:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A player-set opt-in flag for CTF rune HUD display. When the player sets this to any non-zero value, KTX (while CTF is active and the player is carrying a rune) stuffs the carried rune's code into the client's `rune` cvar -- one of `res` (resistance), `str` (strength), `hst` (haste), or `rgn` (regeneration), or empty when no rune is held -- so client-side HUD scripts can show which rune the player has. A zero or absent value disables this stuffing.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/runes.c",
+        "line": 480
+      }
+    },
+    {
+      "name": "skin:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Holds the player's chosen skin name -- the filename of the model skin the client requests for its appearance. Published by the client's skin setting and stored per-player; the mod reads it to display each player's selected skin in the in-game skins listing.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/commands.c",
+        "line": 2416
+      }
+    },
+    {
+      "name": "*spectator:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Server-stamped flag marking a connected client as a spectator rather than a participating player; a client cannot set it (the server writes it when someone joins as a spectator). KTX reads it to tell spectators from players -- for example when counting active players and applying player-only logic. Present means spectator; absent means player.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/match.c",
+        "line": 54
+      }
+    },
+    {
+      "name": "*state:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A server-computed, read-only per-client connection state, reported as one of: \"free\" (the client slot is empty and reusable), \"zombie\" (the client just disconnected and the slot is briefly held), \"preconnected\" (slot assigned but login/realip not yet settled), \"connected\" (in the server but not yet in the game) or \"spawned\" (fully in the game); any other value reports as \"unknown\". The client cannot set this key -- the server synthesizes it live from the client's connection lifecycle whenever it is queried. KTX reads it to count active players, to filter the unconnected/zombie entries shown by the klist command, and to locate a reconnecting player by userid or name.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/commands.c",
+        "line": 5143
+      }
+    },
+    {
+      "name": "team:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The player's team name, a free-form string the client publishes (set by the ezQuake/FTE \"team\" cvar or via setinfo). KTX reads it to decide which players are teammates -- two clients are on the same team when their team values match under teamplay -- and uses it for team-based scoring, voice, and match logic. KTX also overrides it in modes that assign teams: it forces \"coop\" in cooperative play, auto-assigns \"red\" or \"blue\" in CTF, sets it for clan-arena late-joiners, and rejects an empty value once a team game is underway. The value is unconstrained team-naming text; \"red\"/\"blue\"/\"coop\" are mode conventions, not a fixed set.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/clan_arena.c",
+        "line": 331
+      }
+    },
+    {
+      "name": "ti:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Per-client opt-in flag controlling whether KTX sends team-overlay (teaminfo) data to that client during team games. A negative value (conventionally -1) opts the client out entirely; 0 or absent lets KTX auto-detect by client type, where ezQuake clients receive team info automatically; any positive value forces team info on, which is how non-ezQuake clients (e.g. FTE) request it. The client publishes this in its own userinfo; on FTE it is the CVAR_USERINFO cvar \"ti\" (defaults to 1, \"must be 1 in order to receive team information in ktx\"), while ezQuake clients omit it and are instead recognized via their reported engine version.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/client.c",
+        "line": 4728
+      }
+    },
+    {
+      "name": "topcolor:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The player's shirt (top) color, given as a Quake palette color index. The client publishes it (in ezQuake it is set by the \"topcolor\" userinfo cvar / the color command), and the server clamps it to the 0-16 range. KTX reads each player's value for team detection and color-coded displays, and in modes that enforce team colors (CTF, Clan Arena) it overwrites the value to pin players to their team's color -- for example 4 (red) versus 13 (blue) in CTF.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/bot_commands.c",
+        "line": 246
+      }
+    },
+    {
+      "name": "tp_need_weapon:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A client-published, priority-ordered list of weapon digits (e.g. \"87\") that tells KTX which weapons a player counts as worth keeping stocked for teamplay \"need weapon\" reporting. KTX scans the digits left to right and stops at the first weapon the player currently owns; if that weapon's ammo is below the report threshold, the player is flagged as needing that ammo (and, for the lighter weapons, as still wanting an RL). Higher digits denote the stronger weapons (lightning gun and rocket launcher down through the shotguns); a player sets it explicitly with setinfo tp_need_weapon, and when it is absent KTX falls back to the built-in default \"87\".",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/teamplay.c",
+        "line": 602
+      }
+    },
+    {
+      "name": "tptook:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A client-set bitmask (published via setinfo) that filters which item pickups KTX records as a player's most-recent \"took\" item for the teamplay \"took\" report (the tp_msgtook message). The value is a decimal integer whose bits correspond to KTX item types (rocket launcher, lightning gun, armors, ammo, powerups, backpack, etc.); when a player picks up an item, KTX registers it only if its bit is set in this mask. If the key is absent or set to 0, all item types are reported.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/teamplay.c",
+        "line": 106
+      }
+    },
+    {
+      "name": "*userid:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "The unique numeric identifier the server assigns to each client connection for the lifetime of that connection. The value is a small positive integer (cycled within the 1-99 range) that the server generates and protects; it is not part of the userinfo a client publishes and cannot be set by the client. KTX reads it as a player's canonical connection ID -- to find a player by their ID, to drive per-client server commands, and to print the ID column in the client list.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/commands.c",
+        "line": 5163
+      }
+    },
+    {
+      "name": "*version:serverinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A server-protected identity string the server stamps into serverinfo at startup, naming the host engine and its version. mvdsv sets it to \"MVDSV \" plus its version (e.g. \"MVDSV 1.20-dev\"); an FTE server stamps its own version string, and qwfwd/qtv proxies stamp their own identifiers (\"qwfwd ...\", \"qtv ...\"). KTX reads it from the world entity and substring-matches \"FTE\" to detect that the host is an FTE server and enable FTE-specific behaviour. Clients (ezquake/FTE) and the server browser also read it to identify the server software and version.",
+      "scope": "serverinfo",
+      "source_ref": {
+        "file": "src/g_main.c",
+        "line": 148
+      }
+    },
+    {
+      "name": "wps:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Bitmask selecting which weapons appear in the on-screen weapon-accuracy display toggled by the +wp_stats command (shown outside live match play, e.g. during warmup or intermission, for your own stats or those of a player you are spectating). Each bit enables one weapon's line: axe=1, SG=2, SSG=4, NG=8, SNG=16, GL=32, RL=64, LG=128, and LG-last-frag=256; shotgun/nailgun/LG lines show hit percentage while axe/GL/RL show direct-hit counts. When unset (or zero) it defaults to showing GL, RL and LG. Set it manually with setinfo (there is no client cvar that publishes this key).",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/client.c",
+        "line": 3167
+      }
+    },
+    {
+      "name": "wpsx:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Client opt-in flag requesting live per-weapon accuracy updates from KTX. When set to a non-zero value, KTX streams running attack/hit counts for each weapon to that client as a match progresses -- both to a playing client watching its own accuracy and to a spectator watching the player it is tracking. An empty or zero value means the client does not want these updates and KTX sends nothing. The client publishes this key itself: ezquake sets it when the weapon-stats HUD element is toggled (normalizing \"0\" to unset), and FTE exposes it as a userinfo cvar that must be enabled to receive KTX weapon-stats data.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/client.c",
+        "line": 4378
+      }
+    },
+    {
+      "name": "w_rank:userinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "A player's weapon-switch order -- a string of weapon-impulse digits, highest priority first (1=axe through 8=lightning gun) -- written into userinfo by mvdsv's server-side weapon switching. KTX reads it to auto-switch to the first weapon in the order the player owns and has ammo for, on pickup; if absent, it falls back to its default switch behaviour.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/items.c",
+        "line": 768
+      }
+    }
+  ]
+}

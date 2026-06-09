@@ -1,0 +1,168 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.964Z",
+    "codebase": "qwfwd",
+    "type": "cvar",
+    "snapshot_version": "1.40-dev",
+    "upstream_commit": "1.40-dev"
+  },
+  "entries": [
+    {
+      "name": "city",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets the city this proxy reports in its server info, used by server browsers to show its location. The value is a free-form text label (for example `Stockholm`); it is informational only and does not affect routing or connections. While left empty, no city is published.\n\nDefault: empty (not advertised).\nSet by: server config (or the `serverinfo` console command).",
+      "category": "Network, identity & forwarding",
+      "source_ref": {
+        "file": "src/main.c",
+        "line": 132
+      }
+    },
+    {
+      "name": "coords",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets the geographic coordinates this proxy reports in its server info, used by server browsers to place it on a map. The value is a free-form text label, conventionally `latitude,longitude` (for example `59.3327,18.0656`); it is informational only and does not affect routing or connections. While left empty, no coordinates are published.\n\nDefault: empty (not advertised).\nSet by: server config (or the `serverinfo` console command).",
+      "category": "Network, identity & forwarding",
+      "source_ref": {
+        "file": "src/main.c",
+        "line": 133
+      }
+    },
+    {
+      "name": "countrycode",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets the country this proxy reports in its server info, used by server browsers to show or group it by location. The value is a free-form label (conventionally a two-letter country code such as `se`); it is informational only and does not affect routing or connections. While left empty, no country is published.\n\nDefault: empty (not advertised).\nSet by: server config (or the `serverinfo` console command).",
+      "category": "Network, identity & forwarding",
+      "source_ref": {
+        "file": "src/main.c",
+        "line": 131
+      }
+    },
+    {
+      "name": "developer",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Controls how much diagnostic output the proxy prints to its console. At 0 the proxy runs quietly and prints only normal status messages. Raising it turns on internal debug logging -- per-connection events, challenge and protocol handling, master-server traffic, and dropped or banned addresses. A higher value prints even more detail. Intended for troubleshooting; it does not change how the proxy forwards clients.\n\n0 = off (no debug output). 1 = debug output. 2 or higher = extra-verbose output.\n\nDefault: 0.\nSet by: server config.",
+      "category": "Diagnostics",
+      "source_ref": {
+        "file": "src/main.c",
+        "line": 126
+      }
+    },
+    {
+      "name": "hostname",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "default": "unnamed qwfwd",
+      "description": "Sets the display name this proxy advertises. The name appears in the proxy's server info (so it is what shows up in server browsers) and is included in the \"proxy is full\" message a client sees when it is turned away because all slots are taken.\n\nAny text string.\n\nDefault: \"unnamed qwfwd\".\nSet by: server config.",
+      "category": "Network, identity & forwarding",
+      "source_ref": {
+        "file": "src/main.c",
+        "line": 128
+      }
+    },
+    {
+      "name": "hostport",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets the address and port that this proxy advertises in its server info, so server browsers and connecting clients see where to reach it. This is purely an advertised label -- it does not change the UDP port the proxy actually listens on. While left empty, no address is published.\n\nDefault: empty (nothing advertised).\nSet by: server config (or the `serverinfo` console command).",
+      "category": "Network, identity & forwarding",
+      "source_ref": {
+        "file": "src/main.c",
+        "line": 130
+      }
+    },
+    {
+      "name": "masters",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "default": "QW_DEFAULT_MASTER_SERVERS",
+      "description": "The list of QuakeWorld master servers this proxy talks to -- the masters it registers with (heartbeats) and asks for the current server list. Entries are separated by spaces, and each entry may be a hostname or hostname:port; if no port is given, 27000 is used. Changing this list re-reads it and rebuilds the proxy's set of masters. At most 8 masters are kept; any beyond that are ignored.\n\nDefault: the 3 built-in QuakeWorld master servers (master.quakeworld.nu, qwmaster.fodquake.net, master.quakeservers.net).\nSet by: server config.",
+      "category": "Master servers & discovery",
+      "source_ref": {
+        "file": "src/query.c",
+        "line": 699
+      }
+    },
+    {
+      "name": "masters_filter_servers",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "default": "QW_DEFAULT_SV_FILTER",
+      "description": "A blocklist of server addresses that this proxy should never include in the server list it discovers from the masters. Any server whose address matches an entry here is left out of the proxy's list -- and if it is already on the list, it is removed. Entries are separated by spaces; only the IP address is matched, so any port on an entry is ignored. Changing this list re-applies it immediately. At most 16 entries are kept; any beyond that are ignored.\n\nDefault: 127.0.0.1 (blocks the local address, which masters sometimes hand out as an unusable server).\nSet by: server config.",
+      "category": "Master servers & discovery",
+      "source_ref": {
+        "file": "src/query.c",
+        "line": 700
+      }
+    },
+    {
+      "name": "masters_heartbeat",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether this proxy announces itself to the QuakeWorld master servers. When enabled, the proxy periodically sends a heartbeat to each configured master so it stays listed and can be found by users. When disabled, no heartbeat is sent and the proxy is not advertised to the masters; the manual `heartbeat` command also has no effect while this is off.\n\n0 = disabled (no heartbeat). 1 = enabled.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Master servers & discovery",
+      "source_ref": {
+        "file": "src/query.c",
+        "line": 698
+      }
+    },
+    {
+      "name": "masters_query",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether this proxy fetches the QuakeWorld server list from the master servers and keeps it up to date. When enabled, the proxy periodically asks the masters for the current server list, pings those servers to measure their response, and hands that list out to clients who ask the proxy for servers. When disabled, the proxy does none of this: it sends no query to the masters, ignores any server list a master sends back, stops pinging servers, and returns an empty server list to clients.\n\n0 = disabled (no server-list querying). 1 = enabled.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Master servers & discovery",
+      "source_ref": {
+        "file": "src/query.c",
+        "line": 697
+      }
+    },
+    {
+      "name": "maxclients",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "default": "128",
+      "description": "Sets the maximum number of clients the proxy will forward at the same time. Once this many client connections are active, any further client trying to connect is refused with a \"proxy is full\" message until a slot frees up. The current limit is also published in the proxy's server info, so server browsers can show it.\n\nWhole number of simultaneous forwarded client connections.\n\nDefault: 128.\nSet by: server config.",
+      "category": "Network, identity & forwarding",
+      "source_ref": {
+        "file": "src/main.c",
+        "line": 129
+      }
+    },
+    {
+      "name": "net_ip",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "default": "ip",
+      "description": "Sets which local IP address (network interface) the proxy binds its UDP socket to when it starts. With the default, the proxy listens on every IP address the host has; set a specific address to restrict it to one interface.\n\n0.0.0.0 = listen on all of the host's IP addresses. Any other value = listen only on that one address.\n\nDefault: 0.0.0.0 (all interfaces).\nSet by: the command line at startup (run the proxy as `qwfwd [port [ip]]` -- the IP is the second argument), or the server config (`set net_ip <address>`); a value given on the command line overrides the config. It is fixed once the proxy is running and cannot be changed from the console.",
+      "category": "Network, identity & forwarding",
+      "source_ref": {
+        "file": "src/net.c",
+        "line": 277
+      }
+    },
+    {
+      "name": "net_port",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "default": "port",
+      "description": "Sets the UDP port the proxy listens on for connecting clients. This is the port players (or their client's connect command) point at to reach the proxy.\n\nDefault: 30000.\nSet by: the command line at startup (run the proxy as `qwfwd [port [ip]]` -- the port is the first argument), or the server config (`set net_port <number>`); a value given on the command line overrides the config. It is fixed once the proxy is running and cannot be changed from the console.",
+      "category": "Network, identity & forwarding",
+      "source_ref": {
+        "file": "src/net.c",
+        "line": 282
+      }
+    }
+  ]
+}

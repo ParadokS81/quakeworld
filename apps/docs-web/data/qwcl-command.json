@@ -1,0 +1,1343 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.941Z",
+    "codebase": "qwcl",
+    "type": "command",
+    "snapshot_version": "2.33",
+    "upstream_commit": "bf4ac424ce754894ac8f1dae6a3981954bc9852d"
+  },
+  "entries": [
+    {
+      "name": "alias",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Used to create a reference to a command or list of commands.\nWhen used without parameters, displays all current aliases.. Enclose multiple commands within quotes and separate each command with a semi-colon.",
+      "category": "Configuration",
+      "source_ref": {
+        "file": "cmd.c",
+        "line": 742
+      }
+    },
+    {
+      "name": "allskins",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Downloads all skins that is currently in use.\nUseful for refreshing skins without exiting the level.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1141
+      }
+    },
+    {
+      "name": "+attack",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active the player will fire the weapon he is currently holding.\nThis is the primary command used to make the player fire the gun.\nFor as long as the key that is bound to this command is held down and this command is active the player will keep on firing the gun.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 510
+      }
+    },
+    {
+      "name": "-attack",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the player will stop firing the gun if \"+attack\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 511
+      }
+    },
+    {
+      "name": "+back",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active the player will move backwards.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 496
+      }
+    },
+    {
+      "name": "-back",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the player will stop moving back if \"+back\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 497
+      }
+    },
+    {
+      "name": "bf",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command shows a background screen flash that is the same one that is produced when the player picked up an item in the game.\nThis command basically serves no useful function except when people want to use it in scripts to give the user some visual feedback when an aliases is used for example.",
+      "category": "Video",
+      "source_ref": {
+        "file": "view.c",
+        "line": 1034
+      }
+    },
+    {
+      "name": "bind",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command binds one or several commands to a key.\nTo bind multiple commands to a key, enclose the commands in double-quotes (\") and separate them with semicolons (;).",
+      "category": "Configuration",
+      "source_ref": {
+        "file": "keys.c",
+        "line": 663
+      }
+    },
+    {
+      "name": "cd",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "cd play 5 plays cd track #5. You need -cdaudio to use this command.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cd_audio.c",
+        "line": 834
+      }
+    },
+    {
+      "name": "centerview",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Centers the player's view ahead after +lookup or +lookdown.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "view.c",
+        "line": 1035
+      }
+    },
+    {
+      "name": "changing",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Internal command the server sends to tell the client a level change is underway; the client clears its state and prepares to reconnect to the new map.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1132
+      }
+    },
+    {
+      "name": "clear",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command clears the console screen of any text.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "console.c",
+        "line": 247
+      }
+    },
+    {
+      "name": "cmd",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Sends a command directly to the server.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cmd.c",
+        "line": 745
+      }
+    },
+    {
+      "name": "color",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command sets the color for the player's shirt and pants.. If only the shirt color is given, the pant color will match.",
+      "category": "Communication",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1157
+      }
+    },
+    {
+      "name": "connect",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Connects your client to a QuakeWorld server.",
+      "category": "Game",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1145
+      }
+    },
+    {
+      "name": "disconnect",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will disconnect you from the server/demo/proxy you are currently connected to.",
+      "category": "Game",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1133
+      }
+    },
+    {
+      "name": "download",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Manually download a quake file from the server.\n\nExample:\ndownload skins/foo.pcx",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1158
+      }
+    },
+    {
+      "name": "echo",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will print text to your local console.",
+      "category": "Configuration",
+      "source_ref": {
+        "file": "cmd.c",
+        "line": 741
+      }
+    },
+    {
+      "name": "envmap",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Captures six screenshots from the current viewpoint, one per cardinal direction, forming an environment (cube) map -- a content/development tool.",
+      "category": "Development",
+      "source_ref": {
+        "file": "gl_rmisc.c",
+        "line": 173
+      }
+    },
+    {
+      "name": "exec",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Executes a config file from \\qw, \\id1 or \\ezquake. The companion command `serverexec` runs the same script routed to the server command buffer (`cbuf_server`) instead of the main client buffer -- useful for sending commands that should execute on the server side in listen-server builds.",
+      "category": "Configuration",
+      "source_ref": {
+        "file": "cmd.c",
+        "line": 740
+      }
+    },
+    {
+      "name": "flush",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will clear the current game cache.\nIt is usually used by developers to flush the memory of all game information and objects to test if the mechanism which handles the loading of the necessary files into memory works properly.\nSometimes the game cache can become filled with unnecessary information and may need to be flushed manually. This is usually not necessary since the game automatically flushes all the data between every map.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "zone.c",
+        "line": 819
+      }
+    },
+    {
+      "name": "force_centerview",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command centers the player's screen.\nIt was created because the original \"centerview\" command did not work when \"+mlook\" was enabled.\nThis command will center the screen in any mode no matter commands are active.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 679
+      }
+    },
+    {
+      "name": "+forward",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active the player will move forward.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 494
+      }
+    },
+    {
+      "name": "-forward",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the player will stop moving forward if \"+forward\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 495
+      }
+    },
+    {
+      "name": "fullinfo",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Used by QuakeSpy and Qlist to set setinfo variables.\n\nExample:\nfullinfo \"\\quote\\I am the only Lamer!\\\". Use the setinfo command to see the output.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1154
+      }
+    },
+    {
+      "name": "fullserverinfo",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Internal command carrying the server's complete serverinfo string to the client; sent by the server, not typed by users.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1155
+      }
+    },
+    {
+      "name": "gl_texturemode",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Sets the OpenGL texture filtering mode (for example GL_LINEAR or GL_NEAREST), controlling whether textures look smoothed or pixelated; with no argument it prints the current mode.",
+      "category": "Video",
+      "source_ref": {
+        "file": "gl_draw.c",
+        "line": 394
+      }
+    },
+    {
+      "name": "help",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Enters manual pages. Use arrows, [Page Down], [Page Up], [Tab] and [Enter] for navigation.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "menu.c",
+        "line": 1124
+      }
+    },
+    {
+      "name": "impulse",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command calls a game function or QuakeC function.\nOften impulses are used by the mod by defining aliases for game functions like \"ready\" and \"break\" that call certain impulses.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 516
+      }
+    },
+    {
+      "name": "joyadvancedupdate",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command must be run to apply changes made to the joyadvaxis[xyzruv] or joyindex cvars.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 510
+      }
+    },
+    {
+      "name": "+jump",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active the player will do a single jump. The next jump won't be performed until \"-jump\" has been issued.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 514
+      }
+    },
+    {
+      "name": "-jump",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the player will stop jumping if \"+jump\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 515
+      }
+    },
+    {
+      "name": "kill",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Suicide. (-2 frags on ktpro/kteam servers)",
+      "category": "Game",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1166
+      }
+    },
+    {
+      "name": "+klook",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active, \"+forward\" and \"+back\" become \"+lookup\" and \"+lookdown\"  respectively.\nThis command is useful if the player needs to look at objects which are above or below him.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 517
+      }
+    },
+    {
+      "name": "-klook",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the forward and back keys will stop making the player look up and down if \"+klook\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 518
+      }
+    },
+    {
+      "name": "+left",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active the player will turn left.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 490
+      }
+    },
+    {
+      "name": "-left",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the player will stop turning left if \"+left\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 491
+      }
+    },
+    {
+      "name": "+lookdown",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active the player will look down.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 500
+      }
+    },
+    {
+      "name": "-lookdown",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the player will stop looking down if \"+lookdown\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 501
+      }
+    },
+    {
+      "name": "+lookup",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active the player will look up.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 498
+      }
+    },
+    {
+      "name": "-lookup",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the player will stop looking up if \"+lookup\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 499
+      }
+    },
+    {
+      "name": "menu_keys",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will display the keys menu.",
+      "category": "Menu",
+      "source_ref": {
+        "file": "menu.c",
+        "line": 1122
+      }
+    },
+    {
+      "name": "menu_main",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will display the main menu.",
+      "category": "Menu",
+      "source_ref": {
+        "file": "menu.c",
+        "line": 1120
+      }
+    },
+    {
+      "name": "menu_options",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will display the options menu.",
+      "category": "Menu",
+      "source_ref": {
+        "file": "menu.c",
+        "line": 1121
+      }
+    },
+    {
+      "name": "menu_quit",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will display the quit menu.",
+      "category": "Menu",
+      "source_ref": {
+        "file": "menu.c",
+        "line": 1125
+      }
+    },
+    {
+      "name": "menu_video",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will display the video menu.",
+      "category": "Menu",
+      "source_ref": {
+        "file": "menu.c",
+        "line": 1123
+      }
+    },
+    {
+      "name": "messagemode",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Prompts for string to broadcast to all other players.",
+      "category": "Communication",
+      "source_ref": {
+        "file": "console.c",
+        "line": 245
+      }
+    },
+    {
+      "name": "messagemode2",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Prompts for string to broadcast to team members.",
+      "category": "Communication",
+      "source_ref": {
+        "file": "console.c",
+        "line": 246
+      }
+    },
+    {
+      "name": "+mlook",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active moving the mouse or joystick forwards and backwards performs \"+lookup\" and \"+lookdown\" respectively.\nThis command is very useful if the player needs to look at objects which are above or below him.\nMost players execute this command and never remove it. This way they can use the keyboard to move the player forward and back and strafe left and right, while using the mouse to turn the player left and right and to make him look up and down.\nIn order to have this command set permanently you will have to create a file called autoexec.cfg in the qw/ directory and put in the line \"+mlook\" into that file.\nBy doing this the game will automatically execute the autoexec.cfg file and it will also active that command.\nAlmost every player uses this command nowadays, because the combination of using mouse and keyboard is widely considered the best.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 519
+      }
+    },
+    {
+      "name": "-mlook",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the mouse forward and back movement will stop making the player look up and down if \"+mlook\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 520
+      }
+    },
+    {
+      "name": "+movedown",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active the player will swim down when in the water.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 488
+      }
+    },
+    {
+      "name": "-movedown",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the player will stop moving down if \"+movedown\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 489
+      }
+    },
+    {
+      "name": "+moveleft",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active the player will strafe left.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 504
+      }
+    },
+    {
+      "name": "-moveleft",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the player will stop moving left if \"+moveleft\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 505
+      }
+    },
+    {
+      "name": "+moveright",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active the player will strafe right.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 506
+      }
+    },
+    {
+      "name": "-moveright",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the player will stop moving right if \"+moveright\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 507
+      }
+    },
+    {
+      "name": "+moveup",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active the player will swim up when in the water.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 486
+      }
+    },
+    {
+      "name": "-moveup",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the player will stop moving up if \"+moveup\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 487
+      }
+    },
+    {
+      "name": "nextul",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Internal command that sends the next block of an in-progress client file upload.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1160
+      }
+    },
+    {
+      "name": "packet",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Sends a packet with specified contents to the destination.\n\nExample:\npacket 123.123.123.123:27500 \"status\"",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1149
+      }
+    },
+    {
+      "name": "path",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Shows what paths ezQuake is using.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "common.c",
+        "line": 1225
+      }
+    },
+    {
+      "name": "pause",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Pauses a game.. Servers must support pausing.",
+      "category": "Game",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1167
+      }
+    },
+    {
+      "name": "play",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Plays a sound effect.\n\nExample:\nplay misc/runekey.wav",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 181
+      }
+    },
+    {
+      "name": "playdemo",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Plays a recorded demo.\n\nExample:\nplaydemo thresh.qwd",
+      "category": "Demos",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1137
+      }
+    },
+    {
+      "name": "playvol",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Plays a sound at a given volume.\n\nExamples:\nplayvol items/protect.wav .5\nplayvol items/protect.wav 2",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 182
+      }
+    },
+    {
+      "name": "pointfile",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "If qbsp generates a non-zero .pts file a leak exists in the level. This file is created in the maps directory. By using the pointfile command, it will load the .pts file and give a dotted line indicating where the leak(s) are on the level.",
+      "category": "Development",
+      "source_ref": {
+        "file": "gl_rmisc.c",
+        "line": 174
+      }
+    },
+    {
+      "name": "quit",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Exit - disconnects from the server and closes the client.",
+      "category": "Game",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1143
+      }
+    },
+    {
+      "name": "rcon",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Issue the set of commands to the server you are currently connected to or have set in rcon_address.\nYou must know the rcon password for that specific server.",
+      "category": "Communication",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1148
+      }
+    },
+    {
+      "name": "reconnect",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Reconnects to the last server/proxy.",
+      "category": "Game",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1146
+      }
+    },
+    {
+      "name": "record",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Records a demo.\n\nExample:\nrecord test\n - records test.qwd to qw folder\n\nThe companion command `recordqwd` bypasses the listen-server routing branch and always records a client-side QWD; use `recordqwd` when the listen-server form of `record` would route the recording to the server-side MVD command instead.",
+      "category": "Demos",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1134
+      }
+    },
+    {
+      "name": "rerecord",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Restarts demo recording on the current connection, beginning a fresh demo without disconnecting.",
+      "category": "Demos",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1135
+      }
+    },
+    {
+      "name": "+right",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active the player will turn right.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 492
+      }
+    },
+    {
+      "name": "-right",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the player will stop turning right if \"+right\" is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 493
+      }
+    },
+    {
+      "name": "say",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Broadcasts a string to all other players.\n\nExample:\nsay ezQuake rules!",
+      "category": "Communication",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1168
+      }
+    },
+    {
+      "name": "say_team",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Broadcasts a string to teammates.\n\nExample:\nsay_team stop boring!",
+      "category": "Communication",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1169
+      }
+    },
+    {
+      "name": "screenshot",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Saves a still picture of current screen to your hard drive.",
+      "category": "Video",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 392
+      }
+    },
+    {
+      "name": "serverinfo",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Reports the current server info.",
+      "category": "Status bar",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1170
+      }
+    },
+    {
+      "name": "setinfo",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Sets information about your FuhWorld user.\nUsed without a key it will list all of your current settings. Specifying a non-existent key and a value will create the new key.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1153
+      }
+    },
+    {
+      "name": "+showscores",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Display scoreboard.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "sbar.c",
+        "line": 211
+      }
+    },
+    {
+      "name": "-showscores",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the score screen will disappear if +showscores is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "sbar.c",
+        "line": 212
+      }
+    },
+    {
+      "name": "+showteamscores",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Display team scoreboard.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "sbar.c",
+        "line": 214
+      }
+    },
+    {
+      "name": "-showteamscores",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the score screen will disappear if +showteamscores is active.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "sbar.c",
+        "line": 215
+      }
+    },
+    {
+      "name": "sizedown",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Reduces the screen size.",
+      "category": "HUD",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 395
+      }
+    },
+    {
+      "name": "sizeup",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Increases the screen size.",
+      "category": "HUD",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 394
+      }
+    },
+    {
+      "name": "skins",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Refreshes skin settings.. If you have set noskins to 0 and do this it will download all skins that players are using on server.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1140
+      }
+    },
+    {
+      "name": "snap",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Remote screenshot from a player.\n\nExample:\nsnap 1234\n - server requests remote screenshot from user 1234",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 393
+      }
+    },
+    {
+      "name": "soundinfo",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Reports information on the sound system.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 185
+      }
+    },
+    {
+      "name": "soundlist",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Reports a list of sounds in the cache.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 184
+      }
+    },
+    {
+      "name": "+speed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active the player will run.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 508
+      }
+    },
+    {
+      "name": "-speed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the player will walk.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 509
+      }
+    },
+    {
+      "name": "stop",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Stops demo recording. The companion command `stopqwd` bypasses the listen-server routing branch in `CL_Stop_f` and always stops client-side QWD recording, whereas `stop` routes to the server-side MVD stop command in a listen-server build.",
+      "category": "Demos",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1136
+      }
+    },
+    {
+      "name": "stopsound",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Stops all sounds currently being played.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 183
+      }
+    },
+    {
+      "name": "stopul",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Stops an in-progress client file upload.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1161
+      }
+    },
+    {
+      "name": "+strafe",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When active, \"+left\" and \"+right\" function like \"+moveleft\" and \"+moveright\", strafing in that direction.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 502
+      }
+    },
+    {
+      "name": "-strafe",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used the turn left and turn right keys will once again perform their original functions.",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 503
+      }
+    },
+    {
+      "name": "stuffcmds",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Executes any '+' commands passed on the command line at startup (such as +connect or +map). Run once during initialization.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cmd.c",
+        "line": 739
+      }
+    },
+    {
+      "name": "timedemo",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will load and play a demo at full speed. It will then divide the total number of frames in the demo by the total time it took finish, and calculate the average frames-per-second rate.\n\nExample:\ntimedemo demoname",
+      "category": "Demos",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1138
+      }
+    },
+    {
+      "name": "timerefresh",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will perform a 360 degree turn and calculate the frames-per-second rate.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "gl_rmisc.c",
+        "line": 172
+      }
+    },
+    {
+      "name": "togglechat",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Toggles the console chat input prompt on or off.",
+      "category": "Communication",
+      "source_ref": {
+        "file": "console.c",
+        "line": 244
+      }
+    },
+    {
+      "name": "toggleconsole",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Brings the console up and down.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "console.c",
+        "line": 243
+      }
+    },
+    {
+      "name": "togglemenu",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Displays the menu screens.",
+      "category": "Menu",
+      "source_ref": {
+        "file": "menu.c",
+        "line": 1118
+      }
+    },
+    {
+      "name": "unbind",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Example: unbind x delete strings on x button.",
+      "category": "Configuration",
+      "source_ref": {
+        "file": "keys.c",
+        "line": 664
+      }
+    },
+    {
+      "name": "unbindall",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Removes all keyboard bindings.",
+      "category": "Configuration",
+      "source_ref": {
+        "file": "keys.c",
+        "line": 665
+      }
+    },
+    {
+      "name": "+use",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used it will activate objects in the game that have been designed to react at \"+use\"",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 512
+      }
+    },
+    {
+      "name": "-use",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "When used it will stop activating objects in the game that have been designed to react at \"+use\".",
+      "category": "Actions",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 513
+      }
+    },
+    {
+      "name": "user",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command queries the user for his setinfo information.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1150
+      }
+    },
+    {
+      "name": "users",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Reports information on connected players and retrieve user IDs.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1151
+      }
+    },
+    {
+      "name": "v_cshift",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This adjusts all of the colors currently being displayed.\nUsed when you are underwater, hit, have the Ring of Shadows, or Quad Damage.\n\nExample:\nv_cshift 16 32 64\n",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "view.c",
+        "line": 1033
+      }
+    },
+    {
+      "name": "version",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Prints client version number and date into the console.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1130
+      }
+    },
+    {
+      "name": "vid_debug",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "SVGAlib-build developer command that prints video-mode debugging information.",
+      "category": "Development",
+      "source_ref": {
+        "file": "vid_svgalib.c",
+        "line": 582
+      }
+    },
+    {
+      "name": "vid_describecurrentmode",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Prints the details -- resolution, color depth, refresh -- of the video mode currently in use.",
+      "category": "Video",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 1597
+      }
+    },
+    {
+      "name": "vid_describemode",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Prints the details of a video mode identified by its number.",
+      "category": "Video",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 1598
+      }
+    },
+    {
+      "name": "vid_describemodes",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Lists every available video mode with its details.",
+      "category": "Video",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 1599
+      }
+    },
+    {
+      "name": "vid_forcemode",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will force ezQuake to use a certain video mode.",
+      "category": "Video",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 2124
+      }
+    },
+    {
+      "name": "vid_fullscreen",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Switches the client into a fullscreen video mode.",
+      "category": "Video",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 2126
+      }
+    },
+    {
+      "name": "vid_minimize",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will minimize the windowed game screen.\nIt was made available because the game takes control over the mouse when it is moved onto the game window thus prohibiting the normal minimization of the game window.",
+      "category": "Video",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 2127
+      }
+    },
+    {
+      "name": "vid_nummodes",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Prints the number of available video modes.",
+      "category": "Video",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 1596
+      }
+    },
+    {
+      "name": "vid_testmode",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will switch to the specified video mode for 5-seconds in order to test it.",
+      "category": "Video",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 2119
+      }
+    },
+    {
+      "name": "vid_windowed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "This command will switch the a windowed video mode specified in the \"vid_windowed_mode\" variable.",
+      "category": "Video",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 2125
+      }
+    },
+    {
+      "name": "wait",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Adds one wait frame.",
+      "category": "Configuration",
+      "source_ref": {
+        "file": "cmd.c",
+        "line": 743
+      }
+    },
+    {
+      "name": "windows",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Switches away from client and back to the Windows OS.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1176
+      }
+    }
+  ]
+}

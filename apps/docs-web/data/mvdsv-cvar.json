@@ -1,0 +1,2208 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.897Z",
+    "codebase": "mvdsv",
+    "type": "cvar",
+    "snapshot_version": "head",
+    "upstream_commit": "18d036218004f31cf701bb5060448012652de6d1"
+  },
+  "entries": [
+    {
+      "name": "allow_download",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Master switch for client file downloads from the server. When off, the server refuses every client download request -- the per-type download settings (skins, models, sounds, maps, demos, other) have no effect while this is off; it must be on for any of them to apply.\n\n0 = block all downloads from this server.\n1 = allow downloads, subject to the per-type settings.\n\nDefault: 1.\nSet by: server config.\nSee also: allow_download_maps, allow_download_models, allow_download_other.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 106
+      }
+    },
+    {
+      "name": "allow_download_demos",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether the server lets clients download recorded demo files from it (requests under demos/, and the demonum/ shortcut that resolves to a recorded demo by number).\n\n1 = allow demo downloads.\n0 = block demo downloads.\n\nDefault: 1.\nSet by: server config / rcon.\nSee also: this only applies when the master download switch allow_download is on, and a techlogin client bypasses it.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 112
+      }
+    },
+    {
+      "name": "allow_download_maps",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether clients may download map files (the maps/ folder) from the server. Has effect only while allow_download is on.\n\n0 = block map downloads.\n1 = allow clients to download maps from this server.\n\nDefault: 1.\nSet by: server config.\nSee also: allow_download, allow_download_pakmaps, allow_download_other.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 110
+      }
+    },
+    {
+      "name": "allow_download_models",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether clients may download model/progs files (the progs/ folder, e.g. player and weapon models) from the server. Has effect only while allow_download is on.\n\n0 = block model downloads.\n1 = allow clients to download models from this server.\n\nDefault: 1.\nSet by: server config.\nSee also: allow_download, allow_download_other.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 108
+      }
+    },
+    {
+      "name": "allow_download_other",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Controls whether clients may download files that are not skins, models, sounds, maps, or demos -- any other file located in a subdirectory on the server. Has effect only while allow_download is on.\n\n0 = block these other downloads.\n1 = allow clients to download other files from this server.\n\nDefault: 0.\nSet by: server config.\nSee also: allow_download, allow_download_maps, allow_download_models.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 113
+      }
+    },
+    {
+      "name": "allow_download_pakmaps",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Adds an extra restriction on map downloads: when off, the server refuses to send a map file that it opened from a copy-protected pak, even if ordinary map downloading is otherwise allowed.\n\n1 = allow such maps to be downloaded along with other maps.\n0 = block downloading any map that came from a copy-protected pak (the request is denied even when general map downloading is enabled).\n\nDefault: 1.\nSet by: server config / rcon.\nSee also: this extra check is skipped for techlogin clients; it does not affect maps the server has as loose files.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 111
+      }
+    },
+    {
+      "name": "allow_download_skins",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether the server lets connecting clients download player skin files (anything under the skins/ folder) that they are missing.\n\n1 = allow skin downloads.\n0 = block skin downloads.\n\nDefault: 1.\nSet by: server config / rcon.\nSee also: this only applies when the master download switch allow_download is on, and a techlogin client bypasses it.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 107
+      }
+    },
+    {
+      "name": "allow_download_sounds",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether the server lets connecting clients download sound files (anything under the sound/ folder) that they are missing.\n\n1 = allow sound downloads.\n0 = block sound downloads; clients simply go without the missing sounds.\n\nDefault: 1.\nSet by: server config / rcon.\nSee also: this only applies when the master download switch allow_download is on, and a techlogin client bypasses it.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 109
+      }
+    },
+    {
+      "name": "city",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets the city/location label this server advertises in its server-info string, so server browsers and clients can show where the server is hosted. Purely informational -- it has no effect on gameplay or connections. When set, the value is published in the server's info; leaving it empty advertises no city.\n\nDefault: empty (no city advertised).\nSet by: server config / rcon.\nSee also: countrycode, coords.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 179
+      }
+    },
+    {
+      "name": "coop",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Marks the server as running cooperative play. When set to a non-zero value, the server turns deathmatch off at map load and lets players' team messages reach everyone in the game (not just their own team). The actual cooperative gameplay rules (monster frags, no countdown, etc.) are enforced by the running mod, which reads this value.\n\n0 = off (normal deathmatch/teamplay rules apply).\nnon-zero = cooperative play (deathmatch forced off; team-say goes to all players).\n\nDefault: 0.\nSet by: server config / rcon (the mod may also toggle it, e.g. by vote).",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 172
+      }
+    },
+    {
+      "name": "coords",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets the geographic coordinates this server advertises in its server-info string, so server browsers and clients can place it on a map or show its location. Purely informational -- it has no effect on gameplay or connections. When set, the value is published in the server's info; leaving it empty advertises no coordinates. mvdsv passes the value through verbatim and never parses or validates it; the latitude,longitude shape (for example, 59.3327,18.0656) is only a convention interpreted by server browsers.\n\nDefault: empty (no coordinates advertised).\nSet by: server config / rcon.\nSee also: city, countrycode.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 180
+      }
+    },
+    {
+      "name": "countrycode",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets the country code this server advertises in its server-info string, so server browsers and clients can show or filter by which country the server is in. Purely informational -- it has no effect on gameplay or connections. When set, the value is published in the server's info; leaving it empty advertises no country. The expected value is a short country code (for example, se).\n\nDefault: empty (no country advertised).\nSet by: server config / rcon.\nSee also: city, coords.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 178
+      }
+    },
+    {
+      "name": "deathmatch",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "3",
+      "description": "Selects the deathmatch game mode for the server. 0 turns deathmatch off (the world spawns as a single-player / co-op map, keeping single-player-only items); any non-zero value runs a deathmatch game, with the specific mode the number selects enforced by the game mod (e.g. KTX). Forced to 0 while co-op is on.\n\nDefault: 3.\nSet by: server config / rcon (published in server info).\nSee also: ktx-game-modes.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 166
+      }
+    },
+    {
+      "name": "developer",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Controls how much extra diagnostic output the server prints to its console. When off, the server logs only normal messages. When on, it also prints developer/debug detail (for example, notices about bad QTV commands or extended user-info dumps) that is otherwise suppressed.\n\n0 = normal output only.\nnon-zero = also show developer/debug messages.\n\nDefault: 0.\nSet by: server config / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 62
+      }
+    },
+    {
+      "name": "download_map_url",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets a web address the server offers to clients as a faster alternative when they begin downloading a map from the server. When a client starts downloading a file under maps/, the server prints it a message ending in this address followed by the map's filename, so the player can fetch the map from the web instead.\n\nDefault: empty (no alternate-download message is shown).\nSet by: server config / rcon.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 115
+      }
+    },
+    {
+      "name": "extralogname",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "unset",
+      "description": "Holds the path of an extra per-match log file. When the easyrecord command (sv_demoeasyrecord) starts a recording, the server writes a <demo-directory>/<demoname>.xml path into this cvar; an external consumer -- the game mod, e.g. KTX -- then reads that path and writes its match-stats log there. mvdsv itself never reads the value, and does not clear it when recording stops: it keeps the last demo's path until the next easyrecord (the mod clears it at match end).\n\nDefault: unset.\nSet by: engine (written by the easyrecord command; mvdsv does not read it).",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 56
+      }
+    },
+    {
+      "name": "filterban",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Chooses whether the server's IP filter list (built with addip / removeip) is a ban list or an allow list.\n\n1 = ban list: addresses matching the list are refused, everyone else may connect.\n0 = allow list: only addresses matching the list may connect, everyone else is refused (use this to set up a private or LAN-only server).\n\nDefault: 1.\nSet by: server config / rcon.",
+      "category": "Access control & VIP",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 2022
+      }
+    },
+    {
+      "name": "fraglimit",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Sets the frag total at which the current match ends. The mvdsv engine only stores this value and publishes it in server info; the running game mod (e.g. KTX) is what actually ends the match when a player or team reaches the limit, and treats 0 as no frag limit.\n\nDefault: 0.\nSet by: server config / rcon (published in server info).\nSee also: ktx-match-flow.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 160
+      }
+    },
+    {
+      "name": "frag_log_type",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Selects the line format used when the server writes frag (kill) events to the frag log file. Frag logging must first be enabled separately (the frag log file has to be open) -- this setting only changes how each logged line looks, it does not turn frag logging on or off.\n\n0 = compact format: each kill is written as just the killer and victim names.\n1 = old-style verbose format: each kill also records both players' team names and a full date/timestamp, and a marker line is written to the frag log each time the map changes.\n\nDefault: 0.\nSet by: server config / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 90
+      }
+    },
+    {
+      "name": "fs_cache",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether the server uses an in-memory index of game files to speed up locating files in the game directories.\n\n1 = build and use a fast filename index, so repeated file lookups skip scanning the search paths one by one. The index is rebuilt automatically whenever the set of game directories changes.\n0 = no index; every file lookup scans the search paths directly.\n\nThis only affects how quickly files are found, not which files are available. Leaving it on is faster on installations with large game directories.\n\nDefault: 1.\nSet by: server config / rcon.",
+      "category": "Console, scripting & filesystem",
+      "source_ref": {
+        "file": "src/fs.c",
+        "line": 72
+      }
+    },
+    {
+      "name": "halflifebsp",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Read-only status flag reporting whether the currently loaded map is a Half-Life-format BSP. 1 = the current map is a Half-Life BSP; 0 = it is a standard Quake BSP (or no map loaded). The engine sets this automatically each time a map loads; it cannot be changed by an admin.\n\nDefault: 0.\nSet by: engine (read-only).",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 188
+      }
+    },
+    {
+      "name": "hostname",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "unnamed",
+      "description": "The server's display name -- the text shown for the server in server browsers and in-game listings. Changing it republishes the new name to connected clients and the browser immediately.\n\nDefault: unnamed.\nSet by: server config / rcon.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 176
+      }
+    },
+    {
+      "name": "hostport",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "An optional human-friendly address label for the server (for example a domain name with port, like quake.se:28501). When set, this text is shown as the server's address in cross-server broadcast/announce messages (the server-to-server broadcast/spectalk line) instead of its raw numeric IP:port. Leave it empty to fall back to the server's actual address.\n\nDefault: empty (use the real IP:port).\nSet by: server config / rcon.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 177
+      }
+    },
+    {
+      "name": "maxclients",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "24",
+      "description": "Maximum number of player slots on the server -- once this many players are connected, further player connections are refused. Capped at 32, the engine's hard slot ceiling, and any higher value is reduced to 32. Player slots and spectator slots share the same 32-slot total, so raising this lowers how many spectator slots remain available.\n\nDefault: 24.\nSet by: server config / rcon (published in server info).",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 163
+      }
+    },
+    {
+      "name": "maxfps",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "77",
+      "description": "Publishes a recommended packet rate (packets per second) in the server info -- classic QuakeWorld clients read it to pace how often they send to the server. The cvar is named 'maxfps' but means max packets-per-second; the server does NOT cap its own outgoing traffic by it. The value is also used internally for bot-physics and antilag prediction timing, where anything outside 20-1000 is treated as 77 (the published value itself is left unclamped).\n\nDefault: 77.\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 50
+      }
+    },
+    {
+      "name": "maxspectators",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "8",
+      "description": "Sets how many spectators (people watching without playing) are allowed to connect to the server at once. This count is separate from the player slots set by maxclients. The combined total of players and spectators is automatically capped at the engine maximum of 32; if the configured values would exceed that, the server lowers them to fit. A value of 0 blocks regular spectators, but VIPs can still connect using reserved VIP slots (see maxvip_spectators).\n\nDefault: 8.\nSet by: server config.\nSee also: maxvip_spectators.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 164
+      }
+    },
+    {
+      "name": "maxvip_spectators",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Reserves a number of additional spectator slots for VIP spectators -- clients whose spectator password, password, or IP address is on the server's VIP list. VIPs can take a normal spectator slot, and when those are full they can still connect using this reserved pool. It also lets a client who connects in spectator-on-full mode be admitted as a VIP when a reserved slot is free. The combined total of players and all spectators is automatically capped at the engine maximum of 32.\n\nDefault: 0 (no reserved VIP slots).\nSet by: server config.\nSee also: maxspectators.",
+      "category": "Access control & VIP",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 165
+      }
+    },
+    {
+      "name": "password",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets a password that clients must supply to connect as a player. When set, anyone trying to join as a player without the matching password is refused; players already connected as spectators are likewise told to reconnect with the password. An empty value (or the literal \"none\") disables the requirement, leaving the server open to players. Clients granted VIP access bypass this gate. The password is never shown to clients.\n\nDefault: empty (no player password required).\nSet by: server config / rcon.\nSee also: spectator_password, vip_password, rcon_password.",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 72
+      }
+    },
+    {
+      "name": "pausable",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Controls whether players are allowed to pause the game with the pause command.\n\n0 = pausing is not allowed.\nnon-zero = players may pause.\n\nDefault: 0 (pausing disabled).\nSet by: server config.\nSee also: ktx-pause-controls.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 138
+      }
+    },
+    {
+      "name": "pext_ezquake_verfortrans",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "7814",
+      "description": "Sets the minimum ezQuake build revision that is trusted to use the entity-transparency (alpha) network feature. When an ezQuake client connects with a build revision below this number, the server turns that feature off for that client and warns the player that transparency is disabled because of a buggy client; newer ezQuake builds keep it enabled. It only affects ezQuake clients that requested the transparency extension.\n\nThe value is an ezQuake build/revision number, not a version string. Raise it to require newer ezQuake builds for transparency; lower it to trust older builds.\n\nDefault: 7814.\nSet by: server config / rcon.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 205
+      }
+    },
+    {
+      "name": "pm_airstep",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Lets players step up onto low ledges and stairs while airborne, instead of bumping into them and sliding off. With it on, a player who jumps into a step roughly knee-high or lower will rise onto it and keep moving rather than being stopped by the edge; stepping up this way costs a little horizontal speed (more for a taller step). With it off, only players already on the ground step up over obstacles, and an airborne player is blocked by the same edges.\n\n1 = airborne step-up on.\n0 (or empty) = off.\n\nDefault: off.\nSet by: server config (the pm_airstep serverinfo key). In-game, players change it with the airstep command -- on KTX servers (the usual setup) airstep is a toggle: it flips airstep on or off from its current state and prints the result. Changing airstep also forces pm_pground to match.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 64
+      }
+    },
+    {
+      "name": "pm_bunnyspeedcap",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Limits how much horizontal speed a player can build up by air-strafing (bunnyhopping). While airborne, a player's ground-plane speed is capped at this value multiplied by their maximum running speed; air-strafing cannot push them past that ceiling. It only limits speed gained in the air -- a player who is already moving faster than the cap (for example from a rocket jump) keeps that speed, and air-strafing simply cannot add to it. On-ground movement is unaffected.\n\nThe value is a multiplier of the player's max running speed: e.g. 1.5 caps air-strafe speed at 1.5x max running speed.\n\n0 (or unset) = no cap; air-strafe speed is unlimited.\n\nDefault: unset (no cap).\nSet by: server config.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 61
+      }
+    },
+    {
+      "name": "pm_ktjump",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Keeps jump height consistent when a player jumps while still moving downward (for example the instant they land, or while dropping). Without it, leftover downward motion eats into the jump and the player jumps lower than normal; with it, that jump is topped back up to a normal full-height jump.\n\n0 = off; jump height is not corrected, so jumping while descending gives a reduced jump.\n1 = full correction; such a jump is brought up to a normal full-height jump.\nBetween 0 and 1 = partial correction; the jump is topped up part of the way toward full height (e.g. 0.5 is halfway). Values above 1 behave the same as 1.\n\nOnly affects jumps that would otherwise be lower than a normal jump; an ordinary flat-ground jump is unchanged.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 60
+      }
+    },
+    {
+      "name": "pm_pground",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Switches player ground detection to the NetQuake-style model, where standing-on-ground is decided by the movement collision itself rather than re-checked each frame by the standard QuakeWorld ground trace. It is paired with pm_airstep: the engine turns this on automatically whenever pm_airstep is enabled and off when pm_airstep is disabled, because airstep movement is designed to run with this model. While active, the standard QuakeWorld ground corrections (snapping the player down to the floor, the anti-jump-bug velocity clip, and the landing velocity clip) are bypassed.\n\n1 (on) = NetQuake-style ground handling.\nempty/0 (off) = standard QuakeWorld ground handling.\n\nDefault: off.\nSet by: not set directly. It is read-only to admins; the server controls it and keeps it matched to pm_airstep. To turn it on, enable pm_airstep.\nSee also: pm_airstep.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 65
+      }
+    },
+    {
+      "name": "pm_rampjump",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Enables a slope-aware jumping mode that changes how players move up ramps and what happens when they jump on them.\n\nWhen on, jumping while your motion is running into a slope trims your jump so you cannot launch off the ramp faster or higher than a normal jump. On maps that ship the extra slope data, running up a steep ramp also temporarily raises your ground speed limit (from the normal cap up to a higher one, scaling with steepness up to about 45 degrees) so you stay on the ramp instead of skipping off it -- with the matching jump trim keeping that extra speed from turning into extra jump height.\n\nWhen off, the normal jump fix applies: your jump is only trimmed against the ground when you are already falling, and the ramp speed boost never happens.\n\n0 = off (normal jumping).\nany non-zero value = on.\n\nDefault: off. The value is reset every time a map loads, and maps that carry their own slope data set it on automatically, so a value put in the server config can be overridden when the map changes.\nSet by: server config (published in server info); also set automatically per map.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 66
+      }
+    },
+    {
+      "name": "pm_slidefix",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Changes how a player's vertical speed is handled while running on the ground, fixing the way movement feels when going down slopes and ramps.\n\n0 = off: vertical speed is reset to zero each step while on the ground (classic QuakeWorld behavior). A player running down a ramp tends to skip or float along it instead of hugging it.\n1 = on: downward speed is kept (only upward speed is removed) and gravity keeps pulling the player down, so they follow the slope of a descending ramp smoothly (NQ-style movement down ramps).\n\nDefault: 0 (off).\nSet by: server config (published in server info).",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 62
+      }
+    },
+    {
+      "name": "qconsole_log_say",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Controls whether chat (say and say_team) messages are included in the server's console log file. Has no effect unless console logging is already enabled.\n\n0 = chat messages are not written to the console log (normal console output still is).\n1 = chat messages are also written to the console log.\n\nChanging this takes effect immediately, even while the console log is open.\n\nDefault: 0.\nSet by: server config / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 96
+      }
+    },
+    {
+      "name": "qtv_maxstreams",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Limits how many QTV proxy/client streams can pull the server's MVD broadcast at the same time. When the limit is reached, further QTV stream connections are refused.\n\n0 (or any value below 1) = no limit.\n\nDefault: 1.\nSet by: server config.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 26
+      }
+    },
+    {
+      "name": "qtv_password",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets the password a QTV proxy or client must supply before the server will let it connect and receive the MVD stream. While set, an incoming QTV connection that does not present the matching password is refused and no stream is sent. The same value is used both for a plaintext password and as the shared secret for the challenge-based auth methods (CCITT, MD4, SHA3-512). When empty, no password is required and any QTV connection is allowed to receive the stream.\n\nDefault: empty (no password required).\nSet by: server config / console / rcon.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 27
+      }
+    },
+    {
+      "name": "qtv_pendingtimeout",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "5",
+      "description": "Sets how long, in seconds, the server waits for a connecting QTV/MVD stream client to finish its handshake before giving up and closing the connection. The countdown is measured from the connection's last activity; once it elapses the pending connection is dropped with a timeout notice.\n\nDefault: 5.\nSet by: server config / rcon.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 28
+      }
+    },
+    {
+      "name": "qtv_sayenabled",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Controls whether chat sent through a connected QTV proxy reaches all players, or only spectators, during a live game. While a game is in progress, with this off, QTV chat is restricted to spectators; with it on, QTV chat is broadcast to everyone. Outside a live game (standby or countdown) QTV chat is public regardless. Game mods commonly drive this automatically, so a manual setting may be overridden during a match.\n\n0 = QTV chat limited to spectators during a live game (broadcast to all otherwise).\n1 = QTV chat broadcast to all players, even during a live game.\n\nDefault: 0.\nSet by: server config / rcon (and by the game mod).",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 29
+      }
+    },
+    {
+      "name": "qtv_streamport",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Sets the TCP port the server listens on for direct QTV/MVD proxy stream connections. When set to a non-zero port, the server opens that port and accepts incoming proxy connections on it; at 0 the port is closed and no proxy can connect to the server directly. Changing the value while the server is running closes the old port (dropping any current proxy connections) and reopens on the new one. Valid range is 0 to 65534.\n\nDefault: 0 (disabled).\nSet by: server config.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 25
+      }
+    },
+    {
+      "name": "qtv_streamtimeout",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "45",
+      "description": "Sets how long an outbound QTV/MVD stream connection may stall before the server drops it. If no data is successfully sent to a connected QTV proxy or stream client for this many seconds, the server closes that stream destination.\n\nValue is in seconds; raising it tolerates longer network stalls before disconnecting a stream, lowering it drops stalled streams sooner.\n\nDefault: 45.\nSet by: server config / rcon.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_demo_qtv.c",
+        "line": 30
+      }
+    },
+    {
+      "name": "qwm_builddate",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Holds the build date of the game mod currently running on the server (for example the KTX mod). It is an empty placeholder that the mod fills in when it starts; on a bare server with no mod loaded it stays empty. The value is purely informational identity text -- changing it does not alter how the server plays.\n\nDefault: empty.\nSet by: the running mod sets it at startup; an admin can also set it in the server config, though normally the mod owns it.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3427
+      }
+    },
+    {
+      "name": "qwm_buildnum",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Advertises the build identifier of the game mod the server is currently running. The MVDSV engine itself does not act on this value; it is an identity placeholder that the running mod fills in (for example KTX sets it to its own build's source-control commit at startup) so the mod's status display can show which build is loaded. Empty when no mod has set it.\n\nDefault: empty.\nSet by: the running game mod (e.g. KTX); also writable via server config.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3425
+      }
+    },
+    {
+      "name": "qwm_fullname",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Advertises the full descriptive name of the game mod the server is currently running. The MVDSV engine itself does not act on this value; it is an identity placeholder that the running mod fills in (for example KTX sets it to its own full name at startup) so that tools and the mod's own status displays can show which mod is loaded. Empty when no mod has set it.\n\nDefault: empty.\nSet by: the running game mod (e.g. KTX); also writable via server config.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3423
+      }
+    },
+    {
+      "name": "qwm_homepage",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Holds the homepage or website URL of the game mod currently running on the server (for example the KTX mod). It is an empty placeholder that the mod fills in when it starts; on a bare server with no mod loaded it stays empty. The value is purely informational identity text -- changing it does not alter how the server plays.\n\nDefault: empty.\nSet by: the running mod sets it at startup; an admin can also set it in the server config, though normally the mod owns it.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3428
+      }
+    },
+    {
+      "name": "qwm_name",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Holds the short name of the game mod the server is running. It is empty until the running mod fills it in (for example, KTX sets it to its mod name).\n\nThe server checks this name for \"KTX\" to enable two KTX-specific behaviors: it lets server broadcast messages reach players even after a match has started (when k_spectalk is on), and it turns on the server-side weapon extension (when sv_pext_mvdsv_serversideweapon is on).\n\nDefault: empty.\nSet by: normally set by the mod; also settable in server config.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3422
+      }
+    },
+    {
+      "name": "qwm_platform",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Advertises the platform string of the game mod the server is currently running (the operating system the mod was built for). The MVDSV engine itself does not act on this value; it is an identity placeholder that the running mod fills in (for example KTX sets it at startup) and is shown alongside the build identifier in the mod's status display. Empty when no mod has set it.\n\nDefault: empty.\nSet by: the running game mod (e.g. KTX); also writable via server config.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3426
+      }
+    },
+    {
+      "name": "qwm_version",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Advertises the version string of the game mod the server is currently running. The MVDSV engine itself does not act on this value; it is an identity placeholder that the running mod fills in (for example KTX sets it to its own version at startup) so the mod's status and MOTD displays can show which mod version is loaded. Empty when no mod has set it.\n\nDefault: empty.\nSet by: the running game mod (e.g. KTX); also writable via server config.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3424
+      }
+    },
+    {
+      "name": "qws_builddate",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "BUILD_DATE",
+      "description": "Reports the date and time the server binary was compiled.\n\nDefault: set from the build timestamp.\nSet by: fixed at build time; read-only (cannot be changed at runtime or in config).",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3419
+      }
+    },
+    {
+      "name": "qws_buildnum",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "unknown",
+      "description": "Read-only identity string holding the server engine's build number -- the git commit the engine was built from. A server admin cannot change it.\n\nValue = the git commit identifier supplied by the build; \"unknown\" when the build did not supply one.\n\nDefault: unknown (the fallback when no commit is baked in at build time).\nSet by: engine, at build time -- read-only, cannot be changed by config or rcon.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3417
+      }
+    },
+    {
+      "name": "qws_fullname",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "SERVER_FULLNAME",
+      "description": "Read-only identity string holding the server engine's full descriptive name (\"MVDSV: MultiView Demo SerVer\"). It identifies the engine by its full title; a server admin cannot change it.\n\nDefault: MVDSV: MultiView Demo SerVer (fixed at compile time).\nSet by: engine, at compile time -- read-only, cannot be changed by config or rcon.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3415
+      }
+    },
+    {
+      "name": "qws_homepage",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "SERVER_HOME_URL",
+      "description": "Reports the project homepage URL of the server software.\n\nDefault: https://github.com/QW-Group/mvdsv\nSet by: fixed at build time; read-only (cannot be changed at runtime or in config).",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3420
+      }
+    },
+    {
+      "name": "qws_name",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "SERVER_NAME",
+      "description": "Read-only identity string holding the server engine's short name (\"MVDSV\"). It identifies which engine the server is running; a server admin cannot change it.\n\nDefault: MVDSV (fixed at compile time).\nSet by: engine, at compile time -- read-only, cannot be changed by config or rcon.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3414
+      }
+    },
+    {
+      "name": "qws_platform",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "QW_PLATFORM_SHORT",
+      "description": "Reports the operating-system platform the server binary was built for, as a single-letter code.\n\nw = Windows, l = Linux, m = macOS, f = FreeBSD, o = OpenBSD, n = NetBSD, d = DragonFly, s = SunOS, u = unknown/other.\n\nDefault: set from the build platform.\nSet by: fixed at build time; read-only (cannot be changed at runtime or in config).",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3418
+      }
+    },
+    {
+      "name": "qws_version",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "SERVER_VERSION",
+      "description": "Read-only identity string holding the server engine's version (\"1.20-dev\"). It identifies which engine build version the server is running; a server admin cannot change it.\n\nDefault: the engine version baked in at compile time (1.20-dev at this build).\nSet by: engine, at compile time -- read-only, cannot be changed by config or rcon.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 3416
+      }
+    },
+    {
+      "name": "rcon_password",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets the password for normal (admin) remote console access. A remote client that authenticates with this password may run server commands over rcon, but is blocked from a set of dangerous operations (file removal/listing, chmod, log control, sv_admininfo, and toggling rcon encryption) -- those require the higher master rcon password instead.\n\nAn empty value disables normal rcon entirely: no client can authenticate against it.\n\nDefault: empty (normal rcon disabled).\nSet by: server config / rcon.\nSee also: rcon_password, spectator_password, vip_password, password.",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 71
+      }
+    },
+    {
+      "name": "registered",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "A read-only flag, fixed at 1, indicating a fully-registered (non-shareware) game -- a legacy holdover from the original Quake's shareware/registered split. On this server engine the value is constant and the engine itself does not change behavior based on it; game mods running on the server can read it (for example, to gate features that require the full game data).\n\nValue: 1 (read-only; cannot be changed).\nSet by: engine (read-only).",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 186
+      }
+    },
+    {
+      "name": "samelevel",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether the server reloads the current map or advances to the next one when a match ends. The MVDSV engine only stores this value; the game mod (e.g. KTX) reads it (via the cvar() interface) to decide: when set, the same level is replayed; when cleared, the server rotates to the next map.\n\n0 = rotate to the next map when the match ends.\nnon-zero = stay on (reload) the current map.\n\nDefault: 1.\nSet by: server config / rcon.\nSee also: skill, coop.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 170
+      }
+    },
+    {
+      "name": "serverdemo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Read-only. Shows the filename of the demo the server is currently recording, and is empty when the server is not recording. It is published in the server info so server browsers can show that a demo is in progress.\n\nDefault: empty.\nSet by: the engine (read-only) -- it is updated automatically when server-side recording starts and stops.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 168
+      }
+    },
+    {
+      "name": "showdrop",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Toggles a network diagnostic: when on, the server prints a console message whenever it receives an out-of-order packet or detects that packets were dropped (lost) for a connection.\n\n0 = no such messages are printed.\n1 = print 'Out of order packet' and 'Dropped N packets' notices to the console (each tagged with the client's network address).\n\nThis only affects console output; packet handling is unchanged either way.\n\nDefault: 0.\nSet by: server config / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/net_chan.c",
+        "line": 81
+      }
+    },
+    {
+      "name": "showpackets",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Prints a console line for every network packet the engine sends and receives, as a network-debugging aid. Each line shows the packet's outgoing/incoming sequence number, the acknowledged sequence, and the packet size in bytes; outgoing packets are marked --> and incoming packets <--.\n\n0 = off (no per-packet logging).\n1 = log every sent and received packet.\n\nDefault: 0.\nSet by: console (rcon on a dedicated server).",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/net_chan.c",
+        "line": 80
+      }
+    },
+    {
+      "name": "skill",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Sets the single-player / cooperative difficulty level (the classic Quake skill setting) that the server stores and the game mod reads. At map load the value is rounded to a whole number; for entity spawning it is clamped to 0-3 (a value above 3 is stored as-is but behaves as 3).\n\n0 = easy, 1 = normal, 2 = hard, 3 = nightmare.\n\nThis only affects which entities spawn on a map (harder skills remove or add certain pickups/monsters) and only when the server is NOT running deathmatch; on a normal deathmatch server (the usual QuakeWorld/KTX case) it has no effect on entity spawns.\n\nDefault: 1.\nSet by: server config / rcon.\nSee also: coop, samelevel.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 171
+      }
+    },
+    {
+      "name": "spectator_password",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets a password that a client must supply to connect as a spectator. A connecting spectator is admitted only if the spectator value they send matches this password; if it does not match, the connection is refused. While a spectator password is set, the server also tells clients that a spectator password is needed, and a connected player cannot switch to spectator with the 'observe' command -- they must disconnect, set the password, and reconnect. VIP clients are exempt and may spectate without it.\n\nEmpty or \"none\" = no spectator password (any client may spectate freely).\n\nDefault: empty (no spectator password).\nSet by: server config / rcon.\nSee also: password, vip_password, rcon_password.",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 102
+      }
+    },
+    {
+      "name": "sv_accelerate",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "10",
+      "description": "Controls how quickly a player gains speed toward the direction they are moving on the ground -- and, on this server, also their airborne acceleration (the air path is heavily limited), since sv_airaccelerate has no server-side effect. A higher value makes players reach full running speed almost instantly; a lower value makes them ramp up more gradually. It does not change the top speed a player can reach (that is sv_maxspeed) -- only how fast that speed is gained. At 0, players gain no speed from moving.\n\nDefault: 10.\nSet by: server config.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 50
+      }
+    },
+    {
+      "name": "sv_admininfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets the server administrator's contact information, which the server then publishes in its server info for clients and server browsers to display. Setting it to a non-empty value publishes that text as the admin contact; setting it to empty removes the admin contact entry.\n\nDefault: empty (no admin contact published).\nSet by: server config, or rcon using the master rcon password. It is blocked for normal (non-master) rcon, so an admin using the ordinary rcon password cannot change it.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 121
+      }
+    },
+    {
+      "name": "sv_airaccelerate",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "10",
+      "description": "Sent to connecting clients and recorded in MVD demos as part of the server's movement settings. On this server, the value is published but does not change how players actually accelerate while airborne -- the server's own movement code uses the sv_accelerate value for air control as well as ground control. A client that runs its own movement prediction would read this value for air acceleration.\n\nDefault: 10.\nSet by: server config.\nSee also: independent-physics.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 51
+      }
+    },
+    {
+      "name": "sv_allowlastscores",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether the server answers remote \"lastscores\" and \"laststats\" requests -- connectionless network queries (the same kind as a server-browser status ping) that let an outside program or player retrieve the server's recent recorded-demo scores and stats without joining the game.\n\n0 = refuse both queries.\nnon-zero = answer them, returning a list of recent demo results.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 126
+      }
+    },
+    {
+      "name": "sv_antilag",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Master switch for the server's antilag (lag compensation). When enabled, the server keeps a short history of each player's recent positions and, when a shot is fired, rewinds the other players to where the shooter actually saw them -- so hits register from the shooter's point of view instead of being lost to ping. The value is published in serverinfo.\n\n0 (or empty) = off.\n1 = on -- the firing player's shots are tested against other players' rewound positions.\n2 = extended -- also routes mod (QuakeC) traceline checks through lag-compensated positions, and is the level required before sv_antilag_projectiles can lag-compensate projectiles.\n\nDefault: empty (off).\nSet by: server config.",
+      "category": "Antilag",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 53
+      }
+    },
+    {
+      "name": "sv_antilag_no_pred",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "\"negative\" cvar so it doesn't show on serverinfo for no reason",
+      "category": "Antilag",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 54
+      }
+    },
+    {
+      "name": "sv_antilag_projectiles",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Extends lag compensation to projectiles (rockets, grenades, nails) so they are traced against the rewound positions of other players, not just instant-hit weapons. It only takes effect when sv_antilag is set to 2; at lower antilag levels the setting is ignored. The value is published in serverinfo.\n\n0 (or empty) = off -- projectiles use live positions.\nNon-zero = on -- projectiles are traced with lag-compensated positions (requires sv_antilag 2).\n\nDefault: empty (off).\nSet by: server config.",
+      "category": "Antilag",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 55
+      }
+    },
+    {
+      "name": "sv_bigcoords",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Switches the server to high-precision network coordinates, allowing maps with geometry that extends beyond the standard coordinate range to be played correctly. When off, the server uses the standard, more compact coordinate precision. Turning it on requires clients that support the extended coordinate format; older clients will not be able to connect.\n\n0 (or empty) = standard coordinate precision.\n1 = high-precision (extended-range) coordinates and angles.\n\nDefault: off (empty).\nSet by: server config.\nSee also: sv_extlimits.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 195
+      }
+    },
+    {
+      "name": "sv_broadcast_enabled",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Turns the cross-server broadcast feature on or off. When on, a player can send a short message to other QuakeWorld servers by typing \".qw <message>\" in chat; on the receiving server it is shown to spectators, and to all players too if that server has no game in progress. This server will likewise accept and display incoming broadcast messages from other servers. Broadcasts can only be sent before a game has started.\n\n0 = broadcasts disabled (outgoing attempts are refused and incoming broadcast packets are ignored).\n1 = broadcasts enabled.\n\nDefault: 1.\nSet by: server config.\nSee also: sv_broadcast_sender_validation_enabled.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 145
+      }
+    },
+    {
+      "name": "sv_broadcast_sender_validation_enabled",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether incoming cross-server broadcast messages are checked against the known server list before being accepted. When on, a broadcast packet is only accepted if its source address matches a server this server learned about from its master server(s); broadcasts from any other address are rejected. When off, broadcasts are accepted from any address (subject to rate limiting). This only has an effect while broadcasting is enabled.\n\n0 = accept broadcasts from any address.\n1 = accept only from addresses in the known server list.\n\nDefault: 1.\nSet by: server config.\nSee also: sv_broadcast_enabled.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 146
+      }
+    },
+    {
+      "name": "sv_bspversion",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Reports the BSP map-format version of the map the server currently has loaded. This is a read-only status value that the engine sets automatically when it loads a map; an admin cannot change it.\n\n1 = standard Quake 1 / Half-Life BSP format.\n2 = extended (BSP2) format.\n\nDefault: 1 (until a map is loaded).\nSet by: engine (read-only).",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 189
+      }
+    },
+    {
+      "name": "sv_cheats",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Allows cheat commands (such as god mode, noclip, and give) to be used on the server. When enabled, the server advertises that cheats are on; when disabled, attempts to use cheat commands are refused.\n\n0 = cheats not allowed.\n1 = cheats allowed.\n\nDefault: 0 (cheats off).\nSet by: server config, or the server command line.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_ccmds.c",
+        "line": 25
+      }
+    },
+    {
+      "name": "sv_crypt_rcon",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls how rcon commands authenticate to the server. When on, an rcon request must carry a hashed (SHA1) digest of the rcon password together with a timestamp, so the password is never sent across the network in plain text and stale requests are rejected (the validity window is set by sv_timestamplen). When off, rcon falls back to the legacy scheme where the request carries the password directly; in that mode the server masks the password in its own console and log output. This protects the rcon password in transit; it does not encrypt the body of the rcon command or its reply.\n\n0 = legacy plaintext-password rcon.\n1 = hashed, timestamped rcon authentication.\n\nDefault: 1.\nSet by: server console + master rcon only (a normal rcon connection cannot change it).\nSee also: rcon_password, master_rcon_password, sv_timestamplen.",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 80
+      }
+    },
+    {
+      "name": "sv_csqc_progname",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "csprogs.dat",
+      "description": "Sets which client-side QuakeC program file the server loads from its game directory and offers to connecting clients. The server publishes this file's name, size, and checksum in its server info so that supporting clients download and run it. If the named file is not found, no client-side program is offered.\n\nDefault: csprogs.dat.\nSet by: server config.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 209
+      }
+    },
+    {
+      "name": "sv_debug_antilag",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Diagnostic toggle for antilag debugging. When on, the server writes the lag-compensated (rewound) positions of players into the recorded MVD demo, so the antilag system's per-shot rewinds can be inspected afterwards in a compatible tool.\n\n0 = off (no antilag debug data recorded).\n1 = on (record rewound positions each frame antilag is applied).\n\nDefault: 0.\nSet by: server config.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 80
+      }
+    },
+    {
+      "name": "sv_debug_usercmd",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Diagnostic toggle for movement debugging. When on, the server writes each client's raw movement commands -- view angles, forward/side/up movement, buttons and impulse -- into the recorded MVD demo, so player input can be inspected afterwards in a compatible tool.\n\n0 = the global toggle is off (but a specific client can still be traced with the sv_usercmdtrace command, independent of this cvar).\n1 = on (record every client movement command).\n\nDefault: 0.\nSet by: server config.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 79
+      }
+    },
+    {
+      "name": "sv_debug_weapons",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Diagnostic toggle for weapon-switching debugging. When on, the server writes weapon-script details -- the player's weapon-preference list and weapon-selection events, including server-side weapon-switch decisions -- into the recorded MVD demo, so weapon handling can be inspected afterwards in a compatible tool.\n\n0 = off (no weapon debug data recorded).\n1 = on (record weapon-script and weapon-switch events).\n\nDefault: 0.\nSet by: server config.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 75
+      }
+    },
+    {
+      "name": "sv_default_name",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "unnamed",
+      "description": "Replacement name the server assigns to a player whose chosen name is not allowed: a name that is empty, contains illegal characters (such as backslash, quote, semicolon, $, # or line breaks), is \"console\", or contains a color-code escape is overwritten with this name instead.\n\nDefault: unnamed.\nSet by: server config.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 150
+      }
+    },
+    {
+      "name": "sv_demoCacheSize",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Sets the size, in kilobytes, of the in-memory buffer the server uses to hold MVD demo data before writing it to disk while recording. A larger buffer lets the server accumulate more demo data in RAM and flush to disk less often; the buffer is only used when memory-cached recording is enabled (sv_demoUseCache). This cvar is read-only at the console and is set only by the -democache command-line parameter at startup; the engine enforces a 16 MB (16384 KB) minimum, so a smaller requested size is raised to that floor.\n\nDefault: 0.\nSet by: the -democache <KB> command-line parameter at server startup (read-only at the console).",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 35
+      }
+    },
+    {
+      "name": "sv_demoClearOld",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Automatically deletes the oldest demo files from the server's demo directory when that directory has grown past the sv_demoMaxDirSize limit, making room before a new recording starts. The value is the number of demo recordings to remove (their matching .txt text files are removed alongside them). At 0 or below, no demos are deleted -- instead recording is refused with a message to raise sv_demoMaxDirSize.\n\nDefault: 0 (auto-clearing off).\nSet by: server config.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 37
+      }
+    },
+    {
+      "name": "sv_demoDir",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "demos",
+      "description": "Sets the subdirectory, under the server's current game directory, where recorded MVD demos are written and where the server looks for them when listing or deleting demos. The directory is created automatically when a recording starts if it does not already exist.\n\nDefault: demos.\nSet by: server config. Setting it to an empty value is rejected (the change is ignored), so demos are always stored in a subdirectory.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 38
+      }
+    },
+    {
+      "name": "sv_demoDirAlt",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Specifies a secondary directory the server checks for stored demos when a requested demo is not found in the primary directory (sv_demoDir). It is used both when serving demo downloads to clients and when locating a demo to upload, letting recorded demos be split across two locations. The path is relative to the game directory, and it only takes effect when sv_demoDir is also set.\n\nEmpty = no secondary directory; only sv_demoDir is searched.\n\nDefault: empty.\nSet by: server config.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 39
+      }
+    },
+    {
+      "name": "sv_demoExtraNames",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Adds player names to the demo filename that the `easyrecord` command builds automatically when recording a teamplay game without an explicit demo name. It only changes how much detail goes into that auto-generated name.\n\n0 = compact name: team tags and map only (e.g. `4on4_red_vs_blue_dm2`).\n1 (or higher) = also list each team's players in the name (e.g. `4on4_[red]_alice_bob_vs_[blue]_carol_dave_dm2`).\n\nHas no effect on duel or FFA recordings, or when a demo name is given explicitly.\n\nDefault: 0.\nSet by: server config.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 44
+      }
+    },
+    {
+      "name": "sv_demofps",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "77",
+      "description": "Sets the recording frame rate of server-side MVD demos: how many demo frames per second are written while at least one player is in the game and the server is not paused. A higher value records the action more finely (larger demo files); a lower value records more coarsely. Setting it to 0 does not turn recording off -- it falls back to 20 frames per second. Values are effectively floored at 4 frames per second. (When the game is paused or no players are spawned, the separate sv_demoIdlefps rate applies instead.)\n\nDefault: 77.\nSet by: server config.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 40
+      }
+    },
+    {
+      "name": "sv_demoIdlefps",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "10",
+      "description": "Sets the rate (in frames per second) at which the server records MVD demo frames while it is idle -- that is, while no players are spawned in or the server is paused. When the server is active with players, sv_demofps applies instead. A higher value records idle periods more finely (larger demo files); a lower value records them more sparsely. The value is clamped to the range 4-30, so it cannot be set lower than 4 or used to stop recording during idle.\n\nDefault: 10.\nSet by: server config.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 41
+      }
+    },
+    {
+      "name": "sv_demoMaxDirSize",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "102400",
+      "description": "Sets a size limit on the server's demo directory. Before each new recording starts, the server checks the total size of the demo folder; if it is over the limit, the server either refuses to record or deletes the oldest demos to make room, depending on sv_demoClearOld.\n\nThe value is in kilobytes (KB) -- e.g. 102400 = 100 MB.\n0 = no limit (the directory size is never checked).\n\nDefault: 102400.\nSet by: server config.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 36
+      }
+    },
+    {
+      "name": "sv_demoMaxSize",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "20480",
+      "description": "Sets a maximum size for each demo the server records to disk. As a recording grows, once its size passes the limit the server stops writing that demo and closes it. Live QTV streams are not affected by this limit -- only demos saved to file.\n\nThe value is in kilobytes (KB) -- e.g. 20480 = 20 MB.\n0 = no limit (a recording is never stopped for size).\n\nDefault: 20480.\nSet by: server config.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 43
+      }
+    },
+    {
+      "name": "sv_demopings",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "3",
+      "description": "Records each connected player's ping and packet loss into the MVD demo at a fixed interval, so viewers watching the recorded demo can see live ping/packet-loss readouts. The value is the number of seconds between those updates.\n\n0 = do not record pings in the demo.\nA higher value records them less often; a lower value records them more often.\n\nDefault: 3.\nSet by: server config.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 42
+      }
+    },
+    {
+      "name": "sv_demoPrefix",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Text added to the start of the filename of every demo the server records. The prefix is placed before the demo's base name (with sv_demoSuffix added after it), so it is a fixed label at the front of each saved .mvd file. The value is used exactly as entered.\n\nDefault: empty (no prefix is added).\nSet by: server config / console.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 46
+      }
+    },
+    {
+      "name": "sv_demoRegexp",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "\\.mvd(\\.(gz|bz2|rar|zip))?$",
+      "description": "Sets the pattern the server uses to decide which files in the demo directory count as demos. The value is a regular expression matched against each filename: files whose name matches are treated as demos, and files that do not match are ignored. Matching is case-insensitive. This affects the server-side demo commands -- listing demos, showing the last scores or stats, and removing demos -- as well as how the server picks an unused filename when it starts recording.\n\nDefault: \\.mvd(\\.(gz|bz2|rar|zip))?$ -- matches files ending in .mvd, optionally followed by .gz, .bz2, .rar, or .zip (i.e. .mvd recordings and their compressed forms).\nSet by: server config.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 52
+      }
+    },
+    {
+      "name": "sv_demoSuffix",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Text added to the end of the filename of every demo the server records. The suffix is placed after the demo's base name (with sv_demoPrefix added before it) and before the .mvd extension, so it is a fixed label at the tail of each saved demo file. The value is used exactly as entered.\n\nDefault: empty (no suffix is added).\nSet by: server config / console.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 47
+      }
+    },
+    {
+      "name": "sv_demotxt",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether the server saves a companion `.txt` file next to each recorded demo, and how much it contains. The `.txt` holds a short summary of the match: date, map, the teamplay / deathmatch / timelimit settings, and each team's players with their final scores.\n\n0 = do not save a `.txt` (and delete an existing one for that demo).\n1 = save the full match summary.\n2 = save an empty `.txt` only (a placeholder, no summary).\n\nDefault: 1.\nSet by: server config.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 48
+      }
+    },
+    {
+      "name": "sv_demoUseCache",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Controls whether the server buffers a recording in memory before writing it to disk, instead of writing straight to the demo file. When enabled, demo data is collected in a memory cache and flushed to the file periodically; when off, every demo packet is written directly to disk as it is recorded.\n\n0 = write the demo straight to disk (no memory cache).\n1 (or any non-zero value) = buffer the demo in memory, flushing to disk in batches.\n\nDefault: 0.\nSet by: server config.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 34
+      }
+    },
+    {
+      "name": "sv_downloadchunksperframe",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "30",
+      "description": "Caps how many download data chunks the server will send to a single client per server frame during chunked file downloads (the fast multi-chunk download path). Raising it lets a client pull a file in fewer frames (faster downloads) at the cost of more outgoing data per frame; lowering it spreads a download over more frames.\n\nThe value is clamped to the range 1-30; values above 30 are treated as 30 and values below 1 as 1.\n\nDefault: 30.\nSet by: server config / rcon.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 45
+      }
+    },
+    {
+      "name": "sv_enable_cmd_minping",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether players are allowed to change the server's minimum-ping setting from their own console using the minping command. When enabled, a connected player can run minping <value> to set sv_minping (accepted only while no match or demo recording is in progress, and only for values 0-300); when disabled, such requests are refused with a console message and sv_minping can be changed by the admin only.\n\n0 = ignore the player minping command.\n1 = honor the player minping command.\n\nDefault: 1.\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 37
+      }
+    },
+    {
+      "name": "sv_extlimits",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "2",
+      "description": "Controls whether the server allows the extended entity limit (a higher cap on the number of entities a map and mod can use) instead of the conservative safe limit.\n\n0 = always use the safe limit; never allow the extended entity count.\n1 = always allow the extended entity limit, on any map.\n2 = allow the extended entity limit only on maps in the newer (BSP2) format; standard maps use the safe limit.\n\nNote: clients that do not support the extended entity limit may see some entities or projectiles go invisible on a server running above the safe limit.\n\nDefault: 2.\nSet by: server config.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 202
+      }
+    },
+    {
+      "name": "sv_forcenick",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Forces a logged-in player's in-game name to match their server login account. When on, at the moment a player logs in their name is set to their account name (their login alias if one is set, otherwise the login name), and while logged in they cannot change their name away from their login name (color and case variations are still allowed). If another player on the server is already using that name, that other player is kicked. Players who are not logged in are unaffected.\n\n0 = do not force names.\n1 = force a logged-in player's name to their login account.\n\nDefault: 0.\nSet by: server config / rcon.\nSee also: sv_login.",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 182
+      }
+    },
+    {
+      "name": "sv_forcespec_onfull",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "2",
+      "description": "Controls what happens when a player tries to connect to a server that has no free player slots but still has free spectator slots. Instead of simply refusing the connection, the server can redirect the player in as a spectator.\n\n0 (or any other value) = do not redirect; refuse the connection when the server is full.\n1 = redirect the player in as a spectator unless their client has opted out of being auto-spectated.\n2 = redirect the player in as a spectator only if their client has opted in to being auto-spectated.\n\nNote: this only applies when player slots are full but spectator slots remain; it never displaces an existing player.\n\nDefault: 2.\nSet by: server config.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 142
+      }
+    },
+    {
+      "name": "sv_friction",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "4",
+      "description": "Controls how quickly a player slows down while standing or moving on the ground when not actively accelerating. A higher value brings players to a stop faster; a lower value makes them keep sliding. The slowdown is stronger near a ledge or dropoff (it doubles when the ground in front falls away). It has no effect in the air. At 0, players keep their ground speed indefinitely (no friction).\n\nDefault: 4.\nSet by: server config.\nSee also: sv_stopspeed.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 58
+      }
+    },
+    {
+      "name": "sv_getrealip",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether the server tries to discover a connecting client's real IP address when the client is behind a proxy or address translation, so the server's IP-based checks (VIP entries and IP bans/penalties) see the client's true address rather than the proxy's. During connect the server bounces a small probe back to the client (retried a few times) to learn that address.\n\n0 = off; do not probe, accept the address the client connects from.\n1 = probe for the real IP, but let the client connect anyway if the probe fails.\n2 = probe for the real IP and refuse the connection if it cannot be validated.\n\nDefault: 1.\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 140
+      }
+    },
+    {
+      "name": "sv_gravity",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "800",
+      "description": "Sets the downward acceleration pulling airborne players and objects toward the ground each second. A higher value makes things fall faster and jumps shorter and flatter; a lower value gives floatier, longer jumps. At 0, players and objects do not fall.\n\nDefault: 800.\nSet by: server config.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 46
+      }
+    },
+    {
+      "name": "sv_hashpasswords",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether server login-account passwords are stored as a one-way SHA1 hash instead of as plain text in the accounts file. When on, a new account's password is hashed before it is written, and at login the supplied password is hashed and compared against the stored hash. When off, passwords are written and compared in plain text. This applies to password-based login accounts; IP-based accounts do not use a password. Changing this does not re-encode passwords already stored under the previous setting.\n\n0 = store and check passwords in plain text.\n1 = store and check passwords as SHA1 hashes.\n\nDefault: 1.\nSet by: server config / rcon.\nSee also: sv_login.",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 79
+      }
+    },
+    {
+      "name": "sv_idlesleep",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Reduces CPU use on an idle server by making it sleep briefly each frame while no clients are connected. The value is the number of milliseconds the server sleeps per frame when the server is empty; once any client is connected, no sleeping occurs and the server runs at full frame rate.\n\n0 = off (no extra idle sleep is added; the server still does its normal short per-frame network wait, so it does not pin the CPU).\nAny value above 0 = sleep that many milliseconds per frame while the server is empty.\n\nDefault: 0.\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 144
+      }
+    },
+    {
+      "name": "sv_kicktop",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Enables automatic kicking of a player who rapidly spams shirt-color (topcolor) changes. When on, a player who changes topcolor too many times in quick succession is dropped from the server; when off, no such check is applied.\n\n0 = off, no topcolor-spam kicking.\n1 (or any nonzero value) = on, kick rapid topcolor spammers.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 124
+      }
+    },
+    {
+      "name": "sv_kickuserinfospamcount",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "300",
+      "description": "Sets how many setinfo commands (attempts to change name, skin, color, etc. -- counted whether or not the value actually changes) a player may issue within the sv_kickuserinfospamtime window before being dropped from the server for userinfo spam.\n\nMaximum number of setinfo commands allowed inside the window; exceeding it kicks the player. The kick fires only while both this and sv_kickuserinfospamtime are greater than 0. Set either to 0 to disable userinfo-spam kicking entirely.\n\nDefault: 300.\nSet by: server config.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 40
+      }
+    },
+    {
+      "name": "sv_kickuserinfospamtime",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "3",
+      "description": "Sets the time window, in seconds, used by the server's userinfo-spam kick. A player who changes their userinfo (name, skin, color, etc.) more than sv_kickuserinfospamcount times within this many seconds is dropped from the server.\n\nValue in seconds; the kick fires only while both this and sv_kickuserinfospamcount are greater than 0. Set either to 0 to disable userinfo-spam kicking entirely.\n\nDefault: 3.\nSet by: server config.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 39
+      }
+    },
+    {
+      "name": "sv_loadentfiles",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether the server loads an external entity (.ent) file for a map instead of using the entity data built into the map's BSP. When on, on map load the server looks for a matching .ent file under maps/ and, if found, spawns the map's entities from it; if none is found it falls back to the BSP's own entities. When off, the server always uses the BSP's built-in entities. External .ent files let a server change a map's items, spawns, or other entities without editing the .bsp.\n\n0 = always use the entities built into the .bsp.\n1 = use an external .ent file when one is present, otherwise the .bsp.\n\nDefault: 1.\nSet by: server config / rcon.\nSee also: sv_loadentfiles_dir.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 148
+      }
+    },
+    {
+      "name": "sv_loadentfiles_dir",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Names a maps subdirectory the server checks first for an external entity (.ent) file when loading a map. When set, the server looks for the entity file at maps/<dir>/<mapname>.ent before falling back to maps/<mapname>.ent; if neither exists it uses the entities built into the map. Only has effect while external entity loading is enabled (sv_loadentfiles).\n\nDefault: empty (no subdirectory; only maps/<mapname>.ent is checked).\nSet by: server config / rcon.\nSee also: sv_loadentfiles.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 149
+      }
+    },
+    {
+      "name": "sv_local_addr",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Reports the server's own auto-detected network address (IP:port), taken from the host's hostname and the bound socket. This is a read-only, engine-maintained value, set automatically once the server's network socket is opened; an admin cannot change it. Behind NAT this is usually the local/LAN (internal) address, not the public one.\n\nIf the server could not open its socket, this is left empty.\n\nDefault: empty (filled in by the engine at startup).\nSet by: the engine (read-only).\nSee also: sv_serverip (declare the externally-reachable IP when this is wrong).",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/net.c",
+        "line": 42
+      }
+    },
+    {
+      "name": "sv_logdir",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": ".",
+      "description": "Sets the directory in which the server writes its log files (console, rcon, frag, player and other logs). The directory is created automatically if it does not already exist.\n\nDefault: . (the server's working directory).\nSet by: server config / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 131
+      }
+    },
+    {
+      "name": "sv_login",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Controls whether connecting clients must log in to an account before they can play.\n\n0 = no login required.\n1 = login required to play; spectators are exempt and may connect without an account.\n2 = login required for everyone, including spectators.\n\nWhen login is required, a client that does not authenticate is held at connect and cannot enter the game; one already connected without an account is dropped after a login timeout (or immediately if its account is blocked). Account handling and whether logins use local files or website authentication are governed by the surrounding login system.\n\nDefault: 0 (logins disabled).\nSet by: server config / rcon.\nSee also: sv_login_web, sv_hashpasswords.",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_login.c",
+        "line": 39
+      }
+    },
+    {
+      "name": "sv_login_web",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Selects how account logins are checked when login is enabled (see sv_login). Only present and meaningful on servers built with website-login support.\n\n0 = use local account files only; no website authentication.\n1 = authenticate against the login website; a local account is not required (bans may still be enforced from local files).\n2 = mandatory website authentication and the client must also have a matching local account.\n\nDefault: 1.\nSet by: server config / rcon.\nSee also: sv_login.",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_login.c",
+        "line": 41
+      }
+    },
+    {
+      "name": "sv_mapcheck",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether the server verifies that each connecting client has the same map file as the server before letting them spawn.\n\n0 = off; do not verify the client's map file.\n1 (or any non-zero value) = on; if the client's map does not match the server's, the client is shown a message that their map file differs and is dropped.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 34
+      }
+    },
+    {
+      "name": "sv_maxdownloadrate",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Caps the per-client transfer speed used while a file download is in progress, in bytes per second.\n\n0 = no download-specific cap; while 0, the general sv_maxrate limit applies to downloads as well.\nany positive value = each client's download is limited to that many bytes per second (overriding sv_maxrate for the duration of the download).\n\nDefault: 0.\nSet by: server config / rcon.\nSee also: sv_maxrate.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 143
+      }
+    },
+    {
+      "name": "sv_maxlogsize",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Sets the maximum size a server log file may reach before it is closed and a new log file is started, in bytes.\n\n0 = no size limit (the log file grows without being rotated).\nany positive value = once the current log file grows past that many bytes, the server closes it and continues logging to a fresh file.\n\nDefault: 0.\nSet by: server config / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 128
+      }
+    },
+    {
+      "name": "sv_maxping",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Sets the highest ping (in milliseconds) a client may have to play. When someone tries to join as a player, if their ping is above this limit they are told their ping is too high and are forced to spectator instead; the check is run only when joining as a player, never on spectators; once a client's ping passes it is not re-checked, but a client rejected for high ping is re-checked if it tries to join again.\n\nUnit: milliseconds.\n0 = no ping limit (anyone may play).\n\nDefault: 0.\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 36
+      }
+    },
+    {
+      "name": "sv_maxpitch",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "80",
+      "description": "Limits how far down a player is allowed to look. Each frame the server clamps the player's view pitch so it never exceeds this angle downward, regardless of what the client's config requests. Used to stop clients from aiming further down than intended.\n\nValue is in degrees of downward pitch and is itself clamped to the range 0 to 89.9 when set.\n\nDefault: 80.\nSet by: server config.\nSee also: sv_minpitch (the upward look limit).",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 107
+      }
+    },
+    {
+      "name": "sv_maxrate",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Caps the maximum network send rate, in bytes per second, the server will use for any single client, regardless of the rate that client requested. A client asking for a higher rate is clamped down to this limit. During a file download the limit still applies unless a separate download-rate cap (sv_maxdownloadrate) is set, in which case that one takes over for the download.\n\nUnit: bytes per second.\n0 = no server-imposed cap (each client's own requested rate is used).\n\nDefault: 0.\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 139
+      }
+    },
+    {
+      "name": "sv_maxspeed",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "320",
+      "description": "Sets the maximum ground running speed for players. A higher value lets players run faster; a lower value slows them down. This is the speed a player reaches while holding a movement key on the ground or in water; it does not change how fast that speed is gained (that is sv_accelerate). It is the server-wide default and can be overridden per player by the game mod (for example a speed powerup).\n\nDefault: 320.\nSet by: server config.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 48
+      }
+    },
+    {
+      "name": "sv_maxtic",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0.1",
+      "description": "Sets the longest amount of real time, in seconds, the server will simulate in a single physics frame. If more than this much time has elapsed since the last frame (for example after a hitch or lag spike), the step is capped at this value so the game does not advance in one huge jump. The excess beyond the cap is dropped -- not simulated or deferred -- so the server clock simply falls that much behind real time.\n\nDefault: 0.1 (100 ms).\nSet by: server config / rcon.\nSee also: sv_mintic.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 49
+      }
+    },
+    {
+      "name": "sv_maxuploadsize",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1048576",
+      "description": "Limits the size, in bytes, of a screenshot the server will accept back from a client. When the server requests a screenshot from a player with the rcon/remote snap (or snapall) command and the incoming image grows past this limit, the upload is cancelled (the partial file already written is left on disk). The limit applies only to these rcon-initiated remote screenshot uploads; a snap issued from the local server console is not size-limited.\n\nUnit: bytes.\n\nDefault: 1048576 (1 MB).\nSet by: server config / rcon.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 42
+      }
+    },
+    {
+      "name": "sv_maxvelocity",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "2000",
+      "description": "Caps the overall speed of moving objects on the server -- projectiles such as rockets and nails, thrown gibs, dropped items, and monsters. If an object's speed would exceed this, its velocity is scaled back so its total speed equals the cap. It does not limit player running speed (that is sv_maxspeed).\n\nDefault: 2000.\nSet by: server config.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 44
+      }
+    },
+    {
+      "name": "sv_minping",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Imposes a minimum ping (in milliseconds) on every connected player by adding artificial delay to their connection. The server continuously nudges each player's delay up or down so that nobody plays with a ping below this floor, evening out the advantage low-ping players would otherwise have. The floor is applied only to active players, not spectators, and not while the server is paused.\n\nUnit: milliseconds.\n0 = no minimum (no artificial delay added).\n\nDefault: 0.\nSet by: server config / rcon; also the 'minping <value>' console command when sv_enable_cmd_minping is on and no demo or match is in progress (range 0-300).",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 35
+      }
+    },
+    {
+      "name": "sv_minpitch",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "-70",
+      "description": "Limits how far up a player is allowed to look. Each frame the server clamps the player's view pitch so it never goes above this angle upward, regardless of what the client's config requests. Used to stop clients from aiming further up than intended.\n\nValue is in degrees of upward pitch (negative) and is itself clamped to the range -89.9 to 0 when set.\n\nDefault: -70.\nSet by: server config.\nSee also: sv_maxpitch (the downward look limit).",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 108
+      }
+    },
+    {
+      "name": "sv_mintic",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0.013",
+      "description": "Sets the minimum time, in seconds, between server simulation frames. The server skips running a frame until at least this much time has passed since the last one, which caps how often the world is updated. A higher value runs the server less often (coarser simulation); a lower value allows more frequent updates. At 0 there is no minimum and a frame runs every cycle.\n\nDefault: 0.013.\nSet by: server config / rcon.\nSee also: sv_maxtic.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 48
+      }
+    },
+    {
+      "name": "sv_mod_extensions",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "2",
+      "description": "Advertises to the game mod which optional MVDSV server extensions this server build supports, as a capability value the mod reads when it starts. The mod uses it to decide whether to use those extensions (for example, embedding extra hidden data in the recorded demo stream).\n\nThis value is read-only: it reports the server's built-in capability level and cannot be changed by an admin.\n\nDefault: 2.\nSet by: engine (read-only).\nSee also: L3 (mvdsv-ktx extension handshake).",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 58
+      }
+    },
+    {
+      "name": "sv_mod_msg_file",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Loads a custom set of obituary/death-message patterns used to parse broadcast game messages into the mod frag log. Each line of the file defines one pattern (message type, weapon/cause id, player count, and a regular expression matched against the printed kill messages); when a printed message matches, a structured backslash-delimited record (player names, weapon/cause, timestamp) is written to the mod frag log (opened with modfraglogfile), a separate log from the plain frag log. It has no effect unless that mod frag log is being written to a file.\n\n\"\" (empty) = use the built-in default English obituary patterns.\nany value = path to a file of custom patterns to load instead.\n\nDefault: \"\" (built-in default patterns).\nSet by: server config / rcon.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 153
+      }
+    },
+    {
+      "name": "sv_nailhack",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether nails and super-nails are sent to clients using QuakeWorld's compact nail-projectile packet format instead of as ordinary entities. When on, the compact nail format is disabled and nails are transmitted as regular entities; when off, nails in flight are batched into the dedicated low-bandwidth nail packet. The compact format is also automatically skipped while the server runs extended coordinates (sv_bigcoords), so this setting has no effect in that case.\n\n0 = use the compact nail packet (lower bandwidth for nailgun fire).\n1 = disable it; send nails as normal entities.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_ents.c",
+        "line": 37
+      }
+    },
+    {
+      "name": "sv_onDemoRemove",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Names a server-side script to run automatically when a single named MVD demo is removed with the sv_demoremove / sv_demonumremove commands (bulk/wildcard removals do not trigger it). When set, after the demo file is successfully removed the server runs the named script (a .qws script file on the server host) and passes it the demo directory and the removed demo's filename as arguments.\n\n\"\" (empty) = run nothing on demo removal.\nany value = name of the script to run, optionally followed by fixed arguments.\n\nDefault: \"\".\nSet by: server config / rcon.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 51
+      }
+    },
+    {
+      "name": "sv_onRecordFinish",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Names a server-side script to run automatically each time an MVD demo finishes recording. When set, as each recorded demo file is closed the server runs the named script (a .qws script file on the server host) and passes it the demo's path and filename. Demos that are being deleted rather than kept do not trigger it.\n\n\"\" (empty) = run nothing when a recording finishes.\nany value = name of the script to run; a space-separated suffix is passed through as extra arguments after the demo path and filename.\n\nDefault: \"\".\nSet by: server config / rcon.",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 49
+      }
+    },
+    {
+      "name": "sv_paused",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Read-only status value that reflects whether the server is currently paused. It shows 0 when the game is running and a non-zero value while play is paused (1 = paused). This setting cannot be changed directly to pause or unpause the game; the engine updates it automatically when a pause is toggled. To control whether pausing is permitted at all, use pausable.\n\nDefault: 0.\nSet by: engine (read-only).",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 174
+      }
+    },
+    {
+      "name": "sv_pext_mvdsv_serversideweapon",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether the server offers the server-side weapon-selection protocol extension to connecting clients. It only takes effect when the running mod is KTX; on any other mod the extension is never offered regardless of this setting. When offered and a client opts in, the server handles that client's weapon switching (auto-switching to the best weapon, weapon hiding) on its side.\n\n0 = never offer the extension.\n1 = offer it, but only while KTX is the running mod.\n\nDefault: 1.\nSet by: server config / rcon.\nSee also: ktx-serverside-weapons.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 199
+      }
+    },
+    {
+      "name": "sv_phs",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether the server limits which players receive each sound based on where the sound happens in the map. When on, a sound is sent only to players who could potentially hear it from its location, which reduces network traffic. When off, every sound is sent to all connected players regardless of distance.\n\n1 = send sounds only to players potentially within hearing range (default).\n0 = send all sounds to all players.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 137
+      }
+    },
+    {
+      "name": "sv_pr2references",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Selects how the game module and the server exchange text fields (such as entity strings) at the internal level: either through an indirection table (required only by 64-bit native game modules, i.e. compiled .so/.dll mods; QVM mods such as KTX do not need it) or as direct values (legacy mode). The game module itself sets this when it loads to declare which form it uses; the server resets the value every time the game code is loaded, so setting it manually in a server config has no lasting effect.\n\n1 = use the indirection-table form (required by 64-bit native mods).\n0 = use the direct/legacy form.\n\nDefault: 0.\nSet by: the game mod at load time (a value set manually by an admin is reset on each game-code load).",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/pr2_exec.c",
+        "line": 36
+      }
+    },
+    {
+      "name": "sv_progsname",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "qwprogs",
+      "description": "Sets the base filename of the game-code module the server loads (the part before the file extension). For example the default 'qwprogs' loads the standard QuakeWorld game code; a mod is selected by pointing this at the mod's module name. The file extension the server tries is determined by the sv_progtype setting, and it falls back to the standard game code if the named module cannot be loaded.\n\nDefault: qwprogs.\nSet by: server config.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/pr_edict.c",
+        "line": 81
+      }
+    },
+    {
+      "name": "sv_progtype",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Selects how the server loads and runs the game logic (the progs / mod code).\n\n0 = load the classic progs.dat (interpreted QuakeC).\n1 = load a native game module (a compiled .so / .dll), falling back to a .qvm if the native module is missing.\n2 = load a .qvm game module and run it through the bytecode interpreter.\n3 = load a .qvm game module and run it just-in-time compiled to native code (falls back to the interpreter on platforms without the compiler).\n\nDefault: 0.\nSet by: server config, or the -progtype command-line parameter.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/pr2_exec.c",
+        "line": 33
+      }
+    },
+    {
+      "name": "sv_rconlim",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "10",
+      "description": "Rate-limits how many rcon requests the server will act on, in requests per second, to blunt rcon password-guessing floods. Once the limit is exceeded within a one-second window, further rcon requests are ignored until the window resets.\n\n0 or a negative value = no limit (rate limiting disabled).\nany positive value = maximum rcon requests accepted per second.\n\nDefault: 10.\nSet by: server config / rcon.",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 83
+      }
+    },
+    {
+      "name": "sv_reconnectlimit",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Sets a cooldown, in seconds, before a client may reconnect from the same network address. If a client tries to reconnect sooner than this after their current connection started, the new connection attempt is rejected with a \"reconnect rejected: too soon\" message.\n\nValue is in seconds; raising it forces a longer wait between a client's reconnect attempts, lowering it shortens the wait.\n\nDefault: 0 (no cooldown -- reconnects are never rejected for being too soon).\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 118
+      }
+    },
+    {
+      "name": "sv_registrationinfo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets a custom message shown to a connecting player who must log in, displayed just before the login prompt. Use it to tell players how to get an account or what the server expects. It only appears when the account-login system is active (sv_login is non-zero) and the player has not yet logged in.\n\nEmpty (the default) = no extra message is shown.\n\nDefault: empty.\nSet by: server config / rcon.\nSee also: sv_login.",
+      "category": "Accounts & authentication",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 183
+      }
+    },
+    {
+      "name": "sv_reliable_sound",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Sends sound effects to clients reliably (resent until acknowledged) instead of in the normal unreliable stream, so that clients do not miss sound events during packet loss. When on, it applies to all clients in range except those who opt out by setting their rsnd userinfo to 0.\n\n0 = all sounds use the normal unreliable stream.\n1 = sounds are sent reliably to every client in range, except a client that has set rsnd 0 (which stays on the unreliable stream).\n\nDefault: 0.\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 155
+      }
+    },
+    {
+      "name": "sv_safestrafe",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Limits the advantage from rapidly flicking between left and right strafe (SOCD-style inputs). The value sets how many game frames a player's sideways movement is forced to stop after each change of strafe direction (a direct left-right flip is held one extra frame); the player only resumes strafing once those stop-frames have passed. Spectators are not affected. At 0, the limiter is off and strafing is unrestricted.\n\nDefault: 0.\nSet by: server config.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 67
+      }
+    },
+    {
+      "name": "sv_sayteam_to_spec",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether a player's team chat (say_team) is also delivered to spectators. When enabled, a spectator who is watching that team -- either following one of its players or assigned to that team -- can read the team's say_team messages (delivery additionally requires the message to carry the `$\\` location marker that genuine client team messages include; a bare say_team without it is treated as private and withheld from spectators). When disabled, players' team chat never reaches any spectator.\n\n0 = spectators never receive players' say_team.\n1 = spectators on, or tracking, the speaking player's team receive it.\n\nDefault: 1.\nSet by: server config / rcon (the KTX match mod also adjusts it automatically).",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 33
+      }
+    },
+    {
+      "name": "sv_serveme_fix",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Compatibility fix for the ServeMe match/stats bot. When on, the server stops sending the normal world stream -- broadcast messages, entity updates and player data -- to a spectator whose name is exactly \"[ServeMe]\", and lets that spectator skip the usual pre-spawn and outdated-client checks.\n\nThis setting is read-only and is always on; it cannot be changed from server config or rcon.\n\nDefault: 1 (on).\nSet by: engine (read-only).",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 192
+      }
+    },
+    {
+      "name": "sv_serverip",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Tells the server its own public IP address, used when the server probes a connecting client to learn that client's real IP (the real-IP check controlled by sv_getrealip). The server directs the client to send a small identification packet to this address. If left empty, the server uses the address it auto-detected for itself; when that auto-detected address looks wrong (for example a LAN address behind NAT) and this is empty, the server logs a warning that its detected server IP appears incorrect.\n\nSet this to the server's correct externally-reachable IP when automatic detection picks the wrong address.\n\nDefault: empty (use the auto-detected local address).\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 141
+      }
+    },
+    {
+      "name": "sv_silentrecord",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Suppresses the routine chat broadcasts the server prints when a server-side MVD recording starts, is cancelled, or finishes normally. Error notices (recording error, QTV disconnect, max demo size exceeded) are still broadcast regardless of this setting.\n\n0 = announce recording start / cancel / completion in chat.\n1 = stay silent for those routine events.\n\nDefault: 0.\nSet by: server config / rcon (the KTX race mode toggles it automatically).",
+      "category": "Demo recording",
+      "source_ref": {
+        "file": "src/sv_demo.c",
+        "line": 54
+      }
+    },
+    {
+      "name": "sv_specprint",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Lets spectators see private server-to-player messages for the player they are following. It is a bitmask selecting which message kinds are mirrored to the tracking spectator. This cvar is the master gate, checked on every mirrored message, and also seeds each connecting client's per-client setting. The per-client sp userinfo can only narrow what a spectator receives within what this cvar enables -- it cannot grant a message kind the server has disabled. For sprints the spectator's own sp applies; for centerprints and stuffcmds the bit that actually governs is the followed player's sp, not the spectator's.\n\n1 = centerprints (on-screen center text)\n2 = sprints (console/chat-area print messages)\n4 = stuffcmds (commands the server sends a client to run)\n(add the values to combine, e.g. 3 = centerprints + sprints)\n\nDefault: 0 (nothing mirrored to spectators).\nSet by: server config / rcon (per-client narrowing via the sp userinfo key).",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 117
+      }
+    },
+    {
+      "name": "sv_spectalk",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Controls whether spectators' chat and voice can be heard by players, or only by other spectators.\n\n1 = spectators can talk to everyone (players and spectators).\n0 = spectators are restricted to spectators only; players neither see their chat nor hear their voice.\n\nDefault: 1.\nSet by: server config / rcon. On a KTX server the mod manages this setting (driven by k_spectalk) and overwrites it at match start, so set k_spectalk rather than sv_spectalk directly.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 32
+      }
+    },
+    {
+      "name": "sv_spectatormaxspeed",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "500",
+      "description": "Sets the top free-flight speed for spectators moving around the map. A higher value lets spectators fly faster; a lower value keeps them slower. It applies only to spectator movement and does not affect playing clients (their cap is sv_maxspeed).\n\nDefault: 500.\nSet by: server config.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 49
+      }
+    },
+    {
+      "name": "sv_speedcheck",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Server-side anti speed-cheat. When enabled, the server checks each client's reported frame time against the real elapsed time and trims any excess, so a client cannot move faster by claiming more time passed than actually did. Bots are exempt from the check.\n\n0 = off.\nAny non-zero value = on.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 133
+      }
+    },
+    {
+      "name": "sv_stopspeed",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "100",
+      "description": "The low-speed floor for ground friction, working together with sv_friction. Once a player is moving slower than this speed, friction stops easing off and instead applies at constant full strength, so they brake to a clean complete stop instead of creeping. Above this speed, friction scales with actual speed as normal. Raising it makes players stop more crisply at low speed; lowering it lets them slide longer. It changes how the stop finishes, not the overall braking rate (that is sv_friction).\n\nDefault: 100.\nSet by: server config.\nSee also: sv_friction.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 47
+      }
+    },
+    {
+      "name": "sv_timestamplen",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "60",
+      "description": "Sets how far apart, in seconds, the server clock and the timestamp inside an encrypted rcon command are allowed to be. This only applies when encrypted rcon is enabled (sv_crypt_rcon). An encrypted rcon command whose timestamp is off from the server's current time by more than this many seconds in either direction is rejected, which limits how long a captured rcon command could be replayed.\n\nValue is in seconds; a smaller window is stricter, a larger window is more tolerant of clock skew.\n\nDefault: 60. At 0 the timestamp check is skipped entirely (only the encryption is verified).\nSet by: server config / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 82
+      }
+    },
+    {
+      "name": "sv_unfake",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Strips carriage-return characters out of public (non-team) chat messages, replacing each with a '#'. This stops players from embedding line breaks in their messages to fake extra lines or forge server-style output in other players' consoles. Team chat is not affected.\n\n0 = off (carriage returns pass through unchanged).\n1 = on (carriage returns in public chat are replaced with '#').\n\nDefault: 1.\nSet by: server config / rcon.",
+      "category": "Admin & moderation",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 123
+      }
+    },
+    {
+      "name": "sv_use_dns",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Controls whether the status command resolves connected clients' IP addresses to hostnames. When on, each client's address shown by status is looked up via reverse DNS and displayed as a hostname (falling back to the raw IP if the lookup fails); when off, the raw IP address is shown.\n\n0 = show raw IP addresses (no DNS lookup).\n1 = resolve each address to a hostname for display.\n\nDefault: 0.\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 101
+      }
+    },
+    {
+      "name": "sv_voip",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Master switch for in-game voice chat on the server. When off, the server ignores all incoming voice packets so no voice is relayed between clients.\n\n1 = voice chat enabled (incoming voice is buffered and forwarded to the intended recipients).\n0 = voice chat disabled (incoming voice packets are dropped).\n\nDefault: 1.\nSet by: server config / rcon. Available only on builds compiled with FTE voice-chat support, and clients must also support voice for it to work.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 50
+      }
+    },
+    {
+      "name": "sv_voip_echo",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Controls whether a player's own voice is sent back to them. Normally a speaker does not hear themselves; turning this on echoes each sender's voice back to that sender, which is mainly useful for testing that voice chat works.\n\n1 = echo a sender's voice back to themselves.\n0 = do not echo voice back to the sender.\n\nDefault: 0.\nSet by: server config / rcon. Available only on builds with FTE voice-chat support.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 54
+      }
+    },
+    {
+      "name": "sv_voip_record",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Controls whether players' voice chat is recorded into the server's MVD demo (only while a demo is being recorded).\n\n0 = record no one's voice.\n1 = record everyone's voice.\n2 = record spectators' voice only (players' voice is left out of the demo).\n\nDefault: 0.\nSet by: server config / rcon. Available only on builds with FTE voice-chat support; clients must support voice for their voice to exist at all.",
+      "category": "QTV, broadcast & voice",
+      "source_ref": {
+        "file": "src/sv_user.c",
+        "line": 52
+      }
+    },
+    {
+      "name": "sv_wateraccelerate",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "10",
+      "description": "Controls how quickly a player speeds up while swimming toward the direction they are moving. A higher value makes a swimming player reach full underwater speed faster; a lower value makes them ramp up more gradually. It is the in-water counterpart to sv_accelerate and does not change the maximum swimming speed (which is governed by sv_maxspeed). At 0, a swimming player gains no speed from moving.\n\nDefault: 10.\nSet by: server config.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 57
+      }
+    },
+    {
+      "name": "sv_waterfriction",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "4",
+      "description": "Controls how quickly a player slows down while submerged in water. A higher value bleeds off underwater speed faster; a lower value lets a player coast through water longer. The effect only applies when the player is at least chest/head deep -- shallow wading is unaffected. At 0, water applies no slowdown of its own.\n\nDefault: 4.\nSet by: server config.",
+      "category": "Movement & physics",
+      "source_ref": {
+        "file": "src/sv_phys.c",
+        "line": 59
+      }
+    },
+    {
+      "name": "sv_www_address",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets the base URL of the central web server the server talks to, and acts as the master on/off switch for all web integration. When empty (the default), remote account logins are refused, the periodic check-in is skipped, and the server makes no outbound web requests at all. Set it to a non-empty URL to enable the central-server features: remote account logins, the periodic check-in, and outbound web requests -- including the match statistics and race records that a game mod such as KTX uploads to the website.\n\nDefault: empty (web integration disabled).\nSet by: server config / rcon.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/central.c",
+        "line": 18
+      }
+    },
+    {
+      "name": "sv_www_authkey",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets the authentication key sent with every request the server makes to the central web server. It is attached as the 'authKey' field on each outbound request so the central server can verify the request came from this server. Leave it empty if your central server does not require a key.\n\nDefault: empty.\nSet by: server config / rcon.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/central.c",
+        "line": 19
+      }
+    },
+    {
+      "name": "sv_www_checkin_period",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "60",
+      "description": "Sets how often, in seconds, the server checks in with the central web server while it is idle. The check-in only happens when a web server address is configured and the server is not busy with a live game or a request already in flight. Values below 60 have no effect: the interval is never shorter than 60 seconds.\n\nDefault: 60 (seconds).\nSet by: server config / rcon.",
+      "category": "Web & downloads",
+      "source_ref": {
+        "file": "src/central.c",
+        "line": 20
+      }
+    },
+    {
+      "name": "sys_command_line",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Read-only. Reports the full command line the server was launched with -- the server executable path followed by every startup argument, joined into one string. It is set once at startup and cannot be changed afterward; querying it lets an admin see exactly how the running server was started.\n\nDefault: registered empty; the engine fills it at startup with the full launch command line, so in practice it is never empty (the executable path is always present).\nSet by: the engine at startup; read-only (cannot be set by config or rcon).",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 99
+      }
+    },
+    {
+      "name": "sys_extrasleep",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Developer/testing knob that deliberately degrades the server connection by adding artificial delay. The value is a number of microseconds the server pauses after processing each frame; 0 (the default) adds no delay. It is used to reproduce poor network conditions on purpose, not for normal operation. This knob exists only on the Unix build and has no effect on Windows.\n\nDefault: 0.\nSet by: server config / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_sys_unix.c",
+        "line": 27
+      }
+    },
+    {
+      "name": "sys_nostdout",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Silences the server's normal console output. When on, the dedicated server stops printing its usual status and message lines to the terminal (stdout), including the ERROR line shown when the server hits a fatal error.\n\n0 = print console output normally.\n1 = suppress all console output.\n\nDefault: 0.\nSet by: server config / command line.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_sys_unix.c",
+        "line": 26
+      }
+    },
+    {
+      "name": "sys_restart_on_error",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Controls what the server does when it hits a fatal error. When on, instead of just shutting down, the server automatically relaunches itself with the same command-line arguments. When off, a fatal error shuts the server down.\n\n0 = exit on a fatal error.\n1 = automatically restart the server on a fatal error.\n\nDefault: 0.\nSet by: server config / command line.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 57
+      }
+    },
+    {
+      "name": "sys_select_timeout",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "10000",
+      "description": "Sets how long the server waits for network activity (or console input) each cycle before moving on, in microseconds. A larger value lets the server idle longer between events when nothing is happening; a smaller value makes it poll more often. The accepted range is 1000 (1 millisecond) to 1000000 (1 second) -- values outside that range are rejected.\n\nValue is in microseconds; default 10000 = 10 milliseconds.\n\nDefault: 10000.\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 55
+      }
+    },
+    {
+      "name": "sys_simulation",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Developer/testing knob that disables the server's normal network wait. At the default of 0 the server's main loop waits on the network socket each cycle as usual. Any non-zero value makes the loop skip that wait entirely, so it runs continuously without pausing for incoming network activity.\n\nDefault: 0.\nSet by: server config / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 61
+      }
+    },
+    {
+      "name": "sys_sleep",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "8",
+      "description": "Makes the server pause briefly each cycle of its main loop to lower idle CPU usage. The value is the pause in milliseconds, capped at 13; 0 disables the pause. This knob exists only on the Windows build and has no effect on other platforms.\n\nNote: on startup the server forces this to 0 if launched with -nopriority, and also forces it to 0 on Windows NT-class systems (where a non-zero pause was found to cause packet loss).\n\nDefault: 8.\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_sys_win.c",
+        "line": 29
+      }
+    },
+    {
+      "name": "teamplay",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Sets whether the game is a team game and which team-play ruleset is active.\n\n0 = no teams (free-for-all): team voice is delivered to everyone and the match is recorded as FFA.\nnonzero = a team game: team voice is routed only to teammates, and the match is recorded as teamplay.\n\nNote: mvdsv uses this value to route team voice and to label demos; team text chat and the actual team rules (such as team-damage behavior) are handled by the game mod (e.g. KTX), which may also change this value to match the game mode it is running.\n\nDefault: 0.\nSet by: server config.\nSee also: ktx-teamplay-modes (L3).",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 162
+      }
+    },
+    {
+      "name": "telnet_log_level",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Intended to set the detail level for the server's telnet log channel: only messages at or below this level would be written to that log. In the current source no message is ever sent to the telnet log channel, so this setting has no observable effect on a running server.\n\n0 = lowest verbosity (the registered default).\nHigher values = would admit more-detailed messages, if any were written.\n\nDefault: 0.\nSet by: server config / rcon.",
+      "category": "Logging & diagnostics",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 87
+      }
+    },
+    {
+      "name": "timelimit",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Sets the time limit for the match.\n\nmvdsv itself does not run the match clock -- it only stores this value, publishes it, and writes it into demo metadata. The actual countdown and match-end on time are run by the game mod (for example KTX), which also decides the unit and may adjust the value to fit the game mode.\n\n0 = no time limit set at the engine level (the game mod decides what that means).\n\nDefault: 0.\nSet by: server config.\nSee also: ktx-match-flow (L3).",
+      "category": "Match & game rules",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 161
+      }
+    },
+    {
+      "name": "timeout",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "65",
+      "description": "Sets how many seconds a client may go without sending any packet before the server drops it as timed out. When a connected client (or spectator) has sent nothing for longer than this, the server disconnects them and announces \"<name> timed out\" to everyone.\n\nValue is in seconds; raising it tolerates longer silences before a drop, lowering it drops unresponsive clients sooner.\n\nDefault: 65.\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 66
+      }
+    },
+    {
+      "name": "version",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Read-only string holding the server's identity: the engine name followed by its version (for this build, \"MVDSV 1.20-dev\"). The engine fills it in at startup from the compiled-in build identifiers; it cannot be changed from a config or at the console.\n\nDefault: empty until the engine sets it at startup.\nSet by: engine (read-only).",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 63
+      }
+    },
+    {
+      "name": "vip_password",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Sets one or more passwords that grant VIP status to spectators. A client whose connect password matches one of these is treated as a VIP and may take a reserved spectator slot -- they can connect as a spectator even when the public spectator slots are full, up to the reserved-VIP limit (maxvip_spectators). Multiple passwords can be listed, separated by spaces.\n\nEmpty, or the literal value none, disables VIP-by-password entirely (no client gains VIP this way).\n\nDefault: empty (VIP-by-password disabled).\nSet by: server config / rcon.\nSee also: password, spectator_password, rcon_password, maxvip_spectators.",
+      "category": "Access control & VIP",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 103
+      }
+    },
+    {
+      "name": "vip_values",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "",
+      "description": "Assigns a numeric VIP level to each VIP password, matched up position-by-position with the space-separated list in vip_password. The first number applies to the first password, the second to the second, and so on. When a spectator connects with a VIP password, the matching number becomes their VIP level, which is handed to the game mode and published in their player info. Assigning a slot the value 0 makes that password count as not-VIP.\n\nLeave empty to give each VIP password a level equal to its position in the list (first password = 1, second = 2, ...).\n\nDefault: empty.\nSet by: server config.\nSee also: vip_password.",
+      "category": "Access control & VIP",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 104
+      }
+    },
+    {
+      "name": "vm_rtChecks",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "1",
+      "description": "Selects which runtime safety checks the server's QuakeC virtual machine performs on the loaded game code while it runs. The value is a bitmask -- add the numbers for the checks you want.\n\n1 = program-stack overflow check\n2 = operation-stack overflow check\n4 = jump-target range check (keeps jumps inside valid code)\n8 = memory-access bounds check (keeps reads and writes inside the VM's own data)\n\nTurning a bit off removes that check, letting the game code run slightly faster but with less protection against a malformed or malicious progs. With all bits clear (0), no checks are performed.\n\nThis applies to servers running the just-in-time compiled game VM (the default on 64-bit builds), and the value is read when the game code is loaded -- a change takes effect on the next map load. On builds that run the bytecode interpreter these checks are always on regardless of this setting.\n\nDefault: 1.\nSet by: server config.",
+      "category": "Game module & extensions",
+      "source_ref": {
+        "file": "src/vm.c",
+        "line": 200
+      }
+    },
+    {
+      "name": "watervis",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "0",
+      "description": "Advertises to connecting clients that translucent (see-through) water is permitted on this server. The server only publishes the setting in its server info; the actual translucent-water rendering happens on each client. Whether a player sees translucent water also depends on their own client and the map.\n\n0 = not advertised (the key is removed from server info).\n1 = advertised as allowed.\n\nDefault: 0.\nSet by: server config.\nSee also: water-visibility.",
+      "category": "Server identity & info",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 167
+      }
+    },
+    {
+      "name": "zombietime",
+      "first_seen": "head",
+      "last_seen": "head",
+      "default": "2",
+      "description": "Sets how many seconds a disconnected client's player slot is held in reserve before the server frees it for reuse. While the timer runs, the departing connection's slot is not handed straight to a new client.\n\nNumber of seconds. Raising it keeps the slot reserved longer after a disconnect; lowering it releases it for a new connection sooner.\n\nDefault: 2.\nSet by: server config / rcon.",
+      "category": "Network & performance",
+      "source_ref": {
+        "file": "src/sv_main.c",
+        "line": 67
+      }
+    }
+  ]
+}

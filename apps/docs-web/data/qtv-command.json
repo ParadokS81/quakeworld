@@ -1,0 +1,144 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.957Z",
+    "codebase": "qtv",
+    "type": "command",
+    "snapshot_version": "1.16-dev",
+    "upstream_commit": "1.16-dev"
+  },
+  "entries": [
+    {
+      "name": "close",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "description": "Closes one of the proxy's active upstream connections, identified by its numeric stream id (the id shown by the list command). The proxy disconnects from that source and frees the stream. If the id does not match an open stream, it reports that no such stream exists.\n\nclose <streamId> = close the upstream with that id.\n\nSet by: proxy console / config.",
+      "category": "Upstream sources",
+      "source_ref": {
+        "file": "pkg/qtv/upstream_storage.go",
+        "line": 140
+      }
+    },
+    {
+      "name": "cmdlist",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "description": "Lists the names of the console commands this QTV proxy understands, sorted alphabetically. Given an optional pattern, it shows only the command names that match that pattern; the pattern is a regular expression and is matched without regard to upper/lower case.\n\ncmdlist = list every command.\ncmdlist <pattern> = list only commands whose name matches <pattern>.\n\nSet by: QTV console / qtv.cfg.",
+      "category": "Console control",
+      "source_ref": {
+        "file": "pkg/qtv/cmd.go",
+        "line": 38
+      }
+    },
+    {
+      "name": "dclose",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "description": "Closes one downstream connection -- a viewer or relay currently connected to this proxy -- selected by its numeric id. Use dlist to see the current ids. If no connection has that id, it reports that no such id exists and closes nothing.\n\ndclose <id> = close the downstream connection whose id is <id>.\n\nSet by: proxy server console / qtv.cfg.",
+      "category": "Downstream viewers",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 218
+      }
+    },
+    {
+      "name": "dlist",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "description": "Lists the downstream connections -- the viewers and relays currently connected to this proxy. Each line shows the connection's numeric id and its name; the list is ordered by id, and a total connection count is printed at the end. The id shown here is what dclose takes to close a connection.\n\ndlist = list the current downstream connections.\n\nSet by: proxy server console / qtv.cfg.",
+      "category": "Downstream viewers",
+      "source_ref": {
+        "file": "pkg/qtv/downstream_storage.go",
+        "line": 219
+      }
+    },
+    {
+      "name": "echo",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "description": "Prints the text you give it back to the QTV console, on its own line. The words you pass are echoed as a single line separated by single spaces; with no arguments it just prints a blank line. Because the console expands variables before a command runs, an argument written as a variable reference is printed as that variable's current value rather than literally.\n\necho <text> = print <text> to the console.\n\nSet by: QTV console / qtv.cfg.",
+      "category": "Console control",
+      "source_ref": {
+        "file": "pkg/qtv/cmd.go",
+        "line": 35
+      }
+    },
+    {
+      "name": "exec",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "description": "Runs a config file: reads the named .cfg file and executes the commands inside it as if they had been typed at the QTV console. If you give a name with no extension, .cfg is added for you; if you give an extension it must be .cfg (and must be lower-case .cfg), otherwise the command is refused. The file is looked for in the QTV root directory first, then in the qtv, qw and id1 directories, and the first copy found is the one that runs. The file's commands run ahead of anything still queued. Absolute paths are not allowed, and the name cannot reach above the directory it is searched in.\n\nexec <filename.cfg> = read and run <filename.cfg>.\n\nSet by: QTV console / qtv.cfg (configs commonly exec other configs).",
+      "category": "Console control",
+      "source_ref": {
+        "file": "pkg/qtv/cmd.go",
+        "line": 37
+      }
+    },
+    {
+      "name": "list",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "description": "Prints the proxy's currently active upstream connections -- the source streams it is pulling from (game servers it has connected to, or demo files it is replaying). Each entry is shown as a numeric stream id and its name, sorted by id, followed by a total count. The stream id shown here is what the close command takes to drop a connection.\n\nlist = print the active upstream connections.\n\nSet by: proxy console / config.",
+      "category": "Upstream sources",
+      "source_ref": {
+        "file": "pkg/qtv/upstream_storage.go",
+        "line": 141
+      }
+    },
+    {
+      "name": "playdemo",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "description": "Opens a recorded MVD demo file as an upstream source, so the proxy replays it to connected viewers exactly as if it were streaming a live game. The demo then appears as an active stream (visible in the list command and closable with close). Takes the demo filename as its argument.\n\nplaydemo <demo.mvd> = replay that demo file as a stream.\n\nSet by: proxy console / config.",
+      "category": "Upstream sources",
+      "source_ref": {
+        "file": "pkg/qtv/upstream_storage.go",
+        "line": 139
+      }
+    },
+    {
+      "name": "qtv",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "description": "Opens a new upstream connection: tells the proxy to connect to a live game server (an MVD source such as an mvdsv server, or another QTV proxy) and start relaying its stream to downstream viewers.\n\nqtv <[streamId@]host:port> [password] [options] = connect to that source.\n\nAddress forms:\nhost:port = connect to that server.\nstreamId@host:port = connect to host:port and ask it for the stream with that id (used when the source is another proxy carrying several streams).\nhostN:portN@...@host2:port2@host1:port1 = chain through several proxies; the proxy connects to host1 first, then asks host1 for host2, and so on up the chain. The number of @ links allowed is capped by the maxchains setting.\n\nThe optional bare password (before any named option) is the password this proxy uses to authenticate to the source it is connecting to.\n\nOptions (each followed by a value):\npassword <password> = sets the password that downstream viewers must give to watch this particular stream.\ndelay <seconds> = the broadcast delay for this stream, overriding parse_delay for it (used to prevent ghosting on live games).\naddress <address> = the address this stream advertises to server browsers.\n\nSet by: proxy console / config.",
+      "category": "Upstream sources",
+      "source_ref": {
+        "file": "pkg/qtv/upstream_storage.go",
+        "line": 138
+      }
+    },
+    {
+      "name": "quit",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "description": "Shuts down the QTV proxy. Run with no argument, it stops the process immediately. Run with any argument after it (the argument's value does not matter), it instead asks the proxy to shut down gracefully, letting the running parts wind down rather than exiting on the spot.\n\nquit = stop immediately.\nquit <anything> = stop gracefully.\n\nSet by: QTV console / qtv.cfg.",
+      "category": "Console control",
+      "source_ref": {
+        "file": "pkg/qtv/cmd.go",
+        "line": 36
+      }
+    },
+    {
+      "name": "status",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "description": "Prints a snapshot of the proxy's current state. It reports how many servers it is pulling from (its upstream connections) and how many clients are watching through it (its downstream connections), each shown as the current count out of the configured maximum. It then lists the proxy's hostname, the address it listens on, whether its web (HTTP) interface is on, and -- when the web interface is on -- whether uploads to it are allowed.\n\nstatus = print the current proxy status.\n\nSet by: proxy server console / qtv.cfg.",
+      "category": "Console control",
+      "source_ref": {
+        "file": "pkg/qtv/qtv.go",
+        "line": 446
+      }
+    },
+    {
+      "name": "varlist",
+      "first_seen": "1.16-dev",
+      "last_seen": "head",
+      "description": "Lists the names of the proxy's configuration variables, sorted alphabetically. With no argument it lists them all; with one argument, that argument is treated as a case-insensitive search pattern and only variable names matching it are listed. (To see a single variable's current value, type its name on its own.)\n\nvarlist [pattern] = list variable names, optionally filtered to those matching <pattern>.\n\nSet by: proxy server console / qtv.cfg.",
+      "category": "Console control",
+      "source_ref": {
+        "file": "pkg/qtv/var.go",
+        "line": 87
+      }
+    }
+  ]
+}

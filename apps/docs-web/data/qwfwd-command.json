@@ -1,0 +1,331 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.968Z",
+    "codebase": "qwfwd",
+    "type": "command",
+    "snapshot_version": "1.40-dev",
+    "upstream_commit": "1.40-dev"
+  },
+  "entries": [
+    {
+      "name": "addip",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Adds an address to the proxy's packet-filter list. A connecting client whose address matches a `ban` entry is refused. The address is given in dotted form, and any trailing octets you leave off act as wildcards, so `addip 192.246.40` covers that whole class-C range.\n\naddip <ip> [ban|safe] [time] = add <ip> to the filter list.\n[ban|safe] = entry type. `ban` (the default) refuses matching clients. `safe` instead marks the address as protected, so the `banip` command will not ban it; a `safe` entry by itself never refuses anyone.\n[time] = how long the entry lasts. Omit it for a permanent entry. `+N` expires N seconds from now. A bare number is an absolute expiry as a Unix timestamp (seconds since 1970). Expired entries are dropped automatically.\n\nThe filter list is held in memory and is not saved automatically; use `writeip` to persist it. Adding the same address again replaces the existing entry rather than duplicating it; the list holds at most 1024 entries.\nSet by: server config / command line.",
+      "category": "Access control & bans",
+      "source_ref": {
+        "file": "src/ban.c",
+        "line": 510
+      }
+    },
+    {
+      "name": "alias",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Defines a named shortcut that runs one or more proxy commands. With no arguments, lists all aliases currently defined.\n\nalias <name> <command> [; <command> ...] = create an alias called <name> that runs the given command string (multiple commands can be chained with ';'). Defining an alias whose name already exists replaces its command. Names are matched without regard to case and may be up to 31 characters long.\n\nA built-in command or variable of the same name takes priority, so an alias named after one will never run.\n\nSet by: server console / config.",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1073
+      }
+    },
+    {
+      "name": "banip",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Bans an IP address from connecting to the proxy for a set length of time. The address is added to the proxy's connection filter list as a ban entry; while it is on the list, connection attempts from a matching address are dropped. Refuses to ban an address that is already marked as \"safe\" on the list. After adding the ban, the updated filter list is written to disk so it survives a restart.\n\nbanip <ip> <time> = ban <ip> for the given duration.\n<ip> = a dotted IPv4 address; trailing octets left off match any value (for example 192.246.40 matches the whole 192.246.40.* range).\n<time> = a whole number 0-999 followed by a unit: s = seconds, m = minutes, h = hours, d = days. The unit is required; values above 999 are clamped to 999.\n\nSet by: proxy server console (the operator at the running proxy). The proxy has no rcon command of its own, so this cannot be issued remotely.",
+      "category": "Access control & bans",
+      "source_ref": {
+        "file": "src/ban.c",
+        "line": 515
+      }
+    },
+    {
+      "name": "banlist",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Prints the proxy's connection filter list as a numbered table: each entry's ID, the IP or IP range it matches, its type (\"ban\" or \"safe\"), and how long until it expires (or \"permanent\" for entries with no expiry). Safe entries are listed first, then bans. If the list is empty it prints \"Ban list: empty\". Takes no arguments. The ID shown here is the number you pass to `banremove` to clear an entry.\n\nSet by: proxy server console (the operator at the running proxy). The proxy has no rcon command of its own, so this cannot be issued remotely.",
+      "category": "Access control & bans",
+      "source_ref": {
+        "file": "src/ban.c",
+        "line": 517
+      }
+    },
+    {
+      "name": "banremove",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Removes a single ban from the proxy's connection filter list, identified by the ID number shown next to it in the `banlist` output. Once removed, that address is no longer blocked. A \"safe\" entry cannot be removed this way. The updated filter list is written to disk so the change survives a restart. Run with no ID, it prints its usage and then shows the current ban list.\n\nbanremove <id> = remove the ban whose list ID is <id>.\n<id> = the number shown in the left column of `banlist` (the entry's position in the list). An out-of-range ID is rejected.\n\nSet by: proxy server console (the operator at the running proxy). The proxy has no rcon command of its own, so this cannot be issued remotely.",
+      "category": "Access control & bans",
+      "source_ref": {
+        "file": "src/ban.c",
+        "line": 516
+      }
+    },
+    {
+      "name": "cllist",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Prints the proxy's current client connections to the console, one per line. Each line shows the connection's id, the address the client is connecting from, the address the proxy is forwarding it to (the destination server), how many minutes the client has been connected, and the client's name. A total client count is printed at the end. Takes no arguments.\n\nSet by: server console / config.",
+      "category": "Network, identity & forwarding",
+      "source_ref": {
+        "file": "src/peer.c",
+        "line": 423
+      }
+    },
+    {
+      "name": "cmdlist",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Lists every console command the proxy supports, one name per line, and prints the total count at the end. Useful for discovering which commands are available. It takes no arguments.\n\nSet by: proxy server console / qwfwd.cfg.\nSee also: cvarlist (the equivalent listing for settings).",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1075
+      }
+    },
+    {
+      "name": "cvarlist",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Lists every cvar currently registered on the proxy, one per line. Each line is prefixed by two status columns: a '*' if the cvar is saved to the config file (archived), and an 's' if the cvar is mirrored into the server info string. The list ends with a count of how many cvars exist. Takes no arguments.\n\nSet by: server console / config.",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/cvar.c",
+        "line": 524
+      }
+    },
+    {
+      "name": "echo",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Prints its arguments back to the proxy console, separated by spaces and followed by a newline. With no arguments it prints a blank line. Mainly useful for adding readable progress messages inside a config file run with exec.\n\necho <text...> = print <text...> to the console.\n\nSet by: proxy server console / qwfwd.cfg.",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1072
+      }
+    },
+    {
+      "name": "exec",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Runs a config file: reads the named .cfg file and executes the commands inside it as if they had been typed at the proxy console. The file is looked up in the qwfwd directory first, then in the qw directory; if it is found in neither, nothing is run. The filename must end in .cfg, and absolute paths or paths containing \"..\" are rejected. The file's commands run ahead of any commands still queued.\n\nexec <filename.cfg> = read and run <filename.cfg>.\n\nSet by: proxy server console / qwfwd.cfg (configs commonly exec other configs).",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1071
+      }
+    },
+    {
+      "name": "heartbeat",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Forces the proxy to send a heartbeat to its master servers right away, instead of waiting for the normal interval (about every 5 minutes). A heartbeat is how the proxy announces itself to the masters so it appears in the public server list. This does not override the heartbeat on/off switch -- if master heartbeats are turned off, this command sends nothing.\n\nSet by: server console / config.",
+      "category": "Master servers & discovery",
+      "source_ref": {
+        "file": "src/query.c",
+        "line": 703
+      }
+    },
+    {
+      "name": "help",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Prints a short hint telling you which two commands list what is available: 'cmdlist' for all commands and 'cvarlist' for all variables. It does not show help for any individual command; run those two commands to see the full lists. Takes no arguments.\n\nSet by: server console / config.",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1076
+      }
+    },
+    {
+      "name": "if",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Runs a command only when a comparison is true, with an optional command to run when it is false.\n\nif <expr1> <op> <expr2> <command> [else <command>] = compare <expr1> and <expr2> using <op>; if the test holds, run <command>, otherwise run the command after 'else' (if given). An optional 'then' may appear before the command.\n\n<op> values:\n==, =  = equal\n!=, <> = not equal\n>, <, >=, <= = numeric greater/less (and or-equal)\nisin   = true when <expr1> appears anywhere inside <expr2>\n!isin  = true when <expr1> does not appear inside <expr2>\n\nFor equality, if both sides look like numbers they are compared as numbers, otherwise as text; the ordering operators always compare as numbers. An unrecognised operator prints the list of valid ones and does nothing.\n\nSet by: server console / config.",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1079
+      }
+    },
+    {
+      "name": "inc",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Adds an amount to a cvar's current numeric value. With no amount given it increases the value by 1. The amount may be a decimal, and a negative amount decreases the value instead.\n\ninc <cvar> [amount] = the cvar to change and, optionally, how much to add (default 1).\n\nReports an error and changes nothing if the named cvar does not exist.\n\nSet by: server console / config.",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/cvar.c",
+        "line": 527
+      }
+    },
+    {
+      "name": "listip",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Prints the proxy's current packet-filter list (the entries created with `addip`). Each entry is shown on its own line with its address, its type (`ban` or `safe`), and, for an entry that was given an expiry, how many seconds it has left. This command only reports the list; it does not change it and takes no arguments.\n\nSet by: server config / command line.",
+      "category": "Access control & bans",
+      "source_ref": {
+        "file": "src/ban.c",
+        "line": 512
+      }
+    },
+    {
+      "name": "quit",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Shuts the proxy down. With no argument it exits cleanly, letting the proxy finish its current work and run its shutdown cleanup first. If you pass any argument, it exits immediately without that clean shutdown.\n\nquit = clean, orderly shutdown.\nquit <anything> = immediate exit (skips cleanup).\n\nSet by: server console / config.",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/main.c",
+        "line": 136
+      }
+    },
+    {
+      "name": "removeip",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Removes a single address from the proxy's packet-filter list (the list managed by `addip`). The address must be written exactly the way it was added: a subnet entry can only be removed by giving that same subnet, not by naming one host inside it. The first entry matching that exact address is removed, whether it was added as a `ban` or a `safe` entry; if nothing matches, the list is left unchanged.\n\nremoveip <ip> = remove the filter entry for <ip>.\n\nLike `addip`, this changes only the in-memory list; use `writeip` afterward if you want the change persisted.\nSet by: server config / command line.",
+      "category": "Access control & bans",
+      "source_ref": {
+        "file": "src/ban.c",
+        "line": 511
+      }
+    },
+    {
+      "name": "serverinfo",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Examines or changes the proxy's server info -- the set of key/value details (such as hostname, country, and coordinates) the proxy advertises about itself.\n\nserverinfo = print every key/value pair, plus how much of the info buffer is used.\nserverinfo <key> = print the value of one key (or report that no such key is set).\nserverinfo <key> <value> = set that key to that value. Keys beginning with '*' are read-only and cannot be changed. If the key is also one of the proxy's published settings, that setting is updated as well so the two stay in sync.\n\nSet by: server console / config.",
+      "category": "Network, identity & forwarding",
+      "source_ref": {
+        "file": "src/main.c",
+        "line": 137
+      }
+    },
+    {
+      "name": "set",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Assigns a value to a cvar. Everything typed after the cvar name becomes the value, so multi-word values do not need quoting. If the named cvar does not already exist it is created.\n\nset <cvar> <value> = the cvar to set and the value to give it.\n\nSet by: server console / config.",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/cvar.c",
+        "line": 526
+      }
+    },
+    {
+      "name": "svlist",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Prints the proxy's current list of known QuakeWorld servers to the console. Each line shows a server's address and the proxy's last measured ping to it, followed by a total count. This is the set of servers the proxy has learned from the master servers; the command only displays the cached list and does not start a new lookup.\n\nSet by: server console / config.",
+      "category": "Master servers & discovery",
+      "source_ref": {
+        "file": "src/query.c",
+        "line": 702
+      }
+    },
+    {
+      "name": "toggle",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Flips a cvar between off and on. If the cvar's current value is anything other than zero it is set to 0; if it is zero it is set to 1.\n\ntoggle <cvar> = the cvar to flip.\n\nReports an error and changes nothing if the named cvar does not exist.\n\nSet by: server console / config.",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/cvar.c",
+        "line": 525
+      }
+    },
+    {
+      "name": "unalias",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Removes a single alias by name.\n\nunalias <name> = delete the alias called <name>. If no alias by that name exists, prints an error and removes nothing. The name is matched without regard to case.\n\nSet by: server console / config.",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1078
+      }
+    },
+    {
+      "name": "unaliasall",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Removes every alias at once, leaving none defined. Takes no arguments.\n\nSet by: server console / config.",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1077
+      }
+    },
+    {
+      "name": "wait",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Pauses the rest of the current command sequence until the next frame. When several commands are queued together (for example chained with semicolons inside a config), everything after wait is held back and run on the following frame instead of immediately. It takes no arguments and inserts a one-frame gap each time it runs.\n\nSet by: proxy server console / qwfwd.cfg.",
+      "category": "Console & scripting",
+      "source_ref": {
+        "file": "src/cmd.c",
+        "line": 1074
+      }
+    },
+    {
+      "name": "whitelist",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Lists the destination-address whitelist: the set of remote server addresses this proxy is permitted to forward clients to. Prints the number of whitelisted addresses followed by each one. While the whitelist is empty the proxy forwards to any destination; once one or more addresses are added it forwards only to those.\n\nTakes no arguments.\n\nSet by: proxy server console or qwfwd.cfg.",
+      "category": "Access control & bans",
+      "source_ref": {
+        "file": "src/whitelist.c",
+        "line": 16
+      }
+    },
+    {
+      "name": "whitelistadd",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Adds one IPv4 address to the destination-address whitelist -- the set of remote server addresses this proxy is permitted to forward clients to. As soon as the whitelist holds at least one address, the proxy forwards only to whitelisted addresses and refuses every other destination.\n\nwhitelistadd <ip> = add <ip> (a dotted IPv4 address) to the whitelist.\n\nThe address is rejected if it is not a valid IPv4 address, if it is already in the whitelist, or if the whitelist is full (4096 addresses).\n\nSet by: proxy server console or qwfwd.cfg.",
+      "category": "Access control & bans",
+      "source_ref": {
+        "file": "src/whitelist.c",
+        "line": 17
+      }
+    },
+    {
+      "name": "whitelistpurge",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Clears the destination-address whitelist -- removes every whitelisted remote server address at once. After purging, the whitelist is empty and the proxy forwards clients to any destination until addresses are added again. The proxy also purges the whitelist automatically when it reloads its configuration, so that re-running qwfwd.cfg rebuilds the list from scratch rather than appending to the old one.\n\nTakes no arguments.\n\nSet by: proxy server console or qwfwd.cfg; also run automatically on a configuration reload.",
+      "category": "Access control & bans",
+      "source_ref": {
+        "file": "src/whitelist.c",
+        "line": 19
+      }
+    },
+    {
+      "name": "whitelistremove",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Removes one IPv4 address from the destination-address whitelist -- the set of remote server addresses this proxy is permitted to forward clients to. If removing the last address leaves the whitelist empty, the proxy returns to forwarding to any destination.\n\nwhitelistremove <ip> = remove <ip> (a dotted IPv4 address) from the whitelist.\n\nThe command is rejected if <ip> is not a valid IPv4 address, and reports an error if the address is not currently in the whitelist.\n\nSet by: proxy server console or qwfwd.cfg.",
+      "category": "Access control & bans",
+      "source_ref": {
+        "file": "src/whitelist.c",
+        "line": 18
+      }
+    },
+    {
+      "name": "writeip",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "Saves the proxy's current packet-filter list to a file so it survives a restart. The list normally lives only in memory; this command writes it out as a series of `addip` commands. That file is automatically run when the proxy starts, so a saved list is reloaded on the next launch. Running this overwrites the file with the current list, and it takes no arguments.\n\nSet by: server config / command line.",
+      "category": "Access control & bans",
+      "source_ref": {
+        "file": "src/ban.c",
+        "line": 513
+      }
+    }
+  ]
+}

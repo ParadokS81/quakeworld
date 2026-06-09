@@ -44,6 +44,13 @@ const DEFAULT_OUTPUT_DIR = join(MONOREPO_ROOT, 'apps', 'slipgate-app', 'src', 'l
 
 const SNAPSHOT_SCHEMA_VERSION = 'snapshot-v1';
 
+// Docs export (docs.quake.world arc, Phase 1). The docs emit path is a SEPARATE
+// consumer from slipgate: it writes a uniform per-(codebase, type) record into a
+// docs-OWNED directory and NEVER touches DEFAULT_OUTPUT_DIR. Defined here beside
+// the slipgate consts so the two output roots are visibly distinct.
+const DOCS_OUTPUT_DIR = join(MONOREPO_ROOT, 'apps', 'docs-web', 'data');
+const DOCS_SNAPSHOT_SCHEMA_VERSION = 'docs-snapshot-v1';
+
 // --- enrichment shape (shared by every emitter) ----------------------------
 
 interface EnrichmentBlock {
@@ -744,6 +751,390 @@ export async function buildSnapshot(opts: BuildSnapshotOptions): Promise<BuildSn
     }
 
     return { project: opts.project, version, outputDir, files };
+  } finally {
+    if (ownedSql) {
+      await sql.end();
+    }
+  }
+}
+
+// ===========================================================================
+// Docs export (docs.quake.world arc, Phase 1) -- ADDITIVE, separate consumer.
+// ===========================================================================
+//
+// This section projects the Layer-1 corpus into a uniform per-(codebase, type)
+// JSON for the docs site. It is intentionally generic: a per-codebase config
+// dict (DOCS_CODEBASES) plus a per-type column map drive everything. There is
+// NO ezQuake-special path generalized after the fact -- the ONLY two
+// codebase-conditional reads are (1) the description source and (2) the
+// category source; every other column is uniform across codebases.
+//
+// HARD GATE (F1/D12): nothing here touches the slipgate emitters, their SQL,
+// their field names, or DEFAULT_OUTPUT_DIR. The docs path writes ONLY to
+// DOCS_OUTPUT_DIR (apps/docs-web/data/). It reuses the in-file loadEnrichment /
+// readExtractorAst / writeJson directly (same module -- no exports, no new
+// imports). Slipgate's consumed files are byte-identical by construction; the
+// slipgate-parity probe is the belt-and-suspenders proof.
+
+type DocsType = 'cvar' | 'command' | 'macro' | 'cmdline_param' | 'info_key';
+
+interface DocsCodebaseConfig {
+  project: Project;
+  // Frozen snapshot version -- MUST equal PROJECT_DEFAULT_SNAPSHOT_VERSION
+  // (D16/F3: read frozen, not head, for qtv/qwfwd/qwcl).
+  version: string;
+  // helpJsonTrack === true is ezQuake ONLY: the lone codebase whose
+  // user-facing description lives on <type>_versions.help_desc (with the
+  // synthesized-fallback CASE) and whose cvar/command category resolves
+  // through the extractor AST `groups` taxonomy. The other five codebases
+  // carry their description on entities.description and their category as a
+  // pre-resolved label in category_inferred.
+  helpJsonTrack: boolean;
+  types: DocsType[];
+}
+
+const DOCS_CODEBASES: DocsCodebaseConfig[] = [
+  { project: 'ezquake', version: 'head',     helpJsonTrack: true,  types: ['cvar', 'command', 'macro', 'cmdline_param'] },
+  { project: 'ktx',     version: 'head',     helpJsonTrack: false, types: ['cvar', 'command', 'info_key'] },
+  { project: 'mvdsv',   version: 'head',     helpJsonTrack: false, types: ['cvar', 'command', 'info_key', 'cmdline_param'] },
+  { project: 'qwcl',    version: '2.33',     helpJsonTrack: false, types: ['cvar', 'command', 'cmdline_param'] },
+  { project: 'qtv',     version: '1.16-dev', helpJsonTrack: false, types: ['cvar', 'command'] },
+  { project: 'qwfwd',   version: '1.40-dev', helpJsonTrack: false, types: ['cvar', 'command', 'info_key', 'cmdline_param'] },
+];
+
+// Uniform docs record. UNION shape: each (codebase, type) emits the SUBSET its
+// data supports. Required on EVERY record: name, first_seen, last_seen.
+// Everything else is OPTIONAL and OMITTED when absent -- never null-filled
+// (D13). friendly_type is NOT emitted -- the frontend derives it from raw_type
+// + value-list presence (D5/D18). category is the RAW token (ezQuake:
+// help_group_id; others: category_inferred) -- the frontend resolves ezQuake's
+// via the file-root groups block (D13/D17).
+interface DocsRecord {
+  name: string;
+  raw_type?: string;            // cvar only (cvar_versions.help_type)
+  default?: string;             // cvar only (cvar_versions.default_value)
+  description?: string;         // ezQuake: help_desc w/ synth-fallback; others: entities.description
+  remarks?: string;             // cvar/command/cmdline_param (help_remarks)
+  values?: unknown;             // cvar only (help_values, JSON-parsed)
+  category?: string;            // cvar+command only (F5): raw token, frontend-resolved
+  source_ref?: { file: string; line: number };   // any type where source_file is present
+  first_seen: string;
+  last_seen: string;
+  default_history?: Array<{ version: string; value: string }>;   // cvar only (>=2 distinct defaults)
+  // per-type meta (emitted where the column exists; absent otherwise):
+  macro_type?: string;          // macro only (macro_versions.macro_type)
+  arguments?: string;           // cmdline_param only (cmdline_param_versions.arguments)
+  scope?: string;               // info_key only (info_key_versions.scope)
+}
+
+interface DocsFileMeta {
+  schema_version: string;
+  generated_at: string;
+  codebase: Project;
+  type: DocsType;
+  snapshot_version: string;
+  upstream_commit: string | null;
+}
+
+interface DocsFile {
+  _meta: DocsFileMeta;
+  groups?: Array<{ id: string; 'major-group'?: string; name: string }>;
+  entries: DocsRecord[];
+}
+
+// Per-type column projection. The description expression is the only piece that
+// varies by codebase (helpJsonTrack). For ezQuake (helpJsonTrack true) on
+// cvar/command/macro/cmdline_param it is the synthesized-fallback CASE reused
+// from the slipgate fetchers (build-snapshot.ts:200-204 et al): surface
+// entities.description ONLY when origin='synthesized' AND the per-version
+// help_desc is empty, otherwise help_desc. For every other codebase, and for
+// info_key in any codebase, the description is entities.description directly
+// (those rows have no help-JSON track; info_key has no help_desc column at all).
+//
+// Each branch returns a fully-typed inline result set (the typing-discipline
+// step: do NOT cast to the stale CvarVersionRow/CommandVersionRow interfaces in
+// types.ts, which predate migration 016 and omit category_inferred).
+
+interface DocsRow {
+  name: string;
+  description: string | null;
+  category: string | null;      // cvar/command only; null elsewhere
+  raw_type: string | null;      // cvar only
+  default_value: string | null; // cvar only
+  remarks: string | null;       // cvar/command/cmdline_param
+  values_raw: string | null;    // cvar only (help_values TEXT)
+  macro_type: string | null;    // macro only
+  arguments: string | null;     // cmdline_param only
+  scope: string | null;         // info_key only
+  source_file: string | null;
+  source_line: number | null;
+}
+
+async function fetchDocsRows(
+  sql: postgres.Sql,
+  cfg: DocsCodebaseConfig,
+  type: DocsType,
+): Promise<DocsRow[]> {
+  const { project, version, helpJsonTrack } = cfg;
+
+  // The synthesized-fallback CASE (ezQuake) vs entities.description (others).
+  // Built as a SQL fragment so each per-type SELECT below shares one rule.
+  // info_key has no help_desc column, so it always reads entities.description
+  // regardless of helpJsonTrack (ezQuake has no info_key type anyway).
+  const descCase = (alias: string) =>
+    helpJsonTrack
+      ? sql`CASE WHEN e.description_origin = 'synthesized'
+                      AND NULLIF(TRIM(${sql(alias + '.help_desc')}), '') IS NULL
+                 THEN e.description
+                 ELSE ${sql(alias + '.help_desc')}
+            END`
+      : sql`e.description`;
+
+  switch (type) {
+    case 'cvar':
+      return sql<DocsRow[]>`
+        SELECT e.name,
+               ${descCase('cv')} AS description,
+               ${helpJsonTrack ? sql`cv.help_group_id` : sql`cv.category_inferred`} AS category,
+               cv.help_type      AS raw_type,
+               cv.default_value,
+               cv.help_remarks   AS remarks,
+               cv.help_values    AS values_raw,
+               NULL::text        AS macro_type,
+               NULL::text        AS arguments,
+               NULL::text        AS scope,
+               cv.source_file,
+               cv.source_line
+        FROM cvar_versions cv
+        JOIN entities e ON e.id = cv.entity_id
+        WHERE e.project = ${project} AND cv.version = ${version}
+          AND e.source_state IN ('source_backed', 'dynamically_registered')
+        ORDER BY e.name
+      `;
+    case 'command':
+      return sql<DocsRow[]>`
+        SELECT e.name,
+               ${descCase('cv')} AS description,
+               ${helpJsonTrack ? sql`cv.help_group_id` : sql`cv.category_inferred`} AS category,
+               NULL::text        AS raw_type,
+               NULL::text        AS default_value,
+               cv.help_remarks   AS remarks,
+               NULL::text        AS values_raw,
+               NULL::text        AS macro_type,
+               NULL::text        AS arguments,
+               NULL::text        AS scope,
+               cv.source_file,
+               cv.source_line
+        FROM command_versions cv
+        JOIN entities e ON e.id = cv.entity_id
+        WHERE e.project = ${project} AND cv.version = ${version}
+          AND e.source_state IN ('source_backed', 'dynamically_registered')
+        ORDER BY e.name
+      `;
+    case 'macro':
+      return sql<DocsRow[]>`
+        SELECT e.name,
+               ${descCase('mv')} AS description,
+               NULL::text        AS category,
+               NULL::text        AS raw_type,
+               NULL::text        AS default_value,
+               NULL::text        AS remarks,
+               NULL::text        AS values_raw,
+               mv.macro_type,
+               NULL::text        AS arguments,
+               NULL::text        AS scope,
+               mv.source_file,
+               mv.source_line
+        FROM macro_versions mv
+        JOIN entities e ON e.id = mv.entity_id
+        WHERE e.project = ${project} AND mv.version = ${version}
+          AND e.source_state IN ('source_backed', 'dynamically_registered')
+        ORDER BY e.name
+      `;
+    case 'cmdline_param':
+      return sql<DocsRow[]>`
+        SELECT e.name,
+               ${descCase('cv')} AS description,
+               NULL::text        AS category,
+               NULL::text        AS raw_type,
+               NULL::text        AS default_value,
+               cv.help_remarks   AS remarks,
+               NULL::text        AS values_raw,
+               NULL::text        AS macro_type,
+               cv.arguments,
+               NULL::text        AS scope,
+               cv.source_file,
+               cv.source_line
+        FROM cmdline_param_versions cv
+        JOIN entities e ON e.id = cv.entity_id
+        WHERE e.project = ${project} AND cv.version = ${version}
+          AND e.source_state IN ('source_backed', 'dynamically_registered')
+        ORDER BY e.name
+      `;
+    case 'info_key':
+      return sql<DocsRow[]>`
+        SELECT e.name,
+               e.description     AS description,
+               NULL::text        AS category,
+               NULL::text        AS raw_type,
+               NULL::text        AS default_value,
+               NULL::text        AS remarks,
+               NULL::text        AS values_raw,
+               NULL::text        AS macro_type,
+               NULL::text        AS arguments,
+               iv.scope,
+               iv.source_file,
+               iv.source_line
+        FROM info_key_versions iv
+        JOIN entities e ON e.id = iv.entity_id
+        WHERE e.project = ${project} AND iv.version = ${version}
+          AND e.source_state IN ('source_backed', 'dynamically_registered')
+        ORDER BY e.name
+      `;
+  }
+}
+
+// Generic projection: DocsRow -> DocsRecord, omitting every absent field.
+// Enrichment (first_seen / last_seen / default_history) is merged by name.
+function projectDocsRecord(
+  row: DocsRow,
+  type: DocsType,
+  enrichment: Map<string, EnrichmentBlock>,
+): DocsRecord | null {
+  const enr = enrichment.get(row.name);
+  // first_seen/last_seen are required; if a row has no enrichment block it is
+  // not a snapshot-visible entity (the enrichment query uses the same
+  // source_state filter), so skip it rather than emit an invalid record.
+  if (!enr) return null;
+
+  const record: DocsRecord = {
+    name: row.name,
+    first_seen: enr.first_seen_version,
+    last_seen: enr.last_seen_version,
+  };
+
+  if (type === 'cvar') {
+    if (row.raw_type != null) record.raw_type = row.raw_type;
+    if (row.default_value != null) record.default = row.default_value;
+    if (row.values_raw != null) {
+      // help_values is TEXT (pre-stringified JSON); JSON.parse with a guard,
+      // omitting on parse failure (mirrors build-snapshot.ts:339).
+      try { record.values = JSON.parse(row.values_raw); } catch { /* keep absent */ }
+    }
+  }
+  if (row.description != null && row.description !== '') record.description = row.description;
+  if (row.remarks != null && row.remarks !== '') record.remarks = row.remarks;
+  if (row.category != null && row.category !== '') record.category = row.category;
+  if (row.macro_type != null) record.macro_type = row.macro_type;
+  if (row.arguments != null) record.arguments = row.arguments;
+  if (row.scope != null) record.scope = row.scope;
+  if (row.source_file != null && row.source_line != null) {
+    record.source_ref = { file: row.source_file, line: row.source_line };
+  }
+  // default_history rides on the enrichment block (cvar-only, present only
+  // where >=2 distinct defaults exist). source_state is deliberately NOT
+  // emitted on the docs record (slipgate-only field).
+  if (enr.default_history) record.default_history = enr.default_history;
+
+  return record;
+}
+
+async function emitDocsType(
+  sql: postgres.Sql,
+  cfg: DocsCodebaseConfig,
+  type: DocsType,
+  commitSha: string | null,
+  outputDir: string,
+  groupsByType: Map<DocsType, Array<{ id: string; 'major-group'?: string; name: string }>>,
+): Promise<{ file: string; codebase: string; type: string; entities: number; bytes: number }> {
+  const enrichment = await loadEnrichment(sql, cfg.project, type);
+  const rows = await fetchDocsRows(sql, cfg, type);
+
+  const entries: DocsRecord[] = [];
+  for (const row of rows) {
+    const record = projectDocsRecord(row, type, enrichment);
+    if (record) entries.push(record);
+  }
+
+  const meta: DocsFileMeta = {
+    schema_version: DOCS_SNAPSHOT_SCHEMA_VERSION,
+    generated_at: new Date().toISOString(),
+    codebase: cfg.project,
+    type,
+    snapshot_version: cfg.version,
+    upstream_commit: commitSha,
+  };
+
+  const file: DocsFile = { _meta: meta, entries };
+  // groups ride only on ezQuake cvar+command files; absent (not empty-array)
+  // for every other file (D11 -- no empty-array null-fill).
+  const groups = groupsByType.get(type);
+  if (groups) file.groups = groups;
+
+  const fileName = `${cfg.project}-${type}.json`;
+  const r = writeJson(join(outputDir, fileName), file, entries.length);
+  return { file: fileName, codebase: cfg.project, type, entities: entries.length, bytes: r.bytes };
+}
+
+export interface BuildDocsSnapshotOptions {
+  sql?: postgres.Sql;
+  codebases?: Project[];
+  outputDir?: string;
+}
+
+export interface BuildDocsSnapshotResult {
+  outputDir: string;
+  files: Array<{ file: string; codebase: string; type: string; entities: number; bytes: number }>;
+}
+
+export async function buildDocsSnapshot(opts: BuildDocsSnapshotOptions): Promise<BuildDocsSnapshotResult> {
+  const outputDir = opts.outputDir ?? DOCS_OUTPUT_DIR;
+  mkdirSync(outputDir, { recursive: true });
+
+  // Filter the config dict to the requested codebases (default: all 6).
+  const requested = opts.codebases;
+  const configs = requested
+    ? DOCS_CODEBASES.filter((c) => requested.includes(c.project))
+    : DOCS_CODEBASES;
+
+  // Own the sql handle when not passed (mirrors buildSnapshot's ownedSql).
+  const ownedSql = opts.sql == null;
+  const sql = opts.sql ?? postgres(
+    process.env.DATABASE_URL ?? 'postgresql://qworacle:dev@127.0.0.1:5432/qw_oracle',
+    { onnotice: () => {} },
+  );
+
+  try {
+    const files: BuildDocsSnapshotResult['files'] = [];
+
+    for (const cfg of configs) {
+      // Version-existence guard (mirror buildSnapshot:719-724).
+      const verRows = await sql<Array<{ commit_sha: string | null }>>`
+        SELECT commit_sha FROM versions WHERE project = ${cfg.project} AND version = ${cfg.version}
+      `;
+      if (verRows.length === 0) {
+        throw new Error(`No versions row for ${cfg.project}@${cfg.version}; run extract-tag first.`);
+      }
+      const commitSha = verRows[0]!.commit_sha;
+
+      // Load the ezQuake groups taxonomy once per codebase (cvar + command
+      // only). The groups block lives in the extractor AST output, not the DB
+      // (F4). Keyed by type so emitDocsType attaches the right block.
+      const groupsByType = new Map<DocsType, Array<{ id: string; 'major-group'?: string; name: string }>>();
+      if (cfg.helpJsonTrack) {
+        const varsAst = readExtractorAst<EzqVariablesAst>(cfg.project, 'ezquake-variables-ast.json');
+        const cmdsAst = readExtractorAst<EzqCommandsAst>(cfg.project, `${cfg.project}-commands-ast.json`);
+        groupsByType.set('cvar', varsAst.groups);
+        groupsByType.set('command', (cmdsAst.groups as Array<{ id: string; name: string }>));
+      }
+
+      for (const type of cfg.types) {
+        const entry = await emitDocsType(sql, cfg, type, commitSha, outputDir, groupsByType);
+        files.push(entry);
+      }
+    }
+
+    return { outputDir, files };
   } finally {
     if (ownedSql) {
       await sql.end();

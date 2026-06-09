@@ -1,0 +1,732 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.948Z",
+    "codebase": "qwcl",
+    "type": "cmdline_param",
+    "snapshot_version": "2.33",
+    "upstream_commit": "bf4ac424ce754894ac8f1dae6a3981954bc9852d"
+  },
+  "entries": [
+    {
+      "name": "-allow360",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Allows 360-pixel-wide video modes to remain in the mode list, which the client otherwise drops to save space when many 320-wide modes exist.",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 3154
+      }
+    },
+    {
+      "name": "-basedir",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "The \"base\" directory is the path to the directory holding the quake.exe and all game directories.\n\nThis can be overridden with the \"-basedir\" command line parm to allow code debugging in a different directory.",
+      "source_ref": {
+        "file": "common.c",
+        "line": 1837
+      }
+    },
+    {
+      "name": "-bpp",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Allows setting of 'r_colorbits' cvar during start-up",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 1658
+      }
+    },
+    {
+      "name": "-cddev",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "On Linux, specifies the cd device to use.  Must specify -cdaudio for this to have effect. (is this only used in meson build?)",
+      "source_ref": {
+        "file": "cd_linux.c",
+        "line": 381
+      }
+    },
+    {
+      "name": "-cdmediacheck",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Enables periodic checking for CD media changes (a disc being inserted or removed) for CD audio playback.",
+      "source_ref": {
+        "file": "cd_audio.c",
+        "line": 773
+      }
+    },
+    {
+      "name": "-condebug",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "log all console output to qw/qconsole.log",
+      "source_ref": {
+        "file": "console.c",
+        "line": 230
+      }
+    },
+    {
+      "name": "-conheight",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "set vid_conheight during startup",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 604
+      }
+    },
+    {
+      "name": "-conwidth",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "set vid_conwidth during startup",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 591
+      }
+    },
+    {
+      "name": "-current",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Uses the current desktop resolution as the fullscreen video mode instead of switching to a preset mode.",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 1638
+      }
+    },
+    {
+      "name": "-d",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "(SVGAlib build) Sets the color depth, in bits, of the requested video mode, used together with -w and -h.",
+      "source_ref": {
+        "file": "vid_svgalib.c",
+        "line": 592
+      }
+    },
+    {
+      "name": "-dibonly",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Forces the WinQuake software renderer to use only the GDI/DIB output path, disabling DirectDraw and WinDirect.",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 2129
+      }
+    },
+    {
+      "name": "-dinput",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Uses DirectInput for mouse input instead of standard Windows messages, giving more reliable raw movement.",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 431
+      }
+    },
+    {
+      "name": "-force",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Adds a custom video mode (from -width/-height) to the mode list even if the display did not enumerate it.",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 1673
+      }
+    },
+    {
+      "name": "-fullsbar",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Draws the status bar across the full width of the screen rather than at console width.",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 1829
+      }
+    },
+    {
+      "name": "-gamma",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Sets the initial gamma value at startup (`-gamma <float>`, range 0.3-3.0), overriding the `gl_gamma` cvar default before the first frame.",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 1545
+      }
+    },
+    {
+      "name": "-gl11",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Forces the plain OpenGL 1.1 path (loading opengl32.dll), bypassing multitexture and other extensions.",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 518
+      }
+    },
+    {
+      "name": "-h",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "(SVGAlib build) Sets the height, in pixels, of the requested video mode.",
+      "source_ref": {
+        "file": "vid_svgalib.c",
+        "line": 591
+      }
+    },
+    {
+      "name": "-heapsize",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Sets the hunk memory allocation to `<kilobytes>` (`-heapsize <kb>`, e.g. `-heapsize 65536` for 64 MB). Legacy KB-denominated form; if both `-heapsize` and `-mem` are present, `-mem` wins.",
+      "source_ref": {
+        "file": "sys_win.c",
+        "line": 647
+      }
+    },
+    {
+      "name": "-height",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Sets the vertical resolution in pixels (`-height <pixels>`). Applies to `vid_height` (fullscreen) or `vid_win_height` (windowed, when `-window` is present). Should be paired with `-width`.",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 588
+      }
+    },
+    {
+      "name": "-ip",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Binds all network sockets to the specified local IP address rather than all interfaces (`-ip <address>`). Affects both UDP and TCP listen sockets (client and server). Default is `INADDR_ANY`.",
+      "source_ref": {
+        "file": "net_udp.c",
+        "line": 248
+      }
+    },
+    {
+      "name": "-lm_1",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Selects the GL_LUMINANCE single-channel OpenGL lightmap texture format (the default).",
+      "source_ref": {
+        "file": "gl_rsurf.c",
+        "line": 1622
+      }
+    },
+    {
+      "name": "-lm_2",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Selects the GL_RGBA4 (16-bit) OpenGL lightmap texture format.",
+      "source_ref": {
+        "file": "gl_rsurf.c",
+        "line": 1628
+      }
+    },
+    {
+      "name": "-lm_4",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Selects the full GL_RGBA (32-bit) OpenGL lightmap texture format.",
+      "source_ref": {
+        "file": "gl_rsurf.c",
+        "line": 1630
+      }
+    },
+    {
+      "name": "-lm_a",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Selects the GL_ALPHA single-channel OpenGL lightmap texture format.",
+      "source_ref": {
+        "file": "gl_rsurf.c",
+        "line": 1624
+      }
+    },
+    {
+      "name": "-lm_i",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Selects the GL_INTENSITY single-channel OpenGL lightmap texture format.",
+      "source_ref": {
+        "file": "gl_rsurf.c",
+        "line": 1626
+      }
+    },
+    {
+      "name": "-mdev",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "(Linux build) Sets the mouse device file to read, overriding the default /dev/mouse.",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 687
+      }
+    },
+    {
+      "name": "-mem",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Sets the hunk memory allocation to `<megabytes>` (`-mem <mb>`, e.g. `-mem 64`). Canonical form; overrides `-heapsize` when both are specified.",
+      "source_ref": {
+        "file": "sys_linux.c",
+        "line": 371
+      }
+    },
+    {
+      "name": "-minmemory",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Sets the hunk allocation to the engine minimum (~5.3 MB); takes no argument. Superseded by any subsequent `-heapsize` or `-mem` on the same command line. Use when testing under minimal memory conditions.",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 1425
+      }
+    },
+    {
+      "name": "-mode",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Selects the fullscreen video mode by its number in the mode list.",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 1632
+      }
+    },
+    {
+      "name": "-mrate",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "(Linux build) Sets the serial mouse sample rate, overriding the default of 1200.",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 692
+      }
+    },
+    {
+      "name": "-no8bit",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables the 8-bit shared-texture-palette OpenGL extension, forcing full-color textures.",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 1521
+      }
+    },
+    {
+      "name": "-noadjustaspect",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Stops the client from halving the width of very wide (dual-monitor) video modes.",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 1406
+      }
+    },
+    {
+      "name": "-noautostretch",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Prevents the client from automatically choosing a stretched windowed mode on desktops wider than 640 pixels.",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 727
+      }
+    },
+    {
+      "name": "-nocdaudio",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables CD audio (music) playback entirely.",
+      "source_ref": {
+        "file": "cd_audio.c",
+        "line": 770
+      }
+    },
+    {
+      "name": "-noconinput",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables reading console commands from stdin. POSIX/Linux only.",
+      "source_ref": {
+        "file": "sys_linux.c",
+        "line": 380
+      }
+    },
+    {
+      "name": "-nodd",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables DirectDraw, forcing the WinQuake software renderer onto the GDI path (alias of -nodirectdraw).",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 442
+      }
+    },
+    {
+      "name": "-noddraw",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables DirectDraw, forcing the WinQuake software renderer onto the GDI path (alias of -nodirectdraw).",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 442
+      }
+    },
+    {
+      "name": "-nodirectdraw",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables DirectDraw, forcing the WinQuake software renderer onto the GDI path.",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 442
+      }
+    },
+    {
+      "name": "-noforcemaccel",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Stops the client from overriding the Windows mouse acceleration setting while running.",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 454
+      }
+    },
+    {
+      "name": "-noforcemparms",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Stops the client from overriding the Windows mouse parameters (threshold and speed) while running.",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 460
+      }
+    },
+    {
+      "name": "-noforcemspd",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Stops the client from overriding the Windows mouse speed setting while running.",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 451
+      }
+    },
+    {
+      "name": "-noforcevga",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Stops the software renderer from forcibly including the 320x200 VGA mode in the mode list.",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 472
+      }
+    },
+    {
+      "name": "-nofulldib",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables the use of a fullscreen DIB (GDI) video mode in WinQuake.",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 2143
+      }
+    },
+    {
+      "name": "-nojoy",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables joystick input.",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 800
+      }
+    },
+    {
+      "name": "-nokbd",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "(Linux build) Disables keyboard input handling.",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 360
+      }
+    },
+    {
+      "name": "-nomouse",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables mouse input.",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 426
+      }
+    },
+    {
+      "name": "-nomtex",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables OpenGL multitexturing in the Classic renderer (prevents loading of `glMultiTexCoord2f`, `glActiveTexture`, and `glClientActiveTexture`), and additionally disables fog rendering engine-wide. Use when multitexturing causes corruption on old or non-standard GL drivers.",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 580
+      }
+    },
+    {
+      "name": "-nosound",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Skips SDL audio initialization entirely, leaving all sound subsystems inactive for the session. Distinct from the `s_nosound` cvar, which allows initialization but suppresses playback at runtime.",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 175
+      }
+    },
+    {
+      "name": "-nostdout",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Suppresses stdout output on POSIX by setting `sys_nostdout=1` before `Host_Init`. POSIX/Linux only.",
+      "source_ref": {
+        "file": "sys_linux.c",
+        "line": 384
+      }
+    },
+    {
+      "name": "-notriplebuf",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables triple buffering of the video output.",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 607
+      }
+    },
+    {
+      "name": "-novesa",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables the WinDirect fullscreen video path in the WinQuake software renderer (treated like -nowindirect).",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 436
+      }
+    },
+    {
+      "name": "-nowd",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables the WinDirect fullscreen video path (short form of -nowindirect).",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 435
+      }
+    },
+    {
+      "name": "-nowindirect",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Disables the WinDirect (MGL) fullscreen video path in the WinQuake software renderer.",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 434
+      }
+    },
+    {
+      "name": "-particles",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Sets the maximum number of simultaneously active particles to `<count>` (`-particles <count>`), overriding the `r_particles_count` cvar at startup. Default is 2048; the active particle subsystem clamps to its own range (classic: 512-8192, QMB: 256-32768).",
+      "source_ref": {
+        "file": "r_part.c",
+        "line": 50
+      }
+    },
+    {
+      "name": "-primarysound",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Mixes directly into the DirectSound primary buffer instead of a secondary buffer, reducing latency on some hardware.",
+      "source_ref": {
+        "file": "snd_win.c",
+        "line": 303
+      }
+    },
+    {
+      "name": "-resetwinpos",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Resets the saved game-window position to the default, useful if the window opened off-screen.",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 1266
+      }
+    },
+    {
+      "name": "-simsound",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Enables fake-DMA sound: the mixer runs but no audio is sent to the hardware (used for testing).",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 178
+      }
+    },
+    {
+      "name": "-sndbits",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "(Linux/OSS build) Sets the sound sample size in bits (8 or 16).",
+      "source_ref": {
+        "file": "snd_linux.c",
+        "line": 80
+      }
+    },
+    {
+      "name": "-sndmono",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "(Linux/OSS build) Forces single-channel (mono) sound output.",
+      "source_ref": {
+        "file": "snd_linux.c",
+        "line": 102
+      }
+    },
+    {
+      "name": "-sndspeed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "(Linux/OSS build) Sets the sound sample rate, in Hz.",
+      "source_ref": {
+        "file": "snd_linux.c",
+        "line": 91
+      }
+    },
+    {
+      "name": "-sndstereo",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "(Linux/OSS build) Forces two-channel (stereo) sound output.",
+      "source_ref": {
+        "file": "snd_linux.c",
+        "line": 104
+      }
+    },
+    {
+      "name": "-snoforceformat",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Stops the DirectSound code from forcing its preferred sample format on the output device.",
+      "source_ref": {
+        "file": "snd_win.c",
+        "line": 282
+      }
+    },
+    {
+      "name": "-startwindowed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Starts ezQuake in windowed (non-fullscreen) mode. Similar to `-window` but does not affect how `-width`, `-height`, or `-display` are routed to cvars.",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 2183
+      }
+    },
+    {
+      "name": "-surfcachesize",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Sets the size, in bytes, of the surface cache used by the software renderer.",
+      "source_ref": {
+        "file": "d_surf.c",
+        "line": 39
+      }
+    },
+    {
+      "name": "-verbose",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "(X11 build) Prints extra diagnostic information about the display and chosen visual at startup.",
+      "source_ref": {
+        "file": "vid_x.c",
+        "line": 386
+      }
+    },
+    {
+      "name": "-visualid",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "(X11 build) Selects a specific X11 visual by its numeric id instead of letting the client choose.",
+      "source_ref": {
+        "file": "vid_x.c",
+        "line": 442
+      }
+    },
+    {
+      "name": "-w",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "(SVGAlib build) Sets the width, in pixels, of the requested video mode.",
+      "source_ref": {
+        "file": "vid_svgalib.c",
+        "line": 591
+      }
+    },
+    {
+      "name": "-wavonly",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Uses the older waveOut sound output instead of DirectSound.",
+      "source_ref": {
+        "file": "snd_win.c",
+        "line": 559
+      }
+    },
+    {
+      "name": "-width",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Sets the horizontal resolution in pixels (`-width <pixels>`). Applies to `vid_width` (fullscreen) or `vid_win_width` (windowed, when `-window` is present). Should be paired with `-height`.",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 586
+      }
+    },
+    {
+      "name": "-window",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Starts ezQuake in windowed mode and routes `-width`, `-height`, and `-display` to the windowed resolution cvars (`vid_win_*`) instead of the fullscreen ones. Distinct from `-startwindowed`, which sets windowed mode without affecting cvar routing.",
+      "source_ref": {
+        "file": "gl_vidlinux_x11.c",
+        "line": 724
+      }
+    },
+    {
+      "name": "-winsize",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "(X11 build) Sets the client window size as width and height in pixels.",
+      "source_ref": {
+        "file": "vid_x.c",
+        "line": 415
+      }
+    },
+    {
+      "name": "-zone",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "description": "Sets the size, in bytes, of the zone memory heap used for small dynamic allocations.",
+      "source_ref": {
+        "file": "zone.c",
+        "line": 929
+      }
+    }
+  ]
+}

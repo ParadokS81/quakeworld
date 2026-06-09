@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.970Z",
+    "codebase": "qwfwd",
+    "type": "info_key",
+    "snapshot_version": "1.40-dev",
+    "upstream_commit": "1.40-dev"
+  },
+  "entries": [
+    {
+      "name": "challenge:userinfo",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "A one-time token used during a Q3-protocol connection to prove the connecting client is at a real address (it is handed out in an earlier getchallenge step). On the way in, the proxy reads this key from the client's userinfo and refuses the connection if the token does not match the one it issued for that address. On the way out, the proxy puts the destination server's own token into the userinfo it forwards, so the onward connection is accepted. On the standard QuakeWorld protocol the token is carried as part of the connect request rather than in userinfo, so this key is used only for Q3-protocol connections.\n\nSet by: issued by the server and echoed back by the connecting client.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/clc.c",
+        "line": 116
+      }
+    },
+    {
+      "name": "name:userinfo",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "The display name of the player connecting through the proxy. The proxy reads this from the connecting client's userinfo and remembers it for that connection; it does not change it. The remembered name is what shows up for that client in the proxy's status / player listing (the same place a server browser reads who is connected).\n\nSet by: the connecting client.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/peer.c",
+        "line": 76
+      }
+    },
+    {
+      "name": "protocol:userinfo",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "The network protocol version reported by a client connecting over the Q3 protocol. The proxy reads this key from the client's userinfo during the connection handshake; it only reads it and never changes it. In the current build the value is read but not actually enforced, so any value here is accepted. (On the standard QuakeWorld protocol the version is supplied as part of the connect request instead of in userinfo, and there a mismatched version is rejected.)\n\nSet by: the connecting client.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/svc.c",
+        "line": 228
+      }
+    },
+    {
+      "name": "prx:userinfo",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "The destination a client wants to be forwarded to. The connecting client puts the target server here, and the proxy uses it to open the onward connection; if it is empty the connection is refused.\n\nhost = forward to that host (a connection on the default game port).\nhost:port = forward to that host on the given port.\nproxyB@host = chaining: forward to proxyB and hand it 'host' to forward on to next, so a connection can pass through several proxies.\n\nThe default port when none is given is 27500 for the standard QuakeWorld protocol and 27960 for Q3. An invalid port is rejected. When the connection is passed to the final server the proxy removes this key first (or, when chaining, rewrites it to the remaining hops).\n\nSet by: the connecting client.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/svc.c",
+        "line": 247
+      }
+    },
+    {
+      "name": "qport:userinfo",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "The client's QuakeWorld connection port number -- the per-client identifier the game sends so the connection can be tracked even if the client's address changes. On a Q3-protocol connection the proxy reads this key from the client's userinfo (it only reads it, never changes it), keeps it for that connection, and passes it along in its own connect request to the destination server. (On the standard QuakeWorld protocol this number is part of the connect request rather than userinfo.)\n\nSet by: the connecting client.",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/svc.c",
+        "line": 232
+      }
+    },
+    {
+      "name": "*qwfwd:userinfo",
+      "first_seen": "1.40-dev",
+      "last_seen": "head",
+      "description": "A stamp the proxy adds to a forwarded client's userinfo so the destination server (or a further proxy) can tell the connection arrived through qwfwd. Its value is the proxy's version string. The proxy sets this itself during the connection; because the key begins with '*' it is server-controlled and a client cannot set or change it.\n\nSet by: the proxy (injected automatically when forwarding a connection).",
+      "scope": "userinfo",
+      "source_ref": {
+        "file": "src/svc.c",
+        "line": 290
+      }
+    }
+  ]
+}

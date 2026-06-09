@@ -1,0 +1,122 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.915Z",
+    "codebase": "mvdsv",
+    "type": "cmdline_param",
+    "snapshot_version": "head",
+    "upstream_commit": "18d036218004f31cf701bb5060448012652de6d1"
+  },
+  "entries": [
+    {
+      "name": "-basedir",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Sets the root directory the server loads its game files from. The server looks for the id1, qw, and any mod directories underneath this path. The given path may use either forward or back slashes, and a trailing slash is ignored.\n\n-basedir <path> = use <path> as the base directory.\n\nDefault: the directory the server was started from (\".\").\nSet by: launch flag (takes one path argument).\n\nExample: mvdsv -basedir /home/quake",
+      "source_ref": {
+        "file": "src/fs.c",
+        "line": 523
+      }
+    },
+    {
+      "name": "-d",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Runs the server detached in the background with no interactive console, for use as a daemon/service. On Linux it forks into the background, detaches from the controlling terminal, and discards console input and output. On Windows it suppresses all console output and the crash/error dialog boxes so the server can run unattended. A no-value switch -- present enables this mode, absent runs the server in the foreground with a normal console.\n\nDefault: off (foreground, console attached).\nSet by: launch flag (no argument).",
+      "source_ref": {
+        "file": "src/sv_sys_unix.c",
+        "line": 640
+      }
+    },
+    {
+      "name": "-g",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Linux/Unix server builds only. Switches the running server process to a different system group at startup, so it runs under that group's permissions instead of the one it was launched with. The group may be given as a group name or a numeric group ID. If the named group does not exist, or the switch fails, the server logs a warning and keeps running under its original group.\n\n-g <group> = run under system group <group> (name or numeric gid).\n\nDefault: none (keeps the launching group).\nSet by: launch flag (takes one group argument; Unix builds only).\n\nExample: mvdsv -g quakesrv",
+      "source_ref": {
+        "file": "src/sv_sys_unix.c",
+        "line": 668
+      }
+    },
+    {
+      "name": "-game",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Selects the game directory (mod) the server starts in, loaded on top of the default id1 and qw directories. Equivalent to setting the gamedir at startup; +gamedir does the same thing, and -game takes priority if both are given.\n\n-game <dir> = start in game directory <dir>.\n\nDefault: none (server starts in qw).\nSet by: launch flag (takes one directory-name argument).\n\nExample: mvdsv -game ktx",
+      "source_ref": {
+        "file": "src/fs.c",
+        "line": 555
+      }
+    },
+    {
+      "name": "+gamedir",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Starts the server in a specific game (mod) directory instead of the default. The named directory is loaded on top of the base id1/qw content, and the server reports it in its server info so connecting clients download and use the same mod. This is the standard way to launch a mod such as KTX. The value must be a single directory name, not a path: a value containing '/', '\\', ':', or '..' is rejected and the default game directory is kept. '-game <dir>' is an equivalent, older spelling of the same option (if both are given, -game wins).\n\n+gamedir <dir> = load the game directory named <dir> (for example: ktx).\n\nDefault: none (server runs the base qw game directory).\nSet by: command line at server launch only.",
+      "source_ref": {
+        "file": "src/fs.c",
+        "line": 556
+      }
+    },
+    {
+      "name": "-ip",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Binds the server's network sockets to one specific local IP address instead of listening on every network interface. Use it on a multi-homed machine to make the server answer only on the chosen address. When omitted, the server listens on all interfaces.\n\n-ip <address> = bind to the local interface whose IP is <address> (dotted-quad, e.g. 192.168.1.50).\n\nDefault: not set (listens on all interfaces).\nSet by: command line at server launch only.",
+      "source_ref": {
+        "file": "src/net.c",
+        "line": 1095
+      }
+    },
+    {
+      "name": "-noerrormsgbox",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Windows server only. Stops the server from popping up Windows error dialog boxes, so a fatal error or a crash never blocks on a window waiting for someone to click OK. With this flag set, a fatal server error is printed to the console instead of shown in a pop-up, and the operating system's crash dialog is suppressed as well; fatal errors are written to the error log either way, when one is open. Intended for unattended/headless servers where no one is at the screen to dismiss a dialog.\n\nThis is an on/off flag and takes no value.\n\nDefault: off (error dialogs are shown).\nSet by: command line at server launch only.",
+      "source_ref": {
+        "file": "src/sv_sys_win.c",
+        "line": 372
+      }
+    },
+    {
+      "name": "-nopriority",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Windows server only. Tells the server NOT to raise its Windows process priority on startup. Normally the server boosts itself to HIGH priority so it gets more CPU time and runs more smoothly under load; with this flag it stays at normal priority, which is gentler on everything else running on the same machine. Setting it also forces the server's internal sleep-between-frames setting to 0.\n\nThis is an on/off flag and takes no value.\n\nDefault: off (the server raises itself to HIGH priority on startup).\nSet by: command line at server launch only.",
+      "source_ref": {
+        "file": "src/sv_sys_win.c",
+        "line": 643
+      }
+    },
+    {
+      "name": "-port",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Sets the UDP network port the dedicated server listens on for incoming client connections. Takes one value: the port number.\n\nmvdsv -port 30000   = listen for clients on UDP port 30000\n\nDefault: 27500.\nSet by: launch command line at server startup.",
+      "source_ref": {
+        "file": "src/net.c",
+        "line": 1406
+      }
+    },
+    {
+      "name": "-t",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Linux/Unix dedicated server only. Early in startup -- before the server initializes its filesystem, reads server.cfg, or loads a map -- confines the process to a given directory using the operating system's chroot, so it can no longer see files outside that directory. Takes one value: the path to confine to.\n\nmvdsv -t /home/qw/jail   = confine the server process to /home/qw/jail\n\nDefault: off (the process is not confined).\nSet by: launch command line at server startup. Requires root to take effect; if the chroot fails it logs a warning and the server keeps running unconfined. Commonly combined with -u to drop to an unprivileged user afterwards.",
+      "source_ref": {
+        "file": "src/sv_sys_unix.c",
+        "line": 740
+      }
+    },
+    {
+      "name": "-u",
+      "first_seen": "head",
+      "last_seen": "head",
+      "description": "Linux/Unix dedicated server only. Early in startup -- before the server initializes its network, reads server.cfg, or loads a map -- drops the server process to a different operating-system user, and keeps it dropped for the life of the process. Takes one value: the target user, given either as a username or as a numeric user id.\n\nmvdsv -u qwserver   = run the server process as OS user 'qwserver'\nmvdsv -u 1001       = run the server process as the user with uid 1001\n\nDefault: off (the process keeps the user it was launched as).\nSet by: launch command line at server startup. Used to launch as root but run the server itself under an unprivileged account; commonly combined with -t (chroot) and -g (group).",
+      "source_ref": {
+        "file": "src/sv_sys_unix.c",
+        "line": 693
+      }
+    }
+  ]
+}

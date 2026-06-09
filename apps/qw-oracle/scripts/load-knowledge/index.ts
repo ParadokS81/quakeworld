@@ -36,6 +36,7 @@ async function main(): Promise<void> {
   if (subcommand === 'idempotency')               { await runIdempotencyCli(rest); return; }
   if (subcommand === 'reproducibility-check')     { await runReproducibilityCheckCli(rest); return; }
   if (subcommand === 'build-snapshot')            { await runBuildSnapshot(rest); return; }
+  if (subcommand === 'build-docs-snapshot')       { await runBuildDocsSnapshot(rest); return; }
   if (subcommand === 'load-maps')                 { await runLoadMaps(rest); return; }
   if (subcommand === 'load-gameplay')             { await runLoadGameplay(rest); return; }
   if (subcommand === 'load-ktx-modes')            { await runLoadKtxModes(rest); return; }
@@ -98,6 +99,12 @@ Subcommands:
   build-snapshot --project <p> [--version <v>] [--output <dir>]
                 Read Postgres and emit slipgate-shaped JSON snapshots
                 (one per entity type) into apps/slipgate-app/src/lib/config/data/.
+  build-docs-snapshot [--codebase <p>]... [--output <dir>]
+                Read Postgres and emit uniform per-(codebase, type) docs
+                JSON into apps/docs-web/data/ (docs.quake.world arc). Default
+                = all 6 v1 codebases (ezquake/ktx/mvdsv/qwcl/qtv/qwfwd) at
+                their frozen snapshot versions. --codebase is repeatable or
+                comma-split. Does NOT touch slipgate's data dir.
   load-maps     [--json <path>]
                 Load qw-maps-ast.json into the maps table (schema v13).
                 Defaults to scripts/extractors/qw/output/qw-maps-ast.json.
@@ -503,6 +510,31 @@ async function runBuildSnapshot(args: string[]): Promise<void> {
     sql,
     project: values.project as Project,
     version: values.version,
+    outputDir: values.output,
+  });
+  console.log(JSON.stringify(result, null, 2));
+}
+
+async function runBuildDocsSnapshot(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      codebase: { type: 'string', multiple: true },
+      output: { type: 'string' },
+    },
+  });
+
+  // --codebase is repeatable (--codebase ktx --codebase qtv) OR comma-split
+  // (--codebase ktx,qtv). Undefined -> emitter default (all 6 codebases).
+  const rawCodebases = values.codebase as string[] | undefined;
+  const codebases = rawCodebases && rawCodebases.length > 0
+    ? rawCodebases.flatMap((c) => c.split(',')).map((c) => c.trim()).filter(Boolean) as Project[]
+    : undefined;
+
+  const { buildDocsSnapshot } = await import('./build-snapshot.js');
+  const result = await buildDocsSnapshot({
+    sql,
+    codebases,
     outputDir: values.output,
   });
   console.log(JSON.stringify(result, null, 2));

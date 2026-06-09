@@ -1,0 +1,2443 @@
+{
+  "_meta": {
+    "schema_version": "docs-snapshot-v1",
+    "generated_at": "2026-06-09T21:23:13.934Z",
+    "codebase": "qwcl",
+    "type": "cvar",
+    "snapshot_version": "2.33",
+    "upstream_commit": "bf4ac424ce754894ac8f1dae6a3981954bc9852d"
+  },
+  "entries": [
+    {
+      "name": "ambient_fade",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "100",
+      "description": "Controls how quickly looping ambient (environmental) sounds fade in or out as the player moves toward or away from their source.",
+      "category": "Sound",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 82
+      }
+    },
+    {
+      "name": "ambient_level",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.3",
+      "description": "Sets the baseline volume of ambient world sounds such as water, wind, and slime. 0 silences them.",
+      "category": "Sound",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 81
+      }
+    },
+    {
+      "name": "baseskin",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "string",
+      "default": "base",
+      "description": "Defines what skin you see other people using if you don't have their skin and don't have skin forcing on.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "skin.c",
+        "line": 23
+      }
+    },
+    {
+      "name": "bgmbuffer",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "4096",
+      "description": "Size, in samples, of the buffer used for background music playback.",
+      "category": "Sound",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 80
+      }
+    },
+    {
+      "name": "bgmvolume",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "This variable sets the volume of the CD music.",
+      "category": "Sound",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 74
+      }
+    },
+    {
+      "name": "block_switch",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Do not block task-switching. Block task-switching",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 83
+      }
+    },
+    {
+      "name": "bottomcolor",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Sets the pants color.. 0: White. 1: Brown. 2: Lavender. 3: Khaki. 4: Red. 5: Lt Brown. 6: Peach. 7: Lt Peach. 8: Purple. 9: Dk Purple. 10: Tan. 11: Green. 12: Yellow. 13: Blue. 14: Orange.. 15: Bright red.. 16: Black.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 76
+      }
+    },
+    {
+      "name": "cl_anglespeedkey",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "1.5",
+      "description": "This variable sets multiplier by which your \"cl_yawspeed\" (how fast you turn) is multiplied when running (+speed).",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 221
+      }
+    },
+    {
+      "name": "cl_backspeed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "200",
+      "description": "This allows you to set your backward speed.\nObviously this is also limited by the server, usually to \"320\".. Sign of the value is ignored.",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 213
+      }
+    },
+    {
+      "name": "cl_bob",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.02",
+      "description": "This variable controls how much your weapon moves up and down when walking.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 39
+      }
+    },
+    {
+      "name": "cl_bobcycle",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.6",
+      "description": "This variable determines how quickly your weapon moves up and down when walking.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 40
+      }
+    },
+    {
+      "name": "cl_bobup",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.5",
+      "description": "This variable controls how long your weapon stays up before cycling when walking.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 41
+      }
+    },
+    {
+      "name": "cl_chasecam",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Toggle between 3rd-person view and 1st-person view while observing or during demo playback.. Third-person view.. First-person (\"through-eyes\") view.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_cam.c",
+        "line": 45
+      }
+    },
+    {
+      "name": "cl_crossx",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable allows you to move the position of the crosshair on the X-axis by the specified amount of pixels.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 59
+      }
+    },
+    {
+      "name": "cl_crossy",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable allows you to move the position of the crosshair on the Y-axis by the specified amount of pixels.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 60
+      }
+    },
+    {
+      "name": "cl_forwardspeed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "200",
+      "description": "This allows you to set your forward speed.\nObviously this is also limited by the server, usually to \"320\".. Sign of the value is ignored.",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 212
+      }
+    },
+    {
+      "name": "cl_hightrack",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Turns auto-tracking player with most frags ON when spectating or watching a demo.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_cam.c",
+        "line": 43
+      }
+    },
+    {
+      "name": "cl_hudswap",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "The inventory is drawn on the right side of the screen.. The inventory is drawn on the left side of the screen.",
+      "category": "HUD",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 46
+      }
+    },
+    {
+      "name": "cl_maxfps",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable sets the maximum limit for frames-per-second while in-game. Please see cl_maxfps_menu, vid_vsync, cl_independentphysics, and cl_physfps.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 47
+      }
+    },
+    {
+      "name": "cl_movespeedkey",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "2.0",
+      "description": "This variable is the multiplier for how fast you move when running (+speed) in relation to when walking (-speed).. Sign of the value is ignored.",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 216
+      }
+    },
+    {
+      "name": "cl_nodelta",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Control the network packet delta compression.\nWhen you get blue lines in your netgraph, you should set 'cl_nodelta 1'.. Enable delta compression.. Disable delta compression.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 24
+      }
+    },
+    {
+      "name": "cl_nopred",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "For debugging, disables movement prediction for your character; other players are still predicted.. Predict movement. Don't predict movement",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_pred.c",
+        "line": 23
+      }
+    },
+    {
+      "name": "cl_pitchspeed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "150",
+      "description": "This variable determines how fast you you turn up/down when using \"+lookup\" and \"+lookdown\".",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 219
+      }
+    },
+    {
+      "name": "cl_predict_players",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "This toggles the prediction for other players' movement. Unless you are having problems this variable should be left at \"1\".",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 59
+      }
+    },
+    {
+      "name": "cl_predict_players2",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "A second toggle, working alongside cl_predict_players, that controls client-side prediction of other players' movement; prediction is disabled only when both are off.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 60
+      }
+    },
+    {
+      "name": "cl_rollangle",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "2.0",
+      "description": "This variable controls how much your screen tilts when strafing.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 37
+      }
+    },
+    {
+      "name": "cl_rollspeed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "200",
+      "description": "This variable controls how quickly you and other players straighten out after strafing.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 36
+      }
+    },
+    {
+      "name": "cl_sbar",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Use the new transparent HUD.. Use the old status bar.",
+      "category": "HUD",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 45
+      }
+    },
+    {
+      "name": "cl_shownet",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable toggles the display of current net info.. 0: Do not display any information.. 1: Print current incoming packet size in byte.. 2: Print information about the current in coming packet and it's size.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 43
+      }
+    },
+    {
+      "name": "cl_sidespeed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "350",
+      "description": "This allows you to set your strafe speed.\nObviously this is also limited by the server, usually to \"320\".. Sign of the value is ignored.",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 214
+      }
+    },
+    {
+      "name": "cl_solid_players",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "If not set then client will not perform collision detection against other players.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 61
+      }
+    },
+    {
+      "name": "cl_timeout",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "60",
+      "description": "This variable defines the timeout value in seconds until the client considers himself to be disconnected from the server.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 41
+      }
+    },
+    {
+      "name": "cl_upspeed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "200",
+      "description": "This allows you to set the speed with which you move up and down in liquids or in spectator mode.\nObviously this is also limited by the server, usually to 320*0.7 = 224 when being in liquid and to 500 in spectator mode.. Sign of the value is ignored.",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 211
+      }
+    },
+    {
+      "name": "cl_warncmd",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Note: Not saved to config with cfg_save command.. Disable the unknown command messages.. Enable the unknown command messages.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cmd.c",
+        "line": 39
+      }
+    },
+    {
+      "name": "cl_yawspeed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "140",
+      "description": "This variable defines how quickly you turn left (+left) or right (+right).",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_input.c",
+        "line": 218
+      }
+    },
+    {
+      "name": "con_notifytime",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "3",
+      "description": "How long console messages stay on screen.",
+      "category": "HUD",
+      "source_ref": {
+        "file": "console.c",
+        "line": 35
+      }
+    },
+    {
+      "name": "crosshair",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "0: Crosshair off.. 1: Conchar crosshair (messagemode1 +).. 2: Quakeworld crosshair.. 3: A small cross crosshair.. 4: A dot crosshair.. 5: Star wars crosshair.. 6: F22 simulator crosshair.. 7: (same as 6)",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 56
+      }
+    },
+    {
+      "name": "crosshaircolor",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "79",
+      "description": "This variable defines the color of the crosshair.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 57
+      }
+    },
+    {
+      "name": "developer",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Enables debug mode which prints more messages into the console than for normal user.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 121
+      }
+    },
+    {
+      "name": "d_mipcap",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "0: High texture detail.. 1: Medium texture detail.. 2: Low texture detail.. 3: Minimum texture detail.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "d_init.c",
+        "line": 28
+      }
+    },
+    {
+      "name": "d_mipscale",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "0: Full object detail. 1: Some object detail. 2: Medium object detail. 3: Low object detail",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "d_init.c",
+        "line": 29
+      }
+    },
+    {
+      "name": "d_subdiv16",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Precise texture mapping (slower, more accurate).. Perspective correction only every 16 pixels (faster, less accurate).",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "d_init.c",
+        "line": 27
+      }
+    },
+    {
+      "name": "entlatency",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "20",
+      "description": "Sets the latency window (in milliseconds) the client uses when interpolating other entities' movement between server updates.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 58
+      }
+    },
+    {
+      "name": "fov",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "90",
+      "description": "This variable defines your field of vision, which determines how close your vision field is to the objects.. While the default is 90, many players prefer using a higher FOV.\nNote that this would typically be scaled up when using a monitor with widescreen aspect ratio.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 86
+      }
+    },
+    {
+      "name": "gamma",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Adjusts the display gamma (brightness) of the rendered image. Values below 1 brighten the picture.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 265
+      }
+    },
+    {
+      "name": "gl_affinemodels",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Makes texture rendering quality better if set to 1.\nNote: 3dfx thing, not sure. //fuh check this.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 93
+      }
+    },
+    {
+      "name": "gl_clear",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Clears the screen with gl_clearcolor between each frame.\nPrevents hall-of-mirrors glitches, e.g. when flying out of the map.. This can cause problems when going through the surface of a liquid, as you may see a colored flash where the liquid texture would normally glitch.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 89
+      }
+    },
+    {
+      "name": "gl_cshiftpercent",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "100",
+      "description": "This variable sets the percentage value for palette shifting effects (damage flash, powerup blend). (needs gl_polyblend 1).",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 63
+      }
+    },
+    {
+      "name": "gl_cull",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "This variable toggles the use of internal OpenGL functions for removing covered \nobjects. When this variable is set to \"1\" the game will depend on the OpenGL \ndriver to use it's culling functions to remove certain objects from the \ncalculations because they are covered up and would not be seen anyways. It is a \ngood idea to leave this toggle enabled because it will increase rendering \nperformance.. Do not use culling to increase rendering performance.. Use the OpenGL driver's culling functions.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 90
+      }
+    },
+    {
+      "name": "gl_finish",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Wait until OpenGL has finished working to start rendering the next frame.. In the past, this setting might have helped (or worsened) some types of graphics glitches and timing issues.\nIt is mostly there for compatibility reasons and best left disabled unless you have bugs, performance problems, an unusual setup (in any combination).",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 100
+      }
+    },
+    {
+      "name": "gl_flashblend",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "This variable affects when glow bubbles are displayed in the client. You can change the color of the rocket glow by r_rocketLightColor, the color of explosions by r_explosionLightColor, and the color of flag carriers by r_flagColor.. 0: No glow bubbles.. 1: A glow bubble will appear on explosions and flag/quad/pent carrier.. 2: Same as (1), but also around rockets in the air.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 95
+      }
+    },
+    {
+      "name": "gl_keeptjunctions",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Controls whether T-junctions in world geometry are kept; keeping them avoids visible cracks between adjacent polygons at the cost of extra vertices.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 98
+      }
+    },
+    {
+      "name": "gl_max_size",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "1024",
+      "description": "This variable determines the detail level for loaded textures.\nWhen set to \"1\", the objects and walls will be textured with 1x1 pixel textures.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_draw.c",
+        "line": 30
+      }
+    },
+    {
+      "name": "gl_nobind",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Developer toggle that skips binding textures, drawing surfaces untextured -- used to measure texture-binding cost.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_draw.c",
+        "line": 29
+      }
+    },
+    {
+      "name": "gl_nocolors",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Enable top/bottom colors on 8-bit .pcx skins.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 97
+      }
+    },
+    {
+      "name": "gl_picmip",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Determines the level of detail for world textures.. Does not apply to models, liquids, simple icons, but you can also picmip these with the gl_playermip and gl_scale* cvars.. 0: Original size.. 1: Half the dimensions.. 2: One-fourth the dimensions.. x: Etc...",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_draw.c",
+        "line": 31
+      }
+    },
+    {
+      "name": "gl_playermip",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Determines the level of detail of player model textures.. 0: Full detail.. 1: Medium detail.. 2: Low detail.. x: Etc...",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 96
+      }
+    },
+    {
+      "name": "gl_polyblend",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Controls a short burst of screen tinting when submerged, taking a powerup, or taking damage.\nVariables to look at are: gl_cshiftpercent (controls overall palette shifting) v_damagechisft v_quadcshift v_pentcshift v_ringcshift v_suitcshift.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 94
+      }
+    },
+    {
+      "name": "gl_reporttjunctions",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Developer toggle that prints the number of T-junctions found in the level geometry to the console.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 99
+      }
+    },
+    {
+      "name": "gl_smoothmodels",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Toggles between flat-shaded and smooth shaded models.. Applies to GLSL OpenGL renderer only.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 92
+      }
+    },
+    {
+      "name": "gl_subdivide_size",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "128",
+      "description": "This variable sets the division value for the sky brushes.\nThe higher the value the better the performance, but the smoothness of the sky suffers.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_model.c",
+        "line": 41
+      }
+    },
+    {
+      "name": "gl_texsort",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Controls whether world surfaces are sorted by texture before drawing (the multitexture render path); turning it off uses the simpler single-texture path.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 91
+      }
+    },
+    {
+      "name": "gl_triplebuffer",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Triple buffering of HUD graphics. If you have problems with screen graphics, turn this on.. This has nothing to do with 3D rendering, it will not increase graphics \"lag\" or anything like that. It only affects 2D HUD graphics.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 94
+      }
+    },
+    {
+      "name": "gl_ztrick",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "This variables toggles the use of a trick to prevent the clearning of the \nz-buffer between frames. When this variable is set to \"1\", the game will not \nclear the z-buffer between frames. This will result in increased performance \nbut might cause problems for some display hardware.. Do not use the z-buffer trick.. Use the z-buffer trick.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 114
+      }
+    },
+    {
+      "name": "host_speeds",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Developer toggle that prints per-frame timing -- server, graphics, and total milliseconds -- to the console each frame.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 119
+      }
+    },
+    {
+      "name": "joyadvanced",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Enables advanced joystick features.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 86
+      }
+    },
+    {
+      "name": "joyadvaxisr",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Mapping for joystick's R axis.  joyadvanced must be enabled.  See joyadvaxisx for arguments.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 90
+      }
+    },
+    {
+      "name": "joyadvaxisu",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Mapping for joystick's U axis.  joyadvanced must be enabled.  See joyadvaxisx for arguments.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 91
+      }
+    },
+    {
+      "name": "joyadvaxisv",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Mapping for joystick's V axis.  joyadvanced must be enabled.  See joyadvaxisx for arguments.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 92
+      }
+    },
+    {
+      "name": "joyadvaxisx",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Mapping for joystick's X axis.  joyadvanced must be enabled.. 0: Unmapped (axis input ignored).. 1: Map to forward/backward motion.. 2: Map to pitch up/down.. 3: Map to strafing motion.. 4: Map to turning left/right.. 5: Map to vertical motion.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 87
+      }
+    },
+    {
+      "name": "joyadvaxisy",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Mapping for joystick's Y axis.  joyadvanced must be enabled.  See joyadvaxisx for arguments.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 88
+      }
+    },
+    {
+      "name": "joyadvaxisz",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Mapping for joystick's Z axis.  joyadvanced must be enabled.  See joyadvaxisx for arguments.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 89
+      }
+    },
+    {
+      "name": "joyforwardsensitivity",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "-1.0",
+      "description": "Scale multiplier for forward movement.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 97
+      }
+    },
+    {
+      "name": "joyforwardthreshold",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.15",
+      "description": "Minimum deflection required for forward movement.\nRange [0.0,1.0]",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 93
+      }
+    },
+    {
+      "name": "joyname",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "string",
+      "default": "joystick",
+      "description": "User-assigned name of the joystick.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 85
+      }
+    },
+    {
+      "name": "joypitchsensitivity",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "1.0",
+      "description": "Scale multiplier for pitching up/down.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 99
+      }
+    },
+    {
+      "name": "joypitchthreshold",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.15",
+      "description": "Minimum deflection required for pitching up/down.\nRange [0.0,1.0]",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 95
+      }
+    },
+    {
+      "name": "joysidesensitivity",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "-1.0",
+      "description": "Scale multiplier for strafing movement.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 98
+      }
+    },
+    {
+      "name": "joysidethreshold",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.15",
+      "description": "Minimum deflection required for strafing movement.\nRange [0.0,1.0]",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 94
+      }
+    },
+    {
+      "name": "joystick",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Enables usage of joystick device.. Do not use joystick.. Use joystick input.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 84
+      }
+    },
+    {
+      "name": "joywwhack1",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.0",
+      "description": "Joystick axis workaround: when nonzero, shifts the joystick's U-axis reading, a fix for certain controllers or drivers.",
+      "category": "Input",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 101
+      }
+    },
+    {
+      "name": "joywwhack2",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.0",
+      "description": "Companion joystick axis workaround to joywwhack1 for adjusting problematic controller axis behavior.",
+      "category": "Input",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 102
+      }
+    },
+    {
+      "name": "joyyawsensitivity",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "-1.0",
+      "description": "Scale multiplier for turning left/right.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 100
+      }
+    },
+    {
+      "name": "joyyawthreshold",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.15",
+      "description": "Minimum deflection required for turning left/right.\nRange [0.0,1.0]",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "in_win.c",
+        "line": 96
+      }
+    },
+    {
+      "name": "lcd_x",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Sets the horizontal eye-offset for the legacy LCD shutter-glasses stereo 3D mode. 0 disables the stereo split.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 34
+      }
+    },
+    {
+      "name": "loadas8bit",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Controls whether sound samples are converted to 8-bit when loaded, trading audio quality for lower memory use.",
+      "category": "Sound",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 79
+      }
+    },
+    {
+      "name": "localid",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "string",
+      "default": "",
+      "description": "Secret token used to authenticate remote-control command packets sent from a local server browser or front-end; once set, command packets without a matching token are rejected.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 63
+      }
+    },
+    {
+      "name": "lookspring",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable toggles the centering of the screen after the -klook command.. Disable automatic force_centerview.. Enable automatic force_centerview.",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 49
+      }
+    },
+    {
+      "name": "lookstrafe",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable toggles the automatic strafing when the +klook command is used.\nWhen set to \"1\" and the player used the +klook command, the keys that are bound to the +left and +right commands will now act as if they were bound to +moveleft and +moveright.\nThis command was put it in order to allow keyboard player to combine the +strafe and +klook commands into one.\nThis command also has effect on the mouse controls. When set to \"1\" moving the mouse left and right will make the player move left and right instead of making him turn left and right.",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 50
+      }
+    },
+    {
+      "name": "m_filter",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "This variable toggles mouse input filtering.\nWhen set to \"1\", the values which are received from the mouse's input will first be averaged together and then that value will be used in the game.\nThe reason for this command is that some mice had problems with sending sporadic coordinates which make the input from the mouse jerky, also when using a serial or PS/2 mouse, the Windows operating system will only sample mouse input every 25ms, that is 40 times a second (for USB mice the sample rate is 125 Hz, that is every 8 ms).\nWhen set to \"1\" this variable will smooth out the input but it will cause latency between the movement of the mouse and the actual response in the game.\nWhen using a PS/2 mouse it is thus first recommended to try to increase the sampling rate either by changing it via your mouse driver or by using the ps2rate program which can be downloaded at ps2rate homepage.\nIf you are playing the game at frame rates above 40 FPS and if you can't increase the sampling rate of your PS/2 rate or if you are playing with a serial mouse it is recommended that you enable this toggle.",
+      "category": "Input",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 97
+      }
+    },
+    {
+      "name": "m_forward",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "This variable controls how fast the player should move forward and back when the mouse is moved forward and back.\nThis command has no effect if the +mlook command is in effect because when the mouse is moved forward and back the player looks up and down instead of moving forward and back.\nSome players might want to set this variable to \"0\" if they happen not to use +mlook constantly and they only want to use the mouse to turn the player.\nSetting this variable to \"0\" will prevent the inadvertent movement of the player forward and back while trying to make precise turns with the mouse.",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 55
+      }
+    },
+    {
+      "name": "m_pitch",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.022",
+      "description": "This variable sets the level of precision when the mouse is used to make the player look up and down while the +mlook command is in effect.\nBy default this variable is set in such a way that moving the mouse forward makes the player look up and moving the mouse backward makes the player look down.\nSome people prefer to have this movement inverted just like it is inverted for airplane controls.\nIf you wish to use this inverted mouse movement then you should set this variable to a negative value (for example \"-0.022\"). It is a matter of preference which movement method is used by players.\nAlso lowering the value for this variable will increase the level of precision when the mouse is used to make the player look up and down.\nThis variable can be used separately from the sensitivity variable to provide greater control over the mouse sensitivity for movement along the pitch. It is advisable to keep the value for this variable constant at 0.022 or -0.022 and instead use the sensitivity variable to change the overall sensitivity of the mouse.\nAlso, some script writers lower the value for this variable along with a lowered value for the fov variable in order to provide more precision when the fov variable is used to zoom.",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 53
+      }
+    },
+    {
+      "name": "msg",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "0: Maximum reporting of messages.. 1: Parsed reporting of messages.. 2: Limited reporting of messages.. 3: Minimal reporting of messages.. 4: No reporting of messages.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 79
+      }
+    },
+    {
+      "name": "m_side",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.8",
+      "description": "When the +strafe command is active or when \"lookspring\" is set to \"1\" this variable is used to control the sensitivity when the mouse is moved left and right to make the player move left and right.",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 56
+      }
+    },
+    {
+      "name": "m_yaw",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.022",
+      "description": "This variable controls how fast the player turns left and right when the mouse is moved left and right.\nIt is recommended that this variable be left alone and instead the \"sensitivity\" variable is used to change the level of precision.\nIf you set this variable to a negative value you will reverse the mouse movement.\nSome script writers use this variable to increase the level of precision when the \"fov\" variable is used to zoom the screen.",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 54
+      }
+    },
+    {
+      "name": "name",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "string",
+      "default": "unnamed",
+      "description": "Player's name.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 72
+      }
+    },
+    {
+      "name": "noaim",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable toggles whether a server-sided aiming-help should be used when shooting rockets (not possible when the server variable \"sv_aim\" is set to \"0\").. Enable server-side aiming help for rockets (if allowed by the server).. Disable server-side aiming help for rockets.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 78
+      }
+    },
+    {
+      "name": "noskins",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "0: Enable skins.. 1: Disable skins.. 2: Enable skins but do not download new skins.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "skin.c",
+        "line": 24
+      }
+    },
+    {
+      "name": "nosound",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Disables all sound output when set to 1.",
+      "category": "Sound",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 77
+      }
+    },
+    {
+      "name": "password",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "string",
+      "default": "",
+      "description": "Password players have to use to connect to local server.. Server-side.",
+      "category": "Server",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 70
+      }
+    },
+    {
+      "name": "precache",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Controls whether sounds are precached (preloaded) at level start rather than loaded on first use.",
+      "category": "Sound",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 78
+      }
+    },
+    {
+      "name": "pushlatency",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "-999",
+      "description": "This variable is outdated and exists for compatibility with old configs.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_pred.c",
+        "line": 24
+      }
+    },
+    {
+      "name": "qport",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Local port the client uses to connect to servers.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "net_chan.c",
+        "line": 81
+      }
+    },
+    {
+      "name": "r_aliastransadj",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "100",
+      "description": "Not much is known about this variable except for that increasing the value will cause the player models to be displayed smaller.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 138
+      }
+    },
+    {
+      "name": "r_aliastransbase",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "200",
+      "description": "Not much is known about this variable except for that increasing the value will cause the player models to be displayed smaller.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 137
+      }
+    },
+    {
+      "name": "r_ambient",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable controls the amount of ambient lighting on the map.\nWhen this variable is increased the map will become brighter and all walls and objects will be rendered in a lighter color.\nIt was removed in QWCL and has been re-introduced in this client, however it can only be used when the server is running with cheats enabled (for example \"qwsv -cheats\"), because it could be used as a cheat by making it easier to see players in dark corners when no fullbright skins are used.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 130
+      }
+    },
+    {
+      "name": "rate",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "2500",
+      "description": "Sets the maximum amount of bytes per second that the server should send to the client.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 77
+      }
+    },
+    {
+      "name": "r_clearcolor",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "2",
+      "description": "This variable changes the color of the areas outside the map, commonly seen when free floating as a spectator.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 122
+      }
+    },
+    {
+      "name": "rcon_address",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "string",
+      "default": "",
+      "description": "Address of the server to query with remote console commands.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 39
+      }
+    },
+    {
+      "name": "rcon_password",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "string",
+      "default": "",
+      "description": "Password used for remote console communication.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 37
+      }
+    },
+    {
+      "name": "r_drawentities",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "This variable can be used to disable that any object entities are drawn.\nThis command is useful to map authors who wish to take a look at their map without drawing any objects such as lifts, buttons, platforms or items.. Display no entities.. Display all entities.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 77
+      }
+    },
+    {
+      "name": "r_drawflat",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Replaces wall/floor textures with a solid color (/r_wallcolor or /r_floorcolor, depending on the angle of the surface).. Usually used for performance improvements at the expense of eyecandy. See /r_wallcolor, /r_floorcolor & /r_drawflat_mode.\nCan not be changed during a match.. 0: Use textures for walls and floors.. 1: Use custom colored walls and floors.. 2: Use colored floors and textured walls.. 3: Use colored walls and textured floors.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 129
+      }
+    },
+    {
+      "name": "r_draworder",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Allows you to see through object - for development purposes only.. Not allowed in multiplayer. See 'developer 1' too.. Standard behaviour - first draws object far from you then closer to you.. First draws closest object, then the more distanced ones.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 116
+      }
+    },
+    {
+      "name": "r_drawviewmodel",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Controls transparency level of the currently-held weapon.. Example: 0.5 = 50% transparency.\nr_drawviewmodel 2 will cause weapon to be hidden when fov > 90.. 0: Fully transparent.. 1: Fully opaque.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 78
+      }
+    },
+    {
+      "name": "r_dspeeds",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Do not display renderer speed statistics.. Display renderer speed statistics.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 128
+      }
+    },
+    {
+      "name": "r_dynamic",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Controls dynamic lighting (muzzle-flash, quad & rocket glow, etc) on world surfaces.. 0: Do not display dynamic lighting.. 1: Display dynamic lighting (calculated on CPU). 2: Display dynamic lighting (calculated on GPU - GLSL only)",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 85
+      }
+    },
+    {
+      "name": "registered",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Read-only flag indicating whether the registered (full, non-shareware) Quake data is present, which unlocks the complete content set.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "common.c",
+        "line": 41
+      }
+    },
+    {
+      "name": "r_fullbright",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable toggles the use of lights at full brightness on the map.\nThis allows map authors to remove all of the lighting effects from the map, effectively removing all shadows.. This variable can only be used when the server is running with cheats enabled (for example \"mvdsv -cheats\" or sv_cheats 1), because it could be used as a cheat by making it easier to see players in shadows.. Do not fullbright the map.. Fullbrights the map (need -cheats or sv_cheats 1 enabled in server)",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 80
+      }
+    },
+    {
+      "name": "r_graphheight",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "15",
+      "description": "This variable used to set the number of lines displayed in the \"r_timegraph\" command.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 121
+      }
+    },
+    {
+      "name": "r_lightmap",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Disable light sources on the map.. Enable light sources on the map.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 81
+      }
+    },
+    {
+      "name": "r_maxedges",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable sets the maximum number of plane surface edges to be rendered.\nActual default (and minimal) value is 2000.\nOn some new maps you may need to increase this value.\nSee also r_maxsurfs, r_reportedgeout, r_reportsurfout.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 135
+      }
+    },
+    {
+      "name": "r_maxsurfs",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable sets the maximum number of plane surfaces to be rendered.\nActual default (and minimal) value is 2000.\nOn some new maps you may need to increase this value.\nSee also r_maxedges, r_reportedgeout, r_reportsurfout.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 132
+      }
+    },
+    {
+      "name": "r_mirroralpha",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Sets the opacity of mirror surfaces; values below 1 make mirrors partly see-through.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 83
+      }
+    },
+    {
+      "name": "r_netgraph",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Netgraph is a diagnostic tool to help you tweak your rate.\nIf you find that you suffer from short pauses in the game and you see red spikes in your netgraph, you should try setting the rate down a bit.\nThe height of the pink lines towards the bottom is your latency on received packets.\nRed lines are lost packets. (bad)\nYellow lines are from the rate command kicking in, it's data that wasn't sent to you because you didn't have the bandwidth for it. (OK)\nBlue lines are very bad, they invalid delta's, and are related to the U_REMOVE warnings.. If during your play, you frequently see a string of messages with the term \"U_REMOVE\" in them, and your play seems to freeze for serveral seconds, use the console command cl_nodelta 1. This is a slightly less efficient way for QuakeWorld to work, but if your ISP is overloaded or has some configuration problems, it may not pass packets to QuakeWorld properly and cause difficulty.. Do not display the netgraph.. Display the netgraph.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 87
+      }
+    },
+    {
+      "name": "r_norefresh",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Developer toggle that stops the 3D world from being redrawn, leaving only the 2D elements -- used for profiling.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 76
+      }
+    },
+    {
+      "name": "r_novis",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable toggles the use of VIS information from the map data.\nWhen this variable is set to \"1\" the game will calculate it's own VIS information on the fly instead of using the information stored in the map data, this will cause a severe performance penalty in the game.\nWhen \"r_novis\" is set to \"1\", the variable \"gl_turbalpha\" has a value lower than \"1\" and the server allows the client to display liquid transparently the player will be able to see through liquids.\nThis is a nice effect to see but it is not recommended to keep this variable set to \"1\" because of the huge performance penalty.\nIt is possible to enable transparent liquids and still keep this variable set to \"0\" (and thus not experience such a severe performance drop) by using maps that are VISed accordingly.\nYou can visit the official Water VIS site at \"http://www.sod.net/\" and download the vispatch program along with the patch data files which you would use to update the VIS data for all of your game maps.\nThere are also map packs available that contain VISed versions of the original ID maps.. Do not calculate VIS information for unVISed maps.. Calculate VIS information for unVISed maps.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 86
+      }
+    },
+    {
+      "name": "r_numedges",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Do not print information about the number of edges.. Print information about the number of edges.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 136
+      }
+    },
+    {
+      "name": "r_numsurfs",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Do not print information about the number of surfaces.. Print information about the number of surfaces.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 133
+      }
+    },
+    {
+      "name": "r_polymodelstats",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Do not print polygon model statistics.. Print polygon model statistics.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 127
+      }
+    },
+    {
+      "name": "r_reportedgeout",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Do not report when running out of edges.. Report when running out of edges.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 134
+      }
+    },
+    {
+      "name": "r_reportsurfout",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Toggle the display of how many surfaces where not displayed.\nThis shouldn't happen during normal game play, only when in noclip mode.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 131
+      }
+    },
+    {
+      "name": "r_shadows",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Do not display shadows for entities.. Display shadows for entities.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 82
+      }
+    },
+    {
+      "name": "r_speeds",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Toggles the displaying of drawing time and stats of what is currently being viewed.\nExample:\n32.7 ms 267/196/ 74 poly   3 surf\n38.6 ms 267/196/ 74 poly  20 surf\n60.4 ms 267/196/ 74 poly  18 surf\n38.2 ms 267/196/ 73 poly  18 surf",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 79
+      }
+    },
+    {
+      "name": "r_timegraph",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Do not display the timegraph.. Display the timegraph.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 118
+      }
+    },
+    {
+      "name": "r_wateralpha",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Sets the opacity of translucent liquid surfaces; values below 1 let you see through water, slime, and lava.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_rmain.c",
+        "line": 84
+      }
+    },
+    {
+      "name": "r_waterwarp",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Controls the underwater screen-warp (ripple) distortion effect. 0 disables it.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 123
+      }
+    },
+    {
+      "name": "r_zgraph",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Do not display the z-graph.. Display the z-graph.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "r_main.c",
+        "line": 120
+      }
+    },
+    {
+      "name": "scr_allowsnap",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Disable.. Allow screenshot uploads to be requested by server.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 93
+      }
+    },
+    {
+      "name": "scr_centertime",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "2",
+      "description": "This variable sets the amount of time in seconds that centerprinted messages stay on the screen.. 0: Do not display any centerprints.. 1: Display centerprints for 1 second.. 2: Display centerprints for 2 seconds.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 88
+      }
+    },
+    {
+      "name": "scr_conspeed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "300",
+      "description": "This variable controls the speed at which the console screen scrolls up and down.",
+      "category": "HUD",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 87
+      }
+    },
+    {
+      "name": "scr_printspeed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "8",
+      "description": "This variable controls how fast the text is displayed at the end of the single player episodes.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 92
+      }
+    },
+    {
+      "name": "sensitivity",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "3",
+      "description": "This variable sets the sensitivity of the mouse, it is one of the most important variables in the whole game.",
+      "category": "Input",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 51
+      }
+    },
+    {
+      "name": "showdrop",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Disable text dump printing dropped packets.. Enable text dump printing dropped packets.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "net_chan.c",
+        "line": 80
+      }
+    },
+    {
+      "name": "show_fps",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Disables the display of the frames-per-second value.. Enables the display of the frames-per-second value.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 120
+      }
+    },
+    {
+      "name": "showpackets",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "0: Do not display information about all network packets.. 1: Display information about all network packets.. 2: Display information about incoming network packets only.. 3: Display information about outgoing network packets only.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "net_chan.c",
+        "line": 79
+      }
+    },
+    {
+      "name": "showpause",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Never display the pause icon.. Display that the pause icon is displayed when the game is paused.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 91
+      }
+    },
+    {
+      "name": "showram",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Never display the ram icon.. Display the ram icon when running out of memory.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 89
+      }
+    },
+    {
+      "name": "showturtle",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Sets the value at which the turtle icon will be displayed. For example, if showturtle is set to 70, the turtle will appear when the FPS drops to 70 or below.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 90
+      }
+    },
+    {
+      "name": "skin",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "string",
+      "default": "",
+      "description": "Sets the skin name for the player.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 74
+      }
+    },
+    {
+      "name": "_snd_mixahead",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.1",
+      "description": "Sets how far ahead, in seconds, the sound engine mixes audio. Larger values reduce stutter but add audio latency.",
+      "category": "Sound",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 85
+      }
+    },
+    {
+      "name": "snd_noextraupdate",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Developer toggle that disables the extra mid-frame sound update, used to study sound timing.",
+      "category": "Sound",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 83
+      }
+    },
+    {
+      "name": "snd_show",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Developer toggle that prints the currently playing sound channels to the console each frame.",
+      "category": "Sound",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 84
+      }
+    },
+    {
+      "name": "spectator",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "string",
+      "default": "",
+      "description": "Join to server as player.. Join to server as spectator.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 71
+      }
+    },
+    {
+      "name": "sys_linerefresh",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Developer/debug toggle for the line-by-line screen refresh on the Linux build.",
+      "category": "Miscellaneous",
+      "source_ref": {
+        "file": "sys_linux.c",
+        "line": 47
+      }
+    },
+    {
+      "name": "team",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "string",
+      "default": "",
+      "description": "Set the team name.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 73
+      }
+    },
+    {
+      "name": "topcolor",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Sets the shirt color.. 0: White.. 1: Brown.. 2: Lavender.. 3: Khaki.. 4: Red.. 5: Lt Brown.. 6: Peach.. 7: Lt Peach.. 8: Purple.. 9: Dk Purple.. 10: Tan.. 11: Green.. 12: Yellow.. 13: Blue.. 14: Orange.. 15: Bright red.. 16: Black.",
+      "category": "Multiplayer",
+      "source_ref": {
+        "file": "cl_main.c",
+        "line": 75
+      }
+    },
+    {
+      "name": "v_centermove",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.15",
+      "description": "This variable sets the distance that the player must move before the screen automatically centers itself when \"lookspring\" is set to \"1\".\nThis variable is only useful to people who only play with the keyboard, have \"lookspring\" set to \"1\" and do not have \"+klook\" or \"+mlook\" enabled at that time.\nWhen the player nmoves the distance specified in this variable the screen will pop back to the center position.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 148
+      }
+    },
+    {
+      "name": "v_centerspeed",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "500",
+      "description": "This variable sets how quickly your view returns to the center after looking up or down and moving after that and \"lookspring\" is set to \"1\".\nThis variable is only useful to people who only play with the keyboard, have \"lookspring\" set to \"1\" and do not have \"+klook\" or \"+mlook\" enabled at that time.\nWhen the player moves the distance specified in this variable the screen will pop back to the center position.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 149
+      }
+    },
+    {
+      "name": "v_contentblend",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "Turning this variable on will temporarily change the hue of your screen when inside liquid (water/slime/lava) (requires gl_polyblend 1). Specify a percentage value, between 0 and 1.  0 turns the effect off.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 66
+      }
+    },
+    {
+      "name": "vid_config_x",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "800",
+      "description": "This variable sets the width of the vid_mode 2 window, the minimum possible value is \"640\".",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 151
+      }
+    },
+    {
+      "name": "vid_config_y",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "600",
+      "description": "This variable sets the width of the vid_mode 2 window, the minimum possible value is \"400\"",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 152
+      }
+    },
+    {
+      "name": "_vid_default_mode",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable sets the default video mode that the client uses.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 145
+      }
+    },
+    {
+      "name": "_vid_default_mode_win",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "3",
+      "description": "This variable sets the default video mode that the client uses when windowed.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 147
+      }
+    },
+    {
+      "name": "vid_fullscreen_mode",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "3",
+      "description": "This variable sets the full screen video mode that the game will switch to when the \"vid_fullscreen\" command is executed.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 81
+      }
+    },
+    {
+      "name": "v_idlescale",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable controls the amount that the screen should sway automatically.\nWhen this variable is set to a value above \"0\" the screen will start swaying in all directions, similar as if the player was drunk of had a concussion.\nIf you want to have some real fun, set this variable to a value of \"100\" and run around some maps.\nThe larger the value for this variable the more the screen will sway from side to side.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 54
+      }
+    },
+    {
+      "name": "vid_mode",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "5",
+      "description": "This variables sets the next video mode to be used.\nAny change of this variable will cause the video mode to be changed immediately.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 77
+      }
+    },
+    {
+      "name": "vid_nopageflip",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable toggles the use of page-flipping during supported video modes.\nBy default the game will allow for page-flipping for video modes that support this feature.\nFor example if a given VESA mode can support page flipping, then it defaults to page-flipped operation.\nA VESA mode can be forced to non-page-flipped operation by setting the \"vid_nopageflip\" variable to \"1\", then setting the mode (note that \"vid_nopageflip\" takes operation on the next, not the current video mode, and note that it then stays in effect permanently, even when the client is exited and restarted, unless it is manually set back to \"0\").\nIf there is not enough memory for two pages in a VESA mode, or if the adapter doesn't support page flipping, then the mode will automatically be nnon-page-flipped.\n\nPage-flipping works by drawing multiple virtual game screens at the same time in the video memory and then switching among them to display the current gamescreen. Page-flipped modes thus use less system memory than non-page-flipped modes, but require more video memory.\nWhen using page-flipping, visual quality may be higher, but performance of the game can change to better or worse, depending on the graphics adapter and other hardware (see the discussion of the Pentium Pro below, for a discussion of why page flipping can be faster but is sometimes much slower on that processor). However in most cases the performance (and thus frame rate) will be increased, but for people with hardware that has problems with page-flipping \"vid_nopageflip 1\" may help.\nThe Pentium Pro is an example for such a hardware: it is an okay client platform (sniff!), but it has one weak spot, it is by default very slow on writes to video memory.\nThis means that in default hardware configurations, you are usually much better off setting \"vid_nopageflip\" to \"1\" if you use VESA modes, so drawing is done to system memory instead of to video memory.\nRemember that you must set the mode after setting \"vid_nopageflip\" to \"1\" in order to get \"vid_nopageflip\" to take effect. \"vid_nopageflip 1\" can sometimes be faster on a Pentium too, but not by nearly as much in general, and it's often slower.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 149
+      }
+    },
+    {
+      "name": "vid_redrawfull",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Forces a full-screen redraw each frame on the Linux GL build, working around partial-refresh artifacts.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 78
+      }
+    },
+    {
+      "name": "vid_stretch_by_2",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "This variable toggles whether in \"vid_mode 2\" the picture should be rendered at half-resolution in each direction and stretched up to the specified size.. Disable.. Enable.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 153
+      }
+    },
+    {
+      "name": "vid_wait",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Controls whether the video update waits for vertical retrace (an early form of vertical sync).",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 148
+      }
+    },
+    {
+      "name": "vid_waitforrefresh",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Linux-build toggle to wait for the monitor's refresh before presenting a frame, reducing tearing.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 79
+      }
+    },
+    {
+      "name": "_vid_wait_override",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Internal override governing the vid_wait vertical-retrace behavior.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_vidnt.c",
+        "line": 150
+      }
+    },
+    {
+      "name": "vid_windowed_mode",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable sets the windowed video mode that the game will switch to when the \"vid_windowed\" command is executed.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 82
+      }
+    },
+    {
+      "name": "vid_window_x",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable sets the x-axis location of the top left corner of the game window on the desktop.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 84
+      }
+    },
+    {
+      "name": "vid_window_y",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "This variable sets the y-axis location of the top left corner of the game window on the desktop.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "vid_win.c",
+        "line": 85
+      }
+    },
+    {
+      "name": "viewsize",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "100",
+      "description": "This variable determines how large the viewable screen size is.. Range is 30-120.\nValues 100 & 110 are affected by cl_sbar.. 30: Minimum screen size.. 100: Normal screen size.. 110: Large screen size, without the weapons status bar.. 120: Maximum screen size, without any status bars.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "gl_screen.c",
+        "line": 85
+      }
+    },
+    {
+      "name": "v_ipitch_cycle",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "1",
+      "description": "This variable controls the speed at which the screen should sway up and down when \"v_idlescale\" is set to a value above \"0\".",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 49
+      }
+    },
+    {
+      "name": "v_ipitch_level",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.3",
+      "description": "This variable controls the distance that the screen should sway up and down when \"v_idlescale\" is set to a value above \"0\".",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 52
+      }
+    },
+    {
+      "name": "v_iroll_cycle",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.5",
+      "description": "This variable controls the speed at which the screen should roll clockwise and counter clockwise when \"v_idlescale\" is set to a value above \"0\".",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 48
+      }
+    },
+    {
+      "name": "v_iroll_level",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.1",
+      "description": "This variable controls the distance the screen should roll clockwise and counter clockwise when \"v_idlescale\" is set to a value above \"0\".",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 51
+      }
+    },
+    {
+      "name": "v_iyaw_cycle",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "integer",
+      "default": "2",
+      "description": "Sets how quickly you look left and right when v_idlescale is active.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 47
+      }
+    },
+    {
+      "name": "v_iyaw_level",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.3",
+      "description": "Sets how far you look left and right when v_idlescale is active.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 50
+      }
+    },
+    {
+      "name": "v_kickpitch",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.6",
+      "description": "This variable controls the distance that the screen should move up or down when the player is shot.\nMost players set this variable to \"0\" in order to remove the screen tilting effect when they are injured by a shot.\nThis allows them to keep a perfect aim while being fired upon.. v_kicktime must be >0 for this to take effect.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 45
+      }
+    },
+    {
+      "name": "v_kickroll",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.6",
+      "description": "This variable controls the distance that the screen should roll clockwise or counter clockwise when the player is shot.\nMost players set this variable to \"0\" in order to remove the screen tilting effect when they are injured by a shot.\nThis allows them to keep a perfect aim while being fired upon.. v_kicktime must be >0 for this to take effect.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 44
+      }
+    },
+    {
+      "name": "v_kicktime",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.5",
+      "description": "This variable controls the amount of time v_kickpitch and v_kickroll take effect.",
+      "category": "Graphics",
+      "source_ref": {
+        "file": "view.c",
+        "line": 43
+      }
+    },
+    {
+      "name": "volume",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "float",
+      "default": "0.7",
+      "description": "Sets sound volume.. This can go above 1, but sound will get more and more distorted.",
+      "category": "Sound",
+      "source_ref": {
+        "file": "snd_dma.c",
+        "line": 75
+      }
+    },
+    {
+      "name": "_windowed_mouse",
+      "first_seen": "2.33",
+      "last_seen": "head",
+      "raw_type": "boolean",
+      "default": "0",
+      "description": "Disable windowed mouse support so you can use the mouse in other applications.. Enabled windowed mouse support so you can use the mouse in the client.",
+      "category": "Input",
+      "source_ref": {
+        "file": "gl_vidlinux.c",
+        "line": 75
+      }
+    }
+  ]
+}
