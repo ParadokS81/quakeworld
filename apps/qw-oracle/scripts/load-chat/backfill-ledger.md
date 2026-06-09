@@ -101,8 +101,8 @@ validation slice.
 
 | done | year | msgs | agents | forced |
 |---|---|---|---|---|
-| [ ] | 2016 | 14,474 | 112 | 2 |
-| [ ] | 2017 | 56,198 | 72 | 26 |
+| [x] | 2016 | 14,474 | 112 | 2 | -- loaded 2026-06-09 (session 4), 1297 threads (CONC=10 clean; 2 forced 1500-msg chunks held 96.1%/99.0%); first #quakeworld v2, coexists w/ v1 2021 probe
+| [ ] | 2017 | 56,198 | 72 | 26 | -- FIRST DENSE YEAR (gated: orchestrator cold-verify; R13 first-at-scale, 26 forced cuts)
 | [ ] | 2018 | 62,125 | 53 | 29 |
 | [ ] | 2019 | 46,130 | 58 | 17 |
 | [ ] | 2020 | 53,179 | 54 | 26 |
@@ -439,3 +439,34 @@ DB state after the 2025 batch: chat_threads = 7324 -- 634 v1 (#quakeworld 2021 p
 + 6690 v2 (#helpdesk 2020 [715] + 2021 [1346] + 2022 [1015] + 2023 [1220] + 2024 [1025] +
 2025 [929] + 2026 [373] + #antilag 2026 [67]), 0 null embeddings, all v2 keys year-scoped.
 **#helpdesk is COMPLETE (all 7 years).** Next: first #quakeworld batch (2016).
+
+**Batch #quakeworld 2016 -- LOADED, verified. FIRST #quakeworld v2 batch.** 112 chunks, max
+172.5KB (< 256KB R13 cap), **2 forced** (the marathon-slice 1500-msg cap-forced chunks
+quakeworld-2016-056 + -062). Fenced single-pass with-resolution at **CONC=10 / WAVE_PAUSE
+500ms**. **CONC=10 throttle outcome: CLEAN -- failures.fence = 0 (112/112), retry pass did NOT
+fire.** Wall-clock: fence 16.5 min for 112 chunks (8.8s/chunk -- slower per-chunk than
+#helpdesk; #quakeworld chunks are bigger/denser; 3.46M subagent tokens, 276 tool-uses). **0%
+index-hallucination / 99.05% coverage** (lowest natural chunk -073 at 94.9%, 0 OOB = dense-chunk
+variance). **Forced-cut failure mode (R9-amendment / R13-first-at-scale) did NOT materialize:**
+both forced 1500-msg chunks held -- -056 at 96.1% (92 threads), -062 at 99.0% (112 threads),
+both 0 OOB / no abstain. -056's ~1% residual is the expected worst-case forced-chunk variance,
+not loss. Load: 1297 threads, 14,337 junction rows (14,337 DISTINCT -- clean partition, 0 R8
+m2m this batch), 0 OOB / 0 missing / 0 stale / 0 truncations, resolution 273 solved / 134
+unresolved / 890 informational / 0 none (banter-heavy -- general channel, not help channel).
+Idempotency (R5): PASS -- re-ran load, identical state (1297 threads, GLOBAL held at 8621 not
+9918, thread_key md5 `401ac6276e99fe6af1890a8f76b937c0` unchanged). **v1 #quakeworld
+coexistence: PASS** -- the [2016,2017) range-delete left the v1 [2021,2022) probe untouched
+(v1 #quakeworld still 634); the first v2 #quakeworld now coexists with the v1 2021 probe (NOT a
+supersede batch -- that is #quakeworld 2021, still gated). Retrieval: PASS -- ran the SHIPPED
+rewired `searchSolvedIssues` against the dev DB; 2016-specific queries return #quakeworld-2016
+threads (college-WiFi-ports solved [top hit], custom-resolution/vid_mode solved [top hit],
+Reflex-onboarding informational [#3]). Cross-year hybrid working; match_quality weak on
+provisional R10 thresholds -- Phase D recalibrates. Same prod-vs-dev deployment caveat as
+sessions 1-3 (live mcp__qw-oracle__* still routes to pre-Phase-A prod; verified via shipped
+handler against dev).
+
+DB state after session 4 (final): chat_threads = **8621** -- 634 v1 (#quakeworld 2021 probe
+ONLY) + 7987 v2 (#helpdesk 2020 [715] + 2021 [1346] + 2022 [1015] + 2023 [1220] + 2024 [1025]
++ 2025 [929] + 2026 [373] + #quakeworld 2016 [1297] + #antilag 2026 [67]), 0 null embeddings,
+all v2 keys year-scoped. **#helpdesk COMPLETE (7/7); #quakeworld 1/11 (2016 done).** HALTED
+before #quakeworld 2017 (first DENSE year -- gated for orchestrator cold-verify).
