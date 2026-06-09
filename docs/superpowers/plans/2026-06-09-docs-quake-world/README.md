@@ -4,7 +4,7 @@
 **Roadmap (locked architecture):** `docs/superpowers/parking/2026-06-07-quake-world-docs-federation-roadmap.md`
 **Precursor (shipped 2026-06-09):** `docs/superpowers/plans/2026-06-09-docs-l1-enrichment/` -- L1 is docs-ready for 6 codebases.
 
-**Goal:** Build the human-browsable, per-codebase Layer 1 reference for the QuakeWorld ecosystem -- every tunable knob (cvars, commands, macros, cmdline params, info keys, ...) auto-projected from the QW Oracle's L1 corpus, across 6 codebases (ezQuake / KTX / MVDSV / QTV / QWFWD / QWCL), as filterable per-type lists with inline entity cards, player-facing type words, source links, ezQuake version-walk, and cross-links to the wiki. VitePress + Tailwind v4 / daisyUI on Cloudflare Pages.
+**Goal:** Build the human-browsable, per-codebase Layer 1 reference for the QuakeWorld ecosystem -- every tunable knob (cvars, commands, macros, cmdline params, info keys, ...) auto-projected from the QW Oracle's L1 corpus, across 6 codebases (ezQuake / KTX / MVDSV / QTV / QWFWD / QWCL), as filterable per-type lists with inline entity cards, player-facing type words, source links, ezQuake version-walk, and cross-links to the L3 guides portal on docs.quake.world (a later docs-web surface; the wiki narrows to social/strategy -- see decisions.md amendment 2026-06-09). VitePress + Tailwind v4 / daisyUI on Cloudflare Pages.
 
 **Status:** Planning. Scaffold built; **slicing LOCKED (6 phases, operator-approved 2026-06-09).** Phase 1 MD drafted + sub-agent-verified (awaiting operator review); Phases 2a-5 not yet drafted. Per-phase MDs are drafted by fresh terminals following `handoff-prompt.md`, verified by a sub-agent, operator-reviewed at each boundary.
 
@@ -32,7 +32,7 @@ This refines the spec's suggested 5-phase breakdown (spec section 12). The one c
 | 2a | not started | `phase-2a-scaffold.md` | VitePress scaffold in `apps/docs-web` (pnpm + Tailwind v4 + daisyUI tokens); data-loading module skeleton; routing | dev server boots and serves a landing page with daisyUI tokens applied |
 | 2b | not started | `phase-2b-ezquake-template.md` | Type-generic browse + card components; friendly-type module; category Flat/Grouped toggle; source links; ezQuake version-walk -- all proven on ezQuake | ezQuake browse views render end-to-end: filter, group, inline-expand cards |
 | 3 | not started | `phase-3-fanout.md` | The other 5 codebases wired through the SAME components (data + config only); per-codebase landing pages; graceful degradation | all 6 codebases browse-able |
-| 4 | not started | `phase-4-crosslinks.md` | cvar->cvar build-time auto-link (within-codebase); entity->wiki reverse-index; source links wired everywhere | cross-links render; zero dead wiki links |
+| 4 | not started | `phase-4-crosslinks.md` | cvar->cvar build-time auto-link (within-codebase); entity->guide reverse-index targeting the docs.quake.world guides portal (NOT the wiki -- D7/D19 amendment 2026-06-09; dormant in v1 until concept notes ship); source links wired everywhere | cross-links render; zero dead links |
 | 5 | not started | `phase-5-deploy.md` | Cloudflare Pages config + build + deploy; vikpe DNS | `docs.quake.world` live (operator-run smoke) |
 
 Status flow per phase: `not started` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
@@ -50,7 +50,7 @@ Horizontal foundation (Phase 1: export) -> scaffold (2a) -> **tracer bullet thro
 Per `decisions.md` D21:
 
 - **FTE** -- active project, no usable categories yet; lands as a later add (the architecture degrades to a flat list for it, no rework).
-- **Concept-note / wiki authoring** -- separate arc; docs only cross-links to the wiki.
+- **Concept-note / L3-guide authoring** -- separate arc (`2026-06-09-demand-driven-l3-concept-authoring`); docs only cross-links to it. The L3 guides render ON docs.quake.world (a later surface), not the wiki; the wiki narrows to social/strategy. See decisions.md amendment 2026-06-09.
 - **Cross-engine browsing** (compare a cvar across forks) -- deferred.
 - **Faceted search** -- VitePress local search only for v1.
 - **Min/max ranges** -- L1 bounds columns are empty; not declaratively extractable; a later backfill.

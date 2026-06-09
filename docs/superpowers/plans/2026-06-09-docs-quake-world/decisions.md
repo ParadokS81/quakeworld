@@ -17,6 +17,8 @@ in a phase MD.
 
 **Implication:** No phase authors prose explanation, how-to guides, or concept content. Everything rendered is auto-projected from L1. The only "writing" is the cross-link wiring (D7).
 
+**Amendment 2026-06-09 (cross-arc guides-portal retarget):** The "narrative lives in the wiki" clause is SUPERSEDED. A post-lock brainstorm moved player-facing GUIDES (= L3 concept notes, deterministically rendered from L3, not hand-authored pages) onto docs.quake.world itself, as a user/admin guides portal organized by domain/feature. docs still authors NO narrative -- it remains a projection surface; the narrative is now projected from L3 onto docs, instead of living on the wiki. The wiki narrows to social/strategy/culture only (player bios, clan/tournament history, tactical debate); it no longer hosts factual feature/config guides. Corrected scope: "docs = L1 reference only" becomes "docs v1 = the L1 per-codebase reference projection (THIS arc); the L3 guides portal is a LATER docs-web surface, downstream of the concept-notes arc `2026-06-09-demand-driven-l3-concept-authoring`." v1 ships UNCHANGED -- no guides portal in v1 (no guides exist to render yet).
+
 ## D2. 6 codebases v1
 
 **Decision:** 6 codebases v1 (ezQuake/KTX/MVDSV/QTV/QWFWD/QWCL); FTE deferred.
@@ -52,6 +54,8 @@ in a phase MD.
 **Decision:** Cross-links: cvar->cvar auto-linked at build; entity->wiki via reverse-lookup on concept-note `related_entities`; no dead links pre-wiki.
 
 **Implication:** cvar names inside descriptions become links at build time. The "Used in" wiki link is a reverse-index over concept-note `related_entities`; it renders ONLY where a note actually anchors the entity, so there are zero "coming soon" dead links. See D19 for scope.
+
+**Amendment 2026-06-09 (cross-arc guides-portal retarget):** The entity->"Used in" cross-link RETARGETS from the wiki to the docs.quake.world guides portal (same site as the reference). MECHANISM UNCHANGED -- still a build-time reverse-index over concept-note `related_entities`, still rendering only where a note actually anchors the entity (zero dead links). Only the destination changes: wiki -> docs guides portal. The cvar->cvar within-codebase auto-link is UNAFFECTED. Renders nothing in v1 (no concept notes shipped yet), so it is dormant in v1 either way.
 
 ## D8. v1 enhancements
 
@@ -152,6 +156,8 @@ Derived in a pure data module (D15), not inside a component. Raw type stays visi
 
 **Implication:** Phase 4 builds both indexes as pure build-time data modules (D15). The cvar-link resolver takes (codebase, description-text) and returns linked spans. The wiki reverse-index reads the concept-note corpus (`apps/qw-oracle/curated/`) at build; if the corpus is unavailable at docs-build time, the index is empty and all "Used in" links simply omit (graceful, D11).
 
+**Amendment 2026-06-09 (cross-arc guides-portal retarget):** The "entity->wiki Used in reverse-index" RETARGETS to the docs.quake.world guides portal. The reverse-index still reads the concept-note corpus (`apps/qw-oracle/curated/`) at docs-build time and still omits cleanly when the corpus is unavailable; only the link DESTINATION changes (wiki -> docs guides portal). cvar->cvar within-codebase resolution is unchanged. Phase 4 (not yet drafted) carries this retarget; the entity->guide index is dormant in v1 until concept notes ship. NOTE: this arc does NOT read or write `apps/qw-oracle/curated/` content -- it only reverse-indexes the notes' `related_entities` front-matter at build time; the L3 authoring is the separate `2026-06-09-demand-driven-l3-concept-authoring` arc.
+
 ## D20. apps/docs-web is its own pnpm-workspaces subtree
 
 **Decision:** `apps/docs-web` is a standalone pnpm-workspaces project. The qw-oracle backend stays `npm --no-workspaces` (no conflict -- separate subtrees). The slipgate `src-tauri` rsync hook constraint does NOT apply here (this is not slipgate); docs-web work needs no Windows toolchain.
@@ -168,8 +174,14 @@ Derived in a pure data module (D15), not inside a component. Raw type stays visi
 
 **Implication:** If a phase drifts into one of these, it is scope creep -- flag it and stop for operator review. The README's "what this arc does NOT cover" section points here.
 
+**Amendment 2026-06-09 (cross-arc guides-portal retarget):** Still holds -- concept-note / L3-guide authoring is the SEPARATE arc (`2026-06-09-demand-driven-l3-concept-authoring`); this arc only cross-links to it. Clarification: "it" now = the L3 guides rendered on docs.quake.world (the same site, a LATER docs-web surface), NOT the wiki. The guides portal surface itself is NOT in this arc's v1 scope (v1 = L1 reference, Phases 1-3, plus the dormant entity->guide reverse-index in Phase 4).
+
 ---
 
 ## Amendment log
 
-(Mid-arc amendments land here as dated blocks under the relevant D-number. None yet.)
+### 2026-06-09 -- cross-arc guides-portal retarget (D1, D7, D19, D21)
+
+A post-lock brainstorm (companion cross-arc contract being written at `contracts/active/` by the `2026-06-09-demand-driven-l3-concept-authoring` planner -- canonical record once present) moved player-facing guides (= L3 concept notes, deterministically rendered from L3) to render ON docs.quake.world as a user/admin guides portal, narrowed the wiki to social/strategy/culture only, and retargeted the entity->"Used in" cross-link from the wiki to the docs guides portal (same reverse-index mechanism, new destination). Full dated blocks are inline under D1, D7, D19, D21 above.
+
+Net effect on THIS arc: framing correction + cross-link retarget ONLY. v1 scope is UNCHANGED -- L1 reference, Phases 1-3 exactly as planned; the guides portal is a later docs-web surface downstream of the concept-notes arc; the entity->guide reverse-index (Phase 4) is dormant in v1 (nothing to render until concept notes ship). Phase 1 (drafted) is unaffected (L1 JSON export, no cross-links). Phase 4 (not yet drafted) carries the retarget. The pre-written scaffold prompts `phase-4-drafter-prompt.md`, `handoff-prompt.md`, and `phase-template.md` still phrase the cross-link target as "wiki"; they defer to these amended decisions and should be retargeted when Phase 4 drafts (flagged for the operator 2026-06-09).
