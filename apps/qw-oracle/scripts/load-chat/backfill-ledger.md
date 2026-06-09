@@ -94,7 +94,7 @@ validation slice.
 | [x] | 2022 | 13,893 | 178 | 0 | -- loaded 2026-06-09 (CONC=10 shakedown), 1015 threads
 | [x] | 2023 | 18,533 | 146 | 0 | -- loaded 2026-06-09 (session 3), 1220 threads (CONC=10 clean)
 | [x] | 2024 | 12,410 | 193 | 0 | -- loaded 2026-06-09 (session 3), 1025 threads (CONC=10 clean)
-| [ ] | 2025 | 11,433 | 179 | 0 |
+| [x] | 2025 | 11,433 | 179 | 0 | -- loaded 2026-06-09 (session 4), 929 threads (CONC=10 clean); #helpdesk now 7/7
 | [x] | 2026 | 5,400 | 61 | 1 | -- BATCH-1 (D7 binding gate); loaded 2026-06-08, 373 threads
 
 ### #quakeworld (849 agents, 11 batches)
@@ -406,3 +406,36 @@ DB state after session 3 (final): chat_threads = **6395** -- 634 v1 (#quakeworld
 2021 probe ONLY) + 5761 v2 (#helpdesk 2020 [715] + 2021 [1346] + 2022 [1015] +
 2023 [1220] + 2024 [1025] + 2026 [373] + #antilag 2026 [67]), 0 null embeddings,
 all v2 keys year-scoped. #helpdesk now has only 2025 remaining ([ ], 179 agents).
+
+### Session 4 -- 2026-06-09 (CONC=10 hold; finish #helpdesk, open #quakeworld)
+
+Fresh terminal. Baseline re-confirmed before first write: chat_threads = 6395 (634 v1
++ 5761 v2), 0 null/stale, 0 non-year-scoped v2 keys -- exact match to session-3-final.
+nproc=24 -> harness cap min(16,22)=16, so CONC=10 is live (not clipped). wf-backfill-fence.js
+already at CONC=10 / WAVE_PAUSE 500ms (no edit). Trial 1-agent fence (helpdesk-2025-001)
+cleared the throttle (1/1, 0 fail, 52s) and confirmed the Workflow result-capture path
+(harness writes `.result` to the task output-file -> extract to fence-withres.json).
+
+**Batch #helpdesk 2025 -- LOADED, verified. #helpdesk COMPLETE (7/7).** 179 chunks, max
+80.8KB (< 256KB R13 cap), 0 forced cuts. Fenced single-pass with-resolution at **CONC=10
+/ WAVE_PAUSE 500ms**. **CONC=10 throttle outcome: CLEAN -- failures.fence = 0 (179/179),
+retry pass did NOT fire.** Wall-clock: fence 13.6 min for 179 chunks (4.6s/chunk; 5.24M
+subagent tokens, 367 tool-uses). 1 chunk abstained (loader skips it). **0% index-
+hallucination / 99.62% coverage** (lowest chunk 93.8% with 0 OOB = natural dense-chunk
+variance, not a forced cut). Load: 929 threads, 11,389 junction rows (11,388 DISTINCT msgs
+-- 1 message legitimately in two threads, the R8 m2m case; DISTINCT guard handles it), 0 OOB
+/ 0 missing / 0 stale / 0 truncations, resolution 487 solved / 226 unresolved / 216
+informational / 0 none. Idempotency (R5): PASS -- re-ran load, identical state (929 threads,
+GLOBAL held at 7324 not 8253, thread_key md5 `f575cbc1aac242bdc91cbae71b92130f` unchanged).
+Retrieval: PASS -- ran the SHIPPED rewired `searchSolvedIssues` against the dev DB; all three
+2025-specific queries return #helpdesk-2025 threads in the top-3 with `resolution_status`
+surfaced (UppsaLAN-QTV-CGNAT solved [top hit], totbots-KTX/MVDSV solved [top hit], ezQuake-
+3.6.5-gpl_maps.pk3 freeze surfaces 2025 at #2/#3 beside the canonical 2024 thread). Cross-year
+hybrid working (2020/2021/2024/2026 co-surface; match_quality weak on provisional R10
+thresholds -- Phase D recalibrates). Same prod-vs-dev deployment caveat as sessions 1-3
+(live mcp__qw-oracle__* still routes to pre-Phase-A prod; verified via shipped handler against dev).
+
+DB state after the 2025 batch: chat_threads = 7324 -- 634 v1 (#quakeworld 2021 probe ONLY)
++ 6690 v2 (#helpdesk 2020 [715] + 2021 [1346] + 2022 [1015] + 2023 [1220] + 2024 [1025] +
+2025 [929] + 2026 [373] + #antilag 2026 [67]), 0 null embeddings, all v2 keys year-scoped.
+**#helpdesk is COMPLETE (all 7 years).** Next: first #quakeworld batch (2016).
