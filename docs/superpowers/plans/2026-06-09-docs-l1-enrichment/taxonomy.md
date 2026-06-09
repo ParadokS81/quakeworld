@@ -3,7 +3,7 @@ date: 2026-06-09
 type: locked-decisions-record
 arc-slug: docs-l1-enrichment
 spec: docs/superpowers/parking/2026-06-09-docs-l1-enrichment.md
-status: executing
+status: shipped 2026-06-09
 ---
 
 # docs-l1-enrichment -- locked taxonomy + conventions

@@ -2,7 +2,7 @@
 date: 2026-06-09
 type: sidequest-spec + fresh-terminal-handoff
 arc-slug: docs-l1-enrichment
-status: captured -- ready to launch in a fresh terminal (operator-initiated).
+status: SHIPPED 2026-06-09 -- mvdsv/qtv/qwfwd categorized; QWCL 100% described+categorized incl. all 72 cmdline_params (operator opted in beyond the 308 scope); build-snapshot emitQwclVariables reads from L1. Apply scripts + locked taxonomy in docs/superpowers/plans/2026-06-09-docs-l1-enrichment/.
 spun-out-of: docs/superpowers/parking/2026-06-09-docs-quake-world-brainstorm-handoff.md
 parent-arc: docs/superpowers/parking/2026-06-07-quake-world-docs-federation-roadmap.md
 ---
