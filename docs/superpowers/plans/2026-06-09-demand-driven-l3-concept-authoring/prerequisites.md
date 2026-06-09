@@ -16,9 +16,9 @@ Most of this arc runs against the existing qw-oracle dev stack, so setup is ligh
 
 ## Already in place (no action -- listed for the executor)
 
-5. **Cluster JSON.** `apps/qw-oracle/scripts/calibration/scratch/faq-clusters.json` (the domain -> threadIds source, K=48) is committed. `faq-cluster-coarse.ts` regenerates it deterministically (seed 42) if needed.
+5. **Cluster JSON.** `apps/qw-oracle/scripts/calibration/scratch/faq-clusters.json` (the domain -> threadIds source, K=48) is present on disk (untracked scratch, gitignored). `faq-cluster-coarse.ts` regenerates it deterministically (seed 42) if needed.
 
-6. **Harness scratch scripts.** `apps/qw-oracle/scripts/calibration/scratch/faq-hypothesis-test/` holds the POC (`faq-retrieve.ts`, `faq-verify*.ts`, `faq-domains.ts`) + the committed `outputs/` run snapshot. Phase 0 generalizes these (D12).
+6. **Harness scratch scripts.** `apps/qw-oracle/scripts/calibration/scratch/faq-hypothesis-test/` holds the POC (`faq-retrieve.ts`, `faq-verify*.ts`, `faq-domains.ts`) + the on-disk (untracked) `outputs/` run snapshot. Phase 0 generalizes these (D12).
 
 7. **Workflow capability.** The programmatic "fresh-Claude answer" step (D11) dispatches Workflow subagents from within the executing Claude Code session -- a session capability, not an install. No API key, no SDK.
 

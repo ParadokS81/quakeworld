@@ -154,4 +154,12 @@ in a phase MD.
 
 ## Amendment log
 
-(Mid-arc amendments land here as dated blocks under the relevant D-number. None yet.)
+### 2026-06-10 -- D12: track the gate runner (was: gitignored scratch)
+
+**Amends D12.** Operator decision: the *generalized* per-domain gate runner is load-bearing arc infrastructure (run on every Phase 1-3 note), not throwaway scratch like the POC. Promote it to a TRACKED location:
+
+- **Tracked** at `apps/qw-oracle/scripts/calibration/faq-gate/`: the generalized runner scripts (`faq-domains-resolve.ts`, `faq-gate-retrieve.ts`, `faq-answer-workflow.js`, `faq-gate-confab.ts`) + a tracked copy of `faq-clusters.json` (the domain->threadIds input; regenerable via `faq-cluster-coarse.ts`, seed 42) + a short README.
+- **Gitignored** within it: `faq-gate/outputs/` (per-domain run artifacts -- regenerable, not history-worthy).
+- **Unchanged (untracked scratch):** the POC scripts at `scripts/calibration/scratch/faq-hypothesis-test/` stay as the lift-source.
+
+**Why:** gitignored = no history, no backup, lost on a scratch clean; the acceptance gate deserves version history like any test harness. **Implication:** phase-0-machinery.md's runner paths point at `faq-gate/` (its top amendment block carries the mapping); D12's original "stays in scratch" now applies only to the POC lift-source.
