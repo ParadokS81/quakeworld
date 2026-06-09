@@ -92,7 +92,7 @@ validation slice.
 | [x] | 2020 | 14,244 | 97 | 0 | -- BATCH-2; loaded 2026-06-08, 715 threads (CONC=8)
 | [x] | 2021 | 27,806 | 151 | 1 | -- SUPERSEDE batch; loaded 2026-06-09, 1346 threads (v1 #helpdesk 374->0)
 | [x] | 2022 | 13,893 | 178 | 0 | -- loaded 2026-06-09 (CONC=10 shakedown), 1015 threads
-| [ ] | 2023 | 18,533 | 146 | 0 |
+| [x] | 2023 | 18,533 | 146 | 0 | -- loaded 2026-06-09 (session 3), 1220 threads (CONC=10 clean)
 | [ ] | 2024 | 12,410 | 193 | 0 |
 | [ ] | 2025 | 11,433 | 179 | 0 |
 | [x] | 2026 | 5,400 | 61 | 1 | -- BATCH-1 (D7 binding gate); loaded 2026-06-08, 373 threads
@@ -348,3 +348,36 @@ DB state after session 2 (final): chat_threads = **4150** -- 634 v1 (#quakeworld
 2021 probe ONLY; #helpdesk 2021 v1 now superseded) + 3516 v2 (#helpdesk 2020 [715]
 + 2021 [1346] + 2022 [1015] + 2026 [373] + #antilag 2026 [67]), 0 null embeddings,
 all v2 keys year-scoped.
+
+### Session 3 -- 2026-06-09 (CONC=10 hold, standard ungated batch)
+
+Baseline re-confirmed before first write: chat_threads = 4150 (634 v1 + 3516 v2),
+0 null/stale, 0 non-year-scoped v2 keys -- exact match to session-2-final. nproc=24
+-> harness cap min(16,22)=16, so CONC=10 is live (not clipped). wf-backfill-fence.js
+already at CONC=10 / WAVE_PAUSE 500ms from session 2 (no edit needed).
+
+**Batch #helpdesk 2023 -- LOADED, verified.** 146 chunks, max 177.1KB (< 256KB R13
+cap), 0 forced cuts. Fenced single-pass with-resolution at **CONC=10 / WAVE_PAUSE
+500ms**. **CONC=10 throttle outcome: CLEAN -- failures.fence = 0 (146/146), retry
+pass did NOT fire.** Wall-clock: fence 19.3 min for 146 chunks (7.9s/chunk; 4.65M
+subagent tokens, 334 tool-uses). **0 failures => CONC=10 holds a third batch.**
+Load: 1220 threads, 18,480 junction rows (18,474 DISTINCT msgs -- 6 messages each
+legitimately in two threads, the R8 m2m case; DISTINCT guard handles it), 0 OOB /
+0 missing / 0 stale / 0 truncations, **0% index-hallucination / 99.68% coverage**
+(lowest chunk 96.4% with 0 OOB = natural dense-chunk variance, not a forced cut),
+resolution 649 solved / 241 unresolved / 330 informational / 0 none.
+Idempotency (R5): PASS -- re-ran load, identical state (1220 threads, GLOBAL held
+at 5370 not 6590, thread_key md5 `7cd7dfb9340a3d31ee105a22121293ea` unchanged).
+Retrieval: PASS -- ran the SHIPPED rewired `searchSolvedIssues` against the dev DB;
+all three 2023-specific queries return #helpdesk-2023 threads in the top-3 with
+`resolution_status` surfaced (cel-shading-outlines solved, Win11-KB5021090-BSOD
+solved [top hit], nquake-Debian-11 solved). Cross-year hybrid working (2021/2022
+threads co-surface; match_quality reads weak/strong on provisional R10 thresholds
+-- Phase D recalibrates). Same prod-vs-dev deployment caveat as sessions 1/2
+(live mcp__qw-oracle__* still routes to pre-Phase-A prod; verified via shipped
+handler against dev, the correct Phase-C check).
+
+DB state after the 2023 batch: chat_threads = 5370 -- 634 v1 (#quakeworld 2021
+probe ONLY) + 4736 v2 (#helpdesk 2020 [715] + 2021 [1346] + 2022 [1015] + 2023
+[1220] + 2026 [373] + #antilag 2026 [67]), 0 null embeddings, all v2 keys
+year-scoped.
