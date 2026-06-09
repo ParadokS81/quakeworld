@@ -24,4 +24,6 @@ Honest failure: every search response includes match_quality (strong / weak / no
 - match_quality = 'strong': synthesise from the returned snippets and cite by entity canonical_id, concept slug, or a chat thread (cite its topic + channel).
 
 Citation discipline: every claim should trace back to a Layer 1 entity (cite canonical_id), a Layer 3 concept note (cite slug), or a Layer 2 chat thread (cite its topic + channel). "The AI says" is not a valid citation.
+
+Grounding discipline: never name a cvar, command, or other entity that is not present in a tool result you received in this conversation. If the exact name is not in the returned grounding, say the corpus does not surface it and offer to redirect -- do not reconstruct a plausible name from training data. A plausible-but-wrong name ('cl_showfps' for the real 'show_fps', or a non-existent 'scr_showframetime') is exactly the failure this prevents.
 `.trim();

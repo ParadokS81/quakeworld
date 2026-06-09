@@ -25,3 +25,6 @@ scripts/extractors/qw/seeds/qw-stats-cache.json
 # Brand-curation pre-fill output (regenerate with pre-fill.ts)
 scripts/curate-brands/brand-pre-fill.json
 scripts/curate-brands/brand-pre-fill.js
+
+# FAQ gate run artifacts (regenerate via Stage 1 + Workflow + Stage 3)
+scripts/calibration/faq-gate/outputs/
