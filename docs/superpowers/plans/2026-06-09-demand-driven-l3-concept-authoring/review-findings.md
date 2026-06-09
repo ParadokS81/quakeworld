@@ -88,7 +88,24 @@ The Task-A anti-confab guardrail -- **working exactly as designed** -- suppresse
 3. Demonstrate the NAILED path on a different fixture the note already covers grounding-only;
 4. Revisit **D3** ("weapon-scripts already proved the platter model -- it NAILED its thread with a single retrieval") and **D15**'s "NAILED" boundary criterion in light of what the anti-confab rule changed: the POC's 7-NAILED baseline was partly human training-patching; the disciplined gate is stricter and more honest.
 
-**Phase:** Phase 0 (surfaced) -> affects Phases 1-3.
+**Phase:** Phase 0 (surfaced) -> affects Phases 1-3. **See F10** -- the NAILED-demo run reframes this: the judge (not the note, not the agent) is the dominant scoring problem; 12393's over-decline was situational, not systematic.
+
+## F10. The gate's judge over-anchors on the community resolution as literal gold -- grades correct answers WRONG/PARTIAL (OPERATOR DISPOSITION NEEDED)
+
+**Severity:** high (the judge, as prompted, systematically *under*-scores; a good note producing a correct answer fails the gate whenever the community truth differs in form -- this would block Phases 1-3 from passing the gate honestly).
+
+**Evidence:** the orchestrator-approved NAILED-demo run (2026-06-10) on three weapon-scripts threads the note covers exhaustively returned **0 NAILED + zero hard confab** -- yet all three answers are correct:
+- **9096** ("bind switch+shoot to one button") -> WRONG. Oracle gave `+fire_ar` quickfire + a manual-select alternative (correct). Judge penalized `+fire_ar` vs the community's `+fire` (*equivalent* quickfire commands) and the omission of companion settings (`cl_weaponhide`/`w_switch`/`b_switch`) the user did not ask for.
+- **9244** ("simple weapon script, press key + fire + back to boomstick") -> WRONG. Oracle gave `+fire_ar` + `cl_weaponhide 1` -- a complete, correct answer to the exact ask. Judge penalized it because the community *deflected to an external cfg link* + a TDM impulse-transfer tangent, so the Oracle's self-contained answer "does not appear in the thread."
+- **16591** ("always have the axe when idle") -> PARTIAL. Oracle gave `cl_weaponhide_axe 1` -- literally the precise answer. Judge penalized "unrequested depth ... cvars the community never mentioned" -- but that depth *is* the answer (the community only linked docs).
+
+**Root cause:** the judge prompt asks "did the Oracle resolve the question to the same substance as the **community resolution**" -- a leaky proxy for "did it correctly resolve the **user's question**." Community resolutions are frequently diffuse (external links), thin (docs links), or use equivalent-but-different commands; anchoring on them as the literal gold standard penalizes correct, complete, or *better* answers.
+
+**Construct-vs-decline read (orchestrator asked):** the answer-agent constructs well from real primitives -- on 16591 it confidently produced the precise cvar (`cl_weaponhide_axe`) rather than declining; on 9096/9244 it produced complete correct scripts. The 12393 over-decline (F9) was **situational** (the cycle method is genuinely absent from the note + the anti-confab framing nudged caution), not systematic.
+
+**Proposed disposition (OPERATOR DECISION):** recalibrate the judge prompt to score "did the Oracle correctly and completely resolve the **user's question**, using the community resolution as ONE reference (not the literal gold standard); an answer may be more complete or use equivalent commands and still NAIL." Optionally give the judge the user QUESTION explicitly (currently it sees only truth + answer) and allow a "better-than-community" path. Re-run the demo after recalibration to confirm the pass-path. Until then, the gate's SCORING half under-scores; the CONFAB half is sound (zero hard confab across all 4 threads tested).
+
+**Phase:** Phase 0 (surfaced) -> blocks Phase 1-3 gate scoring until resolved.
 
 ---
 
@@ -104,4 +121,5 @@ The Task-A anti-confab guardrail -- **working exactly as designed** -- suppresse
 | F6 embeddings optional | low | D13 + prerequisites | Phase 0-3 |
 | F7 fork vs guide-rewrite | low | D9 | Phase 0 |
 | F8 confab self-report false-confab | medium | inline fix (faq-gate-confab.ts) | Phase 0 (drained) |
-| F9 anti-confab gate vs POC NAILED baseline (12393 PARTIAL) | high | **OPERATOR disposition pending** | Phase 0 -> 1-3 |
+| F9 anti-confab gate vs POC NAILED baseline (12393 PARTIAL) | high | **OPERATOR disposition pending** (reframed by F10) | Phase 0 -> 1-3 |
+| F10 judge over-anchors on community truth (0/3 NAILED on correct answers) | high | **OPERATOR disposition pending** -- recalibrate judge prompt | Phase 0 -> blocks 1-3 scoring |
