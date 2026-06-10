@@ -77,7 +77,7 @@ const cols = computed(() => {
   <div>
     <!-- Heading + count + snapshot. Labels come from the data (browse.displayName /
          browse.type), never from a hardcoded name -- D14. -->
-    <h1 class="text-2xl font-semibold">{{ browse.displayName }} / {{ browse.type }}</h1>
+    <h1 class="text-2xl font-semibold mb-4">{{ browse.displayName }} / {{ browse.type }}</h1>
     <p class="text-base-content/60 mt-1">
       {{ visible.length }} of {{ browse.rows.length }} &middot; snapshot {{ browse.version }}
     </p>
@@ -101,7 +101,7 @@ const cols = computed(() => {
     <div ref="listEl" :style="{ '--cols': cols }">
       <!-- Sticky column header on the SAME grid template -->
       <div
-        class="grid gap-3 px-3 py-1.5 sticky top-0 z-10 bg-base-100 border-b-2 border-base-300 font-semibold text-base-content/70"
+        class="grid gap-4 px-3 py-1.5 sticky top-0 z-10 bg-base-100 border-b-2 border-base-300 font-semibold text-xs uppercase tracking-wide text-base-content/70"
         style="grid-template-columns: var(--cols)"
       >
         <div>Name</div>

@@ -8,7 +8,7 @@ import { data as codebases } from '../codebases.data'
 
 <template>
   <div class="grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
-    <div v-for="cb in codebases" :key="cb.codebase" class="card bg-base-200 border border-base-300">
+    <div v-for="cb in codebases" :key="cb.codebase" class="card bg-base-200 border border-base-300 hover:border-primary/50 transition-colors">
       <div class="card-body">
         <!-- div, not h2: dodges VitePress .vp-doc h2 prose styling (border-top +
              top margin would band the card); matches CodebaseLanding -->

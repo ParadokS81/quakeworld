@@ -33,14 +33,14 @@ watch(() => props.isTarget, (v) => { if (v) activate() })
   <div
     ref="rootEl"
     :id="row.anchor"
-    class="grid items-start gap-3 px-3 py-1.5 border-b border-base-300 cursor-pointer hover:bg-base-200"
+    class="grid items-start gap-4 px-3 py-1.5 border-b border-base-300 cursor-pointer hover:bg-base-200"
     :class="{ 'entity-flash': flash }"
     style="grid-template-columns: var(--cols)"
     @click="expanded = !expanded"
     @animationend="flash = false"
   >
     <!-- Name cell (always) -->
-    <div class="flex items-center gap-2 min-w-0">
+    <div class="flex items-center gap-2 min-w-0 leading-tight">
       <span
         class="inline-block transition-transform text-base-content/50"
         :class="{ 'rotate-90': expanded }"
@@ -60,7 +60,7 @@ watch(() => props.isTarget, (v) => { if (v) activate() })
     </div>
 
     <!-- Description preview (always): one-line truncated teaser; full text on hover -->
-    <div class="truncate text-base-content/70" :title="row.descriptionFull">
+    <div class="truncate leading-tight text-base-content/70" :title="row.descriptionFull">
       <template v-if="row.descriptionPreview !== undefined">{{ row.descriptionPreview }}</template>
     </div>
 
@@ -69,7 +69,7 @@ watch(() => props.isTarget, (v) => { if (v) activate() })
          the panel from collapsing the row. -->
     <div
       v-if="expanded"
-      class="px-1 py-2 text-sm"
+      class="px-1 py-3 text-sm border-l-2 border-primary/30 pl-3"
       style="grid-column: 1 / -1; max-width: 90ch"
       @click.stop
     >

@@ -29,7 +29,7 @@ const results = computed<SearchResult[]>(() =>
           <span class="badge badge-ghost">{{ r.displayName }}</span>
           <span class="badge badge-ghost">{{ r.type }}</span>
           <span v-if="r.friendlyType" class="text-xs text-base-content/60">{{ r.friendlyType }}</span>
-          <span v-if="r.description" class="w-full truncate text-sm text-base-content/60">{{ r.description }}</span>
+          <span v-if="r.description" class="w-full truncate leading-tight text-sm text-base-content/60">{{ r.description }}</span>
         </a>
       </li>
     </ul>
