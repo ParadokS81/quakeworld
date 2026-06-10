@@ -87,14 +87,24 @@ connectbr <server-ip>    // connect via the fastest path (direct if direct is be
 
 The ping tree has to exist before `connectbr` can choose, which is why `sb_refresh` comes first: it writes the server list and builds the tree of proxy routes. `connectbr` then compares the direct route against the proxy routes and takes the lowest-ping one. This mainly helps for cross-region or international servers; for a server near you the direct route usually wins and `connectbr` just connects directly.
 
-Two extras:
+One more knob worth enabling:
 
 ```
 cl_portpingprobe_enable 1   // on every connect, probe local source ports and keep the
-                            // lowest-ping one -- worth a few ms, sometimes a scoreboard
-                            // notch (see "Scoreboard ping" below)
-cl_proxyaddr <proxy-ip>     // manual alternative: force every connect through one proxy
+                            // lowest-ping one -- a few ms, sometimes a scoreboard notch
+                            // (see "Scoreboard ping" below)
 ```
+
+To force a specific proxy by hand instead of using best routes:
+
+```
+cl_proxyaddr proxyIP:port    // route every connect through this proxy (QWFWD)
+connect targetIP:port        // connects via the proxy set above
+```
+
+Chain hops with `@` -- `cl_proxyaddr "proxyA@proxyB"` -- not commas. (`cl_useproxy` is a
+separate toggle: it only reuses a Qizmo/fteqtv proxy you are *already* connected through,
+so it is not needed here.)
 
 ## Antilag -- the server's job
 
