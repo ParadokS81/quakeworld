@@ -28,7 +28,8 @@ Absolute paths from repo root. This phase touches `apps/docs-web/` ONLY.
 
 ### Created
 ```
-apps/docs-web/lib/search-index.ts                          # F18: pure module. SearchRecord/SearchResult types; buildSearchRecords() (build-time, fs, enumerates every snapshot); createSearcher() (client, wraps MiniSearch). The D15 logic layer for search.
+apps/docs-web/lib/search-index.ts                          # F18: CLIENT-safe module -- SearchRecord/SearchResult types + createSearcher() (wraps MiniSearch). NO node:fs; imported by GlobalSearch.vue. [F21 ratified at execution: split from the build-time half so node:fs never reaches the client Rollup bundle]
+apps/docs-web/lib/search-builder.ts                        # F18/F21: BUILD-TIME module -- buildSearchRecords() (node:fs; enumerates every snapshot via lib/snapshot). Imported ONLY by search-records.data.ts, never by a component.
 apps/docs-web/lib/search-index.test.ts                     # F18: vitest. createSearcher relevance over deterministic fixtures + buildSearchRecords shape invariants over live data.
 apps/docs-web/.vitepress/theme/search-records.data.ts      # F18: VitePress defineLoader -> buildSearchRecords(). The ONLY VitePress-coupled search glue (D15); mirrors codebases.data.ts exactly.
 apps/docs-web/.vitepress/theme/components/GlobalSearch.vue  # F18: dumb search box. query ref, lazy createSearcher on first focus, results via the lib searcher fn, each result an <a> to /<codebase>/<type>#<anchor>. Plain styled <ul> -- NO daisyUI .menu / .dropdown.
