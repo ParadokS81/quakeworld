@@ -1,5 +1,6 @@
 import DefaultTheme from 'vitepress/theme'
 import CodebaseGrid from './components/CodebaseGrid.vue'
+import EntityBrowse from './components/EntityBrowse.vue'
 import './style.css'
 
 // Extend the default theme (keeps VitePress nav / sidebar / local-search
@@ -10,5 +11,6 @@ export default {
   extends: DefaultTheme,
   enhanceApp({ app }) {
     app.component('CodebaseGrid', CodebaseGrid)
+    app.component('EntityBrowse', EntityBrowse)
   }
 }
