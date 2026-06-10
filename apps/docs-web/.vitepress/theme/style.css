@@ -1,0 +1,50 @@
+/* import strategy: full "@import tailwindcss". Verified in the compiled CSS that
+   Tailwind v4 places preflight in @layer base, which loses the cascade to
+   VitePress's unlayered chrome CSS -- so preflight does NOT clobber the chrome
+   and no layered-import (preflight-omitting) fallback is needed. The v3-era
+   collision the MD's fallback guards against does not apply under v4's layering. */
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: quakeworld --default;
+  include:
+    badge, breadcrumbs, button, card, collapse, divider, dropdown, indicator,
+    input, join, label, loading, list, menu, progress, range, rootcolor,
+    scrollbar, select, skeleton, swap, tab, toggle;
+  logs: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "quakeworld";
+  default: true;
+  prefersdark: true;
+  color-scheme: "dark";
+  --color-base-100: var(--color-slate-950);
+  --color-base-200: var(--color-slate-900);
+  --color-base-300: var(--color-slate-800);
+  --color-base-content: var(--color-slate-300);
+  --color-primary: var(--color-blue-600);
+  --color-primary-content: var(--color-blue-100);
+  --color-secondary: var(--color-purple-600);
+  --color-secondary-content: var(--color-purple-100);
+  --color-accent: var(--color-pink-600);
+  --color-accent-content: var(--color-pink-100);
+  --color-neutral: var(--color-gray-800);
+  --color-neutral-content: var(--color-gray-200);
+  --color-info: var(--color-sky-500);
+  --color-info-content: var(--color-white);
+  --color-success: var(--color-green-500);
+  --color-success-content: var(--color-green-950);
+  --color-warning: var(--color-yellow-400);
+  --color-warning-content: var(--color-yellow-950);
+  --color-error: var(--color-red-600);
+  --color-error-content: var(--color-red-100);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1.5px;
+  --depth: 0;
+  --noise: 0;
+}

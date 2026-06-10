@@ -1,0 +1,8 @@
+# docs-web is its own pnpm workspace root (D20). pnpm reads ONLY this file to
+# define the workspace -- it ignores the monorepo-root package.json
+# "workspaces" field (which globs apps/* for npm). So docs-web stays isolated
+# from qw-oracle's `npm --no-workspaces` backend and from slipgate. infiniti's
+# component package drops into packages/ as a `workspace:*` dependency later
+# (roadmap); the glob is here now so that drop-in is config-only.
+packages:
+  - "packages/*"
