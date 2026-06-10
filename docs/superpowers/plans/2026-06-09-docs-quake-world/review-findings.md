@@ -77,6 +77,10 @@ Each finding: what it is, the evidence, severity, and which decision resolves it
 | F8 root npm `workspaces` glob includes docs-web (pnpm-subtree isolation) | ADVISORY | Phase 2a (own `pnpm-workspace.yaml`) | D20 |
 | F13 fan-out structurally pre-shipped by 2b's generic loaders (D14 payoff) | ADVISORY (reshape) | Phase 3 (reduced to verify + display polish) | D14, D2, D11 |
 | F14 visual-polish scope gap + 2 theme collisions (nav .menu, card .vp-doc h2) | SUBSTANTIVE (bugs fixed; scope gap open) | Phase 3 (bugs) + pre-deploy design pass (gap) | D10, D11, D15 |
+| F15 ktx/mvdsv source-link prefix must be empty, not src/ | SUBSTANTIVE (drained) | Phase 4 (pre-flight) | D7, D8 |
+| F16 Check-9 grep over-broad -> use .html-scoped gate | ADVISORY (drained) | Phase 4 | D7, D21 |
+| F17 cvar-link click scrolls to target but doesn't auto-expand it | ADVISORY (enhancement) | F14 pre-deploy pass | D7, D22, D15 |
+| F18 VitePress search indexes only the home page (no entities) | SUBSTANTIVE (launch UX) | F14 pre-deploy pass + D9 amendment | D9, D3, D15 |
 
 New findings append below with the next sequential F-number and a phase owner.
 
@@ -178,6 +182,15 @@ New findings append below with the next sequential F-number and a phase owner.
 
 **Resolved by:** Bugs: the fixes above (operator-authorized live during the floor-check). Scope gap: operator chose 2026-06-10 "fix the bugs now + plan a small dedicated visual pass before Phase 5 deploy." RECOMMENDATIONS for that pass (presentation-layer only -- respects the D15 logic/presentation decoupling, NOT a D14/D15 violation): (1) trim the daisyUI `include:` list to the components actually used (badge/card/divider/input/label/toggle) -- shrinks CSS and removes other latent generic-classname collisions (`list`/`tab`/`dropdown`/`collapse` are unused and collision-prone); (2) decide whether "adopt vikpe's theme" (D10) means importing vikpe's actual daisyUI theme vs the current custom one; (3) general density/spacing polish on the browse tables + landing cards. Owner: a new pre-deploy phase the orchestrator slots, or a Phase 5 pre-step.
 
+**Scope update 2026-06-10 (Phase-4 operator floor-check).** The same live floor-check that CONFIRMED the Phase-4 cross-links also surfaced two more pre-deploy items, now folded into this same pass (operator: "we can fold it into next ... as long as it doesn't get missed", 2026-06-10). The F14 pre-deploy pass is therefore NO LONGER thin. Its punch-list is FIVE items:
+1. **F17** -- auto-expand + highlight the card a cvar-link points to (the link currently scrolls to the target's *collapsed* row).
+2. **F18** -- entity site-search strategy (the top search box indexes only the home page; ~5000 entities are unreachable from it) + a likely **D9 amendment** recording whatever is chosen.
+3. Trim the daisyUI `include:` to the components actually used (badge/card/divider/input/label/toggle).
+4. Resolve **D10** "adopt vikpe's theme" -- import vikpe's daisyUI theme (vendored at `research/repos/slipgate/`) vs keep the custom `quakeworld` theme.
+5. Density/spacing polish on browse tables + landing cards.
+
+This ledger entry + the README Phase-index note are the don't-get-missed anchors. The F14 phase MD (drafted after the D10 decision) turns all five into tasks with boundary checks.
+
 ## F15. ktx/mvdsv `source_ref.file` is already repo-relative (`src/...`) -- the Phase-4 source-link prefix must be EMPTY for them, not `src/` (surfaced + drained in Phase 4 execution pre-flight)
 
 **What:** Phase 4 Task 1 ships a locked `REPOS` map with `prefix: 'src/'` for BOTH ktx and mvdsv. But those two codebases' `source_ref.file` values ALREADY carry the `src/` segment (ktx `src/world.c`, mvdsv `src/sv_main.c`), whereas ezquake (`sv_main.c`) and qwcl (`snd_dma.c`) carry BARE filenames. Applying `prefix: 'src/'` to ktx/mvdsv double-prefixes to `src/src/world.c` -> a 404. The phase MD's OWN Check 6 expects the single-`src/` URL (`.../src/world.c#L945`), so the locked config contradicted the phase's own verification.
@@ -197,3 +210,23 @@ New findings append below with the next sequential F-number and a phase owner.
 **Severity:** ADVISORY. The D7/D21 gate HOLDS (no dead UI renders); only the probe wording over-matches. No code change.
 
 **Resolved by:** Scope Check 9 to rendered pages -- `find <dist> -name '*.html' | xargs grep -l "Used in:"` and `... grep -l "/guides/"` (both must be empty), NOT `grep -rl ... dist`. The future guides-portal arc that flips GUIDES_PORTAL_LIVE re-runs this check and must use the .html-scoped form or it will see the same benign JS-bundle hit. Executor verified the rendered-HTML gate empty at the Phase-4 boundary.
+
+## F17. cvar-link click scrolls to the target's collapsed row but does not auto-expand it (surfaced in Phase-4 operator floor-check)
+
+**What:** A cvar->cvar link (D7) resolves to the target entity's stable anchor (D22) and the browser scrolls there -- but the target lands as a COLLAPSED row, so the reader sees only `Name | Type | Default | truncated-description`, not the full card they clicked through to read. The link itself is correct (valid anchor, no dead link); the spec defined the contract as link->anchor (D7/D22) and stopped short of "auto-expand + highlight the target." So this is an enhancement on a working feature, NOT a Phase-4 defect.
+
+**Evidence (operator floor-check, 2026-06-10):** clicking `r_tracker_frags` inside `r_tracker`'s expanded description scrolls to the `r_tracker_frags` row but leaves it collapsed; the operator expected the clicked cvar to open/highlight. The cross-link render itself verified GOOD in the same check (links + ezQuake source link both render).
+
+**Severity:** ADVISORY (UX enhancement; the Phase-4 cross-link feature works to spec). Owned pre-deploy because docs v1 ships on this VitePress layer (the infiniti port is post-v1).
+
+**Resolved by:** the F14 pre-deploy pass. On navigation to an entity anchor -- both initial load with a `#anchor` hash AND a `hashchange` from an in-page cvar-link click -- auto-expand and visually highlight the matching card. This is VIEW interactivity (same category as the D3 Flat/Grouped toggle + filter, "view-level interactivity, Vue not static markdown"), so reading `location.hash` to toggle expand state is D15-clean view glue, NOT business logic in a component (the cvar-link DERIVATION already lives in the pure `cvar-link.ts` module). The F14 drafter annotates it as such so the D15 decoupling gate does not false-flag it (cf. F11).
+
+## F18. VitePress local search (D9) indexes only the home page -- the 28 data-driven entity pages are absent, so site-search finds no entities (surfaced in Phase-4 operator floor-check)
+
+**What:** The prominent top search box (VitePress local search, Ctrl+K -- D9) returns no results for any entity name. The built search index contains exactly ONE document: the landing page. The browse pages render their ~5000 entities through a single data-driven Vue component carrying no markdown prose, so VitePress's build-time content indexer (which crawls rendered markdown text, not the JSON the component iterates) has nothing to index for those 28 routes. Only the per-page "Filter by name or description" box (D3, a client-side filter over the current page's records) finds entities -- and only within the one codebase+type page already open. A user who types a cvar name into the obvious search box gets nothing.
+
+**Evidence (operator floor-check + orchestrator verification, 2026-06-10):** search "r_tracker" -> only "# docs.quake.world" (the home page). Built index `.vitepress/dist/assets/chunks/@localSearchIndexroot.*.js` = 1042 bytes, `"documentCount":1`, `"documentIds":{"0":"/#docs-quake-world"}`. The same entity names ARE present in the SSR'd HTML (`curl /ezquake/cvar` contains `r_tracker`), confirming the gap is the search INDEXER's page coverage, not a missing render.
+
+**Severity:** SUBSTANTIVE (launch UX -- the obvious search path fails for the site's core content). NOT a Phase-4 defect: search is a D9 / Phase-2a concern; Phase 4 shipped cross-links. Pre-existing since the scaffold; surfaced now because Phase 4 is the first time anyone searched for an entity.
+
+**Resolved by:** the F14 pre-deploy pass + a likely **D9 amendment**. The strategy is an operator decision; options span (a) give each entity page indexable content/headings so VitePress's own indexer picks them up; (b) a custom site-search component running MiniSearch over the docs JSON (the data already exists as D13 uniform records) -- richest, and decoupled per D15; (c) accept per-page-filter-only for v1, make the filter prominent, and record the limitation. Whatever is chosen lands as a dated **D9 amendment** so the "VitePress local search v1" decision text reflects reality. Routed to the operator during F14 scoping.
