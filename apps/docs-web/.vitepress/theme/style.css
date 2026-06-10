@@ -7,9 +7,12 @@
 
 @plugin "daisyui" {
   themes: quakeworld --default;
+  /* 'menu' intentionally excluded: daisyUI's .menu (flex-flow:column) collides
+     with VitePress's nav element (class="VPNavBarMenu menu") and stacks the
+     horizontal top-nav vertically. We use no daisyUI menus. */
   include:
     badge, breadcrumbs, button, card, collapse, divider, dropdown, indicator,
-    input, join, label, loading, list, menu, progress, range, rootcolor,
+    input, join, label, loading, list, progress, range, rootcolor,
     scrollbar, select, skeleton, swap, tab, toggle;
   logs: false;
 }
