@@ -81,6 +81,7 @@ Each finding: what it is, the evidence, severity, and which decision resolves it
 | F16 Check-9 grep over-broad -> use .html-scoped gate | ADVISORY (drained) | Phase 4 | D7, D21 |
 | F17 cvar-link click scrolls to target but doesn't auto-expand it | ADVISORY (enhancement) | F14 pre-deploy pass | D7, D22, D15 |
 | F18 VitePress search indexes only the home page (no entities) | SUBSTANTIVE (launch UX) | F14 pre-deploy pass + D9 amendment | D9, D3, D15 |
+| F19 daisyUI trim must KEEP rootcolor/scrollbar base families (grep-invisible) | SUBSTANTIVE (caught at draft) | F14 pre-deploy pass (Task 3) | D10, D11 |
 
 New findings append below with the next sequential F-number and a phase owner.
 
@@ -230,3 +231,13 @@ This ledger entry + the README Phase-index note are the don't-get-missed anchors
 **Severity:** SUBSTANTIVE (launch UX -- the obvious search path fails for the site's core content). NOT a Phase-4 defect: search is a D9 / Phase-2a concern; Phase 4 shipped cross-links. Pre-existing since the scaffold; surfaced now because Phase 4 is the first time anyone searched for an entity.
 
 **Resolved by:** the F14 pre-deploy pass + a likely **D9 amendment**. The strategy is an operator decision; options span (a) give each entity page indexable content/headings so VitePress's own indexer picks them up; (b) a custom site-search component running MiniSearch over the docs JSON (the data already exists as D13 uniform records) -- richest, and decoupled per D15; (c) accept per-page-filter-only for v1, make the filter prominent, and record the limitation. Whatever is chosen lands as a dated **D9 amendment** so the "VitePress local search v1" decision text reflects reality. Routed to the operator during F14 scoping.
+
+## F19. The daisyUI include trim must KEEP rootcolor + scrollbar -- they are BASE families a class-usage grep cannot see (surfaced in F14-pass drafting; orchestrator-confirmed)
+
+**What:** F14's floor-check note -- and the orchestrator's verified-context in the F14 drafter prompt -- recommended trimming the daisyUI `include:` to the six components used as classes (badge/card/divider/input/label/toggle). But the live include also carries `rootcolor` and `scrollbar`, which are daisyUI BASE-STYLE families, NOT component classes: `rootcolor` emits the theme color CSS variables at `:root` (the entire theme depends on it); `scrollbar` styles scrollbars. The F10/F11 include-vs-usage probe (a `class="..."` grep) CANNOT see them because they are never invoked as a class. Trimming to the bare six would have silently dropped both -> a base-look regression (theme colors + scrollbars), exactly the defect the F14 pass exists to prevent.
+
+**Evidence (orchestrator-confirmed 2026-06-10):** `apps/docs-web/node_modules/daisyui/base/` carries `rootcolor` + `rootcolor.css` and `scrollbar` + `scrollbar.css` as standalone base entries, distinct from the component classes. The F14-pass draft (`phase-f14-predeploy.md` Task 3) keeps both with a documenting comment; the locked trim is `{badge, card, divider, input, label, toggle, rootcolor, scrollbar}` (drops 14 unused component tokens). The drafter caught this independently; the orchestrator re-verified the base/ dir at the draft boundary.
+
+**Severity:** SUBSTANTIVE (a base-CSS regression had the bare-six list shipped). Caught at draft time -- the trim is corrected before execution.
+
+**Resolved by:** the F14 trim keeps the two base families, and boundary Check 5 ("Base-family retained: the compiled CSS still carries the theme `--color-*` `:root` declarations") gates a `rootcolor` drop at execution. **General rule for any future daisyUI include trim:** a class-usage grep gates COMPONENT tokens only; base families (rootcolor, scrollbar, and any other `node_modules/daisyui/base/*` entry present in the include) are KEPT unless separately proven unused -- they are invisible to the probe.
