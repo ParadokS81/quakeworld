@@ -11,6 +11,8 @@ import { entityAnchor } from './anchor'
 import { sourceUrl } from './source-link'
 import { codebaseLabel } from './codebase-label'
 import type { BrowseData, BrowseRow, CodebaseLandingData, ColumnKey } from './browse-types'
+import { buildCvarLinker } from './cvar-link'
+import { buildGuideIndex, getGuideRefs, GUIDES_PORTAL_LIVE } from './guide-index'
 
 // Returns s up to and including the first ". " (period + space) OR up to the
 // first newline, whichever comes first. Falls back to the full string when
@@ -33,6 +35,17 @@ function firstSentence(s: string): string {
 // anchor, description preview) is resolved here at build time (D15).
 export function shapeBrowse(codebase: string, type: string): BrowseData {
   const snap = loadSnapshot(codebase, type)
+
+  // Build the cvar-link resolver for this codebase's entity-name set (D19:
+  // within-codebase only). Entity names come from the snapshot entries.
+  const allNames = snap.entries.map((e) => e.name)
+  const linkDescription = buildCvarLinker(allNames)
+
+  // Build the guide reverse-index ONLY when the guides portal is live (D7/D21).
+  // In v1 GUIDES_PORTAL_LIVE is false, so we skip the per-page note reads
+  // entirely and attach [] below -- zero "Used in" links render by construction
+  // (the corpus is NON-EMPTY; rendering its refs would be 286 dead 404s).
+  const guideIdx = GUIDES_PORTAL_LIVE ? buildGuideIndex() : undefined
 
   const rows: BrowseRow[] = snap.entries.map((e) => {
     const c = resolveCategory(e, snap.groups)
@@ -59,6 +72,17 @@ export function shapeBrowse(codebase: string, type: string): BrowseData {
       macroType: e.macro_type,
       arguments: e.arguments,
       scope: e.scope,
+      // D7/D21: suppressed in v1. When the portal ships (flag true), guideIdx is
+      // built and this returns the entity's real guide refs.
+      usedInGuides: guideIdx ? getGuideRefs(guideIdx, codebase, type, e.name) : [],
+      descriptionSegments: (() => {
+        if (!e.description) return undefined
+        const segs = linkDescription(e.description)
+        // A single text-only segment means no links found; omit the field so
+        // EntityCard falls back to plain descriptionFull (no performance penalty).
+        if (segs.length === 1 && segs[0].kind === 'text') return undefined
+        return segs
+      })(),
     }
     return row
   })

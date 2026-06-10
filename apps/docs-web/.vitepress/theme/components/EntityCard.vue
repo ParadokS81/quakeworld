@@ -53,8 +53,26 @@ const expanded = ref(false)
       style="grid-column: 1 / -1; max-width: 90ch"
       @click.stop
     >
-      <!-- Full description: plain text in v1, line breaks preserved (no auto-linking) -->
-      <p v-if="row.descriptionFull !== undefined" style="white-space: pre-line">{{ row.descriptionFull }}</p>
+      <!-- Full description: segments rendered where cvar links were resolved at build
+           time (D7/D15/D19); falls back to plain text when no links exist (D11). -->
+      <template v-if="row.descriptionSegments !== undefined">
+        <p style="white-space: pre-line">
+          <!-- Index key (Q2 resolution): the segment array is built once at shape
+               time and never mutated client-side, so an index key is stable and
+               safe -- and it avoids duplicate keys when a description repeats a
+               cvar name (e.g. baseskin mentions 'skin' three times). -->
+          <template v-for="(seg, i) in row.descriptionSegments" :key="i">
+            <a
+              v-if="seg.kind === 'link'"
+              :href="'#' + seg.anchor"
+              class="text-primary underline decoration-dotted"
+              @click.stop
+            >{{ seg.name }}</a>
+            <template v-else>{{ seg.text }}</template>
+          </template>
+        </p>
+      </template>
+      <p v-else-if="row.descriptionFull !== undefined" style="white-space: pre-line">{{ row.descriptionFull }}</p>
 
       <!-- Remarks: caveats / status -->
       <div v-if="row.remarks !== undefined" class="mt-3">
@@ -113,7 +131,18 @@ const expanded = ref(false)
         </div>
       </div>
 
-      <!-- Phase 4 reverse-index slot: deliberately empty in v1 (no dead UI). -->
+      <!-- Entity->guide reverse-index (D7/D19/D21 amendment 2026-06-09). Renders only
+           when usedInGuides is non-empty. In v1 browse.ts always passes [] (render
+           suppressed via GUIDES_PORTAL_LIVE -- the guides portal does not exist yet,
+           so a /guides/<slug> link would be a dead 404), so this slot shows nothing.
+           The markup is ready for when the portal arc flips the flag. -->
+      <div v-if="row.usedInGuides !== undefined && row.usedInGuides.length > 0" class="mt-3">
+        <span class="font-semibold">Used in:</span>
+        <span v-for="(g, i) in row.usedInGuides" :key="g.slug">
+          <template v-if="i > 0">, </template>
+          <a :href="g.path" class="underline">{{ g.slug }}</a>
+        </span>
+      </div>
     </div>
   </div>
 </template>
