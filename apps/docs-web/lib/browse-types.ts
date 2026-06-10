@@ -17,6 +17,22 @@ export type FriendlyType = 'toggle' | 'choice' | 'number' | 'text'
 // Name | Type | Default | Description-preview (no zigzag).
 export type ColumnKey = 'type' | 'default'
 
+// One span in a pre-computed description segment array (D15, D19). Either plain
+// text or a resolved cvar link (within the same codebase). Built at shape time
+// by lib/cvar-link.ts; consumed by EntityCard's v-for segments loop.
+export type DescriptionSegment =
+  | { kind: 'text'; text: string }
+  | { kind: 'link'; name: string; anchor: string }
+
+// One entry in the entity->guide reverse-index (D7/D19 amendment 2026-06-09).
+// Carries the guide's slug (the concept note's front-matter slug field) and a
+// stable URL path on the docs guides portal (e.g., '/guides/<slug>'). In v1
+// this array is always empty (no guides-portal surface exists yet).
+export interface GuideRef {
+  slug: string
+  path: string
+}
+
 // One render-ready entity row. Every derivation is already done at build time
 // (D15): friendlyType (D18), categoryLabel/categoryMajor (D17), sourceUrl (D8),
 // anchor (D22), descriptionPreview (D4 first-sentence). Optional fields are
@@ -42,6 +58,10 @@ export interface BrowseRow {
   macroType?: string                  // expanded card (ezQuake macro: "expands to")
   arguments?: string                  // expanded card (ezQuake cmdline_param)
   scope?: string                      // expanded card (info_key)
+
+  // Phase 4 cross-links. Both optional; degrade gracefully (D11).
+  descriptionSegments?: DescriptionSegment[]  // pre-computed spans; absent when description has no cvar links
+  usedInGuides?: GuideRef[]                   // reverse-index entries; [] in v1 (render suppressed, GUIDES_PORTAL_LIVE=false)
 }
 
 // Everything one browse page needs, attached to that page's route params
