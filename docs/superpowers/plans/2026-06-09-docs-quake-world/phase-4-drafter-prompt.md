@@ -90,3 +90,94 @@ STEP-BY-STEP:
 6. Halt. Report MD path, finding counts, open questions, recommendation.
 
 Do NOT proceed to Phase 5. Do NOT execute anything.
+
+---
+
+## ORCHESTRATOR AUGMENTATIONS (2026-06-10, post-Phase-3 ship)
+
+The arc-planner wrote the prompt above PRE-SHIP. Phase 3 has now shipped + been
+boundary-verified (commits `2b4c76a6`..`6dffd58c`); these augmentations carry
+forward what 2b/3 built and FILL A GAP the pre-ship prompt has.
+
+### AUG-1 (GAP -- you MUST add this task): source links for the 5 non-ezQuake codebases
+
+The README assigns "source links wired everywhere" to Phase 4 and F6 is Phase-4-owned,
+but the body above only covers cvar->cvar + the reverse-index. The source-link work is
+MISSING. Add a source-link-completion task:
+
+- **The seam exists + is verified for ezQuake:** read `apps/docs-web/lib/source-link.ts`
+  cold -- a `REPOS: Record<string,{repo,prefix}>` map (ezQuake = `QW-Group/ezquake-source`
+  + `src/` prefix) and `sourceUrl(codebase, meta, ref)` returning
+  `https://github.com/{repo}/blob/{meta.upstream_commit}/{prefix}{file}#L{line}` or
+  `undefined` (-> the card shows plain `file:line`, D11). It is the per-codebase config
+  seam Phase 4 fills.
+- **Populate REPOS for ktx/mvdsv/qtv/qwfwd/qwcl. Do NOT guess slugs/prefixes** -- RECON
+  them from the authoritative source: `apps/qw-oracle/scripts/extractors/extractor_lib/clang_config.py`
+  (+ each `scripts/extractors/<codebase>/` config) carry the clone URL and the source-path
+  layout that determines the URL prefix (ezQuake's is `src/`; others may differ or be
+  flat-root). Verified hints: ktx = `QW-Group/ktx`, mvdsv = `QW-Group/mvdsv`, ezQuake =
+  `QW-Group/ezquake-source`. qtv / qwfwd / qwcl repos are RECON items (SCHEMA: qwcl is a
+  single-commit repo, label `2.33` aliased to commit `bf4ac42` -- handle with care).
+- **F6 is the load-bearing constraint:** `meta.upstream_commit` is a real git SHA for
+  ezquake/ktx/mvdsv/qwcl (`e4a2c20a`/`67253dc9`/`18d03621`/`bf4ac424`) but a VERSION
+  STRING for qtv (`1.16-dev`) and qwfwd (`1.40-dev`). The current `/blob/{commit}/`
+  template yields a BROKEN link for qtv/qwfwd (a version string is not a git ref unless
+  it is also a tag). The module must branch: SHA -> `/blob/{sha}/`; version-tag -> a
+  tag-based ref IFF that tag exists in the repo, else omit (plain text, D11). **Verify
+  each of the 5 by spot-checking a sample file resolves HTTP 200; any 404 degrades to
+  plain text -- NEVER ship a broken link.**
+- Execution mode for this task: `subagent (Sonnet medium)` -- config population + a
+  URL-shape branch + per-codebase HTTP verification; bounded, below the cvar-link-resolver
+  tier.
+
+### AUG-2 (carry-forward): what Phase 2b/3 built that Phase 4 extends
+
+- **Anchor scheme (D22 -- the cvar->cvar link TARGET):** `lib/anchor.ts` ->
+  `entityAnchor(name) = name.toLowerCase()`; the deep link is
+  `/<codebase>/<type>#<entityAnchor(name)>`. The resolver wraps a matched cvar name in a
+  link to that anchor WITHIN the same codebase. Orchestrator verified the fold is
+  collision-free across all 20 files.
+- **Descriptions render PLAIN TEXT today** (`EntityCard.vue`:
+  `<p style="white-space: pre-line">{{ row.descriptionFull }}</p>`). Phase 4 makes cvar
+  names in that text clickable. **D15-clean approach (recommended; you design it):** the
+  build-time resolver pre-computes the linked description as SEGMENTS (an array of
+  `{text}` | `{name, anchor}` spans) carried on the render contract (`browse-types.ts`
+  `BrowseRow`), and `EntityCard` `v-for`s over segments rendering text or `<a>`. AVOID
+  `v-html` (escaping/XSS + it hides logic in the template). Everything else in this
+  renderer is already pre-shaped at build time -- match that pattern.
+- **The "Used in" slot already exists** in `EntityCard.vue` (the
+  `<!-- Phase 4 reverse-index slot ... -->` comment). Phase 4 populates it; it renders
+  nothing in v1.
+- **Per-codebase config precedent (Phase 3):** `lib/codebase-label.ts` is a
+  `Record<slug,label>` lookup with a `?? slug` fallback -- the SAME shape the source-link
+  REPOS map uses; a 7th codebase degrades gracefully. Follow this pattern (no per-codebase
+  branch -- D14).
+- **The D14/D15 grep gates stay green:** the cvar-link resolver + reverse-index are `lib/`
+  modules; the card gains NO codebase/type literal. Phase-boundary checks MUST include #5
+  (`grep -nE "ezquake|'cvar'|'command'|'macro'" .../components/Entity*.vue` empty) and #6
+  (the D15 `fetch|readFileSync|.filter(|.map(|.reduce(` grep empty) over every
+  newly-touched component.
+
+### AUG-3 (environment): a concurrent session is writing the concept-note corpus
+
+A SECOND Claude session is actively authoring L3 concept notes in
+`apps/qw-oracle/curated/` (the `demand-driven-l3-concept-authoring` arc). So: (a) the
+corpus the reverse-index reads is LIVE + SPARSE and may change during the phase -- design
+empty-OR-sparse as the DEFAULT path; (b) this arc only READS `curated/` front-matter, it
+must NOT write there (no write collision -- Phase 4 writes only `apps/docs-web/`); (c) when
+committing, `git add` explicit `apps/docs-web/` + plan-dir paths ONLY and run
+`git diff --cached --stat` before every commit (shared tree).
+
+### AUG-4 (scope boundary): NO visual polish in Phase 4
+
+F14 logged an OPEN pre-deploy visual-polish pass (trim the daisyUI include, resolve D10
+"adopt vikpe's theme", density/spacing) that the orchestrator slots BEFORE Phase 5. That
+is NOT Phase 4. Phase 4 = cross-links + source links only; do not drift into theme work.
+
+### Drafting note
+
+The ORCHESTRATOR runs the Explore verification pass on your draft at the boundary (so you
+need not nest one). Still self-check before halting: D19 (within-codebase scope; no
+cross-fork), D15 (logic in modules, not the card), and the AUG-1 source-link F6 branch.
+WRITE `docs/superpowers/plans/2026-06-09-docs-quake-world/phase-4-crosslinks.md`; halt
+with the MD path + finding counts + open questions + recommendation.
