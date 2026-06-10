@@ -69,6 +69,11 @@ Each finding: what it is, the evidence, severity, and which decision resolves it
 | F5 category only on cvar+command | ADVISORY | Phase 2 (renderer) / Phase 3 (fan-out) | D17, D11 |
 | F6 qtv/qwfwd upstream_commit is a version-string, not a SHA | ADVISORY | Phase 4 (source links) | D8, D11 |
 | F7 ezQuake's 129 uncategorized commands are ~all HUD (L1 categorization gap) | ADVISORY | qw-oracle L1 enrichment (pre-launch); renders fine in docs v1 | D17, D11 |
+| F8 docs-web npm/pnpm workspace isolation | ADVISORY | Phase 2a (own pnpm-workspace.yaml) | D20 |
+| F9 missing typescript/@types/node devDeps | ADVISORY | Phase 2a (drained) | augmentation #1 |
+| F10 daisyUI include omitted `card` | SUBSTANTIVE | Phase 2a (drained) + Phase 2b (include-vs-usage) | D10, D11 |
+| F11 D15 grep false-positives on comments | ADVISORY | Phase 2a (drained) + Phase 2b (gate hardening) | D15 |
+| F12 execution-mode annotations should be content-conditional | ADVISORY (process) | Phase 2a (ratified) + Phase 2b (annotate) | feedback_no_subagents_for_mechanical_edits |
 | F8 root npm `workspaces` glob includes docs-web (pnpm-subtree isolation) | ADVISORY | Phase 2a (own `pnpm-workspace.yaml`) | D20 |
 
 New findings append below with the next sequential F-number and a phase owner.
@@ -106,3 +111,45 @@ New findings append below with the next sequential F-number and a phase owner.
 **Severity:** ADVISORY. Isolation holds as long as (a) docs-web has its own `pnpm-workspace.yaml` and is pnpm-managed (`pnpm --dir apps/docs-web ...`), and (b) nobody runs a bare root `npm install` expecting it to manage docs-web (the standing `npm --no-workspaces` convention covers this).
 
 **Resolved by:** D20 + Phase 2a Task 1 (create `apps/docs-web/pnpm-workspace.yaml`). Phase 2a deliberately does NOT modify the root `package.json` (Chesterton's fence -- the existing apps rely on the current glob; the convention already handles it). Belt-and-suspenders option, operator's call: add `"!apps/docs-web"` to the root `workspaces` array to exclude it from npm entirely. Phase 2a boundary verification asserts the install creates `apps/docs-web/node_modules` and touches no file outside the subtree.
+
+**Operator decision 2026-06-10:** belt-and-suspenders REJECTED. Root `package.json` stays byte-unchanged; isolation rests on docs-web's own `pnpm-workspace.yaml` + the `npm --no-workspaces` convention. Orchestrator re-verified at the Phase 2a boundary: commit `945a3292` touches root `package.json` zero times; all 17 files in-subtree.
+
+## F9. Phase-2a package.json omitted typescript + @types/node -- Task 3's tsc verification was unrunnable (surfaced + drained in Phase 2a execution)
+
+**What:** The Phase-2a MD locked a `package.json` devDependencies block (vitepress / vue / tailwindcss / @tailwindcss/vite / daisyui) but omitted `typescript` and `@types/node`. Task 3's own verification command (`tsc --noEmit` on `lib/`) therefore could not run as written. (Orchestrator augmentation #1 had specified a `tsconfig.json` but not the missing devDeps -- the executor caught the gap the augmentation left.)
+
+**Evidence (Phase 2a execution, 2026-06-10):** the locked devDeps list; `tsc` absent from node_modules until added.
+
+**Severity:** ADVISORY. Self-contained, in-subtree, drained at execution time.
+
+**Resolved by:** executor added `typescript ^5.7.0` + `@types/node ^20.0.0` to devDependencies and a scoped `apps/docs-web/tsconfig.json`. Independently re-verified by the orchestrator: `pnpm --dir apps/docs-web exec tsc --noEmit` exits 0. No carry-forward.
+
+## F10. daisyUI `include:` list omitted `card` while CodebaseGrid.vue used `.card` (locked-content coordination gap; surfaced + drained in Phase 2a)
+
+**What:** The locked `style.css` daisyUI `include:` list (the curated component subset) omitted `card`, but the locked `CodebaseGrid.vue` landing component uses `.card` / `.card-body` / `.card-title`. daisyUI v5 emits CSS only for INCLUDED components, so the landing cards rendered without the daisyUI card component (no card-body padding/border).
+
+**Evidence (Phase 2a execution, 2026-06-10):** the two locked files disagreed. The orchestrator's 2a paper review verified the data contract rigorously but did NOT cross-check the include list against the component's class usage -- that is the gap that let it reach execution.
+
+**Severity:** SUBSTANTIVE. Visible render defect (un-styled cards), non-breaking.
+
+**Resolved by:** executor added `card` to the include list; `.card`/`.card-body` now compile. Orchestrator re-verified (`grep card style.css` -> present; build exits 0). **Carry-forward (Phase 2b):** the 2b browse/card components introduce more daisyUI classes (collapse for inline-expand, input for filter, toggle for Flat/Grouped, tab); the 2b drafter MUST keep every component class it uses in the `include:` list, and 2b verification should grep component class usage against the include list (an include-vs-usage probe catches this mechanically).
+
+## F11. D15 decoupling grep false-positives on descriptive comments (surfaced + drained in Phase 2a)
+
+**What:** Boundary check #5 (the D15 decoupling gate) greps components for `fetch(|readFileSync|readdirSync|.filter(|.map(|.reduce(`. The locked `CodebaseGrid.vue` carried a comment literally stating "no fetch ... no .filter()/.map() derivation here" -- the verbatim grep matched the COMMENT and reported a false-positive FAIL, though the component logic is clean.
+
+**Evidence (Phase 2a execution, 2026-06-10):** mirrors the repo's matchAll-vs-RegExp scanner lesson (CLAUDE.md misc conventions) -- literal-substring verification greps trip on descriptive text.
+
+**Severity:** ADVISORY. A verification-gate artifact, not a code defect.
+
+**Resolved by:** executor reworded the comment to convey the same intent without the trigger tokens; logic unchanged. Orchestrator re-verified (grep empty). **Carry-forward (Phase 2b + future render phases):** either (a) keep component comments free of the trigger tokens, or (b) harden the gate to ignore comment lines (strip `//` and `/* */` before grepping). The reword is the cheap fix shipped; gate-hardening is the durable one.
+
+## F12. Execution-mode annotations should be content-conditional, not tier-by-task-shape (Phase 2a execution-mode deviation, ratified)
+
+**What:** The Phase-2a MD annotated Task 2 = `subagent (Sonnet MAX)` and Tasks 3/4/5 = `subagent (Sonnet medium)`. The executor ran ALL tasks inline and surfaced the deviation with rationale: every file's content was fully locked/verified in the MD, so dispatching subagents to transcribe locked content is ceremony not value (operator memory `feedback_no_subagents_for_mechanical_edits` + momentum-over-ceremony); the one genuine MAX-tier judgment (the Tailwind-v4 preflight gotcha) was met inline with a correct evidence-based CSS-cascade analysis.
+
+**Evidence (orchestrator boundary verification, 2026-06-10):** all six boundary checks independently re-verified GREEN (tsc exit 0; build exit 0 + 28 routes; D15 grep empty; isolation clean -- 17 in-subtree files, root untouched). Output quality is verified-good -- this is NOT the qw-oracle Arc 1 inline-crowding defect (which degraded quality silently); it is a reasoned, surfaced, correct call.
+
+**Severity:** ADVISORY (process).
+
+**Ratified ruling (orchestrator 2026-06-10):** ACCEPTED for Phase 2a. The annotation was over-cautious -- a task that ships FULL locked file content in the MD should be annotated `inline` regardless of nominal complexity tier; subagent dispatch is for genuine code SYNTHESIS (from-scratch, multi-file judgment), not transcribing locked content. **Carry-forward (Phase 2b):** 2b is DIFFERENT -- the type-generic browse/card renderer, the friendly-type derivation, the category resolver, and the filter module are genuine synthesis (the D14/D15 win-or-lose work, NOT locked content). Those SHOULD be `subagent (Sonnet medium; the generic renderer possibly Sonnet MAX)`. The 2b drafter annotates execution mode content-conditionally: `inline` only for truly-locked stubs/config; `subagent` for the synthesis modules. The 2b executor honors the annotations (no blanket inline -- the synthesis benefits from isolated context).
