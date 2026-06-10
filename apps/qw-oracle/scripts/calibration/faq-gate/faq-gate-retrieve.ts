@@ -24,6 +24,7 @@ import { searchConcepts } from '/home/paradoks/projects/quakeworld/apps/qw-oracl
 import { searchSolvedIssues } from '/home/paradoks/projects/quakeworld/apps/qw-oracle/serve/mcp/src/tools/search-solved-issues.ts';
 import { searchEntities } from '/home/paradoks/projects/quakeworld/apps/qw-oracle/serve/mcp/src/tools/search-entities.ts';
 import { lookupEntity } from '/home/paradoks/projects/quakeworld/apps/qw-oracle/serve/mcp/src/tools/lookup-entity.ts';
+import { getConceptNote } from '/home/paradoks/projects/quakeworld/apps/qw-oracle/serve/mcp/src/tools/get-concept-note.ts';
 import { resolveDomainThreads } from './faq-domains-resolve.ts';
 
 const sql = postgres(process.env.DATABASE_URL!, { onnotice: () => {} });
@@ -139,10 +140,21 @@ try {
     // --- build grounding bundle (exact section order + formatting from POC) ---
     let b = `# Oracle grounding for thread #${id} [${domainKey}]\n\n## USER QUESTION\n${q}\n\n`;
     b += `## search_concepts (L3) [match=${concepts.match_quality}]\n`;
-    for (const c of concepts.results) {
+    for (const [i, c] of concepts.results.entries()) {
       b += `- **${c.title}** (concept:${c.slug}, ${c.match_quality})\n`;
       b += `  summary: ${c.summary}\n`;
-      b += `  snippet: ${c.snippet}\n`;
+      if (i === 0) {
+        // Top-ranked hit gets the FULL note body, not the 600-char snippet. This
+        // mirrors the real Oracle serving path: search_concepts returns a thin
+        // snippet, and a consumer that needs more calls get_concept_note for the
+        // whole note. The snippet's truncation window dropped grounded entities
+        // (e.g. hud_tracking_show) and forced false PARTIALs -- the F11 fix.
+        const note = await getConceptNote({ id: c.slug });
+        const fullBody = note.results[0]?.body ?? c.snippet;
+        b += `  full_note_body (top hit):\n${fullBody}\n`;
+      } else {
+        b += `  snippet: ${c.snippet}\n`;
+      }
       b += `  related_entities: ${(c.related_entities || []).slice(0, 12).join(', ')}\n`;
     }
     b += `\n## search_entities (L1) [match=${entities.match_quality}]\n`;
