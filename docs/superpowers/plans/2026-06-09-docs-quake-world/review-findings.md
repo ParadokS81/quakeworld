@@ -82,6 +82,8 @@ Each finding: what it is, the evidence, severity, and which decision resolves it
 | F17 cvar-link click scrolls to target but doesn't auto-expand it | ADVISORY (enhancement) | F14 pre-deploy pass | D7, D22, D15 |
 | F18 VitePress search indexes only the home page (no entities) | SUBSTANTIVE (launch UX) | F14 pre-deploy pass + D9 amendment | D9, D3, D15 |
 | F19 daisyUI trim must KEEP rootcolor/scrollbar base families (grep-invisible) | SUBSTANTIVE (caught at draft) | F14 pre-deploy pass (Task 3) | D10, D11 |
+| F20 docs-web build script is `docs:build` not `build` (probe wording) | ADVISORY (drained) | F14 pre-deploy pass | -- |
+| F21 F18 search module split (client-safe vs build-time fs) -- single-file shape broke the client build | SUBSTANTIVE (drained) | F14 pre-deploy pass (Task 2) | D15 |
 
 New findings append below with the next sequential F-number and a phase owner.
 
@@ -241,3 +243,23 @@ This ledger entry + the README Phase-index note are the don't-get-missed anchors
 **Severity:** SUBSTANTIVE (a base-CSS regression had the bare-six list shipped). Caught at draft time -- the trim is corrected before execution.
 
 **Resolved by:** the F14 trim keeps the two base families, and boundary Check 5 ("Base-family retained: the compiled CSS still carries the theme `--color-*` `:root` declarations") gates a `rootcolor` drop at execution. **General rule for any future daisyUI include trim:** a class-usage grep gates COMPONENT tokens only; base families (rootcolor, scrollbar, and any other `node_modules/daisyui/base/*` entry present in the include) are KEPT unless separately proven unused -- they are invisible to the probe.
+
+## F20. The docs-web build script is `docs:build`, not `build` -- F14 boundary-check + executor-prompt wording over-specifies a non-existent script (surfaced + drained in F14-pass execution)
+
+**What:** The F14 phase MD's boundary Checks 1-3 and the F14 executor prompt both write `pnpm --dir apps/docs-web build`. There is NO `build` script in `apps/docs-web/package.json` -- the scripts are `docs:dev` / `docs:build` / `docs:preview` / `test`. `pnpm --dir apps/docs-web build` errors ("No script named build"). The correct command is `pnpm --dir apps/docs-web docs:build` (`vitepress build`).
+
+**Evidence (F14 execution, 2026-06-10):** `apps/docs-web/package.json` scripts = `{ docs:dev, docs:build, docs:preview, test }`. The Task-1 subagent caught it and used `docs:build`; every F14 boundary build ran green under `docs:build` (final boundary: exit 0, 29 routes).
+
+**Severity:** ADVISORY (probe wording; same class as F16/F11 -- the gate is right, the literal string is wrong). The phase shipped correctly.
+
+**Resolved by:** use `docs:build` everywhere the F14 docs say `build`. Phase 5 (deploy) and any re-run MUST use `docs:build`. No code change.
+
+## F21. F18's search module had to split into client-safe + build-time files -- the MD's single-file shape pulled `node:fs` into the client bundle (surfaced + drained in F14 Task 2)
+
+**What:** The F14 phase MD's Task-2 shape reference put BOTH `buildSearchRecords` (fs-dependent -- imports `lib/snapshot.ts` -> `node:fs`/`url`/`path`) AND `createSearcher` (client-safe) in ONE file, `lib/search-index.ts`, which `GlobalSearch.vue` imports for `createSearcher`. Bundling the component therefore dragged the Node builtins into the CLIENT bundle, and the Rollup client build FAILED: `"join" is not exported by "__vite-browser-external"`. The MD's single-file shape does not build.
+
+**Evidence (F14 execution, 2026-06-10):** the single-file shape failed the Rollup client build with the `__vite-browser-external` error; the split fixed it (final boundary `docs:build` exit 0, 29 routes, 46 tests green).
+
+**Severity:** SUBSTANTIVE (would not build) -- caught + corrected at execution, before any commit.
+
+**Resolved by:** the executor split into two `lib/` modules -- `search-index.ts` (CLIENT-safe: `SearchRecord`/`SearchResult` interfaces + `createSearcher`, imports only `minisearch`, no fs) and `search-builder.ts` (BUILD-time: `buildSearchRecords`, imports snapshot/derive/anchor/codebase-label + `import type { SearchRecord }` from search-index, type-only so erased at compile -- no runtime circular). `GlobalSearch.vue` imports search-index.ts (client); `search-records.data.ts` imports search-builder.ts (build). This mirrors the existing pattern (`codebases.data.ts` imports `snapshot.ts` only inside the build-time loader, never in a component) and is MORE D15-aligned (the build-time fs concern is separated from the client searcher). The phase MD's "Created" list (which names only `search-index.ts`) should read `search-index.ts` + `search-builder.ts` (2 files). Verified at the boundary: `search-builder.ts` is imported by no `.vue` (grep empty); the D15 Check-6 grep list ({EntityBrowse,EntityCard,GlobalSearch}.vue) is unaffected. **General rule:** any `lib/` module a Vue component imports must be free of `node:*` builtins; build-time fs code lives in a separate module imported ONLY by a `*.data.ts` loader.
