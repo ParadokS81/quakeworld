@@ -174,6 +174,6 @@ It does NOT cycle: `fire_lg` rebinds `space` DIRECTLY to `+fire_ar 8 5 3 2`, so 
 | F8 confab self-report false-confab | medium | inline fix (faq-gate-confab.ts) | Phase 0 (drained) |
 | F9 anti-confab gate vs POC NAILED baseline (12393 PARTIAL) | high | **OPERATOR disposition pending** (reframed by F10) | Phase 0 -> 1-3 |
 | F10 judge over-anchors on community truth (0/3 NAILED on correct answers) | high | **RESOLVED** -- judge recalibrated (user-question rubric); re-run 3/3 NAILED + 12393 control PARTIAL | Phase 0 |
-| F11 gate grounds on summary + truncated snippet (deep note content can PARTIAL) | medium | note-authoring mitigation (own answer-first section); optional gate full-body / get_concept_note | Phase 1 (drained) |
+| F11 gate grounds on summary + truncated snippet (deep note content can PARTIAL) | medium | **SHIPPED** -- full-body top-hit grounding (0ba3c840) + note-authoring mitigation (own answer-first section) | Phase 1 (drained) |
 | F12 judge NAILs functionally-broken configs (no state-machine trace) | high (construction-heavy) | **TRACK** -- judge-hardening pass (trace-the-config, likely Opus) before construction-heavy Phases 1-3; operator review = near-term backstop | Phase 0 -> 1-3 |
 | F13 confab self-report bypasses alias-def-name filter (spurious hard-confab) | medium | inline fix (faq-gate-confab.ts), sibling to F8 | Phase 0 (drained) |
