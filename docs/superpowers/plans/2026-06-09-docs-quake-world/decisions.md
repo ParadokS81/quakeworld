@@ -69,11 +69,15 @@ in a phase MD.
 
 **Implication:** Use VitePress built-in local search. Do not build faceted or cross-engine search. The interactive list filter/search (D3) is separate from VitePress's site-wide search and is the view-level concern.
 
+**Amendment 2026-06-10 (F18 -- VitePress search does not index the entity pages):** The Phase-4 floor-check found VitePress local search indexes only prose pages -- the data-driven browse pages (the ~5000 L1 entities, rendered by a Vue component with no markdown text) are invisible to it, so the built index carries `documentCount:1` (home page only). v1 search is therefore RESHAPED: VitePress local search stays for prose/nav, PLUS the F14 pre-deploy pass BUILDS a custom global entity-search -- MiniSearch over the docs JSON (D13 uniform records), a build-time index module (D15: index in a pure module, dumb search component), results linking to the D22 per-entity anchors. Operator chose this (option b) over per-page-filter-only (option c), 2026-06-10. The D9 "do not build faceted/cross-engine search" line still holds for FACETED / cross-fork search; a flat global name+description entity search is NOT that -- it is the minimum a reference site needs to be usable. Owned by the F14 pre-deploy pass (F18).
+
 ## D10. Stack
 
 **Decision:** Stack = VitePress + Tailwind/daisyUI tokens in `apps/docs-web` (pnpm); presentation decoupled from logic for later infiniti port; CF Pages; manual deploy v1; vikpe DNS.
 
 **Implication:** VitePress (Vite + Vue) + Tailwind v4 + daisyUI tokens (adopt vikpe's theme). New `apps/docs-web` subtree. Presentation/logic decoupling is a build constraint, not a nicety (D15). Cloudflare Pages, manual deploy for v1, vikpe points the subdomain.
+
+**Amendment 2026-06-10 (D10 "adopt vikpe's theme" -- verified ALREADY SATISFIED, no swap):** Diffed the live docs theme against vikpe's vendored source (`research/repos/slipgate/web/apps/website/src/styles/main.css`). The docs `quakeworld` daisyUI theme is a byte-identical port of vikpe's `quakeworldz`: same palette (slate-950 base, blue-600 / purple-600 / pink-600 primary/secondary/accent, sky/green/yellow/red status), same radii (0.5rem), border (1.5px), depth/noise 0. vikpe's only extra (`_quake.css`) is QW-CONTENT helpers -- player-name color codes + conchar charset sprites -- irrelevant to an L1 reference site; no custom fonts. His daisyUI `include:` carries `menu` (the exact class behind the F14 nav bug) and LACKS `card` (which docs use), so the docs include list is the correctly-adapted version -- do NOT adopt vikpe's include wholesale (it would reintroduce the nav bug). Net: the F14 pre-deploy pass contains NO theme swap; D10 is CLOSED. Any look-and-feel change is the F14 density/spacing polish item (presentation tuning on the existing theme), not a theme adoption.
 
 ## D11. Graceful degradation is the universal pattern
 

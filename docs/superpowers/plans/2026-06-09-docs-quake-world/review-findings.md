@@ -184,9 +184,9 @@ New findings append below with the next sequential F-number and a phase owner.
 
 **Scope update 2026-06-10 (Phase-4 operator floor-check).** The same live floor-check that CONFIRMED the Phase-4 cross-links also surfaced two more pre-deploy items, now folded into this same pass (operator: "we can fold it into next ... as long as it doesn't get missed", 2026-06-10). The F14 pre-deploy pass is therefore NO LONGER thin. Its punch-list is FIVE items:
 1. **F17** -- auto-expand + highlight the card a cvar-link points to (the link currently scrolls to the target's *collapsed* row).
-2. **F18** -- entity site-search strategy (the top search box indexes only the home page; ~5000 entities are unreachable from it) + a likely **D9 amendment** recording whatever is chosen.
+2. **F18** -- BUILD a global entity-search component (operator chose option b, 2026-06-10): MiniSearch over the docs JSON (D13 records), build-time index module per D15, results linking to D22 anchors. The **D9 amendment** is recorded (decisions.md).
 3. Trim the daisyUI `include:` to the components actually used (badge/card/divider/input/label/toggle).
-4. Resolve **D10** "adopt vikpe's theme" -- import vikpe's daisyUI theme (vendored at `research/repos/slipgate/`) vs keep the custom `quakeworld` theme.
+4. **D10** -- RESOLVED 2026-06-10: NO theme swap. The docs `quakeworld` theme is already a byte-identical port of vikpe's `quakeworldz` (verified against his vendored source). D10 closed; see decisions.md. (Was framed as vikpe-vs-custom; on inspection they are the same theme.)
 5. Density/spacing polish on browse tables + landing cards.
 
 This ledger entry + the README Phase-index note are the don't-get-missed anchors. The F14 phase MD (drafted after the D10 decision) turns all five into tasks with boundary checks.
