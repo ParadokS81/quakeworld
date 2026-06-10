@@ -2,22 +2,42 @@
 // Dumb row renderer (D15): receives one already-shaped row plus the view's
 // active column set, and toggles a local expand panel. It loads nothing and
 // derives nothing -- every field below is read straight off the row prop.
-// `expanded` is pure UI state (allowed; not data-fetch/derivation).
-import { ref } from 'vue'
+// `expanded` and `flash` are pure UI state (allowed; not data-fetch/derivation).
+// `isTarget` is a boolean signal from the parent that triggers auto-expand +
+// scroll when this card's anchor is the current hash target (F17).
+import { ref, watch, onMounted, nextTick, useTemplateRef } from 'vue'
 import type { BrowseRow, ColumnKey } from '../../../lib/browse-types'
 
-defineProps<{ row: BrowseRow; columns: ColumnKey[] }>()
+const props = defineProps<{ row: BrowseRow; columns: ColumnKey[]; isTarget?: boolean }>()
 
 const expanded = ref(false)
+const flash = ref(false)
+const rootEl = useTemplateRef<HTMLElement>('rootEl')
+
+function activate() {
+  expanded.value = true
+  flash.value = true
+  // scroll after the panel renders; idempotent on repeat calls
+  nextTick(() => rootEl.value?.scrollIntoView({ block: 'start', behavior: 'smooth' }))
+}
+// Parent sets the target signal in ITS onMounted (fires AFTER this child's
+// onMounted, since Vue mounts children first), so the watch -- not this
+// onMounted -- catches the first true on a fresh deep-link load. Both kept;
+// activate() is idempotent.
+onMounted(() => { if (props.isTarget) activate() })
+watch(() => props.isTarget, (v) => { if (v) activate() })
 </script>
 
 <template>
   <!-- D22: :id is the case-folded anchor so /<codebase>/<type>#<name> scrolls here -->
   <div
+    ref="rootEl"
     :id="row.anchor"
     class="grid items-start gap-3 px-3 py-1.5 border-b border-base-300 cursor-pointer hover:bg-base-200"
+    :class="{ 'entity-flash': flash }"
     style="grid-template-columns: var(--cols)"
     @click="expanded = !expanded"
+    @animationend="flash = false"
   >
     <!-- Name cell (always) -->
     <div class="flex items-center gap-2 min-w-0">

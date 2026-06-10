@@ -51,3 +51,16 @@
   --depth: 0;
   --noise: 0;
 }
+
+/* F17: brief tint when an entity card is targeted by a deep-link or an in-page
+   cvar-link click. Pure presentation; the expand/scroll glue is view-state in
+   the component (D15-clean, same category as the filter/Flat-Grouped toggle).
+   color-mix keeps the tint subtle (text stays readable through it) and it fades
+   to transparent so the row settles to its normal background. */
+@keyframes docs-entity-flash {
+  from { background-color: color-mix(in oklch, var(--color-primary) 28%, transparent); }
+  to   { background-color: transparent; }
+}
+.entity-flash {
+  animation: docs-entity-flash 1.2s ease-out;
+}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { useData } from 'vitepress'
 import { filterEntries } from '../../../lib/filter'
 import { groupByCategory } from '../../../lib/category'
@@ -21,6 +21,43 @@ const sections = computed(() =>
     ? groupByCategory(visible.value)
     : [{ category: null as string | null, rows: visible.value }]
 )
+
+// F17: parent-owned hash signal. One ref here; one boolean per card below.
+// location/window are browser-only -- referenced only inside onMounted and the
+// event handlers below, never at setup-body top level (SSR-safety).
+const currentAnchor = ref('')
+const listEl = useTemplateRef<HTMLElement>('listEl')
+
+function readHash() {
+  // decodeURIComponent (not URLSearchParams) so a '+'-prefixed command anchor
+  // like +attack survives: decodeURIComponent leaves '+' untouched, decoding
+  // only %xx escapes.
+  currentAnchor.value = decodeURIComponent(location.hash.slice(1))
+}
+
+// Capture-phase click handler for in-page anchor clicks. Capture (3rd arg true)
+// runs top-down BEFORE the cvar-link's own bubble-phase @click.stop, so this
+// fires even though that .stop blocks ordinary bubble delegation. Router-
+// independent: works whether or not VitePress emits a hashchange for a same-
+// page hash navigation. We read the clicked anchor's target id and set the
+// signal directly; we do NOT preventDefault, so the browser still updates the
+// URL hash and scrolls.
+function onInPageClick(e: MouseEvent) {
+  const a = (e.target as HTMLElement | null)?.closest('a[href^="#"]')
+  if (!a) return
+  const href = a.getAttribute('href') || ''
+  currentAnchor.value = decodeURIComponent(href.slice(1))
+}
+
+onMounted(() => {
+  readHash()
+  window.addEventListener('hashchange', readHash)
+  listEl.value?.addEventListener('click', onInPageClick, true)
+})
+onUnmounted(() => {
+  window.removeEventListener('hashchange', readHash)
+  listEl.value?.removeEventListener('click', onInPageClick, true)
+})
 
 // Shared grid track set, derived ONCE from activeColumns and inherited (via the
 // --cols custom property) by the header and every row so columns never zigzag.
@@ -61,7 +98,7 @@ const cols = computed(() => {
     </div>
 
     <!-- One list container owning the shared track set via --cols -->
-    <div :style="{ '--cols': cols }">
+    <div ref="listEl" :style="{ '--cols': cols }">
       <!-- Sticky column header on the SAME grid template -->
       <div
         class="grid gap-3 px-3 py-1.5 sticky top-0 z-10 bg-base-100 border-b-2 border-base-300 font-semibold text-base-content/70"
@@ -83,6 +120,7 @@ const cols = computed(() => {
           :key="row.anchor"
           :row="row"
           :columns="browse.activeColumns"
+          :is-target="row.anchor === currentAnchor"
         />
       </template>
 
