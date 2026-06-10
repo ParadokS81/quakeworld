@@ -9,13 +9,16 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "vitest": "^3.0.0",
-    "vitepress": "^1.6.0",
-    "vue": "^3.5.13",
-    "tailwindcss": "^4.2.2",
     "@tailwindcss/vite": "^4.2.2",
+    "@types/node": "^20.0.0",
     "daisyui": "^5.5.19",
+    "tailwindcss": "^4.2.2",
     "typescript": "^5.7.0",
-    "@types/node": "^20.0.0"
+    "vitepress": "^1.6.0",
+    "vitest": "^3.0.0",
+    "vue": "^3.5.13"
+  },
+  "dependencies": {
+    "minisearch": "^7.2.0"
   }
 }

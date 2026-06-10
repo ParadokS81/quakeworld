@@ -2,6 +2,7 @@ import DefaultTheme from 'vitepress/theme'
 import CodebaseGrid from './components/CodebaseGrid.vue'
 import EntityBrowse from './components/EntityBrowse.vue'
 import CodebaseLanding from './components/CodebaseLanding.vue'
+import GlobalSearch from './components/GlobalSearch.vue'
 import './style.css'
 
 // Extend the default theme (keeps VitePress nav / sidebar / local-search
@@ -15,5 +16,6 @@ export default {
     app.component('CodebaseGrid', CodebaseGrid)
     app.component('EntityBrowse', EntityBrowse)
     app.component('CodebaseLanding', CodebaseLanding)
+    app.component('GlobalSearch', GlobalSearch)
   }
 }

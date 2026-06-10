@@ -16,7 +16,8 @@ export default defineConfig({
       { text: 'MVDSV', link: '/mvdsv' },
       { text: 'QTV', link: '/qtv' },
       { text: 'QWCL', link: '/qwcl' },
-      { text: 'QWFWD', link: '/qwfwd' }
+      { text: 'QWFWD', link: '/qwfwd' },
+      { text: 'Search', link: '/search' }
     ],
     search: { provider: 'local' }
   },
