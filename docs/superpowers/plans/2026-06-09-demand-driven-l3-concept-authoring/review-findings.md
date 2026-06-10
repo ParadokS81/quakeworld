@@ -105,7 +105,9 @@ The Task-A anti-confab guardrail -- **working exactly as designed** -- suppresse
 
 **Proposed disposition (OPERATOR DECISION):** recalibrate the judge prompt to score "did the Oracle correctly and completely resolve the **user's question**, using the community resolution as ONE reference (not the literal gold standard); an answer may be more complete or use equivalent commands and still NAIL." Optionally give the judge the user QUESTION explicitly (currently it sees only truth + answer) and allow a "better-than-community" path. Re-run the demo after recalibration to confirm the pass-path. Until then, the gate's SCORING half under-scores; the CONFAB half is sound (zero hard confab across all 4 threads tested).
 
-**Phase:** Phase 0 (surfaced) -> blocks Phase 1-3 gate scoring until resolved.
+**RESOLVED 2026-06-10:** operator-approved judge recalibration applied to `buildJudgePrompt` in `faq-answer-workflow.js`. The judge now receives the USER'S QUESTION (from the `## USER QUESTION` section of the grounding file) and scores *"did the Oracle correctly + completely resolve the user's question? community resolution = ONE reference, not gold; equivalent-or-more-complete using grounded commands still NAILs."* The Stage-3 confab floor (`faq-gate-confab.ts`) was left **unchanged** -- it remains the hard anti-fabrication guard balancing the judge's form-leniency. Validation re-run on 9096/9244/16591 + 12393 (control): **9096/9244/16591 -> NAILED (coveredPass: true), 12393 -> PARTIAL (control held)**, zero hard confab across all 4. The split is *discrimination, not blanket leniency*: 12393's answer again correctly declined the absent press-to-cycle method and the judge scored it "grounded but less-fitting." This confirms F9 -- 12393 is a genuine note coverage gap (distinguishable from the judge artifact), and its disposition stays a Phase-1 authoring call.
+
+**Phase:** Phase 0 (surfaced + RESOLVED).
 
 ---
 
@@ -122,4 +124,4 @@ The Task-A anti-confab guardrail -- **working exactly as designed** -- suppresse
 | F7 fork vs guide-rewrite | low | D9 | Phase 0 |
 | F8 confab self-report false-confab | medium | inline fix (faq-gate-confab.ts) | Phase 0 (drained) |
 | F9 anti-confab gate vs POC NAILED baseline (12393 PARTIAL) | high | **OPERATOR disposition pending** (reframed by F10) | Phase 0 -> 1-3 |
-| F10 judge over-anchors on community truth (0/3 NAILED on correct answers) | high | **OPERATOR disposition pending** -- recalibrate judge prompt | Phase 0 -> blocks 1-3 scoring |
+| F10 judge over-anchors on community truth (0/3 NAILED on correct answers) | high | **RESOLVED** -- judge recalibrated (user-question rubric); re-run 3/3 NAILED + 12393 control PARTIAL | Phase 0 |

@@ -120,16 +120,33 @@ function buildAnswerPrompt(item) {
 }
 
 function buildJudgePrompt(item) {
-  const tail =
-    '\n\nOracle answer:\n' + item.answer + '\n\n' +
-    'Did the Oracle answer resolve the question to the same substance as the community ' +
-    'resolution, with no further digging required? Verdict one of NAILED / PARTIAL / WRONG, ' +
-    'plus a one-line justification.'
+  // F10 fix: the judge scores against the USER'S QUESTION, with the community
+  // resolution as ONE reference (NOT the literal gold standard). Community threads
+  // are often diffuse / thin / link-deflections / use equivalent-but-different
+  // commands; anchoring on them penalised correct answers. The Stage-3 confab check
+  // (unchanged) remains the hard anti-fabrication floor balancing this leniency.
+  const rubric =
+    "Did the Oracle answer correctly and completely resolve the USER'S QUESTION? " +
+    'Use the community resolution as ONE reference, NOT the literal gold standard -- community ' +
+    'threads are often diffuse, thin, link-deflections, or use equivalent-but-different commands. ' +
+    'An answer that is correct and equivalent-or-more-complete than the community resolution, ' +
+    'using grounded commands, still NAILs.\n' +
+    'NAILED = correctly + completely resolves the question; ' +
+    'PARTIAL = partially resolves / misses something the user needs; ' +
+    'WRONG = incorrect or fails to resolve.\n' +
+    'Give the verdict plus a one-line justification.'
 
-  if (item.truthPath) {
-    return 'Read the community resolution file at this absolute path:\n' + item.truthPath + tail
-  }
-  return 'Community resolution:\n' + (item.truth ?? '') + tail
+  const qBlock = item.groundingPath
+    ? ("Read the grounding file at this absolute path; take the USER'S QUESTION from its " +
+       '"## USER QUESTION" section (the rest of the file is the retrieved grounding -- consult it ' +
+       'only to confirm the answer used grounded commands):\n' + item.groundingPath)
+    : ("USER'S QUESTION:\n" + (item.question ?? ''))
+
+  const truthBlock = item.truthPath
+    ? ('Community resolution -- read the file at this absolute path; treat it as ONE reference, NOT gold:\n' + item.truthPath)
+    : ('Community resolution (ONE reference, NOT gold):\n' + (item.truth ?? ''))
+
+  return qBlock + '\n\n' + 'Oracle answer:\n' + item.answer + '\n\n' + truthBlock + '\n\n' + rubric
 }
 
 // ---------------------------------------------------------------------------
