@@ -111,6 +111,18 @@ The Task-A anti-confab guardrail -- **working exactly as designed** -- suppresse
 
 ---
 
+## F11. Gate grounds the answer-agent on summary + a TRUNCATED snippet, not the full note (note-authoring mitigation applied)
+
+**Severity:** medium (affects every Phase 1-3 note; a correct, complete note can score PARTIAL when its answer sits in a chunk whose snippet truncates before it).
+
+**Evidence:** hud-configuration / thread 6898 (2026-06-10, Phase 1). First gate run scored 6898 **PARTIAL + zero confab**: the answer-agent derived the correct `hide tracking` from the note's show/hide model but hedged "the corpus does not surface a direct disable toggle," missing `hud_tracking_show` (the community's exact answer). Root cause (verified, not assumed): `faq-gate-retrieve.ts` (~L141-145) embeds each concept hit as `summary` + `snippet`, where `snippet` is a truncated prefix of the matched chunk -- NOT the full note body. The matched chunk (the note's "On-screen messages" section) ranked #1 for the query, but its snippet truncated right before the `hud_tracking_show` line, so the entity never reached the answer-agent. Embeddings were current (`stale=0`); the limiter is snippet truncation, not retrieval ranking. Confab floor stayed clean throughout (the agent named only grounded entities).
+
+**Resolved by:** note-authoring mitigation -- promote a high-demand micro-topic into its OWN answer-first `##` section so it chunks separately and its snippet leads with the answer. Applied to hud-configuration (a dedicated "Hiding the spectator tracking overlay" section, answer in sentence 1); re-embed + re-gate -> **6898 NAILED**, gate 3/3 + zero confab. **Lesson for Phases 1-3:** decision-first / progressive-disclosure authoring should treat each demand-cluster's headline answer as snippet-reachable (own section or leading sentences), and the `domain-concept-curate` skill now carries the decision-first-when-preferential refinement that pairs with this. **Optional arc-infra fix (orchestrator call):** make the gate embed the full body for the top concept, or let the answer step call `get_concept_note(slug)`, removing the dependency on chunk/snippet placement.
+
+**Phase:** Phase 1 (surfaced during hud-configuration authoring) -> affects Phases 1-3 + an optional gate-infra change.
+
+---
+
 ## Findings -> resolution map
 
 | Finding | Severity | Resolved by | Phase |
@@ -125,3 +137,4 @@ The Task-A anti-confab guardrail -- **working exactly as designed** -- suppresse
 | F8 confab self-report false-confab | medium | inline fix (faq-gate-confab.ts) | Phase 0 (drained) |
 | F9 anti-confab gate vs POC NAILED baseline (12393 PARTIAL) | high | **OPERATOR disposition pending** (reframed by F10) | Phase 0 -> 1-3 |
 | F10 judge over-anchors on community truth (0/3 NAILED on correct answers) | high | **RESOLVED** -- judge recalibrated (user-question rubric); re-run 3/3 NAILED + 12393 control PARTIAL | Phase 0 |
+| F11 gate grounds on summary + truncated snippet (deep note content can PARTIAL) | medium | note-authoring mitigation (own answer-first section); optional gate full-body / get_concept_note | Phase 1 (drained) |
