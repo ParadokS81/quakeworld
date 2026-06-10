@@ -160,6 +160,22 @@ It does NOT cycle: `fire_lg` rebinds `space` DIRECTLY to `+fire_ar 8 5 3 2`, so 
 
 ---
 
+## F14. k-means can seat an off-domain thread in a domain's representative sample -- sibling-owned PARTIAL is not a note defect (TRACK + surfaced coverage gap)
+
+**Severity:** medium (a correct, in-scope note scores below full-NAILED on a thread it does not own; unflagged it reads as a note gap).
+
+**Evidence:** network-connection gate (note #2, 2026-06-11). The runner samples representative threads per cluster (ranks 19 + 28). Thread 6989 ("settings to improve interpolation / smooth enemy movement") was swept by k-means into the packet-loss cluster (id 39: packet/ping/loss/antilag/cl_c2sdupe/lag), but its top concept hit is `lightning-gun-customization`, not network-connection -- it is an interpolation/feel question. The answer-agent led with `r_lerpframes` (from the LG grounding); the judge wanted `cl_nolerp 0`; verdict PARTIAL (NAILED on the first run -- judge/answer variance, F10/F12 territory). The two threads network owns (6965 cl_delay_packet/sounds, 7077 rate-max) both NAILED; confab clean (0 hard / 0 soft on all 3, independently re-run by the orchestrator); all 31 related_entities resolve in L1 AND as concept_entities edges; spot-checked source file:line claims exact.
+
+**Disposition (operator, 2026-06-11): ACCEPT.** network-connection ships gate-passed on the threads it owns. Absorbing a "smooth enemy movement" subsection to force 6989 -> NAILED was rejected: it violates own-your-layer (D6) and optimizes the proxy (a mis-sampled thread) over the goal. `cl_nolerp` already appears in the note (ruleset-free list) -- the gap is a *lead*, owned by another note, not a missing fact.
+
+**Surfaced coverage gap -> tracked, not homeless:** the interpolation/smooth-movement demand has no owner in the corpus (LG, network, skins only mention the cvars in passing). A future **movement & physics** note (operator brainstorm, 2026-06-11) owns it, absorbing the independent-physics forward-ref + the `pm_` movement family + the physics constants. Seed: `docs/superpowers/parking/2026-06-11-movement-physics-note-seed.md`.
+
+**Gate-criteria implication (TRACK -- do NOT inline-fix):** "every representative thread NAILED" is too strict when k-means mis-samples. Later gate-pass options: a per-thread "is this thread actually this domain?" pre-filter (compare the thread's top concept hit to the domain under test; drop / down-weight off-domain samples), or accept sibling-owned PARTIALs explicitly in the pass criteria. Until then, the orchestrator reads a PARTIAL on a thread whose top concept != the note under test as sibling-owned, not a defect. Sibling to F10/F12 (judge variance is the proximate cause of the NAILED -> PARTIAL flip).
+
+**Phase:** Phase 1 (surfaced during note #2 network) -> gate-criteria refinement for Phases 1-3.
+
+---
+
 ## Findings -> resolution map
 
 | Finding | Severity | Resolved by | Phase |
@@ -177,3 +193,4 @@ It does NOT cycle: `fire_lg` rebinds `space` DIRECTLY to `+fire_ar 8 5 3 2`, so 
 | F11 gate grounds on summary + truncated snippet (deep note content can PARTIAL) | medium | **SHIPPED** -- full-body top-hit grounding (0ba3c840) + note-authoring mitigation (own answer-first section) | Phase 1 (drained) |
 | F12 judge NAILs functionally-broken configs (no state-machine trace) | high (construction-heavy) | **TRACK** -- judge-hardening pass (trace-the-config, likely Opus) before construction-heavy Phases 1-3; operator review = near-term backstop | Phase 0 -> 1-3 |
 | F13 confab self-report bypasses alias-def-name filter (spurious hard-confab) | medium | inline fix (faq-gate-confab.ts), sibling to F8 | Phase 0 (drained) |
+| F14 k-means seats off-domain thread in sample (sibling-owned PARTIAL) | medium | **ACCEPT** (operator) -- note owns its threads; coverage gap -> movement-physics seed; gate-criteria TRACK | Phase 1 |
