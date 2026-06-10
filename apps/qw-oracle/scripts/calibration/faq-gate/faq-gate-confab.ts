@@ -227,6 +227,16 @@ try {
     const extractedTokens = extractClaimedTokens(answerText);
     const wfResult = wfResultsMap.get(threadId);
     if (wfResult) {
+      // F13 (sibling to F8): the prose path strips user-defined alias NAMES via
+      // collectAliasDefNames, but the self-report union historically bypassed that
+      // filter -- so an over-reported alias name (e.g. `cycle_space`) re-entered as
+      // a spurious hard confab and failed the gate. Run the self-report tokens
+      // through the SAME alias-def-name exclusion + prefix normalization, computed
+      // from the same stripped body the prose extractor uses.
+      const body = stripAnswerHeader(stripSelfReport(answerText));
+      const aliasDefBareNames = new Set(
+        [...collectAliasDefNames(body)].map((n) => n.replace(/^[+\-]/, '')),
+      );
       for (const e of wfResult.claimedEntities) {
         // Preserve the agent's +/- prefix: '+fire_ar' IS the L1 entity, while the
         // bare 'fire_ar' is not -- stripping the prefix here manufactured a false
@@ -234,6 +244,7 @@ try {
         // agent actually named (mirrors the prose extractor's appearsOnlyPrefixed).
         const t = e.toLowerCase().trim();
         const bare = t.replace(/^[+\-]/, '');
+        if (aliasDefBareNames.has(bare)) continue; // user-defined alias name, not an entity
         if (bare.includes('_') || KNOWN_COMMANDS.has(bare)) extractedTokens.add(t);
       }
     }

@@ -123,6 +123,43 @@ The Task-A anti-confab guardrail -- **working exactly as designed** -- suppresse
 
 ---
 
+## F12. The judge NAILs functionally-broken configs -- pattern-match without tracing the state machine (TRACK -- needs design)
+
+**Severity:** high for construction-heavy domains (scripts/aliases); low for lookup/config domains (a single-cvar answer has no "execution" for the judge to mis-trace). The judge's correctness ceiling is what it can verify by READING, not by running.
+
+**Evidence:** the F11 full-body re-gate (2026-06-10, commit `0ba3c840`) on weapon-scripts/12393 flipped the control PARTIAL -> NAILED. The answer constructed a self-rewriting alias "toggle":
+```
+alias fire_lg "bind space \"+fire_ar 8 5 3 2\"; alias cycle_space fire_rl"
+alias fire_rl "bind space \"+fire_ar 7 5 3 2\"; alias cycle_space fire_lg"
+alias cycle_space fire_lg
+bind space cycle_space
+```
+It does NOT cycle: `fire_lg` rebinds `space` DIRECTLY to `+fire_ar 8 5 3 2`, so after press 1 `space` no longer routes through `cycle_space`; presses 2..N all fire LG and `alias cycle_space fire_rl` is dead code. RL is unreachable (also off-intent: the user wanted `space` to toggle MOUSE1's weapon). The judge scored NAILED on "self-rewriting alias pattern + grounded `+fire_ar`" without tracing the state machine.
+
+**Relationship to F9/F10 (important):** same fixture as F9 (the note's genuine press-to-cycle coverage gap), DIFFERENT failure surface. F10's recalibrated judge held 12393 at PARTIAL *because that run's agent DECLINED to construct the toggle*; when the agent ATTEMPTS a broken construction, the same judge NAILs it. So F10's "control held" was contingent on the agent's decline, not on judge rigor. **Independent of F11:** the self-rewriting-alias idiom is NOT in `weapon-scripts.md` -- the agent built it from training knowledge using grounded primitives (`alias`/`bind`/`+fire_ar`), so the anti-confab floor correctly did not block it, and the gap fires with snippet or full-body grounding alike.
+
+**Impact:** scales with construction-heaviness. Low for lookup/config domains (hud-configuration's 3/3 NAILED are single-fact answers the judge CAN verify by reading). High for script/alias domains where a plausible-but-broken config reads as correct -- Phases 1-3 authoring construction-heavy notes will see the gate over-pass.
+
+**Proposed disposition (TRACK -- do NOT inline-fix; needs design):**
+- Near-term backstop: operator prose review (D4, the second gate) is the correctness check the judge cannot give for construction-heavy answers; do not treat a NAILED on a script domain as ship-ready without it.
+- A judge-hardening pass is needed BEFORE construction-heavy domains: add a "trace the config -- does it do what the answer claims?" check, likely at Opus (Sonnet pattern-matches the idiom); possibly a verify-the-construction agent distinct from the substance judge.
+
+**Phase:** Phase 0 (surfaced during the F11 re-gate) -> gates honest scoring of construction-heavy Phases 1-3 until the judge-hardening pass lands.
+
+---
+
+## F13. Confab self-report union bypasses the alias-def-name filter -- spurious hard-confab (FIXED, sibling to F8)
+
+**Severity:** medium (a false hard-confab fails the gate on a confab-free answer -- same class as F8, different missed normalization).
+
+**Evidence:** the F11 re-gate of weapon-scripts/12393 (2026-06-10) flagged `cycle_space` as hard confab. `cycle_space` is a user-DEFINED alias name from the answer's config, not a QW engine entity. The prose extractor strips such names via `collectAliasDefNames` (`faq-gate-confab.ts` ~L185-190), but the Stage-2 self-report union (~L229-238) re-added `cycle_space` (underscore shape) AFTER that filter ran, so it reached the L1 check, missed, and landed as `hardConfab` -> spurious gate FAIL. Exactly F8's shape -- the two token sources (prose vs self-report) must apply identical normalization -- via a different missed step (alias-def-name exclusion here vs the +/- prefix F8 fixed).
+
+**Resolved by:** inline fix -- compute `collectAliasDefNames` on the same stripped body the prose path uses, prefix-normalize, and skip any self-report token whose bare form is a user-alias name before the shape gate. Re-verify (deterministic, no Workflow) on the `regate-weapon-scripts-12393` dir: `hardConfab: []`, `claimedCount 4 -> 3`, confab gate PASS (exit 0). The NAILED verdict is untouched (that is F12, not a confab problem). **Lesson (reinforces F8):** every token source feeding the L1 confab check must run the FULL prose-path normalization chain (prefix + alias-def-name exclusion); a source added later inherits none of it by default.
+
+**Phase:** Phase 0 (surfaced during the F11 re-gate, FIXED same round).
+
+---
+
 ## Findings -> resolution map
 
 | Finding | Severity | Resolved by | Phase |
@@ -138,3 +175,5 @@ The Task-A anti-confab guardrail -- **working exactly as designed** -- suppresse
 | F9 anti-confab gate vs POC NAILED baseline (12393 PARTIAL) | high | **OPERATOR disposition pending** (reframed by F10) | Phase 0 -> 1-3 |
 | F10 judge over-anchors on community truth (0/3 NAILED on correct answers) | high | **RESOLVED** -- judge recalibrated (user-question rubric); re-run 3/3 NAILED + 12393 control PARTIAL | Phase 0 |
 | F11 gate grounds on summary + truncated snippet (deep note content can PARTIAL) | medium | note-authoring mitigation (own answer-first section); optional gate full-body / get_concept_note | Phase 1 (drained) |
+| F12 judge NAILs functionally-broken configs (no state-machine trace) | high (construction-heavy) | **TRACK** -- judge-hardening pass (trace-the-config, likely Opus) before construction-heavy Phases 1-3; operator review = near-term backstop | Phase 0 -> 1-3 |
+| F13 confab self-report bypasses alias-def-name filter (spurious hard-confab) | medium | inline fix (faq-gate-confab.ts), sibling to F8 | Phase 0 (drained) |
