@@ -1,3 +1,14 @@
+/* Canonical Tailwind v4 layer order, declared for defense-in-depth. NOTE: this is NOT
+   the F22 fix and on its own changes nothing -- Tailwind already emits this exact order
+   (the compiled CSS resolves properties < theme < base < components < utilities), so the
+   minifier dedupes this line away (output byte-identical with/without it). The real F22
+   fix is the UNLAYERED `.input`/`.toggle` re-assertion at the BOTTOM of this file: the
+   search box renders unstyled because VitePress ships an UNLAYERED `input{border:0;
+   padding:0}` reset, and unlayered rules beat EVERY cascade layer -- so no layer reorder
+   can rescue daisyUI's layered components; only an unlayered higher-specificity rule can.
+   This line stays as a harmless guard against a future host/minifier change. */
+@layer theme, base, components, utilities;
+
 /* import strategy: full "@import tailwindcss". Verified in the compiled CSS that
    Tailwind v4 places preflight in @layer base, which loses the cascade to
    VitePress's unlayered chrome CSS -- so preflight does NOT clobber the chrome
@@ -67,4 +78,22 @@
 }
 .entity-flash {
   animation: docs-entity-flash 1.2s ease-out;
+}
+
+/* F22 fix (operative -- see the layer-order note at the top). VitePress ships an
+   UNLAYERED `input{border:0;padding:0}` reset which, being unlayered, beats daisyUI's
+   layered `.input`/`.toggle` and strips their border + padding -> the search box renders
+   invisible. Re-assert the box UNLAYERED here: the `.input`/`.toggle` class selector
+   (specificity 0,1,0) outranks the `input` element reset (0,0,1) at the same unlayered
+   level, so border/height/padding win. Values mirror daisyUI's own; --border / --size /
+   --input-color / --toggle-p resolve from the quakeworld theme. */
+.input {
+  border: var(--border) solid var(--input-color);
+  height: var(--size);
+  padding-inline: 0.75rem;
+}
+.toggle {
+  color: var(--input-color);
+  border: var(--border) solid currentColor;
+  padding: var(--toggle-p);
 }
