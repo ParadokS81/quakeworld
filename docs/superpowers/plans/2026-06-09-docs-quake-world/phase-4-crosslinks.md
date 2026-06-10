@@ -237,8 +237,8 @@ import type { SnapshotMeta, SourceRef } from './types'
 // (no tag resolution possible). Per F6/D11 they degrade to plain file:line text.
 const REPOS: Record<string, { repo: string; prefix: string }> = {
   ezquake: { repo: 'QW-Group/ezquake-source', prefix: 'src/' },
-  ktx:     { repo: 'QW-Group/ktx',            prefix: 'src/' },
-  mvdsv:   { repo: 'QW-Group/mvdsv',          prefix: 'src/' },
+  ktx:     { repo: 'QW-Group/ktx',            prefix: '' },     // F15 (execution correction): ktx source_ref.file already includes src/ -> empty prefix. 'src/' here double-prefixes to a 404. Shipped value is '' (HTTP 200 verified).
+  mvdsv:   { repo: 'QW-Group/mvdsv',          prefix: '' },     // F15: same -- mvdsv source_ref.file is already repo-relative (src/...). Shipped '' (HTTP 200 verified).
   qwcl:    { repo: 'id-Software/Quake',       prefix: 'QW/client/' },
   // qtv:  omitted -- upstream_commit '1.16-dev' is not a SHA (F6)
   // qwfwd: omitted -- upstream_commit '1.40-dev' is not a SHA (F6)
