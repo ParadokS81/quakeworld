@@ -8,12 +8,16 @@
 @plugin "daisyui" {
   themes: quakeworld --default;
   /* 'menu' intentionally excluded: daisyUI's .menu (flex-flow:column) collides
-     with VitePress's nav element (class="VPNavBarMenu menu") and stacks the
-     horizontal top-nav vertically. We use no daisyUI menus. */
+     with VitePress's nav (class="VPNavBarMenu menu") and stacks the horizontal
+     top-nav vertically (F14 bug A). We use no daisyUI menus.
+     Trimmed (F14 pre-deploy) to the components actually used as classes
+     (badge/card/divider/input/label/toggle -- verified by an include-vs-usage
+     grep) plus the two base-style families (rootcolor applies the theme color
+     CSS; scrollbar styles scrollbars) -- base families are not class-gated, so a
+     class-usage probe cannot see them; dropping them would regress the base look. */
   include:
-    badge, breadcrumbs, button, card, collapse, divider, dropdown, indicator,
-    input, join, label, loading, list, progress, range, rootcolor,
-    scrollbar, select, skeleton, swap, tab, toggle;
+    badge, card, divider, input, label, toggle,
+    rootcolor, scrollbar;
   logs: false;
 }
 
