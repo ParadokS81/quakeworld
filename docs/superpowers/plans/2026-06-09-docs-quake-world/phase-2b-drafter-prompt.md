@@ -17,11 +17,32 @@ Output file: docs/superpowers/plans/2026-06-09-docs-quake-world/phase-2b-ezquake
 REQUIRED READING:
 1. docs/superpowers/plans/2026-06-09-docs-quake-world/README.md
 2. docs/superpowers/plans/2026-06-09-docs-quake-world/decisions.md   (full; D3, D4, D5, D8, D11, D14, D15, D17, D18 are central)
-3. docs/superpowers/plans/2026-06-09-docs-quake-world/review-findings.md   (F2, F5)
+3. docs/superpowers/plans/2026-06-09-docs-quake-world/review-findings.md   (F2, F5, and the new F8-F12 -- the Phase 2a carry-forwards; see the ORCHESTRATOR AUGMENTATIONS block below)
 4. docs/superpowers/plans/2026-06-09-docs-quake-world/phase-template.md
 5. docs/superpowers/specs/2026-06-09-docs-quake-world-design.md   (sections 5, 6, 7 -- IA, the card, enhancements -- are the render spec)
 6. apps/docs-web/   (the scaffold Phase 2a produced -- the module structure you build into; read it cold, it exists now)
 7. apps/docs-web/data/ezquake-*.json (or the docs ezQuake file from Phase 1 -- the exact record shape you render)
+
+ORCHESTRATOR AUGMENTATIONS (post-2a-ship, 2026-06-10 -- these reflect what ACTUALLY shipped in Phase 2a, commit 945a3292, boundary-verified):
+
+A. Build on the REAL scaffold, not the plan. Read these exact files cold and EXTEND them; do NOT re-derive their shapes:
+   - apps/docs-web/lib/types.ts -- the VERIFIED docs-snapshot contract. The D18-amended shape: `values?` = ezQuake cvar ONLY; `raw_type?` = ezQuake + QWCL ONLY; `scope?` = info_key only; `default_history?` = ezQuake cvar only, shape {version, value}; `macro_type?`/`arguments?` are real; `source_ref` is on every record. `Snapshot.groups?` carries the ezQuake category taxonomy (see C).
+   - apps/docs-web/lib/snapshot.ts -- listSnapshots() + loadSnapshot(codebase, type). Your data modules IMPORT from here; do NOT re-implement file reading.
+   - apps/docs-web/.vitepress/theme/codebases.data.ts -- the ONLY VitePress-coupled glue pattern (defineLoader). Your per-type browse data follows this SAME pattern: a *.data.ts loader does the shaping (calls lib/ modules), the .vue component renders the shaped result with ZERO derivation.
+   - apps/docs-web/[codebase]/[type].md + its .paths.ts -- the stub route you REPLACE with the real browse view; keep the data-driven .paths.ts.
+   - apps/docs-web/.vitepress/theme/style.css -- the daisyUI `include:` list (see B).
+
+B. F10 carry-forward (daisyUI include-vs-usage). daisyUI v5 emits CSS ONLY for components in the `include:` list. Your browse/card components will use MORE daisyUI classes than the scaffold -- collapse (inline-expand card), input (filter box), toggle (Flat/Grouped), likely tab/menu/join. EVERY daisyUI component class you use MUST be added to the `include:` list in style.css. Add a verification step to your phase MD: grep the new components' daisyUI class usage against the include list (an include-vs-usage probe) so an omission FAILS the boundary, not the eye.
+
+C. Category resolution mechanics (D17, 2a-verified). ezQuake category is an UNRESOLVED id in the data: cvar `category` = numeric-string id (e.g. "10") resolved against `Snapshot.groups` (54 entries, shape {id, "major-group", name}); command `category` = slug (e.g. "hud") resolved against the FLAT command groups (14 entries, shape {id, name}, NO major-group). The other 5 codebases' `category` is ALREADY a human-label string -- no resolution. Your category grouper (the D17 module) does ezQuake id->label resolution against `Snapshot.groups` and passes the other codebases' labels through (`Snapshot.groups` is omitted for non-ezQuake files; degrade gracefully).
+
+D. D18 friendly-type derivation -- reachable outcomes per codebase (2a-verified). ezQuake cvar: boolean->toggle, enum OR value-list->choice, integer/float->number, string->text (all four reachable). QWCL cvar: NO enum, NO value-list -> toggle/number/text ONLY; `choice` is UNREACHABLE for QWCL in v1. Codebases with no raw_type (ktx/mvdsv/qtv/qwfwd) -> no friendly word (blank Type column). Your derive module's unit tests should cover these per-codebase outcomes.
+
+E. D22 is OWNED BY THIS PHASE (it is missing from the central-decisions list above -- ADD it to your MD). Every entity gets a STABLE, deep-linkable anchor deterministic from identity (codebase + type + case-folded `lower(name)`), stable across rebuilds, hung off the clean /<codebase>/<type> route as `#<case-folded-name>`. The guide->entity links that target these anchors are a later surface (not v1), but the anchor SCHEME is a v1 design constraint -- design it in now; Phase 3 inherits it codebase-generically.
+
+F. F11 carry-forward (D15 grep gate). Boundary check #5 greps components for fetch( / .filter( / .map( / .reduce( / readFileSync as literal substrings -- it false-positives on those tokens in COMMENTS. Keep component comments free of those literal tokens (describe the decoupling without writing the call syntax). Component LOGIC must of course be clean regardless.
+
+G. F12 execution-mode (content-conditional). The EXECUTION-MODE GUIDANCE below is correct as written: the generic renderer + each pure data module are genuine SYNTHESIS -> subagent (renderer Opus medium / modules Sonnet medium), NOT inline. Inline is ONLY for truly-locked stub/config content. The 2b executor HONORS these annotations -- it does NOT blanket-inline the synthesis (the isolated context is the point for the D14/D15 architectural heart). [Phase 2a legitimately ran inline because every file's content was fully locked in the MD; 2b's synthesis is not.]
 
 DECISIONS THIS PHASE MUST HONOR -- this phase is where D14/D15 are won or lost:
 - D14: the browse + card components are TYPE-GENERIC and CODEBASE-GENERIC. They
