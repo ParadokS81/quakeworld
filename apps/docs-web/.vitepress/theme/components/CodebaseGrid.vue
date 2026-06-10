@@ -11,7 +11,7 @@ import { data as codebases } from '../codebases.data'
     <div v-for="cb in codebases" :key="cb.codebase" class="card bg-base-200 border border-base-300">
       <div class="card-body">
         <h2 class="card-title text-base-content">
-          <a :href="`/${cb.codebase}`">{{ cb.codebase }}</a>
+          <a :href="`/${cb.codebase}`">{{ cb.displayName }}</a>
         </h2>
         <div class="flex flex-wrap gap-2">
           <a

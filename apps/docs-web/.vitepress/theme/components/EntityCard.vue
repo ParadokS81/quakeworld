@@ -71,7 +71,7 @@ const expanded = ref(false)
             v-if="v.description !== undefined"
             class="text-base-content/70"
             style="white-space: pre-line"
-          > &mdash; {{ v.description }}</span>
+          > - {{ v.description }}</span>
         </div>
       </div>
 

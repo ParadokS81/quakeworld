@@ -1,5 +1,6 @@
 import { defineLoader } from 'vitepress'
 import { listSnapshots, loadSnapshot } from '../../lib/snapshot'
+import { codebaseLabel } from '../../lib/codebase-label'
 
 // VitePress build-time data loader: the ONLY VitePress-coupled data glue
 // (D15). It does ALL the shaping (group by codebase, count entries, capture
@@ -13,6 +14,7 @@ export interface CodebaseTypeSummary {
 }
 export interface CodebaseSummary {
   codebase: string
+  displayName: string
   types: CodebaseTypeSummary[]
 }
 
@@ -36,6 +38,7 @@ export default defineLoader({
     return [...byCodebase.entries()]
       .map(([codebase, types]) => ({
         codebase,
+        displayName: codebaseLabel(codebase),
         types: types.sort((a, b) => a.type.localeCompare(b.type))
       }))
       .sort((a, b) => a.codebase.localeCompare(b.codebase))

@@ -13,7 +13,7 @@ const landing = computed(() => params.value.landing as CodebaseLandingData)
 <template>
   <div>
     <!-- Heading driven by data (D14: no hardcoded codebase name) -->
-    <h1 class="text-2xl font-semibold mb-4">{{ landing.codebase }}</h1>
+    <h1 class="text-2xl font-semibold mb-4">{{ landing.displayName }}</h1>
 
     <div class="grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
       <a

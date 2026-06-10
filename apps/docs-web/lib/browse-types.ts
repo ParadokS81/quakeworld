@@ -48,6 +48,7 @@ export interface BrowseRow {
 // (Task 3). The component reads it via useData().params; it never loads data.
 export interface BrowseData {
   codebase: string
+  displayName: string
   type: string
   version: string                     // snapshot_version (e.g. "head", "1.16-dev")
   rows: BrowseRow[]
@@ -58,5 +59,6 @@ export interface BrowseData {
 // Per-codebase landing payload (Task 5), attached to /<codebase> route params.
 export interface CodebaseLandingData {
   codebase: string
+  displayName: string
   types: { type: string; count: number; version: string }[]
 }

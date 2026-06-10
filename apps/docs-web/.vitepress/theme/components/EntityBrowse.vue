@@ -38,9 +38,9 @@ const cols = computed(() => {
 
 <template>
   <div>
-    <!-- Heading + count + snapshot. Labels come from the data (browse.codebase /
+    <!-- Heading + count + snapshot. Labels come from the data (browse.displayName /
          browse.type), never from a hardcoded name -- D14. -->
-    <h1 class="text-2xl font-semibold">{{ browse.codebase }} / {{ browse.type }}</h1>
+    <h1 class="text-2xl font-semibold">{{ browse.displayName }} / {{ browse.type }}</h1>
     <p class="text-base-content/60 mt-1">
       {{ visible.length }} of {{ browse.rows.length }} &middot; snapshot {{ browse.version }}
     </p>

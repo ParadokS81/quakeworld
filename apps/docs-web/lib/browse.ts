@@ -9,6 +9,7 @@ import { resolveCategory } from './category'
 import { versionWalk } from './version-walk'
 import { entityAnchor } from './anchor'
 import { sourceUrl } from './source-link'
+import { codebaseLabel } from './codebase-label'
 import type { BrowseData, BrowseRow, CodebaseLandingData, ColumnKey } from './browse-types'
 
 // Returns s up to and including the first ". " (period + space) OR up to the
@@ -71,6 +72,7 @@ export function shapeBrowse(codebase: string, type: string): BrowseData {
 
   return {
     codebase,
+    displayName: codebaseLabel(codebase),
     type,
     version: snap._meta.snapshot_version,
     rows,
@@ -90,5 +92,5 @@ export function shapeCodebaseLanding(codebase: string): CodebaseLandingData {
     })
     .sort((a, b) => a.type.localeCompare(b.type))
 
-  return { codebase, types }
+  return { codebase, displayName: codebaseLabel(codebase), types }
 }
