@@ -88,6 +88,18 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 
 **Lesson (reinforces F7):** verifying a gated value means reading the ENCLOSING branch structure, not just the cited line. Phase 3's Task 1 Stage-2 verify prompt already asks for the gating condition explicitly -- execution-time extraction is protected; this instance was in drafting-time locked content, which only planner/verifier cold-reads protect.
 
+### F11 -- ktx death_rule + election_type rows cite header files not under source_root (execution finding, Phase 0)
+
+**Resolved by:** UNRESOLVED -- flagged for Phase 3 (owns ktx data; operator decides whether to update source_root or re-cite with leading-slash form).
+
+**Evidence:** Phase 0 citation-gate execution (2026-06-12): `scanned=823, unresolved=32`. All 32 are `reason='missing'`:
+- 26 `ktx/death_rule/*` rows have `source_ref` like `deathtype.h:N` (source_root-relative form), resolving to `research/repos/ktx/src/deathtype.h` -- which does not exist. Actual file: `research/repos/ktx/include/deathtype.h`.
+- 6 `ktx/election_type/*` rows have `source_ref` like `progs.h:N`, resolving to `research/repos/ktx/src/progs.h` -- which does not exist. Actual file: `research/repos/ktx/include/progs.h`.
+- The `gameplay_sources` ktx row has `source_root = /research/repos/ktx/src`. The cited files are in the sibling `include/` directory, not `src/`.
+- All 823 id1 refs resolved clean (0 unresolved for id1).
+
+**Action:** NOT introduced by Phase 0's edits (pre-existing data from ktx taxonomy loader). Phase 3 owns the fix -- either update `source_root` to the repo root (`/research/repos/ktx`) and use `include/deathtype.h:N` form, or re-cite as leading-slash form (`/research/repos/ktx/include/deathtype.h:N`). Operator reviews at Phase 3 start.
+
 ---
 
 ## Phase ownership of findings
@@ -97,7 +109,7 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 | Phase 0 | F1 (probe ships here), F2 |
 | Phase 1 | F7 (resolved at drafting by planner amendment; execution audit findings will append here) |
 | Phase 2 | F8 (resolved at drafting -- wiki-snapshot design adaptation) |
-| Phase 3 | F3; F9 (deferred -- carry-forward to the MCP-realignment arc); F10 (resolved at drafting by planner amendment) |
+| Phase 3 | F3; F9 (deferred -- carry-forward to the MCP-realignment arc); F10 (resolved at drafting by planner amendment); F11 |
 | Phase 4 | F4, F5 (doc text), F6 |
 
 ---

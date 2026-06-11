@@ -28,6 +28,26 @@ gameplay_source:
     stopspeed=100, edgefriction=2) live in the cvars table once each engine's
     extraction picks them up; not loaded into gameplay_mechanics.
 
+    Monster stat rows (kind=monster) cite the original Quake v1.06 QuakeC
+    source release, acquired at /research/repos/QuakeC-releases/progs/ (mirror
+    https://github.com/maddes-b/QuakeC-releases, commit
+    0e2781138d0fa3eaaf52147b8c92805a5698f9bb, acquired 2026-06-12). The 1.06
+    release is the competitive-QW monster baseline; the 2021 rerelease QC
+    differs and is NOT used. Spot-verified at acquisition: shambler.qc
+    health=600, ogre.qc health=200 (spec D1). Monster refs use the
+    leading-slash citation form (plan D7); the id1 source_root below stays
+    QW/progs/ unchanged.
+
+# Count STOP-gate (plan D8, finding F2): the loader validates each load
+# against these self-declared totals and STOPs on mismatch. Bump them IN
+# THE SAME COMMIT that adds or removes rows -- the load failing on a stale
+# count is the intended tripwire, not a bug. Values are the LIVE row counts
+# of this file at load time. 37/41 was the 2026-04-27 baseline; Track-A
+# backfills (D16) may have raised them since -- recount, do not assume.
+expected_counts:
+  entities: 37
+  mechanics: 41
+
 # Cluster 1: weapons (8 rows)
 weapons:
   - name: axe

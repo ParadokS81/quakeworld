@@ -4,7 +4,8 @@
 // Subcommands: load-version, diff, enrich, load-assets, release-notes,
 //              extract-tag, prune-cross-type-orphans, review, quality-grid,
 //              idempotency, reproducibility-check, build-snapshot,
-//              load-maps, load-gameplay, re-derive, migration-probes
+//              load-maps, load-gameplay, re-derive, migration-probes,
+//              citation-gate, seed-idempotency
 
 import { parseArgs } from 'util';
 import { dirname, join } from 'path';
@@ -45,6 +46,8 @@ async function main(): Promise<void> {
   if (subcommand === 'load-ktx-shipped-config')   { await runLoadKtxShippedConfig(rest); return; }
   if (subcommand === 're-derive')                 { await runReDerive(rest); return; }
   if (subcommand === 'migration-probes')          { await runMigrationProbesCli(rest); return; }
+  if (subcommand === 'citation-gate')             { await runCitationGateCli(rest); return; }
+  if (subcommand === 'seed-idempotency')          { await runSeedIdempotencyCli(rest); return; }
 
   if (subcommand === 'full') {
     throw new Error(`subcommand 'full' is out of scope for Phase 2b; run load-version + diff + enrich manually.`);
@@ -151,6 +154,13 @@ Subcommands:
                 3-digit prefix (e.g. 009). Omit to run all 12 probes.
                 Exit 0 = all probes PASS; exit 1 = fail;
                 exit 2 = unknown --migration prefix.
+  citation-gate    [--source <id1|ktx>] [--json]
+                Verify every gameplay source_ref / *_source_ref resolves
+                to a real file+line under D7 two-form rule. Exit 0 = all
+                resolved; exit 1 = any unresolved ref.
+  seed-idempotency --yaml <path> [--json]
+                Load the seed YAML twice; assert identical row counts and
+                content hash. Exit 0 = pass; exit 1 = any divergence.
 `.trim());
   process.exit(2);
 }
@@ -488,6 +498,16 @@ async function runIdempotencyCli(args: string[]): Promise<void> {
   await run(args);
 }
 
+async function runCitationGateCli(args: string[]): Promise<void> {
+  const { runCitationGateCli: run } = await import('./citation-gate.js');
+  await run(args);
+}
+
+async function runSeedIdempotencyCli(args: string[]): Promise<void> {
+  const { runSeedIdempotencyCli: run } = await import('./seed-idempotency.js');
+  await run(args);
+}
+
 async function runReproducibilityCheckCli(args: string[]): Promise<void> {
   const { runReproducibilityCli: run } = await import('./reproducibility-check.js');
   await run(args);
@@ -563,20 +583,19 @@ async function runLoadGameplay(args: string[]): Promise<void> {
   });
 
   const yamlPath = values.yaml ?? join(__dirname, '..', 'extractors', 'qw', 'seeds', 'id1-gameplay.yaml');
-  const { loadGameplayFromFile } = await import('./load-gameplay.js');
+  const { loadGameplayFromFile, expectedCountsMismatch } = await import('./load-gameplay.js');
   const r = await loadGameplayFromFile(sql, yamlPath);
   console.log(
     `load-gameplay: entities inserted=${r.inserted.entities} updated=${r.updated.entities} total=${r.total.entities}; ` +
     `mechanics inserted=${r.inserted.mechanics} updated=${r.updated.mechanics} total=${r.total.mechanics}`,
   );
 
-  const expectedEntities = 37;
-  const expectedMechanics = 41;
-  if (r.total.entities !== expectedEntities || r.total.mechanics !== expectedMechanics) {
-    console.error(
-      `load-gameplay: STOP - row-count mismatch. Expected entities=${expectedEntities} mechanics=${expectedMechanics}. ` +
-      `Got entities=${r.total.entities} mechanics=${r.total.mechanics}. Investigate the YAML before re-running.`,
-    );
+  // D8 (finding F2): validate against the seed's OWN declared counts. The
+  // old hardcoded 37/41 would brick every load this arc performs and would
+  // mis-validate ktx-gameplay.yaml against id1 numbers.
+  const mismatch = expectedCountsMismatch(r);
+  if (mismatch) {
+    console.error(`load-gameplay: STOP - ${mismatch}`);
     process.exitCode = 1;
   }
 }

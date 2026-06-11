@@ -47,7 +47,15 @@ export interface SeedFile {
   weapons: EntityDefRow[];
   projectiles: EntityDefRow[];
   items: EntityDefRow[];
-  mechanics: {
+  // id1 monster stat rows (Phase 2) + ktx monster overlay (Phase 3). Loaded
+  // into gameplay_entity_defs as kind='monster' (CHECK added by migration
+  // 011). Optional: the id1 baseline carried no monster rows pre-arc.
+  monsters?: EntityDefRow[];
+  // Optional since the Phase 3 ktx overlay may be entity-only. The loader
+  // tolerates absence (?? {} guard below) -- entity lists already do via
+  // ?? []; mechanics throwing on absence was an inconsistency, not a gate
+  // (planner amendment 2026-06-11; was Open question 1).
+  mechanics?: {
     constants: MechanicRow[];
     env_hazards: MechanicRow[];
     player_stats: MechanicRow[];
@@ -57,18 +65,26 @@ export interface SeedFile {
     spawn_rules: MechanicRow[];
     dm_mode_rules: MechanicRow[];
   };
+  // Count STOP-gate (plan D8 / finding F2): every seed declares its own
+  // load totals; the loader echoes them and the CLI/test STOP on mismatch.
+  // The gate travels with the data so each phase bumps counts beside rows.
+  expected_counts: { entities: number; mechanics: number };
 }
 
 export interface LoadGameplayResult {
   inserted: { entities: number; mechanics: number };
   updated: { entities: number; mechanics: number };
   total: { entities: number; mechanics: number };
+  // Echoed from seed.expected_counts so the CLI / test can run the D8 gate
+  // without re-parsing the YAML.
+  declared: { entities: number; mechanics: number };
 }
 
-const ENTITY_KIND_BY_LIST: Record<'weapons' | 'projectiles' | 'items', 'item' | 'weapon' | 'projectile'> = {
+const ENTITY_KIND_BY_LIST: Record<'weapons' | 'projectiles' | 'items' | 'monsters', 'item' | 'weapon' | 'projectile' | 'monster'> = {
   weapons: 'weapon',
   projectiles: 'projectile',
   items: 'item',
+  monsters: 'monster',
 };
 
 const MECHANIC_KIND_BY_LIST: Record<string, string> = {
@@ -96,10 +112,18 @@ function canonicaliseGate(gate: Record<string, unknown> | null | undefined): Rec
 }
 
 export async function loadGameplayFromArray(sql: postgres.Sql, seed: SeedFile): Promise<LoadGameplayResult> {
+  // D8: a seed with no declared count has no STOP-gate. Refuse rather than
+  // load blind -- a missing/garbled block is almost always an editing slip.
+  if (!seed.expected_counts ||
+      typeof seed.expected_counts.entities !== 'number' ||
+      typeof seed.expected_counts.mechanics !== 'number') {
+    throw new Error('load-gameplay: seed is missing a valid expected_counts {entities, mechanics} block (plan D8).');
+  }
   const result: LoadGameplayResult = {
     inserted: { entities: 0, mechanics: 0 },
     updated: { entities: 0, mechanics: 0 },
     total: { entities: 0, mechanics: 0 },
+    declared: { entities: seed.expected_counts.entities, mechanics: seed.expected_counts.mechanics },
   };
 
   await sql.begin(async (tx) => {
@@ -117,7 +141,7 @@ export async function loadGameplayFromArray(sql: postgres.Sql, seed: SeedFile): 
         notes        = EXCLUDED.notes
     `;
 
-    for (const listName of ['weapons', 'projectiles', 'items'] as const) {
+    for (const listName of ['weapons', 'projectiles', 'items', 'monsters'] as const) {
       const kind = ENTITY_KIND_BY_LIST[listName];
       const rows = seed[listName] ?? [];
       for (const row of rows) {
@@ -164,7 +188,7 @@ export async function loadGameplayFromArray(sql: postgres.Sql, seed: SeedFile): 
 
     for (const listName of Object.keys(MECHANIC_KIND_BY_LIST)) {
       const kind = MECHANIC_KIND_BY_LIST[listName]!;
-      const rows = (seed.mechanics as Record<string, MechanicRow[]>)[listName] ?? [];
+      const rows = ((seed.mechanics ?? {}) as Record<string, MechanicRow[]>)[listName] ?? [];
       for (const row of rows) {
         const gateJson = canonicaliseGate(row.ruleset_gate);
         const existsRows = await tx<{ one: number }[]>`
@@ -203,4 +227,19 @@ export async function loadGameplayFromArray(sql: postgres.Sql, seed: SeedFile): 
 export async function loadGameplayFromFile(sql: postgres.Sql, yamlPath: string): Promise<LoadGameplayResult> {
   const seed = yaml.load(readFileSync(yamlPath, 'utf-8')) as SeedFile;
   return loadGameplayFromArray(sql, seed);
+}
+
+/**
+ * D8 count STOP-gate. Pure predicate so the CLI (process.exitCode) and the
+ * bun test (expect) share one rule. Returns a human-readable message when the
+ * loaded totals diverge from the seed's self-declared expected_counts, else
+ * null (errors-out-of-existence: null means "no mismatch, proceed").
+ */
+export function expectedCountsMismatch(result: LoadGameplayResult): string | null {
+  const { total, declared } = result;
+  if (total.entities !== declared.entities || total.mechanics !== declared.mechanics) {
+    return `row-count mismatch. Expected entities=${declared.entities} mechanics=${declared.mechanics}. ` +
+      `Got entities=${total.entities} mechanics=${total.mechanics}. Investigate the YAML before re-running.`;
+  }
+  return null;
 }
