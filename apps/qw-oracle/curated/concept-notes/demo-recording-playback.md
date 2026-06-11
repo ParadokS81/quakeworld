@@ -1,6 +1,6 @@
 ---
 title: "Recording and watching QuakeWorld games: demos, screenshots, and match logs"
-summary: "A QuakeWorld match record is three things captured together -- a demo, a scoreboard screenshot, and a console log -- and ezQuake's match tools record all of them automatically when a match starts. The short version: set match_auto_record 2 (plus match_auto_sshot 1) and forget it; record one-off demos with easyrecord; watch with playdemo or menu_demos. Your client records a single-view .qwd, the server records the multiview .mvd everyone watches afterward -- usually through hub.quake.world, which has archived every server's demos for years."
+summary: "A QuakeWorld match record is three things captured together -- a demo, a scoreboard screenshot, and a console log -- and ezQuake's match tools record all of them automatically when a match starts. The short version: set match_auto_record 2 (plus match_auto_sshot 1) and forget it; record one-off demos with easyrecord; watch with playdemo or menu_demos. Auto-records sort themselves into per-gametype subfolders (duel/, tdm/, 2on2/, ...) with descriptive names, all configurable through the match_format_<category> templates and the match_name_* macros. Your client records a single-view .qwd, the server records the multiview .mvd everyone watches afterward -- usually through hub.quake.world, which has archived every server's demos for years."
 slug: demo-recording-playback
 topic: domain-guide
 status: draft
@@ -22,6 +22,16 @@ related_entities:
   - ezquake:cvar:match_auto_logupload
   - ezquake:cvar:demo_dir
   - ezquake:cvar:demo_format
+  - ezquake:cvar:sshot_dir
+  - ezquake:command:match_format_macrolist
+  - ezquake:cvar:match_format_duel
+  - ezquake:cvar:match_format_2on2
+  - ezquake:cvar:match_format_4on4
+  - ezquake:cvar:match_format_ffa
+  - ezquake:cvar:match_name_nick
+  - ezquake:cvar:match_name_spec
+  - ezquake:cvar:match_name_and
+  - ezquake:cvar:match_name_versus
   - ezquake:command:playdemo
   - ezquake:command:menu_demos
   - ezquake:command:demo_jump
@@ -49,7 +59,7 @@ last_updated: 2026-06-11
 
 ## Summary
 
-A "match record" in QuakeWorld is three things captured together: a **demo** of the game, a **scoreboard screenshot**, and a **console log**. ezQuake's match tools record all three automatically when a match starts, so the usual answer to "how do I record my games" is one line of config you set once. Your client records a single-view `.qwd`; a real server records the multiview `.mvd` that people actually watch afterward -- most often through **hub.quake.world**, which has scraped and hosted the demos from essentially every QW server for years. The short version below covers recording and watching; the rest is the detail and the format differences.
+A "match record" in QuakeWorld is three things captured together: a **demo** of the game, a **scoreboard screenshot**, and a **console log**. ezQuake's match tools record all three automatically when a match starts, so the usual answer to "how do I record my games" is one line of config you set once -- and the records auto-sort into per-gametype folders with descriptive names. Your client records a single-view `.qwd`; a real server records the multiview `.mvd` that people actually watch afterward -- most often through **hub.quake.world**, which has scraped and hosted the demos from essentially every QW server for years. The short version below covers recording and watching; the rest is the detail and the format differences.
 
 ## Record your games (the short version)
 
@@ -78,6 +88,26 @@ The match tools capture three artifacts together at match start, each with its o
 - **Demo** -- `match_auto_record`. `1` records but needs a manual `match_save` to keep it; `2` saves automatically when the match ends. `match_auto_minlength` discards very short ones, and `match_auto_spectating` extends recording to when you are spectating.
 - **Screenshot** -- `match_auto_sshot` takes the final scoreboard shot (briefly clearing the console/menu so the shot is clean).
 - **Console log** -- `match_auto_logconsole` writes a per-match log; `match_auto_logupload` can post it to a remote log service (the quakeworld.nu endpoint in `match_auto_logurl`). Outside the match tools, log on demand with the `log <name>` command, or launch with `-condebug` to log everything to `qw/qconsole.log`. (ezQuake has no `condump`.)
+
+## Where records are saved, and how they are named
+
+Auto-recorded matches sort themselves into per-gametype subfolders with descriptive names -- you rarely organize anything by hand. Two base directories sit at the top:
+
+```
+demo_dir <path>     // demos + auto-records (default: your qw/ folder)
+sshot_dir <path>    // screenshots
+```
+
+Under those, ezQuake picks a filename template by game type. There is one template cvar per category -- `match_format_duel`, `match_format_2on2`, `match_format_4on4`, `match_format_ffa`, `match_format_race`, `match_format_tf_clanwar`, and so on -- and the client auto-selects which one applies from the gamedir and the team/player counts. Each default begins with a subfolder, so records self-sort:
+
+```
+match_format_4on4   tdm/%n - [%Oon%E_%t%v%e] - [%M]
+                    //  -> demos/tdm/myname - [4on4_red_vs_blue] - [dm3].mvd
+match_format_duel   duel/%n - %p%v%e - [dmm%D] - [%M]
+                    //  -> demos/duel/myname - p1_vs_p2 - [dmm3] - [dm6].mvd
+```
+
+The `%` tokens are macros: `%n` your name, `%t` / `%e` your team or the opponent, `%M` the map, `%Y%m%d` / `%H%Q` the date and time, `%v` the "vs" join, and more -- run `match_format_macrolist` to print the full list. To change where a game type files its records, or how they are named, edit that category's `match_format_<category>` cvar: change the leading `/`-separated folder, or rearrange the macros. The `match_name_*` cvars feed the tokens -- `match_name_nick` overrides the name `%n` uses (set it if your in-game name carries color codes), `match_name_spec` tags it when you spectate (default `(SPEC)`), and `match_name_and` / `match_name_versus` are the join strings between teammates and teams (defaults `_&_` and `_vs_`). The demo, screenshot, and console log of one game share this base name, so a match's three artifacts line up.
 
 ## Watch a demo
 
@@ -129,12 +159,13 @@ Nothing to configure: recording and playback cvars are unrestricted under every 
 
 ## Consumer implications
 
-- **Slipgate config-viewer.** Group the match-tools cvars (`match_auto_record` / `match_auto_sshot` / `match_auto_logconsole` / `match_auto_minlength`) as one "match recording" set -- they fire together -- and surface `demo_dir` with a "where your demos and screenshots go" hint. The `match_auto_record` `1`-vs-`2` distinction (manual `match_save` vs auto-save) is the one worth a tooltip.
+- **Slipgate config-viewer.** Group the match-tools cvars (`match_auto_record` / `match_auto_sshot` / `match_auto_logconsole` / `match_auto_minlength`) as one "match recording" set -- they fire together -- and surface `demo_dir` / `sshot_dir` with a "where your demos and screenshots go" hint. The naming/foldering family (`match_format_<category>` templates + `match_name_*` macro feeders) is a natural advanced sub-panel: show the per-gametype template strings, and a `match_format_macrolist` legend for the `%` macros. The `match_auto_record` `1`-vs-`2` distinction (manual `match_save` vs auto-save) is the one worth a tooltip.
 - **Oracle MCP / chatbot.** "How do I record / watch a demo" resolves to the short version: auto-record with the match tools, or `easyrecord` for a one-off; `playdemo` / `menu_demos` to watch. For "where are my old games," point at the auto-screenshots and at hub.quake.world. For "`cmd dl` doesn't work," check lowercase-not-colored and that the server supports it. `match_auto_record` left on is the usual cause of a quietly growing quake folder.
 
 ## References
 
 - **Recording (ezQuake head):** `record` / `easyrecord` / `stop` (plus `recordqwd` / `stopqwd`, which force a client-side QWD on a listen-server build); `match_save`; `demo_dir` default `""` -> the `qw/` gamedir (`cl_demo.c:120`); `demo_format` (`mvd` / `qwd` / `qwz`). Match tools: `match_auto_record` (`1` manual-save / `2` auto-save), `match_auto_minlength`, `match_auto_sshot`, `match_auto_spectating`, `match_auto_logconsole`, `match_auto_logupload` (-> `match_auto_logurl`).
+- **Naming + foldering (match tools):** the per-category template cvars and their defaults at `match_tools.c:40-60` (e.g. `match_format_4on4` = `tdm/%n - [%Oon%E_%t%v%e] - [%M]`, `match_format_duel` = `duel/%n - %p%v%e - [dmm%D] - [%M]` -- each leads with a gametype subfolder); the client auto-selects the category by gamedir + team/player count (`MT_NameForMatchInfo`, `match_tools.c:575`). The `%`-macro expander at `match_tools.c:505-562` (`%n` name, `%M` map, `%t`/`%e`/`%k`/`%l` team/opponent/rosters, `%G` gamedir, `%Y%m%d%H%Q%S` date/time); `match_format_macrolist` prints them. Feeder cvars `match_name_nick` (`""` -> in-game name), `match_name_spec` (`(SPEC)`), `match_name_and` (`_&_`), `match_name_versus` (`_vs_`) at `match_tools.c:56-60`. Base dirs `demo_dir` / `sshot_dir`.
 - **Console logs:** `log <name>` command; `-condebug` launch flag -> `qw/qconsole.log`. ezQuake has no `condump` (Layer 1 + source both absent; confirmed against community testimony, thread #6953).
 - **Playback:** `playdemo`, `menu_demos`, `demo_jump` (seconds or `m:ss`, plus `demo_jump_mark` / `demo_jump_end`), `demo_setspeed` (x% of normal), `cl_demospeed`, `demotimescale` (legacy alias for `cl_demospeed`), `demo_controls`, the `democlock` element / `cl_democlock`. MVD viewing: `mvd_autotrack`.
 - **Server demo download (mvdsv):** the `dl` (`Cmd_DemoDownload_f`) and `dlist` / `demolist` (`SV_DemoList_f`) user commands in `mvdsv/src/sv_user.c:1643, 3325-3340`, reached from a client as `cmd dl` / `cmd dlist`; `cmd dl` syntax (`#` list numbers, `.` = Nth-last, `\`/`stop`/`cancel` clear the queue) at `sv_user.c:1658-1675`. `allow_download_demos` is a **server** gate (`sv_main.c:112`, default `1`), not a client cvar. KTX wraps the listing as `dlist` (`ktx/src/commands.c:965`). These mvdsv user commands are present in source but not yet in Layer 1 (extraction gap -- the `ucmds[]` table is not walked; flagged for handover 2026-06-11).
