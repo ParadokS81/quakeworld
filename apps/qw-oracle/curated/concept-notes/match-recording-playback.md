@@ -1,7 +1,7 @@
 ---
-title: "Recording and watching QuakeWorld games: demos, screenshots, and match logs"
+title: "Match recording and playback: demos, screenshots, and logs"
 summary: "A QuakeWorld match record is three things captured together -- a demo, a scoreboard screenshot, and a console log -- and ezQuake's match tools record all of them automatically when a match starts. The short version: set match_auto_record 2 (plus match_auto_sshot 1) and forget it; record one-off demos with easyrecord; watch with playdemo or menu_demos. Auto-records sort themselves into per-gametype subfolders (duel/, tdm/, 2on2/, ...) with descriptive names, all configurable through the match_format_<category> templates and the match_name_* macros. Your client records a single-view .qwd, the server records the multiview .mvd everyone watches afterward -- usually through hub.quake.world, which has archived every server's demos for years."
-slug: demo-recording-playback
+slug: match-recording-playback
 topic: domain-guide
 status: draft
 authored_by: qw-oracle
@@ -55,7 +55,7 @@ best_practices_reviewed: 2026-06-11
 last_updated: 2026-06-11
 ---
 
-# Recording and watching QuakeWorld games
+# Match recording and playback
 
 ## Summary
 
