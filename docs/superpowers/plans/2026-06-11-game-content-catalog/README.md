@@ -5,7 +5,7 @@
 
 **Goal:** Complete the qw-oracle `gameplay_*` Layer 1 catalog: audit + re-verify the live id1 baseline (37 entity defs + 41 mechanics, shipped 2026-04-27), add id1 monster stats from the acquired Quake v1.06 QC, add the KTX hardcoded-override layer (`ktx-gameplay.yaml`), wire `map_summary_key` join props, and land the conventions in SCHEMA.md. No schema migration; no new MCP surface.
 
-**Status:** Scaffold complete; slicing locked 2026-06-11 (operator). Phase MDs not yet drafted.
+**Status:** PLANNING COMPLETE 2026-06-12 -- all five phase MDs drafted, planner-reviewed against live source, and approved. Execution is SHELVED until the gate below; it then routes through `docs/superpowers/parking/2026-06-12-game-content-catalog-orchestrator-handoff.md` (arc-orchestrator).
 
 **Execution gate:** Phase 0 execution starts only after the first Track-A weapon-pair notes ship (spec M4 / decisions D16). Drafting does not wait.
 
@@ -14,7 +14,7 @@
 ## Read in this order
 
 1. **[`prerequisites.md`](prerequisites.md)** -- operator-side checks + the execution gate.
-2. **[`decisions.md`](decisions.md)** -- 21 locked cross-cutting decisions. Every phase respects these. Numbering note: bare D-numbers mean the PLAN decisions; the spec's are cited as "spec D2" / "spec M3".
+2. **[`decisions.md`](decisions.md)** -- 22 locked cross-cutting decisions (D22 added 2026-06-11 at Phase 3 review). Every phase respects these. Numbering note: bare D-numbers mean the PLAN decisions; the spec's are cited as "spec D2" / "spec M3".
 3. **[`review-findings.md`](review-findings.md)** -- evidence ledger; opens with 6 pre-flight findings (no prior plan existed).
 4. **[`phase-template.md`](phase-template.md)** -- mandatory shape for each phase MD, including the Execution mode column and the verification sub-agent brief.
 5. Per-phase MDs (drafted in order; see index below).
@@ -33,7 +33,7 @@ Slicing: one horizontal foundation phase (0), then per-deliverable data slices, 
 | 1 | approved | `phase-1-audit.md` | id1 audit: ~400 props re-verified, exhaustive gap sweep, falloff + self-splash rows, id1 F1 probes | id1 baseline verified-under-current-regime; new mechanics rows queryable; F1 id1 grid green |
 | 2 | approved | `phase-2-monsters.md` | id1 monster stat rows (~15) + wiki snapshot cross-check | `search_gameplay_entities kind=monster gameplay_source=id1` returns the roster |
 | 3 | approved | `phase-3-ktx-overlay.md` | `ktx-gameplay.yaml` override layer (4 file families, exhaustive value deltas) + disjointness probe (F3) | `describe_mode` joins catalog + mode_defaults + hardcoded overlays on one token |
-| 4 | not drafted | `phase-4-joinkeys-docs.md` | `map_summary_key` props; SCHEMA.md conventions subsection; RUNBOOK qw section; verify-gameplay.ts fix (F4); snapshot regen | Full F1 sweep green; snapshot + MCP surfacing confirmed; docs current |
+| 4 | approved | `phase-4-joinkeys-docs.md` | `map_summary_key` props; SCHEMA.md conventions subsection; RUNBOOK qw section; verify-gameplay.ts fix (F4); snapshot regen | Full F1 sweep green; snapshot + MCP surfacing confirmed; docs current |
 
 Status values: `not drafted` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
 
