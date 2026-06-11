@@ -30,7 +30,7 @@ Slicing: one horizontal foundation phase (0), then per-deliverable data slices, 
 | Phase | Status | MD | Deliverable | Runnable state at end |
 |---|---|---|---|---|
 | 0 | approved | `phase-0-prereqs-loader.md` | v1.06 QC tree + provenance; loader `monsters` section; expected_counts STOP-gate rework (F2); citation-gate + seed-double-load probes | Loader accepts all five seed sections; unchanged id1 YAML loads green under the new gate; probes runnable |
-| 1 | not drafted | `phase-1-audit.md` | id1 audit: ~400 props re-verified, exhaustive gap sweep, falloff + self-splash rows, id1 F1 probes | id1 baseline verified-under-current-regime; new mechanics rows queryable; F1 id1 grid green |
+| 1 | approved | `phase-1-audit.md` | id1 audit: ~400 props re-verified, exhaustive gap sweep, falloff + self-splash rows, id1 F1 probes | id1 baseline verified-under-current-regime; new mechanics rows queryable; F1 id1 grid green |
 | 2 | not drafted | `phase-2-monsters.md` | id1 monster stat rows (~15) + wiki snapshot cross-check | `search_gameplay_entities kind=monster gameplay_source=id1` returns the roster |
 | 3 | not drafted | `phase-3-ktx-overlay.md` | `ktx-gameplay.yaml` override layer (4 file families, exhaustive value deltas) + disjointness probe (F3) | `describe_mode` joins catalog + mode_defaults + hardcoded overlays on one token |
 | 4 | not drafted | `phase-4-joinkeys-docs.md` | `map_summary_key` props; SCHEMA.md conventions subsection; RUNBOOK qw section; verify-gameplay.ts fix (F4); snapshot regen | Full F1 sweep green; snapshot + MCP surfacing confirmed; docs current |

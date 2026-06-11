@@ -56,6 +56,14 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 
 **Action:** Phase 4 drafter verifies every count it writes against the live DB at drafting time (D20 implication).
 
+### F7 -- locked falloff row mischaracterized the combat.qc clamp (drafting-time, resolved)
+
+**Resolved by:** planner amendment to `phase-1-audit.md` (2026-06-11, at Phase 1 review).
+
+**Evidence:** The Phase 1 draft's locked `splash_falloff_gradient` row carried `clamp_rule: points_below_zero_clamped_to_zero` citing `combat.qc:274`. Source order: the `:273-274` clamp bounds the DISTANCE TERM before the `points = damage - points` subtraction (`:275`) -- dead code in practice, since `vlen` is non-negative. The actual no-negative-damage behavior is the `if (points > 0)` delivery gate at `:279`. The drafter's verification sub-agent touched this exact prop (corrected the line 273 -> 274) but fixed only the line number, not the meaning.
+
+**Lesson (for Phase 2/3 drafters + verifiers):** a citation can be line-accurate and semantically wrong. Verification briefs should ask "what ROLE does the cited line play in the mechanism?", not only "does the line contain the value?". Same class as the F29 probe-predicate discipline, applied to row props.
+
 ---
 
 ## Phase ownership of findings
@@ -63,7 +71,7 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 | Phase | Findings to verify before sign-off |
 |---|---|
 | Phase 0 | F1 (probe ships here), F2 |
-| Phase 1 | (none yet -- audit findings will append here) |
+| Phase 1 | F7 (resolved at drafting by planner amendment; execution audit findings will append here) |
 | Phase 2 | (none yet) |
 | Phase 3 | F3 |
 | Phase 4 | F4, F5 (doc text), F6 |
