@@ -29,9 +29,11 @@ drafter sees a bare "D8" in arc-plan context, it means THIS file.
 
 **Decision:** `ruleset_gate_json` uses `{"mode":"<token>"}` where the gate is a cataloged mode/mutator (yawnmode, midair, instagib, bloodfest, ...; tokens from the 27-row ktx `game_mode` catalog), `{"dm":N}` for deathmatch-number gates not covered by the id1 props convention. Single-key gates only (KTX onboarding arc D8 convention). Compound conditions: the mode stays the gate; the secondary condition goes in props (e.g. midair rocket boost: gate `{"mode":"midair"}`, props `requires_quad: true`).
 
-**Why:** Spec D3 (operator-ratified principle: baseline + named delta, joinable by the same word). `describe_mode` assembles a mode's hardcoded overrides with zero new wiring only if the tokens match.
+**Why:** Spec D3 (operator-ratified principle: baseline + named delta, joinable by the same word). `describe_mode` assembles a mode's hardcoded overrides with zero new wiring only if the tokens match. (Caveat discovered at Phase 3 drafting: the zero-new-wiring claim holds at the DATA layer only -- see finding F9; the tool envelope joins game_mode + mode_default and nothing else.)
 
 **Implication:** Phase 3 drafter verifies every gate token against the live `game_mode` catalog (`SELECT name FROM gameplay_mechanics WHERE gameplay_source_id='ktx' AND kind='game_mode'`) before locking the YAML. Never invent a second vocabulary.
+
+**Amendment 2026-06-11 (Phase 3 planner review):** a THIRD single-key form exists for cvar-gated deltas with no mode token -- see D22.
 
 ## D4. Three-layer rule: this arc ships hardcoded behavior deltas only
 
@@ -176,6 +178,14 @@ drafter sees a bare "D8" in arc-plan context, it means THIS file.
 **Why:** Spec D5 (operator-ratified aliasing principle: vocabularies in the wild are load-bearing; one canonical row carries all its names; never consumer-side translation tables).
 
 **Implication:** Phase 4 ships the full 20-key mapping table in the phase MD (locked content, inline execution) and a join-coverage probe: every key in `maps.item_summary_json`'s vocabulary maps to >=1 catalog row.
+
+## D22. Gate vocabulary: `{"cvar":"<name>"}` for cvar-gated deltas (amendment, operator-ratified 2026-06-11)
+
+**Decision:** Hardcoded deltas gated on a standalone cvar with NO game_mode catalog token (k_dis, k_classic_shotgun, k_hitboxcheck_bullets, ...) use the single-key gate `{"cvar":"<name>"}`. The cvar name is the join word (it joins the cvar catalog in the entities track). Value-specific conditions (`k_dis == 2`) go in props (`cvar_value: 2`), mirroring D3's compound-condition rule.
+
+**Why:** The spec D2 floor inventory itself contains cvar-gated deltas with no mode token; D3 enumerated only the mode/dm forms. This is the operator-ratified "joinable by the same word" principle applied to the cvar catalog -- the condition is named by an EXISTING catalog, so this is not a second vocabulary. Ratified at Phase 3 planner review so Phase 4's SCHEMA.md conventions subsection documents a settled three-form vocabulary instead of a pending one.
+
+**Implication:** Phase 3's sweep emits `gate_kind=cvar` candidates under this form; the execution SME gate still triages individual deltas (the FORM is settled; MEMBERSHIP is not -- e.g. the `// DEBUG`-tagged k_hitboxcheck_bullets is a likely drop). Phase 4 documents three gate forms: `{"mode":...}` / `{"dm":N}` / `{"cvar":...}`.
 
 ---
 

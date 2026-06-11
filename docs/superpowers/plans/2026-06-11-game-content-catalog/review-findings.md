@@ -72,6 +72,22 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 
 **Action:** none open -- baked into Phase 2 Task 2 (the fetch loop writes a STUB with the block reason when fandom 403s; `_manifest.json` records `fandom_status`). If a fandom value is ever genuinely needed, fetch outside Jina or arbitrate via the pak `progs.dat` (D1/D2).
 
+### F9 -- describe_mode does not surface the new hardcoded override rows (drafting-time, deferred)
+
+**Resolved by:** deferred (D14 / spec M5 -- no new MCP surface this arc; Phase 3's boundary verification asserts the data-level join instead).
+
+**Evidence:** `serve/mcp/src/tools/describe-mode.ts` joins only `kind='game_mode'` (:112) + `kind='mode_default'` (:136) (+ the L3 note + `entities`-table activation cvars). It never reads `gameplay_entity_defs` overrides or non-`mode_default` `gameplay_mechanics` rows. Planner re-verified at review 2026-06-11. D3 / spec-D3's "describe_mode can assemble a mode's hardcoded overrides with zero new wiring" is true at the DATA layer (override rows carry the mode token; one raw-SQL query by token returns catalog + mode_default + overrides) but FALSE for the tool envelope.
+
+**Action:** Phase 3 verification step 6 asserts the data join via raw SQL. Wiring describe_mode to include overrides is a future arc -- it belongs to the standing **MCP-realignment-to-KTX-era-data** backlog entry (HANDOVER "Active arcs"), which already owns the search_mechanics/describe_mode tool-surface catch-up; the arc-reviewer carries this as a named carry-forward.
+
+### F10 -- Phase 3 axe exemplar mischaracterized the yawnmode gate (drafting-time, resolved)
+
+**Resolved by:** planner amendment to `phase-3-ktx-overlay.md` (2026-06-11, at Phase 3 review).
+
+**Evidence:** The locked axe exemplar claimed "the 'dmm3' in the source comment is contextual, not a code gate (the branch checks only k_yawnmode)". Live source: `weapons.c:128` (`damage = k_yawnmode ? 50 : 20;`) sits INSIDE an `else if (deathmatch == 3)` branch at `weapons.c:126` -- dm3 IS a code gate. The row now carries `requires_deathmatch: 3` + `dm_branch_source_ref: weapons.c:126` per the D3 compound-condition rule. Second instance of the F7 class (line-accurate, role/context-wrong), caught by the planner's enclosing-context read; the drafter's own verifier had checked the value and line only.
+
+**Lesson (reinforces F7):** verifying a gated value means reading the ENCLOSING branch structure, not just the cited line. Phase 3's Task 1 Stage-2 verify prompt already asks for the gating condition explicitly -- execution-time extraction is protected; this instance was in drafting-time locked content, which only planner/verifier cold-reads protect.
+
 ---
 
 ## Phase ownership of findings
@@ -81,7 +97,7 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 | Phase 0 | F1 (probe ships here), F2 |
 | Phase 1 | F7 (resolved at drafting by planner amendment; execution audit findings will append here) |
 | Phase 2 | F8 (resolved at drafting -- wiki-snapshot design adaptation) |
-| Phase 3 | F3 |
+| Phase 3 | F3; F9 (deferred -- carry-forward to the MCP-realignment arc); F10 (resolved at drafting by planner amendment) |
 | Phase 4 | F4, F5 (doc text), F6 |
 
 ---
