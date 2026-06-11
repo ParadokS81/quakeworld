@@ -6,7 +6,7 @@ Almost everything in this arc is agent-doable (the v1.06 QC acquisition is Phase
 
 ## Execution gate (the one that matters)
 
-- [ ] **First Track-A weapon-pair notes shipped.** Execution of Phase 0 starts only after the demand-driven-l3 arc ships its first weapon-pair concept notes (operator-locked sequencing, spec M4 / plan D16). Drafting all phase MDs does NOT wait on this -- only execution does.
+- [x] **GATE LIFTED 2026-06-12** (D16 amendment, operator-signed): execution starts immediately; it no longer waits for the first Track-A weapon-pair notes. See `decisions.md` D16 for the rationale and what still stands (backfill absorption, live-file recounts).
 
 ## Environment (verify once before Phase 0 execution)
 

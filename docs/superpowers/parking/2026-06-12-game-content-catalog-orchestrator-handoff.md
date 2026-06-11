@@ -2,9 +2,9 @@
 
 **For:** a FRESH terminal running **`arc-orchestrator`** when the execution gate is met. Planning is COMPLETE (scaffold + all five phase MDs drafted, planner-reviewed against live source, approved 2026-06-11/12). Do NOT relitigate D-locks or redraft approved MDs.
 
-## Execution gate (check FIRST)
+## Execution gate
 
-Execution starts only after **the first Track-A weapon-pair concept notes ship** (demand-driven-l3 arc; spec M4 / plan D16). If they have not shipped, stop here -- there is nothing to orchestrate yet. Drafting did not wait; execution does.
+**LIFTED 2026-06-12** (D16 amendment, operator-signed -- see `decisions.md`). Execution starts immediately; do not wait for Track-A notes. The phase MDs' "Execution gate" Input lines are superseded by the amendment. Track-A interplay still applies in the other direction: absorb any inline backfills via Phase 1's audit; enumerate from live files (D16 recount discipline).
 
 ## Where things are
 

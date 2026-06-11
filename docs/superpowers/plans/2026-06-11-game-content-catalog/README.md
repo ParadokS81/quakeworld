@@ -5,9 +5,9 @@
 
 **Goal:** Complete the qw-oracle `gameplay_*` Layer 1 catalog: audit + re-verify the live id1 baseline (37 entity defs + 41 mechanics, shipped 2026-04-27), add id1 monster stats from the acquired Quake v1.06 QC, add the KTX hardcoded-override layer (`ktx-gameplay.yaml`), wire `map_summary_key` join props, and land the conventions in SCHEMA.md. No schema migration; no new MCP surface.
 
-**Status:** PLANNING COMPLETE 2026-06-12 -- all five phase MDs drafted, planner-reviewed against live source, and approved. Execution is SHELVED until the gate below; it then routes through `docs/superpowers/parking/2026-06-12-game-content-catalog-orchestrator-handoff.md` (arc-orchestrator).
+**Status:** EXECUTING as of 2026-06-12 -- all five phase MDs drafted, planner-reviewed against live source, and approved; the M4 execution gate was LIFTED by operator the same day (decisions D16 amendment). Execution routes through `docs/superpowers/parking/2026-06-12-game-content-catalog-orchestrator-handoff.md` (arc-orchestrator).
 
-**Execution gate:** Phase 0 execution starts only after the first Track-A weapon-pair notes ship (spec M4 / decisions D16). Drafting does not wait.
+**Execution gate:** LIFTED 2026-06-12 (D16 amendment, operator-signed) -- phases execute now, sequentially 0 -> 4.
 
 ---
 

@@ -139,6 +139,8 @@ drafter sees a bare "D8" in arc-plan context, it means THIS file.
 
 **Implication:** Phase 1's drafter notes that the YAML at execution time may differ from the YAML at drafting time -- the audit fan-out enumerates rows from the live file, never from a frozen list in the MD.
 
+**Amendment 2026-06-12 (operator-signed, planner session): the execution gate is LIFTED -- execution starts immediately, without waiting for the first Track-A weapon-pair notes.** Rationale: the D4-exhaustive sweep means note-demand was prioritization input only, never the boundary; with all five phase MDs approved, the waiting cost exceeds the marginal demand-probe value, and the notes gain a complete L1 (monsters, KTX overrides) instead of backfilling against gaps. This amendment SUPERSEDES the "Execution gate (plan D16 / spec M4)" lines in the Inputs sections of phase MDs 0-4 -- executors treat that input as satisfied. Everything else in this decision stands: Track-A inline backfills that already landed are absorbed by Phase 1's audit, and the live-file recount discipline remains in force.
+
 ## D17. Sibling-arc git guard
 
 **Decision:** demand-driven-l3 + docs.quake.world are live on `main`. Scope every `git add` to this arc's files; never `git add -A`; fresh commits over amend (`feedback_no_amend_shared_main.md`).
