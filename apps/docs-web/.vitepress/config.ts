@@ -18,8 +18,7 @@ export default defineConfig({
       { text: 'QWCL', link: '/qwcl' },
       { text: 'QWFWD', link: '/qwfwd' },
       { text: 'Search', link: '/search' }
-    ],
-    search: { provider: 'local' }
+    ]
   },
   vite: {
     plugins: [tailwindcss()]
