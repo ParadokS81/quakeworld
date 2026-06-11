@@ -1,7 +1,7 @@
 # Game-content catalog completion -- design spec (2026-06-11)
 
 **Arc slug:** `game-content-catalog`
-**Status:** Pass 1 (scope + data model) LOCKED 2026-06-11. Pass 2 (method + validation) in progress.
+**Status:** brainstorm COMPLETE 2026-06-11 -- Pass 1 (scope + data model, D1-D7) and Pass 2 (method + validation, M1-M5) both LOCKED in one session. Next: arc-planner (handoff: `docs/superpowers/parking/2026-06-11-game-content-catalog-planner-handoff.md`).
 **Genesis:** `docs/superpowers/parking/2026-06-11-game-content-catalog-arc-brainstorm-handoff.md` + `docs/superpowers/parking/2026-06-11-game-content-notes-and-catalog-direction.md` (both carry dated correction blocks pointing here).
 
 ## The reframe (pre-flight finding, 2026-06-11)
@@ -97,6 +97,39 @@ The tricks this arc locks -- gate-token vocabulary, the three-layer knob/mode_de
 - **Track C (coverage map):** carried in HANDOVER under the docs.quake.world front-page brainstorm.
 - **Sibling-arc guard:** demand-driven-l3 + docs.quake.world are live on `main`. Scope every `git add`; never `-A`; fresh commits over amend.
 
-## Pass 2 (in progress): method + validation
+## Pass 2 LOCKED (2026-06-11): method + validation
 
-Open questions at Pass 1 close: seed-file layout (extend `id1-gameplay.yaml` + new `ktx-gameplay.yaml`?); Workflow fan-out shape (per-cluster extract/verify agents; model + pacing per `reference_workflow_rate_limit_and_args`); validation regime (idempotency, F1 probe extensions, wiki cross-check protocol, VALIDATION-RUNBOOK section); execution sequencing vs Track A; snapshot/MCP surfacing (`qw-gameplay.json` regen; MCP expected to need nothing new -- verify).
+### M1 -- Seed-file layout: one YAML per source
+
+- `id1-gameplay.yaml` GROWS: a `monsters:` cluster (~15 rows), the audit corrections, the new mechanics rows (falloff gradient, self-splash rule), and the `map_summary_key` props. One file stays the complete id1 picture.
+- NEW `ktx-gameplay.yaml`: the override layer (weapon/item/combat deltas + any monster deviations) with its own `gameplay_source: ktx` block (registry row exists; upsert idempotent). Loaded as a second `load-gameplay --yaml` call.
+- Loader extension required: `monsters` seed section (`SeedFile` interface + `ENTITY_KIND_BY_LIST`, ~10 lines). Rejected: one mega-file (mixes sources against the loader's one-source-per-file shape); per-kind files (fragments review).
+
+### M2 -- Workflow shape: extract -> verify -> SME gate -> assemble
+
+1. **Extract:** bounded fan-out with schema-enforced structured output -- per-monster (~15), per-file for the KTX delta sweep, per-cluster for the audit re-verify. Per-value citation mandatory at extraction time, never patched in later.
+2. **Verify:** independent re-derivation by a different agent (cold read of the same source); monsters add the wiki cross-check (M3). Only discrepancies escalate; agreement auto-passes.
+3. **Operator gate at SME level:** three short lists only -- gap-sweep candidates ("gameplay-relevant or engine plumbing?"), the KTX delta list ("does this match community reality?"), wiki-vs-source mismatches. Never per-citation review.
+4. **Assembly:** ONE inline assembler writes the YAML from verified outputs (uniform style); then load, load AGAIN (idempotency), F1 probes, spot SQL.
+5. **Dials:** Sonnet high reasoning per agent, low concurrency + pacing (`reference_workflow_rate_limit_and_args`); no SDK -- Workflow `agent()` only (Max sub). The 2026-06-11 Explore inventory of `ktx/src` is the cheap probe that bounds the delta sweep.
+
+### M3 -- Validation regime
+
+- **Idempotency:** load each seed twice -> identical counts + content hashes (`idempotency-ktx.sh` pattern extended to both YAML loads).
+- **F1 grid:** re-baselined per-(source, kind) floor probes + anchor probes whose predicates are verified against the live DB before shipping (F29 discipline). The JSONB-not-string gate already covers these tables.
+- **Citation gate:** every `source_ref` / per-prop `*_source_ref` mechanically resolves (file exists, line in range); semantic correctness is the verify stage's job.
+- **Wiki cross-check (monsters only), via one-time local snapshot:** fetch the ~15 per-monster pages from each wiki (Jina reader, one prep step) into a cache dir, fetch-date + URL recorded per file; verify agents GREP THE LOCAL COPY -- zero per-agent web fetches (operator wall-time/token concern, 2026-06-11). Stub pages degrade gracefully ("no external data" for that monster -- costs nothing, blocks nothing). Results live in the arc findings doc, never in rows; the pak `progs.dat` is the final arbiter.
+- **VALIDATION-RUNBOOK** gains a `qw` gameplay section mirroring the per-engine sections.
+- **Ride-along fix:** `verify-gameplay.ts` stale hardcoded counts (37/41 vs live 50/487; standing HANDOVER item folds into this arc).
+
+### M4 -- Sequencing
+
+Execution starts AFTER the first Track-A weapon-pair notes ship. Notes are unblocked now against existing rows; gaps they hit meanwhile become inline cited backfills to `id1-gameplay.yaml` (idempotent loader keeps the tracks collision-free; this arc absorbs whatever backfills already landed).
+
+### M5 -- Surfacing
+
+Post-load: regenerate the slipgate snapshot (`qw-gameplay.json` via build-snapshot); confirm MCP needs nothing new (`search_gameplay_entities` already admits `kind=monster` + the `gameplay_source` filter). Verify-at-execution, no design content.
+
+## Brainstorm exit (2026-06-11)
+
+Both passes locked in one session. Remaining unknowns are implementation-shaped -- loader-extension details, phase slicing, P1 acquisition mechanics, probe predicates -- all arc-planner territory. Carry-forwards routed: coverage map -> docs.quake.world front-page brainstorm (HANDOVER); falloff/self-damage gap seeds -> D4 audit input; Track A interplay -> M4. Planner handoff: `docs/superpowers/parking/2026-06-11-game-content-catalog-planner-handoff.md`.
