@@ -64,6 +64,14 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 
 **Lesson (for Phase 2/3 drafters + verifiers):** a citation can be line-accurate and semantically wrong. Verification briefs should ask "what ROLE does the cited line play in the mechanism?", not only "does the line contain the value?". Same class as the F29 probe-predicate discipline, applied to row props.
 
+### F8 -- quake.fandom.com is Cloudflare-bot-blocked via Jina; quakewiki.org is the monster cross-check primary (drafting-time, resolved)
+
+**Resolved by:** Phase 2 MD design (quakewiki.org primary; fandom best-effort degrading to a STUB file per D15).
+
+**Evidence:** Phase 2 drafting recon 2026-06-11: `r.jina.ai` fetches of quake.fandom.com return HTTP 403 "Just a moment..." (Cloudflare bot gate). quakewiki.org resolves richly via Jina, and its `/wiki/<classname>` URLs redirect correctly for the full roster (planner re-verified `monster_shambler` live at review: Health 600, gib threshold -60, half-explosion-damage note all present). Spec M3 said "each wiki"; primary + best-effort is an adaptation WITHIN D15's degrade-gracefully rule -- no decision amendment needed.
+
+**Action:** none open -- baked into Phase 2 Task 2 (the fetch loop writes a STUB with the block reason when fandom 403s; `_manifest.json` records `fandom_status`). If a fandom value is ever genuinely needed, fetch outside Jina or arbitrate via the pak `progs.dat` (D1/D2).
+
 ---
 
 ## Phase ownership of findings
@@ -72,7 +80,7 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 |---|---|
 | Phase 0 | F1 (probe ships here), F2 |
 | Phase 1 | F7 (resolved at drafting by planner amendment; execution audit findings will append here) |
-| Phase 2 | (none yet) |
+| Phase 2 | F8 (resolved at drafting -- wiki-snapshot design adaptation) |
 | Phase 3 | F3 |
 | Phase 4 | F4, F5 (doc text), F6 |
 
