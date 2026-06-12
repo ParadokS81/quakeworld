@@ -93,12 +93,23 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 **Resolved by:** UNRESOLVED -- flagged for Phase 3 (owns ktx data; operator decides whether to update source_root or re-cite with leading-slash form).
 
 **Evidence:** Phase 0 citation-gate execution (2026-06-12): `scanned=823, unresolved=32`. All 32 are `reason='missing'`:
-- 26 `ktx/death_rule/*` rows have `source_ref` like `deathtype.h:N` (source_root-relative form), resolving to `research/repos/ktx/src/deathtype.h` -- which does not exist. Actual file: `research/repos/ktx/include/deathtype.h`.
-- 6 `ktx/election_type/*` rows have `source_ref` like `progs.h:N`, resolving to `research/repos/ktx/src/progs.h` -- which does not exist. Actual file: `research/repos/ktx/include/progs.h`.
+- 27 `ktx/death_rule/*` rows have `source_ref` like `deathtype.h:N` (source_root-relative form), resolving to `research/repos/ktx/src/deathtype.h` -- which does not exist. Actual file: `research/repos/ktx/include/deathtype.h`.
+- 5 `ktx/election_type/*` rows have `source_ref` like `progs.h:N`, resolving to `research/repos/ktx/src/progs.h` -- which does not exist. Actual file: `research/repos/ktx/include/progs.h`.
 - The `gameplay_sources` ktx row has `source_root = /research/repos/ktx/src`. The cited files are in the sibling `include/` directory, not `src/`.
-- All 823 id1 refs resolved clean (0 unresolved for id1).
+- id1 fully clean: `citation-gate --source id1` reports `scanned=258 unresolved=0` (823 is the TOTAL across id1 + ktx, not the id1 count).
+- (Counts corrected at orchestrator boundary verification 2026-06-12: the executor's halt report said 26 death_rule + 6 election_type and called all 823 refs "id1"; the gate's own `--json` output and a live SQL recount say 27 + 5, id1 share 258.)
 
-**Action:** NOT introduced by Phase 0's edits (pre-existing data from ktx taxonomy loader). Phase 3 owns the fix -- either update `source_root` to the repo root (`/research/repos/ktx`) and use `include/deathtype.h:N` form, or re-cite as leading-slash form (`/research/repos/ktx/include/deathtype.h:N`). Operator reviews at Phase 3 start.
+**Action:** NOT introduced by Phase 0's edits (pre-existing data from ktx taxonomy loader). Phase 3 owns the fix -- either update `source_root` to the repo root (`/research/repos/ktx`) and use `include/deathtype.h:N` form, or re-cite as leading-slash form (`/research/repos/ktx/include/deathtype.h:N`). Operator reviews at Phase 3 start. Orchestrator recommendation (2026-06-12): do NOT change `source_root` (it would churn every correctly-resolving `src/` ref); fix the 32 refs at their WRITER (the taxonomy extractor emit site, per `feedback_repair_by_reextract_not_sql_update`) using the leading-slash form, then re-extract/re-load. Final form decided at Phase 3 kickoff with the writer code in view.
+
+### F12 -- Phase 0 acquired the WRONG v1.06 branch; value spot-greps cannot certify release identity (execution finding, Phase 0)
+
+**Resolved by:** Phase 0 bounce-back (orchestrator boundary verification 2026-06-12); re-acquire `id1-original`.
+
+**Evidence:** The executor cloned `maddes-b/QuakeC-releases` branch `id1-fixes-1.06` (commit `0e27811`, "Add FIXME/Maddes marks for other known issues..."). The repo's own README: "original" branches carry releases "with no bug-fixes implemented"; "fixes" branches have known issues fixed and annotated. `git diff id1-original..id1-fixes-1.06` = 226 insertions / 167 deletions across 21 files INCLUDING `shambler.qc`, `soldier.qc`, `wizard.qc`, `oldone.qc`, `player.qc`, `combat.qc`, `weapons.qc` (104 lines) -- exactly the files Phase 2 cites. Task 1 criterion (1) demanded the ORIGINAL release. The Task 1 spot-verify greps (shambler 600 / ogre 200) PASSED on the wrong branch -- both branches carry those values at the same lines -- so the value-grep gate alone could not catch this.
+
+**Correct target, verified:** branch `id1-original` @ `85ccafd2652ec550a561849a6a5eb92e62cdc115` -- spot-verify passes (`progs/shambler.qc:397` health=600, `progs/ogre.qc:502` health=200), historical flat `progs/*.qc` layout, `id1-CHANGELOG.adoc` tip section is v1.06. Caveat recorded: the repo README warns branches can be rebased, so the pinned SHA (not the branch name) is the provenance anchor.
+
+**Lesson (F7/F10 class, acquisition flavor):** a tree can pass value spot-checks and still be the wrong RELEASE. Acquisition verification must read the mirror's branch/release semantics (README, changelog, commit messages), not only grep for known values. Phase 2's verify agents cite this tree; they inherit the pinned-SHA anchor.
 
 ---
 
@@ -106,7 +117,7 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 
 | Phase | Findings to verify before sign-off |
 |---|---|
-| Phase 0 | F1 (probe ships here), F2 |
+| Phase 0 | F1 (probe ships here), F2; F12 (bounce-back: re-acquire id1-original) |
 | Phase 1 | F7 (resolved at drafting by planner amendment; execution audit findings will append here) |
 | Phase 2 | F8 (resolved at drafting -- wiki-snapshot design adaptation) |
 | Phase 3 | F3; F9 (deferred -- carry-forward to the MCP-realignment arc); F10 (resolved at drafting by planner amendment); F11 |
