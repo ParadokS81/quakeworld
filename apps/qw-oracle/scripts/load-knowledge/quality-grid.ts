@@ -2677,6 +2677,7 @@ const ID1_GAMEPLAY_KIND_PROBES: Probe[] = [
   makeGameplayKindProbe('qw', 'id1', 'gameplay_entity_defs', 'weapon', 8),
   makeGameplayKindProbe('qw', 'id1', 'gameplay_entity_defs', 'projectile', 4),
   makeGameplayKindProbe('qw', 'id1', 'gameplay_entity_defs', 'item', 25),
+  makeGameplayKindProbe('qw', 'id1', 'gameplay_entity_defs', 'monster', 15),
   makeGameplayKindProbe('qw', 'id1', 'gameplay_mechanics', 'constant', 9),
   makeGameplayKindProbe('qw', 'id1', 'gameplay_mechanics', 'env_hazard', 7),
   makeGameplayKindProbe('qw', 'id1', 'gameplay_mechanics', 'player_stat', 12),

@@ -46,7 +46,7 @@ gameplay_source:
 # of this file at load time. 37/41 was the 2026-04-27 baseline; Track-A
 # backfills (D16) may have raised them since -- recount, do not assume.
 expected_counts:
-  entities: 37
+  entities: 52
   mechanics: 53
 
 # Cluster 1: weapons (8 rows)
@@ -588,7 +588,496 @@ items:
       contents_source_ref: items.qc:1620
     notes: 120s lifetime then auto-removed; pickup grants weapon + remaining ammo.
 
-# Cluster 4: mechanics (53 rows total)
+# Cluster 4: monsters (15 rows)
+#
+# id1 single-player monster stats. kind='monster', gameplay_source_id='id1',
+# ungated (ruleset_gate_json defaults to '{}'). Source: the original Quake
+# v1.06 QuakeC tree acquired by Phase 0 at /research/repos/QuakeC-releases/progs/
+# (mirror + commit + date recorded on gameplay_source.notes above).
+#
+# CITATION FORM (plan D7): monster refs use the LEADING-SLASH (repo-root-
+# relative) form because they cite the v1.06 tree, NOT the id1 source_root
+# (QW/progs/, which has single-player stripped -- it holds no monster QC).
+# The existing weapon/item/mechanic refs stay bare (source_root-relative).
+# Both forms resolve under the D7 two-form rule; the citation gate handles
+# the leading slash.
+#
+# FENCE (plan D6): the 13 ktx rows that share these classnames live under
+# gate {"mode":"bloodfest"} with gameplay_source_id='ktx' -- a DIFFERENT
+# fact-family (spawn economy: hp_for_kill / armor_for_kill / array_position)
+# and source. These id1 rows never collide (natural key differs on
+# gameplay_source_id AND gate). search_gameplay_entities for monster_shambler
+# returns both: combat stats here, bloodfest economy there.
+#
+# UNIFORM PROP VOCABULARY (applied to every row -- plan D6):
+#   health        int   spawn HP (health_source_ref sibling); null if no depletable HP (bosses)
+#   gib_health    int   gib death threshold (gib_health_source_ref); null if no distinct gib path
+#   attacks       list  one cited map per attack:
+#                         name / type (melee|ranged_projectile|ranged_hitscan|ranged_beam)
+#                         damage (dice/formula as written) + damage_source_ref
+#                         projectile / projectile_speed / projectile_speed_source_ref (null for melee/beam)
+#                         attack_fn_source_ref
+#   behaviors     list  cited maps {name, value, source_ref} for special rules
+# Wiki cross-check results are NEVER row props (plan D2/D15) -- see phase-2-findings.md.
+monsters:
+  - name: monster_army
+    classname: monster_army
+    source_ref: /research/repos/QuakeC-releases/progs/soldier.qc:284
+    props:
+      health: 30
+      health_source_ref: /research/repos/QuakeC-releases/progs/soldier.qc:313
+      gib_health: -35
+      gib_health_source_ref: /research/repos/QuakeC-releases/progs/soldier.qc:259
+      attacks:
+        - name: shotgun_burst
+          type: ranged_hitscan
+          damage: "4 per pellet x 4 pellets (16 max)"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/soldier.qc:220
+          projectile: null
+          projectile_speed: null
+          projectile_speed_source_ref: null
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/soldier.qc:205
+      behaviors:
+        - name: drops_backpack_on_death
+          value: "5 shells"
+          source_ref: /research/repos/QuakeC-releases/progs/soldier.qc:228
+        - name: lead_shot_aim
+          value: "aims slightly behind the player's current position to punish straight-line dodging"
+          source_ref: /research/repos/QuakeC-releases/progs/soldier.qc:217
+    notes: >
+      Grunt: 30 hp hitscan trooper. Fires a 4-pellet shotgun burst (16 max if all
+      pellets connect) and drops a 5-shell backpack on death. Values cited into the
+      v1.06 tree; wiki cross-check in phase-2-findings.md.
+  - name: monster_dog
+    classname: monster_dog
+    source_ref: /research/repos/QuakeC-releases/progs/dog.qc:375
+    props:
+      health: 25
+      health_source_ref: /research/repos/QuakeC-releases/progs/dog.qc:398
+      gib_health: -35
+      gib_health_source_ref: /research/repos/QuakeC-releases/progs/dog.qc:268
+      attacks:
+        - name: melee_bite
+          type: melee
+          damage: "(random() + random() + random()) * 8"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/dog.qc:85
+          projectile: null
+          projectile_speed: null
+          projectile_speed_source_ref: null
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/dog.qc:62
+        - name: leap_bite
+          type: melee
+          damage: "10 + 10 * random()"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/dog.qc:103
+          projectile: null
+          projectile_speed: null
+          projectile_speed_source_ref: null
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/dog.qc:186
+      behaviors:
+        - name: leap_attack
+          value: "launches self at v_forward*300 + up 200; leap touch damage only lands when speed > 300"
+          source_ref: /research/repos/QuakeC-releases/progs/dog.qc:192
+    notes: >
+      Rottweiler: 25 hp fast melee. A standing bite plus a leap that deals extra
+      contact damage only while moving fast. Wiki cross-check in phase-2-findings.md.
+  - name: monster_fish
+    classname: monster_fish
+    source_ref: /research/repos/QuakeC-releases/progs/fish.qc:177
+    props:
+      health: 25
+      health_source_ref: /research/repos/QuakeC-releases/progs/fish.qc:197
+      gib_health: null
+      gib_health_source_ref: null
+      attacks:
+        - name: melee_bite
+          type: melee
+          damage: "(random() + random()) * 3"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/fish.qc:112
+          projectile: null
+          projectile_speed: null
+          projectile_speed_source_ref: null
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/fish.qc:95
+      behaviors:
+        - name: no_gib_path
+          value: "no health-threshold gib in vanilla; death is a single f_death animation"
+          source_ref: /research/repos/QuakeC-releases/progs/fish.qc:156
+    notes: >
+      Rotfish: 25 hp swimmer with a short-range bite (within 60 units). No gib path
+      in vanilla Quake v1.06 -- gib_health is null. (quakewiki lists a -20 gib
+      threshold, but that applies only to the Scourge of Armagon expansion, not
+      vanilla; operator-confirmed keep-source 2026-06-12. See phase-2-findings.md.)
+  - name: monster_knight
+    classname: monster_knight
+    source_ref: /research/repos/QuakeC-releases/progs/knight.qc:259
+    props:
+      health: 75
+      health_source_ref: /research/repos/QuakeC-releases/progs/knight.qc:283
+      gib_health: -40
+      gib_health_source_ref: /research/repos/QuakeC-releases/progs/knight.qc:233
+      attacks:
+        - name: sword_melee
+          type: melee
+          damage: "(random() + random() + random()) * 3"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/fight.qc:225
+          projectile: null
+          projectile_speed: null
+          projectile_speed_source_ref: null
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/knight.qc:136
+      behaviors:
+        - name: attack_style_selection
+          value: "standing swing (knight_atk1) when enemy within 80 units, else a running charge-slash (knight_runatk1, ai_melee_side fight.qc:253); both deal identical sword damage"
+          source_ref: /research/repos/QuakeC-releases/progs/fight.qc:31
+    notes: >
+      Knight: 75 hp melee-only. One sword attack (the standing and running sequences
+      share the same damage formula). No ranged attack -- its defining weakness.
+      Wiki cross-check in phase-2-findings.md.
+  - name: monster_hell_knight
+    classname: monster_hell_knight
+    source_ref: /research/repos/QuakeC-releases/progs/hknight.qc:455
+    props:
+      health: 250
+      health_source_ref: /research/repos/QuakeC-releases/progs/hknight.qc:485
+      gib_health: -40
+      gib_health_source_ref: /research/repos/QuakeC-releases/progs/hknight.qc:237
+      attacks:
+        - name: sword_melee
+          type: melee
+          damage: "(random() + random() + random()) * 3"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/fight.qc:225
+          projectile: null
+          projectile_speed: null
+          projectile_speed_source_ref: null
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/hknight.qc:432
+        - name: magic_spike_volley
+          type: ranged_projectile
+          damage: "9"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/weapons.qc:740
+          projectile: "knightspike (progs/k_spike.mdl)"
+          projectile_speed: 300
+          projectile_speed_source_ref: /research/repos/QuakeC-releases/progs/hknight.qc:98
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/hknight.qc:78
+      behaviors:
+        - name: spike_volley_count
+          value: "fires 6 magic spikes per ranged attack, fanned horizontally (offsets -2..3)"
+          source_ref: /research/repos/QuakeC-releases/progs/hknight.qc:269
+    notes: >
+      Death Knight: 250 hp. Sword melee plus a 6-spike magic missile fan (9 dmg each,
+      speed 300). The launch_spike helper default speed (1000) is overridden to 300.
+      Wiki cross-check in phase-2-findings.md.
+  - name: monster_zombie
+    classname: monster_zombie
+    source_ref: /research/repos/QuakeC-releases/progs/zombie.qc:520
+    props:
+      health: 60
+      health_source_ref: /research/repos/QuakeC-releases/progs/zombie.qc:549
+      gib_health: 0
+      gib_health_source_ref: /research/repos/QuakeC-releases/progs/zombie.qc:426
+      attacks:
+        - name: gib_lob
+          type: ranged_projectile
+          damage: "10"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/zombie.qc:181
+          projectile: "progs/zom_gib.mdl"
+          projectile_speed: 600
+          projectile_speed_source_ref: /research/repos/QuakeC-releases/progs/zombie.qc:218
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/zombie.qc:199
+      behaviors:
+        - name: health_resets_on_pain
+          value: "true -- zombie_pain resets health to 60 on every hit, so the zombie cannot be worn down by attrition"
+          source_ref: /research/repos/QuakeC-releases/progs/zombie.qc:456
+        - name: only_killable_by_60_damage_in_one_frame
+          value: "true -- the only kill (always a gib) needs 60+ damage in a single frame (rockets, grenades, quad shotgun)"
+          source_ref: /research/repos/QuakeC-releases/progs/zombie.qc:437
+        - name: knockdown_on_25_plus_damage
+          value: "true -- a hit of 25+ damage forces the long knockdown animation"
+          source_ref: /research/repos/QuakeC-releases/progs/zombie.qc:469
+    notes: >
+      Zombie: 60 hp pseudo-immortal. Throws flesh gibs (10 dmg, speed 600). Health
+      resets to 60 on every pain frame, so the gib_health of 0 means it can only be
+      killed by dealing 60+ damage in one frame (always gibs; no negative threshold).
+      Wiki cross-check in phase-2-findings.md.
+  - name: monster_ogre
+    classname: monster_ogre
+    source_ref: /research/repos/QuakeC-releases/progs/ogre.qc:476
+    props:
+      health: 200
+      health_source_ref: /research/repos/QuakeC-releases/progs/ogre.qc:502
+      gib_health: -80
+      gib_health_source_ref: /research/repos/QuakeC-releases/progs/ogre.qc:438
+      attacks:
+        - name: chainsaw_melee
+          type: melee
+          damage: "(random() + random() + random()) * 4"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/ogre.qc:185
+          projectile: null
+          projectile_speed: null
+          projectile_speed_source_ref: null
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/ogre.qc:163
+        - name: grenade_lob
+          type: ranged_projectile
+          damage: "T_RadiusDamage 40 splash (max at center, falls off with distance)"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/ogre.qc:74
+          projectile: "progs/grenade.mdl"
+          projectile_speed: 600
+          projectile_speed_source_ref: /research/repos/QuakeC-releases/progs/ogre.qc:135
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/ogre.qc:118
+      behaviors:
+        - name: grenade_fixed_arc
+          value: "grenade z-velocity is hardcoded to +200 (cannot aim vertically)"
+          source_ref: /research/repos/QuakeC-releases/progs/ogre.qc:136
+        - name: drops_backpack_on_death
+          value: "2 rockets"
+          source_ref: /research/repos/QuakeC-releases/progs/ogre.qc:405
+    notes: >
+      Ogre: 200 hp. Chainsaw melee plus a lobbed grenade (40 splash, speed 600) that
+      arcs on a fixed +200 z-velocity. Drops a 2-rocket backpack. Wiki cross-check in
+      phase-2-findings.md.
+  - name: monster_demon1
+    classname: monster_demon1
+    source_ref: /research/repos/QuakeC-releases/progs/demon.qc:207
+    props:
+      health: 300
+      health_source_ref: /research/repos/QuakeC-releases/progs/demon.qc:231
+      gib_health: -80
+      gib_health_source_ref: /research/repos/QuakeC-releases/progs/demon.qc:184
+      attacks:
+        - name: claw_swipe
+          type: melee
+          damage: "10 + 5 * random()"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/demon.qc:355
+          projectile: null
+          projectile_speed: null
+          projectile_speed_source_ref: null
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/demon.qc:335
+        - name: leap_bite
+          type: melee
+          damage: "40 + 10 * random()"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/demon.qc:376
+          projectile: null
+          projectile_speed: null
+          projectile_speed_source_ref: null
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/demon.qc:363
+      behaviors:
+        - name: leap_attack
+          value: "launches self at v_forward*600 + up 250; leap touch damage only lands when speed > 400"
+          source_ref: /research/repos/QuakeC-releases/progs/demon.qc:108
+    notes: >
+      Fiend: 300 hp. A two-claw swipe (10-15 each) and a high-damage leap (40-50) that
+      only hurts while moving fast. Wiki cross-check in phase-2-findings.md.
+  - name: monster_shambler
+    classname: monster_shambler
+    source_ref: /research/repos/QuakeC-releases/progs/shambler.qc:369
+    props:
+      health: 600
+      health_source_ref: /research/repos/QuakeC-releases/progs/shambler.qc:397
+      gib_health: -60
+      gib_health_source_ref: /research/repos/QuakeC-releases/progs/shambler.qc:349
+      attacks:
+        - name: smash_melee
+          type: melee
+          damage: "(random() + random() + random()) * 40"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/shambler.qc:140
+          projectile: null
+          projectile_speed: null
+          projectile_speed_source_ref: null
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/shambler.qc:118
+        - name: claw_melee
+          type: melee
+          damage: "(random() + random() + random()) * 20"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/shambler.qc:170
+          projectile: null
+          projectile_speed: null
+          projectile_speed_source_ref: null
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/shambler.qc:152
+        - name: lightning
+          type: ranged_beam
+          damage: "10 per bolt"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/shambler.qc:262
+          projectile: null
+          projectile_speed: null
+          projectile_speed_source_ref: null
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/shambler.qc:237
+      behaviors:
+        - name: half_damage_from_explosions
+          value: true
+          source_ref: /research/repos/QuakeC-releases/progs/combat.qc:284
+        - name: half_damage_from_lightning_beam
+          value: true
+          source_ref: /research/repos/QuakeC-releases/progs/combat.qc:331
+    notes: >
+      Shambler: 600 hp, the toughest id1 monster. A smash and a claw melee plus a
+      hitscan lightning beam that never misses in range. Takes only half damage from
+      rocket/grenade splash and from the lightning gun (the combat.qc classname
+      checks). Boss-able in bloodfest (see the ktx fact-family row). Wiki cross-check
+      in phase-2-findings.md.
+  - name: monster_wizard
+    classname: monster_wizard
+    source_ref: /research/repos/QuakeC-releases/progs/wizard.qc:418
+    props:
+      health: 80
+      health_source_ref: /research/repos/QuakeC-releases/progs/wizard.qc:444
+      gib_health: -40
+      gib_health_source_ref: /research/repos/QuakeC-releases/progs/wizard.qc:384
+      attacks:
+        - name: acid_spike
+          type: ranged_projectile
+          damage: "9"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/weapons.qc:740
+          projectile: "wizspike (progs/w_spike.mdl)"
+          projectile_speed: 600
+          projectile_speed_source_ref: /research/repos/QuakeC-releases/progs/wizard.qc:241
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/wizard.qc:346
+      behaviors:
+        - name: fires_two_spikes_per_attack
+          value: "true -- Wiz_StartFast spawns two offset fire entities that each launch one wizspike"
+          source_ref: /research/repos/QuakeC-releases/progs/wizard.qc:252
+    notes: >
+      Scrag: 80 hp, the only flying id1 monster. Fires two acid spikes per attack (9
+      dmg each, speed 600; launch_spike default 1000 overridden to 600). Wiki
+      cross-check in phase-2-findings.md.
+  - name: monster_enforcer
+    classname: monster_enforcer
+    source_ref: /research/repos/QuakeC-releases/progs/enforcer.qc:351
+    props:
+      health: 80
+      health_source_ref: /research/repos/QuakeC-releases/progs/enforcer.qc:380
+      gib_health: -35
+      gib_health_source_ref: /research/repos/QuakeC-releases/progs/enforcer.qc:325
+      attacks:
+        - name: laser_bolt
+          type: ranged_projectile
+          damage: "15"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/enforcer.qc:81
+          projectile: "progs/laser.mdl"
+          projectile_speed: 600
+          projectile_speed_source_ref: /research/repos/QuakeC-releases/progs/enforcer.qc:118
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/enforcer.qc:127
+      behaviors:
+        - name: drops_cells_on_death
+          value: "5 cells"
+          source_ref: /research/repos/QuakeC-releases/progs/enforcer.qc:291
+        - name: two_shot_burst
+          value: "true -- fires on two attack frames (enf_atk6 and enf_atk10) per sequence"
+          source_ref: /research/repos/QuakeC-releases/progs/enforcer.qc:127
+    notes: >
+      Enforcer: 80 hp. Fires laser bolts (15 dmg, speed 600) in two-shot bursts and
+      drops a 5-cell backpack. Wiki cross-check in phase-2-findings.md.
+  - name: monster_tarbaby
+    classname: monster_tarbaby
+    source_ref: /research/repos/QuakeC-releases/progs/tarbaby.qc:208
+    props:
+      health: 80
+      health_source_ref: /research/repos/QuakeC-releases/progs/tarbaby.qc:229
+      gib_health: null
+      gib_health_source_ref: null
+      attacks:
+        - name: jump_touch
+          type: melee
+          damage: "10 + 10 * random()"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/tarbaby.qc:117
+          projectile: null
+          projectile_speed: null
+          projectile_speed_source_ref: null
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/tarbaby.qc:109
+      behaviors:
+        - name: kamikaze_death_explosion
+          value: "on death calls T_RadiusDamage 120 (then BecomeExplosion); no gib path"
+          source_ref: /research/repos/QuakeC-releases/progs/tarbaby.qc:190
+        - name: touch_damage_requires_speed
+          value: "jump touch only deals damage when speed > 400"
+          source_ref: /research/repos/QuakeC-releases/progs/tarbaby.qc:115
+        - name: no_pain_flinch
+          value: "true -- no th_pain assigned; the tarbaby never flinches"
+          source_ref: /research/repos/QuakeC-releases/progs/tarbaby.qc:231
+    notes: >
+      Spawn (blob): 80 hp kamikaze. Bounces itself at the player (jump touch 10-20
+      while moving fast) and detonates for 120 splash on death. No gib path. quakewiki
+      has no stats page (Spawn disambiguation) -- no external cross-check; see
+      phase-2-findings.md.
+  - name: monster_shalrath
+    classname: monster_shalrath
+    source_ref: /research/repos/QuakeC-releases/progs/shalrath.qc:249
+    props:
+      health: 400
+      health_source_ref: /research/repos/QuakeC-releases/progs/shalrath.qc:273
+      gib_health: -90
+      gib_health_source_ref: /research/repos/QuakeC-releases/progs/shalrath.qc:129
+      attacks:
+        - name: homing_missile
+          type: ranged_projectile
+          damage: "T_RadiusDamage 40 splash (max at center, falls off with distance)"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/shalrath.qc:229
+          projectile: "progs/v_spike.mdl"
+          projectile_speed: 400
+          projectile_speed_source_ref: /research/repos/QuakeC-releases/progs/shalrath.qc:181
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/shalrath.qc:154
+      behaviors:
+        - name: homing_tracking
+          value: "launched at speed 400, then re-homes toward the enemy every 0.2s at speed 250 (350 on nightmare)"
+          source_ref: /research/repos/QuakeC-releases/progs/shalrath.qc:209
+        - name: zombie_bonus_damage
+          value: "deals an extra 110 direct damage if the missile hits a monster_zombie (gibs zombies)"
+          source_ref: /research/repos/QuakeC-releases/progs/shalrath.qc:226
+    notes: >
+      Vore: 400 hp. Fires a single homing voreball (40 splash, launch speed 400,
+      homing 250/350) that tracks the player. Wiki cross-check in phase-2-findings.md.
+  - name: monster_boss
+    classname: monster_boss
+    source_ref: /research/repos/QuakeC-releases/progs/boss.qc:282
+    props:
+      health: null
+      health_source_ref: null
+      gib_health: null
+      gib_health_source_ref: null
+      attacks:
+        - name: lavaball
+          type: ranged_projectile
+          damage: "100 + random() * 20 direct hit, plus T_RadiusDamage 120 splash (rocket-equivalent via T_MissileTouch)"
+          damage_source_ref: /research/repos/QuakeC-releases/progs/weapons.qc:379
+          projectile: "lavaball (progs/lavaball.mdl, touch=T_MissileTouch)"
+          projectile_speed: 300
+          projectile_speed_source_ref: /research/repos/QuakeC-releases/progs/boss.qc:237
+          attack_fn_source_ref: /research/repos/QuakeC-releases/progs/boss.qc:207
+      behaviors:
+        - name: immune_to_player_weapons
+          value: "true -- self.takedamage = DAMAGE_NO; conventional weapon damage does nothing"
+          source_ref: /research/repos/QuakeC-releases/progs/boss.qc:253
+        - name: kill_mechanic_lightning_gate
+          value: "killed only by the map's lightning terminals; 1 hit on skill 0, 3 hits on skill 1-3"
+          source_ref: /research/repos/QuakeC-releases/progs/boss.qc:390
+        - name: fires_two_lavaballs_per_cycle
+          value: "true -- fires at attack frame 9 and frame 20 of each attack cycle"
+          source_ref: /research/repos/QuakeC-releases/progs/boss.qc:135
+    notes: >
+      Chthon (boss): no depletable health -- immune to all weapon damage (DAMAGE_NO),
+      killed only by the level's lightning terminals (1 hit on Easy, 3 otherwise).
+      Throws lava balls that behave like rockets (100-120 direct + 120 splash, speed
+      300). Excluded from bloodfest. Wiki cross-check in phase-2-findings.md.
+  - name: monster_oldone
+    classname: monster_oldone
+    source_ref: /research/repos/QuakeC-releases/progs/oldone.qc:291
+    props:
+      health: 40000
+      health_source_ref: /research/repos/QuakeC-releases/progs/oldone.qc:312
+      gib_health: null
+      gib_health_source_ref: null
+      attacks: []
+      behaviors:
+        - name: health_resets_on_pain
+          value: "true -- the nopain handler resets health to 40000 on every hit; immune to normal damage depletion"
+          source_ref: /research/repos/QuakeC-releases/progs/oldone.qc:281
+        - name: kill_mechanic_telefrag
+          value: "killed only by telefrag (the player rides the level teleporter through Shub-Niggurath)"
+          source_ref: /research/repos/QuakeC-releases/progs/oldone.qc:317
+        - name: no_attacks
+          value: "true -- Shub idles and never initiates combat; she has no attack functions"
+          source_ref: /research/repos/QuakeC-releases/progs/oldone.qc:291
+    notes: >
+      Shub-Niggurath (boss): the nominal 40000 health is unreachable -- pain resets it
+      to full, so she is immune to weapons and is killed only by telefrag. No attacks
+      of her own. Excluded from bloodfest. Wiki cross-check in phase-2-findings.md.
+
+# Cluster 5: mechanics (53 rows total)
 mechanics:
   constants:
     - name: sv_gravity_default

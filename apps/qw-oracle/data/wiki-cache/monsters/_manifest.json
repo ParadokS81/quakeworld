@@ -1,0 +1,12 @@
+{
+  "fetched": "2026-06-12",
+  "primary": "quakewiki.org",
+  "fandom_status": "unusable-via-classname (12 Cloudflare-403 + 3 404; quakewiki.org is the sole cross-check, per F8/D15)",
+  "count": 15,
+  "classnames": [
+    "monster_army", "monster_dog", "monster_fish", "monster_knight",
+    "monster_hell_knight", "monster_zombie", "monster_ogre", "monster_demon1",
+    "monster_shambler", "monster_wizard", "monster_enforcer", "monster_tarbaby",
+    "monster_shalrath", "monster_boss", "monster_oldone"
+  ]
+}

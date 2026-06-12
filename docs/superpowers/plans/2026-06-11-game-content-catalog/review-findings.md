@@ -143,6 +143,22 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 
 **Action:** none open. Process note for future shared-helper signature changes: grep ALL call sites including test files before declaring Files-touched complete.
 
+### F17 -- id1 monster extraction + wiki cross-check: 15/15 clean, one wiki mismatch (execution, Phase 2)
+
+**Resolved by:** in-place (15 rows written) + operator adjudication (1 wiki mismatch), Phase 2 Tasks 3-5. Per-monster detail in `phase-2-findings.md`.
+
+**Evidence:** The per-monster fan-out (15 dispatched / 15 returned / 0 nulls; trial 3 then 12 in waves of 4) extracted health / gib / attacks / behaviors with per-value citations into the pristine v1.06 tree (`/research/repos/QuakeC-releases/progs/`, commit 85ccafd2) and independently re-derived each cold. Source-vs-source (extract vs verify): **15/15 agreement on health, gib, and every projectile speed -- zero value discrepancies.** quakewiki.org health/gib cross-check: 13/15 exact match; **1 mismatch** -- `monster_fish` gib: source null (zero ThrowGib code in vanilla; single death animation) vs wiki -20 (the wiki itself attributes -20 to the Scourge of Armagon expansion, not vanilla v1.06); operator keep-source 2026-06-12. 1 no-external-data: `monster_tarbaby` (quakewiki page is a "Spawn" disambiguation, not a stats page). Two citation-line items resolved at source before assembly (F7/F10 class -- value agreed, only the cited line differed): army gib (soldier.qc:259 not :256) and zombie gib=0 (the pain-reset/unconditional-gib mechanic, zombie.qc:426/456, not combat.qc:207). Bosses `monster_boss` (Chthon) and `monster_oldone` (Shub) carry `health: null` with the kill mechanic in behaviors (DAMAGE_NO weapon immunity / telefrag).
+
+**Action:** none open -- all 15 rows live (id1 entities 37 -> 52); F1 `monster` probe PASS at 15; citation gate `--source id1` unresolved=0 (scanned 258 -> 418); seed double-load idempotent (identical hashes). The anticipated "monster extraction found N source-vs-wiki mismatches" finding: N=1, resolved.
+
+### F18 -- session qw-oracle MCP is the deployed REMOTE prod server, not the dev DB (execution, Phase 2)
+
+**Resolved by:** environment note; runnable state proven via the dev-DB code path. Carry-forward: a prod deploy (out of arc scope) / Phase 4 snapshot regen.
+
+**Evidence:** Boundary check 5 pairs a dev-DB SQL roster with the `search_gameplay_entities` MCP tool, written as though both read the same DB. The qw-oracle MCP connected to the executor session is `https://oracle.slipgate.me/mcp` (deployed prod, per `~/.claude.json`), NOT the local dev DB `qw-oracle-postgres-dev`. The remote MCP returns the 13 ktx bloodfest monsters (previously deployed) but 0 id1 monsters, because this phase's dev-DB load has not been deployed. Invoking the real `searchGameplayEntities` implementation locally against the dev DB returns all 15 id1 monsters (`match_quality: strong`, correct leading-slash source_refs) -- the code path and data are correct; only deployment is pending.
+
+**Action:** none for Phase 2 (deploy is a separate op; Phase 4 owns the slipgate snapshot regen; D14 = no new MCP surface this arc). Relates to the standing MCP-realignment backlog. Process note for Phase 3+: verify MCP-dependent boundary checks against the dev-DB code path (invoke the tool impl locally), not the connected remote MCP, until a deploy lands.
+
 ---
 
 ## Phase ownership of findings
@@ -151,7 +167,7 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 |---|---|
 | Phase 0 | F1 (probe ships here), F2; F12 (bounce-back: re-acquire id1-original) |
 | Phase 1 | F7 (resolved at drafting by planner amendment); F13 (audit corrections), F14 (gap sweep / Tier-1 scope), F16 (test signature fix) -- all resolved this phase; F15 (KTX rocket fixed-110) -> carry-forward to Phase 3 |
-| Phase 2 | F8 (resolved at drafting -- wiki-snapshot design adaptation) |
+| Phase 2 | F8 (resolved at drafting -- wiki-snapshot design adaptation); F17 (monster extraction 15/15 clean + 1 wiki mismatch [fish gib SoA], operator keep-source -- resolved); F18 (session MCP reads remote prod, not dev DB -- env note, carry-forward to deploy/Phase 4) |
 | Phase 3 | F3; F9 (deferred -- carry-forward to the MCP-realignment arc); F10 (resolved at drafting by planner amendment); F11; F15 (id1 rocket random vs KTX fixed-110 -- overlay row candidate; see also phase-1-findings.md section F) |
 | Phase 4 | F4, F5 (doc text), F6 |
 
