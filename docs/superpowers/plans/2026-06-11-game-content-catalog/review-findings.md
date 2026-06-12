@@ -159,6 +159,30 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 
 **Action:** none for Phase 2 (deploy is a separate op; Phase 4 owns the slipgate snapshot regen; D14 = no new MCP surface this arc). Relates to the standing MCP-realignment backlog. Process note for Phase 3+: verify MCP-dependent boundary checks against the dev-DB code path (invoke the tool impl locally), not the connected remote MCP, until a deploy lands.
 
+### F19 -- KTX combat-family sweep found a far larger override surface than the floor; operator SME-gated to 26 rows (execution, Phase 3)
+
+**Resolved by:** operator SME gate (D12 surface 2), 2026-06-12/13. Per-delta ledger in `phase-3-findings.md` sections A-C.
+
+**Evidence:** The exhaustive `weapons.c`/`items.c`/`combat.c` sweep (3 files, 0 nulls) returned 31 cvar/mode/always-gated value deltas, 0 id1-native, 0 uncited -- where the plan floor anticipated ~a dozen (same shape as F14's gap sweep at scale). The operator accepted the mode/dm/cvar-gated deltas plus the rocket `always` fixed-110 (F15) and 2 monster overlays = 26 override rows; the operator's premise: only the `{}` always-rows touch normal-deathmatch play, the rest are mode-scoped. Two candidates dropped: `k_classic_shotgun` (source read showed it only toggles the gunshot-puff effect grouping via `Multi_Finish`/`TraceAttack` send_effects -- cosmetic, damage is `4`/pellet via `ApplyMultiDamage` regardless) and `k_hitboxcheck_bullets` (inside an `#ifdef HITBOXCHECK` dev block). The operator ADDED one delta the sweep missed: `yawnmode_shotgun_deterministic_spread` (the `non_random_bullets` flag at weapons.c:550 puts shotgun/SSG pellets on a fixed grid -> reliable effective damage at range; the sweep caught this for grenades only). The `dmm4 quad OctaPower 8x` was correctly NOT surfaced (vanilla dm4, id1-native per D4).
+
+**Action:** none open. 26 rows live (ktx override entities 11 + mechanics 15); citation gate `--source ktx` unresolved=0 (565 -> 607). Resolves F15 (rocket fixed-110 is the rocket `{}` row).
+
+### F20 -- KTX monsters 12/15 byte-faithful; 2 stat overlays + 1 shared-code duplicate (execution, Phase 3)
+
+**Resolved by:** in-place (2 overlay rows) + fold (1 duplicate), Phase 3 Task 2. Per-monster table in `phase-3-findings.md` section D.
+
+**Evidence:** The 15-monster `sp_*.c` diff (15 dispatched / 15 returned / 0 nulls) found 12 byte-faithful reimplementations and 3 deviations: monster_zombie gib-lob projectile_speed (600 fixed -> 600+100*random(), sp_zombie.c:616) and monster_shambler half_damage_from_lightning_beam (true -> false; KTX `LightningHit` applies full LG-beam damage with no shambler guard, weapons.c:1118) -- both written as gate `{}` overlay rows (disjoint from the bloodfest monster keyspace by gate, D9). The third, monster_boss lavaball direct-hit 110, is the SAME `weapons.c:986` `T_MissileTouch` line as the rocket `always` delta (the boss lavaball shares the rocket touch handler), so it was folded into the rocket row's `also_applies_to` prop, NOT written as a separate monster row.
+
+**Action:** none open. Confirms D6 (a faithful KTX yields few/zero monster overlay rows -- here 2 of 15).
+
+### F21 -- the `monsters_have_hp_for_kill` anchor probe predicate was too broad; the overlay surfaced it (execution, Phase 3)
+
+**Resolved by:** in-place probe re-scope, Phase 3 Task 5 (`quality-grid.ts:probeKtxMonstersHaveHpForKill`).
+
+**Evidence:** `F1.ktx.anchor.monsters_have_hp_for_kill` asserted that EVERY ktx `kind='monster'` row carries `props_json.hp_for_kill`. That invariant was written when ktx monsters were exclusively the 13 bloodfest spawn-economy rows. Phase 3 added 2 non-bloodfest monster STAT overlay rows (gate `{}` -- zombie speed, shambler LG resistance) which legitimately carry no `hp_for_kill` (a bloodfest fact-family field), so the probe FAILed `[FAIL 2]` after the overlay load. Fix: scope the probe's WHERE to `ruleset_gate_json = '{"mode":"bloodfest"}'` (F29 discipline -- a probe asserts only of the data it governs). Grid returns to 165/165 clean.
+
+**Action:** none open. Same class as the F29 lesson: a probe predicate that silently encodes a now-stale data assumption. The overlay was the trigger that exposed it; the fix narrows the predicate to its real invariant.
+
 ---
 
 ## Phase ownership of findings
@@ -168,7 +192,7 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 | Phase 0 | F1 (probe ships here), F2; F12 (bounce-back: re-acquire id1-original) |
 | Phase 1 | F7 (resolved at drafting by planner amendment); F13 (audit corrections), F14 (gap sweep / Tier-1 scope), F16 (test signature fix) -- all resolved this phase; F15 (KTX rocket fixed-110) -> carry-forward to Phase 3 |
 | Phase 2 | F8 (resolved at drafting -- wiki-snapshot design adaptation); F17 (monster extraction 15/15 clean + 1 wiki mismatch [fish gib SoA], operator keep-source -- resolved); F18 (session MCP reads remote prod, not dev DB -- env note, carry-forward to deploy/Phase 4) |
-| Phase 3 | F3; F9 (deferred -- carry-forward to the MCP-realignment arc); F10 (resolved at drafting by planner amendment); F11; F15 (id1 rocket random vs KTX fixed-110 -- overlay row candidate; see also phase-1-findings.md section F) |
+| Phase 3 | F3 (disjointness probe -- holds); F9 (deferred -- carry-forward to the MCP-realignment arc); F10 (resolved at drafting by planner amendment); F11 (Task 0 -- ktx taxonomy refs fixed, citation-gate 32->0); F15 (resolved -- rocket fixed-110 is the rocket `{}` overlay row); F19 (sweep -> 26 rows, SME-gated); F20 (monster diff 12/15 faithful, 2 overlays); F21 (hp_for_kill anchor re-scoped to bloodfest) -- all resolved this phase |
 | Phase 4 | F4, F5 (doc text), F6 |
 
 ---

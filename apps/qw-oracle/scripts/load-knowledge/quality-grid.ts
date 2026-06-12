@@ -2655,7 +2655,11 @@ const KTX_GAMEPLAY_KIND_PROBES: Probe[] = [
   // shipped count (F6 had ~309 estimate; Phase 3 + Phase 5.5 retrofit
   // confirmed 317 across parallel + serial runs). Bump expected when KTX
   // source legitimately gains/loses entries (verified by source-walk).
-  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_entity_defs', 'monster', 13),
+  // monster bumped 13 -> 15 (game-content-catalog Phase 3): 13 extractor
+  // bloodfest rows (gate {"mode":"bloodfest"}) + 2 ktx-gameplay.yaml stat
+  // overlays (gate {} -- zombie gib-lob speed, shambler LG resistance). The
+  // probe counts by (source, kind) with no gate filter, so both gates sum here.
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_entity_defs', 'monster', 15),
   makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'game_mode', 27),
   makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'mode_default', 317),
   makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'election_type', 5),
@@ -2664,6 +2668,20 @@ const KTX_GAMEPLAY_KIND_PROBES: Probe[] = [
   makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'drop_item', 31),
   makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'loc_macro', 15),
   makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'teamplay_message', 21),
+  // Phase 3 (game-content-catalog) -- ktx hardcoded override layer
+  // (ktx-gameplay.yaml). One probe per kind the overlay introduces; counts are
+  // LIVE post-load values, bumped in the SAME commit that adds/removes override
+  // rows (mirrors the seed expected_counts D8 tripwire). Entity overrides:
+  // weapon 3 (axe x2 + super_shotgun), item 2 (green_armor, backpack),
+  // projectile 4 (super_spike, spike, rocket x2). Mechanic overrides:
+  // constant 12, env_hazard 2 (fall_damage, drowning), powerup_behavior 1
+  // (quad_damage_multiplier). death_rule is extractor-owned (disjointness).
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_entity_defs', 'weapon', 3),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_entity_defs', 'item', 2),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_entity_defs', 'projectile', 4),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'constant', 12),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'env_hazard', 2),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'powerup_behavior', 1),
 ];
 
 const ID1_GAMEPLAY_KIND_PROBES: Probe[] = [
@@ -2851,15 +2869,21 @@ async function probeKtxMonstersHaveHpForKill(ctx: ProbeContext): Promise<ProbeRe
   if (ctx.project !== 'ktx') {
     return { name, family: 'regression', description: '', status: 'PASS', count: 0, summary: 'skipped (not ktx project)', examples: [] };
   }
+  // Scoped to the bloodfest spawn-economy roster (gate {"mode":"bloodfest"}):
+  // hp_for_kill is a bloodfest fact-family field. The game-content-catalog
+  // Phase 3 overlay added non-bloodfest ktx monster STAT rows (gate {}) which
+  // legitimately carry no hp_for_kill -- the predicate must not assert it of
+  // them (F29 discipline: scope the probe to the data it governs).
   const rows = await ctx.sql<{ name: string }[]>`
     SELECT name FROM gameplay_entity_defs
     WHERE gameplay_source_id='ktx' AND kind='monster'
+      AND ruleset_gate_json = '{"mode":"bloodfest"}'
       AND (props_json -> 'hp_for_kill') IS NULL
   `;
   return {
     name,
     family: 'regression',
-    description: 'every KTX monster row has props_json.hp_for_kill non-NULL (F9 amended source-faithful field name)',
+    description: 'every KTX bloodfest monster row has props_json.hp_for_kill non-NULL (F9 amended source-faithful field name; scoped to gate bloodfest per game-content-catalog Phase 3)',
     status: rows.length === 0 ? 'PASS' : 'FAIL',
     count: rows.length,
     summary: rows.length === 0 ? 'all monster rows carry hp_for_kill' : `${rows.length} monster rows missing hp_for_kill`,

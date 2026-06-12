@@ -1,0 +1,541 @@
+# KTX hardcoded gameplay overrides for QuakeWorld.
+#
+# Source: research/repos/ktx/src/ (canonical KTX C gamecode). Every row cites
+# "<file>:<line>" BARE (source_root-relative) -- the ktx source_root is
+# /research/repos/ktx/src, and the citation gate (plan D7) strips the leading
+# slash before joining, so weapons.c:128 resolves to
+# research/repos/ktx/src/weapons.c:128. (Contrast the id1 monster cluster,
+# which uses the LEADING-SLASH form because it cites a tree OUTSIDE its
+# source_root.)
+#
+# Loader: apps/qw-oracle/scripts/load-knowledge/load-gameplay.ts
+#         (loaded via: load-knowledge -- load-gameplay --yaml <this file>).
+# Schema: gameplay_sources / gameplay_entity_defs / gameplay_mechanics (v14).
+#
+# WHAT THIS FILE IS (plan D4 -- three-layer model): KTX HARDCODED BEHAVIOR
+# DELTAS only. Each row is a cvar/mode-gated (or unconditional) VALUE that
+# DIVERGES from an id1 baseline row; its `name` matches that baseline row so
+# the two join by the same word (baseline + named delta -- plan D3). What is
+# NOT here: knob existence (KTX cvar track); what modes SET knobs to
+# (mode_default, 317 rows); id1-native dmN variants (Quake's own dm1-4
+# behavior -- those stay on id1 rows, plan D4; e.g. dmm4 quad OctaPower 8x is
+# vanilla and was correctly NOT surfaced as a ktx delta).
+#
+# GATE VOCABULARY (plan D3 + D22, single-key only):
+#   {"mode":"<token>"}  a game_mode catalog token (yawnmode/midair/instagib/
+#                       bloodfest/ctf/ca/...). Every token here was verified
+#                       against the live game_mode catalog (27 tokens) at
+#                       assembly. Active ONLY when that mode is enabled.
+#   {"dm":N}            a deathmatch-number gate that is KTX-specific (NOT a
+#                       vanilla dmN behavior). {"dm":4} here means "deathmatch
+#                       > 3", recorded in props.
+#   {"cvar":"<name>"}   a standalone cvar with no mode token (k_dis). Single-
+#                       key; the cvar name is the join word. Value-specific
+#                       conditions (k_dis == 2) go in props (cvar_value). Plan
+#                       D22 (operator-ratified 2026-06-11).
+#   {} (empty)          an UNCONDITIONAL KTX reimplementation that diverges
+#                       from id1 in every game (the rocket fixed-110 direct hit
+#                       and the two monster stat overlays). This is the one
+#                       form a normal-deathmatch player actually feels.
+#   Compound conditions keep the mode/dm/cvar/empty as the single-key gate; the
+#   secondary condition goes in props (midair rocket boost: gate
+#   {"mode":"midair"}, props requires_quad: true).
+#
+# DUAL-WRITER DISJOINTNESS (plan D9 / finding F3): ktx gameplay rows now have
+# TWO writers -- the extractor pipeline (load-gameplay-tables / -taxonomies /
+# -modes; upsert-by-natural-key, no DELETE) and THIS seed file. A seed key
+# (gameplay_source_id, kind, name, ruleset_gate_json) that equals an extractor
+# key makes the two writers silently ping-pong on every re-run. Disjointness
+# holds BY CONSTRUCTION and is enforced by two rules + a probe:
+#   1. No row here uses kind=death_rule. death_rule is the ONLY mechanic kind
+#      written by BOTH the seed loader and the extractor for ktx (27 extractor
+#      rows). This file uses only constant / env_hazard / powerup_behavior.
+#   2. No monster row here uses gate {"mode":"bloodfest"}. The 13 extractor
+#      monster rows live under that gate (spawn-economy fact-family). The two
+#      KTX monster STAT overlays here use gate {} (unconditional reimplementation
+#      vs id1), disjoint from the bloodfest economy keys. (The two bloodfest-
+#      gated rows below are MECHANIC constants, not monster entity rows, so they
+#      do not collide with the bloodfest monster keyspace.)
+#   Weapon/item/projectile rows are disjoint automatically (the extractor writes
+#   ONLY monster entities for ktx). The Phase 3 disjointness probe verifies this.
+
+gameplay_source:
+  id: ktx
+  display_name: KTX
+  description: >
+    KTX -- canonical QuakeWorld server modification.
+  source_root: /research/repos/ktx/src
+  notes: >
+    This block is the canonical owner of the ktx gameplay_sources registry
+    row (finding F3): the extractor-path loaders (load-gameplay-tables /
+    -taxonomies / -modes) only ASSERT this row exists; this seed file is the
+    sole writer of its display_name / description / source_root / notes. The
+    hardcoded override rows below are the game-content-catalog arc's Phase 3
+    deliverable (2026-06-12); the bloodfest monster rows and the eight
+    taxonomy kinds are written by the KTX onboarding extractor pipeline and
+    are NOT in this file. source_root carries the leading slash by historical
+    convention; the citation gate treats it as repo-root-relative (plan D7).
+
+# Count STOP-gate (plan D8, finding F2): the loader validates this load against
+# these self-declared totals and STOPs on mismatch. Bump them IN THE SAME
+# COMMIT that adds or removes rows. These count THIS file's override rows only
+# (NOT the extractor-written ktx rows). entities = weapon + item + projectile +
+# monster override rows; mechanics = constant + env_hazard + powerup_behavior
+# override rows.
+expected_counts:
+  entities: 11
+  mechanics: 15
+
+# =====================================================================
+# Cluster: weapon overrides
+# =====================================================================
+weapons:
+  - name: axe                          # joins id1 weapon axe (damage 20)
+    damage: 50
+    ruleset_gate:
+      mode: yawnmode
+    source_ref: weapons.c:128
+    props:
+      id1_baseline_damage: 20
+      baseline_source: id1 weapon axe
+      requires_deathmatch: 3           # compound condition kept out of the gate (D3)
+      dm_branch_source_ref: weapons.c:126
+    notes: >
+      Yawnmode raises axe damage 20 -> 50 (one-shots in dmm3). The assignment
+      at weapons.c:128 (`damage = k_yawnmode ? 50 : 20`) sits INSIDE an
+      `else if (deathmatch == 3)` branch (weapons.c:126) -- the delta requires
+      yawnmode AND dm3, so dm3 is a real code gate recorded as the secondary
+      condition in props per the single-key rule (D3, finding F10). Mode-scoped:
+      with yawnmode off, the else-branch is the vanilla 20.
+
+  - name: axe                          # joins id1 weapon axe (damage 20); distinct dm-gate row
+    damage: 75
+    ruleset_gate:
+      dm: 4
+    source_ref: weapons.c:124
+    props:
+      id1_baseline_damage: 20
+      baseline_source: id1 weapon axe
+      dm_condition: "deathmatch > 3 (dmm4 and higher)"
+      dm_branch_source_ref: weapons.c:122
+    notes: >
+      In dmm4+ (the `if (deathmatch > 3)` branch at weapons.c:122) KTX hardcodes
+      axe damage to 75, where vanilla Quake axe is 20 in every mode. This is a
+      KTX-specific deathmatch buff, not vanilla dmN behavior (id1_native=false).
+      Gate {"dm":4} denotes "dmm4+"; the exact `> 3` condition is in props. This
+      is a separate row from the dmm3-yawnmode axe=50 above (different gate).
+
+  - name: super_shotgun                # joins id1 weapon super_shotgun
+    ruleset_gate:
+      mode: yawnmode
+    source_ref: weapons.c:858
+    props:
+      changed_field: pellet_count_and_spread_and_reload
+      id1_pellet_count: 14
+      ktx_pellet_count: 21
+      pellet_source_ref: weapons.c:858
+      id1_spread: "0.14 horizontal / 0.08 vertical"
+      ktx_spread: "0.18 horizontal / 0.12 vertical"
+      spread_source_ref: weapons.c:892
+      id1_reload_seconds: 0.7
+      ktx_reload_seconds: 0.8
+      reload_source_ref: weapons.c:2180
+    notes: >
+      Yawnmode buffs the super-shotgun: 21 pellets (vanilla 14), a WIDER spread
+      0.18/0.12 (vanilla 0.14/0.08 -- the source comment says "larger SSG
+      spread", correcting an earlier "tightened" mischaracterization), and a
+      longer 0.8s reload (vanilla 0.7). pellet_count / spread / reload are not
+      indexable columns, so they live in props with per-field source_refs.
+      Mode-scoped.
+
+# =====================================================================
+# Cluster: item overrides
+# =====================================================================
+items:
+  - name: green_armor                  # joins id1 item green_armor (absorb 0.3)
+    ruleset_gate:
+      mode: yawnmode
+    source_ref: items.c:474
+    props:
+      changed_field: armor_absorb
+      id1_value: 0.3
+      ktx_value: 0.4
+    notes: >
+      Yawnmode raises green-armor damage absorption 0.3 -> 0.4
+      (`type = (k_yawnmode ? 0.4 : 0.3)` at items.c:474). armor_absorb is a
+      fractional protection coefficient, kept in props. Mode-scoped.
+
+  - name: backpack                     # joins id1 item backpack
+    ruleset_gate:
+      mode: yawnmode
+    source_ref: items.c:2828
+    props:
+      changed_field: dropped_backpack_ammo_caps_and_weapon
+      id1_cap_shells: 100
+      ktx_cap_shells: 25
+      shells_source_ref: items.c:2828
+      id1_cap_nails: 200
+      ktx_cap_nails: 50
+      nails_source_ref: items.c:2829
+      id1_cap_rockets: 100
+      ktx_cap_rockets: 25
+      rockets_source_ref: items.c:2830
+      id1_cap_cells: 100
+      ktx_cap_cells: 25
+      cells_source_ref: items.c:2831
+      dropped_weapon_downgrade: "if the dying player was not recently shooting (dm1, attack_finished < time), the dropped pack is downgraded to a shotgun pack (no weapon transfer)"
+      dropped_weapon_source_ref: items.c:2754
+    notes: >
+      Yawnmode throttles ammo transfer between players: a dropped backpack caps
+      at 25 shells / 50 nails / 25 rockets / 25 cells (vanilla player ceilings
+      100/200/100/100), inside an `if (k_yawnmode)` block at items.c:2826.
+      Additionally (items.c:2754) an idle dying player's pack is downgraded to a
+      shotgun pack in dmm1. Mode-scoped.
+
+# =====================================================================
+# Cluster: projectile overrides
+# =====================================================================
+projectiles:
+  - name: super_spike                  # joins id1 projectile super_spike (damage 18)
+    ruleset_gate:
+      mode: yawnmode
+    source_ref: weapons.c:1625
+    props:
+      changed_field: damage
+      id1_value: 18
+      ktx_value: 16
+    notes: >
+      Yawnmode lowers super-nail (super_spike) damage 18 -> 16 per hit
+      (`T_Damage(..., k_yawnmode ? 16 : 18)` at weapons.c:1625). Mode-scoped.
+
+  - name: spike                        # joins id1 projectile spike (NG/SNG nail)
+    ruleset_gate:
+      mode: yawnmode
+    source_ref: weapons.c:1479
+    props:
+      changed_field: projectile_speed
+      id1_value: 1000
+      ktx_value: 1800
+    notes: >
+      Yawnmode accelerates fired nails (spikes) 1000 -> 1800 units/s
+      (`VectorScale(dir, k_yawnmode ? 1800 : 1000, ...)` at weapons.c:1479).
+      Affects both nailgun and super-nailgun spikes. Mode-scoped.
+
+  - name: rocket                       # joins id1 projectile rocket; UNCONDITIONAL
+    damage: 110
+    ruleset_gate: {}
+    source_ref: weapons.c:986
+    props:
+      changed_field: direct_hit_damage
+      id1_value: "100 + random()*20 (uniform 100-120, mean 110)"
+      id1_baseline_source: id1 projectile rocket (weapons.qc:385)
+      ktx_value: 110
+      shambler_special_case: 55
+      shambler_source_ref: weapons.c:981
+      also_applies_to: "monster_boss lavaball (shared T_MissileTouch path, same weapons.c:986 line)"
+    notes: >
+      KTX unconditionally fixes rocket direct-hit damage at 110, where vanilla
+      is a uniform-random 100-120 (`damg = 110` at weapons.c:986, else-branch of
+      the shambler check). The mean is unchanged (110); the divergence is the
+      removal of the +-10 random variance ("rockets always do 110"). Gate {}
+      (always -- the one weapon delta a normal-deathmatch player feels). Special
+      case: 55 vs monster_shambler when not bloodfest (weapons.c:981). The boss
+      lavaball uses the same T_MissileTouch line, so it inherits the 110.
+
+  - name: rocket                       # joins id1 projectile rocket; midair-gated speed
+    ruleset_gate:
+      mode: midair
+    source_ref: weapons.c:1061
+    props:
+      changed_field: projectile_speed
+      id1_value: 1000
+      ktx_value: 2000
+      requires_quad: true              # compound condition kept out of the gate (D3)
+      quad_check_source_ref: weapons.c:1059
+    notes: >
+      In midair, a quad-carrying player's rockets fly at 2000 (vanilla 1000) and
+      glow blue. Single-key gate {"mode":"midair"}; the quad requirement
+      (super_damage_finished > time, weapons.c:1059) is the secondary condition
+      in props. Mode-scoped.
+
+# =====================================================================
+# Cluster: monster STAT overrides (gate {} -- unconditional KTX reimplementation
+# vs id1; disjoint from the bloodfest economy rows by gate). KTX is faithful on
+# 12 of 15 monsters; only these two deviate on standard stats.
+# =====================================================================
+monsters:
+  - name: monster_zombie               # joins id1 monster monster_zombie
+    classname: monster_zombie
+    ruleset_gate: {}
+    source_ref: sp_zombie.c:616
+    props:
+      changed_field: gib_lob_projectile_speed
+      id1_value: "600 (fixed)"
+      ktx_value: "600 + 100*random() (randomized 600-700 per shot)"
+    notes: >
+      KTX randomizes the zombie gib-lob projectile speed to 600-700 per shot
+      (`VectorScale(..., 600 + 100 * g_random(), ...)` at sp_zombie.c:616) where
+      vanilla uses a fixed 600. Unconditional reimplementation; all other zombie
+      stats (health 60, pain-reset, 60-damage gib, 25-knockdown) are faithful.
+
+  - name: monster_shambler             # joins id1 monster monster_shambler
+    classname: monster_shambler
+    ruleset_gate: {}
+    source_ref: weapons.c:1118
+    props:
+      changed_field: half_damage_from_lightning_beam
+      id1_value: true
+      ktx_value: false
+      mechanism: "KTX LightningHit (weapons.c:1101-1118) applies T_Damage at full value with no monster_shambler guard; vanilla halved LG-beam damage to shamblers"
+    notes: >
+      KTX removes the shambler's vanilla half-damage-from-lightning-beam: a
+      shambler takes FULL lightning-gun beam damage in KTX (no shambler branch
+      in LightningHit). Unconditional. The shambler's half-damage-from-EXPLOSIONS
+      is still present (except in bloodfest -- see the bloodfest mechanic row).
+      Health 600, gib -60, and melee/lightning damage are all faithful.
+
+# =====================================================================
+# Cluster: mechanic overrides
+# =====================================================================
+mechanics:
+  constants:
+    - name: yawnmode_grenade_deterministic_aim
+      ruleset_gate:
+        mode: yawnmode
+      source_ref: weapons.c:1412
+      value_text: deterministic_grenade_launch_angle
+      props:
+        id1_value: "crandom() scatter offsets on the launch angle"
+        ktx_value: "r1 = r2 = 0 (deterministic, no random scatter)"
+        joins_id1_baseline: false
+      notes: >
+        Yawnmode removes random scatter from the grenade launch angle
+        (`if (k_yawnmode) { r1 = r2 = 0; }` at weapons.c:1412), making grenade
+        aim fully deterministic. Mode-scoped.
+
+    - name: yawnmode_shotgun_deterministic_spread
+      ruleset_gate:
+        mode: yawnmode
+      source_ref: weapons.c:550
+      value_text: deterministic_pellet_grid
+      props:
+        id1_value: "per-pellet random spread (crandom() * spread on right/up axes), identical to vanilla"
+        ktx_value: "fixed deterministic pellet grid (the non_random_bullets ladder in FireBullets)"
+        nrb_practice_path: "also active via the 'nrb' userinfo key when not in a match (weapons.c:551)"
+        effective_impact: "deterministic pellets land predictably, so shotgun/SSG connect reliably at range -- vanilla random scatter loses pellets at distance, KTX yawnmode does not"
+        joins_id1_baseline: false
+      notes: >
+        In yawnmode the shotgun family (SG + SSG, all routed through FireBullets)
+        places pellets on a fixed deterministic grid instead of random scatter
+        (`non_random_bullets = k_yawnmode || ...` at weapons.c:550). The visible
+        consequence (operator SME note): because pellets group predictably, you
+        keep effective shotgun damage at range, where vanilla's random spread
+        drops pellets. Distinct from the k_classic_shotgun cvar, which only
+        changes the gunshot-puff effect grouping (cosmetic, not cataloged).
+        Mode-scoped (or via the 'nrb' practice toggle outside matches).
+
+    - name: yawnmode_nail_knockback
+      ruleset_gate:
+        mode: yawnmode
+      source_ref: combat.c:904
+      value_numeric: 1.2
+      value_text: nail_knockback_factor_1_2
+      props:
+        id1_value: 1.0
+        ktx_value: 1.2
+        applies_to: "spike inflictor (nailgun / super-nailgun)"
+        gate_source_ref: combat.c:902
+      notes: >
+        Yawnmode increases nail knockback 20% (`nailkick = 1.2` at combat.c:904,
+        gated `k_yawnmode && inflictor->classname == "spike"` at combat.c:902).
+        Mode-scoped.
+
+    - name: yawnmode_lg_water_discharge_self_kill
+      ruleset_gate:
+        mode: yawnmode
+      source_ref: weapons.c:1192
+      value_text: always_self_kill_4000_in_dmm4plus
+      props:
+        id1_value: "50% chance to self-kill when discharging underwater in dmm4+"
+        ktx_value: "100% self-kill (4000 damage) when yawnmode is active"
+        requires_deathmatch: "> 3 (dmm4+)"
+        dm_branch_source_ref: weapons.c:1185
+      notes: >
+        In dmm4+ (weapons.c:1185), firing the lightning gun underwater normally
+        has a 50% self-kill chance; yawnmode makes it always self-kill for
+        4000 (`if (k_yawnmode || g_random() <= 0.5) T_Damage(self,..,4000)` at
+        weapons.c:1189-1192). Mode-scoped (+ dmm4+).
+
+    - name: lg_water_discharge_damage_per_cell   # joins id1 constant lg_water_discharge_damage_per_cell
+      ruleset_gate:
+        cvar: k_dis
+      source_ref: weapons.c:1202
+      value_text: lg_water_discharge_gated_on_k_dis
+      props:
+        id1_value: "35 * cells radius damage, applied to all targets in radius"
+        ktx_facet_a: "the LG water-discharge radius explosion is suppressed unless k_dis != 0 (default k_dis=0 -> no radius damage at all)"
+        facet_a_source_ref: weapons.c:1202
+        ktx_facet_b: "with k_dis == 2, out-of-water non-self targets take 0 from the discharge (dtLG_DIS)"
+        facet_b_source_ref: combat.c:1196
+        cvar_value: 2
+        joins_id1_baseline: true
+      notes: >
+        KTX gates the lightning-gun water-discharge radius damage behind the
+        k_dis cvar. With the default k_dis=0 the discharge deals no radius damage
+        (weapons.c:1202); with k_dis==2 out-of-water targets are spared
+        (combat.c:1196). Cvar-gated (D22); the value-specific condition (k_dis==2)
+        is in props per the single-key rule.
+
+    - name: instagib_player_hit_damage
+      ruleset_gate:
+        mode: instagib
+      source_ref: combat.c:715
+      value_numeric: 5000
+      value_text: instagib_player_hit_5000
+      props:
+        id1_value: "normal per-weapon damage"
+        ktx_value: 5000
+        condition: "inflictor->ct == ctPlayer (any player-originated hit); self-hits are zeroed (combat.c:717)"
+        joins_id1_baseline: false
+      notes: >
+        In instagib, any player-originated hit deals 5000 (`take = 5000` at
+        combat.c:715), a one-shot kill. Self-hits are zeroed. Mode-scoped.
+
+    - name: midair_rl_airborne_instakill
+      ruleset_gate:
+        mode: midair
+      source_ref: combat.c:686
+      value_numeric: 9999
+      value_text: midair_rl_instakill_9999
+      props:
+        id1_value: "normal rocket splash damage"
+        ktx_value: 9999
+        condition: "target is a player hit by a rocket (rl_dmg) and airborne (playerheight >= midair_minheight and >= 45)"
+        joins_id1_baseline: false
+      notes: >
+        Midair's core rule: a rocket hitting a sufficiently-airborne player deals
+        9999 (instant kill) -- `take = 9999` at combat.c:686, with the height
+        guards immediately below. Mode-scoped.
+
+    - name: midair_no_self_rl_damage
+      ruleset_gate:
+        mode: midair
+      source_ref: combat.c:707
+      value_numeric: 0
+      value_text: midair_no_self_rl_damage
+      props:
+        id1_value: "0.5x self rocket-splash damage"
+        ktx_value: 0
+        condition: "rl_dmg and targ == attacker"
+        joins_id1_baseline: false
+      notes: >
+        In midair a player takes no self rocket damage (`take = 0` at
+        combat.c:707), where vanilla applies halved self-splash. Mode-scoped.
+
+    - name: ctf_strength_rune_damage_boost
+      ruleset_gate:
+        mode: ctf
+      source_ref: combat.c:550
+      value_text: "damage *= (k_ctf_rune_power_str / 2) + 1"
+      props:
+        id1_value: "1.0 (no rune system in vanilla)"
+        ktx_value: "outgoing damage multiplied by (k_ctf_rune_power_str / 2) + 1"
+        requires: "attacker holds the CTF strength rune (ctf_flag & CTF_RUNE_STR)"
+        tunable_cvar: k_ctf_rune_power_str
+        joins_id1_baseline: false
+      notes: >
+        CTF strength rune scales an attacker's outgoing damage by a
+        k_ctf_rune_power_str factor (combat.c:550). Gate {"mode":"ctf"}; the rune
+        is a runtime player flag and the multiplier is cvar-tunable (props).
+        Mode-scoped.
+
+    - name: ctf_resistance_rune_damage_reduction
+      ruleset_gate:
+        mode: ctf
+      source_ref: combat.c:556
+      value_text: "damage /= (k_ctf_rune_power_res / 2) + 1"
+      props:
+        id1_value: "1.0 (no rune system in vanilla)"
+        ktx_value: "incoming damage divided by (k_ctf_rune_power_res / 2) + 1"
+        requires: "target holds the CTF resistance rune (ctf_flag & CTF_RUNE_RES)"
+        tunable_cvar: k_ctf_rune_power_res
+        joins_id1_baseline: false
+      notes: >
+        CTF resistance rune divides a target's incoming damage by a
+        k_ctf_rune_power_res factor (combat.c:556). Mode-scoped.
+
+    - name: bloodfest_boss_damage_amplifier
+      ruleset_gate:
+        mode: bloodfest
+      source_ref: combat.c:535
+      value_numeric: 4
+      value_text: bloodfest_boss_damage_x4
+      props:
+        id1_value: 1.0
+        ktx_value: "4x outgoing damage"
+        requires: "attacker->bloodfest_boss is set (the bloodfest boss player)"
+        joins_id1_baseline: false
+      notes: >
+        In bloodfest the boss player's outgoing damage is multiplied by 4
+        (`damage *= 4` at combat.c:535, gated `k_bloodfest && attacker->bloodfest_boss`).
+        Mechanic constant, NOT a monster entity row -- disjoint from the bloodfest
+        monster keyspace. Mode-scoped (niche co-op mode).
+
+    - name: bloodfest_shambler_full_explosion_damage
+      ruleset_gate:
+        mode: bloodfest
+      source_ref: combat.c:1219
+      value_text: bloodfest_removes_shambler_explosion_resistance
+      props:
+        id1_value: "monster_shambler takes 0.5x rocket/grenade explosion damage"
+        ktx_bloodfest_value: "1.0x (full explosion damage -- the half-damage resistance is removed)"
+        mechanism: "the shambler half-damage guard is `!cvar(k_bloodfest)`-gated, so it is disabled in bloodfest (combat.c:1219)"
+        joins_id1_baseline: false
+      notes: >
+        In bloodfest a shambler takes full (not half) rocket/grenade explosion
+        damage, because the half-damage guard at combat.c:1219 is disabled when
+        k_bloodfest is set. Mechanic constant, not a monster row. Mode-scoped.
+  env_hazards:
+    - name: fall_damage                # joins id1 env_hazard fall_damage
+      ruleset_gate:
+        mode: ca
+      source_ref: combat.c:478
+      value_numeric: 0
+      value_text: fall_damage_suppressed_in_ca
+      props:
+        id1_value: "velocity-based fall damage"
+        ktx_value: 0
+        mechanism: "isCA() early-returns before T_Damage for dtFALL (combat.c:475-479)"
+      notes: >
+        Clan Arena suppresses fall damage entirely (`isCA()` block returns before
+        T_Damage for dtFALL, combat.c:478). Mode-scoped.
+
+    - name: drowning                   # joins id1 env_hazard drowning
+      ruleset_gate:
+        mode: ca
+      source_ref: combat.c:477
+      value_numeric: 0
+      value_text: drowning_suppressed_in_ca
+      props:
+        id1_value: "periodic drowning damage"
+        ktx_value: 0
+        mechanism: "isCA() early-returns before T_Damage for dtWATER_DMG (combat.c:475-479)"
+      notes: >
+        Clan Arena suppresses drowning damage entirely (`isCA()` block returns
+        before T_Damage for dtWATER_DMG, combat.c:477). Mode-scoped.
+  powerup_behaviors:
+    - name: quad_damage_multiplier     # joins id1 powerup_behavior quad_damage_multiplier
+      ruleset_gate:
+        mode: midair
+      source_ref: combat.c:540
+      value_text: quad_does_not_boost_damage_in_midair
+      props:
+        id1_value: "4x outgoing damage while quad active (dmm4 OctaPower 8x)"
+        ktx_midair_value: "1x -- quad does NOT multiply damage in midair (it only speeds rockets)"
+        mechanism: "the entire quad-damage block is `!midair`-gated (combat.c:540)"
+        joins_id1_baseline: true
+      notes: >
+        In midair, quad damage does not multiply outgoing damage at all -- the
+        quad-damage block is suppressed by the `!midair` condition (combat.c:540).
+        Quad in midair only makes rockets fast (see the rocket midair row).
+        Mode-scoped.
