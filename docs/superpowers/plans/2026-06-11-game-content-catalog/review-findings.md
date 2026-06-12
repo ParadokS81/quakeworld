@@ -103,7 +103,7 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 
 ### F12 -- Phase 0 acquired the WRONG v1.06 branch; value spot-greps cannot certify release identity (execution finding, Phase 0)
 
-**Resolved by:** Phase 0 bounce-back (orchestrator boundary verification 2026-06-12); re-acquire `id1-original`.
+**Resolved by:** Phase 0 bounce-back (orchestrator boundary verification 2026-06-12); re-acquired `id1-original` @ `85ccafd2`, landed in `bab08857` (provenance prose updated, dev DB reloaded, re-verified by orchestrator).
 
 **Evidence:** The executor cloned `maddes-b/QuakeC-releases` branch `id1-fixes-1.06` (commit `0e27811`, "Add FIXME/Maddes marks for other known issues..."). The repo's own README: "original" branches carry releases "with no bug-fixes implemented"; "fixes" branches have known issues fixed and annotated. `git diff id1-original..id1-fixes-1.06` = 226 insertions / 167 deletions across 21 files INCLUDING `shambler.qc`, `soldier.qc`, `wizard.qc`, `oldone.qc`, `player.qc`, `combat.qc`, `weapons.qc` (104 lines) -- exactly the files Phase 2 cites. Task 1 criterion (1) demanded the ORIGINAL release. The Task 1 spot-verify greps (shambler 600 / ogre 200) PASSED on the wrong branch -- both branches carry those values at the same lines -- so the value-grep gate alone could not catch this.
 
