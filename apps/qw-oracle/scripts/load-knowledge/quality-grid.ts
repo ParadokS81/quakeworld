@@ -2457,6 +2457,7 @@ export function makeFloorSourceStateProbe(
 }
 
 export function makeGameplayKindProbe(
+  project: Project,
   gameplay_source_id: string,
   table: 'gameplay_entity_defs' | 'gameplay_mechanics',
   kind: string,
@@ -2466,20 +2467,21 @@ export function makeGameplayKindProbe(
   return {
     name,
     family: 'regression',
-    description: `Gameplay-kind probe: ${table}[gameplay_source_id=${gameplay_source_id}, kind=${kind}] equals ${expected}.`,
+    description: `Gameplay-kind probe: ${table}[gameplay_source_id=${gameplay_source_id}, kind=${kind}] equals ${expected} (runs under project=${project}).`,
     run: async (ctx: ProbeContext): Promise<ProbeResult> => {
-      // Gameplay rows are project-scoped via gameplay_source_id; we want this
-      // probe to run when ctx.project matches gameplay_source_id semantically.
-      // Runs only under ctx.project === gameplay_source_id to avoid duplicate
-      // execution per project.
-      if (ctx.project !== gameplay_source_id) {
+      // Run-project is decoupled from the row's gameplay_source_id: ktx
+      // gameplay rides the ktx engine run (project=ktx, source=ktx); id1
+      // game content rides the qw namespace run (project=qw, source=id1).
+      // 'id1' is a gameplay_source, not a Project (types.ts), so guarding on
+      // the source-id directly would never fire for id1.
+      if (ctx.project !== project) {
         return {
           name,
           family: 'regression',
           description: '',
           status: 'PASS',
           count: 0,
-          summary: `skipped (not ${gameplay_source_id} project)`,
+          summary: `skipped (not ${project} project)`,
           examples: [],
         };
       }
@@ -2653,15 +2655,36 @@ const KTX_GAMEPLAY_KIND_PROBES: Probe[] = [
   // shipped count (F6 had ~309 estimate; Phase 3 + Phase 5.5 retrofit
   // confirmed 317 across parallel + serial runs). Bump expected when KTX
   // source legitimately gains/loses entries (verified by source-walk).
-  makeGameplayKindProbe('ktx', 'gameplay_entity_defs', 'monster', 13),
-  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'game_mode', 27),
-  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'mode_default', 317),
-  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'election_type', 5),
-  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'death_rule', 27),
-  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'score_system', 3),
-  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'drop_item', 31),
-  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'loc_macro', 15),
-  makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'teamplay_message', 21),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_entity_defs', 'monster', 13),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'game_mode', 27),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'mode_default', 317),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'election_type', 5),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'death_rule', 27),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'score_system', 3),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'drop_item', 31),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'loc_macro', 15),
+  makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'teamplay_message', 21),
+];
+
+const ID1_GAMEPLAY_KIND_PROBES: Probe[] = [
+  // Phase 1 (game-content-catalog) -- per-kind equality probes for the id1
+  // gameplay baseline. id1 is a gameplay_source, not an engine Project, so
+  // these ride the 'qw' game-content namespace run:
+  //   load-knowledge -- quality-grid --project qw
+  // Counts are LIVE at Phase 1 ship -- bump in the SAME commit that adds or
+  // removes rows (mirrors the seed expected_counts D8 tripwire). Verified
+  // against the live dev DB before shipping (F29).
+  makeGameplayKindProbe('qw', 'id1', 'gameplay_entity_defs', 'weapon', 8),
+  makeGameplayKindProbe('qw', 'id1', 'gameplay_entity_defs', 'projectile', 4),
+  makeGameplayKindProbe('qw', 'id1', 'gameplay_entity_defs', 'item', 25),
+  makeGameplayKindProbe('qw', 'id1', 'gameplay_mechanics', 'constant', 9),
+  makeGameplayKindProbe('qw', 'id1', 'gameplay_mechanics', 'env_hazard', 7),
+  makeGameplayKindProbe('qw', 'id1', 'gameplay_mechanics', 'player_stat', 12),
+  makeGameplayKindProbe('qw', 'id1', 'gameplay_mechanics', 'powerup_behavior', 3),
+  makeGameplayKindProbe('qw', 'id1', 'gameplay_mechanics', 'armor_model', 2),
+  makeGameplayKindProbe('qw', 'id1', 'gameplay_mechanics', 'death_rule', 9),
+  makeGameplayKindProbe('qw', 'id1', 'gameplay_mechanics', 'spawn_rule', 7),
+  makeGameplayKindProbe('qw', 'id1', 'gameplay_mechanics', 'dm_mode_rule', 4),
 ];
 
 // ---------------------------------------------------------------------------
@@ -2991,6 +3014,7 @@ const REGRESSION_PROBES: Probe[] = [
   ...QWFWD_FLOOR_PROBES,
   ...QTV_FLOOR_PROBES,
   ...KTX_GAMEPLAY_KIND_PROBES,
+  ...ID1_GAMEPLAY_KIND_PROBES,
   // Phase 6 anchor probes (added 2026-04-28) -- per-project load-bearing invariants.
   { name: 'F1.ezquake.anchor.gl_lightmode_ping_pong', family: 'regression', description: '', run: probeEzquakeGlLightmodePingPong },
   { name: 'F1.ezquake.anchor.doc_only_count', family: 'regression', description: '', run: probeEzquakeDocOnlyCount },

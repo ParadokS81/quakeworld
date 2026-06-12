@@ -47,7 +47,7 @@ gameplay_source:
 # backfills (D16) may have raised them since -- recount, do not assume.
 expected_counts:
   entities: 37
-  mechanics: 41
+  mechanics: 53
 
 # Cluster 1: weapons (8 rows)
 weapons:
@@ -254,7 +254,7 @@ projectiles:
     damage: 0
     splash_damage: 120
     splash_radius: 160
-    source_ref: weapons.qc:600
+    source_ref: weapons.qc:618
     props:
       movetype: MOVETYPE_BOUNCE
       movetype_source_ref: weapons.qc:644
@@ -265,10 +265,18 @@ projectiles:
       lifetime_source_ref: weapons.qc:676
       gravity_factor: 1
       direct_damage: 0
-      direct_damage_source_ref: weapons.qc:612
+      direct_damage_source_ref: weapons.qc:618
       splash_damage_source_ref: weapons.qc:600
       splash_radius_source_ref: combat.qc:258
-    notes: bounces, affected by gravity, no damage on direct touch.
+    notes: >
+      Bounces (MOVETYPE_BOUNCE), gravity-affected. The grenade has no separate
+      direct-impact damage value, but a direct contact with a player
+      (takedamage == DAMAGE_AIM) triggers GrenadeExplode immediately at
+      weapons.qc:618, dealing the full 120 splash. So a grenade that hits you
+      does hurt -- up to 120 -- via the explosion, not an impact value. The
+      earlier source_ref weapons.qc:600 pointed at the T_RadiusDamage splash
+      call (role-wrong for a direct-damage=0 claim); it is kept as
+      splash_damage_source_ref where it belongs.
 
 # Cluster 3: items (25 rows: 3 health + 3 armor + 4 powerups + 8 ammo + 6 weapon-pickups + 1 backpack)
 items:
@@ -326,7 +334,7 @@ items:
     classname: item_armor1
     pickup_amount: 100
     respawn_seconds: 20
-    source_ref: items.qc:386
+    source_ref: items.qc:387
     props:
       armortype: 0.3
       armortype_source_ref: items.qc:386
@@ -340,7 +348,7 @@ items:
     classname: item_armor2
     pickup_amount: 150
     respawn_seconds: 20
-    source_ref: items.qc:392
+    source_ref: items.qc:393
     props:
       armortype: 0.6
       armorvalue_cap: 150
@@ -351,7 +359,7 @@ items:
     classname: item_armorInv
     pickup_amount: 200
     respawn_seconds: 20
-    source_ref: items.qc:398
+    source_ref: items.qc:399
     props:
       armortype: 0.8
       armorvalue_cap: 200
@@ -366,13 +374,13 @@ items:
     props:
       damage_multiplier: 4
       damage_multiplier_dm4: 8
-      damage_multiplier_source_ref: combat.qc:127
+      damage_multiplier_source_ref: combat.qc:130
       damage_multiplier_dm4_source_ref: combat.qc:128
       duration_source_ref: items.qc:1346
       respawn_source_ref: items.qc:1308
       drop_on_death_gate: infokey_dq
-      drop_on_death_source_ref: client.qc:552
-    notes: dropped on death only when worldspawn key 'dq' is set.
+      drop_on_death_source_ref: player.qc:552
+    notes: dropped on death only when worldspawn key 'dq' is set. combat.qc:127 is the if(deathmatch==4) gate (the *8 path); combat.qc:130 is the default *4 multiply. The dq drop-on-death gate lives in PlayerDie at player.qc:552, not client.qc.
 
   - name: pentagram
     classname: item_artifact_invulnerability
@@ -398,8 +406,8 @@ items:
       mechanic_source_ref: client.qc:991
       duration_source_ref: items.qc:1334
       drop_on_death_gate: infokey_dr
-      drop_on_death_source_ref: client.qc:568
-    notes: 5-minute respawn.
+      drop_on_death_source_ref: player.qc:568
+    notes: 5-minute respawn. The dr drop-on-death gate lives in PlayerDie at player.qc:568, not client.qc.
 
   - name: biosuit
     classname: item_artifact_envirosuit
@@ -580,7 +588,7 @@ items:
       contents_source_ref: items.qc:1620
     notes: 120s lifetime then auto-removed; pickup grants weapon + remaining ammo.
 
-# Cluster 4: mechanics (41 rows total)
+# Cluster 4: mechanics (53 rows total)
 mechanics:
   constants:
     - name: sv_gravity_default
@@ -595,12 +603,106 @@ mechanics:
 
     - name: rocket_jump_multiplier_default
       value_numeric: 1
-      source_ref: client.qc:517
+      source_ref: defs.qc:443
       props:
         scope: worldspawn_default
         gate: infokey_rj
+        override_gate_source_ref: client.qc:517
         applies_to: self_damage_knockback
-      notes: rj=0 disables rocket jumping; rj=1 default; some servers set rj=2.
+      notes: rj=0 disables rocket jumping; rj=1 default; some servers set rj=2. The default of 1 is established by the global declaration `float rj = 1` at defs.qc:443; client.qc:517 is the conditional override gate that only fires when the server infokey rj is non-zero.
+
+    - name: splash_falloff_gradient
+      value_text: points_eq_damage_minus_half_distance_from_blast_center
+      source_ref: combat.qc:275
+      props:
+        scope: global_combat_rule
+        falloff_formula: points = damage - 0.5 * distance(blast_origin, target_center)
+        distance_term_source_ref: combat.qc:272
+        radius_formula: damage_plus_40
+        radius_source_ref: combat.qc:258
+        negative_points_gate: damage_delivered_only_if_points_gt_0
+        negative_points_gate_source_ref: combat.qc:279
+        applies_to: [rocket_launcher, grenade_launcher, rocket, grenade]
+        beam_twin_source_ref: combat.qc:312
+        beam_twin_note: T_BeamDamage (LG discharge) uses the same linear falloff (distance term combat.qc:309)
+      notes: >
+        Radius damage is NOT flat. T_RadiusDamage delivers
+        points = damage - 0.5*distance from the blast center; targets whose
+        points come out non-positive simply take nothing (delivery is gated
+        on points > 0 at combat.qc:279). NOTE the source order: the clamp at
+        combat.qc:273-274 bounds the DISTANCE TERM before the subtraction
+        (dead code in practice -- vlen is non-negative); it is NOT a
+        delivered-damage clamp. The per-weapon splash_damage (e.g. RL 120)
+        is the MAXIMUM at zero distance; delivered splash decreases linearly
+        to the edge of the damage+40 radius. The "splash flat 120" wording
+        on the rocket and grenade rows is the nominal max, not the value
+        delivered at range.
+
+    - name: self_splash_half_damage
+      value_numeric: 0.5
+      source_ref: combat.qc:278
+      props:
+        scope: global_combat_rule
+        rule: if_target_eq_attacker_then_points_times_0.5
+        applies_to: rocket_jump_and_self_splash
+        beam_twin_source_ref: combat.qc:314
+        beam_twin_note: T_BeamDamage applies the same self-halving
+        interaction_with_rj: separate_from_rocket_jump_multiplier_infokey_rj
+      notes: >
+        The radius damage you take from your own rocket or grenade is half
+        what an enemy at the same distance takes (combat.qc:278). This is the
+        QC-side self-damage reduction that makes rocket-jumping survivable;
+        the rj infokey knockback multiplier (constant
+        rocket_jump_multiplier_default) is a separate scalar.
+
+    - name: lg_direct_zvelocity_boost
+      value_numeric: 400
+      source_ref: weapons.qc:499
+      props:
+        scope: global_combat_rule
+        applies_to: lightning_gun_direct_hit_on_player
+        condition: other_classname_eq_player
+        condition_source_ref: weapons.qc:498
+      notes: a lightning-gun bolt hitting a player adds +400 to the target's z-velocity (a small upward pop); only applied when the struck entity is a player.
+
+    - name: lg_water_discharge_damage_per_cell
+      value_text: thirtyfive_times_cells_radius_damage
+      source_ref: weapons.qc:555
+      props:
+        scope: global_combat_rule
+        formula: T_RadiusDamage(self, self, 35 * ammo_cells)
+        trigger: firing_lightning_gun_while_waterlevel_gt_1
+        dumps_all_cells: true
+        dm4_variant_note: dm4 uses a fixed 4000 self-damage on a random low-roll branch (dm_mode_rules.dm4_rules.lg_water_self_damage); 35*cells is the base non-dm4 discharge
+      notes: firing the LG underwater discharges all cells and deals 35*cells radius damage centered on the shooter -- the classic "LG in water kills you". Empties ammo_cells to 0.
+
+    - name: ssg_last_shell_fires_shotgun
+      value_text: super_shotgun_falls_back_to_shotgun_at_one_shell
+      source_ref: weapons.qc:324
+      props:
+        scope: global_combat_rule
+        condition: currentammo_eq_1
+        fallback_call: W_FireShotgun
+        fallback_source_ref: weapons.qc:326
+      notes: the super shotgun needs 2 shells; with exactly 1 shell left it fires a single-barrel shotgun shot instead of failing. Player-visible behavior on the last shell.
+
+    - name: best_weapon_drops_lg_in_water
+      value_text: W_BestWeapon_excludes_lightning_when_waterlevel_gt_1
+      source_ref: weapons.qc:944
+      props:
+        scope: global_combat_rule
+        condition: waterlevel_le_1_required_for_lg_autoselect
+        also_requires: ammo_cells_ge_1
+      notes: auto weapon-select (best-weapon) will not pick the lightning gun when the player is submerged (waterlevel > 1), to avoid the self-discharge; it falls through to the next best weapon.
+
+    - name: timelimit_unit_minutes
+      value_text: timelimit_cvar_is_minutes_multiplied_by_60
+      source_ref: world.qc:350
+      props:
+        scope: match_rule
+        cvar_name: timelimit
+        conversion: seconds_eq_cvar_timelimit_times_60
+      notes: the timelimit cvar is specified in MINUTES; StartFrame multiplies by 60 to get the internal seconds value. A server admin setting timelimit 10 means a 10-minute match.
   env_hazards:
     - name: lava
       source_ref: client.qc:825
@@ -637,14 +739,22 @@ mechanics:
         starts_when: air_finished_lt_time
         starts_source_ref: client.qc:793
         damage_initial: 2
+        damage_initial_source_ref: client.qc:467
         damage_increment_per_tick: 2
+        damage_increment_source_ref: client.qc:797
         damage_cap: 10
-        damage_source_ref: client.qc:797
+        damage_cap_source_ref: client.qc:799
         tick_seconds: 1
         tick_seconds_source_ref: client.qc:801
         biosuit_blocks: true
         biosuit_source_ref: client.qc:1089
-      notes: 12s grace, then 1s ticks scaling 2->4->6->8->10 dmg.
+      notes: >
+        12s grace, then 1s ticks. self.dmg starts at 2 (initial water damage,
+        client.qc:467), increments +2 each tick (client.qc:797), and when it
+        exceeds 15 it resets to 10 (client.qc:799). So delivered damage climbs
+        4,6,8,10,12,14 then oscillates 10,12,14 -- the per-tick maximum is 14
+        and 10 is the post-overflow floor. The earlier single
+        damage_source_ref pointed only at the increment line.
 
     - name: fall_damage
       source_ref: client.qc:1146
@@ -681,7 +791,22 @@ mechanics:
         models_source_ref: player.qc:521
         gib_function: GibPlayer
         gib_function_source_ref: player.qc:600
-      notes: when health drops below -40 player explodes into gibs instead of ragdoll. Lives in player.qc, not client.qc.
+        explosive_obituary_switch_source_ref: client.qc:1361
+        lava_threshold_health: -15
+        lava_threshold_source_ref: client.qc:1452
+        gib_scatter_velocity_overkill_scaled: true
+        gib_scatter_tiers: dm_gt_minus50_x0.7 / dm_gt_minus200_x2 / else_x10
+        gib_scatter_tier_source_refs: [player.qc:465, player.qc:468, player.qc:470, player.qc:473, player.qc:476]
+        gib_entity_lifetime_seconds: 10_to_20
+        gib_entity_lifetime_source_ref: player.qc:497
+      notes: >
+        When health drops below -40 the player explodes into gibs instead of
+        ragdoll (player.qc:598; the obituary text switches to the gib variant at
+        client.qc:1361). Lava deaths gib at a lower bar, health < -15
+        (client.qc:1452). Gib scatter velocity scales with overkill:
+        VelocityForDamage multiplies the base by 0.7x above -50, 2x above -200,
+        and 10x below -200 (player.qc:465-476); gibs persist 10-20s
+        (player.qc:497). Lives in player.qc, not client.qc.
 
     - name: trigger_hurt
       source_ref: triggers.qc:548
@@ -692,7 +817,7 @@ mechanics:
         default_damage_source_ref: triggers.qc:571
         damage_value_origin: per_instance_set_by_mapper_in_entity_properties
         retrigger_seconds: 1
-        retrigger_source_ref: triggers.qc:553
+        retrigger_source_ref: triggers.qc:555
         applies_armor: true
         applies_pent: true
         common_uses: [void_brush_at_map_bottom, custom_hazard_areas, mapper_traps]
@@ -804,14 +929,18 @@ mechanics:
       props:
         hit_sound: items/protect3.wav
         hit_sound_source_ref: combat.qc:188
-      notes: implementation is full damage absorb (not partial).
+        hit_sound_cooldown_seconds: 2
+        hit_sound_cooldown_source_ref: combat.qc:189
+      notes: implementation is full damage absorb (not partial). The protect3 hit sound is throttled to once every 2 seconds (combat.qc:189) so rapid-fire weapons do not replay it every frame.
 
     - name: ring_invisibility_mechanic
       value_text: modelindex_eyes_when_invisible_finished_gt_zero
       source_ref: client.qc:991
       props:
         condition_source_ref: client.qc:955
-      notes: client modelindex swap; partial visibility threshold is engine-side.
+        suppresses_pain_frames: true
+        suppresses_pain_source_ref: player.qc:348
+      notes: client modelindex swap; partial visibility threshold is engine-side. While the ring is active the player skips pain animation frames (player.qc:348, "eyes don't have pain frames") -- a subtle tell that a ringed player takes hits without flinching.
   armor_models:
     - name: armor_absorb_formula
       value_text: save_eq_ceil_armortype_times_damage
@@ -825,6 +954,21 @@ mechanics:
         absorb_pct_yellow: 0.6
         absorb_pct_red: 0.8
       notes: armor depletes first, then health takes the remainder.
+
+    - name: armor_pickup_upgrade_gate
+      value_text: pickup_blocked_when_current_armortype_times_armorvalue_gte_new
+      source_ref: items.qc:402
+      props:
+        scope: armor_pickup_rule
+        rule: skip_pickup_if (other.armortype * other.armorvalue) >= (new_type * new_value)
+        applies_to: [green_armor, yellow_armor, red_armor]
+        effect_on_pickup_source_ref: items.qc:406
+      notes: >
+        Picking up armor only upgrades you if the new armor's protective product
+        (type * value) exceeds your current one; otherwise the pickup is skipped
+        and the item is NOT consumed. This is why walking over green armor while
+        wearing red does nothing. On a successful pickup armortype and armorvalue
+        are both overwritten (items.qc:406), not added.
   death_rules:
     - name: telefrag
       value_numeric: 50000
@@ -876,10 +1020,11 @@ mechanics:
 
     - name: friendly_fire_teamplay_0
       value_text: all_damage_applies
-      source_ref: combat.qc:199
+      source_ref: combat.qc:210
       props:
         teamplay_value: 0
-      notes: free-for-all.
+        teamplay_guards_source_ref: combat.qc:199
+      notes: free-for-all. combat.qc:199 is the teamplay==1 guard; when teamplay==0 no guard fires and execution falls through to the unconditional damage application at combat.qc:210.
 
     - name: friendly_fire_teamplay_1
       value_text: same_team_damage_blocked
@@ -921,6 +1066,23 @@ mechanics:
         no_ax_deathtype: true
         ax_uses_axhitme_boolean_instead: defs.qc:516
       notes: 7 deathtypes total. There is NO "ax" deathtype (axe uses axhitme boolean at defs.qc:516, set at weapons.qc:52). There is NO "grenade" deathtype (grenade explosion goes through T_RadiusDamage which assigns "rocket" downstream). "laser" exists in misc.qc:319 (laser-trap entities).
+
+    - name: death_health_floor
+      value_numeric: -99
+      source_ref: combat.qc:66
+      props:
+        scope: global_death_rule
+        rule: health_clamped_to_minus99_on_kill
+        purpose: keep_status_bar_from_showing_extreme_negative_health
+      notes: on death the engine clamps health to -99 (combat.qc:66) so the status bar does not display extreme negative values. This is the hard floor any post-death health read sees.
+
+    - name: suicide_frag_penalty
+      value_numeric: -2
+      source_ref: client.qc:298
+      props:
+        scope: global_death_rule
+        trigger: kill_command_ClientKill
+      notes: the player 'kill' command (ClientKill) subtracts 2 frags ("extra penalty", client.qc:298). This is the explicit-suicide penalty; ordinary environmental or self-weapon deaths use the standard single-frag loss handled in the obituary path.
   spawn_rules:
     - name: spawn_invul_default
       value_numeric: 0
@@ -954,22 +1116,63 @@ mechanics:
       source_ref: client.qc:189
       props: {}
       notes: 5-second wait after intermission before any player can advance.
+
+    - name: inter_level_carry_over
+      value_text: SetChangeParms_clamps_carried_state_between_levels
+      source_ref: client.qc:51
+      props:
+        scope: single_player_level_transition
+        health_cap: 100
+        health_cap_source_ref: client.qc:49
+        health_floor: 50
+        health_floor_source_ref: client.qc:51
+        shells_floor: 25
+        shells_floor_source_ref: client.qc:56
+        carried_as_is: [nails, rockets, cells, items, armor]
+      notes: >
+        SetChangeParms normalizes the player's state when carrying between
+        single-player levels: health is clamped to [50, 100] (client.qc:49/51)
+        and shells are floored to 25 (client.qc:56), so you never enter the next
+        map below 50 health or 25 shells. Other ammo, items and armor carry as-is.
+
+    - name: spawn_clearance_radius
+      value_numeric: 84
+      source_ref: client.qc:340
+      props:
+        scope: deathmatch_spawn_selection
+        rule: spawn_point_counts_nearby_players_within_84_units
+        preferred_pool: spots_with_zero_players_in_radius
+      notes: >
+        SelectSpawnPoint uses findradius(spot.origin, 84) to count players near
+        each candidate spawn; spots with no one inside 84 units form the preferred
+        pool, and when all are occupied the algorithm falls back to a random spot.
   dm_mode_rules:
     - name: dm2_rules
-      value_text: respawn_30s_ammo_no_health_respawn
+      value_text: dm2_items_do_not_respawn_old_rules
       source_ref: items.qc:411
       props:
-        ammo_respawn_seconds: 30
-        ammo_respawn_source_ref: items.qc:868
-        no_health_respawn: true
-      notes: classic deathmatch mode 2.
+        mechanism: every_item_respawn_nextthink_is_gated_on_deathmatch_ne_2
+        health_respawn_gate_source_ref: items.qc:328
+        armor_respawn_gate_source_ref: items.qc:411
+        ammo_weapon_respawn_gate_source_ref: items.qc:868
+        effect: items_removed_permanently_on_pickup_no_regen_in_dm2
+      notes: >
+        Classic deathmatch mode 2 ("silly old rules", per the items.qc:328
+        comment). Every item-respawn timer -- health (items.qc:328), armor
+        (items.qc:411), ammo and weapons (items.qc:868) -- schedules its respawn
+        nextthink only when deathmatch != 2, so in dm2 the timer is never set
+        and items do NOT respawn after pickup. The earlier "respawn_30s_ammo"
+        wording was backwards: 30s is the NON-dm2 ammo respawn time.
 
     - name: dm3_rules
       value_text: 15s_ammo_respawn
       source_ref: items.qc:872
       props:
         ammo_respawn_seconds: 15
-      notes: half ammo respawn time.
+        backpack_rocket_floor: 5
+        backpack_rocket_floor_source_ref: items.qc:1574
+        backpack_rocket_floor_condition: picking_up_GL_or_RL_with_fewer_than_5_rockets
+      notes: half ammo respawn time. In dm3 (and dm5), picking up a backpack containing the grenade or rocket launcher tops your rockets up to a minimum of 5 (items.qc:1574) so you can always fire the weapon you just got.
 
     - name: dm4_rules
       value_text: octapower
@@ -1003,7 +1206,24 @@ mechanics:
         backpack_bonus_source_ref: items.qc:1475
         bonus_health_threshold: 299
         bonus_threshold_source_ref: items.qc:1484
-      notes: DM4 OctaPower preset. The 255-ammo block is gated by the worldspawn 'axe' infokey.
+        quad_pickup_strips_armor_and_cells: true
+        quad_pickup_strip_source_ref: items.qc:47
+        item_spawns_disabled: true
+        item_spawns_disabled_source_ref: items.qc:891
+        quad_expiry_restore: cells_255_armorvalue_1_armortype_0.8_health_100
+        quad_expiry_restore_source_ref: client.qc:1064
+        bonus_pent_duration_seconds: 30
+        bonus_pent_duration_source_ref: items.qc:1489
+        grenade_self_damage_on_fire: 10
+        grenade_self_damage_source_ref: weapons.qc:673
+      notes: >
+        DM4 OctaPower preset. The 255-ammo block is gated by the worldspawn 'axe'
+        infokey. DM4-specific extras: picking up the quad strips your armor and
+        cells (items.qc:47); item entities do not spawn at all (items.qc:891,
+        each item think returns early); when the quad expires you snap back to
+        cells=255 / armorvalue=1 / armortype=0.8 / health=100 (client.qc:1064);
+        bonus pentagram lasts 30s (items.qc:1489); and firing a grenade costs the
+        shooter 10 HP (weapons.qc:673).
 
     - name: dm5_rules
       value_text: quadmachine

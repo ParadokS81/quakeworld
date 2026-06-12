@@ -111,6 +111,38 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 
 **Lesson (F7/F10 class, acquisition flavor):** a tree can pass value spot-checks and still be the wrong RELEASE. Acquisition verification must read the mirror's branch/release semantics (README, changelog, commit messages), not only grep for known values. Phase 2's verify agents cite this tree; they inherit the pinned-SHA anchor.
 
+### F13 -- id1 audit: 14 citation/role discrepancies across 242 cited values (execution, Phase 1)
+
+**Resolved by:** in-place corrections (9) + operator adjudication (5), Phase 1 Task 4. Detail in `phase-1-findings.md` sections A/B.
+
+**Evidence:** The audit fan-out (15 groups, 0 nulls) re-derived 242 cited values; 232 agreed, 14 were discrepancies (each Stage-2 confirmed, each re-read against source by the executor). 9 were line-accurate-but-role-wrong citations the executor corrected in place (armor rows citing the `type=` line instead of `value=`; quad multiplier citing the `if(deathmatch==4)` gate instead of `damage*4`; dq/dr drop-on-death gates citing client.qc instead of player.qc:PlayerDie; rj default citing the override gate instead of `float rj=1` in defs.qc; trigger retrigger citing the T_Damage line; teamplay-0 citing the teamplay==1 guard instead of the fall-through damage line). 5 were operator-adjudicated disputes (rocket random-range vs KTX fixed-110 -> F15; grenade direct-damage=0 citing the splash call; drowning initial/cap citations split to their real lines; dm2_rules value_text was backwards -- dm2 SUPPRESSES respawn). This is the F7/F10 class at scale: most errors were a correct value backed by a role-wrong line.
+
+**Action:** none open -- all 14 resolved. Confirms D1 (the April baseline was richly authored but carried citation-role errors; the audit converts it to verified-under-regime).
+
+### F14 -- gap sweep surfaced a far larger gameplay surface than the 2 known seeds; operator scoped to Tier 1 (execution, Phase 1)
+
+**Resolved by:** operator SME gate (D12 surface 1), 2026-06-12 -- accept Tier 1, defer Tier 2.
+
+**Evidence:** The exhaustive per-file sweep (17 files, 0 nulls) returned 115 candidates, 0 needs_new_kind (no D14 escalation). Triage: 2 seed, 55 gameplay, 7 borderline, 21 plumbing, 30 dup. The MD anticipated ~2 new rows (the seeds); the D4-exhaustive sweep found a much larger gameplay surface. The operator accepted **Tier 1** (core combat/player/death/spawn/deathmatch rules -> 12 new mechanic rows + 6 enriched rows; mechanics 41 -> 53) and **deferred Tier 2** (map-entity hazard defaults -- door/plat/train crush, traps, fireballs, telefrag, teleport; ~26 candidates) to a follow-up arc. The seed finding stands: radius/splash damage is NOT flat -- `points = damage - 0.5*distance`, self-splash halved, T_BeamDamage (LG) twin identical.
+
+**Action:** the deferred Tier-2 list is tracked in `phase-1-findings.md` section D (not dropped). A follow-up arc decides whether per-map entity defaults belong in the global catalog.
+
+### F15 -- rocket direct-hit damage diverges id1 (random) vs KTX (fixed 110); Phase 3 carry-forward (execution, Phase 1)
+
+**Resolved by:** UNRESOLVED -- flagged for Phase 3 (ktx overlay owns the KTX delta).
+
+**Evidence:** The rocket audit dispute surfaced an id1-vs-KTX divergence the operator flagged from competitive play. id1 `damg = 100 + random()*20` (weapons.qc:385) is uniform random 100-120 (mean 110). KTX hardcodes a **fixed 110** on direct hits (`ktx/src/weapons.c:986`), with a **55** special case vs monster_shambler when not bloodfest (`weapons.c:981`). The id1 row keeps id1 truth (110 documented as the mean via its damage_formula prop); the KTX fixed-110 is a ktx-source delta.
+
+**Action:** Phase 3 captures the KTX rocket direct-hit override (110, shambler 55) as a `gameplay_source=ktx` overlay row under the D4/D6 weapon-delta pattern.
+
+### F16 -- makeGameplayKindProbe signature change broke quality-grid.test.ts (execution, Phase 1)
+
+**Resolved by:** fixed in Phase 1 Task 5 (both call sites updated).
+
+**Evidence:** Task 5 added a leading `project: Project` param to `makeGameplayKindProbe`. The phase MD's Files-touched listed only `quality-grid.ts`, not `quality-grid.test.ts`, which has 2 call sites (lines 113, 119). `tsc` caught it (TS2554, expected 5 got 4); the executor updated both call sites (`('ktx', 'ktx', ...)`) and a stale test description.
+
+**Action:** none open. Process note for future shared-helper signature changes: grep ALL call sites including test files before declaring Files-touched complete.
+
 ---
 
 ## Phase ownership of findings
@@ -118,7 +150,7 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 | Phase | Findings to verify before sign-off |
 |---|---|
 | Phase 0 | F1 (probe ships here), F2; F12 (bounce-back: re-acquire id1-original) |
-| Phase 1 | F7 (resolved at drafting by planner amendment; execution audit findings will append here) |
+| Phase 1 | F7 (resolved at drafting by planner amendment); F13 (audit corrections), F14 (gap sweep / Tier-1 scope), F16 (test signature fix) -- all resolved this phase; F15 (KTX rocket fixed-110) -> carry-forward to Phase 3 |
 | Phase 2 | F8 (resolved at drafting -- wiki-snapshot design adaptation) |
 | Phase 3 | F3; F9 (deferred -- carry-forward to the MCP-realignment arc); F10 (resolved at drafting by planner amendment); F11 |
 | Phase 4 | F4, F5 (doc text), F6 |

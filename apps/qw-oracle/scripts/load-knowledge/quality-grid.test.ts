@@ -110,13 +110,13 @@ describe('makeGameplayKindProbe', () => {
   beforeEach(async () => { await seed(); });
 
   it('uses canonical probe name', () => {
-    const probe = makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'game_mode', 27);
+    const probe = makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'game_mode', 27);
     expect(probe.name).toBe('F1.ktx.gameplay_kind.game_mode_count');
     expect(probe.family).toBe('regression');
   });
 
-  it('skips when project does not match the probe gameplay_source_id', async () => {
-    const probe = makeGameplayKindProbe('ktx', 'gameplay_mechanics', 'game_mode', 27);
+  it('skips when ctx.project does not match the probe run-project', async () => {
+    const probe = makeGameplayKindProbe('ktx', 'ktx', 'gameplay_mechanics', 'game_mode', 27);
     const result = await probe.run({ sql, project: 'fte' });
     expect(result.status).toBe('PASS');
     expect(result.summary).toMatch(/skipped/);
