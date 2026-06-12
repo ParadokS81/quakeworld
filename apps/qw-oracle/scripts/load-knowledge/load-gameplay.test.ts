@@ -83,10 +83,12 @@ describe('load-gameplay', () => {
       ORDER BY name
     `;
     expect(rows.length).toBe(2);
-    expect(rows[0].name).toBe('ogre');
-    expect((rows[0].props_json as { health: number }).health).toBe(200);
-    expect(rows[1].name).toBe('shambler');
-    expect((rows[1].props_json as { health: number }).health).toBe(600);
+    // Non-null assertions: the length check above guarantees both rows exist.
+    // tsc's noUncheckedIndexedAccess types array index as T | undefined.
+    expect(rows[0]!.name).toBe('ogre');
+    expect((rows[0]!.props_json as { health: number }).health).toBe(200);
+    expect(rows[1]!.name).toBe('shambler');
+    expect((rows[1]!.props_json as { health: number }).health).toBe(600);
   });
 
   it('expectedCountsMismatch returns null when counts match', async () => {
@@ -103,7 +105,7 @@ describe('load-gameplay', () => {
   it('loadGameplayFromArray throws when expected_counts is missing', async () => {
     const noGate = { ...fixture } as unknown as Record<string, unknown>;
     delete noGate.expected_counts;
-    await expect(loadGameplayFromArray(sql, noGate as SeedFile)).rejects.toThrow('expected_counts');
+    await expect(loadGameplayFromArray(sql, noGate as unknown as SeedFile)).rejects.toThrow('expected_counts');
   });
 
   it('double load produces equal totals (idempotency)', async () => {
