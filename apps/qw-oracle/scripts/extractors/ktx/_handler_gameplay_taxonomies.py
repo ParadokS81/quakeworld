@@ -280,7 +280,7 @@ class KtxGameplayTaxonomiesHandler(Visitor):
                     "name":              token,
                     "kind":              "death_rule",
                     "value_text":        tag,
-                    "source_ref":        f"deathtype.h:{line_no}",
+                    "source_ref":        f"../include/deathtype.h:{line_no}",
                     "ruleset_gate_json": {},
                     "props_json": {
                         "category":      category,
@@ -343,7 +343,7 @@ class KtxGameplayTaxonomiesHandler(Visitor):
                 "name":              token,
                 "kind":              "election_type",
                 "value_text":        tag,
-                "source_ref":        f"progs.h:{line}",
+                "source_ref":        f"../include/progs.h:{line}",
                 "ruleset_gate_json": {},
                 "props_json": {
                     "description":           description,

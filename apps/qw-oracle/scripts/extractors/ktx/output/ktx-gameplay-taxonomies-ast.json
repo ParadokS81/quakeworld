@@ -4,7 +4,7 @@
       "name": "admin",
       "kind": "election_type",
       "value_text": "etAdmin",
-      "source_ref": "progs.h:222",
+      "source_ref": "../include/progs.h:222",
       "ruleset_gate_json": {},
       "props_json": {
         "description": "Election to grant elected-admin privileges",
@@ -18,7 +18,7 @@
       "name": "captain",
       "kind": "election_type",
       "value_text": "etCaptain",
-      "source_ref": "progs.h:220",
+      "source_ref": "../include/progs.h:220",
       "ruleset_gate_json": {},
       "props_json": {
         "description": "Player election to designate team captains",
@@ -32,7 +32,7 @@
       "name": "coach",
       "kind": "election_type",
       "value_text": "etCoach",
-      "source_ref": "progs.h:221",
+      "source_ref": "../include/progs.h:221",
       "ruleset_gate_json": {},
       "props_json": {
         "description": "Spectator election to designate team coaches",
@@ -46,7 +46,7 @@
       "name": "late_join",
       "kind": "election_type",
       "value_text": "etLateJoin",
-      "source_ref": "progs.h:224",
+      "source_ref": "../include/progs.h:224",
       "ruleset_gate_json": {},
       "props_json": {
         "description": "Vote to allow a late-joining player into an in-progress match",
@@ -60,7 +60,7 @@
       "name": "suggest_color",
       "kind": "election_type",
       "value_text": "etSuggestColor",
-      "source_ref": "progs.h:223",
+      "source_ref": "../include/progs.h:223",
       "ruleset_gate_json": {},
       "props_json": {
         "description": "Player vote to suggest a team color change",
@@ -76,7 +76,7 @@
       "name": "axe",
       "kind": "death_rule",
       "value_text": "dtAXE",
-      "source_ref": "deathtype.h:2",
+      "source_ref": "../include/deathtype.h:2",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "weapon",
@@ -89,7 +89,7 @@
       "name": "sg",
       "kind": "death_rule",
       "value_text": "dtSG",
-      "source_ref": "deathtype.h:3",
+      "source_ref": "../include/deathtype.h:3",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "weapon",
@@ -102,7 +102,7 @@
       "name": "ssg",
       "kind": "death_rule",
       "value_text": "dtSSG",
-      "source_ref": "deathtype.h:4",
+      "source_ref": "../include/deathtype.h:4",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "weapon",
@@ -115,7 +115,7 @@
       "name": "ng",
       "kind": "death_rule",
       "value_text": "dtNG",
-      "source_ref": "deathtype.h:5",
+      "source_ref": "../include/deathtype.h:5",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "weapon",
@@ -128,7 +128,7 @@
       "name": "sng",
       "kind": "death_rule",
       "value_text": "dtSNG",
-      "source_ref": "deathtype.h:6",
+      "source_ref": "../include/deathtype.h:6",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "weapon",
@@ -141,7 +141,7 @@
       "name": "gl",
       "kind": "death_rule",
       "value_text": "dtGL",
-      "source_ref": "deathtype.h:7",
+      "source_ref": "../include/deathtype.h:7",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "weapon",
@@ -154,7 +154,7 @@
       "name": "rl",
       "kind": "death_rule",
       "value_text": "dtRL",
-      "source_ref": "deathtype.h:8",
+      "source_ref": "../include/deathtype.h:8",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "weapon",
@@ -167,7 +167,7 @@
       "name": "lg_beam",
       "kind": "death_rule",
       "value_text": "dtLG_BEAM",
-      "source_ref": "deathtype.h:9",
+      "source_ref": "../include/deathtype.h:9",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "weapon",
@@ -180,7 +180,7 @@
       "name": "lg_dis",
       "kind": "death_rule",
       "value_text": "dtLG_DIS",
-      "source_ref": "deathtype.h:10",
+      "source_ref": "../include/deathtype.h:10",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "weapon",
@@ -193,7 +193,7 @@
       "name": "lg_dis_self",
       "kind": "death_rule",
       "value_text": "dtLG_DIS_SELF",
-      "source_ref": "deathtype.h:11",
+      "source_ref": "../include/deathtype.h:11",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "self",
@@ -206,7 +206,7 @@
       "name": "hook",
       "kind": "death_rule",
       "value_text": "dtHOOK",
-      "source_ref": "deathtype.h:12",
+      "source_ref": "../include/deathtype.h:12",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "weapon",
@@ -219,7 +219,7 @@
       "name": "changelevel",
       "kind": "death_rule",
       "value_text": "dtCHANGELEVEL",
-      "source_ref": "deathtype.h:13",
+      "source_ref": "../include/deathtype.h:13",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "structural",
@@ -232,7 +232,7 @@
       "name": "lava",
       "kind": "death_rule",
       "value_text": "dtLAVA_DMG",
-      "source_ref": "deathtype.h:14",
+      "source_ref": "../include/deathtype.h:14",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "environment",
@@ -245,7 +245,7 @@
       "name": "slime",
       "kind": "death_rule",
       "value_text": "dtSLIME_DMG",
-      "source_ref": "deathtype.h:15",
+      "source_ref": "../include/deathtype.h:15",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "environment",
@@ -258,7 +258,7 @@
       "name": "water",
       "kind": "death_rule",
       "value_text": "dtWATER_DMG",
-      "source_ref": "deathtype.h:16",
+      "source_ref": "../include/deathtype.h:16",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "environment",
@@ -271,7 +271,7 @@
       "name": "fall",
       "kind": "death_rule",
       "value_text": "dtFALL",
-      "source_ref": "deathtype.h:17",
+      "source_ref": "../include/deathtype.h:17",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "environment",
@@ -284,7 +284,7 @@
       "name": "stomp",
       "kind": "death_rule",
       "value_text": "dtSTOMP",
-      "source_ref": "deathtype.h:18",
+      "source_ref": "../include/deathtype.h:18",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "environment",
@@ -297,7 +297,7 @@
       "name": "tele1",
       "kind": "death_rule",
       "value_text": "dtTELE1",
-      "source_ref": "deathtype.h:19",
+      "source_ref": "../include/deathtype.h:19",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "telefrag",
@@ -310,7 +310,7 @@
       "name": "tele2",
       "kind": "death_rule",
       "value_text": "dtTELE2",
-      "source_ref": "deathtype.h:20",
+      "source_ref": "../include/deathtype.h:20",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "telefrag",
@@ -323,7 +323,7 @@
       "name": "tele3",
       "kind": "death_rule",
       "value_text": "dtTELE3",
-      "source_ref": "deathtype.h:21",
+      "source_ref": "../include/deathtype.h:21",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "telefrag",
@@ -336,7 +336,7 @@
       "name": "tele4",
       "kind": "death_rule",
       "value_text": "dtTELE4",
-      "source_ref": "deathtype.h:22",
+      "source_ref": "../include/deathtype.h:22",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "telefrag",
@@ -349,7 +349,7 @@
       "name": "explo_box",
       "kind": "death_rule",
       "value_text": "dtEXPLO_BOX",
-      "source_ref": "deathtype.h:23",
+      "source_ref": "../include/deathtype.h:23",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "environment",
@@ -362,7 +362,7 @@
       "name": "laser",
       "kind": "death_rule",
       "value_text": "dtLASER",
-      "source_ref": "deathtype.h:24",
+      "source_ref": "../include/deathtype.h:24",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "environment",
@@ -375,7 +375,7 @@
       "name": "fireball",
       "kind": "death_rule",
       "value_text": "dtFIREBALL",
-      "source_ref": "deathtype.h:25",
+      "source_ref": "../include/deathtype.h:25",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "environment",
@@ -388,7 +388,7 @@
       "name": "squish",
       "kind": "death_rule",
       "value_text": "dtSQUISH",
-      "source_ref": "deathtype.h:26",
+      "source_ref": "../include/deathtype.h:26",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "environment",
@@ -401,7 +401,7 @@
       "name": "trigger",
       "kind": "death_rule",
       "value_text": "dtTRIGGER_HURT",
-      "source_ref": "deathtype.h:27",
+      "source_ref": "../include/deathtype.h:27",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "environment",
@@ -414,7 +414,7 @@
       "name": "suicide",
       "kind": "death_rule",
       "value_text": "dtSUICIDE",
-      "source_ref": "deathtype.h:28",
+      "source_ref": "../include/deathtype.h:28",
       "ruleset_gate_json": {},
       "props_json": {
         "category": "self",
