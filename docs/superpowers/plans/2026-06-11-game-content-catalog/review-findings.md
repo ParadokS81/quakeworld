@@ -152,7 +152,7 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 | Phase 0 | F1 (probe ships here), F2; F12 (bounce-back: re-acquire id1-original) |
 | Phase 1 | F7 (resolved at drafting by planner amendment); F13 (audit corrections), F14 (gap sweep / Tier-1 scope), F16 (test signature fix) -- all resolved this phase; F15 (KTX rocket fixed-110) -> carry-forward to Phase 3 |
 | Phase 2 | F8 (resolved at drafting -- wiki-snapshot design adaptation) |
-| Phase 3 | F3; F9 (deferred -- carry-forward to the MCP-realignment arc); F10 (resolved at drafting by planner amendment); F11 |
+| Phase 3 | F3; F9 (deferred -- carry-forward to the MCP-realignment arc); F10 (resolved at drafting by planner amendment); F11; F15 (id1 rocket random vs KTX fixed-110 -- overlay row candidate; see also phase-1-findings.md section F) |
 | Phase 4 | F4, F5 (doc text), F6 |
 
 ---
