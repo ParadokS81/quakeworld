@@ -32,8 +32,8 @@ Slicing: one horizontal foundation phase (0), then per-deliverable data slices, 
 | 0 | shipped | `phase-0-prereqs-loader.md` | v1.06 QC tree + provenance; loader `monsters` section; expected_counts STOP-gate rework (F2); citation-gate + seed-double-load probes | Loader accepts all five seed sections; unchanged id1 YAML loads green under the new gate; probes runnable |
 | 1 | shipped | `phase-1-audit.md` | id1 audit: 242 values re-verified (9 corrections, 5 adjudicated), 12 Tier-1 gap rows (mechanics 41->53), id1 F1 probes | id1 baseline verified-under-current-regime; new mechanics rows queryable; F1 id1 grid green |
 | 2 | shipped | `phase-2-monsters.md` | id1 monster stat rows (15, entities 37->52) + committed wiki snapshot cross-check | `search_gameplay_entities kind=monster gameplay_source=id1` returns the roster (dev-DB code path; prod MCP awaits deploy, F18) |
-| 3 | in execution | `phase-3-ktx-overlay.md` | `ktx-gameplay.yaml` override layer (4 file families, exhaustive value deltas) + disjointness probe (F3) + F11 emit-site fix | Data-level mode-token join returns catalog + mode_defaults + hardcoded overlays (describe_mode envelope gap = F9, deferred) |
-| 4 | approved | `phase-4-joinkeys-docs.md` | `map_summary_key` props; SCHEMA.md conventions subsection; RUNBOOK qw section; verify-gameplay.ts fix (F4); snapshot regen | Full F1 sweep green; snapshot + MCP surfacing confirmed; docs current |
+| 3 | shipped | `phase-3-ktx-overlay.md` | `ktx-gameplay.yaml` 26 override rows (11 entity + 15 mechanic) + disjointness probe (F3) + F11 emit-site fix (taxonomy refs 32->0) | Data-level mode-token join returns catalog + mode_defaults + hardcoded overlays (describe_mode envelope gap = F9, deferred) |
+| 4 | in execution | `phase-4-joinkeys-docs.md` | `map_summary_key` props; SCHEMA.md conventions subsection; RUNBOOK qw section; verify-gameplay.ts fix (F4); snapshot regen | Full F1 sweep green; snapshot + MCP surfacing confirmed; docs current |
 
 Status values: `not drafted` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
 
