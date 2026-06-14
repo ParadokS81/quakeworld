@@ -279,6 +279,8 @@ projectiles:
       splash_damage_source_ref where it belongs.
 
 # Cluster 3: items (25 rows: 3 health + 3 armor + 4 powerups + 8 ammo + 6 weapon-pickups + 1 backpack)
+# map_summary_key prop (plan D21): aliases maps.item_summary_json's 20 lowercase
+# keys onto these rows (24 of 25; backpack has none). See SCHEMA.md "Gameplay conventions".
 items:
 # (filled by Tasks 6a-6f)
   - name: health_15_rotten
@@ -287,6 +289,7 @@ items:
     respawn_seconds: 20
     source_ref: items.qc:250
     props:
+      map_summary_key: h15
       spawnflag: 1
       spawnflag_meaning: H_ROTTEN
       classname_source_ref: items.qc:239
@@ -301,6 +304,7 @@ items:
     respawn_seconds: 20
     source_ref: items.qc:269
     props:
+      map_summary_key: h25
       spawnflag: 0
       cap_rule: clamps_to_max_health_via_T_Heal_ignore_zero
       cap_source_ref: items.qc:217
@@ -313,6 +317,7 @@ items:
     respawn_seconds: 20
     source_ref: items.qc:260
     props:
+      map_summary_key: mh
       spawnflag: 2
       spawnflag_meaning: H_MEGA
       max_carry: 250
@@ -336,6 +341,7 @@ items:
     respawn_seconds: 20
     source_ref: items.qc:387
     props:
+      map_summary_key: ga          # maps.item_summary_json join alias (plan D21); not a cited value
       armortype: 0.3
       armortype_source_ref: items.qc:386
       armorvalue_cap: 100
@@ -350,6 +356,7 @@ items:
     respawn_seconds: 20
     source_ref: items.qc:393
     props:
+      map_summary_key: ya
       armortype: 0.6
       armorvalue_cap: 150
       classname_source_ref: items.qc:390
@@ -361,6 +368,7 @@ items:
     respawn_seconds: 20
     source_ref: items.qc:399
     props:
+      map_summary_key: ra
       armortype: 0.8
       armorvalue_cap: 200
       classname_source_ref: items.qc:396
@@ -372,6 +380,7 @@ items:
     respawn_seconds: 60
     source_ref: items.qc:1417
     props:
+      map_summary_key: quad
       damage_multiplier: 4
       damage_multiplier_dm4: 8
       damage_multiplier_source_ref: combat.qc:130
@@ -388,6 +397,7 @@ items:
     respawn_seconds: 300
     source_ref: items.qc:1358
     props:
+      map_summary_key: pent
       mechanic: damage_blocked_while_invincible_finished_gte_time
       mechanic_source_ref: combat.qc:184
       duration_source_ref: items.qc:1328
@@ -402,6 +412,7 @@ items:
     respawn_seconds: 300
     source_ref: items.qc:1397
     props:
+      map_summary_key: ring
       mechanic: modelindex_eyes_when_invisible_finished_gt_zero
       mechanic_source_ref: client.qc:991
       duration_source_ref: items.qc:1334
@@ -415,6 +426,7 @@ items:
     respawn_seconds: 60
     source_ref: items.qc:1378
     props:
+      map_summary_key: bio
       duration_source_ref: items.qc:1322
       respawn_source_ref: items.qc:1308
       effect: prevents_lava_slime_drown_damage
@@ -426,6 +438,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:906
     props:
+      map_summary_key: shells
       ammo_type: shells
       max_carry: 100
       max_carry_source_ref: items.qc:474
@@ -441,6 +454,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:900
     props:
+      map_summary_key: shells
       ammo_type: shells
       max_carry: 100
       spawnflag_meaning: WEAPON_BIG2
@@ -453,6 +467,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:934
     props:
+      map_summary_key: spikes
       ammo_type: nails
       max_carry: 200
       max_carry_source_ref: items.qc:477
@@ -465,6 +480,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:928
     props:
+      map_summary_key: spikes
       ammo_type: nails
       max_carry: 200
       respawn_dm3_dm5_seconds: 15
@@ -476,6 +492,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:963
     props:
+      map_summary_key: rockets
       ammo_type: rockets
       max_carry: 100
       max_carry_source_ref: items.qc:478
@@ -488,6 +505,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:957
     props:
+      map_summary_key: rockets
       ammo_type: rockets
       max_carry: 100
       respawn_dm3_dm5_seconds: 15
@@ -499,6 +517,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:993
     props:
+      map_summary_key: cells
       ammo_type: cells
       max_carry: 100
       max_carry_source_ref: items.qc:480
@@ -511,6 +530,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:987
     props:
+      map_summary_key: cells
       ammo_type: cells
       max_carry: 100
       respawn_dm3_dm5_seconds: 15
@@ -522,6 +542,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:580
     props:
+      map_summary_key: ng
       ammo_type: nails
       dm_gate: dm_le_3
       respawn_source_ref: items.qc:669
@@ -533,6 +554,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:588
     props:
+      map_summary_key: sng
       ammo_type: nails
       dm_gate: dm_le_3
     notes: null
@@ -543,6 +565,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:596
     props:
+      map_summary_key: ssg
       ammo_type: shells
       dm_gate: dm_le_3
     notes: null
@@ -553,6 +576,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:604
     props:
+      map_summary_key: rl
       ammo_type: rockets
       dm_gate: dm_le_3
     notes: null
@@ -563,6 +587,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:612
     props:
+      map_summary_key: gl
       ammo_type: rockets
       dm_gate: dm_le_3
     notes: null
@@ -573,6 +598,7 @@ items:
     respawn_seconds: 30
     source_ref: items.qc:620
     props:
+      map_summary_key: lg
       ammo_type: cells
       dm_gate: dm_le_3
     notes: null

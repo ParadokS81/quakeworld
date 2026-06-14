@@ -574,6 +574,84 @@ Cross-project audit report at `docs/superpowers/reviews/2026-05-XX-ktx-onboardin
 
 ---
 
+## qw gameplay validation (game-content-catalog arc, 2026-06-11)
+
+The `qw`-namespace game content (`gameplay_entity_defs` / `gameplay_mechanics`,
+`gameplay_source_id IN ('id1','ktx')`) is SEED-loaded from
+`scripts/extractors/qw/seeds/{id1,ktx}-gameplay.yaml`, NOT libclang-extracted.
+Sections 1-8 above (extractor reproducibility, runtime cross-validation) do not
+apply; the seed-load regime below is the equivalent (plan D13). Run all checks
+from `apps/qw-oracle/`.
+
+### Seed-load reproducibility (`expected_counts` STOP-gate)
+
+Each seed declares its own `expected_counts: {entities, mechanics}`; the loader
+STOPs on mismatch (plan D8). Reload each seed and confirm a clean load:
+
+```bash
+bun run load-knowledge -- load-gameplay                                              # id1 (default)
+bun run load-knowledge -- load-gameplay --yaml scripts/extractors/qw/seeds/ktx-gameplay.yaml  # ktx overrides
+```
+
+**Acceptance:** each reports `total entities=<E> mechanics=<M>` equal to that
+file's `expected_counts`, no `STOP` line, exit 0.
+
+### Citation gate (two-form rule, plan D7)
+
+Every `source_ref` / per-prop `*_source_ref` resolves (file exists, line in
+range) under the D7 two-form rule (bare = source_root-relative; leading slash =
+repo-root-relative; the gate strips a leading slash from `source_root` too):
+
+```bash
+bun run load-knowledge -- citation-gate            # all sources
+bun run load-knowledge -- citation-gate --source id1
+bun run load-knowledge -- citation-gate --source ktx
+```
+
+**Acceptance:** `unresolved=0`. Any unresolved ref IS the work queue (semantic
+correctness is the extraction-verify stage's job, not the gate's).
+
+### Seed double-load (idempotency)
+
+Each seed loads twice with identical counts + content hash (the seed-namespace
+analogue of `idempotency.ts`, which is extract-tag-scoped and excludes `qw`):
+
+```bash
+bun run load-knowledge -- seed-idempotency --yaml scripts/extractors/qw/seeds/id1-gameplay.yaml
+bun run load-knowledge -- seed-idempotency --yaml scripts/extractors/qw/seeds/ktx-gameplay.yaml
+```
+
+**Acceptance:** `pass=true` for each. A divergence is almost always a
+natural-key collision (re-run idempotency bug), not stale data -- suspect
+idempotency before staleness.
+
+### F1 per-kind grid
+
+Per-(source, kind) equality probes. id1 content rides the `qw` namespace run;
+ktx content rides the `ktx` run (ktx is both project and source):
+
+```bash
+bun run load-knowledge -- quality-grid --project qw    # F1.id1.gameplay_kind.*
+bun run load-knowledge -- quality-grid --project ktx   # F1.ktx.gameplay_kind.* (+ extractor taxonomy probes)
+```
+
+The authoritative `expected` counts are the values in `ID1_GAMEPLAY_KIND_PROBES`
+(id1) and `KTX_GAMEPLAY_KIND_PROBES` (ktx) in `quality-grid.ts`, bumped in the
+same commit as the data (the D8 tripwire mirrored at the probe layer -- do NOT
+duplicate the numbers here, they rot). **Acceptance:** every
+`F1.{id1,ktx}.gameplay_kind.*` probe PASSes.
+
+### Dual-writer disjointness (ktx only, plan D9 / F3)
+
+ktx gameplay rows have two writers (extractor + seed). The Phase 3 disjointness
+probe asserts no seed key collides with an extractor key: no seed
+`kind='death_rule'` row, no seed monster row gated `{"mode":"bloodfest"}`, and
+the live extractor anchors (`monster` bloodfest=13, `death_rule`=27,
+`mode_default`=317, `game_mode`=27) are intact after the seed load.
+**Acceptance:** the static YAML scan is clean AND all four anchors hold.
+
+---
+
 ## Out of scope
 
 - **dusty-ktx (`qcsrc/` tree-sitter).** Different methodology -- only the `qcsrc/` QuakeC tree, not the canonical KTX C source. When dusty-ktx onboarding ships, write a parallel runbook (`VALIDATION-RUNBOOK-DUSTY-KTX.md`) covering tree-sitter-specific concerns. Canonical KTX is pure C; it uses this runbook (KTX onboarding arc lands in `docs/superpowers/plans/2026-05-04-ktx-onboarding/`).
@@ -587,3 +665,8 @@ Cross-project audit report at `docs/superpowers/reviews/2026-05-XX-ktx-onboardin
 - 2026-04-28: Initial draft. Methodology captured from MVDSV Phase 2e validation pass (2026-04-28) which found 4 important issues and 1 critical (info_key cross-scope silent drop). Codified as the post-ship discipline going forward.
 - 2026-05-05: F22 doctrine corrections at lines 5 + 373 -- canonical KTX is libclang-based; tree-sitter framing reserved for the dusty-ktx fork. Landed via Phase 0 of the KTX onboarding arc.
 - 2026-05-06: KTX-specific validation section added (Phase 7 of KTX onboarding arc). Per-kind row counts (14 kinds across entities + gameplay tables), JSONB regression cross-reference, idempotency probe pointer, per-migration validation probes inline (009/010/011), cross-project audit pointer. F1 quality-grid probes for KTX kinds shipped at `apps/qw-oracle/scripts/load-knowledge/quality-grid.ts`.
+- 2026-06-11: qw gameplay validation section added (game-content-catalog arc
+  Phase 4). Seed-load reproducibility (expected_counts STOP-gate), citation
+  gate (D7 two-form), seed double-load, F1 per-kind grid (id1 + ktx overlay
+  kinds), dual-writer disjointness. The qw namespace is seed-loaded, not
+  libclang-extracted -- Sections 1-8 do not apply.

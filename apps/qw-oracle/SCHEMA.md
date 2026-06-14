@@ -493,7 +493,7 @@ The `qw` namespace -- facts about QuakeWorld maps as game content (not engine en
 | `worldspawn_json` | TEXT | full worldspawn property dump (classname stripped) |
 | `entity_count` | INTEGER | total entity count incl. worldspawn |
 | `class_counts_json` | TEXT | `{classname: count}` for every classname in the map |
-| `item_summary_json` | TEXT | normalized 20-key dict (RA/YA/GA/mh/h25/h15/quad/pent/ring/bio/SSG/NG/SNG/GL/RL/LG/cells/rockets/spikes/shells) |
+| `item_summary_json` | TEXT | normalized 20-key dict, all-lowercase keys (ga/ra/ya | mh/h25/h15/bio | quad/pent/ring | cells/shells/spikes/rockets | gl/lg/ng/rl/sng/ssg). Joined to the gameplay catalog via each item row's map_summary_key prop -- see "Gameplay conventions". |
 | `spawn_summary_json` | TEXT | `{dm,team1,team2,coop,start,intermission}` |
 | `features_json` | TEXT | `{teleporters,has_water,has_lava,has_slime}` |
 | `wads_referenced_json` | TEXT | parsed WAD basenames |
@@ -527,7 +527,7 @@ Adds three flat tables (no `qw_` prefix to match the existing `maps` precedent).
 
 - **`gameplay_entity_defs`** - polymorphic table for game entities. `kind in (item, weapon, projectile, monster)` (the `monster` value added by the KTX onboarding arc's gameplay-kinds migration; KTX `bloodfest_monster_array[]` carries 13 rows under that kind). Indexable common columns (damage, splash_damage, splash_radius, refire_seconds, respawn_seconds, pickup_amount, max_carry, duration_seconds, classname). `props_json` carries kind-specific fields. `source_ref` is the file:line citation.
 
-- **`gameplay_mechanics`** - polymorphic table for game rules. `kind in (constant, env_hazard, player_stat, powerup_behavior, armor_model, death_rule, spawn_rule, dm_mode_rule, game_mode, mode_default, election_type, score_system, drop_item, loc_macro, teamplay_message)` (the seven values from `game_mode` onward added by the KTX onboarding arc; `game_mode` carries 27 catalog rows + `mode_default` carries ~309 per-line overlays + `election_type` 5 + `score_system` 3 + `drop_item` 31 + `loc_macro` 15 + `teamplay_message` 21). Indexable common columns (value_numeric, value_text). Same source_ref discipline. `ruleset_gate_json` is load-bearing for KTX overlays per the arc's D8 single-key gate convention -- e.g. `{"mode":"bloodfest"}` for monster rows, `{"mode":"<token>"}` for per-mode overlays.
+- **`gameplay_mechanics`** - polymorphic table for game rules. `kind in (constant, env_hazard, player_stat, powerup_behavior, armor_model, death_rule, spawn_rule, dm_mode_rule, game_mode, mode_default, election_type, score_system, drop_item, loc_macro, teamplay_message)` (the seven values from `game_mode` onward added by the KTX onboarding arc; `game_mode` carries 27 catalog rows + `mode_default` carries 317 per-line overlays + `election_type` 5 + `score_system` 3 + `drop_item` 31 + `loc_macro` 15 + `teamplay_message` 21). Indexable common columns (value_numeric, value_text). Same source_ref discipline. `ruleset_gate_json` is load-bearing for KTX overlays per the arc's D8 single-key gate convention -- e.g. `{"mode":"bloodfest"}` for monster rows, `{"mode":"<token>"}` for per-mode overlays.
 
 Both polymorphic tables share `ruleset_gate_json TEXT NOT NULL DEFAULT '{}'`. The default empty object is used by id1 baseline rows and by KTX rows that apply unconditionally; KTX overrides with mode/yawnmode/dmm gates serialise as JSON like `{"yawn":true,"dm":3}` and join into the same row identity. The `NOT NULL DEFAULT` is load-bearing: SQLite treats NULL columns in unique indexes as distinct, which would defeat upsert idempotency. By keeping the column always non-NULL, `ON CONFLICT (gameplay_source_id, kind, name, ruleset_gate_json) DO UPDATE` works as expected for re-runs.
 
@@ -878,7 +878,7 @@ Two parallel widenings:
 - `gameplay_entity_defs.kind` adds `'monster'` (4th value: `item` / `weapon` / `projectile` / `monster`). KTX's `bloodfest_monster_array[]` at `src/sp_monsters.c:60-76` carries 13 rows.
 - `gameplay_mechanics.kind` adds 7 values (`game_mode` / `mode_default` / `election_type` / `score_system` / `drop_item` / `loc_macro` / `teamplay_message`). Per-kind row counts at canonical 1.46:
   - `game_mode`: 27 catalog rows (17 `um_list[]` peers + race + bloodfest + 8 mutators -- per arc D11 two-axis discriminator).
-  - `mode_default`: ~309 per-line overlays (54 `common_um_init` baseline + ~255 per-mode initstring overlays -- per arc D12 per-line granularity).
+  - `mode_default`: 317 per-line overlays (F6: an earlier spec-time estimate undercounted this; Phase 3 + 5.5 retrofit confirmed 317 across parallel + serial runs. 54 `common_um_init` baseline + per-mode initstring overlays -- per arc D12 per-line granularity).
   - `election_type`: 5 rows (skip `etNone` sentinel from the 6-value `electType_t` enum).
   - `score_system`: 3 rows (Win Only / Scaled / Formula1; positions array length=10 invariant).
   - `drop_item`: 31 rows from `commands.c:9075-9108`'s `dropitem_spawn_t` array (Pass 5.4 source-walk corrected from spec-time estimate of 30; F11 amendment).
@@ -908,6 +908,127 @@ Re-run idempotency: each `DROP CONSTRAINT` is wrapped in `IF EXISTS` so re-apply
 
 - Spec: `docs/superpowers/specs/2026-05-04-ktx-onboarding-design.md` (five-pass arc-brainstormer).
 - Plan: `docs/superpowers/plans/2026-05-04-ktx-onboarding/README.md` (9 phases).
+
+---
+
+## Gameplay conventions (game-content-catalog arc, 2026-06-11)
+
+The `gameplay_*` tables (defined at v14; kinds widened by the KTX onboarding
+arc) carry conventions that live nowhere else in the schema. This section is
+their durable home (game-content-catalog completion arc, spec D7). Seed files:
+`apps/qw-oracle/scripts/extractors/qw/seeds/{id1,ktx}-gameplay.yaml`, loaded by
+`load-gameplay.ts` (`load-knowledge -- load-gameplay [--yaml <path>]`),
+idempotent upsert keyed `(gameplay_source_id, kind, name, ruleset_gate_json)`.
+
+### Three-layer override model
+
+A KTX gameplay value lives in exactly ONE of three layers; conflating them
+corrupts row identity:
+
+1. **Knob existence** -- that a cvar like `k_yawnmode` exists. Lives in the
+   engine-config track (KTX cvar extraction into `entities`/`cvars`), NOT here.
+2. **What a mode sets a knob to** -- e.g. "ca sets `k_noitems` 1". Lives in
+   `gameplay_mechanics.kind='mode_default'` (317 rows, KTX onboarding arc).
+3. **Hardcoded behavior deltas** -- a cvar/mode-gated VALUE in KTX's C code
+   that DIVERGES from an id1 baseline row (yawnmode raises axe damage 20 -> 50).
+   Lives in `ktx-gameplay.yaml` as ktx-source rows (this arc, Phase 3).
+
+id1-native deathmatch variants (Quake's own dm1-4 behavior) are NOT a KTX
+layer -- they ride the id1 row as props (see "id1 props-variant convention").
+
+### Gate vocabulary (`ruleset_gate_json`)
+
+Single-key JSON object (KTX onboarding arc convention). Three forms, each
+joining a catalog by the same word:
+
+- `{"mode":"<token>"}` -- `<token>` is a `game_mode` catalog name (yawnmode /
+  midair / instagib / bloodfest / ctf / ...). Joins the 27-row `game_mode`
+  catalog + the `mode_default` overlays on the token.
+- `{"dm":N}` -- a deathmatch-number gate that is KTX-specific (not vanilla dmN).
+- `{"cvar":"<name>"}` -- a standalone cvar with no `game_mode` token (`k_dis`,
+  `k_classic_shotgun`, ...); the cvar name joins the cvar catalog (plan D22,
+  operator-ratified 2026-06-11).
+
+Catalog rows themselves use `{}` (they DEFINE modes; they aren't gated by
+them). id1 baseline rows and unconditional KTX rows also use `{}`. Compound
+conditions keep the single-key gate; the secondary condition goes in props
+(midair rocket boost: gate `{"mode":"midair"}`, props `requires_quad: true`).
+
+### id1 props-variant convention
+
+id1-native deathmatch variants stay on the id1 row as props with a `*_dm*`
+suffix, NOT as separate gated rows: e.g. `damage_dm_gt_3`, `refire_seconds_dm4`,
+`respawn_dm3_dm5_seconds`, `damage_multiplier_dm4`. The base value is the
+indexable column; the variant is a prop with its own `*_source_ref` sibling.
+(KTX hardcoded deltas, by contrast, become separate ktx-source rows under a
+gate -- that is the three-layer boundary.)
+
+### Citation forms (two-form rule, plan D7)
+
+`source_ref` / per-prop `*_source_ref` values resolve two ways:
+
+- **Default** (bare, e.g. `weapons.qc:385`) -- relative to the owning source's
+  `gameplay_sources.source_root`.
+- **Leading slash** (e.g. `/research/repos/<v106-dir>/shambler.qc:54`) --
+  relative to the monorepo root, ignoring `source_root`.
+
+id1 weapon/item/mechanic refs are bare (resolve under
+`research/repos/qwcl-original/QW/progs/`); id1 MONSTER refs use the
+leading-slash form (they cite the acquired Quake v1.06 tree, OUTSIDE the id1
+source_root, which holds no monster QC); ktx refs are bare (resolve under
+`/research/repos/ktx/src` -- the citation gate strips a leading slash from the
+`source_root` value too). The `citation-gate` probe
+(`load-knowledge -- citation-gate`) resolves every ref under this rule.
+
+### `map_summary_key` (maps join alias, plan D21)
+
+`maps.item_summary_json` speaks 20 short, all-lowercase keys:
+`ga ra ya | mh h25 h15 bio | quad pent ring | cells shells spikes rockets | gl lg ng rl sng ssg`.
+Each id1 item row carries the matching key as a `map_summary_key` prop, so a
+map's item summary joins the catalog by the same word (aliasing principle:
+names live ON the row, never in a consumer-side translation table). 1:1 for
+armors / health / powerups; weapon keys ride the `pickup_*` item rows; ammo
+keys collapse small+large (both variant rows carry the same key -- a join
+returning both variants is the correct answer). Two non-obvious mappings:
+`spikes` = nails (internal classname `item_spikes`), `bio` = the envirosuit.
+24 of the 25 id1 item rows carry a key; `backpack` (a death-drop, not a
+map-placed summary item) carries none. The join is case-insensitive (lowercase
+both sides). `map_summary_key` is an ALIAS, not a cited value -- no
+`*_source_ref`. The pre-existing `maps.class_counts_json` -> `classname` join
+is unrelated and untouched.
+
+### `expected_counts` STOP-gate (plan D8)
+
+Every seed YAML declares its own `expected_counts: {entities, mechanics}`
+block; the loader validates each load against the file's own declaration and
+STOPs (`process.exitCode=1`) on mismatch. The hardcoded `37/41` constants the
+loader carried pre-arc are gone -- they would brick every load that grows the
+catalog and mis-validate `ktx-gameplay.yaml` against id1 numbers. Bump the
+block IN THE SAME COMMIT that adds or removes rows -- a load failing on a stale
+count is the intended tripwire, not a bug. For `ktx-gameplay.yaml` the counts
+cover only the OVERRIDE rows in that file, NOT the extractor-written ktx rows.
+
+### Dual-writer disjointness (plan D9 / finding F3)
+
+ktx gameplay rows have two writers: the extractor pipeline
+(`load-gameplay-tables` / `-taxonomies` / `-modes`, upsert-by-natural-key, no
+DELETE) and the `ktx-gameplay.yaml` seed loader. Both share the conflict target
+`(gameplay_source_id, kind, name, ruleset_gate_json)`; a seed key equal to an
+extractor key makes the two writers silently ping-pong on every re-run.
+Disjointness holds by construction: no seed row uses `kind='death_rule'`
+(extractor-owned, 27 ktx rows) and no seed monster row uses
+`{"mode":"bloodfest"}` (the extractor's 13 spawn-economy rows). Phase 3's
+disjointness probe verifies it.
+
+### `gameplay_sources` registry model
+
+Each source's registry row (`display_name` / `description` / `source_root` /
+`notes`) is owned by that source's seed-file `gameplay_source:` block; the
+loader UPSERTs it. For ktx the extractor-path loaders only ASSERT the row
+exists -- `ktx-gameplay.yaml` is the canonical writer of the ktx registry row
+(finding F3). Live `source_root` forms differ (`id1` bare, `ktx`
+leading-slash); both intend repo-root-relative and the citation gate treats
+them identically.
 
 ---
 
