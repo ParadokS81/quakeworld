@@ -183,6 +183,16 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 
 **Action:** none open. Same class as the F29 lesson: a probe predicate that silently encodes a now-stale data assumption. The overlay was the trigger that exposed it; the fix narrows the predicate to its real invariant.
 
+### F22 -- Phase 4 MD's locked F6 #2 text contradicts its own `grep ~309` exit gate (execution, Phase 4)
+
+**Resolved by:** executor drain (meaning-preserving rephrase), Phase 4 Task 2 -- flagged for orchestrator ratification.
+
+**Evidence:** Phase 4 Task 2's locked replacement text for the F6 #2 line (SCHEMA.md KTX-onboarding Migration C, :881) was `317 per-line overlays (F6: ~309 was the spec-time estimate; ...)` -- it KEEPS the literal `~309` as a historical mention. But the same Task 2 verification step AND orchestrator augmentation 5 both require `grep -n "~309" SCHEMA.md` to return NOTHING after the edits. Applying the locked text verbatim leaves `~309` at :881 and fails the gate; the two locked instructions are mutually inconsistent. The drafter wrote the historical mention to document the correction; the orchestrator (twice, emphatically) made `grep ~309 = nothing` the exit condition, almost certainly without noticing the replacement text reintroduces the token.
+
+**Action:** executor drained in favor of the orchestrator's emphatic exit gate (the higher-priority, more-recent, twice-stated signal). The F6 #2 clause `~309 was the spec-time estimate` -> `an earlier spec-time estimate undercounted this` -- meaning preserved (old estimate was lower; 317 confirmed), literal `~309` removed, `grep ~309` now returns nothing. The F6 GOAL (kill the stale count, assert 317) is unaffected. Orchestrator may override at closeout if the historical `~309` mention is preferred; if so, the Task 2 verification grep must be narrowed to `grep "~309 per-line"` (the stale-COUNT assertion) rather than the bare token.
+
+**RATIFIED (orchestrator boundary verification, 2026-06-14):** keep the executor's rephrase. Verified `grep -n "~309" SCHEMA.md` returns nothing and both former spots (:530, :881) now read `317 per-line overlays` with the corrected-from-lower-estimate provenance intact. The locked content genuinely self-contradicted (the "to" text reintroduced the token the verification step forbade); draining toward the twice-stated exit gate was the correct read and the meaning is fully preserved. No decisions.md change. Same class as the Phase 2a inline-vs-subagent ratification: locked content was internally inconsistent, the executor surfaced it rather than silently complying with one half, and the orchestrator independently confirmed the resolution.
+
 ---
 
 ## Phase ownership of findings
@@ -193,7 +203,7 @@ Decisions in `decisions.md` are the FIX; this file is the WHY. Phase drafters co
 | Phase 1 | F7 (resolved at drafting by planner amendment); F13 (audit corrections), F14 (gap sweep / Tier-1 scope), F16 (test signature fix) -- all resolved this phase; F15 (KTX rocket fixed-110) -> carry-forward to Phase 3 |
 | Phase 2 | F8 (resolved at drafting -- wiki-snapshot design adaptation); F17 (monster extraction 15/15 clean + 1 wiki mismatch [fish gib SoA], operator keep-source -- resolved); F18 (session MCP reads remote prod, not dev DB -- env note, carry-forward to deploy/Phase 4) |
 | Phase 3 | F3 (disjointness probe -- holds); F9 (deferred -- carry-forward to the MCP-realignment arc); F10 (resolved at drafting by planner amendment); F11 (Task 0 -- ktx taxonomy refs fixed, citation-gate 32->0); F15 (resolved -- rocket fixed-110 is the rocket `{}` overlay row); F19 (sweep -> 26 rows, SME-gated); F20 (monster diff 12/15 faithful, 2 overlays); F21 (hp_for_kill anchor re-scoped to bloodfest) -- all resolved this phase |
-| Phase 4 | F4, F5 (doc text), F6 |
+| Phase 4 | F4, F5 (doc text), F6; F22 (executor-drained MD self-contradiction -- grep gate vs locked text) |
 
 ---
 

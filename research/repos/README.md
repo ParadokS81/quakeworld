@@ -21,6 +21,7 @@ All clones are shallow unless otherwise noted; refresh by `git -C <dir> fetch --
 | `mvdparser/` | `github.com/vikpe/mvdparser` | Vikpe's MVD parser. Reference for reading `.mvd` demo files - relevant when slipgate or qw-stats needs to inspect demo content. |
 | `hub.quakeworld.nu/` | `github.com/quakeworldnu/hub.quakeworld.nu` | QW Hub source. The match-history + voice-replay web app that matchscheduler and slipgate consume via its Supabase + CDN endpoints. |
 | `slipgate/` | `github.com/quakeworld/slipgate` | Vikpe's slipgate web repo - the community web hub that the slipgate-app will eventually graduate into. Currently reference material only; not consumed programmatically. |
+| `QuakeC-releases/` | `github.com/maddes-b/QuakeC-releases` | Original Quake id1 QuakeC source releases by id Software. Checked out at the PRISTINE v1.06 release (branch `id1-original`, SHA `85ccafd2652ec550a561849a6a5eb92e62cdc115` -- the SHA is the anchor; branches can rebase). NOT `id1-fixes-1.06` (that applies post-release fixes that mutate monster QC). Monster QC files in `progs/`. Phase 2 of the game-content-catalog arc cites this for id1 monster stats (shambler.qc, ogre.qc, etc.). |
 
 ## Active Maintainers
 

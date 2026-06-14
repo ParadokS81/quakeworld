@@ -5,9 +5,9 @@
 
 **Goal:** Complete the qw-oracle `gameplay_*` Layer 1 catalog: audit + re-verify the live id1 baseline (37 entity defs + 41 mechanics, shipped 2026-04-27), add id1 monster stats from the acquired Quake v1.06 QC, add the KTX hardcoded-override layer (`ktx-gameplay.yaml`), wire `map_summary_key` join props, and land the conventions in SCHEMA.md. No schema migration; no new MCP surface.
 
-**Status:** EXECUTING as of 2026-06-12 -- all five phase MDs drafted, planner-reviewed against live source, and approved; the M4 execution gate was LIFTED by operator the same day (decisions D16 amendment). Execution routes through `docs/superpowers/parking/2026-06-12-game-content-catalog-orchestrator-handoff.md` (arc-orchestrator).
+**Status:** SHIPPED 2026-06-14 (arc-tag `arc-game-content-catalog-shipped`) -- all five phases executed, each orchestrator-boundary-verified against live source/DB, all green. Retrospective in `apps/qw-oracle/docs/arc-history.md`. Post-arc review routes through `docs/superpowers/parking/2026-06-14-game-content-catalog-postarc-handoff.md` (arc-reviewer, fresh terminal).
 
-**Execution gate:** LIFTED 2026-06-12 (D16 amendment, operator-signed) -- phases execute now, sequentially 0 -> 4.
+**Execution gate:** LIFTED 2026-06-12 (D16 amendment, operator-signed) -- phases executed sequentially 0 -> 4.
 
 ---
 
@@ -33,7 +33,7 @@ Slicing: one horizontal foundation phase (0), then per-deliverable data slices, 
 | 1 | shipped | `phase-1-audit.md` | id1 audit: 242 values re-verified (9 corrections, 5 adjudicated), 12 Tier-1 gap rows (mechanics 41->53), id1 F1 probes | id1 baseline verified-under-current-regime; new mechanics rows queryable; F1 id1 grid green |
 | 2 | shipped | `phase-2-monsters.md` | id1 monster stat rows (15, entities 37->52) + committed wiki snapshot cross-check | `search_gameplay_entities kind=monster gameplay_source=id1` returns the roster (dev-DB code path; prod MCP awaits deploy, F18) |
 | 3 | shipped | `phase-3-ktx-overlay.md` | `ktx-gameplay.yaml` 26 override rows (11 entity + 15 mechanic) + disjointness probe (F3) + F11 emit-site fix (taxonomy refs 32->0) | Data-level mode-token join returns catalog + mode_defaults + hardcoded overlays (describe_mode envelope gap = F9, deferred) |
-| 4 | in execution | `phase-4-joinkeys-docs.md` | `map_summary_key` props; SCHEMA.md conventions subsection; RUNBOOK qw section; verify-gameplay.ts fix (F4); snapshot regen | Full F1 sweep green; snapshot + MCP surfacing confirmed; docs current |
+| 4 | shipped | `phase-4-joinkeys-docs.md` | `map_summary_key` props (24 keys); SCHEMA.md conventions subsection; RUNBOOK qw section; verify-gameplay.ts fix (F4); snapshot regen | Full F1 sweep green; snapshot + MCP surfacing confirmed; docs current |
 
 Status values: `not drafted` -> `drafted (awaiting review)` -> `approved` -> `in execution` -> `shipped`.
 
