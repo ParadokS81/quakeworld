@@ -151,6 +151,9 @@ Length: ~15-150 lines depending on shape -- see the voice-and-length table above
 | `weapon-scripts` | QuakeWorld weapon scripts: the three practical methods | domain-guide | draft |
 | `lightning-gun-customization` | Customizing the Lightning Gun in QuakeWorld | domain-guide | draft |
 | `player-skins` | Player skins: identification, visibility, and tracking in QuakeWorld | domain-guide | draft |
+| `hud-configuration` | Configuring the QuakeWorld HUD: status bar, frags, team score, and on-screen info | domain-guide | draft |
+| `network-connection` | QuakeWorld network and connection: rate, packet loss, antilag, and proxies | domain-guide | draft |
+| `match-recording-playback` | Match recording and playback: demos, screenshots, and logs | domain-guide | draft |
 | `qw-userinfo-serverinfo-protocol` | The userinfo and serverinfo protocol: how client, server, and mod share player state | domain-guide | draft |
 | `test-qwiki-harvest-probe` | Spectator mode harvest-probe breadcrumb (arc qwiki-v1-beta Phase 4) | domain-guide | draft |
 
