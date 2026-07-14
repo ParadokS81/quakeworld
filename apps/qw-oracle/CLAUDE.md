@@ -1,5 +1,20 @@
 # QW Oracle - QuakeWorld Knowledge Service
 
+## Environment check FIRST: cockpit vs workstation (2026-07-15)
+
+Development moved to the slipgate **dev-cockpit** (`hostname` = `cockpit`, user `dev`).
+Check where you are before touching a database — the endpoints differ:
+
+| Where you are | `DATABASE_URL` | Notes |
+|---|---|---|
+| **cockpit** (the normal case now) | `postgresql://qworacle:<ORACLE_DEV_PW>@qw-oracle-postgres-dev:5432/qw_oracle` | **Dev twin** of prod (pgvector, seeded from a prod dump 2026-07-15). Password: `ORACLE_DEV_PW` in `~/.secrets/dev-databases.env`. `qworacle` is superuser here — create `qw_oracle_test` and scratch DBs freely. The same instance also hosts a **`quake_stats` scratch copy** (ranking research may write to it). |
+| cockpit → **prod** | **unreachable, BY DESIGN** | Prod `qw-oracle-postgres` is not on devnet. Changes reach prod as *recipes*, never as data pushes: commit migrations (`db/migrations/`) + loader code, deploy per `DEPLOYMENT.md`. Do not look for a way through the fence. |
+| workstation (legacy, pre-cockpit) | `localhost:5432` or tailscale per `DEPLOYMENT.md`/`.env.example` | Old pattern; still valid from the operator's WSL. |
+
+Twins are **cattle**: if an experiment trashes one, re-seed from a fresh prod dump —
+procedure in `/mnt/user/appdata/dev/seeds/RESEED.md` on the unraid **host** (host plane;
+the cockpit deliberately cannot run it). Prod is never touched by any of this.
+
 **Status:** Active development. Seven codebases loaded into Layer 1 (ezQuake / FTE / QWCL / MVDSV / KTX / QTV / QWFWD) plus the `qw` namespace for game content (maps + game mechanics). Schema state lives in `db/migrations/` + the `schema_migrations` table (see `SCHEMA.md`); there is no hand-maintained schema-version number. For chronological ship history see [`docs/arc-history.md`](docs/arc-history.md). For active backlog see `HANDOVER.md` (root).
 
 ### Layer 2 status (Postgres + tsvector + pgvector, Discord-only; threads = retrieval unit)
