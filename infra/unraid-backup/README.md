@@ -1,6 +1,6 @@
 # Unraid backup redesign -- on-box reference + resolved parameters
 
-**Status:** Phase 5 functionally COMPLETE 2026-05-21 -- 3-2-1 in effect. Prague offsite copy (37 GB) verified via `borg check --verify-data`, repo ID matches Synology exactly. Only Task 5.3 (Windows Task Scheduler hookup, operator-only) remains. Phase 6 (restore drill -- the real acceptance gate) is next.
+**Status:** Phase 6 restore drill **PASSED 2026-06-12**; Phase 7 cutover **DONE 2026-06-15** -- 3-2-1 live, legacy tar retired. Residuals (see closeout section at bottom): Synology-side scheduled check, 6.3 full escrow-restore from Prague, 6.4 reboot survival (never exercised), internal-cron checkpoint litter, twin-volume exclude. *(Backfilled 2026-07-20 -- this README lagged the unRAID repo's `docs/server/backup.md` by five weeks; that file is the host-plane ground truth.)*
 **Spec:** `docs/superpowers/specs/2026-05-19-unraid-backup-redesign-design.md`
 **Plan:** `docs/superpowers/plans/2026-05-19-unraid-backup-redesign.md`
 
@@ -382,3 +382,53 @@ is operator-only and untimed -- script reads passphrase from
 invoke `wsl -d <distro> bash -lc '<path>/prague-pull.sh'`. After Task
 Scheduler is set up, Phase 5 closes fully and the parallel soak
 continues until Phase 7 cutover.
+
+## Phase 6 + Phase 7 closeout (backfilled 2026-07-20)
+
+> Split-brain note: the drill ran and its results were recorded **at the
+> time** in the unRAID repo's `docs/server/backup.md` (identical text in the
+> pre-repo snapshot; the events predate that repo's git history, created
+> 2026-07-10). This README was never updated and kept claiming "Phase 6 is
+> next" for five weeks -- which misled a 2026-07-20 cockpit session into an
+> "unverified chain" false alarm. Host-plane ground truth lives in the
+> unRAID repo; this README mirrors it and can lag.
+
+- **Phase 6 restore drill PASSED 2026-06-12** (acceptance gate cleared):
+  - 6.1-shape (MariaDB): day's archive pulled from Synology (440 MB / 12s);
+    qwiki restored into a throwaway container; page count 21 == live. PASS.
+  - 6.2-shape (Postgres): qw_oracle restored -- 884 MB, 57 tables,
+    messages = 728,863 == live. PASS. **Finding: restores MUST use
+    `pgvector/pgvector:pg16` -- stock `postgres:16` silently drops the two
+    vector tables (55/57 restored).**
+  - Bonus: prowlarr appdata tree (657 files) extracted clean. Production
+    untouched throughout.
+- **Phase 7 cutover DONE 2026-06-15:** legacy CA-backup tar retired --
+  removed from root crontab and `/boot/config/go`, with dated revert
+  backups (`/boot/config/go.bak-20260615`, verified present 2026-07-20,
+  plus `crontab-pre-phase7-20260615.bak`). Drill Thursday, cutover Monday,
+  trip right after -- deliberate and documented.
+
+### Residuals open as of 2026-07-20
+
+- **6.5, Synology half:** every Prague pull runs an independent
+  `borg check` (`--verify-data` proven 2026-05-21; 6-hourly trigger armed
+  2026-06-12), but no scheduled check runs against the SYNOLOGY repo
+  itself. Schedule or periodically force one.
+- **6.3:** a full escrow-only file-restore from a non-Unraid machine is
+  still undone. Near-misses on record: Phase 1's escrow-only `borg list`
+  proof on Synology (2026-05-20) and Phase 5's Prague reads via the
+  escrowed passphrase -- but the actual extract-files drill from Prague
+  remains. Operator-only, untimed.
+- **6.4:** never exercised -- host uptime 138 days predates borgmatic
+  entirely. The `/boot/config/go` snippet and the `0 3 * * *` root-cron
+  entry were verified in place 2026-07-20, but boot survival is untested.
+  Bundle with the dev-cockpit image rebuild in one maintenance window.
+- **Internal-cron checkpoint litter:** the container's own 01:00 cron run
+  (correction #14's "harmless duplicate") dies mid-run nightly, leaving
+  daily `.checkpoint` archives that append-only mode cannot clean; the
+  host's 03:00 run completes fine. Fix per #14's own escape hatch:
+  silence the internal cron (svc-cron s6 service or empty crontab mount).
+- **Twin-volume churn:** `appdata/dev/databases/` (dev DB twins, created
+  2026-07-15, post-dating this config) now backs up as torn hot-copies
+  nightly. Twins are cattle (reseed from `seeds/` per `RESEED.md`); add a
+  `pp:/mnt/src/appdata/dev/databases` exclude.
