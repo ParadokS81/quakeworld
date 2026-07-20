@@ -110,11 +110,13 @@ def test_class2_heading():
 def test_class3_block_carried_verbatim():
     md = render_dead_entities([], [], "92 cvars / 74 commands", "2026-05-19")
     assert "## Class 3 -- orphaned cmdline params" in md
-    # Spot-check the 8-row table flag entries
-    assert "`-cheats`" in md
-    assert "`-r-debug`" in md
+    # Spot-check the 4-row table flag entries (post-F20 block: the .h-aware
+    # liveness pass removed -cheats / -r-debug / -democache et al. as live)
+    assert "`-noinvlmaps`" in md
+    assert "`-nolibjpeg`" in md
+    assert "`-nolibpng`" in md
     assert "`-showliberrors`" in md
-    assert "server_democache_kb" in md
+    assert "client_noinverselightmaps" in md
 
 
 def test_class3_provenance_note_appended():
