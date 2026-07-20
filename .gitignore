@@ -73,3 +73,8 @@ __pycache__/
 patches/
 # But track quad's patches (needed for Docker builds)
 !apps/quad/patches/
+
+# research data carve-outs (untracked-not-ignored hazard; workstation migration report 2026-07-20)
+research/discord-exports-full/
+research/irc-logs/
+research/slipgate-planning/
