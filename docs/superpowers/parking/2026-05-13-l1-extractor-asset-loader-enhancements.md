@@ -55,6 +55,27 @@ Probe summary:
 
 **Effort estimate:** medium-high. Conditional-branch walking is non-trivial in libclang -- requires careful AST state tracking. Probably 2-3 days work. Not worth it for a single slug.
 
+## Enhancement 3: path-argument analysis for downstream-discriminated loaders
+
+**Surfaced:** 2026-05-13 by Terminal A's watchlist-coverage handoff (commit 1694e3c5).
+
+**Pattern.** A loader function calls a generic primitive that serves multiple asset categories, with discrimination happening downstream via runtime path-template matching. The extractor sees the call but can't tag which category it serves without analyzing the path arguments.
+
+**Affected slugs:** FTE `model_texture`, FTE `map_texture`. Both flow through the same generic shader builders -- `R_BuildDefaultTexnums` / `R_BuildLegacyTexnums` -- which serve every shader-textured asset. Discrimination between "model skin" and "brush texture" happens later inside `Image_LocateHighResTexture` via the runtime path-template list. The path-argument distinguishes `models/` prefix (model_texture) vs `textures/<mapname>/` prefix (map_texture), but this happens at runtime, not at the call-site.
+
+**Source pointers:**
+- FTE: `research/repos/fteqw/engine/gl/gl_shader.c:6192` (`R_BuildDefaultTexnums`)
+- FTE: `research/repos/fteqw/engine/gl/gl_shader.c:6385` (`R_BuildLegacyTexnums`)
+- FTE: `Image_LocateHighResTexture` (downstream discriminator)
+
+**Implementation shape.** Extractor needs to capture the path-argument (literal string, cvar reference, or path template) passed to the loader and apply pattern-matching to discriminate the category. AST-level: trace argument origin back from the call-site to the source (literal, cvar value, format-string assembly). May overlap with Enhancement 1 (static-array enumeration) since both are call-site-data-flow problems.
+
+**Currently compensated by:** the asset-note draft can ship with FTE side noted as "loader-site discrimination happens downstream; see investigation for routing detail." Seed `engine_canonical_paths.fte` for these slugs hand-carries the paths. Asset-notes can flag DIVERGENT with one-engine-only L1 anchors.
+
+**Value if shipped:** unblocks FTE L1 anchors for model_texture and map_texture. Reduces the "ezQuake has sites, FTE has 0" asymmetry in the asset-notes corpus. Likely benefits future asset_types that flow through the same generic shader builders.
+
+**Effort estimate:** medium-high. Path-argument analysis is non-trivial in libclang -- requires data-flow analysis from call-site backward to argument source. Probably 2-3 days for a robust implementation; less for a quick path-literal-only matcher (which would still catch most cases).
+
 ## Revisit triggers
 
 Reopen this parking doc when any of the following fires:
@@ -62,7 +83,8 @@ Reopen this parking doc when any of the following fires:
 - A new asset_type lands in the seed that hits static-array enumeration (bumps Enhancement 1 priority).
 - MCP retrieval feedback shows users wanting path-precision answers the seed can't anchor (bumps Enhancement 1).
 - More than one asset_type hits multi-mode dispatch (reopens Enhancement 2 consideration).
-- A major L1 extractor refactor is underway anyway (fold both in opportunistically).
+- More asset_types in FTE go through generic shader builders without enclosing-function discrimination (bumps Enhancement 3 priority).
+- A major L1 extractor refactor is underway anyway (fold all three in opportunistically).
 - KTX-canonical or unezQuake onboarding (per `[[project_extraction_pipeline_vision]]`) surfaces new patterns.
 
 ## What's NOT in this parking doc
