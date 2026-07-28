@@ -1,0 +1,653 @@
+diff --git a/.claude/settings.json b/.claude/settings.json
+index 4b68e1a7..19b8a417 100644
+--- a/.claude/settings.json
++++ b/.claude/settings.json
+@@ -38,6 +38,15 @@
+             "command": "if echo \"$CLAUDE_FILE_PATHS\" | grep -qE '\\.(env|pem|key)$|service-account\\.json|credentials\\.json'; then echo 'BLOCKED: Cannot write to secret/credential files.' >&2; exit 1; fi"
+           }
+         ]
++      },
++      {
++        "matcher": "Bash",
++        "hooks": [
++          {
++            "type": "command",
++            "command": "/home/paradoks/projects/quakeworld/scripts/check-quad-recording.sh"
++          }
++        ]
+       }
+     ],
+     "PostToolUse": [
+diff --git a/.claude/skills/deploy/SKILL.md b/.claude/skills/deploy/SKILL.md
+index 542a42ad..f0708810 100644
+--- a/.claude/skills/deploy/SKILL.md
++++ b/.claude/skills/deploy/SKILL.md
+@@ -45,13 +45,8 @@ For details: `apps/matchscheduler/DEPLOYMENT.md`
+ 
+ ## Quad (SSH + Docker)
+ 
+-**SAFETY CHECK — do this FIRST:**
+-```bash
+-ssh pinnaclepowerhouse 'curl -s http://localhost:3000/health'
+-```
+-If `recording.active === true` → **STOP. Do not deploy.** A team is currently recording. Wait for the session to end or coordinate with the user. Deploying would interrupt their recording.
+-
+-Note: The health endpoint is only accessible from inside the server (port 3000 is not exposed externally).
++**SAFETY CHECK — enforced by hook:**
++A Claude Code hook (`scripts/check-quad-recording.sh`) automatically checks the health endpoint before any deploy command to pinnaclepowerhouse. If a recording is active, the command is blocked. No manual check needed — the hook handles it.
+ 
+ **Deploy steps:**
+ 1. Ensure code is committed and pushed to main (GitHub Actions builds the image automatically)
+diff --git a/apps/quad/DEPLOYMENT.md b/apps/quad/DEPLOYMENT.md
+index 4a4ede04..ced4ba59 100644
+--- a/apps/quad/DEPLOYMENT.md
++++ b/apps/quad/DEPLOYMENT.md
+@@ -28,6 +28,8 @@ Note: The health endpoint is only accessible from inside the server (port 3000 i
+ 
+ Wait for the recording to finish, then re-check before proceeding.
+ 
++**Automated enforcement:** A Claude Code hook (`scripts/check-quad-recording.sh`) runs automatically before any Bash command that deploys to pinnaclepowerhouse. It checks the health endpoint and blocks the deploy if a recording is active.
++
+ ### SSH Access
+ 
+ ```bash
+@@ -141,17 +143,22 @@ The monorepo source code at `/srv/qwvoice/quad/` is no longer needed after migra
+ Build stage (node:22-slim):
+   npm ci -> tsc -> produces dist/ + node_modules/
+ 
+-Python deps stage (node:22-slim):
+-  python3-venv + faster-whisper + CUDA libs + zeroc-ice
+-
+-Runtime stage (node:22-slim):
+-  ffmpeg + Python venv from python-deps stage
+-  dist/ + node_modules/ from build stage
+-  knowledge YAMLs + scripts + fonts
++Runtime stage (ghcr.io/paradoks81/quad-base:latest):
++  Pre-built: node:22-slim + ffmpeg + python3 + faster-whisper + CUDA libs + zeroc-ice
++  Copies dist/ + node_modules/ from build stage
++  + knowledge YAMLs + scripts + fonts
+ ```
+ 
+ Images are built by GitHub Actions and published to `ghcr.io/paradoks81/quad`.
+ 
++### Base image
++
++The heavy Python/CUDA dependencies are pre-built into a separate base image (`ghcr.io/paradoks81/quad-base`) to keep code-only deploys fast (~2-3 min instead of 15-30 min).
++
++- **Base image definition:** `Dockerfile.base`
++- **Rebuild base:** `gh workflow run quad-base-docker.yml` (manual trigger, only when Python deps or system packages change)
++- **Main Dockerfile** uses `FROM ghcr.io/paradoks81/quad-base:latest` for the runtime stage
++
+ ### What's in the container
+ 
+ - **Node.js 22** — bot runtime
+diff --git a/apps/quad/Dockerfile b/apps/quad/Dockerfile
+index c078a283..a9a6bc4a 100644
+--- a/apps/quad/Dockerfile
++++ b/apps/quad/Dockerfile
+@@ -16,33 +16,10 @@ COPY src/ src/
+ 
+ RUN npx tsc
+ 
+-# ---- Python deps stage (compile zeroc-ice + install faster-whisper) ----
+-# Needs g++ and python3-dev to compile zeroc-ice from source (no pre-built wheel available).
+-# Build here then copy the finished venv to the runtime stage — keeps g++ out of the final image.
+-FROM node:22-slim AS python-deps
+-
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    python3 python3-pip python3-venv python3-dev g++ libbz2-dev libssl-dev libexpat1-dev \
+-    && rm -rf /var/lib/apt/lists/*
+-
+-RUN python3 -m venv /opt/whisper-venv
+-ENV PATH="/opt/whisper-venv/bin:$PATH"
+-
+-RUN pip install --no-cache-dir faster-whisper nvidia-cublas-cu12 nvidia-cudnn-cu12 zeroc-ice
+-
+ # ---- Runtime stage ----
+-FROM node:22-slim
+-
+-RUN apt-get update && apt-get install -y --no-install-recommends \
+-    ffmpeg python3 libfontconfig1 ca-certificates \
+-    && rm -rf /var/lib/apt/lists/*
+-
+-# Copy pre-built Python venv (includes zeroc-ice + faster-whisper compiled in python-deps stage)
+-COPY --from=python-deps /opt/whisper-venv /opt/whisper-venv
+-ENV PATH="/opt/whisper-venv/bin:$PATH"
+-
+-# CUDA runtime libs installed by pip need to be on LD_LIBRARY_PATH for CTranslate2
+-ENV LD_LIBRARY_PATH="/opt/whisper-venv/lib/python3.11/site-packages/nvidia/cublas/lib:/opt/whisper-venv/lib/python3.11/site-packages/nvidia/cudnn/lib:${LD_LIBRARY_PATH}"
++# Base image includes: node:22-slim + ffmpeg + python3 + faster-whisper + CUDA libs + zeroc-ice
++# Rebuild base with: gh workflow run quad-base-docker.yml (see Dockerfile.base)
++FROM ghcr.io/paradoks81/quad-base:latest
+ 
+ WORKDIR /app
+ 
+diff --git a/apps/slipgate-app/src/components/ConfigSidebar.tsx b/apps/slipgate-app/src/components/ConfigSidebar.tsx
+index a3081e7d..43c5949f 100644
+--- a/apps/slipgate-app/src/components/ConfigSidebar.tsx
++++ b/apps/slipgate-app/src/components/ConfigSidebar.tsx
+@@ -1,4 +1,4 @@
+-import { For } from "solid-js";
++import { For, Show } from "solid-js";
+ 
+ interface ConfigSidebarProps {
+   // Row 1 — Settings
+@@ -20,6 +20,7 @@ interface ConfigSidebarProps {
+   onHideDefaultsChange: (val: boolean) => void;
+   search: string;
+   onSearchChange: (val: string) => void;
++  isCompareMode: boolean;
+ }
+ 
+ export default function ConfigSidebar(props: ConfigSidebarProps) {
+@@ -107,15 +108,17 @@ export default function ConfigSidebar(props: ConfigSidebarProps) {
+       {/* ── Options ── */}
+       <div class="flex flex-col items-start gap-2">
+         <div class="sg-config-sidebar-section-label">Options</div>
+-        <label class="flex items-center gap-1.5 text-xs text-[var(--sg-text-dim)] cursor-pointer select-none">
+-          <input
+-            type="checkbox"
+-            class="checkbox checkbox-xs"
+-            checked={props.hideDefaults}
+-            onChange={(e) => props.onHideDefaultsChange(e.currentTarget.checked)}
+-          />
+-          Hide defaults
+-        </label>
++        <Show when={!props.isCompareMode}>
++          <label class="flex items-center gap-1.5 text-xs text-[var(--sg-text-dim)] cursor-pointer select-none">
++            <input
++              type="checkbox"
++              class="checkbox checkbox-xs"
++              checked={props.hideDefaults}
++              onChange={(e) => props.onHideDefaultsChange(e.currentTarget.checked)}
++            />
++            Hide defaults
++          </label>
++        </Show>
+         <input
+           type="text"
+           class="input input-xs font-mono w-full"
+diff --git a/packages/qw-config/scripts/extract-ezquake-cvars.ts b/packages/qw-config/scripts/extract-ezquake-cvars.ts
+index 70d4b1d1..7d13d7b2 100644
+--- a/packages/qw-config/scripts/extract-ezquake-cvars.ts
++++ b/packages/qw-config/scripts/extract-ezquake-cvars.ts
+@@ -259,7 +259,7 @@ async function extractHudCvars(): Promise<ExtractedCvar[]> {
+       for (let i = 16; i + 1 < tokens.length; i += 2) {
+         const suffix = tokens[i];
+         const defVal = tokens[i + 1];
+-        if (!suffix || suffix === "NULL" || !defVal) break;
++        if (!suffix || suffix === "NULL" || defVal === undefined) break;
+         addHudCvar(results, elementName, suffix, defVal === "NULL" ? "" : defVal, fileName);
+       }
+     }
+diff --git a/packages/qw-config/src/data/ezquake-variables.json b/packages/qw-config/src/data/ezquake-variables.json
+index 2a690041..0c11e5ba 100644
+--- a/packages/qw-config/src/data/ezquake-variables.json
++++ b/packages/qw-config/src/data/ezquake-variables.json
+@@ -6977,13 +6977,15 @@
+     "hud_ammo1_text_color_low": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Text color when low on shells (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+     },
+     "hud_ammo1_text_color_normal": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Text color when shell count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+     },
+     "hud_ammo2_align": {
+@@ -7098,13 +7100,15 @@
+     "hud_ammo2_text_color_low": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Text color when low on nails (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+     },
+     "hud_ammo2_text_color_normal": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Text color when nail count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+     },
+     "hud_ammo3_align": {
+@@ -7219,13 +7223,15 @@
+     "hud_ammo3_text_color_low": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Text color when low on rockets (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+     },
+     "hud_ammo3_text_color_normal": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Text color when rocket count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+     },
+     "hud_ammo4_align": {
+@@ -7340,13 +7346,15 @@
+     "hud_ammo4_text_color_low": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Text color when low on cells (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+     },
+     "hud_ammo4_text_color_normal": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Text color when cell count is normal (only used with style 1 or 3, format: 0-255 0-255 0-255)"
+     },
+     "hud_ammo_align": {
+@@ -7464,6 +7472,18 @@
+       "server-only": false,
+       "desc": "Switches graphical style of current ammo value."
+     },
++    "hud_ammo_text_color_low": {
++      "type": "string",
++      "group-id": "19",
++      "default": "",
++      "server-only": false
++    },
++    "hud_ammo_text_color_normal": {
++      "type": "string",
++      "group-id": "19",
++      "default": "",
++      "server-only": false
++    },
+     "hud_armor_align": {
+       "type": "string",
+       "group-id": "19",
+@@ -9818,19 +9838,22 @@
+     "hud_group1_pic_alpha": {
+       "type": "float",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "1.0",
++      "server-only": false,
+       "desc": "Transparency level of the background image of the group1 HUD element."
+     },
+     "hud_group1_pic_scalemode": {
+       "type": "integer",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "0",
++      "server-only": false,
+       "desc": "Changes the style how the background picture is aligned and stretched for the group1 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+     },
+     "hud_group1_picture": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Sets background picture of grouping object 1."
+     },
+     "hud_group1_place": {
+@@ -9932,19 +9955,22 @@
+     "hud_group2_pic_alpha": {
+       "type": "float",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "1.0",
++      "server-only": false,
+       "desc": "Transparency level of the background image of the group2 HUD element."
+     },
+     "hud_group2_pic_scalemode": {
+       "type": "integer",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "0",
++      "server-only": false,
+       "desc": "Changes the style how the background picture is aligned and stretched for the group2 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+     },
+     "hud_group2_picture": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Sets background picture of grouping object 2."
+     },
+     "hud_group2_place": {
+@@ -10046,19 +10072,22 @@
+     "hud_group3_pic_alpha": {
+       "type": "float",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "1.0",
++      "server-only": false,
+       "desc": "Transparency level of the background image of the group3 HUD element."
+     },
+     "hud_group3_pic_scalemode": {
+       "type": "integer",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "0",
++      "server-only": false,
+       "desc": "Changes the style how the background picture is aligned and stretched for the group3 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+     },
+     "hud_group3_picture": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Sets background picture of grouping object 3."
+     },
+     "hud_group3_place": {
+@@ -10160,19 +10189,22 @@
+     "hud_group4_pic_alpha": {
+       "type": "float",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "1.0",
++      "server-only": false,
+       "desc": "Transparency level of the background image of the group4 HUD element."
+     },
+     "hud_group4_pic_scalemode": {
+       "type": "integer",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "0",
++      "server-only": false,
+       "desc": "Changes the style how the background picture is aligned and stretched for the group4 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+     },
+     "hud_group4_picture": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Sets background picture of grouping object 4."
+     },
+     "hud_group4_place": {
+@@ -10274,19 +10306,22 @@
+     "hud_group5_pic_alpha": {
+       "type": "float",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "1.0",
++      "server-only": false,
+       "desc": "Transparency level of the background image of the group5 HUD element."
+     },
+     "hud_group5_pic_scalemode": {
+       "type": "integer",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "0",
++      "server-only": false,
+       "desc": "Changes the style how the background picture is aligned and stretched for the group5 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+     },
+     "hud_group5_picture": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Sets background picture of grouping object 5."
+     },
+     "hud_group5_place": {
+@@ -10388,19 +10423,22 @@
+     "hud_group6_pic_alpha": {
+       "type": "float",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "1.0",
++      "server-only": false,
+       "desc": "Transparency level of the background image of the group6 HUD element."
+     },
+     "hud_group6_pic_scalemode": {
+       "type": "integer",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "0",
++      "server-only": false,
+       "desc": "Changes the style how the background picture is aligned and stretched for the group6 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+     },
+     "hud_group6_picture": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Sets background picture of grouping object 6."
+     },
+     "hud_group6_place": {
+@@ -10502,19 +10540,22 @@
+     "hud_group7_pic_alpha": {
+       "type": "float",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "1.0",
++      "server-only": false,
+       "desc": "Transparency level of the background image of the group7 HUD element."
+     },
+     "hud_group7_pic_scalemode": {
+       "type": "integer",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "0",
++      "server-only": false,
+       "desc": "Changes the style how the background picture is aligned and stretched for the group7 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+     },
+     "hud_group7_picture": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Sets background picture of grouping object 7."
+     },
+     "hud_group7_place": {
+@@ -10616,19 +10657,22 @@
+     "hud_group8_pic_alpha": {
+       "type": "float",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "1.0",
++      "server-only": false,
+       "desc": "Transparency level of the background image of the group8 HUD element."
+     },
+     "hud_group8_pic_scalemode": {
+       "type": "integer",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "0",
++      "server-only": false,
+       "desc": "Changes the style how the background picture is aligned and stretched for the group8 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+     },
+     "hud_group8_picture": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Sets background picture of grouping object 8."
+     },
+     "hud_group8_place": {
+@@ -10730,19 +10774,22 @@
+     "hud_group9_pic_alpha": {
+       "type": "float",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "1.0",
++      "server-only": false,
+       "desc": "Transparency level of the background image of the group9 HUD element."
+     },
+     "hud_group9_pic_scalemode": {
+       "type": "integer",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "0",
++      "server-only": false,
+       "desc": "Changes the style how the background picture is aligned and stretched for the group9 HUD element. Values from 0 to 5 are supported. See HUD manual for more info."
+     },
+     "hud_group9_picture": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Sets background picture of grouping object 9."
+     },
+     "hud_group9_place": {
+@@ -12754,6 +12801,12 @@
+       "default": "center",
+       "server-only": false
+     },
++    "hud_itemsclock_backpacks": {
++      "type": "boolean",
++      "group-id": "19",
++      "default": "0",
++      "server-only": false
++    },
+     "hud_itemsclock_draw": {
+       "type": "boolean",
+       "group-id": "19",
+@@ -12763,7 +12816,8 @@
+     "hud_itemsclock_filter": {
+       "type": "integer",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Space-separated list of items to NOT be shown.",
+       "remarks": "Options are: gl, rl, lg, quad, pent, ring, suit, mh, ga, ya, ra.",
+       "values": [
+@@ -12815,6 +12869,12 @@
+       "default": "0",
+       "server-only": false
+     },
++    "hud_itemsclock_proportional": {
++      "type": "boolean",
++      "group-id": "19",
++      "default": "0",
++      "server-only": false
++    },
+     "hud_itemsclock_scale": {
+       "type": "float",
+       "group-id": "19",
+@@ -13078,6 +13138,12 @@
+       "default": "screen",
+       "server-only": false
+     },
++    "hud_keys_player": {
++      "type": "string",
++      "group-id": "19",
++      "default": "",
++      "server-only": false
++    },
+     "hud_keys_pos_x": {
+       "type": "",
+       "group-id": "19",
+@@ -14624,14 +14690,16 @@
+     "hud_score_bar_format_reversed_big": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Format string for score_bar HUD element, used when hud_score_bar_fixed_order has taken effect.\nIf not set, hud_score_bar_format_big will be used instead.",
+       "remarks": "See hud_score_bar_format_big for format codes."
+     },
+     "hud_score_bar_format_reversed_small": {
+       "type": "string",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "",
++      "server-only": false,
+       "desc": "Format string for score_bar HUD element, used when hud_score_bar_fixed_order has taken effect.\nIf not set, hud_score_bar_format_reversed_small will be used instead.",
+       "remarks": "See hud_score_bar_format_reversed_small for format codes."
+     },
+@@ -14646,7 +14714,8 @@
+     "hud_score_bar_frag_length": {
+       "type": "integer",
+       "group-id": "19",
+-      "in-source": false,
++      "default": "0",
++      "server-only": false,
+       "desc": "Minimum number of characters to use when displaying frags."
+     },
+     "hud_score_bar_frame": {
+@@ -14691,6 +14760,12 @@
+       "default": "0",
+       "server-only": false
+     },
++    "hud_score_bar_proportional": {
++      "type": "boolean",
++      "group-id": "19",
++      "default": "0",
++      "server-only": false
++    },
+     "hud_score_bar_scale": {
+       "type": "",
+       "group-id": "19",
+@@ -16333,6 +16408,12 @@
+       "default": "0",
+       "server-only": false
+     },
++    "hud_static_text_proportional": {
++      "type": "boolean",
++      "group-id": "19",
++      "default": "0",
++      "server-only": false
++    },
+     "hud_static_text_scale": {
+       "type": "boolean",
+       "group-id": "19",
+@@ -16351,6 +16432,18 @@
+       "default": "0",
+       "server-only": false
+     },
++    "hud_static_text_text": {
++      "type": "string",
++      "group-id": "19",
++      "default": "",
++      "server-only": false
++    },
++    "hud_static_text_textalign": {
++      "type": "string",
++      "group-id": "19",
++      "default": "left",
++      "server-only": false
++    },
+     "hud_suit_align_x": {
+       "type": "string",
+       "group-id": "19",
+diff --git a/packages/qw-config/src/loaders/ezquake.ts b/packages/qw-config/src/loaders/ezquake.ts
+index e4c9676e..b7ba0b0e 100644
+--- a/packages/qw-config/src/loaders/ezquake.ts
++++ b/packages/qw-config/src/loaders/ezquake.ts
+@@ -58,9 +58,12 @@ export function loadEzQuakeCvars(): Map<string, CvarInfo> {
+       group: "Other",
+     };
+ 
+-    // Help-only entries (not in source) get treated as Obsolete
++    // Trust help JSON's own category. Help JSON already has proper Obsolete
++    // grouping for truly removed cvars; help-only entries with a live category
++    // are cvars our C-source parser didn't find (runtime-created, macro-hidden,
++    // etc.), not obsolete. `inSource` is preserved separately for UI hints.
+     const isInSource = raw["in-source"] !== false;
+-    const effectiveCategory = isInSource ? meta.category : "Obsolete";
++    const effectiveCategory = meta.category;
+ 
+     const cvar: CvarInfo = {
+       name,

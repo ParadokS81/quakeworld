@@ -1,0 +1,137 @@
+diff --git a/.claude/settings.json b/.claude/settings.json
+index 011e037d..9e3b5589 100644
+--- a/.claude/settings.json
++++ b/.claude/settings.json
+@@ -61,6 +61,16 @@
+             "type": "command",
+             "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
+             "if": "Bash(gh pr edit*)"
++          },
++          {
++            "type": "command",
++            "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
++            "if": "Bash(git commit*)"
++          },
++          {
++            "type": "command",
++            "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
++            "if": "Bash(git push*)"
+           }
+         ]
+       }
+diff --git a/.gitignore b/.gitignore
+index fa972653..36397280 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -30,6 +30,7 @@ apps/qw-oracle/data/*.db
+ apps/qw-oracle/data/*.db-journal
+ apps/qw-oracle/data/*.db-wal
+ apps/qw-oracle/data/*.db-shm
++apps/qw-oracle/*.db
+ apps/quad/recordings/
+ apps/quad/exports/
+ 
+@@ -50,6 +51,7 @@ Thumbs.db
+ 
+ # Claude Code / tooling artifacts (per-machine, never committed)
+ .claude/projects/
++.claude/*.lock
+ .superpowers/
+ 
+ # Ad-hoc diagnostic output (local, never committed)
+diff --git a/HANDOVER.md b/HANDOVER.md
+index 7dcb1815..5ae43185 100644
+--- a/HANDOVER.md
++++ b/HANDOVER.md
+@@ -14,7 +14,8 @@ This file is referenced from `MEMORY.md` so every new session sees the open-item
+ 
+ Per-arc state for arcs currently in flight. Each arc's plan-dir README has a "Where we are right now" block (Stage / Last action / Next action) -- this section lists the headline so you can pick which arc to work on at a glance. Update when stage/next-action changes.
+ 
+-- **KTX L1 catalog visual review walk (in-flight, end of session 3 2026-05-23)** -- operator-driven cold review of the rendered catalog HTML to surface description-quality findings and template patterns. Findings + drafts + cold-resume block live in `apps/qw-oracle/docs/reviews/2026-05-22-ktx-l1-catalog-findings.md` (read the top `## Resume in a fresh session` section). State end of session 3: **48 L1 drafts locked** (32 session-1 + 13 session-2 + 3 session-3: `k_entityfile` / `callalias` / `qizmo`); 4 open findings; 7 follow-up arcs surfaced (incl. `ktx-l1-rewrite` skill build with park-when-ambiguous spec); KTX shape catalog at **14+ shape variants** (sessions 2-3 added Shapes 1c/1d/6/7-7a-7b/8/9-9a-9b/10 + canonical-card + command-per-value fan-out + tooling-mode prereq + earn-their-keep discipline). Four template-system memory files locked ([[feedback-l1-description-template]] v2 + [[feedback-mod-l1-documentation-architecture]] + [[reference-ktx-entity-categories]] + [[reference-ktx-cvar-command-pairing]]). **Next move: build `ktx-l1-rewrite` skill via `skill-creator` and battle-test on Server config & network category** (partial human-draft ground truth from session 3). Apply path stays parked; drafts NOT yet written to L1 `entities.description`.
++- **KTX L1 catalog visual review walk (in-flight, end of session 3 2026-05-23)** -- operator-driven cold review of the rendered catalog HTML to surface description-quality findings and template patterns. Findings + drafts + cold-resume block live in `apps/qw-oracle/docs/reviews/2026-05-22-ktx-l1-catalog-findings.md` (read the top `## Resume in a fresh session` section). State end of session 3: **48 L1 drafts locked** (32 session-1 + 13 session-2 + 3 session-3: `k_entityfile` / `callalias` / `qizmo`); 4 open findings; 7 follow-up arcs surfaced (incl. `ktx-l1-rewrite` skill build with park-when-ambiguous spec); KTX shape catalog at **14+ shape variants** (sessions 2-3 added Shapes 1c/1d/6/7-7a-7b/8/9-9a-9b/10 + canonical-card + command-per-value fan-out + tooling-mode prereq + earn-their-keep discipline). Four template-system memory files locked ([[feedback-l1-description-template]] v2 + [[feedback-mod-l1-documentation-architecture]] + [[reference-ktx-entity-categories]] + [[reference-ktx-cvar-command-pairing]]). **`ktx-l1-rewrite` skill BUILT + battle-tested + amended 2026-05-23** (Step 1.5 behavioral unpacking + shape-less verdict baked in after battle-test). Apply path stays parked; drafts NOT yet written to L1 `entities.description`.
++- **ktx-l1-rewrite Server config & network fan-out (in-flight, end of session 2026-05-23, hit 350k context budget)** -- **28 of 57 cards drafted** in the Server config & network category (18 drafted clean + 9 drafted_with_flag + 1 parked callalias); ~32% flag rate caught real factual errors in format-unify arc's output (wrong defaults, mislabeled fields, missing prereqs, permission framing errors). SKILL.md amendments validated at scale. **29 cards remaining; pre-fetch table (entity / type / source_ref / catalog_line) in the continuation handoff doc.** Resume: `docs/superpowers/parking/2026-05-23-handoff-ktx-l1-rewrite-server-config-fanout-continuation.md` (fresh-terminal handoff with full reads / rules / first-three-actions / dispatch prompt template). Files: `apps/qw-oracle/docs/reviews/ktx-l1-rewrite-{drafts,parked}-2026-05-23.md`. Open followup: spec amendment for Step 1.5 + shape-less (small; ~15 min; bundle at end-of-category wrap-up).
+ - **KTX post-review investigation + prod-prep** -- KTX Layer 1 Onboarding SHIPPED 2026-05-07 (retrospective in `apps/qw-oracle/docs/arc-history.md`; review `docs/superpowers/reviews/2026-05-07-ktx-onboarding-arc-review.md`). Post-review Issues #1 (cvar embedding gap) + #2 (match_event descriptions) SHIPPED -- commits `02155560` / `7eeaa410` / `7cd951c4` + migration 012 (description_origin). **Still pending -- prod deploy gated on these:** #3 (gameplay_taxonomies parallel-stat fix, ~30 LOC, Pattern 13 retrofit), #4 (orientation blob update -- operator decision), #5 (idempotency-ktx.sh excludes timestamp/run-metadata cols). Fresh-terminal handoff: `docs/superpowers/parking/2026-05-07-ktx-postreview-investigation-and-prod-prep.md`.
+ - **qwiki-v1-beta** -- **Phases 1, 2, 3 SHIPPED 2026-05-14** at https://wiki.slipgate.me. Phase 1 (MW core substrate; nginx 1.30-alpine + mediawiki:1.43-fpm + mariadb 11.4 LTS + Citizen v3.16.0). Phase 2 (Page Forms 5.8.1 + Semantic MediaWiki 6.0.1 + F6 LOAD list: ParserFunctions / Cite / CategoryTree / TemplateData). Phase 3 (PluggableAuth v7.5.0 + OpenIDConnect v8.3.0 + Discord OAuth bot-mode role sync via wiki.Quake.World bot + wiki-contributor / wiki-curator MW groups + D5 namespace gates). Findings F1-F9 all RESOLVED + closed (D2 Amendments #1+#2; D3 Amendment 2026-05-14 path-info URL form; D4 Amendment 2026-05-14 ratifying bot-mode role sync). Phase 4 (quality-tag categories + Layer 3 harvest verification) approved + executor prompt drafted; **awaiting once-over by fresh orchestrator terminal before dispatch.** Orchestrator session retired at ~400k+ context 2026-05-14; resume handoff at `docs/superpowers/parking/2026-05-14-qwiki-v1-beta-orchestrator-resume-phase4.md`. Phase 4 executor prompt at `docs/superpowers/parking/2026-05-14-qwiki-v1-beta-phase-4-executor.md`. Phases 5-8 (Modes vertical slice) deferred until substrate ships. Plan: `docs/superpowers/plans/2026-05-12-qwiki-v1-beta/README.md` ("Where we are right now" block has current Stage / Last action / Next action). Two Phase 3 cosmetic followups deferred to a separate polish micro-commit (see Small followups).
+ - **QWiki community-reference -- Phase 4 LLM-extraction (paused, ready to resume)** -- the modernize-in-place arc is SUPERSEDED by qwiki-v1-beta; what stays LIVE is the community-data Phase 4: Phases 0-3 SHIPPED (players + clans + snapshot + curated/ rename + migration 008), Phase 4 PAUSED at T2 (D4 pivot to LLM-with-checklist extraction for tournaments; deterministic stays for players/clans). Resume: fresh terminal with `superpowers:brainstorming`, deliverable = design doc + redrafted Phase 4 MD, then orchestrator session #3. Sidequest design doc: `docs/superpowers/parking/2026-05-05-qwiki-phase-4-llm-extraction-sidequest.md`. Plan: `docs/superpowers/plans/2026-05-04-qwiki-community-reference/README.md`. F28/F29 tracked in that plan's review-findings.md.
+@@ -30,6 +31,7 @@ When an arc finishes its planning stage and moves to implementation, the entry s
+ - **ezQuake `help_variables.json` mis-lists commands as variables (upstream PR)** -- verified 2026-05-16 during the entity-name source-case-fidelity arc: `userdir`, `floodprotmsg`, `scr_weaponstats_{x,y,order,scale,frame_color}` are registered in ezquake-source ONLY via `Cmd_AddCommand` (host.c / cl_cmd.c) yet also appear in `help_variables.json` (in addition to the correct `help_commands.json`). Our L1 correctly keeps them as `command` source_backed; the phantom `doc_only` cvar twins are removed by `pruneCrossTypeOrphans` (this is exactly what dropped ezquake cvar 2997->2992 on the first clean reload -- expected, floor re-baselined at `quality-grid.ts:1583`). Cross-type variant of the help-only-ghost family the `docs/superpowers/plans/2026-05-15-help-json-doc-consistency-gate.md` plan covers -- feed into that gate + the `docs/upstream-prs/` digest pipeline. Route nano/slime; operator signs DCO. ~upstream PR. [small followup]
+ - **MCP smoke scripts pre-broken (env + stale counts)** -- surfaced 2026-05-16. `serve/mcp/scripts/verify-rewrite.ts` spawns the server via `StdioClientTransport` without propagating `DATABASE_URL` to the child -> server throws at `shared/db.ts:10` -> `MCP error -32000 Connection closed` (fix: pass `env` through, or have the script set it). `verify-gameplay.ts` asserts stale hardcoded counts (entity 37 vs live 50; mechanic 41 vs live 487) on gameplay tables untouched by recent arcs. Neither is caused by the case-fidelity arc -- verified via an in-process `lookup_entity` test (9/9 green incl. case-insensitive resolution + `$B`/`$b` carve-out + ILIKE wildcard-bug fix). ~15 min each. [small followup]
+ - **Prod MCP image rebuild (entity-name case-fidelity residual)** -- per the 2026-05-16 arc-history retrospective (commit `8093e42f`; executor's claim, not independently re-verified here): prod DB is in lockstep and needs NO data refresh (old image still correct because `ILIKE` was always case-insensitive), but the prod MCP image still runs pre-`8093e42f` code -- it does not yet carry the `name_fold`-based `lookup_entity` match or the latent `ILIKE` `_`/`%` wildcard-bug fix. Low urgency (behaviour is correct today via case-insensitive `ILIKE`; the rebuild is a code-freshness + wildcard-correctness catch-up). Trigger: next qw-oracle prod deploy, or sooner if a `_`/`%`-bearing entity name surfaces a wrong `lookup_entity` result. ~standard image rebuild per `DEPLOYMENT.md`. [small followup]
++- **MCP Tailscale direct-route for batch jobs (avoid CF rate limit)** -- surfaced 2026-05-23 during ktx-l1-rewrite sub-batch 2 pre-fetch: 15 parallel `lookup_entity` calls hit Cloudflare 1015 rate-limit at ~10 requests (`oracle.slipgate.me` is fronted by CF Tunnel; CF's per-config rate limit kicks in on parallel bursts). Worked around by reading the 5 missing source_refs from the catalog HTML metadata-strip. The MCP server is reachable directly over Tailscale (Unraid `100.114.81.91`) which bypasses CF entirely. Action: teach the MCP client config (or the dispatcher pattern used by ktx-l1-rewrite + describe-fill-synthesis fan-out arcs) to prefer the Tailscale direct route when on-network. Per-arc fan-outs of 15+ entities are routine; the CF hop is unnecessary friction for them. Need to expose / document the MCP port on Unraid for direct access. ~30 min to add the Tailscale endpoint to `.mcp.json` or equivalent config + smoke test. [small followup]
+ - [Synthesis-report numerical-claim provenance gap](#synthesis-report-numerical-claim-provenance-gap-2026-04-29) — discipline note for future validation arcs; no retroactive fix.
+ - **Extend F-D4a owned-row guard to remaining derivers (synthesis-track support)** — original framing (2026-05-07) was wrong: per the derive-entity-description.ts header verified 2026-05-23, all 13 derivers DO write `description_origin` on every UPDATE. What was actually open was the **F-D4a guard** (`description_origin IS DISTINCT FROM 'synthesized'` / `'shipped_doc'`) which protects operator-authored synthesis from re-derive clobbering. Status 2026-05-23: 4 derivers guarded (deriveCvar / deriveCommand / deriveCmdlineParam from enforce-L1 arc 2026-05-17; deriveMacro added today during macros help-JSON synthesis arc, commit `51ec7220`). Remaining 9 derivers (deriveHudElement / deriveAssetCategory / deriveTokenPrimitive / deriveFlagBit / deriveCvarAlias / deriveProtocolMessage / deriveInfoKey / deriveLogTemplate / deriveQcBuiltin / deriveMatchEvent) are unguarded by design — they own no arc user-doc track yet. Add the guard on a deriver only when a synthesis arc claims that entity type. ~3 lines per deriver when needed. [small followup]
+ - **F-D4a reconciliation for ezquake macros when PR #1127 merges** -- when QW-Group/ezquake-source#1127 lands upstream and the next ezquake walk pulls the populated help-JSON, run the one-line SQL to release the F-D4a guard on the 36 affected rows so deriveMacro can overwrite the synthesized prose with help_json-sourced values: `UPDATE entities SET description_origin = NULL WHERE project='ezquake' AND type='macro' AND description_origin='synthesized' AND id IN (SELECT entity_id FROM macro_versions WHERE version='head' AND NULLIF(TRIM(help_desc),'') IS NOT NULL);`. Snippet also documented inline in `apps/qw-oracle/scripts/load-knowledge/derive-entity-description.ts:deriveMacro`. Trigger: slime merges PR #1127. ~30 seconds. [small followup]
+diff --git a/apps/qw-oracle/data/detection/acceptance-validated-ezquake.json b/apps/qw-oracle/data/detection/acceptance-validated-ezquake.json
+index 52fb952e..250d08e0 100644
+--- a/apps/qw-oracle/data/detection/acceptance-validated-ezquake.json
++++ b/apps/qw-oracle/data/detection/acceptance-validated-ezquake.json
+@@ -5,12 +5,12 @@
+   "probes": {
+     "callgraph": {
+       "exit": 0,
+-      "report": "Running ezQuake extractor (serial) to populate call-graph...\nezQuake unified AST extraction (serial)\n  repo:     /home/paradoks/projects/quakeworld/research/repos/ezquake-source\n  src:      /home/paradoks/projects/quakeworld/research/repos/ezquake-source/src (309 .c files)\n  handlers: ['commands', 'cvars', 'macros', 'cmdline', 'hud-elements', 'asset-cvar-bindings', 'asset-loader-sites', 'keynames', 'hud-commands']\n  output:   /tmp/cg-probe-yfmcgwd9 (.json)\n\n\nParse + visit phase: 540.5s\n  [commands] 513 raw rows -> /tmp/cg-probe-yfmcgwd9/ezquake-commands-ast.json\n  [cvars] 5603 raw rows -> /tmp/cg-probe-yfmcgwd9/ezquake-variables-ast.json\n  [macros] 66 raw rows -> /tmp/cg-probe-yfmcgwd9/ezquake-macros-ast.json\n  [cmdline] 308 raw rows -> /tmp/cg-probe-yfmcgwd9/ezquake-cmdline-params-ast.json\n  [hud-elements] 249 raw rows -> /tmp/cg-probe-yfmcgwd9/ezquake-hud-elements-ast.json\n  [asset-cvar-bindings] 12 raw rows -> /tmp/cg-probe-yfmcgwd9/ezquake-asset-cvar-bindings-ast.json\n  [asset-loader-sites] 375 raw rows -> /tmp/cg-probe-yfmcgwd9/ezquake-asset-loader-sites-ast.json\n  [keynames] 290 raw rows -> /tmp/cg-probe-yfmcgwd9/ezquake-keynames-ast.json\n  [hud-commands] 129 raw rows -> /tmp/cg-probe-yfmcgwd9/ezquake-hud-commands-ast.json\n  [callgraph-signal] Track-A reachability -> /tmp/cg-probe-yfmcgwd9/ezquake-callgraph-reachability-ast.json\n\nTotal: 540.8s\nGATE 1 GREEN\nGATE 2 GREEN\nGATE 3 GREEN\n"
++      "report": "Running ezQuake extractor (serial) to populate call-graph...\nezQuake unified AST extraction (serial)\n  repo:     /home/paradoks/projects/quakeworld/research/repos/ezquake-source\n  src:      /home/paradoks/projects/quakeworld/research/repos/ezquake-source/src (309 .c files)\n  handlers: ['commands', 'cvars', 'macros', 'cmdline', 'hud-elements', 'asset-cvar-bindings', 'asset-loader-sites', 'keynames', 'hud-commands']\n  output:   /tmp/cg-probe-mixkdhb7 (.json)\n\n\nParse + visit phase: 510.9s\n  [commands] 513 raw rows -> /tmp/cg-probe-mixkdhb7/ezquake-commands-ast.json\n  [cvars] 5603 raw rows -> /tmp/cg-probe-mixkdhb7/ezquake-variables-ast.json\n  [macros] 66 raw rows -> /tmp/cg-probe-mixkdhb7/ezquake-macros-ast.json\n  [cmdline] 308 raw rows -> /tmp/cg-probe-mixkdhb7/ezquake-cmdline-params-ast.json\n  [hud-elements] 249 raw rows -> /tmp/cg-probe-mixkdhb7/ezquake-hud-elements-ast.json\n  [asset-cvar-bindings] 12 raw rows -> /tmp/cg-probe-mixkdhb7/ezquake-asset-cvar-bindings-ast.json\n  [asset-loader-sites] 375 raw rows -> /tmp/cg-probe-mixkdhb7/ezquake-asset-loader-sites-ast.json\n  [keynames] 290 raw rows -> /tmp/cg-probe-mixkdhb7/ezquake-keynames-ast.json\n  [hud-commands] 129 raw rows -> /tmp/cg-probe-mixkdhb7/ezquake-hud-commands-ast.json\n  [callgraph-signal] Track-A reachability -> /tmp/cg-probe-mixkdhb7/ezquake-callgraph-reachability-ast.json\n\nTotal: 511.2s\nGATE 1 GREEN\nGATE 2 GREEN\nGATE 3 GREEN\n"
+     },
+     "hud": {
+       "exit": 0,
+-      "report": "Running ezQuake extractor (parallel) to emit hud-commands JSON...\nezQuake unified AST extraction (parallel x 24)\n  repo:     /home/paradoks/projects/quakeworld/research/repos/ezquake-source\n  src:      /home/paradoks/projects/quakeworld/research/repos/ezquake-source/src (309 .c files)\n  handlers: ['commands', 'cvars', 'macros', 'cmdline', 'hud-elements', 'asset-cvar-bindings', 'asset-loader-sites', 'keynames', 'hud-commands']\n  output:   /tmp/hud-probe-i1gtlr34 (.json)\n\n  parallel: 24 workers, 52 chunks of ~6 files\n\nParse + visit phase: 50.5s\n  [commands] 513 raw rows -> /tmp/hud-probe-i1gtlr34/ezquake-commands-ast.json\n  [cvars] 5603 raw rows -> /tmp/hud-probe-i1gtlr34/ezquake-variables-ast.json\n  [macros] 66 raw rows -> /tmp/hud-probe-i1gtlr34/ezquake-macros-ast.json\n  [cmdline] 308 raw rows -> /tmp/hud-probe-i1gtlr34/ezquake-cmdline-params-ast.json\n  [hud-elements] 249 raw rows -> /tmp/hud-probe-i1gtlr34/ezquake-hud-elements-ast.json\n  [asset-cvar-bindings] 12 raw rows -> /tmp/hud-probe-i1gtlr34/ezquake-asset-cvar-bindings-ast.json\n  [asset-loader-sites] 375 raw rows -> /tmp/hud-probe-i1gtlr34/ezquake-asset-loader-sites-ast.json\n  [keynames] 290 raw rows -> /tmp/hud-probe-i1gtlr34/ezquake-keynames-ast.json\n  [hud-commands] 129 raw rows -> /tmp/hud-probe-i1gtlr34/ezquake-hud-commands-ast.json\n  [callgraph-signal] Track-A reachability -> /tmp/hud-probe-i1gtlr34/ezquake-callgraph-reachability-ast.json\n\nTotal: 50.8s\nANCHOR 1 GREEN\nANCHOR 2 GREEN\nANCHOR 3 GREEN\nR7 GREEN\nR1 GREEN\n"
++      "report": "Running ezQuake extractor (parallel) to emit hud-commands JSON...\nezQuake unified AST extraction (parallel x 24)\n  repo:     /home/paradoks/projects/quakeworld/research/repos/ezquake-source\n  src:      /home/paradoks/projects/quakeworld/research/repos/ezquake-source/src (309 .c files)\n  handlers: ['commands', 'cvars', 'macros', 'cmdline', 'hud-elements', 'asset-cvar-bindings', 'asset-loader-sites', 'keynames', 'hud-commands']\n  output:   /tmp/hud-probe-wu7wfrkk (.json)\n\n  parallel: 24 workers, 52 chunks of ~6 files\n\nParse + visit phase: 45.4s\n  [commands] 513 raw rows -> /tmp/hud-probe-wu7wfrkk/ezquake-commands-ast.json\n  [cvars] 5603 raw rows -> /tmp/hud-probe-wu7wfrkk/ezquake-variables-ast.json\n  [macros] 66 raw rows -> /tmp/hud-probe-wu7wfrkk/ezquake-macros-ast.json\n  [cmdline] 308 raw rows -> /tmp/hud-probe-wu7wfrkk/ezquake-cmdline-params-ast.json\n  [hud-elements] 249 raw rows -> /tmp/hud-probe-wu7wfrkk/ezquake-hud-elements-ast.json\n  [asset-cvar-bindings] 12 raw rows -> /tmp/hud-probe-wu7wfrkk/ezquake-asset-cvar-bindings-ast.json\n  [asset-loader-sites] 375 raw rows -> /tmp/hud-probe-wu7wfrkk/ezquake-asset-loader-sites-ast.json\n  [keynames] 290 raw rows -> /tmp/hud-probe-wu7wfrkk/ezquake-keynames-ast.json\n  [hud-commands] 129 raw rows -> /tmp/hud-probe-wu7wfrkk/ezquake-hud-commands-ast.json\n  [callgraph-signal] Track-A reachability -> /tmp/hud-probe-wu7wfrkk/ezquake-callgraph-reachability-ast.json\n\nTotal: 45.7s\nANCHOR 1 GREEN\nANCHOR 2 GREEN\nANCHOR 3 GREEN\nR7 GREEN\nR1 GREEN\n"
+     }
+   },
+-  "validated_at": "2026-05-18T02:25:19.770159+00:00"
++  "validated_at": "2026-05-19T09:18:29.067881+00:00"
+ }
+diff --git a/apps/slipgate-app/src/lib/config/data/fte-asset-bundle.json b/apps/slipgate-app/src/lib/config/data/fte-asset-bundle.json
+index ff533b8f..01cdc6e9 100644
+--- a/apps/slipgate-app/src/lib/config/data/fte-asset-bundle.json
++++ b/apps/slipgate-app/src/lib/config/data/fte-asset-bundle.json
+@@ -1,6 +1,6 @@
+ {
+   "project": "fte",
+-  "version": "build-6698",
++  "version": "head",
+   "client_defaults": {
+     "screenshot_filename_prefixes": [
+       "fte-",
+diff --git a/docs/superpowers/parking/2026-05-13-l1-extractor-asset-loader-enhancements.md b/docs/superpowers/parking/2026-05-13-l1-extractor-asset-loader-enhancements.md
+index 2a802365..437fe8f6 100644
+--- a/docs/superpowers/parking/2026-05-13-l1-extractor-asset-loader-enhancements.md
++++ b/docs/superpowers/parking/2026-05-13-l1-extractor-asset-loader-enhancements.md
+@@ -55,6 +55,27 @@ Probe summary:
+ 
+ **Effort estimate:** medium-high. Conditional-branch walking is non-trivial in libclang -- requires careful AST state tracking. Probably 2-3 days work. Not worth it for a single slug.
+ 
++## Enhancement 3: path-argument analysis for downstream-discriminated loaders
++
++**Surfaced:** 2026-05-13 by Terminal A's watchlist-coverage handoff (commit 1694e3c5).
++
++**Pattern.** A loader function calls a generic primitive that serves multiple asset categories, with discrimination happening downstream via runtime path-template matching. The extractor sees the call but can't tag which category it serves without analyzing the path arguments.
++
++**Affected slugs:** FTE `model_texture`, FTE `map_texture`. Both flow through the same generic shader builders -- `R_BuildDefaultTexnums` / `R_BuildLegacyTexnums` -- which serve every shader-textured asset. Discrimination between "model skin" and "brush texture" happens later inside `Image_LocateHighResTexture` via the runtime path-template list. The path-argument distinguishes `models/` prefix (model_texture) vs `textures/<mapname>/` prefix (map_texture), but this happens at runtime, not at the call-site.
++
++**Source pointers:**
++- FTE: `research/repos/fteqw/engine/gl/gl_shader.c:6192` (`R_BuildDefaultTexnums`)
++- FTE: `research/repos/fteqw/engine/gl/gl_shader.c:6385` (`R_BuildLegacyTexnums`)
++- FTE: `Image_LocateHighResTexture` (downstream discriminator)
++
++**Implementation shape.** Extractor needs to capture the path-argument (literal string, cvar reference, or path template) passed to the loader and apply pattern-matching to discriminate the category. AST-level: trace argument origin back from the call-site to the source (literal, cvar value, format-string assembly). May overlap with Enhancement 1 (static-array enumeration) since both are call-site-data-flow problems.
++
++**Currently compensated by:** the asset-note draft can ship with FTE side noted as "loader-site discrimination happens downstream; see investigation for routing detail." Seed `engine_canonical_paths.fte` for these slugs hand-carries the paths. Asset-notes can flag DIVERGENT with one-engine-only L1 anchors.
++
++**Value if shipped:** unblocks FTE L1 anchors for model_texture and map_texture. Reduces the "ezQuake has sites, FTE has 0" asymmetry in the asset-notes corpus. Likely benefits future asset_types that flow through the same generic shader builders.
++
++**Effort estimate:** medium-high. Path-argument analysis is non-trivial in libclang -- requires data-flow analysis from call-site backward to argument source. Probably 2-3 days for a robust implementation; less for a quick path-literal-only matcher (which would still catch most cases).
++
+ ## Revisit triggers
+ 
+ Reopen this parking doc when any of the following fires:
+@@ -62,7 +83,8 @@ Reopen this parking doc when any of the following fires:
+ - A new asset_type lands in the seed that hits static-array enumeration (bumps Enhancement 1 priority).
+ - MCP retrieval feedback shows users wanting path-precision answers the seed can't anchor (bumps Enhancement 1).
+ - More than one asset_type hits multi-mode dispatch (reopens Enhancement 2 consideration).
+-- A major L1 extractor refactor is underway anyway (fold both in opportunistically).
++- More asset_types in FTE go through generic shader builders without enclosing-function discrimination (bumps Enhancement 3 priority).
++- A major L1 extractor refactor is underway anyway (fold all three in opportunistically).
+ - KTX-canonical or unezQuake onboarding (per `[[project_extraction_pipeline_vision]]`) surfaces new patterns.
+ 
+ ## What's NOT in this parking doc
