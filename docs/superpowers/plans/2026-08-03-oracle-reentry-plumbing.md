@@ -15,7 +15,7 @@
 
 - [ ] None hard-blocking. The maintenance-window bundle (ops letter `~/letterbox/to-ops/2026-08-03-maintenance-window-bundle.md`) can land before/during/after this arc; if the cockpit image rebuild lands mid-arc, re-run Phase 2's env preflight afterward (apt layer changes; the pip clang layer survives in `$HOME` mise python).
 - [ ] Phase 4 image push: GHCR PUSH credential from the cockpit is UNVERIFIED (pull is provisioned; push unknown). Task 4.1 probes it; if refused, a second ops letter requests push capability or an ops-side build+push. The data refresh (4.2) proceeds regardless.
-- [ ] Voyage spend visibility: Phase 1 re-embeds roughly 9-10k short descriptions in one pass (batches of 64, voyage-4-large, every call logged to `embedding_api_log`). Small spend; abort criterion in 1.2.
+- [ ] Voyage spend visibility: Phase 1 re-embeds the job-predicate candidate set -- audited 2026-08-03 at **382 descriptions** (mvdsv 2 + qwcl 380; the draft's 9-10k estimate tracked the vestigial stale FLAG -- see Phase 1 Amendment A1). Batches of 64, voyage-4-large, logged to `embedding_api_log`. Trivial spend; abort criterion in 1.2.
 
 ## Decisions
 
@@ -58,11 +58,13 @@
    Probe shape (verified working 2026-08-03): `docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -Atc "<sql>"`.
 2. **Embed pass** -- `agent (workhorse, low)`, WRITE-GRANT: twin DB + Voyage API only. Preflight: `apps/qw-oracle/.env` has `VOYAGE_API_KEY` and a `DATABASE_URL` pointing at `qw-oracle-postgres-dev` (placed 2026-07-20; confirm host, do not print secrets). Run from `apps/qw-oracle/`: `bun run embed:entities`. The job is hash-idempotent, batches 64, logs to `embedding_api_log`, and on a rejected batch leaves prior vectors + `description_embedding_stale=TRUE`. Abort if 3 consecutive batches fail.
 
-**Phase-boundary verification (all YES/NO, runnable as written):**
-- candidate-set SQL from 1(a) returns 0 rows
-- `SELECT count(*) FROM entities WHERE description_embedding_stale` returns 0
+**Phase-boundary verification (all YES/NO, runnable as written; amended by A1):**
+- candidate-set SQL from 1(a) (the job's own hash predicate) returns 0 rows
 - `embedding_api_log` row count strictly increased during the pass
 - a second `bun run embed:entities` reports embedded: 0 (idempotency)
+- the F1 flag partition is recorded in the Findings ledger (the flag itself is NOT a gate -- A1)
+
+**Amendment A1 (2026-08-03, post-audit adjudication -- do not revert to flag-based gating).** The drafted probe `description_embedding_stale = 0` was unsatisfiable AND wrong as a gate. Migration `019_embedding_freshness_comments.sql` already documents the flag as vestigial: "IGNORED by the embedder... No code reads it as a decision; serve/ never reads it. Observability/legacy; safe drop candidate." Code grep 2026-08-03 confirms zero read-sites (write-sites only: describe-fill / recast-apply / derive scripts set TRUE on touch; the embed job sets TRUE on a failed batch, FALSE on success). The authoritative freshness signal is `description_embedding_sha256`; the gate now uses exactly that. NO flag backfill is performed: no reader benefits, the flag re-inflates on the next content touch by design, and the column COMMENT rides the pg_dump so prod's catalog self-documents the semantics. Column drop deferred (see Deferred list).
 
 **Outputs to next phases:** certified twin; baseline counts table (Phase 4 parity); orientation-vs-data notes (Phase 3 task 1 input).
 
@@ -168,7 +170,9 @@
 
 Seeded 2026-08-03 from the re-entry session (evidence = session probes, all re-runnable):
 
-- **F1 -- embedding staleness on twin.** 9,370 entities flagged `description_embedding_stale` (ezquake 3616 / fte 3279 / ktx 1203 / mvdsv 892 / qwcl 380). Flag predicate != the embed job's candidate predicate (hash-mismatch-or-null); Phase 1 task 1(a) re-derives the true candidate set. Supersedes HANDOVER's "618 KTX rows need re-embed".
+- **F1 -- embedding staleness on twin. RESOLVED by Phase 1 audit 2026-08-03.** True candidate set (the job's hash predicate): **382 rows** -- mvdsv 2 + qwcl 380, all never-embedded (NULL sha); zero changed-since-last-embed rows; **zero ktx**. The 9,370 flagged-stale rows partition exactly: 382 true candidates + 7,099 already-correctly-embedded (vestigial flag, migration-019-documented) + 1,889 NULL/empty-description (structurally outside the job). Vector arithmetic confirms: 8,533 embedded = 8,915 described - 382. Supersedes BOTH the HANDOVER "618 KTX rows" claim AND this finding's own draft framing (9,370 was the flag count, never the need). See Amendment A1.
+- **F5 -- orientation blob under-promises (Phase 3 task 1 + task 6 input; audit 2026-08-03).** (a) Entity-type list: blob's `lookup_entity`/`search_entities` parenthetical names 6 types; twin has 16. Ten unnamed -- 8 appear nowhere in the blob (asset_category, cvar_alias, flag_bit, hud_element, keyname, protocol_message, qc_builtin, token_primitive), 2 only in passing (info_key, log_template). 2,604/11,081 entities (23.5%) carry an unnamed type; log_template alone is 1,887 rows. (b) KTX gameplay kinds prose names 8 of 11 kinds present (missing constant/env_hazard/powerup_behavior, 15 rows -- minor). (c) `search_gameplay_entities` prose names only 'monster'; data has item/projectile/weapon too (36/76 rows, both sources). Data-vs-blob-text finding; whether tool SCHEMAS accept the unnamed values is Phase 3 task 1's call. Engine-project list and gameplay_sources: exact match, no action.
+- **Phase 1 baseline counts (2026-08-03, audit-verified; Phase 4 parity contract):** entities 11,081 (ezquake 4,192 / fte 3,279 / ktx 1,892 / mvdsv 1,236 / qtv 52 / qwcl 380 / qwfwd 50); cvar_versions 54,560; command_versions 13,376; chat_threads 8,621; thread_messages 128,971; sessions 86,423; messages 728,863; concepts 46; concept_chunks 416; gameplay_mechanics 514; gameplay_entity_defs id1=52 + ktx=24; maps 254. Post-embed pass, add: entities with description_embedding NOT NULL = 8,915 (was 8,533 pre-pass). Migrations: 21 applied, `001` -> `021`, zero gaps vs `db/migrations/` (programmatic diff).
 - **F2 -- HANDOVER stale entries** (feed the sweep; not fixed here): (a) L2 entry claims probe-slice-only / ready-for-arc-planner -- twin holds 8,621 threads spanning 2016-04 -> 2026-05, all embedded, resolution labels populated (3,897 solved / 2,523 informational / 1,565 unresolved / 636 null); (b) MCP-realignment entry lists `search_mechanics` kind/mode work as open -- shipped (code verified: kinds enum + mode filter + gate/props in rows); (c) the 618-row re-embed claim (see F1).
 - **F3 -- prod data lag** (drives Phase 4): `sv_antilag@mvdsv` description NULL on prod vs 690-char synthesized on twin; qtv/qwfwd absent from prod orientation; `search_gameplay_entities shambler` returns only the ktx row (id1 catalog absent); `search_solved_issues` returns session-shaped results (pre-thread image/data).
 - **F4 -- `match_event` advertised but unwired?** Live orientation blob says `entities.type='match_event'` is reachable via `lookup_entity`/`search_entities` with a type filter; 2026-08-03 grep finds no `match_event` in either tool file. Phase 3 task 1 confirms and classifies (real gap vs intentional five-type filter).
@@ -181,3 +185,5 @@ Seeded 2026-08-03 from the re-entry session (evidence = session probes, all re-r
 - HANDOVER retrospective sweep (separate overdue ritual; F2 is its input)
 - docs.quake.world front page, oracle.quake.world showcase, wiki game-modes pilot (federation roadmap arcs)
 - dusty-* fork extraction; QTV/QWFWD concept notes; all curation conveyor work (D5)
+- `entities.description_embedding_stale` column drop (migration-019-documented drop candidate) -- touches ~6 write-sites (describe-fill / recast / derive scripts) + idempotency probes; small standalone cleanup, not this arc (A1)
+- ezquake/fte description-coverage gap (1,039 + 1,127 rows with NULL/empty description) -- content work, D5-excluded; already partially tracked by existing describe-fill/help-JSON arcs
