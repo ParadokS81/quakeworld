@@ -6,9 +6,9 @@
 
 ## Status
 
-- **Stage:** DRAFT -- awaiting operator intent review
-- **Last action:** scaffold drafted; every command literal verified against live repo / twin DB / prod endpoint (2026-08-03 session)
-- **Next action:** operator reviews weight class + slicing + phase Goals; on GO, arc-run executes Phase 1 (and may start Phase 2 in parallel)
+- **Stage:** EXECUTING -- Phase 1 (audit) + Phase 2 (extraction recert) dispatched in parallel
+- **Last action:** operator GO 2026-08-03; ops maintenance-session ordering confirmed NOT blocking (order-independent; see prerequisites)
+- **Next action:** Phase 1 task 2 (embed pass) once the audit's before-state lands; then Phase 3
 - **Lane:** main checkout (sole worktree at `2c2c4ea7`, clean; no other arc executing per HANDOVER active-arcs review 2026-08-03)
 
 ## Operator-side prerequisites
