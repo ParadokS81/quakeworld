@@ -13,6 +13,12 @@ const serverPath = resolve(__dirname, '..', 'src', 'index.ts');
 const transport = new StdioClientTransport({
   command: 'bun',
   args: ['run', serverPath],
+  // StdioClientTransport does NOT inherit the parent process's full env by
+  // default -- it merges the SDK's curated safe-inherit allowlist
+  // (getDefaultEnvironment(), which excludes app-specific vars like
+  // DATABASE_URL) with whatever `env` is passed here. Without this, the
+  // spawned server throws at shared/db.ts ("DATABASE_URL is not set").
+  env: process.env as Record<string, string>,
 });
 const client = new Client({ name: 'verify', version: '0.0.1' }, { capabilities: {} });
 await client.connect(transport);
@@ -35,7 +41,10 @@ function check(label: string, ok: boolean, detail?: string) {
 }
 
 const tools = await client.listTools();
-check('listTools returns 12 tools', tools.tools.length === 12, `got ${tools.tools.length}`);
+// Tool count per API_CONTRACTS.md "Tool catalog (current 13)" -- was 12 when
+// this literal was written; describe_mode/search_concepts/redirect_to_human
+// landed since (stale-literal drift, Phase 3 wave B).
+check('listTools returns 13 tools', tools.tools.length === 13, `got ${tools.tools.length}`);
 
 // 1. Case-fold lookup: the original miss (camelCase input, lowercased storage).
 // Scoped to project=ezquake because the same cvar name now exists in fte too
@@ -45,7 +54,11 @@ const r1 = parse(
 );
 check('lookup_entity case-fold cl_deadbodyFilter found', r1.results.length === 1 && r1.match_quality !== 'none');
 const e1 = r1.results[0] as Record<string, unknown>;
-check('  - name normalized to lowercase', e1.name === 'cl_deadbodyfilter');
+// API_CONTRACTS.md Query contract: "Any-case in, source-case out" (migration
+// 013 name_fold match key). name is NOT lowercased -- it is returned in the
+// engine's own source capitalization, which for this cvar is mixed-case.
+// This literal asserted the pre-013 lowercased behavior (stale, Phase 3 wave B).
+check('  - name returned in source capitalization', e1.name === 'cl_deadbodyFilter', `got ${e1.name}`);
 check('  - has source_state', typeof e1.source_state === 'string');
 check('  - has version arc', typeof e1.first_seen_version === 'string' && typeof e1.last_seen_version === 'string');
 check('  - has current snapshot object', typeof e1.current === 'object' && e1.current !== null);
@@ -163,7 +176,9 @@ check('lookup_entity no-match returns match_quality=none', r8.match_quality === 
 {
   const r = await client.callTool({ name: 'search_mechanics', arguments: { kind: 'env_hazard' } });
   const parsed = JSON.parse((r.content as Array<{ type: string; text: string }>)[0].text);
-  check('dispatcher: search_mechanics env_hazard = 7', parsed.results.length === 7);
+  // 9 = 7 id1 + 2 ktx (ca's fall_damage/drowning suppression, added by the
+  // KTX onboarding arc). Was 7 (id1-only) when this literal was written.
+  check('dispatcher: search_mechanics env_hazard = 9', parsed.results.length === 9, `got ${parsed.results.length}`);
 }
 
 await client.close();
