@@ -55,7 +55,11 @@ function summariseFilterArgs(args: Record<string, unknown>): string | null {
   return compact.length > 200 ? compact.slice(0, 197) + '...' : compact;
 }
 
-const ENTITY_TYPE_ENUM: EntityType[] = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset', 'match_event'];
+const ENTITY_TYPE_ENUM: EntityType[] = [
+  'cvar', 'command', 'macro', 'cmdline_param', 'ruleset',
+  'match_event', 'info_key', 'log_template', 'protocol_message',
+  'qc_builtin', 'cvar_alias',
+];
 const VERIFY_TTL_HOURS = parseFloat(process.env.EMBEDDING_VERIFY_TTL_HOURS ?? '24');
 
 async function maybeVerifyEmbeddingSpace(): Promise<void> {
@@ -209,7 +213,7 @@ const TOOL_LIST = [
   {
     name: 'lookup_entity',
     description:
-      'Look up a QuakeWorld entity by name across the four engine projects (ezquake, ktx, fte, mvdsv) and the six user-facing entity types (cvar, command, macro, cmdline_param, ruleset, match_event). Case-insensitive. Returns rich Layer 1 records: identity + project + type + source_state (live | retired | doc-only | dynamically-registered) + first_seen_version + last_seen_version + current per-version snapshot (default value, help text, type, flags, source file:line, plus any type-specific columns) + asset relations for cvars (which file categories the cvar controls) + linked Layer 3 concept notes that reference this entity. One call returns everything the asking LLM needs about the entity at its current state. For community discussion about the entity, call search_solved_issues with the entity name afterwards.',
+      'Look up a QuakeWorld entity by name across all seven engine projects (ezquake, fte, ktx, mvdsv, qtv, qwcl, qwfwd) and eleven entity types (cvar, command, macro, cmdline_param, ruleset, match_event, info_key, log_template, protocol_message, qc_builtin, cvar_alias). Case-insensitive. Returns rich Layer 1 records: identity + project + type + source_state (live | retired | doc-only | dynamically-registered) + first_seen_version + last_seen_version + current per-version snapshot (default value, help text, type, flags, source file:line, plus any type-specific columns) + asset relations for cvars (which file categories the cvar controls) + linked Layer 3 concept notes that reference this entity. One call returns everything the asking LLM needs about the entity at its current state. For community discussion about the entity, call search_solved_issues with the entity name afterwards. info_key cross-scope rule: info_key entity names are stored as `<bare>:<scope>` (e.g. `*z_ext:serverinfo`, `*z_ext:userinfo`) so the same key registered in multiple scopes yields multiple rows; passing the bare form (e.g. `*z_ext`) with type=info_key returns every scope variant.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -219,13 +223,13 @@ const TOOL_LIST = [
         },
         project: {
           type: 'string',
-          description: 'Optional. Restrict to one project: ezquake | ktx | fte | mvdsv.',
+          description: 'Optional. Restrict to one project: ezquake | fte | ktx | mvdsv | qtv | qwcl | qwfwd.',
         },
         type: {
           type: 'string',
           enum: ENTITY_TYPE_ENUM,
           description:
-            'Optional. Restrict to one entity type. Default returns matches across all six types.',
+            'Optional. Restrict to one entity type. Default searches the five user-facing types (cvar, command, macro, cmdline_param, ruleset); pass match_event or a server-side type (info_key, log_template, protocol_message, qc_builtin, cvar_alias) explicitly to include those.',
         },
       },
       required: ['name'],
@@ -244,13 +248,13 @@ const TOOL_LIST = [
         },
         project: {
           type: 'string',
-          description: 'Optional. Restrict to one project: ezquake | ktx | fte | mvdsv.',
+          description: 'Optional. Restrict to one project: ezquake | fte | ktx | mvdsv | qtv | qwcl | qwfwd.',
         },
         type: {
           type: 'string',
           enum: ENTITY_TYPE_ENUM,
           description:
-            'Optional. Restrict to one entity type. Default searches all six types.',
+            'Optional. Restrict to one entity type. Default searches the five user-facing types (cvar, command, macro, cmdline_param, ruleset); pass match_event or a server-side type (info_key, log_template, protocol_message, qc_builtin, cvar_alias) explicitly to include those.',
         },
         limit: {
           type: 'number',

@@ -18,10 +18,21 @@ export interface ToolResponse<T = unknown> {
   };
 }
 
-// User-facing entity types. Layer 1 also stores keyname/hud_element/
-// token_primitive/flag_bit/asset_category for internal classifier use, but
-// those are not directly looked up by humans and stay out of the MCP surface.
-export type EntityType = 'cvar' | 'command' | 'macro' | 'cmdline_param' | 'ruleset' | 'match_event';
+// User-facing entity types: everything reachable via the MCP `type`
+// parameter (as opposed to the five internal-classifier types excluded
+// below). cvar/command/macro/cmdline_param/ruleset are the DEFAULT set
+// searched when `type` is omitted (USER_FACING_TYPES in lookup-entity.ts /
+// search-entities.ts); the other six are explicit-only -- callers must pass
+// `type` to reach match_event, info_key, log_template, protocol_message,
+// qc_builtin, or cvar_alias. Layer 1 also stores keyname/hud_element/
+// token_primitive/flag_bit/asset_category for internal classifier use; those
+// are NOT directly looked up by humans and stay out of the MCP surface
+// entirely (Amendment A2, 2026-08-04 -- schema-admits-what-the-DB-serves,
+// no new tools, no SQL change).
+export type EntityType =
+  | 'cvar' | 'command' | 'macro' | 'cmdline_param' | 'ruleset'
+  | 'match_event' | 'info_key' | 'log_template' | 'protocol_message'
+  | 'qc_builtin' | 'cvar_alias';
 
 export type SourceState =
   | 'source_backed'

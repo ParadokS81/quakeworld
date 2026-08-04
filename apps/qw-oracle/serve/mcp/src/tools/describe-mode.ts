@@ -2,11 +2,15 @@
 //
 // Layer 1 composite verb for KTX game modes. One call assembles a mode's
 // catalog row + applied settings (common baseline + mode overlays, ordered)
-// + activation cvars + the linked Layer 3 concept note, so consumers don't
-// carry the assembly knowledge themselves. Branches on "does the mode have
-// its own mode_default overlays" (NOT mode_class): race/bloodfest are
-// standalone but overlay-less, mutators are overlay-less. 'common' is the
-// internal baseline, not a user-facing mode.
+// + activation cvars + the gameplay_entity_defs / gameplay_mechanics override
+// layer (whole rows KTX swaps in for this mode, e.g. bloodfest's monster
+// roster or ca's fall-damage suppression) + the linked Layer 3 concept note,
+// so consumers don't carry the assembly knowledge themselves. Branches on
+// "does the mode have its own mode_default overlays" (NOT mode_class):
+// race/bloodfest are standalone but overlay-less, mutators are overlay-less
+// -- the entity/mechanic override layer is orthogonal to that branch and can
+// be non-empty for any mode. 'common' is the internal baseline, not a
+// user-facing mode.
 
 import { db } from '../db.ts';
 import type { ToolResponse } from '../types.ts';
@@ -30,6 +34,48 @@ export interface ModeRelatedEntity {
   name: string;
   type: string;
   description: string | null;
+}
+
+// gameplay_entity_defs rows KTX swaps in wholesale for this mode (e.g.
+// bloodfest's 13-row monster roster, yawnmode's item/weapon/projectile
+// rebalance, midair's projectile change). Distinct from applied_settings
+// (per-cvar KTX settings-script overlays on gameplay_mechanics kind=
+// mode_default): these are whole entity-definition rows gated by
+// ruleset_gate_json->>'mode'. props_json is heterogeneous across kinds
+// (item/weapon/projectile/monster each carry different fields), so it is
+// passed through raw -- same convention as search_gameplay_entities.
+export interface ModeEntityOverride {
+  gameplay_source_id: string;
+  kind: string;
+  name: string;
+  classname: string | null;
+  damage: number | null;
+  splash_damage: number | null;
+  splash_radius: number | null;
+  refire_seconds: number | null;
+  respawn_seconds: number | null;
+  pickup_amount: number | null;
+  max_carry: number | null;
+  duration_seconds: number | null;
+  props_json: Record<string, unknown>;
+  notes: string | null;
+  source_ref: string;
+}
+
+// gameplay_mechanics rows gated to this mode whose kind is NOT
+// 'mode_default' (e.g. ca's env_hazard fall_damage/drowning suppression,
+// ctf's rune constants, race's score_system). mode_default rows are already
+// surfaced via applied_settings above; this is the rest of the override
+// layer. props_json passed through raw for the same reason as above.
+export interface ModeMechanicOverride {
+  gameplay_source_id: string;
+  kind: string;
+  name: string;
+  value_numeric: number | null;
+  value_text: string | null;
+  props_json: Record<string, unknown>;
+  notes: string | null;
+  source_ref: string;
 }
 
 export interface ModeConceptNote {
@@ -59,6 +105,8 @@ export interface ModeDescription {
     sub_flag_cvars: string[];
   };
   applied_settings: AppliedSetting[];
+  gameplay_entity_overrides: ModeEntityOverride[];
+  gameplay_mechanic_overrides: ModeMechanicOverride[];
   related_entities: ModeRelatedEntity[];
   concept_note: ModeConceptNote | null;
 }
@@ -150,6 +198,33 @@ export async function describeMode(args: DescribeModeArgs): Promise<DescribeMode
       }))
     : [];
 
+  // 2b. Entity-def overrides: gameplay_entity_defs rows gated to this mode.
+  // Columns map 1:1 to real/int Postgres types postgres-js already returns
+  // as JS numbers, so no str()/num() coercion is needed here (unlike
+  // applied_settings, which pulls values out of JSONB).
+  const gameplay_entity_overrides = await db<ModeEntityOverride[]>`
+    SELECT gameplay_source_id, kind, name, classname, damage, splash_damage,
+           splash_radius, refire_seconds, respawn_seconds, pickup_amount,
+           max_carry, duration_seconds, props_json, notes, source_ref
+    FROM gameplay_entity_defs
+    WHERE gameplay_source_id = ${source}
+      AND ruleset_gate_json->>'mode' = ${catalog.name}
+    ORDER BY kind, name
+  `;
+
+  // 2c. Mechanic overrides: gameplay_mechanics rows gated to this mode whose
+  // kind is anything OTHER than 'mode_default' (those are applied_settings,
+  // fetched above).
+  const gameplay_mechanic_overrides = await db<ModeMechanicOverride[]>`
+    SELECT gameplay_source_id, kind, name, value_numeric, value_text,
+           props_json, notes, source_ref
+    FROM gameplay_mechanics
+    WHERE gameplay_source_id = ${source}
+      AND kind != 'mode_default'
+      AND ruleset_gate_json->>'mode' = ${catalog.name}
+    ORDER BY kind, name
+  `;
+
   // 3. Activation block.
   const subFlags = Array.isArray(props.sub_flags_json) ? (props.sub_flags_json as string[]) : [];
   const activation = {
@@ -211,6 +286,8 @@ export async function describeMode(args: DescribeModeArgs): Promise<DescribeMode
     source_refs: Array.isArray(props.source_xrefs) ? (props.source_xrefs as string[]) : [],
     activation,
     applied_settings,
+    gameplay_entity_overrides,
+    gameplay_mechanic_overrides,
     related_entities,
     concept_note,
   };

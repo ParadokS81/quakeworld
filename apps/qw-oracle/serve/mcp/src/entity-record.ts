@@ -27,8 +27,9 @@ export interface EntityRow {
 }
 
 // Per-type *_versions table. Server-side types from schema v15+ (info_key,
-// protocol_message, log_template, qc_builtin) are wired so lookup_entity
-// can return rich records for them too.
+// protocol_message, log_template, qc_builtin) plus cvar_alias (v12, wired
+// here in lockstep with the Amendment A2 enum widening) are wired so
+// lookup_entity can return rich records for them too.
 const VERSION_TABLE: Record<string, string> = {
   cvar: 'cvar_versions',
   command: 'command_versions',
@@ -39,6 +40,7 @@ const VERSION_TABLE: Record<string, string> = {
   protocol_message: 'protocol_message_versions',
   log_template: 'log_template_versions',
   qc_builtin: 'qc_builtin_versions',
+  cvar_alias: 'cvar_alias_versions',
 };
 
 const CONSUMED_VERSION_KEYS = new Set([
