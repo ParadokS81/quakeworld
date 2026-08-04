@@ -78,3 +78,6 @@ patches/
 research/discord-exports-full/
 research/irc-logs/
 research/slipgate-planning/
+
+# live credentials — sole copy, carved out of pre-monorepo quake/ 2026-07-13. NEVER commit.
+apps/qw-stats/INFRASTRUCTURE.md

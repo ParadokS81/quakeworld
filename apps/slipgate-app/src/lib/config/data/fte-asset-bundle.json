@@ -1,6 +1,6 @@
 {
   "project": "fte",
-  "version": "build-6698",
+  "version": "head",
   "client_defaults": {
     "screenshot_filename_prefixes": [
       "fte-",
