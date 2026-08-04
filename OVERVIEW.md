@@ -12,7 +12,7 @@ Per-app docs at `apps/<name>/{README,VISION,OVERVIEW,CLAUDE}.md` (slipgate-app a
 - **quad** — *Maintenance, stable across 16 teams.* Discord bot recording per-speaker OGG/Opus + standin DM flow.
 - **qw-stats** — *Paused.* PostgreSQL 16 + Express API of 18,000+ 4on4 games; ranking research stalled at identity-resolution Phase 0.
 - **slipgate-app** — *Active (90% of current work).* Tauri v2 + SolidJS + Rust desktop companion; Windows-native.
-- **qw-oracle** — *Active.* Three-layer knowledge service over MCP + snapshot distribution. KTX is the only outstanding engine port. Ship history at `apps/qw-oracle/docs/arc-history.md`.
+- **qw-oracle** — *Active.* Three-layer knowledge service over MCP + snapshot distribution. Seven engine codebases loaded (ezQuake / FTE / QWCL / MVDSV / KTX / QTV / QWFWD) plus the `qw` game-content namespace; prod refreshed to full parity 2026-08-04. Ship history at `apps/qw-oracle/docs/arc-history.md`.
 
 ---
 
@@ -57,15 +57,15 @@ How the apps share domain knowledge through qw-oracle. See root `VISION.md` Sect
 +----------------------------+    serving surfaces    +----------------------------+
 |  qw-oracle (knowledge svc) |    +---------------+   |         consumers          |
 |                            |    |      MCP      |   |                            |
-|  Layer 1  knowledge.db     |--->|  10 tools:    |-->|  Claude Code        (live) |
+|  Layer 1  (Postgres)       |--->|  13 tools:    |-->|  Claude Code        (live) |
 |    engine + game-content   |    |  lookup /     |   |                            |
 |    facts, versioned        |    |  search /     |   |  slipgate-app      (live)  |
 |                            |    |  concept note |   |  reads oracle-generated    |
-|  Layer 2  qw.db            |    +---------------+   |  JSON snapshots in         |
-|    2.66M chat + FTS5       |                        |  apps/slipgate-app/src/    |
+|  Layer 2  (Postgres)       |    +---------------+   |  JSON snapshots in         |
+|    729K msgs, 8.6K threads |                        |  apps/slipgate-app/src/    |
 |                            |    +---------------+   |    lib/config/data/        |
 |  Layer 3  curated/         |--->| build-snapshot|-->|                            |
-|    9 notes + stewardship   |    |     CLI       |   |  quad chatbot    (future)  |
+|    45 notes + 920 profiles |    |     CLI       |   |  quad chatbot    (future)  |
 |                            |    +---------------+   |  slipgate web    (future)  |
 |  (backstage) extractors,   |                        |  community chatbot         |
 |  loaders, diff pipeline    |                        |                  (future)  |
@@ -120,7 +120,7 @@ External services and hosts that multiple apps rely on.
 
 - **QW Hub API** — `https://ncsphkjfominimxztjip.supabase.co/rest/v1/v1_games` (Supabase REST, match history) and `https://d.quake.world/{sha[0:3]}/{sha}.mvd.ktxstats.json` (ktxstats CDN, per-match stats). Read-only, no auth.
 - **Firebase project `matchscheduler-dev`** — Firestore, Storage, Cloud Functions, Auth. Shared between matchscheduler and slipgate-app. Cloud function `discordOAuthExchange` handles Discord OAuth for both.
-- **Unraid server** — Docker host for quad and qw-stats. Reached via Tailscale at `100.114.81.91` (SSH alias `unraid`, key `~/.ssh/id_rsa`). Mumble server (co-runs with quad) is publicly reachable at `mumble.slipgate.me:64738` via Cloudflare DNS + home router port-forward, with a Let's Encrypt cert auto-renewed by an `acme.sh` sidecar (see `apps/quad/DEPLOYMENT.md` → "Mumble TLS certificate"). Discord-shareable squad join URL `https://join.slipgate.me/<team-slug>` is served by a Cloudflare Worker (`apps/quad/cloudflare-worker/`).
+- **Unraid server** — Docker host for quad and qw-stats. Reached via Tailscale at `100.114.81.91` (dev-plane access post-2026-07-28 fence: docker via `dev-deploy-proxy`, appdata rw-mounts — host SSH is gone). Mumble server (co-runs with quad) is publicly reachable at `mumble.slipgate.me:64738` via Cloudflare DNS + home router port-forward, with a Let's Encrypt cert auto-renewed by an `acme.sh` sidecar (see `apps/quad/DEPLOYMENT.md` → "Mumble TLS certificate"). Discord-shareable squad join URL `https://join.slipgate.me/<team-slug>` is served by a Cloudflare Worker (`apps/quad/cloudflare-worker/`).
 - **Deployment details** — the `deploy` skill holds deploy commands, credential locations, and rollback notes per app. Invoke with `/deploy`. Each deployed app also has its own `DEPLOYMENT.md`.
 
 ---

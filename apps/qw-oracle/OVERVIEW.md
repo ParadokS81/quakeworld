@@ -16,7 +16,7 @@ Oracle is the **knowledge service** for the monorepo: three data layers plus the
 
 **Layer 3** — `curated/`. Multi-bucket curated knowledge layer with three sub-shapes (per API_CONTRACTS.md "L3 sub-shapes"):
 
-- `curated/concept-notes/` — free-form synthesis sub-shape (open-ended concept notes, earned via earn-the-note tests). 9 notes plus `README.md` (entry template + recognized shapes), `OPERATIONS.md` (stewardship playbook), `_gap-report.md` (contributor onboarding seed for ezquake.com). `weapon-scripts.md` (2026-04-24) is the first R7 opinionated-best-practice exemplar.
+- `curated/concept-notes/` — free-form synthesis sub-shape (open-ended concept notes, earned via earn-the-note tests). 45 notes (29 game-mode + player-help + domain guides) plus `README.md` (entry template + recognized shapes), `OPERATIONS.md` (stewardship playbook), `_gap-report.md` (contributor onboarding seed for ezquake.com). `weapon-scripts.md` (2026-04-24) is the first R7 opinionated-best-practice exemplar.
 - `curated/asset-notes/` — engine-data synthesis sub-shape (bounded set, one note per `qw-asset-types.yaml` entry). Shipped 2026-05-13 via asset-type-curate skill arc; `player_skin.md` is the first note (paired with `concept-notes/player-skins.md` as a concept-note partner per `project_asset_concept_partner_pattern`). Phase 2 ships skybox; Phase 3 fans out across 20 remaining asset_types.
 - `curated/player-notes/`, `clan-notes/`, `tournament-notes/` — wiki-import biographical sub-shape (profile-notes, qwiki community-reference arc; storage shipped, MCP tools + CLAUDE.md indexing pending Phase 6).
 

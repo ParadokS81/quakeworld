@@ -42,9 +42,11 @@ the cockpit deliberately cannot run it). Prod is never touched by any of this.
   summary is NOT embedded -- raw messages are (decisions.md D3). `sessions` /
   `session_search` remain as raw timestamp-grouped adjacent-context, no longer
   the retrieval unit. RRF `match_quality` thresholds (`L2_RRF_*`) are
-  provisional pending Phase D recalibration on the full backfill. Increment 1
-  loaded only the Feb-Mar 2021 probe slice (~1008 threads); the full-corpus
-  backfill is Phase C, gated on the Phase A go/no-go.
+  provisional pending Phase D recalibration on the full backfill. Phase C
+  backfill is PARTIAL (stalled 2026-06-09: `#helpdesk` complete 7/7 years,
+  `#quakeworld` 1/11; 8,621 threads live, all embedded, resolution labels
+  populated; thread retrieval serving on PROD since 2026-08-04). Resume
+  state: HANDOVER's Layer-2 entry.
 - Hygiene tightenings absorbed into the port (decisions.md D18):
   filter-then-segment session boundaries, nullable `message_labels.session_id`
   for bot/reaction/system messages, `BOT_COMMAND_PATTERNS` removed (Discord
