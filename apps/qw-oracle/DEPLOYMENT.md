@@ -81,24 +81,48 @@ Persistent data and configs live at `/mnt/user/appdata/qw-oracle/`:
 
 ## Routine redeploy (post-Phase-8)
 
-```bash
-# from operator's WSL
-cd /home/paradoks/projects/quakeworld
-docker build -f apps/qw-oracle/Dockerfile \
-             -t ghcr.io/paradoks81/qw-oracle-mcp:<new-tag> \
-             -t ghcr.io/paradoks81/qw-oracle-mcp:latest \
-             .
-docker push ghcr.io/paradoks81/qw-oracle-mcp:<new-tag>
-docker push ghcr.io/paradoks81/qw-oracle-mcp:latest
+**Post-2026-07-28 fence note:** host SSH (`ssh root@100.114.81.91`) has been dead since the
+2026-07-28 dev-fencing rebuild. The procedure below is what actually shipped 0.7.0 on
+2026-08-04 (oracle-reentry-plumbing arc, Phase 4) via `dev-deploy-proxy` from the dev-cockpit --
+no SSH anywhere in the flow. The "First-time deploy" / "Prerequisites" sections above describe
+the original 2026-05 provisioning and are left as history; they predate the fence.
 
-# on Unraid
-ssh root@100.114.81.91
+```bash
+# from the dev-cockpit -- DOCKER_HOST=tcp://dev-deploy-proxy:2375 and DOCKER_CONFIG
+# are pre-exported by dotfiles/bashrc.extra, routing every docker verb through the proxy
+cd /home/dev/projects/quakeworld   # monorepo root -- Dockerfile COPY paths are root-relative
+
+# 1. build with the final tag baked in. The proxy allows `build` but fences the
+#    separate `tag` and `push` verbs (allowlist-by-omission, confirmed in the proxy's
+#    own reject log), so there's no push step yet -- publish is pending an ops
+#    allowlist: ~/letterbox/to-ops/2026-08-04-deploy-proxy-image-push-allowlist.md
+docker build -f apps/qw-oracle/Dockerfile \
+             -t ghcr.io/paradoks81/qw-oracle-mcp:<new-version> \
+             .
+
+# 2. pin the version in prod's .env (single-line sed -- never cat the file,
+#    it holds POSTGRES_PASSWORD and VOYAGE_API_KEY)
+sed -i "s/^MCP_VERSION=.*/MCP_VERSION=<new-version>/" /mnt/user/appdata/qw-oracle/.env
+
+# 3. recreate the mcp container from the local image cache -- NO pull step
 cd /mnt/user/appdata/qw-oracle
-docker compose -f docker-compose.prod.yml pull mcp
 docker compose -f docker-compose.prod.yml up -d mcp
 ```
 
+**Do not run `docker compose pull mcp`** until the push allowlist lands. GHCR still only has
+whatever tag was last actually pushed (pre-fence); a pull today either fails (tag doesn't exist
+upstream) or silently rolls the container back to a stale published image. The `MCP_VERSION`
+pin in `.env` is what makes `up -d mcp` resolve the freshly-built local image instead of
+touching the registry at all -- it is the guard, not a formality.
+
 Postgres state survives image redeploys (volume mount); only the MCP container is replaced.
+
+**Dockerfile maintenance note (F17):** the workspace-shape `COPY package.json` list near the
+top of `apps/qw-oracle/Dockerfile` is hand-maintained, one line per `apps/*/package.json`
+workspace member. A new workspace app (e.g. `apps/docs-web`, added 2026-06-11) whose COPY line
+was never added breaks `bun install --frozen-lockfile` for every subsequent oracle image build,
+silently, until someone builds and hits it -- fixed 2026-08-04 (`49ad0b0d`) but re-check the
+list whenever a new `apps/*` workspace member is scaffolded.
 
 ## Update triggers per codebase
 
@@ -123,22 +147,21 @@ new Layer 3 concept note, re-extracted ezQuake tag, derive-step bug fix, new
 chat session ingest, embedder model bump. The image redeploy section above is
 for code changes; this section is for data changes.
 
-**One-time setup** (skip if already done):
-
-```bash
-ssh root@100.114.81.91 'mkdir -p /mnt/user/appdata/qw-oracle/dumps'
-```
+**One-time setup:** `mkdir -p /mnt/user/appdata/qw-oracle/dumps` -- already done. Post-fence,
+`/mnt/user/appdata/qw-oracle/` is mounted rw directly into the dev-cockpit at this path, so this
+is a plain local `mkdir`, no ssh.
 
 **Procedure:**
 
-```bash
-# from operator's WSL -- rebuild the corpus locally first
-cd /home/paradoks/projects/quakeworld/apps/qw-oracle
+Twin (`qw-oracle-postgres-dev`) and prod (`qw-oracle-postgres`) are both dev-owned containers
+reachable through the same `dev-deploy-proxy` `DOCKER_HOST` from the dev-cockpit -- the whole
+flow is `docker exec` / `docker cp`, no scp, no ssh.
 
-# 0. (if upstream change) extract a new tag. Pulls source, walks libclang,
-#    loads into dev Postgres, runs embed-entities inline (hash-skip).
-#    Skip this step if you're refreshing existing data without an upstream
-#    pull (e.g., derive-step bug fix only).
+```bash
+cd /home/dev/projects/quakeworld/apps/qw-oracle
+
+# 0. (if upstream change) extract a new tag -- unchanged from the pre-fence procedure.
+#    Skip if refreshing existing data without an upstream pull.
 bun scripts/load-knowledge/index.ts extract-tag --project <project> --version <tag>
 # example: bun scripts/load-knowledge/index.ts extract-tag --project ezquake --version 3.6.9
 # head walk: bun scripts/load-knowledge/index.ts extract-tag --project ezquake --version head
@@ -150,54 +173,61 @@ npm run load-knowledge --silent --no-workspaces -- re-derive
 npm run embed:entities
 
 # 2b. (if Layer 3 concept notes changed) load the notes into dev and embed their
-#     chunks. This is the Layer 3 analogue of steps 0-2 and is REQUIRED whenever a
-#     .md under curated/concept-notes/ was added or edited -- the loader is the only
-#     thing that copies file content into the DB. Skipping it means the edited/new
-#     note never reaches the dump, and so never reaches prod. Idempotent + hash-skips
-#     unchanged notes' embeddings, so it is safe to run on every refresh.
+#     chunks. REQUIRED whenever a .md under curated/concept-notes/ was added or
+#     edited -- the loader is the only thing that copies file content into the DB.
+#     Idempotent + hash-skips unchanged notes, safe to run on every refresh.
 bun scripts/load-concepts/index.ts
 
-# 3. dump from the dev container. Default is a full dump for safety;
-#    per-table dumps are an optimisation worth it for big infrequent refreshes.
-docker exec qw-oracle-postgres-dev pg_dump -U qworacle -d qw_oracle \
-  --no-owner --no-acl --clean --if-exists \
-  > /tmp/qw_oracle.sql
+# 3. record the at-dump TWIN snapshot -- this is the parity contract step 7 checks
+#    prod against. Count entities by project, chat_threads, concepts, gameplay_entity_defs.
+docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -Atc "<count queries>"
 
-# 4. ship to Unraid
-scp /tmp/qw_oracle.sql root@100.114.81.91:/tmp/qw_oracle.sql
+# 4. rollback dump of PROD FIRST (insurance, before anything touches prod)
+docker exec qw-oracle-postgres pg_dump -U qworacle -d qw_oracle -Fc \
+  -f /tmp/prod-pre-refresh.dump
+docker cp qw-oracle-postgres:/tmp/prod-pre-refresh.dump \
+  /mnt/user/appdata/qw-oracle/dumps/prod-pre-refresh-$(date +%F).dump
 
-# 5. archive previous dump on Unraid; prune to last 5 (Tier 2 rollback insurance)
-ssh root@100.114.81.91 'cd /mnt/user/appdata/qw-oracle/dumps && \
-  cp /tmp/qw_oracle.sql ./qw_oracle-$(date -u +%Y%m%d-%H%M%S).sql && \
-  ls -t qw_oracle-*.sql | tail -n +6 | xargs -r rm'
+# 5. dump the twin (custom format -Fc -- required by pg_restore --clean --if-exists
+#    in step 7) and ship it onto the prod container via the host
+docker exec qw-oracle-postgres-dev pg_dump -U qworacle -d qw_oracle -Fc \
+  -f /tmp/twin-canon.dump
+docker cp qw-oracle-postgres-dev:/tmp/twin-canon.dump /tmp/twin-canon.dump
+docker cp /tmp/twin-canon.dump qw-oracle-postgres:/tmp/twin-canon.dump
 
-# 6. restore on prod. Single-transaction (-1) so a mid-restore failure
-#    auto-rolls instead of leaving prod half-applied. With --clean --if-exists
-#    in the dump, DROP statements use IF EXISTS and won't fail.
-ssh root@100.114.81.91 \
-  'docker exec -i qw-oracle-postgres psql -1 -U qworacle -d qw_oracle < /tmp/qw_oracle.sql'
+# 6. stop mcp BEFORE restoring. pg_restore --clean drops and recreates tables;
+#    an open connection from mcp holds locks that hang or partially fail the restore.
+docker stop qw-oracle-mcp
 
-# 7. sanity check from WSL via the Tailscale connection string. Counts Layer 1
-#    entities AND Layer 3 concepts so a missed step-2b shows up here.
-DATABASE_URL=postgresql://qworacle:<prod-password>@100.114.81.91:5432/qw_oracle \
-  bun -e 'import postgres from "postgres"; const sql = postgres(process.env.DATABASE_URL); const e = await sql`SELECT count(*) FROM entities WHERE description IS NOT NULL`; const c = await sql`SELECT count(*) FROM concepts`; console.log({ entities: e[0].count, concepts: c[0].count }); await sql.end()'
+# 7. restore. --clean --if-exists drops existing objects first (IF EXISTS so a
+#    partial prior state doesn't error); --no-owner strips the twin's role
+#    ownership so it applies cleanly as qworacle on prod.
+docker exec qw-oracle-postgres pg_restore --clean --if-exists --no-owner \
+  -U qworacle -d qw_oracle /tmp/twin-canon.dump
+
+# 8. parity check -- prod counts must equal the step-3 twin snapshot exactly
+docker exec qw-oracle-postgres psql -U qworacle -d qw_oracle -Atc "<same count queries as step 3>"
+
+# 9. redeploy mcp (stopped in step 6, same image -- this is not a code change)
+cd /mnt/user/appdata/qw-oracle
+docker compose -f docker-compose.prod.yml up -d mcp
 ```
 
-No MCP image rebuild is needed -- the server reads live Postgres on each
-query. Open MCP queries during the restore window may briefly see stale rows;
-acceptable while the install has no real users beyond the operator.
+Worked example: the 2026-08-04 refresh (oracle-reentry-plumbing arc, Phase 4 task 2) --
+`/mnt/user/appdata/qw-oracle/dumps/prod-pre-refresh-2026-08-04.dump` (rollback insurance) and
+`twin-canon-2026-08-04.dump` (the shipped snapshot); parity came back 15/15 exact (entities by
+project, chat_threads, concepts, gameplay_entity_defs, migrations).
 
-For surgical refreshes (single project, single entity type), pass per-table
-flags to pg_dump (`--table=entities --table=cvar_versions --data-only`) and
-restore without `--clean`. Default to the wholesale dump above when in doubt.
+The step-4 rollback dump doubles as fresh Tier-2 insurance (see "Rollback" below) --
+`prod-pre-refresh-<date>.dump` is worth keeping until the refresh is confirmed good.
 
-**Note on `psql -1`:** verified working 2026-05-04 against dev container at
-schema v18, including `CREATE EXTENSION IF NOT EXISTS vector` (extension
-already present makes it a no-op inside the transaction) and pg_dump 16.13's
-`\restrict` meta-command. If a future migration adds a statement that genuinely
-cannot run inside a transaction, the next dev-side restore will surface the
-error before it reaches prod -- drop `-1` for that procedure and document
-the constraint here.
+No MCP image rebuild is needed -- mcp is stopped only to release DB locks for the restore, then
+brought back up on the same image. Prod is unreachable (mcp down, then briefly restoring) for
+the duration of steps 6-9; acceptable while the install has no real users beyond the operator.
+
+For surgical refreshes (single project, single entity type), pass per-table flags to pg_dump
+(`--table=entities --table=cvar_versions --data-only`) and restore without `--clean`. Default
+to the wholesale dump above when in doubt.
 
 **What this procedure does NOT do:**
 - It does NOT regenerate slipgate consumer JSON snapshots. Run
