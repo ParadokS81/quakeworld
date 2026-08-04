@@ -1,6 +1,6 @@
 {
   "name": "@qw-oracle/mcp",
-  "version": "0.5.0",
+  "version": "0.7.0",
   "type": "module",
   "private": true,
   "scripts": {
@@ -9,7 +9,7 @@
     "test-call": "bun run scripts/test-call.ts"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "express": "^5.2.1",
     "gray-matter": "^4.0.3"
   },
