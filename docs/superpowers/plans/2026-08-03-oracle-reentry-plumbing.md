@@ -6,9 +6,9 @@
 
 ## Status
 
-- **Stage:** EXECUTING -- Phase 4 GO 2026-08-04 (gate passed: A2 RATIFIED by operator GO; F13 stays optional-rotation-later; F15 task-0 disposition accepted); tasks 0 + 1 dispatched in parallel
-- **Last action:** Phase 3 closed at the gate; Phase 4 scouts out -- task 0 (loader reconciliation of dump-riders on the twin) + task 1 (deploy-path probe: proxy build + GHCR push capability)
-- **Next action:** task 0 PASS -> task 2 (rollback dump + twin->prod restore, parity vs at-dump snapshot); task 1 verdict -> task 3 path (direct build+push vs ops letter); then task 4 public verification with operator witness + task 5 DEPLOYMENT.md truth-up
+- **Stage:** EXECUTING -- Phase 4; task 1 LANDED (verdict: build allowed, tag/push/rmi proxy-fenced -> A3 local-image deploy path + ops letter written); task 0 (reconciliation) still in flight
+- **Last action:** A3 amendment recorded (deploy from local cache with build-baked tags + pinned MCP_VERSION=0.7.0; GHCR publish deferred to the allowlist letter); ops letter `2026-08-04-deploy-proxy-image-push-allowlist.md` in the box
+- **Next action:** task 0 PASS -> task 2 (rollback dump + twin->prod restore, parity vs at-dump snapshot) -> task 3 (A3 path) -> task 4 public verification with operator witness -> task 5 DEPLOYMENT.md truth-up (now documents the A3 interim path too)
 - **Lane:** main checkout (sole worktree at `2c2c4ea7`, clean; no other arc executing per HANDOVER active-arcs review 2026-08-03)
 
 ## Operator-side prerequisites
@@ -151,7 +151,7 @@
    (b) rollback dump (D6): `docker exec qw-oracle-postgres pg_dump -U qworacle -d qw_oracle -Fc -f /tmp/prod-pre-refresh.dump` then `docker cp qw-oracle-postgres:/tmp/prod-pre-refresh.dump /mnt/user/appdata/qw-oracle/dumps/prod-pre-refresh-$(date +%F).dump`;
    (c) ship: `docker exec qw-oracle-postgres-dev pg_dump -U qworacle -d qw_oracle -Fc -f /tmp/twin-canon.dump`, `docker cp` twin->host->prod container, then `docker exec qw-oracle-postgres pg_restore --clean --if-exists --no-owner -U qworacle -d qw_oracle /tmp/twin-canon.dump`;
    (d) parity probes: entities-by-project + chat_threads + concepts + gameplay_entity_defs counts on prod == Phase 1 baseline, exactly.
-3. **Image rebuild + redeploy** -- `agent (workhorse, high)`, deploy-grant, gated on task 1's outcome. Build from monorepo root per DEPLOYMENT.md's routine-redeploy block (tag with short SHA + `latest`), push, then `cd /mnt/user/appdata/qw-oracle && docker compose -f docker-compose.prod.yml pull mcp && docker compose -f docker-compose.prod.yml up -d mcp`.
+3. **Image rebuild + redeploy** -- `agent (workhorse, high)`, deploy-grant. **A3-amended path (2026-08-04, task-1 verdict):** the proxy allows `build` but fences `tag`/`push`/image-`rmi` (allowlist-by-omission, verified in the proxy's own log), so GHCR publish is deferred to an ops letter (`to-ops/2026-08-04-deploy-proxy-image-push-allowlist.md`) and the deploy runs from the LOCAL image cache -- every verb allowlisted, nothing circumvented: build from monorepo root with the final tag baked in (`docker build -f apps/qw-oracle/Dockerfile -t ghcr.io/paradoks81/qw-oracle-mcp:0.7.0 .` -- multiple `-t` at build time is the tag mechanism since the separate tag verb is fenced), pin `MCP_VERSION=0.7.0` in the prod stack's env so compose resolves the local tag AND a stray future `compose pull` fails loudly instead of silently rolling back to GHCR's stale `latest`, then `cd /mnt/user/appdata/qw-oracle && docker compose -f docker-compose.prod.yml up -d mcp` (NO pull step). GHCR publish happens post-allowlist as a follow-up, not in this arc.
 4. **Public end-to-end verification** -- `agent (workhorse, low-medium)`, read-only; operator runs or witnesses (deploy floor). Acceptance probes = the 2026-08-03 session curls, verbatim, now expected to PASS:
    - `initialize` -> HTTP 200, serverInfo version bumped past 0.6.0
    - orientation blob lists 7 engine projects incl. qtv + qwfwd
