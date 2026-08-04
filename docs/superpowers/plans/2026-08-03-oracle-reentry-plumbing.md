@@ -6,9 +6,9 @@
 
 ## Status
 
-- **Stage:** EXECUTING -- Phase 3 boundary PASSED (orchestrator battery 2026-08-04); AT THE OPERATOR GATE; Phase 4 (prod refresh) next
-- **Last action:** wave D landed + verified (API_CONTRACTS + VISION re-truthed, commit `43a152a6`, 23 corrections all derivation-backed); F15 dump-riders routed to new Phase 4 task 0; F16 upstream-pr hook dead-path fixed; full boundary battery green
-- **Next action:** operator gate -- ratify A2, dispose F13 (secret) + F15 (dump-riders), then GO Phase 4
+- **Stage:** EXECUTING -- Phase 4 GO 2026-08-04 (gate passed: A2 RATIFIED by operator GO; F13 stays optional-rotation-later; F15 task-0 disposition accepted); tasks 0 + 1 dispatched in parallel
+- **Last action:** Phase 3 closed at the gate; Phase 4 scouts out -- task 0 (loader reconciliation of dump-riders on the twin) + task 1 (deploy-path probe: proxy build + GHCR push capability)
+- **Next action:** task 0 PASS -> task 2 (rollback dump + twin->prod restore, parity vs at-dump snapshot); task 1 verdict -> task 3 path (direct build+push vs ops letter); then task 4 public verification with operator witness + task 5 DEPLOYMENT.md truth-up
 - **Lane:** main checkout (sole worktree at `2c2c4ea7`, clean; no other arc executing per HANDOVER active-arcs review 2026-08-03)
 
 ## Operator-side prerequisites
