@@ -35,7 +35,8 @@ export interface EntityRow {
 // in match_event_versions. match_event_versions has no help_desc/source_file/
 // source_line columns (it has emission_call_sites_json instead, a JSONB
 // array of file:line call sites) -- those four fields fall through to null
-// via fetchVersionData's `row.x ?? null`, same as cvar_alias_versions.
+// via fetchVersionData's `row.x ?? null`. (cvar_alias_versions, by contrast,
+// does carry source_file/source_line; only its help_* fields null out.)
 const VERSION_TABLE: Record<string, string> = {
   cvar: 'cvar_versions',
   command: 'command_versions',

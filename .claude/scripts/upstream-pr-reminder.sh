@@ -25,7 +25,7 @@
 #
 # See CLAUDE.md "Upstream PRs (outside this monorepo)" for the durable anchor.
 
-MONOREPO_PREFIX="/home/paradoks/projects/quakeworld"
+MONOREPO_PREFIX="/home/dev/projects/quakeworld"
 
 input=$(cat)
 command=$(echo "$input" | jq -r '.tool_input.command // ""' 2>/dev/null)
