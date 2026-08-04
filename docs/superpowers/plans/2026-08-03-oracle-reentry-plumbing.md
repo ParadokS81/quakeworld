@@ -6,9 +6,9 @@
 
 ## Status
 
-- **Stage:** EXECUTING -- Phases 1 + 2 SHIPPED (boundaries PASSED 2026-08-03); Phase 3 awaiting operator GO at the gate
-- **Last action:** Phase 2 boundary re-verified by the orchestrator: full-repo tree clean (byte-identical artifacts), qwcl 380, version-table totals EXACTLY at the Phase-1 baseline (zero insert delta), amended cindex preflight literal validated green (F8)
-- **Next action:** operator GO -> dispatch Phase 3 (tool-fit + SDK). Ops maintenance window SAFE to run RIGHT NOW (no agents in flight); next safe window after that = the Phase 3 boundary
+- **Stage:** EXECUTING -- Phase 3 wave A (tool-fit recon) dispatched 2026-08-04; Phases 1 + 2 SHIPPED
+- **Last action:** operator GO for Phase 3; post-rebuild env re-verified on the new image (ops bundle executed; F10 pip-clang recurrence fixed + routed)
+- **Next action:** wave B (tools implementation: describe_mode overrides + residuals + smoke-script fix) after recon lands; then wave C (SDK bump); then wave D (contract truth-up); orchestrator boundary gate
 - **Lane:** main checkout (sole worktree at `2c2c4ea7`, clean; no other arc executing per HANDOVER active-arcs review 2026-08-03)
 
 ## Operator-side prerequisites
@@ -115,7 +115,7 @@
 **Tasks:**
 
 1. **Re-derive the tool-fit gap** -- `agent (workhorse, medium)`, read-only. Walk `orientation.ts` promise-by-promise against the tool schemas AND twin data (enumerate the full promise list; no spot-checks). Known suspects: `match_event` advertised for `lookup_entity`/`search_entities` but absent from those tool files per 2026-08-03 grep (F4 -- confirm, then classify per the parking doc's "may be the intentional user-facing five" note); `describe_mode` missing the catalog override rows (F9 -- expected real gap); anything in the 2026-05-30 parking doc already shipped gets recorded as shipped (HANDOVER-sweep feed). Output: confirmed scope for tasks 2-3.
-2. **`describe_mode` override surfacing (F9)** -- `agent (workhorse, high)`. Join the `gameplay_entity_defs` KTX override rows + the non-`mode_default` `gameplay_mechanics` override rows by mode token into the envelope (joinability proven per HANDOVER F9 note). Orientation blob updated IN THE SAME COMMIT (parking-doc rule). Probe: local `tools/call describe_mode {mode:"ca"}` returns an overrides section with >= 1 row; `ktx-serving.test.ts` updated + green.
+2. **`describe_mode` override surfacing (the HANDOVER realignment entry's F9 scope -- NOT this ledger's F9, which is the asm/io.h header note)** -- `agent (workhorse, high)`. Join the `gameplay_entity_defs` KTX override rows + the non-`mode_default` `gameplay_mechanics` override rows by mode token into the envelope (joinability proven per HANDOVER F9 note). Orientation blob updated IN THE SAME COMMIT (parking-doc rule). Probe: local `tools/call describe_mode {mode:"ca"}` returns an overrides section with >= 1 row; `ktx-serving.test.ts` updated + green.
 3. **Residual tool-fit from task 1** (incl. `match_event` enum if confirmed as a gap) -- `agent (workhorse, high)`. Same same-commit orientation rule.
 4. **SDK upgrade** -- `agent (workhorse, xhigh)`. `@modelcontextprotocol/sdk` `^1.0.0` -> current 1.x. World-facing claims (breaking changes, transport behavior) must cite the SDK changelog/migration docs (context7 or the SDK repo), not conviction. Keep transport + session behavior compatible (D4). Probe: server starts; `initialize` with `protocolVersion: "2025-03-26"` still succeeds via the 2026-08-03 curl literal; `bun test` green.
 5. **Smoke-script env fix** -- `agent (workhorse, low)`. `verify-rewrite.ts` spawns the server without propagating `DATABASE_URL` (HANDOVER small-followup, ~15 min). Probe: script runs green against the twin.
