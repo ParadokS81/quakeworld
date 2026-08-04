@@ -27,9 +27,15 @@ export interface EntityRow {
 }
 
 // Per-type *_versions table. Server-side types from schema v15+ (info_key,
-// protocol_message, log_template, qc_builtin) plus cvar_alias (v12, wired
-// here in lockstep with the Amendment A2 enum widening) are wired so
-// lookup_entity can return rich records for them too.
+// protocol_message, log_template, qc_builtin) plus cvar_alias (v12) and
+// match_event (v10) are wired so lookup_entity can return rich records for
+// them too. match_event was already in ENTITY_TYPE_ENUM (a4e47bf3) but
+// missing here (F12, 2026-08-04): lookup_entity/search_entities silently
+// returned emptyVersion() for match_event hits despite real per-version data
+// in match_event_versions. match_event_versions has no help_desc/source_file/
+// source_line columns (it has emission_call_sites_json instead, a JSONB
+// array of file:line call sites) -- those four fields fall through to null
+// via fetchVersionData's `row.x ?? null`, same as cvar_alias_versions.
 const VERSION_TABLE: Record<string, string> = {
   cvar: 'cvar_versions',
   command: 'command_versions',
@@ -41,6 +47,7 @@ const VERSION_TABLE: Record<string, string> = {
   log_template: 'log_template_versions',
   qc_builtin: 'qc_builtin_versions',
   cvar_alias: 'cvar_alias_versions',
+  match_event: 'match_event_versions',
 };
 
 const CONSUMED_VERSION_KEYS = new Set([
