@@ -6,8 +6,9 @@
 
 ## Status
 
-- **Stage:** EXECUTING -- Phase 4; tasks 0 + 1 CLOSED (F15 fully resolved: --prune shipped `906cf3e1`, twin reconciled 45/45 + chunks 409, orchestrator-verified; A3 deploy path locked); task 2 (prod data refresh) DISPATCHED
+- **Stage:** EXECUTING -- Phase 4; task 2 SHIPPED (prod restore, 15/15 parity exact, orchestrator spot-verified; rollback dump retained in dumps/; mcp deliberately stopped); task 3 (0.7.0 local-image build + deploy) DISPATCHED
 - **Operator decision 2026-08-04:** --prune approved via AskUserQuestion gate; orphan pruned through the loader's front door
+- **Task 2 evidence:** at-dump snapshot == prod post-restore on every metric (11,081 entities / 8,621 threads / 45 concepts / 409 chunks / 8,915 vectors / 21 migrations); F3 gaps flipped (sv_antilag 690 chars, qtv 52 + qwfwd 50 present); restore exit 0 zero stderr; dumps retained: prod-pre-refresh (116.8MB) + twin-canon (161.3MB)
 - **Last action:** A3 amendment recorded (deploy from local cache with build-baked tags + pinned MCP_VERSION=0.7.0; GHCR publish deferred to the allowlist letter); ops letter `2026-08-04-deploy-proxy-image-push-allowlist.md` in the box
 - **Next action:** task 0 PASS -> task 2 (rollback dump + twin->prod restore, parity vs at-dump snapshot) -> task 3 (A3 path) -> task 4 public verification with operator witness -> task 5 DEPLOYMENT.md truth-up (now documents the A3 interim path too)
 - **Lane:** main checkout (sole worktree at `2c2c4ea7`, clean; no other arc executing per HANDOVER active-arcs review 2026-08-03)
