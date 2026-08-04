@@ -26,6 +26,7 @@ WORKDIR /repo
 # bails. Copy every apps/*/package.json so the shape matches the lockfile.
 COPY package.json bun.lock ./
 COPY packages/qw-version-resolution/package.json ./packages/qw-version-resolution/package.json
+COPY apps/docs-web/package.json ./apps/docs-web/package.json
 COPY apps/matchscheduler/package.json ./apps/matchscheduler/package.json
 COPY apps/quad/package.json ./apps/quad/package.json
 COPY apps/qw-oracle/package.json ./apps/qw-oracle/package.json
