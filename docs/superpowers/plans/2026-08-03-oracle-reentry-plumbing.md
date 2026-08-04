@@ -6,7 +6,7 @@
 
 ## Status
 
-- **Stage:** EXECUTING -- Phase 4; task 2 SHIPPED (prod restore, 15/15 parity exact, orchestrator spot-verified; rollback dump retained in dumps/; mcp deliberately stopped); task 3 (0.7.0 local-image build + deploy) DISPATCHED
+- **Stage:** EXECUTING -- Phase 4; tasks 2+3+4 COMPLETE: prod restored (15/15 parity), 0.7.0 built via A3 path (after F17 Dockerfile fix) + deployed healthy, and the FULL 13-probe public acceptance battery PASSED orchestrator-run with operator witnessing in-chat (initialize 0.7.0 / 7-project orientation / sv_antilag 690 / qtv resolves / shambler id1+ktx / thread-shaped L2 (thread_id + topic_label + resolution_status) / describe_mode ca overrides / mode filter / match_event snapshot / A2 log_template filter / cf-ray / query_log 199->207); task 5 (DEPLOYMENT.md truth-up) dispatched
 - **Operator decision 2026-08-04:** --prune approved via AskUserQuestion gate; orphan pruned through the loader's front door
 - **Task 2 evidence:** at-dump snapshot == prod post-restore on every metric (11,081 entities / 8,621 threads / 45 concepts / 409 chunks / 8,915 vectors / 21 migrations); F3 gaps flipped (sv_antilag 690 chars, qtv 52 + qwfwd 50 present); restore exit 0 zero stderr; dumps retained: prod-pre-refresh (116.8MB) + twin-canon (161.3MB)
 - **Last action:** A3 amendment recorded (deploy from local cache with build-baked tags + pinned MCP_VERSION=0.7.0; GHCR publish deferred to the allowlist letter); ops letter `2026-08-04-deploy-proxy-image-push-allowlist.md` in the box
