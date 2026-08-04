@@ -10,6 +10,18 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const serverPath = resolve(__dirname, '..', 'src', 'index.ts');
 
+// Env preflight. The server deliberately degrades to lexical-only search when
+// VOYAGE_API_KEY is absent (resilience against Voyage outages) -- but this
+// harness ASSERTS search quality, so a missing key here produces phantom
+// match_quality failures instead of an env error (2026-08-04: cost two
+// debugging rounds when a keyless run mimicked a retrieval regression).
+for (const v of ['DATABASE_URL', 'VOYAGE_API_KEY']) {
+  if (!process.env[v]) {
+    console.error(`FATAL  ${v} is not set -- source apps/qw-oracle/.env before running (semantic-search checks require the real query-embedding path).`);
+    process.exit(2);
+  }
+}
+
 const transport = new StdioClientTransport({
   command: 'bun',
   args: ['run', serverPath],
