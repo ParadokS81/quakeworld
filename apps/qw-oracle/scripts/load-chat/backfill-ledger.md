@@ -123,7 +123,7 @@ validation slice.
 | [x] | 2019 | 46,130 | 58 | 17 | -- loaded 2026-08-05 (session 5), 2660 threads, 99.17% coverage (refence 5/6)
 | [x] | 2020 | 53,179 | 54 | 26 | -- loaded 2026-08-05 (session 5), 2372 threads, 99.26% coverage (refence 1/3; 2 retries WORSE, discarded)
 | [ ] | 2021 | 39,821 | 64 | 14 |
-| [ ] | 2022 | 18,440 | 119 | 0 |
+| [x] | 2022 | 18,440 | 119 | 0 | -- loaded 2026-08-05 (session 5), 1428 threads, 99.90% coverage (refence found nothing below 97%)
 | [ ] | 2023 | 20,006 | 108 | 1 |
 | [ ] | 2024 | 27,722 | 81 | 4 |
 | [ ] | 2025 | 27,199 | 100 | 4 |
@@ -593,6 +593,41 @@ the keep-better comparison the 36.5% realization would have replaced a fine one 
 ~870 messages out of retrieval. A blind re-fence-and-replace would be actively harmful.
 
 DB state after the 2020 batch: chat_threads = **20270** -- 634 v1 + 19636 v2. **#quakeworld 5/11.**
+
+**Batch #quakeworld 2022 -- LOADED, verified. FIRST LIGHT YEAR.** 119 chunks, 0 forced, only 8
+big-routed. Fence **119/119, failures=0 at CONC=30**. **Refence found NOTHING below 97%** and
+the gate came in at **0% hallucination / 99.90% coverage** -- the best of any #quakeworld batch.
+Load: 1428 threads, 18,421 junction rows (18,421 DISTINCT -- **0 R8 m2m**, a perfectly clean
+partition), 0 OOB / 0 missing / 0 stale / 0 truncations. resolution 404 solved / 192 unresolved
+/ 778 informational / 54 none. **Idempotency (R5): PASS** (md5
+`3a3032c6addef8ee0a5fcee8d2d2da99`, GLOBAL held at 21698). **Retrieval: PASS** -- "outlines in
+smackdown ruleset" returns its 2022 thread as top hit (129 msgs, solved).
+
+**This confirms the coverage story:** every quality wobble this session (sub-99% coverage, R8
+m2m spikes, truncations, refence work) is a BIG-CHUNK phenomenon, not a corpus-wide one. Light
+years with small chunks fence essentially perfectly and need no refence pass at all. Expect
+#dev-corner (chunk-dense, message-light) and #antilag to behave like 2022, not like 2017-2020.
+
+DB state after the 2022 batch: chat_threads = **21698** -- 634 v1 + 21064 v2. **#quakeworld 6/11.**
+
+> **CORPUS DRIFT MID-BACKFILL (2026-08-05, cross-lane -- READ BEFORE RESUMING).** A parallel
+> session ran the Arc A catch-up import while this backfill was in flight. Raw `messages` went
+> 693,706 -> **741,128** (newest 2026-08-05). **No loaded batch was affected and no chunk count
+> moved**, because the import lands RAW rows only: `build-sessions.ts` had not been re-run, so
+> the 12,265 new messages (from 2026-05-02 on: #quakeworld 5,910 / #helpdesk 2,656 / #dev-corner
+> 2,152 / #antilag 1,547) have no `message_labels`, and `backfill-batch.ts pullMsgs` joins
+> `message_labels` and filters `category IN ('chat','link')`. They are invisible to fencing.
+>
+> **Consequence:** the four 2026 batches are PARKED. Running them now would still produce
+> partial years (through 2026-05-02) needing a second fence later. Once `build-sessions.ts`
+> re-runs and labels the new messages, 2026 batches fence COMPLETE through 2026-08-05 in one
+> pass. This supersedes the earlier operator call to run 2026 partial -- that call was made
+> before the import landed.
+>
+> **Do NOT run `build-sessions.ts` concurrently with a batch:** it TRUNCATEs and rebuilds
+> `message_labels`, and a `prep` running inside that window would chunk from half-populated
+> labels and silently produce wrong chunk boundaries. Re-run it between batches, then re-run
+> `count-all` and reconcile the ledger's counts before fencing anything.
 
 > **Probe tolerance (learned on 2020).** The pre-flight halted the batch on a single "response
 > is not valid JSON" -- the ~1-in-30 transient schema miss the spike documented. But the
