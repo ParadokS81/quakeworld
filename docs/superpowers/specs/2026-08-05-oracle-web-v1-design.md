@@ -120,13 +120,30 @@ Contributor onboarding is the agreed next sequence AFTER v1; v1 lays its
 cheapest brick by showing synthesis gaps honestly (45 notes + the domains
 with none yet).
 
+### D5 -- launch registry: 4 lit + 2 dim (locked 2026-08-05)
+
+**Lit:** Engine Facts (11,081 entities / 7 codebases) · Community Memory
+(741K messages, thread corpus) · Curated Synthesis (45 notes + honest gap
+list) · Game Content (254 maps + gameplay catalog). **Dim/dormant, rendered
+as inspiration-of-where-this-grows, not promises:** Community History
+(clans / players / official tournament results / LANs) · Match Stats
+(qw-stats' 18K+ games + hub data; hook-in shape unknown).
+
+**Profile-rows correction (operator quality ruling):** the 920 profile rows
+in `curated/` are old-wiki farm output -- the corpus whose content+quality
+gaps prompted the operator's own wiki -- and have no serving surface (MCP
+profile tools were severed to the community-reference arc, never shipped).
+They stay backstage as possible seed-stock; Community History renders DIM
+and waits on real community-platform data (vikpe). Reinforces the
+federation community-data divide from the wiki side: the wiki holds only
+what a wiki should hold; structured profiles/results belong in a proper
+database that can visualize them.
+
 ## Open questions
 
-- **Pass 2 (current):** the v1 launch registry -- which datacenters ship lit,
-  which render as dim/dormant future regions, and where the 920 profiles live
-  (inside Curated Synthesis vs seeding a partially-lit Community History).
-  Posed 2026-08-05, recommendation with operator.
-- **Pass 2 (queued):** per-datacenter inventory-card contents; layer-flow
-  explainer transfer-or-wait; naming/tagline.
+- **Pass 2 (current):** page inventory -- what completes the v1 page besides
+  the brain (explainer transfer-or-wait, quickstart placement, footer doors,
+  single-page-with-drill-panels vs multi-page). Posed 2026-08-05.
+- **Pass 2 (queued):** naming/tagline.
 - **Pass 3:** all (export contract, static vs live, rebuild cadence vs harvest
   ritual, scaffold confirmation).
