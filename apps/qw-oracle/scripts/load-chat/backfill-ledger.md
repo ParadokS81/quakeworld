@@ -119,7 +119,7 @@ validation slice.
 |---|---|---|---|---|
 | [x] | 2016 | 14,474 | 112 | 2 | -- loaded 2026-06-09 (session 4), 1297 threads (CONC=10 clean; 2 forced 1500-msg chunks held 96.1%/99.0%); first #quakeworld v2, coexists w/ v1 2021 probe
 | [x] | 2017 | 56,198 | 72 | 26 | -- FIRST DENSE YEAR; loaded 2026-08-05 (session 5, EXTERNAL fencer), 3259 threads, 99.30% coverage after refence splice
-| [ ] | 2018 | 62,125 | 53 | 29 |
+| [x] | 2018 | 62,125 | 53 | 29 | -- loaded 2026-08-05 (session 5), 3358 threads, 99.54% coverage (refence 7/7), CONC=30 clean
 | [ ] | 2019 | 46,130 | 58 | 17 |
 | [ ] | 2020 | 53,179 | 54 | 26 |
 | [ ] | 2021 | 39,821 | 64 | 14 |
@@ -549,6 +549,22 @@ ezquake console chat logs" returns the 2017 #quakeworld thread as top hit with
 
 DB state after the 2017 batch: chat_threads = **11880** -- 634 v1 (#quakeworld 2021 probe ONLY)
 + 11246 v2, 0 null embeddings, all v2 keys year-scoped. **#quakeworld 2/11.**
+
+**Batch #quakeworld 2018 -- LOADED, verified. FIRST FULLY-AUTOMATED BATCH** (whole ritual via
+`run-backfill-batch.sh #quakeworld 2018 30`, zero manual steps before the retrieval probe).
+53 chunks, max 198.2KB, 29 forced -- the corpus's densest year (1,172 msgs/chunk avg).
+Pre-flight 3/3 PASS (worst 662s / 47,549 tokens = 37%/36% headroom). Fence **53/53, failures=0,
+wall 31.0 min at CONC=30** -- better per-chunk throughput than CONC=17 on a cold prompt cache,
+so the concurrency step-up is clean. Refence: **7/7 chunks improved, +663 msgs**. Gate: **0%
+hallucination / 99.54% coverage**. Load: 3358 threads, 61,893 junction rows (61,842 DISTINCT --
+**51 R8 m2m**, vs 2017's 280: that spike was run variance, NOT a dense-year/chunk-size property),
+0 OOB / 0 missing / 0 stale, 6 R4 truncations. resolution 749 solved / 511 unresolved / 1942
+informational / 156 none. **Idempotency (R5): PASS** (md5 `4e539770d060bb7ed17c2f6f8a35c75b`,
+GLOBAL held at 15238). **Retrieval: PASS** -- "crosshair antialiasing broken after ezquake
+upgrade" and "HUD item respawn timers" both return their 2018 #quakeworld threads as top hits;
+cross-year hybrid healthy (a 2017 crosshair thread co-surfaces).
+
+DB state after the 2018 batch: chat_threads = **15238** -- 634 v1 + 14604 v2. **#quakeworld 3/11.**
 
 **Operator decision (2026-08-05): run the 2026 batches NOW on partial-year data.** The raw
 corpus ends 2026-05-02 (catch-up import is Arc A step 3). #quakeworld-2026 and #dev-corner-2026
