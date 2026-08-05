@@ -67,6 +67,45 @@ retyping answers), never pushed (nobody is asked to migrate off Discord).
 
 ## Arc A -- L2 corpus currency (two-parter)
 
+> **STATUS 2026-08-05 -- EXECUTING; formal scaffold DEMOTED to the checklist below**
+> (execution outran planning: the contract-worker spike PASSED same-day and the
+> backfill launched in a second terminal). Decisions locked en route:
+> - **Channel scope:** #helpdesk (done) + #quakeworld FULL + #antilag FULL;
+>   **#dev-corner DEFERRED with a one-year probe** (fence one year, inspect
+>   quality + retrieval impact, then decide the other ten; raw stays imported
+>   regardless -- fencing is promotion, not possession).
+> - **Fence engine:** `fence-external.ts` (deepseek-v4-flash + pro escalation)
+>   per the spike PASS -- evidence + per-batch command shapes in
+>   `2026-08-05-contract-worker-spike-report.md` (section 6). Sonnet Workflow
+>   path remains the proven fallback.
+> - **The watermark/overlap harvest sketch below is RETIRED** -- the proven
+>   idempotent (channel, year) range-delete batch model IS the incremental
+>   mechanism; harvest = import fresh exports + re-run current-year batches.
+> - **Catch-up import + ingestion seam SHIPPED 2026-08-05** (corpus 741,128
+>   msgs through 2026-08-05; `export-anchors.ts` + parameterized `catchup.mjs`
+>   + idempotent import; commit `d9d60557`). The "2021 slice" flag below is
+>   RESOLVED: it is Phase A's v1 probe, auto-superseded by the v2 2021 batch.
+>
+> **Finish-out checklist (run when the backfill lane quiets):**
+> 1. #antilag 2021-2025 (5 batches) + the #dev-corner probe year on
+>    fence-external; probe verdict recorded here.
+> 2. Re-run #helpdesk-2026 + #antilag-2026 (June loads, pre-catch-up);
+>    #quakeworld-2026 + the probe fence post-catch-up data natively.
+> 3. Regenerate ledger counts (`backfill-batch.ts count-all`) + ledger /
+>    layer2-plan-README status truth-up (backfill lane owns those files until
+>    it lands).
+> 4. Harvest ritual RUNBOOK: the 3-command ingestion seam + current-year
+>    re-fence + embed + brain-manifest emit+copy rider (oracle-web spec D7);
+>    monthly cadence.
+> 5. Prod dump/restore per DEPLOYMENT.md routine + public MCP probe (post-May
+>    threads servable) -- THEN oracle-web's manifest `--publish` unblocks.
+> 6. Corpus-number truth-up sweep (oracle CLAUDE.md / VISION / README / root
+>    OVERVIEW) + check the 44-vs-45 note-summary gap (one concept row beyond
+>    the dry-run leftover has an empty summary).
+> 7. Close the parent arc: layer2-corpus-reconstruction Phase C -> shipped;
+>    hand Phase D (RRF recalibration) + buckets-E their "full backfill"
+>    trigger; retrospective to arc-history.
+
 **(a) Backfill + catch-up.** Raw corpus ends **2026-05-02** (728,863 msgs; verified) --
 nothing since May is even imported, so this starts with a catch-up import regardless.
 Segmentation state (verified 2026-08-04, dev twin): `#helpdesk` complete through

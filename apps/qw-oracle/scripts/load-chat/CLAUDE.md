@@ -16,6 +16,7 @@ The Layer 2 chat loader: Discord-only ingest + classifier + session segmenter + 
 4. `build-sessions.ts` -- classifier (`classify.ts`) + filter-then-segment session builder. `processing_log.version='v1'` gates re-runs; `--force` bypasses. TRUNCATE + rebuild on every run.
 5. `build-session-references.ts` -- aggregates cross-session reply edges from `messages.referenced_message_id` into `session_references`. TRUNCATE + rebuild.
 6. `build-search-index.ts` -- TRUNCATE + rebuild `session_search` from chat/link messages, formatted as `<author>: <text>` lines.
+7. Thread era (layer2-corpus-reconstruction arc + oracle-web-direction Arc A): `export-anchors.ts` computes per-channel catch-up anchors from the corpus edge (writes `../../../quad/anchors-latest.json` for quad's `catchup.mjs --anchors`); `backfill-batch.ts` preps/loads idempotent (channel, year) thread batches; fencing via `fence-external.ts` (external cheap-model engine, spike-validated 2026-08-05 -- see `docs/superpowers/parking/2026-08-05-contract-worker-spike-report.md`) with `wf-backfill-fence.js` as the Sonnet fallback; batch state lives in `backfill-ledger.md`.
 
 ## Always-on rules
 

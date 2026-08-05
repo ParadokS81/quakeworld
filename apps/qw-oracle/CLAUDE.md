@@ -43,10 +43,13 @@ the cockpit deliberately cannot run it). Prod is never touched by any of this.
   `session_search` remain as raw timestamp-grouped adjacent-context, no longer
   the retrieval unit. RRF `match_quality` thresholds (`L2_RRF_*`) are
   provisional pending Phase D recalibration on the full backfill. Phase C
-  backfill is PARTIAL (stalled 2026-06-09: `#helpdesk` complete 7/7 years,
-  `#quakeworld` 1/11; 8,621 threads live, all embedded, resolution labels
-  populated; thread retrieval serving on PROD since 2026-08-04). Resume
-  state: HANDOVER's Layer-2 entry.
+  backfill RESUMED 2026-08-05 on the external cheap-model fence engine
+  (`fence-external.ts`, in flight in a parallel lane); raw corpus caught up
+  same day to 741,128 msgs through 2026-08-05 (catch-up seam:
+  `export-anchors.ts` + quad `catchup.mjs --anchors` + `import-discord.ts`).
+  Thread retrieval serving on PROD since 2026-08-04; prod corpus refreshes at
+  Arc A finish-out. Live state: root HANDOVER oracle-web-direction entry +
+  `scripts/load-chat/backfill-ledger.md`.
 - Hygiene tightenings absorbed into the port (decisions.md D18):
   filter-then-segment session boundaries, nullable `message_labels.session_id`
   for bot/reaction/system messages, `BOT_COMMAND_PATTERNS` removed (Discord
