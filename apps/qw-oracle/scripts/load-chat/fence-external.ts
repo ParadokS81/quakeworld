@@ -446,6 +446,86 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
 }
 
 // ---------------------------------------------------------------------------
+// Subcommand: refence -- second realization for low-coverage chunks.
+//
+// Coverage (messages the fencer actually placed into some thread / messages in
+// the chunk) varies run-to-run on big chunks: two probes of the SAME 1500-msg
+// chunk yielded 132 and 40 threads. Messages left out of every thread are not
+// lost from `messages`, but they are unreachable by thread retrieval, which is
+// the whole point of the backfill.
+//
+// So: re-fence the weak chunks and KEEP WHICHEVER REALIZATION COVERS MORE. This
+// is the ledger's helpdesk-041 splice (session 1) as a repeatable pass. Never
+// keeps a worse realization, so it is safe to re-run.
+// ---------------------------------------------------------------------------
+
+async function chunkCoverage(manifest: ManifestFile, fc: FencedChunk): Promise<{ covered: number; n: number; pct: number }> {
+  const chunk: ChunkFile = JSON.parse(await Bun.file(join(manifest.chunkDir, `${fc.chunkId}.json`)).text());
+  const valid = new Set(chunk.messages.map((m) => m.idx));
+  const covered = new Set<number>();
+  for (const t of fc.threads) for (const i of t.member_indices) if (valid.has(i)) covered.add(i);
+  const n = chunk.messages.length;
+  return { covered: covered.size, n, pct: n > 0 ? (covered.size / n) * 100 : 100 };
+}
+
+async function cmdRefence(channel: string, year: number, opts: Map<string, string>): Promise<void> {
+  const withResolution = !opts.has('no-resolution');
+  const below = opts.has('below') ? parseFloat(opts.get('below')!) : 97;
+  const conc = opts.has('conc') ? parseInt(opts.get('conc')!, 10) : CONC_DEFAULT;
+  const model = opts.get('model') ?? process.env.FENCE_EXTERNAL_MODEL ?? DEFAULT_MODEL;
+  const baseUrl = process.env.FENCE_EXTERNAL_BASE_URL ?? DEFAULT_BASE_URL;
+  const fallbackModel = opts.has('no-fallback') ? '' : (opts.get('fallback-model') ?? FALLBACK_MODEL);
+  const apiKey = loadApiKey();
+  const manifest = await readManifest(channel, year);
+  const outPath = opts.get('out') ?? join(batchDir(channel, year), `fence-external-${model.replace(/[^a-z0-9-]/gi, '_')}.json`);
+
+  const envelope = JSON.parse(await Bun.file(outPath).text());
+  const byId = new Map<string, FencedChunk>((envelope.fenced as FencedChunk[]).map((f) => [f.chunkId, f]));
+
+  const weak: { cid: string; pct: number; covered: number; n: number }[] = [];
+  for (const fc of byId.values()) {
+    if (fc.abstained) continue;
+    const c = await chunkCoverage(manifest, fc);
+    if (c.pct < below) weak.push({ cid: fc.chunkId, ...c });
+  }
+  weak.sort((a, b) => a.pct - b.pct);
+  if (!weak.length) { console.log(`[refence] no chunks below ${below}% coverage -- nothing to do`); return; }
+
+  console.log(`[refence] ${weak.length} chunk(s) below ${below}%: ${weak.map((w) => `${w.cid}@${w.pct.toFixed(1)}%`).join(' ')}`);
+
+  const results = await runGently(
+    weak.map((w) => w.cid),
+    conc,
+    async (cid) => {
+      const chunk: ChunkFile = JSON.parse(await Bun.file(join(manifest.chunkDir, `${cid}.json`)).text());
+      const useModel = fallbackModel && (chunk.forced || chunk.messages.length >= BIG_CHUNK_MSGS) ? fallbackModel : model;
+      return fenceOneChunk(apiKey, baseUrl, useModel, manifest, cid, withResolution);
+    },
+    'refence',
+  );
+
+  let improved = 0;
+  for (const [k, w] of weak.entries()) {
+    const r = results[k];
+    if (r == null) { console.log(`  ${w.cid}: re-fence failed, keeping original ${w.pct.toFixed(1)}%`); continue; }
+    const c = await chunkCoverage(manifest, r.fenced);
+    if (c.pct > w.pct) {
+      byId.set(w.cid, r.fenced);
+      improved++;
+      console.log(`  ${w.cid}: ${w.pct.toFixed(1)}% -> ${c.pct.toFixed(1)}% SPLICED (+${c.covered - w.covered} msgs)`);
+    } else {
+      console.log(`  ${w.cid}: ${w.pct.toFixed(1)}% vs re-fence ${c.pct.toFixed(1)}% -- keeping original`);
+    }
+  }
+
+  envelope.fenced = manifest.chunkIds.filter((cid) => byId.has(cid)).map((cid) => byId.get(cid)!);
+  envelope.meta.refencePasses = (envelope.meta.refencePasses ?? 0) + 1;
+  envelope.meta.refenceImproved = (envelope.meta.refenceImproved ?? 0) + improved;
+  await Bun.write(outPath, JSON.stringify(envelope, null, 2));
+  console.log(`[refence] ${improved}/${weak.length} improved and spliced -> ${outPath}`);
+}
+
+// ---------------------------------------------------------------------------
 // Subcommand: probe -- worst-case pre-flight.
 //
 // Fences only the LARGEST chunks of a prepped batch and reports per-chunk
@@ -686,13 +766,16 @@ if (import.meta.main) {
     await cmdFence(pos[0]!, parseInt(pos[1]!, 10), opts);
   } else if (subcmd === 'probe' && pos.length === 2) {
     await cmdProbe(pos[0]!, parseInt(pos[1]!, 10), opts);
+  } else if (subcmd === 'refence' && pos.length === 2) {
+    await cmdRefence(pos[0]!, parseInt(pos[1]!, 10), opts);
   } else if (subcmd === 'diff' && pos.length === 3) {
     await cmdDiff(pos[0]!, parseInt(pos[1]!, 10), pos[2]!, opts);
   } else {
-    console.error('Usage: fence-external.ts <fence|probe|diff> ...');
-    console.error('  fence <channel> <year> [--no-resolution] [--conc N] [--model M] [--out P] [--resume]');
-    console.error('  probe <channel> <year> [--top N]   -- worst-case pre-flight, run before fence');
-    console.error('  diff  <channel> <year> <candidatePath> [--out P]');
+    console.error('Usage: fence-external.ts <fence|probe|refence|diff> ...');
+    console.error('  fence   <channel> <year> [--no-resolution] [--conc N] [--model M] [--out P] [--resume]');
+    console.error('  probe   <channel> <year> [--top N]     -- worst-case pre-flight, run before fence');
+    console.error('  refence <channel> <year> [--below PCT] -- retry low-coverage chunks, keep the better');
+    console.error('  diff    <channel> <year> <candidatePath> [--out P]');
     process.exit(1);
   }
 }
