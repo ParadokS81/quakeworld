@@ -139,11 +139,32 @@ federation community-data divide from the wiki side: the wiki holds only
 what a wiki should hold; structured profiles/results belong in a proper
 database that can visualize them.
 
+### D6 -- page inventory: single page, drill panels, three strips (locked 2026-08-05)
+
+Single page; zoom never navigates away -- datacenter/region views open in
+place, URL fragment makes any view shareable (`/#community-memory` in a
+Discord paste lands zoomed in). Around the brain, three strips: (1) light
+explainer -- the librarian one-liner + ONE static worked trace (real question
+annotated through its actual tool hops to a cited answer); old showcase
+spec's consumer-landscape diagram + animated ping-pong stay deferred;
+(2) connect-your-agent quickstart (D1) -- endpoint, copy-paste config, first
+three questions; every level-4 "ask your agent" door deep-links here;
+(3) footer doors to sibling surfaces (docs.quake.world, wiki; exact list at
+drafting). Guard: NO contributor sections, NO admin/corpus-state detail, NO
+auth, NO forms -- all deferred per the parking doc.
+
+### Naming disposition (recorded 2026-08-05)
+
+Working name: **QW Oracle** (settled by use). Hero copy = growing-brain
+feeling + functional sub-line ("see what it knows, then plug in your agent"
+register). Final wording is the design pass's job, not a spec lock.
+
 ## Open questions
 
-- **Pass 2 (current):** page inventory -- what completes the v1 page besides
-  the brain (explainer transfer-or-wait, quickstart placement, footer doors,
-  single-page-with-drill-panels vs multi-page). Posed 2026-08-05.
-- **Pass 2 (queued):** naming/tagline.
-- **Pass 3:** all (export contract, static vs live, rebuild cadence vs harvest
-  ritual, scaffold confirmation).
+- **Pass 3 (current):** static-vs-live -- baked manifest at build time vs any
+  live data path; rebuild cadence coupling to the harvest ritual. Posed
+  2026-08-05.
+- **Pass 3 (queued -> arc-plan if no shape questions):** export contract
+  mechanics (extend build-snapshot vs new emitter; manifest fields), scaffold
+  confirmation (SolidJS+Vite, daisyUI tokens, `apps/oracle-web` pnpm subtree,
+  CF Pages, dumb components -- all federation locks, conform-only).
