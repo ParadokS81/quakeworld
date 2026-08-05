@@ -2,7 +2,7 @@
 date: 2026-08-05
 type: design-spec
 arc-slug: oracle-web-v1
-status: Pass 1 COMPLETE (D1 + D2). Pass 2 IN PROGRESS (D3 + D4 locked; launch-registry question posed). Pass plan locked 2026-08-05.
+status: DESIGN COMPLETE 2026-08-05 -- all three passes closed (D1-D7); remaining unknowns are implementation-shaped -> arc-plan picks up from this spec + the parking doc.
 parent: docs/superpowers/parking/2026-08-04-oracle-web-direction.md (Arc B section)
 related:
   - docs/superpowers/specs/2026-05-01-qw-oracle-showcase-site-design.md (ancestor content design; Section 5.3 "Corpus state" is the closest relative; playground/contributor/admin sections stay deferred per the parking doc)
@@ -159,12 +159,39 @@ Working name: **QW Oracle** (settled by use). Hero copy = growing-brain
 feeling + functional sub-line ("see what it knows, then plug in your agent"
 register). Final wording is the design pass's job, not a spec lock.
 
-## Open questions
+### D7 -- manifest served from the reserved snapshots URL; site deploys only for code (locked 2026-08-05)
 
-- **Pass 3 (current):** static-vs-live -- baked manifest at build time vs any
-  live data path; rebuild cadence coupling to the harvest ritual. Posed
-  2026-08-05.
-- **Pass 3 (queued -> arc-plan if no shape questions):** export contract
-  mechanics (extend build-snapshot vs new emitter; manifest fields), scaffold
-  confirmation (SolidJS+Vite, daisyUI tokens, `apps/oracle-web` pnpm subtree,
-  CF Pages, dumb components -- all federation locks, conform-only).
+**The site is fully static** (CF Pages) and redeploys only when code changes.
+At pageload it fetches `brain-manifest.json` from
+`https://oracle.slipgate.me/snapshots/` -- the nginx location reserved since
+Arc 1 for exactly this consumer class ("the public URL stays stable across
+arcs"), Cache-Control max-age=300. The bundle bakes a build-time fallback
+copy so an unreachable oracle degrades to slightly-stale numbers, never an
+error. **Updating the brain = emit manifest + copy the file into
+`/mnt/user/appdata/qw-oracle/snapshots/`** (rw-mounted on the cockpit) as the
+harvest ritual's final step -- visible worldwide within the 5-minute cache,
+no deploy touched. The manifest carries the D3 zoom-level data (counts +
+named inventory + glow/state) plus a small history stub for growth trails;
+level-4 artifacts never ride it.
+
+Consequences: the brain manifest is the FIRST TENANT of the Arc-2
+snapshot-distribution surface (slipgate delta-fetch joins later, same door).
+One `Access-Control-Allow-Origin` line gets added to the snapshots nginx
+block at build time. Rejected: Firestore/Firebase (operator floated,
+un-married) -- second platform inside a Cloudflare-locked federation, SDK
+weight in the bundle, real-time listener machinery for data that changes
+monthly. Rejected: rebuild-site-per-update -- couples content freshness to
+the code pipeline for no gain.
+
+## Remaining for arc-plan (implementation-shaped; no operator decisions here)
+
+- Manifest emitter home (extend `build-snapshot` vs small standalone script)
+  + exact field shapes + history-stub mechanics.
+- CORS line + reload on the snapshots nginx block; baked-fallback wiring.
+- Scaffold per federation locks (SolidJS + Vite, daisyUI tokens,
+  `apps/oracle-web` pnpm subtree, CF Pages, dumb presentation components for
+  the infiniti port).
+- Visual design job sequencing (claude.ai/design exploration; emitter-first
+  ordering lets the design job work with REAL manifest data).
+- Harvest-runbook rider: append emit+copy as the ritual's last step
+  (coordinate with Arc A finish-out, which owns the runbook).

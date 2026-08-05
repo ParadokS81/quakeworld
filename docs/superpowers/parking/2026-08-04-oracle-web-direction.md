@@ -93,6 +93,13 @@ executor; tighten to weekly when the archive goes live and freshness starts matt
 
 ## Arc B -- oracle.quake.world v1: visualize the brain (read-only)
 
+> **Design COMPLETE 2026-08-05** -- spec at
+> `docs/superpowers/specs/2026-08-05-oracle-web-v1-design.md` (D1-D7: tester-invite
+> frame + quickstart / map home / zoom-doors w/ MCP-as-street-view / open datacenter
+> registry / 4-lit+2-dim launch / single-page 3-strip / snapshots-URL manifest).
+> Next: arc-plan + the visual design job. The sketch below is superseded where the
+> spec speaks.
+
 Operator's framing: "a website to visualize the oracle's engine and knowledge base."
 The initial motivation of the whole web direction: show WHAT is in the brain, where
 it came from, what it is -- L1 (per-codebase coverage, entity types, versions), L2
