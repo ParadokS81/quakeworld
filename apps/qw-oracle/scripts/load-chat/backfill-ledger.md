@@ -120,7 +120,7 @@ validation slice.
 | [x] | 2016 | 14,474 | 112 | 2 | -- loaded 2026-06-09 (session 4), 1297 threads (CONC=10 clean; 2 forced 1500-msg chunks held 96.1%/99.0%); first #quakeworld v2, coexists w/ v1 2021 probe
 | [x] | 2017 | 56,198 | 72 | 26 | -- FIRST DENSE YEAR; loaded 2026-08-05 (session 5, EXTERNAL fencer), 3259 threads, 99.30% coverage after refence splice
 | [x] | 2018 | 62,125 | 53 | 29 | -- loaded 2026-08-05 (session 5), 3358 threads, 99.54% coverage (refence 7/7), CONC=30 clean
-| [ ] | 2019 | 46,130 | 58 | 17 |
+| [x] | 2019 | 46,130 | 58 | 17 | -- loaded 2026-08-05 (session 5), 2660 threads, 99.17% coverage (refence 5/6)
 | [ ] | 2020 | 53,179 | 54 | 26 |
 | [ ] | 2021 | 39,821 | 64 | 14 |
 | [ ] | 2022 | 18,440 | 119 | 0 |
@@ -565,6 +565,28 @@ upgrade" and "HUD item respawn timers" both return their 2018 #quakeworld thread
 cross-year hybrid healthy (a 2017 crosshair thread co-surfaces).
 
 DB state after the 2018 batch: chat_threads = **15238** -- 634 v1 + 14604 v2. **#quakeworld 3/11.**
+
+**Batch #quakeworld 2019 -- LOADED, verified.** 58 chunks, 17 forced. Fence **58/58, failures=0,
+wall 27.4 min at CONC=30**; one chunk (-050) hit a transient schema violation and the runGently
+retry pass recovered it -- the ~1-in-30 rate the spike documented, self-healing as designed.
+Refence 5/6 improved (+415 msgs); one chunk's retry was worse and was discarded. Gate: **0%
+hallucination / 99.17% coverage**. Load: 2660 threads, 45,822 junction rows (45,747 DISTINCT,
+75 R8 m2m), 0 OOB / 0 missing / 0 stale, 7 R4 truncations. resolution 629 solved / 338
+unresolved / 1673 informational / 20 none. **Idempotency (R5): PASS** (md5
+`fad26a9c2cafe9bad58cc8377e988245`, GLOBAL held at 17898). **Retrieval: PASS** -- "forceskin
+enemyforceskin ruleset debate" returns its 2019 thread as top hit (340 msgs, solved).
+
+DB state after the 2019 batch: chat_threads = **17898** -- 634 v1 + 17264 v2. **#quakeworld 4/11.**
+
+> **Retrieval-probe methodology (learned on 2019, applies to every batch and to Phase D).**
+> The first 2019 probe returned only 2017 threads and looked like a failure. It was not: the
+> batch's data was healthy (2660 threads, 0 null/stale/missing-tsv) and the target thread
+> existed with a near-exact label match. The queries were bad. Threads are embedded over their
+> RAW MESSAGES, not their topic_label (D3), so a 4-msg / 345-char thread embeds thinly and
+> legitimately loses to a richer thread on the same subject. **Probe with queries drawn from
+> SUBSTANTIVE threads (high message_count), not from random `solved` topic_labels** -- a
+> short-thread miss measures the probe, not the batch. Phase D threshold calibration should
+> expect thread length to dominate ranking this way, or correct for it deliberately.
 
 **Operator decision (2026-08-05): run the 2026 batches NOW on partial-year data.** The raw
 corpus ends 2026-05-02 (catch-up import is Arc A step 3). #quakeworld-2026 and #dev-corner-2026
