@@ -461,13 +461,26 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
 // keeps a worse realization, so it is safe to re-run.
 // ---------------------------------------------------------------------------
 
-async function chunkCoverage(manifest: ManifestFile, fc: FencedChunk): Promise<{ covered: number; n: number; pct: number }> {
+async function chunkCoverage(manifest: ManifestFile, fc: FencedChunk): Promise<{ covered: number; n: number; pct: number; oob: number }> {
   const chunk: ChunkFile = JSON.parse(await Bun.file(join(manifest.chunkDir, `${fc.chunkId}.json`)).text());
   const valid = new Set(chunk.messages.map((m) => m.idx));
   const covered = new Set<number>();
-  for (const t of fc.threads) for (const i of t.member_indices) if (valid.has(i)) covered.add(i);
+  let oob = 0;
+  for (const t of fc.threads) for (const i of t.member_indices) valid.has(i) ? covered.add(i) : oob++;
   const n = chunk.messages.length;
-  return { covered: covered.size, n, pct: n > 0 ? (covered.size / n) * 100 : 100 };
+  return { covered: covered.size, n, pct: n > 0 ? (covered.size / n) * 100 : 100, oob };
+}
+
+// Which realization is better? OOB FIRST, then coverage.
+//
+// index-hallucination is the HARD gate (must be 0); coverage is the soft one
+// (~99% band). Comparing on coverage alone inverts that: #quakeworld-2021 kept
+// a 92.9%-coverage realization carrying 2 OOB indices over an 84.7% one, and
+// the batch then failed the hard gate at 0.008%. Trading the hard gate for
+// 8 points of the soft one is never right.
+function betterRealization(cand: { pct: number; oob: number }, cur: { pct: number; oob: number }): boolean {
+  if (cand.oob !== cur.oob) return cand.oob < cur.oob;
+  return cand.pct > cur.pct;
 }
 
 async function cmdRefence(channel: string, year: number, opts: Map<string, string>): Promise<void> {
@@ -484,16 +497,20 @@ async function cmdRefence(channel: string, year: number, opts: Map<string, strin
   const envelope = JSON.parse(await Bun.file(outPath).text());
   const byId = new Map<string, FencedChunk>((envelope.fenced as FencedChunk[]).map((f) => [f.chunkId, f]));
 
-  const weak: { cid: string; pct: number; covered: number; n: number }[] = [];
+  // Select on EITHER signal: coverage below the floor, OR any OOB index at all.
+  // An OOB chunk can sit well above the coverage floor and still fail the hard
+  // gate on its own (2021's -013 was at 98%+ with 1 OOB), so coverage-only
+  // selection cannot see it.
+  const weak: { cid: string; pct: number; covered: number; n: number; oob: number }[] = [];
   for (const fc of byId.values()) {
     if (fc.abstained) continue;
     const c = await chunkCoverage(manifest, fc);
-    if (c.pct < below) weak.push({ cid: fc.chunkId, ...c });
+    if (c.pct < below || c.oob > 0) weak.push({ cid: fc.chunkId, ...c });
   }
-  weak.sort((a, b) => a.pct - b.pct);
-  if (!weak.length) { console.log(`[refence] no chunks below ${below}% coverage -- nothing to do`); return; }
+  weak.sort((a, b) => (b.oob - a.oob) || (a.pct - b.pct));
+  if (!weak.length) { console.log(`[refence] no chunks below ${below}% coverage and none with OOB -- nothing to do`); return; }
 
-  console.log(`[refence] ${weak.length} chunk(s) below ${below}%: ${weak.map((w) => `${w.cid}@${w.pct.toFixed(1)}%`).join(' ')}`);
+  console.log(`[refence] ${weak.length} chunk(s) below ${below}% or carrying OOB: ${weak.map((w) => `${w.cid}@${w.pct.toFixed(1)}%${w.oob ? `/OOB${w.oob}` : ''}`).join(' ')}`);
 
   const results = await runGently(
     weak.map((w) => w.cid),
@@ -506,17 +523,19 @@ async function cmdRefence(channel: string, year: number, opts: Map<string, strin
     'refence',
   );
 
+  const fmt = (x: { pct: number; oob: number }) => `${x.pct.toFixed(1)}%${x.oob ? `/OOB${x.oob}` : ''}`;
   let improved = 0;
   for (const [k, w] of weak.entries()) {
     const r = results[k];
-    if (r == null) { console.log(`  ${w.cid}: re-fence failed, keeping original ${w.pct.toFixed(1)}%`); continue; }
+    if (r == null) { console.log(`  ${w.cid}: re-fence failed, keeping original ${fmt(w)}`); continue; }
     const c = await chunkCoverage(manifest, r.fenced);
-    if (c.pct > w.pct) {
+    if (betterRealization(c, w)) {
       byId.set(w.cid, r.fenced);
       improved++;
-      console.log(`  ${w.cid}: ${w.pct.toFixed(1)}% -> ${c.pct.toFixed(1)}% SPLICED (+${c.covered - w.covered} msgs)`);
+      const why = c.oob < w.oob ? `OOB ${w.oob}->${c.oob}` : `+${c.covered - w.covered} msgs`;
+      console.log(`  ${w.cid}: ${fmt(w)} -> ${fmt(c)} SPLICED (${why})`);
     } else {
-      console.log(`  ${w.cid}: ${w.pct.toFixed(1)}% vs re-fence ${c.pct.toFixed(1)}% -- keeping original`);
+      console.log(`  ${w.cid}: ${fmt(w)} vs re-fence ${fmt(c)} -- keeping original`);
     }
   }
 
