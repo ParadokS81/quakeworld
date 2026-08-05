@@ -121,7 +121,7 @@ validation slice.
 | [x] | 2017 | 56,198 | 72 | 26 | -- FIRST DENSE YEAR; loaded 2026-08-05 (session 5, EXTERNAL fencer), 3259 threads, 99.30% coverage after refence splice
 | [x] | 2018 | 62,125 | 53 | 29 | -- loaded 2026-08-05 (session 5), 3358 threads, 99.54% coverage (refence 7/7), CONC=30 clean
 | [x] | 2019 | 46,130 | 58 | 17 | -- loaded 2026-08-05 (session 5), 2660 threads, 99.17% coverage (refence 5/6)
-| [ ] | 2020 | 53,179 | 54 | 26 |
+| [x] | 2020 | 53,179 | 54 | 26 | -- loaded 2026-08-05 (session 5), 2372 threads, 99.26% coverage (refence 1/3; 2 retries WORSE, discarded)
 | [ ] | 2021 | 39,821 | 64 | 14 |
 | [ ] | 2022 | 18,440 | 119 | 0 |
 | [ ] | 2023 | 20,006 | 108 | 1 |
@@ -577,6 +577,32 @@ unresolved / 1673 informational / 20 none. **Idempotency (R5): PASS** (md5
 enemyforceskin ruleset debate" returns its 2019 thread as top hit (340 msgs, solved).
 
 DB state after the 2019 batch: chat_threads = **17898** -- 634 v1 + 17264 v2. **#quakeworld 4/11.**
+
+**Batch #quakeworld 2020 -- LOADED, verified.** 54 chunks, 26 forced. Pre-flight initially HALTED
+the batch (see the probe-tolerance note below); after the fix, 3/3 PASS. Fence **54/54,
+failures=0 at CONC=30**. Gate: **0% hallucination / 99.26% coverage**. Load: 2372 threads,
+52,860 junction rows (52,784 DISTINCT, 76 R8 m2m), 0 OOB / 0 missing / 0 stale, **12 R4
+truncations** (most of any batch -- 2020 is banter-dense with long threads). resolution 667
+solved / 318 unresolved / 1325 informational / 62 none. **Idempotency (R5): PASS** (md5
+`2f346be8563587d538dafecf1f84c3cd`, GLOBAL held at 20270). **Retrieval: PASS** -- "bots on FFA
+servers and new player retention" returns its 2020 thread as top hit (531 msgs, solved).
+
+**Refence earned its keep here:** of 3 low-coverage chunks, only 1 improved -- the other two
+retries came back WORSE (93.5% vs 93.3%, and **94.5% vs 36.5%**) and were discarded. Without
+the keep-better comparison the 36.5% realization would have replaced a fine one and dropped
+~870 messages out of retrieval. A blind re-fence-and-replace would be actively harmful.
+
+DB state after the 2020 batch: chat_threads = **20270** -- 634 v1 + 19636 v2. **#quakeworld 5/11.**
+
+> **Probe tolerance (learned on 2020).** The pre-flight halted the batch on a single "response
+> is not valid JSON" -- the ~1-in-30 transient schema miss the spike documented. But the
+> production fence path tolerates exactly that (2 attempts + escalation; 2019's -050 self-healed
+> the same way), so a one-shot probe was STRICTER THAN THE PIPELINE IT GATES and would have
+> spuriously halted ~1 batch in 10. The probe now retries once; failing twice is the real
+> signal. **A gate that fails on known-transient noise trains you to ignore it.** Same pass also
+> raised MAX_OUTPUT_TOKENS 131072 -> 262144 after a 2020 chunk spent 79,294 completion tokens
+> (61% of the old cap, 1.6x the prior worst) -- the third ceiling-raise of the session, each
+> triggered by a new dense-year extreme. Ceilings here should be generous, not fitted.
 
 > **Retrieval-probe methodology (learned on 2019, applies to every batch and to Phase D).**
 > The first 2019 probe returned only 2017 threads and looked like a failure. It was not: the
