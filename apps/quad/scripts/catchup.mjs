@@ -1,31 +1,51 @@
 // Forward catch-up exporter for Discord channel history.
 // Walks each channel from a per-channel anchor timestamp up to "now",
 // using the same JSON shape as backfill.mjs (so import-discord.mjs accepts it).
-// Usage: node --env-file=.env scripts/catchup.mjs [channel_name_filter]
+// Usage: node --env-file=<env> scripts/catchup.mjs [channel_name_filter] [--anchors <file>] [--suffix <s>]
 //   channel_name_filter: optional substring; when supplied, only matching channels run.
+//   --anchors <file>: JSON {"helpdesk": "<iso>", ...} overriding per-channel `after`.
+//       Produced by qw-oracle's scripts/load-chat/export-anchors.ts (corpus edge + 1ms).
+//   --suffix <s>: filename range suffix override; without it, derived from the anchors
+//       (min anchor month -> current month) so each harvest run gets a fresh filename
+//       and import-discord.ts never early-skips on a stale import_log row.
 import { Client, GatewayIntentBits, SnowflakeUtil } from 'discord.js';
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
+import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
 const EXPORT_DIR = 'exports';
 if (!existsSync(EXPORT_DIR)) mkdirSync(EXPORT_DIR, { recursive: true });
 
-const FILTER = process.argv[2]?.toLowerCase() ?? null;
+const argv = process.argv.slice(2);
+function flagValue(name) {
+  const i = argv.indexOf(name);
+  return i !== -1 && argv[i + 1] ? argv[i + 1] : null;
+}
+const FILTER = argv.find((a, i) => !a.startsWith('--') && argv[i - 1] !== '--anchors' && argv[i - 1] !== '--suffix')?.toLowerCase() ?? null;
 
-// Range suffix in output filenames. Importer keys on filename, so a new suffix
-// here ensures import-discord.mjs does not early-skip due to a prior import_log row.
-const RANGE_SUFFIX = '2026-02-to-2026-05';
-
-// Anchors are MAX(created_at) per channel from apps/qw-oracle/data/qw.db (platform='discord').
-// 1 ms is added so the snowflake we generate is strictly newer than the last imported message;
-// this avoids re-emitting the boundary message itself. Any residual overlap is harmless because
-// import-discord.mjs uses INSERT OR IGNORE on the snowflake primary key.
-const CHANNELS = [
+// Anchors are MAX(created_at) per channel in the qw-oracle Postgres corpus, + 1 ms so the
+// snowflake we generate is strictly newer than the last imported message (avoids re-emitting
+// the boundary message itself). Any residual overlap is harmless because the importer upserts
+// with ON CONFLICT (id) DO NOTHING on the snowflake primary key. The hardcoded values below
+// are the 2026-05 run's anchors, kept as documentation of shape; real runs pass --anchors.
+const DEFAULT_CHANNELS = [
   { id: '166866762787192833', name: 'quakeworld', after: '2026-02-11T00:53:24.304Z' },
   { id: '179895022366228481', name: 'dev-corner', after: '2026-02-11T01:31:53.767Z' },
   { id: '709360526899150858', name: 'helpdesk',   after: '2026-02-11T00:27:36.754Z' },
   { id: '854976516231397417', name: 'antilag',    after: '2026-02-09T16:03:58.014Z' },
 ];
+
+const anchorsPath = flagValue('--anchors');
+const overrides = anchorsPath ? JSON.parse(readFileSync(anchorsPath, 'utf8')) : null;
+const CHANNELS = DEFAULT_CHANNELS.map((c) =>
+  overrides?.[c.name] ? { ...c, after: overrides[c.name] } : c
+);
+
+const RANGE_SUFFIX =
+  flagValue('--suffix') ??
+  (overrides
+    ? `${CHANNELS.map((c) => c.after.slice(0, 7)).sort()[0]}-to-${new Date().toISOString().slice(0, 7)}`
+    : '2026-02-to-2026-05');
+console.log(`anchors: ${anchorsPath ?? 'built-in defaults'} | suffix: ${RANGE_SUFFIX}`);
 
 function formatMsg(msg) {
   return {
