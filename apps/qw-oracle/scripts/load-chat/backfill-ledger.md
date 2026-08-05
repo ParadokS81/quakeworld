@@ -122,7 +122,7 @@ validation slice.
 | [x] | 2018 | 62,125 | 53 | 29 | -- loaded 2026-08-05 (session 5), 3358 threads, 99.54% coverage (refence 7/7), CONC=30 clean
 | [x] | 2019 | 46,130 | 58 | 17 | -- loaded 2026-08-05 (session 5), 2660 threads, 99.17% coverage (refence 5/6)
 | [x] | 2020 | 53,179 | 54 | 26 | -- loaded 2026-08-05 (session 5), 2372 threads, 99.26% coverage (refence 1/3; 2 retries WORSE, discarded)
-| [ ] | 2021 | 39,821 | 64 | 14 |
+| [x] | 2021 | 39,821 | 64 | 14 | -- SUPERSEDE batch; loaded 2026-08-05 (session 5), 2046 threads, 99.70% coverage; **v1 generation fully retired (634 -> 0)**
 | [x] | 2022 | 18,440 | 119 | 0 | -- loaded 2026-08-05 (session 5), 1428 threads, 99.90% coverage (refence found nothing below 97%)
 | [ ] | 2023 | 20,006 | 108 | 1 |
 | [ ] | 2024 | 27,722 | 81 | 4 |
@@ -609,6 +609,53 @@ years with small chunks fence essentially perfectly and need no refence pass at 
 #dev-corner (chunk-dense, message-light) and #antilag to behave like 2022, not like 2017-2020.
 
 DB state after the 2022 batch: chat_threads = **21698** -- 634 v1 + 21064 v2. **#quakeworld 6/11.**
+
+**Batch #quakeworld 2021 -- LOADED, verified. THE FINAL SUPERSEDE -- `fence-sonnet-v1` IS NOW
+GONE FROM THE CORPUS.** 64 chunks, 14 forced. Fence **64/64, failures=0, wall 34.1 min at
+CONC=30** (two transient failures, -022 invalid JSON and -024 socket close, both recovered by
+the retry pass). Final gate: **0% hallucination / 99.70% coverage**, 2046 threads. Load: 39,798
+junction rows, **0 OOB drops**, 0 missing / 0 stale, 6 R4 truncations. resolution 474 solved /
+176 unresolved / 1307 informational / 89 none.
+
+**Supersede cold-verify -- ALL PASS** (before-state locked pre-load, ledger session-2 pattern):
+
+| check | before | after | expected |
+|---|---|---|---|
+| v1 #quakeworld | 634 (2021-02-01..2021-03-31) | **0** | 0 |
+| v1 TOTAL (all channels) | 634 | **0** | 0 |
+| v2 #quakeworld-2021 | 0 | **2046** | new |
+| v2 siblings 2016/17/18/19/20/22 | 1297/3259/3358/2660/2372/1428 | **all unchanged** | untouched |
+| GLOBAL | 21698 | **23110** | 21698 - 634 + 2046 |
+
+`chat_threads` is now **100% `fence-sonnet-v2`** -- the Phase A probe scaffolding that sessions
+1-4 carried is fully replaced. Also resolves the Arc A parking-doc item "634-thread 2021 slice
+-- verify provenance": it was exactly the documented Phase A v1 probe, Feb-Mar 2021, nothing
+unaccounted for. **Idempotency (R5): PASS** (md5 `6374993cc26e6d29e209b43b9d3f095d`, GLOBAL held
+at 23110; the supersede neither resurrects v1 nor duplicates v2). **Retrieval: PASS** -- a
+#quakeworld-2021 thread surfaces carrying `resolution_status`, i.e. a v2 row; no NULL-resolution
+v1 labels appear, so the v1->v2 transition shows in retrieval, not just in the counts.
+
+DB state after the 2021 batch: chat_threads = **23110**, ALL v2. **#quakeworld 7/11.**
+
+> **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
+> 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
+> of the entire backfill. Cause: the refence pass understood only coverage.
+> 1. **Selection** was coverage-only, so -013 (99.0% coverage, 1 OOB) sat above the floor and was
+>    never even considered.
+> 2. **Keep-better** was coverage-only, so on -002 it kept a 92.9% realization carrying 2 OOB
+>    over an 84.7% clean one -- trading the HARD gate (must be 0) for 8 points of the SOFT one
+>    (~99% band). That is never the right trade.
+>
+> Fixed: select on `coverage < floor OR oob > 0`; rank candidates by **fewer OOB first**,
+> coverage as tie-break. 2021 went 3 OOB -> 0 over two passes while coverage ROSE 99.24% ->
+> 99.70% (-002 landed at 99.9%/OOB0). **Not** fixed by stripping OOB indices from the output,
+> even though `thread-loader-core` already drops them defensively: the gate exists to detect a
+> fencer inventing indices, and sanitizing its input would delete the signal while leaving the
+> behavior invisible. A gate you can satisfy by editing its input is not a gate.
+>
+> Both OOB chunks were 1500-msg forced ones and the bad indices were 1501/1502 -- an off-by-one
+> past the cap. Expect this specifically on cap-forced chunks; it is intermittent, so a re-fence
+> clears it.
 
 > **CORPUS DRIFT MID-BACKFILL (2026-08-05, cross-lane -- READ BEFORE RESUMING).** A parallel
 > session ran the Arc A catch-up import while this backfill was in flight. Raw `messages` went
