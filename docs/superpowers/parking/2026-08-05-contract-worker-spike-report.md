@@ -106,9 +106,25 @@ Every var name was verified against the **installed binary** (`claude` 2.1.222,
 `strings` scan 2026-08-05): `ANTHROPIC_BASE_URL` / `ANTHROPIC_AUTH_TOKEN` /
 `ANTHROPIC_API_KEY` / `ANTHROPIC_MODEL` / `ANTHROPIC_SMALL_FAST_MODEL` /
 `ANTHROPIC_DEFAULT_{OPUS,SONNET,HAIKU,FABLE}_MODEL` / `CLAUDE_CODE_SUBAGENT_MODEL` /
-`CLAUDE_CONFIG_DIR` all present. Known fallback: DeepSeek's own Claude Code doc uses
-`ANTHROPIC_API_KEY` rather than `ANTHROPIC_AUTH_TOKEN`; if the first smoke test 401s,
-swap the var (set only one — both together makes clients send both auth headers).
+`CLAUDE_CONFIG_DIR` all present — and cross-checked against official docs
+(code.claude.com/docs/en/env-vars + /authentication, via a claude-code-guide agent,
+2026-08-05):
+
+- **Auth precedence:** cloud vars → `ANTHROPIC_AUTH_TOKEN` (Bearer; the documented
+  gateway/proxy path) → `ANTHROPIC_API_KEY` (X-Api-Key) → `apiKeyHelper` → OAuth.
+  The wrapper's `AUTH_TOKEN` outranks everything below it, so there is no approval
+  prompt and the Max OAuth is never consulted. Env-var auth is strictly
+  process-scoped — other sessions on the OAuth login are unaffected by design.
+  Fallback stands: if the first smoke test 401s, swap to `ANTHROPIC_API_KEY` per
+  DeepSeek's own doc (set only one — both together sends both auth headers).
+- **`CLAUDE_CONFIG_DIR` scope, empirically probed on 2.1.222:** `.claude.json` app
+  state, `sessions/`, `projects/` transcripts, `backups/` all land in the isolated
+  dir, and the probe session reported "Not logged in" — proof the Max credentials
+  are not read. Docs scope the var to credentials only, so ASSUME global
+  `~/.claude/CLAUDE.md`, `settings.json`, hooks, and skills are still shared: the
+  contract worker inherits the operator's global instructions/hooks. Acceptable for
+  the intended workload; revisit with `--settings` if a fully bare profile is ever
+  needed.
 
 **Smoke test (pending key, three checks per the brief):**
 1. `claude-contract` → trivial prompt → ask it to name its actual model
