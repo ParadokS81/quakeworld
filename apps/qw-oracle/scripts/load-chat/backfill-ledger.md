@@ -133,7 +133,7 @@ validation slice.
 
 | done | year | msgs | agents | forced |
 |---|---|---|---|---|
-| [ ] | 2016 | 10,492 | 114 | 0 |
+| [x] | 2016 | 10,492 | 114 | 0 | -- loaded 2026-08-05 (session 5), 660 threads, 99.97% coverage (best of any batch)
 | [ ] | 2017 | 41,605 | 141 | 5 |
 | [ ] | 2018 | 30,266 | 129 | 5 |
 | [ ] | 2019 | 18,359 | 177 | 0 |
@@ -661,6 +661,24 @@ left alone. A second pass would likely recover ~130 more msgs. If a future sessi
 tail, re-run `fence-external.ts refence <ch> <yr>` and re-load -- both are idempotent-safe.
 
 DB state after the 2024 batch: chat_threads = **26166**, all v2. **#quakeworld 9/11.**
+
+**Batch #dev-corner 2016 -- LOADED, verified. FIRST #dev-corner BATCH.** 114 chunks, 0 forced.
+Fence **114/114, failures=0, wall 22.7 min at CONC=30** (fastest batch of the session). Refence
+1/1 (-043: 95.8% -> 99.9%). Gate: **0% hallucination / 99.97% coverage -- the best of ANY batch
+in the whole backfill**. Load: 660 threads, 10,489 junction rows (10,489 DISTINCT -- **0 R8
+m2m**), 0 OOB / 0 missing / 0 stale / 0 truncations. resolution 232 solved / 135 unresolved /
+281 informational / 12 none (far more solved-leaning than #quakeworld -- it is a dev channel,
+not banter). **Idempotency (R5): PASS**. **Retrieval: PASS** -- both probes return their exact
+#dev-corner-2016 threads as top hits ("high ping, prediction, and netcode" 136 msgs solved;
+"teamskin/nail trail/cfg_save" 125 msgs solved), confirming a NEW channel is retrievable.
+
+**Light-year prediction CONFIRMED.** #dev-corner is chunk-dense but message-light, and behaves
+exactly like #quakeworld 2022/2023: near-perfect coverage, one trivial refence, zero m2m, zero
+truncations, fastest wall-clock. Every hard problem of this session (timeouts, token ceilings,
+sub-99% coverage, OOB off-by-ones) belongs to 1500-msg chunks specifically. Expect the rest of
+#dev-corner and all of #antilag to run like this.
+
+DB state after #dev-corner 2016: chat_threads = **26826**, all v2. **#dev-corner 1/11.**
 
 > **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
 > 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
