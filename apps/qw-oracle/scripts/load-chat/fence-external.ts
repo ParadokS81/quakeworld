@@ -90,11 +90,19 @@ async function readManifest(channel: string, year: number): Promise<ManifestFile
 
 const DEFAULT_BASE_URL = 'https://api.deepseek.com';
 const DEFAULT_MODEL = 'deepseek-v4-flash'; // sonnet-tier mapping; fencing is a grouping task
+const FALLBACK_MODEL = 'deepseek-v4-pro';  // spike finding 2026-08-05: flash's reasoning diverges
+                                           // on 1500-msg cap-forced chunks (empty content at
+                                           // finish=stop under json mode, ceiling-death without;
+                                           // reasoning_effort:low does not bound it) -- pro closed
+                                           // the same chunk first-shot. Escalate stragglers.
 const CONC_DEFAULT = 10;                   // parity with wf-backfill-fence.js CONC
 const WAVE_PAUSE_MS = 500;
 const RETRY_RECOVER_MS = 8000;
 const CALL_TIMEOUT_MS = 300_000;
-const MAX_OUTPUT_TOKENS = 8192;            // fence output is small; headroom for 1500-msg chunks
+const MAX_OUTPUT_TOKENS = 32768;           // v4-flash reasons by default and reasoning bills as
+                                           // completion tokens (auth probe 2026-08-05: all 8/8
+                                           // went to reasoning_tokens) -- generous ceiling so
+                                           // reasoning + JSON both fit; output is $0.28/M
 
 function loadApiKey(): string {
   if (process.env.DEEPSEEK_API_KEY) return process.env.DEEPSEEK_API_KEY;
@@ -138,7 +146,7 @@ function buildPrompt(chunkDir: string, cid: string, chunkJson: string, withResol
 // Workflow schema: additionalProperties false, required fields, enum).
 // ---------------------------------------------------------------------------
 
-function validateFence(obj: unknown, withResolution: boolean): string | null {
+export function validateFence(obj: unknown, withResolution: boolean): string | null {
   if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) return 'not an object';
   const o = obj as Record<string, unknown>;
   const allowedTop = new Set(['abstained', 'threads']);
@@ -172,13 +180,14 @@ interface UsageTotals {
   calls: number;
   promptTokens: number;
   completionTokens: number;
+  reasoningTokens: number;
   cacheHitTokens: number;
   cacheMissTokens: number;
 }
 
 interface CallResult {
   fenced: FencedChunk;
-  usage: { prompt: number; completion: number; cacheHit: number; cacheMiss: number };
+  usage: { prompt: number; completion: number; reasoning: number; cacheHit: number; cacheMiss: number };
 }
 
 async function fenceOneChunk(
@@ -215,6 +224,7 @@ async function fenceOneChunk(
       completion_tokens?: number;
       prompt_cache_hit_tokens?: number;
       prompt_cache_miss_tokens?: number;
+      completion_tokens_details?: { reasoning_tokens?: number };
     };
   };
   const choice = data.choices?.[0];
@@ -240,6 +250,7 @@ async function fenceOneChunk(
     usage: {
       prompt: u.prompt_tokens ?? 0,
       completion: u.completion_tokens ?? 0,
+      reasoning: u.completion_tokens_details?.reasoning_tokens ?? 0,
       cacheHit: u.prompt_cache_hit_tokens ?? 0,
       cacheMiss: u.prompt_cache_miss_tokens ?? 0,
     },
@@ -297,21 +308,51 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
   const manifest = await readManifest(channel, year);
   const outPath = opts.get('out') ?? join(batchDir(channel, year), `fence-external-${model.replace(/[^a-z0-9-]/gi, '_')}.json`);
 
-  console.log(`[fence-external] channel=${channel} year=${year} model=${model} conc=${conc} withResolution=${withResolution} chunks=${manifest.chunkIds.length}`);
+  const fallbackModel = opts.has('no-fallback') ? '' : (opts.get('fallback-model') ?? FALLBACK_MODEL);
+
+  // Cap-forced chunks (1500 msgs, no natural boundary) route to the fallback
+  // model FIRST: the spike showed flash failing the forced chunk on every
+  // config (4/4) while pro converged -- flash attempts there are pure waste.
+  const forcedRouted: string[] = [];
+  if (fallbackModel && fallbackModel !== model) {
+    for (const cid of manifest.chunkIds) {
+      const chunk: ChunkFile = JSON.parse(await Bun.file(join(manifest.chunkDir, `${cid}.json`)).text());
+      if (chunk.forced) forcedRouted.push(cid);
+    }
+  }
+
+  console.log(`[fence-external] channel=${channel} year=${year} model=${model} fallback=${fallbackModel || 'none'} conc=${conc} withResolution=${withResolution} chunks=${manifest.chunkIds.length} forcedRouted=${forcedRouted.length}`);
   const t0 = Date.now();
 
   const results = await runGently(
     manifest.chunkIds,
     conc,
-    (cid) => fenceOneChunk(apiKey, baseUrl, model, manifest, cid, withResolution),
+    (cid) => fenceOneChunk(apiKey, baseUrl, forcedRouted.includes(cid) ? fallbackModel : model, manifest, cid, withResolution),
     'fence',
   );
 
+  // Escalation pass: chunks the primary model failed twice go once to the
+  // stronger fallback model (serial -- stragglers are rare by construction).
+  const escalated: string[] = [];
+  if (fallbackModel && fallbackModel !== model) {
+    for (let i = 0; i < manifest.chunkIds.length; i++) {
+      if (results[i] != null) continue;
+      const cid = manifest.chunkIds[i]!;
+      console.error(`fence: escalating ${cid} to ${fallbackModel}${forcedRouted.includes(cid) ? ' (retry -- already forced-routed)' : ''}`);
+      results[i] = await fenceOneChunk(apiKey, baseUrl, fallbackModel, manifest, cid, withResolution).catch((e: Error) => {
+        console.error(`  [fail-escalated] ${cid}: ${e.message}`);
+        return null;
+      });
+      if (results[i] != null) escalated.push(cid);
+    }
+  }
+
   const ok = results.filter((r): r is CallResult => r != null);
-  const totals: UsageTotals = { calls: ok.length, promptTokens: 0, completionTokens: 0, cacheHitTokens: 0, cacheMissTokens: 0 };
+  const totals: UsageTotals = { calls: ok.length, promptTokens: 0, completionTokens: 0, reasoningTokens: 0, cacheHitTokens: 0, cacheMissTokens: 0 };
   for (const r of ok) {
     totals.promptTokens += r.usage.prompt;
     totals.completionTokens += r.usage.completion;
+    totals.reasoningTokens += r.usage.reasoning;
     totals.cacheHitTokens += r.usage.cacheHit;
     totals.cacheMissTokens += r.usage.cacheMiss;
   }
@@ -325,6 +366,9 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
     meta: {
       provider: baseUrl,
       model,
+      fallbackModel: fallbackModel || null,
+      forcedRouted,
+      escalated,
       conc,
       wallMinutes: Number(wallMin.toFixed(2)),
       usage: totals,

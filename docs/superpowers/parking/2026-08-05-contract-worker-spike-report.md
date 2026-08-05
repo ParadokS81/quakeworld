@@ -1,40 +1,58 @@
 # Contract-worker LLM spike — report
 
 **Session date:** 2026-08-05 · **Brief:** [2026-08-05-contract-worker-llm-spike-prompt.md](2026-08-05-contract-worker-llm-spike-prompt.md)
+**Executed same day** — key provisioned by David over a host tty ~11:06, verdict run completed ~12:00.
 
-## 1. Verdict: **PENDING — HALTED AT OPERATOR KEY**
+## 1. Verdict: **PASS** — Arc A Phase 2 runs on `fence-external.ts`
 
-Everything keyless is built, typechecked, and verified. The one blocking step is the
-operator prerequisite: no provider account/key exists yet
-(`~/.secrets/llm-contract-worker.env` is missing). The spike fence run, the Track 1
-smoke test, and the PASS/FAIL verdict are each one command away once the key lands.
+Both hard gates passed at-or-above the golden batch's own level, the spot-read found
+zero incoherent candidate threads, and the two real findings (below) are engineered
+around in committed code, not open risks. Total spike cost: ~$0.25–0.30 (operator
+dashboard confirms the final digit).
 
-**Operator TODO (the only blocking step):**
+### Evidence table
 
-1. Create a DeepSeek platform account at https://platform.deepseek.com (prepaid
-   top-up — smallest tier is fine; the whole spike costs cents, the full Arc A
-   backfill single-digit dollars, see §3).
-2. Create an API key, then on the cockpit:
-   ```
-   install -m 600 /dev/null ~/.secrets/llm-contract-worker.env
-   echo 'DEEPSEEK_API_KEY=sk-...' > ~/.secrets/llm-contract-worker.env
-   ```
-3. Say "key is in place" in a fresh session pointed at this report — §6 is the
-   resume script.
+| metric | Sonnet golden baseline | candidate (v4-flash + pro escalation) | gate | result |
+|---|---|---|---|---|
+| index-hallucination | 0% (all 9 loaded batches) | **0%** (5,400 indices, 0 OOB) | **must be 0%** | **PASS** |
+| coverage | 99.05–99.96% band | **100%** (better than golden's own 99.96%) | ~99% band | **PASS** |
+| threads / abstains | 373 / 0 | 363 / 0 | — | comparable granularity |
+| pairwise boundary agreement | (self-diff sanity: 100%) | 79.9% vs the single golden realization | spot-read | see below |
+| exact-thread match | — | 68.3% of candidate threads set-identical to a golden thread | — | — |
+| resolution-label agreement | (golden 185/85/102/1) | 80.9% on Jaccard≥0.5-matched pairs; candidate 201/81/70/11 — mildly solved-leaning, confusion roughly symmetric | spot-read | acceptable |
+| spot-read of 10 worst chunks | — | golden finer/better 4, candidate better 2, ties 4; **zero incoherent candidate threads** | who partitioned better? | acceptable |
 
-### Evidence table (to be filled at verdict time)
+Context for the 79.9%: the golden is one realization of a fencer with documented
+run-to-run variance (Sonnet itself dropped a 44-msg sub-conversation on one run of
+helpdesk-041 and got it right on the next; no Sonnet-vs-Sonnet agreement baseline
+was ever measured). Much of the disagreement is prompt-INTERPRETATION, not error:
+the candidate splits pure noise into throwaway threads exactly as the prompt
+endorses (golden lumps it), and splits banter sub-topics finer in places, coarser
+in others. The scoring machinery itself was validated before the run: golden
+self-diff scored 100/100/100 with the confusion diagonal matching the ledger.
 
-| metric | Sonnet golden baseline | candidate (deepseek-v4-flash) | gate |
-|---|---|---|---|
-| index-hallucination | 0% (all 9 loaded batches) | — | **must be 0%** |
-| coverage | 99.05–99.96% band | — | ~99% band |
-| pairwise boundary agreement vs golden | 100% (self-diff sanity) | — | qualitative, spot-read |
-| resolution-label agreement (Jaccard≥0.5-matched) | 100% (self-diff sanity) | — | qualitative |
-| spot-read of ~10 disagreements | n/a | — | who partitioned better? |
+### The two real findings (both engineered around, both committed)
 
-Scoring machinery is already validated end-to-end: exporting the golden DB partition
-as a candidate and diffing it against itself scores 100/100/100 with the confusion
-diagonal exactly matching the ledger's 185 solved / 85 unresolved / 102 informational.
+1. **flash's reasoning diverges on the 1500-msg cap-forced chunk** — 4/4 attempts
+   failed across every config (JSON mode: empty content at `finish=stop`; no JSON
+   mode: pure reasoning to the 32K ceiling; `reasoning_effort: low`: same
+   ceiling-death — the effort knob does not bound it). `deepseek-v4-pro` converged
+   (schema-valid on 1 of first 3 attempts, retries handle the rest).
+   **Fix shipped:** `forced: true` chunks route to pro FIRST (`forcedRouted` in
+   meta), and any chunk the primary model fails twice escalates to pro
+   automatically. `--no-fallback` / `--fallback-model` override.
+2. **flash under-splits long multi-topic sagas** — the one substantive quality gap
+   (helpdesk-2026-017: golden partitioned a 122-msg voice-recording saga into 6
+   retrieval-sized sub-threads; flash produced one 103-msg mega-thread). Coarser
+   threads remain topically coherent and fully covered — retrieval still finds the
+   content, at somewhat lower thread precision. Accepted tradeoff at this price
+   point; revisit only if Phase D retrieval calibration shows thread-size hurting
+   match quality.
+
+Also observed: ~1 in 30 responses fails strict schema validation on a first attempt
+(enum near-misses like `"unsolved"`, invalid JSON) — the runGently retry pass
+cleared all but the forced chunk within the run. 11 threads carry no
+resolution_status (golden had 1); the field is schema-optional.
 
 ## 2. What was built (all committed / in place)
 
@@ -79,14 +97,19 @@ verbatim.
   flash $0.14 in (cache-miss) / $0.0028 (cache-hit) / $0.28 out; pro $0.435 / $0.87.
   **Peak-hour 2× surcharge announced** (09:00–12:00 + 14:00–18:00 Beijing = 03:00–06:00
   + 08:00–12:00 CEST; effective date TBD) — schedule bulk runs outside those windows.
-- **Measured spike volume:** 61 chunks, 777KB chunk payload ≈ **~200K input tokens**
-  (+~50K output). Spike cost at flash: **~$0.04–0.05** — far under the brief's
-  under-a-dollar bar.
-- **Full-backfill projection** at the brief's planning figure (~1,400 chunks ×
-  ~30K tokens ≈ 40M input + ~3M output): flash ≈ **$6.5** off-peak (~$13 peak);
-  pro ≈ $20. Note #helpdesk chunks measured only ~3.3K tokens avg — the 30K figure is
-  dominated by dense #quakeworld years, so treat $6.5 as the ceiling-ish estimate and
-  refine from the spike's measured per-token dashboard numbers.
+- **Measured spike (actuals, 2026-08-05):** batch envelope: 263,572 prompt +
+  405,488 completion tokens — **93% of completion was reasoning** (378,963), the
+  dominant cost driver; the thread-JSON itself is tiny. Wall 15.9 min at CONC=10.
+  Plus ~5 diagnostic probes on the forced chunk (mostly cache-hit input). All-in
+  spike ≈ **$0.25–0.30** — under the brief's bar. Dashboard cross-check at 80K
+  tokens read $0.01, i.e. billed == advertised.
+- **Full-backfill projection from measured rates** (36.6K in + 71.4K out per 1,000
+  msgs on #helpdesk-shaped traffic): remaining corpus ≈ 574K msgs → ~21M in + ~41M
+  out → **≈ $15 flash off-peak** (~$29 if run entirely in the announced peak
+  window), **plus up to ~$13 of pro escalations** if all ~135 remaining forced
+  chunks route to pro (~$0.10 each incl. retries) → **≈ $25–30 all-in ceiling**.
+  Reasoning-heavy output is why this exceeds the brief's naive $6.5 input-driven
+  estimate; still trivial vs any Max-quota accounting.
 - Operator reference https://www.morphllm.com/use-different-llm-claude-code remains
   429-walled (retried direct + via Jina 2026-08-05); superseded by the official
   DeepSeek doc + local binary verification above — nothing left to extract from it.
@@ -131,20 +154,23 @@ Every var name was verified against the **installed binary** (`claude` 2.1.222,
   the intended workload; revisit with `--settings` if a fully bare profile is ever
   needed.
 
-**Smoke test (pending key, three checks per the brief):**
-1. `claude-contract` → trivial prompt → ask it to name its actual model
-   (expect a DeepSeek identity, not Claude).
-2. DeepSeek dashboard shows the tokens billed there.
-3. A fresh normal `claude` afterwards still runs on the Max login untouched.
+**Smoke test: ALL THREE PASS (2026-08-05):**
+1. `claude-contract -p` answered `deepseek-v4-flash` in 2.9s (isolated config dir
+   showed its own fresh trust state — the repo allowlist prompts once on first
+   interactive use, expected).
+2. DeepSeek dashboard showed the tokens + dollars billed there (operator-verified
+   screenshot: $0.01 / 79,988 tokens at that point).
+3. Normal `claude -p` immediately after: "Claude Fable 5 … on your Claude Max
+   subscription (OAuth) — no API key configured." Max login untouched.
 
 **Usage doctrine:** simple, verifiable, high-volume tasks (bulk classification,
 mechanical transforms with machine-checkable outputs). Frontier judgment — design,
 review, anything unverified — stays on real Claude. The quality gates stay
 model-agnostic and downstream (fence-stats, idempotency probes, golden diffs).
 
-## 5. Track 2 — spike protocol (one command per step once keyed)
+## 5. Track 2 — spike protocol (EXECUTED 2026-08-05; commands remain the Arc A reference shapes)
 
-Chunks are already prepped. From `apps/qw-oracle/`:
+From `apps/qw-oracle/`:
 
 ```bash
 # 1. Re-fence the golden batch with the candidate model (writes to gitignored scratch)
@@ -184,15 +210,23 @@ bun scripts/load-chat/backfill-batch.ts load "<channel>" <year> <fenceOutput>
 ```
 
 - The fence-output envelope (`{fenced:[...]}`) is loader-compatible as-is; `meta`
-  (usage, wall-clock, model) rides along ignored by the loader.
-- CONC=10 is the parity default; DeepSeek flash allows 2,500 concurrent, so Arc A can
-  step CONC up aggressively (50–100) on clean runs — the constraint was always the
-  Anthropic shared throttle, which no longer applies.
-- No Max quota is consumed; the "1–2 batches per session" pacing rule dissolves. The
-  remaining ~2,700-chunk full corpus is a single-digit-dollar afternoon, not a
-  multi-week quota campaign.
+  (usage, wall-clock, model, forcedRouted, escalated) rides along ignored by the
+  loader. **#helpdesk-2026 does NOT need re-loading** — the golden stays; the spike
+  output is evidence, not data.
+- Forced-chunk routing + failure escalation to `deepseek-v4-pro` are ON by default
+  (spike findings); `--no-fallback` / `--fallback-model M` to override.
+- CONC=10 is the parity default; flash allows 2,500 concurrent, so Arc A can step
+  CONC up aggressively (50–100) on clean runs — the constraint was always the
+  Anthropic shared throttle, which no longer applies. At CONC=10 the remaining
+  corpus is ~12h of wall-clock; at CONC=50 it's an evening.
+- Schedule bulk runs OFF the announced 2× peak window (03:00–06:00 + 08:00–12:00
+  CEST) once it takes effect.
+- No Max quota is consumed; the "1–2 batches per session" pacing rule dissolves.
+  Expect ≈ $25–30 all-in for the full remaining corpus (measured-rate projection,
+  §3).
 - Keep per-batch verification exactly as the ledger does it (stats gate → load →
-  idempotent re-run → retrieval probe).
+  idempotent re-run → retrieval probe). The stats gate is what caught everything
+  in this spike; it stays load-bearing.
 
 ## 7. Session log / provenance
 
@@ -204,3 +238,13 @@ bun scripts/load-chat/backfill-batch.ts load "<channel>" <year> <fenceOutput>
 - `fence-external.ts` typechecked via project `tsc --noEmit` (clean).
 - Claude Code env vars verified from the installed 2.1.222 binary, not from memory.
 - DeepSeek endpoint/model/pricing facts fetched live 2026-08-05 (links in §3).
+- Verdict-run artifacts (all gitignored under the batch scratch dir):
+  `fence-external-deepseek-v4-flash.json` (61/61, meta carries usage + splice note),
+  `fence-external-diff.json` (full metrics + 10 side-by-side spot-reads),
+  `probe-019-*.json` (the forced-chunk failure/rescue raw responses).
+- Chunk-019 escalation history: flash in-run 2× invalid → probe empty-at-stop
+  (JSON mode) → probe ceiling-death (no JSON mode) → probe ceiling-death
+  (`reasoning_effort: low`) → pro attempt 1 valid-but-off-enum (`"unsolved"`) →
+  schema-gated re-run: attempts 1–2 ceiling-death, attempt 3 VALID (25 threads).
+  The strict validator caught the off-enum label — hand-editing model output was
+  rejected on principle; retry-until-valid mirrors the Workflow harness semantics.
