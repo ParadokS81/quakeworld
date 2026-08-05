@@ -98,11 +98,40 @@ const FALLBACK_MODEL = 'deepseek-v4-pro';  // spike finding 2026-08-05: flash's 
 const CONC_DEFAULT = 10;                   // parity with wf-backfill-fence.js CONC
 const WAVE_PAUSE_MS = 500;
 const RETRY_RECOVER_MS = 8000;
-const CALL_TIMEOUT_MS = 300_000;
-const MAX_OUTPUT_TOKENS = 32768;           // v4-flash reasons by default and reasoning bills as
-                                           // completion tokens (auth probe 2026-08-05: all 8/8
-                                           // went to reasoning_tokens) -- generous ceiling so
-                                           // reasoning + JSON both fit; output is $0.28/M
+
+// #quakeworld-2017 post-mortem (2026-08-05): the batch failed 34/72. Failure
+// tracked chunk SIZE, not the `forced` flag -- every natural chunk >=730 msgs
+// failed, every one <=490 msgs passed. Two independent ceilings were biting:
+//
+//   1. MAX_OUTPUT_TOKENS 32768 was below what these chunks actually need.
+//      Measured on real failing chunks at a 64K cap: pro spent 41,985
+//      completion tokens on a 1500-msg chunk and flash spent 44,954 on a
+//      564-msg one -- both ABOVE the old cap, so they died at finish=length.
+//   2. CALL_TIMEOUT_MS 300_000 was below the generation time for the same
+//      chunks (~91% of completion is reasoning, which is slow to emit).
+//
+// The spike calibrated on #helpdesk (88 msgs/chunk avg) where neither ceiling
+// was reachable, so it read the single hard chunk as "forced chunks are risky"
+// and keyed the pro routing on `forced`. `forced` was a proxy for `big`.
+// Both ceilings are sized from MEASURED worst cases on real #quakeworld-2017
+// chunks (2026-08-05), each with >60% headroom -- the previous values were set
+// where #helpdesk could never reach them, which is why they read as generous
+// and were not:
+//   1500-msg chunk on pro: 498s, 33,788 completion tokens
+//   1465-msg chunk on pro: 698s, 48,824 completion tokens  <- worst observed
+// Same-size chunks vary ~1.4x in both axes, so headroom is the point, not fit.
+const CALL_TIMEOUT_MS = 1_800_000;         // 30 min; worst observed 698s = 39% of ceiling
+const MAX_OUTPUT_TOKENS = 131072;          // worst observed 48,824 = 37% of ceiling. Costs
+                                           // nothing to raise -- billing is on tokens actually
+                                           // generated, and the API accepts far higher values
+                                           // (262144 probed OK on both models). finish_reason
+                                           // === 'length' still guards the truncation case.
+const BIG_CHUNK_MSGS = 500;                // >= this many messages routes to the stronger model
+                                           // FIRST. Pro is ~2.4x more token-efficient than flash
+                                           // on the same chunk (18,261 vs 44,954 on a 564-msg
+                                           // chunk), which makes it both faster and far less
+                                           // likely to hit a ceiling -- for only ~26% more cost
+                                           // per chunk. Small chunks stay on cheap flash.
 
 function loadApiKey(): string {
   if (process.env.DEEPSEEK_API_KEY) return process.env.DEEPSEEK_API_KEY;
@@ -310,40 +339,58 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
 
   const fallbackModel = opts.has('no-fallback') ? '' : (opts.get('fallback-model') ?? FALLBACK_MODEL);
 
-  // Cap-forced chunks (1500 msgs, no natural boundary) route to the fallback
-  // model FIRST: the spike showed flash failing the forced chunk on every
-  // config (4/4) while pro converged -- flash attempts there are pure waste.
-  const forcedRouted: string[] = [];
+  // BIG chunks route to the stronger model FIRST. Keyed on message count, not
+  // on the `forced` flag: the 2017 post-mortem showed large NATURAL chunks fail
+  // exactly like cap-forced ones (see BIG_CHUNK_MSGS). #helpdesk never exposed
+  // this because its chunks average 88 msgs; #quakeworld's run to 1,465.
+  const bigRouted: string[] = [];
   if (fallbackModel && fallbackModel !== model) {
     for (const cid of manifest.chunkIds) {
       const chunk: ChunkFile = JSON.parse(await Bun.file(join(manifest.chunkDir, `${cid}.json`)).text());
-      if (chunk.forced) forcedRouted.push(cid);
+      if (chunk.forced || chunk.messages.length >= BIG_CHUNK_MSGS) bigRouted.push(cid);
     }
   }
 
-  console.log(`[fence-external] channel=${channel} year=${year} model=${model} fallback=${fallbackModel || 'none'} conc=${conc} withResolution=${withResolution} chunks=${manifest.chunkIds.length} forcedRouted=${forcedRouted.length}`);
+  // --resume: keep chunks already fenced in a previous run of this batch and
+  // re-fence only what is missing. A partially-failed batch is expensive to
+  // redo wholesale (the 2017 failure left 38 good chunks on the floor), and
+  // re-fencing a chunk that already succeeded also perturbs it for no reason.
+  const prior = new Map<string, FencedChunk>();
+  if (opts.has('resume') && (await Bun.file(outPath).exists())) {
+    const raw = JSON.parse(await Bun.file(outPath).text());
+    for (const fc of (Array.isArray(raw) ? raw : raw.fenced) as FencedChunk[]) prior.set(fc.chunkId, fc);
+    console.log(`[fence-external] --resume: ${prior.size} chunks carried over from ${outPath}`);
+  }
+  const todo = manifest.chunkIds.filter((cid) => !prior.has(cid));
+
+  console.log(`[fence-external] channel=${channel} year=${year} model=${model} fallback=${fallbackModel || 'none'} conc=${conc} withResolution=${withResolution} chunks=${manifest.chunkIds.length} toFence=${todo.length} bigRouted=${bigRouted.filter((c) => todo.includes(c)).length}`);
   const t0 = Date.now();
 
   const results = await runGently(
-    manifest.chunkIds,
+    todo,
     conc,
-    (cid) => fenceOneChunk(apiKey, baseUrl, forcedRouted.includes(cid) ? fallbackModel : model, manifest, cid, withResolution),
+    (cid) => fenceOneChunk(apiKey, baseUrl, bigRouted.includes(cid) ? fallbackModel : model, manifest, cid, withResolution),
     'fence',
   );
 
   // Escalation pass: chunks the primary model failed twice go once to the
-  // stronger fallback model (serial -- stragglers are rare by construction).
+  // stronger fallback model. Runs in PACED WAVES, not serially -- the original
+  // serial loop assumed "stragglers are rare by construction", which held for
+  // the spike's 1-in-61 but not for 2017's 34-in-72, where it accounted for
+  // roughly 170 of the run's 232 minutes. Provider allows 500 concurrent on pro.
   const escalated: string[] = [];
   if (fallbackModel && fallbackModel !== model) {
-    for (let i = 0; i < manifest.chunkIds.length; i++) {
-      if (results[i] != null) continue;
-      const cid = manifest.chunkIds[i]!;
-      console.error(`fence: escalating ${cid} to ${fallbackModel}${forcedRouted.includes(cid) ? ' (retry -- already forced-routed)' : ''}`);
-      results[i] = await fenceOneChunk(apiKey, baseUrl, fallbackModel, manifest, cid, withResolution).catch((e: Error) => {
-        console.error(`  [fail-escalated] ${cid}: ${e.message}`);
-        return null;
+    const stragglers = todo.filter((_, i) => results[i] == null);
+    if (stragglers.length) {
+      console.error(`fence: escalating ${stragglers.length} chunk(s) to ${fallbackModel} at conc=${conc}`);
+      const retried = await waves(stragglers, conc, (cid) =>
+        fenceOneChunk(apiKey, baseUrl, fallbackModel, manifest, cid, withResolution),
+      );
+      stragglers.forEach((cid, k) => {
+        if (retried[k] == null) return;
+        results[todo.indexOf(cid)] = retried[k]!;
+        escalated.push(cid);
       });
-      if (results[i] != null) escalated.push(cid);
     }
   }
 
@@ -356,19 +403,30 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
     totals.cacheHitTokens += r.usage.cacheHit;
     totals.cacheMissTokens += r.usage.cacheMiss;
   }
-  const failures = { fence: manifest.chunkIds.length - ok.length };
+  // Emit in manifest order, carrying over any --resume survivors. `missing` is
+  // the load-blocking signal: fence-stats only measures chunks PRESENT in the
+  // output, so an absent chunk costs no coverage percentage and would sail
+  // through the quality gate while silently dropping its whole message range.
+  const fencedById = new Map<string, FencedChunk>(prior);
+  for (const r of ok) fencedById.set(r.fenced.chunkId, r.fenced);
+  const fenced = manifest.chunkIds.filter((cid) => fencedById.has(cid)).map((cid) => fencedById.get(cid)!);
+  const missing = manifest.chunkIds.filter((cid) => !fencedById.has(cid));
+  const failures = { fence: missing.length };
   const wallMin = (Date.now() - t0) / 60000;
 
   const envelope = {
-    fenced: ok.map((r) => r.fenced),
+    fenced,
     withResolution,
     failures,
+    missing,
     meta: {
       provider: baseUrl,
       model,
       fallbackModel: fallbackModel || null,
-      forcedRouted,
+      bigRouted,
+      bigChunkThreshold: BIG_CHUNK_MSGS,
       escalated,
+      resumedFrom: prior.size,
       conc,
       wallMinutes: Number(wallMin.toFixed(2)),
       usage: totals,
@@ -377,10 +435,80 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
   };
   await Bun.write(outPath, JSON.stringify(envelope, null, 2));
 
-  console.log(`[fence-external] DONE: fence ${ok.length}/${manifest.chunkIds.length}, failures=${JSON.stringify(failures)}, wall=${wallMin.toFixed(1)}min`);
+  console.log(`[fence-external] DONE: fence ${fenced.length}/${manifest.chunkIds.length} (this run ${ok.length}/${todo.length}), failures=${JSON.stringify(failures)}, wall=${wallMin.toFixed(1)}min`);
   console.log(`  tokens: prompt=${totals.promptTokens} (cacheHit=${totals.cacheHitTokens}) completion=${totals.completionTokens}`);
   console.log(`  output: ${outPath}`);
-  if (failures.fence > 0) process.exitCode = 1;
+  if (missing.length) {
+    console.error(`  INCOMPLETE -- ${missing.length} chunk(s) missing, DO NOT LOAD: ${missing.join(' ')}`);
+    console.error(`  re-run with --resume to fence only the gaps`);
+    process.exitCode = 1;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Subcommand: probe -- worst-case pre-flight.
+//
+// Fences only the LARGEST chunks of a prepped batch and reports per-chunk
+// latency / tokens / validity. Runs the production call path (same prompt,
+// same routing rule, same validator), so a config that clears probe clears
+// the batch for the same reasons.
+//
+// WHY THIS EXISTS: #quakeworld-2017 burned 232 minutes to discover a ceiling
+// that the single largest chunk exposes in ~8. Failure tracks chunk size, so
+// the extreme finds it by construction where a random or calendar-sliced
+// sample only finds it by luck. Run this before every batch, and as the
+// iteration unit when tuning limits -- a tuning round is then ~20 min and
+// cents, not hours.
+// ---------------------------------------------------------------------------
+
+async function cmdProbe(channel: string, year: number, opts: Map<string, string>): Promise<void> {
+  const withResolution = !opts.has('no-resolution');
+  const top = opts.has('top') ? parseInt(opts.get('top')!, 10) : 3;
+  const model = opts.get('model') ?? process.env.FENCE_EXTERNAL_MODEL ?? DEFAULT_MODEL;
+  const baseUrl = process.env.FENCE_EXTERNAL_BASE_URL ?? DEFAULT_BASE_URL;
+  const fallbackModel = opts.has('no-fallback') ? '' : (opts.get('fallback-model') ?? FALLBACK_MODEL);
+  const apiKey = loadApiKey();
+  const manifest = await readManifest(channel, year);
+
+  const sized: { cid: string; msgs: number; forced: boolean }[] = [];
+  for (const cid of manifest.chunkIds) {
+    const c: ChunkFile = JSON.parse(await Bun.file(join(manifest.chunkDir, `${cid}.json`)).text());
+    sized.push({ cid, msgs: c.messages.length, forced: c.forced });
+  }
+  sized.sort((a, b) => b.msgs - a.msgs);
+  const picks = sized.slice(0, top);
+
+  console.log(`[probe] ${channel} ${year} -- ${top} largest of ${sized.length} chunks (max ${picks[0]?.msgs} msgs), timeout=${CALL_TIMEOUT_MS / 1000}s maxTokens=${MAX_OUTPUT_TOKENS} bigThreshold=${BIG_CHUNK_MSGS}`);
+
+  const results = await Promise.all(picks.map(async (p) => {
+    const useModel = fallbackModel && (p.forced || p.msgs >= BIG_CHUNK_MSGS) ? fallbackModel : model;
+    const t0 = Date.now();
+    try {
+      const r = await fenceOneChunk(apiKey, baseUrl, useModel, manifest, p.cid, withResolution);
+      const secs = (Date.now() - t0) / 1000;
+      console.log(`  PASS ${p.cid} n=${p.msgs}${p.forced ? ' forced' : ''} ${useModel}: ${secs.toFixed(0)}s completion=${r.usage.completion} reasoning=${r.usage.reasoning} threads=${r.fenced.threads.length}`);
+      return { ok: true, secs, completion: r.usage.completion };
+    } catch (e) {
+      const secs = (Date.now() - t0) / 1000;
+      console.error(`  FAIL ${p.cid} n=${p.msgs}${p.forced ? ' forced' : ''} ${useModel}: ${secs.toFixed(0)}s -- ${(e as Error).message}`);
+      return { ok: false, secs, completion: 0 };
+    }
+  }));
+
+  const passed = results.filter((r) => r.ok);
+  const worstSecs = Math.max(...results.map((r) => r.secs));
+  const worstTok = Math.max(...results.map((r) => r.completion));
+  console.log(`[probe] ${passed.length}/${results.length} passed. worst latency=${worstSecs.toFixed(0)}s (timeout ${CALL_TIMEOUT_MS / 1000}s) worst completion=${worstTok} (cap ${MAX_OUTPUT_TOKENS})`);
+  // Headroom matters as much as pass/fail: a chunk that passes at 95% of a
+  // ceiling will fail the next one that is slightly denser.
+  if (passed.length === results.length) {
+    const latPct = ((worstSecs * 1000) / CALL_TIMEOUT_MS) * 100;
+    const tokPct = (worstTok / MAX_OUTPUT_TOKENS) * 100;
+    console.log(`[probe] headroom: latency ${latPct.toFixed(0)}% of timeout, tokens ${tokPct.toFixed(0)}% of cap`);
+    if (latPct > 60 || tokPct > 60) console.error('[probe] WARNING: under 40% headroom -- raise the ceiling before the batch');
+  } else {
+    process.exitCode = 1;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -556,11 +684,14 @@ if (import.meta.main) {
 
   if (subcmd === 'fence' && pos.length === 2) {
     await cmdFence(pos[0]!, parseInt(pos[1]!, 10), opts);
+  } else if (subcmd === 'probe' && pos.length === 2) {
+    await cmdProbe(pos[0]!, parseInt(pos[1]!, 10), opts);
   } else if (subcmd === 'diff' && pos.length === 3) {
     await cmdDiff(pos[0]!, parseInt(pos[1]!, 10), pos[2]!, opts);
   } else {
-    console.error('Usage: fence-external.ts <fence|diff> ...');
-    console.error('  fence <channel> <year> [--no-resolution] [--conc N] [--model M] [--out P]');
+    console.error('Usage: fence-external.ts <fence|probe|diff> ...');
+    console.error('  fence <channel> <year> [--no-resolution] [--conc N] [--model M] [--out P] [--resume]');
+    console.error('  probe <channel> <year> [--top N]   -- worst-case pre-flight, run before fence');
     console.error('  diff  <channel> <year> <candidatePath> [--out P]');
     process.exit(1);
   }

@@ -299,6 +299,25 @@ async function cmdLoad(
     }
   }
 
+  // COMPLETENESS GATE. A chunk absent from the fence output is invisible to
+  // every downstream quality signal: fence-stats iterates only the chunks the
+  // output CONTAINS, so a batch missing a third of its chunks still reports
+  // ~99% coverage and 0% hallucination. The load would then write the year as
+  // if it were whole, and the range-DELETE scope means the gap looks
+  // indistinguishable from "this year was quiet". #quakeworld-2017 produced
+  // exactly this shape on 2026-08-05 (38/72 chunks, gate-clean).
+  // An `abstained` chunk is fine -- it is PRESENT and deliberately empty.
+  const fencedIds = new Set(fenced.map((f) => f.chunkId));
+  const missing = manifest.chunkIds.filter((id) => !fencedIds.has(id));
+  if (missing.length > 0 && !process.argv.includes('--allow-partial')) {
+    throw new Error(
+      `[backfill-batch load] REFUSING partial batch: ${missing.length}/${manifest.chunkIds.length} ` +
+      `chunks absent from ${fenceOutputPath}.\n  missing: ${missing.join(' ')}\n` +
+      `  Re-fence the gaps (fence-external.ts fence ... --resume), or pass --allow-partial ` +
+      `if an incomplete year is genuinely intended.`,
+    );
+  }
+
   // Live batch-64 EmbedFn mirroring embed-entities.ts batch pattern.
   const BATCH_SIZE = 64;
 
