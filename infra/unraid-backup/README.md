@@ -1,6 +1,6 @@
 # Unraid backup redesign -- on-box reference + resolved parameters
 
-**Status:** Phase 6 restore drill **PASSED 2026-06-12**; Phase 7 cutover **DONE 2026-06-15** -- 3-2-1 live, legacy tar retired. Residuals (see closeout section at bottom): Synology-side scheduled check, 6.3 full escrow-restore from Prague, 6.4 reboot survival (never exercised), internal-cron checkpoint litter, twin-volume exclude. *(Backfilled 2026-07-20 -- this README lagged the unRAID repo's `docs/server/backup.md` by five weeks; that file is the host-plane ground truth.)*
+**Status:** Phase 6 restore drill **PASSED 2026-06-12**; Phase 7 cutover **DONE 2026-06-15** -- 3-2-1 live, legacy tar retired. Residuals: **all CLOSED by the 2026-08-04 maintenance bundle** (ops final-PASS letter 2026-08-05) except 6.3 escrow-only restore drill (operator-only, untimed) -- see closeout section at bottom. *(Backfilled 2026-07-20 -- this README lagged the unRAID repo's `docs/server/backup.md` by five weeks; that file is the host-plane ground truth.)*
 **Spec:** `docs/superpowers/specs/2026-05-19-unraid-backup-redesign-design.md`
 **Plan:** `docs/superpowers/plans/2026-05-19-unraid-backup-redesign.md`
 
@@ -408,27 +408,26 @@ continues until Phase 7 cutover.
   plus `crontab-pre-phase7-20260615.bak`). Drill Thursday, cutover Monday,
   trip right after -- deliberate and documented.
 
-### Residuals open as of 2026-07-20
+### Residuals closeout (2026-08-05; source: ops maintenance-bundle letters 2026-08-04 + final-PASS 2026-08-05)
 
-- **6.5, Synology half:** every Prague pull runs an independent
-  `borg check` (`--verify-data` proven 2026-05-21; 6-hourly trigger armed
-  2026-06-12), but no scheduled check runs against the SYNOLOGY repo
-  itself. Schedule or periodically force one.
-- **6.3:** a full escrow-only file-restore from a non-Unraid machine is
-  still undone. Near-misses on record: Phase 1's escrow-only `borg list`
-  proof on Synology (2026-05-20) and Phase 5's Prague reads via the
-  escrowed passphrase -- but the actual extract-files drill from Prague
-  remains. Operator-only, untimed.
-- **6.4:** never exercised -- host uptime 138 days predates borgmatic
-  entirely. The `/boot/config/go` snippet and the `0 3 * * *` root-cron
-  entry were verified in place 2026-07-20, but boot survival is untested.
-  Bundle with the dev-cockpit image rebuild in one maintenance window.
-- **Internal-cron checkpoint litter:** the container's own 01:00 cron run
-  (correction #14's "harmless duplicate") dies mid-run nightly, leaving
-  daily `.checkpoint` archives that append-only mode cannot clean; the
-  host's 03:00 run completes fine. Fix per #14's own escape hatch:
-  silence the internal cron (svc-cron s6 service or empty crontab mount).
-- **Twin-volume churn:** `appdata/dev/databases/` (dev DB twins, created
-  2026-07-15, post-dating this config) now backs up as torn hot-copies
-  nightly. Twins are cattle (reseed from `seeds/` per `RESEED.md`); add a
-  `pp:/mnt/src/appdata/dev/databases` exclude.
+- **6.5, Synology half: CLOSED -- and the 07-20 claim above was stale.**
+  Weekly `repository`+`archives` checks had been scheduled AND running on
+  the Synology since at least the 2026-07-14 config (state-file mtimes
+  prove runs). A forced FULL check on 2026-08-04 passed explicitly
+  ("no problems found", exit 0).
+- **6.3: still OPEN.** Full escrow-only file-restore drill from Prague.
+  Operator-only, untimed. The single remaining residual.
+- **6.4: CLOSED.** 2026-08-04 reboot after 153 days up: array autostart,
+  root crontab re-added by `/boot/config/go` (03:00 borg line present),
+  borgmatic auto-started, all 40 containers returned. The first unattended
+  03:00 run produced archive `ParadokS-2026-08-05T02:03` on schedule.
+- **Internal-cron checkpoint litter: CLOSED.** Internal 01:00 cron silenced
+  via comment-only `crontab.txt` in the config mount (svc-cron "Case 3");
+  verified empty through a restart AND the full reboot; litter held at
+  baseline (2) overnight. Delete that file to restore the image default.
+- **Twin-volume churn: CLOSED.** `pp:/mnt/src/appdata/dev/databases`
+  exclude live since 2026-08-04, `config validate` clean (backup at
+  `borgmatic.yaml.bak-20260804`). Companion fix: phoenix-postgres datadir
+  exclude (`pp:/mnt/src/appdata/phoenix-analytics/postgres`, dump hook
+  already live since 07-14) granted + live 2026-08-05
+  (`borgmatic.yaml.bak-20260805`).
