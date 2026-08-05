@@ -115,8 +115,13 @@ Every var name was verified against the **installed binary** (`claude` 2.1.222,
   The wrapper's `AUTH_TOKEN` outranks everything below it, so there is no approval
   prompt and the Max OAuth is never consulted. Env-var auth is strictly
   process-scoped — other sessions on the OAuth login are unaffected by design.
-  Fallback stands: if the first smoke test 401s, swap to `ANTHROPIC_API_KEY` per
-  DeepSeek's own doc (set only one — both together sends both auth headers).
+  Fallback stands: if the first smoke test 401s, swap the var *name* to
+  `ANTHROPIC_API_KEY` per DeepSeek's own doc — **still carrying the DeepSeek key**
+  (set only one; both together sends both auth headers). The `ANTHROPIC_*` prefix
+  is Claude Code plumbing vocabulary, not an Anthropic account: with
+  `ANTHROPIC_BASE_URL` pointed at DeepSeek, both vars deliver the DeepSeek key to
+  DeepSeek and differ only in which HTTP header it rides in (Bearer vs X-Api-Key).
+  No Anthropic API key exists or is billed anywhere in this setup.
 - **`CLAUDE_CONFIG_DIR` scope, empirically probed on 2.1.222:** `.claude.json` app
   state, `sessions/`, `projects/` transcripts, `backups/` all land in the isolated
   dir, and the probe session reported "Not logged in" — proof the Max credentials
