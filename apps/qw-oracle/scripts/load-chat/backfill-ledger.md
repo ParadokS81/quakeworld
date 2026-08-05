@@ -124,7 +124,7 @@ validation slice.
 | [x] | 2020 | 53,179 | 54 | 26 | -- loaded 2026-08-05 (session 5), 2372 threads, 99.26% coverage (refence 1/3; 2 retries WORSE, discarded)
 | [x] | 2021 | 39,821 | 64 | 14 | -- SUPERSEDE batch; loaded 2026-08-05 (session 5), 2046 threads, 99.70% coverage; **v1 generation fully retired (634 -> 0)**
 | [x] | 2022 | 18,440 | 119 | 0 | -- loaded 2026-08-05 (session 5), 1428 threads, 99.90% coverage (refence found nothing below 97%)
-| [ ] | 2023 | 20,006 | 108 | 1 |
+| [x] | 2023 | 20,006 | 108 | 1 | -- loaded 2026-08-05 (session 5), 1486 threads, 99.92% coverage (refence 1/1)
 | [ ] | 2024 | 27,722 | 81 | 4 |
 | [ ] | 2025 | 27,199 | 100 | 4 |
 | [ ] | 2026 | 8,829 | 28 | 0 |
@@ -636,6 +636,16 @@ at 23110; the supersede neither resurrects v1 nor duplicates v2). **Retrieval: P
 v1 labels appear, so the v1->v2 transition shows in retrieval, not just in the counts.
 
 DB state after the 2021 batch: chat_threads = **23110**, ALL v2. **#quakeworld 7/11.**
+
+**Batch #quakeworld 2023 -- LOADED, verified.** 108 chunks, 1 forced, 10 big-routed. Fence
+**108/108, failures=0, wall 30.8 min at CONC=30**. Refence 1/1 (-009: 91.1% -> 100.0%, +133
+msgs). Gate: **0% hallucination / 99.92% coverage**. Load: 1486 threads, 19,995 junction rows
+(19,990 DISTINCT, 5 R8 m2m), 0 OOB / 0 missing / 0 stale. resolution 388 solved / 156
+unresolved / 896 informational / 46 none. **Idempotency (R5): PASS**. **Retrieval: PASS** --
+"phantoma map YA splash behavior and design" returns its 2023 thread as top hit (279 msgs,
+solved).
+
+DB state after the 2023 batch: chat_threads = **24596**, all v2. **#quakeworld 8/11.**
 
 > **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
 > 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
