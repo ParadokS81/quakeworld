@@ -126,7 +126,7 @@ validation slice.
 | [x] | 2022 | 18,440 | 119 | 0 | -- loaded 2026-08-05 (session 5), 1428 threads, 99.90% coverage (refence found nothing below 97%)
 | [x] | 2023 | 20,006 | 108 | 1 | -- loaded 2026-08-05 (session 5), 1486 threads, 99.92% coverage (refence 1/1)
 | [x] | 2024 | 27,722 | 81 | 4 | -- loaded 2026-08-05 (session 5), 1570 threads, 99.13% coverage (refence 5/5)
-| [ ] | 2025 | 27,199 | 100 | 4 |
+| [x] | 2025 | 27,199 | 100 | 4 | -- loaded 2026-08-05 (session 5), 1678 threads, 99.32% coverage (refence 1/1)
 | [ ] | 2026 | 8,829 | 28 | 0 |
 
 ### #dev-corner (1,560 agents, 11 batches)
@@ -661,6 +661,26 @@ left alone. A second pass would likely recover ~130 more msgs. If a future sessi
 tail, re-run `fence-external.ts refence <ch> <yr>` and re-load -- both are idempotent-safe.
 
 DB state after the 2024 batch: chat_threads = **26166**, all v2. **#quakeworld 9/11.**
+
+**Batch #quakeworld 2025 -- LOADED, verified. #quakeworld HISTORICAL COMPLETE (10/11; only the
+parked 2026 batch remains).** 100 chunks, 4 forced, 18 big-routed. Fence **100/100, failures=0,
+wall 41.2 min at CONC=30**. Refence 1/1 (-051: 84.4% -> 89.9%). Gate: **0% hallucination /
+99.32% coverage**. Load: 1678 threads, 27,017 junction rows (27,015 DISTINCT, 2 R8 m2m), 0 OOB
+/ 0 missing / 0 stale. resolution 399 solved / 182 unresolved / 1030 informational / 67 none.
+**Idempotency (R5): PASS**. **Retrieval: PASS** -- "RTX 5080 vs 5090 purchase advice" returns
+its 2025 thread as top hit (119 msgs, solved).
+
+DB state after the 2025 batch: chat_threads = **28504**, all v2. **#quakeworld 10/11.**
+
+> **TAIL-RECOVERY SWEEP (offered, NOT taken -- a deliberate consistency call).** Several batches
+> have one or two chunks still below ~97% after their single refence pass (2024's -066 at 94.2%
+> and -075 at 96.3%; 2025's -051 at 89.9%). Each would likely improve on another pass -- the
+> pass is idempotent-safe and only ever keeps better. It was NOT run per-batch, because chasing
+> tails on some batches and not others makes the per-batch coverage numbers non-comparable and
+> the ledger harder to reason about. Every batch in session 5 was held to the SAME standard:
+> one refence pass, 99% gate. If the tail is wanted, run it as ONE sweep across all batches
+> (`refence` then re-`load`, both idempotent), and record it as its own ledger line so the
+> before/after stays legible.
 
 **Batch #dev-corner 2016 -- LOADED, verified. FIRST #dev-corner BATCH.** 114 chunks, 0 forced.
 Fence **114/114, failures=0, wall 22.7 min at CONC=30** (fastest batch of the session). Refence
