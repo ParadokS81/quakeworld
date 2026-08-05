@@ -125,7 +125,7 @@ validation slice.
 | [x] | 2021 | 39,821 | 64 | 14 | -- SUPERSEDE batch; loaded 2026-08-05 (session 5), 2046 threads, 99.70% coverage; **v1 generation fully retired (634 -> 0)**
 | [x] | 2022 | 18,440 | 119 | 0 | -- loaded 2026-08-05 (session 5), 1428 threads, 99.90% coverage (refence found nothing below 97%)
 | [x] | 2023 | 20,006 | 108 | 1 | -- loaded 2026-08-05 (session 5), 1486 threads, 99.92% coverage (refence 1/1)
-| [ ] | 2024 | 27,722 | 81 | 4 |
+| [x] | 2024 | 27,722 | 81 | 4 | -- loaded 2026-08-05 (session 5), 1570 threads, 99.13% coverage (refence 5/5)
 | [ ] | 2025 | 27,199 | 100 | 4 |
 | [ ] | 2026 | 8,829 | 28 | 0 |
 
@@ -647,6 +647,21 @@ solved).
 
 DB state after the 2023 batch: chat_threads = **24596**, all v2. **#quakeworld 8/11.**
 
+**Batch #quakeworld 2024 -- LOADED, verified.** 81 chunks, 4 forced, 19 big-routed. Fence
+**81/81, failures=0, wall 31.0 min at CONC=30**. Refence 5/5 improved (+303 msgs; one chunk hit
+a transient invalid-JSON and recovered on the retry). Gate: **0% hallucination / 99.13%
+coverage**. Load: 1570 threads, 27,495 junction rows (27,480 DISTINCT, 15 R8 m2m), 0 OOB / 0
+missing / 0 stale. resolution 359 solved / 155 unresolved / 968 informational / 88 none.
+**Idempotency (R5): PASS**. **Retrieval: PASS** -- "snap tap keyboard hardware debate" returns
+its 2024 thread as top hit (180 msgs, solved).
+
+*Known lever, not taken:* two chunks remained below 97% after the single refence pass (-066 at
+94.2%, -075 at 96.3%). The driver runs refence ONCE and 99.13% clears the gate, so this was
+left alone. A second pass would likely recover ~130 more msgs. If a future session wants the
+tail, re-run `fence-external.ts refence <ch> <yr>` and re-load -- both are idempotent-safe.
+
+DB state after the 2024 batch: chat_threads = **26166**, all v2. **#quakeworld 9/11.**
+
 > **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
 > 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
 > of the entire backfill. Cause: the refence pass understood only coverage.
@@ -705,6 +720,14 @@ DB state after the 2023 batch: chat_threads = **24596**, all v2. **#quakeworld 8
 > SUBSTANTIVE threads (high message_count), not from random `solved` topic_labels** -- a
 > short-thread miss measures the probe, not the batch. Phase D threshold calibration should
 > expect thread length to dominate ranking this way, or correct for it deliberately.
+>
+> **Counter-signal seen on 2024 -- length does NOT reliably dominate, and that is the problem.**
+> A **1-message** throwaway thread came back as the TOP hit for "hand pain ergonomics and
+> keybinding advice", outranking substantive discussion. The fencer is behaving correctly (the
+> prompt explicitly allows "pure noise may be its own throwaway thread"), so the issue is
+> ranking: RRF applies no length prior, so a 1-msg thread whose few tokens happen to align
+> beats a 200-msg thread on the same subject. **Phase D should consider a length floor or a
+> length-aware score** -- either would fix both this and the thin-thread misses above.
 
 **Operator decision (2026-08-05): run the 2026 batches NOW on partial-year data.** The raw
 corpus ends 2026-05-02 (catch-up import is Arc A step 3). #quakeworld-2026 and #dev-corner-2026
