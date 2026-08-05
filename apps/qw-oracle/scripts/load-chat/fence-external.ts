@@ -120,11 +120,13 @@ const RETRY_RECOVER_MS = 8000;
 //   1500-msg chunk on pro: 498s, 33,788 completion tokens
 //   1465-msg chunk on pro: 698s, 48,824 completion tokens  <- worst observed
 // Same-size chunks vary ~1.4x in both axes, so headroom is the point, not fit.
-const CALL_TIMEOUT_MS = 1_800_000;         // 30 min; worst observed 698s = 39% of ceiling
-const MAX_OUTPUT_TOKENS = 131072;          // worst observed 48,824 = 37% of ceiling. Costs
-                                           // nothing to raise -- billing is on tokens actually
-                                           // generated, and the API accepts far higher values
-                                           // (262144 probed OK on both models). finish_reason
+const CALL_TIMEOUT_MS = 1_800_000;         // 30 min; worst observed 931s = 52% of ceiling
+const MAX_OUTPUT_TOKENS = 262144;          // Raised from 131072 when a #quakeworld-2020 chunk
+                                           // spent 79,294 completion tokens (61% of that cap) --
+                                           // 1.6x the previous worst, and same-size chunks vary
+                                           // ~1.5x, so the tail was close. Costs nothing to
+                                           // raise: billing is on tokens actually generated, and
+                                           // 262144 is accepted by both models. finish_reason
                                            // === 'length' still guards the truncation case.
 const BIG_CHUNK_MSGS = 500;                // >= this many messages routes to the stronger model
                                            // FIRST. Pro is ~2.4x more token-efficient than flash
@@ -560,19 +562,30 @@ async function cmdProbe(channel: string, year: number, opts: Map<string, string>
 
   console.log(`[probe] ${channel} ${year} -- ${top} largest of ${sized.length} chunks (max ${picks[0]?.msgs} msgs), timeout=${CALL_TIMEOUT_MS / 1000}s maxTokens=${MAX_OUTPUT_TOKENS} bigThreshold=${BIG_CHUNK_MSGS}`);
 
+  // ONE RETRY per chunk, matching what the production fence path tolerates
+  // (runGently gives 2 attempts + an escalation pass). ~1 in 30 responses is a
+  // transient schema/JSON miss; without a retry the probe is STRICTER than the
+  // pipeline it gates, and would spuriously halt roughly 1 batch in 10.
+  // A chunk that fails TWICE is a real signal.
   const results = await Promise.all(picks.map(async (p) => {
     const useModel = fallbackModel && (p.forced || p.msgs >= BIG_CHUNK_MSGS) ? fallbackModel : model;
     const t0 = Date.now();
-    try {
-      const r = await fenceOneChunk(apiKey, baseUrl, useModel, manifest, p.cid, withResolution);
-      const secs = (Date.now() - t0) / 1000;
-      console.log(`  PASS ${p.cid} n=${p.msgs}${p.forced ? ' forced' : ''} ${useModel}: ${secs.toFixed(0)}s completion=${r.usage.completion} reasoning=${r.usage.reasoning} threads=${r.fenced.threads.length}`);
-      return { ok: true, secs, completion: r.usage.completion };
-    } catch (e) {
-      const secs = (Date.now() - t0) / 1000;
-      console.error(`  FAIL ${p.cid} n=${p.msgs}${p.forced ? ' forced' : ''} ${useModel}: ${secs.toFixed(0)}s -- ${(e as Error).message}`);
-      return { ok: false, secs, completion: 0 };
+    let lastErr = '';
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const r = await fenceOneChunk(apiKey, baseUrl, useModel, manifest, p.cid, withResolution);
+        const secs = (Date.now() - t0) / 1000;
+        const note = attempt > 1 ? ` (attempt ${attempt}, first: ${lastErr})` : '';
+        console.log(`  PASS ${p.cid} n=${p.msgs}${p.forced ? ' forced' : ''} ${useModel}: ${secs.toFixed(0)}s completion=${r.usage.completion} reasoning=${r.usage.reasoning} threads=${r.fenced.threads.length}${note}`);
+        return { ok: true, secs, completion: r.usage.completion, retried: attempt > 1 };
+      } catch (e) {
+        lastErr = (e as Error).message;
+        if (attempt === 1) console.error(`  retry ${p.cid}: ${lastErr}`);
+      }
     }
+    const secs = (Date.now() - t0) / 1000;
+    console.error(`  FAIL ${p.cid} n=${p.msgs}${p.forced ? ' forced' : ''} ${useModel}: ${secs.toFixed(0)}s, 2 attempts -- ${lastErr}`);
+    return { ok: false, secs, completion: 0, retried: true };
   }));
 
   const passed = results.filter((r) => r.ok);
