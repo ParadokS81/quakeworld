@@ -13,8 +13,10 @@
 #                         chunks PRESENT, so a missing chunk costs no coverage
 #                         and would sail through step 5 (#quakeworld-2017,
 #                         2026-08-05: 38/72 chunks, gate-clean).
-#   5. stats gate      -- index-hallucination 0%, coverage >= 98%
-#   6. load            -- + idempotent re-run, thread_key md5 must be identical
+#   5. refence         -- retry low-coverage chunks, keep the better realization
+#   6. stats gate      -- index-hallucination 0%, coverage >= 99% (the band every
+#                         prior batch cleared)
+#   7. load            -- + idempotent re-run, thread_key md5 must be identical
 #
 # Retrieval probe (step 7 of the ledger ritual) stays manual: its queries are
 # per-batch and want a human read of the hits.
@@ -33,18 +35,18 @@ OUT="${DIR}/fence-external-deepseek-v4-flash.json"
 die() { echo ""; echo "!! HALT [$CHANNEL $YEAR]: $*" >&2; exit 1; }
 step() { echo ""; echo "=== [$CHANNEL $YEAR] $* ==="; }
 
-step "1/6 prep"
+step "1/7 prep"
 bun scripts/load-chat/backfill-batch.ts prep "$CHANNEL" "$YEAR" || die "prep failed"
 
-step "2/6 worst-case pre-flight"
+step "2/7 worst-case pre-flight"
 bun scripts/load-chat/fence-external.ts probe "$CHANNEL" "$YEAR" --top 3 \
   || die "largest chunks failed the pre-flight -- fix ceilings before spending a batch"
 
-step "3/6 fence (conc=$CONC, resuming any prior partial)"
+step "3/7 fence (conc=$CONC, resuming any prior partial)"
 bun scripts/load-chat/fence-external.ts fence "$CHANNEL" "$YEAR" --conc "$CONC" --resume
 # NB: non-zero exit here means incomplete; step 4 reports precisely which.
 
-step "4/6 completeness gate"
+step "4/7 completeness gate"
 EXPECTED=$(jq -r '.chunkIds|length' "${DIR}/manifest.json")
 GOT=$(jq -r '.fenced|length' "$OUT")
 MISSING=$(jq -r '.failures.fence' "$OUT")
@@ -52,16 +54,27 @@ echo "chunks fenced: $GOT / $EXPECTED  (failures=$MISSING)"
 [ "$GOT" = "$EXPECTED" ] || die "$((EXPECTED - GOT)) chunk(s) missing -- re-run to resume the gaps, do NOT load"
 [ "$MISSING" = "0" ] || die "failures.fence=$MISSING"
 
-step "5/6 stats gate"
+step "5/7 refence low-coverage chunks"
+# Big chunks lose coverage to run-to-run variance, not to a hard limit (two
+# probes of one 1500-msg chunk gave 132 vs 40 threads). Messages in no thread
+# are unreachable by retrieval. Keeps the better realization only, so a
+# no-op run is free. 2017: 98.37% -> 99.30%, +521 msgs.
+bun scripts/load-chat/fence-external.ts refence "$CHANNEL" "$YEAR" --below 97 --conc "$CONC" \
+  || echo "(refence pass had failures -- originals kept, continuing to the gate)"
+
+step "6/7 stats gate"
 bun scripts/load-chat/fence-stats.ts "$CHANNEL" "$YEAR" "$OUT" | tee /tmp/fence-stats-$$.json
 HALLUC=$(jq -r '.indexHallucinationPct' /tmp/fence-stats-$$.json)
 COVER=$(jq -r '.coveragePct' /tmp/fence-stats-$$.json)
 rm -f /tmp/fence-stats-$$.json
 awk -v h="$HALLUC" 'BEGIN{exit !(h==0)}' || die "index-hallucination ${HALLUC}% (must be 0)"
-awk -v c="$COVER" 'BEGIN{exit !(c>=98)}' || die "coverage ${COVER}% below the 98% band"
+# 99% is the band every prior batch cleared (#helpdesk 99.6-99.9, #quakeworld
+# 2016 99.05). Below it means the refence pass could not close the gap -- stop
+# and look rather than quietly ledger a thin year.
+awk -v c="$COVER" 'BEGIN{exit !(c>=99)}' || die "coverage ${COVER}% below the 99% band even after refence -- investigate before loading"
 echo "gate PASS: hallucination=${HALLUC}% coverage=${COVER}%"
 
-step "6/6 load + idempotency"
+step "7/7 load + idempotency"
 bun scripts/load-chat/backfill-batch.ts load "$CHANNEL" "$YEAR" "$OUT" || die "load failed"
 bun scripts/load-chat/verify-batch.ts "$CHANNEL" "$YEAR" > /tmp/v1-$$.json || die "verify failed"
 MD5_1=$(jq -r '.threadKeyMd5' /tmp/v1-$$.json)
