@@ -71,12 +71,28 @@ cross-year overlap windows -- overlap would double-fence the boundary region
 under different chunkIds, producing duplicate coverage. Cost is tiny, same class
 as cap-forced cuts. (Comment lives in `backfill-batch.ts pullMsgs`.)
 
-## Per-session pacing (reset-day RUN)
+## Per-session pacing
 
-1-2 batches per session, paced to Max-subscription quota (D9). Trial a small
-wave (1 agent) before a full batch to confirm the config clears the shared
-throttle. Biggest single batch = #helpdesk 2024 (193 agents); all batches sit
-under the 251-agent run proven clean in calibration.
+**Sessions 1-4 (2026-06, Claude Workflow fencer):** 1-2 batches per session,
+paced to Max-subscription quota (D9). Trial a small wave (1 agent) before a full
+batch to confirm the config clears the shared throttle. Biggest single batch =
+#helpdesk 2024 (193 agents); all batches sit under the 251-agent run proven
+clean in calibration.
+
+**Session 5+ (2026-08-05, external contract-worker fencer):** no Max quota is
+consumed, so the 1-2-batches-per-session rule dissolves. The pacing constraint
+is now wall-clock and per-chunk latency. The pre-batch trial did NOT dissolve --
+it got sharper and MANDATORY, as `fence-external.ts probe`:
+
+> **Probe the LARGEST chunks before every batch.** Failure tracks chunk size, so
+> the extreme finds a bad config by construction where a random or calendar
+> sample finds it only by luck. Session 5 skipped this on the strength of a
+> same-day PASS verdict and paid 232 minutes to learn what one 2-cent probe of
+> the biggest chunk would have shown in 8. A prior PASS is evidence about the
+> dataset it was measured on, not a property of the tool.
+
+Use `scripts/load-chat/run-backfill-batch.sh <channel> <year> [conc]` -- the
+whole ritual with every gate a hard halt.
 
 ## Batches
 
@@ -102,7 +118,7 @@ validation slice.
 | done | year | msgs | agents | forced |
 |---|---|---|---|---|
 | [x] | 2016 | 14,474 | 112 | 2 | -- loaded 2026-06-09 (session 4), 1297 threads (CONC=10 clean; 2 forced 1500-msg chunks held 96.1%/99.0%); first #quakeworld v2, coexists w/ v1 2021 probe
-| [ ] | 2017 | 56,198 | 72 | 26 | -- FIRST DENSE YEAR (gated: orchestrator cold-verify; R13 first-at-scale, 26 forced cuts)
+| [x] | 2017 | 56,198 | 72 | 26 | -- FIRST DENSE YEAR; loaded 2026-08-05 (session 5, EXTERNAL fencer), 3259 threads, 99.30% coverage after refence splice
 | [ ] | 2018 | 62,125 | 53 | 29 |
 | [ ] | 2019 | 46,130 | 58 | 17 |
 | [ ] | 2020 | 53,179 | 54 | 26 |
@@ -470,3 +486,73 @@ ONLY) + 7987 v2 (#helpdesk 2020 [715] + 2021 [1346] + 2022 [1015] + 2023 [1220] 
 + 2025 [929] + 2026 [373] + #quakeworld 2016 [1297] + #antilag 2026 [67]), 0 null embeddings,
 all v2 keys year-scoped. **#helpdesk COMPLETE (7/7); #quakeworld 1/11 (2016 done).** HALTED
 before #quakeworld 2017 (first DENSE year -- gated for orchestrator cold-verify).
+
+### Session 5 -- 2026-08-05 (external contract-worker fencer; 8-week gap)
+
+**Fencer changed.** Batches from here run `fence-external.ts` (DeepSeek) instead of the
+`wf-backfill-fence.js` Workflow -- no Max quota, ~$25-30 for the remaining corpus. Spike
+verdict + evidence: `docs/superpowers/parking/2026-08-05-contract-worker-spike-report.md`.
+
+Baseline re-confirmed before first write: chat_threads = 8621 (634 v1 + 7987 v2), 0 null/stale
+-- exact match to session-4-final after 8 idle weeks. `count-all` reproduced the whole ledger
+grid byte-exact (3,796 chunks / 139 forced), so zero corpus drift.
+
+**The 2017 failure and what it cost (read this before trusting a PASS verdict).** The first
+attempt ran 232 minutes and produced **38 of 72 chunks**. Post-mortem: failure tracked chunk
+SIZE, not the `forced` flag. Every natural chunk >=730 msgs failed; every one <=490 passed.
+Two ceilings, both sized where #helpdesk (88 msgs/chunk avg) could never reach them, both
+blown by #quakeworld (up to 1,465 msgs/chunk):
+
+| ceiling | was | real need (measured on failing chunks) |
+|---|---|---|
+| `CALL_TIMEOUT_MS` | 300s | 498s / 698s on 1500- and 1465-msg chunks |
+| `MAX_OUTPUT_TOKENS` | 32,768 | 33,788 / 48,824 completion tokens (~91% reasoning) |
+
+The spike's own fix (route `forced` chunks to pro) keyed on a variable merely CORRELATED with
+the cause -- a one-channel sample couldn't separate `forced` from `big`. Fixed in `47d92d35`:
+timeout 30min, max_tokens 131072, routing by size (`BIG_CHUNK_MSGS=500`), escalation pass in
+paced waves (it was serial, ~170 of the 232 min), `--resume`, and `probe`.
+
+**THE LOAD-BEARING FINDING -- a silent-data-loss path that was reachable through the documented
+happy path.** `fence-stats.ts` computes coverage by iterating only the chunks PRESENT in the
+fence output. A chunk that fails every attempt is simply absent, so it costs NO coverage
+percentage. The 38/72 output scored **0% hallucination / ~99% coverage** -- gate-clean. Loading
+it would have written 2017 as a complete year, ledgered it `[x]`, and left ~34 chunks of the
+corpus permanently unreachable, with the gap indistinguishable from "that year was quiet".
+`backfill-batch.ts load` now REFUSES a fence output short of its manifest (`--allow-partial`
+overrides). **Any future fencer swap must re-check this: the gate measures what it is given.**
+
+**Batch #quakeworld 2017 -- LOADED, verified.** 72 chunks, max 199.6KB, 26 forced. Re-fenced
+the 34 gaps with `--resume` at **CONC=17** (kept the 38 already paid for; 99.9% prompt-cache
+hit on the retry). **failures.fence = 0 (72/72), wall 24.1 min** -- vs 232 min for the failed
+half-run. CONC=17 showed no throughput degradation.
+
+First stats gate: 0% hallucination but coverage **98.37%**, below every prior batch. The
+shortfall sat in big chunks (-046 84.2%, -069 84.4%). Coverage on big chunks is run-to-run
+variance, not a hard limit -- two probes of the SAME 1500-msg chunk gave 132 vs 40 threads. New
+`refence` pass (`d5b19ce8`) re-fences chunks under a coverage floor and keeps whichever
+realization covers MORE; it generalizes session 1's manual helpdesk-041 splice. Result: 4/5
+improved, **+521 msgs covered, 98.37% -> 99.30%**. One chunk's retry came back WORSE
+(94.9% -> 75.7%) and was correctly discarded -- the keep-better comparison is load-bearing.
+
+Load: 3259 threads, 56,083 junction rows (55,803 DISTINCT -- **280 R8 m2m messages**, vs 0-6 on
+every prior batch; the fence prompt asks for exactly-one-thread placement and big chunks bend
+it. DISTINCT guard handles it; watch whether it tracks chunk size on 2018-2021). 0 OOB / 0
+missing / 0 stale, **6 R4 truncations** (>30000-char marathon threads; embedding tail cut, full
+content stored). resolution 724 solved / 463 unresolved / 1932 informational / 140 none
+(banter-heavy, like 2016). **Idempotency (R5): PASS** -- re-ran load, identical state (3259
+threads, GLOBAL held at 11880 not 15139, thread_key md5 `509b7eef5c8970c75eccee55580c61ed`
+unchanged). **Retrieval: PASS** -- shipped `searchSolvedIssues` against dev; "how do I export
+ezquake console chat logs" returns the 2017 #quakeworld thread as top hit with
+`resolution_status`; cross-year hybrid healthy (powerup-glow and macOS queries surface better
+2016/2021/2022 answers). Same prod-vs-dev deployment caveat as sessions 1-4.
+
+DB state after the 2017 batch: chat_threads = **11880** -- 634 v1 (#quakeworld 2021 probe ONLY)
++ 11246 v2, 0 null embeddings, all v2 keys year-scoped. **#quakeworld 2/11.**
+
+**Operator decision (2026-08-05): run the 2026 batches NOW on partial-year data.** The raw
+corpus ends 2026-05-02 (catch-up import is Arc A step 3). #quakeworld-2026 and #dev-corner-2026
+are fenced/loaded from Jan-May data so it is searchable immediately; the post-import re-run
+replaces them idempotently via the (channel, year) range-DELETE. **#antilag-2026 (loaded
+2026-06-06) is in the same partial state and wants the same re-run.** Do NOT read a 2026 `[x]`
+as a complete year until after the catch-up import.
