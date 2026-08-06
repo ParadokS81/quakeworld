@@ -2,7 +2,7 @@
 date: 2026-08-06
 type: design-spec
 arc-slug: oracle-eval-simulation
-status: DESIGN IN PROGRESS -- Passes 1-2 CLOSED 2026-08-06 (D1-D7); Pass 3 (Harness & model roles) open.
+status: DESIGN IN PROGRESS -- Passes 1-3 CLOSED 2026-08-06 (D1-D8); Pass 4 (Outputs) open.
 parent: docs/superpowers/parking/2026-08-06-oracle-eval-simulation.md
 related:
   - docs/superpowers/parking/2026-06-09-helpdesk-faq-landscape.md (June topic map: 48 clusters over 6,623 #helpdesk threads, deterministic k-means, seed=42)
@@ -181,7 +181,35 @@ for the longer-term note-targeting goal.
 
 **Pass 2 (Rubric & grading) CLOSED 2026-08-06.** D6-D7 locked.
 
+### D8 -- Baseline symmetry + Claude calibration sample (locked 2026-08-06)
+
+**Symmetry**: identical DeepSeek model, system prompt (shared QuakeWorld-helper
+persona), temperature, and loop budget across all three cells. Cell A simply
+has no tools attached; B vs C differ only in server-side channel scope. The
+prompt never references tools that are not present (no phantom instructions,
+no baseline coaching) -- the tool section exists only where tools do.
+
+**Claude calibration sample**: YES, ~40 questions (subset of the N=500 sample)
+additionally run with Claude as answering agent in cells A and C. Purpose:
+verify "oracle helps DeepSeek" generalizes to "oracle helps a mainstream
+client" -- the claim the public showcase actually makes. Mechanics: no API key
+on the Max subscription, so Claude passes run as Claude Code subagents inside
+the harness session; ~80 passes = an evening's quota slice. Graded through the
+same D6 pipeline (records marked with answering model).
+
+**Pass 3 (Harness & model roles) CLOSED 2026-08-06.** D8 locked; remaining
+Pass 3 topics were implementation-shaped and route to arc-plan (see
+carry-forwards).
+
 ## Carry-forwards
+
+- **Harness home** (extend fence-external.ts vs sibling in the same family),
+  **DeepSeek tool-calling loop mechanics** (function-calling adapter over the
+  MCP endpoint, loop budget, retry posture), **channel-scoping config
+  mechanism** (env var vs per-run flag on the dev MCP instance), **dev MCP
+  instance + Tailscale direct-route wiring** (HANDOVER's parked "MCP Tailscale
+  direct-route for batch jobs" folds in here), and **leave-one-out exclusion
+  wiring** -- all implementation-shaped. Track: arc-plan.
 
 - **#quakeworld as secondary question population** -- optional, decided after
   the pilot (D1). Track: later pass / post-pilot amendment.
