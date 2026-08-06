@@ -411,14 +411,31 @@ with; a flag flip rebuilds floor 1 wholesale (the comp's own semantics).
    on MediaQueryList is standard there -- a sanctioned support-floor
    deviation, recorded in this step; it needs no ritual D-label since no
    ritual item can observe it.)
-2. Mount floor 1 through a ternary so a flip disposes and recreates the
-   component -- travelers, samplers, timers, and hover state reset exactly as
-   the mockup's `buildBrain()` re-run does (SVG wipe + fresh `FXp`, 362 +
-   486):
+2. Mount floor 1 through Solid's `<Show>` control-flow component -- NOT a
+   raw JSX ternary (cold review CR-SPEC-4) -- so a flip disposes and
+   recreates the component: travelers, samplers, timers, and hover state
+   reset exactly as the mockup's `buildBrain()` re-run does (SVG wipe +
+   fresh `FXp`, 362 + 486):
 
-       {portrait()
-         ? <Floor1Brain layout={PORTRAIT_LAYOUT} ...same props... />
-         : <Floor1Brain layout={DESKTOP_LAYOUT} ...same props... />}
+       <Show
+         when={portrait()}
+         fallback={<Floor1Brain layout={DESKTOP_LAYOUT} ...same props... />}
+       >
+         <Floor1Brain layout={PORTRAIT_LAYOUT} ...same props... />
+       </Show>
+
+   Why `<Show>` over the ternary: `<Show>` is Solid's documented primitive
+   for conditional mounting and owns the reactive-scope boundary explicitly,
+   so the disposal of the outgoing branch (and with it `onCleanup` for the
+   rAF loop, the ambient interval, and the `PathSampler` refs) is the
+   framework's contract rather than an inference about how a ternary's
+   reactive scope happens to behave. A leaked branch here does not fail
+   loudly -- it double-runs the animation loop -- so the predictable
+   primitive is worth the two extra lines. Solid control-flow docs:
+   https://docs.solidjs.com/reference/components/show . If the port needs
+   the outgoing branch's state genuinely destroyed rather than reused, use
+   `<Show keyed>`; verify the actual disposal behavior at install-time probe
+   P-A rather than trusting either form on faith.
 
    Both branches receive the same `reduced` / `onStemExit` / `manifest` /
    `showWhyDoor` props. The `stemExits` signal lives in App and survives the
@@ -577,10 +594,24 @@ portrait rendering is a finding):**
 - **M9 scroll feel:** one continuous vertical scroll across both floors --
   no snap fighting, no stuck regions, no sideways rubber-banding. (This is
   also quirk probe Q1.)
-- **M10 rotation:** rotate to landscape -- if the width crosses 900px the
-  desktop projection rebuilds (travelers reset, no doubled glyphs, no
-  console errors); rotate back -- portrait returns. If the phone's landscape
-  width stays <=900px, portrait persisting is correct behavior, answer YES.
+- **M10 rotation (MULTI-rotation -- a single flip does not prove disposal):**
+  rotate portrait->landscape->portrait->landscape, at least FOUR crossings,
+  pausing ~10s on each side. Expect after every crossing: the projection
+  rebuilds, travelers reset, and the ambient cadence is UNCHANGED from the
+  first portrait load -- roughly one traveler launching every ~4s, never
+  visibly faster. Then leave it idle 30s and watch. **The failure this item
+  exists to catch is a leaked branch**: an undisposed `Floor1Brain` keeps its
+  rAF loop and ambient interval alive, so each rotation ADDS a loop and the
+  spawn rate multiplies (2x after one bad flip, 4x after two) -- doubled
+  glyphs, travelers moving in lockstep pairs, rising CPU/fan. A one-rotation
+  check cannot distinguish "disposed correctly" from "leaked once", which is
+  why this is now a multi-rotation item (cold review CR-SPEC-4). Also check
+  the console for errors and `data-stem-exits` still incrementing sanely
+  (one increment per traveler reaching the stem end, not bursts). If the
+  phone's landscape width stays <=900px, no crossing occurs -- portrait
+  persisting is correct behavior; answer YES and note that the disposal path
+  went unexercised on this device (P-A stays open, verified on the desktop
+  resize path instead).
 - **M11 quirk adjudication:** the Q-rule (Task 5) has been run and its
   verdict row recorded in `review-findings.md`.
 
@@ -589,11 +620,31 @@ portrait rendering is a finding):**
 - **R-auto:** re-run Phase 3's automated probes A1-A5 and Phase 4's probes
   1-6 verbatim -- all green -- YES/NO. (Task 2's refactor is the risk
   surface; these sets already cover copy locks, doors, seams, and audits.)
-- **R-op:** operator re-runs, in a desktop window wider than 900px against
-  the deploy: Phase 3 ritual items **V1, V2, V3, V6, V7, V11** and Phase 4
-  items **F1, F3, F6, F7** -- all YES. V2 carries an extra teeth here: with
-  unchanged shares the desktop mesh must still be dot-for-dot identical to
-  the comp (A4's visual twin).
+- **R-op (consolidated -- cold review, operator load):** operator re-runs, in
+  a desktop window wider than 900px against the deploy, exactly SIX items:
+  Phase 3 **V2, V3, V7, V10, V11** plus Phase 4 **F7** -- all YES.
+
+  The set is chosen by what Task 2's refactor actually moves, not by
+  familiarity: **V2** mesh (scatter params -- `uniWant`, `minDist`, sigma,
+  fill counts), **V3** station hover chains, walking all six (label metrics
+  -- line height, pads, hover-rect geometry), **V7** output side (node scale,
+  gate arcs, tool-reveal coordinates, MCP font), **V10** snapshot branch
+  (tp/sg label anchors, sub `dy`, label font) -- **V10 was missing from the
+  earlier list and is the only ritual item that observes roughly half the
+  literals Task 2 lifts into `BrainLayout`**, which is precisely the gap the
+  cold review found. **V11** journeys + handoff guards the P7a species and
+  the stem seam; **F7** is the one floor-2 item retained, because the fold is
+  where portrait CSS could bleed across floors.
+
+  Dropped from the earlier ten with reasons, not by trimming: V1 rest state
+  and V6 drill cards (copy and card content are untouched by a
+  layout-constant lift, and A2's copy-lock grep re-runs automatically in
+  R-auto); Phase 4's F1/F3/F6 (floor 2 has ZERO JS forks in portrait -- its
+  rules are pure CSS inside a `max-width` media query, and Phase 4's probes
+  1-6 re-run in R-auto regardless).
+
+  V2 carries extra teeth here: with unchanged shares the desktop mesh must
+  still be dot-for-dot identical to the comp (A4's visual twin).
 
 All M + R items YES = phase boundary passed. Any NO = finding in
 `review-findings.md`, fix-or-amend before the boundary closes (P1: no silent
@@ -653,11 +704,16 @@ deviations).
 
 ## Facts asserted on install-time / on-deploy probes (not verifiable read-only)
 
-- **P-A (install-time):** a Solid ternary branch switch disposes the old
+- **P-A (install-time):** a `<Show>` branch switch disposes the old
   `Floor1Brain` (running `onCleanup`: rAF, timers, listeners) and mounts a
-  fresh one. Standard Solid conditional-rendering behavior, asserted not
-  proven until M10 (symptoms of violation: doubled travelers / runaway rAF
-  after rotation -- see Recovery).
+  fresh one. This is `<Show>`'s documented contract
+  (https://docs.solidjs.com/reference/components/show), but "documented" is
+  not "observed in THIS component": verify it at install time by flipping the
+  desktop viewport across 900px repeatedly with the animation running, and
+  confirm the spawn cadence does not multiply. Cold review CR-SPEC-4 flagged
+  the original raw-ternary wiring as the weaker form for exactly this
+  disposal path. Symptoms of violation: doubled travelers / runaway rAF after
+  a flip -- the multi-rotation M10 and Recovery both key on that signature.
 - **P-B (install-time):** `matchMedia('(max-width: 900px)')` fires its
   `change` event on phone rotation across mobile browsers. The mockup proves
   desktop resize (832-834); phone rotation is verified at M10.
