@@ -134,7 +134,7 @@ validation slice.
 | done | year | msgs | agents | forced |
 |---|---|---|---|---|
 | [x] | 2016 | 10,492 | 114 | 0 | -- loaded 2026-08-05 (session 5), 660 threads, 99.97% coverage (best of any batch)
-| [ ] | 2017 | 41,605 | 141 | 5 |
+| [x] | 2017 | 41,605 | 141 | 5 | -- loaded 2026-08-05 (session 5), 1558 threads, 99.68% coverage (refence 2/2)
 | [ ] | 2018 | 30,266 | 129 | 5 |
 | [ ] | 2019 | 18,359 | 177 | 0 |
 | [ ] | 2020 | 20,689 | 146 | 1 |
@@ -699,6 +699,17 @@ sub-99% coverage, OOB off-by-ones) belongs to 1500-msg chunks specifically. Expe
 #dev-corner and all of #antilag to run like this.
 
 DB state after #dev-corner 2016: chat_threads = **26826**, all v2. **#dev-corner 1/11.**
+
+**Batch #dev-corner 2017 -- LOADED, verified.** 141 chunks (the biggest #dev-corner batch),
+5 forced. Fence **141/141, failures=0, wall 59.2 min at CONC=30**. Refence 2/2 (-005: 78.2% ->
+99.8%, +257 msgs; -031: 96.5% -> 99.8%). Gate: **0% hallucination / 99.68% coverage**. Load:
+1558 threads, 41,487 junction rows (41,472 DISTINCT, 15 R8 m2m), 0 OOB / 0 missing / 0 stale.
+resolution 464 solved / 279 unresolved / 774 informational / 41 none. **Idempotency (R5):
+PASS**. **Retrieval: PASS** -- both probes return their exact #dev-corner-2017 threads as top
+hits ("forwarding QW traffic via ARM router/iptables" 332 msgs solved; "vid_vsync 0.0 vs 0 cvar
+behavior debate" 279 msgs solved).
+
+DB state after #dev-corner 2017: chat_threads = **30062**, all v2. **#dev-corner 2/11.**
 
 > **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
 > 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
