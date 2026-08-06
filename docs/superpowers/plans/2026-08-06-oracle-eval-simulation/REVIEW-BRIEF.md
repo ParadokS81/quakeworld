@@ -86,17 +86,22 @@ imported schema list matches served `ListTools` output; is that assertion
 sufficient, and does it actually catch divergence in the `instructions` text
 too, or only in the tool schemas?
 
-**R2 -- the plan is seven phases, sliced as a tracer bullet through the
-tool-loop risk (README).** Reasoning: the one genuinely unknown thing is
-whether a cheap model can drive the oracle and be graded against a known fix,
-and there is zero prior art (F5), so Phase 2 pushes one question end-to-end
-before anything is sampled or spent, using the 12 existing phase-8 questions
-that already carry verified keys.
-**Attack it:** is Phase 2 doing too much to be one phase (loop + three cells +
-grader + records + resume)? Should the grader be its own phase so its rubric
-gets an independent gate before the pilot depends on it? Conversely, are Phases
-6 and 7 thin enough that they should merge? Check Phase 7 in particular -- it
-carries both the analysis deliverable and the operator capture ritual.
+**R2 -- the plan is NINE phases, sliced as a tracer bullet through the
+tool-loop risk (README).** History worth knowing: it was drafted as seven, and
+the orchestrator flagged two phases as possibly overloaded -- the operator
+ratified splitting both on 2026-08-06. Answering (P2) and grading (P4) are now
+separate machines on the reasoning that a tool loop fails mechanically and
+visibly while a rubric fails silently and statistically, so the grader gets its
+own agreement gate against hand-graded fixtures before the pilot depends on it.
+Analysis (P8) and showcase capture (P9) split because the second is an operator
+ritual in a different client whose output feeds another arc.
+**Attack it:** the split creates a new seam -- Phase 2 now emits records with an
+EMPTY `grade` field, which the Phase 1 schema must permit and the Phase 4
+grader must populate in place. Does that round-trip actually work as specified,
+or does some phase quietly assume grade-at-write-time? Is Phase 4 a real phase
+or a pass-through that only exists to hold a prompt (check that its
+verification stands on its own)? And with nine phases, is any phase now thin
+enough that its boundary costs more than it buys?
 
 **R3 -- the Tailscale direct-route fold-in is withdrawn (F6).** Reasoning: the
 parking doc assumed this arc would need and therefore fix the parked HANDOVER

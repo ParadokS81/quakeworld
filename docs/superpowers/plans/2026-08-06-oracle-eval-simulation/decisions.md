@@ -34,9 +34,22 @@ fields later phases provably need: `answering_model`, `era`
 `thread_key`, `divergent`, and token/latency accounting.
 **Why:** the grader, the explorer's Runs tab, the findings doc, and the
 showcase nomination all read this one shape; a single staleness surface.
-**Implication:** phases 2-7 never invent fields. A needed-but-missing field is
+**Implication:** phases 2-9 never invent fields. A needed-but-missing field is
 a finding routed back to the Phase 1 contract with a dated amendment and a
 full re-derive of anything computed from it.
+
+**Amendment 2026-08-06 (operator ratified the answering/grading split).**
+Answering (Phase 2) and grading (Phase 4) are now separate phases, so a record
+is written UNGRADED and graded later, in place. The Phase 1 schema must
+therefore make `grade` explicitly nullable/absent-valid rather than required,
+and the validator must accept both states -- an ungraded record is a legal
+intermediate, not a malformed one. Grading is an in-place update keyed by
+(`thread_id`, `condition`, `answering_model`); that triple is the record's
+identity and must be unique. Phase 4's grader reads records, writes verdicts
+back, and never re-runs answering. Blast radius re-derived: the E9 resume key
+is that same triple; the Phase 2 boundary probe asserts records validate WITH
+an empty grade; the Phase 4 probe asserts every record it touched moved from
+ungraded to graded with no other field mutated.
 
 ## E3 -- Read-only against the corpus; the dev twin only; prod never
 

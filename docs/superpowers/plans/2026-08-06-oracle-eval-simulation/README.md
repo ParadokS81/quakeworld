@@ -11,14 +11,15 @@ surfaced at planning time, before any code).
 
 ## Where we are right now
 
-- **Stage:** planning -- scaffold committed; slicing + lane awaiting operator
-  intent review; phase docs not yet drafted
-- **Last action:** pre-flight verification sweep (3 explorer agents + a
-  first-hand read-only DB probe) landed 15 findings, two of which move the
-  spec's own numbers -- see F1 and F6
-- **Next action:** operator ratifies weight class + slicing + the F1/F6
-  dispositions, then phase docs draft (P1 contract-owner first, then waves),
-  checkers, coherence pass, cold adversarial plan review
+- **Stage:** planning -- scaffold committed; slicing RATIFIED by the operator
+  2026-08-06 (7 phases -> 9, splitting answering/grading and
+  analysis/showcase); Phase 1 doc drafting
+- **Last action:** pre-flight verification sweep (3 explorer agents + two
+  first-hand live probes) landed 16 findings, three of which move the spec's
+  own numbers or withdraw a parking-doc commitment -- F1, F2, F6
+- **Next action:** finish Phase 1 + its checker, then draft waves 2+3 / 4 /
+  5+6 / 7+8+9 with a checker per doc, then the cross-doc coherence pass, then
+  the cold adversarial plan review (`REVIEW-BRIEF.md` is written and waiting)
 
 ## Lane
 
@@ -65,29 +66,44 @@ Concurrent arc: **oracle-web-v1** holds the main checkout
 | Phase | Ships | Depends on | Archetype / verification floor |
 |---|---|---|---|
 | 1 | Scope + leave-one-out in the retrieval path (server-side, agent-invisible) behind an explicit ctx param; spawnable dev MCP over stdio against the twin; **run-record schema** | -- | contract + retrieval change -- automated (SQL probes, ListTools diff) |
-| 2 | Walking skeleton: the DeepSeek tool-calling loop + cells A/B/C + grader + incremental JSONL records, proven end-to-end on the 12 existing phase-8 questions | 1 | external API integration + cross-cutting synthesis -- automated |
+| 2 | Answering skeleton: the DeepSeek tool-calling loop + cells A/B/C + incremental JSONL records + resume, proven end-to-end on the 12 existing phase-8 questions. **No grading.** | 1 | external API integration -- automated |
 | 3 | Frozen sample manifest (~500 threads, proportional-with-floor over 24 domains) + DeepSeek key extraction filling `truth` | 1 | sampling + data prep -- automated (allocation probes) + operator spot-read |
-| 4 | **Pilot + calibration gate**: 30-50 threads full pipeline, Claude re-grades, >=90% match/miss agreement; explorer Runs tab lands so the operator can browse | 2, 3 | eval gate -- operator-run (this is the arc's GO/NO-GO) |
-| 5 | Bulk run: ~500 x 3 cells, resumable; post-bulk 5-10% re-grade + all divergents | 4 | batch execution -- automated + operator review of the divergent pile |
-| 6 | Claude-side samples: D8 calibration (~40 q, cells A+C) + D7 unresolved judgment (~40, cell C) | 4, 5 | external integration -- operator-run (quota-paced) |
-| 7 | Findings doc (headline, per-domain, dilution verdict, routed findings, contributors) + showcase nomination + operator captures handed to oracle-web | 5, 6 | analysis + doc -- operator-run only |
+| 4 | Grading machinery: the D6 rubric prompt, the blind toolless compare-grader, the `divergent` flag, agreement measured against a Claude hand-graded fixture slice | 2, 3 | eval machinery -- automated (agreement vs hand-graded fixtures) |
+| 5 | **Pilot + calibration gate**: 30-50 threads through the FULL pipeline, Claude re-grades, >=90% match/miss agreement; explorer Runs tab lands so the operator can browse | 4 | eval gate -- operator-run (this is the arc's GO/NO-GO) |
+| 6 | Bulk run: ~500 x 3 cells, resumable; post-bulk 5-10% re-grade + all divergents | 5 | batch execution -- automated + operator review of the divergent pile |
+| 7 | Claude-side samples: D8 calibration (~40 q, cells A+C) + D7 unresolved judgment (~40, cell C) | 5, 6 | external integration -- operator-run (quota-paced) |
+| 8 | Findings doc (headline, per-domain, dilution verdict, era window, routed findings, contributors) + explorer final data bake | 6, 7 | analysis + doc -- operator-run only |
+| 9 | Showcase nomination (3-4 clear A-miss -> C-match wins) + operator captures made fresh in claude.ai + capture files handed to oracle-web | 8 | operator ritual + handoff -- operator-run only |
 
 **Slicing rationale.** Tracer bullet through the dominant technical risk. The
-arc's one genuinely unknown thing is whether a DeepSeek agent can drive the
-oracle in a tool loop and produce answers a cheap grader can score against a
-known fix -- and there is **zero tool-calling prior art anywhere in the repo**
-(F5). So Phase 2 pushes one question end-to-end through all three cells,
-grading included, before any sampling, any bulk spend, or any rubric tuning.
-The 12 phase-8 eval questions already carry verified answer keys, so the
-skeleton has a ground truth to prove itself against without waiting on Phase 3.
+arc's one genuinely unknown thing is whether a cheap model can drive the oracle
+in a tool loop at all -- and there is **zero tool-calling prior art anywhere in
+the repo** (F5). So Phase 2 pushes questions end-to-end through all three cells
+before any sampling or bulk spend, using the 12 existing phase-8 questions so
+it needs nothing from Phase 3 to prove itself.
 
 Phase 1 is the arc's single contract owner: it defines both the retrieval
 semantics every later cell depends on (scope, exclusion) and the run-record
 shape every later phase reads or writes.
 
-Phase 4 is the deliberate hinge -- everything before it is cheap and reversible,
+**Answering and grading are separate phases (2 and 4), by operator decision
+2026-08-06.** They are separate machines that fail in unrelated ways -- a tool
+loop fails mechanically and visibly, a rubric fails silently and statistically
+-- and folding them together would have let the grader's only gate be the
+pilot, where a bad rubric is expensive to discover. Phase 4 measures grader
+agreement against a Claude hand-graded fixture slice before the pilot depends
+on it. Phase 2 therefore ships records with an empty `grade` field, which the
+Phase 1 schema must permit.
+
+Phase 5 is the deliberate hinge -- everything before it is cheap and reversible,
 everything after it spends money and quota at scale. It is the only phase whose
 NO-GO is planned for (re-rubric and re-pilot, per spec D6).
+
+**Analysis and showcase are separate phases (8 and 9), same decision.** Phase 8
+is a committed internal deliverable; Phase 9 is an operator ritual in a
+different client (claude.ai, per D10) whose output is a content drop into
+another arc. Different failure modes, different reviewers, and Phase 9 can slip
+without holding Phase 8's findings hostage.
 
 **Verification-regime check:** every phase proves itself with what it ships.
 Phase 1 proves scope/exclusion with SQL probes against the twin (no harness
@@ -99,12 +115,17 @@ phase to exist.
 ## Phase docs
 
 - `phase-1-eval-surface-contract.md` (contract owner -- drafted first)
-- `phase-2-walking-skeleton.md`
+- `phase-2-answering-skeleton.md`
 - `phase-3-sample-and-keys.md`
-- `phase-4-pilot-gate.md`
-- `phase-5-bulk-run.md`
-- `phase-6-claude-samples.md`
-- `phase-7-findings-and-showcase.md`
+- `phase-4-grader.md`
+- `phase-5-pilot-gate.md`
+- `phase-6-bulk-run.md`
+- `phase-7-claude-samples.md`
+- `phase-8-findings.md`
+- `phase-9-showcase-captures.md`
+
+Drafting waves (dependency-ordered, parallel only within a wave): **1** alone
+(contract owner), then **2 + 3**, then **4**, then **5 + 6**, then **7 + 8 + 9**.
 
 ## Arc-end review
 
