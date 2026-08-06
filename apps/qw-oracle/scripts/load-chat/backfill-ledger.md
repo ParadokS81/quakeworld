@@ -139,7 +139,7 @@ validation slice.
 | [x] | 2019 | 18,359 | 177 | 0 | -- loaded 2026-08-06 (session 5), 1050 threads, 99.98% coverage (refence no-op)
 | [x] | 2020 | 20,689 | 146 | 1 | -- loaded 2026-08-06 (session 5), 1127 threads, 99.95% coverage (refence 1/1)
 | [x] | 2021 | 11,244 | 182 | 0 | -- loaded 2026-08-06 (session 5), 744 threads, 99.88% coverage (refence no-op)
-| [ ] | 2022 | 12,130 | 163 | 0 |
+| [x] | 2022 | 12,130 | 163 | 0 | -- loaded 2026-08-06 (session 5), 786 threads, **100.00% coverage** (refence no-op)
 | [ ] | 2023 | 11,603 | 173 | 0 |
 | [ ] | 2024 | 16,201 | 151 | 0 |
 | [ ] | 2025 | 19,287 | 130 | 1 |
@@ -754,6 +754,16 @@ probe surfaced a 648-msg 2025 #quakeworld anti-cheat thread instead, a fair cros
 broader topic.
 
 DB state after #dev-corner 2020: chat_threads = **34372**, all v2. **#dev-corner 6/11.**
+
+**Batch #dev-corner 2022 -- LOADED, verified. FIRST 100% BATCH.** 163 chunks, 0 forced. Fence
+**163/163, failures=0, wall 19.6 min at CONC=30**. **Refence NO-OP.** Gate: **0% hallucination
+/ 100.00% coverage** -- every message in the year placed into a thread. Load: 786 threads,
+12,130 junction rows (12,130 DISTINCT -- 0 R8 m2m), 0 OOB / 0 missing / 0 stale / 0
+truncations. resolution 364 solved / 142 unresolved / 257 informational / 23 none.
+**Idempotency (R5): PASS**. **Retrieval: PASS** -- "deploying a QW server on a VPS with KTX"
+returns its 2022 thread as top hit (86 msgs, solved).
+
+DB state after #dev-corner 2022: chat_threads = **35158**, all v2. **#dev-corner 7/11.**
 
 > **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
 > 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
