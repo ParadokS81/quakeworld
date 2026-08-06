@@ -858,7 +858,14 @@ anything else that differs is a finding:**
 - D-b: numbers differ -- the comp carries the 2026-08-05 snapshot, the
   deploy renders the live manifest (P2). Check FORMAT (en-US separators,
   placement), not values. Mesh dot counts may drift a few dots with live
-  `share`.
+  `share`. **Concretely (finding F17): DISCORD's station subs read
+  `messages · 40,219 threads` / `13,134 solved` on the deploy against the
+  comp's `20,270` / `6,666`.** That ~2x gap is the corpus genuinely having
+  grown since the mockup was drawn, not a port bug -- the comp hardcodes
+  pre-formatted number STRINGS while the site formats raw manifest integers.
+  Expect it; do not log it as a V2/V3 mismatch. (Mesh dot count is NOT
+  affected: the live `share` values are identical to the comp's, so the
+  scatter is exactly dot-for-dot checkable -- see finding F13.)
 - D-c: the comp's bottom-of-page mockupnote ("v4.7 skeleton ...") and its
   browser title ("Design Direction Explorer") are mockup meta -- not ported.
 - D-d: floor 2 on the deploy is still the Phase 2 placeholder

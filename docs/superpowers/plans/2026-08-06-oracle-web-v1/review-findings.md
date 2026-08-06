@@ -231,6 +231,43 @@ Third instance of the plan-literal-unsatisfiable-in-its-own-state class
 (F11 tree-shaking, F13 population range, now this), and the second caught by
 running a probe rather than reading it.
 
+**F16 (minor but sharp-edged, execution-time, carried into all remaining Phase
+3 briefs) -- boundary probe A5 greps for the LITERAL `location.search`, so
+writing that string in a `src/components/` COMMENT fails the audit.** Surfaced:
+Phase 3 Task 5 execution 2026-08-06, by the implementer, on itself: its first
+draft explained the P4 seam in a comment using the exact string
+`location.search` and tripped its own purity grep. Reworded to "no URL
+parsing".
+
+A5 is `grep -rn "fetch(\|location.search" src/components/ src/generators/`
+expecting zero hits. `fetch(` is call-shaped and hard to write accidentally,
+but `location.search` is the natural way to NAME the thing a comment is
+promising not to do -- so the most conscientious implementer, documenting the
+discipline it is honoring, is the one most likely to fail the probe. The probe
+is not wrong (a literal grep is the right blunt instrument for "no URL parsing
+in components"); the hazard is that its failure mode reads as a violation when
+it is a comment.
+
+**Disposition:** pinned in the T6/T7/T8/T9 dispatch briefs as an explicit
+out-of-scope line -- describe the seam as "no URL parsing", never by quoting
+the API. No probe change: weakening A5 to exclude comments would cost more than
+the hazard is worth, and the workaround is a two-word rewording.
+
+**F17 (advisory, routed to the operator ritual pre-brief) -- station numbers
+now format site-side, so the comp's numbers differ from the deploy's by more
+than staleness.** Surfaced: Phase 3 Task 5 execution 2026-08-06, by the
+implementer. The mockup's `DC.num` is a pre-formatted STRING (`"11,081"`); the
+manifest ships a raw integer and the site formats via
+`toLocaleString('en-US')` per Port discipline. Most visible instance: `cm`'s
+station subs read `messages · 40,219 threads` / `13,134 solved` on the deploy
+against the comp's `20,270` / `6,666` -- a 2x gap that looks like a bug at a
+glance. This is P2 working as designed (manifest is truth; the comp's inline
+values are a 2026-08-05 snapshot), and ritual deviation D-b already sanctions
+"numbers differ -- check FORMAT, not values". **Disposition:** D-b amended to
+name the `cm` thread/solved figures concretely so the operator meets the number
+in the deviations pre-brief rather than discovering it mid-walk and logging a
+false V2/V3 mismatch. No code change.
+
 **F8 (cold adversarial review, 2026-08-06) -- three fresh-context readers,
 all GO-WITH-FIXES, every finding applied.** Reports committed as
 `cold-review-chain.md`, `cold-review-gates.md`, `cold-review-spec.md`; aim
