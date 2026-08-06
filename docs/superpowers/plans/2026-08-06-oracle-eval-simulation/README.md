@@ -1,13 +1,14 @@
 # oracle-eval-simulation -- arc plan (full arc)
 
-**Date:** 2026-08-06. **Weight class:** full arc (standalone spec D1-D11, 7
+**Date:** 2026-08-06. **Weight class:** full arc (standalone spec D1-D11, 9
 phases, net-new machinery, spend + Max-quota gates; cold adversarial plan
 review + arc-end cold review).
 **Spec:** `docs/superpowers/specs/2026-08-06-oracle-eval-simulation-design.md`
 (D1-D11, DESIGN COMPLETE 2026-08-06).
 **Parent:** `docs/superpowers/parking/2026-08-06-oracle-eval-simulation.md`.
-**Ledger:** `decisions.md` (E1-E14). **Findings:** `review-findings.md` (F1-F15
-surfaced at planning time, before any code).
+**Ledger:** `decisions.md` (E1-E14). **Findings:** `review-findings.md`
+(F1-F21; F1-F16 from the pre-draft sweep, F17-F21 from Phase 1 drafting --
+all before a line of code exists).
 
 ## Where we are right now
 

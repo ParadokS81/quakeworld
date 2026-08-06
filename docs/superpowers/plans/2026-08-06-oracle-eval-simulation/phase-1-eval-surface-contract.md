@@ -4,7 +4,7 @@
 owns E2's and E5's contracts). **Spec:**
 `docs/superpowers/specs/2026-08-06-oracle-eval-simulation-design.md` D1/D2/D3/D6
 + the 2026-08-06 amendment. **Findings consumed:** F6, F7, F8, F9, F10, F13,
-F14, F16. **Findings raised here:** F17-F20 (see the arc findings ledger).
+F14, F16. **Findings raised here:** F17-F21 (see the arc findings ledger).
 **Lane:** worktree `/home/dev/projects/quakeworld-eval`, branch
 `eval-oracle-sim`.
 
@@ -89,9 +89,9 @@ export async function searchSolvedIssues(
 ): Promise<ToolResponse<ThreadHit>> {
 ```
 
-Fragments follow the repo idiom verbatim -- a `db\`AND ...\`` fragment or an
-empty `db\`\``, exactly as `search-entities.ts:32-36` builds `projectClause` /
-`typeClause`:
+Fragments follow the repo idiom verbatim -- a ``db`AND ...` `` tagged-template
+fragment, or an empty ``db`` `` template when the filter is absent, exactly as
+`search-entities.ts:32-36` builds `projectClause` / `typeClause`:
 
 ```ts
 const channelClause = ctx.channels?.length
@@ -148,7 +148,7 @@ conditionally on the context), using the postgres-js transaction form -- verifie
 end to end through postgres-js at drafting time (1 row without it, 12 with it):
 
 ```ts
-return db.begin(async (sql) => {
+const rows = await db.begin(async (sql) => {
   // pgvector 0.8 iterative scan. Without it an HNSW scan stops after
   // ~hnsw.ef_search (40) candidates and applies the channel/exclusion filter
   // to those, silently returning fewer than `fanout` rows on ~10% of scoped
@@ -161,6 +161,17 @@ return db.begin(async (sql) => {
 });
 ```
 
+**Typing note (runtime verified, types not).** The RUNTIME behaviour of this
+exact shape was executed through postgres-js against the twin at drafting time
+(1 row without the `SET LOCAL`, 12 with it). The TYPES were not compiled:
+`begin<T>` is declared `Promise<UnwrapPromiseArray<T>>` (`postgres/types/index.d.ts:717`,
+with `UnwrapPromiseArray` at :150), which maps over array-like results, so the
+assignment back to `Promise<ThreadRow[]>` may need an explicit local
+(`const rows: ThreadRow[] = await db.begin(...)`) to land cleanly. Keep the
+function's declared return type and adjust the local; do NOT widen the
+signature or reach for `as unknown as`. `bun run typecheck` is the arbiter and
+must be green before the phase closes.
+
 Why always, not only when a filter is present: cell C also carries the
 leave-one-out predicate, so both cells are filtered queries; and the unscoped
 top-12 is byte-identical under `off` and `strict_order` (same 12 ids, same
@@ -170,10 +181,10 @@ symmetry to leak through.
 
 ### The two consumers
 
-1. **In-process (E6, Phases 2-5):** the harness imports `searchSolvedIssues`
+1. **In-process (E6, Phases 2, 5, 6):** the harness imports `searchSolvedIssues`
    from `serve/mcp/src/tools/search-solved-issues.ts` and passes a
    `RetrievalContext` object per question. No env involved.
-2. **Spawned stdio server (E11, Phase 6):** `serve/mcp/src/index.ts`'s
+2. **Spawned stdio server (E11, Phase 7):** `serve/mcp/src/index.ts`'s
    `search_solved_issues` dispatch case passes `ENV_RETRIEVAL_CONTEXT`:
 
    ```ts
@@ -199,7 +210,7 @@ an amendment to this section.
 
 One record per (question x condition x answering model). Machine-readable form
 is the exported `RunRecord` interface in `apps/qw-oracle/eval/sim/run-record.ts`;
-this section is the normative prose. Phases 2-7 never invent fields (E2); a
+this section is the normative prose. Phases 2-9 never invent fields (E2); a
 needed-but-missing field is a finding routed back here as a dated amendment
 plus a re-derive of anything computed from it.
 
@@ -287,7 +298,12 @@ line with the same `record_id` and `stage: 'graded'` carrying the filled
 `grade`. The record for a `record_id` is the LAST line bearing it. Resume
 (E9) skips on the `(record_id, stage)` pair, so a crash between answering and
 grading loses neither. Recorded as F19 because it is a reading later phases
-must share, not a free choice.
+must share, not a free choice. This is also what satisfies the README's
+requirement from the 2026-08-06 slicing ratification -- answering (Phase 2) and
+grading (Phase 4) are separate phases, so "the Phase 1 schema must permit a
+record with an empty grade": `grade: Grade | null` plus
+`stage: 'answered' | 'graded'` is that permission, and the validator enforces
+only the one-directional rule (a `graded` record may not carry a null grade).
 
 **Grading input is a projection, and the projection is part of the contract.**
 E8 requires the grader to be condition-blind. `run-record.ts` therefore also
@@ -300,8 +316,8 @@ export function toGradingInput(r: RunRecord): GradingInput;
 
 The function returns exactly those three fields -- no `condition`, no
 `retrieval_context`, no `tool_calls`, no `answering_model`, no `domain`.
-Phase 2's E8 probe then reduces to asserting that the grader payload is
-`toGradingInput`'s output, which probe 7 already pins here.
+The grader phase's E8 probe (Phase 4) then reduces to asserting that the
+grader payload is `toGradingInput`'s output, which probe 7 already pins here.
 
 **Validator.** `validateRunRecord(value: unknown)` returns
 `{ ok: true; record: RunRecord } | { ok: false; errors: string[] }`.
@@ -544,11 +560,13 @@ fixture proves it round-trips.
    `faq-domains-resolve.ts`'s `META`, and an `era` in 2020-2025 (F2).
 3. Write `validate-run-record.ts` as a CLI: reads a path (default: the
    fixture), validates, prints `OK <record_id>` or the error list, exits 0/1.
-4. `tsconfig.json`: add `"eval/sim/**/*"` to `include`. **Not `"eval/**/*"`:**
+4. `tsconfig.json`: add `"eval/sim/**/*"` to `include`, so the harness IS
+   typechecked by `bun run typecheck` (F13). **Not `"eval/**/*"`:**
    `eval/eval.ts:75` reads `h.session_id` off a `ThreadHit`, which has no such
    field, so widening to the whole `eval/` tree turns today's green
    `bun run typecheck` red on a pre-existing defect this arc did not cause and
-   does not own (F18 -- routed to HANDOVER, not fixed here).
+   does not own (F18 -- routed to HANDOVER, not fixed here). Widening to cover
+   `scripts/calibration/**` stays out of scope for the same reason (F13).
 5. `.gitignore`: append, under a why-comment, `eval/sim/records/` (E13 --
    conclusions are committed, evidence is regenerated). The fixture lives
    outside that directory, so no negation pattern is needed.
@@ -683,7 +701,7 @@ an E4 / F3 event, not a probe bug.
 
 ## Outputs to next phase
 
-Phases 2-7 may rely on exactly these:
+Phases 2-9 may rely on exactly these:
 
 - **`RetrievalContext`** (`serve/mcp/src/tools/retrieval-context.ts`): the
   `{ channels?: string[]; excludeThreadIds?: string[] }` shape, and the rule
@@ -692,30 +710,33 @@ Phases 2-7 may rely on exactly these:
   `{ channels: ['#helpdesk'], excludeThreadIds: [threadId] }`; cell C is
   `{ excludeThreadIds: [threadId] }`; production/no-eval is `{}`.
 - **`searchSolvedIssues(args, ctx?)`** -- the in-process entry point for E6's
-  cells (Phases 2, 4, 5). The first parameter is unchanged, so every existing
+  cells (Phases 2, 5, 6). The first parameter is unchanged, so every existing
   call site still compiles.
 - **`ENV_RETRIEVAL_CONTEXT` and the two env vars**
   (`L2_RETRIEVAL_CHANNELS`, `L2_RETRIEVAL_EXCLUDE_THREADS`) -- E11's per-question
-  carrier for Phase 6's spawned servers. Env is read once at import, so one
+  carrier for Phase 7's spawned servers. Env is read once at import, so one
   server process per question is required for per-question exclusion (F7);
   unparsable values abort the process rather than silently unscoping.
-- **A spawnable dev MCP recipe** (Phase 6): `bun run <repo>/apps/qw-oracle/serve/mcp/src/index.ts`
+- **A spawnable dev MCP recipe** (Phase 7): `bun run <repo>/apps/qw-oracle/serve/mcp/src/index.ts`
   with `cwd` set to `<repo>/apps/qw-oracle` and `env` merged over
   `getDefaultEnvironment()`. No container, no Cloudflare, no Tailscale, no
   auth. `eval/sim/probe-stdio-scope.ts` is the working reference.
 - **`RunRecord` + `validateRunRecord` + `toGradingInput` + the committed
   fixture** (`eval/sim/run-record.ts`, `eval/sim/fixtures/run-record.example.json`).
-  Phase 2 writes records through this module; Phase 4's explorer generator and
-  Phase 7's findings doc read it. Verdict vocabulary is `match | partial | miss`
+  Phase 2 writes them with `stage: 'answered'` and `grade: null`, Phase 4's
+  grader fills the grade, Phase 5's explorer generator and Phase 8's findings
+  doc read them. Verdict vocabulary is `match | partial | miss`
   and nothing else. Records are log-structured JSONL: append per
   `(record_id, stage)`, last line wins, resume skips completed pairs (E9).
   Run artifacts live under `eval/sim/records/` and are gitignored (E13).
 - **The telemetry baseline** (`eval/sim/telemetry-baseline.json`): pre-run
   `query_log` / `embedding_api_log` / `oracle_meta` / `chat_threads` counts, so
-  Phase 5 and Phase 7 can attribute row growth to the arc.
+  Phase 6 and Phase 8 can attribute row growth to the arc.
 - **What this phase does NOT ship**, so no later phase plans on it: `TOOL_LIST`
-  is not exported from `index.ts` (F20b), so E6's "import the tool schemas, do
-  not hand-write them" needs a one-word `export` that Phase 2 adds; the DeepSeek
+  is declared `const` and is NOT exported from `index.ts` (F21), so E6's
+  "import the tool schemas, never hand-write them" needs a one-word `export`
+  that Phase 2 adds -- importing `index.ts` is otherwise safe, since its
+  `main()` runs only under `import.meta.main`; the DeepSeek
   client, the pricing table, the JSONL writer, and the resume logic are all
   Phase 2's; `faq-domains-resolve.ts` is untouched and stays Phase 3's input.
 
@@ -729,7 +750,7 @@ Phases 2-7 may rely on exactly these:
    value tuned to filter selectivity, which varies per question, whereas
    iterative scan is self-limiting (`hnsw.max_scan_tuples` 20,000 on the twin).
    Measured cost of `strict_order`: 2.7 ms scoped, 0.60 ms unscoped -- cheaper
-   than `off` on the unscoped path. Overrule: operator, or a Phase 2/5 finding
+   than `off` on the unscoped path. Overrule: operator, or a Phase 2/6 finding
    showing a latency problem at bulk scale.
 2. **Apply the iterative-scan setting always, or only when the context carries
    a filter.** Default: always -- both cells carry the leave-one-out predicate
@@ -752,7 +773,7 @@ Phases 2-7 may rely on exactly these:
    last-line-wins semantics (F19). Reason: it is the only reading that satisfies
    E2 (one record per question x condition) and E9 (one line per stage) at the
    same time, and it makes resume exact. Overrule: operator; any change here is
-   a contract amendment because Phase 2's writer and Phase 4's reader both key
+   a contract amendment because Phase 2's writer and Phase 4's grader both key
    on it.
 6. **Symlink vs copy for the worktree `.env`.** Default: symlink. Reason: one
    copy of the secret on disk, and a rotation in the main checkout propagates.

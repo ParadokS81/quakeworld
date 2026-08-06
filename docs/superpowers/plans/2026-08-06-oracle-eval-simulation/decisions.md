@@ -153,8 +153,18 @@ whole-file write at the end.
 at minute 200 of a 232-minute run yields zero reusable work (F15). Phase 5 runs
 ~1,500 answering passes plus grading; that failure mode is unacceptable at this
 scale.
-**Implication:** every long-running phase (3, 5, 6) is restartable from disk,
+**Implication:** every long-running phase (3, 6, 7) is restartable from disk,
 and Phase 2 proves resume with a deliberate mid-run kill.
+
+**Amendment 2026-08-06 (F19 -- granularity reconciled with E2).** E2's "one
+record per (question x condition)" and this entry's "one line per (question x
+condition x stage)" were read as contradictory during Phase 1 drafting. Ratified
+reading: the store is **log-structured JSONL** -- one line per stage event, each
+carrying `record_id` and `stage`, reconstructed last-line-wins into the single
+logical record E2 describes. E2 governs the logical record's field set; E9
+governs the on-disk line. Resume keys on `(record_id, stage)`. Every later
+phase inherits this one reading; a phase that treats a line as the logical
+record has misread the ledger.
 
 ## E10 -- Cost and quota are measured, not estimated
 

@@ -201,3 +201,62 @@ end; `--resume` re-reads a *complete* prior output and fingerprint-matches it.
 A mid-run crash yields nothing. Disposition: E9 -- incremental JSONL with
 skip-completed resume, proven in Phase 2 by a deliberate mid-run kill. The
 existing rig is not changed.
+
+---
+
+## Findings from Phase 1 drafting (2026-08-06)
+
+**F17 (MAJOR -- settles REVIEW-BRIEF R4) -- channel-scoped vector retrieval
+silently starves, and would have read out as a fake dilution result.**
+Surfaced: Phase 1 drafting, by live probe against the dev twin. Evidence:
+pgvector 0.8.2 runs with `hnsw.ef_search = 40` and `hnsw.iterative_scan = off`,
+and the HNSW index on `chat_threads.topic_embedding` is unfiltered -- so a
+channel-scoped vector query walks the global neighbour list and then discards
+everything outside the scope. Measured: with `#dev-corner` query vectors, a
+`#helpdesk`-scoped `LIMIT 12` returned **1 row**; across 8 `#quakeworld`
+vectors, 0-5 rows. Even with realistic `#helpdesk` query vectors it starved on
+**4 of 40** (min 5, mean 11.60 of a requested 12). `SET LOCAL
+hnsw.iterative_scan = strict_order` restores 12/12 on all 40 vectors, costs
+~2.7 ms scoped, and is *faster* than the default unscoped (0.60 vs 1.07 ms);
+verified end-to-end through postgres-js (1 row without, 12 with). Cell C's
+unscoped results are byte-identical under `off` and `strict_order`, so the fix
+cannot perturb the full-corpus arm.
+Disposition: **fixed inside Phase 1** (its Task 2), not deferred. Left
+unfixed, roughly a tenth of cell B's questions would have been answered from a
+starved candidate set and the arc would have reported "helpdesk scoping hurts
+quality" when the real cause was index mechanics -- a wrong headline that would
+have looked entirely plausible. This is exactly the class of defect the
+plan-review brief's R4 was pointed at, found before any code existed.
+
+**F18 (minor, route to HANDOVER) -- a pre-existing type-and-runtime bug in
+`eval/eval.ts` constrains this arc's tsconfig change.** Evidence:
+`apps/qw-oracle/eval/eval.ts:75` reads `h.session_id` off a `ThreadHit`, a
+field that does not exist (stale from the SessionHit -> ThreadHit migration);
+it pushes `undefined` at runtime and is invisible only because `eval/**` sits
+outside the tsconfig `include` (F13). Disposition: this arc adds
+`eval/sim/**/*` to `include`, **not** `eval/**/*` -- widening further would turn
+`bun run typecheck` red on a defect this arc does not own. The bug itself
+routes to HANDOVER as a small followup.
+
+**F19 (contract reading, ratified) -- E2 and E9 disagreed on record
+granularity.** Evidence: E2 specifies one record per (question x condition);
+E9 specifies one JSONL line per (question x condition x stage). Disposition:
+resolved in favour of log-structured JSONL -- one line per stage event, each
+carrying a `stage` field, with last-line-wins reconstruction; resume keys on
+`(record_id, stage)`. E2's "one record" is the reconstructed logical record,
+not the line count. Ledger amended so every later phase shares one reading.
+
+**F20 (minor) -- `bun run test-call` is broken from its own package dir.**
+Evidence: the script sets cwd to `serve/mcp/`, the spawned child inherits it,
+and the MCP SDK's stdio transport forwards only a six-variable env allowlist
+(`HOME, LOGNAME, PATH, SHELL, TERM, USER`), so the child dies on `DATABASE_URL
+is not set`. It works only when invoked from `apps/qw-oracle/`. Disposition:
+Phase 1's stdio probe sets `cwd` and `env` explicitly rather than copying the
+broken pattern; the existing script is left alone (route to HANDOVER).
+
+**F21 (minor, route to Phase 2) -- `TOOL_LIST` is not exported.** Evidence:
+`serve/mcp/src/index.ts` declares `TOOL_LIST` as a module-local `const`. E6
+requires the harness to IMPORT the tool schemas rather than hand-write them, so
+this needs a one-word `export`. Importing `index.ts` is otherwise
+side-effect-free -- `main()` is guarded by `import.meta.main`. Disposition:
+Phase 2 adds the export as part of wiring the imported tool surface.
