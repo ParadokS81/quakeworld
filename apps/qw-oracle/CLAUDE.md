@@ -43,18 +43,16 @@ the cockpit deliberately cannot run it). Prod is never touched by any of this.
   `session_search` remain as raw timestamp-grouped adjacent-context, no longer
   the retrieval unit. RRF `match_quality` thresholds (`L2_RRF_*`) are
   provisional pending Phase D recalibration on the full backfill. **Phase C
-  HISTORICAL BACKFILL COMPLETE 2026-08-06** on the external cheap-model fence
-  engine (`fence-external.ts`): 33/35 batches, `chat_threads` 8,621 -> 38,598,
-  100% `fence-sonnet-v2` (last v1 probe threads superseded). Every batch 0%
-  index-hallucination, >=99.13% coverage, idempotent, retrieval-verified. Raw
-  corpus caught up 2026-08-05 to 741,128 msgs through 2026-08-05 (catch-up seam:
-  `export-anchors.ts` + quad `catchup.mjs --anchors` + `import-discord.ts`).
-  **The two 2026 batches are PARKED**: the catch-up landed RAW rows only and
-  `build-sessions.ts` has not re-run, so 12,265 messages carry no
-  `message_labels` and are invisible to the chunker -- run it (never concurrently
-  with a batch; it TRUNCATEs `message_labels`) then fence the 2026s.
-  Thread retrieval serving on PROD since 2026-08-04; prod corpus refreshes at
-  Arc A finish-out. Live state: root HANDOVER oracle-web-direction entry +
+  COMPLETE 2026-08-06: 35/35 batches, `chat_threads` 8,621 -> 40,214, 100%
+  `fence-sonnet-v2`, corpus current through 2026-08-05** (705,540 msgs /
+  3,928 chunks). Fenced on `fence-external.ts` (DeepSeek, ~$31, no Max quota);
+  every batch 0% index-hallucination, >=99.13% coverage, idempotent,
+  retrieval-verified. Ongoing currency = the monthly harvest ritual
+  (`scripts/load-chat/HARVEST-RUNBOOK.md`, calendar-checks entry). **An import is
+  NOT availability**: `build-sessions.ts` must re-run or new messages carry no
+  `message_labels` and are invisible to the chunker. Thread retrieval serving on
+  PROD since 2026-08-04, but **prod still holds the pre-backfill corpus** -- the
+  twin->prod refresh is Arc A finish-out. Live state: root HANDOVER +
   `scripts/load-chat/backfill-ledger.md`.
 - Hygiene tightenings absorbed into the port (decisions.md D18):
   filter-then-segment session boundaries, nullable `message_labels.session_id`
