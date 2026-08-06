@@ -252,6 +252,20 @@ sessions, verbatim, dated); terminal topic copy (6-10 cards at
 stable-concepts altitude, repo doors); dedicated mobile projection pass;
 port of the mesh/journey/roots generators to SolidJS dumb components.
 
+## Amendment -- why-comparison capture re-homed to the eval arc (2026-08-06)
+
+The "comparison capture session" queued above for arc-plan moves OUT of this arc
+into the parked **oracle-eval-simulation** arc
+(`docs/superpowers/parking/2026-08-06-oracle-eval-simulation.md`): a DeepSeek-run
+helpdesk simulation whose byproduct is the 3-4 showcase-grade comparison
+examples (sim picks the questions; publishable captures re-run through Claude,
+verbatim + dated per the integrity rule -- which stands unchanged). Consequence
+for this arc: the "Why do I need this?" overlay ships **structurally present but
+dark** -- built, but its hero door stays hidden until real captures exist (the
+integrity rule forbids placeholder answers). Captures land later as a content
+drop, no redesign. Operator ruling 2026-08-06: the eval is substantive enough
+for its own arc, runs in parallel, and does not block this one.
+
 ### Amendment addendum -- post-lock refinements (2026-08-06, rounds 4.5-4.7)
 
 - **Naming locks**: datacenter display names shortened -- COMMUNITY MEMORY ->
