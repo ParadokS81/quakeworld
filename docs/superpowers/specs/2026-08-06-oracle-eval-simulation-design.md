@@ -52,8 +52,64 @@ blocks, never silent edits.
 
 ## Decisions
 
-(none locked yet)
+### D1 -- Question population: #helpdesk solved threads (locked 2026-08-06)
+
+Eval questions are drawn from **#helpdesk solved threads** (3,694, each with a
+human-verified fix as answer key). This is the cleanest match to the product
+claim ("solves actual player issues"): helpdesk is where players ask, and the
+June topic map covers it directly, so stratification comes free.
+
+- **#quakeworld**: excluded from the core population; carried forward as an
+  optional secondary sample, decided after the pilot (its 5,316 solved threads
+  are mixed with banter/discussion; inclusion needs a screening step and a
+  fresh stratification story).
+- **#dev-corner**: excluded (developer chatter, not the product claim).
+- **#antilag**: excluded from the question population (small; the channel is
+  the community's pursuit of a proper antilag system -- two rival approaches
+  divide players -- so its threads are debate-shaped more than
+  question-with-fix-shaped).
+
+Channels play a second, separate role as *retrieval scope* (what the oracle
+searches); that is the condition matrix, not this decision. Operator's stated
+core interest: whether including the large #quakeworld corpus in retrieval
+dilutes or improves answer quality -- the condition matrix must answer this
+directly. Dilution mechanism is L2-specific: both retrieval paths pull a fixed
+top-N from the whole table, so a 22k-thread channel can crowd helpdesk hits out
+of the candidate slots; L1/L3 tools are unaffected by channel scope.
+
+### D2 -- Condition matrix: three cells, paired design (locked 2026-08-06)
+
+Every sampled question runs through all three conditions (paired design --
+head-to-head comparisons on identical questions):
+
+- **A -- baseline**: DeepSeek, no MCP tools.
+- **B -- oracle, helpdesk-scoped**: full tool surface; `search_solved_issues`
+  scoped server-side to #helpdesk.
+- **C -- oracle, full corpus**: identical tool surface; retrieval spans all
+  four channels.
+
+A vs B/C = the product headline; B vs C = the dilution question (operator's
+core interest) cleanly isolated. Scoping is per-run server-side config, never
+an agent-visible parameter (D-intent recorded in Verified facts). Finer cells
+(e.g. minus-#dev-corner) deliberately rejected for now: if B vs C shows a real
+gap, localizing the source channel is a cheap follow-up on the same harness.
+
+### D3 -- JSON-first run records + explorer artifact (locked 2026-08-06; front-runs Pass 4)
+
+The harness emits one JSON record per (question x condition): thread_id, domain,
+condition, question text, tool calls made, final answer, ground-truth fix,
+grade (verdict + grader + spot-check flag). Exact field wiring is arc-plan's.
+The operator's browsing surface is a single-file HTML artifact ("Eval
+Explorer"): Demand-map tab (June topic map, browsable to cluster level --
+SHIPPED 2026-08-06, artifact 998c2f4e..., source committed at
+`apps/qw-oracle/eval/sim-explorer.html`, final home arc-plan's call) and a
+Runs tab that stays dark until fed run records. Rationale: grading needs
+structured records anyway, so the viewer costs only a projection; the map view
+doubles as the operator's reference for future test/note targeting.
 
 ## Carry-forwards
+
+- **#quakeworld as secondary question population** -- optional, decided after
+  the pilot (D1). Track: later pass / post-pilot amendment.
 
 (none yet)
