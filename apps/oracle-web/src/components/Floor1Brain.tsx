@@ -20,16 +20,38 @@
 //
 // Dumb component (P4): everything arrives via props. No network calls, no URL
 // parsing, no environment reads -- App.tsx owns all three.
-import { For, Show, createMemo, createSignal } from 'solid-js'
+import { For, Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 import { DESKTOP_LAYOUT } from '../generators/layout'
 import type { CenterLabel, StationSource } from '../generators/layout'
 import { generateMesh } from '../generators/mesh'
+import {
+  AMBIENT_INTERVAL_MS,
+  AMBIENT_KICKOFF_MS,
+  AMBIENT_ORDER,
+  HOVER_SPAWN_THROTTLE_MS,
+  MAX_TRAVELERS,
+  PULSE_STROKE,
+  PULSE_STROKE_WIDTH,
+  TOUCH_FLASH_MS,
+  advanceTravelers,
+  spawnTraveler,
+} from '../generators/journeys'
+import type { PathSampler, Traveler } from '../generators/journeys'
 import type { BrainManifest, Datacenter, LitDatacenter } from '../data/manifest-types'
 import type { ManifestSource } from '../data/manifest'
 import DrillOverlay from './DrillOverlay'
 import DatacenterCard from './DatacenterCard'
 import XnCards, { XN_NAMES, type XnId } from './XnCards'
 import WhyCompare from './WhyCompare'
+
+const SVG_NS = 'http://www.w3.org/2000/svg'
+
+/** A traveler plus the DOM `<line>` glyph it drives (Task 9). `journeys.ts`
+    deliberately keeps `Traveler` DOM-free (P4) -- this is the component-side
+    pairing the mockup's own `p.el` played, kept local to the render layer. */
+interface FxTraveler extends Traveler {
+  el: SVGLineElement
+}
 
 const L = DESKTOP_LAYOUT
 
@@ -40,10 +62,14 @@ interface Props {
   showWhyDoor?: boolean
   /** Task 9's hover-spawn seam -- fires on every chain toggle. */
   onChainHover?: (id: string, on: boolean) => void
-  /** P7c: honored by the drill overlay's open/close animation. Task 9 wires
-      the real `prefers-reduced-motion` read in App.tsx; defaults falsy until
-      then (team brief, Task 7). */
+  /** P7c: honored by the drill overlay's open/close animation and the
+      traveler runtime (no spawns, no timers, no travelers). Read once in
+      App.tsx (mockup 240); this component never touches matchMedia (P4). */
   reduced?: boolean
+  /** The journey-handoff contract (phase-3-floor1-brain.md): fires exactly
+      once per traveler at the moment it finishes its brainstem descent.
+      Never fires under `reduced` (spawns are suppressed entirely). */
+  onStemExit?: () => void
 }
 
 /** One open drill card. `kind` routes to its content (Task 7 owns 'dc';
@@ -129,6 +155,10 @@ export default function Floor1Brain(props: Props) {
       return next
     })
     props.onChainHover?.(id, on)
+    // Hover-spawn (mockup 686-688): chain() fires for every station,
+    // dormant included -- the mockup's own gate is `on && dc.lit`, so a
+    // dormant hover must never reach trySpawn. Throttled per station.
+    if (on) handleHoverSpawn(id)
   }
 
   // Only one dock can be under the pointer, and docks take no focus (mockup
@@ -228,6 +258,183 @@ export default function Floor1Brain(props: Props) {
     ),
   )
 
+  // ==========================================================================
+  // Task 9 -- the animation runtime (ambient tracepoint journeys).
+  //
+  // Deliberately plain mutable state, not Solid signals: the phase doc's
+  // Recovery entry for "Jank on deploy" is explicit that per-frame updates
+  // must NOT go through fine-grained reactivity. `travelers` and the DOM refs
+  // below are read/written imperatively inside the one rAF loop; the mesh
+  // dots and trace paths render once as static JSX (already true above) and
+  // are touched afterward only via direct element refs -- classList/attr
+  // writes, never a Solid setter. See `journeys.ts`'s own header for why this
+  // module stays DOM-free and leaves that seam to the component.
+  // ==========================================================================
+
+  /** Base-trace `<path>` per station id (the mockup's `srcTracePath`) --
+      `PathSampler`s are built from these in `onMount`, once mounted (P-A:
+      `getTotalLength`/`getPointAtLength` need a live element). */
+  const tracePathEls = new Map<string, SVGPathElement>()
+  const pathSamplers = new Map<string, PathSampler>()
+
+  /** Mesh-dot `<circle>` per `MeshGeometry.pts` index (>= 6 only -- seats
+      never flash, mirroring the mockup's `meshEls[idx] = null` for idx < 6). */
+  const meshDotEls = new Map<number, SVGCircleElement>()
+  const flashTimeouts = new Set<ReturnType<typeof setTimeout>>()
+
+  function flashDot(idx: number) {
+    const el = meshDotEls.get(idx)
+    if (!el) return
+    el.classList.add('touch')
+    const tm = setTimeout(() => {
+      el.classList.remove('touch')
+      flashTimeouts.delete(tm)
+    }, TOUCH_FLASH_MS)
+    flashTimeouts.add(tm)
+  }
+
+  /** `gFx` group ref (mockup's `gFx`) -- travelers mount/unmount here as raw
+      DOM `<line>`s, matching the mockup's own `el("line", ..., gFx)` /
+      `p.el.remove()` rather than a Solid `<For>` over reactive state. */
+  let gFxEl: SVGGElement | undefined
+
+  let travelers: FxTraveler[] = []
+  let rafHandle: number | null = null
+  let loopLast = 0
+
+  function createTravelerEl(t: Traveler): SVGLineElement {
+    const line = document.createElementNS(SVG_NS, 'line') as SVGLineElement
+    line.setAttribute('x1', t.x1.toFixed(1))
+    line.setAttribute('y1', t.y1.toFixed(1))
+    line.setAttribute('x2', t.x2.toFixed(1))
+    line.setAttribute('y2', t.y2.toFixed(1))
+    line.setAttribute('stroke', PULSE_STROKE)
+    line.setAttribute('stroke-width', String(PULSE_STROKE_WIDTH * L.S))
+    line.setAttribute('stroke-linecap', 'round')
+    line.setAttribute('filter', 'url(#aglow)')
+    return line
+  }
+
+  /** Mockup 509: `if (reduced || FXp.length > 6) return;` -- F14: the guard
+      is `>`, not `>=`. A spawn is refused only once SEVEN travelers already
+      exist (`MAX_TRAVELERS` = 6 permits a 7th in flight). */
+  function trySpawn(srcId: string) {
+    if (props.reduced) return
+    if (travelers.length > MAX_TRAVELERS) return
+    const sampler = pathSamplers.get(srcId)
+    if (!sampler || !gFxEl) return
+    const base = spawnTraveler(srcId, sampler, mesh())
+    const el = createTravelerEl(base)
+    gFxEl.appendChild(el)
+    travelers.push({ ...base, el })
+    ensureLoopRunning()
+  }
+
+  /** Mockup 508, 571: the loop runs only while travelers exist, and
+      self-rearms every tick it does (the mockup's own faithful two-call-site
+      pattern: kickoff here, self-rearm at the tail of `loopStep`). */
+  function ensureLoopRunning() {
+    if (rafHandle === null) {
+      loopLast = 0
+      rafHandle = requestAnimationFrame(loopStep)
+    }
+  }
+
+  function loopStep(ts: number) {
+    if (!loopLast) loopLast = ts
+    const dt = ts - loopLast
+    loopLast = ts
+
+    // advanceTravelers splices despawned travelers out of `travelers`
+    // in place (mockup 554/1016's `FXp.splice`) -- diff against a
+    // pre-call snapshot to know which glyphs to remove from the DOM.
+    const before = travelers.slice()
+    const { touchedDotIdxs, stemExits } = advanceTravelers(travelers, dt, mesh(), L.GATHER, L.STEM_END)
+    for (const t of before) {
+      if (!travelers.includes(t)) t.el.remove()
+    }
+    for (const t of travelers) {
+      t.el.setAttribute('x1', t.x1.toFixed(1))
+      t.el.setAttribute('y1', t.y1.toFixed(1))
+      t.el.setAttribute('x2', t.x2.toFixed(1))
+      t.el.setAttribute('y2', t.y2.toFixed(1))
+    }
+    for (const idx of touchedDotIdxs) flashDot(idx)
+    for (let i = 0; i < stemExits; i++) props.onStemExit?.()
+
+    if (travelers.length) {
+      rafHandle = requestAnimationFrame(loopStep)
+    } else {
+      rafHandle = null
+      loopLast = 0
+    }
+  }
+
+  /** Mockup 686: per-station hover-spawn throttle. Called only on chain-on
+      (never on leave/blur) and gated to lit stations -- `chain()` fires for
+      dormant stations too, and this is where that gets filtered out. */
+  const hoverSpawnAt = new Map<string, number>()
+  function handleHoverSpawn(id: string) {
+    const st = stations().find((s) => s.s.id === id)
+    if (!st || !st.dc.lit) return
+    const now = performance.now()
+    const last = hoverSpawnAt.get(id)
+    if (last !== undefined && now - last <= HOVER_SPAWN_THROTTLE_MS) return
+    hoverSpawnAt.set(id, now)
+    trySpawn(id)
+  }
+
+  let ambientTimer: ReturnType<typeof setInterval> | null = null
+  let kickoffTimer: ReturnType<typeof setTimeout> | null = null
+
+  onMount(() => {
+    // P-A: path length/point sampling needs the element mounted -- this is
+    // the earliest point that's true (phase doc Recovery, "Travelers frozen
+    // at spawn").
+    for (const st of stations()) {
+      const pathEl = tracePathEls.get(st.s.id)
+      if (!pathEl) continue
+      pathSamplers.set(st.s.id, {
+        length: pathEl.getTotalLength(),
+        pointAt: (d: number) => {
+          const pt = pathEl.getPointAtLength(d)
+          return { x: pt.x, y: pt.y }
+        },
+      })
+    }
+
+    // Mockup 833-839: both the ambient interval AND the kickoff timeout live
+    // inside `if (!reduced)` -- under reduced motion neither timer is ever
+    // created, so no spawns, no timers, no travelers (P7c).
+    if (!props.reduced) {
+      let ambientIdx = 0
+      kickoffTimer = setTimeout(() => trySpawn('cm'), AMBIENT_KICKOFF_MS)
+      ambientTimer = setInterval(() => {
+        trySpawn(AMBIENT_ORDER[ambientIdx % AMBIENT_ORDER.length])
+        ambientIdx++
+      }, AMBIENT_INTERVAL_MS)
+    }
+  })
+
+  onCleanup(() => {
+    // HMR / unmount must never leave a second loop or a stray timer running
+    // (phase doc Recovery, "Travelers accelerate or multiply after edits").
+    if (rafHandle !== null) {
+      cancelAnimationFrame(rafHandle)
+      rafHandle = null
+    }
+    if (ambientTimer !== null) {
+      clearInterval(ambientTimer)
+      ambientTimer = null
+    }
+    if (kickoffTimer !== null) {
+      clearTimeout(kickoffTimer)
+      kickoffTimer = null
+    }
+    for (const tm of flashTimeouts) clearTimeout(tm)
+    flashTimeouts.clear()
+  })
+
   return (
     <>
       <div class="titleblock">
@@ -301,6 +508,7 @@ export default function Floor1Brain(props: Props) {
                   when={dc.lit}
                   fallback={
                     <path
+                      ref={(el) => tracePathEls.set(s.id, el)}
                       d={s.d}
                       fill="none"
                       stroke="#1d3350"
@@ -313,6 +521,7 @@ export default function Floor1Brain(props: Props) {
                   }
                 >
                   <path
+                    ref={(el) => tracePathEls.set(s.id, el)}
                     d={s.d}
                     fill="none"
                     stroke="#2a4a74"
@@ -474,6 +683,7 @@ export default function Floor1Brain(props: Props) {
           <For each={mesh().dots}>
             {(dot) => (
               <circle
+                ref={(el) => meshDotEls.set(dot.idx, el)}
                 cx={dot.cx.toFixed(1)}
                 cy={dot.cy.toFixed(1)}
                 r={dot.r * L.S}
@@ -863,9 +1073,11 @@ export default function Floor1Brain(props: Props) {
           </g>
         </g>
 
-        {/* gFx -- travelers (Task 9 fills this; it stays empty and stays here
-            so the paint order does not shift when it arrives) */}
-        <g />
+        {/* gFx -- travelers (Task 9). Populated imperatively (raw DOM
+            `<line>`s, appended/removed by the rAF loop above) rather than
+            through a Solid `<For>`, so the hot path never touches
+            reactivity -- see the Task 9 runtime block for why. */}
+        <g ref={(el) => (gFxEl = el)} />
 
         {/* gHit -- fat transparent strokes over each trace (mockup 678-679) */}
         <g>

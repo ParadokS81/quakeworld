@@ -329,6 +329,29 @@ TIME, exactly as D-j got one -- P1's "any visible deviation is a finding or a
 dated amendment" cuts both ways, and the pre-brief is what keeps the operator's
 walk trustworthy.
 
+**F20 (trivial, execution-time, routed to Phase 6 polish) -- `onChainHover` is
+a dead prop on `Floor1Brain`.** Surfaced: Phase 3 Task 9 execution 2026-08-06,
+by the implementer, which flagged its own reading rather than assuming.
+
+Task 5 left `onChainHover?: (id, on) => void` as the seam Task 9's hover-spawn
+would consume, and `chain()` faithfully fires it on every toggle. But Task 9
+owns the same file, and spawning is floor-1-local state -- so it wired
+hover-spawn directly inside `chain()` (gating on `lit`, applying the
+`HOVER_SPAWN_THROTTLE_MS` throttle) instead of threading a callback out to
+`App.tsx` and back. That is the better call: the phase doc's App.tsx wiring
+steps never list an `onChainHover` prop, and routing floor-1-internal spawn
+timing through the shell would have pushed state upward for no consumer.
+Verified at orchestration: nothing passes the prop, and hover-spawn works
+without it.
+
+Residue: the prop remains declared and fired, with no consumer. Harmless today
+(optional, type-safe, zero runtime cost) but it is exactly the kind of
+plausible-looking seam a later phase mistakes for load-bearing API -- Phase 4
+and 5 both extend this component's props. **Disposition:** routed to Phase 6's
+polish pass -- delete the prop and its `chain()` call site, OR keep it and
+document it as a deliberate external hook. Either is fine; leaving it
+undecided is what costs a future reader time. No behavior change either way.
+
 **F8 (cold adversarial review, 2026-08-06) -- three fresh-context readers,
 all GO-WITH-FIXES, every finding applied.** Reports committed as
 `cold-review-chain.md`, `cold-review-gates.md`, `cold-review-spec.md`; aim

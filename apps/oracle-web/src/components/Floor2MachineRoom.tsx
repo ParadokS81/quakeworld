@@ -6,6 +6,14 @@ import type { BrainManifest } from '../data/manifest-types'
 
 interface Props {
   manifest: BrainManifest
+  /** Task 9's journey-handoff seam (phase-3-floor1-brain.md): increments once
+      per traveler finishing floor 1's brainstem descent. Ignored here --
+      Phase 4 spawns one root traveler per increment, cycling
+      `ROOT_LANDING_QUEUE`. */
+  stemExits?: number
+  /** P7c: `prefers-reduced-motion`, read once in App.tsx. Ignored here --
+      Phase 4's root-traveler spawner honors it (no roots, no rack flares). */
+  reduced?: boolean
 }
 
 export default function Floor2MachineRoom(props: Props) {
