@@ -268,6 +268,34 @@ name the `cm` thread/solved figures concretely so the operator meets the number
 in the deviations pre-brief rather than discovering it mid-walk and logging a
 false V2/V3 mismatch. No code change.
 
+**F18 (advisory, a defect in the COMP itself, routed to Phase 6's a11y sweep)
+-- the output-side nodes are keyboard-focusable but their reveals are
+hover-only, so a keyboard user can reach them and see nothing.** Surfaced:
+Phase 3 Task 6 execution 2026-08-06, by the implementer, which flagged it
+rather than silently "fixing" it -- the correct call under P1.
+
+The mockup wires `chain()` on BOTH hover and focus/blur for the six source
+stations, but the four output-side nodes (MCP gate, YOUR AGENT, THIS PAGE,
+SLIPGATE ghost) get mouseenter/mouseleave only -- while still carrying
+`tabindex="0"`, `role="button"` and working Enter/Space activation. Net effect
+for a keyboard user: tabbing to the MCP gate activates nothing visible, so the
+three tool names (`search_solved_issues` / `get_concept_note` / `lookup_map`)
+that hovering reveals BESIDE the gate are unreachable without a pointer; same
+for `any MCP client` on YOUR AGENT and the snapshot branch's paired reveals.
+The content is not lost (the cards behind Enter still open) but the
+progressive-disclosure layer is pointer-only.
+
+This is the comp's own asymmetry, faithfully ported. Fixing it in Phase 3
+would be a silent P1 deviation on a page whose whole verification model is
+side-by-side comparison -- so the port stands and the gap is tracked here.
+**Disposition:** routed to **Phase 6**, which already owns the
+"a11y/reduced-motion/perf sweep". The fix is small and non-visual (add
+focus/blur to the same handlers the stations already use, reusing Task 6's
+existing reveal state), and it changes NOTHING at rest, so it does not disturb
+the comp-parity contract. If Phase 6 takes it, record it as a dated
+sanctioned deviation under P1 -- an accessibility improvement the comp lacks,
+same framing as Phase 3's D-j additive content block.
+
 **F8 (cold adversarial review, 2026-08-06) -- three fresh-context readers,
 all GO-WITH-FIXES, every finding applied.** Reports committed as
 `cold-review-chain.md`, `cold-review-gates.md`, `cold-review-spec.md`; aim

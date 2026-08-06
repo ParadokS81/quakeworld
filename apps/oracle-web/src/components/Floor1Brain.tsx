@@ -1,6 +1,9 @@
 // Floor 1 -- the brain. INPUT side (Task 5): section frame, seeded mesh, the
 // six source stations with their traces / pads / seats / labels, the hover +
-// focus reveal chains, the dormant ghosts, and the growth docks.
+// focus reveal chains, the dormant ghosts, and the growth docks. OUTPUT side
+// (Task 6): the gather point + axon, the two-way agent highway, the MCP
+// gate, the YOUR AGENT node, the snapshot branch (THIS PAGE + the dormant
+// SLIPGATE APP ghost), and the brainstem leading to floor 2.
 //
 // Source of truth is the comp (P1): docs/superpowers/specs/
 // 2026-08-05-oracle-web-v1-mockup.html (v4.7). Mockup line refs below are
@@ -11,7 +14,9 @@
 // order IS the paint order (P7b) and is normative. The port therefore keeps
 // the six groups and fans each station's parts out into the group it belongs
 // to: one <For> per group rather than one loop per station. Appearance and
-// document order are identical; only the source shape differs.
+// document order are identical; only the source shape differs. The output
+// side has no per-item loop (six fixed nodes), so it is ported as static
+// JSX appended to the same groups in the comp's append order.
 //
 // Dumb component (P4): everything arrives via props. No network calls, no URL
 // parsing, no environment reads -- App.tsx owns all three.
@@ -86,6 +91,14 @@ export default function Floor1Brain(props: Props) {
   // 714-715) -- a single index is the whole state.
   const [hotDock, setHotDock] = createSignal<number | null>(null)
 
+  // Output-side reveal state (mockup 757-758, 771-772, 799-804). Unlike the
+  // station chain(), these are hover-only in the comp -- no focus/blur, no
+  // traveler spawn -- so plain booleans are enough; no need for the Set +
+  // onChainHover machinery stations use.
+  const [gateHot, setGateHot] = createSignal(false)
+  const [agentHot, setAgentHot] = createSignal(false)
+  const [snapHot, setSnapHot] = createSignal(false)
+
   // The drill system is Task 7's; every click and keyboard target already
   // routes through this one function so T7 replaces a body, not call sites.
   const openCard = (kind: 'dc' | 'xn' | 'why', id: string, origin: Element) => {
@@ -103,6 +116,28 @@ export default function Floor1Brain(props: Props) {
   }
   const onStationKey = (id: string, ev: KeyboardEvent) => {
     if (ev.key === 'Enter' || ev.key === ' ') openStation(id, ev)
+  }
+
+  // Output-side nodes (gate / agent / snapshot / slipgate) have no separate
+  // hit stroke, so the clicked group IS the right drill origin -- unlike
+  // stations, no labelGroups lookup is needed here.
+  const openOut = (id: string, ev: Event) => {
+    ev.preventDefault()
+    openCard('xn', id, ev.currentTarget as Element)
+  }
+  const onOutKey = (id: string, ev: KeyboardEvent) => {
+    if (ev.key === 'Enter' || ev.key === ' ') openOut(id, ev)
+  }
+
+  // The snapshot branch DOES have a fat hit stroke (mockup 805-806, bypassing
+  // the gate like the trace it covers), and the comp zooms its card out of
+  // the THIS PAGE label group even when the click lands on that stroke
+  // (mockup 813 passes `tp`, not the hit path) -- same shape as
+  // openStation/labelGroups above, so it reuses that same map under a 'snap'
+  // key rather than inventing a second origin-tracking mechanism.
+  const openSnapHit = (ev: Event) => {
+    ev.preventDefault()
+    openCard('xn', 'snap', labelGroups.get('snap') ?? (ev.currentTarget as Element))
   }
 
   // D4 registry grace (Open question 4): seats and traces are hand-placed, so
@@ -257,6 +292,128 @@ export default function Floor1Brain(props: Props) {
               </>
             )}
           </For>
+
+          {/* gather + axon (mockup 735-737): the green trunk everything
+              upstream converges into. */}
+          <path
+            d={L.OUT.axon}
+            fill="none"
+            stroke="#2a4a74"
+            stroke-width={2 * L.S}
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          />
+          <path
+            d={L.OUT.axon}
+            fill="none"
+            stroke="#52ffa8"
+            stroke-width={2.4 * L.S}
+            stroke-linecap="round"
+            filter="url(#aglow)"
+            class="sig s3"
+          />
+          <circle cx={L.OUT.gpt[0]} cy={L.OUT.gpt[1]} r={5 * L.S} fill="#52ffa8" filter="url(#aglow)" />
+          <circle cx={L.OUT.jn[0]} cy={L.OUT.jn[1]} r={3.5 * L.S} fill="#52ffa8" />
+
+          {/* agent highway (mockup 738-739): green answers flow OUT toward
+              the agent (laneA), cyan questions flow IN toward the gate
+              (laneQ) -- opposing directions is the whole point of the cue. */}
+          <path
+            d={L.OUT.laneA}
+            fill="none"
+            stroke="#2a4a74"
+            stroke-width={2 * L.S}
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          />
+          <path
+            d={L.OUT.laneA}
+            fill="none"
+            stroke="#52ffa8"
+            stroke-width={2.4 * L.S}
+            stroke-linecap="round"
+            filter="url(#aglow)"
+            class="sig s2"
+          />
+          <path
+            d={L.OUT.laneQ}
+            fill="none"
+            stroke="#2a4a74"
+            stroke-width={2 * L.S}
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          />
+          <path
+            d={L.OUT.laneQ}
+            fill="none"
+            stroke="#6fe3ff"
+            stroke-width={2.4 * L.S}
+            stroke-linecap="round"
+            filter="url(#aglow)"
+            class="sig"
+          />
+
+          {/* snapshot branch trace (mockup 777): visibly bypasses the gate. */}
+          <path
+            d={L.OUT.snap}
+            fill="none"
+            stroke="#2a4a74"
+            stroke-width={2 * L.S}
+            stroke-linejoin="round"
+            stroke-linecap="round"
+            classList={{ hotbase: snapHot() }}
+          />
+          <path
+            d={L.OUT.snap}
+            fill="none"
+            stroke="#52ffa8"
+            stroke-width={2.4 * L.S}
+            stroke-linecap="round"
+            filter="url(#aglow)"
+            class="sig"
+          />
+
+          {/* brainstem (mockup 815-829): main line, two side rails starting
+              18u below the gather point, a green pulse overlay, the stem-head
+              dot, and the floor-2 teaser label. Ends at STEM_END -- nothing
+              crosses the fold (coordinate contract). */}
+          <path
+            d={`M${L.GATHER.x},${L.GATHER.y} L${L.GATHER.x},${L.STEM_END}`}
+            fill="none"
+            stroke="#2a4a74"
+            stroke-width={2.5 * L.S}
+          />
+          <path
+            d={`M${L.GATHER.x - 6},${L.GATHER.y + 18} L${L.GATHER.x - 6},${L.STEM_END}`}
+            fill="none"
+            stroke="#1d3350"
+            stroke-width={1 * L.S}
+          />
+          <path
+            d={`M${L.GATHER.x + 6},${L.GATHER.y + 18} L${L.GATHER.x + 6},${L.STEM_END}`}
+            fill="none"
+            stroke="#1d3350"
+            stroke-width={1 * L.S}
+          />
+          <path
+            d={`M${L.GATHER.x},${L.GATHER.y} L${L.GATHER.x},${L.STEM_END}`}
+            fill="none"
+            stroke="#52ffa8"
+            stroke-width={2.4 * L.S}
+            stroke-linecap="round"
+            filter="url(#aglow)"
+            class="sig s3"
+          />
+          <circle cx={L.GATHER.x} cy={L.GATHER.y - 2} r={5 * L.S} fill="#52ffa8" filter="url(#aglow)" />
+          <text
+            x={L.GATHER.x + 14}
+            y={L.STEM_END - 25}
+            fill="#3f7f9a"
+            font-size="10.5"
+            font-family="ui-monospace, monospace"
+          >
+            brainstem · the machines below ↓
+          </text>
         </g>
 
         {/* gMesh -- edges first, then dots (mockup 434-465) */}
@@ -472,6 +629,188 @@ export default function Floor1Brain(props: Props) {
               </g>
             )}
           </For>
+
+          {/* MCP gate (mockup 740-759): the consumer barrier. Tool-channel
+              reveal sits beside the gate, not inside it. */}
+          <g
+            classList={{ gate: true, reveal: gateHot() }}
+            tabindex="0"
+            role="button"
+            aria-label="MCP"
+            onMouseEnter={() => setGateHot(true)}
+            onMouseLeave={() => setGateHot(false)}
+            onClick={(ev) => openOut('mcp', ev)}
+            onKeyDown={(ev) => onOutKey('mcp', ev)}
+          >
+            <path
+              d={L.OUT.arc1}
+              fill="none"
+              stroke="#6fe3ff"
+              stroke-width={2 * L.S}
+              opacity=".85"
+              filter="url(#aglow)"
+            />
+            <path
+              d={L.OUT.arc2}
+              fill="none"
+              stroke="#2a4a74"
+              stroke-width={1.6 * L.S}
+              stroke-dasharray="5 5"
+            />
+            <rect
+              x={L.OUT.port[0]}
+              y={L.OUT.port[1]}
+              width={L.OUT.port[2]}
+              height={L.OUT.port[3]}
+              rx="3"
+              fill="#0b1626"
+              stroke="#6fe3ff"
+              stroke-width={1.4 * L.S}
+            />
+            <text
+              x={L.OUT.mcpXY[0]}
+              y={L.OUT.mcpXY[1]}
+              text-anchor="middle"
+              fill="#6fe3ff"
+              font-size="17"
+              font-weight="700"
+              letter-spacing=".2em"
+              font-family="system-ui, sans-serif"
+            >
+              MCP
+            </text>
+            <For each={['search_solved_issues', 'get_concept_note', 'lookup_map']}>
+              {(t, i) => (
+                <text
+                  x={926}
+                  y={350 + i() * 15}
+                  fill="#3f7f9a"
+                  font-size="9.5"
+                  font-family="ui-monospace, monospace"
+                  class="detail"
+                >
+                  {t}
+                </text>
+              )}
+            </For>
+          </g>
+
+          {/* YOUR AGENT node (mockup 761-773): any MCP client, symmetric with
+              the hero CTA -- both drill into the one CONNECT card (P9). */}
+          <g
+            classList={{ major: true, reveal: agentHot() }}
+            tabindex="0"
+            role="button"
+            aria-label="Your agent"
+            onMouseEnter={() => setAgentHot(true)}
+            onMouseLeave={() => setAgentHot(false)}
+            onClick={(ev) => openOut('agent', ev)}
+            onKeyDown={(ev) => onOutKey('agent', ev)}
+          >
+            <circle
+              cx={L.OUT.agent[0]}
+              cy={L.OUT.agent[1]}
+              r={15}
+              fill="#0d2036"
+              stroke="#6fe3ff"
+              stroke-width={2 * L.S}
+              filter="url(#aglow)"
+            />
+            <circle cx={L.OUT.agent[0]} cy={L.OUT.agent[1]} r={6} fill="#6fe3ff" />
+            <text x={L.OUT.agentLbl[0]} y={L.OUT.agentLbl[1]} text-anchor="middle" class="majorlabel">
+              YOUR AGENT
+            </text>
+            <text
+              x={L.OUT.agentLbl[0]}
+              y={L.OUT.agentLbl[1] + 16}
+              text-anchor="middle"
+              class="majorsub detail"
+            >
+              any MCP client
+            </text>
+          </g>
+
+          {/* snapshot branch (mockup 775-813): bypasses the gate entirely.
+              THIS PAGE (this site, "you are here") and the dormant SLIPGATE
+              APP ghost share one reveal chain, `snapHot`, along with the
+              branch trace's hotbase and the "snapshot door" detail label. */}
+          <g classList={{ reveal: snapHot() }}>
+            <text
+              x={L.OUT.snapLblXY[0]}
+              y={L.OUT.snapLblXY[1]}
+              text-anchor="middle"
+              fill="#3f7f9a"
+              font-size="10"
+              font-family="ui-monospace, monospace"
+              class="detail"
+            >
+              snapshot door
+            </text>
+          </g>
+          <g
+            ref={(el) => labelGroups.set('snap', el)}
+            classList={{ major: true, reveal: snapHot() }}
+            tabindex="0"
+            role="button"
+            aria-label="This page, a snapshot consumer"
+            onMouseEnter={() => setSnapHot(true)}
+            onMouseLeave={() => setSnapHot(false)}
+            onClick={(ev) => openOut('snap', ev)}
+            onKeyDown={(ev) => onOutKey('snap', ev)}
+          >
+            <circle
+              cx={L.OUT.snapEnd[0]}
+              cy={L.OUT.snapEnd[1]}
+              r={9}
+              fill="#0d2036"
+              stroke="#52ffa8"
+              stroke-width={2 * L.S}
+              filter="url(#aglow)"
+            />
+            <circle cx={L.OUT.snapEnd[0]} cy={L.OUT.snapEnd[1]} r={3.5} fill="#52ffa8" />
+            <text x={L.OUT.tpLbl[0]} y={L.OUT.tpLbl[1]} text-anchor="start" class="majorlabel">
+              THIS PAGE
+            </text>
+            <text
+              x={L.OUT.tpLbl[0]}
+              y={L.OUT.tpLbl[1] + 15}
+              text-anchor="start"
+              class="majorsub detail"
+            >
+              you are here
+            </text>
+          </g>
+          <g
+            classList={{ major: true, dim: true, reveal: snapHot() }}
+            tabindex="0"
+            role="button"
+            aria-label="Slipgate app (future consumer)"
+            onMouseEnter={() => setSnapHot(true)}
+            onMouseLeave={() => setSnapHot(false)}
+            onClick={(ev) => openOut('slip', ev)}
+            onKeyDown={(ev) => onOutKey('slip', ev)}
+          >
+            <circle
+              cx={L.OUT.sgC[0]}
+              cy={L.OUT.sgC[1]}
+              r={8}
+              fill="none"
+              stroke="#3c4a60"
+              stroke-width={1.6 * L.S}
+              stroke-dasharray="4 5"
+            />
+            <text x={L.OUT.sgLbl[0]} y={L.OUT.sgLbl[1]} text-anchor="start" class="majorlabel">
+              SLIPGATE APP
+            </text>
+            <text
+              x={L.OUT.sgLbl[0]}
+              y={L.OUT.sgLbl[1] + 15}
+              text-anchor="start"
+              class="majorsub detail"
+            >
+              future · same door
+            </text>
+          </g>
         </g>
 
         {/* gFx -- travelers (Task 9 fills this; it stays empty and stays here
@@ -496,6 +835,21 @@ export default function Floor1Brain(props: Props) {
               />
             )}
           </For>
+
+          {/* snapshot branch hit path (mockup 805-806): fat enough to be
+              clickable along its full curve, bypassing the gate visibly. */}
+          <path
+            d={L.OUT.snap}
+            fill="none"
+            stroke="#000"
+            stroke-opacity="0"
+            stroke-width={16 * L.S}
+            pointer-events="stroke"
+            cursor="pointer"
+            onMouseEnter={() => setSnapHot(true)}
+            onMouseLeave={() => setSnapHot(false)}
+            onClick={openSnapHit}
+          />
         </g>
       </svg>
 
