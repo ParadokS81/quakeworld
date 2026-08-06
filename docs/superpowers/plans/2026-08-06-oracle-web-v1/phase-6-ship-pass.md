@@ -157,9 +157,24 @@ External links `target="_blank" rel="noopener"` (Phase 4's door convention).
   `content-type: text/event-stream`, an `mcp-session-id` header, and
   `serverInfo: { name: "qw-oracle", version: "0.7.0" }` -- a working
   streamable-HTTP MCP initialize **with no Authorization header**, i.e. the
-  current auth posture is no-auth (which per the spec amendment's client
-  landscape means ChatGPT Developer-Mode reach is OPEN today; the connect
-  card's client steps stand).
+  current auth posture is no-auth.
+- **ChatGPT Developer-Mode reach -- now cited, still not end-to-end verified**
+  (cold review CR-SPEC-5; the spec amendment asserted this uncited). Per
+  OpenAI's own documentation: developer mode gives full MCP client support,
+  the supported transports are SSE and streaming HTTP, and the supported auth
+  modes are **OAuth, No Authentication, and Mixed** -- so the oracle's
+  streamable-HTTP + no-auth posture is a documented-supported combination,
+  and reach is open in principle. Sources:
+  https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-apps-in-chatgpt
+  and https://developers.openai.com/api/docs/guides/developer-mode .
+  **Caveats the connect card must not paper over:** the toggle lives in
+  Workspace Settings -> Permissions & Roles -> Connected Data, availability
+  differs by plan tier (Pro/Plus/Business/Enterprise/Edu, web only), some
+  custom-connector capability is scoped to admins/authorized developers on
+  Enterprise/Edu, and OpenAI community threads report friction reaching the
+  custom-connector settings. Net: the steps are written FROM VENDOR DOCS, not
+  from a run we performed -- S11 verifies the Claude path only. Label it
+  accordingly (Task 4) and verify opportunistically at tester-invite time.
 - Bare `GET /mcp` returns 400 `Invalid or missing session ID` -- correct
   transport behavior, not an outage (the health check is `/health` -> 200
   `ok`, also probed).
@@ -405,6 +420,18 @@ nothing silent.
    dead-address CTA). On ruling: apply to `XnCards.tsx` (agent-card headline
    + CLI paste-prompt) and `TerminalTopics.tsx` (boot card); the CLI
    prompt's question text and client steps stay byte-identical otherwise.
+1b. **Per-client honesty labeling (cold review CR-SPEC-5).** The connect
+   card lists client paths we have NOT all executed. Rule for the shipped
+   copy: steps we have run end to end (Claude connector / CLI agent, proven
+   at S11) read as instructions; the **ChatGPT Developer-Mode** path is
+   written from OpenAI's documentation and must not imply we tested it --
+   keep its wording procedural and vendor-sourced, and do not promise a
+   plan tier or a menu path the vendor docs hedge (availability varies by
+   plan; some custom-connector capability is admin/Enterprise-scoped; the
+   settings path has reported friction -- see environment facts for the two
+   citations). If the operator wants a stronger claim, it needs a real
+   ChatGPT run first, which is a tester-invite-time action, not a
+   ship blocker.
 2. **`● ALL LAYERS UP`** (Phase 4 Open question 3, queued here). Default:
    stays byte-identical static copy (P1; it is a badge, not data, and must
    render on the baked fallback too). Overrule = manifest-derived variant =
@@ -478,13 +505,25 @@ this probe inverts -- record the inversion with the ruling.
 
 **Verification probe (the token-zero gate):**
 
-    grep -rn "TBD-PHASE-[0-9]" /home/dev/projects/quakeworld/docs/superpowers/plans/2026-08-06-oracle-web-v1/ ; echo "plan-dir exit=$?"
+    cd /home/dev/projects/quakeworld/docs/superpowers/plans/2026-08-06-oracle-web-v1/ && grep -n "TBD-PHASE-[0-9]" README.md decisions.md review-findings.md phase-*.md ; echo "drain-set exit=$?"
     grep -rn "TBD" /home/dev/projects/quakeworld/apps/oracle-web/src/ ; echo "src exit=$?"
 
-Expect: both `exit=1` (empty) -- the arc's every-TBD-resolved gate. The
-plan-dir pattern matches the TOKEN shape (`TBD-PHASE-` + digit), checker-
-verified to catch all 9 real tokens while excluding prose mentions of the
-convention (this doc's own included), which stay in the dir as history.
+Expect: both `exit=1` (empty) -- the arc's every-TBD-resolved gate.
+
+Two scoping rules, both learned the hard way (this gate has now been caught
+unsatisfiable twice -- findings F7(d) and cold review CR-GATE-1):
+
+1. **Pattern = the TOKEN shape** (`TBD-PHASE-` + digit), not bare
+   `TBD-PHASE`, so prose mentions of the convention do not self-trip the
+   grep.
+2. **Scope = the DRAIN SET only** -- `README.md`, `decisions.md`,
+   `review-findings.md`, and the six `phase-*.md` docs; explicitly NOT the
+   whole directory. Review artifacts (`coherence-pass.md`,
+   `REVIEW-BRIEF.md`, `cold-review-*.md`) quote real token shapes as
+   evidence and are historical records, not live plan surface: they are
+   never drained, so a whole-dir grep can never return empty no matter how
+   completely the arc finishes its work. Scoping to the drain set is what
+   makes the gate a real gate rather than a permanent red light.
 
 ### Task 6 -- perf probes + deploy + boundary run · `inline`
 
@@ -572,8 +611,11 @@ package defined and handed to arc-run.
 6. **B6 -- copy locks + endpoint truth** (Task 4 step 5 grep zero; Task 4
    boundary probe per the ruling) -- YES/NO.
 
-7. **B7 -- TBD-token zero** (Task 5's two greps: plan dir on the token-shape
-   pattern `TBD-PHASE-[0-9]` + src on bare `TBD`, both empty) -- YES/NO.
+7. **B7 -- TBD-token zero** (Task 5's two greps, run verbatim: the DRAIN SET
+   -- README + decisions + review-findings + the six phase docs -- on the
+   token-shape pattern `TBD-PHASE-[0-9]`, plus src on bare `TBD`; both
+   empty). Review artifacts are out of scope by design; see Task 5's two
+   scoping rules -- YES/NO.
 
 8. **B8 -- a11y statics + perf budget:** Task 3's three attribute greps
    >= 1 each on the deployed bundle
@@ -592,6 +634,13 @@ in `review-findings.md`, fix-or-amend before the arc closes.
   MATCH STATS rack selected, its `no power` card loaded, root hot),
   `/#engine-facts`, `/#snapshot-door`. Each lands on the right view,
   instantly, no animation flash, no console error.
+  **Then repeat two of them on a real phone** (any two -- one floor-1 card,
+  one rack), plus a footer-door glance: fragments must land correctly in the
+  portrait projection too (Phase 5's shipped layout). This absorbs what was
+  a separate mobile ritual item -- it eyeballs the same surface, so it is
+  one answer, not two (cold review, operator-load consolidation). A phone
+  failure here is a finding against THIS phase's fragment wiring, not a
+  reopening of Phase 5's projection.
 - **S2 update-on-interaction + round-trip:** click through stations/cards/
   racks -- the URL bar tracks the vocabulary; copy the URL mid-exploration,
   paste in a fresh tab -- same view. Esc-closing a floor-1 card restores
@@ -626,10 +675,13 @@ in `review-findings.md`, fix-or-amend before the arc closes.
 - **S11 the D1 success shape, for real:** connect an actual agent (Claude
   connector or a CLI agent) using EXACTLY the shipped connect-card steps and
   endpoint string; ask one of the card's first questions; a cited answer
-  comes back. This is the arc's product claim tested end to end.
-- **S12 mobile spot re-run:** the S1 paste set + footer on a real phone
-  (`TBD-PHASE-5-portrait-layout` -- portrait behavior per Phase 5's shipped
-  projection; fragments must land correctly there too).
+  comes back. This is the arc's product claim tested end to end. **Scope
+  honesty:** this verifies the Claude / CLI path. The ChatGPT
+  Developer-Mode path ships documented-per-vendor-docs but UNVERIFIED by us
+  (see environment facts + Task 4's labeling rule); it is not a blocker
+  here, and it gets checked opportunistically at tester-invite time. Record
+  which client actually passed in the arc-end package -- never let "an agent
+  connected" stand in for "every listed client works".
 
 ## Outputs to arc-end review
 
@@ -663,7 +715,14 @@ The cold reviewer (arc-run dispatches; four-verdict walkthrough) receives:
 Post-arc residue (HANDOVER, not review items): the vikpe DNS ask
 (`oracle.quake.world` + `docs.quake.world` -> one-commit swaps when they
 land); the why-overlay content drop from the eval arc (adds `#why` then);
-the tester-invite timing (operator's call, P11).
+the tester-invite timing (operator's call, P11); **the docs-web front-page
+link to the coverage map** -- spec D2 says docs-web links here instead of
+duplicating the map, which shrank the parked docs-web front-page brainstorm
+to "compact per-codebase entry strip + link to the brain"; no phase of THIS
+arc owns the docs-web side, so it rides the docs-web design pass as a
+HANDOVER rider (cold review CR-SPEC-2, which found it ownerless);
+**ChatGPT Developer-Mode path verification** at tester-invite time (S11
+covers Claude/CLI only).
 
 ## Open questions (default + who overrules)
 

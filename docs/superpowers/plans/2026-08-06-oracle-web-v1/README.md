@@ -11,12 +11,24 @@ mockup-of-record). **Parent:**
 
 ## Where we are right now
 
-- **Stage:** planning -- scaffold committed; phase docs drafting in progress
-- **Last action:** scaffold created (README + decisions P1-P11 + findings
-  preamble); slicing + lane ratified by operator 2026-08-06
-- **Next action:** draft phase docs (Phase 1 contract-owner first, then
-  waves), checker passes, coherence pass, cold adversarial plan review,
-  operator intent review
+- **Stage:** PLAN COMPLETE, awaiting operator intent review (2026-08-06).
+  All six phase docs drafted, each independently checker-verified, coherence
+  pass applied (CH-1..CH-9), cold adversarial review run by three
+  fresh-context readers -- chain re-walk, gate attack, spec+world sweep --
+  all three returning GO-WITH-FIXES with no NO-GO blocker; every finding
+  applied.
+- **Last action:** cold-review fix round applied across all six phase docs
+  (reports in `cold-review-chain.md` / `cold-review-gates.md` /
+  `cold-review-spec.md`; `REVIEW-BRIEF.md` records what the reviewers were
+  aimed at). Note: the fix round completed inline after the Fable-backed
+  revision agents died mid-edit on credit exhaustion; Phase 1's fixes had
+  fully landed, Phases 2-4 partially, Phases 5-6 not at all -- the remainder
+  was applied directly and is in this commit history.
+- **Next action:** OPERATOR intent review (weight class, slicing, each
+  phase's Goal + runnable-state line, cost/sequence). Then arc-run Phase 1.
+- **Operator-blocking before execution:** a Cloudflare Pages API token
+  (Pages:Edit) -- none exists on this box post-migration; Phase 2 stalls at
+  its deploy task without it. See Operator-side prerequisites.
 
 ## Lane
 
