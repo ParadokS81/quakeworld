@@ -64,6 +64,23 @@ in this file for history's sake -- it was appended after F5-F7 during a
 parallel round; noted by cold review CR-CHAIN-2, left in place rather than
 silently reordering a ledger.)
 
+**F9 (MAJOR, execution-time, resolved inline) -- the Edit tool ALSO breaks a
+single-file bind mount.** Surfaced: Phase 1 Task 3 execution 2026-08-06. The
+task doc said "Edit the deployed copy IN PLACE (Edit tool). Do NOT use `sed -i`
+or move-and-replace" -- but Edit writes via temp-file + rename too, so
+`/mnt/user/appdata/qw-oracle/nginx.conf` got a NEW inode and the running
+container's `/etc/nginx/conf.d/default.conf` went to `Stale file handle`
+(`nginx -t` failed with it; the host file was correct all along). No outage:
+nginx serves from its in-memory config, so `/health` stayed 200 throughout --
+the breakage only blocks the NEXT reload, which is precisely the trap, since a
+`-s reload` would then have been the visible failure. Recovery was the one the
+doc predicted: `docker restart qw-oracle-nginx` re-resolved the mount; config
+test successful, CORS line visible in-container, health 200. Disposition:
+resolved inline. **Do-not-revert rule for any later phase touching a
+single-file bind mount: use a truncate-in-place write (`cat > file`,
+`tee`), never Edit / `sed -i` / move-and-replace.** Repo-side copies are
+unaffected (no mount). Carried forward to Phase 2+ briefs.
+
 **F8 (cold adversarial review, 2026-08-06) -- three fresh-context readers,
 all GO-WITH-FIXES, every finding applied.** Reports committed as
 `cold-review-chain.md`, `cold-review-gates.md`, `cold-review-spec.md`; aim
