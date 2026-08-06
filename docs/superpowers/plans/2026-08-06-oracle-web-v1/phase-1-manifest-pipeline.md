@@ -104,6 +104,9 @@ interface LitDatacenter {
   bars?: Array<[string, number]>;  // region breakdown rows (label, raw count), count-desc.
                                    // ef: per-codebase entities; cm: per-channel messages.
   stats?: Array<[number, string]>; // stat tiles (raw value, label). gc only at launch.
+                         // gc's three labels are BYTE-PINNED contract literals, in
+                         // this order: "maps", "mechanics", "entity defs" --
+                         // consumers may key by them (2026-08-06 amendment, F-E)
   notes?: string[];      // named inventory highlight lines (curated groupings, no
                          // numbers embedded). cs only at launch.
   door: Door;            // level-4 exit descriptor (D3)
@@ -242,6 +245,17 @@ per-datacenter variant pattern: `bars?` / `stats?` / `notes?`), NOT a generic
 key-set leak probe the same way `history[].nums` did, and typed names keep
 "hit dot, see what you can do" working in the Phase 2 mirror. Additive only:
 no existing field changed meaning, so Phase 2's field references stay valid.
+
+**Sibling amendment, same date (surfaced by Phase 4 checker F-E):** the three
+`gc.stats` label strings are BYTE-PINNED emitter config -- exactly `"maps"`,
+`"mechanics"`, `"entity defs"`, in that order. Consumers (Phase 4 terminal
+copy interpolation) may key rows by these literals; any wording change
+("entity definitions") is a contract change requiring a dated amendment here,
+never a silent emitter edit. Blast radius: the `stats` comment in the TS
+block, plus a label-pin conjunct added to probe 4 -- coverage was re-checked
+and the existing probes verified only stats SHAPE, not the pinned literals,
+so the byte-pin gets its own mechanical check (the number-sources table
+already names the three labels verbatim; unchanged).
 
 **Blast radius walked (all updated in place):** TS contract block; probe 4
 (cm now type-checked for numeric `threads`/`solved`); probe 5 allowlist
@@ -460,9 +474,9 @@ expected value / YES.
    Expect: `brain-manifest-v1` / `twin` / `ef,cm,cs,gc,ch,ms` / `array` / `true` -- YES/NO.
 
 4. **Per-datacenter shape (lit fields present, dormant teasers present, cm's
-   amendment fields numeric):**
+   amendment fields numeric, gc's stat labels byte-pinned):**
 
-       curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -e '([.datacenters[] | select(.lit) | (.num != null and .sub != null and .stationSubs != null and .share != null and .door != null)] | all) and ([.datacenters[] | select(.lit | not) | .teaser != null] | all) and ([.datacenters[] | select(.id=="cm") | (.threads | type == "number") and (.solved | type == "number")] | all)' && echo YES
+       curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -e '([.datacenters[] | select(.lit) | (.num != null and .sub != null and .stationSubs != null and .share != null and .door != null)] | all) and ([.datacenters[] | select(.lit | not) | .teaser != null] | all) and ([.datacenters[] | select(.id=="cm") | (.threads | type == "number") and (.solved | type == "number")] | all) and ([.datacenters[] | select(.id=="gc") | [.stats[][1]] == ["maps","mechanics","entity defs"]] | all)' && echo YES
 
    Expect: `true` + `YES` -- YES/NO.
 
