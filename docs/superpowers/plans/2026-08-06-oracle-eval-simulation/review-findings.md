@@ -254,6 +254,75 @@ is not set`. It works only when invoked from `apps/qw-oracle/`. Disposition:
 Phase 1's stdio probe sets `cwd` and `env` explicitly rather than copying the
 broken pattern; the existing script is left alone (route to HANDOVER).
 
+## Findings from Phase 4 drafting (2026-08-06)
+
+Numbered F44-F48. Spend: 50 `deepseek-v4-flash` calls, ~$0.016 (extrapolated
+from the Phase 2 checker's measured rate; no pricing table exists yet).
+
+**F44 (MAJOR -- Phase 1 contract defect) -- the graded-delta rule makes
+`divergent` unwritable, which would kill D6's staleness mechanism outright.**
+Evidence: Phase 1's `validateGradedDelta` permits exactly `{grade, stage}` to
+differ between the `answered` and `graded` lines, but `divergent` is a
+top-level `RunRecord` field that Phase 2 writes as a constant `false` and only
+GRADING can determine. As shipped, either the grader violates the record
+contract or `divergent` is a dead field -- and `divergent` is precisely how
+spec D6 absorbs the era problem F2 identified (the sample is 2020-2025, so the
+oracle can be currently right while the recorded fix is dated). Disposition:
+dated amendment widening the mutable set to `{grade, stage, divergent}`,
+applied to E2 and routed to the Phase 1 doc as a producer-side revision.
+Rejected alternative (fold `divergent` into `Grade`) recorded with its blast
+radius. Phase 4's entry probe re-confirms the defect at execution time rather
+than trusting this write-up.
+
+**F45 -- the `SampleThread[] -> QuestionSpec[]` loader is unowned.** Evidence:
+Phase 2 lists it as `TBD(phase-3: ...)`; Phase 3 says Phase 6 populates records
+via `loadEffectiveSample()`. Neither actually claims it. Disposition: Phase 4
+builds it, as a new file rather than an edit to Phase 3's committed `sample.ts`
+-- it is the first phase to answer a real sampled thread, and it is where D6's
+leave-one-out exclusion actually gets wired.
+
+**F46 (MAJOR) -- the grader is not deterministic at `temperature: 0`.**
+Evidence: four identical runs of an identical prompt over 10 adversarially
+built triples gave 8/10 verdicts stable across all four runs; 2 flipped (both
+`partial` <-> `miss`) and the `divergent` flag flipped once. Pairwise agreement
+8/10 to 10/10. Because the fixture was built adversarially, 80% is a LOWER
+bound, not an estimate. Three consequences, all routed: (a) no agreement gate
+can be set above the grader's own reproducibility, which is why Phase 4 adds a
+self-consistency sub-gate separating "biased rubric" from "noisy grader" --
+identical symptom, different remedy; (b) **Phase 6's post-bulk re-grade has a
+non-zero disagreement floor equal to that self-consistency rate, not zero**, so
+a re-grade delta must be read against that floor rather than against perfection;
+(c) the remedy for noise is majority-of-3 sampling, not a rubric rewrite --
+which is an E1 spec matter, so it is an open question, not a phase decision.
+
+**F47 (MAJOR) -- the natural `divergent` wording fires on half the fixture.**
+Evidence: the obvious prose phrasing of D6's "differs from the thread's fix but
+looks plausibly correct" flagged **5 of 10** triples, including one answer that
+contained the recorded fix verbatim and one plain wrong-direction miss. The
+rewrite -- three required conditions plus a mandatory `divergent_fix` string
+naming the alternative, so a flag that cannot be written down is false --
+flagged the single intended case in 3 of 4 runs. Why it matters: `divergent`
+routes to human review instead of a bulk verdict, so a 50% flag rate drains the
+disagreement pool into the reviewer's lap and quietly certifies the grader.
+That is the exact escape hatch this phase exists to close.
+
+**F48 -- era-confined grader defects are undetectable at any feasible fixture
+size.** Evidence: a grader systematically harsh on 2020-2021 keys naming
+since-removed cvars (returning `miss` where it should set `divergent`) produces
+~7 extra disagreements, an ~80% aggregate that sits inside tolerance, spread
+across all three verdict classes. Detection ~40% -- **the gate passes more often
+than it catches this**. More generally any stratum under ~12 items is invisible
+at n=60: era, cell, domain, and length band are all in that regime.
+Disposition: declared as a limit (F41-shaped), not a gap. Phase 8 may not read
+a per-era grading difference as an oracle property without a targeted re-check.
+
+**Measured side-note confirming E8's leakage-honesty amendment.** A probe answer
+opening "According to a #helpdesk thread from 2021..." was graded normally, with
+no sign the grader registered the tell. Phase 4 therefore COUNTS the residue --
+answers naming a channel or a year -- and records it. That count is the only
+number in the arc that bounds how much field-level blindness actually leaves
+open.
+
 ## Findings from the Phase 2 revision (2026-08-06)
 
 Numbered F43 (the drafter emitted it as F41, taken by the Phase 3 revision;

@@ -63,6 +63,23 @@ field its `answered` predecessor carried, and Phase 4's boundary probe diffs
 the two lines field by field. Also settled here: an ABSENT `grade` key is
 equivalent to `null`, for `grade` only and no other field.
 
+**Amendment 2026-08-06 (Phase 4 drafting, F44) -- the mutable set is
+`{grade, stage, divergent}`, not `{grade, stage}`.** The byte-copy rule above
+permitted only `grade` and `stage` to differ between the `answered` and
+`graded` lines. But `divergent` is a top-level `RunRecord` field that Phase 2
+writes as a constant `false` and only GRADING can determine -- so as originally
+written, either the grader violates the record contract or `divergent` is a
+dead field. It is not a spare field: it is how spec D6 absorbs the era problem
+(F2 -- the sample is 2020-2025, so the oracle can be currently right while the
+recorded fix is dated), and killing it would silently convert every
+better-than-the-key answer into a `miss`. `validateGradedDelta` therefore
+permits exactly those three keys to differ and still rejects any change to
+`answer`, `tool_calls`, `usage`, `latency_ms`, `truth`, or identity. Rejected
+alternative: folding `divergent` into the `Grade` object -- cleaner in isolation,
+but it moves a field Phase 2 already writes and Phase 8 already reads, and the
+blast radius is larger than the fix. Routed to the Phase 1 doc as a
+producer-side revision.
+
 **Amendment 2026-08-06 (Phase 1 checker, MAJOR-4) -- records are scoped per
 run.** `record_id` is `(thread_id, condition, answering_model)` and does NOT
 carry `run_id`, yet the pilot's threads (Phase 5) are a subset of the bulk's
