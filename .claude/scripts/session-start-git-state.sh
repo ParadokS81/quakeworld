@@ -25,8 +25,9 @@ LAST_SUBJECT="$(git log -1 --format='%s' 2>/dev/null)"
 LAST_AGE="$(git log -1 --format='%cr' 2>/dev/null)"
 
 case "$WORKTREE" in
-  */quakeworld) ROLE=" [main tree: slipgate + shared docs]" ;;
-  *)            ROLE="" ;;
+  */quakeworld)      ROLE=" [main tree: slipgate + shared docs + oracle-web arc]" ;;
+  */quakeworld-eval) ROLE=" [worktree: oracle-eval-simulation arc]" ;;
+  *)                 ROLE="" ;;
 esac
 
 echo "=== git state ==="

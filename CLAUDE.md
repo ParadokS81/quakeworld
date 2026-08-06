@@ -73,7 +73,7 @@ The user does not touch git. Claude runs all git operations silently -- no merge
 
 **Layout:**
 - Main tree (`/home/paradoks/projects/quakeworld/`, branch `main`) is the default working directory. All work happens here unless a worktree is explicitly created for parallelism.
-- Worktrees exist only for parallelism (two Claude sessions running simultaneously on different topics). None are currently active.
+- Worktrees exist only for parallelism (two Claude sessions running simultaneously on different topics). Active: `/home/dev/projects/quakeworld-eval` (branch `eval-oracle-sim`) -- the oracle-eval-simulation arc (parking doc `docs/superpowers/parking/2026-08-06-oracle-eval-simulation.md`); created 2026-08-06 so the eval arc can run parallel to the oracle-web-v1 arc, which holds the main checkout. Delete when the eval arc merges or goes idle.
 - For matchscheduler, quad, or any new topic: create a worktree ad-hoc when parallel work is actually needed. Delete when the work merges or goes idle.
 - **When adding or removing a worktree, update BOTH this section AND the `case` block in `.claude/scripts/session-start-git-state.sh`** so the session banner continues to label it correctly.
 
