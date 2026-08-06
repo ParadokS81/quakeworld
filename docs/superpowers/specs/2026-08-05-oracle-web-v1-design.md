@@ -195,3 +195,57 @@ the code pipeline for no gain.
   ordering lets the design job work with REAL manifest data).
 - Harvest-runbook rider: append emit+copy as the ritual's last step
   (coordinate with Arc A finish-out, which owns the runbook).
+
+## Amendment -- visual design exploration outcome (2026-08-06)
+
+The "visual design job" queued for arc-plan ran 2026-08-05/06 as an
+interactive mockup loop (claude.ai artifact, version-labeled rounds 1
+through 4.4; file `qw-oracle-directions.html` in the session scratchpad,
+ported to the SolidJS scaffold at build time). Operator verdict: overall
+design LOCKED (~90%; residual = content granularity + a dedicated mobile
+pass). What this locks, amending D6's sketch:
+
+- **One page, two floors, gentle scroll-snap** (`#brain` /
+  `#machine-room`), one continuous navy->dark-teal gradient -- one
+  organism: canopy above, roots below; the brainstem crosses the fold and
+  fans into root-traces.
+- **Floor 1 hero = neural-circuit brain.** Outside asymmetric title-only
+  stations; traces penetrate to depth-scattered seats; scaffolding density
+  log-scaled per category (share of ~150 dots via ln(1+count) -- CM .42 /
+  EF .29 / GC .17 / CS .12). Progressive disclosure everywhere: numbers +
+  subs reveal on chain hover (title + trace + seat are one hover/click
+  target); drill cards on click; dormant = dashed ghosts. Output side:
+  single gather point -> bare "MCP" gate -> two-way agent highway (cyan
+  questions in / green answers out) -> YOUR AGENT; snapshot door visibly
+  bypasses the gate to THIS PAGE ("you are here") + slipgate ghost; growth
+  docks both sides. Ambient "tracepoint journeys": the standard trace pulse
+  (one canonical speed, 400u per 5.5s) continues through the mesh --
+  touched scaffold nodes flicker -- down the brainstem, into a floor-2
+  root, landing on a rack with a flare.
+- **Floor 2 = machine room as root system.** Six racks in floor-1 skin
+  flanking a dominant full-height FIELD TERMINAL (no expand toggle -- the
+  terminal owns the real estate); rack click loads concept-altitude
+  subsystem copy; every topic doors OUT to the public GitHub repo (stable
+  landmarks only: app README / extractors / load-chat / concept-notes).
+  Terminal boot screen IS the connect quickstart.
+- **"Why do I need this?"** hero link -> in-place comparison overlay (3-4
+  questions, agent-alone vs agent+oracle). Integrity rule: the final page
+  shows BOTH columns as verbatim captured answers, dated + model-labeled --
+  no strawmen (the community will re-run the test). Supersedes D6's "one
+  static worked trace".
+- **Connect surface is singular**: hero CTA, YOUR AGENT node, and the MCP
+  card all open one CONNECT card (endpoint + per-client steps + paste-able
+  prompt for CLI agents). Client landscape verified 2026-08-06: Claude
+  connectors (claude.ai / Desktop / Code), ChatGPT Developer Mode (paid
+  plans; requires public HTTPS streamable-HTTP + OAuth-or-no-auth), CLI
+  agents self-configure from a pasted prompt; consumer Gemini app and Grok
+  lack custom connectors. Deploy consequence: the MCP auth posture at
+  tester-invite time decides ChatGPT reach.
+- **Copy locks**: tagline "30 years of QuakeWorld knowledge, routed to your
+  agent or API."; no legends or annotation text at rest; "brain barrier"
+  retired as user-facing copy (internal metaphor only).
+
+New arc-plan items from the exploration: comparison capture session (clean
+sessions, verbatim, dated); terminal topic copy (6-10 cards at
+stable-concepts altitude, repo doors); dedicated mobile projection pass;
+port of the mesh/journey/roots generators to SolidJS dumb components.
