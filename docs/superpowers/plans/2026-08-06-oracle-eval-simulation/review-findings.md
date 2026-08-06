@@ -254,6 +254,30 @@ is not set`. It works only when invoked from `apps/qw-oracle/`. Disposition:
 Phase 1's stdio probe sets `cwd` and `env` explicitly rather than copying the
 broken pattern; the existing script is left alone (route to HANDOVER).
 
+## Finding from the Phase 1 F44 revision (2026-08-06)
+
+**F49 (MAJOR -- same class as F44, one step further) -- the grading call's
+`usage` has no home, so the cost figure that authorises the bulk spend
+under-reports by roughly the entire grading pass.** Evidence: `RunRecord`
+carries exactly one `Usage`, written by the answering pass and immutable across
+the delta line. But D6 stage 3 compare-grading is a DeepSeek call -- one per
+record, ~1,500 in the bulk run -- and its tokens were simply dropped. E10 says
+"every DeepSeek call's `usage` lands in the record" and that "the pilot reports
+measured cost-per-question before the bulk run commits"; as the contract stood,
+that gate number omitted grading entirely, **in the unfavourable direction, on
+the one figure the spend is authorised against**. Disposition: ratified --
+`RunRecord` gains `grade_usage: Usage | null`, joining the mutable set (now
+four keys); E2 and E10 both amended. Key-extraction cost deliberately stays OFF
+the record: D6 stage 1 runs once per thread and one `truth` is shared by all
+three cell records, so per-record storage would triple-count it. It lives in
+Phase 3's `sample-keys.json` accounting -- verified already present, so no
+Phase 3 change is needed.
+
+Worth noting how it was found: the same reasoning that produced F44 ("a value
+produced at a stage other than answering, with nowhere writable to land"),
+applied deliberately to the rest of the record rather than stopping at the
+first instance. The revision brief asked only for the `divergent` fix.
+
 ## Findings from Phase 4 drafting (2026-08-06)
 
 Numbered F44-F48. Spend: 50 `deepseek-v4-flash` calls, ~$0.016 (extrapolated

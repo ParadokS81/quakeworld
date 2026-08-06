@@ -80,6 +80,23 @@ but it moves a field Phase 2 already writes and Phase 8 already reads, and the
 blast radius is larger than the fix. Routed to the Phase 1 doc as a
 producer-side revision.
 
+**Amendment 2026-08-06 (Phase 1 revision, F49) -- the mutable set is
+`{grade, stage, divergent, grade_usage}`, and `RunRecord` gains
+`grade_usage: Usage | null`.** Same defect class as F44, found by the same
+reasoning applied one step further: a value produced at a stage other than
+answering, with nowhere writable to land. `RunRecord` carried exactly one
+`Usage`, written by the answering pass and immutable across the delta line --
+but D6 stage 3 compare-grading is a DeepSeek call, one per record, ~1,500 in
+the bulk run, and its tokens were simply dropped. E10 requires every call's
+usage to land in the record AND requires the pilot to report a measured
+cost-per-question before the bulk spend is authorised; without this the gate
+number omits grading entirely, understating the figure the spend is authorised
+against. `grade_usage` is null on the `answered` line and written by the
+grading pass. **Key-extraction cost deliberately does NOT go on the record:**
+D6 stage 1 runs once per THREAD and one `truth` is shared across all three cell
+records, so per-record storage would triple-count it. It lives in Phase 3's
+`sample-keys.json` accounting block, per pass -- verified already present.
+
 **Amendment 2026-08-06 (Phase 1 checker, MAJOR-4) -- records are scoped per
 run.** `record_id` is `(thread_id, condition, answering_model)` and does NOT
 carry `run_id`, yet the pilot's threads (Phase 5) are a subset of the bulk's
@@ -309,6 +326,21 @@ for bulk). Reasoning tokens were 93% of completion on the corpus fence -- the
 dominant cost driver, and invisible without accounting. The repo has no dollar
 arithmetic anywhere today.
 **Implication:** "it was cheap" is a number in the findings doc, not a vibe.
+
+**Amendment 2026-08-06 (F49) -- the arc spends on THREE DeepSeek stages, and
+each has one declared home.** The original entry read as though answering were
+the only cost. It is not:
+1. **Key extraction** (D6 stage 1) -- once per THREAD, shared across all three
+   cell records. Home: Phase 3's `sample-keys.json` `accounting` block. Never
+   per-record; that would triple-count it.
+2. **Answering** (cells A/B/C) -- once per record. Home: `RunRecord.usage`.
+3. **Compare-grading** (D6 stage 3) -- once per record, ~1,500 in the bulk run.
+   Home: `RunRecord.grade_usage`, added by E2's F49 amendment.
+A cost-per-question figure that authorises spend must sum all three, with key
+extraction amortised across the three cells that share its `truth`. The pilot
+gate's measured cost-per-question is exactly such a figure, so it reports the
+sum, not the answering leg alone. Any phase quoting a dollar total states which
+stages it covers.
 
 ## E11 -- Claude-side passes are per-question fresh sessions, paced
 

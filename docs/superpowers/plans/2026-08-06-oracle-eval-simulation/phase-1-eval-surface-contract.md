@@ -2,10 +2,11 @@
 
 **Arc:** oracle-eval-simulation. **Ledger:** `decisions.md` E1-E14 (this phase
 owns E2's and E5's contracts, and depends on E7's `limit`-pinning clause and
-E2's delta-line invariant). **Spec:**
+E2's delta-line invariant as amended 2026-08-06 -- mutable set
+`{grade, stage, divergent}`, F44). **Spec:**
 `docs/superpowers/specs/2026-08-06-oracle-eval-simulation-design.md` D1/D2/D3/D6
 + the 2026-08-06 amendment. **Findings consumed:** F6, F7, F8, F9, F10, F13,
-F14, F16. **Findings raised here:** F17-F22 (see the arc findings ledger).
+F14, F16, F44. **Findings raised here:** F17-F22 (see the arc findings ledger).
 **Lane:** worktree `/home/dev/projects/quakeworld-eval`, branch
 `eval-oracle-sim`.
 
@@ -396,7 +397,9 @@ export interface RunRecord {
   answer: string;
   truth: string;                      // D6 stage 1 key extraction
   grade: Grade | null;                // null while stage === 'answered'; absent === null
-  divergent: boolean;                 // D6
+  divergent: boolean;                 // D6. Phase 2 writes `false`; only GRADING can know it,
+                                      // so Phase 4 may set it true on the graded line. One of
+                                      // the three mutable keys (E2 amendment, F44).
 
   // Accounting
   usage: Usage;
@@ -413,15 +416,24 @@ E2 says one record per (question x condition); E9 says one JSONL line per
 last-line-wins reconstruction. The rules are normative, not descriptive:
 
 1. **The answered line is complete.** Phase 2 appends the full record with
-   `stage: 'answered'` and `grade: null`.
-2. **The graded line is a byte-copy of the answered line with exactly two
-   fields changed:** `grade` (null -> a `Grade`) and `stage`
-   (`'answered'` -> `'graded'`). **No other field may differ.** This is E2's
-   delta-line invariant, and it is not pedantry: a Phase 4 implementer who
-   writes the intuitively obvious `{record_id, stage:'graded', grade}` produces
-   a line that is compliant with "last line wins" and silently destroys
-   `answer`, `tool_calls`, `usage`, `latency_ms`, `truth` and `question` on
-   reconstruction -- taking the evidence for the headline number with it.
+   `stage: 'answered'`, `grade: null`, and `divergent: false`.
+2. **The graded line is a byte-copy of the answered line with exactly three
+   fields changed:** `grade` (null -> a `Grade`), `stage`
+   (`'answered'` -> `'graded'`), and `divergent` (`false` -> the grader's
+   determination). **No other field may differ.** This is E2's delta-line
+   invariant as amended 2026-08-06 (F44), and it is not pedantry in either
+   direction:
+   - too permissive, and a Phase 4 implementer who writes the intuitively
+     obvious `{record_id, stage:'graded', grade}` produces a line that is
+     compliant with "last line wins" and silently destroys `answer`,
+     `tool_calls`, `usage`, `latency_ms`, `truth` and `question` on
+     reconstruction -- taking the evidence for the headline number with it;
+   - too strict, and `divergent` becomes unwritable and therefore dead. That is
+     not a spare field: it is how spec D6 absorbs the era problem F2 quantified
+     (the sample is 2020-2025, zero 2026 threads), so every answer that is
+     *currently* correct but differs from a dated fix would score `miss`. The
+     bias is downward and concentrated on the oldest threads -- exactly the
+     ones the arc most needs to read honestly.
 3. **Reconstruction** = for each `record_id`, the last line bearing it.
 4. **Resume** (E9) skips on the `(record_id, stage)` pair within the run's own
    file, so a crash between answering and grading loses neither.
@@ -429,9 +441,18 @@ last-line-wins reconstruction. The rules are normative, not descriptive:
 Enforcement, so rule 2 is not merely written down: `validateRunRecord` accepts
 a single record, and a second exported function
 `validateGradedDelta(answered: RunRecord, graded: RunRecord): string[]`
-returns the list of fields that differ outside `{grade, stage}` (empty = valid).
+returns the list of fields that differ outside `{grade, stage, divergent}`
+(empty = valid). It must ACCEPT a `divergent`-only change and still REJECT any
+change to `answer`, `tool_calls`, `usage`, `latency_ms`, `truth`, or any
+identity field (`record_id`, `run_id`, `thread_id`, `thread_key`, `domain`,
+`era`, `question`, `condition`, `answering_model`, `retrieval_context`).
 Phase 4's boundary probe runs it over its own output, and Phase 5's explorer
 generator runs it while reconstructing.
+
+Rejected alternative, recorded so it is not re-proposed: folding `divergent`
+into the `Grade` object reads cleaner in isolation, but it relocates a field
+Phase 2 already writes and Phase 8 already reads, so the blast radius exceeds
+the fix.
 
 This is also what satisfies the README's requirement from the 2026-08-06
 slicing ratification -- answering (Phase 2) and grading (Phase 4) are separate
@@ -512,8 +533,9 @@ a `condition` outside `A|B|C`; a missing `thread_key`; a non-integer `era`; a
 
 **Fixture.** `apps/qw-oracle/eval/sim/fixtures/run-record.example.json` -- one
 realistic cell-C record with two tool-call rounds (the second having two
-parallel calls, per F16), a filled grade, and non-zero reasoning tokens. A
-sibling `run-record.answered.json` holds the same record at
+parallel calls, per F16), a filled grade, `divergent: true` (so the committed
+pair exercises all three mutable keys at once, not just two), and non-zero
+reasoning tokens. A sibling `run-record.answered.json` holds the same record at
 `stage: 'answered'`, so probe 7 can exercise `validateGradedDelta` on a real
 pair rather than on a synthetic one.
 
@@ -840,9 +862,11 @@ fixtures prove both the record and the graded-delta invariant round-trip.
    `toGradingInput`. Comments explain why a field exists (which decision or
    finding put it there), not what it holds.
 2. Write the two fixtures: `run-record.answered.json` (`stage: 'answered'`,
-   `grade` key ABSENT, so the absent-===-null rule is exercised by a real file)
-   and `run-record.example.json` (the same record byte-for-byte with only
-   `stage` and `grade` changed). One cell-C record, two tool-call rounds with
+   `grade` key ABSENT so the absent-===-null rule is exercised by a real file,
+   `divergent: false`) and `run-record.example.json` (the same record
+   byte-for-byte with only `stage`, `grade` and `divergent` changed --
+   `divergent: true`, so the committed pair covers the full mutable set rather
+   than leaving the third key untested). One cell-C record, two tool-call rounds with
    the second carrying two parallel calls (F16), non-zero `reasoning_tokens`
    and `prompt_cache_hit_tokens`, a real `domain` key from
    `faq-domains-resolve.ts`'s `META`, an `era` in 2020-2025 (F2), and a
@@ -969,11 +993,20 @@ including with the leave-one-out predicate applied.)
 projection:**
 
     cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun eval/sim/validate-run-record.ts
-    cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun -e 'import { validateRunRecord, validateGradedDelta, toGradingInput } from "./eval/sim/run-record.ts"; const fail=(m)=>{console.log("FAIL",m);process.exit(1)}; const g = await Bun.file("eval/sim/fixtures/run-record.example.json").json(); const a = await Bun.file("eval/sim/fixtures/run-record.answered.json").json(); const og = validateRunRecord(g), oa = validateRunRecord(a); if(!og.ok) fail(og.errors); if(!oa.ok) fail(oa.errors); if(oa.record.grade !== null) fail("absent grade did not normalise to null"); if(validateRunRecord({...g, grade:{...g.grade, verdict:"NAILED"}}).ok) fail("accepted NAILED"); if(validateRunRecord({...g, answering_model:"vendor:model"}).ok) fail("accepted colon in answering_model"); if(validateGradedDelta(oa.record, og.record).length !== 0) fail("clean pair reported a delta"); if(validateGradedDelta(oa.record, {...og.record, answer:"tampered"}).length === 0) fail("tampered answer not detected"); const k = Object.keys(toGradingInput(og.record)).sort().join(","); if(k !== "answer,question,truth") fail("grading keys: "+k); console.log("ALL_RECORD_ASSERTIONS_PASS"); process.exit(0);'
+    cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun -e 'import { validateRunRecord, validateGradedDelta, toGradingInput } from "./eval/sim/run-record.ts"; const fail=(m)=>{console.log("FAIL",m);process.exit(1)}; const g = await Bun.file("eval/sim/fixtures/run-record.example.json").json(); const a = await Bun.file("eval/sim/fixtures/run-record.answered.json").json(); const og = validateRunRecord(g), oa = validateRunRecord(a); if(!og.ok) fail(og.errors); if(!oa.ok) fail(oa.errors); if(oa.record.grade !== null) fail("absent grade did not normalise to null"); if(oa.record.divergent !== false) fail("answered fixture must carry divergent:false"); if(og.record.divergent !== true) fail("graded fixture must carry divergent:true"); if(validateRunRecord({...g, grade:{...g.grade, verdict:"NAILED"}}).ok) fail("accepted NAILED"); if(validateRunRecord({...g, answering_model:"vendor:model"}).ok) fail("accepted colon in answering_model"); if(validateGradedDelta(oa.record, og.record).length !== 0) fail("clean pair (grade+stage+divergent) reported a delta"); if(validateGradedDelta({...og.record, divergent:false}, og.record).length !== 0) fail("divergent-only change wrongly REJECTED -- F44"); if(validateGradedDelta(oa.record, {...og.record, answer:"tampered"}).length === 0) fail("tampered answer not detected"); if(validateGradedDelta(oa.record, {...og.record, thread_id:"999999"}).length === 0) fail("identity change not detected"); if(validateGradedDelta(oa.record, {...og.record, usage:{...og.record.usage, cost_usd:99}}).length === 0) fail("usage change not detected"); const k = Object.keys(toGradingInput(og.record)).sort().join(","); if(k !== "answer,question,truth") fail("grading keys: "+k); console.log("ALL_RECORD_ASSERTIONS_PASS"); process.exit(0);'
 
 Expect `OK <record_id>` then `ALL_RECORD_ASSERTIONS_PASS`, both exit 0 -- the
-inline script exits non-zero on every failure path, so a permissive stub
-validator cannot pass it -- YES/NO.
+inline script exits non-zero on every failure path, so neither a permissive
+stub validator NOR an over-strict one can pass it. The two-sided pairing is the
+point, and both sides were exercised against deliberately wrong stubs at
+drafting time: a validator whose mutable set is still `{grade, stage}` (F44's
+defect) fails at `clean pair (grade+stage+divergent) reported a delta`, because
+the committed fixture pair now differs in all three keys; a validator that
+permits everything fails at `tampered answer not detected`. The
+`divergent`-only assertion is the backstop for the case where the fixtures
+themselves drift back to an equal `divergent` on both sides -- then the
+clean-pair check would pass and only that line would catch the defect --
+YES/NO.
 
 **8. Telemetry baseline committed and the corpus has not moved:**
 
@@ -1020,9 +1053,11 @@ Phases 2-9 may rely on exactly these:
   read-through.
 - **`RunRecord` + `validateRunRecord` + `validateGradedDelta` +
   `toGradingInput` + two committed fixtures** (`eval/sim/run-record.ts`,
-  `eval/sim/fixtures/`). Phase 2 writes lines with `stage: 'answered'` and
-  `grade: null`; Phase 4 appends a byte-copy delta line changing ONLY `grade`
-  and `stage`; Phase 5's explorer generator and Phase 8's findings doc
+  `eval/sim/fixtures/`). Phase 2 writes lines with `stage: 'answered'`,
+  `grade: null` and `divergent: false`; Phase 4 appends a byte-copy delta line
+  changing ONLY `grade`, `stage` and `divergent` (E2 amendment, F44 -- only
+  grading can determine `divergent`, and D6 needs it to absorb the 2020-2025
+  era spread F2 quantified); Phase 5's explorer generator and Phase 8's findings doc
   reconstruct last-line-wins. Verdict vocabulary is `match | partial | miss`
   and nothing else. Records live at `eval/sim/records/<run_id>.jsonl`, one file
   per run, gitignored (E13). **The headline is computed over the bulk run's
@@ -1080,9 +1115,12 @@ Phases 2-9 may rely on exactly these:
    one-constant change plus a re-run, not a contract amendment.
 6. **`stage` on the record, plus the byte-copy delta line.** Default: present,
    with last-line-wins reconstruction and `validateGradedDelta` enforcement
-   (F19). It is the only reading that satisfies E2 and E9 simultaneously and it
-   makes resume exact. Overrule: operator; any change is a contract amendment
-   because Phase 2's writer and Phase 4's grader both key on it.
+   (F19), and a mutable set of exactly `{grade, stage, divergent}` (E2
+   amendment, F44). It is the only reading that satisfies E2 and E9
+   simultaneously, makes resume exact, and still lets grading write the one
+   judgement only grading can make. Overrule: operator; any change to the
+   mutable set is a contract amendment because Phase 2's writer, Phase 4's
+   grader and Phase 8's era cut all key on it.
 7. **One file per run, headline over the bulk file only.** Default as stated in
    Contract (b). Overrule: operator -- the alternative (pool pilot into the
    headline) is cheaper by ~90-150 DeepSeek passes but imports a possibly-stale
