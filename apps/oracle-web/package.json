@@ -1,0 +1,23 @@
+{
+  "name": "oracle-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/bake-manifest.mjs && vite",
+    "build": "node scripts/bake-manifest.mjs && vite build",
+    "preview": "vite preview",
+    "check": "tsc --noEmit",
+    "deploy": "node scripts/bake-manifest.mjs && vite build && npx -y wrangler@3 pages deploy dist --project-name qw-oracle-web --branch main --commit-dirty=true"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.14"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "daisyui": "^5.7.16",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.7.0",
+    "vite": "^8.2.1",
+    "vite-plugin-solid": "^2.11.14"
+  }
+}

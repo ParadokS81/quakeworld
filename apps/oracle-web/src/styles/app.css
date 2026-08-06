@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: oracle --default;
+  logs: false;
+}
+/* No include-trim: docs-web's trimmed list fixed VitePress class
+   collisions (F14) that do not exist here. Phase 3 may trim via a
+   finding if bundle size warrants. */
+
+@plugin "daisyui/theme" {
+  name: "oracle";
+  default: true;
+  prefersdark: true;
+  color-scheme: "dark";
+  --color-base-100: #041216;   /* page floor (mockup body bg) */
+  --color-base-200: #0c192b;   /* panel/rack bg */
+  --color-base-300: #16283f;   /* raised bg / mesh dot */
+  --color-base-content: #dfe9f6;
+  --color-primary: #6fe3ff;    /* cyan: links, questions-in */
+  --color-primary-content: #041216;
+  --color-secondary: #4aa8ff;  /* trace blue */
+  --color-secondary-content: #041216;
+  --color-accent: #52ffa8;     /* green: answers-out */
+  --color-accent-content: #041216;
+  --color-neutral: #2a4a74;    /* border blue */
+  --color-neutral-content: #dfe9f6;
+  --color-info: #6fe3ff;
+  --color-info-content: #041216;
+  --color-success: #52ffa8;
+  --color-success-content: #041216;
+  --color-warning: #ffd166;
+  --color-warning-content: #041216;
+  --color-error: #ff6b6b;
+  --color-error-content: #041216;
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.5rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+html { scroll-snap-type: y proximity; scroll-behavior: smooth; }
+body {
+  color: #dfe9f6;
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  background-color: #041216;
+  background-image:
+    radial-gradient(1000px 640px at 52% 22%, #16284699 0%, transparent 70%),
+    linear-gradient(180deg, #0e1c33 0%, #0b1728 45%, #082030 62%, #06202b 78%, #041a20 100%);
+  background-repeat: no-repeat; background-size: 100% 100%;
+}
+button { font: inherit; cursor: pointer; }
+a { color: #6fe3ff; }
+:focus-visible { outline: 2px solid #6fe3ff; outline-offset: 2px; }
+section.floor { min-height: 100svh; position: relative; overflow: hidden; scroll-snap-align: start; }
+.num { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 900px), (pointer: coarse) {
+  html { scroll-snap-type: none; scroll-behavior: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
