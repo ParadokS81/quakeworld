@@ -136,7 +136,7 @@ validation slice.
 | [x] | 2016 | 10,492 | 114 | 0 | -- loaded 2026-08-05 (session 5), 660 threads, 99.97% coverage (best of any batch)
 | [x] | 2017 | 41,605 | 141 | 5 | -- loaded 2026-08-05 (session 5), 1558 threads, 99.68% coverage (refence 2/2)
 | [ ] | 2018 | 30,266 | 129 | 5 |
-| [ ] | 2019 | 18,359 | 177 | 0 |
+| [x] | 2019 | 18,359 | 177 | 0 | -- loaded 2026-08-06 (session 5), 1050 threads, 99.98% coverage (refence no-op)
 | [ ] | 2020 | 20,689 | 146 | 1 |
 | [ ] | 2021 | 11,244 | 182 | 0 |
 | [ ] | 2022 | 12,130 | 163 | 0 |
@@ -710,6 +710,18 @@ hits ("forwarding QW traffic via ARM router/iptables" 332 msgs solved; "vid_vsyn
 behavior debate" 279 msgs solved).
 
 DB state after #dev-corner 2017: chat_threads = **30062**, all v2. **#dev-corner 2/11.**
+
+**Batch #dev-corner 2019 -- LOADED, verified.** 177 chunks, 0 forced. Fence **177/177,
+failures=0, wall 25.9 min at CONC=30**. **Refence NO-OP** (nothing below 97%, no OOB). Gate:
+**0% hallucination / 99.98% coverage -- new session best**. Load: 1050 threads, 18,355 junction
+rows (18,355 DISTINCT -- 0 R8 m2m), 0 OOB / 0 missing / 0 stale / 0 truncations. resolution
+**420 solved / 223 unresolved / 382 informational** / 25 none -- note solved > informational,
+the inverse of #quakeworld's banter-heavy split, as expected for a dev channel. **Idempotency
+(R5): PASS**. **Retrieval: PASS** -- both probes exact top hits ("OpenGL shader version
+compatibility for Gullfoss GUI" 228 msgs; "EZQuake fullscreen issue and DWM build/config" 170
+msgs, both solved).
+
+DB state after #dev-corner 2019: chat_threads = **31112**, all v2. **#dev-corner 3/11.**
 
 > **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
 > 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
