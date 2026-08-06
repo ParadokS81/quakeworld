@@ -175,6 +175,28 @@ corrects a stale cross-reference in that probe's prose (it cited ritual item V4,
 the hover-spawn item, where it meant V2, the mesh item). Same defect class as
 F11/F12: a plan literal that cannot be true in the state it runs.
 
+**F14 (minor, execution-time, routed to Phase 3 Task 9) -- the traveler ceiling
+is SEVEN, not six; `MAX_TRAVELERS` must be compared with `>`.** Surfaced: Phase
+3 Task 4 boundary verification 2026-08-06, by the orchestrator, while
+cross-checking the ported constants against the comp. The contract block
+exports `MAX_TRAVELERS = 6` with the comment "spawn refused above this (509)",
+which is faithful -- but the mockup's actual guard at line 509 reads
+`if (reduced || FXp.length > 6) return;`, so a spawn is refused only once seven
+travelers already exist. A natural reading of the constant name invites
+`travelers.length >= MAX_TRAVELERS`, which silently caps the field at six and
+makes the ambient journey density visibly thinner than the comp.
+
+`journeys.ts` is CORRECT to leave this unenforced -- `spawnTraveler`'s contract
+signature takes no travelers array and no `reduced` flag, exactly mirroring the
+mockup, where the guard lives in the caller's `spawn()`. So the trap lands
+squarely on Task 9, which owns the rAF loop and the spawner. Same off-by-one
+class as `MAX_HOPS` (`p.hops > 11`, 12 hops permitted) that the contract block
+already calls out by name -- both are invisible in a screenshot and only show
+up as "the comp feels busier than ours". **Disposition:** pinned in Task 9's
+dispatch brief as an explicit acceptance criterion; verify at the phase
+boundary by reading the guard, since ritual item V11 watches cadence rather
+than counting simultaneous travelers.
+
 **F8 (cold adversarial review, 2026-08-06) -- three fresh-context readers,
 all GO-WITH-FIXES, every finding applied.** Reports committed as
 `cold-review-chain.md`, `cold-review-gates.md`, `cold-review-spec.md`; aim
