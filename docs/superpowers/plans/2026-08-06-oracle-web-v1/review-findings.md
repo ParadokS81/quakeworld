@@ -64,6 +64,27 @@ in this file for history's sake -- it was appended after F5-F7 during a
 parallel round; noted by cold review CR-CHAIN-2, left in place rather than
 silently reordering a ledger.)
 
+**F11 (execution-time, plan defect, corrected in the doc) -- Phase 2 Task 3's
+verification probe was unsatisfiable at Task-3 completion.** Surfaced: Phase 2
+Task 3 execution 2026-08-06, by the implementer. The probe asserts
+`grep -rc "<baked generated_at>" dist/assets/` >= 1, but at Task 3 the only
+importer chain is `index.html -> index.tsx -> App.tsx`, and App.tsx is still
+Task 2's static placeholder -- so Rollup tree-shakes `src/data/manifest.ts` and
+its `baked-manifest.json` import out of the bundle entirely. The grep returns
+`0` for a CORRECT implementation. The identical probe at the phase boundary
+(after Task 4 wires `loadManifest()` into App.tsx) is correctly scoped; only
+the Task-3 copy was wrong. Same defect class as the plan-time gate findings
+CR-GATE-1/2/4: a probe whose expected value is unachievable in the state it
+runs. **Disposition:** Task 3's probe text amended in the phase doc to defer
+the bundle-grep leg to Task 4 / the phase boundary, with the tree-shaking
+reason recorded; the assertion itself is NOT weakened, just moved to where it
+can be true. Verified independently at orchestration: the real
+`bake-manifest.mjs` (copied byte-for-byte into a scratch tree with the relative
+SRC layout it expects) exits 1 with the loud message on the old-shape manifest
+and writes NO file, and exits 0 producing a byte-identical copy on the v1
+manifest -- so the guard is proven on the shipped script, not on a replica of
+its logic.
+
 **F10 (execution-time, resolved inline -- amends Phase 2 Open question 4) --
 `~/.secrets/` is READ-ONLY to the dev plane, so the planned token path was
 unwritable.** Surfaced: Phase 2 Task 5 auth setup 2026-08-06. The phase doc

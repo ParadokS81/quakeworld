@@ -508,11 +508,29 @@ validate -> fall back to baked; never throws, never renders an error state
 `generated_at` timestamp -- not the `brain-manifest-v1` literal, which the
 validator code also carries and would mask a silently-failed bake):
 
-    cd /home/dev/projects/quakeworld/apps/oracle-web && pnpm build && test -f src/data/baked-manifest.json && grep -rc "$(jq -r .generated_at src/data/baked-manifest.json)" dist/assets/ && pnpm run check
+    cd /home/dev/projects/quakeworld/apps/oracle-web && pnpm build && test -f src/data/baked-manifest.json && pnpm run check
 
 Expect: bake line prints the manifest's `generated_at`; build success; the
-generated file exists; grep count >= 1 (the baked DATA is IN the bundle);
-tsc clean.
+generated file exists; tsc clean.
+
+**Amendment 2026-08-06 (finding F11), do not revert:** the bundle-grep leg
+     grep -rc "$(jq -r .generated_at src/data/baked-manifest.json)" dist/assets/
+was originally part of THIS probe and is unsatisfiable here. At Task 3 the
+importer chain is `index.html -> index.tsx -> App.tsx`, and App.tsx is still
+Task 2's static placeholder, so Rollup tree-shakes `src/data/manifest.ts` and
+its baked-JSON import out of the bundle -- the grep returns `0` for a correct
+implementation. The leg moves to **Task 4** (whose App.tsx rewrite is what
+pulls the module in) and is re-asserted at phase-boundary probe 2. The
+assertion is not weakened, only relocated to a state where it can be true.
+Whoever re-runs Task 3 standalone: a `0` here is expected, not a regression.
+
+Negative check of the bake guard: run the REAL `scripts/bake-manifest.mjs`
+(copied byte-for-byte into a scratch tree that reproduces the relative layout
+its `SRC`/`DEST` URLs expect) against an old-shape manifest -- e.g.
+`git show 7214f291:apps/qw-oracle/snapshots/brain-manifest.json`, which has a
+numeric `schema_version: 1`. Expect exit 1, the loud message, and NO baked
+file written. Testing a hand-written replica of the guard logic instead proves
+only the replica -- run the shipped bytes.
 Negative check of the bake guard: point SRC at any old-shape JSON in a
 scratchpad copy -> exit 1 with the loud message.
 
