@@ -559,6 +559,59 @@ Phase 2 may rely on:
   solved count = `cm.solved`, note count = `cs.num`. Message count stays
   `cm.num`.
 
+## Execution notes -- 2026-08-06 (shipped state; binds later phases)
+
+Recorded at Phase 1 ship. These are properties of the SHIPPED emitter that
+phases 2-6 must know; all verified against the live artifact, not asserted.
+
+- **`share` has no trailing zeros in JSON.** `cm.share` serializes as `0.42`,
+  not `0.420` (JSON has no trailing-zero form), and the lit sum is `0.999`.
+  Any phase DISPLAYING a share must format it; probe 7's tolerance band
+  already accounts for the rounding.
+- **`notes` and all display strings are TEXT, not markup.** The manifest emits
+  a literal `&` (`"network & connection"`) where the mockup carries `&amp;`,
+  because the mockup injects notes as HTML. Phase 3 must render `notes` as
+  text (never `innerHTML`) or it double-escapes. Same reasoning as the
+  structured `door`: markup belongs to the site (Open question 5).
+- **Display punctuation is deliberately non-ASCII and byte-matched to the
+  mockup:** `·` (U+00B7) in `sub` / `stationSubs` / `notes`, `…` (U+2026)
+  inside the three agent-door `call` strings, `—` (U+2014) in the `ch`
+  teaser. P1 makes the mockup the copy contract, so these are pinned. **Do not
+  ASCII-normalize them** under the repo's general output-discipline habit --
+  that habit governs code and regex, not shipped display copy.
+- **`gc.num` is the maps count and `gc.stats[0]` repeats it** by design; a
+  stat-tile renderer must not assume `stats` excludes the headline.
+- **`bars` ordering is `count DESC, label ASC`** -- the label tiebreak is an
+  implementation addition beyond this doc's SQL, and it is load-bearing:
+  Postgres leaves tied rows unordered, so without it probe 8's byte-`cmp`
+  between the repo copy and the published copy could fail spuriously across
+  re-emits. Treat as part of the contract; do not drop it.
+- **History reads from `OUT`**, not from a hardcoded default path. With no
+  `--out` that is the committed repo copy (as this doc describes); with
+  `--out` it is that file. Consequence: a `--out /tmp/...` debug emit can
+  never touch the committed growth trail. Corollary for anyone re-testing the
+  guard: emitting to a fresh path exercises NOTHING (history is `[]` because
+  the file is absent, not because the guard rejected anything) -- the guard
+  must be tested against a real prior file. All three cases were exercised at
+  ship: old-shape prev -> `[]`, prior-day v1 prev -> valid prepend, same-day
+  re-emit -> no growth, no eviction.
+- **`.brain-manifest.json.tmp`** is the publish staging name inside the
+  snapshots dir. nginx serves that directory; the dot prefix plus
+  `autoindex off` keeps a torn intermediate from being fetched, and the
+  rename onto the target is same-filesystem.
+- **Non-finding, pre-recorded so a later phase does not re-litigate it:** the
+  repo security hook fires on the `oracle_commit` `execSync` line
+  (command-injection pattern). It is a verbatim copy of the established
+  `buildMeta` pattern at `scripts/load-knowledge/build-snapshot.ts:652`; the
+  only interpolated value is `MONOREPO_ROOT`, derived from `import.meta.url`
+  at module load. No user input reaches the shell. Verified at ship.
+- **No schema drift at ship:** all ten baseline queries in the number-sources
+  table returned exactly their documented 2026-08-06 values.
+- **F9 (see findings ledger) applies to any later phase touching a
+  single-file bind mount:** write with `cat >` / `tee`, never Edit, `sed -i`,
+  or move-and-replace, or the container's view goes to `Stale file handle`
+  until a restart.
+
 ## Open questions
 
 1. **`share`: emitter-computed vs site-derived.** Default: emitter computes
