@@ -162,10 +162,14 @@ export function advanceTravelers(
 
 **No coordinates cross the fold.** Floor 1's traveler lives in the `#brain`
 SVG's own viewBox (desktop `0 0 1200 800`, mockup 364) and despawns at its
-bottom edge (`STEM_END = 800`, line 388); floor 2 spawns a FRESH glyph at its
-trunk start -- `(clientWidth / 2, 0)` of `#machine-room` in that SVG's
-pixel-space viewBox (mockup 925-928). Continuity is carried by three
-invariants, not by a coordinate transform:
+bottom edge (`STEM_END = 800`, line 388); floor 2 spawns a FRESH glyph in
+`#machine-room`'s pixel-space viewBox. Precision (clarified by Phase 4
+drafting against the comp): the TRUNK PATH starts at `(clientWidth / 2, 0)`
+(mockup 925-928), but the root TRAVELER spawns at `getPointAtLength(0)` of
+its target root path = `(cx, 44)` (mockup 1002 + 942); the trunk's y 0-44
+segment carries its own ambient `.sig` pulse (mockup 929), so no glyph ever
+teleports. Continuity is carried by three invariants, not by a coordinate
+transform:
 
 1. **Both stems anchor the viewport horizontal midline.** Floor 1: stem x =
    `GATHER.x = 600` = viewBox center, and `preserveAspectRatio="xMidYMid
@@ -862,9 +866,10 @@ section above):**
   (increments once per traveler finishing the stem; observable at
   `data-stem-exits` on the root div) and `reduced: boolean`. Phase 4 spawns
   one root traveler per increment per the contract's Phase-4 obligation.
-- **Coordinate + z-order invariants**: trunk starts at `(clientWidth / 2, 0)`
-  of `#machine-room`; roots SVG behind rack columns; no coordinates cross
-  the fold.
+- **Coordinate + z-order invariants**: trunk PATH starts at
+  `(clientWidth / 2, 0)` of `#machine-room`; root TRAVELERS spawn at their
+  target root path's origin `(cx, 44)` per the comp (see Coordinate
+  contract); roots SVG behind rack columns; no coordinates cross the fold.
 - **Visual vocabulary**: the floor-1 CSS block (trace colors, `.sig`
   keyframes + delays, `aglow`) is in `app.css` for the rack/root skin to
   match; the P7c reduced-motion guard already covers floor 2's
