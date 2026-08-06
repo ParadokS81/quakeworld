@@ -52,8 +52,12 @@ can be briefed against a live, verified interface.
   animation species (P7a).
 - **Contract constants are named, never inlined twice.** From the addendum +
   mockup: seed `41` with the LCG `seed = (seed * 1103515245 + 12345) %
-  2147483648` (lines 366-367); ~150 dots = 6 seats + 110 share-scattered
-  (`Math.round(110 * share)`, line 419) + 40 unattributed fill (line 428);
+  2147483648` (lines 366-367); dot budget = 6 seats + `Math.round(110 *
+  share)` share-scattered (line 419) + 40 unattributed fill (line 428) --
+  these are REQUESTED counts, not placed ones: rejection sampling exhausts its
+  3000-try budget well short of each, and the comp actually renders **86**
+  dots (re-derived from the mockup's own code 2026-08-06, finding F13; the
+  "~150" figure this line originally carried was the unreachable maximum);
   canonical dash speed 400u per 5.5s -- CSS `stroke-dasharray: 10 190` +
   `aPulse 5.5s` (51-52), JS `adv = 0.073 * dt` (524); `.sig` delays s2
   `-1.8s` / s3 `-3.6s` (53); flicker `aFire 6s` (54) gated by `fireMod = {
@@ -415,10 +419,35 @@ scatter + adjacency byte-for-byte in geometry.
     const a = generateMesh(shares, L), b = generateMesh(shares, L);
     console.log(a.pts.length, a.edges.length, JSON.stringify(a.pts) === JSON.stringify(b.pts));"
 
-Expect: `pts.length` in 140..156 (6 seats + up to 110 scattered + 40 fill;
-rejection sampling may fall short of `want`), `true` for determinism. With
-the mockup's 2026-08-05 shares the scatter is IDENTICAL to the comp's; live
-shares may drift the counts slightly (parity ritual item V4 tolerates this).
+Expect: `pts.length` **86** and `true` for determinism.
+
+**Dated amendment 2026-08-06 (arc-RUN, finding F13) -- the original expected
+range `140..156` was UNSATISFIABLE and has been replaced by the re-derived
+value.** The range was a plan-time arithmetic estimate (`6 + up to 110 + 40`)
+that assumed rejection sampling nearly always succeeds; it was never executed.
+Re-derived at orchestration by running the MOCKUP'S OWN code verbatim
+(desktop branch, lines 366-433, copy-pasted rather than ported) against the
+comp's own shares: every category exhausts its shared 3000-try budget rather
+than reaching `want` --
+
+    ef: want 32 got 17 | cm: want 46 got 26 | cs: want 13 got 7
+    gc: want 19 got 10 | fill: want 40 got 20   -> 6 seats + 80 = 86
+
+The cause is geometric, not a port defect and not an LCG artifact: at
+`MIN_DIST = 26` the 2-sigma cluster area around each seat is roughly half the
+non-overlapping area `want` points would need, so most draws land in the
+crowded centre and are rejected. Substituting `Math.random()` for the seeded
+LCG reproduces the same shortfall, which rules out RNG degeneracy. IEEE-754
+double arithmetic is identical in V8-based browsers and in node/bun, so the
+comp renders 86 dots too -- **the port matching 86 IS visual parity**, and the
+mockup's own "~150 dots" prose (Port discipline, also amended) was always a
+theoretical maximum rather than a rendered count.
+
+Because the comp's inline shares (`0.289 / 0.420 / 0.118 / 0.172`, mockup
+245-257) are IDENTICAL to the live manifest's as of this phase, the dot-for-dot
+parity claim in ritual item V2 is not merely tolerable but exactly checkable.
+Live shares drifting later would move the counts slightly; V2's D-b tolerance
+covers that (the original text mis-cited this as V4 -- V4 is hover spawns).
 
 ### Task 4 -- `src/generators/journeys.ts`: the handoff-contract module · `agent (workhorse, high)` -- after Task 3 (imports `MeshGeometry`)
 

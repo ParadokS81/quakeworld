@@ -137,6 +137,44 @@ deployment doc. Same class as F11 -- a plan literal that cannot be true in the
 state it runs. No weakening: the deploy still runs the same one command, only
 the env-file path is corrected.
 
+**F13 (MAJOR, execution-time, plan defect -- amended, port UPHELD) -- Phase 3
+Task 3's mesh-population gate `140..156` was unsatisfiable; the comp itself
+renders 86 dots.** Surfaced: Phase 3 Task 3 execution 2026-08-06, by the
+implementer, as a reported decision conflict rather than a silent probe
+relaxation (the brief's STOP duty working as designed). The implementer's port
+returned `pts.length = 86` against a probe expecting 140-156, and it declined
+to touch `sigma`/`MIN_DIST`/`want`/try-caps to force the number up.
+
+**Adjudicated by re-derivation at orchestration, not by re-reading the plan:**
+the mockup's own scatter code (desktop branch, lines 366-433) was copy-pasted
+verbatim into a standalone script -- no port, no reinterpretation -- and run
+against the comp's own inline shares. It produces `86`, with per-category
+counts matching the implementer's exactly (ef 17/32, cm 26/46, cs 7/13, gc
+10/19, fill 20/40; every category exhausting `tries = 3000`). The port is
+therefore FAITHFUL and is accepted as-is; the plan's range was a plan-time
+arithmetic estimate (`6 + up to 110 + 40`) that was never executed.
+
+Root cause is geometric: at `MIN_DIST = 26` the effective 2-sigma cluster area
+around a seat is about half the non-overlapping area `want` points require, so
+most draws land in the crowded centre and are rejected. The implementer ruled
+out RNG degeneracy by substituting `Math.random()` and observing the same
+shortfall -- a good instinct, independently confirmed here by the fact that the
+mockup's own code shows it. IEEE-754 doubles behave identically in V8-based
+browsers and in node/bun, so no environment-specific escape hatch exists: the
+comp renders 86 dots in a real browser too.
+
+**Disposition:** dated amendment in the phase doc at both sites that carried the
+bad number -- Task 3's probe expectation (now `86`, with the derivation and the
+geometric cause recorded) and the Port discipline bullet's "~150 dots" prose
+(now labeled a requested-not-placed maximum). No code changed; the assertion was
+CORRECTED, not weakened -- an exact value replaces a wrong range, so the probe
+is now strictly stronger. Bonus: the comp's inline shares (0.289/0.420/0.118/
+0.172, mockup 245-257) are identical to the live manifest's, so ritual item V2's
+dot-for-dot parity claim is exactly checkable rather than merely plausible. Also
+corrects a stale cross-reference in that probe's prose (it cited ritual item V4,
+the hover-spawn item, where it meant V2, the mesh item). Same defect class as
+F11/F12: a plan literal that cannot be true in the state it runs.
+
 **F8 (cold adversarial review, 2026-08-06) -- three fresh-context readers,
 all GO-WITH-FIXES, every finding applied.** Reports committed as
 `cold-review-chain.md`, `cold-review-gates.md`, `cold-review-spec.md`; aim
