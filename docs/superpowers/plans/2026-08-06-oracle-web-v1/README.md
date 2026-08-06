@@ -41,7 +41,7 @@ decisions P10. Concurrent arcs: oracle-eval-simulation in worktree
 
 | Phase | Ships | Depends on | Archetype / verification floor |
 |---|---|---|---|
-| 1 | `brain-manifest.json` contract + emitter + file served live with CORS from the public snapshots URL | -- | data contract + loader + infra -- automated (live curl probes) |
+| 1 | `brain-manifest.json` contract + emitter (rewrite of the pre-existing `build-brain-manifest.ts` -- F1) + file served live with CORS from the public snapshots URL | -- | data contract + loader + infra -- automated (live curl probes) |
 | 2 | `apps/oracle-web` scaffold deployed to CF Pages, rendering live manifest numbers; baked fallback proven | 1 | infra + Hello Production -- operator-run floor (public URL) |
 | 3 | Floor 1 (brain) ported: mesh/stations/traces/journeys, drill cards, connect card, why-overlay (dark) | 2 | UI port -- operator-run visual parity vs comp + automated build/interaction probes |
 | 4 | Floor 2 (machine room) ported + terminal topic content (6-10 cards, repo doors) | 3 | UI port + content authoring -- operator-run (copy review) |
