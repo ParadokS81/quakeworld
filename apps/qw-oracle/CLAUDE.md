@@ -42,11 +42,17 @@ the cockpit deliberately cannot run it). Prod is never touched by any of this.
   summary is NOT embedded -- raw messages are (decisions.md D3). `sessions` /
   `session_search` remain as raw timestamp-grouped adjacent-context, no longer
   the retrieval unit. RRF `match_quality` thresholds (`L2_RRF_*`) are
-  provisional pending Phase D recalibration on the full backfill. Phase C
-  backfill RESUMED 2026-08-05 on the external cheap-model fence engine
-  (`fence-external.ts`, in flight in a parallel lane); raw corpus caught up
-  same day to 741,128 msgs through 2026-08-05 (catch-up seam:
+  provisional pending Phase D recalibration on the full backfill. **Phase C
+  HISTORICAL BACKFILL COMPLETE 2026-08-06** on the external cheap-model fence
+  engine (`fence-external.ts`): 33/35 batches, `chat_threads` 8,621 -> 38,598,
+  100% `fence-sonnet-v2` (last v1 probe threads superseded). Every batch 0%
+  index-hallucination, >=99.13% coverage, idempotent, retrieval-verified. Raw
+  corpus caught up 2026-08-05 to 741,128 msgs through 2026-08-05 (catch-up seam:
   `export-anchors.ts` + quad `catchup.mjs --anchors` + `import-discord.ts`).
+  **The two 2026 batches are PARKED**: the catch-up landed RAW rows only and
+  `build-sessions.ts` has not re-run, so 12,265 messages carry no
+  `message_labels` and are invisible to the chunker -- run it (never concurrently
+  with a batch; it TRUNCATEs `message_labels`) then fence the 2026s.
   Thread retrieval serving on PROD since 2026-08-04; prod corpus refreshes at
   Arc A finish-out. Live state: root HANDOVER oracle-web-direction entry +
   `scripts/load-chat/backfill-ledger.md`.
