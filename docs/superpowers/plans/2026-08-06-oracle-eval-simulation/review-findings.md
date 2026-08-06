@@ -254,6 +254,30 @@ is not set`. It works only when invoked from `apps/qw-oracle/`. Disposition:
 Phase 1's stdio probe sets `cwd` and `env` explicitly rather than copying the
 broken pattern; the existing script is left alone (route to HANDOVER).
 
+**F22 (minor; fixed for eval mode here, production disposition OPEN) -- the
+lexical path's `catch { return [] }` protects against nothing and hides
+everything.** Surfaced: Phase 1 revision 2026-08-06, by probing the catch's own
+stated rationale. `lexicalCandidates` wraps its entire query in a bare catch
+justified by the comment "tsquery can reject malformed queries" -- but
+`websearch_to_tsquery` is forgiving by construction and threw on **none** of
+seven malformed inputs (`foo & | bar`, unclosed quote, `!!!`, `:*`, `a <-> b`,
+empty string, lone backslash); the full `content_tsv @@ ...` query ran clean on
+the unclosed-quote case too. The catch is a `to_tsquery`-era carry-over
+guarding against no known input class. With this arc's scope and exclusion
+fragments living inside it, a bad `::bigint[]` cast, a malformed channel list,
+or a connection fault all degrade to `[]` -- indistinguishable from "no
+matches", and enough to make the obvious probe assertions ("all results are
+`#helpdesk`", "the excluded id never appears") vacuously true.
+Disposition: Phase 1 fixes it for eval mode only -- always log, and re-throw
+**when a retrieval context is set**. That is deliberately narrower than
+"re-throw on non-tsquery errors": narrowing by SQLSTATE would mean guessing
+codes for errors that could not be triggered, and an unconditional re-throw
+would change live MCP behaviour for a stack the concurrent oracle-web arc is
+deploying right now. The ctx-gated form gets the full benefit exactly where the
+measurement happens, stays symmetric across cells B and C, and leaves
+production byte-identical. Whether the live server should also re-throw is a
+separate call, unresolved -- route to HANDOVER if it survives the arc.
+
 **F21 (minor, route to Phase 2) -- `TOOL_LIST` is not exported.** Evidence:
 `serve/mcp/src/index.ts` declares `TOOL_LIST` as a module-local `const`. E6
 requires the harness to IMPORT the tool schemas rather than hand-write them, so

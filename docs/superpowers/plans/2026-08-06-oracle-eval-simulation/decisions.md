@@ -257,6 +257,22 @@ it protects. Separately, `faq-gate-retrieve.ts` imports through hardcoded
 copied; anything that must be fixed in `faq-gate/` is a finding, not an edit
 of convenience.
 
+**Amendment 2026-08-06 (Phase 1 checker, MAJOR-1) -- one documented exception:
+SDK-importing files live in `serve/mcp/scripts/`.** `@modelcontextprotocol/sdk`
+resolves ONLY from `apps/qw-oracle/serve/mcp/node_modules` -- neither the repo
+root nor `apps/qw-oracle` carries it, and module resolution from `eval/sim/`
+walks past both. Verified: the import fails from `apps/qw-oracle` and resolves
+from `serve/mcp`. So any harness file that imports the MCP SDK directly lives
+in `serve/mcp/scripts/` beside the existing `test-call.ts` and
+`verify-rewrite.ts`; everything else stays under `eval/sim/`. Rejected:
+duplicating the SDK dependency into `apps/qw-oracle/package.json` (version
+skew against the server's own pin) and making `serve/mcp` a workspace member
+(changes the monorepo install while a concurrent arc holds the main checkout).
+Consequence to carry forward: this **pre-decides Phase 7** -- the E11
+per-question spawn loop is an SDK client, so it lives in `serve/mcp/scripts/`
+too, and is covered by `serve/mcp`'s own typecheck rather than the
+`apps/qw-oracle` one.
+
 ## E13 -- Run artifacts are gitignored; conclusions are committed
 
 **Decision:** JSONL records, per-run scratch, and grading intermediates are
