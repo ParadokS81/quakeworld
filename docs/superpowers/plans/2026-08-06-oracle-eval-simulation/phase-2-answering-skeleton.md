@@ -7,7 +7,7 @@ the cell definitions, the JSONL store, and the pricing table). **Spec:**
 `docs/superpowers/specs/2026-08-06-oracle-eval-simulation-design.md` D2, D8, and
 D6 stage 2 only -- **no grading in this phase** (D6 stage 3 is Phase 4).
 **Findings consumed:** F5, F8, F9, F15, F16, F21, F22, F37, F38, F39, F40.
-**Findings raised here:** F23-F26, F41. **Contract inherited:**
+**Findings raised here:** F23-F26, F43. **Contract inherited:**
 `phase-1-eval-surface-contract.md` -- Phase 2 conforms to it and redefines
 nothing in it. **Lane:** worktree `/home/dev/projects/quakeworld-eval`, branch
 `eval-oracle-sim`.
@@ -27,9 +27,11 @@ Build the walking skeleton that pushes a question through all three conditions
 and lands a legal, ungraded run record on disk for each pass. Net-new in this
 phase: a DeepSeek tool-calling loop (there is no tool-calling prior art anywhere
 in the repo, F5), an in-process tool executor that imports the real handlers and
-the real tool schemas (E6), the three cell definitions with symmetry enforced by
-a probe rather than by convention (E7), an append-only JSONL store with
-crash-resume (E9), and dollar accounting off a pinned pricing table (E10). The
+the real tool schemas (E6), the three cell definitions with a first-turn payload
+guard in code and the four downstream asymmetry channels named and instrumented
+rather than assumed away (E7 and its D15/D7 amendment), an append-only JSONL
+store with crash-resume (E9), and dollar accounting off a pinned pricing table
+(E10). The
 phase ends with the 12 existing phase-8 questions answered end-to-end in all
 three cells -- 36 records, every one validating against Phase 1's
 `validateRunRecord` with `stage: 'answered'` and `grade: null` -- a deliberate
@@ -186,7 +188,7 @@ are cited below they are labelled as such:
   green baseline, so the red is attributable. Importing only `orientation.ts`
   and `types.ts` exits 0. This is why the extraction is the default and not a
   fallback (Task 1).
-- **F41 (NEW) -- the extraction is necessary but NOT sufficient.** The checker's
+- **F43 (NEW) -- the extraction is necessary but NOT sufficient.** The checker's
   red came from importing `index.ts`, which imports all 13 handlers, so the 5
   errors are attributable to the handler set and not to the SDK. **Task 5's
   executor must import those same 13 handlers by E6**, so it drags
@@ -714,7 +716,7 @@ SDK, so none belongs in `serve/mcp/scripts/`):**
   before. (This replaces the earlier draft's "one word: `export`" -- see Task 1
   for the measured reason.)
 - `apps/qw-oracle/serve/mcp/src/tools/lookup-map.ts` -- five non-null assertions
-  at `:107`, `:109` and `:111` (F41). Compile-time only; no runtime behaviour
+  at `:107`, `:109` and `:111` (F43). Compile-time only; no runtime behaviour
   changes and no logic moves.
 
 **Deleted:** none.
@@ -801,7 +803,7 @@ fallback triggered by a TS2307 on the MCP SDK. The checker ran it. Under
 SDK and express resolve fine, exactly as Phase 1 predicted, so the drafted
 trigger would never have fired and the drafted default would simply have failed
 boundary probe 1. A control run reproduced today's green baseline; importing
-only `orientation.ts` + `types.ts` exits 0. Hence: extract. And per F41, the
+only `orientation.ts` + `types.ts` exits 0. Hence: extract. And per F43, the
 extraction alone is not sufficient -- Task 5 still drags `lookup-map.ts` in via
 the handler imports, which is why the five assertions land there.
 
@@ -877,7 +879,7 @@ as much as the app one here: the extraction moved three declarations between two
 files that the MCP config checks, so a missed import surfaces there. The app
 typecheck at THIS task only reaches `tool-list.ts`, `orientation.ts` and
 `types.ts`, all of which are measured clean; the strict-config exposure lands at
-Task 5 with the handler imports (F41).
+Task 5 with the handler imports (F43).
 
 ### Task 2 -- Pricing table and the shared DeepSeek client · `agent (workhorse, high)`
 
@@ -1044,10 +1046,10 @@ Expect all `PASS` and exit 0. No API call and no DB query -- this probe is pure.
 context reaching the SQL and the model reading the production payload bytes.
 
 **Files:** `eval/sim/tool-executor.ts` (new), `eval/sim/probe-tool-executor.ts`
-(new), `serve/mcp/src/tools/lookup-map.ts` (modified -- F41).
+(new), `serve/mcp/src/tools/lookup-map.ts` (modified -- F43).
 
 **Steps:**
-0. **F41 first, because boundary probe 1 cannot go green without it.** Importing
+0. **F43 first, because boundary probe 1 cannot go green without it.** Importing
    the 13 handlers pulls `lookup-map.ts` into `apps/qw-oracle/tsconfig.json`'s
    graph for the first time, and its Levenshtein helper produces 5
    `noUncheckedIndexedAccess` errors there (measured by the checker; nothing
@@ -1220,8 +1222,9 @@ harness implements them.
 
 **Goal:** 36 records on disk, a crash that costs nothing, and a measured bill.
 
-**Files:** none created; writes `eval/sim/records/<run_id>.jsonl` (gitignored)
-and `eval/sim/probe-records.ts` (new, written in this task).
+**Files:** `eval/sim/probe-records.ts` (new, written in this task); writes
+`eval/sim/records/<run_id>.jsonl` (gitignored) and a scratch pre-kill copy under
+`/tmp`.
 
 **Steps:**
 1. **Kill test first, on a small slice**, so the crash happens before the full
@@ -1295,18 +1298,25 @@ and `eval/sim/probe-records.ts` (new, written in this task).
 
 **Verification probe:**
 
-    cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun eval/sim/probe-records.ts smoke-full
+    cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun eval/sim/probe-records.ts smoke-full 36
 
-Assertions (each printed `PASS`/`FAIL`, explicit exit code): 36 reconstructed
-records and a non-emptiness floor; 36 distinct `record_id`s; every record
-`validateRunRecord`-valid with `stage === 'answered'` and `grade === null`; 12
-per cell; cell A `tool_calls.length === 0` on all 12; cells B and C
-`tool_calls.length >= 1` on every record whose `error` is null; cell B's
+Assertions, with `N` the expected count from `argv[3]` (each printed
+`PASS`/`FAIL`, explicit exit code): `N` reconstructed records and a
+non-emptiness floor; `N` distinct `record_id`s; every record
+`validateRunRecord`-valid with `stage === 'answered'` and `grade === null`;
+`N / 3` per cell; cell A `tool_calls.length === 0` on all of them; cell B's
 `retrieval_context.channels` is `['#helpdesk']` and cell C's is `null`;
 `pinned_limit === 3` in B and C and `null` in A; no answer matches
 `LEAK_SENTINEL` (F23); at least one record has `usage.reasoning_tokens > 0`
 (F16d) and one has `usage.prompt_cache_hit_tokens > 0`; the dollar total is
 positive; and it prints `TOOL_CALLS_TOTAL <n>` for the attribution probe below.
+
+Tool use in B and C is a **cell-level floor, not a per-record assertion**: at
+least `(N / 3) - 2` of each cell's records must carry >= 1 round. Two of the 12
+fixture questions are deliberately `out-of-corpus` (`expected_top_3: []` --
+Minecraft servers, an fteqw-sv64 map rotation), and a model following the
+imported orientation text may legitimately answer one of those directly without
+searching. A per-record assertion would fail on correct behaviour.
 
 ## Phase-boundary verification
 
@@ -1524,7 +1534,7 @@ extraction as a fallback behind a TS2307 trigger. Measurement closed it the
 other way -- the failure is 5 `noUncheckedIndexedAccess` errors in
 `lookup-map.ts`, not a module-resolution error, so the drafted trigger would
 never have fired and the drafted default would have failed the phase's own
-boundary probe. Task 1 does the extraction; F41 records that it is necessary but
+boundary probe. Task 1 does the extraction; F43 records that it is necessary but
 not sufficient, and Task 5 step 0 closes the rest. Kept here as a settled entry
 rather than deleted, because the reasoning that produced the wrong default (the
 SDK looked like the obvious risk) is worth leaving visible.
@@ -1583,12 +1593,12 @@ SDK looked like the obvious risk) is worth leaving visible.
   express resolve fine from `serve/mcp/node_modules` and the checker measured
   this directly. Two distinct causes with different fixes:
   (a) errors naming `lookup-map.ts` lines 107/109/111 mean Task 5 step 0's five
-  non-null assertions are missing or were reverted (F41) -- add them back;
+  non-null assertions are missing or were reverted (F43) -- add them back;
   (b) errors anywhere else inside `serve/mcp/src/` mean something imported
   `index.ts` instead of the SDK-free `tool-list.ts` -- fix the import, do not
   silence the check by widening `skipLibCheck` or adding `eval/sim` to
   `exclude`. If a THIRD handler file turns out to have its own strict-config
-  errors, treat it exactly like F41: minimal non-null assertions, recorded as a
+  errors, treat it exactly like F43: minimal non-null assertions, recorded as a
   finding, never a suppression comment. An error in `eval/eval.ts` about
   `session_id` is a different animal: the include pattern was widened to
   `eval/**/*` instead of `eval/sim/**/*` -- that is F18, pre-existing, narrow the

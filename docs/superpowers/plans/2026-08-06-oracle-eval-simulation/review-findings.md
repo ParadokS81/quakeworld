@@ -254,6 +254,31 @@ is not set`. It works only when invoked from `apps/qw-oracle/`. Disposition:
 Phase 1's stdio probe sets `cwd` and `env` explicitly rather than copying the
 broken pattern; the existing script is left alone (route to HANDOVER).
 
+## Findings from the Phase 2 revision (2026-08-06)
+
+Numbered F43 (the drafter emitted it as F41, taken by the Phase 3 revision;
+renumbered here and in the phase doc, 10 references moved).
+
+**F43 (MAJOR) -- the tool-list extraction is necessary but NOT sufficient.**
+Evidence: the Phase 2 checker's 5 typecheck errors came from importing
+`index.ts`, which imports all 13 tool handlers -- so they are attributable to
+the **handler set**, not to the SDK and not to where `TOOL_LIST` lives. E6
+requires Phase 2's tool executor to import those same 13 handlers directly, so
+`lookup-map.ts` lands in the app typecheck graph no matter what. Nothing
+currently inside the app's tsconfig `include` reaches that file
+(`gate-compare.ts` reaches only `search-solved-issues.ts`; `faq-gate-retrieve.ts`
+is outside the include per F13), which is exactly why it has never had to
+satisfy `noUncheckedIndexedAccess`. The drafter read the offending helper: a
+Levenshtein routine with `curr[j-1]` / `prev[j]` / `prev[j-1]` at `:107`, the
+assignment at `:109`, the return at `:111` -- exactly the 5 errors, all
+mechanical, and every index provably in range (both arrays allocated at `n+1`
+and fully written before read). Disposition: five non-null assertions (erased
+at compile time, zero runtime change) added in Phase 2's executor task, with
+the app typecheck repeated at task level so this surfaces inside the task
+rather than at the phase boundary. Worth recording because it is a
+second-order consequence that the first fix would have masked: the extraction
+looked like a complete answer and was not.
+
 ## Findings from the Phase 3 revision (2026-08-06)
 
 Numbered F41-F42 (the drafter emitted them as F37-F38, which the Phase 2
