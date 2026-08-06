@@ -616,9 +616,21 @@ as the live thread count).
 
 ### Operator content-review checklist (the phase's acceptance gate for Task 3)
 
-Reviewed against the live deploy URL, one card at a time (boot + 6). Each
-row answered YES / NO / EDIT (an EDIT is a copy change the implementer
-applies verbatim, then re-deploys; a NO is a finding):
+Reviewed against the live deploy URL, one card at a time (boot + 6).
+
+**How it is answered (cold-review consolidation -- do NOT run this as a
+7x7 matrix).** C1-C7 below are the RUBRIC the operator holds in mind, not
+49 separate answers. For each of the 7 cards the operator reads it once and
+gives ONE verdict: YES / NO / EDIT (an EDIT is a copy change the
+implementer applies verbatim, then re-deploys; a NO is a finding). Seven
+answers total. Only when a card draws NO or EDIT does the operator walk
+that card against the individual C-criteria, to say precisely which one it
+failed -- that specificity is what the implementer needs, and it is only
+needed for cards that actually failed. The floor is unchanged: every
+criterion still governs every card; the bookkeeping is what shrinks.
+
+Per-card verdict question: *"accurate today, right altitude, door lands
+where it says, right voice and locked names?"*
 
 - **C1 altitude:** the body explains what the subsystem IS at
   stable-concept level -- nothing that rots with a refactor (no file names

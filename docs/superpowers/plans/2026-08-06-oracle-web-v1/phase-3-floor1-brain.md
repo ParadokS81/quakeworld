@@ -649,6 +649,30 @@ dark (P6).
 2. Endpoint copy ships byte-identical including `(illustrative in this
    mockup)` (277, and the boot-card sibling is Phase 4's) -- truth-up is
    Phase 6's final-copy pass (Open question 3, `TBD-PHASE-6-endpoint-truth`).
+2b. **What-to-expect block (ADDITIVE beyond the comp; spec D1, cold review
+   CR-SPEC-1).** Spec D1 requires the quickstart cover "what to expect (and
+   what to do when the oracle doesn't know -- `redirect_to_human` exists)";
+   the comp's CONNECT card stops at the client steps, so no phase shipped it
+   and the cold review caught the gap. Append a short block at the foot of
+   the CONNECT card, in the card's existing voice and type scale: two or
+   three lines covering (a) what good answers look like -- grounded, cited to
+   the layer they came from; (b) the honest failure mode -- when the oracle
+   does not know, it says so and the `redirect_to_human` tool hands the
+   question back to the community rather than inventing an answer. Framing
+   rule: additive-beyond-comp, exactly like Phase 6's footer and fragment
+   additions -- the comp is the visual contract (P1), the spec is the content
+   contract, and where the spec demands content the comp lacks, the content
+   ships and the deviation is recorded (D-j, register it with the ritual's
+   sanctioned-deviation list). The wording is drafted at arc-RUN and reviewed
+   by the operator at ritual item V8; do NOT invent claims about oracle
+   behavior beyond what the server actually does. Sources verified
+   2026-08-06: the tool is live at
+   `apps/qw-oracle/serve/mcp/src/index.ts:194` (dispatch case) and the
+   behavior contract the copy paraphrases is stated at
+   `apps/qw-oracle/serve/mcp/src/orientation.ts:23` -- "match_quality =
+   'none' or 'weak': do NOT synthesise an answer from training data. Either
+   redirect (call redirect_to_human) or state that the corpus does not cover
+   this." Paraphrase THAT; claim nothing stronger.
 3. `WhyCompare.tsx`: port the COMPARE content byte-identical (842-864) --
    h3 `WHY DO I NEED THIS?`, the headline, the draftstamp `draft — final
    page shows verbatim captured answers, dated + model-labeled`, the four
@@ -738,9 +762,14 @@ at green probes; push at the checkpoint.
 2. **A2 -- copy locks in the shipped bundle** (P8 spot checks; the why
    overlay must be IN the bundle even though dark -- P6):
 
-       cd /home/dev/projects/quakeworld/apps/oracle-web && for s in "THE ORACLE IS" "any MCP client" "you are here" "snapshot door" "Why do I need this?" "WHY DO I NEED THIS?" "rendered dim on purpose" "esc / click outside to close" "30 years of QuakeWorld knowledge"; do grep -rlq "$s" dist/assets/ && echo "YES  $s" || echo "NO   $s"; done
+       cd /home/dev/projects/quakeworld/apps/oracle-web && for s in "THE ORACLE IS" "any MCP client" "you are here" "snapshot door" "Why do I need this?" "WHY DO I NEED THIS?" "rendered dim on purpose" "esc / click outside to close" "30 years of QuakeWorld knowledge" "final page shows verbatim captured answers"; do grep -rlq "$s" dist/assets/ && echo "YES  $s" || echo "NO   $s"; done
 
-   Expect nine `YES` -- YES/NO.
+   Expect ten `YES` -- YES/NO. The tenth string is the why-overlay's
+   **draftstamp** (mockup 845): cold review identified it as the load-bearing
+   honesty device for the dark overlay -- while the comparison columns hold
+   placeholder content, the stamp is what stops a leaked `?dev=why` view from
+   reading as a real published claim (P6). It must survive into the bundle
+   verbatim and only leaves when the eval arc's real captures replace it.
 
 3. **A3 -- deployed URL serves the new bundle:**
 
@@ -793,6 +822,17 @@ anything else that differs is a finding:**
   (V11).
 - D-e: the MCP card's thread/note counts on the deploy come from the live
   manifest (Open question 2), not the comp's `20,270` / `44`.
+- D-j: the CONNECT card carries a what-to-expect / oracle-doesn't-know block
+  the comp lacks -- additive per spec D1 (Task 8 step 2b, cold review
+  CR-SPEC-1). Its wording is reviewed here at V8, not compared against the
+  comp.
+
+**Operator-load note:** this fourteen-item walk runs ONCE, here. Later
+phases deliberately re-run only a consolidated subset -- Phase 5's R-op
+re-checks five items at desktop width after the portrait refactor, and
+Phase 6's B0 re-runs the AUTOMATED probes as its regression baseline. If a
+later phase's doc appears to re-demand the full fourteen, that is a drafting
+error, not an instruction (cold review, operator-load consolidation).
 
 **Checklist -- every line answered YES/NO:**
 

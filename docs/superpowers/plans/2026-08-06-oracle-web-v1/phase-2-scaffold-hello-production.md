@@ -657,9 +657,19 @@ public URL (this phase's verification floor per the README).
    renders the SAME numbers (baked == live at this point in the arc, Phase 1
    probe 8), console shows the `[oracle-web] live manifest unavailable` info
    line, and `data-manifest-source` reads `"baked"`; (b) devtools -> Network ->
-   Offline, hard-reload -- page still renders numbers from the baked copy, no
-   error surface. (a) proves the real fetch->404->catch->fallback code path
-   against the real server; (b) proves the network-down path -- YES/NO.
+   right-click the manifest request -> **Block request URL** (or Network
+   request blocking, pattern `*brain-manifest.json`), then reload -- the
+   document still loads from the network while the manifest fetch fails, so
+   the page renders numbers from the baked copy with no error surface. (a)
+   proves the real fetch->404->catch->fallback code path against the real
+   server; (b) proves the fetch-unreachable path -- YES/NO.
+
+   **Do NOT use devtools Offline for (b)** (cold review CR-GATE-2): this page
+   ships no service worker, so Offline blocks the DOCUMENT itself -- the
+   operator gets the browser's error page, the app never boots, and the
+   fallback path goes unverified while the probe looks like it "failed
+   correctly". Request-blocking scopes the failure to the one fetch under
+   test, which is the actual condition P3's fallback exists for.
 
 6. **Two floors, fragments, scroll-snap (operator):** open
    `https://qw-oracle-web.pages.dev/#machine-room` -- lands on floor 2; scroll
