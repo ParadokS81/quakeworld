@@ -557,10 +557,18 @@ a structural change, behavior and appearance still match the comp (P1).
 
 **Verification probe (arc-RUN):**
 
-    cd /home/dev/projects/quakeworld/apps/oracle-web && pnpm run check && pnpm build && grep -c "ORACLE IS\|dock here\|aglow" dist/assets/*.js
+    cd /home/dev/projects/quakeworld/apps/oracle-web && pnpm run check && pnpm build && for s in "ORACLE IS" "dock here" "aglow"; do grep -rlq "$s" dist/assets/ && echo "YES  $s" || echo "NO   $s"; done
 
-Expect: tsc + build clean, grep >= 3. Interaction verification is the
+Expect: tsc + build clean, three `YES`. Interaction verification is the
 boundary ritual's (V2, V3, V5, V6).
+
+**Dated amendment 2026-08-06 (arc-RUN, finding F15):** this probe read
+`grep -c "ORACLE IS\|dock here\|aglow" dist/assets/*.js` expecting `>= 3`,
+which is unreachable -- the minified bundle is ONE line, so `grep -c` returns
+at most 1 regardless of content (a correct implementation scored `1`). The
+per-string loop above also closes a second hole: an alternation count can be
+satisfied by one string repeated, so it never proved the other two shipped.
+Corrected and hardened, not weakened. Same amendment applied to T6, T7, T8.
 
 ### Task 6 -- `Floor1Brain.tsx` output side: gate, highway, snapshot door, brainstem · `agent (workhorse, high)` -- after Task 5 (same file)
 
@@ -603,9 +611,11 @@ mockup 719-829.
 
 **Verification probe (arc-RUN):**
 
-    cd /home/dev/projects/quakeworld/apps/oracle-web && pnpm run check && pnpm build && grep -c "YOUR AGENT\|any MCP client\|you are here\|snapshot door\|brainstem" dist/assets/*.js
+    cd /home/dev/projects/quakeworld/apps/oracle-web && pnpm run check && pnpm build && for s in "YOUR AGENT" "any MCP client" "you are here" "snapshot door" "brainstem"; do grep -rlq "$s" dist/assets/ && echo "YES  $s" || echo "NO   $s"; done
 
-Expect: tsc + build clean, grep >= 5.
+Expect: tsc + build clean, five `YES`. (Amended 2026-08-06 per finding F15 --
+the original `grep -c ... >= 5` is unreachable against a single-line minified
+bundle; per-string assertion is strictly stronger.)
 
 ### Task 7 -- drill system: overlay + datacenter cards · `agent (workhorse, high)`
 
@@ -649,9 +659,11 @@ manifest data; esc / backdrop / X close it; P7c honors reduced motion.
 
 **Verification probe (arc-RUN):**
 
-    cd /home/dev/projects/quakeworld/apps/oracle-web && pnpm run check && pnpm build && grep -c "esc / click outside to close\|rendered dim on purpose" dist/assets/*.js
+    cd /home/dev/projects/quakeworld/apps/oracle-web && pnpm run check && pnpm build && for s in "esc / click outside to close" "rendered dim on purpose"; do grep -rlq "$s" dist/assets/ && echo "YES  $s" || echo "NO   $s"; done
 
-Expect: tsc + build clean, grep >= 2. Zoom/close behavior = ritual V6.
+Expect: tsc + build clean, two `YES`. Zoom/close behavior = ritual V6.
+(Amended 2026-08-06 per finding F15 -- `grep -c` cannot exceed 1 on the
+single-line minified bundle.)
 
 ### Task 8 -- XN cards, singular CONNECT card, why-overlay (dark) · `agent (workhorse, medium)`
 
@@ -717,10 +729,13 @@ dark (P6).
 
 **Verification probe (arc-RUN):**
 
-    cd /home/dev/projects/quakeworld/apps/oracle-web && pnpm run check && pnpm build && grep -c "WHY DO I NEED THIS?\|agent alone\|CONNECT YOUR AGENT\|illustrative in this mockup" dist/assets/*.js
+    cd /home/dev/projects/quakeworld/apps/oracle-web && pnpm run check && pnpm build && for s in "WHY DO I NEED THIS?" "agent alone" "CONNECT YOUR AGENT" "illustrative in this mockup"; do grep -rlq "$s" dist/assets/ && echo "YES  $s" || echo "NO   $s"; done
 
-Expect: tsc + build clean, grep >= 4 (the overlay RIDES the bundle, dark --
-P6 verifies presence-in-bundle + absence-at-rest, ritual V9).
+Expect: tsc + build clean, four `YES` (the overlay RIDES the bundle, dark --
+P6 verifies presence-in-bundle + absence-at-rest, ritual V9). (Amended
+2026-08-06 per finding F15 -- `grep -c` cannot exceed 1 on the single-line
+minified bundle, and an alternation count never proved each string shipped,
+which is precisely what a copy-lock probe must prove.)
 
 ### Task 9 -- animation runtime: rAF loop, journeys, flicker, App wiring · `agent (workhorse, high)` -- after Tasks 4, 5, 6
 

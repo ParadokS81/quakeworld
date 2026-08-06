@@ -197,6 +197,40 @@ dispatch brief as an explicit acceptance criterion; verify at the phase
 boundary by reading the guard, since ritual item V11 watches cadence rather
 than counting simultaneous travelers.
 
+**F15 (MAJOR, execution-time, plan defect -- four probes amended) -- the
+per-task bundle greps use `grep -c` against a SINGLE-LINE bundle, so their
+expected counts are unreachable.** Surfaced: Phase 3 Task 5 boundary
+verification 2026-08-06, by the orchestrator, when a correct implementation
+returned `1` against an expected `>= 3`.
+
+`grep -c` counts MATCHING LINES, not occurrences. Vite's production bundle is
+minified to a single line with no trailing newline (`wc -l dist/assets/*.js`
+-> `0`), so `grep -c <alternation> dist/assets/*.js` returns at most `1` no
+matter how many of the alternates are present. Every per-task probe of the
+form "grep >= N" for N > 1 is therefore unsatisfiable by construction:
+**T5** (>= 3), **T6** (>= 5), **T7** (>= 2), **T8** (>= 4). Verified on T5's
+real output -- all three strings ARE present by occurrence count (`ORACLE IS`
+x1, `dock here` x2, `aglow` x3) while `grep -c` reported `1`.
+
+Second, subtler defect in the same construct: an alternation count does not
+prove each alternate is present. On a multi-line file `grep -c "A\|B\|C" >= 3`
+passes on three lines matching `A` alone, with `B` and `C` missing entirely --
+exactly the copy-lock regression these probes exist to catch.
+
+**Disposition:** all four probes amended to the per-string loop idiom the
+phase's own A2 boundary probe already uses (`for s in ...; do grep -rlq "$s"
+... && echo "YES  $s" || echo "NO   $s"; done`), which asserts each string
+INDIVIDUALLY. This is strictly STRONGER than what it replaces -- it closes
+both the single-line blindness and the alternation loophole -- so the
+assertions are corrected and hardened, never weakened. Task 9's probe needs no
+change: its bundle leg expects `>= 1` (reachable) and its other leg greps a
+multi-line source file. Boundary probe A2 was already written in the correct
+idiom and is untouched -- the defect was confined to the per-task copies.
+
+Third instance of the plan-literal-unsatisfiable-in-its-own-state class
+(F11 tree-shaking, F13 population range, now this), and the second caught by
+running a probe rather than reading it.
+
 **F8 (cold adversarial review, 2026-08-06) -- three fresh-context readers,
 all GO-WITH-FIXES, every finding applied.** Reports committed as
 `cold-review-chain.md`, `cold-review-gates.md`, `cold-review-spec.md`; aim
