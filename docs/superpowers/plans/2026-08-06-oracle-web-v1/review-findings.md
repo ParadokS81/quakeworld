@@ -122,6 +122,21 @@ single-file bind mount: use a truncate-in-place write (`cat > file`,
 `tee`), never Edit / `sed -i` / move-and-replace.** Repo-side copies are
 unaffected (no mount). Carried forward to Phase 2+ briefs.
 
+**F12 (execution-time, plan defect, corrected at run time) -- Phase 3 Task 10's
+deploy one-liner cites the pre-F10 secrets path.** Surfaced: Phase 3 pre-flight
+2026-08-06, by the orchestrator. Task 10 says `set -a; . ~/.secrets/cloudflare-pages.env`,
+but F10 established during Phase 2 that `~/.secrets/` is an ops-provisioned
+READ-ONLY mount and the token actually lives at
+`/home/dev/projects/.secrets/cloudflare-pages.env` -- which is what the shipped
+`apps/oracle-web/DEPLOYMENT.md` cites (verified live: lines 27/32/53 of that
+file name the projects path and explicitly warn "Not `~/.secrets/`"; the token
+file exists there, mode 600). The Phase 3 doc was drafted before F10 resolved,
+so it inherited the stale default. **Disposition:** Task 10 executes with the
+DEPLOYMENT.md path; the phase doc's Task 10 line is the defect, not the
+deployment doc. Same class as F11 -- a plan literal that cannot be true in the
+state it runs. No weakening: the deploy still runs the same one command, only
+the env-file path is corrected.
+
 **F8 (cold adversarial review, 2026-08-06) -- three fresh-context readers,
 all GO-WITH-FIXES, every finding applied.** Reports committed as
 `cold-review-chain.md`, `cold-review-gates.md`, `cold-review-spec.md`; aim

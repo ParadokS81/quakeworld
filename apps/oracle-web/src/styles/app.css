@@ -62,4 +62,92 @@ section.floor { min-height: 100svh; position: relative; overflow: hidden; scroll
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .sig, .fire, .rk .rkd i.on.bl { animation: none !important; }
+  .dcard, text.detail, g .detail { transition: none !important; }
 }
+
+/* ===== FLOOR 1 (mockup 20-60) ===== */
+#brain svg.main { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+.titleblock { position: absolute; top: 4%; right: 4%; z-index: 2; text-align: right; }
+.titleblock h1 { margin: 0; font-weight: 250; font-size: clamp(1.5rem, 3vw, 2.4rem);
+  letter-spacing: .1em; color: #eaf2fc; white-space: nowrap; }
+.titleblock h1 b { font-weight: 700; color: #6fe3ff; }
+.herolinks { position: absolute; top: calc(4% + 4.4rem); right: 4%; z-index: 2;
+  display: flex; gap: .6rem; justify-content: flex-end; flex-wrap: wrap; }
+.herolink { background: none; border: 1px solid #2a4a74; color: #6fe3ff; padding: .35em .9em;
+  border-radius: 999px; font-size: .85rem; text-decoration: none; }
+.herolink:hover { border-color: #6fe3ff; background: #6fe3ff14; }
+.herolink.go { color: #52ffa8; border-color: #1f5c38; }
+.herolink.go:hover { border-color: #52ffa8; background: #52ffa814; }
+.cornernote { position: absolute; left: 3%; bottom: 3%; z-index: 2;
+  color: #7d8ba3; font-size: .9rem; line-height: 1.55; }
+.cornernote .tag { margin: 0; white-space: nowrap; }
+.majorlabel { font: 650 13px/1 system-ui, sans-serif; fill: #e6eefa; letter-spacing: .1em; }
+.majornum { font: 700 16px/1 ui-monospace, Consolas, monospace; fill: #6fe3ff; }
+.majorsub { font: 400 10.5px/1 ui-monospace, Consolas, monospace; fill: #7d8ba3; }
+/* svg.portrait overrides (mockup 39-41) skipped -- TBD-PHASE-5-portrait-layout */
+text.detail, g .detail { opacity: 0; transition: opacity .25s; }
+g.reveal .detail { opacity: 1; }
+g.major { cursor: pointer; }
+g.major.dim .majorlabel, g.major.dim .majornum { fill: #5c6a80; }
+g.gate { cursor: pointer; }
+path.hotbase { stroke: #4aa8ff !important; opacity: 1 !important; }
+circle.hotseat { stroke: #eaf2fc; stroke-width: 2; }
+circle.meshdot { transition: fill .35s, stroke .35s; }
+circle.meshdot.touch { fill: #6fe3ff; stroke: #4aa8ff; stroke-width: 1; }
+@keyframes aPulse { to { stroke-dashoffset: -400; } }
+.sig { stroke-dasharray: 10 190; animation: aPulse 5.5s linear infinite; }
+.sig.s2 { animation-delay: -1.8s; } .sig.s3 { animation-delay: -3.6s; }
+@keyframes aFire { 0%,88%,100% { opacity: .5; } 92% { opacity: 1; } }
+.fire { animation: aFire 6s infinite; }
+.stemext { position: absolute; left: 50%; bottom: 0; width: 2px; height: 30vh; z-index: 0;
+  transform: translateX(-50%); background: linear-gradient(#2a4a74, #52ffa8aa); }
+.stemext::before, .stemext::after { content: ""; position: absolute; top: 10%; bottom: 0; width: 1px;
+  background: #2a4a74; }
+.stemext::before { left: -5px; } .stemext::after { right: -5px; }
+
+/* ===== DRILL OVERLAY (mockup 122-165) ===== */
+.drill { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center;
+  justify-content: center; padding: 4vh 4vw; }
+.drill .backdrop { position: absolute; inset: 0; background: #000a; }
+.dcard { position: relative; width: min(660px, 94vw); max-height: 86vh; overflow-y: auto;
+  padding: 1.4rem 1.6rem 1.5rem; transition: transform .45s cubic-bezier(.3,.7,.3,1), opacity .3s;
+  background: #0d1a2e; border: 1px solid #2a4a74; color: #dfe9f6; border-radius: 8px;
+  box-shadow: 0 0 60px #4aa8ff33, 0 24px 60px #000c; }
+.drill.wide .dcard { width: min(920px, 96vw); }
+.dcard.pre { transition: none; }
+.dcard .x { position: absolute; top: .6rem; right: .7rem; background: none; border: 1px solid #2a4a74;
+  color: #9fb4d0; width: 2em; height: 2em; line-height: 1; border-radius: 50%; font-size: 1rem; }
+.dcard h3 { margin: 0 0 .2rem; font-size: 1.05rem; letter-spacing: .2em; color: #eaf2fc; }
+.dcard .headline { display: flex; gap: .6rem; align-items: baseline; margin: .4rem 0 1rem; }
+.dcard .headline .n { font: 700 2.2rem/1 ui-monospace, Consolas, monospace; color: #6fe3ff; }
+.dcard .headline .s { font-size: .85rem; opacity: .75; }
+.dcard .brow { display: grid; grid-template-columns: 9em 1fr auto; gap: .7rem; align-items: center;
+  padding: .22rem 0; font-size: .88rem; }
+.dcard .brow .bar { height: .7em; position: relative; background: #12233c; }
+.dcard .brow .bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px;
+  background: #4aa8ff; box-shadow: 0 0 8px #4aa8ff66; }
+.dcard .brow .v { font: 600 .85rem/1 ui-monospace, monospace; }
+.dcard .stats { display: flex; gap: 1.6rem; margin: .2rem 0 .9rem; flex-wrap: wrap; }
+.dcard .stats .st .n2 { font: 700 1.5rem/1.1 ui-monospace, monospace; }
+.dcard .stats .st .l2 { font-size: .78rem; opacity: .7; }
+.dcard ul.notes { margin: .2rem 0 .9rem; padding-left: 1.1em; font-size: .9rem; line-height: 1.7; }
+.dcard .door { margin-top: .9rem; padding-top: .8rem; border-top: 1px dashed #2a4a74; font-size: .9rem; }
+.dcard .door code { font-family: ui-monospace, Consolas, monospace; font-weight: 700; color: #52ffa8; }
+.dcard .escnote { margin-top: 1rem; font-size: .74rem; opacity: .6; letter-spacing: .08em;
+  text-transform: uppercase; }
+.dcard .chipdim { display: inline-block; border: 1px solid #33465e; color: #7d8ba3; padding: .2em .6em;
+  font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; margin-left: .6em;
+  vertical-align: 2px; }
+.draftstamp { display: inline-block; border: 1px dashed #a4543a; color: #e08a63; font-size: .72rem;
+  letter-spacing: .14em; text-transform: uppercase; padding: .25em .7em; margin-bottom: 1rem; }
+.qa { margin-bottom: 1.2rem; }
+.qa .q { font-weight: 650; color: #eaf2fc; margin-bottom: .5rem; }
+.qa .cols { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+.qa .col { border: 1px solid #22385a; border-radius: 6px; padding: .7rem .8rem; font-size: .85rem;
+  line-height: 1.65; }
+.qa .col .ch { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; margin-bottom: .45rem; }
+.qa .col.alone { color: #93a3bb; } .qa .col.alone .ch { color: #7d8ba3; }
+.qa .col.with { border-color: #1f5c38; } .qa .col.with .ch { color: #52ffa8; }
+.qa .col.with code { color: #52ffa8; font-family: ui-monospace, monospace; }
+@media (max-width: 820px) { .qa .cols { grid-template-columns: 1fr; } }
