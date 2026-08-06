@@ -138,7 +138,7 @@ validation slice.
 | [ ] | 2018 | 30,266 | 129 | 5 |
 | [x] | 2019 | 18,359 | 177 | 0 | -- loaded 2026-08-06 (session 5), 1050 threads, 99.98% coverage (refence no-op)
 | [ ] | 2020 | 20,689 | 146 | 1 |
-| [ ] | 2021 | 11,244 | 182 | 0 |
+| [x] | 2021 | 11,244 | 182 | 0 | -- loaded 2026-08-06 (session 5), 744 threads, 99.88% coverage (refence no-op)
 | [ ] | 2022 | 12,130 | 163 | 0 |
 | [ ] | 2023 | 11,603 | 173 | 0 |
 | [ ] | 2024 | 16,201 | 151 | 0 |
@@ -722,6 +722,16 @@ compatibility for Gullfoss GUI" 228 msgs; "EZQuake fullscreen issue and DWM buil
 msgs, both solved).
 
 DB state after #dev-corner 2019: chat_threads = **31112**, all v2. **#dev-corner 3/11.**
+
+**Batch #dev-corner 2021 -- LOADED, verified.** 182 chunks (most of any batch in the corpus),
+0 forced, only 3 big-routed. Fence **182/182, failures=0, wall 29.0 min at CONC=30**. **Refence
+NO-OP.** Gate: **0% hallucination / 99.88% coverage**. Load: 744 threads, 11,228 junction rows
+(11,228 DISTINCT -- 0 R8 m2m), 0 OOB / 0 missing / 0 stale / 0 truncations. resolution 279
+solved / 172 unresolved / 268 informational / 25 none. **Idempotency (R5): PASS**.
+**Retrieval: PASS** -- both probes exact top hits ("Git mangling extended ASCII / line ending
+false diffs" 150 msgs; "ezQuake input latency spikes and Reflex analyzer" 146 msgs, both solved).
+
+DB state after #dev-corner 2021: chat_threads = **31856**, all v2. **#dev-corner 4/11.**
 
 > **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
 > 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
