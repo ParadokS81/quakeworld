@@ -858,6 +858,16 @@ Linux/Wayland" returns its 195-msg 2026-05-09 #helpdesk thread.
 
 **DB state: chat_threads = 40,219, all v2, corpus current through 2026-08-05. 35/35 batches.**
 
+**SHIPPED TO PROD 2026-08-06.** Wholesale twin->prod refresh per `DEPLOYMENT.md` "Routine corpus
+refresh" (all `docker exec`/`docker cp` through `dev-deploy-proxy` -- both postgres containers
+are dev-owned; "prod unreachable" means no devnet route for `DATABASE_URL`, not no deploy path).
+Twin-vs-prod diff checked FIRST and confirmed L2-only: entities across all 7 projects, concepts,
+gameplay_entity_defs and migrations were already identical, so nothing from the parallel lane
+rode along. prod `chat_threads` 8,621 -> **40,219**, `thread_messages` 128,971 -> **703,431**.
+**Parity exact on 13/13 metrics**; prod shows 0 null embeddings / 0 stale / 0 duplicate
+thread_keys; mcp healthy on the same image. Rollback insurance kept at
+`/mnt/user/appdata/qw-oracle/dumps/prod-pre-refresh-2026-08-06.dump`.
+
 > **THE GOLDEN IS GONE FROM THE DB -- preserved as a file.** #helpdesk-2026 was the only Sonnet
 > fencing left and the baseline the contract-worker spike diffed against; the catch-up grew it
 > 5,400 -> 8,019 msgs so it had to be re-fenced on DeepSeek. `fence-external.ts diff` rebuilds

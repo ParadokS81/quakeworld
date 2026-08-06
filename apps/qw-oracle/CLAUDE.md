@@ -51,8 +51,9 @@ the cockpit deliberately cannot run it). Prod is never touched by any of this.
   (`scripts/load-chat/HARVEST-RUNBOOK.md`, calendar-checks entry). **An import is
   NOT availability**: `build-sessions.ts` must re-run or new messages carry no
   `message_labels` and are invisible to the chunker. Thread retrieval serving on
-  PROD since 2026-08-04, but **prod still holds the pre-backfill corpus** -- the
-  twin->prod refresh is Arc A finish-out. Live state: root HANDOVER +
+  PROD since 2026-08-04; **the full backfill shipped to prod 2026-08-06**
+  (wholesale twin->prod refresh, parity exact 13/13, prod `chat_threads`
+  8,621 -> 40,219). Prod == twin. Live state: root HANDOVER +
   `scripts/load-chat/backfill-ledger.md`.
 - Hygiene tightenings absorbed into the port (decisions.md D18):
   filter-then-segment session boundaries, nullable `message_labels.session_id`

@@ -213,7 +213,18 @@ cd /mnt/user/appdata/qw-oracle
 docker compose -f docker-compose.prod.yml up -d mcp
 ```
 
-Worked example: the 2026-08-04 refresh (oracle-reentry-plumbing arc, Phase 4 task 2) --
+Worked example: the **2026-08-06 refresh** (Phase C corpus completion) -- shipped the finished
+L2 backfill to prod: `chat_threads` 8,621 -> **40,219**, `thread_messages` 128,971 -> **703,431**,
+`messages` 728,863 -> **741,128**. Everything else (entities across all 7 projects, concepts,
+gameplay_entity_defs, migrations) was already identical twin-vs-prod, so this was a pure L2
+change despite being a wholesale restore. Parity came back **exact on 13/13 metrics**; prod
+post-restore showed 0 null embeddings / 0 stale / 0 duplicate thread_keys; mcp healthy on the
+same image (embedding-space cosine 0.8896). Artifacts:
+`dumps/prod-pre-refresh-2026-08-06.dump` (161MB rollback) + `dumps/twin-canon-2026-08-06.dump`
+(349MB shipped snapshot). **Check the twin-vs-prod diff BEFORE dumping** -- a wholesale restore
+ships whatever else is on the twin, including another lane's in-flight work.
+
+Earlier worked example: the 2026-08-04 refresh (oracle-reentry-plumbing arc, Phase 4 task 2) --
 `/mnt/user/appdata/qw-oracle/dumps/prod-pre-refresh-2026-08-04.dump` (rollback insurance) and
 `twin-canon-2026-08-04.dump` (the shipped snapshot); parity came back 15/15 exact (entities by
 project, chat_threads, concepts, gameplay_entity_defs, migrations).
