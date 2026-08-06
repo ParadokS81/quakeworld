@@ -64,6 +64,26 @@ in this file for history's sake -- it was appended after F5-F7 during a
 parallel round; noted by cold review CR-CHAIN-2, left in place rather than
 silently reordering a ledger.)
 
+**F10 (execution-time, resolved inline -- amends Phase 2 Open question 4) --
+`~/.secrets/` is READ-ONLY to the dev plane, so the planned token path was
+unwritable.** Surfaced: Phase 2 Task 5 auth setup 2026-08-06. The phase doc
+defaulted to `~/.secrets/cloudflare-pages.env` (matching the existing
+`~/.secrets/*.env` pattern), but that directory is an ops-provisioned ro mount
+(`shfs ... (ro,nosuid,...)`); the operator's write failed with "Read-only file
+system". Nothing in `dotfiles/` provides a secret-paste helper (searched
+`~/dotfiles`, `~/bin`, `~/.local/bin`, `.claude/scripts/`) -- provisioning INTO
+`~/.secrets` is an ops letterbox action, which would have stalled the phase on
+a round-trip. **Resolved:** token stored at
+`/home/dev/projects/.secrets/cloudflare-pages.env`, mode 600 in a 700 dir --
+dev-writable, array-backed so it survives container recreates (same mount class
+as `~/projects`), and outside every git repo (`/home/dev/projects` is not a
+repo -- verified). Validated read-only via the CF API before any deploy:
+`success: true`, token `active`, and it enumerates the account's Pages projects
+(sees `quakeworld-docs`, confirming the right account). **Phase 2's DEPLOYMENT.md
+and the `deploy` one-liner must cite THIS path, not `~/.secrets/`.**
+Optional follow-up, not blocking: a letter to ops to provision the canonical
+`~/.secrets/cloudflare-pages.env` and migrate.
+
 **F9 (MAJOR, execution-time, resolved inline) -- the Edit tool ALSO breaks a
 single-file bind mount.** Surfaced: Phase 1 Task 3 execution 2026-08-06. The
 task doc said "Edit the deployed copy IN PLACE (Edit tool). Do NOT use `sed -i`
