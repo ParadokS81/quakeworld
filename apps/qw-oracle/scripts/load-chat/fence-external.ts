@@ -84,6 +84,25 @@ async function readManifest(channel: string, year: number): Promise<ManifestFile
   return JSON.parse(await Bun.file(p).text());
 }
 
+// Identity of a CHUNK COMPOSITION, not just its ids. Chunk ids are positional
+// (`<slug>-<year>-<NNN>`), so a re-prep after the corpus grows reuses the same
+// ids for entirely different message sets: #helpdesk-2026 went 61 -> 106 chunks
+// when the catch-up import landed, and `helpdesk-2026-001` is a different chunk
+// before and after. `--resume` matching on id alone would splice stale fencing
+// whose member_indices address the OLD composition -- silent corruption that no
+// downstream gate can see (the indices are all in range, and coverage counts
+// them as placed). Fingerprinting (id, messageCount) pairs makes the mismatch
+// loud instead.
+async function manifestFingerprint(manifest: ManifestFile): Promise<string> {
+  const { createHash } = await import('node:crypto');
+  const h = createHash('md5');
+  for (const cid of manifest.chunkIds) {
+    const c: ChunkFile = JSON.parse(await Bun.file(join(manifest.chunkDir, `${cid}.json`)).text());
+    h.update(`${cid}:${c.messages.length};`);
+  }
+  return h.digest('hex');
+}
+
 // ---------------------------------------------------------------------------
 // Provider config
 // ---------------------------------------------------------------------------
@@ -357,11 +376,22 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
   // re-fence only what is missing. A partially-failed batch is expensive to
   // redo wholesale (the 2017 failure left 38 good chunks on the floor), and
   // re-fencing a chunk that already succeeded also perturbs it for no reason.
+  const fingerprint = await manifestFingerprint(manifest);
   const prior = new Map<string, FencedChunk>();
   if (opts.has('resume') && (await Bun.file(outPath).exists())) {
     const raw = JSON.parse(await Bun.file(outPath).text());
+    const priorFp = Array.isArray(raw) ? undefined : raw?.meta?.manifestFingerprint;
+    if (priorFp !== fingerprint) {
+      throw new Error(
+        `[fence-external] --resume REFUSED: ${outPath} was produced against a different chunk ` +
+        `composition (${priorFp ? `fingerprint ${priorFp}` : 'no fingerprint recorded'} vs current ${fingerprint}).\n` +
+        `  Chunk ids are positional, so resuming would splice fencing whose member_indices ` +
+        `address the OLD messages -- no downstream gate can detect that.\n` +
+        `  Move or delete the stale output and fence the batch fresh.`,
+      );
+    }
     for (const fc of (Array.isArray(raw) ? raw : raw.fenced) as FencedChunk[]) prior.set(fc.chunkId, fc);
-    console.log(`[fence-external] --resume: ${prior.size} chunks carried over from ${outPath}`);
+    console.log(`[fence-external] --resume: ${prior.size} chunks carried over (fingerprint ${fingerprint.slice(0, 12)})`);
   }
   const todo = manifest.chunkIds.filter((cid) => !prior.has(cid));
 
@@ -425,6 +455,7 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
       provider: baseUrl,
       model,
       fallbackModel: fallbackModel || null,
+      manifestFingerprint: fingerprint,
       bigRouted,
       bigChunkThreshold: BIG_CHUNK_MSGS,
       escalated,
