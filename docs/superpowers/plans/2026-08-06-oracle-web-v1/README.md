@@ -11,22 +11,25 @@ mockup-of-record). **Parent:**
 
 ## Where we are right now
 
-- **Stage:** PLAN COMPLETE, awaiting operator intent review (2026-08-06).
-  All six phase docs drafted, each independently checker-verified, coherence
-  pass applied (CH-1..CH-9), cold adversarial review run by three
-  fresh-context readers -- chain re-walk, gate attack, spec+world sweep --
-  all three returning GO-WITH-FIXES with no NO-GO blocker; every finding
-  applied.
-- **Last action:** cold-review fix round applied across all six phase docs
-  (reports in `cold-review-chain.md` / `cold-review-gates.md` /
-  `cold-review-spec.md`; `REVIEW-BRIEF.md` records what the reviewers were
-  aimed at). Note: the fix round completed inline after the Fable-backed
-  revision agents died mid-edit on credit exhaustion; Phase 1's fixes had
-  fully landed, Phases 2-4 partially, Phases 5-6 not at all -- the remainder
-  was applied directly and is in this commit history.
-- **Next action:** OPERATOR intent review (weight class, slicing, each
-  phase's Goal + runnable-state line, cost/sequence). Then arc-run Phase 1.
-- **Operator-blocking before execution:** a Cloudflare Pages API token
+- **Stage:** PHASE 1 SHIPPED (2026-08-06), awaiting operator gate before
+  Phase 2. Plan itself is complete: six phase docs, each independently
+  checker-verified, coherence pass (CH-1..CH-9), cold adversarial review by
+  three fresh-context readers -- all GO-WITH-FIXES, every finding applied.
+- **Last action:** Phase 1 executed end to end. `build-brain-manifest.ts`
+  rewritten to the v1 contract (T1, session-tier agent); manifest emitted and
+  published (T2); CORS + `always` on the nginx `/snapshots/` location (T3);
+  harvest-runbook rider (T4). Commits `b6efc54e` (CORS), `91fd38bc` (rider),
+  `29a465d7` (emitter + manifest). **9/9 phase-boundary probes green against
+  the live public URL**, 6/6 numbers matching live DB queries, `tsc --noEmit`
+  clean; history shape-guard and cadence guard both exercised against real
+  files rather than asserted. New finding **F9** (Edit tool breaks single-file
+  bind mounts) resolved inline -- carries a do-not-revert rule into later
+  phases.
+- **Live now:** `https://oracle.slipgate.me/snapshots/brain-manifest.json`
+  -- 200, `access-control-allow-origin: *` (on 200 AND 404),
+  `cache-control: public, max-age=300`, `cf-cache-status: DYNAMIC`.
+- **Next action:** operator gate, then arc-run Phase 2.
+- **Operator-blocking before Phase 2:** a Cloudflare Pages API token
   (Pages:Edit) -- none exists on this box post-migration; Phase 2 stalls at
   its deploy task without it. See Operator-side prerequisites.
 
