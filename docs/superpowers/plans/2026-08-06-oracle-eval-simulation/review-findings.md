@@ -28,8 +28,29 @@ threads were regenerated with new identity IDs, not of scattered deletions.
 Disposition: dated amendment to spec D4/D5 recording the live pool; N~=500 is
 unaffected in substance (sampling fraction moves 15.0% -> 15.8%, CI unchanged
 at ~+/-4%). Phase 3 resolves the frame against live rows **once**, freezes the
-result to a committed manifest, and never re-resolves. Root cause of the
-234 is a Phase 3 investigation item, not a blocker.
+result to a committed manifest, and never re-resolves.
+
+**Root cause CLOSED 2026-08-06 (same sweep, follow-up probe) -- it was the
+monthly harvest, and it will happen again.** Per-year `id` blocks for
+`#helpdesk` are contiguous and were allocated in year order by the June
+backfill: 2020 occupies 6705..7419, 2022 8875..9889, 2021 11236..12581, 2023
+13802..15021, 2024 16047..17071, 2025 18001..18929. The gap band 7420..7792
+sits immediately after the 2020 block and is now **entirely empty** -- zero
+rows in any channel. Meanwhile 2026's `#helpdesk` threads live at
+**86063..87037** (522 rows), a completely different high range. So the old
+current-year block was deleted and re-inserted with fresh identity IDs by the
+August re-fence. Arithmetic checks out: the vacated band holds 373 IDs, of
+which 270 were FAQ-candidates present in the frozen frame (the other 103 were
+`informational`, which the June clustering excluded by construction).
+
+Two consequences, both now certain rather than suspected. (1) F3 is not a
+hypothetical -- the harvest has ALREADY eaten a chunk of this arc's sampling
+frame once, and the next one is scheduled for 2026-09-06. (2) F2's "zero 2026
+threads" is not a defect to fix but a structural property: a frozen June frame
+plus a current-year re-fence can never retain current-year threads. Recovering
+2026 coverage would require re-clustering, which spec D4 explicitly rejects.
+The eval therefore measures the oracle against 2020-2025 questions, and the
+findings doc must say so plainly rather than let the reader assume currency.
 
 **F2 (spec carry-forward, now quantified) -- the solved pool contains zero 2026
 threads; the era spread is 2020-2025.** Surfaced: same probe. Evidence: era
