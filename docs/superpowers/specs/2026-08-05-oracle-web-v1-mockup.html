@@ -1,0 +1,1045 @@
+<title>QW Oracle — Design Direction Explorer</title>
+<style>
+  /* v4.5 — centered station labels, MCP reveal beside the gate, one-line tagline,
+     portrait brain layout, scroll-snap off on touch/narrow. */
+  * { box-sizing: border-box; }
+  html { scroll-snap-type: y proximity; scroll-behavior: smooth; }
+  html, body { margin: 0; padding: 0; }
+  body { color: #dfe9f6; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    background-color: #041216;
+    background-image:
+      radial-gradient(1000px 640px at 52% 22%, #16284699 0%, transparent 70%),
+      linear-gradient(180deg, #0e1c33 0%, #0b1728 45%, #082030 62%, #06202b 78%, #041a20 100%);
+    background-repeat: no-repeat; background-size: 100% 100%; }
+  button { font: inherit; cursor: pointer; }
+  a { color: #6fe3ff; }
+  :focus-visible { outline: 2px solid #6fe3ff; outline-offset: 2px; }
+  section.floor { min-height: 100svh; position: relative; overflow: hidden; scroll-snap-align: start; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ================= FLOOR 1 — THE BRAIN (canopy) ================= */
+  #brain svg.main { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+  .titleblock { position: absolute; top: 4%; right: 4%; z-index: 2; text-align: right; }
+  .titleblock h1 { margin: 0; font-weight: 250; font-size: clamp(1.5rem, 3vw, 2.4rem);
+    letter-spacing: .1em; color: #eaf2fc; white-space: nowrap; }
+  .titleblock h1 b { font-weight: 700; color: #6fe3ff; }
+  .herolinks { position: absolute; top: calc(4% + 4.4rem); right: 4%; z-index: 2;
+    display: flex; gap: .6rem; justify-content: flex-end; flex-wrap: wrap; }
+  .herolink { background: none; border: 1px solid #2a4a74; color: #6fe3ff; padding: .35em .9em;
+    border-radius: 999px; font-size: .85rem; text-decoration: none; }
+  .herolink:hover { border-color: #6fe3ff; background: #6fe3ff14; }
+  .herolink.go { color: #52ffa8; border-color: #1f5c38; }
+  .herolink.go:hover { border-color: #52ffa8; background: #52ffa814; }
+  .cornernote { position: absolute; left: 3%; bottom: 3%; z-index: 2;
+    color: #7d8ba3; font-size: .9rem; line-height: 1.55; }
+  .cornernote .tag { margin: 0; white-space: nowrap; }
+  .majorlabel { font: 650 13px/1 system-ui, sans-serif; fill: #e6eefa; letter-spacing: .1em; }
+  .majornum { font: 700 16px/1 ui-monospace, Consolas, monospace; fill: #6fe3ff; }
+  .majorsub { font: 400 10.5px/1 ui-monospace, Consolas, monospace; fill: #7d8ba3; }
+  svg.portrait .majorlabel { font-size: 22px; }
+  svg.portrait .majornum { font-size: 26px; }
+  svg.portrait .majorsub { font-size: 16px; }
+  text.detail, g .detail { opacity: 0; transition: opacity .25s; }
+  g.reveal .detail { opacity: 1; }
+  g.major { cursor: pointer; }
+  g.major.dim .majorlabel, g.major.dim .majornum { fill: #5c6a80; }
+  g.gate { cursor: pointer; }
+  path.hotbase { stroke: #4aa8ff !important; opacity: 1 !important; }
+  circle.hotseat { stroke: #eaf2fc; stroke-width: 2; }
+  circle.meshdot { transition: fill .35s, stroke .35s; }
+  circle.meshdot.touch { fill: #6fe3ff; stroke: #4aa8ff; stroke-width: 1; }
+  @keyframes aPulse { to { stroke-dashoffset: -400; } }
+  .sig { stroke-dasharray: 10 190; animation: aPulse 5.5s linear infinite; }
+  .sig.s2 { animation-delay: -1.8s; } .sig.s3 { animation-delay: -3.6s; }
+  @keyframes aFire { 0%,88%,100% { opacity: .5; } 92% { opacity: 1; } }
+  .fire { animation: aFire 6s infinite; }
+  .stemext { position: absolute; left: 50%; bottom: 0; width: 2px; height: 30vh; z-index: 0;
+    transform: translateX(-50%); background: linear-gradient(#2a4a74, #52ffa8aa); }
+  .stemext::before, .stemext::after { content: ""; position: absolute; top: 10%; bottom: 0; width: 1px;
+    background: #2a4a74; }
+  .stemext::before { left: -5px; } .stemext::after { right: -5px; }
+
+  /* ================= FLOOR 2 — THE ROOTS ================= */
+  #machine-room { display: flex; flex-direction: column; align-items: center;
+    padding: 64px 0 10px; }
+  svg.roots { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  .roots path { fill: none; stroke: #2a4a74; }
+  .roots path.trunk { stroke-width: 2.5; }
+  .roots path.root { stroke-width: 1.4; }
+  .roots path.rootlet { stroke-width: 1; opacity: .35; }
+  .roots path.dimroot { stroke: #1d3350; stroke-dasharray: 3 5; }
+  .roots path.rootsig { stroke: #4aa8ff; stroke-width: 2; }
+  .roots path.hotroot { stroke: #6fe3ff !important; opacity: 1 !important; }
+  .mrhead { position: absolute; top: 22px; left: 0; right: 0; text-align: center; z-index: 2;
+    font: 700 12px/1.4 ui-monospace, Consolas, monospace; letter-spacing: .3em;
+    color: #9fb8d8; text-transform: uppercase; }
+  .mrhead span { font-weight: 400; letter-spacing: .08em; color: #58657c; text-transform: none; }
+  .rackcol { position: absolute; top: 64px; bottom: 40px; width: 14vw; min-width: 140px;
+    display: flex; flex-direction: column; gap: 14px; z-index: 2; }
+  .rackcol.left { left: 2%; } .rackcol.right { right: 2%; }
+  .rk { flex: 1; background: #0c192bcc; border: 1px solid #24405f; border-radius: 4px;
+    padding: .7rem .75rem; cursor: pointer; display: flex; flex-direction: column; gap: .35rem;
+    transition: border-color .2s, box-shadow .2s; }
+  .rk:hover { border-color: #3a6ba8; }
+  .rk.sel { border-color: #6fe3ff; box-shadow: 0 0 24px #4aa8ff33; }
+  .rk.land { border-color: #6fe3ff; box-shadow: 0 0 30px #4aa8ff66; }
+  .rk .rkt { font: 650 12px/1.25 system-ui, sans-serif; letter-spacing: .1em; color: #e6eefa;
+    text-transform: uppercase; }
+  .rk .rkn { font: 700 1.15rem/1.1 ui-monospace, Consolas, monospace; color: #6fe3ff; }
+  .rk .rks { font: 400 10.5px/1.5 ui-monospace, Consolas, monospace; color: #7d8ba3; }
+  .rk .rkd { margin-top: auto; display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; }
+  .rk .rkd i { display: block; width: 6px; height: 6px; border-radius: 50%; background: #16283f;
+    justify-self: center; }
+  @keyframes dotBlink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+  .rk .rkd i.on { background: #4aa8ff; box-shadow: 0 0 5px #4aa8ff66; }
+  .rk .rkd i.on.f2 { background: #6fe3ff; }
+  .rk .rkd i.on.bl { animation: dotBlink 3.4s ease-in-out infinite; }
+  .rk.off { border-style: dashed; border-color: #1d3350; background: #0a141fb8; }
+  .rk.off .rkt { color: #5c6a80; } .rk.off .rkn { color: #5c6a80; }
+  .termwrap { position: relative; z-index: 3; width: min(880px, 56vw); }
+  .term { background: #0a1522ee; border: 1px solid #24405f; border-radius: 10px;
+    box-shadow: 0 0 50px #4aa8ff1c, 0 24px 60px #000a, inset 0 0 40px #00000066;
+    padding: 1.1rem 1.3rem 1rem; height: calc(100svh - 170px); min-height: 430px;
+    display: flex; flex-direction: column;
+    font: 400 clamp(13px, 1.05vw, 15px)/1.75 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    color: #b9d4f0; }
+  .term .hd { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+    color: #6fe3ff; border-bottom: 1px solid #1c3350; padding-bottom: .5rem; margin-bottom: .8rem;
+    letter-spacing: .08em; font-weight: 700; }
+  .term .hd .ok { color: #52ffa8; font-size: .85em; }
+  .term .body { flex: 1 1 auto; overflow-y: auto; }
+  .term .body b { color: #eaf2fc; }
+  .term .body .mut { color: #5c7391; }
+  .term .body code { color: #52ffa8; font-family: inherit; }
+  .term .body a { color: #6fe3ff; }
+  .term .door2 { margin-top: .8rem; border-top: 1px dashed #1c3350; padding-top: .6rem; font-size: .9em; }
+  .term .ft { margin-top: .7rem; color: #46608a; font-size: .8em; letter-spacing: .06em;
+    border-top: 1px solid #1c3350; padding-top: .5rem; display: flex; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap; }
+  .mockupnote { position: relative; z-index: 2; width: min(880px, 90vw); margin: .6rem auto 0;
+    font: 400 11px/1.8 ui-monospace, Consolas, monospace; color: #3f556b; }
+
+  /* ================= drill overlay ================= */
+  .drill { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center;
+    justify-content: center; padding: 4vh 4vw; }
+  .drill .backdrop { position: absolute; inset: 0; background: #000a; }
+  .dcard { position: relative; width: min(660px, 94vw); max-height: 86vh; overflow-y: auto;
+    padding: 1.4rem 1.6rem 1.5rem; transition: transform .45s cubic-bezier(.3,.7,.3,1), opacity .3s;
+    background: #0d1a2e; border: 1px solid #2a4a74; color: #dfe9f6; border-radius: 8px;
+    box-shadow: 0 0 60px #4aa8ff33, 0 24px 60px #000c; }
+  .drill.wide .dcard { width: min(920px, 96vw); }
+  .dcard.pre { transition: none; }
+  .dcard .x { position: absolute; top: .6rem; right: .7rem; background: none; border: 1px solid #2a4a74;
+    color: #9fb4d0; width: 2em; height: 2em; line-height: 1; border-radius: 50%; font-size: 1rem; }
+  .dcard h3 { margin: 0 0 .2rem; font-size: 1.05rem; letter-spacing: .2em; color: #eaf2fc; }
+  .dcard .headline { display: flex; gap: .6rem; align-items: baseline; margin: .4rem 0 1rem; }
+  .dcard .headline .n { font: 700 2.2rem/1 ui-monospace, Consolas, monospace; color: #6fe3ff; }
+  .dcard .headline .s { font-size: .85rem; opacity: .75; }
+  .dcard .brow { display: grid; grid-template-columns: 9em 1fr auto; gap: .7rem; align-items: center;
+    padding: .22rem 0; font-size: .88rem; }
+  .dcard .brow .bar { height: .7em; position: relative; background: #12233c; }
+  .dcard .brow .bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px;
+    background: #4aa8ff; box-shadow: 0 0 8px #4aa8ff66; }
+  .dcard .brow .v { font: 600 .85rem/1 ui-monospace, monospace; }
+  .dcard .stats { display: flex; gap: 1.6rem; margin: .2rem 0 .9rem; flex-wrap: wrap; }
+  .dcard .stats .st .n2 { font: 700 1.5rem/1.1 ui-monospace, monospace; }
+  .dcard .stats .st .l2 { font-size: .78rem; opacity: .7; }
+  .dcard ul.notes { margin: .2rem 0 .9rem; padding-left: 1.1em; font-size: .9rem; line-height: 1.7; }
+  .dcard .door { margin-top: .9rem; padding-top: .8rem; border-top: 1px dashed #2a4a74; font-size: .9rem; }
+  .dcard .door code { font-family: ui-monospace, Consolas, monospace; font-weight: 700; color: #52ffa8; }
+  .dcard .escnote { margin-top: 1rem; font-size: .74rem; opacity: .6; letter-spacing: .08em;
+    text-transform: uppercase; }
+  .dcard .chipdim { display: inline-block; border: 1px solid #33465e; color: #7d8ba3; padding: .2em .6em;
+    font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; margin-left: .6em;
+    vertical-align: 2px; }
+  .draftstamp { display: inline-block; border: 1px dashed #a4543a; color: #e08a63; font-size: .72rem;
+    letter-spacing: .14em; text-transform: uppercase; padding: .25em .7em; margin-bottom: 1rem; }
+  .qa { margin-bottom: 1.2rem; }
+  .qa .q { font-weight: 650; color: #eaf2fc; margin-bottom: .5rem; }
+  .qa .cols { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+  .qa .col { border: 1px solid #22385a; border-radius: 6px; padding: .7rem .8rem; font-size: .85rem;
+    line-height: 1.65; }
+  .qa .col .ch { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; margin-bottom: .45rem; }
+  .qa .col.alone { color: #93a3bb; } .qa .col.alone .ch { color: #7d8ba3; }
+  .qa .col.with { border-color: #1f5c38; } .qa .col.with .ch { color: #52ffa8; }
+  .qa .col.with code { color: #52ffa8; font-family: ui-monospace, monospace; }
+  @media (max-width: 900px), (pointer: coarse) {
+    html { scroll-snap-type: none; scroll-behavior: auto; }
+  }
+  @media (max-width: 900px) {
+    body { overflow-x: hidden; }
+    html, body { touch-action: pan-y; }
+    section.floor { overflow: visible; scroll-snap-align: none; }
+    #brain svg.main, svg.roots { touch-action: pan-y; }
+    .titleblock { left: 0; right: 0; top: 2.5%; text-align: center; }
+    .titleblock h1 { white-space: normal; }
+    .cornernote { left: 0; right: 0; bottom: auto; top: calc(2.5% + 2.6rem); text-align: center; }
+    .cornernote .tag { white-space: nowrap; font-size: clamp(.66rem, 2.9vw, .9rem); }
+    .herolinks { top: auto; bottom: 4%; left: 0; right: 0; justify-content: center; }
+    svg.roots { display: none; }
+    .rackcol { position: static; width: auto; min-width: 0; flex-direction: row; gap: 8px;
+      padding: 0 3vw; margin-bottom: 10px; }
+    .rk { min-height: 110px; }
+    .termwrap { width: 94vw; }
+    .term { height: auto; min-height: 380px; }
+  }
+  @media (max-width: 820px) { .qa .cols { grid-template-columns: 1fr; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sig, .fire, .rk .rkd i.on.bl { animation: none !important; }
+    .dcard, text.detail, g .detail { transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+
+<!-- ============================ FLOOR 1 ============================ -->
+<section class="floor" id="brain" aria-label="The oracle's brain">
+  <div class="titleblock">
+    <h1>THE ORACLE IS <b>AWAKE</b></h1>
+  </div>
+  <div class="herolinks">
+    <button class="herolink" id="whybtn">Why do I need this?</button>
+    <button class="herolink go" id="connectbtn">connect your agent</button>
+  </div>
+  <svg class="main" id="brainSvg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid meet"
+    aria-label="Oracle architecture: sources feed the brain; MCP barrier and snapshot door serve consumers; the brainstem leads to the machine room below"></svg>
+  <div class="stemext" aria-hidden="true"></div>
+  <div class="cornernote">
+    <p class="tag">30 years of QuakeWorld knowledge, routed to your agent or API.</p>
+  </div>
+</section>
+
+<!-- ============================ FLOOR 2 ============================ -->
+<section class="floor" id="machine-room" aria-label="The machine room">
+  <svg class="roots" id="rootsSvg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+  <div class="mrhead">The Machine Room <span>· what the brain runs on · click a rack</span></div>
+  <div class="rackcol left" id="rackL2"></div>
+  <div class="rackcol right" id="rackR2"></div>
+  <div class="termwrap">
+    <div class="term">
+      <div class="hd">
+        <span>QW ORACLE — FIELD TERMINAL</span>
+        <span class="ok">&#9679; ALL LAYERS UP</span>
+      </div>
+      <div class="body" id="termBody"></div>
+      <div class="ft"><span>click a rack · esc closes cards</span>
+        <span>door: <a href="https://github.com/ParadokS81/quakeworld" target="_blank" rel="noopener">github.com/ParadokS81/quakeworld</a></span></div>
+    </div>
+  </div>
+  <div class="mockupnote">
+    v4.7 skeleton — stem animations un-buried (z-order), DISCORD node under its title, portrait
+    MCP/agent moved into the bottom-right quadrant · desktop-first with a mobile projection ·
+    numbers from the 2026-08-05 brain-manifest · comparison answers and client steps are drafts ·
+    earlier rounds live in the version picker.
+  </div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var REPO = "https://github.com/ParadokS81/quakeworld";
+
+  /* ---------------- data (brain-manifest.json, 2026-08-05) ---------------- */
+  var DC = [
+    { id: "ef", name: "ENGINE FACTS", num: "11,081", sub: "entities · 7 codebases", lit: true, share: 0.289,
+      stationSubs: ["entities · 7 codebases"],
+      bars: [["ezquake",4192],["fte",3279],["ktx",1892],["mvdsv",1236],["qwcl",380],["qtv",52],["qwfwd",50]],
+      door: "browse the full reference → <code>docs.quake.world</code>" },
+    { id: "cm", name: "DISCORD", num: "741,128", sub: "messages · 20,270 threads · 6,666 solved", lit: true, share: 0.420,
+      stationSubs: ["messages · 20,270 threads", "6,666 solved"],
+      bars: [["#quakeworld",399080],["#dev-corner",211602],["#helpdesk",109008],["#antilag",21438]],
+      door: "ask your agent → <code>search_solved_issues(\"…\")</code>" },
+    { id: "cs", name: "CONCEPT NOTES", num: "44", sub: "curated notes · honest gap list", lit: true, share: 0.118,
+      stationSubs: ["curated notes · honest gap list"],
+      notes: ["1on1 · 4on4 · hoonymode · clan arena · race", "weapon scripts · player skins · HUD configuration", "network &amp; connection · match recording · rulesets"],
+      door: "ask your agent → <code>get_concept_note(\"…\")</code>" },
+    { id: "gc", name: "GAME CONTENT", num: "254", sub: "maps · mechanics · entity defs", lit: true, share: 0.172,
+      stationSubs: ["maps · mechanics · entity defs"],
+      stats: [["254","maps"],["514","mechanics"],["76","entity defs"]],
+      door: "ask your agent → <code>lookup_map(\"dm3\")</code>" },
+    { id: "ch", name: "COMMUNITY HISTORY", num: "—", sub: "dormant", lit: false, share: 0,
+      teaser: "Clans, players, official tournament results, LAN history — a region this brain grows into as the community platform comes online." },
+    { id: "ms", name: "MATCH STATS", num: "—", sub: "dormant", lit: false, share: 0,
+      teaser: "18,000+ recorded 4on4 games await their wiring." }
+  ];
+  function dcById(id) { for (var i = 0; i < DC.length; i++) if (DC[i].id === id) return DC[i]; return null; }
+  function fmt(n) { return n.toLocaleString("en-US"); }
+
+  var XN = {
+    mcp: { name: "MCP", lit: true, custom:
+      "<div class='headline'><span class='s'>The interactive door into the brain. Your agent calls these tools; only cited answers come out — the corpus itself stays inside.</span></div>" +
+      "<ul class='notes'><li><code>search_solved_issues(\"…\")</code> — 20,270 community threads</li>" +
+      "<li><code>get_concept_note(\"…\")</code> — 44 curated notes</li>" +
+      "<li><code>lookup_map(\"dm3\")</code> · <code>search_entities(\"…\")</code> · <code>search_mechanics(\"…\")</code></li></ul>" +
+      "<div class='door'><span data-open='agent' style='cursor:pointer; text-decoration:underline'>connect your agent →</span></div>" },
+    agent: { name: "CONNECT YOUR AGENT", lit: true, custom:
+      "<div class='headline'><span class='s'>Pick your lowest-friction path. Endpoint (illustrative in this mockup): <code>https://oracle.quake.world/mcp</code></span></div>" +
+      "<ul class='notes'>" +
+      "<li><b>Claude</b> (claude.ai / Desktop) — Settings → Connectors → add custom connector → paste the URL</li>" +
+      "<li><b>ChatGPT</b> (paid plans) — Settings → Apps → enable Developer mode → add the URL</li>" +
+      "<li><b>CLI agents</b> (Claude Code, Gemini CLI, …) — just paste this prompt:<br/>" +
+      "<code>add MCP server \"qw-oracle\" at https://oracle.quake.world/mcp, then ask it: why does my rocket feel delayed on antilag servers?</code></li>" +
+      "</ul>" +
+      "<div class='door'>first questions: rocket delay on antilag · weapon scripts · what is hoonymode — and when it doesn't know, it says so.</div>" },
+    snap: { name: "SNAPSHOT DOOR", lit: true, custom:
+      "<div class='headline'><span class='s'>The brain also publishes. Every harvest emits <code>brain-manifest.json</code> to a stable URL, cached five minutes, with a baked fallback if the oracle sleeps. Apps read it without ever crossing the MCP barrier.</span></div>" +
+      "<ul class='notes'><li>first tenant: <b>this page</b> — every number you see here rides that file</li>" +
+      "<li>next: the slipgate desktop app, same door, delta-fetch</li></ul>" +
+      "<div class='door'>door: <code>GET oracle.slipgate.me/snapshots/brain-manifest.json</code></div>" },
+    slip: { name: "SLIPGATE APP", lit: false,
+      teaser: "The desktop companion joins through the same snapshot door — delta-fetch, later. Future consumers dock beside it." }
+  };
+
+  /* ---------------- drill overlay engine ---------------- */
+  var drillEl = null;
+  function buildCard(dc) {
+    var h = "<h3>" + dc.name + (dc.lit ? "" : "<span class='chipdim'>dormant</span>") + "</h3>";
+    if (dc.custom) return h + dc.custom + "<div class='escnote'>esc / click outside to close</div>";
+    if (dc.lit) {
+      h += "<div class='headline'><span class='n num'>" + dc.num + "</span><span class='s'>" + dc.sub + "</span></div>";
+      if (dc.bars) {
+        var max = 0; dc.bars.forEach(function (b) { if (b[1] > max) max = b[1]; });
+        dc.bars.forEach(function (b) {
+          var w = Math.max(2, Math.round(b[1] / max * 100));
+          h += "<div class='brow'><span>" + b[0] + "</span><span class='bar'><i style='width:" + w + "%'></i></span><span class='v num'>" + fmt(b[1]) + "</span></div>";
+        });
+      }
+      if (dc.stats) {
+        h += "<div class='stats'>";
+        dc.stats.forEach(function (s) { h += "<div class='st'><div class='n2 num'>" + s[0] + "</div><div class='l2'>" + s[1] + "</div></div>"; });
+        h += "</div>";
+      }
+      if (dc.notes) { h += "<ul class='notes'>"; dc.notes.forEach(function (nl) { h += "<li>" + nl + "</li>"; }); h += "</ul>"; }
+      h += "<div class='door'>door: " + dc.door + "</div>";
+    } else {
+      h += "<div class='headline'><span class='s'>" + dc.teaser + "</span></div>" +
+           "<div class='door'>rendered dim on purpose — inspiration of where this grows, not a promise.</div>";
+    }
+    return h + "<div class='escnote'>esc / click outside to close</div>";
+  }
+  function openDrill(originEl, dcObj, extraClass, rawHtml) {
+    closeDrill(true);
+    drillEl = document.createElement("div");
+    drillEl.className = "drill" + (extraClass ? " " + extraClass : "");
+    drillEl.innerHTML = "<div class='backdrop'></div><div class='dcard pre' role='dialog' aria-label='" +
+      (dcObj ? dcObj.name : "comparison") + "'><button class='x' aria-label='close'>&times;</button>" +
+      (rawHtml || buildCard(dcObj)) + "</div>";
+    document.body.appendChild(drillEl);
+    var card = drillEl.querySelector(".dcard");
+    if (!reduced && originEl && originEl.getBoundingClientRect) {
+      var r = originEl.getBoundingClientRect();
+      var dx = (r.left + r.width / 2) - window.innerWidth / 2;
+      var dy = (r.top + r.height / 2) - window.innerHeight / 2;
+      card.style.transform = "translate(" + dx + "px," + dy + "px) scale(.1)";
+      card.style.opacity = "0";
+      requestAnimationFrame(function () { requestAnimationFrame(function () {
+        card.classList.remove("pre"); card.style.transform = "none"; card.style.opacity = "1";
+      }); });
+    } else { card.classList.remove("pre"); }
+    drillEl.querySelector(".backdrop").addEventListener("click", function () { closeDrill(false); });
+    drillEl.querySelector(".x").addEventListener("click", function () { closeDrill(false); });
+    Array.prototype.forEach.call(drillEl.querySelectorAll("[data-open]"), function (lnk) {
+      lnk.addEventListener("click", function () { openDrill(null, XN[lnk.getAttribute("data-open")]); });
+    });
+  }
+  function closeDrill(instant) {
+    if (!drillEl) return;
+    var el = drillEl; drillEl = null;
+    if (instant || reduced) { el.remove(); return; }
+    var card = el.querySelector(".dcard");
+    card.style.transform = "scale(.7)"; card.style.opacity = "0";
+    setTimeout(function () { el.remove(); }, 260);
+  }
+
+  var stemExit = null;   /* set by floor 2: a journey leaving the brainstem continues down a root */
+  var brainSpawn = null; /* set by buildBrain: ambient timer spawns through this */
+
+  /* ---------------- FLOOR 1: the brain (landscape + portrait layouts) ---------------- */
+  function buildBrain() {
+    var P = window.matchMedia("(max-width: 900px)").matches;
+    var svg = document.getElementById("brainSvg");
+    svg.innerHTML = "";
+    svg.classList.toggle("portrait", P);
+    svg.setAttribute("viewBox", P ? "0 0 760 1240" : "0 0 1200 800");
+    var NS = "http://www.w3.org/2000/svg";
+    var seed = 41;
+    function rnd() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
+    function el(tag, attrs, parent) {
+      var e = document.createElementNS(NS, tag);
+      for (var k in attrs) e.setAttribute(k, attrs[k]);
+      (parent || svg).appendChild(e); return e;
+    }
+    var defs = el("defs", {});
+    var f = el("filter", { id: "aglow", x: "-60%", y: "-60%", width: "220%", height: "220%" }, defs);
+    el("feGaussianBlur", { stdDeviation: "3.2", result: "b" }, f);
+    var mrg = el("feMerge", {}, f);
+    el("feMergeNode", { "in": "b" }, mrg); el("feMergeNode", { "in": "SourceGraphic" }, mrg);
+
+    var gDrops = el("g", {});
+    var gTrace = el("g", {});
+    var gMesh = el("g", {});
+    var gTop = el("g", {});
+    var gFx = el("g", {});
+    var gHit = el("g", {});
+
+    var S = P ? 1.55 : 1;                                   /* stroke/dot scale for readability */
+    var GATHER = P ? { x: 380, y: 742 } : { x: 600, y: 542 };
+    var STEM_END = P ? 1240 : 800;
+    var lobes = P ? [[370,560,165,140],[455,550,115,105],[395,665,100,60]]
+                  : [[580,380,150,125],[690,370,110,100],[610,480,95,60]];
+    function inside(x, y) {
+      for (var i = 0; i < lobes.length; i++) {
+        var L = lobes[i], nx = (x - L[0]) / L[2], ny = (y - L[1]) / L[3];
+        if (nx * nx + ny * ny <= 1) return true;
+      }
+      return false;
+    }
+    var seats = P
+      ? { ef: { x: 296, y: 484, r: 13 }, cm: { x: 470, y: 590, r: 16 },
+          cs: { x: 390, y: 455, r: 11 }, gc: { x: 286, y: 654, r: 12 },
+          ch: { x: 310, y: 456, r: 9 },  ms: { x: 360, y: 722, r: 9 } }
+      : { ef: { x: 505, y: 330, r: 9 },  cm: { x: 655, y: 425, r: 11 },
+          cs: { x: 600, y: 292, r: 7 },  gc: { x: 530, y: 468, r: 8 },
+          ch: { x: 720, y: 310, r: 6 },  ms: { x: 640, y: 512, r: 6 } };
+    var seatIdx = { ef: 0, cm: 1, cs: 2, gc: 3, ch: 4, ms: 5 };
+    var pts = [];
+    Object.keys(seats).forEach(function (k) { pts.push([seats[k].x, seats[k].y, k]); });
+    var minDist = P ? 34 : 26;
+    function tryAdd(x, y, tag) {
+      if (!inside(x, y)) return false;
+      for (var p = 0; p < pts.length; p++) {
+        var ddx = pts[p][0] - x, ddy = pts[p][1] - y;
+        if (ddx * ddx + ddy * ddy < minDist * minDist) return false;
+      }
+      pts.push([x, y, tag]); return true;
+    }
+    DC.forEach(function (dc) {
+      if (!dc.lit) return;
+      var want = Math.round((P ? 80 : 110) * dc.share), got = 0, tries = 0, s = seats[dc.id];
+      var sigma = (P ? 55 : 45) + 55 * dc.share;
+      while (got < want && tries < 3000) {
+        tries++;
+        var x = s.x + (rnd() + rnd() + rnd() - 1.5) * sigma;
+        var y = s.y + (rnd() + rnd() + rnd() - 1.5) * sigma * 0.8;
+        if (tryAdd(x, y, dc.id)) got++;
+      }
+    });
+    var uni = 0, utry = 0, uniWant = P ? 26 : 40;
+    while (uni < uniWant && utry < 3000) {
+      utry++;
+      if (P ? tryAdd(200 + rnd() * 380, 415 + rnd() * 320, null)
+            : tryAdd(390 + rnd() * 430, 220 + rnd() * 350, null)) uni++;
+    }
+    var adj = pts.map(function () { return []; });
+    for (var i2 = 1; i2 < pts.length; i2++) {
+      var best = [], a = pts[i2];
+      for (var j2 = 0; j2 < i2; j2++) {
+        var b2 = pts[j2], d2 = (a[0]-b2[0])*(a[0]-b2[0]) + (a[1]-b2[1])*(a[1]-b2[1]);
+        best.push([d2, j2]);
+      }
+      best.sort(function (u, v) { return u[0] - v[0]; });
+      for (var k2 = 0; k2 < Math.min(2, best.length); k2++) {
+        var j3 = best[k2][1], b3 = pts[j3];
+        var mx = (a[0]+b3[0])/2 + (rnd()-0.5)*24, my = (a[1]+b3[1])/2 + (rnd()-0.5)*24;
+        el("path", { d: "M" + a[0].toFixed(1) + "," + a[1].toFixed(1) +
+          " Q" + mx.toFixed(1) + "," + my.toFixed(1) + " " + b3[0].toFixed(1) + "," + b3[1].toFixed(1),
+          fill: "none", stroke: "#24466e", "stroke-width": String(1 * S), opacity: ".5" }, gMesh);
+        adj[i2].push({ to: j3, cx: mx, cy: my });
+        adj[j3].push({ to: i2, cx: mx, cy: my });
+      }
+    }
+    var meshEls = [];
+    var fireMod = { cm: 6, ef: 8, gc: 11, cs: 13 };
+    pts.forEach(function (pt, idx) {
+      if (idx < 6) { meshEls.push(null); return; }
+      var c = el("circle", { cx: pt[0].toFixed(1), cy: pt[1].toFixed(1),
+        r: String((idx % 7 === 0 ? 4.2 : 2.7) * S), fill: (idx % 3 === 0 ? "#4aa8ff" : "#2f6db3"),
+        "class": "meshdot" }, gMesh);
+      var tag = pt[2];
+      if (tag && idx % fireMod[tag] === 0) {
+        c.classList.add("fire"); c.setAttribute("fill", "#6fe3ff");
+        c.style.animationDelay = ((idx * 431) % 6000) + "ms";
+      }
+      meshEls.push(c);
+    });
+
+    function trace(d, kind, delayCls) {
+      if (kind === "dim") {
+        return el("path", { d: d, fill: "none", stroke: "#1d3350", "stroke-width": String(2 * S),
+          "stroke-dasharray": "3 7", "stroke-linejoin": "round", "stroke-linecap": "round" }, gTrace);
+      }
+      var base = el("path", { d: d, fill: "none", stroke: "#2a4a74", "stroke-width": String(2 * S),
+        "stroke-linejoin": "round", "stroke-linecap": "round" }, gTrace);
+      var col = kind === "in" ? "#4aa8ff" : (kind === "q" ? "#6fe3ff" : "#52ffa8");
+      el("path", { d: d, fill: "none", stroke: col, "stroke-width": String(2.4 * S),
+        "stroke-linecap": "round", filter: "url(#aglow)", "class": "sig " + (delayCls || "") }, gTrace);
+      return base;
+    }
+    function clickable(g, dcObj) {
+      function fire(ev) { ev.preventDefault(); openDrill(g, dcObj); }
+      g.addEventListener("click", fire);
+      g.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") fire(ev); });
+    }
+
+    /* ---------------- tracepoint journeys ---------------- */
+    var FXp = [], fxLast = 0, fxRunning = false;
+    function flash(idx) {
+      var c = meshEls[idx];
+      if (!c) return;
+      c.classList.add("touch");
+      setTimeout(function () { c.classList.remove("touch"); }, 450);
+    }
+    function pickNext(cur, prev) {
+      var opts = adj[cur];
+      if (!opts || !opts.length) return null;
+      var bestO = null, bestS = 1e9;
+      for (var i = 0; i < opts.length; i++) {
+        var o = opts[i];
+        if (o.to === prev && opts.length > 1) continue;
+        var p = pts[o.to];
+        var dx = p[0] - GATHER.x, dy = p[1] - GATHER.y;
+        var s = Math.sqrt(dx * dx + dy * dy) * (0.85 + rnd() * 0.3);
+        if (s < bestS) { bestS = s; bestO = o; }
+      }
+      return bestO;
+    }
+    var srcTracePath = {};
+    function spawn(srcId) {
+      if (reduced || FXp.length > 6) return;
+      var path = srcTracePath[srcId];
+      if (!path) return;
+      var p0 = path.getPointAtLength(0);
+      var dot = el("line", { x1: p0.x, y1: p0.y, x2: p0.x, y2: p0.y, stroke: "#4aa8ff",
+        "stroke-width": String(2.4 * S), "stroke-linecap": "round", filter: "url(#aglow)" }, gFx);
+      FXp.push({ ph: 1, d: 0, len: path.getTotalLength(), path: path, el: dot,
+        cur: seatIdx[srcId], prev: -1, hops: 0, t: 0, a: null, b: null, cx: 0, cy: 0, seg: 0,
+        px: p0.x, py: p0.y, dx: 1, dy: 0 });
+      if (!fxRunning) { fxRunning = true; fxLast = 0; requestAnimationFrame(step); }
+    }
+    brainSpawn = spawn;
+    function step(ts) {
+      if (!fxLast) fxLast = ts;
+      var dt = Math.min(50, ts - fxLast); fxLast = ts;
+      var adv = 0.073 * dt; /* matches the CSS .sig dash speed: 400u / 5.5s */
+      for (var i = FXp.length - 1; i >= 0; i--) {
+        var p = FXp[i], pos = null;
+        if (p.ph === 1) {
+          p.d += adv;
+          if (p.d >= p.len) { p.ph = 2; startHop(p); }
+          else { var pt = p.path.getPointAtLength(p.d); pos = [pt.x, pt.y]; }
+        }
+        if (p.ph === 2 && !pos) {
+          p.t += adv / p.seg;
+          if (p.t >= 1) {
+            if (p.toIdx >= 0) flash(p.toIdx);
+            var np = pts[p.toIdx] || [GATHER.x, GATHER.y];
+            var dxg = np[0] - GATHER.x, dyg = np[1] - GATHER.y;
+            p.hops++;
+            if (p.toIdx < 0 || p.hops > 11 || Math.sqrt(dxg * dxg + dyg * dyg) < 95) {
+              p.ph = 3; p.a = [np[0], np[1]]; p.b = [GATHER.x, GATHER.y];
+              p.seg = Math.max(20, dist(p.a, p.b)); p.t = 0;
+            } else { p.prev = p.cur; p.cur = p.toIdx; startHop(p); }
+          }
+          if (p.ph === 2) pos = quad(p.a, p.ctrl, p.b, Math.min(1, p.t));
+        }
+        if (p.ph === 3) {
+          p.t += adv / p.seg;
+          if (p.t >= 1) { p.ph = 4; p.t = 0; p.seg = STEM_END - GATHER.y; }
+          else pos = [p.a[0] + (p.b[0] - p.a[0]) * p.t, p.a[1] + (p.b[1] - p.a[1]) * p.t];
+        }
+        if (p.ph === 4) {
+          p.t += adv / p.seg;
+          if (p.t >= 1) {
+            p.el.remove(); FXp.splice(i, 1);
+            if (stemExit) stemExit();
+            continue;
+          }
+          pos = [GATHER.x, GATHER.y + (STEM_END - GATHER.y) * p.t];
+        }
+        if (pos) {
+          var mdx = pos[0] - p.px, mdy = pos[1] - p.py;
+          var mlen = Math.sqrt(mdx * mdx + mdy * mdy);
+          if (mlen > 0.4) { p.dx = mdx / mlen; p.dy = mdy / mlen; }
+          p.px = pos[0]; p.py = pos[1];
+          p.el.setAttribute("x1", (pos[0] - p.dx * 10 * S).toFixed(1));
+          p.el.setAttribute("y1", (pos[1] - p.dy * 10 * S).toFixed(1));
+          p.el.setAttribute("x2", pos[0].toFixed(1));
+          p.el.setAttribute("y2", pos[1].toFixed(1));
+        }
+      }
+      if (FXp.length) requestAnimationFrame(step); else fxRunning = false;
+    }
+    function startHop(p) {
+      var o = pickNext(p.cur, p.prev);
+      var a = pts[p.cur];
+      p.a = [a[0], a[1]];
+      if (!o) { p.toIdx = -1; p.b = [GATHER.x, GATHER.y]; p.ctrl = [(a[0]+GATHER.x)/2, (a[1]+GATHER.y)/2]; }
+      else { p.toIdx = o.to; var b = pts[o.to]; p.b = [b[0], b[1]]; p.ctrl = [o.cx, o.cy]; }
+      p.seg = Math.max(14, dist(p.a, p.b) * 1.05); p.t = 0;
+    }
+    function dist(a, b) { var dx = a[0]-b[0], dy = a[1]-b[1]; return Math.sqrt(dx*dx+dy*dy); }
+    function quad(a, c, b, t) {
+      var u = 1 - t;
+      return [u*u*a[0] + 2*u*t*c[0] + t*t*b[0], u*u*a[1] + 2*u*t*c[1] + t*t*b[1]];
+    }
+
+    /* ---- sources: centered titles above the pads; details wrap underneath on hover ---- */
+    var hoverSpawnAt = {};
+    var SRC = P ? [
+      { id: "cs", d: "M350,314 L350,435 L370,455 L390,455", pad: [342,300,16,14],
+        label: { mode: "center", cx: 350, liney: 300 } },
+      { id: "ch", d: "M38,360 L160,360 L226,426 L280,426 L310,456", pad: [24,352,14,16],
+        label: { mode: "center", cx: 140, liney: 352 } },
+      { id: "cm", d: "M630,314 L630,380 L540,470 L540,520 L470,590", pad: [622,300,16,14],
+        label: { mode: "center", cx: 630, liney: 300 } },
+      { id: "ef", d: "M38,520 L210,520 L246,484 L296,484", pad: [24,512,14,16],
+        label: { mode: "center", cx: 120, liney: 512 } },
+      { id: "gc", d: "M38,760 L180,760 L240,700 L286,654", pad: [24,752,14,16],
+        label: { mode: "center", cx: 110, liney: 752 } },
+      { id: "ms", d: "M38,952 L150,952 L360,742 L360,722", pad: [24,944,14,16],
+        label: { mode: "center", cx: 120, liney: 944 } }
+    ] : [
+      { id: "ef", d: "M97,168 L260,168 L340,248 L423,248 L505,330", pad: [83,160,14,16],
+        label: { mode: "center", cx: 170, liney: 160 } },
+      { id: "cm", d: "M97,478 L255,478 L321,412 L642,412 L655,425", pad: [83,470,14,16],
+        label: { mode: "center", cx: 176, liney: 470 } },
+      { id: "cs", d: "M421,66 L421,180 L480,239 L547,239 L600,292", pad: [413,52,16,14],
+        label: { mode: "side", x: 404, y: 84, anchor: "end" } },
+      { id: "gc", d: "M97,648 L258,648 L338,568 L430,568 L530,468", pad: [83,640,14,16],
+        label: { mode: "side... placeholder" } }
+    ];
+    /* desktop gc + ch + ms appended below to keep the ternary readable */
+    if (!P) {
+      SRC[3] = { id: "gc", d: "M97,648 L258,648 L338,568 L430,568 L530,468", pad: [83,640,14,16],
+        label: { mode: "center", cx: 177, liney: 640 } };
+      SRC.push({ id: "ch", d: "M648,66 L648,150 L700,202 L700,290 L720,310", pad: [640,52,16,14],
+        label: { mode: "side", x: 632, y: 84, anchor: "end" } });
+      SRC.push({ id: "ms", d: "M478,725 L478,620 L560,538 L614,538 L640,512", pad: [470,725,16,14],
+        label: { mode: "side", x: 498, y: 700, anchor: "start" } });
+    }
+    var delays = ["", "s2", "s3", "s2"];
+    SRC.forEach(function (s, i) {
+      var dc = dcById(s.id), seat = seats[s.id];
+      var baseEl = trace(s.d, dc.lit ? "in" : "dim", delays[i % 4]);
+      srcTracePath[s.id] = baseEl;
+      el("rect", { x: s.pad[0], y: s.pad[1], width: s.pad[2], height: s.pad[3], rx: 2,
+        fill: dc.lit ? "#2a4a74" : "#1d3350" }, gTrace);
+      var seatEl;
+      if (dc.lit) {
+        seatEl = el("circle", { cx: seat.x, cy: seat.y, r: seat.r, fill: "#0d2036",
+          stroke: "#4aa8ff", "stroke-width": String(2 * S), filter: "url(#aglow)" }, gTop);
+        el("circle", { cx: seat.x, cy: seat.y, r: Math.max(2.5, seat.r - 5 * S), fill: "#6fe3ff" }, gTop);
+        el("path", { d: "M" + seat.x + "," + seat.y + " Q" + ((seat.x + GATHER.x) / 2) + "," +
+          (seat.y + 60) + " " + GATHER.x + "," + (GATHER.y - 4), fill: "none", stroke: "#1d3350",
+          "stroke-width": String(1 * S), opacity: ".6" }, gDrops);
+      } else {
+        seatEl = el("circle", { cx: seat.x, cy: seat.y, r: seat.r, fill: "none",
+          stroke: "#3c4a60", "stroke-width": String(1.4 * S), "stroke-dasharray": "3 4" }, gTop);
+      }
+      var g = el("g", { "class": "major" + (dc.lit ? "" : " dim"), tabindex: "0", role: "button",
+        "aria-label": dc.name + (dc.lit ? "" : " (dormant)") }, gTop);
+      var lh = P ? 22 : 14;                     /* revealed line height */
+      var subs = dc.lit ? (dc.stationSubs || [dc.sub]) : ["dormant"];
+      if (s.label.mode === "center") {
+        var cx = s.label.cx, bottom = s.label.liney - (P ? 12 : 6);
+        /* stack from the line upward: subs (bottom-up), then num, then title */
+        var ys = [];
+        for (var si = subs.length - 1; si >= 0; si--) { ys.unshift(bottom); bottom -= lh; }
+        var numY = dc.lit ? bottom : null;
+        if (dc.lit) bottom -= (P ? 28 : 18);
+        var titleY = bottom - (P ? 6 : 2);
+        var t1 = el("text", { x: cx, y: titleY, "text-anchor": "middle", "class": "majorlabel" }, g);
+        t1.textContent = dc.name;
+        if (dc.lit) {
+          var t2 = el("text", { x: cx, y: numY, "text-anchor": "middle",
+            "class": "majornum num detail" }, g);
+          t2.textContent = dc.num;
+        }
+        subs.forEach(function (txt, si2) {
+          var t3 = el("text", { x: cx, y: ys[si2], "text-anchor": "middle",
+            "class": "majorsub detail" }, g);
+          t3.textContent = txt;
+        });
+        el("rect", { x: cx - (P ? 130 : 110), y: titleY - (P ? 24 : 14),
+          width: P ? 260 : 220, height: (s.label.liney - titleY) + (P ? 30 : 20),
+          fill: "transparent" }, g);
+      } else {
+        var lx = s.label.x, ly = s.label.y, anch = s.label.anchor;
+        var st1 = el("text", { x: lx, y: ly, "text-anchor": anch, "class": "majorlabel" }, g);
+        st1.textContent = dc.name;
+        var st2 = el("text", { x: lx, y: ly + 19, "text-anchor": anch, "class": "majornum num detail" }, g);
+        st2.textContent = dc.lit ? dc.num : "dormant";
+        var st3 = el("text", { x: lx, y: ly + 33, "text-anchor": anch, "class": "majorsub detail" }, g);
+        st3.textContent = dc.lit ? dc.sub : "";
+        el("rect", { x: anch === "end" ? lx - 200 : lx - 8, y: ly - 16, width: 208, height: 54,
+          fill: "transparent" }, g);
+      }
+      var hit = el("path", { d: s.d, fill: "none", stroke: "#000", "stroke-opacity": "0",
+        "stroke-width": String(16 * S), "pointer-events": "stroke", cursor: "pointer" }, gHit);
+      function chain(on) {
+        g.classList.toggle("reveal", on);
+        baseEl.classList.toggle("hotbase", on);
+        seatEl.classList.toggle("hotseat", on);
+        if (on && dc.lit) {
+          var now = performance.now();
+          if (!hoverSpawnAt[s.id] || now - hoverSpawnAt[s.id] > 1100) {
+            hoverSpawnAt[s.id] = now; spawn(s.id);
+          }
+        }
+      }
+      [g, hit].forEach(function (t) {
+        t.addEventListener("mouseenter", function () { chain(true); });
+        t.addEventListener("mouseleave", function () { chain(false); });
+      });
+      g.addEventListener("focus", function () { chain(true); });
+      g.addEventListener("blur", function () { chain(false); });
+      clickable(g, dc);
+      hit.addEventListener("click", function () { openDrill(g, dc); });
+    });
+
+    /* growth docks (landscape only) */
+    if (!P) {
+      var dockDef = [[112, 300, "new datacenters dock here", 132, 304, "start"],
+                     [1030, 650, "future consumers dock here", 1030, 676, "middle"]];
+      dockDef.forEach(function (dd) {
+        var g = el("g", { opacity: ".7" }, gTop);
+        el("circle", { cx: dd[0], cy: dd[1], r: 10, fill: "none", stroke: "#2a4a74",
+          "stroke-width": "1.4", "stroke-dasharray": "3 5" }, g);
+        el("text", { x: dd[0], y: dd[1] + 5, "text-anchor": "middle", fill: "#2a4a74",
+          "font-size": "13", "font-family": "ui-monospace, monospace" }, g).textContent = "+";
+        el("text", { x: dd[3], y: dd[4], "text-anchor": dd[5], fill: "#44597a",
+          "font-size": "10.5", "font-family": "ui-monospace, monospace", "class": "detail" }, g)
+          .textContent = dd[2];
+        g.addEventListener("mouseenter", function () { g.classList.add("reveal"); });
+        g.addEventListener("mouseleave", function () { g.classList.remove("reveal"); });
+      });
+    }
+
+    /* ---- output side: gather, gate, Y ---- */
+    var OUT = P
+      ? { axon: "M505,640 L566,700", gpt: [505,640], jn: [566,700],
+          laneA: "M572,697 L660,697", laneQ: "M660,703 L572,703",
+          arc1: "M596,660 Q616,700 596,740", arc2: "M604,658 Q624,700 604,742",
+          port: [602,688,9,24], mcpXY: [600,640],
+          agent: [690,700], agentLbl: [690,744],
+          snap: "M566,700 L566,780 L620,834", snapEnd: [628,842],
+          tpLbl: [604,846], sgC: [600,900], sgLbl: [580,904], snapLblXY: [500,772] }
+      : { axon: "M795,400 L858,400", gpt: [795,400], jn: [860,400],
+          laneA: "M866,397 L1024,397", laneQ: "M1024,403 L866,403",
+          arc1: "M896,340 Q922,400 896,460", arc2: "M906,338 Q932,400 906,462",
+          port: [904,388,10,24], mcpXY: [901,326],
+          agent: [1046,400], agentLbl: [1046,440],
+          snap: "M860,400 L860,470 L950,560 L1010,560", snapEnd: [1030,560],
+          tpLbl: [1048,556], sgC: [1022,600], sgLbl: [1038,597], snapLblXY: [902,505] };
+    trace(OUT.axon, "a", "s3");
+    el("circle", { cx: OUT.gpt[0], cy: OUT.gpt[1], r: 5 * S, fill: "#52ffa8", filter: "url(#aglow)" }, gTrace);
+    el("circle", { cx: OUT.jn[0], cy: OUT.jn[1], r: 3.5 * S, fill: "#52ffa8" }, gTrace);
+    trace(OUT.laneA, "a", "s2");
+    trace(OUT.laneQ, "q", "");
+    var gate = el("g", { "class": "gate", tabindex: "0", role: "button", "aria-label": "MCP" }, gTop);
+    el("path", { d: OUT.arc1, fill: "none", stroke: "#6fe3ff", "stroke-width": String(2 * S),
+      opacity: ".85", filter: "url(#aglow)" }, gate);
+    el("path", { d: OUT.arc2, fill: "none", stroke: "#2a4a74", "stroke-width": String(1.6 * S),
+      "stroke-dasharray": "5 5" }, gate);
+    el("rect", { x: OUT.port[0], y: OUT.port[1], width: OUT.port[2], height: OUT.port[3], rx: 3,
+      fill: "#0b1626", stroke: "#6fe3ff", "stroke-width": String(1.4 * S) }, gate);
+    el("text", { x: OUT.mcpXY[0], y: OUT.mcpXY[1], "text-anchor": "middle", fill: "#6fe3ff",
+      "font-size": String(P ? 26 : 17), "font-weight": "700", "letter-spacing": ".2em",
+      "font-family": "system-ui, sans-serif" }, gate).textContent = "MCP";
+    if (!P) {
+      /* tool channels revealed right beside the gate */
+      ["search_solved_issues", "get_concept_note", "lookup_map"].forEach(function (t, i) {
+        el("text", { x: 926, y: 350 + i * 15, fill: "#3f7f9a", "font-size": "9.5",
+          "font-family": "ui-monospace, monospace", "class": "detail" }, gate).textContent = t;
+      });
+    }
+    gate.addEventListener("mouseenter", function () { gate.classList.add("reveal"); });
+    gate.addEventListener("mouseleave", function () { gate.classList.remove("reveal"); });
+    clickable(gate, XN.mcp);
+
+    var agent = el("g", { "class": "major", tabindex: "0", role: "button",
+      "aria-label": "Your agent" }, gTop);
+    el("circle", { cx: OUT.agent[0], cy: OUT.agent[1], r: 15 * (P ? 1.2 : 1), fill: "#0d2036",
+      stroke: "#6fe3ff", "stroke-width": String(2 * S), filter: "url(#aglow)" }, agent);
+    el("circle", { cx: OUT.agent[0], cy: OUT.agent[1], r: 6 * (P ? 1.2 : 1), fill: "#6fe3ff" }, agent);
+    el("text", { x: OUT.agentLbl[0], y: OUT.agentLbl[1],
+      "text-anchor": "middle", "class": "majorlabel" }, agent).textContent = "YOUR AGENT";
+    el("text", { x: OUT.agentLbl[0], y: OUT.agentLbl[1] + (P ? 24 : 16),
+      "text-anchor": "middle", "class": "majorsub detail" }, agent)
+      .textContent = "any MCP client";
+    agent.addEventListener("mouseenter", function () { agent.classList.add("reveal"); });
+    agent.addEventListener("mouseleave", function () { agent.classList.remove("reveal"); });
+    clickable(agent, XN.agent);
+
+    /* snapshot branch */
+    var snapg = el("g", {}, gTop);
+    var sb1 = trace(OUT.snap, "a", "");
+    var tp = el("g", { "class": "major", tabindex: "0", role: "button",
+      "aria-label": "This page, a snapshot consumer" }, gTop);
+    el("circle", { cx: OUT.snapEnd[0], cy: OUT.snapEnd[1], r: 9 * (P ? 1.2 : 1), fill: "#0d2036",
+      stroke: "#52ffa8", "stroke-width": String(2 * S), filter: "url(#aglow)" }, tp);
+    el("circle", { cx: OUT.snapEnd[0], cy: OUT.snapEnd[1], r: 3.5 * (P ? 1.2 : 1), fill: "#52ffa8" }, tp);
+    el("text", { x: OUT.tpLbl[0], y: OUT.tpLbl[1], "text-anchor": P ? "end" : "start",
+      "class": "majorlabel" }, tp).textContent = "THIS PAGE";
+    el("text", { x: OUT.tpLbl[0], y: OUT.tpLbl[1] + (P ? 22 : 15), "text-anchor": P ? "end" : "start",
+      "class": "majorsub detail" }, tp).textContent = "you are here";
+    var sg = el("g", { "class": "major dim", tabindex: "0", role: "button",
+      "aria-label": "Slipgate app (future consumer)" }, gTop);
+    el("circle", { cx: OUT.sgC[0], cy: OUT.sgC[1], r: 8 * (P ? 1.2 : 1), fill: "none",
+      stroke: "#3c4a60", "stroke-width": String(1.6 * S), "stroke-dasharray": "4 5" }, sg);
+    el("text", { x: OUT.sgLbl[0], y: OUT.sgLbl[1], "text-anchor": P ? "end" : "start",
+      "class": "majorlabel" }, sg).textContent = "SLIPGATE APP";
+    el("text", { x: OUT.sgLbl[0], y: OUT.sgLbl[1] + (P ? 22 : 15), "text-anchor": P ? "end" : "start",
+      "class": "majorsub detail" }, sg).textContent = "future · same door";
+    var snapLbl = el("text", { x: OUT.snapLblXY[0], y: OUT.snapLblXY[1], "text-anchor": "middle",
+      fill: "#3f7f9a", "font-size": String(P ? 15 : 10),
+      "font-family": "ui-monospace, monospace", "class": "detail" }, snapg);
+    snapLbl.textContent = "snapshot door";
+    function snapChain(on) {
+      snapg.classList.toggle("reveal", on);
+      tp.classList.toggle("reveal", on);
+      sg.classList.toggle("reveal", on);
+      sb1.classList.toggle("hotbase", on);
+    }
+    var snapHit = el("path", { d: OUT.snap, fill: "none", stroke: "#000", "stroke-opacity": "0",
+      "stroke-width": String(16 * S), "pointer-events": "stroke", cursor: "pointer" }, gHit);
+    [tp, sg, snapHit].forEach(function (t) {
+      t.addEventListener("mouseenter", function () { snapChain(true); });
+      t.addEventListener("mouseleave", function () { snapChain(false); });
+    });
+    clickable(tp, XN.snap);
+    clickable(sg, XN.slip);
+    snapHit.addEventListener("click", function () { openDrill(tp, XN.snap); });
+
+    /* brainstem */
+    var sx = GATHER.x;
+    el("path", { d: "M" + sx + "," + GATHER.y + " L" + sx + "," + STEM_END, fill: "none",
+      stroke: "#2a4a74", "stroke-width": String(2.5 * S) }, gTrace);
+    el("path", { d: "M" + (sx - 6) + "," + (GATHER.y + 18) + " L" + (sx - 6) + "," + STEM_END,
+      fill: "none", stroke: "#1d3350", "stroke-width": String(1 * S) }, gTrace);
+    el("path", { d: "M" + (sx + 6) + "," + (GATHER.y + 18) + " L" + (sx + 6) + "," + STEM_END,
+      fill: "none", stroke: "#1d3350", "stroke-width": String(1 * S) }, gTrace);
+    el("path", { d: "M" + sx + "," + GATHER.y + " L" + sx + "," + STEM_END, fill: "none",
+      stroke: "#52ffa8", "stroke-width": String(2.4 * S), "stroke-linecap": "round",
+      filter: "url(#aglow)", "class": "sig s3" }, gTrace);
+    el("circle", { cx: sx, cy: GATHER.y - 2, r: 5 * S, fill: "#52ffa8", filter: "url(#aglow)" }, gTrace);
+    el("text", { x: sx + 14, y: STEM_END - (P ? 60 : 25), fill: "#3f7f9a",
+      "font-size": String(P ? 15 : 10.5), "font-family": "ui-monospace, monospace" }, gTrace)
+      .textContent = "brainstem · the machines below ↓";
+  }
+  buildBrain();
+  var brainMQ = window.matchMedia("(max-width: 900px)");
+  if (brainMQ.addEventListener) brainMQ.addEventListener("change", buildBrain);
+  else if (brainMQ.addListener) brainMQ.addListener(buildBrain);
+  if (!reduced) {
+    var order = ["cm", "ef", "gc", "cs"], oi = 0;
+    setInterval(function () { if (brainSpawn) brainSpawn(order[oi++ % order.length]); }, 4200);
+    setTimeout(function () { if (brainSpawn) brainSpawn("cm"); }, 700);
+  }
+
+  /* ---------------- comparison overlay ---------------- */
+  var COMPARE =
+    "<h3>WHY DO I NEED THIS?</h3>" +
+    "<div class='headline'><span class='s'>Because agents sound confident about QuakeWorld while being wrong. Same question, same agent — the only difference is the oracle connection.</span></div>" +
+    "<span class='draftstamp'>draft — final page shows verbatim captured answers, dated + model-labeled</span>" +
+    qa("Why does my rocket feel delayed on antilag servers?",
+       "Rockets can feel delayed due to network latency or lag compensation. Try lowering your ping, or look for client-side prediction settings that might smooth out projectiles.",
+       "Antilag rewinds <b>hitscan</b>, not projectiles — rockets always fly in real time; what you feel is your own latency, which hitscan hides and rockets don't. See dust0r's in-client stopwatch test: antilag 1 vs 2 rocket travel times are identical. <code>search_solved_issues → #antilag, solved</code>") +
+    qa("What exactly does the antilag hitscan rewind cap do?",
+       "It likely limits how far back the server rewinds player positions, commonly around one second in most engines, to prevent abuse by high-ping players.",
+       "The cap bounds hitscan rewind at 250ms — and per the maintainer discussion the exact value is arbitrary; it was questioned as 250 vs 150ms and clarified in-thread. <code>search_solved_issues → #antilag, solved</code>") +
+    qa("How do I set up weapon scripts in current ezQuake?",
+       "Create an autoexec.cfg and bind keys with aliases that use the 'impulse' commands to switch weapons, like most Quake engines from that era.",
+       "Three practical methods — selection priorities, no-backpack-drop settings, and server-side <b>w_rank</b> for lossy/high-ping connections — with ruleset caveats. <code>get_concept_note(\"weapon-scripts\")</code>") +
+    qa("How does hoonymode scoring work?",
+       "Hoonymode appears to be a community mod; it probably modifies scoring, though details vary by server.",
+       "Every round ends on a single frag; players swap spawns each round-pair so both play both spawns; series is tennis-style — first to seven round-wins, must lead by two. <code>get_concept_note(\"hoonymode\")</code>") +
+    "<div class='escnote'>esc / click outside to close</div>";
+  function qa(q, alone, withO) {
+    return "<div class='qa'><div class='q'>&ldquo;" + q + "&rdquo;</div><div class='cols'>" +
+      "<div class='col alone'><div class='ch'>agent alone</div>" + alone + "</div>" +
+      "<div class='col with'><div class='ch'>agent + oracle</div>" + withO + "</div>" +
+      "</div></div>";
+  }
+  document.getElementById("whybtn").addEventListener("click", function (e) {
+    openDrill(e.currentTarget, null, "wide", COMPARE);
+  });
+  document.getElementById("connectbtn").addEventListener("click", function (e) {
+    openDrill(e.currentTarget, XN.agent);
+  });
+
+  /* ---------------- FLOOR 2: the roots ---------------- */
+  var TOPICS = {
+    boot:
+      "<b>CONNECT YOUR AGENT</b><br/>" +
+      "1 · add: <code>{ \"qw-oracle\": { \"url\": \"https://oracle.quake.world/mcp\" } }</code> <span class='mut'>(illustrative)</span><br/>" +
+      "2 · first questions: <span class='mut'>\"why does my rocket feel delayed on antilag?\" · \"how do i set up weapon scripts?\" · \"what is hoonymode?\"</span><br/>" +
+      "3 · when it doesn't know, it says so — and points at a human.<br/>" +
+      "<div class='door2'>the whole brain is open source — read it, or point your agent at it:<br/>" +
+      "<a href='" + REPO + "' target='_blank' rel='noopener'>github.com/ParadokS81/quakeworld</a> → <code>apps/qw-oracle</code></div>",
+    ef:
+      "<b>SUBSYS 01 — EXTRACTION (Engine Facts)</b><br/>" +
+      "Seven C codebases parsed with libclang into 11,081 documented entities — every cvar, command, macro and flag carries a citation back to its source line. Re-running a tag is idempotent: same input, same rows.<br/>" +
+      "<span class='mut'>concept altitude here; the fine detail lives in the repo, always current:</span>" +
+      "<div class='door2'><a href='" + REPO + "/tree/main/apps/qw-oracle/scripts/extractors' target='_blank' rel='noopener'>apps/qw-oracle/scripts/extractors</a> — extractor playbook &amp; per-codebase handlers</div>",
+    cm:
+      "<b>SUBSYS 02 — MEMORY INGEST (Discord)</b><br/>" +
+      "741,128 Discord messages, kept raw and immutable, fenced into 20,270 topic-coherent threads. Each thread is embedded AND full-text indexed; retrieval is hybrid — meaning-similarity first, keywords as the safety net. 6,666 threads carry a solved resolution.<br/>" +
+      "<span class='mut'>why embeddings: people describe the same problem in different words; vectors find it anyway.</span>" +
+      "<div class='door2'><a href='" + REPO + "/tree/main/apps/qw-oracle/scripts/load-chat' target='_blank' rel='noopener'>apps/qw-oracle/scripts/load-chat</a> — ingest &amp; thread pipeline</div>",
+    cs:
+      "<b>SUBSYS 03 — SYNTHESIS (Concept Notes)</b><br/>" +
+      "44 concept notes written where scattered facts needed a narrative — game modes, weapon scripts, network setup. Every claim cites a code line or a message ID; a note must earn its existence. The gap list is public and honest.<br/>" +
+      "<div class='door2'><a href='" + REPO + "/tree/main/apps/qw-oracle/curated/concept-notes' target='_blank' rel='noopener'>apps/qw-oracle/curated/concept-notes</a> — the notes, in the open</div>",
+    gc:
+      "<b>SUBSYS 04 — GAME CONTENT</b><br/>" +
+      "254 maps plus a gameplay catalog: 514 mechanics and 76 entity definitions extracted from KTX and original id sources — spawn rules, death rules, powerup behavior, mode defaults.<br/>" +
+      "<div class='door2'><a href='" + REPO + "/tree/main/apps/qw-oracle' target='_blank' rel='noopener'>apps/qw-oracle</a> — schema &amp; data model</div>",
+    ch:
+      "<b>SUBSYS 05 — COMMUNITY HISTORY</b> <span class='mut'>· no power</span><br/>" +
+      "Clans, players, official tournament results, LAN history. This rack powers on when the community platform comes online. Rendered dark on purpose — where this grows, not a promise.",
+    ms:
+      "<b>SUBSYS 06 — MATCH STATS</b> <span class='mut'>· no power</span><br/>" +
+      "18,000+ recorded 4on4 games await their wiring."
+  };
+
+  var rootsSvg = document.getElementById("rootsSvg");
+  var mroom = document.getElementById("machine-room");
+  var NS2 = "http://www.w3.org/2000/svg";
+  var rootPaths = {}, rackMap = {}, selectedRack = null;
+  var termBody = document.getElementById("termBody");
+  var rackEls = [];
+  var COLS = { L: ["ef", "cs", "ch"], R: ["cm", "gc", "ms"] };
+  var RT = [], rtRun = false, rtLast = 0;
+
+  function rmk(d, cls) {
+    var p = document.createElementNS(NS2, "path");
+    p.setAttribute("d", d); p.setAttribute("class", cls); p.setAttribute("fill", "none");
+    rootsSvg.appendChild(p); return p;
+  }
+  function layoutRoots() {
+    RT.forEach(function (t) { t.el.remove(); }); RT = [];
+    while (rootsSvg.firstChild) rootsSvg.removeChild(rootsSvg.firstChild);
+    rootPaths = {};
+    var w = mroom.clientWidth, h = mroom.clientHeight;
+    rootsSvg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    var cx = w / 2;
+    rmk("M" + cx + ",0 L" + cx + ",44", "trunk");
+    rmk("M" + cx + ",0 L" + cx + ",44", "sig s2 rootsig");
+    rmk("M" + cx + ",44 C" + cx + "," + (44 + h * 0.1) + " " + (cx - 22) + "," + (44 + h * 0.16) +
+        " " + (cx - 36) + "," + (44 + h * 0.26), "rootlet");
+    rmk("M" + cx + ",44 C" + cx + "," + (44 + h * 0.12) + " " + (cx + 20) + "," + (44 + h * 0.18) +
+        " " + (cx + 32) + "," + (44 + h * 0.3), "rootlet");
+    var secRect = mroom.getBoundingClientRect();
+    var delaysR = ["", "s2", "s3", "s3", "", "s2"], di = 0;
+    rackEls.forEach(function (r) {
+      var id = r.dataset.id, dc = dcById(id);
+      var rect = r.getBoundingClientRect();
+      var leftSide = (rect.left - secRect.left + rect.width / 2) < w / 2;
+      var xT = (leftSide ? rect.right : rect.left) - secRect.left + (leftSide ? -6 : 6);
+      var yT = rect.top - secRect.top + rect.height * 0.5;
+      var d = "M" + cx + ",44 C" + cx + "," + Math.round(44 + (yT - 44) * 0.55) + " " +
+              Math.round(xT + (cx - xT) * 0.42) + "," + Math.round(yT) + " " +
+              Math.round(xT) + "," + Math.round(yT);
+      var base = rmk(d, "root" + (dc.lit ? "" : " dimroot"));
+      rootPaths[id] = base;
+      if (dc.lit) rmk(d, "sig rootsig " + delaysR[di % delaysR.length]);
+      di++;
+    });
+    if (selectedRack && rootPaths[selectedRack]) rootPaths[selectedRack].classList.add("hotroot");
+  }
+  function buildRack(id, parent) {
+    var dc = dcById(id);
+    var d = document.createElement("div");
+    d.className = "rk" + (dc.lit ? "" : " off");
+    d.dataset.id = id;
+    d.setAttribute("role", "button"); d.setAttribute("tabindex", "0");
+    d.setAttribute("aria-label", dc.name + (dc.lit ? "" : " (dormant)"));
+    d.innerHTML = "<div class='rkt'>" + dc.name + "</div>" +
+      "<div class='rkn num'>" + dc.num + "</div>" +
+      "<div class='rks'>" + (dc.lit ? dc.sub : "dormant · awaiting power") + "</div>" +
+      "<div class='rkd'></div>";
+    var dots = d.querySelector(".rkd");
+    for (var i = 0; i < 18; i++) {
+      var cell = document.createElement("i");
+      if (dc.lit && (i * 7 + id.length) % 3 !== 0) {
+        cell.className = "on" + (i % 4 === 0 ? " f2" : "") + (i % 2 === 0 ? " bl" : "");
+        cell.style.animationDelay = ((i * 421) % 2600) + "ms";
+      }
+      dots.appendChild(cell);
+    }
+    function pick(ev) {
+      ev.preventDefault();
+      rackEls.forEach(function (r) { r.classList.remove("sel"); });
+      d.classList.add("sel");
+      selectedRack = id;
+      termBody.innerHTML = TOPICS[id];
+      Object.keys(rootPaths).forEach(function (k) { rootPaths[k].classList.remove("hotroot"); });
+      if (rootPaths[id]) rootPaths[id].classList.add("hotroot");
+    }
+    d.addEventListener("click", pick);
+    d.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") pick(ev); });
+    parent.appendChild(d); rackMap[id] = d; rackEls.push(d);
+  }
+  COLS.L.forEach(function (id) { buildRack(id, document.getElementById("rackL2")); });
+  COLS.R.forEach(function (id) { buildRack(id, document.getElementById("rackR2")); });
+  termBody.innerHTML = TOPICS.boot;
+  requestAnimationFrame(layoutRoots);
+  window.addEventListener("resize", (function () {
+    var tm = null;
+    return function () { clearTimeout(tm); tm = setTimeout(layoutRoots, 160); };
+  })());
+
+  /* the journey continues: a pulse leaving the brainstem rides a root into a rack */
+  var rootQ = ["cm", "ef", "gc", "cs"], rqi = 0;
+  stemExit = function () {
+    if (reduced) return;
+    if (getComputedStyle(rootsSvg).display === "none") return;
+    var id = rootQ[rqi++ % rootQ.length];
+    var path = rootPaths[id];
+    if (!path) return;
+    var p0 = path.getPointAtLength(0);
+    var lnEl = document.createElementNS(NS2, "line");
+    lnEl.setAttribute("x1", p0.x); lnEl.setAttribute("y1", p0.y);
+    lnEl.setAttribute("x2", p0.x); lnEl.setAttribute("y2", p0.y);
+    lnEl.setAttribute("stroke", "#4aa8ff"); lnEl.setAttribute("stroke-width", "2.4");
+    lnEl.setAttribute("stroke-linecap", "round"); lnEl.setAttribute("filter", "url(#aglow)");
+    rootsSvg.appendChild(lnEl);
+    RT.push({ path: path, d: 0, len: path.getTotalLength(), el: lnEl, id: id,
+      px: p0.x, py: p0.y, dx: 0, dy: 1 });
+    if (!rtRun) { rtRun = true; rtLast = 0; requestAnimationFrame(rstep); }
+  };
+  function rstep(ts) {
+    if (!rtLast) rtLast = ts;
+    var dt = Math.min(50, ts - rtLast); rtLast = ts;
+    var adv = 0.073 * dt; /* same speed as every other pulse on the page */
+    for (var i = RT.length - 1; i >= 0; i--) {
+      var t = RT[i];
+      t.d += adv;
+      if (t.d >= t.len) {
+        t.el.remove(); RT.splice(i, 1);
+        var rk = rackMap[t.id];
+        if (rk) {
+          rk.classList.add("land");
+          (function (r) { setTimeout(function () { r.classList.remove("land"); }, 650); })(rk);
+        }
+        continue;
+      }
+      var pt = t.path.getPointAtLength(t.d);
+      var mdx = pt.x - t.px, mdy = pt.y - t.py, ml = Math.sqrt(mdx * mdx + mdy * mdy);
+      if (ml > 0.4) { t.dx = mdx / ml; t.dy = mdy / ml; }
+      t.px = pt.x; t.py = pt.y;
+      t.el.setAttribute("x1", (pt.x - t.dx * 10).toFixed(1));
+      t.el.setAttribute("y1", (pt.y - t.dy * 10).toFixed(1));
+      t.el.setAttribute("x2", pt.x.toFixed(1));
+      t.el.setAttribute("y2", pt.y.toFixed(1));
+    }
+    if (RT.length) requestAnimationFrame(rstep); else rtRun = false;
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeDrill(false);
+  });
+})();
+</script>

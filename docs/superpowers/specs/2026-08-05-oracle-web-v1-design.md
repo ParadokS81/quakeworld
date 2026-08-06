@@ -200,8 +200,10 @@ the code pipeline for no gain.
 
 The "visual design job" queued for arc-plan ran 2026-08-05/06 as an
 interactive mockup loop (claude.ai artifact, version-labeled rounds 1
-through 4.4; file `qw-oracle-directions.html` in the session scratchpad,
-ported to the SolidJS scaffold at build time). Operator verdict: overall
+through 4.7; mockup-of-record committed at
+`docs/superpowers/specs/2026-08-05-oracle-web-v1-mockup.html` -- a single
+self-contained HTML file, open directly in a browser; ported to the SolidJS
+scaffold at build time). Operator verdict: overall
 design LOCKED (~90%; residual = content granularity + a dedicated mobile
 pass). What this locks, amending D6's sketch:
 
@@ -249,3 +251,26 @@ New arc-plan items from the exploration: comparison capture session (clean
 sessions, verbatim, dated); terminal topic copy (6-10 cards at
 stable-concepts altitude, repo doors); dedicated mobile projection pass;
 port of the mesh/journey/roots generators to SolidJS dumb components.
+
+### Amendment addendum -- post-lock refinements (2026-08-06, rounds 4.5-4.7)
+
+- **Naming locks**: datacenter display names shortened -- COMMUNITY MEMORY ->
+  **DISCORD**, CURATED SYNTHESIS -> **CONCEPT NOTES** (operator ruling:
+  concrete beats abstract; applies everywhere -- stations, drill cards,
+  racks, terminal subsystem headers).
+- **Station label pattern**: horizontal stations center the title above the
+  outside node with revealed details wrapping beneath (Community Memory's
+  long sub splits into two lines); vertical stations keep side-anchored
+  labels. The MCP tool-reveal sits beside the gate, not floating below.
+- **One-pulse rule**: journey travelers move at the canonical dash speed
+  (400u per 5.5s) and render as the same dash glyph -- never a second
+  visual species. Z-order keeps the stem animation above the HTML bridge
+  div; the down-flow cue depends on it.
+- **First portrait projection** (<=900px) ships in the mockup: tagline top
+  full-width one row, CTAs bottom-center, three-station crown across the
+  top (CONCEPT NOTES / COMMUNITY HISTORY / DISCORD with nodes under
+  titles), outputs in the bottom-right quadrant, ~1.55x type, docks and
+  tool-reveal dropped. Real-phone check passed; a Chrome
+  device-mode-inside-artifact-panel scroll quirk remains unresolved
+  (suspected host-frame drag capture, not page CSS -- retest on the real
+  deploy before chasing further).
