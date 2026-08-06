@@ -141,7 +141,7 @@ validation slice.
 | [x] | 2021 | 11,244 | 182 | 0 | -- loaded 2026-08-06 (session 5), 744 threads, 99.88% coverage (refence no-op)
 | [x] | 2022 | 12,130 | 163 | 0 | -- loaded 2026-08-06 (session 5), 786 threads, **100.00% coverage** (refence no-op)
 | [x] | 2023 | 11,603 | 173 | 0 | -- loaded 2026-08-06 (session 5), 784 threads, **100.00% coverage** (refence no-op)
-| [ ] | 2024 | 16,201 | 151 | 0 |
+| [x] | 2024 | 16,201 | 151 | 0 | -- loaded 2026-08-06 (session 5), 848 threads, 99.99% coverage (refence no-op)
 | [x] | 2025 | 19,287 | 130 | 1 | -- loaded 2026-08-06 (session 5), 909 threads, 99.96% coverage (refence no-op)
 | [ ] | 2026 | 4,601 | 54 | 0 |
 
@@ -784,6 +784,17 @@ returns its 2025 thread as top hit (211 msgs, solved).
 
 DB state after #dev-corner 2025: chat_threads = **36851**, all v2. **#dev-corner 9/11.**
 
+**Batch #dev-corner 2024 -- LOADED, verified. #dev-corner HISTORICAL COMPLETE (10/11; only the
+parked 2026 batch remains).** 151 chunks, 0 forced. Fence **151/151, failures=0, wall 46.7 min
+at CONC=30**. **Refence NO-OP.** Gate: **0% hallucination / 99.99% coverage**. Load: 848
+threads, 16,210 junction rows (16,200 DISTINCT, 10 R8 m2m), 0 OOB / 0 missing / 0 stale.
+resolution 283 solved / 151 unresolved / 375 informational / 39 none. **Idempotency (R5):
+PASS**. **Retrieval: PASS** -- "FXAA implementation in ezquake" returns its 2024 thread as top
+hit (122 msgs, solved); data verified healthy (848 threads, 0 null/stale) after two probes
+missed (see the ranking note below).
+
+DB state after #dev-corner 2024: chat_threads = **37699**, all v2. **#dev-corner 10/11.**
+
 > **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
 > 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
 > of the entire backfill. Cause: the refence pass understood only coverage.
@@ -850,6 +861,16 @@ DB state after #dev-corner 2025: chat_threads = **36851**, all v2. **#dev-corner
 > ranking: RRF applies no length prior, so a 1-msg thread whose few tokens happen to align
 > beats a 200-msg thread on the same subject. **Phase D should consider a length floor or a
 > length-aware score** -- either would fix both this and the thin-thread misses above.
+>
+> **Third instance, #dev-corner 2024 -- the sharpest yet.** A **6-msg** 2017 thread ("Further
+> discussion on map checksums and cheat prevention") outranked a **170-msg** 2024 thread ("Map
+> distribution, autodownload and checksum handling") on the query "map autodownload and checksum
+> handling", which describes the larger thread almost verbatim. The batch WAS reachable -- a
+> distinctive query ("FXAA implementation in ezquake") returned its exact 122-msg thread, and
+> the data verified healthy (848 threads, 0 null/stale). Three independent observations now
+> across three batches, in both directions (thin threads winning AND losing). This is a
+> systematic ranking property, not noise, and it is the single most actionable Phase D input
+> from session 5.
 
 **Operator decision (2026-08-05): run the 2026 batches NOW on partial-year data.** The raw
 corpus ends 2026-05-02 (catch-up import is Arc A step 3). #quakeworld-2026 and #dev-corner-2026
