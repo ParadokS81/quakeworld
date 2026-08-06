@@ -11,27 +11,36 @@ mockup-of-record). **Parent:**
 
 ## Where we are right now
 
-- **Stage:** PHASE 1 SHIPPED (2026-08-06), awaiting operator gate before
-  Phase 2. Plan itself is complete: six phase docs, each independently
-  checker-verified, coherence pass (CH-1..CH-9), cold adversarial review by
-  three fresh-context readers -- all GO-WITH-FIXES, every finding applied.
-- **Last action:** Phase 1 executed end to end. `build-brain-manifest.ts`
-  rewritten to the v1 contract (T1, session-tier agent); manifest emitted and
-  published (T2); CORS + `always` on the nginx `/snapshots/` location (T3);
-  harvest-runbook rider (T4). Commits `b6efc54e` (CORS), `91fd38bc` (rider),
-  `29a465d7` (emitter + manifest). **9/9 phase-boundary probes green against
-  the live public URL**, 6/6 numbers matching live DB queries, `tsc --noEmit`
-  clean; history shape-guard and cadence guard both exercised against real
-  files rather than asserted. New finding **F9** (Edit tool breaks single-file
-  bind mounts) resolved inline -- carries a do-not-revert rule into later
-  phases.
-- **Live now:** `https://oracle.slipgate.me/snapshots/brain-manifest.json`
-  -- 200, `access-control-allow-origin: *` (on 200 AND 404),
-  `cache-control: public, max-age=300`, `cf-cache-status: DYNAMIC`.
-- **Next action:** operator gate, then arc-run Phase 2.
-- **Operator-blocking before Phase 2:** a Cloudflare Pages API token
-  (Pages:Edit) -- none exists on this box post-migration; Phase 2 stalls at
-  its deploy task without it. See Operator-side prerequisites.
+- **Stage:** PHASES 1-2 SHIPPED (2026-08-06). The site is deployed and serving
+  live oracle numbers. Next up: Phase 3 (Floor 1 brain port).
+- **Phase 1** (manifest pipeline): emitter rewritten to the v1 contract,
+  manifest published, nginx CORS + `always`, runbook rider. Commits
+  `b6efc54e` / `91fd38bc` / `29a465d7`. **9/9 boundary probes green on the
+  live URL**, 6/6 numbers matching live DB queries; history shape-guard and
+  cadence guard exercised against real files rather than asserted.
+- **Phase 2** (scaffold + Hello Production): `apps/oracle-web` subtree
+  (SolidJS + Vite + Tailwind v4/daisyUI `oracle` theme), the fetch/validate/
+  baked-fallback data shell, two-floor skeleton on real numbers, CF Pages
+  deploy, `DEPLOYMENT.md`. Commits `8e78f6a3` (subtree) / `67defd51`,
+  `29386f13` (findings) / DEPLOYMENT.md. Automated probes 1-3 green; the
+  deployed JS is **byte-identical** to local `dist/`. Operator-run probes:
+  live numbers CONFIRMED by screenshot, **fallback CONFIRMED** (console shows
+  the real 404 -> catch -> baked chain with numbers still rendering).
+- **Live now:**
+  - Data: `https://oracle.slipgate.me/snapshots/brain-manifest.json` -- 200,
+    CORS `*` on 200 AND 404, `max-age=300`, `cf-cache-status: DYNAMIC`.
+  - Site: `https://qw-oracle-web.pages.dev/` -- CF Pages project
+    `qw-oracle-web`, production branch `main`, one-command redeploy per
+    `apps/oracle-web/DEPLOYMENT.md`.
+- **Execution findings so far:** F9 (Edit tool breaks single-file bind mounts
+  -- do-not-revert rule for later phases), F10 (`~/.secrets` is ro to dev; CF
+  token homed at `/home/dev/projects/.secrets/`, now also a `secret-drop`
+  registry entry), F11 (Phase 2 Task 3's bundle-grep probe was unsatisfiable
+  before Task 4 wired the import -- relocated, not weakened).
+- **Next action:** arc-run Phase 3 (Floor 1 brain port -- mesh/stations/
+  traces/journeys, drill cards, connect card, why-overlay dark).
+- **Operator-side prerequisites: NONE outstanding.** The CF Pages token is in
+  place and validated (rotated 2026-08-06 after a transcript exposure).
 
 ## Lane
 
