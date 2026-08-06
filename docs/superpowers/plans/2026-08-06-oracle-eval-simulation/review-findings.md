@@ -59,8 +59,8 @@ histogram over the 3,164-thread live pool by `date_range_start` year -- 2020:365
 the spec's era/staleness carry-forward made concrete -- the eval grades answers
 against fixes that are 1 to 6 years old, and the `divergent` flag (D6) is
 therefore load-bearing, not a corner case. `era` becomes a first-class record
-field (E2) and a per-era cut in the findings doc. Route: Phase 2 (field),
-Phase 7 (reporting).
+field (E2) and a per-era cut in the findings doc. Route: Phase 1 (schema field),
+Phase 8 (reporting).
 
 **F3 (MAJOR -- operator prerequisite) -- the monthly harvest regenerates thread
 IDs and would invalidate an in-flight run.** Surfaced: planning sweep, from
@@ -68,7 +68,7 @@ IDs and would invalidate an in-flight run.** Surfaced: planning sweep, from
 **2026-09-06** and its runbook re-fences the CURRENT YEAR's four batches;
 re-fencing reassigns `chat_threads.id`, which is the mechanism behind F1.
 Disposition: E4 (corpus freeze) plus a README operator prerequisite -- hold the
-harvest or push the calendar date until Phase 6's last answering pass.
+harvest or push the calendar date until Phase 7's last answering pass.
 
 ## Findings that shape the build
 
@@ -143,7 +143,7 @@ inline `const` literals (`DATA`, `CONTRIB`) with no script that produces them;
 `DATA` is a denormalized projection that **drops `threadIds`**, so a run record
 cannot currently be traced back to its cluster; the header tiles hardcode
 `5,028` / `3,610 solved` / `1,418 unresolved`, which F1 now contradicts.
-Disposition: Phase 4 ships the generator alongside the Runs tab (E13) and
+Disposition: Phase 5 ships the generator alongside the Runs tab (E13) and
 re-derives every header number from the frozen manifest.
 
 **F12 -- domain rank derivation has an unguarded tie-break.**

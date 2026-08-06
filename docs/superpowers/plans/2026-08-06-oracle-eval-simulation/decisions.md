@@ -51,6 +51,28 @@ is that same triple; the Phase 2 boundary probe asserts records validate WITH
 an empty grade; the Phase 4 probe asserts every record it touched moved from
 ungraded to graded with no other field mutated.
 
+**Amendment 2026-08-06 (Phase 1 checker, MAJOR-3) -- the graded line is a full
+copy, not a delta.** Under E9's log-structured reading (F19), reconstruction is
+last-line-wins FULL REPLACEMENT, so "no other field mutated" has a mechanical
+meaning that must be stated or it is unenforceable: the `stage: 'graded'` line
+is a byte-copy of the `stage: 'answered'` line with exactly `grade` and `stage`
+changed. A delta line carrying only `{record_id, stage, grade}` reads as
+compliant and would DESTROY `answer`, `tool_calls`, `usage`, `latency_ms`, and
+`truth` on reconstruction. The validator rejects a `graded` line missing any
+field its `answered` predecessor carried, and Phase 4's boundary probe diffs
+the two lines field by field. Also settled here: an ABSENT `grade` key is
+equivalent to `null`, for `grade` only and no other field.
+
+**Amendment 2026-08-06 (Phase 1 checker, MAJOR-4) -- records are scoped per
+run.** `record_id` is `(thread_id, condition, answering_model)` and does NOT
+carry `run_id`, yet the pilot's threads (Phase 5) are a subset of the bulk's
+(Phase 6). Sharing one JSONL would both merge the two runs under last-line-wins
+AND make the bulk's resume SKIP every pilot thread, quietly promoting pilot
+answers into the headline. Records therefore live in one file per run, keyed by
+`run_id`; resume never crosses a run boundary; and the headline number is
+computed over the bulk run's file alone, with the pilot's kept only as
+calibration evidence.
+
 ## E3 -- Read-only against the corpus; the dev twin only; prod never
 
 **Decision:** no writes to `chat_threads`, `thread_messages`, `messages`,
@@ -70,11 +92,11 @@ about bad corpus data route to their own track (E14).
 ## E4 -- The corpus is frozen for the arc's answering window
 
 **Decision:** the sampling frame and the retrieval corpus are pinned from
-Phase 3's sample freeze through Phase 6's last answering pass. The monthly L2
+Phase 3's sample freeze through Phase 7's last answering pass. The monthly L2
 harvest is held for that window (README prerequisite). Phase 3 records the
 corpus baseline -- total `chat_threads`, per-channel splits,
 `reconstruction_version`, and the resolved sample's `thread_key` values -- and
-Phase 5 re-asserts it before the bulk run.
+Phase 6 re-asserts it before the bulk run.
 **Why:** re-fencing REGENERATES `chat_threads.id`. This is not hypothetical:
 234 of 4,456 frozen non-noise IDs are already gone (F1), in one contiguous ID
 band, and the harvest ritual re-fences the current year every month.
@@ -132,6 +154,19 @@ number, and "no phantom tool instructions, no baseline coaching" is a spec lock.
 **Implication:** any per-cell prompt tuning is a spec amendment, not a phase
 decision.
 
+**Amendment 2026-08-06 (Phase 1 checker, MAJOR-6) -- `limit` is PINNED.**
+Symmetry was assumed to follow from `fanout = limit * 4` being hardcoded. It
+does not: `limit` is a declared property of the tool's `inputSchema`, so the
+MODEL chooses it, and with it the candidate-slot budget that IS the B-vs-C
+dilution mechanism (F8). A model asking `limit: 3` in one cell and `limit: 5`
+in another silently changes the thing being measured. It also changes the
+starvation rate materially -- measured `#helpdesk`-scoped over 200 random query
+vectors: 11.0% starved at fanout 12, **51.5% at fanout 20**. The harness
+therefore pins `limit` to one value for every cell and every question, records
+the pinned value in each run record, and treats a differing `limit` in a record
+as a defect rather than a datum. (`strict_order` per F17 holds at both budgets,
+so the pin and the fix are independent.)
+
 ## E8 -- No stage grades its own work; the grader is blind and toolless
 
 **Decision:** the D6 four-stage pipeline is preserved as separate calls: key
@@ -141,8 +176,23 @@ database or tool handle.
 **Why:** grader retrieval errors would correlate with the exact quantity being
 measured.
 **Implication:** the harness must be able to emit a grading input that is
-provably condition-free; Phase 2's probe asserts the grader payload contains no
-condition marker. Records are joined back to conditions only after grading.
+provably condition-free; the grading phase's probe asserts the grader payload
+contains no condition marker. Records are joined back to conditions only after
+grading.
+
+**Amendment 2026-08-06 (renumber re-point).** This implication originally
+named "Phase 2's probe". With the answering/grading split, the grader and its
+blindness probe live in **Phase 4**; Phase 2 only emits records whose
+`toGradingInput()` projection exists. Recorded as an amendment rather than
+patched silently, per E1.
+
+**Amendment 2026-08-06 (leakage honesty).** Field-level blindness is
+structural -- the grading input carries `question`, `answer`, `truth` and
+nothing else. It is NOT total: a condition marker can survive inside the
+`answer` prose itself ("according to a #helpdesk thread from 2021..."), which
+is inherent to D6 stage 3 and not fixable at this layer. Phase docs state this
+rather than claiming blindness is complete, and the Phase 5 pilot's review
+slice is where it would be caught if it mattered.
 
 ## E9 -- Records are written incrementally and are crash-resumable
 
@@ -150,7 +200,7 @@ condition marker. Records are joined back to conditions only after grading.
 stage), with a resume that re-reads completed keys and skips them. Not a single
 whole-file write at the end.
 **Why:** the house rig (`fence-external.ts`) writes once at the end -- a crash
-at minute 200 of a 232-minute run yields zero reusable work (F15). Phase 5 runs
+at minute 200 of a 232-minute run yields zero reusable work (F15). Phase 6 runs
 ~1,500 answering passes plus grading; that failure mode is unacceptable at this
 scale.
 **Implication:** every long-running phase (3, 6, 7) is restartable from disk,
@@ -189,7 +239,7 @@ process-lifetime setting -- one process per question is what makes per-question
 leave-one-out correct (F7). Session-per-question also matches the spec's
 capture hygiene. Pacing is not optional: an Opus burst tripped the
 account-wide throttle on the last arc that fanned out this way.
-**Implication:** Phase 6 is wall-clock bound by pacing, not by token cost.
+**Implication:** Phase 7 is wall-clock bound by pacing, not by token cost.
 Budget it as an evening, not a batch job.
 
 ## E12 -- The harness lives in a new sibling tree, not in `faq-gate/`

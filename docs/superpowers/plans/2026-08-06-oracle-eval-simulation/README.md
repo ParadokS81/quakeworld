@@ -14,11 +14,12 @@ all before a line of code exists).
 
 - **Stage:** planning -- scaffold committed; slicing RATIFIED by the operator
   2026-08-06 (7 phases -> 9, splitting answering/grading and
-  analysis/showcase); Phase 1 doc drafting
-- **Last action:** pre-flight verification sweep (3 explorer agents + two
-  first-hand live probes) landed 16 findings, three of which move the spec's
-  own numbers or withdraw a parking-doc commitment -- F1, F2, F6
-- **Next action:** finish Phase 1 + its checker, then draft waves 2+3 / 4 /
+  analysis/showcase); Phase 1 doc drafted, checked, and in revision
+- **Last action:** Phase 1 independent checker returned 19 defects (6 MAJOR) and
+  re-derived F17 with worse numbers than the draft; routed back to the original
+  drafter as a continuation, ledger-side fixes applied here (E2, E7, E8
+  amendments + 9 stale phase refs from the 7->9 renumber)
+- **Next action:** land the Phase 1 revision, then draft waves 2+3 / 4 /
   5+6 / 7+8+9 with a checker per doc, then the cross-doc coherence pass, then
   the cold adversarial plan review (`REVIEW-BRIEF.md` is written and waiting)
 
@@ -50,13 +51,13 @@ Concurrent arc: **oracle-web-v1** holds the main checkout
   (`.claude/calendar-checks.txt`, due **2026-09-06**) re-fences the current
   year's batches and **regenerates `chat_threads.id`** -- which is what already
   ate 234 threads out of the frozen June frame (F1). Running it between Phase 3
-  (sample freeze) and Phase 6 (last answering pass) invalidates records
+  (sample freeze) and Phase 7 (last answering pass) invalidates records
   mid-flight. Either hold the harvest until the arc's answering passes are
   done, or push the calendar date. Operator's call; the plan assumes held.
 - [ ] **DeepSeek spend acknowledgement (E10).** Projected well under the Arc A
   corpus re-fence (~$31); the pilot reports a measured per-question cost before
-  the bulk run commits to it. No approval gate beyond the Phase 4 GO.
-- [ ] **A Max-quota evening for Phase 6.** ~80 answering passes + ~40 judgment
+  the bulk run commits to it. No approval gate beyond the Phase 5 GO.
+- [ ] **A Max-quota evening for Phase 7.** ~80 answering passes + ~40 judgment
   passes run as Claude sessions, paced (E11). Not parallelizable at will -- an
   Opus burst tripped the account-wide throttle on the last arc that tried.
 - [ ] Nothing else. DeepSeek API, the dev twin DB, and the oracle tool code are
@@ -110,7 +111,7 @@ without holding Phase 8's findings hostage.
 Phase 1 proves scope/exclusion with SQL probes against the twin (no harness
 needed). Phase 2 proves the loop on questions that already have keys (no sample
 needed). Phase 3 proves allocation arithmetically (no answering needed). Phases
-4-7 each consume only prior-phase outputs. No phase's probe requires a later
+4-9 each consume only prior-phase outputs. No phase's probe requires a later
 phase to exist.
 
 ## Phase docs
