@@ -254,6 +254,56 @@ is not set`. It works only when invoked from `apps/qw-oracle/`. Disposition:
 Phase 1's stdio probe sets `cwd` and `env` explicitly rather than copying the
 broken pattern; the existing script is left alone (route to HANDOVER).
 
+## Findings from the Phase 2 independent checker (2026-08-06)
+
+Numbered F37-F40. Spend for the check: ~$0.011 (~35 `deepseek-v4-flash` calls).
+The checker settled two things the draft left open and corrected the draft's
+characterisation of a third.
+
+**F37 (MAJOR) -- nothing asserts the semantic retrieval path is live, and the
+code degrades to lexical-only in silence.** Evidence: `search-solved-issues.ts`
+wraps the embedding call in `try { ... } catch { /* lexical-only degraded path;
+no throw */ }`, logging to `embedding_api_log` and continuing;
+`shared/embedding.ts` throws when `VOYAGE_API_KEY` is unset. Phase 2 named only
+`DEEPSEEK_API_KEY` and `DATABASE_URL`, its entry probe checked neither Voyage
+variable, and no probe asserted a vector candidate was ever produced. Phase 1's
+env census flagged this class as "a silently different cell"; Phase 2 did not
+inherit the check. Impact if it fired: the whole arc runs on lexical retrieval,
+half the hybrid missing, every cell degraded together so the A-vs-C delta still
+looks plausible -- and the F17 pgvector starvation work measures nothing,
+because there is no vector path to starve. Disposition: E6 amendment -- entry
+probes check both Voyage vars, and every answering phase asserts
+`embedding_api_log` gained an `error IS NULL` row during the run. A degraded
+run is a hard failure.
+
+**F38 (MAJOR) -- DeepSeek's JSON mode requires the literal word "json" in the
+prompt, and this binds three phases.** Evidence: the drafted verification probe
+run as written returns HTTP 400 -- `Prompt must contain the word 'json' in some
+form to use 'response_format' of type 'json_object'` -- reproduced twice. And
+fixing the wording alone is insufficient: with "json" present but
+`max_tokens: 64` retained, the reply truncates (`finish=length`, content
+`{"ok":` ) and the parse fails; at 512 it is clean. This is the seam Phase 3's
+key extraction and Phase 4's grader both import, so any prompt they write
+without the word would 400 across an entire paid run. Disposition: ledger entry
+E15 (the shared client as a cross-phase contract), with `chatJson` asserting
+the rule locally so it fails before spending.
+
+**F39 (minor) -- the leak strings are transcribed with the wrong bytes.**
+Evidence: the doc quotes the F23 markup using ASCII pipes; the actual bytes are
+**doubled fullwidth vertical lines (U+FF5C)** -- `<｜｜DSML｜｜tool_calls>`. The
+current sentinel survives because it matches on `DSML` and `invoke name=`, but
+anyone deriving a tighter regex from the doc's quoted text would write one that
+never matches. Disposition: record the real bytes, and harden the sentinel to
+also fail on the fullwidth delimiter itself -- it appeared in 8/8 leaks and 0/12
+clean answers.
+
+**F40 (minor) -- the nudge's efficacy depends on wording the plan never
+pins.** Evidence: a weak nudge (`"Continue."`) failed to suppress the leak,
+while a nudge in the intended spirit was clean 4/4. The doc calls the nudge "a
+single pinned string" and then never writes the string down; the same is true
+of the sentinel -- both are used by three files and exported by none.
+Disposition: both become exported constants with their literal text in the doc.
+
 ## Findings from the Phase 3 independent checker (2026-08-06)
 
 Numbered F32-F36. The checker re-derived the phase's two hardest claims from
@@ -423,6 +473,27 @@ ORACLE failure that was actually a harness artifact -- concentrated, by
 construction, on the hardest questions, which are exactly the ones that exhaust
 the loop budget. Third distinct measurement-corrupting defect found before any
 code exists (see F17, and E7's `limit` amendment).
+
+**Independently re-derived 2026-08-06 by the Phase 2 checker, with its own tool
+schemas and questions -- the leak is real, and the characterisation needed
+three corrections.** (a) It is **stochastic, not deterministic**, but the rate
+**rises with conversation depth**: 1/3 leaked after one tool round, **4/4 after
+two**. Since the harness only reaches the backstop at `MAX_TOOL_ROUNDS`, deeper
+than anything tested, the original near-certainty reads as conservative rather
+than wrong. (b) A leak can be **prefixed by ordinary prose** ("Those tools came
+back empty -- let me try alternate tool names...") so any "does the answer start
+with markup" check would miss it. (c) Dropping the `tools` key entirely was
+clean 3/3 and is arguably the more robust backstop; it was rejected for
+symmetry-probe convenience, and that tradeoff should be stated with the
+leak-rate asymmetry visible. **The sentinel could not be defeated** across four
+deliberate attempts (a system prompt forbidding angle brackets and special
+tokens, a weak nudge, a code-block-biased question, and JSON mode): all 8 leaks
+contained BOTH `DSML` and `invoke name=`, with 0 false positives across 12
+clean answers -- so it now rests on 8 positives and 12 negatives rather than the
+draft's 2 and 1. Standing caveat: it is a regex over an undocumented,
+model-internal template a provider can change without notice, and no phase
+re-validates it. If Phase 5's pilot reports zero sentinel hits alongside a
+NONZERO forcing-turn rate, that is evidence to re-check, not a clean bill.
 
 **F24 (minor) -- the MCP dispatch switch is closure-scoped, so the harness must
 hand-build a name -> handler map.** Evidence: the `CallToolRequestSchema`

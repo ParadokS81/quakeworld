@@ -6,9 +6,10 @@ review + arc-end cold review).
 **Spec:** `docs/superpowers/specs/2026-08-06-oracle-eval-simulation-design.md`
 (D1-D11, DESIGN COMPLETE 2026-08-06).
 **Parent:** `docs/superpowers/parking/2026-08-06-oracle-eval-simulation.md`.
-**Ledger:** `decisions.md` (E1-E14). **Findings:** `review-findings.md`
-(F1-F36; F1-F16 pre-draft sweep, F17-F22 Phase 1 + checker, F23-F26 Phase 2,
-F27-F31 Phase 3, F32-F36 Phase 3 checker -- all before a line of code exists).
+**Ledger:** `decisions.md` (E1-E15). **Findings:** `review-findings.md`
+(F1-F40; F1-F16 pre-draft sweep, F17-F22 Phase 1 + checker, F23-F26 Phase 2,
+F27-F31 Phase 3, F32-F36 Phase 3 checker, F37-F40 Phase 2 checker -- all before
+a line of code exists).
 
 ## Where we are right now
 

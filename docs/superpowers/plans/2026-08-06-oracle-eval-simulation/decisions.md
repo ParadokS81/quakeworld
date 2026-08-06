@@ -141,6 +141,43 @@ list matches the served `ListTools` output so the two cannot silently diverge.
 jobs" is NOT discharged by this arc, contrary to the parking doc's expectation.
 It returns to HANDOVER unchanged (F6).
 
+**Amendment 2026-08-06 (Phase 2 checker, F37) -- the semantic retrieval path
+must be asserted LIVE, every run.** `search_solved_issues` wraps its embedding
+call in a catch that logs to `embedding_api_log` and continues lexical-only,
+and `shared/embedding.ts` throws when `VOYAGE_API_KEY` is unset. So a `.env`
+that lost its Voyage key would run this entire arc on lexical retrieval alone
+-- half of the hybrid gone, no error anywhere, every cell degraded together so
+even the A-vs-C delta would look plausible. It would also silently void the
+F17 pgvector work, since there would be no vector path to starve. Every phase
+that answers therefore (a) checks `VOYAGE_API_KEY` and
+`EMBEDDING_MODEL_QUERY` in its entry probe, and (b) asserts that
+`embedding_api_log` gained a row with `error IS NULL` during the run. A
+degraded run is a hard failure, never a quiet datum.
+
+## E15 -- The shared DeepSeek client is a cross-phase contract
+
+**Decision:** `apps/qw-oracle/eval/sim/deepseek-client.ts` is owned by Phase 2
+and imported unchanged by Phase 3 (key extraction) and Phase 4 (grading). No
+phase writes a second client. Three provider rules bind every consumer and are
+stated here because discovering them per-phase costs a paid run each time:
+1. **JSON mode requires the literal word "json" in the prompt.** Verified live:
+   a `response_format: json_object` request whose prompt lacks it returns HTTP
+   400 (`Prompt must contain the word 'json' in some form`). `chatJson` asserts
+   this locally and throws before spending, so the failure is a clear local
+   error rather than a provider 400 in the middle of a bulk run.
+2. **`max_tokens` must leave room for reasoning.** These are reasoning models;
+   a measured 7-run sample of one small prompt consumed 9-53 reasoning tokens
+   against a 64-token budget, and the same prompt at 32 returned
+   `finish_reason=length`. Probes and passes budget 512+.
+3. **`finish_reason === 'length'` fails the pass everywhere**, including the
+   forced-termination turn (see E7's amendment).
+**Why:** the seam was already drafted three ways in parallel; two of the three
+`TBD(phase-2-client:)` tokens resolved cleanly and the third did not, which is
+what a shared contract is for.
+**Implication:** a phase needing a capability the client does not expose files
+a finding and Phase 2 amends the client. It never forks one -- two pricing
+tables would make E10's dollar total meaningless.
+
 ## E7 -- Cell symmetry is enforced in code, not by convention
 
 **Decision:** one runner, one system prompt, one temperature, one loop budget,
@@ -166,6 +203,34 @@ therefore pins `limit` to one value for every cell and every question, records
 the pinned value in each run record, and treats a differing `limit` in a record
 as a defect rather than a datum. (`strict_order` per F17 holds at both budgets,
 so the pin and the fix are independent.)
+
+**Amendment 2026-08-06 (Phase 2 checker, D15/D7) -- request-payload equality is
+a regression guard, NOT a symmetry measurement.** Phase 2's headline assertion
+`JSON.stringify(reqB) === JSON.stringify(reqC)` is true BY CONSTRUCTION on the
+day it is written -- the request builder takes no retrieval context, so nothing
+cell-specific can enter the payload. It is worth keeping as a guard against a
+future per-cell branch, but it must not be described as establishing symmetry.
+Four asymmetry channels live downstream of it, all real and none visible to
+that probe:
+1. **The forcing-turn nudge is a condition-correlated treatment.** The backstop
+   fires only on budget exhaustion, and the exhaustion rate is exactly the kind
+   of thing that differs between a scoped and an unscoped corpus. One cell
+   systematically receives an extra user message the other does not.
+2. **Truncation acceptance differs.** Cell A has no backstop, so only B and C
+   can bank a truncated forced answer (measured: 2 of 4 forced turns returned
+   `finish_reason=length`). The forcing turn therefore fails on `length` like
+   every other turn -- that is now normative.
+3. **Failure exclusion is a selection effect.** Excluding `error !== null`
+   records from every rate makes the MECHANISM symmetric but not the
+   DENOMINATOR: a cell that fails more often has its rate computed over a
+   survivor subset.
+4. **Tool-result payload size diverges from round 2 onward.** Pinned `limit: 3`
+   in both, but scoped and unscoped hits differ in transcript length, so prompt
+   growth, cache-hit fraction, and `length`-truncation risk all diverge.
+   Turn-1 byte equality says nothing about turns 2-4.
+**Implication:** every run summary prints the per-cell forcing-turn rate and
+the per-cell failure count, and Phase 8 reports them alongside the headline. A
+material gap in either is a confound to disclose, not a footnote.
 
 ## E8 -- No stage grades its own work; the grader is blind and toolless
 
