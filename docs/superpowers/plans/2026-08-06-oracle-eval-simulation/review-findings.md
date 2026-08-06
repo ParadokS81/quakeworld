@@ -254,6 +254,40 @@ is not set`. It works only when invoked from `apps/qw-oracle/`. Disposition:
 Phase 1's stdio probe sets `cwd` and `env` explicitly rather than copying the
 broken pattern; the existing script is left alone (route to HANDOVER).
 
+## Findings from the Phase 3 revision (2026-08-06)
+
+Numbered F41-F42 (the drafter emitted them as F37-F38, which the Phase 2
+checker had already taken; renumbered here and in the phase doc, 4 and 3
+references moved). The drafter re-measured every disputed figure first-hand and
+the checker was right on all of them.
+
+**F41 (MAJOR -- a constraint on what the arc may claim) -- per-domain key
+quality is uncertifiable at any feasible spot-read size.** Evidence: an escape
+table computed for all 24 domains. Even the LARGEST domain (hud, alloc 63)
+escapes detection 15.5% of the time under a 50%-bad scenario at the revised
+gate; certifying per-domain key quality to 90% detection would need roughly
+**250 keys** read, i.e. half the sample, which defeats the point of sampling.
+The revised gate (50 keys: 34 coverage + 16 random, `wrong == 0` and
+`faithful >= 45/50`) cuts the small-domain escape rate from 43.6% to 18.6% and
+is the best available, but it certifies the sample IN AGGREGATE and not any
+individual domain. Disposition: the phase doc states this as a limit rather
+than a gap, and Phase 8 is now **required** (not merely permitted) to carry a
+`clear`-only companion headline so a reader cannot mistake an aggregate
+certification for a per-domain one. This is a constraint on the arc's claims,
+routed forward -- not a defect to fix.
+
+**F42 (minor, methodological) -- re-deriving a tie-flip consequence requires
+resolving solved status over all 5,028 frame ids, not the 4,456 non-NOISE
+ones.** Evidence: the drafter's own first re-derivation of F27's 89-tie flip
+gave -70 pool and 10 shifted domains; the checker's gave -44 and 8, with linux
+25 -> 18. The checker was right. The drafter's dataset was built from the
+non-NOISE frame only, so the NOISE-side cluster's live solved threads read as
+zero -- and the error runs in the direction that makes the finding look **less**
+serious, understating the swing by roughly 60%. Correct components: cluster 1
+has 26 solved, cluster 40 has 70. Disposition: documented in the phase doc with
+the drafter's own error as the worked example, since any future re-derivation
+of a NOISE-boundary effect hits the same trap.
+
 ## Findings from the Phase 2 independent checker (2026-08-06)
 
 Numbered F37-F40. Spend for the check: ~$0.011 (~35 `deepseek-v4-flash` calls).

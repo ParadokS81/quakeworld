@@ -5,9 +5,14 @@ owns E4's freeze and its baseline, and depends on E12's tree rule, E13's
 committed-manifest rule, E9's incremental-write rule, E10's cost accounting).
 **Spec:** `docs/superpowers/specs/2026-08-06-oracle-eval-simulation-design.md`
 D1, D4, D5, D6 stage 1, plus the 2026-08-06 pool-figure amendment.
-**Findings consumed:** F1, F2, F3, F4, F12, F13, F14.
-**Findings raised here:** F27-F31 (numbers provisional -- Phases 2 and 4 drafted
-in parallel may collide; reconcile at the coherence pass).
+**Findings consumed:** F1, F2, F3, F4, F11, F12, F13, F14, F15, F18, F22.
+**Findings raised here:** F27-F31 (drafting) and F41-F42 (this revision). The
+independent checker's own findings are F32-F36 and live in
+`review-findings.md`; the floor's corrected cost figure landed there as F28
+and as a dated amendment to spec D4. **Revised 2026-08-06** against that
+check -- every disputed figure below was re-measured first-hand and the
+checker was right on all of them, including one where my own re-derivation was
+wrong (see the F27 amendment).
 **Lane:** worktree `/home/dev/projects/quakeworld-eval`, branch
 `eval-oracle-sim`.
 
@@ -20,9 +25,9 @@ rank -> domain assignment (F12), the proportional-with-floor allocation over 24
 non-NOISE domains, and 500 thread identities carrying `thread_id`, `thread_key`,
 a content digest, `domain`, `era`, and the extracted question text. A DeepSeek
 bulk pass then distills "what actually fixed it" into each thread's `truth`
-(D6 stage 1), a Claude spot-read of 40 keys gates the result, and rejected
-threads are replaced by walking the manifest's own frozen order -- never by
-re-resolving the frame. The phase ends with
+(D6 stage 1), a blind-first Claude spot-read of 50 keys gates the result, and
+rejected threads are replaced by a LOOPING walk down the manifest's own frozen
+order -- never by re-resolving the frame. The phase ends with
 `bun eval/sim/verify-manifest.ts --live` green against the twin,
 `sample-manifest.json` and `sample-keys.json` committed, a passing spot-read
 block inside the keys file, a measured DeepSeek token+dollar total, and
@@ -31,44 +36,72 @@ block inside the keys file, a measured DeepSeek token+dollar total, and
 
 ## Inputs from previous phase
 
-Phase 1 LANDED. These are the claims this phase actually leans on, each
-re-probed read-only at drafting time (2026-08-06):
+Phase 1 LANDED. These are the claims this phase actually leans on. Each is
+marked either **[probed]** -- re-verified read-only at drafting or revision
+time -- or **[forward dependency]** -- a Phase 1 Task 1 deliverable that is NOT
+true in the worktree today and must be satisfied before Task 1 of this phase
+runs. Mixing the two is how a plan inherits a false precondition, so they are
+labelled rather than listed together.
 
-- **`apps/qw-oracle/.env` is a symlink in the worktree and Bun loads it from
-  cwd `apps/qw-oracle/` only** (Phase 1 Task 1). Every probe below sources it
-  by that path. At drafting time the worktree symlink did not exist yet, so the
-  SQL probes were executed with the main checkout's
+- **[forward dependency] `apps/qw-oracle/.env` is a symlink in the worktree
+  and Bun loads it from cwd `apps/qw-oracle/` only** (Phase 1 Task 1). Every
+  probe below sources it by that path. It does NOT exist in the worktree today,
+  so the SQL probes were executed with the main checkout's
   `/home/dev/projects/quakeworld/apps/qw-oracle/.env`, which Phase 1 Task 1
   makes byte-identical. `DATABASE_URL` host is
   `qw-oracle-postgres-dev:5432/qw_oracle` -- the twin.
-- **Both `bun install`s have run** (root workspace + `serve/mcp`). This phase
-  needs only the root one: `postgres` and `ulid` are declared in
-  `apps/qw-oracle/package.json`; nothing here imports the MCP SDK, so the
-  MAJOR-1 exception (E12 amendment) does not apply and every file this phase
-  writes lands under `eval/sim/`.
-- **`apps/qw-oracle/tsconfig.json` includes `eval/sim/**/*`** (Phase 1 Task 5),
-  so everything below is covered by `bun run typecheck`.
-- **`eval/sim/records/` is gitignored** (Phase 1 Task 5). The key pass's
-  resumable JSONL lands there; the two committed JSON artifacts sit at
-  `eval/sim/*.json`, outside the ignore, so no negation pattern is needed.
-- **`eval/sim/telemetry-baseline.json` exists** with pre-run `query_log` /
-  `embedding_api_log` / `oracle_meta` / `chat_threads` counts.
-- **`RunRecord`'s question-identity fields are already fixed** (Phase 1 Contract
-  (b)): `thread_id` (string), `thread_key`, `domain` (a `faq-domains-resolve.ts`
-  `META` key), `era` (integer year), `question`, `truth`. This phase produces
-  exactly those values; it invents no field (E2).
-- **The corpus has not moved.** Live at drafting time: `chat_threads` 40,219;
-  `reconstruction_version` `fence-sonnet-v2` for all rows; per channel
-  `#antilag` 1,015/410, `#dev-corner` 10,359/3,714, `#helpdesk` 6,772/3,694,
-  `#quakeworld` 22,073/5,316 (total/solved).
-- **The frame assets are read-only to this arc** (E12, F14) and typecheck
-  clean. `faq-domains-resolve.ts` was compiled in isolation under the repo's
-  real `compilerOptions` plus `--types bun-types`: **exit 0**. Importing it from
-  `eval/sim/` therefore pulls it into the tsc program without turning
-  `bun run typecheck` red -- the mirror image of the F18 hazard that constrained
-  Phase 1's include pattern, checked rather than assumed. (Without
-  `bun-types` the only error is `import.meta.main` at line 157, which is a
-  missing-types artifact, not a defect.)
+- **[forward dependency] Both `bun install`s have run** (root workspace +
+  `serve/mcp`). Also NOT true today: the worktree has no `node_modules` at all,
+  and `bun run typecheck` in `apps/qw-oracle` exits **127** right now. This
+  phase needs only the root install: `postgres` and `ulid` are declared in
+  `apps/qw-oracle/package.json` **[probed]**; nothing here imports the MCP SDK,
+  so the MAJOR-1 exception (E12 amendment) does not apply and every file this
+  phase writes lands under `eval/sim/`.
+- **[forward dependency] `apps/qw-oracle/tsconfig.json` includes
+  `eval/sim/**/*`** (Phase 1 Task 5), so everything below is covered by
+  `bun run typecheck`.
+- **[forward dependency] `eval/sim/records/` is gitignored** (Phase 1 Task 5).
+  The key pass's resumable JSONL lands there; the two committed JSON artifacts
+  sit at `eval/sim/*.json`, outside the ignore, so no negation pattern is
+  needed.
+- **[forward dependency] `eval/sim/telemetry-baseline.json` exists** with
+  pre-run `query_log` / `embedding_api_log` / `oracle_meta` / `chat_threads`
+  counts.
+- **[probed] `RunRecord`'s question-identity fields are already fixed** (Phase 1
+  Contract (b)): `thread_id` (string), `thread_key`, `domain` (a
+  `faq-domains-resolve.ts` `META` key), `era` (integer year), `question`,
+  `truth`. This phase produces exactly those values; it invents no field (E2).
+- **[probed] The corpus has not moved.** Live at revision time:
+  `chat_threads` 40,219; `reconstruction_version` `fence-sonnet-v2` for all
+  rows; per channel `#antilag` 1,015/410, `#dev-corner` 10,359/3,714,
+  `#helpdesk` 6,772/3,694, `#quakeworld` 22,073/5,316 (total/solved).
+  `chat_threads_thread_key_key` is a real `UNIQUE (thread_key)` constraint, not
+  an observed property.
+- **[probed, with stated provenance] The frame assets are read-only to this arc
+  (E12, F14) and `faq-domains-resolve.ts` typechecks clean.** This claim is what
+  makes boundary probe 8 safe -- importing the resolver from `eval/sim/` pulls
+  `scripts/calibration/**` into the tsc program, which is the F18/F13 hazard
+  that constrained Phase 1's include pattern. It cannot be established from the
+  worktree today (no `node_modules`, no global `tsc`), so it was established
+  with a `tsc` binary from the main checkout, read-only, exact command:
+
+      /home/dev/projects/quakeworld/apps/oracle-web/node_modules/.bin/tsc \
+        --noEmit --strict --noUncheckedIndexedAccess --noImplicitOverride \
+        --target ES2022 --module ESNext --moduleResolution Bundler \
+        --allowImportingTsExtensions --skipLibCheck --esModuleInterop \
+        --resolveJsonModule --isolatedModules --lib ES2022 --types bun-types \
+        /home/dev/projects/quakeworld-eval/apps/qw-oracle/scripts/calibration/faq-gate/faq-domains-resolve.ts
+
+  tsc 5.9.3, run from `/home/dev/projects/quakeworld/apps/qw-oracle` so
+  `bun-types` resolves; **exit 0**, re-run at revision time. Without
+  `--types bun-types` the only error is `import.meta.main` at line 157, a
+  missing-types artifact rather than a defect. **The failure mode if this is
+  wrong:** boundary probe 8's `bun run typecheck` goes red on a file this arc
+  is forbidden to edit, and the phase stalls with no in-lane fix -- which is why
+  Recovery carries a shim escape hatch. Task 2's verification probe re-checks it
+  from inside the worktree with the real toolchain the moment Phase 1's install
+  has landed, so the out-of-worktree evidence above is a bridge, not the
+  standing guarantee.
 
 ## The frozen sample manifest (normative)
 
@@ -85,6 +118,7 @@ gets rewritten cannot evidence a freeze.
   "seed": "oracle-eval-sim-2026-08-06",
   "n_target": 500,
   "floor": 8,
+  "note": "<the era-window paragraph below, verbatim -- boundary probe 6 asserts it>",
 
   "frame": {
     "faq_clusters_path": "scripts/calibration/faq-gate/faq-clusters.json",
@@ -118,7 +152,8 @@ gets rewritten cannot evidence a freeze.
 
   "allocation": {
     "method": "proportional-to-live-solved, per-domain floor 8, largest-remainder rounding",
-    "by_domain": { "<domain>": { "quota": 64.16, "alloc": 63, "floored": false }, ... 24 ... },
+    "by_domain": { "<domain>": { "quota_raw": 64.159, "quota_post_pin": 63.446,
+                                 "alloc": 63, "floored": false }, ... 24 ... },
     "sum": 500
   },
 
@@ -130,7 +165,9 @@ gets rewritten cannot evidence a freeze.
       "thread_key": "#helpdesk:fence-sonnet-v2:helpdesk-2020-003:2",
       "content_sha256": "<64 hex>",     // sha256 of chat_threads.content, UTF-8 bytes
       "domain": "visual-projectile",
-      "domain_rank_source": [1],        // which frame ranks put it in that domain
+      "domain_rank": 1,                 // scalar: the 48 clusters partition the 5,028 frame
+                                        // ids exactly (verified: 0 ids in more than one
+                                        // cluster), so a thread has exactly one rank
       "era": 2020,
       "channel_name": "#helpdesk",
       "message_count": 12,
@@ -147,10 +184,20 @@ gets rewritten cannot evidence a freeze.
 **`order` is what makes substitution legal.** It carries every one of the 3,164
 solved pool ids, grouped by domain, in the deterministic sampling order defined
 below. `selected` is exactly the first `alloc[domain]` entries of each list. A
-thread rejected by the key pass is replaced by the next id in the same frozen
-list -- a walk down data that is already committed, not a second resolution of
-the frame. Size cost of carrying all 3,164 ids: about 25 KB. Cheap insurance
-against exactly the thing E4 forbids.
+thread rejected by the key pass is replaced by walking that same frozen list
+past `alloc[domain]` -- a walk down data that is already committed, not a
+second resolution of the frame. Size cost of carrying all 3,164 ids: about
+**46 KB** at 2-space indent. Cheap insurance against exactly the thing E4
+forbids.
+
+**Expect a large committed file, and know why.** Built for real from the live
+pool at revision time, the whole manifest is roughly **380-410 KB** at 2-space
+indent (~300 KB compact). The `order` block is only 46 KB of that; the bulk is
+`selected` at ~324 KB, because it carries 500 verbatim question texts. That is
+deliberate -- the question text is what makes the manifest reviewable by a human
+and re-runnable without the twin -- but a reviewer should not meet a 400 KB JSON
+file in a diff unprepared. It is public Discord content already in the corpus,
+so there is no disclosure question, only a size one.
 
 **Thread ids are strings everywhere in both files** -- in `order`, in
 `selected[].thread_id`, in `keys`' object keys, and in
@@ -168,19 +215,29 @@ Phase 1's schema comment says `thread_key` "survives an id re-fence (E4, F1)".
 Probed: `thread_key` is
 `channel:reconstruction_version:chunk_id:thread_index`
 (`#helpdesk:fence-sonnet-v2:helpdesk-2020-001:1`), built by
-`scripts/load-chat/thread-key.ts`. Chunk ids are per-year and small (the 2020
-`#helpdesk` chunks hold 1-14 threads each), and `thread_index` is the thread's
-position within a chunk as segmented by the fence -- which is an LLM pass, not
-a deterministic function of the messages. So a re-fence of a year preserves
+`scripts/load-chat/thread-key.ts`. `thread_index` is the thread's position
+within a chunk as segmented by the fence -- which is an LLM pass, not a
+deterministic function of the messages -- so a re-fence of a year preserves
 `thread_key` only if the model re-segments that chunk identically.
+
+**And the chunks are not small.** 2020's `#helpdesk` messages fall into **97
+chunks holding 1 to 55 threads each** (mean 7.4); across all of `#helpdesk`,
+1,049 chunks holding 1 to 72. A 55-thread chunk gives the fence 55 boundary
+decisions, and one added or dropped boundary near the start renumbers every
+`thread_index` after it. This makes F29's conclusion stronger, not weaker: the
+larger the chunk, the more `thread_key` mass a single re-segmentation
+disagreement can move. (An earlier draft of this section said "1-14 threads",
+which came from reading only the first 26 rows of the chunk histogram -- a
+truncated probe presented as a full one.)
 
 It is unfalsifiable in the one case that matters: the 234 ids the August
 re-fence ate are gone, so their old `thread_key`s cannot be compared with the
 new 2026 rows at 86063..87037 (522 of them, all carrying
-`helpdesk-2026-NNN` chunk ids). `thread_key` is unique across the corpus today
-(0 duplicate keys over 40,219 rows), so it is a sound identity for a stable
-corpus, and it is strictly better than `id`, which is re-allocated by
-construction. It is simply not proof against a re-fence.
+`helpdesk-2026-NNN` chunk ids). `thread_key` uniqueness is guaranteed by the
+`chat_threads_thread_key_key` UNIQUE constraint (Phase 1's Inputs already names
+the index), not by an observation -- so it is a sound identity for a stable
+corpus, and strictly better than `id`, which is re-allocated by construction.
+It is simply not proof against a re-fence.
 
 Disposition: carry **all three** -- `thread_id`, `thread_key`, and
 `content_sha256` -- in every `selected` entry, and have Phase 6's E4
@@ -282,15 +339,32 @@ solved row in the frame is `#helpdesk` (checked per domain:
 `solved == solved_helpdesk` for all 24), which is D1 holding without a channel
 predicate needing to be added.
 
-**No domain fails to meet the floor.** The smallest live pool is spectating at
-33 solved against a floor of 8. The algorithm still carries the cap
-(`alloc <= solved`) and the manifest still records `floored` per domain,
-because "it cannot happen today" is a statement about 2026-08-06 numbers and the
-frame decays (F1/F3). If a future re-run finds `solved < floor` for a domain,
-that domain is allocated its entire live pool, `floored` is recorded true, the
-shortfall is redistributed proportionally over the remaining domains, and the
-manifest's `allocation.by_domain` shows it. The probe asserts
-`alloc <= solved` for all 24 rather than assuming.
+**No domain fails to meet the floor today.** The smallest live pool is
+spectating at 33 solved against a floor of 8. But "it cannot happen today" is a
+statement about 2026-08-06 numbers, and the frame decays (F1/F3), so the
+distinction is recorded in the data rather than left to the reader.
+
+**`floored` is a THREE-valued field, not a boolean** (raised by the independent
+check -- see `review-findings.md` F32-F36 for its numbering, which this doc
+deliberately does not guess at; and verified here first-hand: with
+`spectating.solved` artificially dropped to 5, the allocator
+returns `spectating: 5`, the sum still lands on exactly 500, and nothing
+throws -- a domain silently under-filling its own floor while every other check
+stays green):
+
+| value | meaning | posture |
+|---|---|---|
+| `false` | proportional quota exceeded the floor; the floor never bound | normal |
+| `'at-floor'` | quota fell below the floor and the domain was lifted TO it | normal, this is the floor working |
+| `'pool-exhausted'` | the domain's entire live solved pool is smaller than the floor, so it was allocated everything it has and still fell short | **loud** |
+
+`pool-exhausted` is not a quiet annotation. The freeze script prints it, the
+verifier reports it as a FAILED check unless the manifest also carries an
+explicit `pool_exhausted_acknowledged` list, and Phase 8 must caveat that
+domain's row. The assertion is `alloc_d >= min(floor, solved_d)` for every
+domain -- which is the check that distinguishes "under-filled because the pool
+ran out" (legal, loud) from "under-filled because the allocator is wrong"
+(a defect). The cap `alloc_d <= solved_d` is asserted alongside it.
 
 ### The algorithm, stated so it can be checked rather than trusted
 
@@ -302,7 +376,9 @@ manifest's `allocation.by_domain` shows it. The probe asserts
 3. Round the unpinned domains by **largest remainder**: floor every quota, then
    hand the leftover units to the largest fractional parts, breaking ties on
    domain key ascending (so the result does not depend on object key order).
-4. Assert `sum(alloc) === N` and `alloc_d <= solved_d` for every domain.
+4. Assert `sum(alloc) === N`, `alloc_d <= solved_d`, and
+   `alloc_d >= min(floor, solved_d)` for every domain, recording `floored` as
+   `false | 'at-floor' | 'pool-exhausted'` per the table above.
 
 Step 3's distribution loop hands out at most one unit per domain, because the
 fractional parts of a set of quotas summing to an integer sum to an integer
@@ -321,12 +397,22 @@ domains that actually ride on too few data points are fonts (7.27),
 teamplay-comms (6.16) and spectating (5.21), none of them tier-1. This plan's
 default therefore applies the floor to **all 24 domains**, which is a
 strengthening of D4's stated intent ("no important domain rides on two data
-points") rather than a change to it, and costs exactly 7 threads: one each off
-hud, onboard-install and server-admin, redistributed to the three small
-domains. Recorded as Open question 1, overrulable by the operator.
+points") rather than a change to it.
 
-**The headline stays interpretable.** 493 of the 500 are proportional; the 7
-floored-in threads are 1.4% of the sample. Phase 8 reports the headline
+**Its cost, measured** (an earlier draft of this doc said "7 threads off 3
+domains" from an eyeballed comparison; the correct figure is below and is also
+recorded as F28 in the findings ledger and in spec D4's amendment): the floor
+moves **6 threads off 6 domains** -- hud 64->63, onboard-install 50->49,
+server-admin 49->48, performance 28->27, display 22->21, weapon-scripts 17->16
+-- into the 3 pinned ones: fonts 7->8, teamplay-comms 6->8, spectating 5->8.
+The loss spreads wider than "the biggest domains" because largest-remainder
+rounding re-runs over the whole post-pin quota vector, so a domain sitting just
+above a rounding boundary (performance 27.65, display 21.65, weapon-scripts
+16.59) drops a unit while a domain further from one (textures 27.50, network
+21.02) does not. Recorded as Open question 1, overrulable by the operator.
+
+**The headline stays interpretable.** 494 of the 500 are proportional; the 6
+floored-in threads are **1.2%** of the sample. Phase 8 reports the headline
 unweighted and notes the floor's contribution, rather than re-weighting -- the
 distortion is smaller than the CI.
 
@@ -357,6 +443,31 @@ verifier re-derives it and diffs against the pin; a mismatch is a hard failure,
 not a warning. Anchor: rank 12 = cluster id 14, size 134, `weapon-scripts` --
 the resolver's own sanity anchor, so a broken pin fails the same check the
 resolver's CLI self-test prints.
+
+**F27 amendment (revision 2026-08-06) -- the 89-tie's blast radius, measured,
+and it is asymmetric.** The two tied clusters carry very different live
+payloads: rank 31 / cluster 1 (`quake,map,mdl,project,model`) holds 89 frame
+ids, 84 present, of which **26 solved**; rank 32 / cluster 40
+(`linux,compile,ezquake,build,source`) holds 89 frame ids of which **70
+solved**. So a reorder is not a null swap of equal-sized clusters -- it trades
+70 solved threads for 26:
+
+- pool **3,164 -> 3,120 (-44)**
+- **eight** domains' allocations shift: hud 63->64, onboard-install 49->50,
+  server-admin 48->49, textures 27->28, performance 27->28, linux **25->18**,
+  display 21->22, weapon-scripts 16->17
+- linux's live solved pool goes 161 -> 117, because it loses its own largest
+  cluster to NOISE and gains a cluster with almost nothing solved in it
+
+**F42 (minor, methodological) -- re-deriving this requires resolving solved
+status over all 5,028 frame ids, not the 4,456 non-NOISE ones.** My own first
+re-derivation gave -70 and ten shifted domains, because the dataset I resolved
+solved status against had been built from the non-NOISE frame only -- so
+cluster 1's 26 solved threads were invisible and read as 0. The independent
+checker's figures were right and mine were wrong. Anyone re-checking a tie-flip
+consequence must widen the live query to the full 5,028 first; otherwise the
+blast radius is understated by roughly 60% in exactly the direction that makes
+the finding look less serious.
 
 ## Question extraction (splitQ, reimplemented)
 
@@ -394,19 +505,32 @@ because nothing downstream can:
   `... armor is indicated as icon` / `how to turn it back to numbers with icon?`
   / `found how to fix it, no worries! thanks` -- solved, and neither a key nor a
   clean question can be recovered from it.
-- **Leaky opening.** 89 of 3,164 (2.81%; 21 of the dry-run 500) have an opening
-  matching resolution phrasing (`fixed|solved|nvm|nevermind|works now|figured it
-  out|found (it|the fix|how)|my bad|sorted`). Some are false positives ("no
-  success"), some are real: thread 12533 is `djaevulsk: quick question, what are
-  the gfx files for the ammo icons/backgrounds in classic hud?` /
-  `"ibar.png", nevermind` -- the question literally contains the answer, and
-  every cell would "solve" it by echoing.
+- **Leaky opening.** 89 of 3,164 (2.81%) have an opening matching resolution
+  phrasing. The screen is this regex, **normative and verbatim** -- an earlier
+  draft of this doc printed an abbreviated prose version of it (dropping
+  `never mind`, `got it working` and `solved it`), which screens 88 rather than
+  89 and made the doc and the probe disagree by one:
+
+      /\b(fixed|solved|nvm|nevermind|never mind|works now|got it working|figured it out|found (it|the fix|how)|solved it|my bad|sorted)\b/i
+
+  Some hits are false positives ("no success"), some are real: thread 12533 is
+  `djaevulsk: quick question, what are the gfx files for the ammo
+  icons/backgrounds in classic hud?` / `"ibar.png", nevermind` -- the question
+  literally contains the answer, and every cell would "solve" it by echoing.
 
 The regex is a **screen, not a verdict**. The key-extraction prompt returns a
 `question_leaks_fix` boolean judged by the model on the actual text, and the
-regex figure above exists only to size the exposure (about 3%, so substitution
-volume is roughly 15-30 threads, against a minimum per-domain spare of 25 and a
-median of 89).
+regex exists only to size the exposure and to give the substitution machinery a
+worst case to be built against.
+
+**Sized against the real selected 500, not the pool rate:** applying the union
+screen (empty `rest` OR the regex above) to the actual frozen selection flags
+**25 of 500 (5.0%)** -- 15 leak-only, 4 empty-rest-only, 6 both -- spread over
+13 domains, worst hud with 6 of its 63. Minimum per-domain spare is 25
+(spectating) and the median is 85.5, so the reserve absorbs it comfortably.
+That 25 is the number the substitution design below has to survive, and it is
+higher than the pool's 4.3% because the selection is a draw, not a stratified
+match on this property.
 
 **Ruling:** the extractor reads the **full `content`**, never just `rest` --
 that is what makes the monologue threads legible at all -- and a thread is
@@ -415,10 +539,47 @@ REJECTED and substituted when `key_quality === "none"` or
 was rejected: it edits the player's words to make a measurement come out, and
 the honest alternative (a narrower, stated population) costs nothing here.
 
+### Substitution is a LOOP, because substitutes are drawn from the same contaminated population
+
+The obvious design -- "promote the next id in `order[domain]` that is not
+already selected" -- is wrong, and measurably so. Simulated against the real
+selection and the real screen: of the 25 single-shot promotions that design
+would make, **3 are themselves reject-class**. The deepest clean walk needed is
+**7 positions past `alloc`** (hud), and three domains need to walk past at least
+one bad candidate (hud, display, visual-world). This is not bad luck; the
+reserve is drawn from the same distribution as the selection, so a ~5% reject
+rate applies to promotions too.
+
+Left as a single shot, the consequence is a deadlock rather than a wrong number:
+the promoted thread has `key_quality: "none"` or a leaking question,
+`loadEffectiveSample()` throws on the empty `truth`, and Task 7 cannot complete
+with no in-lane remedy. Normative rules:
+
+1. **Promotion loops.** For each rejected thread, walk `order[domain]` upward
+   from `alloc[domain]`, extract a key for each candidate in turn, and stop at
+   the first candidate that is neither `key_quality: "none"` nor
+   `question_leaks_fix: true` nor a permanent extraction failure.
+2. **Every candidate examined is recorded**, including the ones rejected along
+   the way, each with its own `reason` and its own key. A promotion that
+   consumed three candidates leaves three entries in `rejected` and one in
+   `substitutions`; the walk is auditable, and the extra keys are already paid
+   for.
+3. **Therefore `rejected.length >= substitutions.length`, never equality.** The
+   invariant that actually holds -- and the one the probe must assert -- is
+   per-domain: the effective sample's per-domain count equals
+   `allocation.by_domain[domain].alloc`, for all 24, summing to 500. An earlier
+   draft's probe asserted `substitutions.length === rejected.length`, which is
+   precisely the invariant a correct re-substitution loop breaks; it would have
+   failed the fix and passed the bug.
+4. **Every promoted id must sit at `order_index >= alloc[domain]`** and must not
+   itself appear in `rejected`. Both are asserted.
+
 The population this defines, and which the findings doc must state: *#helpdesk
 threads from the June FAQ frame that are marked solved, still present in the
 live corpus, and pose a question whose fix the thread states without the
-question itself giving it away.*
+question itself giving it away.* The substitution walk means the sample is the
+first `alloc[domain]` threads in frozen order that meet that definition, which
+is a well-defined draw, not a hand-picked one.
 
 ## Key extraction (D6 stage 1)
 
@@ -430,20 +591,43 @@ signatures:
 
 - `TBD(phase-2-client: one-shot JSON-mode completion returning parsed content plus the usage envelope -- prompt_tokens, prompt_cache_hit_tokens, prompt_cache_miss_tokens, completion_tokens, reasoning_tokens)`
 - `TBD(phase-2-client: paced-wave concurrency runner with a retry pass and honest failure counts -- the runGently shape fence-external.ts already ports)`
-- `TBD(phase-2-client: pricing table plus a cost_usd(usage) helper, E10)`
 
-If Phase 2 lands without one of these, this phase's Task 5 stops and routes a
-finding rather than writing a private second client -- two clients means two
-pricing tables and two retry postures, and E10's dollar total stops meaning
-anything.
+**Cost is NOT a third capability.** An earlier draft carried a
+`TBD(phase-2-client: pricing table plus a cost_usd(usage) helper)` token; the
+cross-doc check found it does not map -- Phase 2's per-call result already
+arrives with `cost_usd` filled on its usage envelope, and the pricing helper
+that would compute it lives in a sibling pricing module, not on the client, and
+takes a model argument the caller would have to supply. So this phase does not
+call a pricing helper at all: `accounting.cost_usd` is the **sum of the
+per-call `cost_usd` values the client already reports**, and the only thing
+Task 5 must not do is recompute a dollar figure of its own. If the field turns
+out to be absent at execution time, that is a finding routed to Phase 2, not a
+local pricing table (E10 wants one dollar arithmetic in the arc, not two).
 
-**Volume, measured, so the pass is sized rather than guessed:** the 500 selected
-threads carry 653,143 characters of `content` (p50 691, p90 3,310, max 15,560),
-about 187k input tokens before prompt overhead. The wider pool's max is 54,514
-characters and 6 pool threads exceed 16,000, so the prompt truncates `content`
-at **16,000 characters** and records `content_truncated: true` -- which
-truncates 0 of today's 500 and bounds the tail if a substitution promotes a
-monster thread.
+If Phase 2 lands without one of the two capabilities above, this phase's Task 5
+stops and routes a finding rather than writing a private second client -- two
+clients means two retry postures and two cost stories.
+
+**Permanently failed calls are a defined outcome, not an exception.** The paced
+runner's contract returns a null for an item that failed every retry, and a null
+that nobody handles becomes a missing key that only surfaces as a probe failure
+three tasks later. Rule: a thread whose extraction fails permanently is written
+to the JSONL as `{thread_id, error}` with no key, is entered in `rejected` with
+`reason: "extraction_failed"`, and is replaced through the same substitution
+loop as a leaky or keyless thread. It is never silently dropped and never
+retried by hand.
+
+**Volume, measured on one basis and named:** all character counts here are
+**JavaScript `String.length`** (UTF-16 code units), because Task 5 truncates in
+TypeScript and that is the number the truncation actually applies to. Postgres
+`length()` differs slightly on this corpus (it counts characters, so surrogate
+pairs -- emoji, which appear in these threads -- count once instead of twice).
+On that basis the 500 selected threads carry **653,143 characters** of `content`
+(p50 692, p90 3,311, max 15,567), roughly 187k input tokens before prompt
+overhead. The wider pool's max is **54,514** and 6 pool threads exceed 16,000,
+so the prompt truncates `content` at **16,000 characters** and records
+`content_truncated: true` -- which truncates 0 of today's 500 and bounds the
+tail if a substitution promotes a monster thread.
 
 ### The prompt (byte-pinned)
 
@@ -496,14 +680,27 @@ grading.
   "keys": { "<thread_id>": { "truth": "...", "key_quality": "clear",
                              "question_leaks_fix": false, "fix_tokens": ["gl_outline"],
                              "content_truncated": false } },
-  "rejected": [ { "thread_id": "12533", "reason": "question_leaks_fix" } ],
+  // reason: "question_leaks_fix" | "no_key" | "extraction_failed"
+  // from_walk: true = examined while walking for a substitute, not part of the original 500
+  "rejected": [ { "thread_id": "12533", "domain": "hud", "reason": "question_leaks_fix",
+                  "order_index": 12, "from_walk": false } ],
   "substitutions": [ { "domain": "hud", "rejected_thread_id": "12533",
-                       "promoted_thread_id": "...", "promoted_order_index": 63,
+                       "promoted_thread_id": "...", "promoted_order_index": 65,
+                       "candidates_examined": 3,      // >=1; the walk's length
                        "identity": { ...same shape as manifest.selected[]... },
                        "key": { ...same shape as keys[]... } } ],
-  "spot_read": { "gate": "PASS"|"BLOCK", "n": 40, "strata": {...}, "verdicts": [...],
-                 "faithful": 38, "thin": 2, "wrong": 0, "read_by": "claude",
-                 "operator_read": ["<5 thread_ids>"] },
+  "spot_read": {
+    "gate": "PASS"|"BLOCK", "n": 50, "read_by": "claude",
+    "strata": { "coverage": ["<34 thread_ids>"], "random": ["<16 thread_ids>"] },
+    // one entry per read key; reviewer_fix is written BEFORE the key is revealed
+    "verdicts": [ { "thread_id": "...", "domain": "hud", "stratum": "coverage",
+                    "reviewer_fix": "<one line, written from the thread alone>",
+                    "verdict": "faithful"|"thin"|"wrong", "reason": "<one line>" } ],
+    "faithful": 47, "thin": 3, "wrong": 0,
+    "reviewer_agreement": 0.94,                 // reviewer_fix and truth name the same fix
+    "operator_read": [ { "thread_id": "...", "drawn_as": "flagged"|"seeded",
+                         "disposition": "<operator's words>" } ]
+  },
   "accounting": { "calls": 517, "prompt_tokens": 0, "prompt_cache_hit_tokens": 0,
                   "prompt_cache_miss_tokens": 0, "completion_tokens": 0,
                   "reasoning_tokens": 0, "cost_usd": 0.0 }
@@ -519,51 +716,129 @@ bad key produces confidently wrong verdicts that no later gate can catch. The
 D6 pilot checks key quality too, but on 30-50 threads AFTER the grader exists;
 this gate runs on the keys themselves, before anything is built on them.
 
-**Sample: 40 keys (8%), two strata, both deterministic from the manifest seed.**
+**Sample: 50 keys (10%), two strata, both deterministic from the manifest seed.**
 
-- **Coverage stratum, 24** -- one per domain: the first selected thread in that
-  domain's frozen `order`. This is the load-bearing half. It is the only thing
-  that catches "every server-admin key is garbage because those threads resolve
-  into a config file rather than a cvar", which is a per-domain systematic
-  failure that a purely random 40 would miss two times in three.
-- **Random stratum, 16** -- over the remaining 476, ordered by
-  `sha256(seed + ":spot:" + thread_id)`. This half is unbiased, so its pass rate
-  is an estimate rather than a tripwire reading.
+- **Coverage stratum, 34** -- one per domain (the selected thread with the
+  lowest `order_index`), plus a **second key for each of the 10 domains whose
+  `alloc <= 12`** (skins, maps-locs, crash, ruleset-legality, server-browser,
+  audio, binds-scripting, fonts, teamplay-comms, spectating), taken as that
+  domain's next-lowest `order_index`. Those are the domains the floor exists to
+  protect and the ones Phase 8 reports at n=8..12, so they are exactly where a
+  single read key buys the least.
+- **Random stratum, 16** -- over the remaining 466, ordered by
+  `sha256(seed + ":spot:" + thread_id)`. Unbiased, so its rate is an estimate
+  rather than a tripwire reading.
 
-**Standard, per key**, judged by Claude reading the thread's full `content`
-alongside the key:
+**Standard, per key.** The reviewer works in two passes over the same thread,
+and the order is normative:
 
-- `faithful` -- the key names the fix the thread actually landed on.
+1. **Blind pass.** Read the thread's full `content` WITHOUT the key, and write
+   one line naming the fix the thread landed on (`reviewer_fix`). Commit it.
+2. **Compare pass.** Reveal `truth` and assign the verdict.
+
+The order is the whole point. Reading the key first turns the task into
+"find support for this" -- confirmation-shaped, and it fails specifically
+toward rating a vague key `faithful`, which is the exact class the gate is
+weakest against. Writing the fix first makes `thin` visible as a difference
+between two texts rather than a judgement about one. `reviewer_agreement` (how
+often `reviewer_fix` and `truth` name the same fix) is recorded as a
+by-product and is itself informative: a low agreement with a high `faithful`
+count means the reviewer is rationalising.
+
+- `faithful` -- the key names the fix the thread actually landed on, at the same
+  specificity the reviewer's own line reached.
 - `thin` -- the thread states a specific fix and the key is generic about it.
-  This is not cosmetic: the grader will mark a correct, specific oracle answer
-  as `miss` against a vague key, which biases every cell downward and biases
-  cell A least (a generic baseline answer matches a generic key).
-- `wrong` -- the key asserts a fix the thread does not state. This inverts
-  grades in both directions and is the class that would silently invalidate the
-  arc.
+  Not cosmetic: the grader will mark a correct, specific oracle answer as `miss`
+  against a vague key, which biases every cell downward and biases cell A least
+  (a generic baseline answer matches a generic key) -- i.e. straight at the
+  A-vs-C delta that is the arc's headline.
+- `wrong` -- the key asserts a fix the thread does not state. Inverts grades in
+  both directions; the class that would silently invalidate the arc.
 
-**Gate: PASS requires `wrong == 0` AND `faithful >= 36/40` (90%).** Any single
+**Gate: PASS requires `wrong == 0` AND `faithful >= 45/50` (90%).** Any single
 `wrong` blocks. On BLOCK: revise `key-prompt.ts`, re-run the pass over **all
 500** (not just the failures -- a prompt change makes old and new keys
-incomparable), re-draw the same 40 (the strata are seed-deterministic, so the
-re-read is on the same threads plus whatever substitution changed), and
-re-gate. Cost of a full re-run is a few hundred thousand tokens, which is why
-the expensive-and-correct rule is affordable here.
+incomparable), re-draw the strata (seed-deterministic, so the re-read is on the
+same threads plus whatever substitution changed), and re-gate.
 
-**Operator reads 5**, per D6's "operator eyeballs a handful": every key Claude
-marked `thin` or `wrong`, topped up from the coverage stratum in domain order
-to 5. Their disposition lands in `spot_read.operator_read`.
+**Operator reads 5**, per D6's "operator eyeballs a handful", and the draw is
+mixed on purpose: **at least 2 are drawn seed-deterministically from the whole
+50 regardless of verdict** (`sha256(seed + ":oper:" + thread_id)`, lowest
+first), the rest are keys Claude marked `thin` or `wrong`, topped up from the
+coverage stratum in domain order. If the operator only ever sees keys Claude
+flagged plus keys Claude passed and chose to show, systematic leniency is
+invisible from that sample by construction -- the unconditional draw is the only
+part that can catch a reviewer that is quietly rating `thin` as `faithful`.
+Dispositions land in `spot_read.operator_read`.
 
-**Stated limitation, so the number is not over-read:** 40 keys cannot certify a
-95% faithful rate to within a point. At a true rate of 90% the 40-sample's
-95% interval is roughly +/-9 points. The gate is a tripwire for systematic
-failure, not a precision estimate, and the coverage stratum is what makes it
-one.
+#### Measured power, stated instead of asserted
+
+An earlier draft of this section claimed a random 40 would miss a per-domain
+systematic failure "two times in three". That is wrong by roughly 45x for the
+domain it was about. Exact hypergeometric figures, N=500:
+
+**Global gate (the thing it does certify).** P(PASS) as a function of the true
+non-`faithful` rate:
+
+| true bad rate | n=40, tolerate 4 | **n=50, tolerate 5 (adopted)** | n=50, tolerate 3 |
+|---|---|---|---|
+| 2% | 100.0% | 100.0% | 98.8% |
+| 5% | 95.9% | 97.0% | 76.7% |
+| 10% | 63.0% | 61.7% | 23.6% |
+| 15% | 25.2% | **20.5%** | 3.8% |
+| 20% | 6.8% | 4.0% | 0.4% |
+| 25% | 1.3% | 0.5% | 0.0% |
+
+So a systematic 15% `thin` rate (75 of 500 keys) still slips through **one time
+in five**. The tighter `tolerate 3` column would cut that to 3.8% but would
+also BLOCK a perfectly acceptable 5% rate **23% of the time**, and a false BLOCK
+costs a full 500-key re-run plus a re-read. The 90% threshold is kept, and the
+residual is handled downstream instead: **Phase 8 MUST report the headline
+twice -- over all keys and over `clear` keys only.** That is no longer an
+option (it was Open question 5's default), it is a required companion number,
+because it is the only cheap instrument that bounds the `thin` bias's effect on
+the A-vs-C delta.
+
+**F41 -- per-domain key quality cannot be certified by any spot-read the arc can
+afford, at any domain size.** Probability that a domain whose keys are half bad
+ESCAPES the read entirely:
+
+| domain size (alloc) | 24-coverage + 16 random | **34-coverage + 16 random (adopted)** |
+|---|---|---|
+| 63 (hud) | 15.9% | 15.5% |
+| 48 (server-admin) | 21.6% | 21.2% |
+| 27 (performance) | 29.6% | 29.3% |
+| 16 (weapon-scripts) | 38.0% | 37.7% |
+| 12 (skins) | 40.7% | **18.4%** |
+| 8 (fonts/teamplay/spectating) | 43.6% | **18.6%** |
+
+The second coverage key roughly halves the escape rate for the small domains
+and does nothing for the large ones -- which is the right trade, because the
+small domains are the ones Phase 8 reports at n=8. But read the table honestly:
+**no domain at any size reaches 90% detection**, and at a 25%-bad rate every
+domain escapes more than 42% of the time. Reaching 90% detection for an
+8-thread domain requires reading 3 of its 8 keys, and for a 25%-bad rate, 4 of
+8 -- i.e. certifying per-domain key quality means reading roughly half the
+sample, ~250 keys, which is not a Claude read, it is a second job.
+
+**Declared, so Phase 8 cannot over-read it:** this gate certifies the
+**global** key quality within the OC curve above. **Per-domain key quality is
+uncertified at every domain size.** Phase 8 must not cut key quality by domain,
+and every per-domain match rate carries that caveat. What the coverage stratum
+DOES guarantee is that no domain contributes zero read keys, so a domain that is
+wholly broken (every key bad) is caught with certainty -- which is the failure
+mode that would move the headline, as opposed to the one that would only blur a
+single row.
+
+**And the residual on the global number:** at a true rate of 90% the 50-sample's
+95% interval is roughly +/-8 points. The gate is a tripwire, not a precision
+estimate.
 
 `key_quality: "weak"` keys are **kept**, flagged, and reported both ways by
-Phase 8 (headline over all keys, and over `clear` keys only). Dropping them
-would bias the sample toward threads with tidy one-line fixes, which is exactly
-the population where the oracle looks best.
+Phase 8 (headline over all keys, and over `clear` keys only -- now required, per
+the OC discussion above). Dropping them would bias the sample toward threads
+with tidy one-line fixes, which is exactly the population where the oracle looks
+best.
 
 ## Files touched
 
@@ -651,23 +926,50 @@ F27), and the live solved pool is resolved once per domain.
    **`encode(sha256(convert_to(content,'UTF8')),'hex')`** -- see F31: the
    obvious `content::bytea` cast throws `invalid input syntax for type bytea`
    on real rows, because a text-to-bytea cast reinterprets backslash escapes.
-5. `allocate(solvedByDomain, N, floor)`: the four-step algorithm above,
-   including both assertions (`sum === N`, `alloc_d <= solved_d`) and the
-   largest-remainder tie-break on domain key ascending.
+5. `allocate(solvedByDomain, N, floor)`: the four-step algorithm above, with all
+   three assertions (`sum === N`, `alloc_d <= solved_d`,
+   `alloc_d >= min(floor, solved_d)`), the largest-remainder tie-break on domain
+   key ascending, and `floored` returned per domain as
+   `false | 'at-floor' | 'pool-exhausted'`. Return both `quota_raw` (the
+   first-pass proportional quota, e.g. hud 64.159) and `quota_post_pin` (the
+   quota the rounding actually consumed after the floor pins, e.g. hud 63.446)
+   -- they differ, and `alloc` derives from the SECOND. Task 4's field-by-field
+   diff compares against `quota_post_pin`; a verifier told to re-derive `alloc`
+   from `quota_raw` fails spuriously on every floored run.
 
-**Verification probe:**
+**Verification probe** (the first command re-establishes, from inside the
+worktree with the real toolchain, the resolver-typechecks-clean precondition
+that Inputs could only establish out-of-worktree):
 
-    cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun -e 'import { deriveRankPin, resolveFrameIds, allocate } from "./eval/sim/frame.ts"; const fail=(m)=>{console.log("FAIL",m);process.exit(1)}; const pin=deriveRankPin(); if(pin.length!==48) fail("rank pin length "+pin.length); const a=pin.find(p=>p.rank===12); if(!a||a.cluster_id!==14||a.size!==134||a.domain!=="weapon-scripts") fail("anchor "+JSON.stringify(a)); const ids=resolveFrameIds(); const flat=Object.values(ids).flat(); if(flat.length!==4456) fail("frame ids "+flat.length); if(new Set(flat).size!==4456) fail("frame ids not unique"); if(Object.keys(ids).length!==24) fail("domains "+Object.keys(ids).length); const solved={hud:406,"onboard-install":314,"server-admin":308,"visual-world":227,performance:175,textures:174,linux:161,"visual-projectile":155,display:137,network:133,demos:106,"weapon-scripts":105,"input-mouse":97,"config-files":80,skins:79,"maps-locs":77,crash:71,"ruleset-legality":68,"server-browser":61,audio:57,"binds-scripting":55,fonts:46,"teamplay-comms":39,spectating:33}; const al=allocate(solved,500,8); const sum=Object.values(al).reduce((x,y)=>x+y,0); if(sum!==500) fail("alloc sum "+sum); for(const k of Object.keys(solved)) if(al[k]>solved[k]) fail("alloc>solved "+k); if(al.hud!==63||al.spectating!==8||al.fonts!==8||al["teamplay-comms"]!==8) fail("alloc drift "+JSON.stringify({hud:al.hud,spectating:al.spectating,fonts:al.fonts,tc:al["teamplay-comms"]})); console.log("FRAME_OK 48 ranks, 4456 ids, alloc 500"); process.exit(0);'
+    cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun run typecheck && echo RESOLVER_IMPORT_TYPECHECKS
+    cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun -e 'import { deriveRankPin, resolveFrameIds, allocate } from "./eval/sim/frame.ts"; const fail=(m)=>{console.log("FAIL",m);process.exit(1)}; const pin=deriveRankPin(); if(pin.length!==48) fail("rank pin length "+pin.length); const a=pin.find(p=>p.rank===12); if(!a||a.cluster_id!==14||a.size!==134||a.domain!=="weapon-scripts") fail("anchor "+JSON.stringify(a)); const ids=resolveFrameIds(); const flat=Object.values(ids).flat(); if(flat.length!==4456) fail("frame ids "+flat.length); if(new Set(flat).size!==4456) fail("frame ids not unique"); if(Object.keys(ids).length!==24) fail("domains "+Object.keys(ids).length); const solved={hud:406,"onboard-install":314,"server-admin":308,"visual-world":227,performance:175,textures:174,linux:161,"visual-projectile":155,display:137,network:133,demos:106,"weapon-scripts":105,"input-mouse":97,"config-files":80,skins:79,"maps-locs":77,crash:71,"ruleset-legality":68,"server-browser":61,audio:57,"binds-scripting":55,fonts:46,"teamplay-comms":39,spectating:33}; const r=allocate(solved,500,8); const al=r.alloc; const sum=Object.values(al).reduce((x,y)=>x+y,0); if(sum!==500) fail("alloc sum "+sum); for(const k of Object.keys(solved)){ if(al[k]>solved[k]) fail("alloc>solved "+k); if(al[k]<Math.min(8,solved[k])) fail("below floor "+k); } const want={hud:63,"onboard-install":49,"server-admin":48,"visual-world":36,performance:27,textures:27,linux:25,"visual-projectile":24,display:21,network:21,demos:17,"weapon-scripts":16,"input-mouse":15,"config-files":13,skins:12,"maps-locs":12,crash:11,"ruleset-legality":11,"server-browser":10,audio:9,"binds-scripting":9,fonts:8,"teamplay-comms":8,spectating:8}; for(const k of Object.keys(want)) if(al[k]!==want[k]) fail("alloc drift "+k+": "+al[k]+" want "+want[k]); const pinned=Object.entries(r.floored).filter(([,v])=>v!=="false"&&v!==false).map(([k])=>k).sort(); if(pinned.join(",")!=="fonts,spectating,teamplay-comms") fail("floored set "+pinned.join(",")); const x=allocate({...solved,spectating:5},500,8); if(x.floored.spectating!=="pool-exhausted") fail("pool-exhausted not flagged, got "+x.floored.spectating); console.log("FRAME_OK 48 ranks, 4456 ids, alloc 500, 3 at-floor, pool-exhaustion detected"); process.exit(0);'
 
-Expect `FRAME_OK 48 ranks, 4456 ids, alloc 500`, exit 0. The hardcoded
-`solved` map is the drafting-time measurement, used here so the ALLOCATOR is
-tested against a known-answer fixture independently of whatever the live pool
-says on the day; Task 3's probe checks it against live counts.
+Expect `RESOLVER_IMPORT_TYPECHECKS` then
+`FRAME_OK 48 ranks, 4456 ids, alloc 500, 3 at-floor, pool-exhaustion detected`,
+both exit 0. Three things this checks that a weaker probe would not: the FULL
+24-row allocation against the drafting-time known-answer (not just four
+domains, so a rounding change anywhere is caught); that exactly
+`fonts, spectating, teamplay-comms` are the pinned set; and that a domain whose
+pool falls below the floor is reported `pool-exhausted` rather than silently
+under-filling -- verified at revision time that the naive allocator returns
+`spectating: 5` with the sum still landing on 500 and nothing thrown, which is
+the defect this assertion exists for. The hardcoded `solved` map tests the
+ALLOCATOR against a fixture independently of what the live pool says on the day;
+Task 3's probe checks it against live counts.
 
 ### Task 3 -- Allocation, selection, question extraction, FREEZE · `agent (workhorse, high)`
 
-**Goal:** `sample-manifest.json` exists, is committed, and is never written
-again.
+**Goal:** `sample-manifest.json` exists, is verified, is committed, and is never
+written again.
+
+**Write, verify, THEN commit -- in that order.** An earlier draft committed at
+the end of this task and built the verifier in Task 4, which meant the first
+manifest was in git before anything had checked it, and Recovery then forbade
+`--force` on the grounds that "every record already taken references it by
+digest" -- at a moment when zero records exist. The DAG is unchanged (Task 4
+still builds the reusable checker); what moves is the commit, to after step 7's
+in-task check passes. Re-freezing before any key exists is free, and the plan
+must not pretend otherwise.
 
 **Files:** `eval/sim/split-question.ts` (new), `eval/sim/freeze-sample.ts`
 (new), `eval/sim/sample-manifest.json` (new, committed).
@@ -680,7 +982,10 @@ again.
    that the fallback is retained despite firing 0/3164 on this pool.
 2. Write `freeze-sample.ts`. It **refuses to run if `sample-manifest.json`
    already exists** (exit 1 with a message naming E4) unless `--force` is
-   passed; the freeze is once-only by construction, not by discipline.
+   passed; the freeze is once-only by construction, not by discipline. The
+   refusal message states the one legitimate `--force` case explicitly: while
+   `sample-keys.json` does NOT yet exist, nothing downstream references the
+   manifest and re-freezing is harmless.
 3. It calls `deriveRankPin()`, `resolveFrameIds()`, `resolveLivePool(db)`,
    `allocate(...)`, then builds `order[domain]` = the domain's live solved ids
    sorted ascending by id and re-sorted by `sha256(seed + ":" + id)` hex
@@ -693,16 +998,24 @@ again.
    digests (`sha256sum` of `faq-clusters.json` and `faq-domains-resolve.ts`),
    the `note` prose block verbatim from this doc, and write the file with
    2-space indentation and a trailing newline so future diffs are readable.
-6. Commit it. This is one of the two committed artifacts E13 names.
+   Expect roughly 380-410 KB.
+6. **Run the verification probe below against the written-but-uncommitted
+   file.** If it fails, fix the generator and re-run `freeze-sample.ts
+   --force` -- legal here precisely because no key file exists yet.
+7. Only once the probe passes, commit. This is one of the two committed
+   artifacts E13 names.
 
 **Verification probe:**
 
-    cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun -e 'const m = await Bun.file("eval/sim/sample-manifest.json").json(); const fail=(x)=>{console.log("FAIL",x);process.exit(1)}; if(m.selected.length!==500) fail("selected "+m.selected.length); if(new Set(m.selected.map(s=>s.thread_id)).size!==500) fail("duplicate thread_id"); const alloc=Object.fromEntries(Object.entries(m.allocation.by_domain).map(([k,v])=>[k,v.alloc])); if(Object.keys(alloc).length!==24) fail("domains "+Object.keys(alloc).length); if(Object.values(alloc).reduce((a,b)=>a+b,0)!==500) fail("alloc sum"); const seen={}; for(const s of m.selected) seen[s.domain]=(seen[s.domain]||0)+1; for(const d of Object.keys(alloc)) if(seen[d]!==alloc[d]) fail("domain "+d+" has "+seen[d]+" want "+alloc[d]); for(const d of Object.keys(alloc)) { if(alloc[d] > m.pool.by_domain[d].solved) fail("alloc>solved "+d); if(m.order[d].length !== m.pool.by_domain[d].solved) fail("order len "+d); if(m.order[d].slice(0,alloc[d]).join(",") !== m.selected.filter(s=>s.domain===d).map(s=>s.thread_id).join(",")) fail("selected is not the head of order for "+d); } if(Object.values(m.order).flat().length!==3164) fail("order total"); if(m.selected.some(s=>!s.question || !s.question.trim())) fail("empty question"); if(m.selected.some(s=>!/^[0-9a-f]{64}$/.test(s.content_sha256))) fail("bad digest"); if(m.frame.rank_pin.length!==48) fail("rank pin"); console.log("MANIFEST_SHAPE_OK", m.selected.length, "threads /", Object.keys(alloc).length, "domains"); process.exit(0);'
+    cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun -e 'const m = await Bun.file("eval/sim/sample-manifest.json").json(); const fail=(x)=>{console.log("FAIL",x);process.exit(1)}; if(m.selected.length!==500) fail("selected "+m.selected.length); if(new Set(m.selected.map(s=>s.thread_id)).size!==500) fail("duplicate thread_id"); if(typeof m.note!=="string" || !/ZERO 2026/.test(m.note)) fail("note block missing or does not carry the era-window statement"); const A=m.allocation.by_domain; const alloc=Object.fromEntries(Object.entries(A).map(([k,v])=>[k,v.alloc])); if(Object.keys(alloc).length!==24) fail("domains "+Object.keys(alloc).length); if(Object.values(alloc).reduce((a,b)=>a+b,0)!==500) fail("alloc sum"); const seen={}; for(const s of m.selected) seen[s.domain]=(seen[s.domain]||0)+1; const FL=new Set([false,"at-floor","pool-exhausted"]); for(const d of Object.keys(alloc)) { if(seen[d]!==alloc[d]) fail("domain "+d+" has "+seen[d]+" want "+alloc[d]); const sv=m.pool.by_domain[d].solved; if(alloc[d] > sv) fail("alloc>solved "+d); if(alloc[d] < Math.min(m.floor, sv)) fail("below floor "+d); if(!FL.has(A[d].floored)) fail("floored not tri-state for "+d+": "+JSON.stringify(A[d].floored)); if(A[d].floored==="pool-exhausted" && !(m.pool_exhausted_acknowledged||[]).includes(d)) fail("UNACKNOWLEDGED pool-exhausted domain "+d); if(typeof A[d].quota_raw!=="number"||typeof A[d].quota_post_pin!=="number") fail("missing quota_raw/quota_post_pin for "+d); if(m.order[d].length !== sv) fail("order len "+d); if(m.order[d].slice(0,alloc[d]).join(",") !== m.selected.filter(s=>s.domain===d).map(s=>s.thread_id).join(",")) fail("selected is not the head of order for "+d); } if(Object.values(m.order).flat().length!==3164) fail("order total"); if(m.selected.some(s=>!s.question || !s.question.trim())) fail("empty question"); if(m.selected.some(s=>!/^[0-9a-f]{64}$/.test(s.content_sha256))) fail("bad digest"); if(m.selected.some(s=>typeof s.domain_rank!=="number")) fail("domain_rank must be a scalar"); if(m.frame.rank_pin.length!==48) fail("rank pin"); const pinned=Object.entries(A).filter(([,v])=>v.floored!==false).map(([k])=>k).sort().join(","); console.log("MANIFEST_SHAPE_OK", m.selected.length, "threads /", Object.keys(alloc).length, "domains / floored:", pinned||"(none)"); process.exit(0);'
 
-Expect `MANIFEST_SHAPE_OK 500 threads / 24 domains`, exit 0. Note what this
-asserts that a weaker probe would not: that `selected` per domain is exactly the
-HEAD of `order[domain]`, which is what makes substitution a walk rather than a
-new draw.
+Expect `MANIFEST_SHAPE_OK 500 threads / 24 domains / floored:
+fonts,spectating,teamplay-comms`, exit 0. Three things this asserts that a
+weaker probe would not: that `selected` per domain is exactly the HEAD of
+`order[domain]` (what makes substitution a walk rather than a new draw); that
+`alloc_d >= min(floor, solved_d)`, which is the only check that catches a
+silently under-filled domain; and that any `pool-exhausted` domain has been
+explicitly acknowledged rather than merely recorded.
 
 ### Task 4 -- `verify-manifest.ts`, the reusable checker · `agent (workhorse, medium)`
 
@@ -720,19 +1033,30 @@ one command, because Phase 6 re-runs it before the bulk run (E4).
    and assert it reproduces the recorded order; re-check the file digests of
    `faq-clusters.json` and `faq-domains-resolve.ts` against
    `manifest.frame.*_sha256`. Print one PASS/FAIL line per check.
-2. `--live` additionally opens `shared/db.ts` and asserts, over the 500
-   selected: every `thread_id` is present; `thread_key` matches;
-   `encode(sha256(convert_to(content,'UTF8')),'hex')` matches
-   `content_sha256`; `resolution_status = 'solved'`; `channel_name =
+2. **The allocation diff compares `alloc` against `quota_post_pin`, not
+   `quota_raw`.** Both are recorded and they differ on any floored run (hud:
+   raw 64.159, post-pin 63.446, alloc 63). A verifier that re-derives `alloc`
+   from `quota_raw` fails spuriously on exactly the runs where the floor did
+   its job. It also asserts `floored` is one of
+   `false | 'at-floor' | 'pool-exhausted'`, that `alloc_d >= min(floor,
+   solved_d)`, and that any `pool-exhausted` domain appears in
+   `pool_exhausted_acknowledged`.
+3. `--live` additionally opens `shared/db.ts` and asserts, over the **effective
+   sample** -- `loadEffectiveSample()` if `sample-keys.json` exists, otherwise
+   the manifest's 500 `selected` -- that every `thread_id` is present;
+   `thread_key` matches; `encode(sha256(convert_to(content,'UTF8')),'hex')`
+   matches `content_sha256`; `resolution_status = 'solved'`; `channel_name =
    '#helpdesk'`; and the corpus baseline (total, per-channel, distinct
-   `reconstruction_version`) equals `manifest.corpus_baseline`.
-3. **Non-emptiness floor on every live assertion:** the count of rows the join
+   `reconstruction_version`) equals `manifest.corpus_baseline`. Checking the
+   effective set rather than the frozen one is what makes this usable as Phase
+   6's pre-bulk gate: substituted-in threads are the ones the bulk will answer.
+4. **Non-emptiness floor on every live assertion:** the count of rows the join
    returned must equal 500 before any FILTER-based assertion is read. Without
    it, a join that returns nothing makes "all rows are `#helpdesk`" and "all
    digests match" vacuously true, and the probe passes loudest exactly when the
    frame has evaporated. This is the same trap F22 documented on the lexical
    path.
-4. `process.exit(failures ? 1 : 0)`, and print the failure list, not just a
+5. `process.exit(failures ? 1 : 0)`, and print the failure list, not just a
    count.
 
 **Verification probe:**
@@ -772,22 +1096,32 @@ the run resumable (E9).
    `question_leaks_fix` boolean, `fix_tokens` an array of strings, `truth` a
    string that is empty **iff** `key_quality === "none"`. A schema-invalid
    response is a counted, retried failure, never a silent default.
-5. Compact the JSONL into `sample-keys.json` with `manifest_sha256`,
+5. **Handle the runner's nulls explicitly.** The paced runner reports a null for
+   an item that failed every retry. For each such thread, write
+   `{thread_id, error}` to the JSONL and add it to `rejected` with
+   `reason: "extraction_failed"`. Print the permanent-failure count. Do not
+   leave a null to surface later as a missing key -- the probe below would fail
+   with no diagnosis attached, three tasks after the cause.
+6. Compact the JSONL into `sample-keys.json` with `manifest_sha256`,
    `prompt_sha256`, `model`, the `keys` map, and the `accounting` block --
-   summed usage including `reasoning_tokens` and both cache-token fields, with
-   `cost_usd` from
-   `TBD(phase-2-client: pricing table plus a cost_usd(usage) helper, E10)`.
-   Print the token and dollar totals to stdout. Leave `rejected`,
-   `substitutions` and `spot_read` empty; Task 6 fills them.
+   summed usage including `reasoning_tokens` and both cache-token fields.
+   `cost_usd` is the **sum of the per-call `cost_usd` values the client already
+   reports**; do not compute a dollar figure locally (E10 wants one dollar
+   arithmetic in the arc). Print the token and dollar totals to stdout. Leave
+   `substitutions` and `spot_read` empty and `rejected` holding only the
+   `extraction_failed` entries; Task 6 fills the rest.
 
 **Verification probe:**
 
-    cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun -e 'const m=await Bun.file("eval/sim/sample-manifest.json").json(); const k=await Bun.file("eval/sim/sample-keys.json").json(); const fail=(x)=>{console.log("FAIL",x);process.exit(1)}; const ids=m.selected.map(s=>s.thread_id); const missing=ids.filter(i=>!(i in k.keys)); if(missing.length) fail("no key for "+missing.length+" threads, first "+missing[0]); const V=new Set(["clear","weak","none"]); for(const [id,v] of Object.entries(k.keys)) { if(!V.has(v.key_quality)) fail("bad key_quality "+id+" "+v.key_quality); if(typeof v.question_leaks_fix!=="boolean") fail("bad question_leaks_fix "+id); if(!Array.isArray(v.fix_tokens)) fail("bad fix_tokens "+id); if((v.truth.trim()==="") !== (v.key_quality==="none")) fail("truth/key_quality disagree "+id); } const clear=Object.values(k.keys).filter(v=>v.key_quality==="clear").length; const none=Object.values(k.keys).filter(v=>v.key_quality==="none").length; if(clear < 250) fail("only "+clear+" clear keys of 500 -- extraction is broken, not merely imperfect"); if(k.accounting.calls < 500) fail("accounting.calls "+k.accounting.calls); if(!(k.accounting.cost_usd > 0)) fail("cost_usd not measured"); if(!(k.accounting.reasoning_tokens >= 0)) fail("reasoning tokens missing"); console.log("KEYS_OK 500 keys, clear="+clear+" none="+none+" cost=$"+k.accounting.cost_usd.toFixed(4)); process.exit(0);'
+    cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun -e 'const m=await Bun.file("eval/sim/sample-manifest.json").json(); const k=await Bun.file("eval/sim/sample-keys.json").json(); const fail=(x)=>{console.log("FAIL",x);process.exit(1)}; const failed=new Set((k.rejected||[]).filter(r=>r.reason==="extraction_failed").map(r=>r.thread_id)); const ids=m.selected.map(s=>s.thread_id); const missing=ids.filter(i=>!(i in k.keys) && !failed.has(i)); if(missing.length) fail("no key and no recorded failure for "+missing.length+" threads, first "+missing[0]); if(failed.size > 25) fail(failed.size+" permanent extraction failures -- that is a client or quota problem, not a data one"); const V=new Set(["clear","weak","none"]); for(const [id,v] of Object.entries(k.keys)) { if(!V.has(v.key_quality)) fail("bad key_quality "+id+" "+v.key_quality); if(typeof v.question_leaks_fix!=="boolean") fail("bad question_leaks_fix "+id); if(!Array.isArray(v.fix_tokens)) fail("bad fix_tokens "+id); if((v.truth.trim()==="") !== (v.key_quality==="none")) fail("truth/key_quality disagree "+id); } const n=Object.keys(k.keys).length; const clear=Object.values(k.keys).filter(v=>v.key_quality==="clear").length; const none=Object.values(k.keys).filter(v=>v.key_quality==="none").length; if(n < 475) fail("only "+n+" keys produced"); if(clear < 250) fail("only "+clear+" clear keys -- extraction is broken, not merely imperfect"); if(k.accounting.calls < n) fail("accounting.calls "+k.accounting.calls+" < keys "+n); if(!(k.accounting.cost_usd > 0)) fail("cost_usd not measured"); if(typeof k.accounting.reasoning_tokens !== "number") fail("reasoning tokens missing"); console.log("KEYS_OK "+n+" keys, clear="+clear+" none="+none+" failed="+failed.size+" cost=$"+k.accounting.cost_usd.toFixed(4)); process.exit(0);'
 
-Expect `KEYS_OK 500 keys, clear=<n> none=<n> cost=$<n>`, exit 0. The
+Expect `KEYS_OK <n> keys, clear=<n> none=<n> failed=0 cost=$<n>`, exit 0. The
 `clear >= 250` floor is deliberately a broken-vs-imperfect line, not a quality
 bar -- quality is Task 6's job. The `truth`/`key_quality` cross-check is what
 stops a model that answers `{"truth":"", "key_quality":"clear"}` from passing.
+And the missing-key check accepts a thread that has a RECORDED permanent
+failure while still failing on a thread that simply has no key -- the
+distinction step 5 exists to make.
 
 ### Task 6 -- Spot-read gate and substitutions · `agent (session-tier, high)`
 
@@ -797,42 +1131,87 @@ unusable thread is replaced from the manifest's own frozen order.
 **Files:** `eval/sim/sample-keys.json` (modify -- `rejected`, `substitutions`,
 `spot_read`).
 
+**Substitution runs BEFORE the spot-read**, so the 50 keys read are the 50 keys
+the arc will actually use. Reading the gate on a sample that then changes under
+it would certify keys that got substituted away and leave the promoted ones
+uncertified.
+
 **Steps:**
-1. Draw the 40: the 24 coverage keys (per domain, the selected thread with the
-   lowest `order_index`) plus 16 from the remaining 476 ordered by
-   `sha256(seed + ":spot:" + thread_id)`. Print the 40 ids so the draw is
-   reproducible and auditable.
-2. For each, read the thread's full `content` from the twin and judge the key
-   `faithful | thin | wrong` with a one-line reason. Where `fix_tokens` names a
-   cvar or command, check it exists at dev-head via the L1 tables or an MCP
-   `lookup_entity` -- a key naming a cvar that has never existed is `wrong`
-   regardless of how plausible the prose reads.
-3. Write `spot_read` with the gate outcome. **PASS requires `wrong == 0` and
-   `faithful >= 36`.** On BLOCK, stop the phase: revise `key-prompt.ts`, delete
-   `eval/sim/records/key-extraction.jsonl`, re-run Task 5 over all 500, and
-   re-run this task. Do not patch individual keys by hand -- hand-patched keys
-   are not produced by the pinned prompt and make `prompt_sha256` a lie.
-4. Surface the 5 operator-read keys in chat (thread id, question, key, Claude's
-   verdict) and record their disposition in `spot_read.operator_read`.
-5. Substitution: every thread with `key_quality === "none"` or
-   `question_leaks_fix === true` goes into `rejected`. For each, walk
-   `order[domain]` from `alloc[domain]` upward to the first id not already
-   selected and not already promoted, extract its identity + question + key
-   (one more DeepSeek call through the same pinned prompt), and append to
-   `substitutions`. Assert afterwards that
-   `500 - rejected.length + substitutions.length === 500` and that each
-   substitution stayed inside its own domain, so the allocation is preserved
-   exactly.
-6. Append the substitution calls' usage to `accounting`.
+1. **Substitution loop.** Every selected thread with `key_quality === "none"`,
+   `question_leaks_fix === true`, or a recorded `extraction_failed` goes into
+   `rejected` with `from_walk: false`. For each, walk `order[domain]` upward
+   from `alloc[domain]`; for each candidate, extract a key with the SAME pinned
+   prompt and apply the SAME screen. A candidate that fails the screen is
+   appended to `rejected` with `from_walk: true` and the walk continues; the
+   first candidate that passes becomes the promotion, recorded with
+   `candidates_examined` = the walk length. Measured expectation on the real
+   selection: ~25 rejections, 3 of which need a walk of more than one, deepest
+   walk 7 (hud). Skip any id already selected or already promoted.
+2. Assert, before going further: each substitution stayed inside its own
+   domain; every promoted id sits at `order_index >= alloc[domain]`; no promoted
+   id appears in `rejected`; and the per-domain effective count equals
+   `allocation.by_domain[domain].alloc` for all 24. **Do not assert
+   `substitutions.length === rejected.length`** -- a walk longer than one makes
+   that false by design.
+3. Append every extraction call made here (promotions and walked-past
+   candidates alike) to `accounting`.
+4. **Draw the 50:** 34 coverage keys -- one per domain (lowest `order_index`
+   among the effective sample) plus a second for each domain whose
+   `alloc <= 12` (its next-lowest `order_index`) -- plus 16 from the remaining
+   466 ordered by `sha256(seed + ":spot:" + thread_id)`. Print all 50 ids so the
+   draw is reproducible and auditable.
+5. **Blind pass first.** For each of the 50, read the thread's full `content`
+   from the twin WITHOUT looking at `truth`, and write `reviewer_fix`: one line
+   naming the fix the thread landed on. All 50 blind lines are committed before
+   any key is revealed. This ordering is normative -- reading the key first is
+   what makes a vague key look faithful, which is the class the gate is weakest
+   against.
+6. **Compare pass.** Reveal `truth` and assign `faithful | thin | wrong` with a
+   one-line reason. Where `fix_tokens` names a cvar or command, check it exists
+   at dev-head **with a direct SELECT against the L1 `entities` table** --
+
+       SELECT name, project, type FROM entities WHERE lower(name) = ANY(<lowercased fix_tokens>)
+
+   -- and NOT via an MCP tool call. This phase makes no MCP call at all, which
+   is what keeps the Outputs claim true, keeps E3's telemetry attribution clean
+   (boundary probe 7 asserts `query_log` is unchanged), and keeps every file
+   under `eval/sim/` rather than dragging in E12's MAJOR-1 SDK exception. A key
+   naming a cvar with no `entities` row is `wrong` regardless of how plausible
+   the prose reads. Record `reviewer_agreement` = the fraction of the 50 where
+   `reviewer_fix` and `truth` name the same fix.
+7. Write `spot_read` with the gate outcome. **PASS requires `wrong == 0` and
+   `faithful >= 45/50`.** On BLOCK, stop the phase: revise `key-prompt.ts`,
+   delete `eval/sim/records/key-extraction.jsonl`, re-run Task 5 over all 500,
+   re-run this task from step 1. Do not patch individual keys by hand --
+   hand-patched keys are not produced by the pinned prompt and make
+   `prompt_sha256` a lie.
+8. Surface the 5 operator-read keys in chat (thread id, question, key,
+   `reviewer_fix`, Claude's verdict). **At least 2 of the 5 are drawn
+   seed-deterministically from the whole 50 regardless of verdict**
+   (`sha256(seed + ":oper:" + thread_id)`, lowest first, marked
+   `drawn_as: "seeded"`); the remainder are keys marked `thin` or `wrong`, then
+   coverage keys in domain order, marked `drawn_as: "flagged"`. Record each
+   disposition in `spot_read.operator_read` as
+   `{thread_id, drawn_as, disposition}`. Without the unconditional draw the
+   operator only ever sees what Claude flagged plus what Claude passed and chose
+   to show, so a systematically lenient reviewer is invisible from that sample
+   by construction.
 
 **Verification probe:**
 
-    cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun -e 'const m=await Bun.file("eval/sim/sample-manifest.json").json(); const k=await Bun.file("eval/sim/sample-keys.json").json(); const fail=(x)=>{console.log("FAIL",x);process.exit(1)}; const sr=k.spot_read; if(!sr) fail("no spot_read block"); if(sr.n!==40||sr.verdicts.length!==40) fail("spot_read n="+sr.n+" verdicts="+(sr.verdicts||[]).length); if(sr.wrong!==0) fail("gate: "+sr.wrong+" wrong keys"); if(sr.faithful<36) fail("gate: faithful "+sr.faithful+"/40 < 36"); if(sr.gate!=="PASS") fail("gate "+sr.gate); const domsOfSelected=Object.fromEntries(m.selected.map(s=>[s.thread_id,s.domain])); const rej=new Set(k.rejected.map(r=>r.thread_id)); for(const r of k.rejected) if(!(r.thread_id in domsOfSelected)) fail("rejected id not in manifest "+r.thread_id); if(k.substitutions.length!==k.rejected.length) fail("subs "+k.substitutions.length+" != rejected "+k.rejected.length); for(const s of k.substitutions){ if(domsOfSelected[s.rejected_thread_id]!==s.domain) fail("substitution crossed domains "+s.rejected_thread_id); const ord=m.order[s.domain]; const idx=ord.indexOf(s.promoted_thread_id); if(idx<0) fail("promoted id not in frozen order "+s.promoted_thread_id); if(idx < m.allocation.by_domain[s.domain].alloc) fail("promoted from inside the selected head "+s.promoted_thread_id); if(rej.has(s.promoted_thread_id)) fail("promoted a rejected thread"); if(!s.key || typeof s.key.truth!=="string") fail("promoted thread has no key"); } const covered=new Set(sr.verdicts.map(v=>m.selected.find(s=>s.thread_id===v.thread_id)?.domain)); if(covered.size<24) fail("coverage stratum missed "+(24-covered.size)+" domains"); console.log("GATE_PASS faithful="+sr.faithful+"/40 wrong=0 rejected="+k.rejected.length+" substituted="+k.substitutions.length); process.exit(0);'
+    cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && bun -e 'const m=await Bun.file("eval/sim/sample-manifest.json").json(); const k=await Bun.file("eval/sim/sample-keys.json").json(); const fail=(x)=>{console.log("FAIL",x);process.exit(1)}; const sr=k.spot_read; if(!sr) fail("no spot_read block"); if(sr.n!==50||(sr.verdicts||[]).length!==50) fail("spot_read n="+sr.n+" verdicts="+(sr.verdicts||[]).length); if(sr.wrong!==0) fail("gate: "+sr.wrong+" wrong keys"); if(sr.faithful<45) fail("gate: faithful "+sr.faithful+"/50 < 45"); if(sr.gate!=="PASS") fail("gate "+sr.gate); if(sr.verdicts.some(v=>typeof v.reviewer_fix!=="string"||!v.reviewer_fix.trim())) fail("a verdict has no blind reviewer_fix -- the blind pass was skipped"); if(typeof sr.reviewer_agreement!=="number") fail("reviewer_agreement not recorded"); const seeded=(sr.operator_read||[]).filter(o=>o.drawn_as==="seeded").length; if((sr.operator_read||[]).length<5) fail("operator_read "+(sr.operator_read||[]).length+" < 5"); if(seeded<2) fail("only "+seeded+" unconditional operator draws, need >=2"); if(sr.operator_read.some(o=>!o.disposition)) fail("an operator_read entry has no disposition"); const A=m.allocation.by_domain; const domOf=Object.fromEntries(m.selected.map(s=>[s.thread_id,s.domain])); const rej=new Set(k.rejected.map(r=>r.thread_id)); const prom=new Set(k.substitutions.map(s=>s.promoted_thread_id)); for(const r of k.rejected){ if(!r.from_walk && !(r.thread_id in domOf)) fail("non-walk rejected id not in manifest selected: "+r.thread_id); if(r.from_walk && !m.order[r.domain].includes(r.thread_id)) fail("walked-past id not in frozen order: "+r.thread_id); } if(k.substitutions.length > k.rejected.length) fail("more substitutions ("+k.substitutions.length+") than rejections ("+k.rejected.length+")"); const eff={}; for(const s of m.selected) if(!rej.has(s.thread_id)) eff[s.domain]=(eff[s.domain]||0)+1; for(const s of k.substitutions){ const ord=m.order[s.domain]; const idx=ord.indexOf(s.promoted_thread_id); if(idx<0) fail("promoted id not in frozen order "+s.promoted_thread_id); if(idx < A[s.domain].alloc) fail("promoted from inside the selected head "+s.promoted_thread_id); if(rej.has(s.promoted_thread_id)) fail("promoted a rejected thread "+s.promoted_thread_id); if(domOf[s.rejected_thread_id] && domOf[s.rejected_thread_id]!==s.domain) fail("substitution crossed domains "+s.rejected_thread_id); if(!(s.candidates_examined>=1)) fail("candidates_examined missing for "+s.promoted_thread_id); if(!s.key || typeof s.key.truth!=="string" || !s.key.truth.trim()) fail("promoted thread has no usable key "+s.promoted_thread_id); eff[s.domain]=(eff[s.domain]||0)+1; } let tot=0; for(const d of Object.keys(A)){ if((eff[d]||0)!==A[d].alloc) fail("effective count for "+d+": "+(eff[d]||0)+" != alloc "+A[d].alloc); tot+=eff[d]; } if(tot!==500) fail("effective total "+tot); const covered=new Set(sr.verdicts.map(v=>v.domain)); if(covered.size!==24) fail("coverage stratum reached only "+covered.size+" domains"); const small=Object.keys(A).filter(d=>A[d].alloc<=12); for(const d of small){ const n=sr.verdicts.filter(v=>v.domain===d&&v.stratum==="coverage").length; if(n<2) fail("small domain "+d+" got only "+n+" coverage keys, need 2"); } console.log("GATE_PASS faithful="+sr.faithful+"/50 wrong=0 agreement="+sr.reviewer_agreement+" rejected="+k.rejected.length+" substituted="+k.substitutions.length+" (walks>1: "+k.substitutions.filter(s=>s.candidates_examined>1).length+")"); process.exit(0);'
 
-Expect `GATE_PASS faithful=<n>/40 wrong=0 rejected=<n> substituted=<n>`,
-exit 0. The `idx < alloc` check is the one that matters: it proves a promotion
-came from OUTSIDE the originally selected head, i.e. that substitution added a
-thread rather than shuffling one.
+Expect
+`GATE_PASS faithful=<n>/50 wrong=0 agreement=<n> rejected=<n> substituted=<n> (walks>1: <n>)`,
+exit 0. Four assertions carry the weight here. `idx >= alloc` proves a promotion
+came from OUTSIDE the originally selected head, so substitution added a thread
+rather than shuffling one. **The per-domain effective count against `alloc`
+replaces the old `substitutions.length === rejected.length` check**, which a
+correct re-substitution loop breaks by design -- it would have failed the fix
+and passed the bug. The `reviewer_fix` non-emptiness check is the only
+mechanical evidence that the blind pass actually happened. And the
+`seeded >= 2` check is what stops the operator's sample from being entirely
+Claude's own selection.
 
 ### Task 7 -- `loadEffectiveSample()` · `agent (workhorse, medium)`
 
@@ -867,20 +1246,24 @@ exit 0.
 
 ## Phase-boundary verification
 
-Every probe runs as written from a shell in the worktree. Probes 1, 2, 5, 6 and
-7 were executed verbatim at drafting time against the twin (substituting the
-main checkout's `.env` path, which Phase 1 Task 1 makes identical) and their
-expected values are the observed ones. Probes 3, 4 and 8 exercise code this
-phase creates and are stated with their exact expected stdout and exit status.
+Every probe runs as written from a shell in the worktree. Probes 1, 2, 5, 6, 7
+and probe 4's raw-SQL half were executed verbatim at drafting or revision time
+against the twin (substituting the main checkout's `.env` path, which Phase 1
+Task 1 makes identical) and their expected values are the observed ones. Probes
+3, 8 and probe 4's `verify-manifest.ts` half exercise code this phase creates
+and are stated with their exact expected stdout and exit status.
 
 **1. Corpus has not moved and the frame file is the one that was resolved.**
 
     set -a; . /home/dev/projects/quakeworld-eval/apps/qw-oracle/.env; set +a
-    psql "$DATABASE_URL" -Atc "SELECT count(*) FROM chat_threads;"
+    psql "$DATABASE_URL" -Atc "SELECT count(*) FROM chat_threads;" | grep -qx 40219 && echo CORPUS_UNMOVED || { echo CORPUS_MOVED; exit 1; }
     cd /home/dev/projects/quakeworld-eval/apps/qw-oracle && jq -r '.frame.faq_clusters_sha256 + "  scripts/calibration/faq-gate/faq-clusters.json"' eval/sim/sample-manifest.json | sha256sum -c - && echo FRAME_PINNED
 
-Expect `40219`, then `scripts/calibration/faq-gate/faq-clusters.json: OK` and
-`FRAME_PINNED` -- YES/NO. The frame digest at drafting time was
+Expect `CORPUS_UNMOVED`, then
+`scripts/calibration/faq-gate/faq-clusters.json: OK` and `FRAME_PINNED` --
+YES/NO, both exit 0. (An earlier draft printed the count and compared nothing,
+so the line exited 0 whatever the corpus said; the `grep -qx` is what turns it
+into an assertion.) The frame digest at drafting time was
 `aa7f65723e128a94aff17bc94709b2985195f307638bf46df54d4fb54d2f9a94`; a
 different count is an E4/F3 event and stops the arc, a different digest means
 something edited a file this arc is only allowed to read (E12).
@@ -902,9 +1285,11 @@ This is the exact comparison Phase 6 re-runs before the bulk (E4).
 
 Expect every line PASS and exit 0: 48-entry rank pin re-derived and identical
 (including the five straddling tie groups of F27); allocation re-derived from
-`pool.by_domain[*].solved` and identical, summing to 500 over 24 domains with
-`alloc <= solved` everywhere; every domain's sampling order reproduced from the
-recorded `seed`; both frame-file digests matching -- YES/NO.
+`pool.by_domain[*].solved` and identical, summing to 500 over 24 domains, with
+`alloc <= solved` AND `alloc >= min(floor, solved)` everywhere and `floored`
+tri-state on all 24; the `alloc` diff taken against `quota_post_pin`; every
+domain's sampling order reproduced from the recorded `seed`; both frame-file
+digests matching -- YES/NO.
 
 **4. Every sampled thread is still there, unchanged, solved, and `#helpdesk`.**
 
@@ -917,13 +1302,21 @@ sample:
     set -a; . /home/dev/projects/quakeworld-eval/apps/qw-oracle/.env; set +a
     cd /home/dev/projects/quakeworld-eval/apps/qw-oracle
     J=$(jq -c '[.selected[] | {thread_id: (.thread_id|tonumber), thread_key, content_sha256}]' eval/sim/sample-manifest.json)
-    psql "$DATABASE_URL" -Atc "WITH m AS (SELECT * FROM json_to_recordset('$J') AS x(thread_id bigint, thread_key text, content_sha256 text)) SELECT count(*)||'/'||count(t.id)||'/'||count(*) FILTER (WHERE t.thread_key=m.thread_key)||'/'||count(*) FILTER (WHERE encode(sha256(convert_to(t.content,'UTF8')),'hex')=m.content_sha256)||'/'||count(*) FILTER (WHERE t.resolution_status='solved' AND t.channel_name='#helpdesk') FROM m LEFT JOIN chat_threads t ON t.id=m.thread_id;"
+    psql "$DATABASE_URL" -Atc "WITH m AS (SELECT * FROM json_to_recordset('$J') AS x(thread_id bigint, thread_key text, content_sha256 text)) SELECT count(*)||'/'||count(t.id)||'/'||count(*) FILTER (WHERE t.thread_key=m.thread_key)||'/'||count(*) FILTER (WHERE encode(sha256(convert_to(t.content,'UTF8')),'hex')=m.content_sha256)||'/'||count(*) FILTER (WHERE t.resolution_status='solved' AND t.channel_name='#helpdesk') FROM m LEFT JOIN chat_threads t ON t.id=m.thread_id;" | grep -qx '500/500/500/500/500' && echo SAMPLE_IDENTITIES_INTACT || { echo SAMPLE_IDENTITIES_MOVED; exit 1; }
 
-Expect exactly `500/500/500/500/500` -- YES/NO. Observed
-`500/500/500/500/500` at drafting time against the dry-run sample. The first
-number is the non-emptiness floor: any other leading value means the jq
-extraction or the join produced a different row count and none of the
-trailing counts can be read.
+Expect `SAMPLE_IDENTITIES_INTACT`, exit 0 -- YES/NO. Observed
+`500/500/500/500/500` at drafting time against the dry-run sample. The `grep
+-qx` is load-bearing: without it an empty `.selected[]` yields `0/0/0/0/0` and
+the command still exits 0, which is a probe that passes loudest when the
+manifest is emptiest. The first number is also the non-emptiness floor -- any
+leading value other than 500 means the jq extraction or the join produced a
+different row count and none of the trailing counts can be read.
+
+**This probe checks the FROZEN 500, not the effective 500.** Substitution
+(Task 6) changes which threads the arc uses without touching the manifest, so
+after Task 6 the promoted threads are covered by boundary probe 8 via
+`loadEffectiveSample()` rather than here. Phase 6's E4 re-assertion must run
+`verify-manifest.ts --live`, which checks both sets.
 
 **5. The pool is the one the arc's numbers are based on.**
 
@@ -949,15 +1342,17 @@ Expect `true` + `ERA_WINDOW_PINNED` -- YES/NO. Observed histogram
     cd /home/dev/projects/quakeworld-eval/apps/qw-oracle
     psql "$DATABASE_URL" -Atc "SELECT (SELECT count(*) FROM query_log)||'|'||(SELECT count(*) FROM embedding_api_log);" | tr '|' ' ' | { read q e; jq -e --argjson q "$q" --argjson e "$e" '.corpus_baseline.query_log == $q and .corpus_baseline.embedding_api_log == $e' eval/sim/sample-manifest.json > /dev/null && echo TELEMETRY_UNCHANGED || { echo "TELEMETRY_MOVED live=$q/$e"; exit 1; }; }
 
-Expect `TELEMETRY_UNCHANGED` -- YES/NO. Phase 3 issues no MCP tool call: it
-reads `chat_threads` through `shared/db.ts` and talks to DeepSeek over HTTP, so
-neither telemetry table should move. Task 6's optional `lookup_entity`
-fact-check during the spot-read is the one exception; if it was used, the
-expected delta is one `query_log` row per lookup and the probe's failure output
-must be reconciled against the printed lookup count, not waved through. A
-larger unexplained delta means either something called a tool that should not
-have, or the concurrent oracle-web arc touched the twin -- check before
-proceeding.
+Expect `TELEMETRY_UNCHANGED` -- YES/NO, exit 0. **Phase 3 issues no MCP tool
+call at all, with no exception**: it reads `chat_threads` and `entities`
+through `shared/db.ts`, and talks to DeepSeek over HTTP. Task 6's `fix_tokens`
+fact-check is a plain SELECT against `entities`, not `lookup_entity`, precisely
+so this probe can be a strict equality rather than a reconciliation against a
+count nobody produces. (An earlier draft offered the MCP route as an option and
+then asked this probe to reconcile against a "printed lookup count" that no
+task emitted -- three mutually inconsistent statements across one doc.) Any
+delta therefore means either something called a tool that should not have, or
+the concurrent oracle-web arc touched the twin. Check which before proceeding;
+do not relax the probe.
 
 **8. Typecheck and the effective sample.**
 
@@ -995,10 +1390,21 @@ Phases 4-9 may rely on exactly these:
   on any violation, and it needs no database.
 - **`verify-manifest.ts`** -- **Phase 6 runs `--live` immediately before the
   bulk run** (E4). What it re-asserts is precisely: the manifest's frozen
-  `corpus_baseline` against the live corpus, and per selected thread its
-  presence, `thread_key`, content digest, `resolution_status = 'solved'` and
-  `channel_name = '#helpdesk'`. A failure there means records taken before and
-  after are not comparable; re-run the affected cells, do not reconcile (E4).
+  `corpus_baseline` against the live corpus, and for every thread in the
+  EFFECTIVE sample (the 500 the arc actually uses, i.e. selected minus rejected
+  plus promoted) its presence, `thread_key`, content digest,
+  `resolution_status = 'solved'` and `channel_name = '#helpdesk'`. A failure
+  there means records taken before and after are not comparable; re-run the
+  affected cells, do not reconcile (E4).
+- **The key quality that was and was NOT certified (F41).** The `spot_read`
+  block certifies the GLOBAL faithful rate within a stated OC curve (a
+  systematic 15% `thin` rate still passes ~20% of the time). **Per-domain key
+  quality is uncertified at every domain size** -- even the largest domain
+  escapes a half-bad key set 15.5% of the time under a 50-key read. Phase 8
+  must not cut key quality by domain, and **must report the headline twice,
+  over all keys and over `clear` keys only**; that second number is the only
+  cheap bound on the `thin` bias, which pushes every cell down and cell A least,
+  i.e. directly at the A-vs-C delta.
 - **`splitQuestion()`** (`eval/sim/split-question.ts`) -- available if a later
   phase needs a question from a thread outside the sample. Do NOT import
   `faq-gate-retrieve.ts` for this (F4).
@@ -1022,13 +1428,26 @@ Phases 4-9 may rely on exactly these:
    proportional quota already exceeds 12, so a tier-1-only floor is byte-for-byte
    identical to no floor at all, and the three domains that actually need
    protection (fonts 7.27, teamplay-comms 6.16, spectating 5.21) are tier-2 and
-   tier-3. Cost of the default: 7 threads moved, 1.4% of the sample. Overrule:
-   operator. Reading the floor literally is defensible -- it just means D4's
-   floor clause does nothing and the small domains report on 5-7 questions.
-2. **Floor value 8 vs 10.** Default: **8**, the bottom of D4's "~8-10", because
-   it is the value that redistributes least (7 threads vs 12 for floor 10) while
-   still binding on all three small domains. Floor 10 gives every small domain a
-   round 10 at the cost of one more thread off each of the four largest.
+   tier-3. Cost of the default, measured: **6 threads off 6 domains, 1.2% of the
+   sample** (hud, onboard-install, server-admin, performance, display,
+   weapon-scripts each lose one). Overrule: operator. Reading the floor
+   literally is defensible -- it just means D4's floor clause does nothing and
+   the small domains report on 5-7 questions each.
+2. **Floor value 8 vs 10.** Default: **8**, the bottom of D4's "~8-10". Both
+   options measured against the no-floor allocation, because this is the number
+   the choice actually turns on:
+
+   | | floor 8 (default) | floor 10 |
+   |---|---|---|
+   | threads moved | 6 | **14** |
+   | domains that lose a thread | 6 | **11** (hud, onboard-install and server-admin lose **two** each) |
+   | domains pinned at the floor | 3 (fonts, teamplay-comms, spectating) | **6** (+ server-browser, audio, binds-scripting) |
+   | smallest domain's n | 8 | 10 |
+
+   Floor 10 buys every small domain a round 10 and pulls three more domains up
+   to it, at more than double the redistribution and with the cost spread over
+   nearly half the table. (An earlier draft of this entry said "12 threads off
+   the four largest, pinning three", which was wrong on all three counts.)
    Overrule: operator.
 3. **Proportional base: live solved counts, or June cluster sizes.** Default:
    **live solved counts**. D5 predicts "40-65 questions in each large tier-1
@@ -1036,26 +1455,43 @@ Phases 4-9 may rely on exactly these:
    are the arithmetic F1 already proved wrong by 5%. Overrule: operator, but
    note this would reopen the spec amendment.
 4. **Leaky and keyless threads: reject-and-substitute, or trim the question.**
-   Default: **reject and substitute**, and state the narrowed population in the
-   manifest and the findings doc. Trimming edits a player's words to make a
-   measurement come out; substitution costs nothing here (the smallest domain
-   has 25 spare threads against an expected ~3% rejection rate). Overrule:
-   operator.
-5. **`key_quality: "weak"` keys: keep or drop.** Default: **keep, flagged**,
-   with Phase 8 reporting the headline over all keys and over `clear` keys
-   only. Dropping them biases the sample toward threads with tidy one-line
-   fixes -- the population where the oracle looks best. Overrule: operator, or a
-   Phase 5 pilot finding that the grader is unreliable on weak keys.
+   Default: **reject and substitute, with a looping walk**. Trimming edits a
+   player's words to make a measurement come out; substitution costs little here
+   (25 rejections measured on the real selection, smallest domain spare 25,
+   median 85.5). The looping part is not optional -- 3 of 25 single-shot
+   substitutes are themselves reject-class, so a non-looping design deadlocks at
+   Task 7. Overrule: operator on the reject-vs-trim choice; the loop is a
+   correctness requirement, not a preference.
+5. **`key_quality: "weak"` keys: keep or drop.** Default: **keep, flagged**.
+   Dropping them biases the sample toward threads with tidy one-line fixes --
+   the population where the oracle looks best. Note that the companion
+   `clear`-only headline is **no longer part of this option**: it is required of
+   Phase 8 regardless, because the gate's OC curve leaves a systematic `thin`
+   rate materially possible and that is the only cheap bound on it. Overrule:
+   operator, or a Phase 5 pilot finding that the grader is unreliable on weak
+   keys.
 6. **Era stratification.** Default: **none** -- D4 stratifies on domain alone,
    and the measured sample tracks the pool's era spread within 2.5 points
    everywhere, so stratifying would buy nothing. `era` is carried per record
    (E2) and Phase 8 cuts by it. Overrule: operator; it would be a spec
    amendment (E1).
-7. **Spot-read size, 40.** Default: **40 (8%), 24 coverage + 16 random**, gated
-   at `wrong == 0` and `faithful >= 36`. It is a tripwire for systematic
-   failure, not a precision estimate (+/-9 points at a true rate of 90%).
-   Overrule: operator -- a bigger read costs Claude time, not dollars, and the
-   coverage stratum is the part that must not shrink.
+7. **Spot-read size and threshold.** Default: **50 keys (10%), 34 coverage + 16
+   random**, gated at `wrong == 0` and `faithful >= 45/50`. The 34 is 24
+   one-per-domain plus a second key for each of the 10 domains with
+   `alloc <= 12`, which roughly halves those domains' escape rate (43.6% ->
+   18.6% against a half-bad key set) for ten extra reads. The 90% threshold was
+   chosen over a tighter 94%: 94% would cut a 15%-thin escape from 20.5% to
+   3.8%, but would also BLOCK an acceptable 5% rate 23% of the time, and a false
+   BLOCK costs a full 500-key re-run. The residual is handled by Phase 8's
+   required `clear`-only companion headline instead. Overrule: operator -- a
+   bigger read costs Claude time, not dollars, and the coverage stratum is the
+   part that must not shrink.
+7b. **Per-domain key certification is declined, not deferred (F41).** Default:
+   **declare it uncertified and say so in Phase 8**. Getting a small domain to
+   90% detection needs 3 of its 8 keys read at a 50%-bad rate and 4 of 8 at
+   25%; across 24 domains that is roughly 250 keys, a second job rather than a
+   spot-read. Overrule: operator, if per-domain key quality turns out to matter
+   enough to fund the read.
 8. **The seed string `oracle-eval-sim-2026-08-06`.** Default as stated,
    recorded in the manifest so the order is reproducible from the file. Any
    change re-draws the whole sample. Overrule: operator, before the freeze
@@ -1076,10 +1512,16 @@ Phases 4-9 may rely on exactly these:
   partial survival is NOT repairable by substitution, because the pool
   underneath changed.
 - **`freeze-sample.ts` refuses to run.** Working as designed -- the manifest
-  exists and E4 says it is written once. If you genuinely need a new sample
-  (a spec amendment changed N, the floor, or the seed), write it to a NEW path
-  and amend this doc; do not `--force` over the committed one, because every
-  record already taken references it by digest.
+  exists and E4 says it is written once. Two cases, and they are not the same:
+  - **`sample-keys.json` does NOT exist yet.** `--force` is **legitimate**.
+    Nothing references the manifest, no key and no record has been taken
+    against it, and re-freezing costs one script run. This is the normal path
+    when Task 3's own verification probe (or Task 4's checker) finds a defect
+    in the first freeze. Do not go build a new path for this.
+  - **`sample-keys.json` exists.** Now `--force` is destructive: keys are bound
+    to `manifest_sha256`, so a re-freeze orphans every key and any record taken
+    since. If you genuinely need a different sample (a spec amendment changed
+    N, the floor, or the seed), write it to a NEW path and amend this doc.
 - **`verify-manifest.ts` fails the rank-pin diff.** The derived rank -> domain
   assignment moved. Check the tie groups first (F27): sizes 157, 119, 89, 79
   and 51 each straddle a domain boundary, and the 89 tie straddles the NOISE
@@ -1106,30 +1548,66 @@ Phases 4-9 may rely on exactly these:
   because mixing keys from two prompts makes `prompt_sha256` false and the
   spot-read ungeneralisable.
 - **The spot-read gate BLOCKS.** That is the gate working. Revise
-  `key-prompt.ts`, delete the JSONL, re-run Task 5 over all 500, re-run Task 6.
-  Do not hand-patch the failing keys: hand-patched keys were not produced by the
-  pinned prompt, so the 40-key read no longer says anything about the other 460.
-  A `wrong` verdict specifically means the extractor asserted a fix the thread
-  does not contain -- look for the prompt's "never add knowledge from outside
-  the thread" rule being overridden by the model's own QuakeWorld knowledge, and
-  tighten it before re-running.
+  `key-prompt.ts`, delete the JSONL, re-run Task 5 over all 500, re-run Task 6
+  from step 1. Do not hand-patch the failing keys: hand-patched keys were not
+  produced by the pinned prompt, so the 50-key read no longer says anything
+  about the other 450. A `wrong` verdict specifically means the extractor
+  asserted a fix the thread does not contain -- look for the prompt's "never add
+  knowledge from outside the thread" rule being overridden by the model's own
+  QuakeWorld knowledge, and tighten it before re-running.
+- **`reviewer_agreement` is low while `faithful` is high.** The reviewer wrote
+  one fix blind and then rated a different fix `faithful`. That is the
+  anchoring failure the two-pass order exists to expose, and it means the
+  compare pass is rationalising rather than comparing. Do not take the gate's
+  PASS: re-read the disagreeing keys with the blind lines in front of you, and
+  bring them to the operator's five.
+- **A promoted substitute is itself reject-class.** Expected -- measured at 3
+  of 25 on the real selection, with a deepest clean walk of 7 past `alloc`
+  (hud). The walk continues; record the candidate in `rejected` with
+  `from_walk: true` and keep going. If your implementation stopped instead,
+  it took the single-shot design this doc explicitly rejects, and Task 7 will
+  deadlock on an empty `truth`.
 - **A domain runs out of substitutes.** Cannot happen at today's numbers (the
-  smallest spare is spectating's 25 against an expected 0-1 rejections in a
-  domain of 8), but if it does: the walk down `order[domain]` has exhausted the
-  domain's live solved pool, which means the rejection rate in that domain is
-  above 75%. That is not a substitution problem, it is a signal that the
-  domain's threads are systematically unusable -- record it as a finding, drop
-  the domain's allocation to what it can supply, and take the operator's call on
-  whether to redistribute or to report the domain at reduced N.
+  smallest spare is spectating's 25 against 2 measured rejections in a domain of
+  8), but if it does: the walk down `order[domain]` has exhausted the domain's
+  live solved pool, which means the rejection rate in that domain is above 75%.
+  That is not a substitution problem, it is a signal that the domain's threads
+  are systematically unusable -- record it as a finding, drop the domain's
+  allocation to what it can supply (recording `floored: 'pool-exhausted'` and
+  acknowledging it), and take the operator's call on whether to redistribute or
+  to report the domain at reduced N.
+- **Permanent extraction failures.** A thread the client could not answer after
+  every retry is recorded as `{thread_id, error}` plus a `rejected` entry with
+  `reason: "extraction_failed"`, and is substituted like any other reject. If
+  the count is more than a handful (the probe blocks above 25), the cause is the
+  client, the quota, or the API -- not the data. Stop, diagnose, and re-run;
+  substituting around a systemic client failure would quietly replace a random
+  slice of the sample with its successors.
 - **Phase 2's DeepSeek client is not ready when Task 5 comes up.** Stop Task 5
-  and route a finding. Do not write a second client: two clients means two
-  pricing tables (E10's dollar total stops being one number), two retry
-  postures, and a silent divergence between how keys were extracted and how
-  answers were generated.
+  and route a finding. Do not write a second client: two clients means two retry
+  postures, two cost stories (E10's dollar total stops being one number), and a
+  silent divergence between how keys were extracted and how answers were
+  generated. Note specifically that this phase does NOT need a pricing helper --
+  it sums the `cost_usd` the client reports per call. If that field is absent,
+  that is a finding for Phase 2, not a licence to build a local pricing table.
 - **`bun run typecheck` red after Task 2.** The import of
   `faq-domains-resolve.ts` pulled `scripts/calibration/**` into the tsc program
-  (the flip side of F13). That file compiled clean at drafting time under the
-  repo's real options, so a failure means it changed -- check `git diff` on it
-  before touching anything else. Do not "fix" it in place (E12/E14: findings are
-  routed, not fixed in-arc); if it genuinely needs a fix, that is a finding for
-  HANDOVER and this phase reads the frame through a local shim instead.
+  (the flip side of F13). That file compiled clean under the repo's real options
+  at drafting AND revision time (see the exact command in Inputs), so a failure
+  means either that file changed -- check `git diff` on it first -- or that the
+  out-of-worktree evidence did not transfer. Do not "fix" it in place (E12/E14:
+  findings are routed, not fixed in-arc). **Escape hatch:** copy nothing and
+  edit nothing; instead have `frame.ts` read `faq-clusters.json` directly with
+  `readFileSync` and carry its own local copy of the 48-entry `R` rank -> domain
+  map, sourced from the manifest's committed `rank_pin` rather than re-derived.
+  That keeps `scripts/calibration/**` out of the tsc program entirely, costs one
+  small duplicated constant, and is strictly safer than the import for the
+  narrow purpose of a frozen manifest -- the pin is data by then, and E12's "no
+  copying" rule is about behaviour, not about a table this doc already prints.
+  Record it as a finding either way.
+- **Re-deriving a tie-flip consequence and getting a smaller number than F27
+  says.** Check the denominator: solved status must be resolved over all
+  **5,028** frame ids, not the 4,456 non-NOISE ones. The NOISE-side cluster of
+  the 89-tie holds 26 live solved threads that are invisible in a non-NOISE
+  dataset, and omitting them understates the swing by roughly 60% (F42). My own
+  first re-derivation made exactly this mistake and reported -70 instead of -44.
