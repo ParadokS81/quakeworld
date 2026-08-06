@@ -88,8 +88,22 @@ MD5_2=$(jq -r '.threadKeyMd5' /tmp/v2-$$.json)
 TOT_2=$(jq -r '.GLOBAL.total' /tmp/v2-$$.json)
 echo "second load: threads=$(jq -r '.threads' /tmp/v2-$$.json) md5=$MD5_2 global=$TOT_2"
 
+# R5's real assertion is DELETE-scope-then-INSERT replaced rather than duplicated,
+# and that is proven BATCH-SCOPED: same thread count, same thread_key set.
 [ "$MD5_1" = "$MD5_2" ] || die "R5 VIOLATION: thread_key set changed across identical loads"
-[ "$TOT_1" = "$TOT_2" ] || die "R5 VIOLATION: global thread count moved ($TOT_1 -> $TOT_2) -- duplication"
+[ "$(jq -r '.threads' /tmp/v1-$$.json)" = "$(jq -r '.threads' /tmp/v2-$$.json)" ] \
+  || die "R5 VIOLATION: batch thread count changed across identical loads"
+
+# GLOBAL total is NOT a safe equality check when batches run in parallel -- another
+# batch loading between the two re-runs moves it legitimately (2026-08-06:
+# #helpdesk-2026 landed mid-check and shifted 40065 -> 40214, a false HALT on a
+# batch whose own md5 was identical). Report it, do not gate on it. The
+# concurrency-safe global invariant is duplicate thread_keys, checked below.
+if [ "$TOT_1" != "$TOT_2" ]; then
+  echo "note: global total moved $TOT_1 -> $TOT_2 during the re-run (expected when batches run in parallel; batch scope verified identical above)"
+fi
+DUPKEYS=$(bun scripts/load-chat/verify-batch.ts "$CHANNEL" "$YEAR" 2>/dev/null | jq -r '.GLOBAL.duplicateThreadKeys // 0')
+[ "$DUPKEYS" = "0" ] || die "R5 VIOLATION: $DUPKEYS duplicate thread_key(s) globally"
 
 NULLEMB=$(jq -r '.GLOBAL.nullEmb' /tmp/v2-$$.json)
 BADKEY=$(jq -r '.GLOBAL.nonYearScopedV2Keys' /tmp/v2-$$.json)

@@ -39,6 +39,8 @@ const byVer = await db`SELECT reconstruction_version v, count(*)::int n FROM cha
 const globalEmb = await db<{ nullemb: number; stale: number }[]>`
   SELECT count(*) FILTER (WHERE topic_embedding IS NULL)::int nullemb,
          count(*) FILTER (WHERE embedding_stale)::int stale FROM chat_threads`;
+const dupKeys = await db<{ n: number }[]>`
+  SELECT count(*)::int n FROM (SELECT thread_key FROM chat_threads GROUP BY 1 HAVING count(*) > 1) x`;
 const badKeys = await db<{ n: number }[]>`
   SELECT count(*)::int n FROM chat_threads
   WHERE reconstruction_version = 'fence-sonnet-v2' AND thread_key !~ '-[0-9]{4}-[0-9]{3}:'`;
@@ -61,6 +63,7 @@ console.log(JSON.stringify({
     nullEmb: globalEmb[0]!.nullemb,
     staleEmb: globalEmb[0]!.stale,
     nonYearScopedV2Keys: badKeys[0]!.n,
+    duplicateThreadKeys: dupKeys[0]!.n,
   },
   census,
 }, null, 2));

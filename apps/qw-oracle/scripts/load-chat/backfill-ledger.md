@@ -111,7 +111,7 @@ validation slice.
 | [x] | 2023 | 18,533 | 146 | 0 | -- loaded 2026-06-09 (session 3), 1220 threads (CONC=10 clean)
 | [x] | 2024 | 12,410 | 193 | 0 | -- loaded 2026-06-09 (session 3), 1025 threads (CONC=10 clean)
 | [x] | 2025 | 11,433 | 179 | 0 | -- loaded 2026-06-09 (session 4), 929 threads (CONC=10 clean); #helpdesk now 7/7
-| [x] | 2026 | 5,400 | 61 | 1 | -- BATCH-1 (D7 binding gate); loaded 2026-06-08, 373 threads
+| [x] | 2026 | 8,019 | 106 | 1 | -- RE-FENCED 2026-08-06 after catch-up (was 5,400/61/373 Sonnet golden); 522 threads, 99.48% coverage
 
 ### #quakeworld (849 agents, 11 batches)
 
@@ -127,7 +127,7 @@ validation slice.
 | [x] | 2023 | 20,006 | 108 | 1 | -- loaded 2026-08-05 (session 5), 1486 threads, 99.92% coverage (refence 1/1)
 | [x] | 2024 | 27,722 | 81 | 4 | -- loaded 2026-08-05 (session 5), 1570 threads, 99.13% coverage (refence 5/5)
 | [x] | 2025 | 27,199 | 100 | 4 | -- loaded 2026-08-05 (session 5), 1678 threads, 99.32% coverage (refence 1/1)
-| [ ] | 2026 | 8,829 | 28 | 0 |
+| [x] | 2026 | 14,619 | 52 | 0 | -- loaded 2026-08-06 post-catch-up, 919 threads, 99.87% coverage
 
 ### #dev-corner (1,560 agents, 11 batches)
 
@@ -143,7 +143,7 @@ validation slice.
 | [x] | 2023 | 11,603 | 173 | 0 | -- loaded 2026-08-06 (session 5), 784 threads, **100.00% coverage** (refence no-op)
 | [x] | 2024 | 16,201 | 151 | 0 | -- loaded 2026-08-06 (session 5), 848 threads, 99.99% coverage (refence no-op)
 | [x] | 2025 | 19,287 | 130 | 1 | -- loaded 2026-08-06 (session 5), 909 threads, 99.96% coverage (refence no-op)
-| [ ] | 2026 | 4,601 | 54 | 0 |
+| [x] | 2026 | 6,496 | 94 | 0 | -- loaded 2026-08-06 post-catch-up, 504 threads, **100.00% coverage**
 
 ### #antilag (382 agents, 6 batches)
 
@@ -154,7 +154,7 @@ validation slice.
 | [x] | 2023 | 1,613 | 56 | 0 | -- loaded 2026-08-06 (session 5), 111 threads, **100.00% coverage** (refence no-op)
 | [x] | 2024 | 2,745 | 73 | 0 | -- loaded 2026-08-06 (session 5), 164 threads, 99.96% coverage (refence no-op)
 | [x] | 2025 | 1,877 | 63 | 0 | -- loaded 2026-08-06 (session 5), 136 threads, **100.00% coverage** (refence no-op)
-| [x] | 2026 | 1,029 | 21 | 0 | -- PREP validation slice (loaded 2026-06-06)
+| [x] | 2026 | 2,559 | 44 | 0 | -- RE-FENCED 2026-08-06 after catch-up (was 1,029/21/67 prep slice); 111 threads, **100.00% coverage**
 
 ## Totals
 
@@ -164,7 +164,7 @@ validation slice.
 | #quakeworld | 11 | 849 |
 | #dev-corner | 11 | 1,560 |
 | #antilag | 6 | 382 |
-| **TOTAL** | **35** | **3,796** |
+| **TOTAL** | **35** | **3,928** | (post-catch-up 2026-08-06; was 3,796 pre-catch-up)
 
 (Note: sparse/bursty channels are agent-dense -- #dev-corner has the most agents
 despite far fewer messages than #quakeworld, because frequent 12h lulls cut it
@@ -828,6 +828,64 @@ not "plateau". This also means the "tail-recovery sweep" note above is UNDERSTAT
 sitting at 89-96% after one pass are probably not near their limit either.
 
 DB state after #antilag: chat_threads = **38598**, all v2. **#antilag 6/6.**
+
+### Session 6 -- 2026-08-06 (catch-up finish-out; CORPUS COMPLETE)
+
+The harvest seam's first real exercise. Ingestion had landed 12,265 raw messages on 2026-08-05
+but `build-sessions.ts` had not re-run since 2026-05-02, so they carried no `message_labels` and
+were invisible to `pullMsgs` -- `count-all` returned byte-identical totals with the new data
+sitting in the DB. **A corpus import is not corpus availability; segmentation is the gate.**
+
+**Sequence run:** `build-sessions.ts --force` (741,128 labeled, 0 unlabeled, 88,472 sessions,
+42s) -> `build-session-references.ts` -> `build-search-index.ts` (19.8s) -> `count-all` ->
+4 current-year batches. `chat_threads` was UNAFFECTED by the label truncate (threads reference
+message ids, not labels) -- verified 38,598 before and after.
+
+**Counts after labelling: every historical year byte-identical; only 2026 moved.** Corpus
+693,706 -> **705,540** msgs, 3,796 -> **3,928** chunks.
+
+| batch | msgs | chunks | threads | coverage | note |
+|---|---|---|---|---|---|
+| #helpdesk 2026 | 5,400 -> 8,019 | 61 -> 106 | 373 -> **522** | 99.48% | refence 1/1 (-019 67.7% -> 97.2%, +443 msgs) |
+| #quakeworld 2026 | 8,829 -> 14,619 | 28 -> 52 | **919** | 99.87% | first load |
+| #dev-corner 2026 | 4,601 -> 6,496 | 54 -> 94 | **504** | **100.00%** | first load |
+| #antilag 2026 | 1,029 -> 2,559 | 21 -> 44 | 67 -> **111** | **100.00%** | replaced the June prep slice |
+
+All 0% hallucination, 0 OOB / 0 missing / 0 stale, 0 duplicate thread_keys. **Retrieval: PASS on
+content that did not exist in the corpus yesterday** -- "antilag 1 fairness debate double
+rockets" returns its 562-msg 2026-07-30 #antilag thread as top hit; "QuakeWorld performance on
+Linux/Wayland" returns its 195-msg 2026-05-09 #helpdesk thread.
+
+**DB state: chat_threads = 40,214, all v2, corpus current through 2026-08-05. 35/35 batches.**
+
+> **THE GOLDEN IS GONE FROM THE DB -- preserved as a file.** #helpdesk-2026 was the only Sonnet
+> fencing left and the baseline the contract-worker spike diffed against; the catch-up grew it
+> 5,400 -> 8,019 msgs so it had to be re-fenced on DeepSeek. `fence-external.ts diff` rebuilds
+> golden FROM THE DB, so that comparison is no longer reproducible live. Exported first to
+> `scripts/calibration/golden/helpdesk-2026-fence-sonnet-v2.json` (373 threads / 5,398 junction
+> rows / 0 unmapped, byte-exact to the June record), carrying BOTH `member_indices` (valid only
+> for the June chunk composition, also recorded) and stable `message_ids`. Spike artifacts in the
+> batch dir renamed `SPIKE-2026-08-05.*`.
+
+> **`--resume` MATCHED ON CHUNK ID AND WOULD HAVE CORRUPTED THE RE-FENCE.** Chunk ids are
+> positional, so the re-prepped #helpdesk-2026 reused ids `helpdesk-2026-001..061` for entirely
+> different message sets (61 -> 106 chunks). The driver runs `--resume`, which would have carried
+> 61 stale spike-era chunks into the new batch, their `member_indices` addressing the OLD
+> messages. **No gate could see it**: indices all in range (0% hallucination) and coverage counts
+> them as placed. Third instance of this session's recurring shape -- wrongness that leaves the
+> aggregate intact. Fixed: fence output records a `manifestFingerprint` (md5 over
+> `id:messageCount` pairs) and `--resume` REFUSES on mismatch, including when the prior output
+> predates the field. Verified against the live hazard before relying on it.
+
+> **The driver's global-total idempotency check was a FALSE POSITIVE under parallel batches.**
+> #quakeworld-2026 HALTED on "global thread count moved 40065 -> 40214 -- duplication" while its
+> OWN md5 and thread count were identical across both loads. Cause: #helpdesk-2026 finished
+> loading between the two re-runs (+522 new, -373 old = +149). The check was written when batches
+> ran serially and silently became invalid when this session started running 2-4 in parallel --
+> **an execution-model change that invalidated an assumption nobody revisited.** Fixed: R5 now
+> gates on the BATCH-SCOPED thread count + thread_key md5 (which is what R5 actually asserts),
+> reports the global delta as a note, and adds a concurrency-safe global invariant (0 duplicate
+> `thread_key`s).
 
 > **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
 > 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
