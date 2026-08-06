@@ -254,6 +254,86 @@ is not set`. It works only when invoked from `apps/qw-oracle/`. Disposition:
 Phase 1's stdio probe sets `cwd` and `env` explicitly rather than copying the
 broken pattern; the existing script is left alone (route to HANDOVER).
 
+## Findings from the Phase 3 independent checker (2026-08-06)
+
+Numbered F32-F36. The checker re-derived the phase's two hardest claims from
+scratch rather than verifying them, and **both held exactly**: the 24-row
+allocation table reproduces line for line (sum 500, 3 domains pinned), and the
+seeded 500-id selection is reproducible from the doc's prose alone with
+`node:crypto` -- content total matched to the character. The defects are in the
+narrative around those numbers, in one broken repair path, and in the gate's
+advertised power.
+
+**F32 (MAJOR -- corrects a RATIFIED spec amendment, and an orchestrator error)
+-- the all-24 floor costs 6 threads off 6 domains, not 7 off 3.** Evidence: the
+checker computed the no-floor baseline independently with the same
+largest-remainder rule. Deltas are hud 64->63, onboard-install 50->49,
+server-admin 49->48, performance 28->27, display 22->21, weapon-scripts 17->16;
+fonts 7->8, teamplay-comms 6->8, spectating 5->8. Six threads, 1.2% of N. The
+same error runs through the phase doc's Open question 2: floor 10 costs **14**
+threads off **eleven** domains and pins **six**, not "12 off the four largest,
+pinning three" -- and that is the exact figure an operator would use to choose 8
+versus 10. Disposition: dated corrections applied to spec D4's amendment, to
+F28 above, and to the phase doc. **The ruling stands unchanged.** Recorded as
+an orchestrator error, not just a drafter one: the figure was re-worded into
+the spec instead of re-derived, which is the specific failure the "amendments
+re-derive, never re-word" rule exists to prevent. It reached a ratified
+document and was caught only because a checker recomputed rather than read.
+
+**F33 (MAJOR) -- substitution cannot repair itself, and the probe forbids the
+fix.** Evidence: applying the doc's own reject screen (empty `rest` union leak
+regex) to the real selected 500 gives **25 reject-class rows**; walking each
+domain's frozen order upward from `alloc`, **3 of the next-in-line substitutes
+are themselves reject-class** (deepest walk 7 past `alloc`). The doc promotes
+"the first id not already selected and not already promoted" without ever
+screening the promotion. Downstream, `loadEffectiveSample()` throws on an empty
+`truth`, so the phase deadlocks at its last task with no Recovery entry. And
+the Task 6 probe asserts `substitutions.length === rejected.length` -- exactly
+the invariant a re-substitution loop breaks, so the probe would fail the
+correct fix. Disposition: make substitution a loop, record rejected promotions,
+restate the probe against per-domain counts.
+
+**F34 (MAJOR) -- the sample manifest is committed upstream of its own
+verifier.** Evidence: Task 3 writes AND commits `sample-manifest.json`; Task 4
+then builds `verify-manifest.ts`. If the verifier finds a defect, the freeze
+script "refuses to run" and Recovery forbids `--force` "because every record
+already taken references it by digest" -- but at that moment **zero records
+exist** and re-freezing is harmless. The topology is acyclic and dispatchable
+(that part is clean); this is about WHEN the commit lands. Disposition: write,
+verify, then commit; and Recovery states `--force` is legitimate while
+`sample-keys.json` does not yet exist.
+
+**F35 (MAJOR) -- the key spot-read gate's power is overstated, and its blind
+spot is exactly the domains the floor was added to protect.** The key is the
+answer sheet for the whole eval and no later gate re-derives it, so this gate's
+real power matters. Measured: (a) the doc's justification that "a purely random
+40 would miss a per-domain systematic failure two times in three" is **1.48%**
+for the domain named, off by ~45x; (b) the actual hole is a `thin`-absorbed
+defect -- the gate tolerates 4 non-`faithful` of 40, so a **systematic 15% thin
+rate (75 of 500 keys vague where the thread was specific) passes 26% of the
+time**, and by the doc's own reasoning that class biases every cell downward
+while biasing cell A least, attacking the arc's headline A-vs-C delta
+directly; (c) a floored 8-thread domain contributes ~1.24 read keys, so a
+domain with **half its keys wrong escapes 42.5% of the time** -- and Phase 8
+reports those domains at n=8. Disposition: state the measured power honestly,
+and either raise the coverage stratum for small domains or declare per-domain
+key quality uncertified below ~48 threads.
+
+**F36 (minor) -- reviewer anchoring, plus measurement-hygiene slips.** The
+spot-read has Claude read "the key alongside the thread" -- key first, then hunt
+for support, which fails toward rating `thin` as `faithful`, the class that
+survives the gate. And the operator's 5 are drawn only from keys Claude already
+flagged plus coverage keys Claude passed, so a systematically lenient reviewer
+cannot be discovered from that sample. Fix: reviewer writes its own one-line
+fix from the thread BEFORE seeing the key, then compares; the operator's slice
+includes at least 2 drawn seed-deterministically regardless of verdict.
+Hygiene slips in the same doc: leak-regex count is 88, not 89 (possibly
+contaminated by the 89 tie-group size in F27); content total quoted in JS
+UTF-16 length while the max is quoted in Postgres `length()` in the same
+sentence, against a truncation threshold applied in TypeScript; F29's 2020
+chunk range is 1-55 threads per chunk, not 1-14 (which strengthens F29's own
+conclusion); manifest size is ~411 KB, not ~25 KB.
+
 ## Findings from Phase 3 drafting (2026-08-06)
 
 Numbered F27-F31. The drafter emitted these as F23-F27 in parallel with Phase
@@ -283,10 +363,18 @@ only` and `no floor at all` produce **byte-identical** allocations. The three
 domains that actually ride near the bottom -- fonts (8), teamplay-comms (8),
 spectating (8) -- are tier-2/tier-3, precisely the ones the floor was meant to
 protect from riding on two data points. Disposition: extend the floor to all 24
-non-NOISE domains. Costs 7 threads (1.4% of N) taken from the largest domains,
-preserves D4's stated intent exactly, and makes the floor do the job it was
-written for. Recorded as a dated amendment to spec D4; operator-overrulable at
-intent review.
+non-NOISE domains, preserving D4's stated intent exactly and making the floor
+do the job it was written for. Recorded as a dated amendment to spec D4;
+operator-overrulable at intent review.
+
+**Cost figure CORRECTED 2026-08-06 (F32).** This entry originally said "7
+threads (1.4% of N) taken from the largest domains". Wrong: the floor costs
+**6 threads (1.2%) off SIX domains** -- hud 64->63, onboard-install 50->49,
+server-admin 49->48, performance 28->27, display 22->21, weapon-scripts
+17->16, with fonts 7->8, teamplay-comms 6->8, spectating 5->8. The ruling is
+unchanged and slightly cheaper than claimed. The error propagated from the
+drafter's table into this ledger AND into the ratified spec amendment because
+the orchestrator re-worded it instead of re-deriving it -- see F32.
 
 **F29 (minor) -- `thread_key` stability across a re-fence is plausible but
 unproven.** Evidence: `thread_key` is `channel:version:chunk_id:thread_index`,

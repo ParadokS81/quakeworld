@@ -144,6 +144,22 @@ rounding; the headline's interpretation as "share of real player traffic
 handled" is unaffected at that magnitude. D4's intent is preserved, not
 changed. Evidence: arc plan `review-findings.md` F28.
 
+> **Correction 2026-08-06 (Phase 3 independent checker, F32) -- the cost figure
+> above is wrong.** The floor costs **6 threads (1.2% of N), taken off SIX
+> domains**, not 7 off three. Re-derived from live per-domain solved counts by
+> a checker that computed the no-floor baseline independently rather than
+> verifying the drafter's table: hud 64->63, onboard-install 50->49,
+> server-admin 49->48, performance 28->27, display 22->21, weapon-scripts
+> 17->16; the three protected domains rise fonts 7->8, teamplay-comms 6->8,
+> spectating 5->8. The ruling (extend the floor to all 24 non-NOISE domains)
+> is UNCHANGED and if anything cheaper than stated; only the arithmetic moves.
+> Recorded as a correction rather than an edit because this figure was already
+> ratified into the spec -- the orchestrator propagated the drafter's number
+> without re-deriving it, which is precisely the "amendments re-derive, never
+> re-word" failure the planning discipline warns about. The floor-10
+> alternative in the phase doc's Open question 2 was wrong the same way: it
+> costs 14 threads off 11 domains and pins 6 domains, not 12 off 4 pinning 3.
+
 **Amendment 2026-08-06 (arc-plan verification sweep) -- D4/D5 pool figures
 corrected to live counts.** The "3,324 solved non-noise pool" in D5 and the
 "~2% coverage cost" in D4 were June arithmetic (`size - unresolved` summed over
