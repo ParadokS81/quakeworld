@@ -135,7 +135,7 @@ validation slice.
 |---|---|---|---|---|
 | [x] | 2016 | 10,492 | 114 | 0 | -- loaded 2026-08-05 (session 5), 660 threads, 99.97% coverage (best of any batch)
 | [x] | 2017 | 41,605 | 141 | 5 | -- loaded 2026-08-05 (session 5), 1558 threads, 99.68% coverage (refence 2/2)
-| [ ] | 2018 | 30,266 | 129 | 5 |
+| [x] | 2018 | 30,266 | 129 | 5 | -- loaded 2026-08-06 (session 5), 1389 threads, 99.68% coverage (refence 2/2)
 | [x] | 2019 | 18,359 | 177 | 0 | -- loaded 2026-08-06 (session 5), 1050 threads, 99.98% coverage (refence no-op)
 | [ ] | 2020 | 20,689 | 146 | 1 |
 | [x] | 2021 | 11,244 | 182 | 0 | -- loaded 2026-08-06 (session 5), 744 threads, 99.88% coverage (refence no-op)
@@ -732,6 +732,17 @@ solved / 172 unresolved / 268 informational / 25 none. **Idempotency (R5): PASS*
 false diffs" 150 msgs; "ezQuake input latency spikes and Reflex analyzer" 146 msgs, both solved).
 
 DB state after #dev-corner 2021: chat_threads = **31856**, all v2. **#dev-corner 4/11.**
+
+**Batch #dev-corner 2018 -- LOADED, verified.** 129 chunks, 5 forced. Fence **129/129,
+failures=0, wall 63.2 min at CONC=30** (one transient invalid-JSON on -033, recovered by the
+retry pass). Refence 2/2 (-043: 77.8% -> 100.0%; -107: 94.8% -> 96.9%). Gate: **0%
+hallucination / 99.68% coverage**. Load: 1389 threads, 30,173 junction rows (30,170 DISTINCT,
+3 R8 m2m), 0 OOB / 0 missing / 0 stale. resolution 494 solved / 297 unresolved / 572
+informational / 26 none. **Idempotency (R5): PASS**. **Retrieval: PASS** -- "ezquake on Ubuntu
+18.04: libpcre, 4k freeze, compositor, RJ timing" returns its 2018 thread as top hit (299 msgs,
+solved).
+
+DB state after #dev-corner 2018: chat_threads = **33245**, all v2. **#dev-corner 5/11.**
 
 > **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
 > 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
