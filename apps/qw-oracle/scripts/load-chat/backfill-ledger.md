@@ -149,7 +149,7 @@ validation slice.
 
 | done | year | msgs | agents | forced |
 |---|---|---|---|---|
-| [ ] | 2021 | 8,932 | 73 | 2 |
+| [x] | 2021 | 8,932 | 73 | 2 | -- loaded 2026-08-06 (session 5), 293 threads, 99.97% coverage; -002 needed 4 realizations (partition fix, see note)
 | [x] | 2022 | 3,191 | 96 | 0 | -- loaded 2026-08-06 (session 5), 195 threads, **100.00% coverage** (refence no-op)
 | [x] | 2023 | 1,613 | 56 | 0 | -- loaded 2026-08-06 (session 5), 111 threads, **100.00% coverage** (refence no-op)
 | [x] | 2024 | 2,745 | 73 | 0 | -- loaded 2026-08-06 (session 5), 164 threads, 99.96% coverage (refence no-op)
@@ -794,6 +794,40 @@ hit (122 msgs, solved); data verified healthy (848 threads, 0 null/stale) after 
 missed (see the ranking note below).
 
 DB state after #dev-corner 2024: chat_threads = **37699**, all v2. **#dev-corner 10/11.**
+
+**#antilag -- ALL 5 REMAINING BATCHES LOADED, verified (2026-08-06).** The cheap tail, and it
+behaved like the light years throughout.
+
+| year | chunks | threads | coverage | notes |
+|---|---|---|---|---|
+| 2021 | 73 (2 forced) | 293 | 99.97% | -002 needed FOUR realizations -- see below |
+| 2022 | 96 | 195 | **100.00%** | refence no-op |
+| 2023 | 56 | 111 | **100.00%** | refence no-op |
+| 2024 | 73 | 164 | 99.96% | refence no-op |
+| 2025 | 63 | 136 | **100.00%** | refence no-op |
+
+All 0% hallucination, all idempotent (R5 PASS), 0 OOB / 0 missing / 0 stale / 0 truncations.
+**Retrieval: PASS** -- "antilag telefrag incident and pack drop paradox" returns its 2021
+#antilag thread as top hit (179 msgs, solved).
+
+**#antilag-2021-002: four realizations, and why two of them fooled me.** This 1500-msg forced
+chunk (one continuous dense netcode conversation) produced, in order:
+1. **99.8% coverage, DUP 1630** -- passed BOTH gates, was loaded, and was not a partition.
+2. **90.9% / 90.7%** on the coverage-driven retries -- I read two adjacent samples as a plateau
+   and wrote that the chunk was at its ceiling. It was not.
+3. **90.1%, DUP 0** -- the dup-aware ranking correctly preferred a clean partition over the
+   duplicated 99.8%. I then wrote that clean-partition and coverage were in genuine tension for
+   this chunk. Also wrong.
+4. **100.0%, DUP 2** -- clean AND complete. The reload improved BOTH axes vs realization 1:
+   junction rows 10,559 -> 8,934 (1,625 duplicates gone) while distinct messages covered went
+   8,926 -> 8,929.
+
+**Lesson: with run-to-run variance this wide, two samples establish nothing.** Twice this
+session an adjacent pair looked like a ceiling and the next draw disproved it. Say "unknown",
+not "plateau". This also means the "tail-recovery sweep" note above is UNDERSTATED -- chunks
+sitting at 89-96% after one pass are probably not near their limit either.
+
+DB state after #antilag: chat_threads = **38598**, all v2. **#antilag 6/6.**
 
 > **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
 > 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
