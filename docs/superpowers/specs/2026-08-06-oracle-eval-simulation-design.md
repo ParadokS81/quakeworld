@@ -130,6 +130,20 @@ spot-check and browsing burden, which scales linearly with N. Targeted
 follow-up runs on the same harness are the answer to "interesting domain,
 want more data" -- not a bigger N up front.
 
+**Amendment 2026-08-06 (arc-plan, Phase 3 drafting) -- D4's floor extends to
+ALL 24 non-NOISE domains, not tier-1 only.** As written the floor reads "~8-10
+threads minimum for tier-1 domains". Computed against live per-domain solved
+counts, that floor is **inert**: every tier-1 domain's proportional quota
+already exceeds 12, so "floor 8 on tier-1 only" and "no floor at all" produce
+byte-identical allocations. The domains that actually ride at the bottom are
+fonts, teamplay-comms and spectating -- all tier-2/tier-3, and exactly the ones
+D4's rationale ("no important domain rides on two data points") was written to
+protect. The floor therefore applies to all 24 non-NOISE domains. Cost: 7
+threads (1.4% of N=500), taken from the largest domains via largest-remainder
+rounding; the headline's interpretation as "share of real player traffic
+handled" is unaffected at that magnitude. D4's intent is preserved, not
+changed. Evidence: arc plan `review-findings.md` F28.
+
 **Amendment 2026-08-06 (arc-plan verification sweep) -- D4/D5 pool figures
 corrected to live counts.** The "3,324 solved non-noise pool" in D5 and the
 "~2% coverage cost" in D4 were June arithmetic (`size - unresolved` summed over

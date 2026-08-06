@@ -7,14 +7,14 @@ review + arc-end cold review).
 (D1-D11, DESIGN COMPLETE 2026-08-06).
 **Parent:** `docs/superpowers/parking/2026-08-06-oracle-eval-simulation.md`.
 **Ledger:** `decisions.md` (E1-E14). **Findings:** `review-findings.md`
-(F1-F22; F1-F16 from the pre-draft sweep, F17-F22 from Phase 1 drafting and
-its checker -- all before a line of code exists).
+(F1-F31; F1-F16 pre-draft sweep, F17-F22 Phase 1 + checker, F23-F26 Phase 2,
+F27-F31 Phase 3 -- all before a line of code exists).
 
 ## Where we are right now
 
 - **Stage:** planning -- scaffold committed; slicing RATIFIED by the operator
   2026-08-06 (7 phases -> 9, splitting answering/grading and
-  analysis/showcase); Phase 1 doc drafted, checked, revised, LANDED
+  analysis/showcase); phases 1-3 drafted (1 checked+revised+landed; 2 and 3 awaiting checkers)
 - **Last action:** Phase 1 independent checker returned 19 defects (6 MAJOR) and
   re-derived F17 with worse numbers than the draft; routed back to the original
   drafter as a continuation, ledger-side fixes applied here (E2, E7, E8

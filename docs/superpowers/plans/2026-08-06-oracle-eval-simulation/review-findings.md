@@ -254,6 +254,122 @@ is not set`. It works only when invoked from `apps/qw-oracle/`. Disposition:
 Phase 1's stdio probe sets `cwd` and `env` explicitly rather than copying the
 broken pattern; the existing script is left alone (route to HANDOVER).
 
+## Findings from Phase 3 drafting (2026-08-06)
+
+Numbered F27-F31. The drafter emitted these as F23-F27 in parallel with Phase
+2's identically-numbered set; renumbered here and in the phase doc (verified:
+7/2/1/1/4 references moved, no collision with F1-F26).
+
+**F27 (MAJOR -- upgrades F12 from "cheap insurance" to load-bearing) -- every
+tie group in the rank derivation straddles a domain boundary, and one straddles
+the NOISE boundary.** Evidence: rank is derived by sorting clusters by `size`
+descending and taking `index + 1`, with no tie-break. All five tie groups
+straddle: size 157 (rank 4 server-admin / ranks 5-6 hud), 119 (rank 15
+server-admin / rank 16 audio), **89 (rank 31 NOISE / rank 32 linux)**, 79 (rank
+35 display / rank 36 visual-world), 51 (rank 44 textures / rank 45
+performance). The 89-tie is the dangerous one: a re-order there moves a cluster
+across the NOISE boundary, which changes the eligible **pool size**, the
+denominator of every per-domain rate, and the headline -- silently, with no
+error anywhere. Disposition: the frozen manifest pins the full 48-entry
+rank -> domain assignment as DATA (`frame.rank_pin`), plus SHA-256 digests of
+both `faq-clusters.json` and `faq-domains-resolve.ts`, so the mapping is never
+re-derived after the freeze.
+
+**F28 (methodology -- spec amendment, operator-visible) -- D4's floor as
+written is INERT at N=500.** Evidence: D4 specifies "a per-domain floor (~8-10
+threads minimum for **tier-1** domains)". Computed against live counts, every
+tier-1 domain's proportional quota already exceeds 12, so `floor 8 on tier-1
+only` and `no floor at all` produce **byte-identical** allocations. The three
+domains that actually ride near the bottom -- fonts (8), teamplay-comms (8),
+spectating (8) -- are tier-2/tier-3, precisely the ones the floor was meant to
+protect from riding on two data points. Disposition: extend the floor to all 24
+non-NOISE domains. Costs 7 threads (1.4% of N) taken from the largest domains,
+preserves D4's stated intent exactly, and makes the floor do the job it was
+written for. Recorded as a dated amendment to spec D4; operator-overrulable at
+intent review.
+
+**F29 (minor) -- `thread_key` stability across a re-fence is plausible but
+unproven.** Evidence: `thread_key` is `channel:version:chunk_id:thread_index`,
+and `thread_index` comes from an LLM segmentation pass -- so it is not a pure
+content hash, and whether it survives a re-fence is exactly the property F1
+would have tested, except the 234 eaten rows are gone and the case is now
+unfalsifiable. Disposition: do not rely on it alone. Every manifest row carries
+`thread_id` + `thread_key` + `content_sha256`, and the re-assertion probe checks
+all three.
+
+**F30 (minor) -- ~1.8% of pool threads have no extractable key and ~2.8% leak
+the fix into the question.** Evidence: running the opener/answer split over all
+3,164 pool threads: fallback path 0 (0.00%), **empty `rest` 57 (1.80%)** --
+single-author monologues where the asker posts their own resolution, so there
+is no community answer to extract AND the question itself contains the fix --
+and **89 (2.81%)** whose opening matches resolution phrasing. Disposition: the
+extractor reads full `content`; rows scoring `key_quality: "none"` or flagged
+`question_leaks_fix` are rejected and substituted from the same domain's frozen
+order; the substitutions are recorded and the narrowed population is stated in
+both the manifest and the findings doc rather than quietly absorbed.
+
+**F31 (minor) -- the obvious content-digest SQL is wrong.** Evidence:
+`encode(sha256(content::bytea),'hex')` throws `invalid input syntax for type
+bytea` on real rows; the correct form is `convert_to(content,'UTF8')`, verified
+to agree with TypeScript's `createHash('sha256').update(content,'utf8')` on
+500/500 rows. Disposition: the working form is pinned in the phase doc. Logged
+because it is exactly the class of literal that looks right, passes review, and
+fails only at execution.
+
+## Findings from Phase 2 drafting (2026-08-06)
+
+**F23 (MAJOR) -- the forced-termination backstop leaks raw tool-call markup as
+the answer unless it carries a nudge message.** Surfaced: Phase 2 drafting, by
+live DeepSeek probe; reproduced 2/2. F16 left the `tool_choice: 'none'`
+budget-exhausted backstop unexercised, so this phase exercised it. With a nudge
+message it works cleanly (`finish_reason=stop`, 1,723 chars of prose, zero tool
+calls). **Without** the nudge it also returns `finish_reason=stop` with an
+empty `tool_calls` array -- every structural check a harness would make PASSES
+-- but `content` is the model's internal invoke template, naming tools that
+were never offered (`search_knowledge_base`, and a `bash` call running curl).
+Disposition: the nudge message is load-bearing and is specified in Phase 2's
+loop, AND a `LEAK_SENTINEL` (`/DSML|invoke name=/`) fails the pass regardless of
+structure. Why this matters beyond tidiness: undetected, this writes garbage
+into `answer`, the blind grader scores it a `miss`, and the arc reports an
+ORACLE failure that was actually a harness artifact -- concentrated, by
+construction, on the hardest questions, which are exactly the ones that exhaust
+the loop budget. Third distinct measurement-corrupting defect found before any
+code exists (see F17, and E7's `limit` amendment).
+
+**F24 (minor) -- the MCP dispatch switch is closure-scoped, so the harness must
+hand-build a name -> handler map.** Evidence: the `CallToolRequestSchema`
+handler's `switch` lives inside `createServer()` and is not exported, so E6's
+in-process execution cannot reuse it. Disposition: Phase 2 builds the map and
+its probe asserts the map's key set equals `TOOL_NAMES` **in both directions**,
+so a tool added to the server without the harness noticing fails the gate
+rather than silently going unexercised.
+
+**F25 (minor, RESOLVED -- no Phase 1 amendment needed) -- the phase-8 fixture
+questions are not corpus threads.** Evidence: the 12 questions in
+`eval/eval-queries.json` are retrieval queries, so `thread_id`, `thread_key`,
+`domain`, `era`, and `truth` have no true values, yet Phase 1's record schema
+requires them. Disposition: Phase 2 declares explicit self-identifying fixture
+conventions (`p8-NN`, `phase8-fixture-NN`, `domain: 'phase8-fixture'`,
+`era: 0`) rather than plausible fakes -- a fixture must never be mistakable for
+a real sampled record. Checked against the landed Phase 1 doc: its validator
+rejects a **non-integer** `era`, not an out-of-range one, so `era: 0` is legal
+and the escalation the drafter flagged does not fire. Residual: Phase 1's
+inline comment describes `era` as "2020-2025", which the coherence pass should
+widen to name the 0 sentinel.
+
+**F26 (predicted hazard, not yet observed) -- the tool-surface pin may be
+computed over two different byte strings.** Evidence: Phase 1 takes the pin as
+`sha256(JSON.stringify(inputSchema))` off the WIRE; Phase 2 hashes the
+IMPORTED schema object. JSON-RPC transport plus the SDK's Zod parse can
+legitimately re-order object keys, so a mismatch would have two possible causes
+-- a real schema change, or key ordering -- and the naive reading blames the
+wrong one. Disposition: Phase 2's probe prints both JSON strings on failure and
+the doc names `jq -S` as the diagnostic. If ordering turns out to be the cause,
+the fix is a canonical (sorted-key) pin via a dated Phase 1 amendment, NOT a
+quietly relaxed assertion. Related detail: Phase 1 never named the pin file's
+key, so the probe locates the single `/^[0-9a-f]{64}$/` value rather than
+guessing a field name.
+
 **F22 (minor; fixed for eval mode here, production disposition OPEN) -- the
 lexical path's `catch { return [] }` protects against nothing and hides
 everything.** Surfaced: Phase 1 revision 2026-08-06, by probing the catch's own
