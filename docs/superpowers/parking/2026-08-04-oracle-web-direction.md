@@ -87,22 +87,22 @@ retyping answers), never pushed (nobody is asked to migrate off Discord).
 >   RESOLVED: it is Phase A's v1 probe, auto-superseded by the v2 2021 batch.
 >
 > **Finish-out checklist (run when the backfill lane quiets):**
-> 1. #antilag 2021-2025 (5 batches) + the #dev-corner probe year on
+> 1. [DONE 2026-08-06] #antilag 2021-2025 (5 batches) + the #dev-corner probe year on
 >    fence-external; probe verdict recorded here.
-> 2. Re-run #helpdesk-2026 + #antilag-2026 (June loads, pre-catch-up);
+> 2. [DONE 2026-08-06] Re-run #helpdesk-2026 + #antilag-2026 (June loads, pre-catch-up);
 >    #quakeworld-2026 + the probe fence post-catch-up data natively.
-> 3. Regenerate ledger counts (`backfill-batch.ts count-all`) + ledger /
+> 3. [DONE 2026-08-06] Regenerate ledger counts (`backfill-batch.ts count-all`) + ledger /
 >    layer2-plan-README status truth-up (backfill lane owns those files until
 >    it lands).
-> 4. Harvest ritual RUNBOOK: the 3-command ingestion seam + current-year
+> 4. [DONE 2026-08-06 -- HARVEST-RUNBOOK.md + monthly calendar entry] Harvest ritual RUNBOOK: the 3-command ingestion seam + current-year
 >    re-fence + embed + brain-manifest emit+copy rider (oracle-web spec D7);
 >    monthly cadence.
-> 5. Prod dump/restore per DEPLOYMENT.md routine + public MCP probe (post-May
+> 5. [DONE 2026-08-06 -- parity 13/13, public MCP verified on post-May content] Prod dump/restore per DEPLOYMENT.md routine + public MCP probe (post-May
 >    threads servable) -- THEN oracle-web's manifest `--publish` unblocks.
-> 6. Corpus-number truth-up sweep (oracle CLAUDE.md / VISION / README / root
+> 6. [DONE 2026-08-06 wrap-up] Corpus-number truth-up sweep (oracle CLAUDE.md / VISION / README / root
 >    OVERVIEW) + check the 44-vs-45 note-summary gap (one concept row beyond
 >    the dry-run leftover has an empty summary).
-> 7. Close the parent arc: layer2-corpus-reconstruction Phase C -> shipped;
+> 7. [DONE 2026-08-06 -- arc-history entry written] Close the parent arc: layer2-corpus-reconstruction Phase C -> shipped;
 >    hand Phase D (RRF recalibration) + buckets-E their "full backfill"
 >    trigger; retrospective to arc-history.
 

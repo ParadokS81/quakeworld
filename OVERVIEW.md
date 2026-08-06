@@ -12,7 +12,7 @@ Per-app docs at `apps/<name>/{README,VISION,OVERVIEW,CLAUDE}.md` (slipgate-app a
 - **quad** — *Maintenance, stable across 16 teams.* Discord bot recording per-speaker OGG/Opus + standin DM flow.
 - **qw-stats** — *Paused.* PostgreSQL 16 + Express API of 18,000+ 4on4 games; ranking research stalled at identity-resolution Phase 0.
 - **slipgate-app** — *Active (90% of current work).* Tauri v2 + SolidJS + Rust desktop companion; Windows-native.
-- **qw-oracle** — *Active.* Three-layer knowledge service over MCP + snapshot distribution. Seven engine codebases loaded (ezQuake / FTE / QWCL / MVDSV / KTX / QTV / QWFWD) plus the `qw` game-content namespace; prod refreshed to full parity 2026-08-04. Ship history at `apps/qw-oracle/docs/arc-history.md`.
+- **qw-oracle** — *Active.* Three-layer knowledge service over MCP + snapshot distribution. Seven engine codebases loaded (ezQuake / FTE / QWCL / MVDSV / KTX / QTV / QWFWD) plus the `qw` game-content namespace; prod refreshed to full parity 2026-08-06 (includes the completed Layer 2 corpus, 40,219 threads). Ship history at `apps/qw-oracle/docs/arc-history.md`.
 
 ---
 
