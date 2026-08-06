@@ -309,6 +309,153 @@ weakness -- an untyped string set drifting from the interface -- is closed by a
 compile-time `keyof RunRecord` guard, so a typo is a typecheck failure rather
 than a field that silently stops being protected.
 
+## Findings from the Phase 4 independent checker (2026-08-06)
+
+Numbered **F51-F69** (the checker emitted F49-F67; F49-F50 were already taken
+by the Phase 1 revision, so everything shifts by 2). Spend: 87
+`deepseek-v4-flash` calls, ~$0.03. Every binomial table recomputed from
+scratch; all nine inline probe bodies extracted and parsed.
+
+**F51 (MAJOR -- the arc's most serious finding so far) -- the `divergent_fix`
+falsifiability requirement is DEFEATED, at a 93% false-positive rate.** F47's
+whole fix rested on making the grader name its alternative fix, on the theory
+that a flag it cannot write down is false. Evidence: five triples built to be
+unambiguously `miss` -- the answer confidently names a specific wrong-direction
+cvar-and-value while the recorded fix lies elsewhere entirely (antivirus
+scanning, Enhance Pointer Precision, a nested `maps/` folder, a stale build, a
+launch flag). Under the tight three-condition rubric **verbatim**, across 3
+reps, the model set `verdict: "miss"` AND `divergent: true` on **14 of 15
+gradings** -- despite the rubric's own text saying a `miss` that is "simply
+wrong about the problem" is not divergent. In every case the `divergent_fix`
+string is a **verbatim restatement of the wrong answer's own advice**: the
+model satisfies falsifiability by COPYING, not by justifying.
+Why the analogy to Phase 3 failed: `reviewer_fix` is written by a DIFFERENT
+agent against the SOURCE THREAD, so it can contradict what it checks.
+`divergent_fix` is written by the SAME call that sets the flag, from the SAME
+text, and is checked only for non-emptiness -- twice, both times syntactically.
+Neither check can tell a real alternative from a transcribed confabulation.
+**The downstream consequence the draft did not carry:** cell A is precisely the
+cell that produces confident wrong-direction specifics, because it has no
+retrieval and must speculate. So the flag fires hardest exactly where the
+answers are worst, and D6 stage 4 routes those to review as "plausibly
+correct". Any later stage that treats `divergent` as partial credit or as
+excluded-pending-review biases the A-vs-C delta **toward the null** -- by the
+very mechanism meant to protect it. Disposition: settle before the prompt is
+pinned. Three options, none free: (a) require a second, gateable justification
+naming why BOTH fixes are plausible for the question; (b) split it into a
+separate cheap divergent-only pass; (c) accept high-recall/low-precision, drop
+G4's cap, and size the review pile for it.
+
+**F52 (MAJOR) -- the tight rubric does not reproduce its claimed rate, and the
+gate will BLOCK on its own rubric.** Evidence, 12 independent triples: the
+**loose** wording reproduces the draft's finding **exactly** -- 6/12 (50%) in
+both reps, including both cases the draft names by hand (an answer containing
+the recorded fix verbatim, and a plain wrong-direction miss). So F47's
+*diagnosis* is confirmed. But the **tight** rubric measured **3/12 (25%),
+stably, in all four reps** -- not the claimed ~10%. Only 2 of 12 are genuinely
+divergent by construction, so the rewrite still over-fires ~50%. At a true rate
+of 25%, G4's cap of 9-of-60 BLOCKs with probability >99%. And the draft's
+prescribed remedy ("tighten condition 2") targets the wrong condition --
+condition 3 (does the alternative look like it could genuinely resolve the
+problem) is what fails, and it is a judgment call no wording fixes.
+
+**F53 (MAJOR) -- the false-BLOCK table composes four sub-gates while claiming
+five.** The printed figures reproduce to the decimal, but only as
+`G1 x G2 x G3 x G5`; **G4 is absent from the product** despite the preamble
+saying all five must pass. The draft separately gives G4 a 7% BLOCK rate at its
+own healthy rate. Folding it in moves the headline cell from **0.6% to 7.9%**
+(r=0.95), 5.6% to 12.5% (0.92), 15.6% to 21.8% (0.90) -- a 13x understatement
+where it matters most. The n=60-vs-n=36 argument shifts too, though its
+direction survives.
+
+**F54 (MAJOR) -- Task 1 is now dead work and Task 0's probe is designed to
+fail.** Phase 1's F44 revision LANDED while Phase 4 was drafting. Task 0's entry
+probe asserts a divergent-only change is still rejected ("F44 CONFIRMED ... Task
+1 must run") and `process.exit(1)`s -- so the phase's entry gate fails against
+what Phase 1 now ships. Task 1's five steps are all Phase 1's landed work, its
+"Files touched -> Modified" lists four files Phase 4 must no longer touch, its
+ratification gate ratifies something already ratified, and Open question 6 is
+closed. Disposition: delete Task 1, invert Task 0's assertion, strip the
+Modified entries, close OQ6, renumber the edge list.
+
+**F55 (MAJOR) -- nothing joins the blind projection back to the run records.**
+The blind fixture carries exactly `{fixture_index, question, answer, truth}`
+and the probe ASSERTS the absence of `thread_id`/`condition`/`answering_model`.
+But `RunRecord` has no `fixture_index`, no artifact carries a
+`fixture_index -> record_id` map, and positional re-derivation is unreliable
+because the same step skips records with `error !== null`, shifting every later
+index. The join step therefore cannot execute as written, and the boundary
+probe presupposes a join nobody builds. The blindness that makes the design
+sound is what strips the fields needed to reassemble it. Fix: a committed
+sidecar map that Claude never reads.
+
+**F56 (MAJOR) -- `divergent_fix` is unrecoverable at the gate, and G4's
+fix-check is tautological.** The fix string is carried as a prefix inside
+`grade.rationale` rather than as a field; the rep-2 output and the join step
+both omit it; yet the boundary probe asserts `deepseek_rep1.divergent_fix` is a
+non-empty string, which nothing ever writes. Compounding: `gradeOne` THROWS
+when `divergent` is true and the fix is empty, so no such record can reach the
+gate -- G4's second clause can never fail. Given F51, the failure that matters
+is a WRONG fix, which this check cannot see at all.
+
+**F57 (MAJOR) -- one of the four composition floors is defect-correlated, so
+the "not optional stopping" claim is only three-quarters true.** The three
+CLAUDE floors are airtight -- evaluated inside the blind pass and committed
+before any DeepSeek verdict is read. But the fourth floor, DeepSeek's `match`
+class >= 12, is evaluated at join time from the instrument under test, and it
+is a monotone function of the defect the gate exists to catch: under the
+safe-middle scenario a 45% demotion drives DeepSeek's match class to ~11,
+missing the floor, returning INCONCLUSIVE, and routing a WORSE defect to
+"extend the fixture and retry" instead of BLOCK. The retry budget is uncapped
+through this channel, since the three-revisions cap counts BLOCKs, not
+extensions.
+
+**F58 (MAJOR -- the fifth pass-while-broken scenario, and it degrades the other
+four) -- the 60 items are 20 thread-clusters, but every OC number assumes 60
+independent draws.** All three cells of a thread are graded against the same
+`truth` from the same `question`, so a thin key, an ambiguous question, or a
+mis-mapped subsystem produces a disagreement in all three at once. Recomputed
+at the thread level: G1's "tolerates 12 disagreements" actually tolerates **4
+bad threads of 20**. False BLOCK is far worse than printed -- G2's tolerance of
+4 items is about ONE bad thread, and at r=0.95 the honest figure is **4.4% not
+0.26% (17x)**. Combined with F53's missing G4, the true false-BLOCK at the
+headline cell is roughly **15%, not 0.6%**. The per-era "cheap tell" rests on 2
+threads per era, not 6 items. And it inverts the sizing argument: what n=60
+buys is 20 independent threads rather than 12 -- which raises whether 60
+threads x 1 cell is the better shape for the same spend.
+
+**Minor findings F59-F69**, all recorded in full in the checker's report and
+routed to the drafter: `gradeOne`'s model-override option is dead or violates
+Phase 2's retry-policy probe (F59); Task 0's probe checks four of the six
+things its prose claims (F60); E6's F37 amendment says entry probe and the doc
+puts the check in a later task (F61); the rep-2 artifact is missing from Files
+touched with no E13 disposition (F62); the detection headline assumes G1/G2
+independence when they are positively correlated -- exact joint gives 89.3% not
+91.6% (F63); `GraderOutput` is attributed to two different files (F64); the
+fixture-extension remedy costs 84 answering passes not 24, because minting a
+new run id defeats resume, and it re-grades items Claude has already seen
+(F65); one probe is claimed runnable-verbatim while sourcing a `.env` that does
+not exist in the worktree, though its quoted results are character-exact
+(F66); the era fraction is derived from the pool rather than the sample (F67);
+the operator draw is unsatisfiable on a clean gate (F68); and G5 measures
+verdict reproducibility only -- the checker measured the `divergent` FLAG at
+75% stable versus 83% for verdicts, so the noisier signal is the unmeasured one
+(F69).
+
+**What held.** F46 confirmed independently and sharpened: 10/12 verdict-stable
+across 4 reps (83% vs the draft's 80%), all flips on the `partial`/`miss`
+boundary, `finish_reason=stop` on all 87 calls -- and the four non-boundary
+cases were 4/4 stable, corroborating that the draft's figure is a lower bound
+rather than an estimate. E8 conformance is carried by the TYPE rather than by
+discipline, and the leakage residue is not merely acknowledged but SIZED --
+the checker calls it a genuine improvement on the ledger and the only place in
+the arc that bounds prose leakage. E15's three provider rules honoured
+mechanically. No file collisions with Phases 1-3, no forward reference to a
+nonexistent phase, no TBD pointing at a shipped phase. Task topology re-derived
+from the bodies: no cycle, no missing edge. All nine inline probe bodies parse
+clean. The Recovery section anticipates five distinct failure modes with
+correct remedies.
+
 ## Findings from Phase 4 drafting (2026-08-06)
 
 Numbered F44-F48. Spend: 50 `deepseek-v4-flash` calls, ~$0.016 (extrapolated
