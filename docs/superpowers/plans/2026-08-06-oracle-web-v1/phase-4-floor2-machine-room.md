@@ -487,11 +487,15 @@ Expect: tsc + build clean; constants grep >= 5 -- all five consumed P7a
 constants imported, not re-declared (`PULSE_STROKE\b` also matches the
 `PULSE_STROKE_WIDTH` use sites; the count covers both). Negative check --
 no forked literals:
-`grep -cE "0\.073|= 650|['\"]#4aa8ff['\"]|2\.4" src/components/Floor2MachineRoom.tsx`
-must be 0 (catches a hardcoded speed, flare duration, stroke color in
-either quote style, or stroke width). rAF count 1-2, both call sites in
-the one loop function (Phase 3's A-probe convention). End-to-end traveler
-behavior = ritual F6.
+`grep -icE "0\.073|73e-3|7\.3e-2|\b650\b|['\"]#4aa8ff['\"]|2\.4" src/components/Floor2MachineRoom.tsx`
+must be 0 (case-insensitive; catches a hardcoded speed in decimal or
+exponent notation, a bare flare duration, the stroke color in either quote
+style or case, or the stroke width). This grep is a TRIPWIRE, not a proof
+-- literal forks have unbounded spellings; the authoritative P7a check is
+the import-count positive grep (>= 5) plus ritual item F6's
+same-species/same-speed eyeball. rAF count 1-2, both call sites in the one
+loop function (Phase 3's A-probe convention). End-to-end traveler behavior
+= ritual F6.
 
 ### Task 6 -- deploy + boundary run + review staging · `inline`
 

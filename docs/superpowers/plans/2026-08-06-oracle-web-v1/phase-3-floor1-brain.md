@@ -283,19 +283,26 @@ pipeline as-is).
 **Split-feasibility ruling (tripwire): KEEP.** This phase hits the tripwire
 markers -- 10 tasks (at the ~10 threshold, not past it) and ~1.45x the
 median doc size (under the 2x line). Ruling: keep one phase, one doc.
-Grounds: (a) T1-T4 are independent pure modules with standalone probes, so
-orchestration load is below the raw task count; (b) floor 1 is one
-interaction organism -- hover chains feed the journey spawner, drill cards
-hang off the same chain targets, the output side shares the trace builder --
-a phase boundary anywhere inside it would demand a second operator parity
-ritual on a half-interactive floor; (c) an internal split would force an
-artificial intermediate contract between the halves with no independent
-consumer; (d) the doc stays within budget because geometry is cited by
-verified mockup line ranges rather than transcribed.
+Grounds: (a) floor 1 is one interaction organism -- hover chains feed the
+journey spawner, drill cards hang off the same chain targets, the output
+side shares the trace builder -- a phase boundary anywhere inside it would
+demand a second operator parity ritual on a half-interactive floor; (b) an
+internal split would force an artificial intermediate contract between the
+halves with no independent consumer; (c) the doc stays within budget because
+geometry is cited by verified mockup line ranges rather than transcribed.
+(An earlier fourth ground -- "T1-T4 are an independent parallel wave" -- was
+OVERTURNED by cold review CR-GATE-3: the generator modules form a dependency
+chain, see the wave structure below. The ruling stands on the three grounds
+above.)
 
-Wave structure: T1-T4 are independent of each other (parallelizable); T5-T9
-build on them and are sequential where they share `Floor1Brain.tsx` /
-`App.tsx`; T10 closes.
+Wave structure: T1 runs independently; T2 -> T3 -> T4 are a CHAIN, dispatched
+sequentially -- `mesh.ts` imports `BrainLayout` from `layout.ts`, and
+`journeys.ts` imports `MeshGeometry` from `mesh.ts`, and every task probe
+runs whole-tree tsc. Do NOT dispatch T3/T4 before their upstream module is
+committed: a parallel T4 agent facing a missing `MeshGeometry` would be
+invited to fork the type locally to pass tsc, and the name-grepping probes
+cannot see that fork (CR-GATE-3). T5-T9 build on T1-T4 and are sequential
+where they share `Floor1Brain.tsx` / `App.tsx`; T10 closes.
 
 ### Task 1 -- floor-1 + drill CSS port · `agent (workhorse, low)`
 
@@ -368,7 +375,7 @@ drops into.
 
 Expect: tsc clean; `600 800 6 6`.
 
-### Task 3 -- `src/generators/mesh.ts`: seeded mesh generation · `agent (workhorse, high)`
+### Task 3 -- `src/generators/mesh.ts`: seeded mesh generation · `agent (workhorse, high)` -- after Task 2 (imports `BrainLayout`)
 
 **Goal:** a pure `generateMesh(litShares, layout)` reproducing the mockup's
 scatter + adjacency byte-for-byte in geometry.
@@ -413,7 +420,7 @@ rejection sampling may fall short of `want`), `true` for determinism. With
 the mockup's 2026-08-05 shares the scatter is IDENTICAL to the comp's; live
 shares may drift the counts slightly (parity ritual item V4 tolerates this).
 
-### Task 4 -- `src/generators/journeys.ts`: the handoff-contract module · `agent (workhorse, high)`
+### Task 4 -- `src/generators/journeys.ts`: the handoff-contract module · `agent (workhorse, high)` -- after Task 3 (imports `MeshGeometry`)
 
 **Goal:** the module specified in "The journey-handoff contract" exists
 exactly as written there -- constants + pure traveler state machine.

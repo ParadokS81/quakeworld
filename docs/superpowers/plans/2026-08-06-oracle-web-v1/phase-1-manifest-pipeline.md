@@ -106,7 +106,7 @@ interface LitDatacenter {
   stats?: Array<[number, string]>; // stat tiles (raw value, label). gc only at launch.
                          // gc's three labels are BYTE-PINNED contract literals, in
                          // this order: "maps", "mechanics", "entity defs" --
-                         // consumers may key by them (2026-08-06 amendment, F-E)
+                         // consumers may key by them (2026-08-06 amendment, F6)
   notes?: string[];      // named inventory highlight lines (curated groupings, no
                          // numbers embedded). cs only at launch.
   door: Door;            // level-4 exit descriptor (D3)
@@ -169,7 +169,13 @@ only carry history forward when `prev.schema_version === 'brain-manifest-v1'`
 AND `typeof prev.generated_at === 'string'`; any other previous file
 (unparseable OR old-shape) starts history fresh at `[]`. The only existing
 file is that old-shape emit with `history: []`, so nothing real is lost --
-verified 2026-08-06.
+verified 2026-08-06. Cadence guard: the prepend is SKIPPED when
+`prev.generated_at` falls on the same UTC calendar day as the current emit --
+otherwise a burst of debug re-emits floods the 12-slot trail with same-day
+entries and evicts a year of monthly history; the guard keeps at most the
+last emit of each prior day. Note: the stub has no v1 UI consumer BY DESIGN
+-- spec D7 mandates the growth-trail stub as a forward surface; v1 ships the
+data, a later arc draws the sparkline.
 
 ### Scaffold-density `share` -- emitter computes it
 
@@ -246,7 +252,8 @@ key-set leak probe the same way `history[].nums` did, and typed names keep
 "hit dot, see what you can do" working in the Phase 2 mirror. Additive only:
 no existing field changed meaning, so Phase 2's field references stay valid.
 
-**Sibling amendment, same date (surfaced by Phase 4 checker F-E):** the three
+**Sibling amendment, same date (surfaced by Phase 4 checker; findings-ledger
+entry F6):** the three
 `gc.stats` label strings are BYTE-PINNED emitter config -- exactly `"maps"`,
 `"mechanics"`, `"entity defs"`, in that order. Consumers (Phase 4 terminal
 copy interpolation) may key rows by these literals; any wording change
@@ -344,7 +351,11 @@ probed 2026-08-06 at drafting time):
    otherwise start history at `[]`. (The committed old-shape file is valid
    JSON and slips through a bare try/catch, yielding a contract-violating
    `{ "nums": {} }` entry -- checker-verified.) When the guard passes,
-   prepend `{ generated_at, nums }`, cap 12.
+   prepend `{ generated_at, nums }`, cap 12 -- UNLESS `prev.generated_at`
+   is on the same UTC calendar day as the current emit (compare the ISO
+   strings' first 10 chars): then keep `prev.history` unchanged, so debug
+   re-emits never evict the monthly trail (cadence guard, cold-review
+   CR-GATE).
 6. `--publish` copies to `/mnt/user/appdata/qw-oracle/snapshots/brain-manifest.json`;
    write to a temp name in the same directory and rename over the target so a
    concurrent nginx read never sees a torn file (same-filesystem rename;
@@ -491,16 +502,19 @@ expected value / YES.
    Expect: `true` + `YES` (no key outside the contract -- in particular no
    `content`, `summary`, `topic_label`, `participants`) -- YES/NO.
 
-6. **Numbers match the live DB (five spot checks; last two are the
-   2026-08-06 amendment fields):**
+6. **Numbers match the live DB (six spot checks; fourth and fifth are the
+   2026-08-06 amendment fields, sixth is a [value,label] PAIR check --
+   probe 4 pins the gc labels but only this catches a value-label
+   transposition, e.g. 514 riding "maps"):**
 
        test "$(curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -r '.datacenters[] | select(.id=="ef") | .num')" = "$(docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -Atc 'select count(*) from entities')" && echo YES
        test "$(curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -r '.datacenters[] | select(.id=="cm") | .num')" = "$(docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -Atc 'select count(*) from messages')" && echo YES
        test "$(curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -r '.datacenters[] | select(.id=="cm") | .bars[0][1]')" = "$(docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -Atc "select count(*) from messages where channel_name='#quakeworld'")" && echo YES
        test "$(curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -r '.datacenters[] | select(.id=="cm") | .threads')" = "$(docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -Atc 'select count(*) from chat_threads')" && echo YES
        test "$(curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -r '.datacenters[] | select(.id=="cm") | .solved')" = "$(docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -Atc "select count(*) from chat_threads where resolution_status = 'solved'")" && echo YES
+       test "$(curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -r '.datacenters[] | select(.id=="gc") | .stats[] | select(.[1]=="mechanics") | .[0]')" = "$(docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -Atc 'select count(*) from gameplay_mechanics')" && echo YES
 
-   Expect: five YES -- YES/NO.
+   Expect: six YES -- YES/NO.
 
 7. **Shares sum to ~1 over lit datacenters:**
 

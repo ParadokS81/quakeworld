@@ -286,7 +286,10 @@ produces a `dist/` that renders a placeholder page with the theme CSS applied.
        }
 
 6. `index.html`: minimal shell -- `<!doctype html>`, `<title>QW Oracle</title>`,
-   viewport meta, `<div id="root"></div>`,
+   viewport meta, `<link rel="icon" href="data:,">` (suppresses the browser's
+   automatic `/favicon.ico` fetch so the P3/P5 single-network-call audit in
+   boundary probe 4 stays noise-free; a real icon can land in Phase 6's ship
+   pass), `<div id="root"></div>`,
    `<script type="module" src="/src/index.tsx"></script>`.
 
 7. `src/styles/app.css` -- port docs-web's THEME approach (CSS-first Tailwind
@@ -475,12 +478,15 @@ validate -> fall back to baked; never throws, never renders an error state
    a dependency would be complexity without a payer. `AbortSignal.timeout` is
    baseline browser API; the deployed-URL probe is its verifier.)
 
-**Verification probe:**
+**Verification probe** (greps a DATA-only sentinel -- the baked file's
+`generated_at` timestamp -- not the `brain-manifest-v1` literal, which the
+validator code also carries and would mask a silently-failed bake):
 
-    cd /home/dev/projects/quakeworld/apps/oracle-web && pnpm build && grep -rc 'brain-manifest-v1' dist/assets/ && pnpm run check
+    cd /home/dev/projects/quakeworld/apps/oracle-web && pnpm build && test -f src/data/baked-manifest.json && grep -rc "$(jq -r .generated_at src/data/baked-manifest.json)" dist/assets/ && pnpm run check
 
-Expect: bake line prints the manifest's `generated_at`; build success; grep
-count >= 1 (the baked copy + validator literal are IN the bundle); tsc clean.
+Expect: bake line prints the manifest's `generated_at`; build success; the
+generated file exists; grep count >= 1 (the baked DATA is IN the bundle);
+tsc clean.
 Negative check of the bake guard: point SRC at any old-shape JSON in a
 scratchpad copy -> exit 1 with the loud message.
 
