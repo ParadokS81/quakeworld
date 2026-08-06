@@ -150,10 +150,10 @@ validation slice.
 | done | year | msgs | agents | forced |
 |---|---|---|---|---|
 | [ ] | 2021 | 8,932 | 73 | 2 |
-| [ ] | 2022 | 3,191 | 96 | 0 |
+| [x] | 2022 | 3,191 | 96 | 0 | -- loaded 2026-08-06 (session 5), 195 threads, **100.00% coverage** (refence no-op)
 | [x] | 2023 | 1,613 | 56 | 0 | -- loaded 2026-08-06 (session 5), 111 threads, **100.00% coverage** (refence no-op)
-| [ ] | 2024 | 2,745 | 73 | 0 |
-| [ ] | 2025 | 1,877 | 63 | 0 |
+| [x] | 2024 | 2,745 | 73 | 0 | -- loaded 2026-08-06 (session 5), 164 threads, 99.96% coverage (refence no-op)
+| [x] | 2025 | 1,877 | 63 | 0 | -- loaded 2026-08-06 (session 5), 136 threads, **100.00% coverage** (refence no-op)
 | [x] | 2026 | 1,029 | 21 | 0 | -- PREP validation slice (loaded 2026-06-06)
 
 ## Totals
