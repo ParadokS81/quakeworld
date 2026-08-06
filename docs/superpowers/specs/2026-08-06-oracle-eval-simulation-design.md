@@ -132,6 +132,42 @@ want more data" -- not a bigger N up front.
 
 **Pass 1 (Sampling) CLOSED 2026-08-06.** D1-D5 locked; carry-forwards below.
 
+### D6 -- Grading design (locked 2026-08-06)
+
+**Scale**: three-level verdict -- match / partial / miss -- plus a `divergent`
+flag. Match = the answer contains the specific fix that resolved the thread
+(cvar/setting/download/procedure). Partial = right neighborhood, incomplete or
+imprecise. Miss = wrong direction or generic non-help. Finer scales (1-10,
+multi-dimension rubrics) rejected: LLM-grader noise on fine scales would eat
+the between-condition differences; coarse verdicts anchored to ground truth
+are where cheap graders are reliable. `divergent` = "differs from the thread's
+fix but looks plausibly correct" -- routes to spot-check review instead of
+bulk verdict; resolves the era/staleness carry-forward (oracle giving today's
+correct answer vs the thread's dated fix) and the better-answer case.
+
+**Pipeline** (no stage grades its own work):
+1. **Key extraction** (DeepSeek bulk, prep step): distill "what actually fixed
+   it" from each sampled thread into the record's `truth` field.
+2. **Answering** (cells A/B/C): agent sees only the question (+ tools in B/C).
+   **Leave-one-out**: the sampled thread itself is excluded from retrieval in
+   its own B/C runs -- the answer key lives inside the corpus, and without
+   exclusion the agent literally reads its own key and B/C collapse into
+   self-retrieval. Sibling threads solving the same FAQ remain fair game
+   (legitimate knowledge; what a future asker would hit).
+3. **Compare-grading** (DeepSeek, separate call, condition-blind): sees
+   question + answer + key only. Comparison task, never judgment; NO database
+   or tool access -- grader retrieval errors would correlate with the measured
+   quantity.
+4. **Review** (Claude + operator, live tools allowed): all `divergent` flags
+   + a random grade slice; Claude's spot-check role has MCP/L1 access for
+   fact-checking (does that cvar exist at dev-head?).
+
+**Gates**: PILOT before bulk -- ~30-50 threads through the full pipeline;
+Claude independently re-grades (operator eyeballs a handful), checking both
+grades AND key quality; proceed only at >=90% agreement on the match/miss
+boundary, else fix rubric prompt and re-pilot. POST-BULK -- random ~5-10%
+grade re-check + all divergents.
+
 ## Carry-forwards
 
 - **#quakeworld as secondary question population** -- optional, decided after
