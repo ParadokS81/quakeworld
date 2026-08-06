@@ -10,13 +10,14 @@ review + arc-end cold review).
 (F1-F40; F1-F16 pre-draft sweep, F17-F22 Phase 1 + checker, F23-F26 Phase 2,
 F27-F31 Phase 3, F32-F36 Phase 3 checker, F37-F40 Phase 2 checker, F41-F42
 Phase 3 revision, F43 Phase 2 revision, F44-F48 Phase 4, F49-F50 Phase 1 revisions,
-F51-F69 Phase 4 checker -- all before a line of code exists).
+F51-F69 Phase 4 checker, F70-F73 Phase 4 revision -- all
+before a line of code exists).
 
 ## Where we are right now
 
 - **Stage:** planning -- scaffold committed; slicing RATIFIED by the operator
   2026-08-06 (7 phases -> 9, splitting answering/grading and
-  analysis/showcase); phases 1-3 LANDED; phase 4 drafted, awaiting checker + a phase-1 producer revision (F44)
+  analysis/showcase); phases 1-4 LANDED (drafted, checked, revised); waves 4-5 (phases 5+6, then 7+8+9) next
 - **Last action:** Phase 1 independent checker returned 19 defects (6 MAJOR) and
   re-derived F17 with worse numbers than the draft; routed back to the original
   drafter as a continuation, ledger-side fixes applied here (E2, E7, E8

@@ -309,6 +309,86 @@ weakness -- an untyped string set drifting from the interface -- is closed by a
 compile-time `keyof RunRecord` guard, so a typo is a typecheck failure rather
 than a field that silently stops being protected.
 
+## Findings from the Phase 4 revision (2026-08-06)
+
+Numbered F70-F73. Spend this pass ~210 calls / ~$0.07; cumulative for the phase
+~260 calls / ~$0.08.
+
+**F70 (MAJOR -- the root cause behind F51 and F52, and it generalises) -- the
+rubric revoked the faculty it then required.** The prompt forbade the grader to
+use its QuakeWorld knowledge to decide what is correct, and then, three lines
+later, asked whether an alternative fix "could genuinely resolve the problem"
+-- a domain-knowledge judgment made from a faculty the same prompt had just
+taken away. With no legitimate basis available, the model did the only thing
+left and restated the answer's own claim. **No wording reaches this**, which is
+why F52's "tighten condition 2" advice was aimed at the wrong condition, and
+why the first repair was never going to hold. The general lesson: when a
+grading prompt asks for a judgment, check that the same prompt has not already
+forbidden the capability that judgment requires.
+
+**Resolution -- the grading call is SPLIT, and the split is licensed by the D6
+amendment.** Two prompts with opposite rules: a **verdict grader** that is
+knowledge-FORBIDDEN and never sees a divergent question at all, and a
+**screener** that is knowledge-REQUIRED, binary, and runs only on non-`match`
+verdicts. This is only safe because the D6 amendment removed `divergent` from
+every denominator -- once the flag cannot affect a rate, the call producing it
+no longer needs to be knowledge-blind, because its errors can no longer
+correlate with the measured quantity. Measured on 40 real `#helpdesk` threads
+the drafter did not author (keys from Phase 3's byte-pinned prompt, answers
+produced cold and cell-A-shaped; 9 completed the full matrix): the draft rubric
+flagged **5/9 = 56%** in both reps -- **worse than the checker's 25%**, on
+unauthored data. The screener flagged 4/9 and 6/9, with 78% flag stability, and
+**100% verdict self-consistency** and **100% agreement between the combined and
+split prompts** -- so splitting cost nothing on the verdict side. Both items the
+old rubric flagged and the screener rejected are exactly F51's class (`miss`
+plus a copied `divergent_fix`), and the screener's stated reasons show why
+knowledge was the missing ingredient: one identified a **confabulated cvar**
+that is not a real KTX setting, the other identified that the proposed fix
+addresses the wrong directory. Neither is reachable from the text alone.
+
+**F72 -- the split fixes the failure CLASS but not the RATE, and the rate is
+partly real.** 44-67% is nowhere near "one in ten". Reading the flags, most look
+correct: an alternative HUD-offset approach against a screen-shift key, an
+MVDSV procedure against an nquakesv/Docker key, a 144Hz answer against a
+"use 77 fps" key. **Cell A genuinely produces plausible alternatives often --
+that is the population, not only the instrument.** Post-decoupling this is
+review load rather than bias, but it is real load: roughly 360-430 items on the
+bulk run. Disposition: the pile ships RANKED (option (c) adopted ON TOP of the
+split, not instead of it), G4 is set FROM the measurement rather than from
+intuition, and precision/recall are reported rather than gated. Recorded as a
+standing cost Phase 5 must size before Phase 6 commits.
+
+**F71 -- the screener's usage has no home.** Same class as F49, caught before it
+shipped: `grade_usage` is defined as *the compare-grading call*, and folding a
+subset-scoped second call into it would make the per-record figure wrong and
+non-comparable across records. Disposition: sidecar plus run summary --
+explicitly NOT a fifth mutable key. Recorded so nobody proposes one later.
+
+**F73 -- `max_tokens: 2048` was set from a synthetic average and truncates on
+real triples.** Use Phase 2's `MAX_OUTPUT_TOKENS`. Note the drafter's restraint
+here: its scratch harness also saw 20 of 40 key extractions truncate at 16,384,
+which would implicate Phase 3 -- but a controlled diagnostic on one of those
+exact threads completed in 577 completion tokens, so the cause is the scratch
+harness, not the content. It therefore makes **no claim** that Phase 3's key
+extraction is at risk. Correct handling of a scary-looking observation that did
+not survive its own follow-up.
+
+**Sizing ruling (F58 resolved): 60 threads x 1 cell, 10 per era, cells
+round-robin.** The clustered 20x3 shape was reproduced and is worse on both
+axes at identical spend -- false BLOCK 8.9% vs 0.5% at r=0.95, 30.8% vs 8.7% at
+r=0.90, detection 96.4% vs 98.8%. Strictly dominant, so this is a ruling rather
+than a trade, and every binomial in the phase is now valid as written. With all
+five gates folded in (F53) and G1/G2 conditioned exactly (F63), false BLOCK is
+0.6% / 5.6% / 15.4% / 40.0% at r = 0.95/0.92/0.90/0.85, with G5 the dominant
+contributor at the low end -- the price of measuring F46's noise. One step, G3's
+conditional independence, is an approximation and is named as such.
+
+**One disagreement, accepted.** The checker suggested G5 gate on
+`(verdict, divergent)` as a pair. The drafter declined: after the split the
+flag produces no verdict and enters no denominator, so gating it would import
+the noisier 75%-stable signal into a gated statistic for something that cannot
+bias anything. G5 stays on the verdict; screener stability is reported. Correct.
+
 ## Findings from the Phase 4 independent checker (2026-08-06)
 
 Numbered **F51-F69** (the checker emitted F49-F67; F49-F50 were already taken

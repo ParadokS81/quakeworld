@@ -220,6 +220,49 @@ grades AND key quality; proceed only at >=90% agreement on the match/miss
 boundary, else fix rubric prompt and re-pilot. POST-BULK -- random ~5-10%
 grade re-check + all divergents.
 
+**Amendment 2026-08-06 (arc-plan, Phase 4 checker F51 + drafter F70) -- a
+`divergent` item KEEPS its verdict in every rate and denominator, and is routed
+to review IN ADDITION rather than instead.** D6 as written says `divergent`
+"routes to spot-check review instead of bulk verdict". That wording, not its
+intent, turns out to be unsafe, and the arc-plan raises this rather than
+reinterpreting it silently (E1).
+
+Why. Measured, on triples the drafter did not author: the flag fires on 44-67%
+of non-`match` answers, and a large share of those firings are CORRECT -- cell A
+genuinely does produce plausible alternative fixes, because it has no retrieval
+and answers from training knowledge. But cell A is also the cell that produces
+confident WRONG specifics, for the same reason. Under the original wording,
+excluding flagged items from the bulk verdict removes a quarter to a half of
+cell A's items from its denominator, computing cell A's rate over a survivor
+subset. That biases the A-vs-C delta **toward the null** -- shrinking the
+headline the arc exists to measure, via the mechanism meant to protect it.
+
+The replacement: a flagged record keeps its `match`/`partial`/`miss` verdict in
+every published rate; the flag additionally queues it for human review; and if
+review overturns a verdict, that lands as a dated correction to those records,
+never as a silent exclusion. D6's actual purpose is preserved exactly -- human
+adjudication of the era problem, where the oracle is currently right and the
+recorded fix is stale (F2: the sample is 2020-2025, so keys are 1-6 years old).
+What changes is only that over-firing becomes a **cost** (review time) instead
+of a **bias**.
+
+Consequence to plan for, not to wish away (F72): at the measured rate the bulk
+run yields roughly 360-430 items for review. The pile therefore ships RANKED,
+and Phase 5's pilot must size the real review burden before Phase 6 commits.
+
+Root cause, worth recording because it generalises (F70): the original rubric
+forbade the grader to use its QuakeWorld knowledge, then three lines later asked
+it whether an alternative fix "could genuinely resolve the problem" -- a
+domain-knowledge judgment, from a faculty the same prompt had just revoked. The
+model did the only thing available and restated the answer's own claim. No
+wording fixes that, which is why the first repair attempt failed and why the
+grading call is now SPLIT: a knowledge-forbidden verdict grader that never sees
+a divergent question, and a knowledge-required binary screener that runs only
+on non-`match` verdicts. The split is licensed precisely BY this amendment --
+once the flag enters no denominator, the call producing it no longer needs to be
+knowledge-blind, because its errors can no longer correlate with the measured
+quantity.
+
 ### D7 -- Unresolved-thread judgment sample (locked 2026-08-06)
 
 ~40 unresolved threads from high-unresolved-rate domains, run in cell C only
