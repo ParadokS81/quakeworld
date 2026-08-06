@@ -151,7 +151,7 @@ validation slice.
 |---|---|---|---|---|
 | [ ] | 2021 | 8,932 | 73 | 2 |
 | [ ] | 2022 | 3,191 | 96 | 0 |
-| [ ] | 2023 | 1,613 | 56 | 0 |
+| [x] | 2023 | 1,613 | 56 | 0 | -- loaded 2026-08-06 (session 5), 111 threads, **100.00% coverage** (refence no-op)
 | [ ] | 2024 | 2,745 | 73 | 0 |
 | [ ] | 2025 | 1,877 | 63 | 0 |
 | [x] | 2026 | 1,029 | 21 | 0 | -- PREP validation slice (loaded 2026-06-06)
@@ -814,6 +814,36 @@ DB state after #dev-corner 2024: chat_threads = **37699**, all v2. **#dev-corner
 > Both OOB chunks were 1500-msg forced ones and the bad indices were 1501/1502 -- an off-by-one
 > past the cap. Expect this specifically on cap-forced chunks; it is intermittent, so a re-fence
 > clears it.
+
+> **A FENCE THAT PASSES BOTH GATES AND IS STILL WRONG (found on #antilag-2021, 2026-08-06).**
+> `antilag-2021-002` scored **99.8% coverage / 0% index-hallucination** -- both gates green --
+> while emitting **3,127 index placements for 1,497 messages** across 19 mutually-overlapping
+> threads. It duplicated the chunk roughly twice over. The fence is supposed to be a PARTITION;
+> this was not one.
+>
+> **Why no gate saw it:** `fence-stats` coverage counts DISTINCT indices placed, so putting the
+> same message in ten threads scores exactly like placing it once. Hallucination only checks
+> that indices are in range -- they all were. Duplication was simply not measured anywhere.
+> Downstream it showed up only as `r8MultiThreadMsgs` **1,633 of 8,926 (18%)** at load time, vs
+> 0-15 on a typical batch -- and that counter is descriptive, not a gate.
+>
+> **Scope, measured across all 20 session-5 batches** (`dup-scan`): this chunk is an outlier by
+> an order of magnitude (109% duplication). Next worst is `quakeworld-2017-058` at 10.8% (160
+> dups); every other chunk is under ~5%, consistent with the documented-legitimate R8 case of a
+> message genuinely bridging two threads. **The low-level duplication in the loaded corpus is
+> acceptable and was left alone; only the outlier was re-fenced.**
+>
+> **Fix:** `chunkCoverage` now returns `dup`/`dupRatio`; refence SELECTS on
+> `dupRatio > DUP_RATIO_MAX (1.05)` as well as coverage/OOB, and `betterRealization` ranks
+> **OOB -> clean-partition -> coverage**, so a clean 97% realization now beats a duplicated 100%
+> one. Previously the ranking would have actively preferred the broken output.
+>
+> **The general lesson, and it is the sharpest one of session 5:** a metric that aggregates
+> (coverage = distinct/total) cannot detect a failure that preserves the aggregate. Two of this
+> session's three worst defects were invisible to the gates for exactly this reason -- a missing
+> chunk costs no coverage because it is not counted, and a duplicated chunk costs no coverage
+> because coverage is de-duplicated. **When adding a quality gate, ask what shape of wrongness
+> leaves its number unchanged.**
 
 > **CORPUS DRIFT MID-BACKFILL (2026-08-05, cross-lane -- READ BEFORE RESUMING).** A parallel
 > session ran the Arc A catch-up import while this backfill was in flight. Raw `messages` went

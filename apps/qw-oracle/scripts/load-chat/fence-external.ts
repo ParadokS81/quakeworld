@@ -461,14 +461,28 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
 // keeps a worse realization, so it is safe to re-run.
 // ---------------------------------------------------------------------------
 
-async function chunkCoverage(manifest: ManifestFile, fc: FencedChunk): Promise<{ covered: number; n: number; pct: number; oob: number }> {
+// A chunk fence is supposed to be a PARTITION. Coverage counts DISTINCT indices
+// placed, so it cannot see a fence that reaches high coverage by putting the
+// same messages in many overlapping threads -- #antilag-2021-002 emitted 3,127
+// placements for 1,497 messages (109% duplication, 19 mutually-overlapping
+// threads) and still scored 99.8% coverage / 0% hallucination, sailing through
+// both gates. `dupRatio` is that blind spot made visible.
+const DUP_RATIO_MAX = 1.05; // a few genuinely-bridging messages are the documented R8 case;
+                            // whole-chunk overlap is not.
+
+async function chunkCoverage(manifest: ManifestFile, fc: FencedChunk): Promise<{ covered: number; n: number; pct: number; oob: number; dup: number; dupRatio: number }> {
   const chunk: ChunkFile = JSON.parse(await Bun.file(join(manifest.chunkDir, `${fc.chunkId}.json`)).text());
   const valid = new Set(chunk.messages.map((m) => m.idx));
   const covered = new Set<number>();
-  let oob = 0;
-  for (const t of fc.threads) for (const i of t.member_indices) valid.has(i) ? covered.add(i) : oob++;
+  let oob = 0, emitted = 0;
+  for (const t of fc.threads) for (const i of t.member_indices) { emitted++; valid.has(i) ? covered.add(i) : oob++; }
   const n = chunk.messages.length;
-  return { covered: covered.size, n, pct: n > 0 ? (covered.size / n) * 100 : 100, oob };
+  const distinct = covered.size + oob;
+  return {
+    covered: covered.size, n, pct: n > 0 ? (covered.size / n) * 100 : 100, oob,
+    dup: emitted - distinct,
+    dupRatio: distinct > 0 ? emitted / distinct : 1,
+  };
 }
 
 // Which realization is better? OOB FIRST, then coverage.
@@ -478,8 +492,17 @@ async function chunkCoverage(manifest: ManifestFile, fc: FencedChunk): Promise<{
 // a 92.9%-coverage realization carrying 2 OOB indices over an 84.7% one, and
 // the batch then failed the hard gate at 0.008%. Trading the hard gate for
 // 8 points of the soft one is never right.
-function betterRealization(cand: { pct: number; oob: number }, cur: { pct: number; oob: number }): boolean {
+// Order: OOB (hard gate) -> partition sanity -> coverage. A realization that is
+// a clean partition at 97% beats one that hits 100% by duplicating the chunk.
+function betterRealization(
+  cand: { pct: number; oob: number; dupRatio: number },
+  cur: { pct: number; oob: number; dupRatio: number },
+): boolean {
   if (cand.oob !== cur.oob) return cand.oob < cur.oob;
+  const candDirty = cand.dupRatio > DUP_RATIO_MAX;
+  const curDirty = cur.dupRatio > DUP_RATIO_MAX;
+  if (candDirty !== curDirty) return curDirty;      // clean partition wins outright
+  if (candDirty && curDirty) return cand.dupRatio < cur.dupRatio; // both dirty: less overlap
   return cand.pct > cur.pct;
 }
 
@@ -501,16 +524,16 @@ async function cmdRefence(channel: string, year: number, opts: Map<string, strin
   // An OOB chunk can sit well above the coverage floor and still fail the hard
   // gate on its own (2021's -013 was at 98%+ with 1 OOB), so coverage-only
   // selection cannot see it.
-  const weak: { cid: string; pct: number; covered: number; n: number; oob: number }[] = [];
+  const weak: { cid: string; pct: number; covered: number; n: number; oob: number; dup: number; dupRatio: number }[] = [];
   for (const fc of byId.values()) {
     if (fc.abstained) continue;
     const c = await chunkCoverage(manifest, fc);
-    if (c.pct < below || c.oob > 0) weak.push({ cid: fc.chunkId, ...c });
+    if (c.pct < below || c.oob > 0 || c.dupRatio > DUP_RATIO_MAX) weak.push({ cid: fc.chunkId, ...c });
   }
-  weak.sort((a, b) => (b.oob - a.oob) || (a.pct - b.pct));
-  if (!weak.length) { console.log(`[refence] no chunks below ${below}% coverage and none with OOB -- nothing to do`); return; }
+  weak.sort((a, b) => (b.oob - a.oob) || (b.dupRatio - a.dupRatio) || (a.pct - b.pct));
+  if (!weak.length) { console.log(`[refence] no chunks below ${below}% coverage, none with OOB, none over-duplicated -- nothing to do`); return; }
 
-  console.log(`[refence] ${weak.length} chunk(s) below ${below}% or carrying OOB: ${weak.map((w) => `${w.cid}@${w.pct.toFixed(1)}%${w.oob ? `/OOB${w.oob}` : ''}`).join(' ')}`);
+  console.log(`[refence] ${weak.length} chunk(s) below ${below}% / OOB / duplicated: ${weak.map((w) => `${w.cid}@${w.pct.toFixed(1)}%${w.oob ? `/OOB${w.oob}` : ''}${w.dupRatio > DUP_RATIO_MAX ? `/DUP${w.dup}` : ''}`).join(' ')}`);
 
   const results = await runGently(
     weak.map((w) => w.cid),
@@ -523,7 +546,8 @@ async function cmdRefence(channel: string, year: number, opts: Map<string, strin
     'refence',
   );
 
-  const fmt = (x: { pct: number; oob: number }) => `${x.pct.toFixed(1)}%${x.oob ? `/OOB${x.oob}` : ''}`;
+  const fmt = (x: { pct: number; oob: number; dup: number; dupRatio: number }) =>
+    `${x.pct.toFixed(1)}%${x.oob ? `/OOB${x.oob}` : ''}${x.dupRatio > DUP_RATIO_MAX ? `/DUP${x.dup}` : ''}`;
   let improved = 0;
   for (const [k, w] of weak.entries()) {
     const r = results[k];
@@ -532,7 +556,9 @@ async function cmdRefence(channel: string, year: number, opts: Map<string, strin
     if (betterRealization(c, w)) {
       byId.set(w.cid, r.fenced);
       improved++;
-      const why = c.oob < w.oob ? `OOB ${w.oob}->${c.oob}` : `+${c.covered - w.covered} msgs`;
+      const why = c.oob < w.oob ? `OOB ${w.oob}->${c.oob}`
+        : (w.dupRatio > DUP_RATIO_MAX && c.dupRatio <= DUP_RATIO_MAX) ? `DUP ${w.dup}->${c.dup}`
+        : `+${c.covered - w.covered} msgs`;
       console.log(`  ${w.cid}: ${fmt(w)} -> ${fmt(c)} SPLICED (${why})`);
     } else {
       console.log(`  ${w.cid}: ${fmt(w)} vs re-fence ${fmt(c)} -- keeping original`);
