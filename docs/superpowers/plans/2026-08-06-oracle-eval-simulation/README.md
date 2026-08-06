@@ -9,8 +9,8 @@ review + arc-end cold review).
 **Ledger:** `decisions.md` (E1-E15). **Findings:** `review-findings.md`
 (F1-F40; F1-F16 pre-draft sweep, F17-F22 Phase 1 + checker, F23-F26 Phase 2,
 F27-F31 Phase 3, F32-F36 Phase 3 checker, F37-F40 Phase 2 checker, F41-F42
-Phase 3 revision, F43 Phase 2 revision, F44-F48 Phase 4, F49 Phase 1 revision --
-all before a line of code exists).
+Phase 3 revision, F43 Phase 2 revision, F44-F48 Phase 4, F49-F50 Phase 1 revisions
+-- all before a line of code exists).
 
 ## Where we are right now
 

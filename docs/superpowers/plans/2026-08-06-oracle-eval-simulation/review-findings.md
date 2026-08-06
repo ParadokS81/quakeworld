@@ -278,6 +278,37 @@ produced at a stage other than answering, with nowhere writable to land"),
 applied deliberately to the rest of the record rather than stopping at the
 first instance. The revision brief asked only for the `divergent` fix.
 
+**F50 (minor, fixed in-doc) -- "byte-copy" is achievable in a way that makes
+the delta validator FALSE-POSITIVE.** Evidence: the validator compares nested
+fields (`retrieval_context`, `tool_calls`, `usage`) by deep equality. An
+implementer who satisfies "byte-copy" by RECONSTRUCTING the record field by
+field, rather than spreading it, can produce semantically identical nested
+objects with a different key order -- which compares unequal. The result is a
+false delta that blocks a legitimate grading write and reads exactly like a
+contract violation, sending the implementer hunting for a corruption that does
+not exist. Disposition: new append rule -- produce the graded line by spreading
+(`{...answered, stage, grade, divergent, grade_usage}`), never by
+reconstruction.
+
+**Allowlist-vs-denylist ruling (Phase 1, 2026-08-06): the mutable-field
+DENYLIST stays, and the reasoning is worth keeping.** The obvious inference
+from "the mutable set grew twice in one day" is that it should be inverted into
+an immutable-field allowlist. It should not. The two shapes fail in opposite
+directions: a denylist fails **closed and loud** -- a new record field is
+protected automatically, and if it turns out to be legitimately grading-written
+the probe fails immediately, naming it. An allowlist fails **open and silent**
+-- a new field left off the list is unprotected forever and nothing complains.
+Applied to this arc's own history: under an allowlist, `grade_usage` would have
+been added to the record, omitted from the immutable list, silently mutable,
+and F49 would never have surfaced. The growth events ARE the mechanism working.
+Demonstrated rather than argued: an allowlist variant of the validator was
+built and run against the phase's probe, failing at `unknown field unprotected
+-- the denylist must fail closed`, and that assertion is now a permanent probe
+line so an allowlist rewrite cannot land quietly. The denylist's one real
+weakness -- an untyped string set drifting from the interface -- is closed by a
+compile-time `keyof RunRecord` guard, so a typo is a typecheck failure rather
+than a field that silently stops being protected.
+
 ## Findings from Phase 4 drafting (2026-08-06)
 
 Numbered F44-F48. Spend: 50 `deepseek-v4-flash` calls, ~$0.016 (extrapolated
