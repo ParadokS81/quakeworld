@@ -26,6 +26,8 @@ import type { CenterLabel, StationSource } from '../generators/layout'
 import { generateMesh } from '../generators/mesh'
 import type { BrainManifest, Datacenter, LitDatacenter } from '../data/manifest-types'
 import type { ManifestSource } from '../data/manifest'
+import DrillOverlay from './DrillOverlay'
+import DatacenterCard from './DatacenterCard'
 
 const L = DESKTOP_LAYOUT
 
@@ -36,6 +38,43 @@ interface Props {
   showWhyDoor?: boolean
   /** Task 9's hover-spawn seam -- fires on every chain toggle. */
   onChainHover?: (id: string, on: boolean) => void
+  /** P7c: honored by the drill overlay's open/close animation. Task 9 wires
+      the real `prefers-reduced-motion` read in App.tsx; defaults falsy until
+      then (team brief, Task 7). */
+  reduced?: boolean
+}
+
+/** One open drill card. `kind` routes to its content (Task 7 owns 'dc';
+    Task 8 plugs 'xn' and 'why' in below). `originRect` is captured at click
+    time so the overlay can zoom out of the element that was actually
+    clicked. */
+interface DrillState {
+  kind: 'dc' | 'xn' | 'why'
+  id: string
+  originRect: DOMRect
+}
+
+/** Dialog aria-label for an open card. 'dc' uses the real manifest name;
+    'why' matches the mockup's comparison fallback (line 326); 'xn' has no
+    authored display name yet (that copy is Task 8's XnCards) so the raw id
+    stands in until then. */
+function drillLabel(manifest: BrainManifest, d: DrillState): string {
+  if (d.kind === 'dc') {
+    return manifest.datacenters.find((dc) => dc.id === d.id)?.name ?? d.id
+  }
+  if (d.kind === 'why') return 'comparison'
+  return d.id
+}
+
+/** Card body for an open drill. Only 'dc' renders today -- 'xn' and 'why'
+    are Task 8's XnCards / WhyCompare; until they land this returns null and
+    the overlay shows chrome only (backdrop, card frame, close button). */
+function drillBody(manifest: BrainManifest, d: DrillState, onOpenConnect: (ev: MouseEvent) => void) {
+  if (d.kind === 'dc') {
+    const dc = manifest.datacenters.find((x) => x.id === d.id)
+    return dc ? <DatacenterCard dc={dc} onOpenConnect={onOpenConnect} /> : null
+  }
+  return null
 }
 
 /** A layout station paired with its manifest datacenter (D4: keyed by id). */
@@ -99,11 +138,17 @@ export default function Floor1Brain(props: Props) {
   const [agentHot, setAgentHot] = createSignal(false)
   const [snapHot, setSnapHot] = createSignal(false)
 
-  // The drill system is Task 7's; every click and keyboard target already
-  // routes through this one function so T7 replaces a body, not call sites.
+  // Card state (Task 7): a signal holding the one open drill, or null. Every
+  // click and keyboard target already routes through this one function, so
+  // T7 replaces the body, not the call sites. The rect is captured NOW, at
+  // click time, from the element that was actually clicked (mockup 331 does
+  // the same via a stored element reference; capturing the rect directly is
+  // equivalent since nothing moves between click and open).
+  const [drill, setDrill] = createSignal<DrillState | null>(null)
   const openCard = (kind: 'dc' | 'xn' | 'why', id: string, origin: Element) => {
-    console.debug('[oracle-web] drill card requested:', kind, id, origin)
+    setDrill({ kind, id, originRect: origin.getBoundingClientRect() })
   }
+  const closeCard = () => setDrill(null)
 
   // The comp zooms a station's card out of its LABEL group even when the click
   // landed on the trace's fat hit stroke (mockup 698 passes `g`, not `hit`) --
@@ -857,6 +902,29 @@ export default function Floor1Brain(props: Props) {
       <div class="cornernote">
         <p class="tag">30 years of QuakeWorld knowledge, routed to your agent or API.</p>
       </div>
+
+      {/* Drill overlay (Task 7, mockup 321-353). `keyed` is load-bearing:
+          opening a second card must fully remount DrillOverlay -- fresh
+          zoom-from-origin animation, fresh Escape listener -- rather than
+          patch props onto the still-mounted one (mockup 322: a second open
+          calls closeDrill(true), an INSTANT close, before opening the new
+          card). A plain (non-keyed) Show only recreates the DOM on a
+          falsy<->truthy transition; two different truthy DrillStates would
+          just update the accessor in place and skip both the remount and
+          the instant-replace behavior. */}
+      <Show when={drill()} keyed>
+        {(d) => (
+          <DrillOverlay
+            originRect={d.originRect}
+            label={drillLabel(props.manifest, d)}
+            wide={d.kind === 'why'}
+            reduced={props.reduced}
+            onClose={closeCard}
+          >
+            {drillBody(props.manifest, d, (ev) => openCard('xn', 'agent', ev.currentTarget as Element))}
+          </DrillOverlay>
+        )}
+      </Show>
     </>
   )
 }

@@ -877,6 +877,16 @@ anything else that differs is a finding:**
   the comp lacks -- additive per spec D1 (Task 8 step 2b, cold review
   CR-SPEC-1). Its wording is reviewed here at V8, not compared against the
   comp.
+- D-k: on the three agent-door drill cards (DISCORD, CONCEPT NOTES, GAME
+  CONTENT) the `door: ask your agent → <tool call>` line is **underlined and
+  clickable**, opening the CONNECT card. The comp renders that line as PLAIN
+  TEXT (mockup 314) -- only its separate MCP card carries the clickable
+  `data-open` affordance (275). This is the P9/D3 funnel requirement ("the
+  agent-door line links into the CONNECT card") landing on a spot the comp
+  never made interactive, instructed by Task 7 step 2 and surfaced by the
+  implementer rather than slipped in. Sanctioned: verify at V6 that the line
+  OPENS the connect card; do not log the underline as a mismatch. (Finding
+  F19.)
 
 **Operator-load note:** this fourteen-item walk runs ONCE, here. Later
 phases deliberately re-run only a consolidated subset -- Phase 5's R-op

@@ -296,6 +296,39 @@ the comp-parity contract. If Phase 6 takes it, record it as a dated
 sanctioned deviation under P1 -- an accessibility improvement the comp lacks,
 same framing as Phase 3's D-j additive content block.
 
+**F19 (sanctioned deviation, execution-time, registered as ritual item D-k) --
+the agent-door line is interactive on our drill cards and plain text in the
+comp.** Surfaced: Phase 3 Task 7 execution 2026-08-06, by the implementer,
+which noticed it was being asked for something the comp does not show and said
+so instead of quietly shipping it.
+
+Task 7 step 2 instructs that a `kind: 'agent'` door line "links into the
+CONNECT card (the funnel)", citing P9/D3. Verified against the comp at
+orchestration: `buildCard` renders `door: {dc.door}` as PLAIN TEXT (mockup
+314); the only clickable door in the mockup is the separate MCP **XN** card's
+`data-open` span (275). So the funnel requirement lands on a spot the comp
+never made interactive, and our three agent-door cards (DISCORD, CONCEPT
+NOTES, GAME CONTENT) now render an underlined, pointer-cursor,
+keyboard-operable line where the comp shows flat text.
+
+The requirement is real -- P9 makes the connect surface SINGULAR and D3 makes
+level four a door out, so a drill card that names a tool call and offers no
+way to reach it is the spec's dead end, not the comp's. The implementation is
+correct. What was missing is that a VISIBLE difference from the comp had no
+entry in the ritual's sanctioned-deviation list, and the ritual's own rule is
+"each is sanctioned, anything else that differs is a finding" -- so at V6 the
+operator would have logged a correct implementation as a mismatch.
+
+**Disposition:** registered as ritual deviation **D-k**, alongside D-j (the
+other beyond-comp addition this phase ships). No code change. The styling is
+the comp's own inline form borrowed from line 275 (`cursor:pointer;
+text-decoration:underline`), so the affordance at least looks native to the
+design rather than invented. Lesson worth carrying: a plan instruction that
+adds interactivity beyond the comp needs a deviation-list entry AT DRAFTING
+TIME, exactly as D-j got one -- P1's "any visible deviation is a finding or a
+dated amendment" cuts both ways, and the pre-brief is what keeps the operator's
+walk trustworthy.
+
 **F8 (cold adversarial review, 2026-08-06) -- three fresh-context readers,
 all GO-WITH-FIXES, every finding applied.** Reports committed as
 `cold-review-chain.md`, `cold-review-gates.md`, `cold-review-spec.md`; aim
