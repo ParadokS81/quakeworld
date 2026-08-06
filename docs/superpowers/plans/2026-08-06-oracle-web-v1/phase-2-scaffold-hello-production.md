@@ -141,6 +141,7 @@ Drafting-time environment facts (probed 2026-08-06 on this box):
 - `pnpm-workspace.yaml`, `package.json`, `pnpm-lock.yaml` (generated at
   install, committed), `.gitignore`, `tsconfig.json`, `vite.config.ts`,
   `index.html`, `DEPLOYMENT.md`
+- **`CLAUDE.md`** -- the app's Layer 1 entry doc (see Task 2 step 0)
 - `scripts/bake-manifest.mjs`
 - `src/index.tsx`, `src/App.tsx`, `src/styles/app.css`
 - `src/data/manifest-types.ts`, `src/data/manifest.ts`,
@@ -202,7 +203,32 @@ install misbehaves: prefix every later `pnpm` literal with `npx -y pnpm@10`
 **Goal:** `apps/oracle-web` exists as its own pnpm subtree; `pnpm build`
 produces a `dist/` that renders a placeholder page with the theme CSS applied.
 
-**Files:** `pnpm-workspace.yaml`, `package.json`, `.gitignore`,
+**Step 0 -- monorepo doc-doctrine registration (do this FIRST, not at ship).**
+A new app under `apps/` is born into the monorepo's doc graph, not bolted on
+later. Two edits, both tiny, both required:
+
+1. Create `apps/oracle-web/CLAUDE.md` -- the app's Layer 1 entry doc:
+   `**Status:** Active development`, one-paragraph what-this-is, a
+   `## Documentation index` table (rows for `DEPLOYMENT.md` and, as they
+   land, any Layer 2 docs), the stack locks (SolidJS + Vite + Tailwind v4 +
+   daisyUI, own pnpm subtree), the deploy target, and a pointer to this arc's
+   plan dir + the design spec + the mockup-of-record.
+2. Add the matching row to the ROOT `CLAUDE.md` `## Subsystem scopes` table:
+   `| apps/oracle-web/ | apps/oracle-web/CLAUDE.md | oracle.quake.world v1 --
+   the read-only brain surface (SolidJS, CF Pages) |`.
+
+**Why this is a task step and not a ship-pass afterthought:** `apps/docs-web`
+shipped without either, and the gap is still an open doc-hygiene followup in
+HANDOVER months later -- the sibling app made exactly this mistake. The
+monorepo's own birth-check doctrine says classification happens at creation.
+(Surfaced by the 2026-08-06 wrap-up sweep: neither file appeared anywhere in
+the six phase docs -- three checkers, a coherence pass, and three cold
+reviewers all missed it, because every one of them reviewed the plan against
+the spec and the comp, and none against monorepo doc doctrine. `OVERVIEW.md`
+gets its row in Phase 6, when there is a shipped thing to describe.)
+
+**Files:** `apps/oracle-web/CLAUDE.md`, root `CLAUDE.md` (subsystem row),
+`pnpm-workspace.yaml`, `package.json`, `.gitignore`,
 `tsconfig.json`, `vite.config.ts`, `index.html`, `src/index.tsx`,
 `src/App.tsx` (static placeholder at this task), `src/styles/app.css`.
 

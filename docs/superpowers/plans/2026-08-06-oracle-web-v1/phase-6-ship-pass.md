@@ -420,6 +420,16 @@ nothing silent.
    dead-address CTA). On ruling: apply to `XnCards.tsx` (agent-card headline
    + CLI paste-prompt) and `TerminalTopics.tsx` (boot card); the CLI
    prompt's question text and client steps stay byte-identical otherwise.
+1a. **Monorepo doc-graph completion (wrap-up sweep 2026-08-06).** Phase 2
+   step 0 created `apps/oracle-web/CLAUDE.md` and the root `CLAUDE.md`
+   subsystem row at birth. Close the loop here, now that there is a shipped
+   thing to describe: add `apps/oracle-web` to root `OVERVIEW.md` (the
+   living cross-app map -- one entry with status, stack, deploy URL, and its
+   relationship to docs-web and the oracle MCP), and verify
+   `apps/oracle-web/CLAUDE.md`'s `## Documentation index` lists every Layer 2
+   doc that actually landed during the arc (at minimum `DEPLOYMENT.md`).
+   Verification: `grep -c oracle-web OVERVIEW.md` >= 1 and every row in the
+   app's index table points at a file that exists.
 1b. **Per-client honesty labeling (cold review CR-SPEC-5).** The connect
    card lists client paths we have NOT all executed. Rule for the shipped
    copy: steps we have run end to end (Claude connector / CLI agent, proven
