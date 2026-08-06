@@ -11,8 +11,13 @@ mockup-of-record). **Parent:**
 
 ## Where we are right now
 
-- **Stage:** PHASES 1-2 SHIPPED (2026-08-06). The site is deployed and serving
-  live oracle numbers. Next up: Phase 3 (Floor 1 brain port).
+- **Stage:** PHASES 1-2 SHIPPED (2026-08-06); **PHASE 3 IN FLIGHT** -- T1
+  (floor-1 + drill CSS, commit `96360c21`) and T2 (`layout.ts` desktop
+  geometry, commit `0a82b53f`) shipped and orchestrator-verified against the
+  comp; T3 (`mesh.ts`) dispatched. Remaining: T3-T10. Phase 3's boundary is a
+  fourteen-item operator visual-parity ritual (side-by-side vs the mockup) --
+  it runs ONCE, at this phase's boundary, and later phases re-run only a
+  consolidated subset.
 - **Phase 1** (manifest pipeline): emitter rewritten to the v1 contract,
   manifest published, nginx CORS + `always`, runbook rider. Commits
   `b6efc54e` / `91fd38bc` / `29a465d7`. **9/9 boundary probes green on the
@@ -36,9 +41,10 @@ mockup-of-record). **Parent:**
   -- do-not-revert rule for later phases), F10 (`~/.secrets` is ro to dev; CF
   token homed at `/home/dev/projects/.secrets/`, now also a `secret-drop`
   registry entry), F11 (Phase 2 Task 3's bundle-grep probe was unsatisfiable
-  before Task 4 wired the import -- relocated, not weakened).
-- **Next action:** arc-run Phase 3 (Floor 1 brain port -- mesh/stations/
-  traces/journeys, drill cards, connect card, why-overlay dark).
+  before Task 4 wired the import -- relocated, not weakened), F12 (Phase 3
+  Task 10's deploy line cites the pre-F10 `~/.secrets` path -- use
+  DEPLOYMENT.md's `/home/dev/projects/.secrets/` path instead).
+- **Next action:** finish Phase 3 tasks T3-T10, then run the boundary ritual.
 - **Operator-side prerequisites: NONE outstanding.** The CF Pages token is in
   place and validated (rotated 2026-08-06 after a transcript exposure).
 
