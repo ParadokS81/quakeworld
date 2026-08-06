@@ -130,6 +130,28 @@ spot-check and browsing burden, which scales linearly with N. Targeted
 follow-up runs on the same harness are the answer to "interesting domain,
 want more data" -- not a bigger N up front.
 
+**Amendment 2026-08-06 (arc-plan verification sweep) -- D4/D5 pool figures
+corrected to live counts.** The "3,324 solved non-noise pool" in D5 and the
+"~2% coverage cost" in D4 were June arithmetic (`size - unresolved` summed over
+the non-noise clusters), not live counts. Verified first-hand against the dev
+twin this date: of `faq-clusters.json`'s 5,028 frozen thread IDs, 4,456 are
+non-noise; **4,222 still exist live (234 missing, 5.3%)**, of which **3,164 are
+`solved`** -- that is the real sampling pool. The missing IDs form a contiguous
+band (7420..7792) inside a present range of 6706..18928, the signature of one
+re-fenced batch whose threads were regenerated with new identity IDs rather
+than of scattered deletions.
+
+Consequences: N~=500 stands unchanged in substance (sampling fraction 15.0% ->
+15.8%; headline CI still ~+/-4%); the per-domain floor and proportional
+allocation are recomputed against the live pool, not the June numbers. The
+decay mechanism is now a standing constraint, not a footnote -- re-fencing
+reassigns `chat_threads.id`, and the monthly harvest re-fences the current year,
+so the frame must be resolved against live rows ONCE and frozen (arc plan E4).
+Era distribution of the live pool: 2020:365, 2021:710, 2022:523, 2023:615,
+2024:511, 2025:440, **2026:0** -- the eval grades against fixes 1-6 years old,
+which makes D6's `divergent` flag load-bearing rather than a corner case.
+Evidence and disposition: arc plan `review-findings.md` F1-F3.
+
 **Pass 1 (Sampling) CLOSED 2026-08-06.** D1-D5 locked; carry-forwards below.
 
 ### D6 -- Grading design (locked 2026-08-06)

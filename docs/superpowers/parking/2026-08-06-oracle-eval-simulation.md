@@ -68,6 +68,16 @@ fan-outs); route direct on the local network / Tailscale. This finally gives HAN
 parked "MCP Tailscale direct-route for batch jobs" followup its reason to get done --
 fold it in.
 
+> **Correction 2026-08-06 (arc-plan verification sweep):** the fold-in is
+> **withdrawn**. The bulk cells do not need MCP transport at all -- the harness
+> imports the oracle's tool handlers in-process (proven by the June 11-thread
+> hypothesis test, which did exactly this with self-thread exclusion), so
+> Cloudflare, the missing dev MCP container, and the Tailscale route all leave
+> the critical path. The Claude-side cells spawn the server over **stdio**
+> against the twin, which also bypasses CF. The parked HANDOVER item therefore
+> returns unchanged and un-discharged -- do not read this arc's completion as
+> having closed it. Detail: arc plan `review-findings.md` F6, ledger E6.
+
 **Prior operator research (input to sampling design):** before the US-trip pause the
 operator researched mapping the helpdesk channel for topic threads / most-asked
 questions, intending exactly this simulation. Locate that material at arc-design time
