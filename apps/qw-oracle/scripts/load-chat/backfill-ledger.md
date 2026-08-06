@@ -154,7 +154,7 @@ validation slice.
 | [x] | 2023 | 1,613 | 56 | 0 | -- loaded 2026-08-06 (session 5), 111 threads, **100.00% coverage** (refence no-op)
 | [x] | 2024 | 2,745 | 73 | 0 | -- loaded 2026-08-06 (session 5), 164 threads, 99.96% coverage (refence no-op)
 | [x] | 2025 | 1,877 | 63 | 0 | -- loaded 2026-08-06 (session 5), 136 threads, **100.00% coverage** (refence no-op)
-| [x] | 2026 | 2,559 | 44 | 0 | -- RE-FENCED 2026-08-06 after catch-up (was 1,029/21/67 prep slice); 111 threads, **100.00% coverage**
+| [x] | 2026 | 2,559 | 44 | 0 | -- RE-FENCED 2026-08-06 after catch-up (was 1,029/21/67 prep slice); 116 threads, **100.00% coverage**
 
 ## Totals
 
@@ -849,14 +849,14 @@ message ids, not labels) -- verified 38,598 before and after.
 | #helpdesk 2026 | 5,400 -> 8,019 | 61 -> 106 | 373 -> **522** | 99.48% | refence 1/1 (-019 67.7% -> 97.2%, +443 msgs) |
 | #quakeworld 2026 | 8,829 -> 14,619 | 28 -> 52 | **919** | 99.87% | first load |
 | #dev-corner 2026 | 4,601 -> 6,496 | 54 -> 94 | **504** | **100.00%** | first load |
-| #antilag 2026 | 1,029 -> 2,559 | 21 -> 44 | 67 -> **111** | **100.00%** | replaced the June prep slice |
+| #antilag 2026 | 1,029 -> 2,559 | 21 -> 44 | 67 -> **116** | **100.00%** | replaced the June prep slice; re-realized during the incremental-reuse test, re-gated + reloaded so file and DB agree |
 
 All 0% hallucination, 0 OOB / 0 missing / 0 stale, 0 duplicate thread_keys. **Retrieval: PASS on
 content that did not exist in the corpus yesterday** -- "antilag 1 fairness debate double
 rockets" returns its 562-msg 2026-07-30 #antilag thread as top hit; "QuakeWorld performance on
 Linux/Wayland" returns its 195-msg 2026-05-09 #helpdesk thread.
 
-**DB state: chat_threads = 40,214, all v2, corpus current through 2026-08-05. 35/35 batches.**
+**DB state: chat_threads = 40,219, all v2, corpus current through 2026-08-05. 35/35 batches.**
 
 > **THE GOLDEN IS GONE FROM THE DB -- preserved as a file.** #helpdesk-2026 was the only Sonnet
 > fencing left and the baseline the contract-worker spike diffed against; the catch-up grew it
@@ -876,6 +876,26 @@ Linux/Wayland" returns its 195-msg 2026-05-09 #helpdesk thread.
 > aggregate intact. Fixed: fence output records a `manifestFingerprint` (md5 over
 > `id:messageCount` pairs) and `--resume` REFUSES on mismatch, including when the prior output
 > predates the field. Verified against the live hazard before relying on it.
+
+> **THE HARVEST IS INCREMENTAL -- fencing cost scales with NEW chat, not year size.** The ritual
+> was first written as "re-fence the current year's 4 batches, ~$2/month", inherited from the
+> prior lane's framing. That is mostly wasted spend. `lullChunks` is a pure left-fold: each cut
+> depends only on messages seen so far, so appending newer messages CANNOT move earlier
+> boundaries -- only the trailing chunk can grow or split. **Verified against the preserved
+> golden: #helpdesk-2026 went 61 -> 106 chunks with ALL 61 originals byte-identical** (same ids,
+> same message lists, same order).
+>
+> The manifest-level `--resume` fingerprint added earlier the same day was right about the danger
+> but too blunt -- it refused wholesale, blocking the legitimate incremental case. Replaced with
+> PER-CHUNK fingerprints (md5 over each chunk's message-id list): reuse iff the chunk still
+> hashes the same, re-fence anything else. Stays correct when growth is NOT append-only, since a
+> gap-fill of older messages just fails the hashes it disturbs. Verified end to end on
+> #antilag-2026: an output predating fingerprints reuses NOTHING (loud warning, 8.7 min), and the
+> next run reused 44/44 content-verified at `toFence=0, wall 0.0min, 0 tokens`.
+>
+> **Loading stays whole-year deliberately** -- the range-DELETE is `(channel, year)`-scoped,
+> which is what makes it idempotent and a partial batch impossible to half-apply. Only FENCING is
+> incremental. Runbook: `HARVEST-RUNBOOK.md`.
 
 > **The driver's global-total idempotency check was a FALSE POSITIVE under parallel batches.**
 > #quakeworld-2026 HALTED on "global thread count moved 40065 -> 40214 -- duplication" while its

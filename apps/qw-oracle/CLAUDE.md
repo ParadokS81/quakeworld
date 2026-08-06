@@ -43,7 +43,7 @@ the cockpit deliberately cannot run it). Prod is never touched by any of this.
   `session_search` remain as raw timestamp-grouped adjacent-context, no longer
   the retrieval unit. RRF `match_quality` thresholds (`L2_RRF_*`) are
   provisional pending Phase D recalibration on the full backfill. **Phase C
-  COMPLETE 2026-08-06: 35/35 batches, `chat_threads` 8,621 -> 40,214, 100%
+  COMPLETE 2026-08-06: 35/35 batches, `chat_threads` 8,621 -> 40,219, 100%
   `fence-sonnet-v2`, corpus current through 2026-08-05** (705,540 msgs /
   3,928 chunks). Fenced on `fence-external.ts` (DeepSeek, ~$31, no Max quota);
   every batch 0% index-hallucination, >=99.13% coverage, idempotent,
