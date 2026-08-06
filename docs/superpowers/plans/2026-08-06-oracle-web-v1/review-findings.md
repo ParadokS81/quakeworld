@@ -29,6 +29,15 @@ as leaked field names; probe passes on first emit, fails permanently from the
 second -- poisoning the mechanical level-4 leak guard. Disposition: routed back
 to the drafter -- `del(.history[].nums)` before the walk.
 
+**F5 (contract amendment) -- manifest lacked raw thread/solved counts for the
+MCP card.** Surfaced: Phase 3 drafting 2026-08-06. The mockup's MCP card
+renders a raw thread count ("20,270 community threads") but the Phase 1
+contract carried thread/solved numbers only inside emitter-composed display
+strings (`cm.num` = messages). Disposition: dated additive amendment to the
+Phase 1 contract (raw thread + solved fields on `cm`), full blast-radius
+re-derive (TS block, probe allowlists, emitter mapping, baseline, outputs
+claim); Phase 3 T8 gates one copy line on it.
+
 **F4 (minor, resolved in draft) -- nginx `add_header` without `always` skips
 non-2xx responses.** Surfaced: Phase 1 checker 2026-08-06 (verified live:
 today's 404 carries none of the location's configured headers). The CORS line

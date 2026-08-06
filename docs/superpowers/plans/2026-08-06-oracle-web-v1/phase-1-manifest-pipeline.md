@@ -54,7 +54,9 @@ prose. Field names follow the mockup `DC` seed exactly (`name` / `num` / `sub`
 / `lit` / `share` / `stationSubs` / `bars` / `stats` / `notes` / `teaser` /
 `door`) so the Phase 3 port maps 1:1, with two typed cleanups recorded under
 Open questions: raw numbers instead of pre-formatted strings, and a structured
-`door` object instead of an HTML string.
+`door` object instead of an HTML string. One field pair extends the seed by
+dated amendment (`threads` / `solved`, 2026-08-06 -- see the amendment block
+at the end of this section).
 
 ### Envelope
 
@@ -94,6 +96,11 @@ interface LitDatacenter {
   stationSubs: string[]; // station reveal lines (1-2 entries; long subs pre-split per
                          // the P8 addendum label pattern)
   share: number;         // scaffold-density share, 3 decimals -- see formula below
+  threads?: number;      // raw topic-thread count (cm only at launch) -- MCP-card
+                         // "community threads" figure; also embedded formatted in sub
+                         // (2026-08-06 amendment, see below)
+  solved?: number;       // raw solved-thread count (cm only at launch); also embedded
+                         // formatted in sub/stationSubs (2026-08-06 amendment)
   bars?: Array<[string, number]>;  // region breakdown rows (label, raw count), count-desc.
                                    // ef: per-codebase entities; cm: per-channel messages.
   stats?: Array<[number, string]>; // stat tiles (raw value, label). gc only at launch.
@@ -200,8 +207,8 @@ day later the thread and solved counts have doubled via the L2 backfill.)
 | `ef` codebase count (in `sub`) | `select count(distinct project) from entities` | 7 |
 | `ef.bars` | `select project, count(*) from entities group by project order by count(*) desc` | ezquake 4192, fte 3279, ktx 1892, mvdsv 1236, qwcl 380, qtv 52, qwfwd 50 |
 | `cm.num` | `select count(*) from messages` | 741128 |
-| `cm` threads (in `sub`/`stationSubs`) | `select count(*) from chat_threads` | 40219 |
-| `cm` solved (in `sub`/`stationSubs`) | `select count(*) from chat_threads where resolution_status = 'solved'` | 13134 |
+| `cm.threads` (raw field; also formatted into `sub`/`stationSubs`) | `select count(*) from chat_threads` | 40219 |
+| `cm.solved` (raw field; also formatted into `sub`/`stationSubs`) | `select count(*) from chat_threads where resolution_status = 'solved'` | 13134 |
 | `cm.bars` | `select channel_name, count(*) from messages group by channel_name order by count(*) desc` | #quakeworld 399080, #dev-corner 211602, #helpdesk 109008, #antilag 21438 |
 | `cs.num` | `select count(*) from concepts where summary is not null and summary <> ''` | 44 (raw table count is 45; the delta is `test-qwiki-harvest-probe`, an empty-summary harvest-probe breadcrumb -- see Open question 2) |
 | `gc.num` + `gc.stats` maps | `select count(*) from maps` | 254 |
@@ -212,6 +219,37 @@ Static emitter config (no DB derivation, no embedded counts): `cs.notes`
 highlight lines, `ch`/`ms` teasers (spec-D5 copy; the "18,000+" figure in the
 `ms` teaser is qw-stats territory, not in this DB, and stays static copy),
 door descriptors, and the fixed parts of `sub`/`stationSubs` strings.
+
+### Amendment -- 2026-08-06: raw `threads` / `solved` fields on `cm` (surfaced by Phase 3 T8)
+
+**What changed:** the `cm` datacenter gains two optional raw-integer fields,
+`threads` and `solved`, populated from the queries already in the
+number-sources table (`chat_threads` count / solved-status count; baseline
+40,219 / 13,134). The contract body above shows the final post-amendment
+shape.
+
+**Why:** the mockup's MCP card (line ~272) renders "-- 20,270 community
+threads" as a RAW numeric figure, and floor-1 station subs surface the solved
+count -- but v1-as-first-drafted carried thread/solved numbers only inside
+emitter-composed display strings (`sub` / `stationSubs`), and `cm.num` is the
+MESSAGE count. Phase 3's dumb components must not parse display strings back
+into numbers; per P2 the missing fields route back here as an amendment
+rather than being invented downstream.
+
+**Shape ruling:** named optional fields on `LitDatacenter` (the established
+per-datacenter variant pattern: `bars?` / `stats?` / `notes?`), NOT a generic
+`counts?: Record<string, number>` -- dynamic keys would poison the closed-
+key-set leak probe the same way `history[].nums` did, and typed names keep
+"hit dot, see what you can do" working in the Phase 2 mirror. Additive only:
+no existing field changed meaning, so Phase 2's field references stay valid.
+
+**Blast radius walked (all updated in place):** TS contract block; probe 4
+(cm now type-checked for numeric `threads`/`solved`); probe 5 allowlist
+(+`threads`, +`solved`); probe 6 (two new number-vs-DB spot checks); the
+number-sources table rows renamed from display-string-only to field rows;
+Task 1 step 2; Outputs-to-next-phase MCP-card claim corrected. Probe 3
+unchanged (envelope-scope; per-datacenter typing lives in probe 4). Dormant
+shape untouched (the new fields are optional and lit-only at launch).
 
 ## Inputs from previous phase
 
@@ -277,7 +315,8 @@ probed 2026-08-06 at drafting time):
    the buildMeta `git rev-parse` pattern, `source` from a
    `DATABASE_URL.includes('qw-oracle-postgres-dev') ? 'twin' : 'prod'` check),
    four lit datacenters (`ef`, `cm`, `cs`, `gc`) + two dormant (`ch`, `ms`)
-   with P8 names, per the SQL table above. Drop the old shape's
+   with P8 names, per the SQL table above -- including the 2026-08-06
+   amendment's raw `threads` / `solved` fields on `cm`. Drop the old shape's
    `regions` / `recent_solved_labels` / per-note summary rows / cvar-category
    query entirely.
 3. Compose `sub` / `stationSubs` strings emitter-side with
@@ -420,9 +459,10 @@ expected value / YES.
 
    Expect: `brain-manifest-v1` / `twin` / `ef,cm,cs,gc,ch,ms` / `array` / `true` -- YES/NO.
 
-4. **Per-datacenter shape (lit fields present, dormant teasers present):**
+4. **Per-datacenter shape (lit fields present, dormant teasers present, cm's
+   amendment fields numeric):**
 
-       curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -e '([.datacenters[] | select(.lit) | (.num != null and .sub != null and .stationSubs != null and .share != null and .door != null)] | all) and ([.datacenters[] | select(.lit | not) | .teaser != null] | all)' && echo YES
+       curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -e '([.datacenters[] | select(.lit) | (.num != null and .sub != null and .stationSubs != null and .share != null and .door != null)] | all) and ([.datacenters[] | select(.lit | not) | .teaser != null] | all) and ([.datacenters[] | select(.id=="cm") | (.threads | type == "number") and (.solved | type == "number")] | all)' && echo YES
 
    Expect: `true` + `YES` -- YES/NO.
 
@@ -432,18 +472,21 @@ expected value / YES.
    every manifest with a real history entry (i.e. from the second emit
    onward). Hence the leading `del`; `nums` itself is validated by probe 3:
 
-       curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -e 'del(.history[].nums) | ([.. | objects | keys[]] | unique) - ["bars","call","code","datacenters","door","generated_at","history","href","id","kind","label","lit","name","notes","num","oracle_commit","schema_version","share","source","stationSubs","stats","sub","teaser"] | length == 0' && echo YES
+       curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -e 'del(.history[].nums) | ([.. | objects | keys[]] | unique) - ["bars","call","code","datacenters","door","generated_at","history","href","id","kind","label","lit","name","notes","num","oracle_commit","schema_version","share","solved","source","stationSubs","stats","sub","teaser","threads"] | length == 0' && echo YES
 
    Expect: `true` + `YES` (no key outside the contract -- in particular no
    `content`, `summary`, `topic_label`, `participants`) -- YES/NO.
 
-6. **Numbers match the live DB (three spot checks):**
+6. **Numbers match the live DB (five spot checks; last two are the
+   2026-08-06 amendment fields):**
 
        test "$(curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -r '.datacenters[] | select(.id=="ef") | .num')" = "$(docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -Atc 'select count(*) from entities')" && echo YES
        test "$(curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -r '.datacenters[] | select(.id=="cm") | .num')" = "$(docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -Atc 'select count(*) from messages')" && echo YES
        test "$(curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -r '.datacenters[] | select(.id=="cm") | .bars[0][1]')" = "$(docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -Atc "select count(*) from messages where channel_name='#quakeworld'")" && echo YES
+       test "$(curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -r '.datacenters[] | select(.id=="cm") | .threads')" = "$(docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -Atc 'select count(*) from chat_threads')" && echo YES
+       test "$(curl -s https://oracle.slipgate.me/snapshots/brain-manifest.json | jq -r '.datacenters[] | select(.id=="cm") | .solved')" = "$(docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -Atc "select count(*) from chat_threads where resolution_status = 'solved'")" && echo YES
 
-   Expect: three YES -- YES/NO.
+   Expect: five YES -- YES/NO.
 
 7. **Shares sum to ~1 over lit datacenters:**
 
@@ -483,9 +526,10 @@ Phase 2 may rely on:
   `apps/qw-oracle/snapshots/brain-manifest.json`, guaranteed byte-identical to
   the published copy at each publish (probe 8).
 - **Refresh mechanics**: republish = the harvest-runbook rider's one command;
-  no site deploy involved (P3). The MCP-card numbers Phase 3 needs (thread
-  count, note count) are already derivable from `cm`/`cs` fields -- no extra
-  fields required.
+  no site deploy involved (P3). The MCP-card numbers Phase 3 needs ride as
+  raw fields per the 2026-08-06 amendment: thread count = `cm.threads`,
+  solved count = `cm.solved`, note count = `cs.num`. Message count stays
+  `cm.num`.
 
 ## Open questions
 
