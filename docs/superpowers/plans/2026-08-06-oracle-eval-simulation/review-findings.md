@@ -147,6 +147,33 @@ anywhere in that directory, enforced by a boundary probe that greps for the
 import literals. Disposition: E12 -- the harness lives in `eval/sim/`, imports
 the domain resolver, and writes nothing into `faq-gate/`.
 
+**F16 (de-risks Phase 2) -- DeepSeek function calling verified live, and it
+issues PARALLEL tool calls by default.** Surfaced: planning sweep 2026-08-06,
+by live probe against `api.deepseek.com/chat/completions` with
+`model=deepseek-v4-flash` (the house rig's `DEFAULT_MODEL`). The parking doc
+asserted "DeepSeek supports function calling" without a citation; it is now
+verified rather than assumed. Evidence, two probes:
+- Probe 1: one `tools` array + `tool_choice: 'auto'` returned
+  `finish_reason=tool_calls` with **2 tool calls in a single turn**, each with
+  well-formed JSON arguments against the supplied schema. Feeding thin,
+  unhelpful tool results back produced `finish_reason=tool_calls` AGAIN -- the
+  agent kept searching rather than answering.
+- Probe 2: same loop with a realistic grounding payload terminated **naturally
+  at round 2** (`finish_reason=stop`) with an answer that used the grounding
+  verbatim. Round 1 issued **3** parallel tool calls. Wall time ~6.5s for two
+  turns; prompt caching active (512 cached tokens); reasoning tokens present
+  even in tool-calling mode.
+Disposition, all routed to Phase 2: (a) the loop MUST carry a round budget --
+thin grounding provably makes the agent keep searching, so an unbounded loop
+can spin on exactly the hard questions the eval most cares about; (b) the
+harness must handle an ARRAY of tool calls per turn and the record's
+`tool_calls` field must preserve round structure, not flatten to one call per
+turn; (c) a `tool_choice: 'none'` forcing turn is the planned budget-exhausted
+backstop -- **this path was NOT exercised** by either probe (both terminated
+before the cap), so Phase 2 must prove it rather than assume it; (d) cost
+accounting must read `prompt_cache_hit_tokens` and `reasoning_tokens`, both
+present and both material (E10).
+
 **F15 -- the house rig's resume loses everything on a crash.** Evidence:
 `fence-external.ts` accumulates in memory and does a single `Bun.write` at the
 end; `--resume` re-reads a *complete* prior output and fingerprint-matches it.
