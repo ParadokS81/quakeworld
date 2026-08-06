@@ -2,7 +2,7 @@
 date: 2026-08-06
 type: design-spec
 arc-slug: oracle-eval-simulation
-status: DESIGN IN PROGRESS -- Pass 1 (Sampling) CLOSED 2026-08-06 (D1-D5); Pass 2 (Rubric & grading) open.
+status: DESIGN IN PROGRESS -- Passes 1-2 CLOSED 2026-08-06 (D1-D7); Pass 3 (Harness & model roles) open.
 parent: docs/superpowers/parking/2026-08-06-oracle-eval-simulation.md
 related:
   - docs/superpowers/parking/2026-06-09-helpdesk-faq-landscape.md (June topic map: 48 clusters over 6,623 #helpdesk threads, deterministic k-means, seed=42)
@@ -167,6 +167,19 @@ Claude independently re-grades (operator eyeballs a handful), checking both
 grades AND key quality; proceed only at >=90% agreement on the match/miss
 boundary, else fix rubric prompt and re-pilot. POST-BULK -- random ~5-10%
 grade re-check + all divergents.
+
+### D7 -- Unresolved-thread judgment sample (locked 2026-08-06)
+
+~40 unresolved threads from high-unresolved-rate domains, run in cell C only
+(different question -- "is there headroom beyond what humans managed" -- so no
+paired cells). Claude judges each answer with live tools: plausibly-cracked /
+uncertain / no, where plausibly-cracked requires a specific fix verifiable at
+dev-head, never mere confidence. Operator browses the plausibly-cracked pile
+in the explorer. Output is INTERNAL ONLY -- unverifiable wins never feed
+public showcase claims; the pile where the oracle ALSO fails is prime input
+for the longer-term note-targeting goal.
+
+**Pass 2 (Rubric & grading) CLOSED 2026-08-06.** D6-D7 locked.
 
 ## Carry-forwards
 
