@@ -408,8 +408,9 @@ with; a flag flip rebuilds floor 1 wholesale (the comp's own semantics).
 
    (The mockup's legacy `addListener` fallback, 834, is dropped: the port's
    browser floor is whatever runs the SolidJS bundle, and `addEventListener`
-   on MediaQueryList is standard there -- record as sanctioned deviation
-   D-i-support if the checker wants it pinned.)
+   on MediaQueryList is standard there -- a sanctioned support-floor
+   deviation, recorded in this step; it needs no ritual D-label since no
+   ritual item can observe it.)
 2. Mount floor 1 through a ternary so a flip disposes and recreates the
    component -- travelers, samplers, timers, and hover state reset exactly as
    the mockup's `buildBrain()` re-run does (SVG wipe + fresh `FXp`, 362 +

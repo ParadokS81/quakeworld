@@ -190,9 +190,9 @@ resolved at the plan coherence pass:
   deploy; this phase's S-ritual re-checks fragments/footer under it.
 - **`TBD-PHASE-5-portrait-rebuild`** -- the media-change rebuild mechanics;
   the fragment open-on-load handler must not fight it.
-- **`TBD-PHASE-5-scroll-quirk-retest`** -- the real-deploy scroll-quirk
-  retest outcome (spec addendum); carried into the arc-end package as a
-  recorded result.
+- **The scroll-quirk retest outcome** (spec addendum) -- Phase 5 owns and
+  records it (its Task 5 / ritual item M11; no token exists for it); this
+  phase only carries the recorded result into the arc-end package.
 
 From Phases 1-4 (stable outputs; verify literals at phase start, arc-RUN):
 
@@ -240,7 +240,7 @@ Drafting-time environment facts (probed 2026-08-06 on this box):
 - Live-status table above (MCP endpoint, docs pages.dev, wiki beta, DNS
   no-resolves) -- all probed this session, evidence inline where cited.
 - TBD-token census (`grep -rn "TBD-PHASE-[0-9]" docs/superpowers/plans/2026-08-06-oracle-web-v1/ | grep -o "TBD-PHASE-[A-Za-z0-9-]*" | sort -u`):
-  10 distinct tokens across phases 2-6 at checker time (enumerated in Task 5
+  9 distinct tokens across phases 2-6 at checker time (enumerated in Task 5
   step 1). Task 5 drains ALL of them. The grep pattern is the TOKEN shape
   (`TBD-PHASE-` + digit) -- prose mentions of the convention, including this
   doc's own, deliberately do not match.
@@ -262,9 +262,11 @@ Drafting-time environment facts (probed 2026-08-06 on this box):
 - `index.html` -- `lang="en"` on `<html>`, meta description, data-URI favicon
 
 **Modified (outside the subtree -- plan scaffold + ledger, sanctioned):**
-- `docs/superpowers/plans/2026-08-06-oracle-web-v1/phase-2-*.md` through
+- `docs/superpowers/plans/2026-08-06-oracle-web-v1/phase-1-*.md` through
   `phase-6-*.md` -- TBD-token drain (each token replaced by its dated
-  resolution line; Task 5)
+  resolution line; Task 5. Phase 1's doc is included: it carries
+  `TBD-PHASE-2-type-mirroring` at its Outputs section, and the B7 gate
+  greps the whole dir)
 - `docs/superpowers/plans/2026-08-06-oracle-web-v1/review-findings.md` --
   sweep entries (solved-consumer confirmation, Lighthouse scores, any
   operator EDITs)
@@ -444,10 +446,10 @@ this probe inverts -- record the inversion with the ruling.
 **Steps:**
 1. **TBD drain.** For every remaining `TBD-PHASE-*` token in
    `docs/superpowers/plans/2026-08-06-oracle-web-v1/` -- checker-time census,
-   10 distinct: `TBD-PHASE-2-type-mirroring`, `TBD-PHASE-3-brain-port`,
-   `TBD-PHASE-3-overlay-flag`, `TBD-PHASE-4-machine-room-port`,
-   `TBD-PHASE-4-root-travelers`, `TBD-PHASE-5-portrait-layout`,
-   `TBD-PHASE-5-portrait-rebuild`, `TBD-PHASE-5-scroll-quirk-retest`,
+   9 distinct: `TBD-PHASE-2-type-mirroring` (lives in the Phase 1 doc),
+   `TBD-PHASE-3-brain-port`, `TBD-PHASE-3-overlay-flag`,
+   `TBD-PHASE-4-machine-room-port`, `TBD-PHASE-4-root-travelers`,
+   `TBD-PHASE-5-portrait-layout`, `TBD-PHASE-5-portrait-rebuild`,
    `TBD-PHASE-6-endpoint-truth`, `TBD-PHASE-6-fragment-urls` (re-census at
    run time; any addition resolves against its owning phase) -- replace
    the token text in place with its dated resolution -- e.g.
@@ -481,7 +483,7 @@ this probe inverts -- record the inversion with the ruling.
 
 Expect: both `exit=1` (empty) -- the arc's every-TBD-resolved gate. The
 plan-dir pattern matches the TOKEN shape (`TBD-PHASE-` + digit), checker-
-verified to catch all 10 real tokens while excluding prose mentions of the
+verified to catch all 9 real tokens while excluding prose mentions of the
 convention (this doc's own included), which stay in the dir as history.
 
 ### Task 6 -- perf probes + deploy + boundary run · `inline`
@@ -500,7 +502,7 @@ operator S-ritual staged.
    Budget (target, not a lock): compressed JS+CSS total <= 250 KB -- a
    SolidJS page with no runtime deps beyond solid-js should sit far under;
    exceeding it = finding + investigate before ship (grug: measure first).
-3. Run boundary probes B1-B8 below; stage the operator S-ritual (hand over
+3. Run boundary probes B0-B8 below; stage the operator S-ritual (hand over
    the live URL + the checklist + the fragment paste-set).
 4. Commit the subtree + plan-doc edits at green probes; push.
 
@@ -525,6 +527,13 @@ package defined and handed to arc-run.
 
 ### Automated probes (arc-RUN; run in order; each YES/NO)
 
+0. **B0 -- regression baseline re-run** (Phase 5's Outputs hand this phase
+   the arc's accumulated probe set as its baseline; this phase's state-lift
+   refactor touches the very surfaces those probes pin): re-run Phase 3
+   A1-A5 **as amended by Phase 5**, Phase 5's own automated probes
+   A2/A3/A4/A6 (the portrait set), and Phase 4 probes 1-6 -- all green
+   before any phase-6-specific probe is read -- YES/NO.
+
 1. **B1 -- build + types + deploy serve:**
 
        cd /home/dev/projects/quakeworld/apps/oracle-web && pnpm build && pnpm run check && curl -s -o /dev/null -w '%{http_code}\n' https://qw-oracle-web.pages.dev/
@@ -537,8 +546,10 @@ package defined and handed to arc-run.
 
 3. **B3 -- components stay URL-blind** (Task 1's zero-hit grep:
    `location.hash|hashchange|replaceState` in `src/components/` +
-   `src/generators/` -> empty; plus Phase 3 A5 re-run:
-   `fetch(|location.search` -> empty) -- YES/NO.
+   `src/generators/` -> empty; plus the Phase 3 A5 re-run **in its
+   Phase-5-amended form** -- the amended pattern including the `matchMedia`
+   conjunct, so environment reads stay in `App.tsx` alongside URL reads ->
+   empty) -- YES/NO.
 
 4. **B4 -- all outbound doors live** (footer set + Phase 4's five GitHub
    landmarks + the manifest URL + the MCP endpoint):
@@ -636,11 +647,12 @@ The cold reviewer (arc-run dispatches; four-verdict walkthrough) receives:
   token reads as its dated resolution) + `review-findings.md` complete
   (F-entries + sweep entries + Lighthouse scores + operator EDIT log).
 - **The deviations register** for the spec-vs-shipped walk: Phase 3 D-a
-  through D-e, Phase 4 D-f/D-g, plus this phase's additive set (fragments,
-  footer, endpoint truth-up as ruled, a11y attributes) -- everything
-  sanctioned; anything else the reviewer sees differing from comp/spec is a
-  reviewable finding.
-- **Probe evidence:** B1-B8 transcripts (incl. the guard-list absence greps
+  through D-e, Phase 4 D-f/D-g, Phase 5 D-h (ambient-cadence restart on
+  orientation flip) and D-i (one CTA pill at rest), plus this phase's
+  additive set (fragments, footer, endpoint truth-up as ruled, a11y
+  attributes) -- everything sanctioned; anything else the reviewer sees
+  differing from comp/spec is a reviewable finding.
+- **Probe evidence:** B0-B8 transcripts (incl. the guard-list absence greps
   and the TBD-zero greps) + the S-ritual answer sheet.
 - **Review charge:** walk spec D1-D7 + amendments against the live page;
   verify the guard list ABSENT; verify P6 (dark at rest, works under flag);

@@ -229,10 +229,11 @@ phase start (arc-RUN time -- the subtree does not exist at drafting time).
   mockup-verbatim CSS, not token re-derivations.
 
 From Phase 1 (via Phase 2's bake): the manifest contract fields this phase
-renders -- `id/name/lit/num/sub/stationSubs/share/bars/stats/notes/teaser`
-and the structured `door` (`kind: 'site' | 'agent'`). One Phase 1 output
-claim is contradicted at drafting time -- see Open question 2 (MCP-card
-thread count has no raw field).
+renders -- `id/name/lit/num/sub/stationSubs/share/bars/stats/notes/teaser`,
+the raw `threads`/`solved` counts on `cm` (2026-08-06 contract amendment,
+surfaced by this phase's T8 -- the MCP-card figures), and the structured
+`door` (`kind: 'site' | 'agent'`). The same amendment block byte-pins the
+`gc.stats` labels.
 
 Drafting-time environment facts (probed 2026-08-06 on this box):
 
@@ -635,9 +636,9 @@ dark (P6).
    node, MCP card link) reach the ONE card (P9). Two mockup copy lines embed
    drifting snapshot numbers (`— 20,270 community threads`, 272; `— 44
    curated notes`, 273): render these counts from the manifest -- notes from
-   `cs.num`; threads from the raw field Open question 2 routes to Phase 1.
-   Until that amendment lands this task is GATED on it for the one line
-   (file the finding first, per Open question 2's default).
+   `cs.num`; threads from `cm.threads` directly (the raw field this task
+   surfaced; Phase 1 contract amendment landed 2026-08-06 -- Open question
+   2, resolved). No gate remains.
 2. Endpoint copy ships byte-identical including `(illustrative in this
    mockup)` (277, and the boot-card sibling is Phase 4's) -- truth-up is
    Phase 6's final-copy pass (Open question 3, `TBD-PHASE-6-endpoint-truth`).
@@ -894,17 +895,15 @@ truth-up marker is `TBD-PHASE-6-endpoint-truth` in `XnCards.tsx`.
 1. **Why-overlay dev flag shape.** Default: `?dev=why`, read once in
    `App.tsx` (Phase 2's query-param precedent; components stay URL-blind per
    P4). Overrule: operator; Phase 6 may migrate it to its fragment scheme.
-2. **MCP-card thread count has no raw manifest field.** The mockup's MCP
-   card embeds `— 20,270 community threads` (line 272). Phase 1's outputs
-   claim these numbers are "already derivable from cm/cs fields" -- true for
-   notes (`cs.num` = 44) but NOT for threads: `cm.num` is the MESSAGE count;
-   the thread count exists only inside emitter-composed display strings
-   (`sub`/`stationSubs`). Parsing display strings is contract abuse. Default:
-   route a finding to Phase 1 for a dated contract amendment adding raw
-   thread (and, for symmetry, solved) counts to the `cm` datacenter; Task 8
-   gates its one copy line on the amendment + re-emit + re-bake. Overrule:
-   operator (may instead rule the MCP card drops the embedded counts -- a
-   copy deviation logged as a dated amendment per P1/P8).
+2. **RESOLVED (2026-08-06 Phase 1 amendment) -- MCP-card thread count.**
+   The mockup's MCP card embeds `— 20,270 community threads` (line 272), but
+   the contract as first drafted carried thread/solved numbers only inside
+   emitter-composed display strings (`cm.num` is the MESSAGE count). This
+   phase's T8 surfaced it; Phase 1's dated amendment (its "raw `threads` /
+   `solved` fields on `cm`" block) added both as raw numeric fields, with
+   boundary probes updated. Nothing left open: T8 consumes `cm.threads`
+   (and `cs.num` for the notes figure) directly. Kept here, numbered, so
+   D-e and Task 8's references resolve.
 3. **Connect-card endpoint copy.** The mockup ships `Endpoint (illustrative
    in this mockup): https://oracle.quake.world/mcp` (line 277) and its
    client steps are flagged "drafts" by the mockupnote (231-233). The real

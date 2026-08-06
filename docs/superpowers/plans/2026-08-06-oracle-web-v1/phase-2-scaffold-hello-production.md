@@ -152,7 +152,9 @@ Drafting-time environment facts (probed 2026-08-06 on this box):
 **Modified:** none outside the new subtree. **Deleted:** none.
 
 The app-skeleton contract (dirs Phases 3-6 build inside -- binding, like
-Phase 1's field shapes):
+Phase 1's field shapes). The `TBD-PHASE-*` tokens in this diagram are DOC-ONLY
+annotations -- never copy them into source files (they would trip Phase 5's
+zero-"portrait" input probe and Phase 6's src-tree TBD grep):
 
     apps/oracle-web/
     ├── pnpm-workspace.yaml          # own subtree root (docs-web D20 pattern); packages/* glob = infiniti drop-in slot
@@ -521,8 +523,10 @@ survive into the port.
    skeleton has no racks to click and the copy would be false. Below it, a
    placeholder box noting
    the field terminal (`TBD-PHASE-4-machine-room-port`), and a small
-   provenance line from `manifest.generated_at` (the mockup's cornernote
-   pattern "brain-manifest.json · <date>").
+   provenance line from `manifest.generated_at` (echoing the mockup's
+   "brain-manifest.json, 2026-08-05" data-block label). The provenance line
+   is Phase-2-only scaffolding with NO mockup counterpart on this floor --
+   Phase 4's parity port removes it along with the rest of the placeholder.
 4. Components contain zero fetching, zero URL parsing (P4) -- data and source
    arrive as props.
 
