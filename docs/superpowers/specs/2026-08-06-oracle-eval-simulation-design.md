@@ -2,7 +2,7 @@
 date: 2026-08-06
 type: design-spec
 arc-slug: oracle-eval-simulation
-status: DESIGN IN PROGRESS -- Passes 1-3 CLOSED 2026-08-06 (D1-D8); Pass 4 (Outputs) open.
+status: DESIGN COMPLETE 2026-08-06 -- all four passes closed same-day (D1-D11); remaining unknowns are implementation-shaped -> arc-plan picks up from this spec + the parking doc.
 parent: docs/superpowers/parking/2026-08-06-oracle-eval-simulation.md
 related:
   - docs/superpowers/parking/2026-06-09-helpdesk-faq-landscape.md (June topic map: 48 clusters over 6,623 #helpdesk threads, deterministic k-means, seed=42)
@@ -25,7 +25,7 @@ blocks, never silent edits.
 1. **Sampling design** -- question population (which channels/threads are
    eligible), old-map-vs-recluster, stratification axes, sample sizes,
    corpus-scoping condition matrix (with-oracle-all / with-oracle-helpdesk-only /
-   without-oracle). (IN PROGRESS)
+   without-oracle).
 2. **Rubric & grading** -- resolved-thread grading against known fix,
    unresolved-thread judgment sample, pilot calibration gate before the bulk
    run, grade spot-check sampling after it.
@@ -200,6 +200,51 @@ same D6 pipeline (records marked with answering model).
 **Pass 3 (Harness & model roles) CLOSED 2026-08-06.** D8 locked; remaining
 Pass 3 topics were implementation-shaped and route to arc-plan (see
 carry-forwards).
+
+### D9 -- Report shape (locked 2026-08-06)
+
+Internal deliverable = a committed findings doc (home decided at arc-plan;
+likely near the eval harness) carrying: headline A/B/C match rates, per-domain
+table, dilution verdict, divergent-case findings, unresolved-sample verdicts,
+and a **routed-findings list** -- every gap surfaced (weak domain, retrieval
+failure, missing note, RRF miscalibration) gets one line pointing at the track
+that owns it (parking doc's no-scope-creep rule). The explorer artifact's Runs
+tab is the browse surface: the doc quotes numbers, the artifact holds the
+evidence. This arc produces nothing public except the showcase captures (D10);
+any public writeup is a separate later decision with the findings doc as raw
+material.
+
+### D10 -- Showcase capture protocol (locked 2026-08-06)
+
+The sim only NOMINATES: 3-4 questions with the most visible oracle wins (clear
+A-miss -> C-match, spread across popular domains). No published pixel comes
+from DeepSeek output. Captures are made fresh in claude.ai (the client a
+community member would actually use): one question per fresh session, no
+custom instructions or chat memory; "with" = QW Oracle connector attached,
+"without" = clean session without it. Both sides verbatim, dated,
+model-labeled (oracle-web integrity rule -- no strawmen, no editing). **Real
+player names are retained** in published captures (operator decision: public
+channel, nothing secret, and names enable contacting the player later).
+Handoff: this arc produces capture files in the overlay content format; the
+oracle-web arc does the content drop; coordination = one HANDOVER line.
+
+### D11 -- Contributor analytics as an eval output (locked 2026-08-06)
+
+Operator wants visibility into the most helpful community answerers -- the
+people most likely to help improve the oracle or review concept notes.
+Verified: the corpus has NO per-answer attribution (`buckets_answer` empty,
+0/13,134 solved threads); the workable proxy is **presence in solved threads
+(participants minus thread opener)**. Top of the list is instantly credible
+(ciscon 1,431 #helpdesk solved threads helped / 3,967 all-channel; then
+zigg__, dp_blood_dog, spoike, pattah...). Shipped 2026-08-06 as a
+Contributors tab in the explorer artifact (top 24, #helpdesk + all-channel
+counts, "Deleted User" filtered). The findings doc gets a contributors
+section. Framing rule: outreach-targeting tool, NOT a public scoreboard --
+the proxy measures presence, not fix credit.
+
+**Pass 4 (Outputs) CLOSED 2026-08-06. DESIGN COMPLETE -- D1-D11.**
+Remaining unknowns are implementation-shaped (see carry-forwards); arc-plan
+picks up from this spec + the parking doc.
 
 ## Carry-forwards
 
