@@ -142,7 +142,7 @@ validation slice.
 | [x] | 2022 | 12,130 | 163 | 0 | -- loaded 2026-08-06 (session 5), 786 threads, **100.00% coverage** (refence no-op)
 | [x] | 2023 | 11,603 | 173 | 0 | -- loaded 2026-08-06 (session 5), 784 threads, **100.00% coverage** (refence no-op)
 | [ ] | 2024 | 16,201 | 151 | 0 |
-| [ ] | 2025 | 19,287 | 130 | 1 |
+| [x] | 2025 | 19,287 | 130 | 1 | -- loaded 2026-08-06 (session 5), 909 threads, 99.96% coverage (refence no-op)
 | [ ] | 2026 | 4,601 | 54 | 0 |
 
 ### #antilag (382 agents, 6 batches)
@@ -774,6 +774,15 @@ top hits ("Alpha/fence rendering & sorting" 145 msgs; "ezQuake vs IronWail perfo
 vis/rendering optimization" 112 msgs, both solved).
 
 DB state after #dev-corner 2023: chat_threads = **35942**, all v2. **#dev-corner 8/11.**
+
+**Batch #dev-corner 2025 -- LOADED, verified.** 130 chunks, 1 forced. Fence **130/130,
+failures=0, wall 36.6 min at CONC=30**. **Refence NO-OP.** Gate: **0% hallucination / 99.96%
+coverage**. Load: 909 threads, 19,280 junction rows (19,280 DISTINCT -- 0 R8 m2m), 0 OOB / 0
+missing / 0 stale / 0 truncations. resolution 317 solved / 154 unresolved / 410 informational /
+28 none. **Idempotency (R5): PASS**. **Retrieval: PASS** -- "f_report spam and pause/matchtag"
+returns its 2025 thread as top hit (211 msgs, solved).
+
+DB state after #dev-corner 2025: chat_threads = **36851**, all v2. **#dev-corner 9/11.**
 
 > **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
 > 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
