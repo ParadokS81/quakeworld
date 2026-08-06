@@ -11,13 +11,23 @@ mockup-of-record). **Parent:**
 
 ## Where we are right now
 
-- **Stage:** PHASES 1-2 SHIPPED (2026-08-06); **PHASE 3 IN FLIGHT** -- T1
-  (floor-1 + drill CSS, commit `96360c21`) and T2 (`layout.ts` desktop
-  geometry, commit `0a82b53f`) shipped and orchestrator-verified against the
-  comp; T3 (`mesh.ts`) dispatched. Remaining: T3-T10. Phase 3's boundary is a
-  fourteen-item operator visual-parity ritual (side-by-side vs the mockup) --
-  it runs ONCE, at this phase's boundary, and later phases re-run only a
+- **Stage:** PHASES 1-2 SHIPPED (2026-08-06); **PHASE 3 CODE-COMPLETE, AWAITING
+  DEPLOY GO + PARITY RITUAL.** All nine implementation tasks (T1-T9) shipped
+  and orchestrator-verified by re-running each probe: T1 CSS `96360c21`, T2
+  `layout.ts` `0a82b53f`, T3 `mesh.ts` `173ac8e9`, T4 `journeys.ts` `c393be22`,
+  T5 input side `1157cc89`, T6 output side `adfbfe68`, T7 drill system
+  `e9037bd6`, T8 XN/connect/why `fffce081`, T9 runtime `292ff29d`.
+  **Boundary probes A1/A2/A4/A5 GREEN** (build+types clean; all ten copy locks
+  in the bundle incl. the draftstamp; mesh geometry byte-identical across two
+  runs at 86 pts; zero fetch/URL-parsing in components+generators). **A3 is
+  blocked on T10's deploy, which needs operator GO.** Then the fourteen-item
+  visual-parity ritual -- it runs ONCE, here; later phases re-run only a
   consolidated subset.
+- **Ritual prep verified 2026-08-06:** ports 5173+5174 both free, python3
+  3.12.13 present, CF token present at the F10 path (mode 600). Deviations
+  the operator must read BEFORE walking: D-a..D-e plus **D-j** (additive
+  what-to-expect block) and **D-k** (agent-door line clickable where the comp
+  has plain text) -- six in total; two were added during execution.
 - **Phase 1** (manifest pipeline): emitter rewritten to the v1 contract,
   manifest published, nginx CORS + `always`, runbook rider. Commits
   `b6efc54e` / `91fd38bc` / `29a465d7`. **9/9 boundary probes green on the
