@@ -2,7 +2,7 @@
 date: 2026-08-06
 type: design-spec
 arc-slug: oracle-eval-simulation
-status: DESIGN IN PROGRESS -- Pass 1 (Sampling) opened 2026-08-06.
+status: DESIGN IN PROGRESS -- Pass 1 (Sampling) CLOSED 2026-08-06 (D1-D5); Pass 2 (Rubric & grading) open.
 parent: docs/superpowers/parking/2026-08-06-oracle-eval-simulation.md
 related:
   - docs/superpowers/parking/2026-06-09-helpdesk-faq-landscape.md (June topic map: 48 clusters over 6,623 #helpdesk threads, deterministic k-means, seed=42)
@@ -107,9 +107,38 @@ Runs tab that stays dark until fed run records. Rationale: grading needs
 structured records anyway, so the viewer costs only a projection; the map view
 doubles as the operator's reference for future test/note targeting.
 
+### D4 -- Stratification: frozen June frame, proportional with floor (locked 2026-08-06)
+
+Sampling frame = the June map's `faq-clusters.json` thread IDs, frozen
+(intersected with solved status; no re-cluster -- preserves comparability with
+the June analysis and domain-taxonomy work for a ~2% coverage cost; helpdesk
+grew only ~150 threads since). Allocation across the ~24 domains is
+**proportional to demand with a per-domain floor** (~8-10 threads minimum for
+tier-1 domains): the aggregate stays interpretable as "share of real player
+traffic handled" while no important domain rides on two data points. NOISE
+cluster threads excluded from sampling. Even-per-domain allocation rejected:
+it serves gap-hunting but destroys the headline number's meaning; gap
+resolution is recovered via the floor + per-domain reporting.
+
+### D5 -- Sample size: N ~= 500 (locked 2026-08-06)
+
+~500 sampled threads (from the 3,324 solved non-noise pool), proportional with
+the D4 floor: ~1,500 answering passes across the three cells; headline CI
+~ +/-4%; 40-65 questions in each large tier-1 domain. Sizing constraint is NOT
+DeepSeek cost (single-digit dollars at this scale) but the human/Claude-side
+spot-check and browsing burden, which scales linearly with N. Targeted
+follow-up runs on the same harness are the answer to "interesting domain,
+want more data" -- not a bigger N up front.
+
+**Pass 1 (Sampling) CLOSED 2026-08-06.** D1-D5 locked; carry-forwards below.
+
 ## Carry-forwards
 
 - **#quakeworld as secondary question population** -- optional, decided after
   the pilot (D1). Track: later pass / post-pilot amendment.
+- **Era/staleness of known fixes** -- old threads' human-verified fix may be
+  outdated at today's dev-head (the oracle may give the *currently correct*
+  answer and "miss" the 2019 fix). Not a sampling axis; record thread era in
+  run records and handle staleness in the rubric. Track: Pass 2.
 
 (none yet)

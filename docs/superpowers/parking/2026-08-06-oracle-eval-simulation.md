@@ -109,6 +109,15 @@ and feed it into the sampling pass rather than re-deriving the topic map cold.
   answer (proven on the Phase C backfill).
 - Operator can run this arc simultaneously with the oracle-web-v1 implementation arc.
 
+## Pass status (design running 2026-08-06)
+
+Spec: `docs/superpowers/specs/2026-08-06-oracle-eval-simulation-design.md`.
+Pass 1 (Sampling) CLOSED -- D1 question population (#helpdesk solved), D2
+three-cell paired condition matrix (baseline / helpdesk-scoped / full-corpus),
+D3 JSON-first records + explorer artifact (demand map shipped), D4 frozen June
+frame + proportional-with-floor, D5 N~=500. Pass 2 (Rubric & grading) OPEN.
+June topic-map research located (see spec `related:`) -- nothing re-derived.
+
 ## Trigger
 
 Operator-initiated, imminent: take this doc to a fresh terminal and open with
