@@ -28,6 +28,8 @@ import type { BrainManifest, Datacenter, LitDatacenter } from '../data/manifest-
 import type { ManifestSource } from '../data/manifest'
 import DrillOverlay from './DrillOverlay'
 import DatacenterCard from './DatacenterCard'
+import XnCards, { XN_NAMES, type XnId } from './XnCards'
+import WhyCompare from './WhyCompare'
 
 const L = DESKTOP_LAYOUT
 
@@ -55,26 +57,29 @@ interface DrillState {
 }
 
 /** Dialog aria-label for an open card. 'dc' uses the real manifest name;
-    'why' matches the mockup's comparison fallback (line 326); 'xn' has no
-    authored display name yet (that copy is Task 8's XnCards) so the raw id
-    stands in until then. */
+    'why' matches the mockup's comparison fallback (line 326); 'xn' uses
+    XnCards' display-name registry so the aria-label and the card's own h3
+    can never say two different things. */
 function drillLabel(manifest: BrainManifest, d: DrillState): string {
   if (d.kind === 'dc') {
     return manifest.datacenters.find((dc) => dc.id === d.id)?.name ?? d.id
   }
   if (d.kind === 'why') return 'comparison'
-  return d.id
+  return XN_NAMES[d.id as XnId] ?? d.id
 }
 
-/** Card body for an open drill. Only 'dc' renders today -- 'xn' and 'why'
-    are Task 8's XnCards / WhyCompare; until they land this returns null and
-    the overlay shows chrome only (backdrop, card frame, close button). */
+/** Card body for an open drill: 'dc' renders a manifest datacenter via
+    DatacenterCard, 'xn' routes to XnCards keyed by id (mcp/agent/snap/slip),
+    'why' renders the (P6-dark) comparison overlay. */
 function drillBody(manifest: BrainManifest, d: DrillState, onOpenConnect: (ev: MouseEvent) => void) {
   if (d.kind === 'dc') {
     const dc = manifest.datacenters.find((x) => x.id === d.id)
     return dc ? <DatacenterCard dc={dc} onOpenConnect={onOpenConnect} /> : null
   }
-  return null
+  if (d.kind === 'xn') {
+    return <XnCards manifest={manifest} id={d.id as XnId} onOpenConnect={onOpenConnect} />
+  }
+  return <WhyCompare />
 }
 
 /** A layout station paired with its manifest datacenter (D4: keyed by id). */
