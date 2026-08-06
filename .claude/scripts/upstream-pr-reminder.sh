@@ -147,10 +147,19 @@ if echo "$unquoted_command" | grep -qE '(^|[[:space:]])git ([^ ]+ )*commit([[:sp
 
   toplevel=$(git -C "$effective_dir" rev-parse --show-toplevel 2>/dev/null)
 
-  # Fail-open: unresolvable repo, or the monorepo itself -> allow. The operator
-  # is the DCO backstop, so a missed reminder is recoverable while a wrongful
-  # block is the exact failure mode this rewrite fixes.
-  if [[ -z "$toplevel" || "$toplevel" == "$MONOREPO_PREFIX" ]]; then
+  # A monorepo WORKTREE has its own toplevel but shares the monorepo's git dir,
+  # so toplevel alone misreads every worktree as upstream. --git-common-dir is
+  # absolute for linked worktrees and relative (".git") inside the main tree.
+  common_dir=$(git -C "$effective_dir" rev-parse --git-common-dir 2>/dev/null)
+  if [[ -n "$common_dir" && "$common_dir" != /* ]]; then
+    common_dir="$toplevel/$common_dir"
+  fi
+
+  # Fail-open: unresolvable repo, the monorepo itself, or any of its worktrees
+  # -> allow. The operator is the DCO backstop, so a missed reminder is
+  # recoverable while a wrongful block is the exact failure mode this fixes.
+  if [[ -z "$toplevel" || "$toplevel" == "$MONOREPO_PREFIX" \
+        || "$common_dir" == "$MONOREPO_PREFIX/.git" ]]; then
     exit 0
   fi
 
