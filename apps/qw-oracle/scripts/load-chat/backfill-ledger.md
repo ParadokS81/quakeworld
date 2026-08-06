@@ -137,7 +137,7 @@ validation slice.
 | [x] | 2017 | 41,605 | 141 | 5 | -- loaded 2026-08-05 (session 5), 1558 threads, 99.68% coverage (refence 2/2)
 | [x] | 2018 | 30,266 | 129 | 5 | -- loaded 2026-08-06 (session 5), 1389 threads, 99.68% coverage (refence 2/2)
 | [x] | 2019 | 18,359 | 177 | 0 | -- loaded 2026-08-06 (session 5), 1050 threads, 99.98% coverage (refence no-op)
-| [ ] | 2020 | 20,689 | 146 | 1 |
+| [x] | 2020 | 20,689 | 146 | 1 | -- loaded 2026-08-06 (session 5), 1127 threads, 99.95% coverage (refence 1/1)
 | [x] | 2021 | 11,244 | 182 | 0 | -- loaded 2026-08-06 (session 5), 744 threads, 99.88% coverage (refence no-op)
 | [ ] | 2022 | 12,130 | 163 | 0 |
 | [ ] | 2023 | 11,603 | 173 | 0 |
@@ -743,6 +743,17 @@ informational / 26 none. **Idempotency (R5): PASS**. **Retrieval: PASS** -- "ezq
 solved).
 
 DB state after #dev-corner 2018: chat_threads = **33245**, all v2. **#dev-corner 5/11.**
+
+**Batch #dev-corner 2020 -- LOADED, verified.** 146 chunks, 1 forced. Fence **146/146,
+failures=0, wall 41.4 min at CONC=30**. Refence 1/1 (-111: 90.3% -> 100.0%, +96 msgs). Gate:
+**0% hallucination / 99.95% coverage**. Load: 1127 threads, 20,686 junction rows (20,678
+DISTINCT, 8 R8 m2m), 0 OOB / 0 missing / 0 stale. resolution 388 solved / 240 unresolved / 477
+informational / 22 none. **Idempotency (R5): PASS**. **Retrieval: PASS** -- "mvdparser
+compilation and build system" returns its 2020 thread as top hit (172 msgs, solved); the second
+probe surfaced a 648-msg 2025 #quakeworld anti-cheat thread instead, a fair cross-year win on a
+broader topic.
+
+DB state after #dev-corner 2020: chat_threads = **34372**, all v2. **#dev-corner 6/11.**
 
 > **HARD GATE BEATS SOFT GATE (learned on 2021 -- the refence pass caused its own gate failure).**
 > 2021 initially FAILED at **0.008% index-hallucination** (3 OOB in 39,625) -- the first non-zero
