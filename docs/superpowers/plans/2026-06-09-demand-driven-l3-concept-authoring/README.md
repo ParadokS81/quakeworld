@@ -10,6 +10,19 @@
 
 ---
 
+## Status (W11, added 2026-08-11 at the chunk-6 HANDOVER migration)
+
+- **Outcome:** Not shipped; arc in progress. 3 of the planned ~16-17 notes shipped (hud-configuration / network-connection / match-recording-playback) per the 2026-06-16 resume handoff; the Phase index below has not been updated to reflect this (still reads Phase 1 "not started").
+- **Phase:** Phase 1 (Tier-1: 7 new notes) -- 3 of 7 shipped as of 2026-06-16.
+- **Next authorized action:** Author the next note -- `rl/gl` (game-object archetype, rank-1 demand) or `textures` (rank-2 demand-domain) -- per the resume handoff.
+- **Lane:** Main checkout (`/home/dev/projects/quakeworld`, branch `main`). No worktree noted.
+- **Last verification:** unverified at migration (2026-08-11). This README was last touched 2026-06-10 (`62d8fa5c`); the arc's own last confirmed activity is 2026-06-16 (`docs/superpowers/parking/2026-06-16-demand-driven-l3-concept-authoring-orchestrator-resume.md`, confirmed present on disk).
+- **Effects crossed:** none stated in scaffold text.
+- **Decisions:** `decisions.md` -- D1-D8 (product) + D9-D16 (build/execution).
+- **Open findings:** `review-findings.md` -- 7 hazards (F1 harness-location correction, F2 SDK trap, F3 cross-arc conflict with docs-quake-world, F5 4-part-ref gotcha, among others).
+- **In-flight:** none.
+- **Pause:** Paused, waiting on operator pickup (next note: rl/gl or textures) -- per HANDOVER's own row for this arc.
+
 ## Read in this order
 
 1. **[`prerequisites.md`](prerequisites.md)** -- operator-side Task 0 (dev DB + 3 existing notes loaded + Bun + optional Voyage key). Light.

@@ -13,6 +13,7 @@
 | Deferred items from prior wrap-ups (todo state, not memory) | `HANDOVER.md` |
 | Standalone investigations / research papers (ecosystem-scope) | `docs/research/` |
 | Always-loaded mindset docs | `.claude/skills/philosophy/` (auto-imported below) |
+| The documentation constitution — why docs are shaped this way | harness-lab's `DOC-PHILOSOPHY.md` (canonical; no local copy in this repo) |
 | Session wrap-up ritual | `~/.claude/skills/docs-check/` (user-global skill) |
 | Deploy any project | `deploy` skill ("deploy" or `/deploy`) |
 

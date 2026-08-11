@@ -139,6 +139,12 @@ High. This is the new main arc. All other slipgate-side work (binary version dif
 - **Memory:** `project_slipgate_tier_ladder.md` -- the four-tier intuition the two-mode framing distills
 - **Phase 3.5b plan:** `docs/superpowers/plans/2026-04-26-add-quake-client.md` -- binary half of the warehouse substrate
 
+---
 
+### Addendum (2026-08-11): Browse UI regressed-state screenshot finding
+
+Extracted from quakeworld HANDOVER.md (pre-migration, line 122) at the chunk-6 W17 migration -- the specific screenshot-regression detail behind the "Browse + Manager UI brainstorm needed" item this doc already tracks (see the "Next move" framing above) had no anchor of its own until now:
+
+Current Browse is in a regressed state per operator screenshot: the extension filter is mis-labeled "FILTER BY DOMAIN"; the domain list is missing from the left sidebar; "0 loaded / available / shipped / 15366 other" implies half-wired manifest-aware classification.
 
 ---

@@ -9,6 +9,19 @@ mockup-of-record). **Parent:**
 `docs/superpowers/parking/2026-08-04-oracle-web-direction.md` (Arc B).
 **Ledger:** `decisions.md` (P1-P11). **Findings:** `review-findings.md`.
 
+## Status (W11, added 2026-08-11 at the chunk-6 HANDOVER migration)
+
+- **Outcome:** Not yet shipped. Phases 1-2 SHIPPED 2026-08-06; Phase 3 code-complete, awaiting deploy GO + the boundary parity ritual.
+- **Phase:** 3 of 6 (Floor 1 -- brain port). T1-T9 shipped and orchestrator-verified; T10 (deploy) blocked on operator GO.
+- **Next authorized action:** Run T10's deploy, then the fourteen-item visual-parity ritual; then Phase 4.
+- **Lane:** Main checkout (`/home/dev/projects/quakeworld`, branch `main`), per decisions P10.
+- **Last verification:** 2026-08-06 -- boundary probes A1/A2/A4/A5 GREEN (build+types clean, all ten copy locks incl. the draftstamp, mesh geometry byte-identical across two runs, zero fetch/URL-parsing in components+generators); A3 blocked on T10's deploy.
+- **Effects crossed:** Concurrent arcs share this lane: oracle-eval-simulation runs in worktree `/home/dev/projects/quakeworld-eval` (disjoint files); Arc A (L2 corpus currency) touches only the Phase 1 runbook rider.
+- **Decisions:** `decisions.md` (P1-P11).
+- **Open findings:** `review-findings.md` -- F9 (Edit tool breaks single-file bind mounts), F10 (CF token path via `secret-drop`), F11 (Phase 2 Task 3 probe relocation), F12 (Phase 3 Task 10 deploy-path correction).
+- **In-flight:** none.
+- **Pause:** Not paused -- blocked on operator GO for the T10 CF Pages deploy of Phase 3.
+
 ## Where we are right now
 
 - **Stage:** PHASES 1-2 SHIPPED (2026-08-06); **PHASE 3 CODE-COMPLETE, AWAITING
