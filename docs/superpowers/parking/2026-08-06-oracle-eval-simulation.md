@@ -113,3 +113,22 @@ and feed it into the sampling pass rather than re-deriving the topic map cold.
 
 Operator-initiated, imminent: take this doc to a fresh terminal and open with
 arc-design (direct mode). No external gate.
+
+## Addendum (2026-08-11, chunk-6 migration repair): MCP Tailscale direct-route -- action detail
+
+Extracted from quakeworld HANDOVER.md (pre-migration) at the chunk-6 W17 migration --
+the concrete action detail behind the "fold in MCP Tailscale direct-route followup"
+line above, which this doc only referenced at a summary level.
+
+**Context:** bulk with-oracle runs for this eval must not go through the Cloudflare
+front door -- `oracle.slipgate.me` trips CF error 1015 (rate limit) at roughly 10
+parallel requests, a ceiling first hit during the ktx-l1 fan-out work. That history is
+the reason a direct route matters for THIS arc specifically, not just as general
+hygiene.
+
+**Action items (~30 min total):**
+- Teach `.mcp.json` / the dispatcher to prefer the Tailscale route
+  (`100.114.81.91`) over the Cloudflare hostname for MCP calls.
+- Expose and document the MCP port on Unraid so the direct route is reachable.
+- Run a smoke test against the direct route before the bulk simulation run depends
+  on it.

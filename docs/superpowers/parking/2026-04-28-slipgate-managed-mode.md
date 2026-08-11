@@ -143,8 +143,14 @@ High. This is the new main arc. All other slipgate-side work (binary version dif
 
 ### Addendum (2026-08-11): Browse UI regressed-state screenshot finding
 
-Extracted from quakeworld HANDOVER.md (pre-migration, line 122) at the chunk-6 W17 migration -- the specific screenshot-regression detail behind the "Browse + Manager UI brainstorm needed" item this doc already tracks (see the "Next move" framing above) had no anchor of its own until now:
+Extracted from quakeworld HANDOVER.md (pre-migration, line 122) at the chunk-6 W17 migration -- the specific screenshot-regression detail behind the "Browse + Manager UI brainstorm needed" item this doc already tracks (the Browse+Manager UI brainstorm this doc's arc is gated on) had no anchor of its own until now:
 
 Current Browse is in a regressed state per operator screenshot: the extension filter is mis-labeled "FILTER BY DOMAIN"; the domain list is missing from the left sidebar; "0 loaded / available / shipped / 15366 other" implies half-wired manifest-aware classification.
+
+**Brainstorm scope** (also extracted from quakeworld HANDOVER.md, pre-migration line 122):
+the gating brainstorm's UI surface to design covers the Browse view in Managed Mode +
+per-domain views + multi-engine filter + private/promote/fork gestures + Updater UI +
+Settings. Sizing: one focused brainstorm session, not a multi-pass affair. Provenance:
+surfaced during the arc-planner readiness check on 2026-05-12.
 
 ---

@@ -225,6 +225,19 @@ The runbook is the authoritative procedure. Future admin panel arc replaces "Cla
 
 ---
 
+## Addendum (2026-08-11, chunk-6 migration repair): cron-drift detector mechanism sketch
+
+Extracted from quakeworld HANDOVER.md (pre-migration, ~line 24) at the chunk-6 W17
+migration -- the mechanism sketch behind the "Cron-based upstream-drift detector for
+Layer 1 codebases" future-arc row, which this spec's Sub-question 2.3b only names as
+a small followup without shape.
+
+Sketch: `git ls-remote` per Layer-1 codebase, compared against the last-loaded SHA
+recorded for that codebase. On drift, notify via the (future) admin panel or via
+Discord. Deferred while operator-poll (per 2.3b above) remains sufficient.
+
+---
+
 ## Pass 2 close summary
 
 All six sub-questions locked:

@@ -53,3 +53,17 @@ Medium. Mechanical headroom secured; structural brainstorm still owed.
 - Forward-going drift catcher: `~/.claude/skills/docs-check/SKILL.md` Phase 1 Step 5.
 - Reference memory: `reference_dream_feature.md` (broken `/dream` + four-phase manual fallback).
 - Sibling structural shifts that may have closed the leaks: docs-redesign Plans 3, 4, 5 (HANDOVER docket, docs-check rewrite, OVERVIEW directive).
+
+## Addendum (2026-08-11, chunk-6 migration repair): drain candidates
+
+Extracted from quakeworld HANDOVER.md (pre-migration) at the chunk-6 W17 migration --
+the concrete drain-candidate list behind the "Memory system consolidation" future-arc
+row, which only carried a file-count/corpus-size summary.
+
+Drain candidates = the three largest memory files, verified via
+`ls -laS /home/dev/.claude/projects/-home-dev-projects-quakeworld/memory/ | head -4`
+on 2026-08-11:
+
+1. `reference_ktx_cvar_command_pairing.md` -- 35647 bytes (~34.8 KB)
+2. `project_slipgate_managed_mode_passes.md` -- 28278 bytes (~27.6 KB)
+3. `project_doc_philosophy.md` -- 26158 bytes (~25.5 KB)
