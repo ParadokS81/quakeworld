@@ -50,31 +50,6 @@
             "command": "if echo \"$CLAUDE_FILE_PATHS\" | grep -qE '\\.(env|pem|key)$|service-account\\.json|credentials\\.json'; then echo 'BLOCKED: Cannot write to secret/credential files.' >&2; exit 1; fi"
           }
         ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
-            "if": "Bash(gh pr create*)"
-          },
-          {
-            "type": "command",
-            "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
-            "if": "Bash(gh pr edit*)"
-          },
-          {
-            "type": "command",
-            "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
-            "if": "Bash(git commit*)"
-          },
-          {
-            "type": "command",
-            "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
-            "if": "Bash(git push*)"
-          }
-        ]
       }
     ],
     "PostToolUse": [
