@@ -14,6 +14,7 @@
 | Standalone investigations / research papers (ecosystem-scope) | `docs/research/` |
 | Always-loaded mindset docs | `.claude/skills/philosophy/` (auto-imported below) |
 | The documentation constitution — why docs are shaped this way | harness-lab's `DOC-PHILOSOPHY.md` (canonical; no local copy in this repo) |
+| The development doctrine — environment, principles, iteration protocol | harness-lab's `DOCTRINE.md` (canonical; no local copy — skills render it, never own it) |
 | Session wrap-up ritual | `~/.claude/skills/docs-check/` (user-global skill) |
 | Deploy any project | `deploy` skill ("deploy" or `/deploy`) |
 
