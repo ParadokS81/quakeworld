@@ -28,7 +28,10 @@ services:
       MARIADB_USER: qwiki
       MARIADB_PASSWORD: ${MW_DB_PASSWORD}
     volumes:
-      - /mnt/user/appdata/qwiki-beta/mariadb-data:/var/lib/mysql
+      # /mnt/cache (not /mnt/user): MariaDB must not run over the shfs/FUSE
+      # layer -- that corrupted Plex's SQLite DB on 2026-08-13. Same bytes
+      # either way (appdata is cache-resident); only the mount route differs.
+      - /mnt/cache/appdata/qwiki-beta/mariadb-data:/var/lib/mysql
     networks:
       - qwiki-net
     healthcheck:

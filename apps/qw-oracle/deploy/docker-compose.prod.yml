@@ -24,7 +24,10 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - /mnt/user/appdata/qw-oracle/postgres-data:/var/lib/postgresql/data
+      # /mnt/cache (not /mnt/user): Postgres must not run over the shfs/FUSE
+      # layer -- that corrupted Plex's SQLite DB on 2026-08-13. Same bytes
+      # either way (appdata is cache-resident); only the mount route differs.
+      - /mnt/cache/appdata/qw-oracle/postgres-data:/var/lib/postgresql/data
     networks:
       - qworacle-net
     healthcheck:
