@@ -74,7 +74,12 @@ services:
       # would expose the MCP on the LAN without rate limiting.
       - "192.168.1.205:8080:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # nginx config as a DIRECTORY mount over conf.d, never a single-file
+      # mount: a single-file bind pins one inode, so any rename-style write on
+      # the host (Edit tool, sed -i, scp) leaves the container on a stale
+      # handle until its next reload fails (2026-08-06 incident). The dir
+      # holds default.conf, deployed from apps/qw-oracle/deploy/nginx.conf.
+      - ./nginx:/etc/nginx/conf.d:ro
       - /mnt/user/appdata/qw-oracle/snapshots:/var/oracle/snapshots:ro
     networks:
       - qworacle-net

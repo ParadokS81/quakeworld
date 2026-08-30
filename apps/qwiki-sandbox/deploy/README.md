@@ -19,7 +19,7 @@ Persistent data and configs live at `/mnt/user/appdata/qwiki-beta/`:
 - `citizen/`                  - Citizen skin git checkout at v3.16.0 (overlays `/var/www/html/skins/Citizen`).
 - `page-forms/`               - Page Forms git checkout at REL1_43 branch (overlays `/var/www/html/extensions/PageForms`); added in Phase 2.
 - `docker-compose.prod.yml`   - scp'd from `apps/qwiki-sandbox/deploy/`.
-- `nginx.conf`                - scp'd from `apps/qwiki-sandbox/deploy/`.
+- `nginx/default.conf`        - scp'd from `apps/qwiki-sandbox/deploy/nginx.conf` (directory mount over conf.d; see the compose comment).
 - `LocalSettings.php`         - scp'd from `apps/qwiki-sandbox/deploy/`.
 - `.env`                      - operator-authored from `.env.prod.example`, mode 600.
 
@@ -49,9 +49,13 @@ All deploy commands below use `ssh unraid-deploy` -- a non-root user (`claude-de
 
    ```bash
    scp apps/qwiki-sandbox/deploy/docker-compose.prod.yml \
-       apps/qwiki-sandbox/deploy/nginx.conf \
        apps/qwiki-sandbox/deploy/LocalSettings.php \
        unraid-deploy:/mnt/user/appdata/qwiki-beta/
+   # nginx.conf lands as nginx/default.conf: the compose mounts the DIRECTORY
+   # over conf.d (a single-file mount strands the container on a rename-write).
+   ssh unraid-deploy 'mkdir -p /mnt/user/appdata/qwiki-beta/nginx'
+   scp apps/qwiki-sandbox/deploy/nginx.conf \
+       unraid-deploy:/mnt/user/appdata/qwiki-beta/nginx/default.conf
    ```
 
 3. Author the `.env` on Unraid:
@@ -671,7 +675,7 @@ new file. nginx is unaffected (no PHP files cached in nginx).
 
 ```bash
 # from operator's WSL
-scp apps/qwiki-sandbox/deploy/nginx.conf unraid-deploy:/mnt/user/appdata/qwiki-beta/
+scp apps/qwiki-sandbox/deploy/nginx.conf unraid-deploy:/mnt/user/appdata/qwiki-beta/nginx/default.conf
 # Validate the new config inside the running container BEFORE restart:
 ssh unraid-deploy 'docker exec qwiki-nginx nginx -t' || echo "config invalid; do not restart"
 # If valid, reload nginx without dropping connections:
@@ -916,7 +920,7 @@ git push origin main
   ```bash
   ssh unraid-deploy 'docker logs qwiki-nginx --tail 30'
   ssh unraid-deploy 'docker run --rm \
-    -v /mnt/user/appdata/qwiki-beta/nginx.conf:/etc/nginx/conf.d/default.conf:ro \
+    -v /mnt/user/appdata/qwiki-beta/nginx:/etc/nginx/conf.d:ro \
     nginx:1.30-alpine nginx -t'
   ```
 
