@@ -6,6 +6,7 @@
 
 | When you need... | Read... |
 |---|---|
+| Codex discovery adapter pointing to this canonical project index. | `AGENTS.md` |
 | Elevator pitch, what's in here | `README.md` |
 | Why this monorepo exists, workshop framing, graduation paths | `VISION.md` |
 | Living map: integration diagram, per-app status, packages, contracts | `OVERVIEW.md` |
@@ -29,7 +30,7 @@
 | `apps/qw-stats/` | `apps/qw-stats/CLAUDE.md` | Express + PostgreSQL stats API |
 | `apps/qw-oracle/` | `apps/qw-oracle/CLAUDE.md` | SQLite knowledge base + MCP service (Layer 1 facts / Layer 2 chat corpus / Layer 3 concept notes) |
 | `apps/oracle-web/` | `apps/oracle-web/CLAUDE.md` | oracle.quake.world v1 -- the read-only brain surface (SolidJS, CF Pages) |
-| `apps/slipgate-app/` | `apps/slipgate-app/CLAUDE.md` | Tauri v2 desktop companion (active, ~90% of current work) |
+| `apps/slipgate-app/` | `apps/slipgate-app/CLAUDE.md` | Tauri v2 desktop companion |
 | `packages/qw-knowledge/` | `packages/qw-knowledge/CLAUDE.md` | Shared QW domain knowledge / weapon-scripts / terminology |
 | `packages/qw-version-resolution/` | `packages/qw-version-resolution/CLAUDE.md` | Version arithmetic helpers (engine versions, builds, channels) |
 
