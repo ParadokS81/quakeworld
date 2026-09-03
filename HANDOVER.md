@@ -98,6 +98,7 @@ Reviewed through: 2026-08-11.
 - `[agent-food]` **Synthesis-report numerical-claim provenance discipline** — future validation reports must inline SQL/derivation for every numerical claim (3 acceptable formats) — docs/superpowers/parking/2026-04-29-synthesis-report-numerical-claim-provenance.md (NEW, full body relocated whole).
 - `[agent-food]` **docs-web doc-hygiene gap** — apps/docs-web has no CLAUDE.md and is absent from root CLAUDE.md Subsystem scopes + OVERVIEW — add all three (oracle-web-v1 phase docs still cite this as open) — docs/superpowers/plans/2026-08-06-oracle-web-v1/phase-2-scaffold-hello-production.md.
 - `[decision]` **docs-web front-page/design brainstorm** — fresh-session brainstorm pending; centerpiece (oracle coverage map) is now Arc B's seed — decide whether front-page work folds into Arc B or runs standalone — docs/superpowers/parking/2026-08-04-oracle-web-direction.md.
+- `[decision]` **27 nested `CLAUDE.md` scopes have no `AGENTS.md` beside them** — the root got the Codex adapter on 2026-09-03 (harness-lab D43 alignment); harness-lab's doctrine (DC6) says every `CLAUDE.md`, root or nested, has an adapter sibling, and a sub-directory form exists (`harness-lab/workflow/AGENTS.md`). Decide whether nested scopes here take that form or are exempt; if they take it, one sitting copies 27 files. Raised by the harness-lab wrap 2026-09-03.
 
 ## Sidequests
 
