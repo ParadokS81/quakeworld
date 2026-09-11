@@ -72,7 +72,7 @@ Open https://matchscheduler-dev.web.app and confirm the change is live.
 ## Architecture Notes
 
 ### Function regions
-- **v1 onCall functions (25)**: All share a single Cloud Functions container in `europe-west3`. This means `firebase deploy --only functions` deploys all 25 at once and is fast.
+- **v1 functions (46 as of 2026-09-11: callables, scheduled jobs, two plain HTTPS endpoints)**: All share a single Cloud Functions container in `europe-west3`. This means `firebase deploy --only functions` deploys them all at once and is fast; unchanged functions are skipped.
 - **v2 storage triggers (2)**: `processLogoUpload` and `processAvatarUpload` run as separate Cloud Run services in `europe-west10` (must match storage bucket region).
 
 ### Adding a new Cloud Function
