@@ -16,13 +16,14 @@
 - Firebase CLI installed and authenticated (`firebase login`)
 - Node.js (for CSS build)
 - Access to the `matchscheduler-dev` Firebase project
-- **For a functions deploy: `functions/.env` must be present locally.** It carries
-  `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET`, which Firebase reads at deploy time and
-  bakes into the functions' environment. A deploy from a checkout without that file ships
-  the functions with no Discord credentials and breaks Discord sign-in for everyone. The
-  dev-cockpit checkout has no copy as of 2026-09-11 (not in the secrets registry either), so
-  from there only hosting deploys and targeted `firebase functions:delete` are safe. Place
-  the file with `secret-drop env functions/.env <KEY>` before the first functions deploy.
+- **No local secrets are needed for a functions deploy.** The Discord client secret lives in
+  Firebase Secret Manager as `DISCORD_CLIENT_SECRET` and is bound to `discordOAuthExchange`
+  via `runWith({ secrets })` in `functions/discord-auth.js`; the CLI refuses to deploy if the
+  secret is missing rather than deploying without it. The public client ID is a constant in
+  the same file (`.env` / `.env.emulator` override it for local dev). Rotate the secret with
+  `firebase functions:secrets:set DISCORD_CLIENT_SECRET --data-file -` fed from a file placed by
+  `secret-drop`, then deploy functions. Set up 2026-09-11 after a `.env`-only secret was found
+  to vanish on any deploy from a checkout without the file.
 
 ## Deploy Workflow
 
