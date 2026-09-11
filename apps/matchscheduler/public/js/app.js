@@ -44,17 +44,24 @@ const MatchSchedulerApp = (function() {
         // Slice M1.0: Mobile detection — route to MobileApp on small screens
         const MOBILE_BREAKPOINT = '(max-width: 768px)';
         const mobileMediaQuery = window.matchMedia(MOBILE_BREAKPOINT);
+        const startedMobile = mobileMediaQuery.matches && typeof MobileApp !== 'undefined';
 
-        if (mobileMediaQuery.matches && typeof MobileApp !== 'undefined') {
+        // The page re-inits by reloading when the viewport crosses the breakpoint.
+        // Never reload while a popup sign-in is in flight: on tiling window managers
+        // the OAuth popup shrinks the browser tile across the breakpoint, and a reload
+        // would drop the pending sign-in. Re-check once the sign-in settles so a real
+        // resize still gets its reload (auth persists, so it comes back signed in).
+        const reloadIfModeChanged = () => {
+            if (AuthService.isSignInPending()) return;
+            if (mobileMediaQuery.matches !== startedMobile) window.location.reload();
+        };
+        mobileMediaQuery.addEventListener('change', reloadIfModeChanged);
+        window.addEventListener('auth-signin-settled', reloadIfModeChanged);
+
+        if (startedMobile) {
             console.log('📱 Mobile viewport detected — initializing MobileApp');
             await MobileApp.init();
             _initialized = true;
-
-            // Listen for viewport changes (e.g., dev tools resize)
-            mobileMediaQuery.addEventListener('change', (e) => {
-                window.location.reload();
-            });
-
             console.log('✅ MatchScheduler (Mobile) initialized successfully');
             return;
         }
@@ -62,11 +69,6 @@ const MatchSchedulerApp = (function() {
         _initializeComponents();
         _setupEventListeners();
         _initialized = true;
-
-        // Listen for viewport changes to mobile — reload to re-init
-        mobileMediaQuery.addEventListener('change', (e) => {
-            if (e.matches) window.location.reload();
-        });
 
         console.log('✅ MatchScheduler initialized successfully');
     }

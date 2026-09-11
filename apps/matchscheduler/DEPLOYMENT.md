@@ -16,6 +16,13 @@
 - Firebase CLI installed and authenticated (`firebase login`)
 - Node.js (for CSS build)
 - Access to the `matchscheduler-dev` Firebase project
+- **For a functions deploy: `functions/.env` must be present locally.** It carries
+  `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET`, which Firebase reads at deploy time and
+  bakes into the functions' environment. A deploy from a checkout without that file ships
+  the functions with no Discord credentials and breaks Discord sign-in for everyone. The
+  dev-cockpit checkout has no copy as of 2026-09-11 (not in the secrets registry either), so
+  from there only hosting deploys and targeted `firebase functions:delete` are safe. Place
+  the file with `secret-drop env functions/.env <KEY>` before the first functions deploy.
 
 ## Deploy Workflow
 
@@ -104,6 +111,11 @@ Tailwind watcher rebuilds automatically during dev. Always run `npm run css:buil
 ### Functions deploy fails
 - Check `firebase functions:log` for errors
 - Ensure all functions use `europe-west3` region (v1) or `europe-west10` (v2 storage only)
+
+### Retired scheduled functions
+`scheduledBig4Sync` (15-minute Big4 poll) was deleted from the project on 2026-09-11 and its
+export removed from `functions/index.js`: The Big 4 closed after Season 2 and its API 404s.
+Re-exporting it and deploying functions recreates the schedule.
 
 ### Orphaned Cloud Run services
 After the v1 migration, old per-function Cloud Run services may exist:

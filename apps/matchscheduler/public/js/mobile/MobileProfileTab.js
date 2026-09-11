@@ -109,7 +109,7 @@ const MobileProfileTab = (function() {
     async function signOut() {
         MobileBottomSheet.close();
         try {
-            await AuthService.signOut();
+            await AuthService.signOutUser();
         } catch (err) {
             console.error('Sign out failed:', err);
         }
