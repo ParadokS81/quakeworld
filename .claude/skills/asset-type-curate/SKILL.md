@@ -14,8 +14,8 @@ description: |
 # asset-type-curate
 
 One asset_type slug per invocation. Produces an investigation report plus
-(flag-gated) a draft Layer 3 note. Designed for parallel fan-out: Opus
-orchestrator dispatches ~20 Sonnet sub-agents, one per slug.
+(flag-gated) a draft Layer 3 note. Designed for parallel fan-out: an
+orchestrator dispatches one sub-agent per slug.
 
 ## Trigger phrases
 
@@ -146,10 +146,8 @@ one-line status report.
 
 **Re-walk note:** when re-running this skill on a slug whose draft already
 exists on disk (calibration pass, post-extractor-fix re-dispatch, or any
-update walk), both `<slug>.md` and `<slug>-investigation.md` may already
-be present. The Write tool requires a `Read` call before overwriting an
-existing file -- do a `Read` of each existing file first, then `Write` the
-new content. This is a tooling-level requirement, not a content-review step.
+update walk), `<slug>.md` and `<slug>-investigation.md` may already be
+present. Replace both with this walk's output.
 
 ---
 
@@ -240,10 +238,10 @@ Example (CONFIDENT):
 skybox: CONFIDENT -- 6-face cubemap; 4 ezQuake probe variants + FTE bare-root; r_skyname + /loadsky + /skygroup; docs stale but source clear -- artifacts: docs/asset-curation/skybox-investigation.md, curated/asset-notes/skybox.md
 ```
 
-Example (L1-GAP):
+Example (L1-GAP; hypothetical slug):
 
 ```
-locfile: L1-GAP -- no loader-site entries in ezquake or fte extractor output; watchlist needs Loc_LoadLocations entry -- artifacts: docs/asset-curation/locfile-investigation.md
+example_slug: L1-GAP -- loader reached only through a runtime-assigned function pointer; no loader-site entries in ezquake or fte extractor output; watchlist cannot anchor it -- artifacts: docs/asset-curation/example_slug-investigation.md
 ```
 
 Do not commit. The orchestrator handles staging and commit after review.

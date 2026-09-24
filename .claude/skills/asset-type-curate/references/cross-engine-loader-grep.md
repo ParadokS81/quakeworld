@@ -87,7 +87,7 @@ Source-level prefix search to confirm watchlist coverage:
 
 ```bash
 grep -rn "Image_Load\|R_Load\|Tex_Load\|Pic_Load\|Image_Get" \
-  /path/to/ezquake-source/src/ --include="*.c" -l
+  research/repos/ezquake-source/src/ --include="*.c" -l
 ```
 
 ---
@@ -133,7 +133,7 @@ For QWCL source-level verification, grep directly:
 
 ```bash
 grep -rn "R_LoadPic\|Draw_PicFromWad\|Mod_LoadSkin\|GL_LoadTexture\|GL_FindTexture" \
-  /path/to/qwcl-source/ --include="*.c" -l
+  research/repos/qwcl-original/QW/ --include="*.c" -l
 ```
 
 If the QWCL handler doesn't exist, that is an extractor-capability gap, not an
@@ -145,11 +145,11 @@ L1-GAP. Log it in `## Extractor gap` of the investigation.md.
 
 **Status:** No `_handler_asset_loader_sites.py` exists for MVDSV. MVDSV is a
 server; asset-load primitives are QC-side (model/sound precache) or VFS reads,
-not image-file loads. Source root: `/home/paradoks/projects/mvdsv/src/`.
+not image-file loads. Source root: `research/repos/mvdsv/src/`.
 
 ```bash
 grep -rn "Mod_LoadModel\|SV_PrecacheModel\|SV_PrecacheSound\|SV_Precache" \
-  /home/paradoks/projects/mvdsv/src/ --include="*.c" -l
+  research/repos/mvdsv/src/ --include="*.c" -l
 ```
 
 MVDSV is expected to show SPARSE or N/A for most image-asset types. Log genuine

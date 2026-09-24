@@ -1,4 +1,4 @@
-Clean restart of the Tauri dev environment.
+Clean restart of the Tauri dev environment. This runs only on the Windows dev machine (it drives Windows processes through `powershell.exe`); from the Linux dev cockpit there is no Windows side -- say so and stop.
 
 ## Instructions
 

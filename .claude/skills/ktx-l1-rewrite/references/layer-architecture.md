@@ -129,18 +129,3 @@ their own.
 The architecture stays constant; the shape catalog grows per-codebase. This
 skill is the KTX implementation; future MVDSV/QWFWD/QTV variants fork the
 skill (not parameterize it).
-
-## Concept-note authoring economics (operator-side, not skill-side)
-
-The L1 substrate makes concept notes **cheaper to author, not trivial**.
-The L1 work eliminates the fact-verification cost. The remaining
-concept-note authoring is:
-
-- Picking the narrative arc (what story does this group of entities tell?)
-- Adding lived-experience content (community usage, common pitfalls)
-- Choosing what to emphasize vs defer
-- Picking spanning examples that tie cards together
-
-That's authorship, not transcription. With L1 done, concept-note authoring
-becomes a 30-minute job per note, not a 3-hour one. The skill enables this
-downstream economy but does not perform it.

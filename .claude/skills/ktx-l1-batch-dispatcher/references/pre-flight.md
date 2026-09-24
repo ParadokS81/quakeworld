@@ -10,7 +10,7 @@ vs investigate.
 Run:
 
 ```
-git -C /home/paradoks/projects/quakeworld/research/repos/ktx describe --always
+git -C research/repos/ktx describe --always   # from the quakeworld checkout
 ```
 
 Compare against the `anchor_version` arg. If they differ:
@@ -29,13 +29,13 @@ anchor IS the contract.
 
 Cold-load every file the per-card sub-agents will rely on:
 
-- `~/.claude/skills/ktx-l1-rewrite/SKILL.md`
-- `~/.claude/skills/ktx-l1-rewrite/references/shape-catalog.md`
-- `~/.claude/skills/ktx-l1-rewrite/references/universal-shape-v2.md`
-- `~/.claude/skills/ktx-l1-rewrite/references/layer-architecture.md`
-- `~/.claude/skills/ktx-l1-rewrite/references/entity-categories.md`
-- `~/.claude/skills/ktx-l1-rewrite/references/worked-examples.md`
-- `~/.claude/skills/ktx-l1-rewrite/references/park-triggers.md`
+- `.claude/skills/ktx-l1-rewrite/SKILL.md`
+- `.claude/skills/ktx-l1-rewrite/references/shape-catalog.md`
+- `.claude/skills/ktx-l1-rewrite/references/universal-shape-v2.md`
+- `.claude/skills/ktx-l1-rewrite/references/layer-architecture.md`
+- `.claude/skills/ktx-l1-rewrite/references/entity-categories.md`
+- `.claude/skills/ktx-l1-rewrite/references/worked-examples.md`
+- `.claude/skills/ktx-l1-rewrite/references/park-triggers.md`
 
 Why the dispatcher needs them despite sub-agents loading them too:
 

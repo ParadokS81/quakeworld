@@ -65,9 +65,10 @@ spec-rejected false economy. Every step below runs in this one context.
 
 ## Context files to load at start
 
-Read all six before Step 1 (the fifth added by `decisions.md` D7
-Amendment 2026-05-19 / B1; the sixth, D20, added 2026-05-30); they govern
-the work and the skill does not restate them:
+Read these before Step 1 -- all except `subagent-brief-template.md`, which
+is the dispatcher's (the fifth added by `decisions.md` D7 Amendment
+2026-05-19 / B1; the sixth, D20, added 2026-05-30); they govern the work
+and the skill does not restate them:
 
 - `references/d5-rubric.md` -- full D5-amended quality-bar rubric + worked
   keep-vs-synthesize examples (the keep-vs-synthesize judgment).

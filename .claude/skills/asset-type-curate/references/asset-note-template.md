@@ -335,41 +335,28 @@ complete "how does this work" answer.
 
 ---
 
-## Representative voice excerpt
+## Representative voice excerpts
 
-The following paragraph from `apps/qw-oracle/curated/asset-notes/player_skin.md`
-is the canonical voice anchor for asset-notes. When drafting a note, read
-this excerpt first to calibrate register, citation density, and the balance
-between mechanism detail and plain-English framing.
-
----
-
-> `r_dynamic <0|1|2>` controls dynamic lighting on world surfaces -- how
-> muzzle flashes, rocket trails, explosions, and powerup auras paint colored
-> light onto walls, floors, and ceilings. The three modes are computation-path
-> choices:
->
-> - `0` -- no dynamic lighting. Surfaces stay flat-lit regardless of nearby
->   effects. The model halo from `r_powerupglow` still draws, but you lose
->   the *room lights up red* effect that announces a quad carrier rounding
->   the corner.
-> - `1` -- software (CPU-computed) lighting. The classic path. Works on every
->   renderer.
-> - `2` -- hardware (GPU-computed) lighting via GLSL. Only valid when the
->   modern-OpenGL renderer is active. The OnChange handler at
->   `src/r_rmain.c:108` rejects this value with `"Hardware lighting not
->   supported when not using GLSL"` when the immediate-mode renderer is
->   loaded.
->
-> Default depends on the renderer build: `"2"` on builds that include
-> modern-OpenGL (`EZ_MULTIPLE_RENDERERS` or `RENDERER_OPTION_MODERN_OPENGL`);
-> `"1"` on immediate-mode-only builds (`src/r_rmain.c:151-153`).
+Two shipped asset-notes are the voice anchors. Read the one closer to your
+slug's shape before drafting; they illustrate register, not a layout to copy:
+`apps/qw-oracle/curated/asset-notes/player_skin.md` (one mechanism chain) and
+`apps/qw-oracle/curated/asset-notes/skybox.md` (multi-engine, multi-file).
+These two paragraphs from `player_skin.md` "How it loads" show the register:
 
 ---
 
-**Why this excerpt.** Plain-English framing first, mechanism second. Inline
-source citation at the sentence level, not deferred. Concrete behavioral
-consequence per mode, not just a label. Version-conditional behavior in prose.
+> Each connected player's skin name flows via userinfo. The client constructs a per-player target filename in `qw/skins/<name>.<ext>` and looks it up through the engine's image loader. ezQuake walks `Skin_FindName` at `src/skin.c:155-180` with a priority chain:
+>
+> [...]
+>
+> `noskins` short-circuits the chain entirely: `noskins 0` (default) honors the above; `noskins 1` skips all skin loading (every player renders with the stock texture); `noskins 2` honors the chain but blocks server-side downloads of missing files.
+
+---
+
+**Why this excerpt.** Plain-English framing first, mechanism second. One
+anchor citation at the sentence level, not a citation per claim. Each value
+gets its concrete consequence in this asset's context, not just a label;
+recipes and gameplay framing stay in the concept-note.
 
 ---
 

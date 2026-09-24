@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Deploy any project to production. Covers MatchScheduler (Firebase), Quad (SSH/Docker to Unraid), QW Stats (SCP/Docker to Unraid), and Slipgate App (Windows build -- workflow TBD). Use when deploying, shipping, pushing to prod, or checking deployment status.
+description: Deploy any project to production. Covers MatchScheduler (Firebase), Quad (Docker Compose on Unraid), QW Stats (Docker on Unraid), and Slipgate App (Windows build -- workflow TBD). Use when deploying, shipping, pushing to prod, or checking deployment status.
 ---
 
 # Deploy
@@ -10,8 +10,8 @@ description: Deploy any project to production. Covers MatchScheduler (Firebase),
 | Project | Deploy command | Verify |
 |---------|---------------|--------|
 | matchscheduler | `firebase deploy --only <targets>` | https://matchscheduler-dev.web.app |
-| quad | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose pull && docker compose up -d'` | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs --tail=20 quad'` |
-| qw-stats | `scp` files + `ssh root@100.114.81.91` rebuild | `curl https://qw-api.poker-affiliate.org/health` |
+| quad | `cd /mnt/user/appdata/quad && docker compose pull && docker compose up -d` | `cd /mnt/user/appdata/quad && docker compose logs --tail=20 quad` |
+| qw-stats | `cp` files into appdata + `docker build`/`run` | `curl https://qw-api.poker-affiliate.org/health` |
 | slipgate-app | `bun run tauri build` (Windows) / GitHub Actions | Launch the built .exe |
 
 ## MatchScheduler (Firebase)
@@ -45,8 +45,7 @@ For details: `apps/matchscheduler/DEPLOYMENT.md`
 
 ## Quad (SSH + Docker, Unraid)
 
-**SAFETY CHECK -- enforced by hook:**
-A Claude Code hook (`scripts/check-quad-recording.sh`) checks the health endpoint before any `docker compose up/down/restart/stop/kill/recreate/rm` command targeting `/mnt/user/appdata/quad` on `unraid`. If a recording is active, the command is blocked. No manual check needed -- the hook handles it.
+**Check for an active recording first -- no hook enforces it.** Any `up`, `down`, `restart`, `stop`, `kill` or `rm` on the quad stack cuts a recording in progress. The bot's `/health` endpoint reports `"active":true` while one runs; its port 3000 is not published, so read it from inside the container (`docker exec quad-quad-1 ...`, not yet proven from the dev cockpit -- prove it once and pin the command here). If you cannot read it, ask the operator whether a recording is running before you touch the stack.
 
 **Deploy steps:**
 1. Ensure code is committed and pushed to main (GitHub Actions builds the image automatically)
@@ -54,28 +53,26 @@ A Claude Code hook (`scripts/check-quad-recording.sh`) checks the health endpoin
    ```bash
    gh run watch --exit-status $(gh run list --workflow=quad-docker.yml --limit=1 --json databaseId --jq '.[0].databaseId')
    ```
-3. Deploy:
+3. Deploy (the compose file is mounted at its host path; `docker` reaches the host through `dev-deploy-proxy`, and GHCR pulls authenticate via `DOCKER_CONFIG`):
    ```bash
-   ssh unraid 'cd /mnt/user/appdata/quad && docker compose pull && docker compose up -d'
+   cd /mnt/user/appdata/quad && docker compose pull && docker compose up -d
    ```
 4. Verify -- check logs for successful startup:
    ```bash
-   ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs --tail=20 quad'
-   ssh unraid 'curl -s http://localhost:3000/health'
+   cd /mnt/user/appdata/quad && docker compose logs --tail=20 quad
    ```
 
 **Common operations:**
 | Action | Command |
 |--------|---------|
-| Live logs | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs -f'` |
-| Status | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose ps'` |
-| Restart (no rebuild) | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose restart'` |
-| Edit .env on server | `ssh unraid 'nano /mnt/user/appdata/quad/.env'` |
+| Live logs | `cd /mnt/user/appdata/quad && docker compose logs -f` |
+| Status | `cd /mnt/user/appdata/quad && docker compose ps` |
+| Restart (no rebuild) | `cd /mnt/user/appdata/quad && docker compose restart` |
+| Edit .env | edit `/mnt/user/appdata/quad/.env` directly (mounted read-write); put secret values in with `secret-drop env`, never inline |
 
 Images are pre-built by GitHub Actions and pushed to ghcr.io/paradoks81/quad. Deploy pulls only changed layers (typically a few MB for code changes).
 
 **Unraid notes:**
-- Unraid does not ship `docker compose` by default. The plugin binary is at `/usr/local/lib/docker/cli-plugins/docker-compose` (tmpfs -- does not survive reboots). Re-install after reboot, or set up Compose Manager from Community Apps.
 - Mumble container co-runs alongside the bot. Mumble player endpoint is `mumble.slipgate.me:64738`. The Cloudflare A record is `DNS only` (proxy off), router port-forwards 64738 TCP+UDP to Unraid `192.168.1.205`.
 - No GPU. Whisper transcription auto-falls-back to CPU. If `/process transcribe` is too slow on the `small` model, set `WHISPER_MODEL=base` in `.env`.
 
@@ -83,17 +80,18 @@ For details: `apps/quad/DEPLOYMENT.md`
 
 ## QW Stats (SCP + Docker)
 
-**Requires:** Tailscale VPN active (Unraid at 100.114.81.91)
+The build context is mounted at its host path, `/mnt/user/appdata/qw-stats-api`; `docker` reaches the host through `dev-deploy-proxy`.
 
-1. Copy updated files to Unraid:
+1. Copy updated files into the build context:
    ```bash
-   scp apps/qw-stats/api/server.js root@100.114.81.91:/mnt/user/appdata/qw-stats-api/
+   cp apps/qw-stats/api/server.js /mnt/user/appdata/qw-stats-api/
    ```
-   If `package.json` changed, also scp `package.json`.
-2. Rebuild and restart container:
+   If `package.json` changed, also copy `package.json`.
+2. Rebuild and restart the container:
    ```bash
-   ssh root@100.114.81.91 "cd /mnt/user/appdata/qw-stats-api && docker build -t qw-stats-api . && docker stop qw-stats-api && docker rm qw-stats-api && docker run -d --name qw-stats-api --network phoenix-analytics_default -e PG_PASSWORD=\$(cat /mnt/user/appdata/qw-stats-api/.env | grep PG_PASSWORD | cut -d= -f2) -p 100.114.81.91:3100:3100 --restart unless-stopped qw-stats-api"
+   cd /mnt/user/appdata/qw-stats-api && docker build -t qw-stats-api . && docker stop qw-stats-api && docker rm qw-stats-api && docker run -d --name qw-stats-api --network phoenix-analytics_default -e PG_PASSWORD="$(grep '^POSTGRES_PASSWORD=' /mnt/user/appdata/phoenix-analytics/.env | cut -d= -f2-)" -p 100.114.81.91:3100:3100 --restart unless-stopped qw-stats-api
    ```
+   Two parts are unproven from the dev cockpit: `docker build` through the proxy (a `Forbidden` means its allowlist needs a line -- write ops a letter), and the password source. The old one, `/mnt/user/appdata/qw-stats-api/.env`, no longer exists; the phoenix-analytics Postgres password is the likely value -- confirm before the first run.
 3. Verify:
    ```bash
    curl https://qw-api.poker-affiliate.org/health
@@ -105,12 +103,7 @@ For details: `apps/qw-stats/DEPLOYMENT.md` (gitignored -- contains credentials)
 
 **Status: WSL-to-Windows dev workflow TBD**
 
-Current process (requires Windows terminal):
-```bash
-cd \\wsl.localhost\Ubuntu\home\paradoks\projects\quakeworld\apps\slipgate-app
-bun install
-bun run tauri build
-```
+A local build needs a Windows machine with its own checkout (`bun install && bun run tauri build` in `apps/slipgate-app`); the dev cockpit is Linux and cannot build it.
 
 CI: GitHub Actions builds all platforms on push to main.
 
@@ -135,15 +128,14 @@ For details: `apps/slipgate-app/DEPLOYMENT.md`
 1. Update matchscheduler standin creation + Cloud Function
 2. Deploy matchscheduler functions + rules
 3. Update quad standin module if DM handling changed
-4. Deploy quad to Xerial
+4. Deploy quad (Quad section above)
 
 ## Credential Locations
 
 | Credential | Location |
 |-----------|----------|
-| Firebase service account | `apps/matchscheduler/service-account.json`, `apps/quad/service-account.json` |
-| Discord bot token | `apps/quad/.env` (DISCORD_TOKEN) |
+| Firebase service account (quad) | `/mnt/user/appdata/quad/service-account.json` |
+| Discord bot token | `/mnt/user/appdata/quad/.env` (DISCORD_TOKEN) |
 | Discord OAuth | `apps/matchscheduler/functions/.env` |
-| PostgreSQL password | `apps/qw-stats/.env` |
-| Unraid SSH key | `~/.ssh/id_rsa` (alias: `unraid`) |
+| PostgreSQL password (phoenix-analytics) | `/mnt/user/appdata/phoenix-analytics/.env` (POSTGRES_PASSWORD) |
 | Telia router admin (Hyllie home) | local Claude memory: `reference_unraid_telia_router_access.md` (NEVER commit to repo) |

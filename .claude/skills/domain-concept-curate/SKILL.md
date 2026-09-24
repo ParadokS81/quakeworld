@@ -1,6 +1,6 @@
 ---
 name: domain-concept-curate
-description: Use this skill to author one player-help L3 concept note for a demand-ranked domain from the `demand-driven-l3-concept-authoring` arc taxonomy. Triggers on "domain-concept-curate <domain>", "curate domain <name>", "author concept note for <domain>", "draft player-help note for <domain>", "next domain slice", or per-domain sub-agent dispatch from the arc orchestrator. One domain per invocation. Walks pre-flight / demand-corpus check (with optional upstream triage) / source-truth verification / ruleset-restriction scan / cross-engine + userinfo-hub check / operator-consult gate / draft / acceptance gate / write. HALTS on classification uncertainty, L1-GAP, or open operator-consult questions. Does NOT extend `guide-rewrite` -- that skill's doc-conversion spine assumes a pre-existing ezquake.com page; ~10 of this arc's domains have no upstream page (D9). Modeled on `game-mode-curate`: synthesize-from-facts, per-claim source-line citation in commit body, externalized contracts, HALT/PROCEED rubric.
+description: Use this skill to author one player-help L3 concept note for a demand-ranked domain from the `demand-driven-l3-concept-authoring` arc taxonomy. Triggers on "domain-concept-curate <domain>", "curate domain <name>", "author concept note for <domain>", "draft player-help note for <domain>", "next domain slice", or per-domain sub-agent dispatch from the arc orchestrator. One domain per invocation. Walks pre-flight / demand-corpus check (with optional upstream triage) / source-truth verification / ruleset-restriction scan / cross-engine + userinfo-hub check / operator-consult gate / draft / acceptance gate / write. HALTS on classification uncertainty, L1-GAP, or open operator-consult questions. Use `guide-rewrite` instead when the job is converting an existing ezquake.com page; this skill synthesizes a note from facts, with or without an upstream page.
 ---
 
 # domain-concept-curate
@@ -29,9 +29,13 @@ NOT in scope:
 
 4. **`docs/superpowers/plans/2026-06-09-demand-driven-l3-concept-authoring/decisions.md`** (repo root, NOT under `apps/qw-oracle/`) -- all cross-cutting decisions. D5/D6/D7/D8/D9/D13 are frequently load-bearing.
 
-**Voice exemplar (mandatory before drafting):**
+**Voice exemplars (read the one matching your domain's shape before drafting):**
 
-- `apps/qw-oracle/curated/concept-notes/weapon-scripts.md` -- THE voice calibration point. Named-by-domain, audience sections, per-method support annotation, typed 3-part `related_entities`, `best_practices_reviewed` frontmatter, progressive-disclosure opener, R7-grounded recommendations citing labeled authority. Match this voice.
+- `apps/qw-oracle/curated/concept-notes/weapon-scripts.md` -- the judgment-domain exemplar (longer explanatory prose). Named-by-domain, audience sections, per-method support annotation, typed 3-part `related_entities`, `best_practices_reviewed` frontmatter, progressive-disclosure opener, R7-grounded recommendations citing labeled authority.
+- `apps/qw-oracle/curated/concept-notes/network-connection.md` -- the objective-domain exemplar (terse recommendations + command lists, mechanism as depth).
+- `apps/qw-oracle/curated/concept-notes/hud-configuration.md` -- the mode-gated exemplar (the gate decision leads).
+
+Match the voice tier to the domain (see "Voice tier by domain objectivity" under Step 7).
 
 ## The HALT/PROCEED rubric
 
@@ -139,7 +143,7 @@ Classify each:
 - **exists_in_l1** -- exact name match + correct type + `source_backed`. Use freely.
 - **exists_doc_only** -- in L1 but `source_state = 'doc_only'`. Grep source before naming:
   ```bash
-  grep -rn '"<name>"' research/repos/<engine>-source/src/ | head -10
+  grep -rn '"<name>"' research/repos/<engine-repo>/ | head -10   # ezquake-source, fteqw, mvdsv, ktx
   ```
 - **not_in_l1** -- neither exact name nor obvious variant. Grep source to distinguish:
   - **(a) L1 extraction gap** -- source has it, L1 doesn't. Flag for handover; not a blocker if the entity is real.
@@ -171,15 +175,15 @@ A domain is not "what entities exist" -- it is "what mode/state determines which
 - **A capability flag that turns a family on/off.** `cl_independentphysics` gates whether `cl_physfps` does anything.
 - **Legality gates** -- a ruleset that locks a cvar (already covered by Step 4; the legality gate is one kind of mode gate).
 
-For each gate, record: the gating entity, its values, and which downstream options each value makes live vs inert. **The gate you find here becomes the lead decision in the draft (Step 7 decision-first rule) and a line in the consult presentation (Step 6) -- the two rules are coupled.** A note that lists entities without naming the gate that selects between them is the failure this scan prevents: see `dryrun-fps-display.md`, which co-listed the `show_fps` overlay and the `fps` HUD element without surfacing that the active HUD mode decides which one a player should reach for.
+For each gate, record: the gating entity, its values, and which downstream options each value makes live vs inert. **The gate you find here becomes the lead decision in the draft (Step 7 decision-first rule) and a line in the consult presentation (Step 6) -- the two rules are coupled.** A note that lists entities without naming the gate that selects between them is the failure this scan prevents -- for example, co-listing the `show_fps` overlay and the `fps` HUD element without saying that the active HUD mode decides which one a player should reach for.
 
 ### Step 5. Cross-engine + userinfo-hub check (LIFT from guide-rewrite P6 + P6b)
 
 **Per-method support (P6):** for each method/feature in the domain, verify support across engines:
 ```bash
-grep -rn "<entity>" research/repos/fte-source/ 2>/dev/null | head -5
-grep -rn "<entity>" research/repos/mvdsv-source/ 2>/dev/null | head -5
-grep -rn "<entity>" research/repos/ktx-source/ 2>/dev/null | head -5
+grep -rn "<entity>" research/repos/fteqw/ | head -5
+grep -rn "<entity>" research/repos/mvdsv/ | head -5
+grep -rn "<entity>" research/repos/ktx/ | head -5
 ```
 
 Record support as: **cross_engine_covered** (confirmed) / **engine_specific** (verified absent in others) / **tbd** (deferred pending further L1 extraction).
@@ -236,12 +240,12 @@ last_updated: YYYY-MM-DD
 **Discipline rules:**
 
 - **Named by domain, never by engine** -- one note, cross-codebase.
-- **Lead selector -- the note's opening is chosen by domain shape (refined 2026-06-11, note #2 network):** the first screen puts the reader's answer first, never a mental model they must wade through. Three cases:
+- **Lead selector -- the note's opening is chosen by domain shape:** the first screen puts the reader's answer first, never a mental model they must wade through. Three cases:
   1. **Mode-gate present** (Step 4b found a toggle that switches the subsystem) -> LEAD with the gate decision ("new HUD or old status bar?"); the gated families follow as progressive disclosure. `hud-configuration.md` is the exemplar.
-  2. **No gate, objective best-practice exists** -> LEAD with the recommendation ITSELF (`rate 50000`, play wired) as a terse rec / command-list; the mental model, mechanism, or "which layer is your problem" framework is progressive-disclosure DEPTH, never the lead. `network-connection.md` is the exemplar. (Anti-pattern caught on note #2: a "which layer?" framework lead made the reader work before reaching the answer.)
+  2. **No gate, objective best-practice exists** -> LEAD with the recommendation ITSELF (`rate 50000`, play wired) as a terse rec / command-list; the mental model, mechanism, or "which layer is your problem" framework is progressive-disclosure DEPTH, never the lead. `network-connection.md` is the exemplar. (Anti-pattern: a "which layer?" framework lead makes the reader work before reaching the answer.)
   3. **No gate, genuinely preferential** (no engine-optimal or community-consensus ground -- much of HUD styling, colors, message routing) -> nail the objective gate/mechanism, then say plainly "this is preference" and show the knobs, optionally a credited example config (operator SME / hedged community knowledge, labeled per R7). An honest "this is preference" beats a fabricated "most players use X."
   In all three: present the ONE recommended path prominently and relegate alternatives to progressive disclosure; never co-list many equal options at equal weight (the wiki "wall of 30 sliders" anti-pattern). Every recommendation is grounded per R7/D7 (engine-optimal form or community consensus), never taste. Exemplars: `weapon-scripts.md` (three-method decision table, quickfire led) and `network-connection.md` (rec-first command-lists).
-- **Voice tier by domain objectivity (refined 2026-06-11):** objective/factual domains (network, demos, display) -> terse recommendations + command-list examples, mechanism/research as progressive-disclosure depth. Judgment/subjective domains (weapon-scripts, skins) -> longer explanatory prose. Match voice to how much the domain is fact vs. taste (pairs with the README voice/length tiers).
+- **Voice tier by domain objectivity:** objective/factual domains (network, demos, display) -> terse recommendations + command-list examples, mechanism/research as progressive-disclosure depth. Judgment/subjective domains (weapon-scripts, skins) -> longer explanatory prose. Match voice to how much the domain is fact vs. taste (pairs with the README voice/length tiers).
 - **Audience-delineated sections** -- each section is player / admin / both. Powers the read-time audience lens.
 - **Per-method support annotation** -- baseline written once per method, engine deltas tagged inline. Prose now per weapon-scripts convention; structured engine matrix deferred to rust-client onboarding.
 - **Typed 3-part `related_entities`** -- F5 rule enforced. No 4-part refs as entity edges.
@@ -284,7 +288,7 @@ Gate criteria: zero confabulated entities + representative threads upgrade from 
 
 **Operator prose review** (D4) is the SECOND gate -- not automatable. Neither gate alone ships a note.
 
-**HALT if the harness is not yet built** (Phase-0 deliverable) -- surface to operator rather than skipping.
+**HALT if the runner fails to run** -- surface the error to the operator rather than skipping the gate.
 
 ### Step 9. Write + commit
 
@@ -315,7 +319,7 @@ Source verifications (every named entity, specific number, ruleset verdict in bo
   - ...
 
 Operator consult:       <skipped (R4/R5/R6 no-consult case) | "operator answers received: <summary>">
-Gate result:            <not-run (Phase-0 deliverable pending) | NAILED + 0 confab>
+Gate result:            <NAILED + 0 confab | failed: <what>>
 Methodology feedback:   <gaps surfaced, or "none">
 
 Co-Authored-By: Claude <model-id> <noreply@anthropic.com>
@@ -333,7 +337,7 @@ If any upstream source (ezquake.com page) was used, follow upstream-PR attributi
 - **No editorial scope-creep.** Player sections are for players; admin sections are for admins. Don't add cross-note editorializing (e.g., don't mention an unrelated note's limitation inside another note's Hosting section).
 - **Reader-facing prose, not citation-dense audit prose.** The note is what an LLM oracle relays to a player, what a wiki page renders. It reads like expert wiki prose.
 - **Prose grep is as important as frontmatter audit.** After correcting a claim, grep the whole file for related claims that may repeat the same error.
-- **Family stem-sweep before drafting (refined 2026-06-11, note #3).** When an entity shares a visible stem with siblings (`match_auto_*` -> also `match_format_*` / `match_name_*`; `sb_*`; `cl_c2s*`; `sv_antilag*`), grep the stem in source AND L1 to surface the whole family before drafting -- a cvar family is documented as a unit, and the demand threads plus a single-entity source-walk routinely miss siblings (caught on note #3: the naming/folder family surfaced only via operator SME). The stem is the unit of coverage, not the one cvar the thread happened to name.
+- **Family stem-sweep before drafting.** When an entity shares a visible stem with siblings (`match_auto_*` -> also `match_format_*` / `match_name_*`; `sb_*`; `cl_c2s*`; `sv_antilag*`), grep the stem in source AND L1 to surface the whole family before drafting -- a cvar family is documented as a unit, and the demand threads plus a single-entity source-walk routinely miss siblings. The stem is the unit of coverage, not the one cvar the thread happened to name.
 
 ## Return-to-operator report shape
 
@@ -349,7 +353,7 @@ Mode-gating scan:       <"gate: <entity> (<values>) -> lead decision" | "no gate
 Cross-engine coverage:  <per method>
 Sections drafted:       <list with word counts>
 Total body lines:       <N>
-Gate result:            <not-run | NAILED + 0-confab>
+Gate result:            <NAILED + 0-confab | failed: <what>>
 Pending refs:           <entities in source but absent from L1>
 Open items:             <list>
 File at:                apps/qw-oracle/curated/concept-notes/<slug>.md

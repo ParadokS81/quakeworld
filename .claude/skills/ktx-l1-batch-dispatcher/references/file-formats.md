@@ -5,7 +5,7 @@ What the dispatcher writes to disk + what it returns to MAIN.
 ## Drafts file
 
 Path: `apps/qw-oracle/docs/reviews/ktx-l1-rewrite-drafts-<batch_date>.md`
-(relative to `/home/paradoks/projects/quakeworld/`).
+(relative to the quakeworld checkout).
 
 Header:
 
@@ -20,7 +20,7 @@ the apply pass is a separate phase.
 ```
 
 Per-card section format (mirrors the per-card skill's drafts file format
-in `~/.claude/skills/ktx-l1-rewrite/references/park-triggers.md`):
+in `.claude/skills/ktx-l1-rewrite/references/park-triggers.md`):
 
 ```markdown
 ---
@@ -158,7 +158,7 @@ Use `HEREDOC` for the commit invocation:
 git commit -m "$(cat <<'EOF'
 docs(ktx-l1-rewrite): SHIPPED <Category> category (<N> cards, <M> drafted_clean + <K> flagged + <P> parked)
 
-Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+<the attribution lines this session's harness specifies>
 EOF
 )"
 ```

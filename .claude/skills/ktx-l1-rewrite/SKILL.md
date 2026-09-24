@@ -7,9 +7,7 @@ description: |
   description for <entity>", "recast <entity> under v2 shape", "ktx l1 rewrite",
   "apply the v2 template to <entity>", or any per-card sub-agent dispatch from
   the catalog-wide template-application arc. One entity per invocation; designed
-  for sub-agent fan-out. Sonnet 4.6 high reasoning (locked). The skill MUST park
-  entities it cannot confidently classify rather than guessing -- never
-  force-fit a shape onto a 1-of-1 mechanism. Sibling to
+  for sub-agent fan-out; parks entities it cannot confidently classify. Sibling to
   describe-fill-synthesis (which handles cold synthesis from raw comments);
   ktx-l1-rewrite is the recast cousin for entities that already have meaningful
   descriptions. Engine-scoped to KTX; future MVDSV/QWFWD/QTV variants fork the
@@ -29,16 +27,17 @@ description under the v2 universal shape (Layer A) + Layer B KTX shape
 catalog. Cheaper job, cheaper dial, faster per card.
 
 Where this skill and the design spec at
-`/home/paradoks/projects/quakeworld/docs/superpowers/specs/2026-05-23-ktx-l1-rewrite-skill-design.md`
+`docs/superpowers/specs/2026-05-23-ktx-l1-rewrite-skill-design.md` (quakeworld repo root)
 differ, the spec governs.
 
-## Model dial (LOCKED -- not a per-invocation choice)
+## Model dial (set by the dispatcher, not per invocation)
 
-Runs at **Sonnet 4.6, high reasoning**. Spec-locked; declares "this is
-sufficient." Pattern-classify + template-fill + spot-check fits Sonnet high;
-the cost differential vs `describe-fill-synthesis` (Opus MAX) is the entire
-point of this skill existing separately. Dispatcher-level escalation
-(re-running the parked pile at Opus) is operator-level, not skill-level.
+Runs at the workhorse tier of the selected allocation profile
+(harness-lab `ALLOCATION.md`); the dispatcher sets model and effort.
+Pattern-classify + template-fill + spot-check is workhorse work; the cost
+gap against `describe-fill-synthesis`'s judgment tier is why this skill
+exists separately. Re-running the parked pile at a higher tier is an
+operator-level call, not skill-level.
 
 ## Trigger phrases
 
@@ -118,29 +117,27 @@ ktx:<entity>: ABORTED -- <reason> -- anchor=<version|none>
 
 If none of the gate conditions hold, proceed to Step 1.
 
-## Workflow (per card; all in the locked Sonnet 4.6-high context)
+## Workflow (per card)
 
 ### Step 1 -- Read registration + key read use-sites
 
 Grep KTX source for the entity registration site + 1-2 key read sites.
-KTX source root: `/home/paradoks/projects/quakeworld/research/repos/ktx/src/`.
+KTX source root: `research/repos/ktx/src/` in the quakeworld repo.
 For mvdsv-redirected commands (the ban family, etc.), also
-`/home/paradoks/projects/quakeworld/research/repos/mvdsv/src/`.
+`research/repos/mvdsv/src/`.
 
 - **Cvars:** `RegisterCvar("<entity>")` in `world.c` + read sites
   (`<entity>.value`, `<entity>.string`, `cvar("<entity>")`) + any write sites
   (`cvar_toggle_msg`, `cvar_fset`, `cvar_set`).
 - **Commands:** registration row in `src/commands.c` (`{ "name", handler, arg,
   CF_<flags>, CD_<name> }`) + the handler body in the named file.
-  **MANDATORY**: extract the exact `CF_<flags>` value from the registration
-  row into your Step 1 output (e.g. "CF flags: `CF_PLAYER | CF_SPC_ADMIN`")
-  AND map it to the Permission line via the CF-flag-to-wording table in
-  `references/universal-shape-v2.md`. Do NOT infer Permission from the
-  existing description's prose ("admin command", "any player", etc.) --
-  inferred Permission lines are the F1 audit pattern that has surfaced in
-  7+ consecutive batches. The registration row is authoritative; the
-  existing prose is hypothesis. Added 2026-05-27 after F1 7th-batch
-  threshold (Gameplay rules).
+  Record the exact `CF_<flags>` value from the registration row in your
+  Step 1 output (e.g. "CF flags: `CF_PLAYER | CF_SPC_ADMIN`") and derive
+  the Permission line from it via the CF-flag-to-wording table in
+  `references/universal-shape-v2.md`. The registration row is
+  authoritative and the existing description's prose ("admin command",
+  "any player") is a hypothesis: many existing KTX descriptions call
+  `CF_PLAYER | CF_SPC_ADMIN` commands admin-only, which they are not.
 - **Userinfo keys:** handler row in `src/g_userinfo.c` + the `ezinfokey(self,
   "<key>")` / `iKey(self, "<key>")` read sites.
 - **cmdline params:** `COM_CheckParm("-<entity>")` / `COM_CheckParm("+<entity>")`
@@ -305,8 +302,7 @@ If the file does not exist yet for this batch_date, create it with a brief
 header (`# ktx-l1-rewrite drafts -- batch <YYYY-MM-DD>`) before appending the
 first card section. If it exists, append the new section at the end.
 
-File path is relative to the quakeworld repo root:
-`/home/paradoks/projects/quakeworld/`. Full file format detail in
+File path is relative to the quakeworld repo root. Full file format detail in
 `references/park-triggers.md`.
 
 ## Verdict enum

@@ -1,6 +1,6 @@
 ---
 name: onboard-extractor
-description: Use this skill to onboard a new codebase into the QW Oracle Layer 1 extraction pipeline. Triggers on "onboard X extractor", "add X codebase", "new fork", "set up unezQuake extractor", "set up antilag-mvdsv extractor", "port X to qw-oracle", "new engine", "/onboard-extractor", or any request to add a new project to the four-project extractor lineup (ezQuake / FTE / QWCL / MVDSV). Detects whether the new codebase is a fork (subclass parent project's handlers) or a cross-codebase port (write fresh handlers extending only Visitor), walks the post-consolidation canonical setup, sets up the directory structure, wires into load-knowledge, adds F1 quality-grid probes, and runs the validation runbook's reproducibility section as a smoke check before declaring onboarding done. Does NOT cover KTX (tree-sitter, separate methodology).
+description: Use this skill to onboard a new codebase into the QW Oracle Layer 1 extraction pipeline. Triggers on "onboard X extractor", "add X codebase", "new fork", "set up unezQuake extractor", "set up antilag-mvdsv extractor", "port X to qw-oracle", "new engine", "/onboard-extractor", or any request to add a new project to the extractor lineup (the directories with an `extract.py` under `apps/qw-oracle/scripts/extractors/`). Detects whether the new codebase is a fork (subclass parent project's handlers) or a cross-codebase port (write fresh handlers extending only Visitor), walks the post-consolidation canonical setup, sets up the directory structure, wires into load-knowledge, adds F1 quality-grid probes, and runs the validation runbook's reproducibility section as a smoke check before declaring onboarding done. Does NOT cover QuakeC sources such as dusty-ktx's `qcsrc/` (tree-sitter, separate methodology).
 ---
 
 # onboard-extractor
@@ -25,7 +25,7 @@ Pick exactly one. Ask the user if unclear.
 **Output:** new project directory at `apps/qw-oracle/scripts/extractors/<fork-name>/` containing thin subclass handlers, an `extract.py` adapted from the parent, and the standard scaffolding (output/, validation-fixtures/, OUT_OF_SCOPE.md).
 
 ### Mode P: Cross-codebase port
-**Trigger:** the new codebase is genuinely independent of all four existing projects. Different registration APIs, different file layout, different conventions.
+**Trigger:** the new codebase is genuinely independent of every onboarded project. Different registration APIs, different file layout, different conventions.
 
 **Examples:**
 - (Historically) FTE was a port. QWCL was a port.
@@ -34,9 +34,9 @@ Pick exactly one. Ask the user if unclear.
 **Output:** new project directory at `apps/qw-oracle/scripts/extractors/<project-name>/` containing fresh `_handler_*.py` files extending only `Visitor`, an `extract.py` written from scratch (using ezQuake's, FTE's, or MVDSV's as a template depending on shape), and the standard scaffolding.
 
 ### Mode K: Tree-sitter port (NOT YET SUPPORTED)
-**Trigger:** the new codebase is QuakeC, Lua, or similar tree-sitter-targetable source rather than C.
+**Trigger:** the new codebase is QuakeC, Lua, or similar tree-sitter-targetable source rather than C -- for example the dusty-ktx fork's `qcsrc/` tree. (Canonical KTX is C and was onboarded through this pipeline as a Mode P port.)
 
-**Action:** decline. Tell the user this skill covers libclang-based extractors only. KTX (the canonical tree-sitter case) gets a separate runbook + skill when it ships. Ask whether they want to proceed with KTX setup, in which case route them to the (not-yet-existent) tree-sitter onboarding doc.
+**Action:** decline. Tell the user this skill covers libclang-based extractors only; tree-sitter onboarding has no runbook yet (EXTRACTOR-PLAYBOOK.md, the QuakeC note under "Porting to a new engine").
 
 ---
 
@@ -59,7 +59,7 @@ If uncommitted changes exist in `apps/qw-oracle/scripts/extractors/`, surface th
 grep -nE "Three-tier handler architecture|Porting to a new engine|Is this a fork or a cross-codebase port" apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md
 ```
 
-Expected: three matches at lines (approximately) 72, 624, 635. If missing, the playbook is pre-consolidation and this skill cannot run safely. Abort and tell the user to land the architecture consolidation arc first.
+Expected: all three headings match. If any is missing, the playbook is pre-consolidation and this skill cannot run safely. Abort and tell the user to land the architecture consolidation arc first.
 
 3. **Confirm the new codebase is checked out.**
 
@@ -71,7 +71,7 @@ ls research/repos/<project>/ 2>/dev/null && echo OK || echo MISSING
 
 4. **For Mode F (fork): identify the parent project.**
 
-Ask the user: which of {ezquake, fte, qwcl, mvdsv} is the parent? Confirm the answer is one of the four onboarded projects. If the user names a non-onboarded project, route to Mode P instead.
+Ask the user which onboarded project is the parent -- one of the directories with an `extract.py` under `apps/qw-oracle/scripts/extractors/`. If the user names a non-onboarded project, route to Mode P instead.
 
 5. **Capture metadata the user must provide.**
 
@@ -240,8 +240,7 @@ onboarding. The steps are identical.
 ### Phase F5: Validation handoff
 
 Run ALL universal gates against the new project. All must pass before declaring
-the onboarding complete. The smoke check has grown from one probe (re-extract
-diff) to four probes.
+the onboarding complete.
 
 - [ ] **Step 1: Reproducibility -- re-run extraction + confirm zero git diff.**
 
@@ -294,7 +293,7 @@ If the fork has a runtime dump (cvarlist/cmdlist), also recommend populating
 
 - [ ] **Step 2: Update `apps/qw-oracle/SCHEMA.md` if any new entity types or schema changes were introduced.** (Forks shouldn't normally introduce schema changes; if they do, escalate to the user before proceeding.)
 
-- [ ] **Step 3: Memory amendment.** Add or update a memory file `project_<fork>_extraction.md` noting onboarding date, parent, key divergences, baseline counts, and a pointer to the validation report (when run).
+- [ ] **Step 3: Keep the record in the repo, not in memory.** The onboarding report (see Reporting) and the CLAUDE.md status entry carry the date, parent, divergences, baseline counts and the validation-report pointer.
 
 ### Phase F7: Commit
 
@@ -304,8 +303,9 @@ Single commit per phase, or one bundled commit if the work was small. Pattern:
 feat(qw-oracle): <fork> Layer 1 extractor (fork of <parent>) -- onboard at version <v>
 
 <fork> handlers subclass <parent>'s. Counts: <type=N, ...>. Quality grid
-F1.<fork>.*_count equality probes added. Smoke validation passes (zero JSON
-diff post re-extraction). Full validate-extractor Mode A pass recommended
+F1.<fork>.*_count equality probes added. Universal gates pass (reproducibility,
+idempotency, and parallel-serial / migration probes where they apply). Full
+validate-extractor Mode A pass recommended
 before production use.
 ```
 
@@ -344,7 +344,7 @@ from extractor_lib._visitor import Visitor  # noqa: E402
 
 class Cvars<Project>Handler(Visitor):
     """<Project>-specific cvar handler. Walks the project's registration
-    pattern, which differs from the four canonical projects in the following
+    pattern, which differs from the onboarded projects in the following
     ways:
     - <document the divergences>
     """
@@ -364,15 +364,12 @@ Phases P3 (load-knowledge wiring), P4 (quality-grid probes), P4.5 (register in u
 
 ## Subagent dispatch
 
-For Mode F, most phases run in this terminal. Subagent dispatch is appropriate for:
-- Phase F2 if there are 5+ handlers to subclass (one subagent per handler, parallel).
-- Phase F4 Step 2 (probe additions) -- one subagent reads parent's probes and produces the fork's variant.
+Mode F runs in this terminal: its subclasses are thin and its probe additions mirror the parent's, so a subagent would spend more re-reading context than the work costs.
 
-For Mode P, subagent dispatch is appropriate for:
-- Phase P2 if there are 5+ entity types to implement (one subagent per handler, but be aware these are non-trivial implementations -- the subagent needs the full playbook + parent project's handler as reference).
+In Mode P, dispatch subagents for Phase P2 when there are 5+ entity types to implement -- one per handler, in parallel. These are non-trivial implementations; each subagent needs the full playbook and the template project's handler as reference.
 
 When dispatching, the brief MUST include:
-1. Working directory: `/home/paradoks/projects/quakeworld`.
+1. Working directory: the repository root (`git rev-parse --show-toplevel`).
 2. Specific files to read: parent project's handler, EXTRACTOR-PLAYBOOK relevant sections, divergences inventory.
 3. Output file path: `apps/qw-oracle/scripts/extractors/<new-project>/_handler_<type>.py`.
 4. Acceptance: subclass passes Phase F5 smoke validation when integrated.
@@ -430,7 +427,7 @@ Run `validate-extractor` skill in Mode A (post-ship) on `<project>` before decla
 
 - It does not validate the onboarded project beyond Phase F5/P5's smoke check. Full validation is `validate-extractor` Mode A's job.
 - It does not modify parent project handlers. If a fork needs an override surface that the parent doesn't expose, escalate to the user; don't silently extend the parent.
-- It does not handle KTX or other tree-sitter-based extractors (Mode K declines).
+- It does not handle tree-sitter-based extractors such as QuakeC trees (Mode K declines).
 - It does not introduce schema changes. If a port needs new entity types, escalate -- schema migration is a separate arc.
 - It does not auto-decide whether something is a fork or port. Ask the user.
 
@@ -448,4 +445,4 @@ These are scenarios the skill should handle smoothly, captured as new forks/port
 
 ## When unsure, ask
 
-If the user invokes the skill ambiguously ("set up a new extractor"), ask: which codebase, fork or port, parent (if fork), source location. If the user names a tree-sitter-based codebase (KTX, QuakeC progs, Lua mods), decline politely and route to the future tree-sitter onboarding skill.
+If the user invokes the skill ambiguously ("set up a new extractor"), ask: which codebase, fork or port, parent (if fork), source location. If the user names a tree-sitter-based codebase (QuakeC progs such as dusty-ktx's `qcsrc/`, Lua mods), decline and say tree-sitter onboarding has no runbook yet.

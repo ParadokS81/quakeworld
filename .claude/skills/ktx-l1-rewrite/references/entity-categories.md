@@ -2,7 +2,9 @@
 
 KTX exposes user-visible state and behavior in three categories. Knowing
 which category an entity belongs to shapes the L1 description: the
-"Set by" line, the example shape, and the See-also routing all differ.
+Permission line, the example shape, and the See-also routing all differ.
+(Existing v1 descriptions carry a "Set by" line; v2 splits it into
+Permission + Match-state -- see `universal-shape-v2.md`.)
 
 ## The three categories
 
@@ -11,8 +13,8 @@ which category an entity belongs to shapes the L1 description: the
 Server configuration knobs. Typically set in `server.cfg`, but some are
 mutated at runtime by admin commands.
 
-- **Set by**: `server config only` (purest case) OR `server config or
-  '<admin_command>' in-game` (mutable runtime case).
+- **Permission**: `server config only` (purest case) OR `server config,
+  or in-game via '<command>'` (mutable runtime case).
 - **Examples (set-once)**: `k_admins`, `k_admincode`, `k_allowvoteadmin`,
   `k_vp_admin`.
 - **Examples (runtime-mutable via paired command)**: `k_lock_hdp` (toggled
@@ -26,7 +28,7 @@ Per-player state stored in the client's userinfo string and read by the
 server. Set by the player via `setinfo <key> <value>`. The server doesn't
 write these.
 
-- **Set by**: `any player via 'setinfo <key> <value>'`.
+- **Permission**: `any player via 'setinfo <key> <value>'`.
 - **Examples**: `premsg`, `postmsg`, `kf` (bitmask incl. `KF_KTSOUNDS`),
   `k_sdir`.
 - **Important false-positive**: not every `k_*` name is a cvar. `k_sdir`
@@ -41,8 +43,8 @@ write these.
 Players or admins type these in-game. Role-gated by registration flag
 (`CF_PLAYER`, `CF_BOTH_ADMIN`, `CF_REDIRECT`, etc.).
 
-- **Set by**: `any player` / `any admin` / `any admin (pre-match)` etc. --
-  match the role gate from the registration.
+- **Permission**: mapped from the registration's CF_* flags via the table
+  in `universal-shape-v2.md` (pre-match limits go on the Match-state line).
 - **Examples (any player)**: `tpmsg`, `victim`, `killer`, `ksound1..6`,
   `handicap`.
 - **Examples (admin)**: `hdptoggle`, `fp`, `fp_spec`, `ban`, `banip`,
@@ -55,12 +57,14 @@ Players or admins type these in-game. Role-gated by registration flag
 
 ## How this shapes L1 drafts
 
-- **`k_*` cvars** get a value enum + Default + "Set by: server config..."
-  line + Example showing the typical config line (and a paired runtime
-  command if applicable).
-- **Userinfo keys** get "Set by: any player via 'setinfo <key> <value>'" +
-  Example showing `setinfo` invocations.
-- **Commands** get "Set by: any player / any admin" + Example showing the
+- **`k_*` cvars** get a value enum + Default + a Permission line
+  ("server config only", or "server config, or in-game via '<cmd>'") +
+  Example showing the typical config line (and a paired runtime command if
+  applicable).
+- **Userinfo keys** get Permission "any player via 'setinfo <key> <value>'"
+  + Example showing `setinfo` invocations.
+- **Commands** get the Permission line mapped from the registration's CF_*
+  flags (table in `universal-shape-v2.md`) + Example showing the
   invocation pattern (often `bind <key> <command>` for the common ones).
 
 ## Why this convention matters
@@ -70,7 +74,7 @@ Players or admins type these in-game. Role-gated by registration flag
 - Tells the skill where to look in source: `world.c` for `k_*` cvar
   registrations, `g_userinfo.c` for userinfo handlers, `commands.c` for
   command registrations.
-- The "Set by" line is load-bearing: a server admin reading the catalog
+- The Permission line is load-bearing: a server admin reading the catalog
   needs to know what to put in `server.cfg` vs what's a player-side knob
   vs what's an in-game action.
 

@@ -10,8 +10,9 @@ Pairs with `universal-shape-v2.md` (Layer A specifics) and
 
 Shape catalog grew organically through KTX catalog walks (sessions 1-3,
 2026-05-22 / 2026-05-23). Open-ended -- future walks and other codebases
-(MVDSV / QWFWD / QTV) will surface more. THIS SKILL DOES NOT EXTEND THE
-CATALOG. When an entity doesn't fit any shape, park it (trigger 1) -- the
+(MVDSV / QWFWD / QTV) will surface more. This skill does not extend the
+catalog. An entity whose relationships fit no shape parks (trigger 1); an
+entity with no inter-entity relationship is `shape-less` and drafts. The
 operator extends the catalog when sibling patterns surface.
 
 ## Earn-their-keep discipline (why this skill parks 1-of-1s)
@@ -89,12 +90,11 @@ and add a one-line Notes entry: "toggle uses manual `cvar_fset` /
 handler) ↔ `k_disallow_kfjump` / `k_disallow_krjump`; `hdptoggle` ↔
 `k_lock_hdp`. **Do NOT force manual-flip toggles to shape-less** -- the
 cvar+command relationship is what Shape 1 captures; forcing shape-less
-hides the relationship from See-also routing. Added 2026-05-27 after
-Gameplay rules batch F3.
+hides the relationship from See-also routing.
 
-**Cvar side**: value enum (0/1), Default, Set by `server config or '<cmd>'
-in-game (pre-match only)`, Example with both server.cfg line + in-game
-command, See also -> paired toggle + override modes.
+**Cvar side**: value enum (0/1), Default, Permission `server config, or
+in-game via '<cmd>'`, Match-state `pre-match only`, Example with both
+server.cfg line + in-game command, See also -> paired toggle + override modes.
 
 **Command side**: NO value enum (lives on the cvar card). Headliner:
 "Toggles the X rule (<cvar>)" -- prefix with "Admin command that" ONLY if
@@ -105,15 +105,6 @@ See `universal-shape-v2.md` Permission discipline table for the
 CF-flag-to-wording mapping. Optionally note refusal conditions (race/yawn
 etc). Example: bare command invocation. See also -> paired cvar + override
 modes.
-
-**Discipline note (added 2026-05-26)**: a prior version of this template
-prescribed `"Admin command that toggles..."` Headliner prose universally,
-inherited from a misread of `CF_PLAYER | CF_SPC_ADMIN` as admin-only. The
-Mode selection batch's F1 cross-card finding caught the systemic mislabel;
-source check at `include/g_local.h:647-658` confirms `CF_PLAYER` (bit 0,
-"command valid for players") is the any-player flag, while `CF_PLR_ADMIN`
-(bit 2) is the actual player-admin-required flag. Shape 1 commands using
-`CF_PLAYER | CF_SPC_ADMIN` are any-player + admin-spectator, not admin-only.
 
 ### Shape 1c: Shape 1 + mode-precondition
 
@@ -185,13 +176,13 @@ Source signature: handler reads cvar, increments + wraps at array length,
 writes back via `cvar_fset`, broadcasts.
 
 **Cvar side**: value enum is the FULL preset table (typically hardcoded
-built-ins). Default, Set by, Example. See also -> paired cycle command +
+built-ins). Default, Permission, Example. See also -> paired cycle command +
 direct-set hint ("can be set directly to skip cycling" -- this is Shape 5
 below).
 
 **Command side**: prose carries the cycle behavior OR points at a canonical
-sibling for the preset table (e.g. `fp_spec` -> "see fp"). Set by, Example,
-See also -> paired cvar.
+sibling for the preset table (e.g. `fp_spec` -> "see fp"). Permission,
+Example, See also -> paired cvar.
 
 ### Shape 3: Cvar with no paired command (set-once in config)
 
@@ -203,7 +194,7 @@ Examples: `k_admincode`, `k_pow_check_time`, `k_pow_min_players`,
 Source signature: `RegisterCvar` in world.c, no `cvar_toggle_msg` site for
 it.
 
-**Template**: standard cvar shape. Set by `server config only`. Example:
+**Template**: standard cvar shape. Permission `server config only`. Example:
 server.cfg lines showing typical setup including dependency cvars (for
 keyword bleed). See also: companion cvars or commands the cvar GATES
 (Shape 4).
@@ -495,7 +486,7 @@ matching `cvar_toggle_msg` / `cvar_fset` site; no gate-read site.
 - Prerequisites lists what the user must set up for the side-channel set to
   do anything (e.g. variant `.ent` file must exist on disk before `forcemap
   <map>#<variant>` will work).
-- Permission / Set-by: names the side-channel command + syntax (e.g.
+- Permission: names the side-channel command + syntax (e.g.
   `'changelevel <map>#<variant>'`, typically issued via `forcemap`). Notes
   that direct `set <cvar>` works syntactically but is overwritten on the
   next side-effect write AND points at non-existent state unless the variant
@@ -530,7 +521,7 @@ trigger the write.
 - Effect: describes what the cvar persists, when the engine writes it, when
   the engine reads it.
 - Prerequisites: typically none (engine self-manages).
-- Permission / Set-by: "Engine internal only -- set automatically by
+- Permission: "Engine internal only -- set automatically by
   `<function or event>`. Not user-actionable; direct `set` is overwritten on
   the next state transition."
 - Match-state: when writes / reads happen (e.g. "written at match end; read
@@ -603,9 +594,7 @@ Distinguish from these neighbors that are NOT Shape 10:
   but the listed commands are *contextual hints inside a state report*,
   not a curated family-of-siblings marketing roster. Output is
   per-mode-dynamic, not a hardcoded sibling list. Shape-less state-printer,
-  not Shape 10. (Anti-pattern lesson: previously mis-classified as Shape
-  10 during the catalog walk; corrected 2026-05-24 after the
-  ktx-l1-rewrite Server-config-fanout pass verified `ShowRules` source.)
+  not Shape 10.
 
 ### Shape 11: Per-bit XOR toggle on shared bitmask state container
 
@@ -650,8 +639,8 @@ early-return.
 
 **Cvar side**: Headliner names the cvar + bitmask role. Effect enumerates
 bits by name + per-bit user-observable effect + the standard combined-value
-example (e.g. `3 = 1 + 2`). Default, Set-by lists server-config + every
-per-bit toggle command. Example shows both `server.cfg <cvar> <combined>`
+example (e.g. `3 = 1 + 2`). Default; the Permission line lists server
+config + every per-bit toggle command. Example shows both `server.cfg <cvar> <combined>`
 AND in-game toggle flow. See-also -> every per-bit toggle command
 (load-bearing -- the cvar is how users discover the family).
 
@@ -680,14 +669,13 @@ XORs a bit constant (literal int or named `#define`), writes back via
 `localcmd("serverinfo <key> %d\n", val)`. NO `cvar_*` writes.
 
 **State container side**: NO L1 card exists for the serverinfo key itself.
-Reference the key in each toggle command's Effect/Set-by line. The bit
+Reference the key in each toggle command's Effect line. The bit
 roster + combined-value examples typically live on the Shape 10
 help-printer's card (where one exists), since there's no container card to
 anchor them.
 
-**Toggle command side** (one per bit): same shape as 11a, but Set-by names
-the serverinfo write path (`localcmd("serverinfo <key> ...")`) rather than
-`cvar_fset`. See-also points at the Shape 10 help-printer (if present) +
+**Toggle command side** (one per bit): same shape as 11a, but the Effect
+line names the serverinfo key and bit it flips rather than a cvar. See-also points at the Shape 10 help-printer (if present) +
 sibling toggle commands.
 
 #### Variant: asymmetric permissions across siblings
@@ -799,8 +787,9 @@ be active -- otherwise the parent dispatcher hides this subcommand entirely
 2. After classifying, check for Shape 5: does a cycle command have a
    hardcoded clamp + wrap? If yes, note the direct-set escape in See-also.
 
-3. If nothing fits cleanly -> park (trigger 1, no-shape-match). DO NOT add
-   a new shape; that's the operator's call.
+3. If the entity has relationships that nothing fits -> park (trigger 1,
+   no-shape-match). If it has no inter-entity relationship -> `shape-less`.
+   Adding a shape is the operator's call.
 
 ## Why each shape matters for L1 drafting
 

@@ -22,7 +22,7 @@ All CLI commands below run from `apps/qw-oracle/` via `npm run load-knowledge --
 
 ## Pre-flight protocol
 
-Execute in order. Each check is a single SQL query via `sqlite3 apps/qw-oracle/data/knowledge.db` or the absence of a file on disk. On a miss, run the paired CLI command and move on.
+Execute in order. Each check is a single SQL query via `psql "$DATABASE_URL" -c` (the loader's Postgres database; its default URL is in `scripts/load-knowledge/db.ts`) or the absence of a file on disk. On a miss, run the paired CLI command and move on.
 
 | Check                                                               | Remedy on miss                                                     |
 |---------------------------------------------------------------------|--------------------------------------------------------------------|
@@ -222,7 +222,7 @@ Cluster <cluster_id>:
 
 ### 2b. Unclustered findings (cluster_id = null)
 
-Walk per-finding (Model B unchanged from pre-Session 2):
+Walk per-finding (Model B):
 
 1. Show summary + evidence.
 2. If `proposed_disposition` is present from the CLI: show kind + rationale, ask approve / override / skip.
@@ -284,7 +284,7 @@ When a disposition is applied to a member (cluster-level or per-finding), the ma
 | addition            | classify           | Edit the appropriate seed YAML under `packages/qw-config/seeds/`. If a new entity type: prose update in `apps/qw-oracle/docs/entity-types.md`.           |
 | addition            | concept-note       | Cluster-level: see section 2c. Per-finding (unclustered): create `apps/qw-oracle/curated/concept-notes/<slug>.md` from the template in `concept-notes/README.md`. |
 | addition            | reject-as-noise    | No file change. Record the reason inside the finding's block in the draft markdown so the rejection doesn't re-surface on re-run.                        |
-| retirement          | mark-orphan        | `UPDATE asset_extensions SET verification_status='orphaned_historical', verification_reason=? WHERE project=? AND version=? AND extension=? AND path_hint=?` — run via sqlite3 on `apps/qw-oracle/data/knowledge.db`. If the retirement hits `asset_loader_sites` or `asset_cvar_bindings`, surface a handover instead (schema v9 work). |
+| retirement          | mark-orphan        | `UPDATE asset_extensions SET verification_status='orphaned_historical', verification_reason=? WHERE project=? AND version=? AND extension=? AND path_hint=?` — run via `psql "$DATABASE_URL" -c` with the values inlined. If the retirement hits `asset_loader_sites` or `asset_cvar_bindings`, surface a handover instead (schema v9 work). |
 | retirement          | classify           | Entity row is already stamped `source_retired` by the diff pipeline; add a prose note to `entity-types.md` explaining the retirement if taxonomy-relevant. |
 | retirement          | concept-note       | Same as addition variant.                                                                                                                                |
 | semantic-crossing   | classify           | Edit the seed YAML that owns the field's domain (category_id -> categories; load_trigger -> cvar bindings; etc.).                                        |
@@ -312,7 +312,7 @@ Each finding's block has up to seven tagged lines. Three are filled during the w
 ```
 
 Walk responsibility per line:
-- **Proposed disposition / Rationale / Applied** — filled on approve / override via exact-match Edit on `_(pending)_`. Same mechanics as before Session 3.
+- **Proposed disposition / Rationale / Applied** — filled on approve / override via exact-match Edit on `_(pending)_`.
 - **Cluster** — CLI-set. Preamble may mutate via `accept` on a `PROPOSED Q5 EXTENSIONS` prompt; otherwise untouched at walk time.
 - **Cross-codebase hint** — CLI-computed from entity-name cues. Edit only to override the classifier's judgment (e.g., flip `likely-shared` to `ezquake-only` when research rules out analogs). Do not edit when the value is already correct.
 - **Upstream cvar reference** — fill with the ezquake.com reference page that auto-surfaces this entity via `VariableList` / `CommandList` (check `research/repos/ezquake-docs/data/ezquake/*.json`). Use `none` when absent. Trivial for every finding — fill even on classify-disposition ones.
@@ -363,7 +363,7 @@ Example (source-invisible finding joined to a cluster via Q5 semantic proposal):
 
 ### help-JSON state (§6)
 
-The extractor-side help coverage for a cvar or command has three distinct states, not two. Use the three-way predicate in rationales; do not use the pre-Session-3 shorthand "help_desc NULL" (it conflates `absent` with `null`).
+The extractor-side help coverage for a cvar or command has three distinct states, not two. Use the three-way predicate in rationales, never the shorthand "help_desc NULL", which conflates `absent` with `null`.
 
 | Predicate         | Meaning                                                                   | Upstream shape                                               |
 |-------------------|---------------------------------------------------------------------------|--------------------------------------------------------------|
@@ -403,8 +403,7 @@ After the walk:
     packages/qw-config/seeds/*.yaml \
     apps/qw-oracle/docs/entity-types.md \
     apps/qw-oracle/curated/concept-notes/ \
-    HANDOVER.md \
-    apps/qw-oracle/data/knowledge.db
+    HANDOVER.md
   git commit -m "review(qw-oracle): <project> <from> -> <to> — N findings, M clusters"
   ```
   (Only stage paths that actually changed in this review.)

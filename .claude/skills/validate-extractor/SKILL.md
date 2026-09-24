@@ -1,6 +1,6 @@
 ---
 name: validate-extractor
-description: Use this skill to run a third-party validation pass on a QW Oracle Layer 1 extractor (ezQuake, FTE, QWCL, MVDSV, or any future libclang-based fork). Triggers on "validate the X ship", "run validation pass", "validate extractor", "post-ship validation", "cross-project audit", "/validate-extractor", or any request to verify Layer 1 extractor output is correct, reproducible, and free of silent data loss. Picks the validation mode (post-ship / per-project / cross-project), reads the canonical methodology from VALIDATION-RUNBOOK.md, dispatches subagents in parallel where possible, synthesizes findings, and produces a follow-up action plan. Does NOT cover KTX (tree-sitter, separate runbook).
+description: Use this skill to run a third-party validation pass on a QW Oracle Layer 1 extractor (any libclang-based project under `apps/qw-oracle/scripts/extractors/` -- ezQuake, FTE, QWCL, MVDSV, KTX and the rest -- or a future libclang fork). Triggers on "validate the X ship", "run validation pass", "validate extractor", "post-ship validation", "cross-project audit", "/validate-extractor", or any request to verify Layer 1 extractor output is correct, reproducible, and free of silent data loss. Picks the validation mode (post-ship / per-project / cross-project), reads the canonical methodology from VALIDATION-RUNBOOK.md, dispatches subagents in parallel where possible, synthesizes findings, and produces a follow-up action plan. Does NOT cover tree-sitter QuakeC trees (dusty-ktx `qcsrc/`), which have no runbook yet.
 ---
 
 # validate-extractor
@@ -39,7 +39,7 @@ Pick exactly one. Ask the user if unclear; do not guess.
 ### Mode C: cross-project pattern audit
 **Trigger:** "cross-project audit", "validate all extractors", "cohesive view of all extraction scripts".
 
-**Scope:** all four projects (ezquake / fte / qwcl / mvdsv) AND `extractor_lib/`. Reads the trees side-by-side looking for:
+**Scope:** every project in pre-flight step 4's working set AND `extractor_lib/`. Reads the trees side-by-side looking for:
 - Sibling-handler shape divergences
 - `extractor_lib` lift candidates (helpers duplicated across projects)
 - Naming/policy inconsistencies (`valid*` carve-outs, `source_state` predicates, dedup strategies)
@@ -70,17 +70,16 @@ If missing, abort and tell the user. The skill is non-functional without the run
 git status --porcelain | head -20
 ```
 
-Uncommitted changes in `apps/qw-oracle/scripts/extractors/`, `apps/qw-oracle/scripts/load-knowledge/`, or `data/knowledge.db` mean validation runs against a state that isn't reproducible. Surface this to the user; ask whether to proceed anyway.
+Uncommitted changes in `apps/qw-oracle/scripts/extractors/` or `apps/qw-oracle/scripts/load-knowledge/` mean validation runs against a state that isn't reproducible. Surface this to the user; ask whether to proceed anyway.
 
-3. **Confirm the schema version matches.**
+3. **Confirm the database has every migration applied.**
 
 ```bash
-DB=/home/paradoks/projects/quakeworld/apps/qw-oracle/data/knowledge.db
-sqlite3 "$DB" "PRAGMA user_version;"
-grep -E "SCHEMA_VERSION\s*=" apps/qw-oracle/scripts/load-knowledge/schema.ts | head -1
+psql "$DATABASE_URL" -tAc "SELECT filename FROM schema_migrations ORDER BY filename DESC LIMIT 1;"
+ls apps/qw-oracle/db/migrations/*.sql | tail -1
 ```
 
-If they diverge, the DB is stale. Run `extract-tag` for the affected project before continuing, or abort.
+`DATABASE_URL` is the loader's Postgres database (default in `apps/qw-oracle/scripts/load-knowledge/db.ts`). If the newest applied migration is not the newest file, the DB is stale. Run `extract-tag` for the affected project before continuing, or abort.
 
 4. **Detect available projects.**
 
@@ -88,7 +87,7 @@ If they diverge, the DB is stale. Run `extract-tag` for the affected project bef
 ls apps/qw-oracle/scripts/extractors/*/extract.py 2>/dev/null | sed 's|.*/extractors/||;s|/extract.py||' | sort
 ```
 
-This is the working set. Anything in this list is fair game; KTX (tree-sitter) is excluded by this skill.
+This is the working set. Anything in this list is fair game; for KTX, also run the runbook's "KTX-specific validation" section.
 
 ---
 
@@ -110,10 +109,10 @@ Run sequentially, in this terminal. Wall time ~30s for MVDSV-sized projects, ~2-
 - Subagent 3: Section 4.1 + 4.2 + 4.3 (handler + adapter + load-version review)
 - Subagent 4: Section 5 (spec compliance) + Section 7 (determinism review)
 
-Each subagent gets a self-contained brief: working directory, project name, version, post-v17 conventions to check, the relevant runbook section quoted, and a "report under N words" budget.
+Each subagent gets a self-contained brief: working directory, project name, version, post-v17 conventions to check, the relevant runbook section quoted, and the return shape below.
 
 **Phase 3: integration checks (sequential, in this terminal).**
-- Section 6 (quality grid for all four projects)
+- Section 6 (quality grid for every project in the working set)
 - Section 8 (tsc, Python imports, MCP smoke)
 
 **Phase 4: synthesis.**
@@ -124,14 +123,14 @@ Read all subagent reports + Phase 1/3 outputs. Produce the final report with one
 Same as Mode A with these adjustments:
 - Section 3.1 sample size 20 → 40.
 - Section 4.4 (cross-project sibling audit) added to Subagent 3's brief.
-- Subagent 3 reads ALL four projects' siblings of the relevant handlers, not just the target project's.
+- Subagent 3 reads every project's siblings of the relevant handlers, not just the target project's.
 
 ### Mode C: cross-project pattern audit
 
 Different shape: NOT per-project. Three subagents in parallel, each reading a slice of the codebase:
 
 - Subagent 1: Read `extractor_lib/*.py` end-to-end. Identify shared helpers, list which projects use which helpers, flag duplicated logic that should be lifted.
-- Subagent 2: Read `_handler_cvars.py`, `_handler_commands.py`, `_handler_cmdline.py` across all four projects (12 files). Look for shape divergences (Section 4.4).
+- Subagent 2: Read `_handler_cvars.py`, `_handler_commands.py`, `_handler_cmdline.py` across every project that has them. Look for shape divergences (Section 4.4).
 - Subagent 3: Read `_handler_*.py` for project-specific entity types (mvdsv: protocol/info_keys/log_templates/qc_builtins; fte: macros, asset_*; ezquake: hud_elements, keynames, etc.). Look for divergent dedup strategies, CHECK-constraint reachability gaps, undocumented divergences.
 
 Plus, in this terminal:
@@ -150,10 +149,10 @@ Synthesis produces ONE cross-project audit doc with:
 When dispatching a subagent, the brief MUST include:
 
 1. **Goal statement** in plain English (one paragraph).
-2. **Working directory** -- always `/home/paradoks/projects/quakeworld`.
+2. **Working directory** -- the repository root (`git rev-parse --show-toplevel`).
 3. **Files to read** -- explicit absolute paths, no globbing the agent has to interpret.
 4. **What to look for** -- the runbook section quoted (or paraphrased) plus any anchor cases from prior validation passes that surfaced findings.
-5. **Output budget** -- "report under N words" or "max one page."
+5. **Return shape** -- findings the synthesis can merge: each with runbook section, severity, file:line and evidence. Report every finding; the synthesis ranks them.
 6. **Severity rubric** -- copy the runbook's Severity guidance verbatim.
 7. **Out-of-scope marker** -- explicitly say "do not fix anything; report only."
 
@@ -229,7 +228,7 @@ When validating, check these explicitly. If any has been silently fixed, note th
 ## What this skill does NOT do
 
 - It does not modify code. Findings drive a follow-up plan; another session executes that plan.
-- It does not validate KTX (tree-sitter). When KTX ships, write a parallel skill or extend this one with a tree-sitter mode.
+- It does not validate tree-sitter QuakeC trees (dusty-ktx `qcsrc/`); the runbook reserves those for a parallel runbook.
 - It does not validate Layer 2 (chat corpus) or Layer 3 (concept notes). Different domains, different review processes.
 - It does not bypass the runbook. If a check seems missing, fix the runbook first.
 
@@ -247,4 +246,4 @@ When validating a fork (unezQuake, antilag-mvdsv, etc.):
 
 ## When unsure, ask
 
-If the user invokes the skill ambiguously ("run validation"), ask which mode and which project. If they ask for "all extractors" without saying cross-project vs per-project, ask which. If they ask for KTX, decline and explain.
+If the user invokes the skill ambiguously ("run validation"), ask which mode and which project. If they ask for "all extractors" without saying cross-project vs per-project, ask which. If they ask for a QuakeC tree, decline and explain.

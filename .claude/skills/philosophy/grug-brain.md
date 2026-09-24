@@ -1,4 +1,4 @@
-> Adapted from vikpe's slipgate web repo at `research/repos/slipgate/llm/skills/`. Source content copied on 2026-04-11 with em dashes normalized to ASCII hyphen-minus to match the monorepo's output discipline. Update from upstream rather than editing in place when the source changes.
+> Adapted from vikpe's slipgate web repo at `research/repos/slipgate/llm/skills/`, copied 2026-04-11 (em dashes normalized to ASCII hyphen-minus at copy time). Update from upstream rather than editing in place when the source changes.
 
 # Grug-Brained Development
 

@@ -39,9 +39,9 @@ the skybox textures page).
 - Body gets an explicit "Doc-divergence notes" subsection (or inline callout inside
   "Cross-engine differences" when it is engine-specific).
 - Name the divergent claim and where it appears. Example:
-  > `ezquake.com/docs/textures.html#skyboxes` states the path prefix is `env/` only;
-  > source (`R_LoadSkyTexturePixels`, v3.6.9) probes four prefix variants. Source wins;
-  > the docs page is flagged stale by the operator.
+  > The ezquake.com `docs/textures.md` skybox section documents only `qw/env/` with
+  > `<name><suffix>` naming; source (`R_LoadSkyTexturePixels`, v3.6.9) probes four
+  > prefix/separator combinations. Source wins; the docs page is flagged stale by the operator.
 - Do not soften "docs say X" with hedging -- state it plainly so the reviewer can
   confirm or correct.
 
@@ -59,9 +59,9 @@ alternate naming patterns, mix of sub-types in one bundle.
   descriptive evidence, not as a correction to source.
 - Source canonical paths appear in frontmatter `engine_canonical_paths` and in the
   body's "Install layout" section; corpus patterns appear after, labeled explicitly:
-  > Community bundles often package these under `qw/textures/env/<name>/` (corpus
-  > observation) rather than the source-canonical `gfx/env/<name>/`. Both load
-  > correctly; source path is the canonical reference.
+  > Source probes both `<name><suffix>` and `<name>_<suffix>`; every skybox bundle
+  > in the corpus uses the underscore form. Both load; the frontmatter keeps the
+  > source templates and the body names the underscore form as the community convention.
 - Never elevate corpus convention above source-truth in the frontmatter. If corpus
   reveals a path the seed is missing, propose it as a `## Suggested seed deltas`
   entry for the operator to evaluate -- do not rewrite frontmatter unilaterally.
@@ -80,8 +80,9 @@ respective engines; neither is "wrong."
 **How the draft handles it:**
 - Body's "Cross-engine differences" section enumerates both behaviors with version
   anchors (engine name + version slug from L1 evidence). Example:
-  > ezQuake (v3.6.9): probes `gfx/env/<name>_<face>.tga` across four prefix variants.
-  > FTE (build-6698): accepts the same probe set plus bare-root `<name>_<face>.tga`.
+  > ezQuake (v3.6.9): probes `env/` and `gfx/env/`, each with and without the `_` separator.
+  > FTE (build-6698): tries equirectangular and cubemap first; its 6-face fallback
+  > probes `env/` and `gfx/env/` plus bare-root `<name>_<suffix>` / `<name><suffix>`.
 - Do not merge the behaviors into a single statement that glosses over the gap -- name
   both explicitly so a user of either engine can act on the note.
 - If the divergence is present in docs as well as source, the docs section describes
@@ -161,10 +162,11 @@ same 6-face convention.
 **Draft body handles it as follows:**
 
 "Cross-engine differences" subsection:
-> ezQuake probes four prefix variants (`gfx/env/`, `env/`, `gfx/`, bare-root) for
-> 6-face skyboxes. FTE accepts the same probe set via `Shader_ParseSkySides` and
-> additionally supports a cubemap path; the 6-face path remains active in FTE at
-> HEAD (build-6698) but may be superseded by the cubemap path in future FTE builds.
+> ezQuake probes four prefix/separator combinations (`env/` and `gfx/env/`, each
+> with and without `_`) for 6-face skyboxes. FTE's `Shader_ParseSkySides` probes
+> those prefixes plus bare-root, and FTE additionally supports equirectangular and
+> cubemap paths; the 6-face path remains active in FTE at HEAD (build-6698) as the
+> final fallback but may be superseded by the cubemap path in future FTE builds.
 > Operator context: the 6-face shader path is considered soft-deprecated in FTE;
 > use the cubemap path for new content targeting FTE.
 

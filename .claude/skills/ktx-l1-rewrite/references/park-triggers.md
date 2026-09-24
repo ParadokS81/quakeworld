@@ -14,13 +14,17 @@ refusing to guess.
 
 ### Trigger 1: no-shape-match
 
-Fires at Step 2 (shape classification) when NO shape from the catalog
-matches cleanly using the identification guide.
+Fires at Step 2 (shape classification) when the entity HAS inter-entity
+relationships (paired cvar+command, election, gating cvar+gated command,
+sibling family with shared behavior) but no cataloged shape captures them.
+An entity with no inter-entity relationship -- a standalone state-printer,
+a command-side lever for another card's shape, a leaf of a shape family --
+is `shape-less` and drafts; it does not park (SKILL.md Step 2).
 
-**Example:** an entity whose source signature doesn't match any of the 14+
-shape patterns -- no `cvar_toggle_msg`, no `cvar_fset` cycle, no command-arg
-side-channel, no per-player vote flag, no `G_sprint` curated menu, etc. The
-entity simply has a mechanism that doesn't match the catalog.
+**Example:** a command and a cvar that clearly work as a pair, but through
+a mechanism none of the 14+ shape patterns describes -- no
+`cvar_toggle_msg`, no `cvar_fset` cycle, no command-arg side-channel, no
+per-player vote flag.
 
 **What goes in the park entry:**
 - The shape candidates considered + why each was ruled out.

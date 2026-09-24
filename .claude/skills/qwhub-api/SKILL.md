@@ -31,7 +31,7 @@ headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 ?select=id,timestamp,mode,map,teams,players,demo_sha256
 &mode=eq.4on4&team_names=cs.{]sr[}&order=timestamp.desc&limit=10
 
-# Head-to-head between two teams (ALWAYS set limit!)
+# Head-to-head between two teams (set a limit)
 &team_names=cs.{]sr[,pol}&limit=10
 
 # Filter by map, date, matchtag
@@ -45,10 +45,10 @@ headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 # Result count: add header Prefer: count=exact, read Content-Range response header
 ```
 
-**CRITICAL: Team names are stored LOWERCASE in the API.** Always `.toLowerCase()` the tag before querying.
+**Team names are stored lowercase in the API**, so lowercase the tag before querying.
 Our `teamTag` field may have mixed case (e.g. `Book`, `tSQ`, `GoF!`) but the API expects `book`, `tsq`, `gof!`.
 
-**CRITICAL: Always set `&limit=` on queries.** Without a limit, the API returns up to 1000 rows by default. Use `limit=5` for team recent matches, `limit=10` for H2H.
+**Set `&limit=` on every query:** without one the API returns up to 1000 rows. Use `limit=5` for team recent matches, `limit=10` for H2H.
 
 **Team name encoding:** `cs.{teamA,teamB}` URL-encoded = `cs.%7BteamA%2CteamB%7D`
 
@@ -155,7 +155,7 @@ Sizes: `sm` (~11-25KB thumbnails), `lg` (~40-100KB detail/backgrounds). No auth.
 `https://hub.quakeworld.nu/game_scoreboard/${gameId}`
 ```
 
-**Note:** The iframe scoreboard endpoint exists but makes extra requests per embed. For MatchScheduler, render scoreboards locally using the data + CSS approach described in section 9.
+**Note:** The iframe scoreboard endpoint exists but makes extra requests per embed. For MatchScheduler, render scoreboards locally using the data + CSS approach described in section 10.
 
 ## 5. Hub API v2 (Live Server Data)
 
@@ -216,9 +216,9 @@ A player can be in **three places** on a server -- check all:
 
 ## 6. Existing Implementation
 
-- **Service:** `public/js/services/QWHubService.js` - match listings with 5-min cache
-- **Reference:** `context/QWHUB-API-REFERENCE.md` - full schema details, all fields documented
-- **Slices:** 5.1b (match history), 5.1c (H2H compare) use this API
+- **Service:** `apps/matchscheduler/public/js/services/QWHubService.js` - match listings with 5-min cache
+- **Reference:** `apps/matchscheduler/context/QWHUB-API-REFERENCE.md` - full schema details, all fields documented
+- **Used by:** MatchScheduler's match history and head-to-head compare views
 
 ## 7. Caching Rules
 

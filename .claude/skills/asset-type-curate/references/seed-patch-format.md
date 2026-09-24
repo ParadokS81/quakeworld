@@ -57,7 +57,7 @@ l1_hint_bare_categories:
 
 ## Section 2 -- Promote-to-file criteria (D6 exception)
 
-Inline deltas are appropriate for **0-3 field changes** that modify existing
+Inline deltas are appropriate for **up to five field changes** that modify existing
 scalar or list values. Promote to a standalone patch file when either of the
 following is true:
 

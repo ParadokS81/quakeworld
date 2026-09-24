@@ -7,7 +7,7 @@ description: Use this skill when converting ezquake.com/docs guide pages into qw
 
 One ezquake.com/docs guide per invocation. Produces a Layer 3 concept note in `apps/qw-oracle/curated/concept-notes/` plus gap-report entries for eventual upstream-PR work back to ezquake.com.
 
-The eleven phases are numbered for the procedural checklist style. Phases 2-6 are mechanical (Sonnet-suitable subagent tasks); phases 1, 7, 7.5, 8-10 are judgment (stay in main Opus session). **Phase 7.5 (operator consult) is a gate — Phase 8 authoring does not begin until operator answers land. See OPERATIONS.md §7 entry "All-datasets-verified gate before drafting" for the rationale.**
+The eleven phases are numbered for the procedural checklist style. Phases 2 and 3 run in the main session (the guide is already read in phase 1, and phase 3 is one batched query); phases 4-6 are wide source scans suited to Sonnet subagents; phases 1, 7, 7.5, 8-10 are judgment and stay in the main session. **Phase 7.5 (operator consult) is a gate — Phase 8 authoring does not begin until operator answers land. See OPERATIONS.md §7 entry "All-datasets-verified gate before drafting" for the rationale.**
 
 ## Inputs
 
@@ -41,9 +41,9 @@ Supporting context:
 
 Output: user-confirmed guide name, path classification (revision vs fresh), guide's stale-date context.
 
-## Phase 2 — Entity extraction (Sonnet subagent)
+## Phase 2 — Entity extraction (main session)
 
-Spawn a Sonnet subagent with the guide body as input. Extract mentions of:
+From the guide body read in phase 1, extract mentions of:
 - **cvars** — look for lowercase snake_case identifiers like `cl_*`, `r_*`, `gl_*`, `scr_*`, `hud_*`, `sv_*`, backticks or code fences surrounding a bare word.
 - **commands** — similar format; also `+name` / `-name` toggle pairs; `weapon`, `impulse`, `bind`, `alias` common verbs.
 - **macros** — `$name` references inside script examples.
@@ -59,11 +59,11 @@ keynames: [mouse1, q]
 
 Deduplicate. Preserve form (a guide saying `fire` gets recorded as `fire`, not silently normalized to `+fire`).
 
-## Phase 3 — Layer 1 verification (Sonnet subagent)
+## Phase 3 — Layer 1 verification (main session)
 
-For each entity, query ezQuake Layer 1 at head:
+Query ezQuake Layer 1 at head for the whole entity set in one batched query (`name IN (...)`); the per-entity form is:
 ```bash
-sqlite3 apps/qw-oracle/data/knowledge.db "SELECT name, type, first_seen_version, source_state FROM entities WHERE project='ezquake' AND name='<name>';"
+psql "$DATABASE_URL" -c "SELECT name, type, first_seen_version, source_state FROM entities WHERE project='ezquake' AND name='<name>';"
 ```
 
 Classify each:
@@ -106,7 +106,7 @@ For each missing entity, record:
 - Layer 1 `first_seen_version` — **query `cvar_versions.version` (the per-version history table), NOT `entities.first_seen_version`**. The entity-row column has known drift on some cvars where it reports `head` while the cvar_versions table shows the entity back to 3.6.1. See `HANDOVER.md` § "Layer 1 cvar_versions vs entities first_seen_version drift" for the lookup pattern.
 - Layer 1 `source_state` (**required** — filter `doc_only` rows out of the coverage-gap set unless phase 4 grep confirms the entity is currently in source)
 - **Layer 1 `help_desc` AND `help_remarks` from `cvar_versions`, both verbatim** (NOT paraphrased; quote the exact help-text). The `help_remarks` field carries load-bearing operational caveats — *"Has no effect if particle shaft is enabled,"* *"QTV/MVD only, KTX 1.38+ only,"* *"Has no effect if X is blank"* — which entirely change a cvar's effective scope. Pulling only `help_desc` produces wrong-but-plausible note content. Both fields, every time.
-  - SQL pattern: `SELECT cv.help_desc, cv.help_remarks FROM cvar_versions cv WHERE cv.entity_id = (SELECT id FROM entities WHERE project='ezquake' AND name='<cvar>') ORDER BY cv.version DESC LIMIT 1;`
+  - SQL pattern (via `psql "$DATABASE_URL" -c`): `SELECT cv.help_desc, cv.help_remarks FROM cvar_versions cv WHERE cv.entity_id = (SELECT id FROM entities WHERE project='ezquake' AND name='<cvar>') ORDER BY cv.version DESC LIMIT 1;`
 - suggested upstream placement (which section of the existing guide page it could slot into)
 
 Output: list of coverage-gap entries ready for phase 9 gap-report capture. Any entity flagged `source_state=doc_only` that can't be confirmed in current source via phase 4 is NOT a coverage-gap candidate — it's either a `removed-but-help-stale` finding or a `never-registered phantom` and belongs in the HANDOVER `Layer 1 doc_only audit` lane, not in the guide's gap report.
@@ -143,16 +143,16 @@ Run when:
 - Phase 4 identified cross-engine-suspicion cases.
 - The topic is historically cross-engine (teamsays, HUD, multiview, server-browser).
 
-For each relevant entity/concept, grep other engine sources:
+For each relevant entity/concept, query Layer 1 for the other engines first, then grep their sources for what Layer 1 does not cover (concepts, non-registered names):
 ```bash
-grep -rn "<entity>" research/repos/fte-source/ 2>/dev/null | head -5
-grep -rn "<entity>" research/repos/mvdsv-source/ 2>/dev/null | head -5
-grep -rn "<entity>" research/repos/ktx-source/ 2>/dev/null | head -5
+psql "$DATABASE_URL" -c "SELECT project, name, type, source_state FROM entities WHERE name='<entity>' AND project IN ('fte','mvdsv','ktx');"
+grep -rn "<entity>" research/repos/fteqw/ 2>/dev/null | head -5
+grep -rn "<entity>" research/repos/mvdsv/ 2>/dev/null | head -5
+grep -rn "<entity>" research/repos/ktx/ 2>/dev/null | head -5
 ```
 
 Classify:
 - **cross_engine_covered** — entity exists with matching semantics in other engine(s). Note which.
-- **cross_engine_tbd_pending_phase_2d_2e** — the entity MAY exist in other engines but the skill is not Layer 1 for those engines; full verification defers to when Phase 2d (FTE) / 2e (MVDSV+KTX) extractors land. Record the finding as a hold-for-later marker.
 - **cross_engine_not_applicable** — concept is ezQuake-specific (engine-internal, ezQuake UI, ezQuake-specific feature).
 
 Output: per-entity cross-engine classification + scope recommendation for phase 8 frontmatter (`scope` field + `engines_covered` list).
@@ -299,7 +299,7 @@ Body sections follow README.md: `## Summary`, `## <topic-specific 2-4 sections>`
 **References section must include:**
 - Upstream guide citation: `Source guide: https://ezquake.com/docs/<page> (imported <date>, commit <sha>)`
 - Pre-vikpe era attribution where identifiable: `Original <feature> implementation: commit <sha>, <author handle or name>, <year>` (trace via Layer 1 blame — see `source_overrides` table).
-- Hold-for-later markers from phase 6: `Cross-engine coverage (FTE/MVDSV/KTX): TBD pending Phase 2d/2e Layer 1 extraction. See HANDOVER.md § Phase 2d-2h.`
+- Cross-engine result from phase 6: `Cross-engine coverage: <engines checked> -- <what matched in Layer 1 or source>.`
 - Layer 1 gaps (from phase 4 case a) if any: `Note: entity <name> appears in source but is missing from Layer 1 at head; investigate extractor coverage.`
 
 ## Phase 9 — Breadcrumb capture (main session)
@@ -318,7 +318,7 @@ Produce three outputs:
 - **Notes:** <one-line context>
 ```
 
-**(b) Hold-for-later markers.** Already written into the note's References section during phase 8. Confirm they are there.
+**(b) Cross-engine result.** Already written into the note's References section during phase 8. Confirm it is there.
 
 **(c) OPERATIONS.md learning candidates.** Review what this session revealed that is not yet in OPERATIONS.md. Candidates:
 - A new note shape encountered.
@@ -345,7 +345,7 @@ docs(qw-oracle): <slug> — Path <1|2> <mirror|rewrite> from ezquake.com/docs/<p
 <one-paragraph describing key findings: classification, notable coverage gaps,
 cross-engine status, attribution chain>
 
-Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+Co-Authored-By: <the trailer for the model running this session>
 EOF
 )"
 ```
@@ -369,8 +369,8 @@ Push when user confirms (do not auto-push).
 | Phase | Model | Why |
 |---|---|---|
 | 1 Intake | Opus (main) | Judgment on revision vs fresh path; file presence checks |
-| 2 Entity extraction | Sonnet subagent | Mechanical regex over prose |
-| 3 Layer 1 verification | Sonnet subagent | Mechanical SQL queries |
+| 2 Entity extraction | Opus (main) | The guide is already in context from phase 1 |
+| 3 Layer 1 verification | Opus (main) | One batched SQL query; inputs fully determine the output |
 | 4 Source corroboration | Sonnet subagent | Mechanical grep + pattern matching |
 | 5 Coverage gap detection | Sonnet subagent | Mechanical scan against Layer 1 + source |
 | 6 Cross-engine check | Sonnet subagent | Mechanical grep across other engines |
@@ -380,7 +380,7 @@ Push when user confirms (do not auto-push).
 | 9 Breadcrumb capture | Opus (main) | Judgment on OPERATIONS.md learnings |
 | 10 Review + commit | Opus (main) | User interaction |
 
-Spawn Sonnet subagents with the Agent tool using `subagent_type: "general-purpose"` and `model: "sonnet"`. Phases 2-6 can partially parallelize; phases 3 and 4 depend on phase 2's output so run sequentially. Phases 5 and 6 can run in parallel after phases 3-4 complete.
+Spawn Sonnet subagents with the Agent tool using `subagent_type: "general-purpose"` and `model: "sonnet"`. Phase 4 depends on phase 3's output; phases 5 and 6 can run in parallel after phase 4 completes.
 
 ## Common pitfalls
 
@@ -397,6 +397,6 @@ Spawn Sonnet subagents with the Agent tool using `subagent_type: "general-purpos
 ## Escape hatches
 
 - If the user interrupts mid-workflow, save what you have and ask whether to resume or abandon. Partial work (e.g., phases 1-5 complete) can be picked up in a later session from the workspace notes.
-- If a phase's subagent returns empty or nonsense, re-run with a more specific prompt before escalating. Sonnet can be picky about prompt shape for grep tasks.
+- If a phase's subagent returns empty or nonsense, re-run with a more specific prompt before escalating.
 - If the guide turns out to be `settings/*.md` (auto-gen Vue component, ignore bucket per Workstream C audit), stop the skill and tell the user the page is not a Layer 3 candidate — the concept is already covered by Layer 1.
 - If the user names a guide outside the Workstream C mirror set (e.g., `commands`, `structure`, `upgrading`), note the classification from the audit and ask whether to proceed regardless.

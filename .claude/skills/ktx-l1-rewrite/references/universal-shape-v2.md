@@ -65,8 +65,7 @@ See also: <peer1 (relationship)>, <peer2 (relationship)>, ...
   verbatim.
 - **Permission** -- who can invoke. Phrasing MUST match the actual CF_*
   registration flag(s) from `include/g_local.h:647-658`, not the verbal
-  assumption that the command "looks admin-y." Mapping (added 2026-05-26
-  after Mode selection batch F1):
+  assumption that the command "looks admin-y." Mapping:
 
   | Source CF flags | Permission line wording |
   |---|---|
@@ -86,11 +85,9 @@ See also: <peer1 (relationship)>, <peer2 (relationship)>, ...
   OR'd together: "any player slot, OR admin spectator." The verbal label
   "Admin command" for this flag combination is incorrect. `CF_PLR_ADMIN`
   (bit 2, "client is player, so this command requires admin rights") is a
-  DIFFERENT flag and is rare. Lesson learned 2026-05-26: prior batches'
-  Shape 1 command-side cards inherited an "Admin command" prose
-  prescription from `shape-catalog.md` that was based on this misread;
-  corrected after the Mode selection batch F1 cross-card finding (silent
-  miss in Scoring & stats batch's `dmgfrags`).
+  DIFFERENT flag and is rare. Existing descriptions often carry the
+  "Admin command" label for `CF_PLAYER | CF_SPC_ADMIN`; the flag, not the
+  label, decides.
 
   Runtime gating (e.g. mid-match admin-only via `match_in_progress &&
   !is_adm(self)` check inside the handler) may add an admin requirement on
@@ -213,8 +210,6 @@ because v2 was locked only on 2026-05-23.
 
 - **Never duplicate the match-state constraint in prose AND Match-state
   line.** Pick one location; the Match-state line is the standard.
-  Standardized 2026-05-23 after observing inconsistent placement across
-  `discharge` (in prose), `droppack` (in both), `hdptoggle` (in prose tail).
 
 - **L1 is a graph node; edges encode relationships.** Three edge types are
   built into the shape: Prerequisites = incoming edges (what this needs),

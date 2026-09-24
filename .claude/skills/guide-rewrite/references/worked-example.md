@@ -74,12 +74,12 @@ Coverage gaps (priority order):
 Guide doesn't explicitly state "works in FTE," but weapon scripting is historically a cross-engine concept. Run grep:
 
 ```
-grep -rn "cl_weaponpreselect\|+fire" research/repos/fte-source/ | head -5
+grep -rn "cl_weaponpreselect\|+fire" research/repos/fteqw/ | head -5
 ```
 
 If FTE source tree is present but has no match: the mechanisms are ezQuake-specific. If present with matches: record cross_engine_covered. In the 2026-04-25 session the FTE source was not loaded for Layer 1 but FTE's client source had no direct `+fire` equivalent.
 
-Classification: **cross_engine_tbd_pending_phase_2d** — we'll verify when Phase 2d FTE Layer 1 lands. For now, note in frontmatter `scope: engine-specific, engines_covered: [ezquake]` and add hold-for-later marker in References.
+Classification comes from the Layer 1 query for fte/mvdsv/ktx plus the grep above: `cross_engine_covered` when another engine matches, else `cross_engine_not_applicable`; frontmatter `scope` and `engines_covered` follow it, and the result goes into References.
 
 ## Phase 7 — Classification and path decision
 
@@ -175,7 +175,7 @@ Body outline (sketched — actual writing happens in real session):
 
 **Hold-for-later markers** in the note's References section:
 ```
-- Cross-engine coverage (FTE/MVDSV/KTX): TBD pending Phase 2d/2e Layer 1 extraction. See HANDOVER.md § Phase 2d-2h.
+- Cross-engine coverage: <engines checked> -- <what matched in Layer 1 or source>.
 ```
 
 **OPERATIONS.md learning candidates:**
@@ -198,7 +198,7 @@ with FTE equivalents marked TBD-Phase-2d. Gap-report entries added for +fire, +f
 bestweapon, bestammo, cl_weaponforgetorder — contributor onboarding kit for eventual
 upstream PR to ezquake.com.
 
-Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+Co-Authored-By: <the trailer for the model running this session>
 ```
 
 Push when user confirms.
