@@ -10,7 +10,7 @@ description: |
   per-knob describe-fill judgment dispatched by a KTX/MVDSV describe-fill
   phase. One knob per invocation; designed for sub-agent fan-out. Engine-
   agnostic -- the phase supplies the entity; the skill never branches on
-  which engine. Synthesis runs at Opus 4.7 MAX (spec-locked, D7).
+  which engine. Synthesis runs at Opus 5.5 xhigh (spec-locked, D7).
 ---
 
 # describe-fill-synthesis
@@ -31,10 +31,11 @@ the pre-amendment text it mirrors.
 
 ## Model dial (LOCKED -- not a per-invocation choice)
 
-This skill's synthesis pass runs at **Opus 4.7, MAX reasoning**. The dial
-is spec-locked by D7; the skill DECLARES it. It is NOT selectable per
+This skill's synthesis pass runs at **Opus 5.5, xhigh effort**. The dial
+is spec-locked by D7 (re-ruled 2026-09-24 from Opus 4.7 MAX) and enforced by
+the `describe-fill-synthesizer` agent definition. It is NOT selectable per
 invocation and is NOT lowerable. "cheap" / "fast affirm" (Step 3) is the
-early-exit path WITHIN this single Opus-4.7-MAX invocation when a comment
+early-exit path WITHIN this single Opus-5.5-xhigh invocation when a comment
 already clears the rubric -- NOT a separate cheaper pre-classify model
 tier (D7 clarification 2026-05-17). A low-reasoning first pass is
 spec-rejected false economy. Every step below runs in this one context.
@@ -114,7 +115,7 @@ If none hold, proceed to Step 1.
 
 ---
 
-## Workflow (per knob; all steps run in the locked Opus-4.7-MAX context)
+## Workflow (per knob; all steps run in the locked Opus-5.5-xhigh context)
 
 ### Step 1 -- Locate the read use-sites (NOT the name)
 
@@ -145,7 +146,7 @@ only ENCODES this; Phase 0 produced the pool.
 ### Step 3 -- Evaluate the existing comment against the D5 rubric
 
 This IS the keep-vs-synthesize classify, hard-coded inside this
-Opus-4.7-MAX skill (D7 clarification; not a separate model). EVERY knob
+Opus-5.5-xhigh skill (D7 clarification; not a separate model). EVERY knob
 is evaluated, with or without a comment. The trailing comment (and any
 `mechanical_candidate`) is ONE INPUT, never a "documented/done" verdict
 (D5 amendment supersedes the original "clears the bar -> kept as-is"
@@ -156,7 +157,7 @@ phrasing). Grade against the full rubric in `references/d5-rubric.md`:
   opinion; self-contained) AND already reads in the D20 template shape
   (`references/d20-description-template.md`) -> adopt it verbatim; origin
   stays `source_inline` (affirmed-by-evaluation, NOT skipped -- the
-  fast-affirm early exit, still inside the Opus-MAX invocation). Verdict
+  fast-affirm early exit, still inside the Opus-xhigh invocation). Verdict
   `affirmed`. NOTE (operator decision 2026-05-30): a serviceable one-liner
   that clears the rubric but is NOT already in the D20 template shape does
   NOT affirm -- it routes to Step 5 synthesize (full synthesis; there is no
@@ -255,7 +256,7 @@ Exactly one per knob:
   routed to the C1 outreach track; no confident behavior claim.
 - **hedged** -- partially source-legible; states only the legible part,
   marks the unknown; C1-routed.
-- **residue_routed** -- not source-legible even at Opus-MAX; routed to
+- **residue_routed** -- not source-legible even at Opus-xhigh; routed to
   the C1 community-outreach track; tracked, never dropped (C1).
 
 ## Flag-gated output branch
@@ -285,7 +286,7 @@ phase persists it; the D7 gate (separate task) re-checks it pre-commit.
 ## Sub-agent fan-out
 
 Phase 3 / Phase 4 dispatch one sub-agent per in-scope knob, each running
-THIS skill at Opus 4.7 MAX (the dial is locked here, not chosen by the
+THIS skill at Opus 5.5 xhigh (the dial is locked here, not chosen by the
 dispatcher). The per-knob brief MUST carry the >=6 non-inferential
 elements specified verbatim in `references/subagent-brief-template.md`.
 The dispatcher does not delegate the rubric judgment; it delegates the

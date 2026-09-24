@@ -46,13 +46,13 @@ is ONE INPUT to that evaluation, NEVER a verdict.
 
 The D5 cheap-classify step routes EFFORT (a good comment classifies-and-
 affirms quickly = the fast-affirm early exit; weak or absent = full Opus-
-MAX synthesis). It does NOT exempt anything from evaluation. Coverage =
+xhigh synthesis). It does NOT exempt anything from evaluation. Coverage =
 "every entity evaluated and carrying an owned, affirmed-or-synthesized
 description," NEVER "had a comment so counted." The original D5 phrasing
 "clears the bar -> kept as-is, no rework" is SUPERSEDED by this amendment.
 
 "cheap" / "fast affirm" is EFFORT routing, not a cheaper model: it is the
-early-exit path WITHIN the single Opus-4.7-MAX D6 invocation, not a
+early-exit path WITHIN the single Opus-5.5-xhigh D6 invocation, not a
 separate pre-classify tier (D7 clarification 2026-05-17).
 
 ## Worked examples

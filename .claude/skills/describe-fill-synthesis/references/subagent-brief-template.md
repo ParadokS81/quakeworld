@@ -31,11 +31,10 @@ agent must NOT have to infer:
 6. **source root path** -- the absolute path to the `project` source tree
    to grep for read use-sites (so the sub-agent does not guess where the
    code is).
-7. **model, set on the dispatch call** -- pass `model: "opus"` on the
-   `Agent` call; a sentence in the brief cannot change the sub-agent's
-   model, and without the parameter it inherits the dispatcher's (the same
-   lesson `ktx-l1-batch-dispatcher` recorded 2026-05-27). The tool has no
-   effort parameter. In the brief itself, say only that 'fast affirm' is
+7. **agent type, set on the dispatch call** -- pass
+   `subagent_type: "describe-fill-synthesizer"` on the `Agent` call; that
+   project agent pins Opus 5.5 at xhigh effort. A sentence in the brief
+   cannot change the sub-agent's model or effort. In the brief itself, say only that 'fast affirm' is
    the in-invocation early exit, not a cheaper model (D7).
 8. **output contract** -- "return exactly the skill's structured per-knob
    record + the one-line halt contract; do NOT write files, do NOT
@@ -50,7 +49,7 @@ known fact). The skill itself supplies the judgment.
 
 ## Dispatch shape
 
-- One sub-agent per knob, run at Opus 4.7 MAX (the skill locks this; the
+- One sub-agent per knob, run at Opus 5.5 xhigh (the skill locks this; the
   dispatcher must not downgrade it to save cost -- spec-rejected false
   economy, D7).
 - The sub-agent loads the skill's `references/` files itself (the
@@ -74,6 +73,6 @@ known fact). The skill itself supplies the judgment.
 - Must NOT permit name-only synthesis or a "has a comment so it's done"
   shortcut -- the skill forbids both; the brief never overrides the
   skill.
-- Must NOT lower the Opus-4.7-MAX dial or introduce a cheaper pre-
+- Must NOT lower the Opus-5.5-xhigh dial or introduce a cheaper pre-
   classify tier (D7 clarification: the classify is inside the skill, at
-  Opus-MAX).
+  Opus-xhigh).

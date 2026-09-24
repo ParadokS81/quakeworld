@@ -18,7 +18,7 @@ runs cross-card consistency synthesis, writes the assembled per-batch
 drafts/park files atomically, appends the HANDOVER followup, and commits.
 
 This skill is the dispatcher cousin of `ktx-l1-rewrite`. The per-card skill
-processes ONE entity at a locked Sonnet 4.6-high dial; this skill orchestrates
+processes ONE entity at a locked Sonnet 5 high dial; this skill orchestrates
 N per-card invocations as a single batch with cross-card synthesis on top.
 MAIN sessions invoke this skill 1-3 times in parallel; each batch produces a
 single commit, a structured digest, and an apply-pass entry on HANDOVER.
@@ -29,10 +29,10 @@ defer to those rather than re-stating here.
 
 ## Model dial (LOCKED -- not a per-invocation choice)
 
-- **Dispatcher**: Opus 4.7 medium reasoning. Orchestration + cross-card
+- **Dispatcher**: the operator's session model. Orchestration + cross-card
   synthesis benefit from the higher tier; the per-batch context budget hosts
   the fan-out coordination, novelty detection, and consistency pass.
-- **Per-card sub-agents**: Sonnet 4.6 high (locked by `ktx-l1-rewrite`).
+- **Per-card sub-agents**: Sonnet 5 high (locked by `ktx-l1-rewrite`).
   Do NOT override -- dispatching at a higher dial defeats the cost
   differential that makes the per-card skill exist.
 
@@ -110,7 +110,7 @@ structurally invisible. Internal arc workflows must query DB directly; MCP
 keeps its lane. See `references/pre-fetch.md` for the rationale.
 
 **NULL-description entities**: route them to `describe-fill-synthesis`
-FIRST (separate terminal, Opus 4.7 MAX) before this dispatcher's batch
+FIRST (separate session, via the `describe-fill-synthesizer` agent) before this dispatcher's batch
 runs. The per-card skill's pre-flight gate would otherwise abort each one
 as `needs-synthesis`, leaving a partial batch.
 
@@ -118,7 +118,7 @@ as `needs-synthesis`, leaving a partial batch.
 
 Chunk the category's entities into groups of `chunk_size` (default 6; 4-8
 accepted). Dispatch one sub-agent per CHUNK -- not per entity. Each
-sub-agent runs the `ktx-l1-rewrite` skill at its locked Sonnet 4.6-high
+sub-agent runs the `ktx-l1-rewrite` skill at its locked Sonnet 5 high
 dial in chunked mode: loads the skill + 6 reference files ONCE, then
 applies the workflow to each entity in its chunk sequentially.
 
@@ -130,14 +130,10 @@ override instructions below.
 **Chunk dispatch shape** (amendment 2026-05-27): dispatch each chunk
 sub-agent with the `Agent` tool and pass every one of:
 
-- `model: "sonnet"` -- keeps per-card work on the Sonnet tier. Without it
-  the sub-agent inherits the dispatcher's Opus tier and the cost split that
-  justifies the separate per-card skill silently disappears; the prose dial
-  in this skill is intent, the parameter is what holds. The value is a tier
-  alias (it resolves to the current Sonnet) and the tool has no effort
-  parameter.
-- `subagent_type: "general-purpose"` -- the per-card skill is invoked
-  inside the sub-agent's prompt; no specialized agent type is needed.
+- `subagent_type: "ktx-card-rewriter"` -- the project agent at
+  `.claude/agents/ktx-card-rewriter.md` pins Sonnet 5 at high effort and
+  loads the per-card skill. Pass no `model`: the definition is what holds
+  the dial, and a prose dial or a tier alias cannot set effort.
 - `description`: 3-5 word task summary (e.g. "ktx-l1-rewrite chunk A").
 - `prompt`: the full chunk instructions + per-entity input list + the
   override instructions below + the reporting-line collection block.
@@ -303,7 +299,7 @@ context in `references/`.
 - **Run apply-pass-author logic** -- `drafted_with_flag` entries get
   surfaced in the report but not auto-resolved.
 - **Override the per-card model dial** -- per-card sub-agents stay at
-  Sonnet 4.6 high. Dispatcher orchestration runs at Opus 4.7 medium.
+  Sonnet 5 high. Dispatcher orchestration runs in the operator's session model.
 
 ## Engine scope
 
