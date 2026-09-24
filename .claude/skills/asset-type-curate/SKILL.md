@@ -115,7 +115,11 @@ on or before 2022-11-21 (boundary-inclusive) are presumed stale.
 
 ### Step 4 -- Corpus mining
 
-Query the gfx corpus sandbox at `/home/paradoks/sandboxes/qw3-abab-gfx/` for
+Query the gfx corpus sandbox at `~/projects/sandboxes/qw3-abab-gfx/` (outside git; the
+corpus comes from nicotinelounge.com/qw3-abab/gfx.tar.gz). The recipes read
+its derived outputs under `scripts/output/`; if `pass2-manifest.ndjson` is
+missing there, stop and tell the operator -- the scripts that build it are not
+yet restored (HANDOVER), and an empty query result is not evidence. Look for
 bundles matching the slug's `corpus_categories` from the seed entry. Sample
 5-10 representative bundles for install-path evidence. Grep `gfx_comment`
 (1,449 rows in `gfx.sql`) for type-specific install instructions or community

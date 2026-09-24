@@ -1,6 +1,6 @@
 # qw.nu/gfx corpus inventory
 
-> Captured 2026-05-12 from `gfx.tar.gz` (1.41 GB, 1938 entries) shared by ciscon. Stored at `/home/paradoks/sandboxes/qw3-abab-gfx/`. Outside repo — too large to commit.
+> Captured 2026-05-12 from `gfx.tar.gz` (1.41 GB, 1938 entries) shared by ciscon. Stored at `~/projects/sandboxes/qw3-abab-gfx/`. Outside repo — too large to commit.
 
 ## What this corpus actually is
 
@@ -151,9 +151,9 @@ So this corpus is the **"published custom content" universe**, not the "what's a
 
 ## Where the corpus lives
 
-- Tarball: `/home/paradoks/sandboxes/qw3-abab-gfx/gfx.tar.gz` (1.41 GB)
-- Extracted SQL: `/home/paradoks/sandboxes/qw3-abab-gfx/gfx.sql` (258 KB)
-- Sample extracted assets: `/home/paradoks/sandboxes/qw3-abab-gfx/files/0.zip`, `files/350.zip`, etc.
-- Filelist cache: `/home/paradoks/sandboxes/qw3-abab-gfx/filelist.txt` (36 KB, 1938 entries)
+- Tarball: `~/projects/sandboxes/qw3-abab-gfx/gfx.tar.gz` (1.41 GB)
+- Extracted SQL: `~/projects/sandboxes/qw3-abab-gfx/gfx.sql` (258 KB)
+- Sample extracted assets: `~/projects/sandboxes/qw3-abab-gfx/files/0.zip`, `files/350.zip`, etc.
+- Filelist cache: `~/projects/sandboxes/qw3-abab-gfx/filelist.txt` (36 KB, 1938 entries)
 
 Outside repo. Reference from arc brainstorms / planning docs as needed.

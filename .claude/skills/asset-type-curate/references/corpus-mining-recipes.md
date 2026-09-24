@@ -3,7 +3,7 @@
 ## Orientation
 
 Step 4 of the asset-type-curate pipeline mines the qw.nu/gfx corpus sandbox at
-`/home/paradoks/sandboxes/qw3-abab-gfx/` for two things: community framing of each
+`~/projects/sandboxes/qw3-abab-gfx/` for two things: community framing of each
 asset type (what the QW community calls it, how they package it) and install-path
 conventions that source code alone cannot give us (gfx_faq authority, ad-hoc
 comments with path advice). This corpus is good for community consensus and observed
@@ -19,7 +19,7 @@ supplementary, not authoritative.
 
 The deliverable manifest is at:
 
-    /home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson
+    ~/projects/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson
     (11,173 lines -- one JSON object per file-in-bundle)
 
 Confirmed field names from `head -3` (2026-05-12 pass2 run):
@@ -59,7 +59,7 @@ Example for `skybox` (corpus_categories: ["Other / Skyboxes"]):
 
     jq 'select(.bundle_category_path == "Other / Skyboxes" and .target_path != null) |
         {bundle_id, bundle_title, role, target_path, install_confidence, install_source}' \
-      /home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson
+      ~/projects/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson
 
 Example for `hud_element` (corpus_categories include multiple subcategories):
 
@@ -68,7 +68,7 @@ Example for `hud_element` (corpus_categories include multiple subcategories):
           .target_path != null
         ) |
         {bundle_id, bundle_title, role, target_path, install_confidence}' \
-      /home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson | head -40
+      ~/projects/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson | head -40
 
 For multi-category asset types (charset has 4 corpus_categories), use alternation:
 
@@ -76,7 +76,7 @@ For multi-category asset types (charset has 4 corpus_categories), use alternatio
     jq --argjson cats "$CATS" \
        'select((.bundle_category_path // "") as $cat | $cats | map(. == $cat) | any) and .target_path != null |
         {bundle_id, bundle_title, role, target_path}' \
-      /home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson
+      ~/projects/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson
 
 ### Recipe 2 -- surface install_path_template per role
 
@@ -85,7 +85,7 @@ templates the community actually uses):
 
     jq -r 'select(.role == "user-asset:skybox" and .target_path != null) |
            .target_path' \
-      /home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson | sort -u | head -20
+      ~/projects/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson | sort -u | head -20
 
 Sample output for skybox:
 
@@ -101,7 +101,7 @@ For conback (rename semantics -- `target_filename_renamed` tells you rename was 
 
     jq 'select(.role == "user-asset:conback") |
         {bundle_id, bundle_title, target_path, target_filename_renamed}' \
-      /home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson | head -20
+      ~/projects/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson | head -20
 
 ### Recipe 3 -- list representative bundles for spot-checking (5-10, diverse paths)
 
@@ -110,18 +110,18 @@ Pull the first N distinct bundles by category (favor diverse install_path shapes
     jq -r 'select(.bundle_category_path == "Other / Skyboxes" and .target_path != null) |
            [.bundle_id, .bundle_title, .install_confidence, .install_source] |
            @tsv' \
-      /home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson |
+      ~/projects/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson |
     sort -u -k1,1 | head -10
 
 Known skybox bundle ids for manual spot-check: 24, 36, 46, 153, 165, 208, 232.
-Zip files at `/home/paradoks/sandboxes/qw3-abab-gfx/files/<bundle_id>.zip`.
+Zip files at `~/projects/sandboxes/qw3-abab-gfx/files/<bundle_id>.zip`.
 
 For MIXED bundles (to verify multi-role packaging -- relevant for charset + config):
 
     jq 'select(.mixed_bundle == true and
                (.bundle_category_path | test("Charset"))) |
         {bundle_id, bundle_title, role, target_path, source_member_path}' \
-      /home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson | head -30
+      ~/projects/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson | head -30
 
 ---
 
@@ -129,7 +129,7 @@ For MIXED bundles (to verify multi-role packaging -- relevant for charset + conf
 
 ### gfx.sql location and size
 
-    /home/paradoks/sandboxes/qw3-abab-gfx/gfx.sql
+    ~/projects/sandboxes/qw3-abab-gfx/gfx.sql
     (263,727 bytes -- verified 2026-05-13; spec said 258KB, actual is 263KB)
 
 The file is a MySQL dump. No live DB is needed. Mine it with grep and Python.
@@ -153,7 +153,7 @@ Row format in the INSERT block (1,449 rows):
 Find comments mentioning file install locations:
 
     grep -i "textures\|/progs\|/sound\|/env\|/skins\|/crosshairs\|goes in\|install in\|put.*in\|folder" \
-      /home/paradoks/sandboxes/qw3-abab-gfx/gfx.sql | \
+      ~/projects/sandboxes/qw3-abab-gfx/gfx.sql | \
     grep "^(" | head -30
 
 This surfaces comments like:
@@ -165,9 +165,9 @@ The path strings are HTML-entity-encoded in places (& -> &amp;, / -> /, etc.) --
 with that in mind. A Python pass decodes cleanly:
 
 ```python
-import re, html
+import os, re, html
 
-SQL = "/home/paradoks/sandboxes/qw3-abab-gfx/gfx.sql"
+SQL = os.path.expanduser("~/projects/sandboxes/qw3-abab-gfx/gfx.sql")
 TERMS = re.compile(r"/textures|/progs|/sound|/env|/skins|goes in|install in|put.{0,20}in|gamedir", re.I)
 
 with open(SQL, encoding="latin-1") as f:
@@ -191,10 +191,10 @@ Combine the manifest (to get bundle_ids for a category) with gfx.sql (to extract
 matching comments):
 
 ```python
-import json, re, html
+import json, os, re, html
 
-MANIFEST = "/home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson"
-SQL      = "/home/paradoks/sandboxes/qw3-abab-gfx/gfx.sql"
+MANIFEST = os.path.expanduser("~/projects/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson")
+SQL      = os.path.expanduser("~/projects/sandboxes/qw3-abab-gfx/gfx.sql")
 CATEGORY = "Other / Skyboxes"   # change per asset_type slice
 
 # Step 1: collect bundle_ids for this category

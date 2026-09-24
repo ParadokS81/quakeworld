@@ -26,7 +26,7 @@
 - **Script 3 (Pass 1)** — path-pattern classifier + cross-validation against DB category
 - **Script 4 (Pass 2)** — DB-category-driven classifier using `gfx_faq` install instructions as authority
 
-All scripts live at `/home/paradoks/sandboxes/qw3-abab-gfx/scripts/`. All outputs at `/home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/`.
+All scripts live at `~/projects/sandboxes/qw3-abab-gfx/scripts/`. All outputs at `~/projects/sandboxes/qw3-abab-gfx/scripts/output/`.
 
 ---
 
@@ -362,17 +362,17 @@ In rough priority order. Each is bounded; pick one or two for the next investiga
 
 ### Where everything lives
 
-- **Corpus tarball:** `/home/paradoks/sandboxes/qw3-abab-gfx/gfx.tar.gz` (1.41 GB; outside repo)
-- **Extracted content:** `/home/paradoks/sandboxes/qw3-abab-gfx/files/` (the 647 zip/pk3/jpg/gif files)
-- **MySQL dump:** `/home/paradoks/sandboxes/qw3-abab-gfx/gfx.sql` (258 KB, parseable with `sed`/`grep`)
+- **Corpus tarball:** `~/projects/sandboxes/qw3-abab-gfx/gfx.tar.gz` (1.41 GB; outside repo)
+- **Extracted content:** `~/projects/sandboxes/qw3-abab-gfx/files/` (the 647 zip/pk3/jpg/gif files)
+- **MySQL dump:** `~/projects/sandboxes/qw3-abab-gfx/gfx.sql` (258 KB, parseable with `sed`/`grep`)
 - **Scripts:**
   - `parse-gfx-sql.py` — Script 1
   - `hash-corpus.py` — Script 2
   - `classify-pass1.py` — Script 3
   - `classify-pass2.py` — Script 4
-  - All at `/home/paradoks/sandboxes/qw3-abab-gfx/scripts/`
+  - All at `~/projects/sandboxes/qw3-abab-gfx/scripts/`
 
-### Output files (all in `/home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/`)
+### Output files (all in `~/projects/sandboxes/qw3-abab-gfx/scripts/output/`)
 
 - `bundles.json` — 587 bundle records with metadata + category breadcrumb (347 KB)
 - `blobs.ndjson` — 11,173 per-file hash records (1.6 MB)
@@ -385,7 +385,7 @@ In rough priority order. Each is bounded; pick one or two for the next investiga
 ### How to query interactively from a fresh terminal
 
 ```bash
-cd /home/paradoks/sandboxes/qw3-abab-gfx/scripts/output
+cd ~/projects/sandboxes/qw3-abab-gfx/scripts/output
 
 # Get manifest record count by role
 jq -r .role pass2-manifest.ndjson | sort | uniq -c | sort -rn | head
