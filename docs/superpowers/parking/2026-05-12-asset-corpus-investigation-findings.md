@@ -26,7 +26,7 @@
 - **Script 3 (Pass 1)** — path-pattern classifier + cross-validation against DB category
 - **Script 4 (Pass 2)** — DB-category-driven classifier using `gfx_faq` install instructions as authority
 
-All scripts live at `~/projects/sandboxes/qw3-abab-gfx/scripts/`. All outputs at `~/projects/sandboxes/qw3-abab-gfx/scripts/output/`.
+All scripts live at `apps/qw-oracle/scripts/gfx-corpus/` (committed 2026-09-28; originally uncommitted in the sandbox). All outputs at `~/projects/sandboxes/qw3-abab-gfx/scripts/output/`.
 
 ---
 
@@ -370,7 +370,7 @@ In rough priority order. Each is bounded; pick one or two for the next investiga
   - `hash-corpus.py` — Script 2
   - `classify-pass1.py` — Script 3
   - `classify-pass2.py` — Script 4
-  - All at `~/projects/sandboxes/qw3-abab-gfx/scripts/`
+  - All at `apps/qw-oracle/scripts/gfx-corpus/` (in git since 2026-09-28)
 
 ### Output files (all in `~/projects/sandboxes/qw3-abab-gfx/scripts/output/`)
 
