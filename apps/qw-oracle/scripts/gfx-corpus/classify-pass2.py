@@ -542,12 +542,20 @@ def extract_mapname_from_title(title: str) -> tuple[str | None, bool]:
              "rocky", "mixed", "high", "quality", "hd", "color", "colour", "lit",
              "lighting", "lights", "modified", "modified", "clean", "replacement"}
 
-    # First pass: look for known mapnames as substrings
-    for mapname in KNOWN_MAPNAMES:
+    # First pass: look for known mapnames as substrings.
+    # A title naming several known maps is ambiguous: picking one used to follow
+    # set iteration order, so the answer changed per run (bundle 597 "aero ztn
+    # dm2 reskins", which actually holds aerowalk + ztndm3 dirs). Return None so
+    # the caller falls back to the member paths, which name the real map dirs.
+    hits = [
+        mapname for mapname in KNOWN_MAPNAMES
         # word-boundary match: mapname surrounded by non-alphanumeric
-        pattern = r'(?:^|[\s_\-/])' + re.escape(mapname) + r'(?:$|[\s_\-/])'
-        if re.search(pattern, title_lower):
-            return mapname, True
+        if re.search(r'(?:^|[\s_\-/])' + re.escape(mapname) + r'(?:$|[\s_\-/])', title_lower)
+    ]
+    if len(hits) == 1:
+        return hits[0], True
+    if len(hits) > 1:
+        return None, False
 
     # Second pass: tokenize and look for map-shaped tokens
     tokens = re.findall(r'[a-z0-9]+', title_lower)
