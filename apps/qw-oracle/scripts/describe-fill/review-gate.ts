@@ -18,7 +18,7 @@
 // reasoning early) -- it is explicitly NOT a cheaper model tier. A
 // low-reasoning first pass is spec-REJECTED false economy on the one thing
 // that must be correct (D7 / feedback_best_tool_no_overkill /
-// feedback_model_effort_range Opus-MAX ceiling). The dispatcher that spawns
+// the Opus-MAX ceiling in force at the time). The dispatcher that spawns
 // the reviewer (the consuming phase/smoke -- Task 6, then Phase 3/4) MUST
 // honor REVIEWER_MODEL_DIAL below; this file declares the dial, it does not
 // let the caller lower it.

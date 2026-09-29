@@ -198,7 +198,7 @@ and loads file content: add to the watchlist and re-run the extractor.
 
 ## Section 4 -- Adjacent gotchas
 
-### Screenshot regex read/write conflation (reference_screenshot_regex_pattern_bug)
+### Screenshot regex read/write conflation
 
 Both ezQuake and FTE handlers had a screenshot `ENCLOSING_FN_CATEGORY_RULES`
 regex that conflated write paths with read paths. Result: 7 ezQuake and 1 FTE
@@ -218,7 +218,7 @@ audit. Paths to add when handlers exist:
 - `apps/qw-oracle/scripts/extractors/qwcl/_handler_asset_loader_sites.py`
 - `apps/qw-oracle/scripts/extractors/mvdsv/_handler_asset_loader_sites.py`
 
-### ENCLOSING_FN_CATEGORY_OVERRIDES tier (reference_role_override_tier_design)
+### ENCLOSING_FN_CATEGORY_OVERRIDES tier
 
 Four-tier merge order: `cat_override or cat_from_fn or cat_from_ext or cat_from_enclosing or cat_fallback`
 

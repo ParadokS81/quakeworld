@@ -58,4 +58,4 @@ No residual Bucket 4 items.
 - Playbook (4-bucket canonical reference): `apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md` (Known Limits section)
 - Stubs: `research/stubs/windows-sdk/`
 - ezQuake doc_only audit findings: `docs/superpowers/specs/2026-04-24-layer1-doc-only-audit-findings.md`
-- Memory: `reference_libclang_ezquake_extraction.md`, `project_extraction_pipeline_vision.md`
+- Method: `../EXTRACTOR-PLAYBOOK.md`; macro set: `../extractor_lib/clang_config.py`

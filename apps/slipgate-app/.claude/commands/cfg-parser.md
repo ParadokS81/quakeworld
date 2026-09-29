@@ -9,7 +9,7 @@ Read `docs/CFG-PARSER.md` first -- it documents the parser architecture, knowled
 1. **Our docs**: `docs/CFG-PARSER.md` -- parser design, categories, edge cases
 2. **ezQuake docs**: https://ezquake.com/docs/weapon-scripts.html, https://ezquake.com/docs/settings/input.html, https://ezquake.com/docs/commands.html
 3. **ezQuake source**: https://github.com/QW-Group/ezquake-source (for understanding exact behavior)
-4. **Memory**: the project memory's `reference_qw_weapon_scripts.md` -- weapon bind patterns, community context
+4. **Weapon scripts**: `packages/qw-knowledge/weapon-scripts/README.md` -- weapon bind patterns, community context
 5. **Test configs**: the operator's and mazer's configs live on the Windows machine (`C:\Games\QuakeWorld\QuakeWorld\ezquake\configs\config.cfg`, `C:\Users\Administrator\Downloads\mazer.cfg`) and are not reachable from the dev cockpit -- ask for a copy when a test needs one
 
 ## When invoked with arguments

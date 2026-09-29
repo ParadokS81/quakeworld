@@ -101,7 +101,7 @@ When ezquake / FTE / QWCL / MVDSV introduce a new loader mechanism for an existi
 
 ### New engine onboarding
 
-When a fifth engine (or KTX-canonical / unezQuake fork) lands in the extractor pipeline (per [[project_extraction_pipeline_vision]]), every asset-note gets a re-walk to capture the new engine's loader behavior. The frontmatter's `engine_canonical_paths` and `l1_canonical_ids` grow with a new engine key; the body's "Cross-engine differences" section grows when the new engine diverges.
+When a fifth engine (or KTX-canonical / unezQuake fork) lands in the extractor pipeline (per `apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md`), every asset-note gets a re-walk to capture the new engine's loader behavior. The frontmatter's `engine_canonical_paths` and `l1_canonical_ids` grow with a new engine key; the body's "Cross-engine differences" section grows when the new engine diverges.
 
 Onboarding triggers fan-out re-dispatch -- a Phase 3-like batched re-walk against the new engine. The corresponding entry in `apps/qw-oracle/CLAUDE.md` subsystem-scopes table updates to reflect the expanded engine coverage.
 
@@ -129,8 +129,8 @@ L1-GAP findings feed the next extractor-capability arc (parking doc seeded at `d
 - Loader function missing from the engine's `LOADER_FUNCTIONS` watchlist (extractor doesn't see the site at all).
 - `FUNCTION_TO_CATEGORY` / `ENCLOSING_FN_CATEGORY_RULES` / `ENCLOSING_FN_CATEGORY_OVERRIDES` tier doesn't route the site to the correct asset_category (site is seen but mis-tagged). Cross-reference [[reference_role_override_tier_design]].
 - Static-array path-pattern extraction capability missing (e.g., skybox 6-face suffix array isn't surfaced).
-- Multi-use loader dispatch incomplete (per [[project_multi_use_loader_pattern]] -- one generic loader dispatched to 8+ categories via enclosing-function routing).
-- Screenshot-regex read/write conflation in cross-engine handlers ([[reference_screenshot_regex_pattern_bug]]).
+- Multi-use loader dispatch incomplete (per `.claude/skills/asset-type-curate/references/cross-engine-loader-grep.md` Section 1 -- one generic loader dispatched to 8+ categories via enclosing-function routing).
+- Screenshot-regex read/write conflation in cross-engine handlers (`.claude/skills/asset-type-curate/references/cross-engine-loader-grep.md` Section 4).
 
 After the extractor arc lands the fix, re-dispatch the L1-GAP slug through the asset-type-curate skill against the corrected L1.
 
@@ -229,4 +229,4 @@ Phase 2 (skybox first slice) and Phase 3 (fan-out) are expected to surface L1 ca
 - L1 evidence: `../../scripts/extractors/<engine>/output/<engine>-asset-loader-sites-ast.json`.
 - API contracts (L3 expansion pattern, frontmatter discipline): `../../API_CONTRACTS.md`.
 - Path C precedent / D18 frontmatter discipline: qwiki-community-reference arc decisions doc.
-- Related memories: `project_asset_type_curate_workflow`, `project_l1_seed_l3_layering`, `project_concept_notes_vertical_slice`, `project_layer3_two_path_curation`, `project_multi_use_loader_pattern`, `feedback_l3_concept_notes_wiki_shape`, `reference_role_override_tier_design`, `reference_screenshot_regex_pattern_bug`.
+- Related: the `asset-type-curate` skill (`.claude/skills/asset-type-curate/`; its `references/cross-engine-loader-grep.md` holds the multi-use-loader pattern and the screenshot-regex and override-tier gotchas); `curated/concept-notes/OPERATIONS.md` (two-path curation); `curated/concept-notes/_methodology/game-modes/concept-note-section-structure.md` (note shape). Memory `project_l1_seed_l3_layering` is queued to move into this file.

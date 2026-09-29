@@ -1085,7 +1085,7 @@ Skip the audit for per-handler tweaks within a single project that don't touch s
 
 Audit output lands at: `docs/superpowers/reviews/YYYY-MM-DD-<arc>-cross-project-audit.md`.
 
-Rationale: extraction work is arc-based, not calendar-based. The four triggers above are the cases where prior-engine regressions are actually possible -- a new project imports `extractor_lib` and exercises code paths the other four don't; a schema migration reshapes loader inputs all projects depend on; a `load-version.ts` change touches every project's loader path. Per-project-only handler changes cannot affect siblings. For the broader principle behind this trigger set, see operator memory `feedback_retrofit_later_discipline.md`.
+Rationale: extraction work is arc-based, not calendar-based. The four triggers above are the cases where prior-engine regressions are actually possible -- a new project imports `extractor_lib` and exercises code paths the other four don't; a schema migration reshapes loader inputs all projects depend on; a `load-version.ts` change touches every project's loader path. Per-project-only handler changes cannot affect siblings. For the broader principle behind this trigger set, see the arc that applied it: `docs/superpowers/plans/2026-05-08-extractor-discipline-catchup/README.md`.
 
 Most recent audit: `docs/superpowers/reviews/2026-05-06-ktx-onboarding-cross-project-audit.md` (five-engine state at KTX onboarding arc close, 2026-05-06).
 

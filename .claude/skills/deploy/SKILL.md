@@ -138,4 +138,4 @@ For details: `apps/slipgate-app/DEPLOYMENT.md`
 | Discord bot token | `/mnt/user/appdata/quad/.env` (DISCORD_TOKEN) |
 | Discord OAuth | `apps/matchscheduler/functions/.env` |
 | PostgreSQL password (phoenix-analytics) | `/mnt/user/appdata/phoenix-analytics/.env` (POSTGRES_PASSWORD) |
-| Telia router admin (Hyllie home) | local Claude memory: `reference_unraid_telia_router_access.md` (NEVER commit to repo) |
+| Telia router admin (Hyllie home) | ops-plane, not dev's: ask ops via the letterbox (letter 2026-09-29) |
