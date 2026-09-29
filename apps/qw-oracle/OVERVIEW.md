@@ -85,6 +85,7 @@ Layer 2 enrichment — segment / classify / summarise / session-summary embeddin
 | Verify a load ran correctly | F1 quality-grid -- `load-knowledge -- quality-grid --project <p>` (`scripts/load-knowledge/quality-grid.ts`) |
 | Add a new extractor codebase | `scripts/extractors/<project>/extract.py` (Python + libclang 18; canonical KTX uses libclang too -- only dusty-ktx fork's `qcsrc/` would need tree-sitter when that arc lands). Cross-engine pattern in `scripts/extractors/EXTRACTOR-PLAYBOOK.md`. Use the `onboard-extractor` user-global skill. |
 | Author or update a Layer 3 concept note | `curated/concept-notes/`. Template at `curated/concept-notes/README.md`; stewardship at `curated/concept-notes/OPERATIONS.md`; gap-report seeds the upstream contributor kit. Use the `guide-rewrite` user-global skill. |
+| Rebuild the gfx asset-corpus manifest (asset-type curation input) | `scripts/gfx-corpus/` -- run `parse-gfx-sql`, `hash-corpus`, `classify-pass1`, `classify-pass2` in order over the sandbox `~/projects/sandboxes/qw3-abab-gfx/` (outside git; needs `xxhash`); outputs land in its `scripts/output/`, read by the `asset-type-curate` skill. |
 
 ---
 
