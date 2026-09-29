@@ -25,10 +25,7 @@
       "Bash(git reset --hard *)",
       "Bash(git clean -f *)"
     ],
-    "defaultMode": "bypassPermissions",
-    "additionalDirectories": [
-      "/home/paradoks/projects"
-    ]
+    "defaultMode": "bypassPermissions"
   },
   "hooks": {
     "SessionStart": [
