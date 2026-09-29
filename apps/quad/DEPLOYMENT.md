@@ -18,14 +18,14 @@
 **Before ANY deploy, check for active voice recordings:**
 
 ```bash
-ssh unraid 'curl -s http://localhost:3000/health'
+docker exec quad-quad-1 node -e 'fetch("http://localhost:3000/health").then(r=>r.text()).then(console.log)'
 ```
 
-If the response shows `"recording": { "active": true }` -- **STOP. Do not deploy.** A team is currently recording and deploying would interrupt their session. The health endpoint is bound to `127.0.0.1:3000` inside Unraid, so the SSH-then-curl path is the only way in.
+If the response shows `"recording": { "active": true }` -- **STOP. Do not deploy.** A team is currently recording and deploying would interrupt their session. Port 3000 is not published, so the check runs inside the container.
 
 Wait for the recording to finish, then re-check before proceeding.
 
-**Automated enforcement:** `scripts/check-quad-recording.sh` (Claude Code hook) checks the health endpoint before any Bash command that runs `docker compose` ops on `/mnt/user/appdata/quad`. Blocks the deploy if a recording is active.
+**Automated enforcement:** a global Claude Code `PreToolUse` hook on the dev plane (dotfiles `claude/hooks/quad-recording-guard.sh`) runs this check before any Bash command that would stop or recreate the quad container. It blocks when a recording is live, and also when the container is running but its status cannot be read.
 
 ### SSH Access
 

@@ -45,7 +45,7 @@ For details: `apps/matchscheduler/DEPLOYMENT.md`
 
 ## Quad (SSH + Docker, Unraid)
 
-**Check for an active recording first -- no hook enforces it.** Any `up`, `down`, `restart`, `stop`, `kill` or `rm` on the quad stack cuts a recording in progress. The bot's `/health` endpoint reports `"active":true` while one runs; its port 3000 is not published, so read it from inside the container (`docker exec quad-quad-1 ...`, not yet proven from the dev cockpit -- prove it once and pin the command here). If you cannot read it, ask the operator whether a recording is running before you touch the stack.
+**A hook guards live recordings.** Any `up`, `down`, `restart`, `stop`, `kill` or `rm` on the quad stack cuts a recording in progress. A global `PreToolUse` hook (dotfiles `claude/hooks/quad-recording-guard.sh`) checks first and blocks the command when a recording is live, or when the container is running but its status cannot be read. If it blocks, ask the operator; do not work around it. The same check by hand: `docker exec quad-quad-1 node -e 'fetch("http://localhost:3000/health").then(r=>r.text()).then(console.log)'` (look for `"recording":{"active":false}`).
 
 **Deploy steps:**
 1. Ensure code is committed and pushed to main (GitHub Actions builds the image automatically)
