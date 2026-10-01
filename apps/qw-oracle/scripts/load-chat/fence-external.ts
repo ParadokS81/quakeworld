@@ -161,7 +161,7 @@ const MAX_OUTPUT_TOKENS = 262144;          // Raised from 131072 when a #quakewo
                                            // raise: billing is on tokens actually generated, and
                                            // 262144 is accepted by both models. finish_reason
                                            // === 'length' still guards the truncation case.
-const BIG_CHUNK_MSGS = 500;                // >= this many messages routes to the stronger model
+export const BIG_CHUNK_MSGS = 500;         // >= this many messages routes to the stronger model
                                            // FIRST. Pro is ~2.4x more token-efficient than flash
                                            // on the same chunk (18,261 vs 44,954 on a 564-msg
                                            // chunk), which makes it both faster and far less
