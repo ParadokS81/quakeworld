@@ -6,6 +6,17 @@ Permission line, the example shape, and the See-also routing all differ.
 (Existing v1 descriptions carry a "Set by" line; v2 splits it into
 Permission + Match-state -- see `universal-shape-v2.md`.)
 
+## Contents
+
+- The three categories
+  - 1. `k_*` cvars -- KTX server-side state
+  - 2. Userinfo keys -- per-client settings via `setinfo`
+  - 3. Commands -- imperative actions
+- How this shapes L1 drafts
+- Why this convention matters
+- Naming nuances (false positives + false negatives)
+- Skill behavior
+
 ## The three categories
 
 ### 1. `k_*` cvars -- KTX server-side state

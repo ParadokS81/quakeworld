@@ -11,6 +11,16 @@ shipped overloaded with file:line refs + engine jargon); refined to v2 on
 permission + match-state, add explicit Effect / Prerequisites slots, and
 formalize action-level discipline.
 
+## Contents
+
+- The universal card shape
+- Section semantics
+- Why each section earns its place
+- The v1 template (superseded -- recognize it during recast)
+- Discipline rules (every recast must respect these)
+- Anti-patterns (never in L1 description)
+- How to apply v2 to a recast
+
 ## The universal card shape
 
 Use for every L1 card. Sections collapse when they don't apply.

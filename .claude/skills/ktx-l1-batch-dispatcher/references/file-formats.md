@@ -2,6 +2,16 @@
 
 What the dispatcher writes to disk + what it returns to MAIN.
 
+## Contents
+
+- Drafts file
+- Park file
+- HANDOVER entry (Small followups section)
+- Commit message format
+  - On halt: no commit
+  - Staging
+- Return shape (structured digest for MAIN)
+
 ## Drafts file
 
 Path: `apps/qw-oracle/docs/reviews/ktx-l1-rewrite-drafts-<batch_date>.md`

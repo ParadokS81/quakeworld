@@ -15,6 +15,15 @@ Locked 2026-05-23 during KTX L1 catalog visual review session 2. Replicable
 to MVDSV, QWFWD, QTV, and any future server-mod codebase loaded into the QW
 Oracle.
 
+## Contents
+
+- Workflow for drafting (or recasting) a card
+- L1 vs L3 division of labor
+- L1 is a graph node; edges encode the relationships
+- See-also discipline (cognitive-load management)
+- Forward-reference convention (concept notes that don't yet exist)
+- Why this architecture is replicable
+
 ## Workflow for drafting (or recasting) a card
 
 1. **Recognize the entity's relationship shape** (Shape 1c? Shape 4? New

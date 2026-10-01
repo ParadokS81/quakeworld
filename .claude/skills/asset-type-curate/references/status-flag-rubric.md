@@ -4,6 +4,42 @@ The skill's 6-step pipeline (pre-flight / source-verify / docs-cross-ref / corpu
 
 ---
 
+## Contents
+
+- CONFIDENT
+  - Trigger conditions
+  - Concrete example: `charset`
+  - What goes in investigation.md
+  - Draft produced
+- L1-GAP
+  - Threshold rule
+  - Trigger conditions
+  - Block-grade example (hypothetical -- L1-GAP, halt)
+  - Enrichment-grade example (NOT L1-GAP, do not halt)
+  - Named enrichment-grade pattern: L1-CAT-AMBIGUOUS
+  - Skybox case study (2026-05-13)
+  - What goes in investigation.md
+  - Draft produced
+- DOC-GAP
+  - Trigger conditions
+  - Concrete example: `locfile`
+  - What goes in investigation.md
+  - Draft produced
+- DIVERGENT
+  - Trigger conditions
+  - Concrete example: `skybox` loader paths (docs vs. source)
+  - What goes in investigation.md
+  - Draft produced
+  - Retired-feature edge case
+- SPARSE
+  - Trigger conditions
+  - Concrete example: `palette`
+  - What goes in investigation.md
+  - Draft produced
+- Triage heuristics for vocabulary-alignment audits
+  - Corpus-categories absence as a signal for "L1-only intentional"
+  - Layered vocabulary: entity-type vs asset_category
+
 ## CONFIDENT
 
 ### Trigger conditions

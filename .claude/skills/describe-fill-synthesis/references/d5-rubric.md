@@ -6,6 +6,18 @@ Step 3. It is the D5 quality bar AS AMENDED. Where this file and
 that and the spec differ, the spec governs. The dated D5 amendment GOVERNS
 the original D5 text -- never revert to the pre-amendment phrasing.
 
+## Contents
+
+- The five rubric clauses
+- The amendment -- evaluate EVERY entity (LOCKED, supersedes original D5)
+- Worked examples
+  - Affirm (comment clears the rubric -- adopt verbatim, `source_inline`)
+  - Synthesize (comment is dev-WHY -- write ours from read use-sites)
+  - Synthesize (tautological comment -- a name restatement fails clause 2)
+  - Synthesize / mechanism-only (D8 bot-tier -- COMPLETE, not degraded)
+  - Hedge (only partially source-legible -- never guess the rest)
+  - Residue (not source-legible at all -- C1 track, never dropped)
+
 ## The five rubric clauses
 
 A description is good enough to serve a user (an admin / server operator)

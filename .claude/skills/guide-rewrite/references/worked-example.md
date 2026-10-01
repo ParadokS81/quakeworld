@@ -6,6 +6,19 @@ Source guide: `research/repos/ezquake-docs/docs/docs/weapon-scripts.md` (55 line
 
 ---
 
+## Contents
+
+- Phase 1 — Intake
+- Phase 2 — Entity extraction
+- Phase 3 — Layer 1 verification
+- Phase 4 — Source corroboration (not invoked for weapon-scripts phase 3 results)
+- Phase 5 — Coverage gap detection
+- Phase 6 — Cross-engine check
+- Phase 7 — Classification and path decision
+- Phase 8 — Authoring
+- Phase 9 — Breadcrumb capture
+- Phase 10 — Review and commit
+
 ## Phase 1 — Intake
 
 - User names `weapon-scripts`. File confirmed at `research/repos/ezquake-docs/docs/docs/weapon-scripts.md`.

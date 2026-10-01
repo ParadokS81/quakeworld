@@ -6,6 +6,19 @@ how to shape the draft body, and which flag fires. Companion to `status-flag-rub
 
 ---
 
+## Contents
+
+- 1. The architectural rule (D4)
+- 2. Divergence kinds
+  - 2.1 Source vs docs divergence
+  - 2.2 Source vs corpus divergence
+  - 2.3 Engine-A vs engine-B divergence
+- 3. Retired-feature shape
+  - 3.1 Hard retirement
+  - 3.2 Soft retirement / deprecated
+- 4. Worked example -- skybox legacy 6-face shader path
+- Cross-references
+
 ## 1. The architectural rule (D4)
 
 **Source wins. Always.**

@@ -14,6 +14,26 @@ An entity whose relationships fit none of these patterns parks (trigger 1
 
 ---
 
+## Contents
+
+- Shape 1: Cvar + paired toggle (binary flip)
+- Shape 1c: Shape 1 + mode-precondition
+- Shape 1d: Preset + cvar + toggle triad
+- Shape 2: Cvar + paired cycle command (multi-value cycle)
+- Shape 3: Cvar with no paired command (set-once in config)
+- Shape 4: Cvar that gates a command (without toggling it)
+- Shape 4b: Serverinfo-key-gated command
+- Shape 5: Cycle-command escape via direct cvar set
+- Shape 6: Stateful command + one-shot command pair (command-to-command)
+- Shape 7a: Election (time-boxed, with yes/no approval)
+- Shape 7b: Continuous toggle vote (no time-box, no yes/no)
+- Shape 8: Subcommand of a parent-dispatcher command
+- Shape 9a: Side-channel cvar (user-influenced via another command's arg syntax)
+- Shape 9b: Engine-only state-mirror cvar (no user-actionable path)
+- Shape 10: Curated-family help-printer command
+- Sui generis (no Layer B shape -- park trigger 4)
+- Mixed-shape feature-family (NOT a shape; cross-link discipline)
+
 ## Shape 1: Cvar + paired toggle (binary flip)
 
 **Canonical example:** `k_fallbunny` + `fallbunny` (findings lines

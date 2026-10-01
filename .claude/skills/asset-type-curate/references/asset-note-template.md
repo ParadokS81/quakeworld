@@ -5,6 +5,24 @@ Load this file when authoring or reviewing any slug output.
 
 ---
 
+## Contents
+
+- Scope discipline
+  - What stays in the asset-note
+  - Compressed in the asset-note (one-sentence headlines)
+  - Moves out of the asset-note
+  - Test for inclusion
+  - Length
+- Frontmatter schema
+  - Field notes
+- Body section skeleton
+  - Required sections (every note)
+  - Optional sections -- multi-file asset types
+  - Optional sections -- rich evidence
+- Length and voice cues
+- Representative voice excerpts
+- Pre-submit checklist
+
 ## Scope discipline
 
 An asset-note is **substrate for downstream LLM-composed wiki pages**, not a

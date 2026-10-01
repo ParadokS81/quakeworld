@@ -10,6 +10,18 @@ The cost of parking is one entry in the per-batch park file. The cost of a
 force-fitted L1 description is a shipped lie. The skill's job includes
 refusing to guess.
 
+## Contents
+
+- The 4 park triggers
+  - Trigger 1: no-shape-match
+  - Trigger 2: conflicting-shape-match
+  - Trigger 3: source-vs-description-contradiction (foundational)
+  - Trigger 4: sui-generis-mechanism
+- Park vs flag (different review queues)
+- Park file entry format
+- Drafts file entry format
+- Why park-when-ambiguous matters (the operator-side payoff)
+
 ## The 4 park triggers
 
 ### Trigger 1: no-shape-match

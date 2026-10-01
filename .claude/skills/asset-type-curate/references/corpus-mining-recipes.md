@@ -1,5 +1,20 @@
 # Corpus mining recipes
 
+## Contents
+
+- Orientation
+- Section 1 -- NDJSON manifest recipes (bash + jq)
+  - Manifest location and shape
+  - Recipe 1 -- filter by corpus_categories to find bundles for an asset_type
+  - Recipe 2 -- surface install_path_template per role
+  - Recipe 3 -- list representative bundles for spot-checking (5-10, diverse paths)
+- Section 2 -- SQL recipes for gfx.sql / gfx_comment
+  - gfx.sql location and size
+  - gfx_comment table schema (from CREATE TABLE at line 107):
+  - Recipe 4 -- grep c_txt for install-path patterns
+  - Recipe 5 -- filter comments by bundle_id for a given category
+  - Scope note
+
 ## Orientation
 
 Step 4 of the asset-type-curate pipeline mines the qw.nu/gfx corpus sandbox at

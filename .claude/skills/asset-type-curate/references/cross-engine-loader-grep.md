@@ -5,6 +5,19 @@ grep + jq recipes, and the candidate-detection heuristic.
 
 ---
 
+## Contents
+
+- Section 1 -- The multi-use loader pattern
+- Section 2 -- Signature grep patterns per engine
+  - ezQuake
+  - FTE
+  - QWCL
+  - MVDSV
+- Section 3 -- Verification heuristic: multi-use loader candidate detection
+- Section 4 -- Adjacent gotchas
+  - Screenshot regex read/write conflation
+  - ENCLOSING_FN_CATEGORY_OVERRIDES tier
+
 ## Section 1 -- The multi-use loader pattern
 
 One generic image-load function is dispatched to 8+ distinct asset categories.

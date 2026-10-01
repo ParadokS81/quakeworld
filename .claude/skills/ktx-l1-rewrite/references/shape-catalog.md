@@ -15,6 +15,29 @@ catalog. An entity whose relationships fit no shape parks (trigger 1); an
 entity with no inter-entity relationship is `shape-less` and drafts. The
 operator extends the catalog when sibling patterns surface.
 
+## Contents
+
+- Earn-their-keep discipline (why this skill parks 1-of-1s)
+- Shapes are facets, not exclusive buckets
+- The shape catalog
+  - Shape 1: Cvar + paired toggle command (binary flip)
+  - Shape 1c: Shape 1 + mode-precondition
+  - Shape 1d: Preset + cvar + toggle triad
+  - Shape 2: Cvar + paired cycle command (multi-value cycle)
+  - Shape 3: Cvar with no paired command (set-once in config)
+  - Shape 4: Cvar that gates a command (without toggling it)
+  - Shape 4b: Serverinfo-key-gated command
+  - Shape 5: Cycle-command escape via direct cvar set
+  - Shape 6: Stateful command + one-shot command pair (command-to-command)
+  - Shape 7: Vote-threshold cvar + vote-casting command (with two sub-variants)
+  - Shape 8: Subcommand of a parent-dispatcher command
+  - Shape 9: Engine-written state-mirror cvar (no command pair, no safe user-`set`)
+  - Shape 10: Curated-family help-printer command
+  - Shape 11: Per-bit XOR toggle on shared bitmask state container
+- Tooling-mode prerequisite (category-of-prerequisite)
+- How to identify the shape
+- Why each shape matters for L1 drafting
+
 ## Earn-their-keep discipline (why this skill parks 1-of-1s)
 
 Open-ended doesn't mean permissive. A new shape gets added to this catalog

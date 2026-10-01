@@ -5,6 +5,14 @@ against drifted state or without the per-card discipline is corrupted L1
 output. Abort returns a structured report; operator decides advance vs wait
 vs investigate.
 
+## Contents
+
+- Check 1: Anchor verified
+- Check 2: Per-card skill loaded
+- Check 3: Cross-batch precedent loaded
+- Check 4: Mechanism maps loaded
+- Pre-flight report (returned on abort)
+
 ## Check 1: Anchor verified
 
 Run:
