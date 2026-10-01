@@ -1,6 +1,6 @@
 ---
 name: extraction-review
-description: Use this skill when the user wants to review a QW knowledge-service tag-pair (Phase 2f or any ad-hoc pair). Triggers on "extraction review", "phase 2f review", "review tag pair", "/extraction-review", or any request to walk findings between two QW-engine tags. Orchestrates CLI pre-flight (extract-tag / diff / release-notes / enrich), invokes the review CLI to produce findings + mechanically-detected clusters, renders a preamble (with cross-walk and scope-tracking prompts) for operator confirmation, then walks clusters as units (Model B: Claude proposes, operator approves / overrides / skips).
+description: Reviews a QW knowledge-service tag-pair (Phase 2f or any ad-hoc pair). Triggers on "extraction review", "phase 2f review", "review tag pair", "/extraction-review", or any request to walk findings between two QW-engine tags. Orchestrates CLI pre-flight (extract-tag / diff / release-notes / enrich), invokes the review CLI to produce findings + mechanically-detected clusters, renders a preamble (with cross-walk and scope-tracking prompts) for operator confirmation, then walks clusters as units (Model B: Claude proposes, operator approves / overrides / skips).
 ---
 
 # extraction-review

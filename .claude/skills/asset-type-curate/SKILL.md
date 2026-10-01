@@ -1,8 +1,8 @@
 ---
 name: asset-type-curate
 description: |
-  Use this skill to investigate one QuakeWorld asset_type from
-  qw-asset-types.yaml and produce a Layer 3 concept note in
+  Investigates one QuakeWorld asset_type from
+  qw-asset-types.yaml and produces a Layer 3 concept note in
   apps/qw-oracle/curated/asset-notes/. Triggers on
   "/asset-type-curate <slug>", "curate asset type <name>",
   "next asset-type slice", or "run asset-type-curate on <slug>".

@@ -1,9 +1,9 @@
 ---
 name: describe-fill-synthesis
 description: |
-  Use this skill to evaluate one KTX / MVDSV / QTV / QWFWD configurable knob (cvar /
-  command / cmdline param / info_key) and either affirm its existing
-  comment as an owned user-doc description or synthesize a new one from
+  Evaluates one KTX / MVDSV / QTV / QWFWD configurable knob (cvar /
+  command / cmdline param / info_key) and either affirms its existing
+  comment as an owned user-doc description or synthesizes a new one from
   code use-sites. Triggers on "/describe-fill-synthesis <project> <knob>",
   "describe-fill <knob>", "synthesize the description for <knob>", "run
   the D6 synthesis skill on <knob>", "keep-vs-synthesize <knob>", or any

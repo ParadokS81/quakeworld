@@ -1,8 +1,8 @@
 ---
 name: ktx-l1-rewrite
 description: |
-  Use this skill to recast one KTX L1 entity's existing description under the v2
-  universal shape (Layer A) and classify it under the Layer B KTX shape catalog
+  Recasts one KTX L1 entity's existing description under the v2
+  universal shape (Layer A) and classifies it under the Layer B KTX shape catalog
   (14+ shapes). Triggers on "/ktx-l1-rewrite <entity>", "rewrite the L1
   description for <entity>", "recast <entity> under v2 shape", "ktx l1 rewrite",
   "apply the v2 template to <entity>", or any per-card sub-agent dispatch from
