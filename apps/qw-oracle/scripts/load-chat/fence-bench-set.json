@@ -1,0 +1,276 @@
+{
+  "createdAt": "2026-10-01T21:32:26.380Z",
+  "note": "Frozen fence bake-off set. Chunk content lives in gitignored scratch (calibration/scratch/fence-bench); fingerprints = md5 of the message-id list.",
+  "chunks": [
+    {
+      "chunkId": "helpdesk-2026-097",
+      "channel": "#helpdesk",
+      "year": 2026,
+      "band": "small",
+      "msgs": 23,
+      "fingerprint": "b340d03d2fa9cd4dd22cbccad4fac359",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "helpdesk-2026-039",
+      "channel": "#helpdesk",
+      "year": 2026,
+      "band": "small",
+      "msgs": 25,
+      "fingerprint": "291485a84f7116949870b027905381d4",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "helpdesk-2026-046",
+      "channel": "#helpdesk",
+      "year": 2026,
+      "band": "medium",
+      "msgs": 169,
+      "fingerprint": "7e0ff5c8fc9cf715bf8848af982ad8f2",
+      "noiseFloor": true
+    },
+    {
+      "chunkId": "helpdesk-2026-012",
+      "channel": "#helpdesk",
+      "year": 2026,
+      "band": "medium",
+      "msgs": 166,
+      "fingerprint": "1f8b1801e16604ae6373f657c3d7e5b0",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "helpdesk-2026-009",
+      "channel": "#helpdesk",
+      "year": 2026,
+      "band": "medium",
+      "msgs": 86,
+      "fingerprint": "a8af8a636fb7aaca07e40582b1c6e9cf",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "helpdesk-2026-041",
+      "channel": "#helpdesk",
+      "year": 2026,
+      "band": "large",
+      "msgs": 315,
+      "fingerprint": "7c2ddade1ddd9ef4842f4ce53816b9f6",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "helpdesk-2026-101",
+      "channel": "#helpdesk",
+      "year": 2026,
+      "band": "large",
+      "msgs": 313,
+      "fingerprint": "804c842ad9582ec34bce0d90bb223edc",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "helpdesk-2026-064",
+      "channel": "#helpdesk",
+      "year": 2026,
+      "band": "large",
+      "msgs": 450,
+      "fingerprint": "25164c11b6c7854582616222978e9c30",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "helpdesk-2026-019",
+      "channel": "#helpdesk",
+      "year": 2026,
+      "band": "xl",
+      "msgs": 1500,
+      "fingerprint": "17049988a7a7b7a1da7d854c51c95271",
+      "noiseFloor": true
+    },
+    {
+      "chunkId": "helpdesk-2026-021",
+      "channel": "#helpdesk",
+      "year": 2026,
+      "band": "xl",
+      "msgs": 518,
+      "fingerprint": "433da7ae1cafdeeb584b42ca5df405b8",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "quakeworld-2025-044",
+      "channel": "#quakeworld",
+      "year": 2025,
+      "band": "small",
+      "msgs": 29,
+      "fingerprint": "2319487a42f092ea3755ef34be744d78",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "quakeworld-2025-036",
+      "channel": "#quakeworld",
+      "year": 2025,
+      "band": "small",
+      "msgs": 35,
+      "fingerprint": "caf7ba6ca639126244e6e77db3d4a719",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "quakeworld-2025-024",
+      "channel": "#quakeworld",
+      "year": 2025,
+      "band": "medium",
+      "msgs": 113,
+      "fingerprint": "c6838f2fba4fb68ccc9c8ba5d30120c7",
+      "noiseFloor": true
+    },
+    {
+      "chunkId": "quakeworld-2025-046",
+      "channel": "#quakeworld",
+      "year": 2025,
+      "band": "medium",
+      "msgs": 106,
+      "fingerprint": "ec24ce018c78ddfffa586a6f920f3cf4",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "quakeworld-2025-056",
+      "channel": "#quakeworld",
+      "year": 2025,
+      "band": "medium",
+      "msgs": 57,
+      "fingerprint": "22fe343d7ac7b79afc9c0d2a6970c8ef",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "quakeworld-2026-015",
+      "channel": "#quakeworld",
+      "year": 2026,
+      "band": "large",
+      "msgs": 349,
+      "fingerprint": "3dd5d610b2d3d257b6fe5321a79bb727",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "quakeworld-2026-032",
+      "channel": "#quakeworld",
+      "year": 2026,
+      "band": "large",
+      "msgs": 472,
+      "fingerprint": "fbed49d86a91b921dce6a4793058672d",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "quakeworld-2025-049",
+      "channel": "#quakeworld",
+      "year": 2025,
+      "band": "large",
+      "msgs": 216,
+      "fingerprint": "a7a012160d785f1cbfa8bc173a1da789",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "quakeworld-2025-048",
+      "channel": "#quakeworld",
+      "year": 2025,
+      "band": "xl",
+      "msgs": 1156,
+      "fingerprint": "0177640a2284f37636990e2442a1cd9a",
+      "noiseFloor": true
+    },
+    {
+      "chunkId": "quakeworld-2026-034",
+      "channel": "#quakeworld",
+      "year": 2026,
+      "band": "xl",
+      "msgs": 503,
+      "fingerprint": "c865be7fb42cdc2b468b9117331828c9",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "dev-corner-2025-060",
+      "channel": "#dev-corner",
+      "year": 2025,
+      "band": "small",
+      "msgs": 49,
+      "fingerprint": "276bcb48082375577c4ad3bca2d4ef1b",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "dev-corner-2025-056",
+      "channel": "#dev-corner",
+      "year": 2025,
+      "band": "small",
+      "msgs": 28,
+      "fingerprint": "a6bb30c812dc6d5e33a0f72cf8b0f31b",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "dev-corner-2025-016",
+      "channel": "#dev-corner",
+      "year": 2025,
+      "band": "medium",
+      "msgs": 129,
+      "fingerprint": "de1745fdaca80311c0060e9ddeb4f985",
+      "noiseFloor": true
+    },
+    {
+      "chunkId": "dev-corner-2025-005",
+      "channel": "#dev-corner",
+      "year": 2025,
+      "band": "medium",
+      "msgs": 164,
+      "fingerprint": "817e802d5a22c6937e94e5267e4f5101",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "dev-corner-2025-106",
+      "channel": "#dev-corner",
+      "year": 2025,
+      "band": "medium",
+      "msgs": 195,
+      "fingerprint": "dff2969e31480cac131c7558e55725fb",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "dev-corner-2025-065",
+      "channel": "#dev-corner",
+      "year": 2025,
+      "band": "large",
+      "msgs": 292,
+      "fingerprint": "617e19b43f8f6a166a29f5577825e107",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "dev-corner-2026-026",
+      "channel": "#dev-corner",
+      "year": 2026,
+      "band": "large",
+      "msgs": 202,
+      "fingerprint": "1fd95e6164926f7e8144c782642c63b0",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "dev-corner-2026-019",
+      "channel": "#dev-corner",
+      "year": 2026,
+      "band": "large",
+      "msgs": 218,
+      "fingerprint": "b166eb19aac47efe28e6f5b315d96ef7",
+      "noiseFloor": false
+    },
+    {
+      "chunkId": "dev-corner-2025-012",
+      "channel": "#dev-corner",
+      "year": 2025,
+      "band": "xl",
+      "msgs": 804,
+      "fingerprint": "b9a2d3af825747215a736fe896a4bf14",
+      "noiseFloor": true
+    },
+    {
+      "chunkId": "dev-corner-2025-104",
+      "channel": "#dev-corner",
+      "year": 2025,
+      "band": "xl",
+      "msgs": 1428,
+      "fingerprint": "65d5ff0e3d0799d96f419706d302d8af",
+      "noiseFloor": false
+    }
+  ]
+}

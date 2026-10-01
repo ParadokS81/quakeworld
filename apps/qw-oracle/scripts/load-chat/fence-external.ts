@@ -33,9 +33,14 @@
 // success/fail counts (a failed/invalid response is a counted null, never a
 // silent swallow). Schema-invalid responses count as retryable failures.
 //
-// KEY HANDLING: reads DEEPSEEK_API_KEY from the environment, falling back to
-// ~/.secrets/llm-contract-worker.env (KEY=VALUE lines, chmod 600). The key is
-// never printed.
+// PROVIDERS: `--provider deepseek` (default -- production) or `--provider
+// openrouter` (any hosted model, added 2026-10-01 for the fence-bench.ts model
+// bake-off). Omitting --provider is exactly the pre-2026-10-01 behaviour.
+//
+// KEY HANDLING: each provider reads its key from the environment, falling back
+// to a KEY=VALUE secrets file (chmod 600) -- DEEPSEEK_API_KEY in
+// ~/.secrets/llm-contract-worker.env, OPENROUTER_API_KEY in
+// ~/projects/.secrets/openrouter.env. The key is never printed.
 
 import { existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -163,17 +168,69 @@ const BIG_CHUNK_MSGS = 500;                // >= this many messages routes to th
                                            // likely to hit a ceiling -- for only ~26% more cost
                                            // per chunk. Small chunks stay on cheap flash.
 
-function loadApiKey(): string {
-  if (process.env.DEEPSEEK_API_KEY) return process.env.DEEPSEEK_API_KEY;
-  const secretsPath = join(homedir(), '.secrets', 'llm-contract-worker.env');
-  if (existsSync(secretsPath)) {
-    for (const line of readFileSync(secretsPath, 'utf8').split('\n')) {
-      const m = line.match(/^\s*DEEPSEEK_API_KEY\s*=\s*(\S+)\s*$/);
+export interface Provider {
+  name: string;
+  baseUrl: string;
+  keyVar: string;
+  keyFile: string;
+  defaultModel: string;   // '' = --model is required
+  fallbackModel: string;  // '' = no big-chunk routing and no escalation pass
+  extraBody: Record<string, unknown>;
+}
+
+const PROVIDERS: Record<string, Provider> = {
+  deepseek: {
+    name: 'deepseek',
+    baseUrl: process.env.FENCE_EXTERNAL_BASE_URL ?? DEFAULT_BASE_URL,
+    keyVar: 'DEEPSEEK_API_KEY',
+    keyFile: join(homedir(), '.secrets', 'llm-contract-worker.env'),
+    defaultModel: process.env.FENCE_EXTERNAL_MODEL ?? DEFAULT_MODEL,
+    fallbackModel: FALLBACK_MODEL,
+    extraBody: {},
+  },
+  // No default model and no fallback: the BIG_CHUNK_MSGS routing above is
+  // DeepSeek-specific tuning, and a bake-off wants each model measured alone.
+  // require_parameters keeps OpenRouter from routing to a host that silently
+  // ignores response_format, which would turn a JSON-mode test into a prose one.
+  openrouter: {
+    name: 'openrouter',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    keyVar: 'OPENROUTER_API_KEY',
+    keyFile: join(homedir(), 'projects', '.secrets', 'openrouter.env'),
+    defaultModel: '',
+    fallbackModel: '',
+    extraBody: { provider: { require_parameters: true } },
+  },
+};
+
+export function resolveProvider(opts: Map<string, string>): Provider {
+  const name = opts.get('provider') ?? 'deepseek';
+  const p = PROVIDERS[name];
+  if (!p) throw new Error(`unknown --provider ${name} (known: ${Object.keys(PROVIDERS).join(', ')})`);
+  return p;
+}
+
+export function resolveModel(p: Provider, opts: Map<string, string>): string {
+  const model = opts.get('model') ?? p.defaultModel;
+  if (!model) throw new Error(`--model is required for --provider ${p.name}`);
+  return model;
+}
+
+function resolveFallback(p: Provider, opts: Map<string, string>): string {
+  return opts.has('no-fallback') ? '' : (opts.get('fallback-model') ?? p.fallbackModel);
+}
+
+export function loadApiKey(p: Provider): string {
+  if (process.env[p.keyVar]) return process.env[p.keyVar]!;
+  if (existsSync(p.keyFile)) {
+    const re = new RegExp(`^\\s*${p.keyVar}\\s*=\\s*(\\S+)\\s*$`);
+    for (const line of readFileSync(p.keyFile, 'utf8').split('\n')) {
+      const m = line.match(re);
       if (m?.[1]) return m[1];
     }
   }
   throw new Error(
-    `DEEPSEEK_API_KEY not set and not found in ${secretsPath} -- create the file (chmod 600) with DEEPSEEK_API_KEY=...`,
+    `${p.keyVar} not set and not found in ${p.keyFile} -- create the file (chmod 600) with ${p.keyVar}=...`,
   );
 }
 
@@ -181,16 +238,23 @@ function loadApiKey(): string {
 // Prompt -- base string + passenger BYTE-IDENTICAL to wf-backfill-fence.js
 // ---------------------------------------------------------------------------
 
-function buildPrompt(chunkDir: string, cid: string, chunkJson: string, withResolution: boolean): string {
+// Exported so fence-bench.ts can brief its Claude reference agents with the
+// same instruction text the API models get.
+export function fencePromptBase(chunkDir: string, cid: string, withResolution: boolean): string {
   const resAsk = withResolution
     ? ' Additionally, classify each thread resolution_status as one of "solved" (a question in THIS thread got a working answer here), "unresolved" (a question was asked but no working answer appears here), or "informational" (no question -- discussion, banter, or announcement). Judge ONLY from the messages in this thread; never infer from outside knowledge. resolution_status is optional -- omit it when genuinely unclear.'
     : '';
-  const base =
+  return (
     `Read the JSON file ${chunkDir}/${cid}.json -- an object {id, channel, messages:[{idx,author,content}]} whose messages interleave several simultaneous conversations. ` +
     `Group them into topic-coherent threads: a question plus the answers and follow-ups it triggers, and co-referent banter, belong together. ` +
     `Return for each thread a one-line topic_label and member_indices (the idx values). Every idx should appear in exactly one thread; pure noise may be its own throwaway thread. ` +
     `Do NOT output any idx not present in the file. If the window is incomprehensible, set abstained=true with threads=[]. Do not assume QuakeWorld domain knowledge -- only group what co-refers in the text.` +
-    resAsk;
+    resAsk
+  );
+}
+
+function buildPrompt(chunkDir: string, cid: string, chunkJson: string, withResolution: boolean): string {
+  const base = fencePromptBase(chunkDir, cid, withResolution);
   // Transport adapter: no Read tool here, so the file content rides inline.
   return (
     base +
@@ -244,48 +308,73 @@ interface UsageTotals {
   cacheMissTokens: number;
 }
 
-interface CallResult {
+export interface CallResult {
   fenced: FencedChunk;
   usage: { prompt: number; completion: number; reasoning: number; cacheHit: number; cacheMiss: number };
+  costUsd: number | null;   // provider-reported charge (OpenRouter); null when the provider reports none
+  servedBy: string | null;  // upstream host OpenRouter routed to; null for direct providers
 }
 
-async function fenceOneChunk(
+export interface CallOptions {
+  maxTokens?: number;
+  timeoutMs?: number;
+  extraBody?: Record<string, unknown>;
+}
+
+export async function fenceOneChunk(
+  provider: Provider,
   apiKey: string,
-  baseUrl: string,
   model: string,
-  manifest: ManifestFile,
+  chunkDir: string,
   cid: string,
   withResolution: boolean,
+  callOpts: CallOptions = {},
 ): Promise<CallResult> {
-  const chunkJson = await Bun.file(join(manifest.chunkDir, `${cid}.json`)).text();
-  const prompt = buildPrompt(manifest.chunkDir, cid, chunkJson, withResolution);
+  const chunkJson = await Bun.file(join(chunkDir, `${cid}.json`)).text();
+  const prompt = buildPrompt(chunkDir, cid, chunkJson, withResolution);
 
-  const resp = await fetch(`${baseUrl}/chat/completions`, {
+  const resp = await fetch(`${provider.baseUrl}/chat/completions`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
       model,
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
-      max_tokens: MAX_OUTPUT_TOKENS,
+      max_tokens: callOpts.maxTokens ?? MAX_OUTPUT_TOKENS,
       stream: false,
+      ...provider.extraBody,
+      ...callOpts.extraBody,
     }),
-    signal: AbortSignal.timeout(CALL_TIMEOUT_MS),
+    signal: AbortSignal.timeout(callOpts.timeoutMs ?? CALL_TIMEOUT_MS),
   });
   if (!resp.ok) {
     const body = (await resp.text()).slice(0, 300);
     throw new Error(`HTTP ${resp.status}: ${body}`);
   }
-  const data = (await resp.json()) as {
-    choices: { message: { content: string }; finish_reason: string }[];
+  // DeepSeek keeps a slow non-streaming request alive by sending blank lines,
+  // and during its 2026-10-01 outage answered HTTP 200 with no completion at
+  // all -- so parse defensively and say what actually came back.
+  const raw = await resp.text();
+  let data: {
+    choices?: { message: { content: string }; finish_reason: string }[];
+    error?: { message?: string };
+    provider?: string;
     usage?: {
       prompt_tokens?: number;
       completion_tokens?: number;
       prompt_cache_hit_tokens?: number;
       prompt_cache_miss_tokens?: number;
+      prompt_tokens_details?: { cached_tokens?: number };
       completion_tokens_details?: { reasoning_tokens?: number };
+      cost?: number;
     };
   };
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    throw new Error(`HTTP 200 but body is not JSON (${raw.length} bytes: ${JSON.stringify(raw.slice(0, 80))})`);
+  }
+  if (data.error) throw new Error(`provider error: ${(data.error.message ?? JSON.stringify(data.error)).slice(0, 200)}`);
   const choice = data.choices?.[0];
   if (!choice) throw new Error('no choices in response');
   if (choice.finish_reason === 'length') throw new Error('truncated at max_tokens');
@@ -304,15 +393,18 @@ async function fenceOneChunk(
   if (err) throw new Error(`schema violation: ${err}`);
 
   const u = data.usage ?? {};
+  const cacheHit = u.prompt_cache_hit_tokens ?? u.prompt_tokens_details?.cached_tokens ?? 0;
   return {
     fenced: { chunkId: cid, ...(parsed as { abstained: boolean; threads: FencedThread[] }) },
     usage: {
       prompt: u.prompt_tokens ?? 0,
       completion: u.completion_tokens ?? 0,
       reasoning: u.completion_tokens_details?.reasoning_tokens ?? 0,
-      cacheHit: u.prompt_cache_hit_tokens ?? 0,
-      cacheMiss: u.prompt_cache_miss_tokens ?? 0,
+      cacheHit,
+      cacheMiss: u.prompt_cache_miss_tokens ?? Math.max(0, (u.prompt_tokens ?? 0) - cacheHit),
     },
+    costUsd: typeof u.cost === 'number' ? u.cost : null,
+    servedBy: data.provider ?? null,
   };
 }
 
@@ -361,13 +453,13 @@ async function runGently<T, R>(
 async function cmdFence(channel: string, year: number, opts: Map<string, string>): Promise<void> {
   const withResolution = !opts.has('no-resolution'); // production default: passenger rides
   const conc = opts.has('conc') ? parseInt(opts.get('conc')!, 10) : CONC_DEFAULT;
-  const model = opts.get('model') ?? process.env.FENCE_EXTERNAL_MODEL ?? DEFAULT_MODEL;
-  const baseUrl = process.env.FENCE_EXTERNAL_BASE_URL ?? DEFAULT_BASE_URL;
-  const apiKey = loadApiKey();
+  const provider = resolveProvider(opts);
+  const model = resolveModel(provider, opts);
+  const apiKey = loadApiKey(provider);
   const manifest = await readManifest(channel, year);
   const outPath = opts.get('out') ?? join(batchDir(channel, year), `fence-external-${model.replace(/[^a-z0-9-]/gi, '_')}.json`);
 
-  const fallbackModel = opts.has('no-fallback') ? '' : (opts.get('fallback-model') ?? FALLBACK_MODEL);
+  const fallbackModel = resolveFallback(provider, opts);
 
   // BIG chunks route to the stronger model FIRST. Keyed on message count, not
   // on the `forced` flag: the 2017 post-mortem showed large NATURAL chunks fail
@@ -413,7 +505,7 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
   const results = await runGently(
     todo,
     conc,
-    (cid) => fenceOneChunk(apiKey, baseUrl, bigRouted.includes(cid) ? fallbackModel : model, manifest, cid, withResolution),
+    (cid) => fenceOneChunk(provider, apiKey, bigRouted.includes(cid) ? fallbackModel : model, manifest.chunkDir, cid, withResolution),
     'fence',
   );
 
@@ -428,7 +520,7 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
     if (stragglers.length) {
       console.error(`fence: escalating ${stragglers.length} chunk(s) to ${fallbackModel} at conc=${conc}`);
       const retried = await waves(stragglers, conc, (cid) =>
-        fenceOneChunk(apiKey, baseUrl, fallbackModel, manifest, cid, withResolution),
+        fenceOneChunk(provider, apiKey, fallbackModel, manifest.chunkDir, cid, withResolution),
       );
       stragglers.forEach((cid, k) => {
         if (retried[k] == null) return;
@@ -464,7 +556,8 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
     failures,
     missing,
     meta: {
-      provider: baseUrl,
+      provider: provider.baseUrl,
+      providerName: provider.name,
       model,
       fallbackModel: fallbackModel || null,
       chunkFingerprints: fingerprints,
@@ -553,10 +646,10 @@ async function cmdRefence(channel: string, year: number, opts: Map<string, strin
   const withResolution = !opts.has('no-resolution');
   const below = opts.has('below') ? parseFloat(opts.get('below')!) : 97;
   const conc = opts.has('conc') ? parseInt(opts.get('conc')!, 10) : CONC_DEFAULT;
-  const model = opts.get('model') ?? process.env.FENCE_EXTERNAL_MODEL ?? DEFAULT_MODEL;
-  const baseUrl = process.env.FENCE_EXTERNAL_BASE_URL ?? DEFAULT_BASE_URL;
-  const fallbackModel = opts.has('no-fallback') ? '' : (opts.get('fallback-model') ?? FALLBACK_MODEL);
-  const apiKey = loadApiKey();
+  const provider = resolveProvider(opts);
+  const model = resolveModel(provider, opts);
+  const fallbackModel = resolveFallback(provider, opts);
+  const apiKey = loadApiKey(provider);
   const manifest = await readManifest(channel, year);
   const outPath = opts.get('out') ?? join(batchDir(channel, year), `fence-external-${model.replace(/[^a-z0-9-]/gi, '_')}.json`);
 
@@ -584,7 +677,7 @@ async function cmdRefence(channel: string, year: number, opts: Map<string, strin
     async (cid) => {
       const chunk: ChunkFile = JSON.parse(await Bun.file(join(manifest.chunkDir, `${cid}.json`)).text());
       const useModel = fallbackModel && (chunk.forced || chunk.messages.length >= BIG_CHUNK_MSGS) ? fallbackModel : model;
-      return fenceOneChunk(apiKey, baseUrl, useModel, manifest, cid, withResolution);
+      return fenceOneChunk(provider, apiKey, useModel, manifest.chunkDir, cid, withResolution);
     },
     'refence',
   );
@@ -634,10 +727,10 @@ async function cmdRefence(channel: string, year: number, opts: Map<string, strin
 async function cmdProbe(channel: string, year: number, opts: Map<string, string>): Promise<void> {
   const withResolution = !opts.has('no-resolution');
   const top = opts.has('top') ? parseInt(opts.get('top')!, 10) : 3;
-  const model = opts.get('model') ?? process.env.FENCE_EXTERNAL_MODEL ?? DEFAULT_MODEL;
-  const baseUrl = process.env.FENCE_EXTERNAL_BASE_URL ?? DEFAULT_BASE_URL;
-  const fallbackModel = opts.has('no-fallback') ? '' : (opts.get('fallback-model') ?? FALLBACK_MODEL);
-  const apiKey = loadApiKey();
+  const provider = resolveProvider(opts);
+  const model = resolveModel(provider, opts);
+  const fallbackModel = resolveFallback(provider, opts);
+  const apiKey = loadApiKey(provider);
   const manifest = await readManifest(channel, year);
 
   const sized: { cid: string; msgs: number; forced: boolean }[] = [];
@@ -661,7 +754,7 @@ async function cmdProbe(channel: string, year: number, opts: Map<string, string>
     let lastErr = '';
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
-        const r = await fenceOneChunk(apiKey, baseUrl, useModel, manifest, p.cid, withResolution);
+        const r = await fenceOneChunk(provider, apiKey, useModel, manifest.chunkDir, p.cid, withResolution);
         const secs = (Date.now() - t0) / 1000;
         const note = attempt > 1 ? ` (attempt ${attempt}, first: ${lastErr})` : '';
         console.log(`  PASS ${p.cid} n=${p.msgs}${p.forced ? ' forced' : ''} ${useModel}: ${secs.toFixed(0)}s completion=${r.usage.completion} reasoning=${r.usage.reasoning} threads=${r.fenced.threads.length}${note}`);
