@@ -17,8 +17,8 @@
 //   select [--force]        freeze the bench set (or restore its chunk copies)
 //   brief <label> <cid>     print the Claude reference agent's prompt for one chunk
 //   check <label> <cid>     validate one agent-written result
-//   run --provider P --model M [--big-model B] [--label L] [--conc N] [--timeout S]
-//       [--max-tokens N] [--extra JSON] [--max-cost USD]
+//   run --provider P --model M [--big-model B] [--bands b1,b2] [--label L] [--conc N]
+//       [--timeout S] [--max-tokens N] [--extra JSON] [--max-cost USD]
 //                           fence the whole set with one model; resumable.
 //                           --big-model sends chunks of BIG_CHUNK_MSGS+ to B, which
 //                           is how production DeepSeek runs (flash, pro for big ones)
@@ -323,6 +323,8 @@ async function cmdRun(opts: Map<string, string>): Promise<void> {
   const conc = opts.has('conc') ? parseInt(opts.get('conc')!, 10) : 5;
   const timeoutMs = (opts.has('timeout') ? parseInt(opts.get('timeout')!, 10) : 1800) * 1000;
   const bigModel = opts.get('big-model');
+  // --bands narrows a run to some size bands, e.g. re-testing only the big chunks.
+  const bands = opts.has('bands') ? new Set(opts.get('bands')!.split(',')) : null;
   const maxCost = opts.has('max-cost') ? parseFloat(opts.get('max-cost')!) : 1.5;
   const extraBody = opts.has('extra') ? JSON.parse(opts.get('extra')!) : undefined;
   let maxTokens = opts.has('max-tokens') ? parseInt(opts.get('max-tokens')!, 10) : undefined;
@@ -345,6 +347,7 @@ async function cmdRun(opts: Map<string, string>): Promise<void> {
   let halted: string | null = null;
   const t0 = Date.now();
   for (const band of BANDS) {
+    if (bands && !bands.has(band.name)) continue;
     const todo = set.chunks.filter((e) => e.band === band.name && !done(e.chunkId));
     let bandFails = 0;
     for (let i = 0; i < todo.length && !halted; i += conc) {
@@ -567,7 +570,7 @@ if (import.meta.main) {
     console.error('  select [--force]                     freeze the set (or restore its scratch copies)');
     console.error('  brief <label> <chunkId>              Claude reference agent prompt for one chunk');
     console.error('  check <label> <chunkId>              validate an agent-written result');
-    console.error('  run --provider P --model M [--big-model B] [--label L] [--conc N] [--timeout S] [--max-tokens N] [--extra JSON] [--max-cost USD]');
+    console.error('  run --provider P --model M [--big-model B] [--bands b1,b2] [--label L] [--conc N] [--timeout S] [--max-tokens N] [--extra JSON] [--max-cost USD]');
     console.error('  score [--ref L] [--baseline L]');
     process.exit(1);
   }

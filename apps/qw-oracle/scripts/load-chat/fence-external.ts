@@ -168,6 +168,15 @@ export const BIG_CHUNK_MSGS = 500;         // >= this many messages routes to th
                                            // likely to hit a ceiling -- for only ~26% more cost
                                            // per chunk. Small chunks stay on cheap flash.
 
+// Big-chunk routing is OFF since 2026-10-01. It was the August fix for V4 Flash, which
+// choked on huge chunks; V4.1 Flash does not. Measured on the fence-bench set's six
+// largest chunks (503-1500 msgs, incl. a cap-forced 1500): Flash direct scored 67.4
+// against Pro's 64.5 vs the Opus reference (+2.9 +/-3.7), at $0.19 vs $0.67, 144s vs
+// 241s per chunk (spike report section 8). Pro stays as the ESCALATION model: a chunk
+// Flash fails twice still goes to it once (cmdFence's escalation pass).
+const ROUTE_BIG_TO_FALLBACK = false;
+const routesBig = (forced: boolean, msgs: number) => ROUTE_BIG_TO_FALLBACK && (forced || msgs >= BIG_CHUNK_MSGS);
+
 export interface Provider {
   name: string;
   baseUrl: string;
@@ -469,7 +478,7 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
   if (fallbackModel && fallbackModel !== model) {
     for (const cid of manifest.chunkIds) {
       const chunk: ChunkFile = JSON.parse(await Bun.file(join(manifest.chunkDir, `${cid}.json`)).text());
-      if (chunk.forced || chunk.messages.length >= BIG_CHUNK_MSGS) bigRouted.push(cid);
+      if (routesBig(chunk.forced, chunk.messages.length)) bigRouted.push(cid);
     }
   }
 
@@ -562,7 +571,7 @@ async function cmdFence(channel: string, year: number, opts: Map<string, string>
       fallbackModel: fallbackModel || null,
       chunkFingerprints: fingerprints,
       bigRouted,
-      bigChunkThreshold: BIG_CHUNK_MSGS,
+      bigChunkThreshold: ROUTE_BIG_TO_FALLBACK ? BIG_CHUNK_MSGS : null,
       escalated,
       resumedFrom: prior.size,
       conc,
@@ -676,7 +685,7 @@ async function cmdRefence(channel: string, year: number, opts: Map<string, strin
     conc,
     async (cid) => {
       const chunk: ChunkFile = JSON.parse(await Bun.file(join(manifest.chunkDir, `${cid}.json`)).text());
-      const useModel = fallbackModel && (chunk.forced || chunk.messages.length >= BIG_CHUNK_MSGS) ? fallbackModel : model;
+      const useModel = fallbackModel && routesBig(chunk.forced, chunk.messages.length) ? fallbackModel : model;
       return fenceOneChunk(provider, apiKey, useModel, manifest.chunkDir, cid, withResolution);
     },
     'refence',
@@ -749,7 +758,7 @@ async function cmdProbe(channel: string, year: number, opts: Map<string, string>
   // pipeline it gates, and would spuriously halt roughly 1 batch in 10.
   // A chunk that fails TWICE is a real signal.
   const results = await Promise.all(picks.map(async (p) => {
-    const useModel = fallbackModel && (p.forced || p.msgs >= BIG_CHUNK_MSGS) ? fallbackModel : model;
+    const useModel = fallbackModel && routesBig(p.forced, p.msgs) ? fallbackModel : model;
     const t0 = Date.now();
     let lastErr = '';
     for (let attempt = 1; attempt <= 2; attempt++) {
