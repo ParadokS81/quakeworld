@@ -115,7 +115,9 @@ async function chunkFingerprints(manifest: ManifestFile): Promise<Record<string,
 // ---------------------------------------------------------------------------
 
 const DEFAULT_BASE_URL = 'https://api.deepseek.com';
-const DEFAULT_MODEL = 'deepseek-v4-flash'; // sonnet-tier mapping; fencing is a grouping task
+const DEFAULT_MODEL = 'deepseek-flash';    // sonnet-tier mapping; fencing is a grouping task.
+                                           // Was 'deepseek-v4-flash' until 2026-10-01: DeepSeek retired
+                                           // that id and serves it as V4.1 Flash, so the name now says so.
 const FALLBACK_MODEL = 'deepseek-v4-pro';  // spike finding 2026-08-05: flash's reasoning diverges
                                            // on 1500-msg cap-forced chunks (empty content at
                                            // finish=stop under json mode, ceiling-death without;
