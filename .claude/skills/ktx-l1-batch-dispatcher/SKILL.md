@@ -1,20 +1,13 @@
 ---
 name: ktx-l1-batch-dispatcher
 description: |
-  Use this skill to dispatch one KTX L1 category's per-card recasts as a single
-  sub-agent invocation that wraps the `ktx-l1-rewrite` fan-out. Triggers on
+  Dispatch one KTX L1 category's per-card `ktx-l1-rewrite` recasts as a single
+  batch: pre-fetch, chunked sub-agent fan-out, halt on novelty, cross-card
+  consistency pass, atomic drafts/park files, one commit. Use for
   "/ktx-l1-batch-dispatcher <category> <batch_date>", "dispatch the next
-  ktx-l1-rewrite batch for <category>", "run ktx-l1-batch-dispatcher on
-  <category>", or per-batch dispatch from a MAIN session orchestrating
-  multiple parallel batches. One category per invocation; designed so a MAIN
-  session can dispatch 2-3 batches in parallel with light context overhead.
-  Opus 4.7 medium reasoning (locked) for orchestration + cross-card synthesis;
-  per-card sub-agents stay at Sonnet 4.6 high (locked by `ktx-l1-rewrite` --
-  do NOT override). The skill MUST halt the batch on novelty park triggers
-  (trigger 1 no-shape-match / trigger 4 sui-generis) and surface the
-  candidate-shape signature for operator review -- it never extends the shape
-  catalog itself. Triggers 2 + 3 are per-card parks/flags that do NOT halt.
-  Engine-scoped to KTX; future MVDSV/QWFWD/QTV variants fork per codebase.
+  ktx-l1-rewrite batch for <category>", or per-batch dispatch from a MAIN
+  session running several batches in parallel. One category per invocation;
+  KTX only (other engines fork their own dispatcher).
 ---
 
 # ktx-l1-batch-dispatcher
@@ -25,21 +18,21 @@ runs cross-card consistency synthesis, writes the assembled per-batch
 drafts/park files atomically, appends the HANDOVER followup, and commits.
 
 This skill is the dispatcher cousin of `ktx-l1-rewrite`. The per-card skill
-processes ONE entity at a locked Sonnet 4.6-high dial; this skill orchestrates
+processes ONE entity at a locked Sonnet 5 high dial; this skill orchestrates
 N per-card invocations as a single batch with cross-card synthesis on top.
 MAIN sessions invoke this skill 1-3 times in parallel; each batch produces a
 single commit, a structured digest, and an apply-pass entry on HANDOVER.
 
 Where this skill's procedural detail lives in `references/` (see below) and
-the per-card skill's discipline rules live in `~/.claude/skills/ktx-l1-rewrite/`,
+the per-card skill's discipline rules live in `.claude/skills/ktx-l1-rewrite/`,
 defer to those rather than re-stating here.
 
 ## Model dial (LOCKED -- not a per-invocation choice)
 
-- **Dispatcher**: Opus 4.7 medium reasoning. Orchestration + cross-card
+- **Dispatcher**: the operator's session model. Orchestration + cross-card
   synthesis benefit from the higher tier; the per-batch context budget hosts
   the fan-out coordination, novelty detection, and consistency pass.
-- **Per-card sub-agents**: Sonnet 4.6 high (locked by `ktx-l1-rewrite`).
+- **Per-card sub-agents**: Sonnet 5 high (locked by `ktx-l1-rewrite`).
   Do NOT override -- dispatching at a higher dial defeats the cost
   differential that makes the per-card skill exist.
 
@@ -64,11 +57,11 @@ defer to those rather than re-stating here.
 
 ## Pre-flight gate (abort if any fail)
 
-1. **Anchor verified**: `git -C /home/paradoks/projects/quakeworld/research/repos/ktx
-   describe --always` matches `anchor_version`. If drifted: abort with a
+1. **Anchor verified**: `git -C research/repos/ktx describe --always` (from
+   the quakeworld checkout) matches `anchor_version`. If drifted: abort with a
    structured "anchor drift" report; operator decides advance-vs-wait.
-2. **Per-card skill loaded**: cold-read `~/.claude/skills/ktx-l1-rewrite/SKILL.md`
-   + all 6 files in `~/.claude/skills/ktx-l1-rewrite/references/`. These
+2. **Per-card skill loaded**: cold-read `.claude/skills/ktx-l1-rewrite/SKILL.md`
+   + all 6 files in `.claude/skills/ktx-l1-rewrite/references/`. These
    govern per-card discipline; the dispatcher cannot diverge from them
    silently.
 3. **Cross-batch precedent loaded**: read drafts files from prior batches
@@ -100,7 +93,7 @@ the reference inline at the step rather than pre-loading everything.
 
 ### Step 1 -- Pre-flight gate
 
-Run the 4-point gate above. Abort on any failure.
+Run all five pre-flight checks above. Abort on any failure.
 
 ### Step 2 -- Pre-fetch L1 entities for the category
 
@@ -117,7 +110,7 @@ structurally invisible. Internal arc workflows must query DB directly; MCP
 keeps its lane. See `references/pre-fetch.md` for the rationale.
 
 **NULL-description entities**: route them to `describe-fill-synthesis`
-FIRST (separate terminal, Opus 4.7 MAX) before this dispatcher's batch
+FIRST (separate session, via the `describe-fill-synthesizer` agent) before this dispatcher's batch
 runs. The per-card skill's pre-flight gate would otherwise abort each one
 as `needs-synthesis`, leaving a partial batch.
 
@@ -125,7 +118,7 @@ as `needs-synthesis`, leaving a partial batch.
 
 Chunk the category's entities into groups of `chunk_size` (default 6; 4-8
 accepted). Dispatch one sub-agent per CHUNK -- not per entity. Each
-sub-agent runs the `ktx-l1-rewrite` skill at its locked Sonnet 4.6-high
+sub-agent runs the `ktx-l1-rewrite` skill at its locked Sonnet 5 high
 dial in chunked mode: loads the skill + 6 reference files ONCE, then
 applies the workflow to each entity in its chunk sequentially.
 
@@ -134,25 +127,16 @@ Pass to each sub-agent: the chunk's list of entity inputs (each carrying
 `source_ref`, `anchor_version`, `catalog_line`, `batch_date`) plus the
 override instructions below.
 
-**MANDATORY Task-tool invocation shape** (amendment 2026-05-27): when
-invoking the `Task` tool to dispatch each chunk sub-agent, you MUST pass:
+**Chunk dispatch shape** (amendment 2026-05-27): dispatch each chunk
+sub-agent with the `Agent` tool and pass every one of:
 
-- `model: "sonnet"` -- enforces the per-card skill's locked Sonnet 4.6-high
-  dial. Omitting this parameter causes the sub-agent to INHERIT the
-  dispatcher's higher-tier dial (typically Opus MAX or Opus 4.7 medium),
-  silently defeating the cost differential that justifies the separated
-  per-card skill. The skill's textual statement that "sub-agents run at
-  Sonnet 4.6-high" is INTENT; only an explicit `model` parameter on the
-  Task call enforces it at runtime.
-- `subagent_type: "general-purpose"` -- the per-card skill is invoked
-  inside the sub-agent's prompt; no specialized agent type is needed.
+- `subagent_type: "ktx-card-rewriter"` -- the project agent at
+  `.claude/agents/ktx-card-rewriter.md` pins Sonnet 5 at high effort and
+  loads the per-card skill. Pass no `model`: the definition is what holds
+  the dial, and a prose dial or a tier alias cannot set effort.
 - `description`: 3-5 word task summary (e.g. "ktx-l1-rewrite chunk A").
 - `prompt`: the full chunk instructions + per-entity input list + the
   override instructions below + the reporting-line collection block.
-
-Do NOT call Task without `model`. Do NOT call Task with `model: "opus"`
-expecting per-card cost discipline. The chunked-mode dial only holds when
-this parameter is passed explicitly per chunk.
 
 **Override the per-card file-write step**: instruct each sub-agent to
 RETURN a LIST of per-card section contents (drafts or park) as part of
@@ -192,9 +176,8 @@ preserved across chunks; sub-agents within the same batch can fire in
 parallel waves (typical: 4-8 sub-agents per wave per the existing arc
 dispatch pattern).
 
-**chunk_size rationale**: 6 balances context safety (Sonnet 4.6's 200k
-window: ~30-40k front matter + 6 x ~15-20k entity work = ~120-160k, well
-under cap), failure radius (lose at most 6 entities on a sub-agent
+**chunk_size rationale**: 6 balances context load (~30-40k front matter +
+6 x ~15-20k entity work = ~120-160k per sub-agent), failure radius (lose at most 6 entities on a sub-agent
 crash, not the whole category), and parallelism (Frogbot 78 -> 13
 chunks; Scoring & stats 19 -> 4 chunks).
 
@@ -227,8 +210,9 @@ Inspect all drafted entries for:
 - Shape-classification consistency (sibling cards using the same shape tag
   format).
 
-Pattern: 5-12 checks per batch. Copy the structure from the Voting batch's
-`## Cross-card consistency notes` section. Worked examples + the section
+Report what reading across the drafts actually surfaces; zero findings is a
+valid result (prior batches found 5-12 -- a record, not a target). Copy the
+structure from the Voting batch's `## Cross-card consistency notes` section. Worked examples + the section
 template in `references/cross-card-checks.md`.
 
 ### Step 6 -- Atomic file writes
@@ -277,7 +261,7 @@ commit_sha: <sha>
 anchor: <anchor_version>
 ```
 
-Full schema in `references/return-shape.md`.
+Full schema in `references/file-formats.md` (Return shape).
 
 ## Discipline rules (the load-bearing ones)
 
@@ -302,8 +286,6 @@ context in `references/`.
   declared is high.
 - **One commit per batch.** No multi-commit batches; no mid-batch commits.
   Operator can roll back a batch with one revert.
-- **Lean SKILL.md.** This file stays under ~300 lines; per-step detail
-  lives in `references/`. Same discipline the per-card skill applies.
 
 ## What this skill does NOT do
 
@@ -317,7 +299,7 @@ context in `references/`.
 - **Run apply-pass-author logic** -- `drafted_with_flag` entries get
   surfaced in the report but not auto-resolved.
 - **Override the per-card model dial** -- per-card sub-agents stay at
-  Sonnet 4.6 high. Dispatcher orchestration runs at Opus 4.7 medium.
+  Sonnet 5 high. Dispatcher orchestration runs in the operator's session model.
 
 ## Engine scope
 

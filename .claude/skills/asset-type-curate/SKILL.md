@@ -1,8 +1,8 @@
 ---
 name: asset-type-curate
 description: |
-  Use this skill to investigate one QuakeWorld asset_type from
-  qw-asset-types.yaml and produce a Layer 3 concept note in
+  Investigates one QuakeWorld asset_type from
+  qw-asset-types.yaml and produces a Layer 3 concept note in
   apps/qw-oracle/curated/asset-notes/. Triggers on
   "/asset-type-curate <slug>", "curate asset type <name>",
   "next asset-type slice", or "run asset-type-curate on <slug>".
@@ -14,8 +14,8 @@ description: |
 # asset-type-curate
 
 One asset_type slug per invocation. Produces an investigation report plus
-(flag-gated) a draft Layer 3 note. Designed for parallel fan-out: Opus
-orchestrator dispatches ~20 Sonnet sub-agents, one per slug.
+(flag-gated) a draft Layer 3 note. Designed for parallel fan-out: an
+orchestrator dispatches one sub-agent per slug.
 
 ## Trigger phrases
 
@@ -115,7 +115,13 @@ on or before 2022-11-21 (boundary-inclusive) are presumed stale.
 
 ### Step 4 -- Corpus mining
 
-Query the gfx corpus sandbox at `/home/paradoks/sandboxes/qw3-abab-gfx/` for
+Query the gfx corpus sandbox at `~/projects/sandboxes/qw3-abab-gfx/` (outside git; the
+corpus comes from nicotinelounge.com/qw3-abab/gfx.tar.gz). The recipes read
+its derived outputs under `scripts/output/`; if `pass2-manifest.ndjson` is
+missing there, rebuild it with the four scripts in
+`apps/qw-oracle/scripts/gfx-corpus/` (run order: parse-gfx-sql, hash-corpus,
+classify-pass1, classify-pass2; needs `xxhash`, the sandbox's `.venv` has it) --
+an empty query result is not evidence. Look for
 bundles matching the slug's `corpus_categories` from the seed entry. Sample
 5-10 representative bundles for install-path evidence. Grep `gfx_comment`
 (1,449 rows in `gfx.sql`) for type-specific install instructions or community
@@ -146,10 +152,8 @@ one-line status report.
 
 **Re-walk note:** when re-running this skill on a slug whose draft already
 exists on disk (calibration pass, post-extractor-fix re-dispatch, or any
-update walk), both `<slug>.md` and `<slug>-investigation.md` may already
-be present. The Write tool requires a `Read` call before overwriting an
-existing file -- do a `Read` of each existing file first, then `Write` the
-new content. This is a tooling-level requirement, not a content-review step.
+update walk), `<slug>.md` and `<slug>-investigation.md` may already be
+present. Replace both with this walk's output.
 
 ---
 
@@ -240,10 +244,10 @@ Example (CONFIDENT):
 skybox: CONFIDENT -- 6-face cubemap; 4 ezQuake probe variants + FTE bare-root; r_skyname + /loadsky + /skygroup; docs stale but source clear -- artifacts: docs/asset-curation/skybox-investigation.md, curated/asset-notes/skybox.md
 ```
 
-Example (L1-GAP):
+Example (L1-GAP; hypothetical slug):
 
 ```
-locfile: L1-GAP -- no loader-site entries in ezquake or fte extractor output; watchlist needs Loc_LoadLocations entry -- artifacts: docs/asset-curation/locfile-investigation.md
+example_slug: L1-GAP -- loader reached only through a runtime-assigned function pointer; no loader-site entries in ezquake or fte extractor output; watchlist cannot anchor it -- artifacts: docs/asset-curation/example_slug-investigation.md
 ```
 
 Do not commit. The orchestrator handles staging and commit after review.

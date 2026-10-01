@@ -53,7 +53,7 @@ Route to the C1 outreach track when the verdict is:
 - `hedged` -- partially source-legible: the description states the legible
   part and marks the unknown; the unknown part needs community/operator
   confirmation.
-- `residue_routed` -- not source-legible at all even at Opus-MAX: a
+- `residue_routed` -- not source-legible at all even at Opus-xhigh: a
   placeholder description marks it not-yet-source-legible.
 
 ### What the C1 route is, mechanically
@@ -80,4 +80,4 @@ recommended-value / tuning advice is L3 -> routed OUT to an L3 candidate
 bot/judgment knobs on the C1 residue track merely because they lack a
 prose source -- "documented nowhere" means no prose source, NOT source-
 illegible. Genuine residue is only the tail whose BEHAVIOR is not source-
-legible even at Opus-MAX (the Step 4 confabulation guard).
+legible even at Opus-xhigh (the Step 4 confabulation guard).

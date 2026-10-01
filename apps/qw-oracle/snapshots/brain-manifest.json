@@ -1,686 +1,151 @@
 {
-  "schema_version": 1,
-  "built_at": "2026-08-05T19:53:04.634Z",
-  "source": {
-    "db": "dev-twin",
-    "note": "L2 backfill in progress; prod parity ships at Arc A finish-out"
-  },
+  "schema_version": "brain-manifest-v1",
+  "generated_at": "2026-08-06T19:49:02.735Z",
+  "oracle_commit": "f1a49a6812ff7fb6833483a2eee275213e7d6007",
+  "source": "twin",
   "datacenters": [
     {
-      "id": "engine-facts",
-      "name": "Engine Facts",
-      "glow": "lit",
-      "headline": {
-        "entities": 11081,
-        "codebases": 7
-      },
-      "regions": [
-        {
-          "id": "ezquake",
-          "entities": 4192,
-          "types": {
-            "cvar": 2996,
-            "command": 699,
-            "keyname": 148,
-            "hud_element": 85,
-            "cmdline_param": 77,
-            "macro": 68,
-            "flag_bit": 50,
-            "token_primitive": 33,
-            "asset_category": 30,
-            "ruleset": 6
-          },
-          "top_cvar_categories": [
-            {
-              "name": "MQWCL HUD",
-              "cvars": 1449
-            },
-            {
-              "name": "Screen Settings",
-              "cvars": 136
-            },
-            {
-              "name": "FPS and EyeCandy Settings",
-              "cvars": 76
-            },
-            {
-              "name": "Status Bar and Scoreboard",
-              "cvars": 56
-            },
-            {
-              "name": "Item Names",
-              "cvars": 51
-            }
-          ]
-        },
-        {
-          "id": "fte",
-          "entities": 3279,
-          "types": {
-            "cvar": 2482,
-            "command": 556,
-            "cmdline_param": 108,
-            "macro": 67,
-            "cvar_alias": 38,
-            "asset_category": 28
-          },
-          "top_cvar_categories": [
-            {
-              "name": "server control variables",
-              "cvars": 37
-            },
-            {
-              "name": "Progs variables",
-              "cvars": 28
-            },
-            {
-              "name": "cvargroup_servercontrol",
-              "cvars": 27
-            },
-            {
-              "name": "server physics variables",
-              "cvars": 25
-            },
-            {
-              "name": "server permission variables",
-              "cvars": 22
-            }
-          ]
-        },
-        {
-          "id": "ktx",
-          "entities": 1892,
-          "types": {
-            "log_template": 1196,
-            "command": 358,
-            "cvar": 275,
-            "info_key": 56,
-            "match_event": 7
-          },
-          "top_cvar_categories": [
-            {
-              "name": "Frogbot",
-              "cvars": 53
-            },
-            {
-              "name": "Mode-scoped knobs",
-              "cvars": 45
-            },
-            {
-              "name": "Gameplay rules",
-              "cvars": 37
-            },
-            {
-              "name": "Server config & network",
-              "cvars": 31
-            },
-            {
-              "name": "Match flow",
-              "cvars": 22
-            }
-          ]
-        },
-        {
-          "id": "mvdsv",
-          "entities": 1236,
-          "types": {
-            "log_template": 691,
-            "cvar": 183,
-            "command": 108,
-            "protocol_message": 105,
-            "qc_builtin": 93,
-            "info_key": 45,
-            "cmdline_param": 11
-          },
-          "top_cvar_categories": [
-            {
-              "name": "Network & performance",
-              "cvars": 21
-            },
-            {
-              "name": "Demo recording",
-              "cvars": 21
-            },
-            {
-              "name": "Game module & extensions",
-              "cvars": 19
-            },
-            {
-              "name": "Server identity & info",
-              "cvars": 19
-            },
-            {
-              "name": "Movement & physics",
-              "cvars": 19
-            }
-          ]
-        },
-        {
-          "id": "qwcl",
-          "entities": 380,
-          "types": {
-            "cvar": 187,
-            "command": 121,
-            "cmdline_param": 72
-          },
-          "top_cvar_categories": [
-            {
-              "name": "Graphics",
-              "cvars": 104
-            },
-            {
-              "name": "Miscellaneous",
-              "cvars": 27
-            },
-            {
-              "name": "Multiplayer",
-              "cvars": 21
-            },
-            {
-              "name": "Input",
-              "cvars": 19
-            },
-            {
-              "name": "Sound",
-              "cvars": 11
-            }
-          ]
-        },
-        {
-          "id": "qtv",
-          "entities": 52,
-          "types": {
-            "cvar": 40,
-            "command": 12
-          },
-          "top_cvar_categories": [
-            {
-              "name": "Web interface",
-              "cvars": 9
-            },
-            {
-              "name": "Downloads",
-              "cvars": 8
-            },
-            {
-              "name": "Downstream viewers",
-              "cvars": 7
-            },
-            {
-              "name": "Network & identity",
-              "cvars": 7
-            },
-            {
-              "name": "Upstream sources",
-              "cvars": 6
-            }
-          ]
-        },
-        {
-          "id": "qwfwd",
-          "entities": 50,
-          "types": {
-            "command": 29,
-            "cvar": 13,
-            "info_key": 6,
-            "cmdline_param": 2
-          },
-          "top_cvar_categories": [
-            {
-              "name": "Network, identity & forwarding",
-              "cvars": 8
-            },
-            {
-              "name": "Master servers & discovery",
-              "cvars": 4
-            },
-            {
-              "name": "Diagnostics",
-              "cvars": 1
-            }
-          ]
-        }
+      "id": "ef",
+      "name": "ENGINE FACTS",
+      "lit": true,
+      "num": 11081,
+      "sub": "entities · 7 codebases",
+      "stationSubs": [
+        "entities · 7 codebases"
+      ],
+      "share": 0.289,
+      "bars": [
+        [
+          "ezquake",
+          4192
+        ],
+        [
+          "fte",
+          3279
+        ],
+        [
+          "ktx",
+          1892
+        ],
+        [
+          "mvdsv",
+          1236
+        ],
+        [
+          "qwcl",
+          380
+        ],
+        [
+          "qtv",
+          52
+        ],
+        [
+          "qwfwd",
+          50
+        ]
       ],
       "door": {
         "kind": "site",
-        "label": "Browse the full reference",
-        "url": "https://quakeworld-docs.pages.dev/",
-        "note": "docs.quake.world once DNS lands"
+        "label": "browse the full reference",
+        "code": "docs.quake.world",
+        "href": "https://quakeworld-docs.pages.dev/"
       }
     },
     {
-      "id": "community-memory",
-      "name": "Community Memory",
-      "glow": "lit",
-      "headline": {
-        "messages": 741128,
-        "threads": 20270,
-        "channels": 4
-      },
-      "regions": [
-        {
-          "id": "quakeworld",
-          "messages": 399080,
-          "years": "2016-2026",
-          "threads": 13580,
-          "resolution": {
-            "solved": 3042,
-            "unresolved": 1764,
-            "informational": 7762
-          },
-          "recent_solved_labels": [
-            "Question about Razer DeathAdder V2 mouse",
-            "New player larrypitusas asks multiple questions about Quake",
-            "New player shoggytheog help with nQuake, full version, and coop servers"
-          ]
-        },
-        {
-          "id": "dev-corner",
-          "messages": 211602,
-          "years": "2016-2026",
-          "threads": 0,
-          "resolution": null,
-          "recent_solved_labels": []
-        },
-        {
-          "id": "helpdesk",
-          "messages": 109008,
-          "years": "2020-2026",
-          "threads": 6623,
-          "resolution": {
-            "solved": 3610,
-            "unresolved": 1418,
-            "informational": 1593
-          },
-          "recent_solved_labels": [
-            "KTX map rotation / matchless FFA setup for LAN party",
-            "Aerowalk textures only partially upscaled",
-            "RL/LG auto-fire alias while manually switching other weapons"
-          ]
-        },
-        {
-          "id": "antilag",
-          "messages": 21438,
-          "years": "2021-2026",
-          "threads": 67,
-          "resolution": {
-            "solved": 14,
-            "unresolved": 13,
-            "informational": 40
-          },
-          "recent_solved_labels": [
-            "_driz identifies the specific bug in antilag.c L624 (lines 599-616 newmis block only affects 13ms players) and defers fix to next week",
-            "dust0r's in-client stopwatch timing experiment comparing antilag 1 vs antilag 2 rocket travel times",
-            "Antilag 2 hitscan rewind cap: 250ms vs 150ms question and clarification that it is arbitrary/infinite"
-          ]
-        }
+      "id": "cm",
+      "name": "DISCORD",
+      "lit": true,
+      "num": 741128,
+      "sub": "messages · 40,219 threads · 13,134 solved",
+      "stationSubs": [
+        "messages · 40,219 threads",
+        "13,134 solved"
+      ],
+      "share": 0.42,
+      "threads": 40219,
+      "solved": 13134,
+      "bars": [
+        [
+          "#quakeworld",
+          399080
+        ],
+        [
+          "#dev-corner",
+          211602
+        ],
+        [
+          "#helpdesk",
+          109008
+        ],
+        [
+          "#antilag",
+          21438
+        ]
       ],
       "door": {
         "kind": "agent",
-        "call": "search_solved_issues(\"<your problem>\")"
+        "call": "search_solved_issues(\"…\")"
       }
     },
     {
-      "id": "curated-synthesis",
-      "name": "Curated Synthesis",
-      "glow": "lit",
-      "headline": {
-        "notes": 44
-      },
-      "regions": [
-        {
-          "id": "10on10",
-          "title": "10on10",
-          "summary": "Big-team deathmatch -- ten players a side, twenty on the server. It runs the weapon-control economy at scale on a small set of purpose-built large maps: a game of team waves and map pressure more than precise item rotations. The biggest fixed-roster standard format.",
-          "shape": null
-        },
-        {
-          "id": "1on1",
-          "title": "1on1",
-          "summary": "QuakeWorld's premier solo format -- a one-on-one duel where weapons stay on the floor, so the game comes down to aim plus item timing: whoever keeps control of the red armor, the mega health and the map's key weapons wins. Played to a frag count over a 10-minute match on a small set of classic duel maps.",
-          "shape": null
-        },
-        {
-          "id": "2on2",
-          "title": "2on2",
-          "summary": "Two-on-two team deathmatch, the smallest team format. Weapons stay on the floor, so it is a fast, aim-driven game of coordinated item and powerup control between two-player teams, with friendly fire on. Played to a team frag count over a 10-minute match on compact maps.",
-          "shape": null
-        },
-        {
-          "id": "2on2on2",
-          "title": "2on2on2",
-          "summary": "Three-team deathmatch at the smallest roster -- three teams of two (red, blue, green) in one map, each fighting the other two. Weapons stay on the floor, so it is a fast aim-and-item game, but the three-cornered standoff is its own thing: balancing two enemies instead of one. Most frags at the 10-minute mark wins.",
-          "shape": null
-        },
-        {
-          "id": "3on3",
-          "title": "3on3",
-          "summary": "Three-on-three team deathmatch -- the smallest roster where picked-up weapons vanish and respawn instead of staying on the floor, which makes the map's armour, powerups and weapon spawns contested, timed resources. A control-and-timing team game, two teams of three over a 15-minute match.",
-          "shape": null
-        },
-        {
-          "id": "3on3on3",
-          "title": "3on3on3",
-          "summary": "Three-team deathmatch at three a side -- red, blue and green, each against the other two. Picked-up weapons vanish and respawn, so it is a map-control game split three ways. Most frags at the 15-minute mark wins.",
-          "shape": null
-        },
-        {
-          "id": "4on4",
-          "title": "4on4",
-          "summary": "QuakeWorld's flagship competitive team format -- two teams of four over a 20-minute match where weapons don't stay on the ground, so map and item control are the game.",
-          "shape": null
-        },
-        {
-          "id": "4on4on4",
-          "title": "4on4on4",
-          "summary": "Three-team deathmatch at four a side -- the largest three-cornered format. Red, blue and green, each against the other two, on the weapon-control economy. Most frags at the 20-minute mark wins.",
-          "shape": null
-        },
-        {
-          "id": "berzerk",
-          "title": "Berzerk",
-          "summary": "A match-modifier you layer on any base mode: for the match's closing stretch (around 20 seconds by default), every living player is given a Quad. Only the ending changes -- the rest plays normally.",
-          "shape": null
-        },
-        {
-          "id": "blitz2v2",
-          "title": "Blitz (2v2)",
-          "summary": "The two-team version of hoonymode: the same spawn-rotation format, but played 2v2 over four timed rounds instead of as a single-frag duel. Friendly fire is on, powerups are live, and the team with the most total frags across the four rounds wins.",
-          "shape": null
-        },
-        {
-          "id": "blitz4v4",
-          "title": "Blitz (4v4)",
-          "summary": "The 4v4 version of the hoony/blitz spawn-rotation format: the same pick-your-spawn, swap-sides-each-round structure as blitz2v2, but played four-a-side over four timed five-minute rounds and on deathmatch 1, so it carries 4on4's weapon-control economy. The team with the most total frags across the rounds wins.",
-          "shape": null
-        },
-        {
-          "id": "bloodfest",
-          "title": "Bloodfest",
-          "summary": "KTX's co-op survival mode: waves of Quake monsters pour onto a compatible map, growing larger every 20 seconds, and you and your teammates fight to stay alive. Each kill feeds you health and armour scaled to the monster's danger, and powerups drop off the dead. Played solo or as a team, it is a PvE break from deathmatch.",
-          "shape": null
-        },
-        {
-          "id": "ca",
-          "title": "Clan Arena",
-          "summary": "Round-based team elimination -- every player spawns each round with the full arsenal and red armor, there are no items on the map, and a round ends when one team is wiped out. First team to a majority of rounds takes the series.",
-          "shape": null
-        },
-        {
-          "id": "client-side-server-exec-allowlist",
-          "title": "Client-side server-exec allowlist: guarding the client against hostile servers",
-          "summary": "Before ezQuake 3.6.6, a hostile server could push arbitrary commands to your client and execute them on your PC - up to and including destructive ones like wiping files. The release introduces three policy cvars and four adjacent fixes that close the surface.",
-          "shape": null
-        },
-        {
-          "id": "completing-legacy-fte-protocol-extensions",
-          "title": "Completing legacy FTE protocol extensions in ezQuake 3.6.6",
-          "summary": "Two FTE protocol extensions ezQuake had carried as half-implementations for a decade got finished in 3.6.6 - and why finishing a long-dormant extension forces a compatibility gate to stop fixed servers desyncing older clients.",
-          "shape": null
-        },
-        {
-          "id": "ctf",
-          "title": "Capture the Flag",
-          "summary": "Two teams, red and blue, fight to carry the enemy flag back to their own stand for a capture -- but only while their own flag is home. A capture is worth 15 points to the carrier and 10 to each teammate, so one capture outweighs a fistful of frags. KTX runs David Zoid Kirsch's Threewave CTF lineage, with an optional grappling hook and four runes as its distinctive layer.",
-          "shape": null
-        },
-        {
-          "id": "deathmatch-modes",
-          "title": "Deathmatch modes: the dmm flag values",
-          "summary": "The `deathmatch` server flag is the ruleset dial under every KTX mode. KTX uses values 0-5; most modes bundle a default value on activation, and a few modes (the arena and aim formats) are defined by the value they set. This note is the reference for what each value does and which modes use it.",
-          "shape": null
-        },
-        {
-          "id": "dmm4",
-          "title": "dmm4 (aim practice)",
-          "summary": "dmm4 is QuakeWorld's aim-practice mode: a 1on1 where you spawn with the full arsenal and unlimited ammo on a small arena map, so there is no item game and the whole match is aim, movement and rocket placement. Set it with the `dmm4` command. It is the base that midair, LGC and instagib are built on.",
-          "shape": null
-        },
-        {
-          "id": "engine-internal-vs-player-facing-files",
-          "title": "Engine-internal vs player-facing files in a QuakeWorld install",
-          "summary": "When tooling explodes a Quake install (pak/pk3 contents, downloaded assets), some files are stuff a player edits and some are stuff the engine reads silently. They look identical on disk; this note is the axis for telling them apart.",
-          "shape": null
-        },
-        {
-          "id": "ffa",
-          "title": "FFA",
-          "summary": "Free-for-all: no teams, everyone against everyone, most frags wins. In QuakeWorld the living form is the permanent public 'matchless' server you drop into and out of at will; the /ffa command is the secondary form, a timed FFA match on a dynamic KTX server.",
-          "shape": null
-        },
-        {
-          "id": "freshteams",
-          "title": "FreshTeams",
-          "summary": "A dmm1 match-modifier that retunes the weapon and ammo economy: weapons respawn faster (20 seconds instead of 30) while the ammo from re-grabbing a weapon you already own, and from dropped backpacks, is capped -- a higher-tempo team game with far less stockpiling. Works only in deathmatch 1; layers on any dmm1 base mode.",
-          "shape": null
-        },
-        {
-          "id": "hoonymode",
-          "title": "Hoonymode",
-          "summary": "A duel format built to take spawn luck out of the result: every round ends on a single frag, and the two players swap spawns each round-pair so each plays both spawns equally. The series is tennis-style -- first to seven round-wins, but you must lead by two.",
-          "shape": null
-        },
-        {
-          "id": "hud-configuration",
-          "title": "Configuring the QuakeWorld HUD: status bar, frags, team score, and on-screen info",
-          "summary": "How to set up the ezQuake HUD. Leads with the one decision that governs everything -- the new customizable element HUD (scr_newhud 1) vs the old fixed status bar -- then covers showing/placing/styling elements, frag and team-score display, on-screen messages, and what competitive rulesets restrict. Most HUD choices are personal preference; this gives the mechanism, not a one-size config.",
-          "shape": null
-        },
-        {
-          "id": "instagib",
-          "title": "Instagib",
-          "summary": "A novelty mode built on dmm4: every player spawns with KTX's Coilgun -- a railgun-style hitscan weapon that kills in one hit from any range, with unlimited ammo. The gametype is imported from Quake 2's railgun (Quake 1 has no rail) and is usually played free-for-all; it is a for-fun mode, not a competitive format, and cannot run alongside the other dmm4 mutators (midair, LGC).",
-          "shape": null
-        },
-        {
-          "id": "killquad",
-          "title": "KillQuad",
-          "summary": "A 'kill the carrier' match modifier: the Quad has no map spawn, only a dropped one. While a player holds it no one else can get one, and whenever no Quad is in play a new one drops on the next killed body. Layers on top of any base mode.",
-          "shape": null
-        },
-        {
-          "id": "kmap-legacy-keymap-system",
-          "title": "The .kmap legacy keymap system and its persistence via nQuake",
-          "summary": "Why .kmap files keep showing up in modern QuakeWorld installs even though ezQuake removed the loader in 2014 - they ship inside nQuake's stale bundle. If you find one, it does nothing.",
-          "shape": null
-        },
-        {
-          "id": "lgc",
-          "title": "LGC",
-          "summary": "A Lightning Gun-only ruleset for measuring tracking aim, layered on dmm4: every player spawns with just the Lightning Gun, red armour and unlimited ammo, nothing can be picked up, and the score is the damage you land -- every 100 points is a frag. The toggle sets only the ruleset and leaves the format open: a solo benchmark against a fixed-skill bot (as it was originally played) or a head-to-head LG duel.",
-          "shape": null
-        },
-        {
-          "id": "lightning-gun-customization",
-          "title": "Customizing the Lightning Gun in QuakeWorld",
-          "summary": "Tune the LG beam the way you want - color, thickness, brightness, fakeshaft prediction - without falling foul of competitive ruleset checks. Maps every visual cvar to what it actually does on screen.",
-          "shape": null
-        },
-        {
-          "id": "match-recording-playback",
-          "title": "Match recording and playback: demos, screenshots, and logs",
-          "summary": "A QuakeWorld match record is three things captured together -- a demo, a scoreboard screenshot, and a console log -- and ezQuake's match tools record all of them automatically when a match starts. The short version: set match_auto_record 2 (plus match_auto_sshot 1) and forget it; record one-off demos with easyrecord; watch with playdemo or menu_demos. Auto-records sort themselves into per-gametype subfolders (duel/, tdm/, 2on2/, ...) with descriptive names, all configurable through the match_format_<category> templates and the match_name_* macros. Your client records a single-view .qwd, the server records the multiview .mvd everyone watches afterward -- usually through hub.quake.world, which has archived every server's demos for years.",
-          "shape": null
-        },
-        {
-          "id": "midair",
-          "title": "Midair",
-          "summary": "A dmm4 aim mutator where only kills of airborne opponents count: instead of the full dmm4 arsenal you spawn with just the Rocket Launcher and axe, and you score by blasting jumping or rocket-jumping players out of the air. A clean airborne rocket is an instant kill; a target at floor level can't be hit at all. Mutually exclusive with the other dmm4 mutators.",
-          "shape": null
-        },
-        {
-          "id": "network-connection",
-          "title": "QuakeWorld network and connection: rate, packet loss, antilag, and proxies",
-          "summary": "What you want from your QuakeWorld connection is low ping, no packet loss, no stutter -- and because QW barely uses your connection, the setup is short: set rate 50000, play wired, and you are good for the large majority of cases. This guide gives the best-practice settings first, then how to lower ping with best-routes (sb_findroutes / connectbr), what antilag does (it is the server's job), and the deeper mechanics for specific problems.",
-          "shape": null
-        },
-        {
-          "id": "nosweep",
-          "title": "NoSweep",
-          "summary": "A dmm1 match-modifier that stops you re-picking-up a weapon you already own. Normally, crossing a weapon spawn you already hold tops up its ammo (a 'sweep'); NoSweep makes you leave it on the ground instead, tightening the ammo economy. Works only in deathmatch 1; layers on any dmm1 base mode.",
-          "shape": null
-        },
-        {
-          "id": "player-skins",
-          "title": "Player skins: identification, visibility, and tracking in QuakeWorld",
-          "summary": "The full skin and identification system: how to make enemies, teammates, dead bodies, and powerup-carriers visually distinct. Covers the 25+ cvars, force-skin behaviour, and color-mode interactions you usually trip over.",
-          "shape": null
-        },
-        {
-          "id": "qw-userinfo-serverinfo-protocol",
-          "title": "The userinfo and serverinfo protocol: how client, server, and mod share player state",
-          "summary": "Every QuakeWorld client carries a userinfo string (name, rate, team, skin, and dozens of feature flags) and every server carries a serverinfo string (map, gamedir, server settings). The client publishes its userinfo; the dedicated server stores and guards it; and both the server engine and the mod (KTX) read it to make decisions. The key's meaning often lives in a different codebase than the one reading it -- which is why documenting these keys is a cross-engine job, not a single-codebase one.",
-          "shape": null
-        },
-        {
-          "id": "race",
-          "title": "Race",
-          "summary": "A time-trial mode with no combat: run a fixed course of checkpoints from start to finish as fast as you can, racing the clock and the server's record table rather than other players. Movement is the whole game -- bunnyhopping and, where allowed, rocket-jumps for speed. Each map carries its own pre-built routes, and best times are saved with downloadable demos.",
-          "shape": null
-        },
-        {
-          "id": "rocket-arena",
-          "title": "Rocket Arena",
-          "summary": "Rocket Arena is a winner-stays 1on1 duel: two players fight fully loaded, the winner keeps the arena, and the loser drops to the back of a challenger queue while the next in line rotates in. Despite the name it is not Clan Arena, which is round-based team elimination.",
-          "shape": null
-        },
-        {
-          "id": "ruleset-anti-script-restriction-pattern",
-          "title": "QW competitive ruleset anti-script restriction pattern",
-          "summary": "How competitive rulesets (qcon, smackdown, thunderdome, smackdrive) prevent client-side scripting and timing exploits - including the five new restriction primitives 3.6.6 added to close bypass paths older gates missed.",
-          "shape": null
-        },
-        {
-          "id": "server-setup",
-          "title": "KTX server setup: mode gating, defaults, and activation",
-          "summary": "How a KTX server decides which game modes exist, which one it boots into, and how players switch between them. The admin controls availability (a default mode + an allow-list bitmask); the player activates modes with console commands. KTX is built so one server runs every mode -- forcing a server to a single mode runs against the grain.",
-          "shape": null
-        },
-        {
-          "id": "skywind-animated-skyboxes",
-          "title": "Skywind: animated skyboxes ported from IronWail",
-          "summary": "Skywind animates a skybox by blending its alpha channel against itself to drift clouds. Landed in 3.6.6 ported from IronWail; needs an alpha-channel skybox plus a per-skybox config sidecar to produce anything visible.",
-          "shape": null
-        },
-        {
-          "id": "tot",
-          "title": "Tribe of Tjernobyl",
-          "summary": "A bot-blasting mode: you spawn fully loaded -- full stack, every weapon, infinite ammo (dmm4 never spends it) -- against a server packed with weak, shotgun-toting frogbots, and the goal is to pile up as many frags as possible in a five-minute window. Used for warmup and as a new-player playground, and as an informal benchmark (the original e1m2 challenge: 100 frags in five minutes without dying). Built in KTX by Slime in 2024.",
-          "shape": null
-        },
-        {
-          "id": "weapon-scripts",
-          "title": "QuakeWorld weapon scripts: the three practical methods",
-          "summary": "How to create weapon scripts for manual selection or quickfire. Covers weapon select priorities, settings to not drop weapons in backpack on death, and the server-side weapon-switching option (w_rank) for lossy or high-ping connections.",
-          "shape": null
-        },
-        {
-          "id": "wipeout",
-          "title": "Wipeout",
-          "summary": "Clan Arena with respawns: players spawn with a full loadout, no items on the map, and a round is won when the whole enemy team is dead at the same time -- but each death makes your next respawn slower, up to 30 seconds, so a round gets harder to survive the longer it runs. First to a majority of rounds wins the series.",
-          "shape": null
-        },
-        {
-          "id": "XonX",
-          "title": "XonX",
-          "summary": "The flexible-roster team format -- 'X on X' for any X. It runs the weapon-control economy but fixes no team size: a 32-player cap lets the present players form two even teams, up to 16-on-16. It is also the basis of the auto-XonX server feature, which picks the format by head count automatically.",
-          "shape": null
-        },
-        {
-          "id": "yawnmode",
-          "title": "Yawnmode",
-          "summary": "An informal, for-fun modifier by Molgrum that changes the feel of a game rather than its objective: no fall damage, a harder-hitting nailgun, stronger green armor, a beefed-up axe and super shotgun, and always respawning with your last weapon. A rarely-used 1on1 oddity layered on a normal game, not a competitive format.",
-          "shape": null
-        }
+      "id": "cs",
+      "name": "CONCEPT NOTES",
+      "lit": true,
+      "num": 44,
+      "sub": "curated notes · honest gap list",
+      "stationSubs": [
+        "curated notes · honest gap list"
+      ],
+      "share": 0.118,
+      "notes": [
+        "1on1 · 4on4 · hoonymode · clan arena · race",
+        "weapon scripts · player skins · HUD configuration",
+        "network & connection · match recording · rulesets"
       ],
       "door": {
         "kind": "agent",
-        "call": "get_concept_note(\"<slug>\")"
+        "call": "get_concept_note(\"…\")"
       }
     },
     {
-      "id": "game-content",
-      "name": "Game Content",
-      "glow": "lit",
-      "headline": {
-        "maps": 254,
-        "entity_defs": 76,
-        "mechanics": 514
-      },
-      "regions": [
-        {
-          "id": "maps",
-          "maps": 254,
-          "door": {
-            "kind": "agent",
-            "call": "lookup_map(\"dm3\")"
-          }
-        },
-        {
-          "id": "entity-defs",
-          "by_source": {
-            "ktx": {
-              "monster": 15,
-              "projectile": 4,
-              "weapon": 3,
-              "item": 2
-            },
-            "id1": {
-              "item": 25,
-              "monster": 15,
-              "weapon": 8,
-              "projectile": 4
-            }
-          },
-          "door": {
-            "kind": "agent",
-            "call": "search_gameplay_entities(\"...\")"
-          }
-        },
-        {
-          "id": "mechanics",
-          "by_source": {
-            "ktx": {
-              "mode_default": 317,
-              "drop_item": 31,
-              "game_mode": 27,
-              "death_rule": 27,
-              "teamplay_message": 21,
-              "loc_macro": 15,
-              "constant": 12,
-              "election_type": 5,
-              "score_system": 3,
-              "env_hazard": 2,
-              "powerup_behavior": 1
-            },
-            "id1": {
-              "player_stat": 12,
-              "death_rule": 9,
-              "constant": 9,
-              "spawn_rule": 7,
-              "env_hazard": 7,
-              "dm_mode_rule": 4,
-              "powerup_behavior": 3,
-              "armor_model": 2
-            }
-          },
-          "door": {
-            "kind": "agent",
-            "call": "search_mechanics(\"...\")"
-          }
-        }
-      ]
+      "id": "gc",
+      "name": "GAME CONTENT",
+      "lit": true,
+      "num": 254,
+      "sub": "maps · mechanics · entity defs",
+      "stationSubs": [
+        "maps · mechanics · entity defs"
+      ],
+      "share": 0.172,
+      "stats": [
+        [
+          254,
+          "maps"
+        ],
+        [
+          514,
+          "mechanics"
+        ],
+        [
+          76,
+          "entity defs"
+        ]
+      ],
+      "door": {
+        "kind": "agent",
+        "call": "lookup_map(\"dm3\")"
+      }
     },
     {
-      "id": "community-history",
-      "name": "Community History",
-      "glow": "dim",
-      "teaser": "Clans, players, official tournament results, LAN history -- a region this brain grows into as the community platform comes online."
+      "id": "ch",
+      "name": "COMMUNITY HISTORY",
+      "lit": false,
+      "teaser": "Clans, players, official tournament results, LAN history — a region this brain grows into as the community platform comes online."
     },
     {
-      "id": "match-stats",
-      "name": "Match Stats",
-      "glow": "dim",
+      "id": "ms",
+      "name": "MATCH STATS",
+      "lit": false,
       "teaser": "18,000+ recorded 4on4 games await their wiring."
     }
   ],

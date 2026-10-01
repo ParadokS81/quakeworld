@@ -3,7 +3,7 @@
 
 Reads:
   - output/qw-asset-types.json                                                (catalog)
-  - /home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/bundles.json         (corpus)
+  - ~/projects/sandboxes/qw3-abab-gfx/scripts/output/bundles.json         (corpus)
 
 Writes:
   - output/qw-asset-types-coverage.md
@@ -21,7 +21,7 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-DEFAULT_CORPUS = Path('/home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/bundles.json')
+DEFAULT_CORPUS = Path.home() / 'projects/sandboxes/qw3-abab-gfx/scripts/output/bundles.json'
 
 
 def build_category_to_type(catalog: dict) -> dict[str, str]:

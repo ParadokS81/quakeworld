@@ -5,12 +5,20 @@ against drifted state or without the per-card discipline is corrupted L1
 output. Abort returns a structured report; operator decides advance vs wait
 vs investigate.
 
+## Contents
+
+- Check 1: Anchor verified
+- Check 2: Per-card skill loaded
+- Check 3: Cross-batch precedent loaded
+- Check 4: Mechanism maps loaded
+- Pre-flight report (returned on abort)
+
 ## Check 1: Anchor verified
 
 Run:
 
 ```
-git -C /home/paradoks/projects/quakeworld/research/repos/ktx describe --always
+git -C research/repos/ktx describe --always   # from the quakeworld checkout
 ```
 
 Compare against the `anchor_version` arg. If they differ:
@@ -29,13 +37,13 @@ anchor IS the contract.
 
 Cold-load every file the per-card sub-agents will rely on:
 
-- `~/.claude/skills/ktx-l1-rewrite/SKILL.md`
-- `~/.claude/skills/ktx-l1-rewrite/references/shape-catalog.md`
-- `~/.claude/skills/ktx-l1-rewrite/references/universal-shape-v2.md`
-- `~/.claude/skills/ktx-l1-rewrite/references/layer-architecture.md`
-- `~/.claude/skills/ktx-l1-rewrite/references/entity-categories.md`
-- `~/.claude/skills/ktx-l1-rewrite/references/worked-examples.md`
-- `~/.claude/skills/ktx-l1-rewrite/references/park-triggers.md`
+- `.claude/skills/ktx-l1-rewrite/SKILL.md`
+- `.claude/skills/ktx-l1-rewrite/references/shape-catalog.md`
+- `.claude/skills/ktx-l1-rewrite/references/universal-shape-v2.md`
+- `.claude/skills/ktx-l1-rewrite/references/layer-architecture.md`
+- `.claude/skills/ktx-l1-rewrite/references/entity-categories.md`
+- `.claude/skills/ktx-l1-rewrite/references/worked-examples.md`
+- `.claude/skills/ktx-l1-rewrite/references/park-triggers.md`
 
 Why the dispatcher needs them despite sub-agents loading them too:
 

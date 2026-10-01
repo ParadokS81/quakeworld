@@ -12,7 +12,7 @@ For gate authoring, see `scripts/load-knowledge/VALIDATION-GATES.md`.
 - Cross-project audit: run the relevant subset across all four projects looking for shape divergences.
 - Periodic sanity check after any change to `extractor_lib/` or `load-knowledge/`.
 
-**Discipline:** every finding from a validation pass goes somewhere. Either fix in the same arc, capture in a follow-up plan with explicit phases, or surface in `HANDOVER.md` with a one-line reason for deferral. No prose deferrals, no silent drops. (Per `feedback_every_finding_gets_a_track`.)
+**Discipline:** every finding from a validation pass goes somewhere. Either fix in the same arc, capture in a follow-up plan with explicit phases, or surface in `HANDOVER.md` with a one-line reason for deferral. No prose deferrals, no silent drops. (Per harness-lab DOCTRINE principle 11, "Every finding gets a consumer".)
 
 ---
 

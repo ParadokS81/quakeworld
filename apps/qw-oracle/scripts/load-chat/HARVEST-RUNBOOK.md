@@ -50,7 +50,9 @@ that re-fenced everything, because per-chunk fingerprints did not exist yet.
 `(channel, year)`-scoped, so it replaces the year atomically from the merged fence output. Only
 the FENCING is incremental. Embedding cost tracks threads re-inserted, not chunks fenced.
 
-Then: retrieval-probe a thread from the NEW window, update `backfill-ledger.md`, commit.
+Then: retrieval-probe a thread from the NEW window, update `backfill-ledger.md`, commit --
+and republish the brain manifest: `bun scripts/build-brain-manifest.ts --publish` (public
+numbers at oracle.slipgate.me/snapshots/ refresh within the 5-minute cache).
 
 ## Gotchas that have actually bitten
 

@@ -269,7 +269,7 @@ only by source.
 ## Step 4 -- Corpus mining
 
 **Filter:** `bundle_category_path == "Other / Skyboxes"` in
-`/home/paradoks/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson`.
+`~/projects/sandboxes/qw3-abab-gfx/scripts/output/pass2-manifest.ndjson`.
 
 **Bundle inventory (12 bundles):**
 

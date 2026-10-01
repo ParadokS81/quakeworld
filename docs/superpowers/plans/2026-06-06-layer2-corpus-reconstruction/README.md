@@ -10,6 +10,19 @@
 
 ---
 
+## Status (W11, added 2026-08-11 at the chunk-6 HANDOVER migration)
+
+- **Outcome:** Phase A + B shipped; Phase C (full-corpus backfill) COMPLETE 2026-08-06 (35/35 batches, shipped to prod) -- not reflected in the Phase index below (still reads Phase C "drafted (verified)"); real progress is tracked at `apps/qw-oracle/scripts/load-chat/backfill-ledger.md` (last touch 2026-08-06) instead. Phase D and buckets-E remain genuinely pending.
+- **Phase:** Phase D (RRF threshold recalibration) -- stub, not detail-planned. buckets-E is drafted+verified but not yet run.
+- **Next authorized action:** Operator pickup for Phase D detail-planning (trigger "enough corpus backfilled" is now true post-2026-08-06) or buckets-E execution.
+- **Lane:** Main checkout (`/home/dev/projects/quakeworld`, branch `main`). No worktree noted.
+- **Last verification:** unverified at migration (2026-08-11). This README was last touched 2026-06-06 (`a6dbf2d6`); real shipped progress since then (Phase C) is confirmed via `apps/qw-oracle/docs/arc-history.md`'s 2026-08-06 entry, not this file.
+- **Effects crossed:** none stated in scaffold text beyond its own consumer (`search_solved_issues` MCP tool rewire).
+- **Decisions:** `decisions.md` -- 13 locked cross-cutting decisions (D9 amendment records the chunk-cap-sweep result + a version-agnostic-supersede amendment).
+- **Open findings:** `review-findings.md` -- 10 pre-registered risks.
+- **In-flight:** none.
+- **Pause:** Paused, waiting on operator pickup for Phase D -- per HANDOVER's own row (the monthly harvest runbook continues on its own calendar cadence independently of this pause).
+
 ## Read in this order
 
 1. **[`decisions.md`](decisions.md)** -- 13 locked cross-cutting decisions. Every phase respects these. If one is wrong, amend it here (dated block); never drift in a phase MD.

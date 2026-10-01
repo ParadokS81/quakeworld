@@ -2,7 +2,7 @@
 
 **Added:** unknown (HANDOVER index reference orphaned — no body section migrated; entry surfaced during 2026-04-29 docs-system-redesign migration as an index-only reference at HANDOVER:27 with cross-reference at HANDOVER:1104)
 **Status:** Future arc. Stub. Captured intent only — no detail to migrate.
-**Verification first:** `grep -rn "death rules" apps/qw-oracle/concept-notes/` — currently no concept note exists. `sqlite3 apps/qw-oracle/data/knowledge.db "SELECT name FROM entities WHERE project='qw' AND type='gameplay_mechanic' AND name LIKE '%death%'"` returns the death-rule mechanic rows that the eventual concept note would synthesize against.
+**Verification first:** `grep -rn "death rules" apps/qw-oracle/concept-notes/` — currently no concept note exists. `docker exec qw-oracle-postgres-dev psql -U qworacle -d qw_oracle -c "SELECT name FROM gameplay_mechanics WHERE kind='death_rule' ORDER BY name;"` (updated from retired sqlite3 form at the 2026-08-11 migration) returns the death-rule mechanic rows that the eventual concept note would synthesize against.
 
 ### Intent
 

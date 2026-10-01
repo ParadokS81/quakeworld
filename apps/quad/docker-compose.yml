@@ -25,8 +25,11 @@ services:
       - "64738:64738"
       - "64738:64738/udp"
     volumes:
-      - ./mumble-data:/data
-      - ./mumble-certs:/certs:ro   # Let's Encrypt cert, written + chowned by the acme service
+      # /mnt/cache (not /mnt/user): murmur's SQLite DB must not run over the
+      # shfs/FUSE layer -- that corrupted Plex's DB on 2026-08-13. Same bytes
+      # either way (appdata is cache-resident); only the mount route differs.
+      - /mnt/cache/appdata/quad/mumble-data:/data
+      - /mnt/cache/appdata/quad/mumble-certs:/certs:ro   # Let's Encrypt cert, written + chowned by the acme service
     environment:
       # Trusted TLS cert -> no more self-signed / hostname-mismatch warnings.
       # MUMBLE_CONFIG_SSLCERT/SSLKEY map to murmur.ini sslCert/sslKey.

@@ -93,7 +93,7 @@ The extraction infrastructure is project-keyed. Adding a new engine = writing en
 
 ### FTE (Phase 2d)
 
-First port. Biggest structural risk: codebase layout differs (`engine/client/`, `engine/server/`). The `PROJECT_SRC_PREFIX` map in `diff-versions.ts` has an empty FTE entry signalling the extractor must emit repo-relative paths directly. Macro-heavy codebase (regex extraction historically painful -- see Phase 2 motivation in `project_extraction_pipeline_vision` memory).
+First port. Biggest structural risk: codebase layout differs (`engine/client/`, `engine/server/`). The `PROJECT_SRC_PREFIX` map in `diff-versions.ts` has an empty FTE entry signalling the extractor must emit repo-relative paths directly. Macro-heavy codebase (regex extraction historically painful).
 
 ### MVDSV + KTX (Phase 2e)
 
@@ -128,4 +128,4 @@ These are roadmapped but should not be pulled forward without an explicit blocke
 - Vision: `apps/qw-oracle/VISION.md`
 - Open todos / deferred items: `HANDOVER.md` (root)
 - Per-entity-type reference: `apps/qw-oracle/docs/entity-types.md`
-- Project memory: `memory/project_qw_oracle_vision.md`, `memory/project_extraction_pipeline_vision.md`
+- Vision and extractor method: `apps/qw-oracle/VISION.md`, `apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md`

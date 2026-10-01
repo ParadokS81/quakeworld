@@ -5,7 +5,7 @@
 // Emits one self-contained HTML page per the D13 internal-tier model:
 // - One row per entity (row-per-entity, D15)
 // - Sortable + filterable client-side (vanilla JS; no external CDN)
-// - The before/after/why triple INLINE in each row (feedback_inline_pairs_over_split_panels; D15)
+// - The before/after/why triple INLINE in each row (operator UI preference: paired data inline; D15)
 //   "Before" = the raw_comment(s) from description_provenance
 //   "After"  = the committed description (or description_proposed if not yet committed)
 //   "Why"    = description_reasoning (the D6 reasoning, stored for review)

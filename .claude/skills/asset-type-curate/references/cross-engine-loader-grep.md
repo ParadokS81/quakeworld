@@ -5,6 +5,19 @@ grep + jq recipes, and the candidate-detection heuristic.
 
 ---
 
+## Contents
+
+- Section 1 -- The multi-use loader pattern
+- Section 2 -- Signature grep patterns per engine
+  - ezQuake
+  - FTE
+  - QWCL
+  - MVDSV
+- Section 3 -- Verification heuristic: multi-use loader candidate detection
+- Section 4 -- Adjacent gotchas
+  - Screenshot regex read/write conflation
+  - ENCLOSING_FN_CATEGORY_OVERRIDES tier
+
 ## Section 1 -- The multi-use loader pattern
 
 One generic image-load function is dispatched to 8+ distinct asset categories.
@@ -87,7 +100,7 @@ Source-level prefix search to confirm watchlist coverage:
 
 ```bash
 grep -rn "Image_Load\|R_Load\|Tex_Load\|Pic_Load\|Image_Get" \
-  /path/to/ezquake-source/src/ --include="*.c" -l
+  research/repos/ezquake-source/src/ --include="*.c" -l
 ```
 
 ---
@@ -133,7 +146,7 @@ For QWCL source-level verification, grep directly:
 
 ```bash
 grep -rn "R_LoadPic\|Draw_PicFromWad\|Mod_LoadSkin\|GL_LoadTexture\|GL_FindTexture" \
-  /path/to/qwcl-source/ --include="*.c" -l
+  research/repos/qwcl-original/QW/ --include="*.c" -l
 ```
 
 If the QWCL handler doesn't exist, that is an extractor-capability gap, not an
@@ -145,11 +158,11 @@ L1-GAP. Log it in `## Extractor gap` of the investigation.md.
 
 **Status:** No `_handler_asset_loader_sites.py` exists for MVDSV. MVDSV is a
 server; asset-load primitives are QC-side (model/sound precache) or VFS reads,
-not image-file loads. Source root: `/home/paradoks/projects/mvdsv/src/`.
+not image-file loads. Source root: `research/repos/mvdsv/src/`.
 
 ```bash
 grep -rn "Mod_LoadModel\|SV_PrecacheModel\|SV_PrecacheSound\|SV_Precache" \
-  /home/paradoks/projects/mvdsv/src/ --include="*.c" -l
+  research/repos/mvdsv/src/ --include="*.c" -l
 ```
 
 MVDSV is expected to show SPARSE or N/A for most image-asset types. Log genuine
@@ -198,7 +211,7 @@ and loads file content: add to the watchlist and re-run the extractor.
 
 ## Section 4 -- Adjacent gotchas
 
-### Screenshot regex read/write conflation (reference_screenshot_regex_pattern_bug)
+### Screenshot regex read/write conflation
 
 Both ezQuake and FTE handlers had a screenshot `ENCLOSING_FN_CATEGORY_RULES`
 regex that conflated write paths with read paths. Result: 7 ezQuake and 1 FTE
@@ -218,7 +231,7 @@ audit. Paths to add when handlers exist:
 - `apps/qw-oracle/scripts/extractors/qwcl/_handler_asset_loader_sites.py`
 - `apps/qw-oracle/scripts/extractors/mvdsv/_handler_asset_loader_sites.py`
 
-### ENCLOSING_FN_CATEGORY_OVERRIDES tier (reference_role_override_tier_design)
+### ENCLOSING_FN_CATEGORY_OVERRIDES tier
 
 Four-tier merge order: `cat_override or cat_from_fn or cat_from_ext or cat_from_enclosing or cat_fallback`
 

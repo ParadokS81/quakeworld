@@ -1273,3 +1273,21 @@ decisions. No shape question remains: no unresolved data model, no unresolved
 subsystem boundary, no unresolved policy. The brainstorm is declared complete.
 Next step: arc-planner, fresh terminal, via the handoff at
 `docs/superpowers/parking/2026-05-16-ktx-mvdsv-l1-describe-fill-planner-handoff.md`.
+
+## D7 amendment 2026-09-24 -- synthesis dial re-ruled to Opus 5.5, xhigh (operator)
+
+The synthesis dial is now **Opus 5.5, xhigh**, replacing "Opus 4.7, MAX"
+wherever D7 and its clarifications say it. The lock itself stands: one dial
+per knob, not lowerable per invocation, and "fast affirm" is still the early
+exit inside that one invocation, not a cheaper model. Two things changed:
+
+- **The level.** Anthropic's published comparison has Opus 5.5 at `medium`
+  beating Opus 5 at `high`, so `xhigh` is expected to exceed the old Opus 4.7
+  max. This is inferred, not measured on this workload. `max` stays available
+  if a measured gain justifies it.
+- **The enforcement.** "MAX" was prose only, and the brief's `model: "opus"`
+  alias could not set effort. The dial is now held by the project agent
+  `.claude/agents/describe-fill-synthesizer.md` (model and effort in its
+  definition), and the brief dispatches that agent type.
+
+Ruled in the Opus 5.5 prompt-audit sitting.

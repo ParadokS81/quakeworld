@@ -1,0 +1,6 @@
+# oracle-web is its own pnpm workspace root (federation lock, P4 /
+# docs-web D20 precedent). pnpm reads ONLY this file -- the monorepo
+# root package.json "workspaces" npm glob is ignored. infiniti's
+# component package drops into packages/ as workspace:* later.
+packages:
+  - "packages/*"

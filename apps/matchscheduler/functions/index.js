@@ -16,7 +16,7 @@ const { setRecurring, applyRecurringTemplates } = require('./recurring');
 const { updateFavorites } = require('./favorites');
 const { createProposal, confirmSlot, withdrawConfirmation, cancelProposal, cancelScheduledMatch, toggleScheduler, updateProposalSettings, quickAddMatch, rescheduleMatch } = require('./match-proposals');
 const { getScheduledGames } = require('./scheduled-games-api');
-const { syncBig4Matches, scheduledBig4Sync } = require('./big4-sync');
+const { syncBig4Matches } = require('./big4-sync');
 const { submitFeedback, getFeedbackCount } = require('./feedback');
 const { manageBotRegistration } = require('./bot-registration');
 const { enableMumble, disableMumble, updateMumbleSettings } = require('./mumble-operations');
@@ -86,9 +86,11 @@ exports.enableMumble = enableMumble;
 exports.disableMumble = disableMumble;
 exports.updateMumbleSettings = updateMumbleSettings;
 
-// Big4 integration
+// Big4 integration. The 15-minute scheduled sync is retired: The Big 4 closed after
+// Season 2 (site archived, API returns 404, no play expected through end of 2026).
+// The manual admin sync stays. To revive polling, re-export scheduledBig4Sync from
+// ./big4-sync here and redeploy functions -- the deploy recreates the schedule.
 exports.syncBig4Matches = syncBig4Matches;
-exports.scheduledBig4Sync = scheduledBig4Sync;
 
 // Scheduled cleanup
 exports.expireProposals = expireProposals;

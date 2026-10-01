@@ -55,3 +55,16 @@ Three progressive layers of "surface QW community data natively inside Discord c
 - `apps/matchscheduler/context/SCHEMA.md` -- schedule + `autoRecord` field shapes are the inputs Tier 2 mirrors.
 - `contracts/completed/MUMBLE-INTEGRATION-CONTRACT.md` -- the bot/team/mumbleConfig pattern that Tier 1 extends.
 - `docs/superpowers/parking/2026-04-27-feed-tab-content.md` -- adjacent surfacing concern (matchscheduler's own Feed tab) -- Tier 3 may overlap or share infrastructure.
+
+## Addendum (2026-08-11, chunk-6 migration repair): auto-record suppression-stuck root cause
+
+Extracted from quakeworld HANDOVER.md (pre-migration, line 94) at the chunk-6 W17
+migration -- the root-cause detail behind the "quad auto-record suppression-stuck bug"
+small-followup row had no anchor of its own until now:
+
+`stopForTeam` starts the grace timer only if the channel is already empty; if the
+stopping operator stays in the channel, `onUserRemove` never fires and suppression
+sticks. Symptom: the suppression log line appears with no matching clear line. Live
+workaround: `/record start` clears suppression via the manual path. Fix shape: bound
+suppression by a timeout (~5 lines) in
+`apps/quad/src/modules/mumble/auto-record.ts:stopForTeam`.

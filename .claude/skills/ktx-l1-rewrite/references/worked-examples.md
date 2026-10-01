@@ -2,17 +2,37 @@
 
 Few-shot reference for the recast pattern of each KTX Layer B shape. The
 canonical-card pointers in this file resolve to drafts in the findings file:
-`/home/paradoks/projects/quakeworld/apps/qw-oracle/docs/reviews/2026-05-22-ktx-l1-catalog-findings.md`.
+`apps/qw-oracle/docs/reviews/2026-05-22-ktx-l1-catalog-findings.md` (quakeworld repo root).
 
 For each shape: the canonical example, the source signature the skill should
 grep for, the recast pattern in 2-3 lines, and the skill signals that
 distinguish the shape from neighbors.
 
-If the skill encounters an entity that doesn't fit ANY of these patterns,
-park (trigger 1 -- no-shape-match). DO NOT add new shapes; that's the
-operator's call.
+An entity whose relationships fit none of these patterns parks (trigger 1
+-- no-shape-match); an entity with no inter-entity relationship is
+`shape-less` and drafts. Adding a shape is the operator's call.
 
 ---
+
+## Contents
+
+- Shape 1: Cvar + paired toggle (binary flip)
+- Shape 1c: Shape 1 + mode-precondition
+- Shape 1d: Preset + cvar + toggle triad
+- Shape 2: Cvar + paired cycle command (multi-value cycle)
+- Shape 3: Cvar with no paired command (set-once in config)
+- Shape 4: Cvar that gates a command (without toggling it)
+- Shape 4b: Serverinfo-key-gated command
+- Shape 5: Cycle-command escape via direct cvar set
+- Shape 6: Stateful command + one-shot command pair (command-to-command)
+- Shape 7a: Election (time-boxed, with yes/no approval)
+- Shape 7b: Continuous toggle vote (no time-box, no yes/no)
+- Shape 8: Subcommand of a parent-dispatcher command
+- Shape 9a: Side-channel cvar (user-influenced via another command's arg syntax)
+- Shape 9b: Engine-only state-mirror cvar (no user-actionable path)
+- Shape 10: Curated-family help-printer command
+- Sui generis (no Layer B shape -- park trigger 4)
+- Mixed-shape feature-family (NOT a shape; cross-link discipline)
 
 ## Shape 1: Cvar + paired toggle (binary flip)
 
@@ -27,13 +47,15 @@ redtext(...))`.
 
 **Recast pattern:**
 - Cvar side: Headliner names what 0/1 means; Effect = value enum; Default;
-  Permission = `server config or '<cmd>' admin command in-game`;
-  Match-state = `pre-match only`; Example = server.cfg line + in-game
-  command; See-also = paired toggle.
-- Command side: Headliner = "Admin command that toggles the X rule
-  (<cvar>)"; NO value enum (lives on cvar); Permission = `admin only`;
-  Match-state = `pre-match only`; Example = bare invocation; See-also =
-  paired cvar.
+  Permission = `server config, or in-game via '<cmd>'` (the command's own
+  Permission line carries who may run it); Match-state = `pre-match only`;
+  Example = server.cfg line + in-game command; See-also = paired toggle.
+- Command side: Headliner = "Toggles the X rule (<cvar>)"; NO value enum
+  (lives on cvar); Permission = from the registration row's CF_* flags via
+  the table in `universal-shape-v2.md` -- most Shape 1 commands are
+  `CF_PLAYER | CF_SPC_ADMIN`, which is "any player or admin spectator",
+  not admin-only; Match-state = `pre-match only`; Example = bare
+  invocation; See-also = paired cvar.
 
 **Skill signals:** Look for `cvar_toggle_msg(self, "<exact-name>", ...)`
 calls in the codebase -- one such site = Shape 1 base. If the toggle
@@ -195,7 +217,7 @@ See-also rather than as its own shape.
 ## Shape 6: Stateful command + one-shot command pair (command-to-command)
 
 **Canonical example:** `mmode` + `s-p` / `s-r` / `s-m` / `s-l` / `s-t`
-(findings line 291; full mmode v2 draft below for reference).
+(findings line 291).
 
 **Source signature:** Persistent handler writes starred userinfo keys via
 `SetUserInfo(... SETUSERINFO_STAR)`. One-shot handlers are often
@@ -311,8 +333,7 @@ top-level `cmd_t cmds[]` table.
 
 ## Shape 9a: Side-channel cvar (user-influenced via another command's arg syntax)
 
-**Canonical example:** `k_entityfile` (findings line 2108 -- full v2
-draft below for reference).
+**Canonical example:** `k_entityfile` (findings line 2108).
 
 **Source signature:** `cvar_set("<name>", arg_or_derived)` lives in a
 non-handler engine function that processes another command's args (e.g.
@@ -331,7 +352,7 @@ No matching `cvar_toggle_msg` / `cvar_fset` site; no gate-read site.
   ```
 - Prerequisites: variant `.ent` file must exist on disk before
   `forcemap <map>#<variant>` will work.
-- Set by: side-effect of `'changelevel <map>#<variant>'` (typically issued
+- Permission: side-effect of `'changelevel <map>#<variant>'` (typically issued
   via `forcemap`). Direct `set k_entityfile foo` is syntactically valid
   but overwritten on next map change AND points at non-existent files
   unless the variant was registered.
@@ -361,7 +382,7 @@ syntax to trigger the write.
 - Effect: what the cvar persists, when the engine writes it, when the
   engine reads it.
 - Prerequisites: typically none.
-- Set by: "Engine internal only -- set automatically by `<function or
+- Permission: "Engine internal only -- set automatically by `<function or
   event>`. Not user-actionable; direct `set` is overwritten on the next
   state transition."
 - Example: SKIP the section (or use "Not user-actionable" placeholder).
@@ -376,8 +397,7 @@ becomes the cvar value. User has no syntax to trigger the write.
 
 ## Shape 10: Curated-family help-printer command
 
-**Canonical example:** `qizmo` (findings line 2245 -- full v2 draft below
-for reference). Other instance: `options` (markets 16 match-setting
+**Canonical example:** `qizmo` (findings line 2245). Other instance: `options` (markets 16 match-setting
 commands).
 
 NOTE: `rules` was previously listed here as a Shape 10 instance but is

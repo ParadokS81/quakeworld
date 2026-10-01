@@ -74,7 +74,7 @@ invocation) re-checks every `synthesized` row's `source_ref` before commit.
 
 ## The hard confabulation guard (Step 4)
 
-If a knob's behavior is NOT legible from source even at Opus-4.7-MAX
+If a knob's behavior is NOT legible from source even at Opus-5.5-xhigh
 reasoning:
 
 - Do NOT guess. Do NOT infer behavior from the knob's name (name-only

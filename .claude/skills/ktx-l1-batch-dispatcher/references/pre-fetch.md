@@ -26,7 +26,7 @@ The per-card sub-agent consumes this record directly as its arg bundle.
 Run the helper script:
 
 ```bash
-cd /home/paradoks/projects/quakeworld
+cd ~/projects/quakeworld
 bun apps/qw-oracle/scripts/list-entities-by-category.ts \
   --project ktx --category '<category>' --format json
 ```

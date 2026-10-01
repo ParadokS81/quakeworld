@@ -211,3 +211,15 @@ Future siblings: `mvdsv-l1-rewrite`, `qwfwd-l1-rewrite`, `qtv-l1-rewrite` — fo
 - Dispatcher design for the catalog-wide template-application arc — separate brainstorm + arc plan.
 - Apply-pass design (reading drafts file → writing to `entities.description`) — separate skill or runbook, TBD.
 - Cross-codebase fork timing — wait for KTX catalog to fully ship before forking to MVDSV/QWFWD/QTV.
+
+## Amendment 2026-09-24 -- per-card dial re-ruled to Sonnet 5, high (operator)
+
+The per-card dial is now **Sonnet 5, high**, replacing "Sonnet 4.6 high"
+wherever this spec says it. The reasoning above stands: this is the cheaper
+job, and its cost split against `describe-fill-synthesis` is the point. What
+changed is the enforcement. The dispatcher's `model: "sonnet"` alias had
+already moved to Sonnet 5, and nothing set effort. The dial is now held by
+the project agent `.claude/agents/ktx-card-rewriter.md` (model and effort in
+its definition), and the dispatcher dispatches that agent type. Ruled in the
+Opus 5.5 prompt-audit sitting, matching harness-lab's `claude-led-2026-09-22`
+workhorse row.

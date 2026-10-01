@@ -15,7 +15,7 @@ Persistent data and configs live at `/mnt/user/appdata/qw-oracle/`:
 
 - `postgres-data/` - Postgres state. Covered by the weekly Unraid -> Synology backup.
 - `snapshots/` - empty in Arc 1; Arc 2 will write `manifest.json` and per-snapshot files here.
-- `docker-compose.prod.yml`, `nginx.conf`, `.env` - operator-authored copies of `apps/qw-oracle/deploy/`.
+- `docker-compose.prod.yml`, `nginx/default.conf` (from `deploy/nginx.conf`; directory mount over conf.d), `.env` - operator-authored copies of `apps/qw-oracle/deploy/`.
 
 ## Prerequisites
 
@@ -28,10 +28,13 @@ Persistent data and configs live at `/mnt/user/appdata/qw-oracle/`:
 1. Copy compose + nginx config to Unraid:
 
    ```bash
-   ssh root@100.114.81.91 'mkdir -p /mnt/user/appdata/qw-oracle/{postgres-data,snapshots}'
+   ssh root@100.114.81.91 'mkdir -p /mnt/user/appdata/qw-oracle/{postgres-data,snapshots,nginx}'
    scp apps/qw-oracle/deploy/docker-compose.prod.yml \
-       apps/qw-oracle/deploy/nginx.conf \
        root@100.114.81.91:/mnt/user/appdata/qw-oracle/
+   # nginx.conf lands as nginx/default.conf: the compose mounts the DIRECTORY
+   # over conf.d (a single-file mount strands the container on a rename-write).
+   scp apps/qw-oracle/deploy/nginx.conf \
+       root@100.114.81.91:/mnt/user/appdata/qw-oracle/nginx/default.conf
    ```
 
 2. Author the `.env` on Unraid by copy-pasting `.env.prod.example` and filling in real values:

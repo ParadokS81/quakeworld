@@ -10,6 +10,19 @@
 
 ---
 
+## Status (W11, added 2026-08-11 at the chunk-6 HANDOVER migration)
+
+- **Outcome:** Not yet shipped to production. L1 reference site built + preview-deployed at `https://quakeworld-docs.pages.dev/`; Phase 5 (Cloudflare Pages + vikpe DNS) is the only remaining phase.
+- **Phase:** Phase 5 (deploy) -- not started. Phases 1, 2a, 2b, 3, 4, and the F14 pre-deploy pass all shipped (last: F14 shipped 2026-06-11).
+- **Next authorized action:** Show vikpe the preview link for DNS greenlight; resume handoff at `docs/superpowers/parking/2026-06-11-docs-quake-world-orchestrator-resume-phase5.md` (confirmed present on disk; `phase-5-deploy.md` itself not yet drafted).
+- **Lane:** Main checkout (`/home/dev/projects/quakeworld`, branch `main`). No worktree noted.
+- **Last verification:** 2026-06-11 (F14 shipped + operator floor-check; visual-confirm noted pending in the README's own Phase-index row).
+- **Effects crossed:** none stated in scaffold text beyond its own precursor arc (`docs/superpowers/plans/2026-06-09-docs-l1-enrichment/`).
+- **Decisions:** `decisions.md` -- D1-D11 (product) + D12-D21 (build/execution).
+- **Open findings:** `review-findings.md` -- known hazards (slipgate-parity gate, shape-freeze timing, category-version inversion).
+- **In-flight:** none.
+- **Pause:** Paused, waiting on vikpe DNS greenlight (external gate) -- per HANDOVER's own row for this arc.
+
 ## Read in this order
 
 1. **[`prerequisites.md`](prerequisites.md)** -- operator-side Task 0. Short for this arc (most setup is loop-doable). Do the local-dev items before Phase 1; the slipgate-parity baseline matters.

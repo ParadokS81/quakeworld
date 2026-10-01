@@ -4,6 +4,42 @@ The skill's 6-step pipeline (pre-flight / source-verify / docs-cross-ref / corpu
 
 ---
 
+## Contents
+
+- CONFIDENT
+  - Trigger conditions
+  - Concrete example: `charset`
+  - What goes in investigation.md
+  - Draft produced
+- L1-GAP
+  - Threshold rule
+  - Trigger conditions
+  - Block-grade example (hypothetical -- L1-GAP, halt)
+  - Enrichment-grade example (NOT L1-GAP, do not halt)
+  - Named enrichment-grade pattern: L1-CAT-AMBIGUOUS
+  - Skybox case study (2026-05-13)
+  - What goes in investigation.md
+  - Draft produced
+- DOC-GAP
+  - Trigger conditions
+  - Concrete example: `locfile`
+  - What goes in investigation.md
+  - Draft produced
+- DIVERGENT
+  - Trigger conditions
+  - Concrete example: `skybox` loader paths (docs vs. source)
+  - What goes in investigation.md
+  - Draft produced
+  - Retired-feature edge case
+- SPARSE
+  - Trigger conditions
+  - Concrete example: `palette`
+  - What goes in investigation.md
+  - Draft produced
+- Triage heuristics for vocabulary-alignment audits
+  - Corpus-categories absence as a signal for "L1-only intentional"
+  - Layered vocabulary: entity-type vs asset_category
+
 ## CONFIDENT
 
 ### Trigger conditions
@@ -122,7 +158,7 @@ Yes. Draft is authored from source + corpus rather than docs. Operator action: d
 
 ### Concrete example: `skybox` loader paths (docs vs. source)
 
-The ezquake.com textures page documents `gfx/env/` as the skybox install path. Source (`R_LoadSkyTexturePixels`) probes four prefix variants including bare `env/`. FTE additionally accepts bare-root `<skyname><suffix>.<ext>` paths (via `Shader_ParseSkySides`). The community convention (`gfx/env/`) is valid and safe, but the engine accepts more paths than the docs state. Flag: DIVERGENT; draft notes the divergence prominently and favors source-truth, explaining that `gfx/env/` is the recommended single install location even though the engine probes additional paths.
+The ezquake.com textures page documents only `qw/env/` with the no-separator naming `<name><suffix>`. Source (`R_LoadSkyTexturePixels`) probes four prefix/separator combinations -- `env/` and `gfx/env/`, each with and without the `_` separator -- and FTE's legacy 6-face path (`Shader_ParseSkySides`) also probes bare-root `<name><suffix>` / `<name>_<suffix>`. The community corpus uses the underscore form throughout. Flag: DIVERGENT; the draft notes the divergence prominently, favors source-truth, and recommends `qw/env/<name>_<suffix>.<ext>` -- a supported probe path and the community form -- as the install location.
 
 ### What goes in investigation.md
 

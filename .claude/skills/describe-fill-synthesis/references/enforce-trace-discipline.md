@@ -5,6 +5,19 @@ section of SKILL.md for EVERY invocation -- first-pass synthesis AND
 re-synth, both engines. Authority: `decisions.md` D7 Amendment 2026-05-19
 (B1). This file is the full method; SKILL.md carries only the pointers.
 
+## Contents
+
+- Why this exists (the flavour-C finding)
+- The core rule
+- The r42 anti-shortcut (this is the whole point)
+- WI-1 (wide read, strengthened)
+- WI-2 (metadata precision)
+- PROC-1 (fact vs judgment)
+- The verification (V-pass) classification enum
+- Canonical worked cases (from the 2026-05-19 probe)
+- Seeded re-synth (B4) -- when invoked to correct a flagged row
+- Record contract (B5)
+
 ## Why this exists (the flavour-C finding)
 
 A description can be confident, well-written, internally consistent, cite

@@ -1,0 +1,72 @@
+# P2 dev databases -- disposable twins of the prod DBs, for cockpit dev work.
+# Design: docs/p2-dev-databases-design.md in the unraid repo (built 2026-07-15,
+# option (a) for quake_stats).
+#
+# SOURCE OF TRUTH: this monorepo (infra/dev-databases/). Custody transferred
+# from ops's unraid repo 2026-08-14 (their dev-databases/ is now a pointer
+# README; last ops-side state = unraid commit 7db6cd8, identical to this).
+# Deploy: from this directory, through dev-deploy-proxy (no ssh, no scp):
+#
+#   docker compose --env-file ~/.secrets/dev-databases.env up -d
+#
+# ALWAYS pass that --env-file: the real .env is server-side root-600 escrow;
+# ~/.secrets/dev-databases.env is the cockpit's ro mirror. Omitting it
+# resolves the password vars to empty -- the initialized data dirs keep their
+# real passwords so nothing breaks, but the container env carries empties and
+# confuses the next debugging session.
+#
+# Principles:
+#   - devnet only, NO published ports -- reachable by container name from the
+#     cockpit, invisible to LAN/tailnet. (Deviation from design doc:
+#     workstation DBHub can NOT reach these -- it needs a published port; add
+#     a tailscale-bound port later if wanted.)
+#   - prod is never touched: seeding is pg_dump/mariadb-dump FROM prod,
+#     restore INTO these.
+#   - twins are CATTLE. Trashed one? Re-seed (see seeds/RESEED.md -- server
+#     side as of the custody transfer; handover to this dir requested).
+#   - data binds ride /mnt/cache, not /mnt/user: DBs must not run over the
+#     shfs/FUSE layer (corrupted Plex's DB 2026-08-13).
+#
+# Independent lifecycle from the cockpit stack on purpose: DB restarts never
+# touch the cockpit container and vice versa.
+
+# Pinned so compose keeps adopting the running pair (labeled project
+# "databases" from the old deploy dir) instead of deriving "dev-databases"
+# from this directory and orphaning/colliding with them.
+name: databases
+
+services:
+  qw-oracle-postgres-dev:
+    image: pgvector/pgvector:pg16          # match prod qw-oracle-postgres exactly
+    container_name: qw-oracle-postgres-dev
+    environment:
+      POSTGRES_USER: qworacle              # same user name as prod -> connection strings port 1:1
+      POSTGRES_PASSWORD: ${ORACLE_DEV_PW}
+      POSTGRES_DB: qw_oracle
+    volumes:
+      - /mnt/cache/appdata/dev/pg-oracle:/var/lib/postgresql/data
+    networks: [devnet]
+    mem_limit: 2g
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+    # holds TWO databases: qw_oracle (twin of prod) + quake_stats (scratch copy from
+    # phoenix-postgres -- option (a): ranking research needs to WRITE; pgvector image
+    # is a plain-postgres superset so hosting it here is harmless)
+
+  qwiki-mariadb-dev:
+    image: mariadb:11.4                    # match prod qwiki-mariadb exactly
+    container_name: qwiki-mariadb-dev
+    environment:
+      MARIADB_ROOT_PASSWORD: ${QWIKI_DEV_PW}
+      MARIADB_DATABASE: qwiki_beta
+    volumes:
+      - /mnt/cache/appdata/dev/mariadb:/var/lib/mysql
+    networks: [devnet]
+    mem_limit: 2g
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+
+networks:
+  devnet:
+    external: true                          # created by the cockpit stack
+    name: devnet

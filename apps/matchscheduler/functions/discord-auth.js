@@ -4,6 +4,11 @@ const { getAuth } = require('firebase-admin/auth');
 
 const DISCORD_API_BASE = 'https://discord.com/api/v10';
 
+// The production Discord application's client ID. Public by definition (the frontend
+// ships it in index.html), so it can live in source: a deploy from a checkout without
+// functions/.env must not lose it. .env / .env.emulator still override for local dev.
+const PROD_DISCORD_CLIENT_ID = '1465332663152808031';
+
 /**
  * Auto-generate 3-letter initials from a display name.
  */
@@ -14,11 +19,14 @@ function generateInitials(name) {
 }
 
 /**
- * Get Discord credentials from environment variables
- * Uses .env file (deployed with functions) or .env.emulator (local dev)
+ * Get Discord credentials from environment variables.
+ * DISCORD_CLIENT_ID is public and comes from .env (deployed with functions) or
+ * .env.emulator (local dev). DISCORD_CLIENT_SECRET is bound from Firebase Secret
+ * Manager via runWith({ secrets }) below, so a deploy from any checkout carries it --
+ * a .env-only secret silently vanished whenever the deploying machine lacked the file.
  */
 function getDiscordCredentials() {
-    const clientId = process.env.DISCORD_CLIENT_ID;
+    const clientId = process.env.DISCORD_CLIENT_ID || PROD_DISCORD_CLIENT_ID;
     const clientSecret = process.env.DISCORD_CLIENT_SECRET;
     return { clientId, clientSecret };
 }
@@ -45,6 +53,7 @@ function getDiscordAvatarUrl(userId, avatarHash) {
  */
 exports.discordOAuthExchange = functions
     .region('europe-west3')
+    .runWith({ secrets: ['DISCORD_CLIENT_SECRET'] })
     .https.onCall(async (data, context) => {
     const { code, redirectUri, forceNew = false, linkOnly = false } = data;
     const callerUid = context.auth?.uid;  // For linkOnly operations

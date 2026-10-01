@@ -6,6 +6,18 @@ Step 3. It is the D5 quality bar AS AMENDED. Where this file and
 that and the spec differ, the spec governs. The dated D5 amendment GOVERNS
 the original D5 text -- never revert to the pre-amendment phrasing.
 
+## Contents
+
+- The five rubric clauses
+- The amendment -- evaluate EVERY entity (LOCKED, supersedes original D5)
+- Worked examples
+  - Affirm (comment clears the rubric -- adopt verbatim, `source_inline`)
+  - Synthesize (comment is dev-WHY -- write ours from read use-sites)
+  - Synthesize (tautological comment -- a name restatement fails clause 2)
+  - Synthesize / mechanism-only (D8 bot-tier -- COMPLETE, not degraded)
+  - Hedge (only partially source-legible -- never guess the rest)
+  - Residue (not source-legible at all -- C1 track, never dropped)
+
 ## The five rubric clauses
 
 A description is good enough to serve a user (an admin / server operator)
@@ -46,13 +58,13 @@ is ONE INPUT to that evaluation, NEVER a verdict.
 
 The D5 cheap-classify step routes EFFORT (a good comment classifies-and-
 affirms quickly = the fast-affirm early exit; weak or absent = full Opus-
-MAX synthesis). It does NOT exempt anything from evaluation. Coverage =
+xhigh synthesis). It does NOT exempt anything from evaluation. Coverage =
 "every entity evaluated and carrying an owned, affirmed-or-synthesized
 description," NEVER "had a comment so counted." The original D5 phrasing
 "clears the bar -> kept as-is, no rework" is SUPERSEDED by this amendment.
 
 "cheap" / "fast affirm" is EFFORT routing, not a cheaper model: it is the
-early-exit path WITHIN the single Opus-4.7-MAX D6 invocation, not a
+early-exit path WITHIN the single Opus-5.5-xhigh D6 invocation, not a
 separate pre-classify tier (D7 clarification 2026-05-17).
 
 ## Worked examples

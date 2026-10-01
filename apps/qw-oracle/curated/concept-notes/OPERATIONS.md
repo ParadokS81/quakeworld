@@ -344,6 +344,5 @@ Surfaced during `player-skins.md` post-commit discussion. The cshift family (`v_
 
 - Entry template: `README.md` (sibling in this directory).
 - Doc philosophy: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md` Section  OPERATIONS.md (added 2026-04-25).
-- Two-path curation memory: `memory/project_layer3_two_path_curation.md`.
 - Workstream C pipeline prep: `HANDOVER.md` Section  Workstream C.
 - License context: Discord 2026-04-24 with vikpe; operator decision to treat as CC-BY-4.0 recorded in HANDOVER.md Workstream C Item 2.

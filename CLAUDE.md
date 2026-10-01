@@ -1,11 +1,12 @@
 # QuakeWorld Monorepo
 
-**Status:** Active development. Workshop monorepo hosting five QuakeWorld community apps. Solo-developer, Claude-assisted.
+**Status:** Active development. Workshop monorepo hosting six QuakeWorld community apps. Solo-developer, Claude-assisted.
 
 ## Documentation index
 
 | When you need... | Read... |
 |---|---|
+| Codex discovery adapter pointing to this canonical project index. | `AGENTS.md` |
 | Elevator pitch, what's in here | `README.md` |
 | Why this monorepo exists, workshop framing, graduation paths | `VISION.md` |
 | Living map: integration diagram, per-app status, packages, contracts | `OVERVIEW.md` |
@@ -13,6 +14,8 @@
 | Deferred items from prior wrap-ups (todo state, not memory) | `HANDOVER.md` |
 | Standalone investigations / research papers (ecosystem-scope) | `docs/research/` |
 | Always-loaded mindset docs | `.claude/skills/philosophy/` (auto-imported below) |
+| The documentation constitution — why docs are shaped this way | harness-lab's `DOC-PHILOSOPHY.md` (canonical; no local copy in this repo) |
+| The development doctrine — environment, principles, iteration protocol | harness-lab's `DOCTRINE.md` (canonical; no local copy — skills render it, never own it) |
 | Session wrap-up ritual | `~/.claude/skills/docs-check/` (user-global skill) |
 | Deploy any project | `deploy` skill ("deploy" or `/deploy`) |
 
@@ -26,7 +29,8 @@
 | `apps/quad/` | `apps/quad/CLAUDE.md` | Discord bot |
 | `apps/qw-stats/` | `apps/qw-stats/CLAUDE.md` | Express + PostgreSQL stats API |
 | `apps/qw-oracle/` | `apps/qw-oracle/CLAUDE.md` | SQLite knowledge base + MCP service (Layer 1 facts / Layer 2 chat corpus / Layer 3 concept notes) |
-| `apps/slipgate-app/` | `apps/slipgate-app/CLAUDE.md` | Tauri v2 desktop companion (active, ~90% of current work) |
+| `apps/oracle-web/` | `apps/oracle-web/CLAUDE.md` | oracle.quake.world v1 -- the read-only brain surface (SolidJS, CF Pages) |
+| `apps/slipgate-app/` | `apps/slipgate-app/CLAUDE.md` | Tauri v2 desktop companion |
 | `packages/qw-knowledge/` | `packages/qw-knowledge/CLAUDE.md` | Shared QW domain knowledge / weapon-scripts / terminology |
 | `packages/qw-version-resolution/` | `packages/qw-version-resolution/CLAUDE.md` | Version arithmetic helpers (engine versions, builds, channels) |
 
@@ -72,8 +76,8 @@ Compile and build first. Manual verification second. Automated tests only when t
 The user does not touch git. Claude runs all git operations silently -- no merge menus, no PR prompts, no branch questions. Git is a tool for Claude, not a UX for the user.
 
 **Layout:**
-- Main tree (`/home/paradoks/projects/quakeworld/`, branch `main`) is the default working directory. All work happens here unless a worktree is explicitly created for parallelism.
-- Worktrees exist only for parallelism (two Claude sessions running simultaneously on different topics). None are currently active.
+- Main tree (`/home/dev/projects/quakeworld/`, branch `main`) is the default working directory. All work happens here unless a worktree is explicitly created for parallelism.
+- Worktrees exist only for parallelism (two Claude sessions running simultaneously on different topics). Active: `/home/dev/worktrees/quakeworld-eval` (branch `eval-oracle-sim`) -- the oracle-eval-simulation arc's retained lane (parking doc `docs/superpowers/parking/2026-08-06-oracle-eval-simulation.md`); created 2026-08-06 under `~/projects/`, moved to `~/worktrees/` 2026-10-01 when the arc resumed under Workflow v2. Remove when the eval arc closes.
 - For matchscheduler, quad, or any new topic: create a worktree ad-hoc when parallel work is actually needed. Delete when the work merges or goes idle.
 - **When adding or removing a worktree, update BOTH this section AND the `case` block in `.claude/scripts/session-start-git-state.sh`** so the session banner continues to label it correctly.
 
@@ -102,7 +106,7 @@ The user does not touch git. Claude runs all git operations silently -- no merge
 - `src-tauri/` rsync constraint: `.claude/settings.json` has a `PostToolUse` hook that fires `apps/slipgate-app/scripts/sync-rust.sh` whenever `slipgate-app/src-tauri/` is edited, and the script hardcodes `$HOME/projects/quakeworld/apps/slipgate-app`. Slipgate work MUST stay in the main tree. Never relocate slipgate to a worktree without updating both the hook command and the sync script.
 
 **Upstream PRs (outside this monorepo):**
-- For patches to upstream repos (ezquake-source / ktx / mvdsv / fte / anything outside this tree), follow Linux kernel coding-assistants conventions: AI must NOT add `Signed-off-by` -- the operator signs and certifies the DCO. Use `Assisted-by: Claude:<model-id>` for AI attribution instead of the internal `Co-Authored-By:` shape. Issues are exempt from DCO so an informal "Co-authored with Claude Code" footer is acceptable there; the discipline applies to PR commits. Reference: https://docs.kernel.org/process/coding-assistants.html. Detail at memory file `reference_upstream_pr_attribution.md`.
+- For patches to upstream repos (ezquake-source / ktx / mvdsv / fte / anything outside this tree), follow Linux kernel coding-assistants conventions: AI must NOT add `Signed-off-by` -- the operator signs and certifies the DCO. Use `Assisted-by: Claude:<model-id>` for AI attribution instead of the internal `Co-Authored-By:` shape. Issues are exempt from DCO so an informal "Co-authored with Claude Code" footer is acceptable there; the discipline applies to PR commits. Reference: https://docs.kernel.org/process/coding-assistants.html.
 
 ## WSL development environment
 

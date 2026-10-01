@@ -7,6 +7,16 @@ and when those proposals must be promoted to standalone patch files.
 
 ---
 
+## Contents
+
+- Section 1 -- Inline delta format (common case)
+  - Example A -- adding a missing corpus_categories entry
+  - Example B -- correcting a l1_hint_bare_categories mis-match
+- Section 2 -- Promote-to-file criteria (D6 exception)
+  - Where promoted patches live
+- Section 3 -- Worked example: Skins / Gib seed split (promote-to-file)
+- Section 4 -- How the orchestrator applies deltas
+
 ## Section 1 -- Inline delta format (common case)
 
 When source verification or corpus mining reveals that a seed field is
@@ -57,7 +67,7 @@ l1_hint_bare_categories:
 
 ## Section 2 -- Promote-to-file criteria (D6 exception)
 
-Inline deltas are appropriate for **0-3 field changes** that modify existing
+Inline deltas are appropriate for **up to five field changes** that modify existing
 scalar or list values. Promote to a standalone patch file when either of the
 following is true:
 

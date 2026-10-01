@@ -7,7 +7,7 @@ user-asset extensions in the gfx corpus.
 Three data sources:
   1. Engine source (.c, .h files) -- string literals containing extensions
   2. Seed catalog -- EXT_TO_CATEGORY in _handler_asset_loader_sites.py (29 extensions)
-  3. Gfx corpus -- /home/paradoks/sandboxes/qw3-abab-gfx/ (actual user asset files)
+  3. Gfx corpus -- ~/projects/sandboxes/qw3-abab-gfx/ (actual user asset files)
 
 Outputs a markdown report comparing coverage across all three.
 """
@@ -23,7 +23,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent.parent.parent  # quakeworld root
 EZQ_SRC = REPO / "research" / "repos" / "ezquake-source" / "src"
-GFX_CORPUS = Path("/home/paradoks/sandboxes/qw3-abab-gfx")
+GFX_CORPUS = Path.home() / "projects/sandboxes/qw3-abab-gfx"
 EXTRACTORS = REPO / "apps" / "qw-oracle" / "scripts" / "extractors"
 sys.path.insert(0, str(EXTRACTORS))
 
@@ -194,7 +194,7 @@ def main() -> None:
     lines.append(f"**Generated:** {date.today().isoformat()}")
     lines.append(f"**Source:** research/repos/ezquake-source/src/")
     lines.append(f"**Seed reference:** apps/qw-oracle/scripts/extractors/ezquake/_handler_asset_loader_sites.py EXT_TO_CATEGORY")
-    lines.append(f"**Corpus:** /home/paradoks/sandboxes/qw3-abab-gfx/")
+    lines.append(f"**Corpus:** ~/projects/sandboxes/qw3-abab-gfx/")
     lines.append("")
 
     lines.append("## Summary\n")

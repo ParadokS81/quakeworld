@@ -41,6 +41,29 @@ const AuthService = (function() {
     let _authReadyResolve = null;
     let _authReadyPromise = new Promise(resolve => { _authReadyResolve = resolve; });
 
+    // Popup sign-in flows must survive viewport changes. On tiling window managers
+    // (Hyprland etc.) the OAuth popup does not float: it tiles beside the browser and
+    // shrinks its viewport across the mobile breakpoint. app.js reloads on that
+    // crossing, which would drop the pending promise and its message listener, so
+    // every popup flow runs inside this guard and app.js consults isSignInPending().
+    let _signInPending = 0;
+
+    async function _withSignInPending(work) {
+        _signInPending++;
+        try {
+            return await work();
+        } finally {
+            _signInPending--;
+            if (_signInPending === 0) {
+                window.dispatchEvent(new CustomEvent('auth-signin-settled'));
+            }
+        }
+    }
+
+    function isSignInPending() {
+        return _signInPending > 0;
+    }
+
     /**
      * Check if we should use dev mode (localhost + DEV_MODE enabled)
      */
@@ -147,8 +170,22 @@ const AuthService = (function() {
         }
     }
     
+    // Public popup flows: thin wrappers so the pending guard covers the whole flow,
+    // popup and backend exchange included.
+    function signInWithGoogle() {
+        return _withSignInPending(_signInWithGoogle);
+    }
+
+    function signInWithDiscord(options = {}) {
+        return _withSignInPending(() => _signInWithDiscord(options));
+    }
+
+    function linkDiscordAccount() {
+        return _withSignInPending(_linkDiscordAccount);
+    }
+
     // Sign in with Google (or email in dev mode)
-    async function signInWithGoogle() {
+    async function _signInWithGoogle() {
         // Dev mode - sign in with email/password to Auth emulator
         if (_isDevMode) {
             await _devModeAutoSignIn();
@@ -216,7 +253,7 @@ const AuthService = (function() {
      * @param {Object} options - Optional parameters
      * @param {boolean} options.forceNew - Force creating new account even if email matches
      */
-    async function signInWithDiscord(options = {}) {
+    async function _signInWithDiscord(options = {}) {
         const { forceNew = false } = options;
 
         // Dev mode - use standard dev sign-in instead
@@ -386,7 +423,7 @@ const AuthService = (function() {
      * Link Discord account to existing authenticated user (Google users)
      * Reuses OAuth popup flow but doesn't sign in - just gets Discord data
      */
-    async function linkDiscordAccount() {
+    async function _linkDiscordAccount() {
         // Dev mode - simulate linking
         if (_isDevMode) {
             console.log('🔧 DEV MODE: Simulating Discord link');
@@ -766,6 +803,7 @@ const AuthService = (function() {
         waitForAuthReady,
         getCurrentUser,
         isAuthenticated,
+        isSignInPending,
         onAuthStateChange,
         // Dev mode only
         isDevMode,

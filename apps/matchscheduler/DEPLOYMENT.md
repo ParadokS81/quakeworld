@@ -16,6 +16,14 @@
 - Firebase CLI installed and authenticated (`firebase login`)
 - Node.js (for CSS build)
 - Access to the `matchscheduler-dev` Firebase project
+- **No local secrets are needed for a functions deploy.** The Discord client secret lives in
+  Firebase Secret Manager as `DISCORD_CLIENT_SECRET` and is bound to `discordOAuthExchange`
+  via `runWith({ secrets })` in `functions/discord-auth.js`; the CLI refuses to deploy if the
+  secret is missing rather than deploying without it. The public client ID is a constant in
+  the same file (`.env` / `.env.emulator` override it for local dev). Rotate the secret with
+  `firebase functions:secrets:set DISCORD_CLIENT_SECRET --data-file -` fed from a file placed by
+  `secret-drop`, then deploy functions. Set up 2026-09-11 after a `.env`-only secret was found
+  to vanish on any deploy from a checkout without the file.
 
 ## Deploy Workflow
 
@@ -64,7 +72,7 @@ Open https://matchscheduler-dev.web.app and confirm the change is live.
 ## Architecture Notes
 
 ### Function regions
-- **v1 onCall functions (25)**: All share a single Cloud Functions container in `europe-west3`. This means `firebase deploy --only functions` deploys all 25 at once and is fast.
+- **v1 functions (46 as of 2026-09-11: callables, scheduled jobs, two plain HTTPS endpoints)**: All share a single Cloud Functions container in `europe-west3`. This means `firebase deploy --only functions` deploys them all at once and is fast; unchanged functions are skipped.
 - **v2 storage triggers (2)**: `processLogoUpload` and `processAvatarUpload` run as separate Cloud Run services in `europe-west10` (must match storage bucket region).
 
 ### Adding a new Cloud Function
@@ -104,6 +112,11 @@ Tailwind watcher rebuilds automatically during dev. Always run `npm run css:buil
 ### Functions deploy fails
 - Check `firebase functions:log` for errors
 - Ensure all functions use `europe-west3` region (v1) or `europe-west10` (v2 storage only)
+
+### Retired scheduled functions
+`scheduledBig4Sync` (15-minute Big4 poll) was deleted from the project on 2026-09-11 and its
+export removed from `functions/index.js`: The Big 4 closed after Season 2 and its API 404s.
+Re-exporting it and deploying functions recreates the schedule.
 
 ### Orphaned Cloud Run services
 After the v1 migration, old per-function Cloud Run services may exist:

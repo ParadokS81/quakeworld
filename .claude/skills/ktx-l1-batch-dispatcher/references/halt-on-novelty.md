@@ -7,6 +7,16 @@ candidate shape (trigger 1) or an irreducibly novel mechanism (trigger 4),
 the dispatcher HALTS the batch and surfaces the candidate-shape signature
 for operator review.
 
+## Contents
+
+- Trigger taxonomy (4 triggers, only 2 halt)
+  - Why triggers 1 + 4 halt
+  - Why triggers 2 + 3 do NOT halt
+- Halt detection logic
+- Halt report shape
+- Why "no files on halt"
+- Discrimination notes (when in doubt)
+
 ## Trigger taxonomy (4 triggers, only 2 halt)
 
 Per the per-card skill's `references/park-triggers.md`:

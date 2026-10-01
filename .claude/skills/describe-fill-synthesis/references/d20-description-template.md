@@ -6,6 +6,16 @@ EVERY describe-fill engine -- KTX shipped under it via the format-unify arc;
 MVDSV and every future fork START from it. A dated amendment governs its
 pre-amendment text.
 
+## Contents
+
+- Why this exists
+- The two surfaces (never confuse them)
+- The template shape
+- Anti-patterns -- NEVER in `description` (each belongs in reasoning or L3)
+- Cross-engine / cross-codebase consequences -- `See also: L3` (operator-decided 2026-05-30)
+- Worked examples (2026-05-30 MVDSV calibration -- both V-pass TRACED-CLEAN)
+- QA self-check before emitting
+
 ## Why this exists
 
 The first KTX describe-fill cohort shipped descriptions overloaded with

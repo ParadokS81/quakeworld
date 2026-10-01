@@ -15,6 +15,15 @@ Locked 2026-05-23 during KTX L1 catalog visual review session 2. Replicable
 to MVDSV, QWFWD, QTV, and any future server-mod codebase loaded into the QW
 Oracle.
 
+## Contents
+
+- Workflow for drafting (or recasting) a card
+- L1 vs L3 division of labor
+- L1 is a graph node; edges encode the relationships
+- See-also discipline (cognitive-load management)
+- Forward-reference convention (concept notes that don't yet exist)
+- Why this architecture is replicable
+
 ## Workflow for drafting (or recasting) a card
 
 1. **Recognize the entity's relationship shape** (Shape 1c? Shape 4? New
@@ -129,18 +138,3 @@ their own.
 The architecture stays constant; the shape catalog grows per-codebase. This
 skill is the KTX implementation; future MVDSV/QWFWD/QTV variants fork the
 skill (not parameterize it).
-
-## Concept-note authoring economics (operator-side, not skill-side)
-
-The L1 substrate makes concept notes **cheaper to author, not trivial**.
-The L1 work eliminates the fact-verification cost. The remaining
-concept-note authoring is:
-
-- Picking the narrative arc (what story does this group of entities tell?)
-- Adding lived-experience content (community usage, common pitfalls)
-- Choosing what to emphasize vs defer
-- Picking spanning examples that tie cards together
-
-That's authorship, not transcription. With L1 done, concept-note authoring
-becomes a 30-minute job per note, not a 3-hour one. The skill enables this
-downstream economy but does not perform it.

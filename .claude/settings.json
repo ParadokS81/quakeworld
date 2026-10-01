@@ -25,10 +25,7 @@
       "Bash(git reset --hard *)",
       "Bash(git clean -f *)"
     ],
-    "defaultMode": "bypassPermissions",
-    "additionalDirectories": [
-      "/home/paradoks/projects"
-    ]
+    "defaultMode": "bypassPermissions"
   },
   "hooks": {
     "SessionStart": [
@@ -48,31 +45,6 @@
           {
             "type": "command",
             "command": "if echo \"$CLAUDE_FILE_PATHS\" | grep -qE '\\.(env|pem|key)$|service-account\\.json|credentials\\.json'; then echo 'BLOCKED: Cannot write to secret/credential files.' >&2; exit 1; fi"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
-            "if": "Bash(gh pr create*)"
-          },
-          {
-            "type": "command",
-            "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
-            "if": "Bash(gh pr edit*)"
-          },
-          {
-            "type": "command",
-            "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
-            "if": "Bash(git commit*)"
-          },
-          {
-            "type": "command",
-            "command": "~/projects/quakeworld/.claude/scripts/upstream-pr-reminder.sh",
-            "if": "Bash(git push*)"
           }
         ]
       }
@@ -95,6 +67,7 @@
   "skipDangerousModePermissionPrompt": true,
   "enabledPlugins": {
     "security-guidance@claude-plugins-official": true,
-    "context7@claude-plugins-official": true
+    "context7@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
   }
 }

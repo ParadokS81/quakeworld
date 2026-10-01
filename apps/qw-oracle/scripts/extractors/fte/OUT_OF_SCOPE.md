@@ -90,4 +90,4 @@ No FTE-specific Bucket 4 residual today. The two QWCL irrecoverable cases (`-nov
 - Playbook (4-bucket canonical reference): `apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md` (Known Limits section)
 - Stubs: `research/stubs/windows-sdk/`
 - FTE findings: `docs/superpowers/specs/2026-04-26-fte-extraction-findings.md`
-- Memory: `project_fte_phase2d.md`, `project_extraction_pipeline_vision.md`
+- Method: `../EXTRACTOR-PLAYBOOK.md`

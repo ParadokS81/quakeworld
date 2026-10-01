@@ -9,6 +9,20 @@ Pattern: 5-12 checks per batch. The exact number depends on category
 density (8-card batches surface fewer cross-card concerns than 34-card
 batches).
 
+## Contents
+
+- Categories of check
+  - Shared misintuitions
+  - Cross-card factual contradictions
+  - See-also bidirectional checks
+  - Shape-classification consistency
+  - Paired-relationship pair-integrity (amendment 2026-05-27)
+  - Flag-prefix consistency
+- Section template (append at end of drafts file)
+- When the pass surfaces zero findings
+- Discipline: don't fabricate findings
+- Bidirectional See-also: how to check efficiently
+
 ## Categories of check
 
 ### Shared misintuitions

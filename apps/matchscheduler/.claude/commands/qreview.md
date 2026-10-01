@@ -12,12 +12,12 @@ Review user feedback submitted through the app. Fetch from Firestore, download a
 Run the feedback script to pull latest submissions:
 
 ```bash
-wsl bash -ic "cd /home/paradoks/projects/MatchScheduler && node scripts/read-feedback.js --new"
+cd ~/projects/quakeworld/apps/matchscheduler && node scripts/read-feedback.js --new
 ```
 
 If no new feedback, also check all feedback for context:
 ```bash
-wsl bash -ic "cd /home/paradoks/projects/MatchScheduler && node scripts/read-feedback.js"
+cd ~/projects/quakeworld/apps/matchscheduler && node scripts/read-feedback.js
 ```
 
 **Always check the shelf:** Read `feedback-reviews/REVIEW-LOG.md` and look for any items marked **SHELVED**. Present these to the user as candidates to act on -- they represent validated features/fixes that were deferred and may now be ready to pick up.
@@ -66,10 +66,10 @@ For each triaged item, update its Firestore status:
 
 ```bash
 # After reviewing
-wsl bash -ic "cd /home/paradoks/projects/MatchScheduler && node scripts/read-feedback.js --mark-reviewed {feedbackId}"
+cd ~/projects/quakeworld/apps/matchscheduler && node scripts/read-feedback.js --mark-reviewed {feedbackId}
 
 # After fixing
-wsl bash -ic "cd /home/paradoks/projects/MatchScheduler && node scripts/read-feedback.js --mark-resolved {feedbackId}"
+cd ~/projects/quakeworld/apps/matchscheduler && node scripts/read-feedback.js --mark-resolved {feedbackId}
 ```
 
 ## Key Files
