@@ -398,11 +398,11 @@ const TOOL_LIST = [
   {
     name: 'search_gameplay_entities',
     description:
-      'Filter QuakeWorld game entities (weapons, projectiles, item pickups) by kind, damage range, splash, ammo type, respawn time, or substring match on name/classname. Returns compact rows ordered by kind+name. Use this for "which weapons have splash damage" (has_splash:true), "all rockets/grenade ammo" (kind:item, ammo_type:rockets), "powerups with respawn > 60s" (kind:item, min_respawn:60), or partial-name search ("rocket" -> rocket_launcher + rocket projectile + rockets_small/large pickups). For full record details follow up with lookup_gameplay_entity.',
+      'Filter QuakeWorld game entities (weapons, projectiles, item pickups) by kind, damage range, splash, ammo type, respawn time, or word match on name/classname. Returns compact rows ordered by kind+name (best name match first when a query is given). Use this for "which weapons have splash damage" (has_splash:true), "all rockets/grenade ammo" (kind:item, ammo_type:rockets), "powerups with respawn > 60s" (kind:item, min_respawn:60), or partial-name search ("rocket" -> rocket_launcher + rocket projectile + rockets_small/large pickups). For full record details follow up with lookup_gameplay_entity.',
     inputSchema: {
       type: 'object',
       properties: {
-        query: { type: 'string', description: 'Substring match on name or classname (case-insensitive).' },
+        query: { type: 'string', description: 'Word match on name or classname (case-insensitive): every word must appear, and space and underscore are interchangeable ("rocket launcher" finds rocket_launcher).' },
         kind: { type: 'string', enum: ['item', 'weapon', 'projectile', 'monster'], description: 'Restrict to one kind. monster (KTX bloodfest roster).' },
         has_splash: { type: 'boolean', description: 'Match entities with splash damage > 0 (true) or without (false).' },
         min_damage: { type: 'number', description: 'Minimum damage column value.' },
@@ -418,11 +418,11 @@ const TOOL_LIST = [
   {
     name: 'search_mechanics',
     description:
-      'Filter QuakeWorld game-mechanics rows by kind, mode, or substring. Returns rows (with gameplay_source_id + ruleset_gate_json + props_json) ordered by source+kind+name. Base-game (id1) kinds: constant, env_hazard, player_stat, powerup_behavior, armor_model, death_rule, spawn_rule, dm_mode_rule. KTX kinds: game_mode (mode catalog), mode_default (per-cvar settings a mode applies -- filter to one mode with the mode parameter, e.g. mode="ca"), election_type, score_system, drop_item, loc_macro, teamplay_message, plus death_rule (shared with base-game -- KTX adds 27 of its own). Omit gameplay_source to search all sources (id1 + ktx). For a whole game mode assembled in one call use describe_mode; for a single named rule use lookup_mechanic.',
+      'Filter QuakeWorld game-mechanics rows by kind, mode, or word match. Returns rows (with gameplay_source_id + ruleset_gate_json + props_json) ordered by source+kind+name (name matches first, then value, then notes, when a query is given). Base-game (id1) kinds: constant, env_hazard, player_stat, powerup_behavior, armor_model, death_rule, spawn_rule, dm_mode_rule. KTX kinds: game_mode (mode catalog), mode_default (per-cvar settings a mode applies -- filter to one mode with the mode parameter, e.g. mode="ca"), election_type, score_system, drop_item, loc_macro, teamplay_message, plus death_rule (shared with base-game -- KTX adds 27 of its own). Omit gameplay_source to search all sources (id1 + ktx). For a whole game mode assembled in one call use describe_mode; for a single named rule use lookup_mechanic.',
     inputSchema: {
       type: 'object',
       properties: {
-        query: { type: 'string', description: 'Substring match on name, value_text, or notes (case-insensitive).' },
+        query: { type: 'string', description: 'Word match on name, value_text, or notes (case-insensitive): every word must appear somewhere in the row, and space and underscore are interchangeable ("splash self damage" finds self_splash_half_damage).' },
         kind: { type: 'string', enum: ['constant','env_hazard','player_stat','powerup_behavior','armor_model','death_rule','spawn_rule','dm_mode_rule','game_mode','mode_default','election_type','score_system','drop_item','loc_macro','teamplay_message'], description: 'Restrict to one kind.' },
         mode: { type: 'string', description: 'For kind=mode_default: restrict to one mode token (ruleset_gate_json->>"mode"), e.g. ca, wipeout, 1on1, or common for the baseline.' },
         gameplay_source: { type: 'string', description: 'Omit to search all sources (id1 base Quake + ktx). Pass "ktx" or "id1" to scope.' },

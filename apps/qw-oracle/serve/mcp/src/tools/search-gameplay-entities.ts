@@ -2,9 +2,12 @@
 //
 // Layer 1 qw-namespace gameplay-entity listing/filter. Postgres-js port:
 // ILIKE for case-insensitive substring; JSONB ammo_type filter via the
-// `props_json->>'ammo_type'` operator (replaces SQLite's json_extract).
+// `props_json->>'ammo_type'` operator (replaces SQLite's json_extract). The
+// query is word-matched (every word must appear in name/classname, `_` and
+// space interchangeable) -- see token-match.ts.
 
 import { db } from '../db.ts';
+import { wordMatch } from '../token-match.ts';
 import type { ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
@@ -50,10 +53,8 @@ export async function searchGameplayEntities(args: SearchGameplayEntitiesArgs): 
   const limit = Math.min(args.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
 
   const sourceClause = args.gameplay_source ? db`AND gameplay_source_id = ${args.gameplay_source}` : db``;
-  const queryClause = args.query
-    ? db`AND (name ILIKE ${'%' + args.query + '%'}
-              OR classname ILIKE ${'%' + args.query + '%'})`
-    : db``;
+  // Name hits outrank classname hits.
+  const query = wordMatch(args.query, ['name', 'classname']);
   const kindClause = args.kind ? db`AND kind = ${args.kind}` : db``;
   const splashClause =
     args.has_splash === true
@@ -73,7 +74,7 @@ export async function searchGameplayEntities(args: SearchGameplayEntitiesArgs): 
     FROM gameplay_entity_defs
     WHERE TRUE
       ${sourceClause}
-      ${queryClause}
+      ${query.where}
       ${kindClause}
       ${splashClause}
       ${minDamageClause}
@@ -81,7 +82,7 @@ export async function searchGameplayEntities(args: SearchGameplayEntitiesArgs): 
       ${minRespawnClause}
       ${maxRespawnClause}
       ${ammoClause}
-    ORDER BY gameplay_source_id, kind, name
+    ORDER BY ${query.rank} gameplay_source_id, kind, name
     LIMIT ${limit + 1}
   `;
   const truncated = rowsPlusOne.length > limit;

@@ -2,9 +2,12 @@
 //
 // Layer 1 qw-namespace gameplay-mechanic listing/filter. Postgres-js port:
 // ILIKE for case-insensitive substring (no COLLATE NOCASE), parameterised
-// fragments via tagged-template composition.
+// fragments via tagged-template composition. The query is word-matched (every
+// word must appear in name/value_text/notes, `_` and space interchangeable),
+// not matched as one phrase -- see token-match.ts.
 
 import { db } from '../db.ts';
+import { wordMatch } from '../token-match.ts';
 import type { ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
@@ -44,11 +47,8 @@ export async function searchMechanics(args: SearchMechanicsArgs): Promise<Search
   const limit = Math.min(args.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
 
   const sourceClause = args.gameplay_source ? db`AND gameplay_source_id = ${args.gameplay_source}` : db``;
-  const queryClause = args.query
-    ? db`AND (name ILIKE ${'%' + args.query + '%'}
-              OR value_text ILIKE ${'%' + args.query + '%'}
-              OR notes ILIKE ${'%' + args.query + '%'})`
-    : db``;
+  // Name hits outrank value hits outrank notes hits.
+  const query = wordMatch(args.query, ['name', 'value_text', 'notes']);
   const kindClause = args.kind ? db`AND kind = ${args.kind}` : db``;
   const modeClause = args.mode ? db`AND ruleset_gate_json->>'mode' = ${args.mode}` : db``;
 
@@ -58,10 +58,10 @@ export async function searchMechanics(args: SearchMechanicsArgs): Promise<Search
     FROM gameplay_mechanics
     WHERE TRUE
       ${sourceClause}
-      ${queryClause}
+      ${query.where}
       ${kindClause}
       ${modeClause}
-    ORDER BY gameplay_source_id, kind, name
+    ORDER BY ${query.rank} gameplay_source_id, kind, name
     LIMIT ${limit + 1}
   `;
   const truncated = rowsPlusOne.length > limit;
