@@ -11,7 +11,7 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { db } from '../db.ts';
-import { searchEntities } from './search-entities.ts';
+import { lexicalQuery, searchEntities } from './search-entities.ts';
 
 const HAS_DB = !!process.env.DATABASE_URL && process.env.DATABASE_URL.includes('qw_oracle_test');
 
@@ -106,5 +106,17 @@ describe.skipIf(!HAS_DB)('search_entities name leg (postgres-js)', () => {
 
   test('description matches still work (lexical leg untouched)', async () => {
     expect(await found({ query: 'screen wobble amplitude' })).toContain('ezquake:cvar:zzbob_scale');
+  });
+});
+
+describe('lexicalQuery', () => {
+  test('drops a leading sign so a cmdline param is not read as an exclusion', () => {
+    expect(lexicalQuery('-nosound')).toBe('nosound');
+    expect(lexicalQuery('+attack and -democache cache')).toBe('attack and democache cache');
+  });
+
+  test('keeps inner hyphens and plain text', () => {
+    expect(lexicalQuery('alt-tab out of fullscreen')).toBe('alt-tab out of fullscreen');
+    expect(lexicalQuery('frag messages')).toBe('frag messages');
   });
 });

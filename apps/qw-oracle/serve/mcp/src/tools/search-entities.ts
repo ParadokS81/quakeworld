@@ -53,16 +53,26 @@ function scopeClauses(args: Args, allKinds = false) {
   };
 }
 
+// websearch_to_tsquery reads a leading `-` as "exclude this word", so a query
+// for the cmdline param `-nosound` matched every description WITHOUT
+// "nosound" -- near-arbitrary rows voting in the fusion. Entity names carry
+// signs (`-democache`, `+attack`), and this tool never advertised exclusion
+// syntax (search_solved_issues does, and keeps it), so drop a leading sign.
+export function lexicalQuery(query: string): string {
+  return query.replace(/(^|\s)[+-]+(?=\S)/g, '$1');
+}
+
 async function lexicalCandidates(args: Args, fanout: number, allKinds: boolean): Promise<EntityRow[]> {
   const { projectClause, typeClause } = scopeClauses(args, allKinds);
+  const query = lexicalQuery(args.query);
   return db<EntityRow[]>`
     SELECT id, canonical_id, project, type, name, source_state,
            first_seen_version, last_seen_version, description
     FROM entities
-    WHERE description_tsv @@ websearch_to_tsquery('english', ${args.query})
+    WHERE description_tsv @@ websearch_to_tsquery('english', ${query})
       ${projectClause}
       ${typeClause}
-    ORDER BY ts_rank(description_tsv, websearch_to_tsquery('english', ${args.query})) DESC
+    ORDER BY ts_rank(description_tsv, websearch_to_tsquery('english', ${query})) DESC
     LIMIT ${fanout}
   `;
 }
