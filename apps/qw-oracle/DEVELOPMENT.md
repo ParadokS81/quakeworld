@@ -124,7 +124,9 @@ Exit code is non-zero when any probe FAILs or ERRORs; CI-friendly.
 | Common tasks | Command |
 |---|---|
 | Typecheck loader | `npm run typecheck` |
-| Typecheck MCP | `cd serve/mcp && bunx tsc --noEmit` |
+| Typecheck MCP | `cd serve/mcp && bunx tsc --noEmit` (the app-root tsconfig does not include `serve/mcp` or `eval/`) |
+| Test MCP (cockpit) | `DATABASE_URL="$(grep -m1 '^DATABASE_URL=' .env \| cut -d= -f2- \| sed 's#/qw_oracle$#/qw_oracle_test#')" bun test serve/mcp` -- the `test` script's localhost URL predates the cockpit; DB tests skip unless the URL names `qw_oracle_test` |
+| match_quality calibration report | `bun run calibrate` (`eval/README.md`; `--dump <file>` keeps the raw observations) |
 | Smoke MCP | `cd serve/mcp && bun run scripts/verify-rewrite.ts` |
 | Re-extract one project | `python3 scripts/extractors/<project>/extract.py` |
 | Re-load one tag end-to-end | `npm run load-knowledge -- extract-tag --project <p> --version <v>` |

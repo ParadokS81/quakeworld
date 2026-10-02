@@ -37,7 +37,7 @@ Enforced structurally, not by convention: `entities.name_fold` (migration 013, `
 
 **Seven projects.** The `project` parameter is a free-form string (no enum -- an unknown value simply matches nothing) whose description names all seven live projects: `ezquake | fte | ktx | mvdsv | qtv | qwcl | qwfwd`. The SQL was always project-agnostic; before Phase 3 the tool *descriptions* named only four, so qwcl / qtv / qwfwd were invisible at tool-selection time even though they resolved fine when asked for (F11a, closed in `794b3b8e`). Discovery and capability now agree.
 
-**Eleven types, split into a default set and an explicit-only set.** `ENTITY_TYPE_ENUM` (`serve/mcp/src/index.ts`) and `EntityType` (`serve/mcp/src/types.ts`) both admit:
+**Eleven types, split into a default set and a fallback set.** `ENTITY_TYPE_ENUM` (`serve/mcp/src/index.ts`) and `EntityType` (`serve/mcp/src/types.ts`) both admit:
 
 | Reachability | Types | Behavior |
 |---|---|---|
@@ -142,7 +142,7 @@ The orientation blob (`serve/mcp/src/orientation.ts`) ships to every connecting 
 
 ## Transport and protocol
 
-The server is **v0.7.0** (`serve/mcp/src/version.ts` is the single source of truth; `serve/mcp/package.json` is kept in lockstep but is never imported -- the two had silently diverged before 2026-08-04, so treat a mismatch as a bug). `MCP_TRANSPORT=stdio` (default, local Claude Code) or `http` (Streamable HTTP behind the Cloudflare Tunnel for the public deploy); HTTP mode builds a fresh `Server` per session via `createServer()`.
+The server is **v0.8.0** (`serve/mcp/src/version.ts` is the single source of truth; `serve/mcp/package.json` is kept in lockstep but is never imported -- the two had silently diverged before 2026-08-04, so treat a mismatch as a bug). `MCP_TRANSPORT=stdio` (default, local Claude Code) or `http` (Streamable HTTP behind the Cloudflare Tunnel for the public deploy); HTTP mode builds a fresh `Server` per session via `createServer()`.
 
 **SDK line: `@modelcontextprotocol/sdk` `^1.30.0`** -- the final release of the v1.x line before the SDK repo split into a 2.0 monorepo. Pinning to the end of 1.x is deliberate: it buys the whole v1 bugfix tail without taking on the 2.0 restructure, which belongs to the website/surfaces arc alongside stateless-core and auth (arc decision D4).
 
@@ -213,5 +213,12 @@ Drift items closed in the 2026-08-04 oracle-reentry Phase 3 pass (commits `794b3
 - **Empty version records for two admitted types.** `entity-record.ts`'s `VERSION_TABLE` was missing `cvar_alias` and `match_event`, so lookups on either returned an empty stub despite real per-version rows. Both wired; `lookup-entity.test.ts` is the first test coverage of that mapping.
 - **Orientation prose undercounts.** KTX `search_mechanics` kinds 8 -> 11, `search_gameplay_entities` kinds 1 -> 4, entity types 6 -> 11 with the default-vs-explicit rule spelled out.
 - **SDK + version lockstep.** `@modelcontextprotocol/sdk` `^1.0.0` -> `^1.30.0`; server 0.6.0 -> 0.7.0; `package.json` (which had silently drifted to 0.5.0) re-synced with `version.ts`.
+
+Drift items closed in the 2026-10-02 search pass (server 0.8.0; commits `950fe44f`, `cf61249f`, `f2051428`, `9c370b72`, `043db5c7`), found by reviewing prod's `query_log`:
+
+- **Rank-only `match_quality`.** The fused-RRF grade could never say `none` and capped long questions at `weak`; replaced by the closeness grade (see "`match_quality` semantics"). Closes the old drift #1 (provisional `L2_RRF_*` thresholds); its successor is the thin chat calibration, now #1.
+- **Explicit-only entity types.** Callers never pass `type`, so the six non-default types were unreachable in practice; now a fallback (see the type table above).
+- **Name-blind `search_entities`.** The lexical leg read descriptions only, so a bare name (`pm_ktjump`, `smackdown`) and the 2,018 description-less default-kind entities could only be found by the vector leg; a name-match list now joins the fusion. A leading `-` / `+` is no longer read as tsquery exclusion there.
+- **Whole-string substring in `search_mechanics` / `search_gameplay_entities`.** Every word must now appear somewhere in the row.
 
 Remaining drift items get closed as the work that touches the relevant area happens. Item #2 is the natural opener for the next L3 arc.
