@@ -30,7 +30,7 @@ The five apps in one line each, with their current lifecycle status:
 - **quad** - Discord voice recording bot, TypeScript + discord.js. *Maintenance.* Stable and integration-critical.
 - **qw-stats** - PostgreSQL stats API + ranking research, Express backend. 18k+ games indexed. *Paused.*
 - **slipgate-app** - Desktop companion, Tauri v2 + SolidJS + Rust. *Active* - 90% of current work lives here.
-- **qw-oracle** - QuakeWorld knowledge service (source-extracted engine facts + a 741K-message Discord chat corpus), TypeScript + Node + Python. *Active* - Layer 1 loaded for all seven engine codebases; Layer 2 full-corpus backfill complete 2026-08-06 (40,219 threads).
+- **qw-oracle** - QuakeWorld knowledge service (source-extracted engine facts + a 747K-message Discord chat corpus), TypeScript + Node + Python. *Active* - Layer 1 loaded for all seven engine codebases; Layer 2 full-corpus backfill complete 2026-08-06 (40,943 threads after the 2026-10-01 harvest).
 
 ## How it fits together
 

@@ -44,7 +44,7 @@ the cockpit deliberately cannot run it). Prod is never touched by any of this.
   the retrieval unit. RRF `match_quality` thresholds (`L2_RRF_*`) are
   provisional pending Phase D recalibration on the full backfill. **Phase C
   COMPLETE 2026-08-06: 35/35 batches, `chat_threads` 8,621 -> 40,219, 100%
-  `fence-sonnet-v2`, corpus current through 2026-08-05** (705,540 msgs /
+  `fence-sonnet-v2`, corpus then current through 2026-08-05** (705,540 msgs /
   3,928 chunks). Fenced on `fence-external.ts` (DeepSeek, ~$31, no Max quota);
   every batch 0% index-hallucination, >=99.13% coverage, idempotent,
   retrieval-verified. Ongoing currency = the monthly harvest ritual
@@ -53,7 +53,8 @@ the cockpit deliberately cannot run it). Prod is never touched by any of this.
   `message_labels` and are invisible to the chunker. Thread retrieval serving on
   PROD since 2026-08-04; **the full backfill shipped to prod 2026-08-06**
   (wholesale twin->prod refresh, parity exact 13/13, prod `chat_threads`
-  8,621 -> 40,219). Prod == twin. Live state: root HANDOVER +
+  8,621 -> 40,219). **The twin is ahead of prod since the 2026-10-01 harvest**
+  (prod refresh pending -- root HANDOVER). Live state: root HANDOVER +
   `scripts/load-chat/backfill-ledger.md`.
 - Hygiene tightenings absorbed into the port (decisions.md D18):
   filter-then-segment session boundaries, nullable `message_labels.session_id`

@@ -235,7 +235,7 @@ cost side of the decision:
    does better reading the real conversation (summary dropped); embedding a distilled
    summary was never tested, so the search half is unmeasured, not disproven. The
    ticket fields would fill the planned-but-empty `buckets_question` /
-   `buckets_answer` columns (buckets-E, 0 of 40,219 threads populated).
+   `buckets_answer` columns (buckets-E, 0 of 40,943 threads populated).
 3. **The oracle-eval-simulation arc is this service's proof.** It measures whether the
    corpus answers real #helpdesk questions, which is exactly the service's promise, and
    its answer-key step (DeepSeek distils "what actually fixed it" per thread) is a
