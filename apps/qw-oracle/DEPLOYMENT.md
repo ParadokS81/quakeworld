@@ -46,7 +46,7 @@ Persistent data and configs live at `/mnt/user/appdata/qw-oracle/`:
    chmod 600 .env
    ```
 
-   Set `POSTGRES_PASSWORD` to a long random string; set `VOYAGE_API_KEY` to a real key. Leave `MATCH_QUALITY_STRONG_THRESHOLD` and `MATCH_QUALITY_WEAK_THRESHOLD` at the placeholders for now; Task 11 calibrates them against prod and the operator updates them in this file.
+   Set `POSTGRES_PASSWORD` to a long random string; set `VOYAGE_API_KEY` to a real key. The `match_quality` cut-offs need no entry: calibrated defaults ship in the image (`serve/mcp/src/grade.ts`), and the optional `*_MATCH_STRONG` / `*_MATCH_WEAK` overrides are described in `eval/README.md`.
 
 3. Bring Postgres up alone first:
 

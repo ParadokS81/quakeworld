@@ -49,12 +49,21 @@ const ENV_NAMES: Record<Corpus, [string, string]> = {
   threads: ['THREAD_MATCH_STRONG', 'THREAD_MATCH_WEAK'],
 };
 
+// An override that is unset, empty or not a number falls back to the default.
+// Empty matters: docker compose passes `VAR: ${VAR}` through as "" when the
+// .env lacks it, and parseFloat("") is NaN -- every comparison against NaN is
+// false, which would grade every answer 'none'.
+function envNumber(name: string, fallback: number): number {
+  const parsed = parseFloat(process.env[name] ?? '');
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 export function cutoffsFor(corpus: Corpus): Cutoffs {
   const [strongVar, weakVar] = ENV_NAMES[corpus];
   const fallback = DEFAULT_CUTOFFS[corpus];
   return {
-    strong: parseFloat(process.env[strongVar] ?? String(fallback.strong)),
-    weak: parseFloat(process.env[weakVar] ?? String(fallback.weak)),
+    strong: envNumber(strongVar, fallback.strong),
+    weak: envNumber(weakVar, fallback.weak),
   };
 }
 

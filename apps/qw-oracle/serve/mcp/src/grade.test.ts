@@ -3,7 +3,7 @@
 // The closeness grade's rules (grade.ts). Pure -- no database.
 
 import { describe, expect, test } from 'bun:test';
-import { grade } from './grade.ts';
+import { cutoffsFor, grade } from './grade.ts';
 
 const CUT = { strong: 0.5, weak: 0.35 };
 
@@ -25,5 +25,17 @@ describe('grade', () => {
     expect(grade({ resultCount: 1, bestSimilarity: 0.49 }, CUT).quality).toBe('weak');
     expect(grade({ resultCount: 1, bestSimilarity: 0.35 }, CUT).quality).toBe('weak');
     expect(grade({ resultCount: 1, bestSimilarity: 0.34 }, CUT).quality).toBe('none');
+  });
+
+  test('an empty or non-numeric override falls back to the default (compose passes unset vars as "")', () => {
+    const saved = process.env.ENTITY_MATCH_STRONG;
+    process.env.ENTITY_MATCH_STRONG = '';
+    expect(Number.isFinite(cutoffsFor('entities').strong)).toBe(true);
+    process.env.ENTITY_MATCH_STRONG = 'abc';
+    expect(Number.isFinite(cutoffsFor('entities').strong)).toBe(true);
+    process.env.ENTITY_MATCH_STRONG = '0.61';
+    expect(cutoffsFor('entities').strong).toBe(0.61);
+    if (saved === undefined) delete process.env.ENTITY_MATCH_STRONG;
+    else process.env.ENTITY_MATCH_STRONG = saved;
   });
 });

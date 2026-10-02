@@ -41,8 +41,10 @@ the cockpit deliberately cannot run it). Prod is never touched by any of this.
   hybrid (vector-primary + FTS via RRF k=60), mirroring `search_entities`. A
   summary is NOT embedded -- raw messages are (decisions.md D3). `sessions` /
   `session_search` remain as raw timestamp-grouped adjacent-context, no longer
-  the retrieval unit. RRF `match_quality` thresholds (`L2_RRF_*`) are
-  provisional pending Phase D recalibration on the full backfill. **Phase C
+  the retrieval unit. `match_quality` is graded on closeness (best cosine
+  similarity vs per-corpus cut-offs, `serve/mcp/src/grade.ts`, since
+  2026-10-02); the chat cut-offs rest on only 11 labeled questions
+  (`API_CONTRACTS.md` Open drift 1). **Phase C
   COMPLETE 2026-08-06: 35/35 batches, `chat_threads` 8,621 -> 40,219, 100%
   `fence-sonnet-v2`, corpus then current through 2026-08-05** (705,540 msgs /
   3,928 chunks). Fenced on `fence-external.ts` (DeepSeek, ~$31, no Max quota);

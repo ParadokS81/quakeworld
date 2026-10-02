@@ -42,11 +42,11 @@ Enforced structurally, not by convention: `entities.name_fold` (migration 013, `
 | Reachability | Types | Behavior |
 |---|---|---|
 | Default (searched when `type` is omitted) | `cvar`, `command`, `macro`, `cmdline_param`, `ruleset` | `USER_FACING_TYPES` in `lookup-entity.ts` / `search-entities.ts` |
-| Explicit-only (caller must pass `type`) | `match_event`, `info_key`, `log_template`, `protocol_message`, `qc_builtin`, `cvar_alias` | admitted by the enum, excluded from the bare-name default |
+| Fallback (searched automatically when the default gives no strong match; pass `type` to narrow) | `match_event`, `info_key`, `log_template`, `protocol_message`, `qc_builtin`, `cvar_alias` | `ENTITY_TYPES` in `types.ts`; the all-kinds pass in `lookup-entity.ts` / `search-entities.ts` |
 
-The explicit-only split is deliberate, not an omission: `log_template` alone is 1,887 rows of server log-format strings, and folding them into every bare-name lookup would drown the five types humans actually ask about. Consumers reach them by naming the type -- the orientation blob and both tool descriptions say so in the same words.
+The default/fallback split is deliberate: `log_template` alone is 1,887 rows of server log-format strings, and ranking them alongside every question would crowd out the five types humans mostly ask about. Until 2026-10-02 the six were explicit-only -- reachable only by naming the type -- but prod's `query_log` showed callers never name it, so questions about `svc_playerinfo` or the `sound` builtin came back empty. Now `search_entities` re-ranks the whole public pool (default kinds included, on equal terms) when the default pass grades below `strong`, and `lookup_entity` widens to every public kind when the default kinds have no such name, then tries the signed spelling (`democache` -> `-democache`) and the `hud_`-less one (`hud_itemsclock` -> the `itemsclock` command). An explicit `type` is never widened.
 
-Layer 1 also stores five internal-classifier types (`keyname`, `hud_element`, `token_primitive`, `flag_bit`, `asset_category`) that stay out of the MCP surface entirely; they are inputs to classifiers and snapshot builders, not things a human asks for by name. Widening the enum to those is a contract change, not a bug fix (Amendment A2, 2026-08-04).
+Layer 1 also stores five internal-classifier types (`keyname`, `hud_element`, `token_primitive`, `flag_bit`, `asset_category`) that stay out of the MCP surface entirely -- the fallback never reaches them; they are inputs to classifiers and snapshot builders, not things a human asks for by name. Widening the enum to those is a contract change, not a bug fix (Amendment A2, 2026-08-04).
 
 **Version data is real for every admitted type.** `entity-record.ts`'s `VERSION_TABLE` maps all eleven to their per-version table, so `current` carries actual snapshot data rather than an empty stub. `match_event` was the last hole (fixed 2026-08-04, `46632983`). Per-version tables do not all carry the same columns, and the missing ones legitimately come back null: `match_event_versions` has no `help_desc` / `source_file` / `source_line` at all (its payload is `attributes_json` + `emission_call_sites_json` + `xsd_path`, which surface under `type_specific`), and `cvar_alias_versions` has no `help_desc` (it does carry `source_file` / `source_line`). A null help field on these types means "this table has no such column", not "the extractor missed it".
 
@@ -106,26 +106,28 @@ Three buckets, per-tool meaning:
 
 | Bucket | What it means | Consumer LLM behavior |
 |---|---|---|
-| `strong` | Result is good enough to synthesise from | Cite by `canonical_id` / slug / or chat thread (topic + channel); build the answer |
-| `weak` | A result exists but quality is borderline | Either request follow-up via another tool, or call `redirect_to_human`; never confabulate |
+| `strong` | A result closely matches the question | Cite by `canonical_id` / slug / or chat thread (topic + channel); build the answer |
+| `weak` | Related material exists but may not answer this exact question | Answer only from what the result actually says; follow up via another tool or call `redirect_to_human` for the rest; never confabulate |
 | `none` | Corpus does not cover this | Call `redirect_to_human` or state plainly that the corpus does not cover the question |
+
+**How the three ranked tools grade (since 2026-10-02, `serve/mcp/src/grade.ts`).** `search_entities`, `search_concepts` and `search_solved_issues` grade on *closeness*: the highest cosine similarity between the question and a returned result (0..1), against a cut-off pair per corpus. Ranking is unchanged -- RRF over the lexical, semantic and (entities) name lists -- but the label no longer comes from the fused RRF score. RRF is rank-only: the vector list always returns its nearest rows, so the old grade could never say `none`, and `strong` needed the all-words lexical list to agree, which long natural-language questions almost never do (prod `query_log` 2026-08-06..09-29: every weak concept answer scored the one-list ceiling 1/61, right answers and off-topic junk alike). Two special cases: an exact entity-name hit is `strong` whatever its description's closeness (the caller named it), and a result set with no closeness to judge by (embedding call failed, or only description-less entities matched) tops out at `weak`. Every ranked response carries `meta.best_match_score` (the closeness the label was graded on) and `meta.match_basis` (`closeness` / `exact_name` / `no_embedding` / `no_results`); each result carries its own `match_score` closeness.
 
 Per-tool calibration:
 
 | Tool | Signal source | Status |
 |---|---|---|
-| `lookup_entity` | row-presence, then a length proxy over the owned L1 `description` (preferred) falling back to the raw extractor `help_desc` | OK |
-| `search_entities` | RRF fused score with shared `MATCH_QUALITY_*` thresholds | OK (calibrated 2026-05-06: STRONG=0.02 WEAK=0.005) |
-| `search_concepts` | RRF fused score, same shared thresholds | OK (calibrated 2026-05-06, same values) |
+| `lookup_entity` | row-presence (after the all-kinds / spelling fallback), then a length proxy over the owned L1 `description` (preferred) falling back to the raw extractor `help_desc` | OK |
+| `search_entities` | closeness vs `entities` cut-offs (strong 0.50, weak 0.35); exact name hit = strong | Calibrated 2026-10-02 (37 questions; label-exact 29/37) |
+| `search_concepts` | closeness vs `concepts` cut-offs (strong 0.56, weak 0.39) | Calibrated 2026-10-02 (30 questions; label-exact 17/30 -- concept-chunk closeness overlaps a lot, so most right answers grade `weak`) |
 | `get_concept_note` | binary by id presence | OK |
-| `search_solved_issues` | top-result RRF score against `L2_RRF_*` thresholds (STRONG=0.02 WEAK=0.005, PROVISIONAL -- borrowed from search_entities, not yet calibrated for thread retrieval; pending Phase D recalibration on the full fenced-thread backfill) | Logic OK; thresholds provisional |
+| `search_solved_issues` | closeness vs `threads` cut-offs (strong 0.50, weak 0.37) | Provisional: only 11 labeled chat questions (label-exact 8/11) -- see Open drift |
 | `lookup_map` / `search_maps` | binary by row-presence | OK |
 | `lookup_mechanic` / `search_mechanics` | binary by row-presence | OK |
 | `lookup_gameplay_entity` / `search_gameplay_entities` | binary by row-presence | OK |
 | `describe_mode` | binary by catalog-row presence | OK |
 | `redirect_to_human` | binary by row-presence | OK |
 
-**Calibration discipline:** thresholds for ranked retrieval tools get tuned against a labeled eval set; calibration data lives at `eval/calibration-queries.json` (disjoint from `eval/eval-queries.json` per D10). Run `bun run calibrate` from `apps/qw-oracle/` to sweep candidate thresholds against the calibration set; write the printed values into `.env` (dev) or `/mnt/user/appdata/qw-oracle/.env` (prod). Recalibrate after any extension to the calibration set or any change to the embedding model. The L2 (`search_solved_issues`) threshold pair has its own env vars (`L2_RRF_STRONG_THRESHOLD` / `L2_RRF_WEAK_THRESHOLD`); embeddings + hybrid retrieval landed in Layer 2 increment 1 (layer2-corpus-reconstruction arc, Phase A). The thresholds are currently provisional (borrowed from search_entities; not yet calibrated for thread retrieval). Recalibration against a Layer 2 eval set is a Phase D deliverable, after the full fenced-thread backfill completes.
+**Calibration discipline:** the closeness cut-offs are tuned per corpus against a labeled set, `eval/calibration-queries.json` (disjoint from `eval/eval-queries.json` per D10; 81 questions as of 2026-10-02, most taken from prod's `query_log`, each labeled with what an honest grade says given what the corpus *has*). `bun run calibrate` from `apps/qw-oracle/` reports each corpus under the cut-offs in force and sweeps for the cheapest pair under a cost matrix in which `strong` on an uncovered question is the most expensive error; its pick is input, not gospel (the 2026-10-02 entities pick was overruled for one near-domain question -- the rationale sits beside `DEFAULT_CUTOFFS` in `grade.ts`). The calibrated values live in `DEFAULT_CUTOFFS` and ship with the image; `ENTITY_MATCH_*` / `CONCEPT_MATCH_*` / `THREAD_MATCH_*` env vars override them without a rebuild. Recalibrate after extending the set, after a corpus change that moves many answers (a large harvest, a re-embed), or after any embedding-model change. The retired `MATCH_QUALITY_*_THRESHOLD` and `L2_RRF_*` vars are read by nothing.
 
 ## Orientation contract
 
@@ -195,7 +197,7 @@ The pattern is proven by the qwiki arc (Phases 1-3 shipped); Phase 6 (MCP tools)
 
 | # | Drift | Severity | Fix |
 |---|---|---|---|
-| 1 | L2 `search_solved_issues` thresholds (`L2_RRF_STRONG_THRESHOLD` / `L2_RRF_WEAK_THRESHOLD`) are provisional -- borrowed from search_entities, not calibrated for thread retrieval | Medium (L2 match_quality bucket boundaries are approximate until calibrated) | Build an L2-shaped calibration set; Phase D deliverable (after full fenced-thread backfill). Embeddings + hybrid retrieval have landed (layer2-corpus-reconstruction arc, Phase A); the remaining work is calibration only. |
+| 1 | `search_solved_issues` closeness cut-offs rest on 11 labeled chat questions (none of them partial, two off-topic) | Medium (the chat grade separates on-topic from clearly-off-topic, but its strong/weak line is a cautious guess) | Add 30+ labeled chat questions -- the eval-sim arc's frozen helpdesk frame is the natural source -- and re-run `bun run calibrate`. |
 | 2 | ~920 markdown files in `curated/player-notes/` and `curated/clan-notes/` are not exposed via MCP | Critical for the in-flight L3 expansion arc | Path C: `profiles` + `profile_chunks` tables, `search_profiles` + `get_profile` tools. |
 
 Drift items closed in the 2026-05-06 cleanup pass: response-shape unification across the 6 ad-hoc tools (now all return `ToolResponse<T>`); `search_concepts`/`search_entities` calibration confirmed (live thresholds match the optimum on the 5-query calibration set); `search_solved_issues` switched from count-based to `ts_rank`-based bucketing; `info_key` doc leak stripped from `lookup_entity` description; orientation blob reordered to L1/L2/L3.
