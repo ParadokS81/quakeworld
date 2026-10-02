@@ -53,8 +53,9 @@ the cockpit deliberately cannot run it). Prod is never touched by any of this.
   `message_labels` and are invisible to the chunker. Thread retrieval serving on
   PROD since 2026-08-04; **the full backfill shipped to prod 2026-08-06**
   (wholesale twin->prod refresh, parity exact 13/13, prod `chat_threads`
-  8,621 -> 40,219). **The twin is ahead of prod since the 2026-10-01 harvest**
-  (prod refresh pending -- root HANDOVER). Live state: root HANDOVER +
+  8,621 -> 40,219). **Prod content == twin since the 2026-10-02 refresh** (the
+  2026-10-01 harvest's chat tables only, parity exact; 747,392 msgs / 40,943
+  threads). Live state: root HANDOVER +
   `scripts/load-chat/backfill-ledger.md`.
 - Hygiene tightenings absorbed into the port (decisions.md D18):
   filter-then-segment session boundaries, nullable `message_labels.session_id`

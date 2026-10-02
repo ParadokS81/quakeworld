@@ -1054,5 +1054,7 @@ as a complete year until after the catch-up import.
   banter" -- the bake-off's finding that Flash lumps on long stretches, visible in production.
 - **Cost:** DeepSeek balance $20.72 -> $18.37 (includes $0.19 of bench testing; the harvest
   itself ~$2.2, off-peak). Voyage re-embedding of the 2026 threads not separately measured.
-- **Not done (operator call):** twin -> prod refresh and `build-brain-manifest.ts --publish`.
+- **Shipped to prod 2026-10-02:** chat tables only (prod's own query/embedding logs kept),
+  parity exact 12/12, MCP down 75 s; brain manifest republished (747,392 msgs / 40,943 threads /
+  13,244 solved) -- `DEPLOYMENT.md` twin->prod worked examples.
 

@@ -1,7 +1,7 @@
 {
   "schema_version": "brain-manifest-v1",
-  "generated_at": "2026-08-06T19:49:02.735Z",
-  "oracle_commit": "f1a49a6812ff7fb6833483a2eee275213e7d6007",
+  "generated_at": "2026-10-02T00:40:22.560Z",
+  "oracle_commit": "c5e1cd2c8206c7a54ca705f112268e31ef716bd7",
   "source": "twin",
   "datacenters": [
     {
@@ -55,31 +55,31 @@
       "id": "cm",
       "name": "DISCORD",
       "lit": true,
-      "num": 741128,
-      "sub": "messages · 40,219 threads · 13,134 solved",
+      "num": 747392,
+      "sub": "messages · 40,943 threads · 13,244 solved",
       "stationSubs": [
-        "messages · 40,219 threads",
-        "13,134 solved"
+        "messages · 40,943 threads",
+        "13,244 solved"
       ],
       "share": 0.42,
-      "threads": 40219,
-      "solved": 13134,
+      "threads": 40943,
+      "solved": 13244,
       "bars": [
         [
           "#quakeworld",
-          399080
+          401450
         ],
         [
           "#dev-corner",
-          211602
+          213086
         ],
         [
           "#helpdesk",
-          109008
+          110492
         ],
         [
           "#antilag",
-          21438
+          22364
         ]
       ],
       "door": {
@@ -149,5 +149,15 @@
       "teaser": "18,000+ recorded 4on4 games await their wiring."
     }
   ],
-  "history": []
+  "history": [
+    {
+      "generated_at": "2026-08-06T19:49:02.735Z",
+      "nums": {
+        "ef": 11081,
+        "cm": 741128,
+        "cs": 44,
+        "gc": 254
+      }
+    }
+  ]
 }

@@ -216,7 +216,36 @@ cd /mnt/user/appdata/qw-oracle
 docker compose -f docker-compose.prod.yml up -d mcp
 ```
 
-Worked example: the **2026-08-06 refresh** (Phase C corpus completion) -- shipped the finished
+Worked example: the **2026-10-02 refresh** (the 2026-10-01/02 harvest; first surgical one) --
+`chat_threads` 40,219 -> **40,943**, `thread_messages` 703,431 -> **709,629**, `messages`
+741,128 -> **747,392**. The pre-dump diff (all 59 tables: row count plus a whole-table content
+hash, and a schema-only `pg_dump` diff) found the schema and every non-chat table identical, but
+three prod-written runtime tables diverged: `query_log` (prod 370 vs twin 215 -- 171 rows of real
+MCP use since 08-06), `embedding_api_log` (both sides grew) and
+`oracle_meta.embedding_space_verified_at` (the MCP stamps it at startup). A wholesale restore
+replaces those with the twin's copies; the 08-06 one silently dropped 10 prod-only query-log rows
+(checked against its rollback dump). So this refresh shipped **only the nine chat tables**
+(operator call) and left prod's logs alone:
+
+```bash
+docker exec qw-oracle-postgres-dev pg_dump -U qworacle -d qw_oracle -Fc \
+  -t public.messages -t public.message_labels -t public.sessions -t public.session_search \
+  -t public.session_references -t public.chat_threads -t public.thread_messages \
+  -t public.import_log -t public.processing_log -f /tmp/twin-l2.dump
+# (ship it to prod as in step 5, stop mcp as in step 6)
+docker exec qw-oracle-postgres pg_restore --clean --if-exists --no-owner --single-transaction \
+  -U qworacle -d qw_oracle /tmp/twin-l2.dump
+```
+
+Safe as a subset because the nine tables' foreign keys stay inside the set and no view or trigger
+touches them; `--single-transaction` means a failed restore leaves prod as it was. Parity came
+back **exact on 12/12** (count + content hash for each of the nine, plus solved / null-embedding /
+stale thread counts). MCP down 75 s (restore 47 s); healthy on the same 0.7.0 image
+(embedding-space cosine 0.8890); the public `search_solved_issues` returned the 2026-09-24
+crosshair-centering thread at rank 1. Artifacts: `dumps/prod-pre-refresh-2026-10-02.dump`
+(349MB, full prod rollback) + `dumps/twin-l2-2026-10-02.dump` (307MB, the nine tables shipped).
+
+Earlier worked example: the **2026-08-06 refresh** (Phase C corpus completion) -- shipped the finished
 L2 backfill to prod: `chat_threads` 8,621 -> **40,219**, `thread_messages` 128,971 -> **703,431**,
 `messages` 728,863 -> **741,128**. Everything else (entities across all 7 projects, concepts,
 gameplay_entity_defs, migrations) was already identical twin-vs-prod, so this was a pure L2
@@ -239,9 +268,11 @@ No MCP image rebuild is needed -- mcp is stopped only to release DB locks for th
 brought back up on the same image. Prod is unreachable (mcp down, then briefly restoring) for
 the duration of steps 6-9; acceptable while the install has no real users beyond the operator.
 
-For surgical refreshes (single project, single entity type), pass per-table flags to pg_dump
-(`--table=entities --table=cvar_versions --data-only`) and restore without `--clean`. Default
-to the wholesale dump above when in doubt.
+For surgical refreshes (only some tables changed), dump just those tables with `-t` and restore
+that dump with `--clean --if-exists --single-transaction` -- the 2026-10-02 example above is the
+proven recipe; first check that the chosen tables' foreign keys stay inside the set. A wholesale
+restore replaces prod's own runtime logs (`query_log`, `embedding_api_log`, `oracle_meta`) with
+the twin's; a surgical one leaves them. Default to the wholesale dump above when in doubt.
 
 **What this procedure does NOT do:**
 - It does NOT regenerate slipgate consumer JSON snapshots. Run
