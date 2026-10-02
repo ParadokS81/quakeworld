@@ -3,8 +3,9 @@
 // Regression coverage for entity-record.ts's VERSION_TABLE wiring (F12,
 // Phase 3 wave B drain): a match_event entity's current snapshot must come
 // from match_event_versions, not the emptyVersion() fallback. Also pins the
-// documented explicit-only contract (orientation.ts / index.ts type-param
-// text) that match_event is excluded from the default bare-name search.
+// all-kinds fallback (2026-10-02, replacing the explicit-only contract): a
+// type-omitted name that no default-kind entity has is looked up across every
+// public kind, then under its signed spelling (`democache` -> `-democache`).
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { db } from '../db.ts';
@@ -18,6 +19,7 @@ describe.skipIf(!HAS_DB)('lookup_entity (postgres-js)', () => {
       SELECT id FROM entities WHERE canonical_id = 'ktx:match_event:death'
     )`;
     await db`DELETE FROM entities WHERE canonical_id = 'ktx:match_event:death'`;
+    await db`DELETE FROM entities WHERE canonical_id = 'ezquake:cmdline_param:-zzlookupprobe'`;
   }
 
   beforeAll(async () => {
@@ -64,8 +66,23 @@ describe.skipIf(!HAS_DB)('lookup_entity (postgres-js)', () => {
     expect((e.current.type_specific.attributes_json as unknown[]).length).toBe(3);
   });
 
-  test('bare (type-omitted) lookup excludes match_event -- explicit type required (F4)', async () => {
+  test('type-omitted lookup falls back to match_event when no default-kind entity has the name', async () => {
     const r = await lookupEntity({ name: 'death', project: 'ktx' });
+    expect(r.results.length).toBe(1);
+    expect(r.results[0]!.type).toBe('match_event');
+  });
+
+  test('type-omitted lookup finds a cmdline param typed without its dash', async () => {
+    await db`
+      INSERT INTO entities (project, type, name, canonical_id, first_seen_version, last_seen_version, created_at, updated_at, description)
+      VALUES ('ezquake', 'cmdline_param', '-zzlookupprobe', 'ezquake:cmdline_param:-zzlookupprobe', 'head', 'head', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z', null)
+    `;
+    const r = await lookupEntity({ name: 'zzlookupprobe' });
+    expect(r.results.map((e) => e.id)).toEqual(['ezquake:cmdline_param:-zzlookupprobe']);
+  });
+
+  test('an explicit type is never widened', async () => {
+    const r = await lookupEntity({ name: 'death', project: 'ktx', type: 'cvar' });
     expect(r.results.length).toBe(0);
   });
 });

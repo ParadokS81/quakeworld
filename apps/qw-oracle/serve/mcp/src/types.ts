@@ -4,6 +4,9 @@
 
 export type MatchQuality = 'strong' | 'weak' | 'none';
 
+// Why a ranked tool gave its match_quality (see grade.ts).
+export type MatchBasis = 'closeness' | 'exact_name' | 'no_embedding' | 'no_results';
+
 export interface ToolResponse<T = unknown> {
   results: T[];
   match_quality: MatchQuality;
@@ -15,6 +18,12 @@ export interface ToolResponse<T = unknown> {
     tool: string;
     server_version: string;
     queried_at: string;
+    // Ranked tools only (search_entities / search_concepts /
+    // search_solved_issues): the closeness match_quality was graded on -- the
+    // highest cosine similarity (0..1) among the results, null when the
+    // embedding call failed -- and why the label is what it is.
+    best_match_score?: number | null;
+    match_basis?: MatchBasis;
   };
 }
 
@@ -33,6 +42,15 @@ export type EntityType =
   | 'cvar' | 'command' | 'macro' | 'cmdline_param' | 'ruleset'
   | 'match_event' | 'info_key' | 'log_template' | 'protocol_message'
   | 'qc_builtin' | 'cvar_alias';
+
+// The same eleven as a runtime list: the `type` enum in index.ts, and the
+// pool the lookup/search all-kinds fallback widens to (never the internal
+// classifier types).
+export const ENTITY_TYPES: readonly EntityType[] = [
+  'cvar', 'command', 'macro', 'cmdline_param', 'ruleset',
+  'match_event', 'info_key', 'log_template', 'protocol_message',
+  'qc_builtin', 'cvar_alias',
+];
 
 export type SourceState =
   | 'source_backed'
@@ -78,6 +96,10 @@ export interface EntityRecord {
   current: EntityVersionData;
   asset_relations: AssetRelation[];
   linked_concepts: string[];
+  // search_entities only: closeness 0..1 of the description to the question;
+  // null for an entity with no description embedding or when the embedding
+  // call failed. Absent on lookup_entity.
+  match_score?: number | null;
 }
 
 // One message inside a session, in the shape the outlet LLM consumes.
@@ -90,7 +112,8 @@ export interface SessionMessage {
 
 // Layer 2 thread hit: one reconstructed topic-coherent thread from the Discord
 // corpus. Returned by search_solved_issues (hybrid retrieval over chat_threads).
-// score is the fused RRF score from the lexical + semantic retrieval pass.
+// match_score is the thread's closeness to the question (cosine similarity of
+// its embedding, 0..1); ranking itself is RRF over the lexical + semantic legs.
 export interface ThreadHit {
   thread_id: string;         // chat_threads.id as string (postgres-js BIGINT -> string)
   topic_label: string;
@@ -103,7 +126,7 @@ export interface ThreadHit {
   message_count: number;
   resolution_status: 'solved' | 'unresolved' | 'informational' | null;
   messages: SessionMessage[]; // reuses SessionMessage (author/at/text/discord_url)
-  score: number;              // fused RRF score
+  match_score: number | null; // closeness 0..1; null when the embedding call failed
 }
 
 // D9-revised: Layer 2 corpus is Discord-only in Arc 1; the prior 'irc' option
@@ -142,7 +165,7 @@ export interface SearchConceptResult {
   slug: string;
   title: string;
   summary: string;
-  match_score: number;        // fused RRF score
+  match_score: number | null; // closeness 0..1 of this chunk; null when the embedding call failed
   match_quality: 'strong' | 'weak' | 'none';
   snippet: string;            // ~600 chars, centred on the matched span
   related_entities: string[];

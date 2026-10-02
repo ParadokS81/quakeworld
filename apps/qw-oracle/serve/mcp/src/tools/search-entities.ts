@@ -9,20 +9,19 @@
 
 import { db } from '../db.ts';
 import { embedTexts } from '../../../../shared/embedding.ts';
-import { reciprocalRankFusion } from '../../../../shared/rrf.ts';
+import { reciprocalRankFusion, type FusedHit } from '../../../../shared/rrf.ts';
 import { toEntityRecord, type EntityRow } from '../entity-record.ts';
 import { queryTokens } from '../token-match.ts';
-import type { EntityRecord, EntityType, ToolResponse } from '../types.ts';
+import { cutoffsFor, grade } from '../grade.ts';
+import { ENTITY_TYPES, type EntityRecord, type EntityType, type ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 const QUERY_MODEL = process.env.EMBEDDING_MODEL_QUERY ?? 'voyage-4-lite';
-// Defaults reflect calibration against eval/calibration-queries.json (last
-// sweep 2026-05-06: STRONG=0.02 WEAK=0.005 hit 100% accuracy on the 5-query
-// set). Operator overrides via MATCH_QUALITY_* env vars; recalibrate after
-// any eval-set extension via `bun run calibrate`.
-const STRONG_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_STRONG_THRESHOLD ?? '0.02');
-const WEAK_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_WEAK_THRESHOLD ?? '0.005');
 
+// The kinds searched when the caller names none. The other public kinds (log
+// templates, info keys, protocol messages, QC builtins, match events, cvar
+// aliases) are reached by the all-kinds fallback in searchEntities; the
+// internal classifier kinds stay out of the MCP surface (API_CONTRACTS, A2).
 const USER_FACING_TYPES = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset'] as const;
 
 // Name-match knobs (see nameCandidates). A word shorter than the minimum only
@@ -43,18 +42,19 @@ interface Args {
 }
 
 // The project/type restriction every leg applies, so the three lists rank the
-// same candidate pool.
-function scopeClauses(args: Args) {
+// same candidate pool. allKinds widens the default kinds to every public kind
+// (never overrides a type the caller asked for).
+function scopeClauses(args: Args, allKinds = false) {
   return {
     projectClause: args.project ? db`AND project = ${args.project}` : db``,
     typeClause: args.type
       ? db`AND type = ${args.type}`
-      : db`AND type IN ${db(USER_FACING_TYPES)}`,
+      : db`AND type IN ${db(allKinds ? ENTITY_TYPES : USER_FACING_TYPES)}`,
   };
 }
 
-async function lexicalCandidates(args: Args, fanout: number): Promise<EntityRow[]> {
-  const { projectClause, typeClause } = scopeClauses(args);
+async function lexicalCandidates(args: Args, fanout: number, allKinds: boolean): Promise<EntityRow[]> {
+  const { projectClause, typeClause } = scopeClauses(args, allKinds);
   return db<EntityRow[]>`
     SELECT id, canonical_id, project, type, name, source_state,
            first_seen_version, last_seen_version, description
@@ -71,9 +71,10 @@ async function semanticCandidates(
   args: Args,
   vector: number[],
   fanout: number,
+  allKinds: boolean,
 ): Promise<EntityRow[]> {
   const vec = `[${vector.join(',')}]`;
-  const { projectClause, typeClause } = scopeClauses(args);
+  const { projectClause, typeClause } = scopeClauses(args, allKinds);
   return db<EntityRow[]>`
     SELECT id, canonical_id, project, type, name, source_state,
            first_seen_version, last_seen_version, description
@@ -106,9 +107,10 @@ async function nameCandidates(
   tokens: string[],
   isNameQuery: boolean,
   fanout: number,
+  allKinds: boolean,
 ): Promise<NameHit[]> {
   if (tokens.length === 0) return [];
-  const { projectClause, typeClause } = scopeClauses(args);
+  const { projectClause, typeClause } = scopeClauses(args, allKinds);
   return db<NameHit[]>`
     -- MATERIALIZED: the word counts are computed once, not per entity row
     WITH q AS MATERIALIZED (
@@ -149,6 +151,62 @@ async function nameCandidates(
   `;
 }
 
+// One pass over a candidate pool: the three ranked lists to fuse, plus the
+// entities a name-query word named exactly.
+interface Pass {
+  lists: EntityRow[][];
+  exactNames: Set<string>;
+}
+
+async function gather(
+  args: Args,
+  tokens: string[],
+  isNameQuery: boolean,
+  vector: number[] | null,
+  fanout: number,
+  allKinds: boolean,
+): Promise<Pass> {
+  const [lexHits, nameHits, semHits] = await Promise.all([
+    lexicalCandidates(args, fanout, allKinds),
+    nameCandidates(args, tokens, isNameQuery, fanout, allKinds),
+    vector ? semanticCandidates(args, vector, fanout, allKinds) : Promise.resolve([] as EntityRow[]),
+  ]);
+  // An exact-name hit on a name query votes a second time. RRF counts one vote
+  // per list, and an entity with no description (a ruleset like smackdown, a
+  // doc_only cvar) sits in neither description list, so a single name vote
+  // (1/61) could never beat five entities that both description legs ranked.
+  const exactHits = nameHits.filter((h) => h.tier >= EXACT_NAME_TIER);
+  return {
+    lists: [lexHits, semHits, ...(isNameQuery ? [nameHits, exactHits] : [nameHits])],
+    exactNames: new Set(exactHits.map((h) => h.canonical_id)),
+  };
+}
+
+// Closeness of each entity's description to the question (cosine similarity,
+// 0..1). Entities without a description embedding are absent from the map.
+async function closeness(canonicalIds: string[], vector: number[] | null): Promise<Map<string, number>> {
+  if (!vector || canonicalIds.length === 0) return new Map();
+  const vec = `[${vector.join(',')}]`;
+  const rows = await db<{ canonical_id: string; sim: number }[]>`
+    SELECT canonical_id, 1 - (description_embedding <=> ${vec}::vector) AS sim
+    FROM entities
+    WHERE canonical_id = ANY(${canonicalIds}::text[])
+      AND description_embedding IS NOT NULL
+  `;
+  return new Map(rows.map((r) => [r.canonical_id, Number(r.sim)]));
+}
+
+async function graded(top: FusedHit<EntityRow>[], exactNames: Set<string>, vector: number[] | null) {
+  const ids = top.map((f) => f.item.canonical_id);
+  const sims = await closeness(ids, vector);
+  const best = sims.size ? Math.max(...sims.values()) : null;
+  const { quality, basis } = grade(
+    { resultCount: top.length, bestSimilarity: best, exactName: ids.some((id) => exactNames.has(id)) },
+    cutoffsFor('entities'),
+  );
+  return { sims, best, quality, basis };
+}
+
 export async function searchEntities(args: Args): Promise<ToolResponse<EntityRecord>> {
   const limit = Math.min(args.limit ?? 10, 25);
   const fanout = limit * 4;
@@ -156,56 +214,59 @@ export async function searchEntities(args: Args): Promise<ToolResponse<EntityRec
   const tokens = queryTokens(args.query);
   const isNameQuery = tokens.length === 1;
 
-  const lexPromise = lexicalCandidates(args, fanout);
-  const namePromise = nameCandidates(args, tokens, isNameQuery, fanout);
-
-  let semHits: EntityRow[] = [];
+  let vector: number[] | null = null;
   try {
     const result = await embedTexts([args.query], QUERY_MODEL, 'query');
     await db`
       INSERT INTO embedding_api_log (source, model, input_tokens, latency_ms)
       VALUES ('mcp-query', ${result.model}, ${result.tokensInput}, ${result.latencyMs})
     `;
-    semHits = await semanticCandidates(args, result.vectors[0]!, fanout);
+    vector = result.vectors[0]!;
   } catch (err) {
     await db`
       INSERT INTO embedding_api_log (source, model, input_tokens, error)
       VALUES ('mcp-query', ${QUERY_MODEL}, 0, ${(err as Error).message})
     `;
-    // Lexical-only degraded path; no throw.
+    // Lexical + name only (degraded path); no throw.
   }
 
-  const lexHits = await lexPromise;
-  const nameHits = await namePromise;
-  // An exact-name hit on a name query votes a second time. RRF counts one vote
-  // per list, and an entity with no description (a ruleset like smackdown, a
-  // doc_only cvar) sits in neither description list, so a single name vote
-  // (1/61) could never beat five entities that both description legs ranked.
-  const exactHits = nameHits.filter((h) => h.tier >= EXACT_NAME_TIER);
-  const nameLists = isNameQuery ? [nameHits, exactHits] : [nameHits];
+  const main = await gather(args, tokens, isNameQuery, vector, fanout, false);
+  let fused = reciprocalRankFusion(main.lists, (e) => e.canonical_id);
+  let exactNames = main.exactNames;
+  let top = fused.slice(0, limit);
+  let g = await graded(top, exactNames, vector);
 
-  const fused = reciprocalRankFusion([lexHits, semHits, ...nameLists], (e) => e.canonical_id);
-  const top = fused.slice(0, limit);
+  // All-kinds fallback: callers almost never pass `type`, so a question about a
+  // protocol message, QC builtin or HUD element found nothing it could use.
+  // When the default kinds do not produce a strong answer, search every public
+  // kind and rank that pool on its own -- it contains the default kinds too, so
+  // they compete on equal terms. (Fusing both passes gave default-kind entities
+  // two votes each and buried the protocol messages the fallback exists for.)
+  // Same vector, so no second embedding call.
+  if (!args.type && g.quality !== 'strong') {
+    const wide = await gather(args, tokens, isNameQuery, vector, fanout, true);
+    fused = reciprocalRankFusion(wide.lists, (e) => e.canonical_id);
+    exactNames = new Set([...main.exactNames, ...wide.exactNames]);
+    top = fused.slice(0, limit);
+    g = await graded(top, exactNames, vector);
+  }
 
-  const results = await Promise.all(top.map((f) => toEntityRecord(f.item)));
-
-  let matchQuality: 'strong' | 'weak' | 'none';
-  if (top.length === 0) matchQuality = 'none';
-  else if (top[0]!.score >= STRONG_THRESHOLD) matchQuality = 'strong';
-  else if (top[0]!.score >= WEAK_THRESHOLD) matchQuality = 'weak';
-  else matchQuality = 'none';
+  const records = await Promise.all(top.map((f) => toEntityRecord(f.item)));
+  const results = records.map((r, i) => ({ ...r, match_score: g.sims.get(top[i]!.item.canonical_id) ?? null }));
 
   return {
     results,
-    match_quality: matchQuality,
+    match_quality: g.quality,
     suggested_fallback:
-      matchQuality === 'none'
+      g.quality === 'none'
         ? `No strong matches for "${args.query}". Try search_concepts for how-to questions, or call redirect_to_human.`
         : null,
     meta: {
       tool: 'search_entities',
       server_version: SERVER_VERSION,
       queried_at: new Date().toISOString(),
+      best_match_score: g.best,
+      match_basis: g.basis,
     },
   };
 }

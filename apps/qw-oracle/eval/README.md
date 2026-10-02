@@ -27,32 +27,39 @@ Two disjoint query files back the calibration sweep and the deploy gate. They MU
 - Layer 2 session hits use the canonical session id `session:<platform>:<channel>:<started_at>` exactly as `search_solved_issues` returns it. Do NOT add an extra `session:` prefix; the eval emits the canonical string verbatim and compares.
 - `tools` is the list of MCP tools the eval will call for this query. Order is irrelevant; the eval merges hits across all tools called.
 
-`calibration-queries.json` - threshold sweep input.
+`calibration-queries.json` - cut-off sweep input for the closeness grade (`serve/mcp/src/grade.ts`).
 
 ```json
 [
   {
     "id": 1,
     "query": "the user-facing question",
-    "expected_in_corpus": true,
-    "primary_tool": "search_concepts"
+    "tool": "search_entities | search_concepts | search_solved_issues | lookup_entity",
+    "expected": "strong | weak | none",
+    "answers": ["ezquake:cvar:con_fragmessages", "concept:hud-configuration", "<chat thread_key>", "ezquake:cvar:hud_fps_*"],
+    "source": "query_log:<id> | control | original:<n>",
+    "note": "optional: why this label"
   }
 ]
 ```
 
-- `expected_in_corpus` is `true` if the corpus should answer the query; `false` if not. The sweep maximises label accuracy across both classes.
-- `primary_tool` is currently `search_concepts` only; calibration only probes `search_concepts` because the same env-var thresholds (`MATCH_QUALITY_STRONG_THRESHOLD` / `MATCH_QUALITY_WEAK_THRESHOLD`) apply across `search_concepts` and `search_entities` (Phase 6 imports them in both tools). If the two tools diverge in the future, calibration becomes per-tool.
+- `expected` is what an honest label says given what the corpus HAS, not what search happens to find: `strong` = the answer is in the corpus, `weak` = part of it or something closely related, `none` = nothing on it. Judging coverage, not retrieval, is what lets the report separate search misses (`[answer not in top 3]`) from real gaps.
+- `answers` are the ids that count as a right answer (entity `canonical_id`, `concept:<slug>`, chat `thread_key`; a trailing `*` matches a family). Empty for vague or uncovered questions.
+- `lookup_entity` rows exercise the lookup fallback and are reported pass/fail; they do not feed the sweep.
+- Most rows are real questions from prod's `query_log` (2026-08-06..09-29), labeled 2026-10-02; questions that name community members were left out. Thread keys can change when a (channel, year) is re-fenced -- re-check the chat rows after a harvest re-fence.
+- The sweep is per corpus (entities / concepts / threads) and minimises a cost matrix in which `strong` on an uncovered question is the most expensive error. Copy the printed cut-offs into `DEFAULT_CUTOFFS` in `grade.ts`; the `*_MATCH_STRONG` / `*_MATCH_WEAK` env vars override them.
 
 ## Running
 
 ```bash
 # From apps/qw-oracle/, dev DB:
-bun run calibrate                                         # prints best STRONG / WEAK thresholds
+bun run calibrate                                         # per-corpus report + best cut-offs
 bun run eval                                              # runs the deploy gate
 
-# Threshold values printed by calibrate.ts are written to:
-#   - apps/qw-oracle/.env (dev DB)
-#   - /mnt/user/appdata/qw-oracle/.env (Unraid prod DB; see deploy/README.md)
+# Cut-offs printed by calibrate.ts go into DEFAULT_CUTOFFS in
+# serve/mcp/src/grade.ts (shipped with the image). To override without a
+# rebuild, set the printed *_MATCH_STRONG / *_MATCH_WEAK vars in
+# /mnt/user/appdata/qw-oracle/.env and recreate mcp (up -d, not restart).
 ```
 
 ## How to extend

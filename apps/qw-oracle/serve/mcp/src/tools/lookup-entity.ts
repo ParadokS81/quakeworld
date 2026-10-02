@@ -2,7 +2,7 @@
 
 import { db } from '../db.ts';
 import { toEntityRecord, type EntityRow } from '../entity-record.ts';
-import type { EntityRecord, EntityType, ToolResponse } from '../types.ts';
+import { ENTITY_TYPES, type EntityRecord, type EntityType, type ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 interface LookupEntityArgs {
@@ -13,15 +13,20 @@ interface LookupEntityArgs {
 
 const USER_FACING_TYPES = ['cvar', 'command', 'macro', 'cmdline_param', 'ruleset'] as const;
 
-async function fetchEntities(args: LookupEntityArgs): Promise<EntityRow[]> {
+// allKinds: the fallback pass for a caller who passed no type -- every public
+// kind (ENTITY_TYPES; the internal classifier kinds stay out, API_CONTRACTS
+// A2), and a bare name also matches scoped names (`sound` ->
+// `sound:std_builtins`, an info_key `name:scope`).
+async function fetchEntities(args: LookupEntityArgs, allKinds = false): Promise<EntityRow[]> {
   // Phase B 2026-04-28 cross-scope info_key lookup: bare names without `:`
   // expand to LIKE `<bare>:%` so callers don't have to know the scope.
   const isInfoKeyBareLookup = args.type === 'info_key' && !args.name.includes(':');
+  const isScopedBareLookup = allKinds && !args.type && !args.name.includes(':');
 
   const projectClause = args.project ? db`AND project = ${args.project}` : db``;
   const typeClause = args.type
     ? db`AND type = ${args.type}`
-    : db`AND type IN ${db(USER_FACING_TYPES)}`;
+    : db`AND type IN ${db(allKinds ? ENTITY_TYPES : USER_FACING_TYPES)}`;
   // Match the structural fold key (entities.name_fold, migration 013), not
   // `name`. name_fold is case-insensitive by construction for every type
   // except token_primitive (case-significant: $B vs $b), so we fold the
@@ -30,7 +35,9 @@ async function fetchEntities(args: LookupEntityArgs): Promise<EntityRow[]> {
   const lc = args.name.toLowerCase();
   const nameClause = isInfoKeyBareLookup
     ? db`split_part(name_fold, ':', 1) = ${lc}`
-    : args.type === 'token_primitive'
+    : isScopedBareLookup
+      ? db`(name_fold = ${lc} OR split_part(name_fold, ':', 1) = ${lc})`
+      : args.type === 'token_primitive'
       ? db`name_fold = ${args.name}`
       : db`name_fold = ${lc}`;
 
@@ -44,8 +51,36 @@ async function fetchEntities(args: LookupEntityArgs): Promise<EntityRow[]> {
   `;
 }
 
+// Spellings a caller plausibly means when the typed name is not stored as-is:
+// cmdline params and +/- commands carry their sign (`democache` is stored as
+// `-democache`), and a HUD element's own command drops the `hud_` its cvars
+// carry (`hud_itemsclock` -> the `itemsclock` command).
+function nameVariants(name: string): string[] {
+  const variants: string[] = [];
+  if (/^[+-]/.test(name)) variants.push(name.slice(1));
+  else variants.push(`-${name}`, `+${name}`);
+  if (/^hud_/i.test(name)) variants.push(name.slice(4));
+  return variants;
+}
+
+// Callers rarely pass `type`, so a name outside the default kinds, or typed
+// without its stored sign or prefix, used to come back 'none' although the
+// entity exists. Exact matches in the default kinds always win; the wider
+// passes run only when those find nothing.
+async function fetchWithFallback(args: LookupEntityArgs): Promise<EntityRow[]> {
+  const exact = await fetchEntities(args);
+  if (exact.length > 0 || args.type) return exact;
+  const anyKind = await fetchEntities(args, true);
+  if (anyKind.length > 0) return anyKind;
+  for (const variant of nameVariants(args.name)) {
+    const hits = await fetchEntities({ ...args, name: variant }, true);
+    if (hits.length > 0) return hits;
+  }
+  return [];
+}
+
 export async function lookupEntity(args: LookupEntityArgs): Promise<ToolResponse<EntityRecord>> {
-  const entities = await fetchEntities(args);
+  const entities = await fetchWithFallback(args);
   const results = await Promise.all(entities.map((e) => toEntityRecord(e)));
 
   // Strong = owned L1 description present OR raw extractor help_desc is non-trivial.

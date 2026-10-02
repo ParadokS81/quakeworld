@@ -1,32 +1,874 @@
 [
   {
     "id": 1,
-    "query": "how do I scale the scoreboard, scr_scoreboard_scale doesn't exist",
-    "expected_in_corpus": false,
-    "primary_tool": "search_concepts"
+    "query": "frag messages separate from console notify area",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:con_fragmessages"
+    ],
+    "source": "query_log:266",
+    "note": "right answer ranked #1 but graded weak"
   },
   {
     "id": 2,
-    "query": "where do deathmessages show up in the HUD, they disappeared from mine",
-    "expected_in_corpus": true,
-    "primary_tool": "search_concepts"
+    "query": "pm_ktjump",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:pm_ktjump",
+      "fte:cvar:pm_ktjump",
+      "mvdsv:cvar:pm_ktjump"
+    ],
+    "source": "query_log:300",
+    "note": "exact name; description-only lexical leg missed it"
   },
   {
     "id": 3,
-    "query": "how do I register the qw URL handler so links open in ezquake",
-    "expected_in_corpus": true,
-    "primary_tool": "search_concepts"
+    "query": "svc_playerinfo player state",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "mvdsv:protocol_message:svc_playerinfo"
+    ],
+    "source": "query_log:368",
+    "note": "protocol_message is outside the default kinds"
   },
   {
     "id": 4,
-    "query": "what is r_lgbloodcolor and what does setting it do",
-    "expected_in_corpus": true,
-    "primary_tool": "search_concepts"
+    "query": "TE_LIGHTNING2 lightning temp entity",
+    "tool": "search_entities",
+    "expected": "weak",
+    "answers": [
+      "mvdsv:protocol_message:svc_temp_entity"
+    ],
+    "source": "query_log:343",
+    "note": "temp-entity subtypes not extracted; the carrying message is"
   },
   {
     "id": 5,
+    "query": "wayland",
+    "tool": "search_entities",
+    "expected": "none",
+    "answers": [],
+    "source": "query_log:286",
+    "note": "no setting; chat-only topic"
+  },
+  {
+    "id": 6,
+    "query": "FPS cvar",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:cl_maxfps",
+      "fte:cvar:cl_maxfps",
+      "qwcl:cvar:cl_maxfps"
+    ],
+    "source": "query_log:215"
+  },
+  {
+    "id": 7,
+    "query": "scoreboard HUD element scores display",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:scr_scoreboard_*",
+      "ezquake:cvar:hud_frags_*",
+      "ezquake:cvar:hud_score_*"
+    ],
+    "source": "query_log:254"
+  },
+  {
+    "id": 8,
+    "query": "r_tracker position offset scale",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:r_tracker_x",
+      "ezquake:cvar:r_tracker_y",
+      "ezquake:cvar:r_tracker_scale",
+      "fte:cvar:r_tracker_x",
+      "fte:cvar:r_tracker_y"
+    ],
+    "source": "query_log:267"
+  },
+  {
+    "id": 9,
+    "query": "raw mouse input fullscreen display frequency desktop resolution",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:in_raw",
+      "ezquake:cvar:vid_displayfrequency",
+      "fte:cvar:in_rawinput",
+      "fte:cvar:vid_displayfrequency"
+    ],
+    "source": "query_log:269",
+    "note": "two topics in one query"
+  },
+  {
+    "id": 10,
+    "query": "democache demo cache memory buffer",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cmdline_param:-democache",
+      "ezquake:cvar:sv_democachesize",
+      "fte:cvar:sv_democachesize",
+      "mvdsv:cvar:sv_democachesize"
+    ],
+    "source": "query_log:277"
+  },
+  {
+    "id": 11,
+    "query": "minimize on focus loss alt-tab out of fullscreen window",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:vid_minimize_on_focus_loss"
+    ],
+    "source": "query_log:280"
+  },
+  {
+    "id": 12,
+    "query": "frametime graph fps display performance measurement latency graph",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:hud_frametime_*",
+      "ezquake:command:+hud_frametime",
+      "ezquake:cvar:hud_netgraph_*",
+      "fte:cvar:show_fps"
+    ],
+    "source": "query_log:282"
+  },
+  {
+    "id": 13,
+    "query": "hud_fps min show drawing style options performance element",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:hud_fps_style",
+      "ezquake:cvar:hud_fps_show_min",
+      "fte:cvar:hud_fps_style",
+      "fte:cvar:hud_fps_show_min"
+    ],
+    "source": "query_log:283"
+  },
+  {
+    "id": 14,
+    "query": "fps macro variable value for scripting alias echo",
+    "tool": "search_entities",
+    "expected": "weak",
+    "answers": [
+      "ezquake:command:fps"
+    ],
+    "source": "query_log:284",
+    "note": "no fps macro in L1 or found in ezQuake source; fps command is related"
+  },
+  {
+    "id": 15,
+    "query": "fps calculation averaging interval smoothing window CL_CalcFPS",
+    "tool": "search_entities",
+    "expected": "weak",
+    "answers": [
+      "ezquake:cvar:hud_fps_min_reset_interval"
+    ],
+    "source": "query_log:285",
+    "note": "CL_CalcFPS is engine internals"
+  },
+  {
+    "id": 16,
+    "query": "ktjump",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:pm_ktjump",
+      "fte:cvar:pm_ktjump",
+      "mvdsv:cvar:pm_ktjump"
+    ],
+    "source": "query_log:296",
+    "note": "partial name"
+  },
+  {
+    "id": 17,
+    "query": "smackdown",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:ruleset:smackdown"
+    ],
+    "source": "query_log:298",
+    "note": "logged none with 0 results (caller filters unknown)"
+  },
+  {
+    "id": 18,
+    "query": "ruleset smackdown restrictions",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:ruleset:smackdown"
+    ],
+    "source": "query_log:299"
+  },
+  {
+    "id": 19,
+    "query": "set timelimit in-game command minutes",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:timelimit",
+      "fte:cvar:timelimit",
+      "mvdsv:cvar:timelimit",
+      "ktx:command:time*",
+      "ktx:cvar:k_timetop"
+    ],
+    "source": "query_log:304"
+  },
+  {
+    "id": 20,
+    "query": "timelimit arbitrary value admin k_timetop k_timedown",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ktx:cvar:k_timetop",
+      "ktx:command:timedown",
+      "ktx:command:timeup"
+    ],
+    "source": "query_log:305"
+  },
+  {
+    "id": 21,
+    "query": "sound attenuation origin channel",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "mvdsv:qc_builtin:sound:std_builtins"
+    ],
+    "source": "query_log:345",
+    "note": "qc_builtin is outside the default kinds"
+  },
+  {
+    "id": 22,
+    "query": "updateuserinfo updatefrags temp_entity lightning",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "mvdsv:protocol_message:svc_updateuserinfo",
+      "mvdsv:protocol_message:svc_updatefrags",
+      "mvdsv:protocol_message:svc_temp_entity"
+    ],
+    "source": "query_log:346",
+    "note": "protocol_message is outside the default kinds"
+  },
+  {
+    "id": 23,
+    "query": "itemsclock item timer",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:hud_element:itemsclock",
+      "ezquake:cvar:hud_itemsclock_*",
+      "fte:cvar:hud_itemsclock_*"
+    ],
+    "source": "query_log:352"
+  },
+  {
+    "id": 24,
+    "query": "tp_msgreport report status team message macros",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:command:tp_msgreport"
+    ],
+    "source": "query_log:357",
+    "note": "exact name inside a longer query"
+  },
+  {
+    "id": 25,
+    "query": "frag message death weapon obituary con_fragmessages",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:con_fragmessages"
+    ],
+    "source": "query_log:358",
+    "note": "exact name inside a longer query"
+  },
+  {
+    "id": 26,
+    "query": "phs potentially hearable set multicast sound",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "mvdsv:cvar:sv_phs",
+      "ezquake:cvar:sv_phs",
+      "fte:cvar:sv_phs"
+    ],
+    "source": "query_log:367"
+  },
+  {
+    "id": 27,
+    "query": "announce powerup taken quad pent announcement",
+    "tool": "search_entities",
+    "expected": "weak",
+    "answers": [
+      "ezquake:command:tp_msgtook",
+      "ezquake:command:tp_msgquaddead",
+      "ktx:cvar:k_pow*"
+    ],
+    "source": "query_log:369",
+    "note": "no pickup-announcement setting found; related teamplay commands exist"
+  },
+  {
+    "id": 28,
+    "query": "sv_cullentities cull entities line of sight anti wallhack",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:sv_cullentities",
+      "fte:cvar:sv_cullentities_trace"
+    ],
+    "source": "query_log:370"
+  },
+  {
+    "id": 29,
+    "query": "packet loss duplicate packets server to client redundancy",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cvar:cl_c2sdupe",
+      "fte:cvar:cl_c2sdupe"
+    ],
+    "source": "query_log:380"
+  },
+  {
+    "id": 30,
+    "query": "smackdown ruleset kfjump krjump scripted rocket jump server settings",
+    "tool": "search_concepts",
+    "expected": "weak",
+    "answers": [
+      "concept:ruleset-anti-script-restriction-pattern"
+    ],
+    "source": "query_log:297",
+    "note": "note covers smackdown, not the jump scripts"
+  },
+  {
+    "id": 31,
+    "query": "FPS optimization cvars most impact",
+    "tool": "search_concepts",
+    "expected": "weak",
+    "answers": [
+      "concept:hud-configuration",
+      "concept:network-connection"
+    ],
+    "source": "query_log:216",
+    "note": "no performance note; fps touched in passing"
+  },
+  {
+    "id": 32,
+    "query": "high refresh rate monitor cl_maxfps alignment 77 physics independent physics vsync tearing best settings",
+    "tool": "search_concepts",
+    "expected": "weak",
+    "answers": [
+      "concept:network-connection"
+    ],
+    "source": "query_log:272",
+    "note": "independent physics mentioned; no refresh-rate guide"
+  },
+  {
+    "id": 33,
+    "query": "anna bot history",
+    "tool": "search_concepts",
+    "expected": "none",
+    "answers": [],
+    "source": "query_log:294",
+    "note": "no community-history notes"
+  },
+  {
+    "id": 34,
+    "query": "rocket jump pitch angle look down technique",
+    "tool": "search_concepts",
+    "expected": "none",
+    "answers": [],
+    "source": "query_log:306",
+    "note": "no movement-technique note"
+  },
+  {
+    "id": 35,
+    "query": "tb4 map pool dm2 dm3 dm4 dm6 4on4",
+    "tool": "search_concepts",
+    "expected": "weak",
+    "answers": [
+      "concept:4on4"
+    ],
+    "source": "query_log:308",
+    "note": "mode notes list maps; no tournament pool"
+  },
+  {
+    "id": 36,
+    "query": "rocket jump mechanics pitch angle knockback",
+    "tool": "search_concepts",
+    "expected": "none",
+    "answers": [],
+    "source": "query_log:309",
+    "note": "no movement-technique note"
+  },
+  {
+    "id": 37,
+    "query": "tb4 thebig4 map pool duel 1on1 maps",
+    "tool": "search_concepts",
+    "expected": "weak",
+    "answers": [
+      "concept:1on1"
+    ],
+    "source": "query_log:314",
+    "note": "mode notes list maps; no tournament pool"
+  },
+  {
+    "id": 38,
+    "query": "item respawn timer sound ezquake item timers how to know when armor respawns",
+    "tool": "search_concepts",
+    "expected": "none",
+    "answers": [],
+    "source": "query_log:347",
+    "note": "no item-timer note"
+  },
+  {
+    "id": 39,
+    "query": "teamplay messages report location health armor weapon macros %l %h %a",
+    "tool": "search_concepts",
+    "expected": "none",
+    "answers": [],
+    "source": "query_log:348",
+    "note": "hud-configuration only points at an unwritten teamplay-comms guide"
+  },
+  {
+    "id": 40,
+    "query": "PVS potentially visible set entity culling server sends players behind walls wallhack",
+    "tool": "search_concepts",
+    "expected": "none",
+    "answers": [],
+    "source": "query_log:366",
+    "note": "no culling / anti-wallhack note"
+  },
+  {
+    "id": 41,
+    "query": "qwen 4090 gguf",
+    "tool": "search_solved_issues",
+    "expected": "strong",
+    "answers": [
+      "#dev-corner:fence-sonnet-v2:dev-corner-2026-074:7"
+    ],
+    "source": "query_log:264",
+    "note": "local Qwen workstation hardware thread"
+  },
+  {
+    "id": 42,
+    "query": "antilag fairness double rockets proxy statistics",
+    "tool": "search_solved_issues",
+    "expected": "strong",
+    "answers": [
+      "#antilag:fence-sonnet-v2:antilag-2026-042:4",
+      "#antilag:fence-sonnet-v2:antilag-2022-036:6",
+      "#antilag:fence-sonnet-v2:antilag-2023-044:0"
+    ],
+    "source": "query_log:213"
+  },
+  {
+    "id": 43,
+    "query": "FPS cvar",
+    "tool": "search_solved_issues",
+    "expected": "strong",
+    "answers": [
+      "#dev-corner:fence-sonnet-v2:dev-corner-2020-055:0",
+      "#dev-corner:fence-sonnet-v2:dev-corner-2023-023:12",
+      "#quakeworld:fence-sonnet-v2:quakeworld-2019-046:1"
+    ],
+    "source": "query_log:217"
+  },
+  {
+    "id": 44,
+    "query": "nano ollama OR llama.cpp OR local model",
+    "tool": "search_solved_issues",
+    "expected": "strong",
+    "answers": [
+      "#dev-corner:fence-sonnet-v2:dev-corner-2026-024:9",
+      "#dev-corner:fence-sonnet-v2:dev-corner-2026-037:1"
+    ],
+    "source": "query_log:265"
+  },
+  {
+    "id": 45,
+    "query": "f_version",
+    "tool": "lookup_entity",
+    "expected": "none",
+    "answers": [],
+    "source": "query_log:270",
+    "note": "chat-only f_ request, not registered as a command (extractor coverage gap)"
+  },
+  {
+    "id": 46,
+    "query": "democache",
+    "tool": "lookup_entity",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cmdline_param:-democache"
+    ],
+    "source": "query_log:276",
+    "note": "stored with a leading dash"
+  },
+  {
+    "id": 47,
+    "query": "hud_itemsclock",
+    "tool": "lookup_entity",
+    "expected": "strong",
+    "answers": [
+      "ezquake:command:itemsclock",
+      "ezquake:hud_element:itemsclock"
+    ],
+    "source": "query_log:363",
+    "note": "HUD cvars carry hud_; the itemsclock command (and the internal hud_element) do not"
+  },
+  {
+    "id": 48,
+    "query": "rocket jump",
+    "tool": "search_concepts",
+    "expected": "none",
+    "answers": [],
+    "source": "query_log:259",
+    "note": "graded strong today, wrongly: one passing mention in instagib"
+  },
+  {
+    "id": 49,
+    "query": "scoreboard HUD element scores display",
+    "tool": "search_concepts",
+    "expected": "strong",
+    "answers": [
+      "concept:hud-configuration"
+    ],
+    "source": "query_log:255"
+  },
+  {
+    "id": 50,
+    "query": "What is QuakeWorld?",
+    "tool": "search_concepts",
+    "expected": "weak",
+    "answers": [],
+    "source": "query_log:214",
+    "note": "no intro note; pieces across notes"
+  },
+  {
+    "id": 51,
+    "query": "crosshair",
+    "tool": "search_concepts",
+    "expected": "none",
+    "answers": [],
+    "source": "query_log:258",
+    "note": "no crosshair note; passing mentions only"
+  },
+  {
+    "id": 52,
+    "query": "what can a spectator or player know about item respawn, sound of item respawn, hearing pickups through walls",
+    "tool": "search_concepts",
+    "expected": "weak",
+    "answers": [
+      "concept:deathmatch-modes"
+    ],
+    "source": "query_log:365",
+    "note": "item respawn times per deathmatch mode only"
+  },
+  {
+    "id": 53,
+    "query": "lightning",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [],
+    "source": "query_log:46",
+    "note": "vague; many valid lightning entities"
+  },
+  {
+    "id": 54,
+    "query": "team",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [],
+    "source": "query_log:47",
+    "note": "vague; many valid team entities"
+  },
+  {
+    "id": 55,
+    "query": "svc_packetentities",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "mvdsv:protocol_message:svc_packetentities"
+    ],
+    "source": "query_log:344"
+  },
+  {
+    "id": 56,
+    "query": "sound attenuation distance",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "mvdsv:qc_builtin:sound:std_builtins",
+      "fte:cvar:s_nominaldistance"
+    ],
+    "source": "query_log:353"
+  },
+  {
+    "id": 57,
+    "query": "listen port ip address bind",
+    "tool": "search_entities",
+    "expected": "strong",
+    "answers": [
+      "ezquake:cmdline_param:-port",
+      "mvdsv:cmdline_param:-port",
+      "fte:cmdline_param:-port",
+      "ezquake:cmdline_param:-ip",
+      "mvdsv:cmdline_param:-ip"
+    ],
+    "source": "query_log:381"
+  },
+  {
+    "id": 58,
+    "query": "crosshair image not centered when changing crosshairsize",
+    "tool": "search_solved_issues",
+    "expected": "strong",
+    "answers": [
+      "#helpdesk:fence-sonnet-v2:helpdesk-2026-134:1"
+    ],
+    "source": "query_log:383",
+    "note": "the 2026-09-24 helpdesk thread"
+  },
+  {
+    "id": 59,
+    "query": "rpickup",
+    "tool": "search_solved_issues",
+    "expected": "strong",
+    "answers": [
+      "#quakeworld:fence-sonnet-v2:quakeworld-2023-095:48",
+      "#dev-corner:fence-sonnet-v2:dev-corner-2023-148:2"
+    ],
+    "source": "query_log:49"
+  },
+  {
+    "id": 60,
+    "query": "antilag 1 fairness debate double rockets",
+    "tool": "search_solved_issues",
+    "expected": "strong",
+    "answers": [
+      "#antilag:fence-sonnet-v2:antilag-2026-042:4",
+      "#antilag:fence-sonnet-v2:antilag-2022-036:6",
+      "#antilag:fence-sonnet-v2:antilag-2023-044:0"
+    ],
+    "source": "query_log:212"
+  },
+  {
+    "id": 61,
+    "query": "scoreboard HUD element scores display",
+    "tool": "search_solved_issues",
+    "expected": "strong",
+    "answers": [
+      "#helpdesk:fence-sonnet-v2:helpdesk-2022-163:7"
+    ],
+    "source": "query_log:256"
+  },
+  {
+    "id": 62,
+    "query": "ezquake linux wayland hyprland fullscreen refresh rate",
+    "tool": "search_solved_issues",
+    "expected": "strong",
+    "answers": [
+      "#helpdesk:fence-sonnet-v2:helpdesk-2026-019:40"
+    ],
+    "source": "query_log:268"
+  },
+  {
+    "id": 63,
+    "query": "best pizza topping",
+    "tool": "search_entities",
+    "expected": "none",
+    "answers": [],
+    "source": "control"
+  },
+  {
+    "id": 64,
+    "query": "how to change the oil in a car",
+    "tool": "search_entities",
+    "expected": "none",
+    "answers": [],
+    "source": "control"
+  },
+  {
+    "id": 65,
+    "query": "valorant crosshair code",
+    "tool": "search_entities",
+    "expected": "none",
+    "answers": [],
+    "source": "control",
+    "note": "near-domain: other game"
+  },
+  {
+    "id": 66,
+    "query": "best pizza topping",
+    "tool": "search_concepts",
+    "expected": "none",
+    "answers": [],
+    "source": "control"
+  },
+  {
+    "id": 67,
+    "query": "how to change the oil in a car",
+    "tool": "search_concepts",
+    "expected": "none",
+    "answers": [],
+    "source": "control"
+  },
+  {
+    "id": 68,
+    "query": "valorant crosshair code",
+    "tool": "search_concepts",
+    "expected": "none",
+    "answers": [],
+    "source": "control",
+    "note": "near-domain: other game"
+  },
+  {
+    "id": 69,
+    "query": "sourdough bread recipe hydration",
+    "tool": "search_solved_issues",
+    "expected": "none",
+    "answers": [],
+    "source": "control",
+    "note": "0 chat threads mention sourdough"
+  },
+  {
+    "id": 70,
+    "query": "how to change the oil in a car",
+    "tool": "search_solved_issues",
+    "expected": "none",
+    "answers": [],
+    "source": "control",
+    "note": "0 chat threads mention an oil change"
+  },
+  {
+    "id": 71,
+    "query": "how do I scale the scoreboard, scr_scoreboard_scale doesn't exist",
+    "tool": "search_concepts",
+    "expected": "none",
+    "answers": [],
+    "source": "original:1",
+    "note": "no note covers scoreboard scaling"
+  },
+  {
+    "id": 72,
+    "query": "where do deathmessages show up in the HUD, they disappeared from mine",
+    "tool": "search_concepts",
+    "expected": "weak",
+    "answers": [
+      "concept:hud-configuration"
+    ],
+    "source": "original:2",
+    "note": "notify area mentioned; frag messages not covered"
+  },
+  {
+    "id": 73,
+    "query": "how do I register the qw URL handler so links open in ezquake",
+    "tool": "search_concepts",
+    "expected": "weak",
+    "answers": [
+      "concept:client-side-server-exec-allowlist"
+    ],
+    "source": "original:3",
+    "note": "qw:// handler covered as attack surface, not setup"
+  },
+  {
+    "id": 74,
+    "query": "what is r_lgbloodcolor and what does setting it do",
+    "tool": "search_concepts",
+    "expected": "strong",
+    "answers": [
+      "concept:lightning-gun-customization"
+    ],
+    "source": "original:4"
+  },
+  {
+    "id": 75,
     "query": "how do I make my downloads faster from a server, mine caps at 350 KB/s",
-    "expected_in_corpus": true,
-    "primary_tool": "search_concepts"
+    "tool": "search_concepts",
+    "expected": "weak",
+    "answers": [
+      "concept:network-connection"
+    ],
+    "source": "original:5",
+    "note": "covers rate, not downloads"
+  },
+  {
+    "id": 76,
+    "query": "how does clan arena work, rounds and respawns",
+    "tool": "search_concepts",
+    "expected": "strong",
+    "answers": [
+      "concept:ca"
+    ],
+    "source": "control",
+    "note": "covered-concept control (the log had few)"
+  },
+  {
+    "id": 77,
+    "query": "how do I record a demo of my match and play it back",
+    "tool": "search_concepts",
+    "expected": "strong",
+    "answers": [
+      "concept:match-recording-playback"
+    ],
+    "source": "control",
+    "note": "covered-concept control (the log had few)"
+  },
+  {
+    "id": 78,
+    "query": "what is the rate setting and what should I set it to",
+    "tool": "search_concepts",
+    "expected": "strong",
+    "answers": [
+      "concept:network-connection"
+    ],
+    "source": "control",
+    "note": "covered-concept control (the log had few)"
+  },
+  {
+    "id": 79,
+    "query": "how do I turn on the new hud and move elements around",
+    "tool": "search_concepts",
+    "expected": "strong",
+    "answers": [
+      "concept:hud-configuration"
+    ],
+    "source": "control",
+    "note": "covered-concept control (the log had few)"
+  },
+  {
+    "id": 80,
+    "query": "how do I set up my own ktx server",
+    "tool": "search_concepts",
+    "expected": "strong",
+    "answers": [
+      "concept:server-setup"
+    ],
+    "source": "control",
+    "note": "covered-concept control (the log had few)"
+  },
+  {
+    "id": 81,
+    "query": "what is wipeout mode",
+    "tool": "search_concepts",
+    "expected": "strong",
+    "answers": [
+      "concept:wipeout"
+    ],
+    "source": "control",
+    "note": "covered-concept control (the log had few)"
   }
 ]

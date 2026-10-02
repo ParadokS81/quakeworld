@@ -8,23 +8,19 @@
 // Fusion via Reciprocal Rank Fusion (k=60). Lexical-only degraded path on
 // Voyage API failure -- no throw, error logged to embedding_api_log.
 //
-// Thresholds (R10 PROVISIONAL): L2_RRF_STRONG_THRESHOLD / L2_RRF_WEAK_THRESHOLD
-// default to 0.02 / 0.005 -- borrowed from search_entities calibration, not yet
-// calibrated against a Layer 2 eval set. Pending Phase D recalibration on the
-// full fenced-thread backfill.
+// match_quality is graded on closeness (grade.ts): the best thread's cosine
+// similarity to the question against the 'threads' cut-offs. This replaced the
+// provisional L2_RRF_* thresholds (R10), which were borrowed from
+// search_entities and never calibrated for threads.
 
 import { db } from '../db.ts';
 import { embedTexts } from '../../../../shared/embedding.ts';
 import { reciprocalRankFusion } from '../../../../shared/rrf.ts';
+import { cutoffsFor, grade } from '../grade.ts';
 import type { ThreadHit, SessionMessage, ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 const QUERY_MODEL = process.env.EMBEDDING_MODEL_QUERY ?? 'voyage-4-lite';
-// PROVISIONAL thresholds (R10): borrowed from search_entities (STRONG=0.02,
-// WEAK=0.005). Not yet calibrated for thread retrieval. Pending Phase D
-// recalibration on the full fenced-thread backfill.
-const STRONG_THRESHOLD = parseFloat(process.env.L2_RRF_STRONG_THRESHOLD ?? '0.02');
-const WEAK_THRESHOLD = parseFloat(process.env.L2_RRF_WEAK_THRESHOLD ?? '0.005');
 
 interface Args {
   query: string;
@@ -86,6 +82,18 @@ async function semanticCandidates(vec: number[], fanout: number): Promise<Thread
   `;
 }
 
+// Closeness of each thread to the question (cosine similarity, 0..1).
+async function closeness(threadIds: string[], vector: number[] | null): Promise<Map<string, number>> {
+  if (!vector || threadIds.length === 0) return new Map();
+  const vecLiteral = `[${vector.join(',')}]`;
+  const rows = await db<{ id: string; sim: number }[]>`
+    SELECT id::text, 1 - (topic_embedding <=> ${vecLiteral}::vector) AS sim
+    FROM chat_threads
+    WHERE id = ANY(${threadIds}::bigint[]) AND topic_embedding IS NOT NULL
+  `;
+  return new Map(rows.map((r) => [r.id, Number(r.sim)]));
+}
+
 async function hydrateThread(threadId: string, maxMessages: number): Promise<MessageRow[]> {
   return db<MessageRow[]>`
     SELECT m.id AS message_id, m.author_name, m.created_at, m.content,
@@ -121,13 +129,15 @@ export async function searchSolvedIssues(args: Args): Promise<ToolResponse<Threa
 
   // Attempt semantic embedding; degrade to lexical-only on failure.
   let semHits: ThreadRow[] = [];
+  let vector: number[] | null = null;
   try {
     const result = await embedTexts([args.query], QUERY_MODEL, 'query');
     await db`
       INSERT INTO embedding_api_log (source, model, input_tokens, latency_ms)
       VALUES ('mcp-query', ${result.model}, ${result.tokensInput}, ${result.latencyMs})
     `;
-    semHits = await semanticCandidates(result.vectors[0]!, fanout);
+    vector = result.vectors[0]!;
+    semHits = await semanticCandidates(vector, fanout);
   } catch (err) {
     await db`
       INSERT INTO embedding_api_log (source, model, input_tokens, error)
@@ -140,6 +150,7 @@ export async function searchSolvedIssues(args: Args): Promise<ToolResponse<Threa
 
   const fused = reciprocalRankFusion([lexHits, semHits], (t) => t.thread_id);
   const top = fused.slice(0, limit);
+  const sims = await closeness(top.map((f) => f.item.thread_id), vector);
 
   // Hydrate each top thread with its messages.
   const results: ThreadHit[] = await Promise.all(
@@ -159,17 +170,16 @@ export async function searchSolvedIssues(args: Args): Promise<ToolResponse<Threa
         message_count: row.message_count,
         resolution_status: (row.resolution_status as ThreadHit['resolution_status']) ?? null,
         messages,
-        score: f.score,
+        match_score: sims.get(row.thread_id) ?? null,
       };
     }),
   );
 
-  // match_quality from top fused score vs PROVISIONAL thresholds (R10).
-  let matchQuality: 'strong' | 'weak' | 'none';
-  if (top.length === 0) matchQuality = 'none';
-  else if (top[0]!.score >= STRONG_THRESHOLD) matchQuality = 'strong';
-  else if (top[0]!.score >= WEAK_THRESHOLD) matchQuality = 'weak';
-  else matchQuality = 'none';
+  const best = sims.size ? Math.max(...sims.values()) : null;
+  const { quality: matchQuality, basis } = grade(
+    { resultCount: top.length, bestSimilarity: best },
+    cutoffsFor('threads'),
+  );
 
   return {
     results,
@@ -182,6 +192,8 @@ export async function searchSolvedIssues(args: Args): Promise<ToolResponse<Threa
       tool: 'search_solved_issues',
       server_version: SERVER_VERSION,
       queried_at: new Date().toISOString(),
+      best_match_score: best,
+      match_basis: basis,
     },
   };
 }

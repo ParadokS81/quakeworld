@@ -29,7 +29,7 @@ interface DispatchOptions {
 }
 
 interface ScorableHit {
-  match_score?: number;
+  match_score?: number | null;
 }
 
 // MCP content envelope shape returned to the SDK Server.
@@ -50,8 +50,12 @@ export async function dispatchAndLog<R extends ToolResponse<unknown>>(
     throw err;
   } finally {
     const resultCount = response?.results.length ?? 0;
+    // Ranked tools report the closeness their label was graded on; fall back
+    // to the first result's own score for anything that only sets that.
     const topScore = response
-      ? ((response.results[0] as ScorableHit | undefined)?.match_score ?? null)
+      ? (response.meta.best_match_score ??
+        (response.results[0] as ScorableHit | undefined)?.match_score ??
+        null)
       : null;
     const matchQuality = response?.match_quality ?? null;
     const latencyMs = Date.now() - start;

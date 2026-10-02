@@ -5,21 +5,17 @@
 // matching chunk via either lexical or semantic, RRF fuses them, and the
 // snippet is post-truncated so the consumer LLM gets a focused signal.
 //
-// Thresholds default to the values calibrated by `bun run calibrate` against
-// eval/calibration-queries.json (D10 disjoint set). Operator overrides via
-// MATCH_QUALITY_* env vars; .env wins over source defaults.
+// match_quality is graded on closeness (grade.ts): the best chunk's cosine
+// similarity to the question against the 'concepts' cut-offs.
 
 import { db } from '../db.ts';
 import { embedTexts } from '../../../../shared/embedding.ts';
 import { reciprocalRankFusion } from '../../../../shared/rrf.ts';
+import { cutoffsFor, grade } from '../grade.ts';
 import type { SearchConceptResult, ToolResponse } from '../types.ts';
 import { SERVER_VERSION } from '../version.ts';
 
 const QUERY_MODEL = process.env.EMBEDDING_MODEL_QUERY ?? 'voyage-4-lite';
-// Last sweep 2026-05-06: STRONG=0.02 WEAK=0.005 hit 100% accuracy on the
-// 5-query calibration set. Recalibrate after any eval-set extension.
-const STRONG_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_STRONG_THRESHOLD ?? '0.02');
-const WEAK_THRESHOLD = parseFloat(process.env.MATCH_QUALITY_WEAK_THRESHOLD ?? '0.005');
 const SNIPPET_CHARS = 600;
 
 interface Args {
@@ -66,10 +62,16 @@ function truncateAroundQuery(text: string, query: string, maxChars: number): str
   return (start > 0 ? '...' : '') + text.slice(start, end) + (end < text.length ? '...' : '');
 }
 
-function bucket(score: number): 'strong' | 'weak' | 'none' {
-  if (score >= STRONG_THRESHOLD) return 'strong';
-  if (score >= WEAK_THRESHOLD) return 'weak';
-  return 'none';
+// Closeness of each chunk to the question (cosine similarity, 0..1).
+async function closeness(chunkIds: string[], vector: number[] | null): Promise<Map<string, number>> {
+  if (!vector || chunkIds.length === 0) return new Map();
+  const vec = `[${vector.join(',')}]`;
+  const rows = await db<{ id: string; sim: number }[]>`
+    SELECT id::text, 1 - (embedding <=> ${vec}::vector) AS sim
+    FROM concept_chunks
+    WHERE id = ANY(${chunkIds}::bigint[]) AND embedding IS NOT NULL
+  `;
+  return new Map(rows.map((r) => [r.id, Number(r.sim)]));
 }
 
 export async function searchConcepts(args: Args): Promise<ToolResponse<SearchConceptResult>> {
@@ -80,13 +82,15 @@ export async function searchConcepts(args: Args): Promise<ToolResponse<SearchCon
   const lexPromise = lexicalChunks(args.query, fanout);
 
   let semHits: ChunkRow[] = [];
+  let vector: number[] | null = null;
   try {
     const result = await embedTexts([args.query], QUERY_MODEL, 'query');
     await db`
       INSERT INTO embedding_api_log (source, model, input_tokens, latency_ms)
       VALUES ('mcp-query', ${result.model}, ${result.tokensInput}, ${result.latencyMs})
     `;
-    semHits = await semanticChunks(result.vectors[0]!, fanout);
+    vector = result.vectors[0]!;
+    semHits = await semanticChunks(vector, fanout);
   } catch (err) {
     await db`
       INSERT INTO embedding_api_log (source, model, input_tokens, error)
@@ -104,9 +108,18 @@ export async function searchConcepts(args: Args): Promise<ToolResponse<SearchCon
       results: [],
       match_quality: 'none',
       suggested_fallback: `No matches for "${args.query}". Consider redirect_to_human or asking in #helpdesk on Discord.`,
-      meta: { tool: 'search_concepts', server_version: SERVER_VERSION, queried_at: now() },
+      meta: {
+        tool: 'search_concepts',
+        server_version: SERVER_VERSION,
+        queried_at: now(),
+        best_match_score: null,
+        match_basis: 'no_results',
+      },
     };
   }
+
+  const cutoffs = cutoffsFor('concepts');
+  const sims = await closeness(top.map((h) => h.item.id), vector);
 
   // Pull the matching chunk text + concept summary in one round-trip per row.
   // O(N) round-trips at limit<=25 is acceptable; the tool is rare-ish (per-LLM-question).
@@ -142,15 +155,16 @@ export async function searchConcepts(args: Args): Promise<ToolResponse<SearchCon
       slug: concept.slug,
       title: concept.title,
       summary: concept.summary,
-      match_score: hit.score,
-      match_quality: bucket(hit.score),
+      match_score: sims.get(hit.item.id) ?? null,
+      match_quality: grade({ resultCount: 1, bestSimilarity: sims.get(hit.item.id) ?? null }, cutoffs).quality,
       snippet: truncateAroundQuery(chunk.text, args.query, SNIPPET_CHARS),
       related_entities: entityRows.map((e) => e.entity_canonical_id),
       related_concepts: conceptRefs.map((c) => `concept:${c.target_slug}`),
     });
   }
 
-  const overall: 'strong' | 'weak' | 'none' = bucket(top[0]!.score);
+  const best = sims.size ? Math.max(...sims.values()) : null;
+  const { quality: overall, basis } = grade({ resultCount: results.length, bestSimilarity: best }, cutoffs);
 
   return {
     results,
@@ -159,6 +173,12 @@ export async function searchConcepts(args: Args): Promise<ToolResponse<SearchCon
       overall === 'none'
         ? `No strong matches for "${args.query}". Consider redirect_to_human.`
         : null,
-    meta: { tool: 'search_concepts', server_version: SERVER_VERSION, queried_at: now() },
+    meta: {
+      tool: 'search_concepts',
+      server_version: SERVER_VERSION,
+      queried_at: now(),
+      best_match_score: best,
+      match_basis: basis,
+    },
   };
 }

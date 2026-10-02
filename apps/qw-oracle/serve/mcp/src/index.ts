@@ -34,7 +34,7 @@ import { searchConcepts } from './tools/search-concepts.ts';
 import { redirectToHuman } from './tools/redirect-to-human.ts';
 import { describeMode } from './tools/describe-mode.ts';
 
-import type { EntityType } from './types.ts';
+import { ENTITY_TYPES, type EntityType } from './types.ts';
 import type { SearchMapsArgs } from './tools/search-maps.ts';
 import type { SearchMechanicsArgs } from './tools/search-mechanics.ts';
 import type { SearchGameplayEntitiesArgs } from './tools/search-gameplay-entities.ts';
@@ -55,11 +55,7 @@ function summariseFilterArgs(args: Record<string, unknown>): string | null {
   return compact.length > 200 ? compact.slice(0, 197) + '...' : compact;
 }
 
-const ENTITY_TYPE_ENUM: EntityType[] = [
-  'cvar', 'command', 'macro', 'cmdline_param', 'ruleset',
-  'match_event', 'info_key', 'log_template', 'protocol_message',
-  'qc_builtin', 'cvar_alias',
-];
+const ENTITY_TYPE_ENUM: EntityType[] = [...ENTITY_TYPES];
 const VERIFY_TTL_HOURS = parseFloat(process.env.EMBEDDING_VERIFY_TTL_HOURS ?? '24');
 
 async function maybeVerifyEmbeddingSpace(): Promise<void> {
@@ -229,7 +225,7 @@ const TOOL_LIST = [
           type: 'string',
           enum: ENTITY_TYPE_ENUM,
           description:
-            'Optional. Restrict to one entity type. Default searches the five user-facing types (cvar, command, macro, cmdline_param, ruleset); pass match_event or a server-side type (info_key, log_template, protocol_message, qc_builtin, cvar_alias) explicitly to include those.',
+            'Optional. Restrict to one entity type. When omitted, the five user-facing types (cvar, command, macro, cmdline_param, ruleset) are tried first and the other six (match_event, info_key, log_template, protocol_message, qc_builtin, cvar_alias) are searched automatically when those give no strong match -- pass a type only to narrow.',
         },
       },
       required: ['name'],
@@ -238,7 +234,7 @@ const TOOL_LIST = [
   {
     name: 'search_entities',
     description:
-      'Hybrid retrieval (lexical tsvector + semantic pgvector, fused via Reciprocal Rank Fusion) over QuakeWorld Layer 1 entities. Returns the same rich EntityRecord shape as lookup_entity (source_state, version arc, asset relations, linked concept notes). Use for partial names, topic words ("frag", "crosshair", "lightning"), or symptom-form queries ("fps drops when window minimized") -- the semantic half bridges user-vocabulary to upstream-developer-vocabulary even when there is no surface-keyword overlap. Name matches rank above description-only matches.',
+      'Hybrid retrieval (lexical tsvector + semantic pgvector + entity-name match, fused via Reciprocal Rank Fusion) over QuakeWorld Layer 1 entities. Returns the same rich EntityRecord shape as lookup_entity (source_state, version arc, asset relations, linked concept notes). Use for partial names, topic words ("frag", "crosshair", "lightning"), or symptom-form queries ("fps drops when window minimized") -- the semantic half bridges user-vocabulary to upstream-developer-vocabulary even when there is no surface-keyword overlap. Name matches rank above description-only matches.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -254,7 +250,7 @@ const TOOL_LIST = [
           type: 'string',
           enum: ENTITY_TYPE_ENUM,
           description:
-            'Optional. Restrict to one entity type. Default searches the five user-facing types (cvar, command, macro, cmdline_param, ruleset); pass match_event or a server-side type (info_key, log_template, protocol_message, qc_builtin, cvar_alias) explicitly to include those.',
+            'Optional. Restrict to one entity type. When omitted, the five user-facing types (cvar, command, macro, cmdline_param, ruleset) are tried first and the other six (match_event, info_key, log_template, protocol_message, qc_builtin, cvar_alias) are searched automatically when those give no strong match -- pass a type only to narrow.',
         },
         limit: {
           type: 'number',
@@ -282,7 +278,7 @@ const TOOL_LIST = [
   {
     name: 'search_solved_issues',
     description:
-      'Hybrid retrieval (full-text tsvector + semantic pgvector, fused via Reciprocal Rank Fusion) over the QuakeWorld community Discord chat corpus (~728k messages), reconstructed into topic-coherent threads. Returns ranked thread transcripts (the raw member messages) so the asking LLM reads what people actually said. Discord hits include deep links back to the original message. Use for community discussion / troubleshooting / history about cvars, commands, gameplay, errors. Corpus is Discord-only; pre-2016 IRC content is not indexed.',
+      'Hybrid retrieval (full-text tsvector + semantic pgvector, fused via Reciprocal Rank Fusion) over the QuakeWorld community Discord chat corpus (#quakeworld, #helpdesk, #dev-corner and #antilag, 2016 onward; no message count here, it grows with every monthly harvest), reconstructed into topic-coherent threads. Returns ranked thread transcripts (the raw member messages) so the asking LLM reads what people actually said. Discord hits include deep links back to the original message. Use for community discussion / troubleshooting / history about cvars, commands, gameplay, errors. Corpus is Discord-only; pre-2016 IRC content is not indexed.',
     inputSchema: {
       type: 'object',
       properties: {

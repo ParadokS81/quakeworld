@@ -111,10 +111,10 @@ function formatDateShort(iso: string | Date | null | undefined): string {
   return s.slice(0, 10);
 }
 
-function renderNewHit(hit: ThreadHit, score: number): string {
+function renderNewHit(hit: ThreadHit, score: number | null): string {
   const lines: string[] = [];
   lines.push(`  - **${truncate(hit.topic_label, 80)}**`);
-  lines.push(`    channel: ${hit.channel} | ${formatDateShort(hit.date_range_start)} | msgs: ${hit.message_count} | score: ${score.toFixed(4)}`);
+  lines.push(`    channel: ${hit.channel} | ${formatDateShort(hit.date_range_start)} | msgs: ${hit.message_count} | closeness: ${score === null ? 'n/a' : score.toFixed(4)}`);
   // Show first 3 member messages as preview
   const preview = hit.messages.slice(0, 3);
   for (const m of preview) {
@@ -211,7 +211,7 @@ if (import.meta.main) {
         mdLines.push('_No hits._');
       } else {
         for (const hit of newResp.results) {
-          mdLines.push(renderNewHit(hit, hit.score));
+          mdLines.push(renderNewHit(hit, hit.match_score));
         }
       }
       mdLines.push('');
@@ -259,7 +259,7 @@ if (import.meta.main) {
         mdLines.push('_No hits._');
       } else {
         for (const hit of newResp.results) {
-          mdLines.push(renderNewHit(hit, hit.score));
+          mdLines.push(renderNewHit(hit, hit.match_score));
         }
       }
       mdLines.push('');
