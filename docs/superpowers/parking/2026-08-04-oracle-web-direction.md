@@ -211,6 +211,39 @@ Design material captured for that future re-examination:
   publish is a cheap knob we keep; prefer distilled issue->resolution cards over raw
   transcripts on any public surface (also the better format for search/AI indexing).
 
+**Inputs added 2026-10-01** (operator re-voiced the vision during the fence bake-off
+session: ask an AI on the site, browse all topics, route the same service into slipgate
+or anywhere, MCP stays open for people's own agents, web-native questions become new
+tickets the community can chime in on). The trigger above is unchanged; these lower the
+cost side of the decision:
+
+1. **The funding blocker has shrunk.** An OpenRouter account now exists (key in
+   `~/projects/.secrets/openrouter.env`) and cheap-model costs are measured: GPT-6 Luna
+   fenced 10,110 messages for $0.14, DeepSeek Flash via OpenRouter for $0.44 (spike
+   report §8). An ask-box answering from pre-built tickets is a search plus a short
+   read -- projected at a fraction of a cent to ~1 cent per question on a cheap model
+   (unmeasured), i.e. a few dollars a month at this community's volume plus a rate
+   limit. The "no ANTHROPIC_API_KEY" premise behind deferring the playground no longer
+   binds on its own.
+2. **Pre-built tickets as the search corpus** (operator's framing): rewrite each thread
+   into problem / fix / status / category, every field citing its message ids (the L2
+   source-citation rule), the raw conversation kept as the breadcrumb. Two payoffs:
+   search runs on clean problem statements instead of chat noise, and tickets can be
+   reviewed BEFORE the public sees them -- on-the-fly answers cannot, which matters
+   under the quake.world name. For direct help the hybrid is: find via tickets, answer
+   from the raw thread. That respects the L2 spec's finding that the answering model
+   does better reading the real conversation (summary dropped); embedding a distilled
+   summary was never tested, so the search half is unmeasured, not disproven. The
+   ticket fields would fill the planned-but-empty `buckets_question` /
+   `buckets_answer` columns (buckets-E, 0 of 40,943 threads populated).
+3. **The oracle-eval-simulation arc is this service's proof.** It measures whether the
+   corpus answers real #helpdesk questions, which is exactly the service's promise, and
+   its answer-key step (DeepSeek distils "what actually fixed it" per thread) is a
+   500-ticket pilot of the rewrite. Prerequisite both share: thread grain -- one
+   complete help episode per thread; a split question/answer breaks tickets, search and
+   the eval's leave-one-out alike (bake-off evidence and the grain finding: spike report
+   §8).
+
 ## Deferred -- GitHub-backed curation pipeline
 
 Operator re-affirmed 2026-08-04: concept-note curation via GitHub (issues as topic

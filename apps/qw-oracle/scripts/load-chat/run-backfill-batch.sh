@@ -20,6 +20,9 @@
 #
 # Retrieval probe (step 7 of the ledger ritual) stays manual: its queries are
 # per-batch and want a human read of the hits.
+#
+# FENCE_ARGS (optional) is passed to every fence-external step -- the outage route:
+#   FENCE_ARGS="--provider openrouter --model deepseek/deepseek-v4.1-flash" run-backfill-batch.sh ...
 set -uo pipefail
 
 CHANNEL="${1:?usage: run-backfill-batch.sh <channel> <year> [conc]}"
@@ -29,7 +32,12 @@ cd "$(dirname "$0")/../.." || exit 1
 
 SLUG="${CHANNEL#\#}"
 DIR="scripts/calibration/scratch/backfill/${SLUG}-${YEAR}"
-OUT="${DIR}/fence-external-deepseek-v4-flash.json"
+# One fixed output name, passed to every step that writes or reads it. It used to be
+# derived from the model id, so when DeepSeek retired deepseek-v4-flash (2026-10-01) the
+# fence step began writing a new file while the gates below still read the old one --
+# a batch whose new messages only grew its last chunk would have loaded the stale
+# August fencing with no gate noticing.
+OUT="${DIR}/fence-output.json"
 
 
 die() { echo ""; echo "!! HALT [$CHANNEL $YEAR]: $*" >&2; exit 1; }
@@ -39,11 +47,11 @@ step "1/7 prep"
 bun scripts/load-chat/backfill-batch.ts prep "$CHANNEL" "$YEAR" || die "prep failed"
 
 step "2/7 worst-case pre-flight"
-bun scripts/load-chat/fence-external.ts probe "$CHANNEL" "$YEAR" --top 3 \
+bun scripts/load-chat/fence-external.ts probe "$CHANNEL" "$YEAR" --top 3 ${FENCE_ARGS:-} \
   || die "largest chunks failed the pre-flight -- fix ceilings before spending a batch"
 
 step "3/7 fence (conc=$CONC, resuming any prior partial)"
-bun scripts/load-chat/fence-external.ts fence "$CHANNEL" "$YEAR" --conc "$CONC" --resume
+bun scripts/load-chat/fence-external.ts fence "$CHANNEL" "$YEAR" --conc "$CONC" --resume --out "$OUT" ${FENCE_ARGS:-}
 # NB: non-zero exit here means incomplete; step 4 reports precisely which.
 
 step "4/7 completeness gate"
@@ -59,7 +67,7 @@ step "5/7 refence low-coverage chunks"
 # probes of one 1500-msg chunk gave 132 vs 40 threads). Messages in no thread
 # are unreachable by retrieval. Keeps the better realization only, so a
 # no-op run is free. 2017: 98.37% -> 99.30%, +521 msgs.
-bun scripts/load-chat/fence-external.ts refence "$CHANNEL" "$YEAR" --below 97 --conc "$CONC" \
+bun scripts/load-chat/fence-external.ts refence "$CHANNEL" "$YEAR" --below 97 --conc "$CONC" --out "$OUT" ${FENCE_ARGS:-} \
   || echo "(refence pass had failures -- originals kept, continuing to the gate)"
 
 step "6/7 stats gate"

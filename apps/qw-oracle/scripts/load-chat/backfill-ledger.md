@@ -1030,3 +1030,29 @@ are fenced/loaded from Jan-May data so it is searchable immediately; the post-im
 replaces them idempotently via the (channel, year) range-DELETE. **#antilag-2026 (loaded
 2026-06-06) is in the same partial state and wants the same re-run.** Do NOT read a 2026 `[x]`
 as a complete year until after the catch-up import.
+
+## Harvest 2026-10-01/02 (first run after the fence bake-off)
+
+- **Ingestion:** `catchup.mjs` fetched 18,521 new Discord messages (anchors 2026-07-31..08-05 ->
+  2026-10-01); `count-all` 705,540 -> **711,624** chat/link msgs. Only the 2026 rows moved
+  (#helpdesk +1,459, #quakeworld +2,322, #dev-corner +1,383, #antilag +920 = +6,084, exact).
+- **Config changes before the run** (spike report section 8, `fence-external.ts`
+  ROUTE_BIG_TO_FALLBACK, `run-backfill-batch.sh` header): model `deepseek-flash` (V4.1) for every
+  chunk, Pro-first routing for 500+ msgs OFF (Pro kept as escalation); the driver now uses one
+  fixed output file, `fence-output.json`, so this run re-fenced all of 2026 once.
+- **Batches (all gates PASS, 0 escalations, 0 refence splices, R5 md5-identical re-loads):**
+  #helpdesk-2026 138 chunks -> 676 threads (100% coverage); #quakeworld-2026 69 -> 1,196
+  (99.98%); #dev-corner-2026 127 -> 705 (100%); #antilag-2026 68 -> 208 (100%). Hallucination 0%
+  everywhere. Wall 23:34 -> 00:12 UTC (39 min). Probes: worst chunk 217s / 63,517 completion
+  tokens (#quakeworld-2026-008, 1,160 msgs, Flash) -- 12% of timeout, 24% of the token cap.
+- **chat_threads 40,219 -> 40,943.** Eval-sim frozen frame re-verified after the load:
+  4,222 live / 3,164 solved, unchanged (all 2020-05-11..2025-12-29 #helpdesk; the 2026
+  range-DELETE cannot reach it).
+- **Retrieval probe (twin, in-process handler):** three substantive new-window threads ranked
+  1 / 1 / 2 for paraphrased queries (crosshair centering 77 msgs, NVIDIA/Wayland tearing 71,
+  greyscale textures / gl_max_size vs picmip 180). Two of their labels end in "...and related
+  banter" -- the bake-off's finding that Flash lumps on long stretches, visible in production.
+- **Cost:** DeepSeek balance $20.72 -> $18.37 (includes $0.19 of bench testing; the harvest
+  itself ~$2.2, off-peak). Voyage re-embedding of the 2026 threads not separately measured.
+- **Not done (operator call):** twin -> prod refresh and `build-brain-manifest.ts --publish`.
+

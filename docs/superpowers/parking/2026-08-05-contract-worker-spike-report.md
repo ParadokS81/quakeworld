@@ -248,3 +248,57 @@ bun scripts/load-chat/backfill-batch.ts load "<channel>" <year> <fenceOutput>
   schema-gated re-run: attempts 1–2 ceiling-death, attempt 3 VALID (25 threads).
   The strict validator caught the off-enum label — hand-editing model output was
   rejected on principle; retry-until-valid mirrors the Workflow harness semantics.
+
+## 8. Model bake-off, 2026-10-01 (sidequest)
+
+Re-asked "is DeepSeek still the right fencer?" after DeepSeek retired `deepseek-v4-flash`
+(now served as V4.1 Flash) and OpenRouter opened hundreds of hosted models. Tooling:
+`fence-external.ts --provider openrouter` + `scripts/load-chat/fence-bench.ts` (frozen
+30-chunk set `fence-bench-set.json`: 10 per channel, weighted to big chunks, 10,110 msgs).
+
+**Reference.** The DB's threads are DeepSeek's own output, so they cannot judge DeepSeek.
+Claude Opus 5.5 (one agent per chunk, session effort xhigh) split all 30 chunks as the
+reference; Claude Sonnet 5.5 split 6 of them as the **noise floor**. Sonnet vs Opus:
+precision 96, recall 52, 1.26x threads -- two strong splitters agree on WHAT belongs
+together and disagree on HOW FINELY to cut. Pair F1 therefore mixes real grouping errors
+with grain choices; read precision / recall / thread ratio, not F1 alone.
+
+| run (all 30 chunks unless noted) | pair F1 vs Opus | precision | recall | threads vs Opus | F1 on the 6 noise-floor chunks | paired vs production | $ for the set | $ per 1k msgs |
+|---|---|---|---|---|---|---|---|---|
+| DeepSeek production (Flash; Pro for 500+ msgs) | 76.1 | 75.8 | 83.9 | 0.85x | 73.2 | baseline | 0.92 (computed, off-peak) | 0.091 |
+| DeepSeek V4.1 Flash via OpenRouter (Flash only) | 77.2 | 76.7 | 84.4 | 0.90x | 64.3 | +1.1 +/-5.5 | 0.44 (account) | 0.049 |
+| OpenAI GPT-6 Luna | 76.1 | 79.5 | 81.8 | 0.96x | 74.8 | +0.0 +/-5.8 | 0.14 (account) | 0.011 |
+| Sonnet 5.5 (noise floor, 6 chunks) | 64.9 | 96.3 | 52.2 | 1.26x | 64.9 | -- | quota | -- |
+| GLM 5.3 Flash -- HALTED at medium band | 76.5 (13 chunks) | 92.6 | 71.4 | 1.24x | -- | -7.7 +/-12.7 | 0.14 | -- |
+| Mistral Small 2603 -- 28/30 | 62.2 | 64.7 | 69.8 | 0.76x | 61.5 | -16.3 +/-6.4 | 0.03 | 0.009 |
+| Qwen 3.7 Flash | 57.3 | 59.0 | 79.6 | 0.64x | 52.9 | -18.8 +/-7.0 | 0.10 | 0.011 |
+
+Findings:
+- **Top tier is a tie**: DeepSeek production, DeepSeek-via-OpenRouter and GPT-6 Luna are
+  statistically indistinguishable from each other (paired CIs straddle 0), and on the
+  noise-floor chunks each agrees with Opus at least as well as Sonnet does. Agreement
+  cannot separate them further; only a blind "complete help episode" read could.
+- **Cheap tier lumps**: Qwen and Mistral have low precision (unrelated talk merged) --
+  a real error, not a grain choice; 16-19 points behind production on the same chunks.
+- **GLM is unreliable**: empty completions (null content) on two medium chunks, one
+  chunk at 40% coverage.
+- **GPT-6 Luna abstained** (`abstained=true`, gave up after ~3.9k reasoning tokens) on the
+  1,428-msg dev-corner chunk -- schema-valid, so a production run would silently leave
+  those messages unthreaded. Any Luna adoption needs a big-chunk fallback, as DeepSeek has.
+- **DeepSeek V4.1 Flash via OpenRouter fenced every xl chunk without Pro** and matched
+  production quality: a proven outage fallback route (DeepSeek's own API was down
+  ~19:40-21:30 UTC the same evening).
+- **Cost is not the deciding factor at harvest scale**: ~4k new msgs/month is ~$0.36 on
+  production DeepSeek vs ~$0.05 on Luna. It matters only for whole-corpus jobs (705k msgs:
+  ~$64 vs ~$8 at these rates, projection) or a future per-thread ticket layer.
+- Spend: OpenRouter $0.90 of $10 credit; DeepSeek balance $21.96 -> $20.72 (bench + probes).
+
+Harness lessons: (1) Mistral's two xl failures were the bench's own setting -- it requested
+the model's full max output on top of a 55-61k-token input, exceeding the 262k context;
+`run` should cap max_tokens at context minus input. Not re-run: Mistral was already 16
+points behind. (2) The `fence-reference` agent definition (pinned effort) could not load
+mid-session; references ran as general-purpose Opus at the session's effort instead.
+
+Artifacts (gitignored): `apps/qw-oracle/scripts/calibration/scratch/fence-bench/`
+(`runs/<label>/`, `scorecard.json`). Re-score: `bun scripts/load-chat/fence-bench.ts score
+--baseline deepseek-production`.

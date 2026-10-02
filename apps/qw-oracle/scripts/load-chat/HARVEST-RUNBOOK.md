@@ -50,6 +50,23 @@ that re-fenced everything, because per-chunk fingerprints did not exist yet.
 `(channel, year)`-scoped, so it replaces the year atomically from the merged fence output. Only
 the FENCING is incremental. Embedding cost tracks threads re-inserted, not chunks fenced.
 
+**If DeepSeek's API is down** (it was, ~19:40-21:30 UTC on 2026-10-01): run the same
+batches through OpenRouter, whose other hosts serve the same open model at matching
+quality (fence bake-off, `docs/superpowers/parking/2026-08-05-contract-worker-spike-report.md` section 8):
+
+    FENCE_ARGS="--provider openrouter --model deepseek/deepseek-v4.1-flash" \
+      bash scripts/load-chat/run-backfill-batch.sh "$ch" <YEAR> 30
+
+The key lives in `~/projects/.secrets/openrouter.env`. That route has no Pro escalation;
+a chunk that fails twice halts the batch at the completeness gate, and a later run with
+DeepSeek back resumes only the gaps.
+
+**Model and output file (2026-10-01).** Every chunk goes to `deepseek-flash` (V4.1); the
+Pro-first rule for 500+ message chunks is off, with Pro kept as the retry for chunks Flash
+fails (measured reasons in `fence-external.ts` at ROUTE_BIG_TO_FALLBACK). The driver now
+reads and writes one fixed file per batch, `fence-output.json`. The first run after this
+change finds no prior file and re-fences the whole current year once.
+
 Then: retrieval-probe a thread from the NEW window, update `backfill-ledger.md`, commit --
 and republish the brain manifest: `bun scripts/build-brain-manifest.ts --publish` (public
 numbers at oracle.slipgate.me/snapshots/ refresh within the 5-minute cache).
