@@ -150,3 +150,53 @@ hygiene.
 - Expose and document the MCP port on Unraid so the direct route is reachable.
 - Run a smoke test against the direct route before the bulk simulation run depends
   on it.
+
+## Resume notes (2026-10-01/02) -- inputs for the fresh arc-plan
+
+Written at the resume-orientation session; everything below is evidence for planning,
+not a decision already taken.
+
+- **Workflow.** Workflow v2 has been current since 2026-09-03 and is forward-only
+  (harness-lab `workflow/migration.md`). The D1-D11 spec carries over; the 2026-08-06 V1
+  plan (9 phases, 1-4 drafted, F1-F73, ledger E1-E15) is reference input to a fresh
+  `arc-plan`, not an executable plan. Lane moved to `~/worktrees/quakeworld-eval`; main
+  merged in 2026-10-01.
+- **Freshness check (2026-10-01, read-only agent + re-verified after the harvest).** Every
+  load-bearing premise holds: #helpdesk 6,772 / 3,694 solved; the frozen June frame resolves
+  to 4,456 non-noise / 4,222 live / **3,164 solved**, unchanged; `search_solved_issues` and
+  `serve/mcp/src/tools/` untouched on main since the merge-base (Phase 1's seams are still
+  open); oracle-web's WhyCompare overlay still dark; the 12-question phase-8 set present. The
+  June script `faq-gate-retrieve.ts` still imports dead `/home/paradoks/` paths (F4); its
+  handler files exist, so in-process import is fine with relative paths.
+- **Harvest and sequencing.** The monthly harvest ran 2026-10-01/02 (2026 only; chat_threads
+  40,219 -> 40,943 on the twin; frame untouched -- the load is (channel, year)-scoped and the
+  frame's threads all start 2020-05-11..2025-12-29). The next is due 2026-11-02; the calendar
+  entry now carries a watch item: **do not run it while answering runs are in flight** (E4's
+  intent, narrowed: only the 2026 batches move, but a harvest changes what the oracle
+  searches mid-comparison). **Any re-fence of historical years regenerates their thread ids
+  and orphans the whole frozen frame** -- such a re-fence must follow the eval, or the
+  sampling must be redesigned around it.
+- **Model landscape changed since August.** DeepSeek retired `deepseek-v4-flash`;
+  `deepseek-flash` is V4.1 Flash, `deepseek-v4-pro` unchanged; peak 01-04 + 06-10 UTC
+  weekdays at 2x. DeepSeek's API was down ~19:40-21:30 UTC on 2026-10-01 -- the answering
+  harness wants a preflight and a provider switch (`fence-external.ts`'s `--provider`
+  pattern is reusable). An OpenRouter account exists (key `~/projects/.secrets/openrouter.env`),
+  which opens two plan options: (a) cheap answering/grading models beyond DeepSeek -- the
+  fence bake-off found GPT-6 Luna and DeepSeek-via-OpenRouter on par with production
+  DeepSeek at a fraction of the cost (spike report section 8); (b) **Claude via API,
+  pay-per-use** (Sonnet 5.5 $2/$10 per M tokens), so D8's ~40-question Claude calibration
+  sample need not run on Max quota as subagents -- price it at plan time.
+- **Thread grain matters to this arc (bake-off finding).** Against an Opus reference, two
+  strong splitters disagree mostly on grain (Sonnet cut 1.26x finer, precision 96 / recall
+  52), and DeepSeek lumps on big chunks (~0.7x Opus's thread count on 500+ msg chunks;
+  labels like "...and related banter" in the live corpus). Consequences to plan for:
+  (1) **leave-one-out leaks when a conversation was split** -- the answer can sit in a
+  sibling fragment the oracle may still retrieve; candidate fix: exclude every thread fenced
+  from the same chunk and time window as the sampled thread, not just the thread itself;
+  (2) key extraction from a lumped thread can pick up the wrong fix. Open operator question,
+  asked and not yet answered: is "one complete help episode per thread" the target grain?
+  Retrieval-side mitigation floated, not scoped: return a hit's neighbouring threads.
+- **Why this arc matters more now.** The operator re-voiced support.quake.world (public
+  ask-the-AI support surface on pre-built tickets); this eval is its proof, and its
+  answer-key step is a 500-ticket pilot of the ticket rewrite (oracle-web direction doc,
+  "Inputs added 2026-10-01").
