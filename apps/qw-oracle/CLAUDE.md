@@ -8,7 +8,7 @@ Check where you are before touching a database — the endpoints differ:
 | Where you are | `DATABASE_URL` | Notes |
 |---|---|---|
 | **cockpit** (the normal case now) | `postgresql://qworacle:<ORACLE_DEV_PW>@qw-oracle-postgres-dev:5432/qw_oracle` | **Dev twin** of prod (pgvector, seeded from a prod dump 2026-07-15). Password: `ORACLE_DEV_PW` in `~/.secrets/dev-databases.env`. `qworacle` is superuser here — create `qw_oracle_test` and scratch DBs freely. The same instance also hosts a **`quake_stats` scratch copy** (ranking research may write to it). |
-| cockpit → **prod** | **unreachable, BY DESIGN** | Prod `qw-oracle-postgres` is not on devnet. Changes reach prod as *recipes*, never as data pushes: commit migrations (`db/migrations/`) + loader code, deploy per `DEPLOYMENT.md`. Do not look for a way through the fence. |
+| cockpit → **prod** | **no network route, BY DESIGN** | Prod `qw-oracle-postgres` is not on devnet, so no `DATABASE_URL` from the cockpit reaches it -- do not look for a way through the fence. Both prod containers are still dev-owned and reachable through `docker exec` / `docker cp` (the `dev-deploy-proxy` `DOCKER_HOST`): data reaches prod by the twin->prod dump/restore routine and code by an image redeploy, both in `DEPLOYMENT.md`, both taking the public MCP down briefly -- operator's go first. |
 | workstation (legacy, pre-cockpit) | `localhost:5432` or tailscale per `DEPLOYMENT.md`/`.env.example` | Old pattern; still valid from the operator's WSL. |
 
 Twins are **cattle**: if an experiment trashes one, re-seed from a fresh prod dump —

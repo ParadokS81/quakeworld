@@ -266,13 +266,19 @@ The step-4 rollback dump doubles as fresh Tier-2 insurance (see "Rollback" below
 
 No MCP image rebuild is needed -- mcp is stopped only to release DB locks for the restore, then
 brought back up on the same image. Prod is unreachable (mcp down, then briefly restoring) for
-the duration of steps 6-9; acceptable while the install has no real users beyond the operator.
+the duration of steps 6-9 -- 75 s for the 2026-10-02 surgical restore. The public MCP has real
+users beyond the operator (`query_log` since 2026-08: Claude.ai, Claude Code and Codex clients plus
+at least one outside consumer), so step 6 waits for the operator's explicit go.
 
-For surgical refreshes (only some tables changed), dump just those tables with `-t` and restore
-that dump with `--clean --if-exists --single-transaction` -- the 2026-10-02 example above is the
-proven recipe; first check that the chosen tables' foreign keys stay inside the set. A wholesale
-restore replaces prod's own runtime logs (`query_log`, `embedding_api_log`, `oracle_meta`) with
-the twin's; a surgical one leaves them. Default to the wholesale dump above when in doubt.
+**Choosing wholesale or surgical -- decide from the diff, not by default.** A wholesale restore
+replaces prod's own runtime logs (`query_log`, `embedding_api_log`, `oracle_meta`) with the twin's
+copies, erasing prod's record of real usage since the last refresh; a surgical one leaves them.
+So: when the diff is confined to a set of tables (a harvest is the chat tables), go surgical --
+dump just those tables with `-t` and restore with `--clean --if-exists --single-transaction`, the
+2026-10-02 example above being the proven recipe; first check that the chosen tables' foreign
+keys stay inside the set. Go wholesale only when the change is too broad to list (a schema
+change across many tables), and then export prod's `query_log` and `embedding_api_log` first and
+re-insert the rows the twin lacks after the restore.
 
 **What this procedure does NOT do:**
 - It does NOT regenerate slipgate consumer JSON snapshots. Run
