@@ -63,7 +63,7 @@ Reproduce - Locate - Understand - Hypothesize - Verify - Fix minimally. Don't re
 
 ### Testing Philosophy
 
-Compile and build first. Manual verification second. Automated tests only when the project already has them or when explicitly asked. Don't add test infrastructure speculatively.
+Compile and build first. Manual verification second. Automated tests only when the project already has them or when explicitly asked. Don't add test infrastructure speculatively. (The general rule is harness-lab DOCTRINE Principles 16-17; this paragraph is QuakeWorld's setting of it.)
 
 ### Security
 
