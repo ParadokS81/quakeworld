@@ -1,24 +1,34 @@
 # CLAUDE.md - MatchScheduler Guidelines
 
-**Status:** Maintenance (effective-legacy; will be rebuilt inside slipgate web).
+**Status:** Maintenance (effective-legacy; will be rebuilt inside slipgate web). Why, and the graduation path: `VISION.md`. Open work: the monorepo's root `HANDOVER.md`.
 
-## Essential References
-
-Monorepo-aligned quartet (orient here first):
-- **README.md** - elevator pitch, tech stack, who uses it
-- **VISION.md** - why this project exists, the 3x3-grid rationale, the slipgate-web graduation path
-- **OVERVIEW.md** - current-state living map: features, Firestore collections, Discord integration, voice-pairing flow
-- **DEPLOYMENT.md** - Firebase deploy flow
+A Firebase web app that schedules QuakeWorld 4on4 clan matches on a fixed 3x3 availability grid, with Discord as the social layer and Quad (the Discord bot) as the voice and delivery layer.
 
 **Start with `OVERVIEW.md` when working in this project — it's the load-bearing orientation map (parked-with-purpose, design intent, code landmarks, integration boundaries). For deeper File-map / module-guide questions, see `context/ARCHITECTURE-MAP.md`.**
 
-Subsystem docs:
-- **Architecture Map**: `context/ARCHITECTURE-MAP.md` - File map, module guide, subsystem overview. Layer 3 reference doc; consult on demand.
-- **Data Schema**: `context/SCHEMA.md` - Firestore document structures (ALWAYS check before writing backend code)
-- **Pillar Documents**: `context/Pillar*.md` - Architecture specifications
-- **Slice Specs**: `context/slices/` - Feature implementation details
-- **Dev Setup**: `DEVELOPMENT.md` - run, build, test; why no emulator runs on the cockpit
-- **QWHub API**: `context/QWHUB-API-REFERENCE.md` - External API for match history, detailed stats, mapshots
+## Documentation index
+
+| When you need... | Read... |
+|---|---|
+| Elevator pitch, tech stack, who uses it | `README.md` |
+| Why this exists, the 3x3-grid rationale, the slipgate-web graduation path | `VISION.md` |
+| Current map: features, Cloud Functions, integrations, parked items, cruft | `OVERVIEW.md` |
+| Run, build, test; why no emulator runs on the cockpit | `DEVELOPMENT.md` |
+| Firebase deploy flow, regions, the one secret, retired functions | `DEPLOYMENT.md` |
+| Firestore document structures (ALWAYS check before writing backend code) | `context/SCHEMA.md` |
+| File map, module guide, subsystem overview (Layer 3) | `context/ARCHITECTURE-MAP.md` |
+| QWHub external API: match history, detailed stats, mapshots | `context/QWHUB-API-REFERENCE.md` |
+| Pillar specs, roadmap, design docs, incident notes, the 84 feature slices | `context/CLAUDE.md` (scope index) |
+| Voice-replay, multi-clan, Mumble and auto-record phase notes; contract copies | `docs/CLAUDE.md` (scope index) |
+
+## Subsystem scopes
+
+| Subfolder | Entry doc | What's there |
+|---|---|---|
+| `public/` | `public/CLAUDE.md` | Desktop 3x3 layout system, landscape-mobile drawers, CSS/JS ownership |
+| `public/js/mobile/` | `public/js/mobile/CLAUDE.md` | Portrait-first phone app, separate from the desktop grid |
+| `context/` | `context/CLAUDE.md` | Architecture specs, schema, roadmap, design docs, slices |
+| `docs/` | `docs/CLAUDE.md` | Feature phase notes and cross-project contract copies |
 
 ## Critical Patterns
 

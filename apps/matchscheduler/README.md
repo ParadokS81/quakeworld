@@ -34,7 +34,7 @@ The QuakeWorld 4on4 community: ~300 active players, ~40 teams. Tournaments like 
 - `CLAUDE.md` - always-on rules and tooling conventions (Firebase v11 modular imports, rem-only units, sacred grid, etc.)
 - `VISION.md` - why this project exists, what problem the 3x3 grid was designed to solve, the slipgate-web graduation story
 - `OVERVIEW.md` - current-state map: features that exist, Firestore collections, Discord integration, voice-pairing flow
-- `DEPLOYMENT.md` - Firebase deploy flow (dev, staging, prod projects)
+- `DEPLOYMENT.md` - Firebase deploy flow (one project, `matchscheduler-dev`)
 - `DEVELOPMENT.md` - run, build, test; the emulator workflow and why it does not run on the cockpit
 - `context/ARCHITECTURE-MAP.md` - file-by-file architecture map (long-form; start here if you're modifying the codebase)
 - `context/SCHEMA.md` - full Firestore document structures
