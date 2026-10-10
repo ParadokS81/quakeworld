@@ -57,6 +57,7 @@ own arcs chronicle in `apps/qw-oracle/docs/arc-history.md`).
 - **frogbots.md concept note** — bots run under the hood in tot/LGC/practice, undocumented — trigger: operator-initiated — docs/superpowers/parking/2026-05-30-game-mode-hosting-reframe-and-bots-gap-handoff.md.
 - **Concept-note: map-selection-workflow** — hud-configuration.md shipped via a different arc (demand-driven-l3), this one remains unauthored — trigger: operator-initiated — docs/superpowers/parking/2026-05-14-concept-note-partners-authoring.md.
 - **KTX handler class-name shape cosmetic cleanup** — 9 handlers, 3 naming conventions, no behavioral consequence — trigger: bundled with cross-extractor audit D.5.1/D.5.2 FTE nits — docs/superpowers/reviews/2026-05-06-ktx-onboarding-cross-project-audit.md.
+- **qw-stats ranking product** — identity-resolution pipeline first (Phase 0: persist the `IDENTITY-SEEDS.md` clusters, automated candidates, curator review queue), then Stats Composite / RAPM / OpenSkill; research complete, nothing built — trigger: operator revives qw-stats (Paused since 2026-04) — apps/qw-stats/ROADMAP.md.
 
 ## Small followups
 
@@ -113,6 +114,9 @@ Reviewed through: 2026-08-11.
 - `[agent-food]` **docs-web doc-hygiene gap** — apps/docs-web has no CLAUDE.md and is absent from root CLAUDE.md Subsystem scopes + OVERVIEW — add all three (oracle-web-v1 phase docs still cite this as open) — docs/superpowers/plans/2026-08-06-oracle-web-v1/phase-2-scaffold-hello-production.md.
 - `[decision]` **docs-web front-page/design brainstorm** — fresh-session brainstorm pending; centerpiece (oracle coverage map) is now Arc B's seed — decide whether front-page work folds into Arc B or runs standalone — docs/superpowers/parking/2026-08-04-oracle-web-direction.md.
 - `[decision]` **27 nested `CLAUDE.md` scopes have no `AGENTS.md` beside them** — the root got the Codex adapter on 2026-09-03 (harness-lab D43 alignment); harness-lab's doctrine (DC6) says every `CLAUDE.md`, root or nested, has an adapter sibling, and a sub-directory form exists (`harness-lab/workflow/AGENTS.md`). Decide whether nested scopes here take that form or are exempt; if they take it, one sitting copies 27 files. Raised by the harness-lab wrap 2026-09-03.
+- `[decision]` **qw-stats doc realignment, two calls left from the 2026-10-10 seat** — (a) rename `DATABASE-SCHEMA.md` → `SCHEMA.md` and `API-GUIDE.md` → `API_CONTRACTS.md` (DOC-WRITING role-name rule; the seat re-points every reference when told); (b) `GEMINI.md` in qw-stats, quad and matchscheduler each carry rules of their own (second canonicals) — thin all three to two-line adapters like `AGENTS.md`, or delete them if Gemini CLI is retired. Raised 2026-10-10.
+- `[agent-food]` **qw-stats: two generic-team lists decide `is_clan_game`** — `scripts/import-postgres.js` knows 7 generic names, `api/updater.js` the extended ~70 (colors, mix, numbers, throwaway tags), so archive rows (to Feb 2026) and updater rows (since) are classified differently; fix = one shared list + a re-classification pass over `games`. The three-way classification in `apps/qw-stats/ROADMAP.md` stays unbuilt. Raised 2026-10-10.
+- `[agent-food]` **deploy skill, QW Stats section** — the copy step names `server.js` only, but the image needs `updater.js` too (`api/Dockerfile` copies both; the build context already holds it); and its "for details" pointer names `apps/qw-stats/DEPLOYMENT.md`, which exists nowhere on this box (gitignored in the WSL era, never recreated) — `.claude/skills/deploy/SKILL.md`. Raised 2026-10-10.
 
 ## Sidequests
 
