@@ -921,3 +921,9 @@ Prereqs (`DEPLOYMENT.md` "Prerequisites"): Tailscale up (`ssh root@100.114.81.91
 - **Placeholder scan:** none — every code/SQL/command step is concrete.
 - **Type consistency:** `describeMode`/`ModeDescription`/`AppliedSetting` names match between B1 and the B3 test; `gameplay_source_id` added to row shapes (A1/A3) matches the test assertions; `EntityType` extended (A5) before `ENTITY_TYPE_ENUM` uses it.
 - **Seed columns verified against live DDL:** required (NOT NULL, no default, non-identity) columns confirmed — `entities`: project, type, name, canonical_id, first_seen_version, last_seen_version, created_at, updated_at (all seeded); `concepts`: slug, title, body, frontmatter, body_sha256 (all seeded); `gameplay_mechanics` / `gameplay_entity_defs`: gameplay_source_id, kind, name, source_ref (all seeded); `gameplay_sources`: id, display_name, description, source_root (all seeded). The `match_event` enum addition (G5/D8) is verified via typecheck + the Task A5 raw-SQL smoke + live MCP — not a seeded `entities`-assembly test, which would be disproportionate for a one-line enum change.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Make the 444 stranded KTX gameplay rows reachable through the MCP, add the describe_mode verb and re-truth the docs; shipped and tagged 2026-06-05, deployed to prod 2026-08-04 with oracle-reentry.
+- **Phase:** closed 2026-06-05 -- shipped
+- **Evidence:** last commit 2026-06-05 (pre-execution state + Phase D added); no close words in the plan; tag arc-mcp-ktx-realignment-shipped dated 2026-06-05; the 2026-08-04 oracle-reentry ship commit deleted HANDOVER's 'fully-shipped MCP-realignment entry'; describe_mode is live on the server today.

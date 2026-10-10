@@ -1331,3 +1331,9 @@ Plan complete and saved to `docs/superpowers/plans/2026-05-22-ktx-l1-categorize/
 **2. Inline Execution** — Execute tasks in this session via executing-plans, batch execution with operator checkpoints at every wave gate (Step 8.1, 10.2, 11.2, 12.2, 13.2, 15.4, 21.2). All inline, single conversation.
 
 Which approach?
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** A 14-category function-based taxonomy over all 618 KTX cvar and command entities (category_inferred column, sub-agent fan-out) and a single-page HTML audit catalog; shipped 2026-05-22.
+- **Phase:** closed 2026-05-22 -- shipped
+- **Evidence:** last commit 2026-05-22 (fan-out ledgers for 588 entities + overrides); no close words in the README; apps/qw-oracle/docs/arc-history.md 2026-05-22 'arc-ktx-categorize -- SHIPPED (14-category L1 taxonomy + scheduler.quake.world publish)'; no work-list row.

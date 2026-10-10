@@ -292,3 +292,9 @@ return { judged: judged.filter(Boolean), coherence: coherence.filter(Boolean) }
 | Disentanglement: hallucination + coherence | Stage 3 + WF B |
 | Decision rule + per-channel asymmetry + cost | Stage 5 |
 | No API key (Max subscription) | whole architecture |
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** A throwaway decision probe: LLM topic-fencing vs cheap segmentation vs 15-minute sessions for Layer 2 retrieval; ran 2026-06-06, LLM fencing won, scoping the corpus reconstruction arc.
+- **Phase:** closed 2026-06-06 -- shipped
+- **Evidence:** last and only commit 2026-06-05 (the plan's landing); 'l2-calibration: results -- LLM fencing (arm D) wins; verdict + honest caveats' 2026-06-06 and the results doc parking/2026-06-05-layer2-calibration-test-results.md; the layer2-corpus-reconstruction README cites it as the proven recipe; no work-list row.

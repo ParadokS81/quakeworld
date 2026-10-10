@@ -59,3 +59,9 @@ If a phase drifts into one of these, that's scope creep -- flag it.
 - **Review a draft:** read the MD top-to-bottom; check task execution-mode annotations, verification probes, recovery section; update the status column here.
 - **A verifier finding conflicts with a decision:** the decision wins; rejection noted in the phase MD's Open questions. If the decision itself is wrong, amend `decisions.md` (dated block) before redrafting.
 - **New finding mid-arc:** append to `review-findings.md` with the next F-number + ownership-table update.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Complete the gameplay Layer 1 catalog: re-verify the id1 baseline, add the id1 monster roster, the KTX hardcoded-override layer and the map join keys; all five phases shipped, closed 2026-06-14.
+- **Phase:** closed 2026-06-14 -- shipped
+- **Evidence:** last commit 2026-06-14 'game-content-catalog SHIPPED'; the README's own status reads 'SHIPPED 2026-06-14 (arc-tag arc-game-content-catalog-shipped)' with every phase row shipped; apps/qw-oracle/docs/arc-history.md 2026-06-14 'game-content-catalog completion -- SHIPPED'; no work-list row.

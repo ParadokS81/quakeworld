@@ -211,3 +211,9 @@ Seeded 2026-08-03 from the re-entry session (evidence = session probes, all re-r
 - dusty-* fork extraction; QTV/QWFWD concept notes; all curation conveyor work (D5)
 - `entities.description_embedding_stale` column drop (migration-019-documented drop candidate) -- touches ~6 write-sites (describe-fill / recast / derive scripts) + idempotency probes; small standalone cleanup, not this arc (A1)
 - ezquake/fte description-coverage gap (1,039 + 1,127 rows with NULL/empty description) -- content work, D5-excluded; already partially tracked by existing describe-fill/help-JSON arcs
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Post-migration re-entry mini-arc: re-embed, wholesale twin-to-prod refresh, MCP tool-fit and SDK bump, prod image deploy with a 13/13 public acceptance battery; shipped 2026-08-04.
+- **Phase:** closed 2026-08-04 -- shipped
+- **Evidence:** last commit 2026-08-04 'oracle-reentry-plumbing SHIPPED'; the plan's own earlier Status section reads 'SHIPPED 2026-08-04' (its fields are Stage/Close-out, not the shelf's); apps/qw-oracle/docs/arc-history.md 2026-08-04 entry; HANDOVER's small-followup row names only its residuals (a)-(f).

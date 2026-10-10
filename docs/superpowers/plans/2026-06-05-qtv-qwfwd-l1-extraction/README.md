@@ -71,3 +71,9 @@ If a phase drifts into one of these, flag it as scope creep.
 - **A new finding emerges:** append to `review-findings.md` with a sequential F-number + the phase it touches.
 
 Wave 2 (arc-orchestrator / arc-executor) can drive execution once phase MDs are approved; until then the operator drives executor terminals manually per phase.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** QTV (Go) and QWFWD (C) as first-class Layer 1 citizens: schema plumbing, two extractors, describe-fill and validation; all five phases shipped 2026-06-06.
+- **Phase:** closed 2026-06-06 -- shipped
+- **Evidence:** last commit 2026-06-06 'Phase 4 -- validate both extractors'; the README's own Phase 4 row still reads 'approved', stale; apps/qw-oracle/docs/arc-history.md 2026-06-06 'QTV + QWFWD Layer 1 extraction -- SHIPPED'; HANDOVER's Future row 'QTV/QWFWD concept-note authoring' is the post-arc follow-on, not this plan.
