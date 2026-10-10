@@ -14,7 +14,7 @@ The grid layout is immutable in the codebase. CLAUDE.md calls it the "sacred gri
 
 ## Who it's for
 
-- **Clan captains** - the primary users. They create a team, invite a roster (up to 12 players, each player max 2 teams), declare weekly availability, propose matches against other teams they know.
+- **Clan captains** - the primary users. They create a team, invite a roster (a cap the leader sets, 4 to 20 players; each player on at most 4 teams), declare weekly availability, propose matches against other teams they know.
 - **Roster players** - declare their own weekly commitment on their team's grid; captains use those declarations to assess which teams actually have numbers in a slot.
 - **Tournament organizers** - seasonal 4on4 leagues use the scheduler as the canonical coordination surface.
 - **Discord communities** - every team operates out of a Discord server; match challenges, confirmations, and sealed-match summaries post back to Discord channels via Quad.
@@ -37,7 +37,7 @@ Until then, the current scheduler is in maintenance: bugs that block the communi
 - **Not a generic tournament bracket manager.** The scheduler is about match-by-match coordination between known teams, not bracket generation. Bracket tools live elsewhere.
 - **Not a full roster management system.** Players join/leave teams, but the scheduler is not a player-career tracker. qw-stats holds the stats; hub.quakeworld.nu holds match history; the scheduler just holds current-season rosters.
 - **Not a replacement for Discord.** Match-day banter, standin scrambles, post-match trash talk all still happen in Discord. The scheduler structures the pre-match coordination.
-- **No mobile app.** The grid is a web layout optimized for desktop. Mobile users get a read-only fallback. A native mobile client is out of scope and likely stays out of scope for slipgate web too.
+- **No native mobile app.** The desktop grid is the primary layout; phones get a portrait-first web layout (`public/js/mobile/`) that shares the desktop services and can edit availability and handle proposals. A native mobile client is out of scope and likely stays out of scope for slipgate web too.
 
 ## Values
 

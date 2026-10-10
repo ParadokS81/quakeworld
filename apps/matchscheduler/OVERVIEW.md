@@ -70,7 +70,7 @@ The dev emulator and production both run under the `matchscheduler-dev` Firebase
 - ~300 active players
 - ~40 teams
 - 4 weeks of availability visible at a time
-- Players can be on max 2 teams
+- Players can be on max 4 teams
 
 ## Parked with purpose
 

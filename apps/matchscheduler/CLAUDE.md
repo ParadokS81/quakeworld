@@ -43,7 +43,7 @@ Two patterns are non-negotiable. Detailed rules with code examples load automati
 
 ### Scale
 - 300 players, ~40 teams, 4 weeks of availability visible
-- Players limited to 2 teams maximum
+- Players limited to 4 teams maximum (`functions/team-operations.js`); roster size is per team, `maxPlayers` 4-20
 
 ### Gaming Domain
 - Time slots: `'ddd_hhmm'` format (e.g., `'mon_1900'`)

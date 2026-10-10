@@ -6,6 +6,7 @@
 |----------|-------|
 | Firebase project | `matchscheduler-dev` |
 | Hosting URL | https://matchscheduler-dev.web.app |
+| Public URL | https://scheduler.quake.world (custom domain on the same Hosting site; share links in the code use it) |
 | Functions region (v1) | `europe-west3` (Frankfurt) |
 | Functions region (v2 storage) | `europe-west10` |
 | Firestore | Default database |
@@ -56,7 +57,7 @@ Alternative: `./scripts/deploy-functions.sh` (same as `firebase deploy --only fu
 
 ### 4. Verify
 
-Open https://matchscheduler-dev.web.app and confirm the change is live.
+Open https://scheduler.quake.world and confirm the change is live.
 
 ## Operational Commands
 
