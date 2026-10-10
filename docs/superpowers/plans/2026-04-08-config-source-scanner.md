@@ -1952,3 +1952,9 @@ After Task 13, the PoC should be functional:
 - FTE client support deferred
 - "Add to current" in re-drop is replace-only for now
 - Gamedir detection in archives not wired to chain resolution within the archive
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** PAK/ZIP/PK3 archive reading, drag-and-drop compare and a dual-source config viewer for slipgate; shipped as a PoC with its limitations listed (archive.rs and scanner.rs live).
+- **Phase:** closed 2026-04-08 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); the plan's own Review Checkpoint ticks all nine items and lists the PoC limitations; scanner.rs landed 2026-04-08; no work-list row.

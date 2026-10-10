@@ -807,3 +807,9 @@ Per the spec's migration plan section, each app gets its quartet written when Cl
 - `people/README.md` - user requested this as a later separate session
 - `packages/qw-knowledge/README.md` - lazy per spec, when next touched
 - `packages/qw-config/README.md` - lazy per spec, when next touched
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Root quartet (README/VISION/OVERVIEW), the philosophy skill files, a slim root CLAUDE.md, the contracts README and the HANDOFF.md retirement; all landed 2026-04-11.
+- **Phase:** closed 2026-04-11 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); the plan header says delete once all tasks land; the quartet, philosophy skills, contracts README and HANDOFF.md retirement were all committed 2026-04-11; no work-list row.

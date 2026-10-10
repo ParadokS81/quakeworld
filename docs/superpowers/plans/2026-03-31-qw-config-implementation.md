@@ -2759,3 +2759,9 @@ Launch `bun run tauri dev` and verify:
 ```bash
 git add -A && git commit -m "Final cleanup for qw-config implementation"
 ```
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Build packages/qw-config (config parsing, cvar database, cross-client conversion) and the slipgate My Quake tab; built, then the package was dissolved 2026-04-25 into qw-oracle and slipgate.
+- **Phase:** closed 2026-04-25 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words; the workspace package landed 2026-03-31 and was retired by the qw-config dissolution (apps/qw-oracle/docs/arc-history.md, 2026-04-25 entry); no work-list row.

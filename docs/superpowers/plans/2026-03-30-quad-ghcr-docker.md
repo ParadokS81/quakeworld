@@ -538,3 +538,9 @@ sudo qwvoice-ctl /srv/qwvoice/quad logs --tail=20
 ```
 
 After verifying the new setup works, the git repo at `/srv/qwvoice/quad/` can be cleaned up -- only `docker-compose.yml`, `.env`, `service-account.json`, `recordings/`, `models/`, and `mumble-data/` need to remain.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Publish quad images to GHCR so deploys become pull-and-up; shipped: the workflow and the GHCR-image compose landed 2026-03-30 and quad still deploys that way.
+- **Phase:** closed 2026-03-30 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words in the plan; .github/workflows/quad-docker.yml and the compose image: switch both landed 2026-03-30; no work-list row.

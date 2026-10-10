@@ -705,3 +705,9 @@ Key decisions to record:
 - Q-commands -> removed, replaced by superpowers
 
 - [ ] **Step 2: No commit needed** (memory files are outside the repo)
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** One deploy skill plus a DEPLOYMENT.md per deployed app, deploy content trimmed from the CLAUDE.md files; shipped and still the live deploy path.
+- **Phase:** closed 2026-03-30 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words; .claude/skills/deploy/SKILL.md landed 2026-03-30 and seven apps carry a DEPLOYMENT.md today; no work-list row.

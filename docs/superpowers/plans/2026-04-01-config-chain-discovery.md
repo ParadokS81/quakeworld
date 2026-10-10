@@ -698,3 +698,9 @@ git commit -m "Add debug logging to read_config_chain"
 | 7 | Debug logging for smoke test | `ezquake.rs` |
 
 After task 7, the command is callable from the frontend via `invoke<ConfigChain>("read_config_chain", { exePath, configName })`. Frontend integration (replacing the current ConfigViewer's data source) is a separate piece of work.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** A Rust read_config_chain Tauri command that walks the exec/autoexec/cl_onload chain for the Config viewer; shipped 2026-04-01 and still in ezquake.rs.
+- **Phase:** closed 2026-04-01 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words; 'Implement read_config_chain Tauri command' landed 2026-04-01; no work-list row.

@@ -1742,3 +1742,9 @@ Build from Windows terminal and test:
 git add apps/slipgate-app/src/components/ packages/qw-config/
 git commit -m "fix(config-viewer): address issues from verification pass"
 ```
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Commands as a first-class config-viewer category from source-extracted ezQuake/KTX sets, bind detection rework, KTX binds and runtime macros; shipped 2026-04-12.
+- **Phase:** closed 2026-04-12 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words; the CommandInvocation type and ConfigCommandsSection landed 2026-04-12 and the Binds/Commands/Macros sections are live; no work-list row.

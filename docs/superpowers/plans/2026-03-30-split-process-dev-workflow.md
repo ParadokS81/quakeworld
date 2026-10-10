@@ -362,3 +362,9 @@ Remove:
 git add apps/slipgate-app/docs/DEVELOPMENT.md
 git commit -m "Update DEVELOPMENT.md for split-process dev workflow (WSL Vite + Windows Cargo)"
 ```
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** WSL-edits / Windows-builds dev loop for slipgate (rsync sync script, dev launcher, edit hook); shipped, and obsolete since the WSL workstation retired 2026-07.
+- **Phase:** closed 2026-03-30 -- shipped
+- **Evidence:** last commit 2026-04-30 (doctrine retrofit); no close words; scripts/sync-rust.sh and slipgate-dev.sh landed 2026-03-30 and the PostToolUse hook still fires; no work-list row for the plan (the sync-rust.sh residue row is later).

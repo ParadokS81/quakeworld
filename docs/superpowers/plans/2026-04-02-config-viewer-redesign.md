@@ -860,3 +860,9 @@ git commit -m "Delete ConfigCompare and CvarDetail, replaced by integrated viewe
 | 4 | Delete old components | Remove `ConfigCompare.tsx`, `CvarDetail.tsx` |
 
 After task 4, F5 in the app should show the redesigned viewer with clean rows, hover tooltips, and compare mode accessible from the main list view.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Clean cvar rows, hover tooltip, click-to-expand and compare mode merged into the main config viewer; shipped 2026-04-02 (CvarTooltip created, ConfigCompare and CvarDetail deleted).
+- **Phase:** closed 2026-04-02 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words; the CvarTooltip creation and the ConfigCompare/CvarDetail deletion both landed 2026-04-02; no work-list row.

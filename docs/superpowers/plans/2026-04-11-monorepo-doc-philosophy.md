@@ -484,3 +484,9 @@ Update `project_doc_philosophy.md` in auto-memory to reflect that Phase 1 landed
 
 **Phase 3 (lazy, per spec):**
 - Per-app migration happens when Claude next works in each app, in the priority order from spec Section "Migration plan". The refactored `docs-check` skill is the enforcement mechanism; it will nudge each project into compliance as they're touched.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Phase 1 of the doc philosophy: the doc-philosophy and doc-template references plus the refactored docs-check skill; shipped 2026-04-11 in the user-global skill tree, outside the repo.
+- **Phase:** closed 2026-04-11 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); the plan header says delete once all tasks land; ~/.claude/skills/docs-check/references/ holds both files and the Phase 2 plan followed the same day; no work-list row.
