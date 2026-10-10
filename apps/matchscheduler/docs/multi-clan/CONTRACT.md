@@ -1,6 +1,6 @@
 # Voice Replay Multi-Clan -- Cross-Project Contract
 
-> Canonical copy lives at the parent workspace: `/quake/VOICE-REPLAY-CONTRACT.md`
+> Canonical copy lives at the monorepo root: `contracts/completed/VOICE-REPLAY-CONTRACT.md`
 > This is a reference copy for the MatchScheduler project. If they diverge, the orchestrator version is authoritative.
 
 ---
