@@ -85,7 +85,7 @@ Not every app will live in this monorepo forever. The workshop framing is delibe
 - **qw-stats** - uncertain graduation. The production API deployed on Unraid is useful today; the ranking research half is stalled. Paused.
 - **qw-oracle** - stays in this monorepo for the foreseeable future and is its structural center of gravity; no longer workshop-only, since the public MCP has outside callers (`apps/qw-oracle/API_CONTRACTS.md`). The knowledge service consumed by Claude Code (MCP), slipgate-app (snapshots) and the two web surfaces below. Active; current state in `apps/qw-oracle/OVERVIEW.md` and `HANDOVER.md`.
 - **oracle-web** and **docs-web** - the community-facing web surfaces of the knowledge service. Both target domains on the `quake.world` zone, which vikpe owns, so their production homes land on his Cloudflare once greenlit; until then each deploys as a preview (`DEPLOYMENT.md` in each app).
-- **qwiki-sandbox** - the substrate and deploy stack for wiki.slipgate.me, the community wiki rebuilt fresh in 2026-05. Workshop-only: it is infrastructure and a curator tool, not a product that graduates.
+- **qwiki-sandbox** - the substrate and deploy stack for wiki.slipgate.me, the community wiki rebuilt fresh in 2026-05. Workshop-only: it is infrastructure, not a product that graduates.
 
 ## What this repo is NOT
 

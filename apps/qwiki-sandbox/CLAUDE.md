@@ -1,6 +1,6 @@
 # QWiki Sandbox -- v1-beta substrate
 
-**Status:** Active development. The fresh-build MediaWiki substrate behind `wiki.slipgate.me` and its deploy artifacts; current work (the Modes mini-arc, Phases 5-8 of arc `2026-05-12-qwiki-v1-beta`) is the repo-root `HANDOVER.md` future-arc row.
+**Status:** Maintenance. The fresh-build MediaWiki substrate behind `wiki.slipgate.me` and its deploy artifacts; current work (the Modes mini-arc, Phases 5-8 of arc `2026-05-12-qwiki-v1-beta`) is the repo-root `HANDOVER.md` future-arc row.
 
 ## Documentation index
 
