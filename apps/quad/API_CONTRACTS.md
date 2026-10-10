@@ -21,9 +21,11 @@ Commands are registered globally on bot ready via `PUT /applications/{clientId}/
 
 | Command | Subcommands | Module |
 |---|---|---|
-| `/record` | `start [platform]`, `stop`, `status`, `reset` | recording |
-| `/process` | `fast [sessionId]`, `transcribe [sessionId]`, `analyze [sessionId]` | processing |
+| `/record` | `start [platform: discord|mumble]`, `stop`, `status`, `reset` | recording |
+| `/process` | `status [session_id]`, `transcribe [session_id]`, `analyze [session_id]`, `rerun [session_id]` (latest session when omitted) | processing |
 | `/register` | (none) | registration |
+
+The mumble module registers no commands; `/record start` with `platform: mumble` reaches it through the shared session registry.
 
 ### Button interactions
 
@@ -32,6 +34,8 @@ Commands are registered globally on bot ready via `PUT /applications/{clientId}/
 | `standin_yes_{requestId}` | standin | Accept standin request |
 | `standin_no_{requestId}` | standin | Decline standin request |
 | `standin_stop_{requestId}` | standin | Opt out of all standin requests |
+| `avail:{action}:{teamId}[:{cetDay}:{weekId}[:{cetTime}]]` | availability | Grid editing on the persistent embed: `toggleSlot`, `prevDay`, `nextDay`, `editDay`, `saveSlots`, `clearWeek`, `options`, `toggleRecurring`, `saveTemplate`, `clearTemplate` |
+| `register:createSchedule:{teamId}`, `register:skipSchedule:{teamId}` | registration | Post-`/register` prompt to create the schedule channel |
 
 ### Events subscribed
 
@@ -39,7 +43,9 @@ Commands are registered globally on bot ready via `PUT /applications/{clientId}/
 |---|---|---|
 | `ClientReady` | core | Initialize modules, register commands |
 | `InteractionCreate` | core | Route slash commands and button clicks |
-| `VoiceStateUpdate` | recording | Track user join/leave/rejoin in voice channels |
+| `VoiceStateUpdate` | recording | Track user join/leave/rejoin in voice channels; drives Discord auto-record |
+| `GuildMemberAdd`, `GuildMemberRemove` | registration | Keep `botRegistrations.knownPlayers` in step with the guild (guild sync) |
+| `ChannelCreate`, `ChannelDelete`, `ChannelUpdate` | scheduler | Refresh `botRegistrations.availableChannels` for the schedule-channel picker |
 
 ---
 
@@ -119,7 +125,7 @@ All Firestore writes from the recording module are fire-and-forget with error su
 ### Storage
 
 **Bucket:** `{projectId}.firebasestorage.app`
-**Path:** `voice-recordings/{teamId}/{demoSha256}/{discordUserId}.ogg`
+**Path:** `voice-recordings/{teamId}/{demoSha256}/{discordUserId}.ogg` for registered guilds; `voice-recordings/{demoSha256}/{playerName}.ogg` when the session has no registration (proof-of-concept fallback)
 
 Uploads use `file.save()` with:
 - `Content-Type: audio/ogg`
@@ -127,6 +133,16 @@ Uploads use `file.save()` with:
 - Custom metadata: `demoSha256`, `map`, `player`, `discordUserId`, `teamId`
 
 ---
+
+## Mumble voice (protocol client)
+
+**Library:** @tf2pickup-org/mumble-client (control channel over TLS, voice tunnelled over TCP) + @tf2pickup-org/mumble-protocol (raw `UserState` messages)
+**Server:** the stack's own `mumble-server` container (`MUMBLE_HOST`, default port 64738), reached as `MUMBLE_BOT_USERNAME` / `MUMBLE_PASSWORD`
+
+- The bot stays in the Root channel. To record a team channel it sends `UserState { listeningChannelAdd: [channelId] }` at session start and `listeningChannelRemove` at stop: Mumble only forwards voice to clients in, or listening to, the speaker's channel (without this every recording was pure silence, see the 2026-05-20 investigation).
+- The library discards the Opus payload of tunnelled voice packets; `src/modules/mumble/voice-receiver.ts` monkey-patches `MumbleSocket.decodeAudio` to read the raw legacy UDP voice packet (codec type Opus, any target value, since listener-forwarded packets arrive with target 3).
+- Mumble desktop clients send 10 ms Opus packets, so track timing accumulates decoded milliseconds from the Opus TOC byte rather than counting frames (`mumble-track.ts`).
+- Per-track output is the same OGG/Opus passthrough as Discord; metadata carries `source: "mumble"` (see `SCHEMA.md`).
 
 ## Mumble ICE API
 
@@ -152,8 +168,8 @@ Uploads use `file.save()` with:
 
 **Library:** @anthropic-ai/sdk
 **Auth:** API key via `ANTHROPIC_API_KEY` env var
-**Model:** `claude-3-5-sonnet-20241022` (default, configurable)
-**Max tokens:** 16000
+**Model:** `claude-sonnet-4-5-20250929` (the analyzer's default; configurable per call)
+**Max tokens:** 8192 (default)
 
 Used by the analyzer stage (`processing/stages/analyzer.ts`) for match communication analysis. System prompt provides QuakeWorld 4on4 context. User message includes the merged timeline (transcripts + ktxstats + overlap data).
 
@@ -164,7 +180,7 @@ Optional -- module skips if `ANTHROPIC_API_KEY` is not set.
 ## Health endpoint
 
 **Port:** `HEALTH_PORT` env var (default 3000)
-**Internal only** -- not exposed outside Docker network
+**Internal only** -- compose publishes it on the host's loopback (`HEALTH_BIND`, default `127.0.0.1`), so from the cockpit it is read with `docker exec` inside the container
 
 ```
 GET /health
@@ -184,4 +200,4 @@ Response (200 OK):
 }
 ```
 
-Used by Docker healthcheck and the deploy safety hook (blocks deploy if recording is active).
+Used by the dev-plane recording guard hook (blocks a stack restart or recreate while a recording is active; see `DEPLOYMENT.md`). The compose file declares no Docker healthcheck.

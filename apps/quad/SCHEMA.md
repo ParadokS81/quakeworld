@@ -32,9 +32,10 @@ Team-to-guild mapping. Created by MatchScheduler when a team registers, activate
 | `eventMessageId` | string \| null | Quad |
 | `availableChannels` | Array<{id, name, canPost}> | Quad |
 | `createChannelRequest` | {status: 'pending' \| null} | MSS |
+| `autoRecord` | {enabled, minPlayers, platform: 'both' \| 'discord' \| 'mumble', mode?} | MSS (read by both auto-record engines) |
 | `updatedAt` | Timestamp | Both |
 
-**Listeners:** availability, scheduler (channel creation), registration (disconnect).
+**Listeners:** availability, scheduler (channel creation), registration (disconnect), both auto-record engines (`autoRecord`).
 
 ### recordingSessions
 
@@ -65,7 +66,7 @@ Live recording session tracking. Written by Quad during recording lifecycle. Rea
 
 Processed voice upload manifest. One document per team per matched demo. Written by the processing pipeline after uploading sliced audio to Firebase Storage.
 
-**Document ID:** `{demoSha256}_{teamId}`
+**Document ID:** `{demoSha256}_{teamId}`; bare `{demoSha256}` when the session had no registration (unregistered proof-of-concept path)
 
 | Field | Type | Notes |
 |---|---|---|
@@ -212,18 +213,23 @@ User accounts. Written by MatchScheduler. Read by Quad for Discord-to-QW name re
 
 ### mumbleConfig
 
-Mumble recorder configuration per team. Written by Quad mumble module.
+Mumble channel + user provisioning per team. MatchScheduler creates the doc as `pending`; Quad's mumble module activates it (creates the channel, registers the users) and fills in the server fields.
 
 **Document ID:** Team ID
 
-| Field | Type |
-|---|---|
-| `teamId` | string |
-| `status` | `'pending' \| 'active' \| 'disabling'` |
-| `mumbleServerUrl` | string |
-| `mumbleChannelId` | number |
-| `mumbleChannelName` | string |
-| `mumbleUsers` | Record<userId, {mumbleUsername, mumbleUserId, tempPassword, linkedAt}> |
+| Field | Type | Written by |
+|---|---|---|
+| `teamId`, `teamTag` | string | MSS |
+| `status` | `'pending' \| 'active' \| 'disabling' \| 'error'` | Both |
+| `channelId` | number | Quad (Mumble channel id; the auto-record engine keys on it) |
+| `channelName`, `channelPath` | string | Quad (`Teams/<slug>`; the join URL derives from `channelPath`) |
+| `serverAddress`, `serverPort` | string, number | Quad (`MUMBLE_PUBLIC_HOST` / `MUMBLE_PORT` at activation; see `DEPLOYMENT.md` for the backfill when the host changes) |
+| `mumbleUsers` | Record<userId, {mumbleUsername, mumbleUserId, tempPassword, linkedAt}> | Quad |
+| `autoRecord` | boolean | Legacy per-team flag; `botRegistrations.autoRecord` is the live setting |
+| `errorMessage` | string | Quad, on `status: 'error'` |
+| `activatedAt`, `updatedAt` | Timestamp | Quad |
+
+Canonical cross-project contract: `contracts/completed/MUMBLE-INTEGRATION-CONTRACT.md`.
 
 ---
 
@@ -231,13 +237,15 @@ Mumble recorder configuration per team. Written by Quad mumble module.
 
 Voice recordings are uploaded to Firebase Storage after processing.
 
-**Bucket:** `{projectId}.firebasestorage.app`
+**Bucket:** `{projectId}.firebasestorage.app` (override with `FIREBASE_STORAGE_BUCKET`)
 
 ```
 voice-recordings/
   {teamId}/
     {demoSha256}/
       {discordUserId}.ogg       per-speaker, sliced to match boundaries
+  {demoSha256}/
+    {playerName}.ogg            fallback for sessions with no registration
 ```
 
 Files are uploaded with `Cache-Control: public, max-age=31536000, immutable` and custom metadata (`demoSha256`, `map`, `player`, `discordUserId`, `teamId`).
@@ -246,7 +254,9 @@ Files are uploaded with `Cache-Control: public, max-age=31536000, immutable` and
 
 ## session_metadata.json
 
-The public contract between the recording module and everything downstream. Schema version 1. Full JSON Schema at `docs/session_metadata_schema.json`.
+The public contract between the recording module and everything downstream. Schema version 1. The JSON Schema at `docs/session_metadata_schema.json` describes the Discord shape; the Mumble shape (below) is not in it yet, tracked in the root `HANDOVER.md`.
+
+Discord shape (`source: "quad"`):
 
 ```json
 {
@@ -259,6 +269,7 @@ The public contract between the recording module and everything downstream. Sche
   "guild": { "id": "string", "name": "string" },
   "channel": { "id": "string", "name": "string" },
   "team": { "tag": "string", "name": "string" },
+  "source_text_channel_id": "string or null (the channel /record start came from; picks the registration in multi-team guilds)",
   "tracks": [
     {
       "track_number": 1,
@@ -272,5 +283,7 @@ The public contract between the recording module and everything downstream. Sche
   ]
 }
 ```
+
+Mumble shape (`source: "mumble"`, written by `src/modules/mumble/mumble-metadata.ts`): same envelope with `guild: null`, `team: { tag, name, teamId }`, an extra `mumble_server: { host, port }`, and tracks carrying `mumble_session_id` + `mumble_username` instead of the `discord_*` fields. The processing pipeline resolves player names from `mumble_username` when the Discord fields are null.
 
 Schema changes require a version bump.
