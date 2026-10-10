@@ -2,7 +2,7 @@
 
 ## Overview
 
-PostgreSQL 16 database storing 4+ years of QuakeWorld 4on4 match statistics sourced from [QWHub](https://hub.quakeworld.nu) ktxstats JSON files.
+PostgreSQL 16 database storing every QuakeWorld 4on4 match since January 2022, sourced from [QWHub](https://hub.quakeworld.nu) ktxstats JSON files: the Feb 2026 archive import plus everything the API's updater has pulled since. The figures below are the archive baseline the research docs quote; `GET /api/sync-status` reports the live count.
 
 | Metric | Value |
 |--------|-------|
@@ -14,7 +14,7 @@ PostgreSQL 16 database storing 4+ years of QuakeWorld 4on4 match statistics sour
 | Date range | Jan 2022 -- Feb 2026 |
 | Top maps | dm2, dm3, schloss, e1m2, phantombase |
 
-**Infrastructure:** Docker container on Unraid, exposed via Cloudflare tunnel at `https://qw-api.poker-affiliate.org`. Express API serves 5 endpoints consumed by the MatchScheduler web app.
+**Infrastructure:** Docker container on Unraid, exposed via Cloudflare tunnel at `https://qw-api.poker-affiliate.org`. The database itself lives in the shared `phoenix-postgres` container (`OVERVIEW.md`, Integration points). The API contract is `API-GUIDE.md`.
 
 ---
 
@@ -219,17 +219,7 @@ Every game appears twice -- once from each team's perspective. Simplifies all do
 
 ## API Endpoints
 
-Express server at `https://qw-api.poker-affiliate.org`
-
-| Endpoint | Params | Description |
-|----------|--------|-------------|
-| `GET /api/h2h` | `teamA`, `teamB`, `map?`, `months?`, `limit?` | Head-to-head games between two teams |
-| `GET /api/form` | `team`, `map?`, `months?`, `limit?` | Recent results for a team |
-| `GET /api/opponents` | `team`, `months?` | Unique opponents with match counts |
-| `GET /api/maps` | `team`, `months?` | Per-map win rates for a team |
-| `GET /api/roster` | `team`, `months?` | Player activity and stats within a team |
-
-All endpoints filter to `is_clan_game = true` by default.
+The Express server's contract lives in `API-GUIDE.md`, one owner. Two things it implies for the schema: every query endpoint filters to `is_clan_game = true`, and every team parameter is matched as an array of `_ascii` tags, so tag variants are folded at query time, never in the data.
 
 ---
 
@@ -298,10 +288,12 @@ Views (derived from above):
 
 ## Known Limitations / Future Work
 
-1. **Identity resolution is unsolved.** Players use multiple names across teams/time. The 2,355 unique `player_name_normalized` values map to roughly 800-1,000 real humans. No alias table exists yet -- this is the active area of work (Phase 0).
+1. **Identity resolution is unsolved.** Players use multiple names across teams/time. The 2,355 unique `player_name_normalized` values map to roughly 800-1,000 real humans. No alias table exists yet -- this is Phase 0 in `ROADMAP.md`, where the project is paused.
 
 2. **No composite primary key on game_players.** The `(game_id, player_name_normalized)` pair is not enforced as unique at the DB level. Deduplication relies on the `demo_sha256` uniqueness on the games table.
 
 3. **Team tags are free-text.** Teams can use different tag variations across games (e.g., "SR" vs "sr" vs "SilverRockets"). The `_ascii` columns normalize case but not variations. The API handles this with tag alias arrays.
 
 4. **Weapon stats completeness.** Not all ktxstats files contain all weapon fields. Missing values default to 0, which is indistinguishable from "player didn't use this weapon."
+
+5. **`is_clan_game` was decided by two different generic-team lists.** The bulk importer (`scripts/import-postgres.js`) knows seven generic names (`blue`, `red`, `green`, `yellow`, `team1`, `team2`, empty); the updater (`api/updater.js`) knows the extended list from `ROADMAP.md` (colors, `mix`, numbers, throwaway tags). Archive rows (to Feb 2026) and updater rows (since) are therefore classified differently; a shared list plus a re-classification pass is routed in the root `HANDOVER.md`.

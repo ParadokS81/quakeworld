@@ -5,7 +5,7 @@
 ### Full Dataset (PostgreSQL -- LIVE)
 
 **Source**: Full ktxstats archive from vikpe (QWHub maintainer) -- `4on4_json.zip`
-**Database**: PostgreSQL on Unraid (`quake_stats`) -- see `CLAUDE.md` for connection details
+**Database**: PostgreSQL on Unraid (`quake_stats`) -- connection template in `.env.example`; where it lives in `OVERVIEW.md`
 
 | Metric | Value |
 |--------|-------|
@@ -203,7 +203,7 @@ Players like `bliXem` (p100 armor control, but 46% win). Dominating item control
 
 ## Database Schema
 
-See `CLAUDE.md` for the full PostgreSQL schema (primary) and connection details.
+See `DATABASE-SCHEMA.md` for the full PostgreSQL schema and `.env.example` for the connection template.
 The legacy SQLite schema (`qw-stats/data/qw-stats.db`) is only used by old analysis scripts.
 
 ---

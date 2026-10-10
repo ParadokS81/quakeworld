@@ -7,7 +7,9 @@ A player and team ranking engine for QuakeWorld 4on4, built on 18,206 games (202
 **Read `RESEARCH-RANKING.md` for the full methodology research.**
 **Read `RESEARCH-IDENTITY.md` for the alias resolution research.**
 
-## Current State (Feb 2026)
+## State at the Feb 2026 planning snapshot
+
+The current map is `OVERVIEW.md`; this section is the snapshot the plan was cut against.
 
 ### Infrastructure [OK]
 - PostgreSQL on Unraid with 18,206 games, 145k player-game rows
@@ -41,7 +43,7 @@ A player and team ranking engine for QuakeWorld 4on4, built on 18,206 games (202
 2. [OK] Start curating seed aliases from domain knowledge (6 clusters confirmed)
 3. 🔲 Walk through top 15-20 clans, curate rosters (ParadokS identifies aliases)
 4. 🔲 Persist confirmed identities to `player_identities` / `player_aliases` tables
-5. 🔲 Fix game classification (add "mix", colors, t1/t2, etc. to generic list)
+5. [PARTIAL] Fix game classification -- the extended generic list ships in `api/updater.js` (every game added since Feb 2026) but not in `scripts/import-postgres.js` (the archive rows), so the two halves of the dataset disagree; the three-way clan / hybrid / mix classification below is unbuilt
 6. 🔲 Build automated candidate detection (core name matching + Jaro-Winkler + co-occurrence)
 7. 🔲 Run automated candidates, review queue for ParadokS to confirm/reject
 8. 🔲 Iterate until review queue is empty (expect 3-4 rounds)
@@ -129,22 +131,16 @@ Throwaway: lol, asdf, xxx, xx, x, zzz, zz, 666, 69, 99, 999, 123, 1337,
 - **Players change names freely** -- no account system. QWHub does NOT do identity resolution.
 - **paniagua (103 team tags, 3,222 games)** and **anza (81 tags, 3,387 games)** are the most active mix scene players. Anza is 62 years old.
 - **Team tags are fluid in mix games** -- only meaningful for clan identification when `is_clan_game` context.
+- **Taken-to-die (TTD)** = how much damage a player absorbs before dying. Higher = better survivability, positioning, armor control.
+- **Team damage** is a penalty -- disciplined players don't shoot teammates.
+- **Spawn frags** are somewhat random -- low weight or ignore.
+- **"The line"**, from sports betting: predict the frag margin, not just who wins.
 
 ---
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `ROADMAP.md` | This file -- project directive and status |
-| `IDENTITY-SEEDS.md` | Confirmed player identity clusters |
-| `RESEARCH-RANKING.md` | Ranking methodology research (comprehensive) |
-| `RESEARCH-IDENTITY.md` | Alias resolution research (comprehensive) |
-| `CLAUDE.md` | Technical reference (schema, API, scripts, connection details) |
-| `ANALYSIS.md` | Statistical findings from 4-month sample |
-| `scripts/explore-data.js` | Dataset overview and distributions |
-| `scripts/explore-names.js` | Core name extraction + duplicate detection |
-| `scripts/clan-rosters.js` | Clan roster viewer for manual curation |
+Every document is indexed in `CLAUDE.md`. The scripts this plan leans on: `scripts/explore-data.js` (dataset overview and distributions), `scripts/explore-names.js` (core name extraction + duplicate detection), `scripts/clan-rosters.js` (clan roster viewer for manual curation).
 
 ---
 

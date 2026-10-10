@@ -1,6 +1,6 @@
 # QW Stats API -- Collaborator Guide
 
-Public API serving QuakeWorld 4on4 match data from 18,000+ games (2022-present). Data auto-syncs from [QWHub](https://hub.quakeworld.nu) every 15 minutes.
+Public API serving QuakeWorld 4on4 match data for every competitive game since January 2022 (23,000+ as of October 2026). Data auto-syncs from [QWHub](https://hub.quakeworld.nu) every 15 minutes.
 
 ## Base URL
 
@@ -23,9 +23,20 @@ GET /health
 ### Sync Status
 ```
 GET /api/sync-status
--> { "lastSync": { "imported": 3, "totalGames": 18372, "at": "2026-02-08T21:58:35Z" }, ... }
+-> {
+     "lastSync": { "imported": 3, "totalGames": 18372, "at": "2026-02-08T21:58:35Z", "elapsed": 4.1, "log": ["..."] },
+     "updateIntervalSec": 900,
+     "updateRunning": false
+   }
 ```
-Check when the database last pulled new games and how many are in it.
+Check when the database last pulled new games and how many are in it. `lastSync` is `null` until the first run after startup; a run that found nothing new carries only `imported`, `at` and `log`; a failed run carries `error` instead of `totalGames`.
+
+### Sync Now
+```
+POST /api/sync-now
+-> { "status": "started" }        (409 { "error": "Update already running" } if a run is in progress)
+```
+Triggers a pull immediately instead of waiting for the next 15-minute tick. Fire-and-forget; read `/api/sync-status` for the result.
 
 ---
 
@@ -104,6 +115,31 @@ A team's recent results against all opponents.
 
 ---
 
+### Opponents
+```
+GET /api/opponents?team=book&months=3
+```
+Every opponent a team has met, with the series record, most-played first.
+
+**Parameters:**
+| Param | Required | Default | Description |
+|-------|----------|---------|-------------|
+| team | yes | -- | Team tag (lowercase) |
+| months | no | 3 | How far back |
+
+**Response:**
+```json
+{
+  "team": "book",
+  "opponents": [
+    { "tag": "oeks", "total": 9, "wins": 5, "losses": 4 },
+    { "tag": "]sr[", "total": 6, "wins": 2, "losses": 4 }
+  ]
+}
+```
+
+---
+
 ### Map Stats
 ```
 GET /api/maps?team=book&months=6
@@ -162,6 +198,7 @@ Player activity for a team -- who played, how often, how well.
 ## Important Notes
 
 - **Team tags must be lowercase.** The API stores everything lowercase. Use `book` not `Book`, `]sr[` not `]SR[`.
+- **Every team parameter takes a comma-separated list.** `team=book,b00k` or `teamA=-hx-,[hx]` folds a clan's tag variants into one side; the response names the first tag.
 - **Only clan games are included.** Mix/pickup games (team names like "red", "blue", "mix") are filtered out.
 - **`demoSha256`** in game results can be used to fetch detailed per-player stats (weapons, damage, items) from QWHub's S3: `https://d.quake.world/{sha[0:3]}/{sha}.mvd.ktxstats.json`
 - **Data freshness:** New games appear within 15 minutes of being played on QWHub.
