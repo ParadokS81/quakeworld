@@ -43,7 +43,7 @@ description: Deploy any project to production. Covers MatchScheduler (Firebase),
 
 For details: `apps/matchscheduler/DEPLOYMENT.md`
 
-## Quad (SSH + Docker, Unraid)
+## Quad (Docker Compose on Unraid, through the deploy proxy)
 
 **A hook guards live recordings.** Any `up`, `down`, `restart`, `stop`, `kill` or `rm` on the quad stack cuts a recording in progress. A global `PreToolUse` hook (dotfiles `claude/hooks/quad-recording-guard.sh`) checks first and blocks the command when a recording is live, or when the container is running but its status cannot be read. If it blocks, ask the operator; do not work around it. The same check by hand: `docker exec quad-quad-1 node -e 'fetch("http://localhost:3000/health").then(r=>r.text()).then(console.log)'` (look for `"recording":{"active":false}`).
 
