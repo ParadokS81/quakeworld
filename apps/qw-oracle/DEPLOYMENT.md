@@ -13,82 +13,53 @@ client (Claude Desktop / Claude Code)
 
 Persistent data and configs live at `/mnt/user/appdata/qw-oracle/`:
 
-- `postgres-data/` - Postgres state. Covered by the weekly Unraid -> Synology backup.
-- `snapshots/` - empty in Arc 1; Arc 2 will write `manifest.json` and per-snapshot files here.
-- `docker-compose.prod.yml`, `nginx/default.conf` (from `deploy/nginx.conf`; directory mount over conf.d), `.env` - operator-authored copies of `apps/qw-oracle/deploy/`.
+- `postgres-data/` - Postgres state. The compose bind-mounts it via `/mnt/cache/appdata/qw-oracle/postgres-data` (same bytes; Postgres must not run over the shfs layer -- comment in the compose). Inside the nightly borgmatic appdata backup, which is ops-plane: the record is the ops-owned unraid repo (`docs/server/backup.md`), not this file.
+- `snapshots/` - served read-only by nginx at `https://oracle.slipgate.me/snapshots/`. Holds `brain-manifest.json`, oracle-web's brain manifest (`bun scripts/build-brain-manifest.ts --publish` writes it here).
+- `dumps/` - rollback and shipped dumps from the corpus-refresh procedure below (`prod-pre-refresh-<date>.dump`, `twin-canon-<date>.dump`, `twin-l2-<date>.dump`; the 2026-05 `qw_oracle-*.sql` files predate the custom-format switch).
+- `docker-compose.prod.yml`, `nginx/default.conf` (from `deploy/nginx.conf`; directory mount over conf.d), `.env` - the deployed copies of `apps/qw-oracle/deploy/`.
+
+The whole tree is mounted read-write into the dev-cockpit at the same path (since the 2026-07-28 fence), so every step below is a plain local file operation plus `docker` verbs through `dev-deploy-proxy` (`DOCKER_HOST`, exported by `dotfiles/bashrc.extra`). There is no SSH to the host and no network route from the cockpit to the prod Postgres; both prod containers are dev-owned and reachable through `docker exec` / `docker cp`.
 
 ## Prerequisites
 
-- Tailscale up; `ssh root@100.114.81.91 'echo ok'` returns `ok`.
-- `gh auth status` shows logged in; `docker login ghcr.io` succeeded recently.
-- The image at `ghcr.io/paradoks81/qw-oracle-mcp:<tag>` exists (Task 8 of Phase 8 builds + pushes it).
+- A shell with the cockpit's docker environment: `docker ps` lists `qw-oracle-mcp`, `qw-oracle-nginx`, `qw-oracle-postgres` (if it says "cannot connect to the docker API at unix:///var/run/docker.sock", source `dotfiles/bashrc.extra`).
+- `/mnt/user/appdata/qw-oracle/` writable; a denied write there is an ownership relic -- letter to ops, never chown.
+- The MCP image is **built locally**, not pulled: `DOCKER_CONFIG=$HOME/.secrets/docker` holds a read-only GHCR credential (never `docker login`), and the proxy fences the `tag` and `push` verbs, so GHCR still carries the last pre-fence tag (root HANDOVER: "GHCR `latest` tag stale"; the push-allowlist letter of 2026-08-04 is still open).
+- Secrets go into the deployed `.env` with `secret-drop env /mnt/user/appdata/qw-oracle/.env <KEY>`; never typed inline, never `cat`-ed.
 
 ## First-time deploy
 
-1. Copy compose + nginx config to Unraid:
+Not re-run since the 2026-07-28 fence (the stack was provisioned 2026-05 over SSH from the WSL workstation); the steps are the routine ones below plus the one-time file copies, written here in cockpit form.
+
+1. Lay out the appdata tree and copy the deploy files:
 
    ```bash
-   ssh root@100.114.81.91 'mkdir -p /mnt/user/appdata/qw-oracle/{postgres-data,snapshots,nginx}'
-   scp apps/qw-oracle/deploy/docker-compose.prod.yml \
-       root@100.114.81.91:/mnt/user/appdata/qw-oracle/
-   # nginx.conf lands as nginx/default.conf: the compose mounts the DIRECTORY
-   # over conf.d (a single-file mount strands the container on a rename-write).
-   scp apps/qw-oracle/deploy/nginx.conf \
-       root@100.114.81.91:/mnt/user/appdata/qw-oracle/nginx/default.conf
+   mkdir -p /mnt/user/appdata/qw-oracle/{snapshots,nginx,dumps}   # postgres-data is created by docker on first up (host path under /mnt/cache)
+   cp apps/qw-oracle/deploy/docker-compose.prod.yml /mnt/user/appdata/qw-oracle/
+   cp apps/qw-oracle/deploy/nginx.conf /mnt/user/appdata/qw-oracle/nginx/default.conf   # the compose mounts the DIRECTORY over conf.d
    ```
 
-2. Author the `.env` on Unraid by copy-pasting `.env.prod.example` and filling in real values:
+2. Author `.env` from `deploy/.env.prod.example` (keys: `POSTGRES_PASSWORD`, `VOYAGE_API_KEY`, the `EMBEDDING_*` trio, `EMBEDDING_VERIFY_TTL_HOURS`, `PUBLIC_BASE_URL`, `MCP_VERSION`). Secrets via `secret-drop env`; the rest by plain editing; `chmod 600`. The `match_quality` cut-offs need no entry: calibrated defaults ship in the image (`serve/mcp/src/grade.ts`); the optional `*_MATCH_STRONG` / `*_MATCH_WEAK` overrides are described in `eval/README.md`.
+
+3. Postgres first, then the rest:
 
    ```bash
-   ssh root@100.114.81.91
    cd /mnt/user/appdata/qw-oracle
-   nano .env                                  # paste from apps/qw-oracle/deploy/.env.prod.example, fill in real secrets
-   chmod 600 .env
-   ```
-
-   Set `POSTGRES_PASSWORD` to a long random string; set `VOYAGE_API_KEY` to a real key. The `match_quality` cut-offs need no entry: calibrated defaults ship in the image (`serve/mcp/src/grade.ts`), and the optional `*_MATCH_STRONG` / `*_MATCH_WEAK` overrides are described in `eval/README.md`.
-
-3. Bring Postgres up alone first:
-
-   ```bash
-   docker compose -f docker-compose.prod.yml pull postgres
-   docker compose -f docker-compose.prod.yml up -d postgres
-   docker compose -f docker-compose.prod.yml ps
-   ```
-
-   Wait until `postgres` is healthy (`State: Up (healthy)`).
-
-4. Pull the MCP image; bring up the rest of the stack:
-
-   ```bash
-   docker compose -f docker-compose.prod.yml pull mcp
+   docker compose -f docker-compose.prod.yml up -d postgres        # pulls pgvector/pgvector:pg16
+   docker compose -f docker-compose.prod.yml ps                    # wait for Up (healthy)
+   # build + pin the mcp image as in "Routine redeploy" below, then:
    docker compose -f docker-compose.prod.yml up -d
-   docker compose -f docker-compose.prod.yml ps
    ```
 
-   Wait until `mcp` and `nginx` are running.
+4. Migrate: `docker exec qw-oracle-mcp bun db/migrate.ts` -- expect `[migrate] applying 001_init.sql` ... through the newest file in `db/migrations/`, then `[migrate] up-to-date (N migration(s) total, N newly applied)`.
 
-5. Migrate the prod DB. From inside the running MCP container:
+5. Load the corpus by the twin -> prod dump/restore in "Routine corpus refresh" below (the loaders never run against prod).
 
-   ```bash
-   docker exec qw-oracle-mcp bun db/migrate.ts
-   ```
+6. Verify from outside: `curl -s https://oracle.slipgate.me/health` and one tool call through a client. The eval gate (`bun run eval`) runs against the twin, whose content prod mirrors after a refresh; prod is not reachable from the cockpit as a `DATABASE_URL`.
 
-   Expected: `[migrate] applying 001_init.sql`, then 002, ..., up through the highest migration shipped (`007_query_log.sql` after Phase 7). Final line: `[migrate] up-to-date (N migration(s) total, N newly applied)`.
+## Routine redeploy (code change)
 
-6. Load the corpus. See Phase 8 Task 10 for the two paths (pg_dump from dev OR re-run loaders against prod). Default: pg_dump | pg_restore from the operator's WSL.
-
-7. Calibrate match-quality thresholds against prod. See Phase 8 Task 11.
-
-8. Run the eval gate against prod. MUST pass before the CF Tunnel route opens public DNS (Task 12).
-
-## Routine redeploy (post-Phase-8)
-
-**Post-2026-07-28 fence note:** host SSH (`ssh root@100.114.81.91`) has been dead since the
-2026-07-28 dev-fencing rebuild. The procedure below is what actually shipped 0.7.0 on
-2026-08-04 (oracle-reentry-plumbing arc, Phase 4) via `dev-deploy-proxy` from the dev-cockpit --
-no SSH anywhere in the flow. The "First-time deploy" / "Prerequisites" sections above describe
-the original 2026-05 provisioning and are left as history; they predate the fence.
+The flow that shipped 0.7.0 on 2026-08-04 (oracle-reentry-plumbing arc, Phase 4) and 0.8.0 on 2026-10-02 (the image prod runs today: `docker ps --filter name=qw-oracle-mcp --format '{{.Image}}'`) -- from the dev-cockpit, no SSH anywhere in it.
 
 ```bash
 # from the dev-cockpit -- DOCKER_HOST=tcp://dev-deploy-proxy:2375 and DOCKER_CONFIG
@@ -170,10 +141,10 @@ bun scripts/load-knowledge/index.ts extract-tag --project <project> --version <t
 # head walk: bun scripts/load-knowledge/index.ts extract-tag --project ezquake --version head
 
 # 1. (if relevant) re-derive descriptions after a derive-step change
-npm run load-knowledge --silent --no-workspaces -- re-derive
+bun scripts/load-knowledge/index.ts re-derive
 
 # 2. re-embed any rows whose description text changed (hash-skip handles no-ops)
-npm run embed:entities
+bun run embed:entities
 
 # 2b. (if Layer 3 concept notes changed) load the notes into dev and embed their
 #     chunks. REQUIRED whenever a .md under curated/concept-notes/ was added or
@@ -297,26 +268,22 @@ Three tiers, layered. **The same procedure that ships a fix rolls back a bad dep
 **Tier 1 (primary) -- re-promote dev.**
 The dev DB IS canonical truth. Fix on dev (revert the bad commit; re-extract if the loader was wrong), then re-dump and re-restore. Zero new infrastructure. Lead time: minutes (re-dump only) to hours (full re-extraction). Works for: bad data, bad embeddings, leaked test data, schema bugs caught after the fact.
 
-**Tier 2 (insurance) -- previous dump on Unraid.**
-The Routine corpus refresh procedure archives the previous dump to `/mnt/user/appdata/qw-oracle/dumps/` (rolling N=5). To re-restore from a prior dump:
+**Tier 2 (insurance) -- previous dump in `dumps/`.**
+Every corpus refresh leaves `prod-pre-refresh-<date>.dump` (prod as it was) and the shipped twin dump beside it in `/mnt/user/appdata/qw-oracle/dumps/` (custom format, `pg_dump -Fc`). To re-restore one:
 
 ```bash
-ssh root@100.114.81.91 'ls -t /mnt/user/appdata/qw-oracle/dumps/qw_oracle-*.sql | head -5'
-# pick the right one, then:
-ssh root@100.114.81.91 'docker exec -i qw-oracle-postgres psql -1 -U qworacle -d qw_oracle \
-  < /mnt/user/appdata/qw-oracle/dumps/qw_oracle-<timestamp>.sql'
+ls -t /mnt/user/appdata/qw-oracle/dumps/*.dump | head -5
+docker cp /mnt/user/appdata/qw-oracle/dumps/<file>.dump qw-oracle-postgres:/tmp/rollback.dump
+docker stop qw-oracle-mcp                                  # release the locks, as in refresh step 6
+docker exec qw-oracle-postgres pg_restore --clean --if-exists --no-owner --single-transaction \
+  -U qworacle -d qw_oracle /tmp/rollback.dump
+cd /mnt/user/appdata/qw-oracle && docker compose -f docker-compose.prod.yml up -d mcp
 ```
 
-**Tier 2.5 (overnight) -- weekly Synology snapshot.**
-Already in place. The Unraid backup stops the Docker stack and snapshots `/mnt/user/appdata/qw-oracle/` to Synology weekly. Loses up to a week of changes.
+The 2026-05 `qw_oracle-<timestamp>.sql` files there are plain SQL from the pre-fence era; those restore with `docker exec -i qw-oracle-postgres psql -1 -U qworacle -d qw_oracle < <file>.sql` instead. Pruning old dumps is manual.
 
-```bash
-# stop containers
-ssh root@100.114.81.91 'docker compose -f /mnt/user/appdata/qw-oracle/docker-compose.prod.yml down'
-# restore /mnt/user/appdata/qw-oracle/postgres-data/ from Synology snapshot via Unraid GUI
-# (Apps -> Synology backup -> restore folder -> postgres-data)
-ssh root@100.114.81.91 'docker compose -f /mnt/user/appdata/qw-oracle/docker-compose.prod.yml up -d'
-```
+**Tier 2.5 (overnight) -- borgmatic appdata backup.**
+Ops-plane. `/mnt/user/appdata` (plus per-DB dumps) goes to the Synology Borg repo nightly at 03:00 and on to an offsite mirror; the record is the ops-owned unraid repo (`docs/server/backup.md`, readable from the cockpit with `git --git-dir=/home/dev/repos/unraid.git show HEAD:docs/server/backup.md`). A restore of `postgres-data/` from it is a letter to ops; the stack then comes back from the cockpit with `docker compose -f /mnt/user/appdata/qw-oracle/docker-compose.prod.yml up -d`. Loses up to a day of prod-written rows (`query_log`, `embedding_api_log`).
 
 **Tier 3 (true DR) -- GitHub-rebuild path.**
 The whole prod stack is reproducible from (a) the qw-oracle git repo + (b) the upstream codebases that are themselves on GitHub. If Unraid AND dev are gone simultaneously: clone qw-oracle, re-extract every codebase tag-by-tag, rebuild dev DB from scratch, dump, restore. Slow but always available. Voyage cost is negligible (~134k of the 200M lifetime grant per arc-history).
@@ -325,13 +292,15 @@ The whole prod stack is reproducible from (a) the qw-oracle git repo + (b) the u
 
 | Action | Command |
 |---|---|
-| Live MCP logs | `ssh root@100.114.81.91 'docker logs -f qw-oracle-mcp'` |
-| Postgres logs | `ssh root@100.114.81.91 'docker logs -f qw-oracle-postgres'` |
-| Stack status | `ssh root@100.114.81.91 'docker compose -f /mnt/user/appdata/qw-oracle/docker-compose.prod.yml ps'` |
-| Restart MCP (no config change) | `ssh root@100.114.81.91 'docker compose -f /mnt/user/appdata/qw-oracle/docker-compose.prod.yml restart mcp'` |
-| Apply `.env` changes | `ssh root@100.114.81.91 'cd /mnt/user/appdata/qw-oracle && docker compose -f docker-compose.prod.yml up -d mcp'` (NOT `restart` -- see note below) |
-| Tail query_log | `ssh root@100.114.81.91 'docker exec qw-oracle-postgres psql -U qworacle -d qw_oracle -c "SELECT * FROM query_log ORDER BY id DESC LIMIT 10;"'` |
-| Run eval against prod | `bun run eval` from operator WSL with `DATABASE_URL=postgresql://qworacle:<prod-password>@100.114.81.91:5432/qw_oracle` |
+| Live MCP logs | `docker logs -f qw-oracle-mcp` |
+| Postgres logs | `docker logs -f qw-oracle-postgres` |
+| Stack status | `docker compose -f /mnt/user/appdata/qw-oracle/docker-compose.prod.yml ps` |
+| Running image version | `docker ps --filter name=qw-oracle-mcp --format '{{.Image}}'` (`inspect` is blocked box-wide) |
+| Restart MCP (no config change) | `docker compose -f /mnt/user/appdata/qw-oracle/docker-compose.prod.yml restart mcp` |
+| Apply `.env` changes | `cd /mnt/user/appdata/qw-oracle && docker compose -f docker-compose.prod.yml up -d mcp` (NOT `restart` -- see note below) |
+| Tail query_log | `docker exec qw-oracle-postgres psql -U qworacle -d qw_oracle -c "SELECT queried_at, tool, left(query_text,60), match_quality FROM query_log ORDER BY id DESC LIMIT 10;"` |
+| Public health | `curl -s https://oracle.slipgate.me/health` |
+| Eval / calibrate | `bun run eval` / `bun run calibrate` from `apps/qw-oracle/` against the twin (prod has no route from the cockpit; after a refresh the twin's content is prod's) |
 
 ## Environment-variable changes
 
@@ -347,6 +316,6 @@ Use `restart` only for "kick the running process without changing config" (e.g. 
 - **`docker compose ps` shows mcp restarting** - check `docker logs qw-oracle-mcp`. Most likely: D8 startup check failed (Voyage build/query divergence) or `DATABASE_URL` cannot reach `postgres` (network name typo).
 - **MCP starts but `/health` returns 502 from Cloudflare** - nginx is up but `mcp` is unreachable on `qworacle-net`. Run `docker network inspect qworacle-net` and confirm both containers are attached.
 - **Voyage call fails at runtime** - check `embedding_api_log` for the per-call error: `psql -U qworacle -d qw_oracle -c "SELECT called_at, source, error FROM embedding_api_log ORDER BY id DESC LIMIT 5"`. Most common: `VOYAGE_API_KEY` is missing or rate-limited.
-- **Eval against prod fails recall@3** - the calibrated thresholds did not transfer cleanly. Re-run `bun run calibrate` against the prod connection string, write the values to Unraid `.env`, then `docker compose -f docker-compose.prod.yml up -d mcp` (NOT `restart` -- see "Environment-variable changes" above). Task 11 of Phase 8 covers this.
+- **The eval gate fails recall@3** - run it against the twin (the only reachable DB). If the cut-offs are wrong, recalibrate (`bun run calibrate`, `eval/README.md`), then either rebuild the image with the new `DEFAULT_CUTOFFS` or set the `*_MATCH_STRONG` / `*_MATCH_WEAK` overrides in the deployed `.env` and `docker compose -f docker-compose.prod.yml up -d mcp` (NOT `restart` -- see "Environment-variable changes" above).
 
-- **Calibrated thresholds in `.env` but `match_quality` looks wrong** - same root cause as above: the running container kept the old baked values. Recreate via `up -d mcp` and confirm with `docker exec qw-oracle-mcp env | grep MATCH_QUALITY`.
+- **Calibrated thresholds in `.env` but `match_quality` looks wrong** - same root cause as above: the running container kept the old baked values. Recreate via `up -d mcp` and confirm with `docker exec qw-oracle-mcp env | grep _MATCH_`.
