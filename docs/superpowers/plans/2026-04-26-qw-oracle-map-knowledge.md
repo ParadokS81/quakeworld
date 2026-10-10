@@ -2969,3 +2969,9 @@ Otherwise skip.
 - `MapRecordRow` (MCP response shape) carries `popularity` as a nullable nested object, not the three flat columns.
 - `Project` union widened to include `'qw'` in Task 12.
 - `SCHEMA_VERSION` bumped to 13 in Task 1; all migration code references the same constant.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Map awareness in Layer 1: a maps table from BSP lumps plus maps.quakeworld.nu and stats, snapshot to slipgate, and the lookup_map / search_maps MCP tools; shipped 2026-04-27.
+- **Phase:** closed 2026-04-27 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words in the plan; apps/qw-oracle/docs/arc-history.md 2026-04-27 'Map knowledge layer' (schema v13, 254 maps, two MCP tools); HANDOVER's Future row 'Map knowledge layer follow-ups' names the remaining list, not this plan.

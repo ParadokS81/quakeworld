@@ -3509,3 +3509,9 @@ Plan complete and saved to `docs/superpowers/plans/2026-04-27-qw-oracle-game-mec
 - Task 16 step 5: if loader reports any total other than 37/41, do not proceed.
 - Task 16 step 6: if second-run reports any `inserted > 0`, the upsert design is broken; stop.
 - Task 24: if any of the 8 verify-gameplay assertions fail, return to the relevant earlier task.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Game-mechanics Layer 1 arc 1: the id1 baseline (37 entity defs, 41 mechanics, schema v14) with four new MCP tools; shipped 2026-04-27.
+- **Phase:** closed 2026-04-27 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); the plan's own CLAUDE.md step reads 'Game mechanics Layer 1 SHIPPED 2026-04-27'; apps/qw-oracle/docs/arc-history.md 2026-04-27 'Game mechanics Layer 1 arc 1 (id1 baseline)'; the death-rules note it seeded is a separate Future row.

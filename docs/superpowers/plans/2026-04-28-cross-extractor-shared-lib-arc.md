@@ -619,3 +619,9 @@ Per-project deep validations, run in parallel as three subagents in one session 
 3. QWCL Mode B.
 
 After all three complete, Layer 1 has been validated end-to-end across the libclang-based extractor surface. KTX (tree-sitter) is the next missing piece (separate methodology, separate runbook).
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Drain the 17 drain-in-arc findings of the cross-extractor pattern audit across five phases before the per-project Mode B validations; shipped 2026-04-28.
+- **Phase:** closed 2026-04-28 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words in the plan; apps/qw-oracle/docs/arc-history.md 2026-04-28 'Cross-extractor pattern audit follow-up arc'; HANDOVER's Future row for the audit's residuals points at the 2026-04-28 parking doc, not this plan.

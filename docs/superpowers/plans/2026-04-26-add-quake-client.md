@@ -1268,3 +1268,9 @@ Plan ready for execution in a fresh terminal.
 5. Each sub-phase is one shippable commit cluster; commit + push at sub-phase boundaries. Sub-phase 4 might split into 4a (Rust orchestrator + tests) and 4b (frontend AddClientPanel + integration) if size warrants.
 
 **Estimated total execution time:** 8-12 hours across 3-4 fresh-terminal sessions, vs. the original 6-8hr estimate. Pass-2 added the bulk_import_clients orchestrator (~2hr), variant decoupling Rust changes in version_warehouse.rs (~1hr), and the per-row CanonicalizeConsent UX surface (~1hr). Sub-phase 3 collapsed to ~30min (saves ~2hr vs the original Browse-augmentation scope).
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Phase 3.5b of Quake Dir Control: the Add Quake client flow (PE-string fingerprinter, release cache, bulk import, AddClientPanel); shipped 2026-04-27/28 with the TAIL-1 FTE bundle wiring.
+- **Phase:** closed 2026-04-28 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words in the plan; client_fingerprint, release_cache, bulk_import and AddClientPanel landed 2026-04-27, 'TAIL-1 FTE asset bundle wiring + Phase 3.5b doc catchup' 2026-04-28; no work-list row.

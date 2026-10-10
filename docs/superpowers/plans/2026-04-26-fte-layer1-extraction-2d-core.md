@@ -2464,3 +2464,9 @@ Two execution options:
 **2. Inline Execution.** Execute tasks in this session using executing-plans, batch execution with checkpoints. Good fit if you want to watch each handler land in real time.
 
 Which approach?
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** FTE Layer 1 entities (cvars, commands, macros, cmdline params) from a single head snapshot with engine and plugin:ezhud source roots (schema v11); shipped 2026-04-26.
+- **Phase:** closed 2026-04-26 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); the plan's HANDOVER step records 'FTE Phase 2d-core SHIPPED' 2026-04-26; apps/qw-oracle/docs/arc-history.md 2026-04-26 'FTE Phase 2d-core' (build-6698, schema v11); no work-list row.

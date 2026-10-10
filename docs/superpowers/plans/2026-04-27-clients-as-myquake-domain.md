@@ -228,3 +228,9 @@ Plan ready for execution in a fresh terminal.
 - **Reference:** `apps/slipgate-app/docs/OVERVIEW.md` Section  The 6 tabs (current IA before 3.5a ships)
 - **Reference:** `apps/slipgate-app/VISION.md` "Not a game launcher" (rationale for dropping Launch from the user-facing surface)
 - **Memory:** `feedback_verify_typescript.md` (mandatory `bunx tsc --noEmit` for slipgate frontend changes)
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Phase 3.5a IA restructure: the standalone Clients tab split into MyQuake > Domains > Clients plus a new Feed tab, four sections dropped; shipped 2026-04-27.
+- **Phase:** closed 2026-04-27 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words in this plan, but the 3.5b plan's header records 3.5a 'shipped on d07e275 + the nav-flatten polish on f6f2b39' (both 2026-04-27); no work-list row.

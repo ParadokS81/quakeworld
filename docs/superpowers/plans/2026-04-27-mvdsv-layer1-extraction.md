@@ -3566,3 +3566,9 @@ Plan complete and saved to `docs/superpowers/plans/2026-04-27-mvdsv-layer1-extra
 **2. Inline Execution** -- Execute tasks in this session using executing-plans, batch execution with checkpoints for review.
 
 Which approach?
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** MVDSV's seven Layer 1 entity types at head (cvars through qc_builtins, schema v15) validated against a production-server cvarlist; shipped 2026-04-27.
+- **Phase:** closed 2026-04-27 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); the plan's own close step reads 'MVDSV Phase 2e SHIPPED at HEAD'; apps/qw-oracle/docs/arc-history.md 2026-04-27 'Phase 2e MVDSV Layer 1' (1235 entities); no work-list row for the plan (the MVDSV findings backlog row points at the later describe-fill folder).

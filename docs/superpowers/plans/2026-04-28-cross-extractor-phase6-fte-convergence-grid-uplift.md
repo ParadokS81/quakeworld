@@ -1730,3 +1730,9 @@ After writing all the above tasks:
 - `makeFloorCountProbe` / `makeFloorSourceStateProbe` -- consistent across factory definition + tests + instantiation.
 - Anchor probe names use `F1.<project>.anchor.<invariant>` pattern -- consistent across all four.
 - The `Probe` / `ProbeResult` / `ProbeContext` types are consumed but not redefined; existing quality-grid.ts shapes them.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Cross-extractor Phase 6: drain the Mode B validation findings S-01 and S-03 (ezhud flags_raw recovery, lifted string-concat helpers, 56 floor probes); shipped 2026-04-28.
+- **Phase:** closed 2026-04-28 -- shipped
+- **Evidence:** last and only commit 2026-04-28 (the plan's landing); no close words in the plan; apps/qw-oracle/docs/arc-history.md 2026-04-28 'Cross-extractor Phase 6 (FTE convergence + grid uplift)'; HANDOVER's Future row 'Cross-extractor Phase 6 residuals' points at a parking doc, not this plan.
