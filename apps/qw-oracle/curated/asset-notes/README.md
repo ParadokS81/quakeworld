@@ -27,7 +27,7 @@ Cross-reference convention: both notes carry a "Related" section pointing at the
 
 ## Authoring path
 
-Authoring is driven by the `asset-type-curate` user-global skill (`~/.claude/skills/asset-type-curate/`). One skill invocation per slug.
+Authoring is driven by the `asset-type-curate` project skill (`.claude/skills/asset-type-curate/` at the repo root). One skill invocation per slug.
 
 1. Operator (or sub-agent in fan-out) runs `/asset-type-curate <slug>`.
 2. Skill produces an investigation report at `../../docs/asset-curation/<slug>-investigation.md` and (for non-`L1-GAP` flags) a draft `<slug>.md` here.

@@ -2,7 +2,7 @@
 
 Layer 3 corpus -- hand-authored notes synthesizing Layer 1 facts and Layer 2 testimony into usable guidance. The MCP `get_concept_note` tool serves this directory live.
 
-Authoring conventions, frontmatter shape, voice/length tiers, and the human-facing notes table live in `README.md`. Stewardship playbook in `OPERATIONS.md`. Use the `guide-rewrite` user-global skill when porting an ezquake.com docs page; `extraction-review` when walking a Phase 2f tag-pair.
+Authoring conventions, frontmatter shape, voice/length tiers, and the human-facing notes table live in `README.md`. Stewardship playbook in `OPERATIONS.md`. Project skills (`.claude/skills/` at the repo root): `guide-rewrite` when porting an ezquake.com docs page, `domain-concept-curate` for a demand-ranked player-help note, `game-mode-curate` for a KTX mode; `extraction-review` when walking a Phase 2f tag-pair. After editing a note, `bun scripts/load-concepts/index.ts` + `bun run embed:chunks` -- the loader is the only path into the DB.
 
 ## Documentation index
 

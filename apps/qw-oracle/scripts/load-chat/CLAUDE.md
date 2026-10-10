@@ -6,7 +6,9 @@ The Layer 2 chat loader: Discord-only ingest + classifier + session segmenter + 
 
 | When you need... | Read... |
 |---|---|
-| Verify a load ran correctly | F1 quality-grid `../load-knowledge/quality-grid.ts` (Layer 1); phase-3 plan MD for Layer 2 |
+| Run the monthly catch-up (ingest, re-segment, fence the new chunks, load threads; measured timings and costs) | `HARVEST-RUNBOOK.md` |
+| Batch state of the thread corpus: (channel, year) batches, exact counts, strategy decisions | `backfill-ledger.md` |
+| Verify a Layer 2 run | `import-discord.test.ts`, `build-sessions.test.ts`, `thread-key.test.ts` (`bun test scripts/load-chat`); `verify-batch.ts` per thread batch |
 
 ## Pipeline order (idempotent at every step)
 

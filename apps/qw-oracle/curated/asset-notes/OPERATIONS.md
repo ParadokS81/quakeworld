@@ -45,7 +45,7 @@ What the bucket is NOT:
 
 ## 2. Authoring workflow
 
-Authoring is driven by the `asset-type-curate` user-global skill (`~/.claude/skills/asset-type-curate/`). One invocation per slug.
+Authoring is driven by the `asset-type-curate` project skill (`.claude/skills/asset-type-curate/` at the repo root). One invocation per slug.
 
 ### Per-slug pipeline
 

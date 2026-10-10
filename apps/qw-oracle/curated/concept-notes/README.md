@@ -1,8 +1,8 @@
 # Concept notes (Layer 3)
 
-Hand-authored curated notes that synthesize Layer 1 facts and Layer 2 testimony into usable guidance. Not yet served over MCP - the `get_concept_note` tool will eventually read from this directory. For now the notes exist as plain markdown for humans and for Claude Code sessions to read directly.
+Hand-authored curated notes that synthesize Layer 1 facts and Layer 2 testimony into usable guidance. Served over MCP by `search_concepts` / `get_concept_note` once loaded (`bun scripts/load-concepts/index.ts`, then `bun run embed:chunks`); the files here are the source of truth the loader copies into Postgres.
 
-See `../VISION.md` for the three-layer knowledge-service framing.
+See `../../VISION.md` for the three-layer knowledge-service framing.
 
 ## Two feeding paths
 

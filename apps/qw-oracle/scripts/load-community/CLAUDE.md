@@ -9,7 +9,14 @@ Layer 3 community-reference loader. Walks `apps/qw-oracle/data/wiki-snapshots/<d
 - `shared/iso-country.ts` -- nationality string -> 2-letter ISO code lookup table.
 - `players/` -- Phase 2 player loader (parse, flags, upsert, emit-note, CLI).
 - `clans/` -- Phase 3 clan loader (parse, flags, upsert, emit-note, CLI).
-- `tournaments/` -- Phase 4 tournament loader (added in Phase 4).
+- `tournaments/` -- not built; Phase 4 paused on the LLM-extraction sidequest (QWiki tournaments are heterogeneous). The brand-curation tracker in `../curate-brands/` is its pivot.
+
+## Documentation index
+
+| When you need... | Read... |
+|---|---|
+| Take a fresh QWiki snapshot into `data/wiki-snapshots/<date>/` (the loader's input) | `../snapshot-wiki/README.md` |
+| Sort tournament articles into brands (Phase 4 brand-pages pivot; local HTML tracker) | `../curate-brands/README.md` |
 
 ## Loader pattern (per type)
 

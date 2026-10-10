@@ -18,10 +18,13 @@ Per-codebase Layer 1 extractors. Three-tier handler architecture: shared `Visito
 | `fte/` | `fte/CLAUDE.md` | FTE handlers (plugin source-root, ezhud merge) |
 | `mvdsv/` | `mvdsv/CLAUDE.md` | MVDSV handlers (server-side, MVDSV-introduced types) |
 | `qwcl/` | `qwcl/CLAUDE.md` | QWCL 2.33 handlers (1996-vintage shape) |
+| `ktx/` | `ktx/CLAUDE.md` | KTX handlers (server-only libclang; XSD-driven match events; the gameplay-catalog handlers) |
+
+No scope index of their own (no authored docs inside): `qwfwd/` (C, libclang, four handlers mirroring MVDSV's), `qtv/` (Go -- `extract.go` walks `go/parser` + `go/ast`; no toolchain on the cockpit, output committed), `qw/` (pure-stdlib Python: BSP parsing, map stats, asset-type derivation; `seeds/` committed), `shared/` (Bun-side inventory-coverage checks). Their drivers are listed in `DEVELOPMENT.md`.
 
 ## Always-on rules
 
 - **Multiprocessing pattern** -- per-TU parses isolate libclang state; orchestration in each `extract.py`.
-- **libclang for C/C++ ports** (ezquake, fte, mvdsv, qwcl, KTX-canonical); **tree-sitter** is reserved for the dusty-ktx fork's `qcsrc/` (QuakeC), not yet onboarded -- separate methodology / separate runbook.
+- **libclang for the C codebases** (ezquake, fte, mvdsv, qwcl, ktx, qwfwd); **Go's own parser** for qtv; **tree-sitter** is reserved for the dusty-ktx fork's `qcsrc/` (QuakeC), not yet onboarded -- separate methodology / separate runbook.
 - **Three-tier handlers** -- never duplicate cross-engine logic into a per-engine handler; subclass via `extractor_lib`.
-- Use the `onboard-extractor` user-global skill when adding a new codebase, `validate-extractor` for post-ship audits.
+- Use the `onboard-extractor` project skill when adding a new codebase, `validate-extractor` for post-ship audits (both under `.claude/skills/` at the repo root).

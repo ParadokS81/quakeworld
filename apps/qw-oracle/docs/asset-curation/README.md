@@ -1,6 +1,6 @@
 # asset-curation/
 
-Sink for per-slug investigation reports emitted by the `asset-type-curate` user-global skill. One file per asset_type slug; lifecycle parallel to `../upstream-prs/` but with a different downstream consumer (Layer 3 asset-notes/ bucket, not external repositories).
+Sink for per-slug investigation reports emitted by the `asset-type-curate` project skill (`.claude/skills/asset-type-curate/` at the repo root). One file per asset_type slug; lifecycle parallel to `../upstream-prs/` but with a different downstream consumer (Layer 3 asset-notes/ bucket, not external repositories).
 
 See `../../curated/asset-notes/OPERATIONS.md` for the broader asset-notes stewardship playbook (status-flag triage, L1-GAP handling, fan-out workflow). The investigation reports here are the by-product of that workflow.
 
@@ -31,7 +31,7 @@ L1-GAP reports are the bucket's primary feedback loop into the next extractor-ca
 
 ## Pointers
 
-- Skill: `~/.claude/skills/asset-type-curate/SKILL.md` + references/.
+- Skill: `.claude/skills/asset-type-curate/SKILL.md` (repo root) + references/.
 - Asset-notes bucket: `../../curated/asset-notes/` (the downstream consumer of these reports).
 - Asset_type seed: `../../scripts/extractors/qw/seeds/qw-asset-types.yaml`.
 - L1 evidence: `../../scripts/extractors/<engine>/output/<engine>-asset-loader-sites-ast.json`.

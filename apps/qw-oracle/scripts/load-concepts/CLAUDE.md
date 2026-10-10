@@ -1,6 +1,6 @@
 # scripts/load-concepts/
 
-Layer 3 loader. Walks `apps/qw-oracle/curated/concept-notes/*.md`, parses each into a normalised `ParsedConcept`, and upserts into Postgres atomically per slug. The MCP `get_concept_note` tool reads `concepts` / `concept_chunks` / `concept_entities` / `concept_concepts` after Phase 6 cuts over.
+Layer 3 loader. Walks `apps/qw-oracle/curated/concept-notes/*.md`, parses each into a normalised `ParsedConcept`, and upserts into Postgres atomically per slug. The MCP `search_concepts` / `get_concept_note` tools read `concepts` / `concept_chunks` / `concept_entities` / `concept_concepts` directly. Run it after every note edit (`bun scripts/load-concepts/index.ts`), then `bun run embed:chunks`.
 
 ## Files
 
@@ -13,7 +13,7 @@ Layer 3 loader. Walks `apps/qw-oracle/curated/concept-notes/*.md`, parses each i
 
 `related_entities:` in note frontmatter mixes real entity refs (`ezquake:cvar:cl_bob`) with external artifact refs (`ezquake:commit:7c328aa4`, `ezquake:pr:1234`, `ezquake:extension:fbsp`). Only the entity refs land in `concept_entities`; external refs stay only in `concepts.frontmatter` JSONB so the original frontmatter shape is recoverable.
 
-The partition rule is "3-part canonical_id where parts[1] is NOT in `{commit, pr, extension}` -> entity." Broader than the `serve/mcp/src/concept-loader.ts` set (which is the user-surface filter for the in-memory map). The graph table is the source of truth for `lookup_entity(id).linked_concepts` across all Layer 1 entity types after Phase 6.
+The partition rule is "3-part canonical_id where parts[1] is NOT in `{commit, pr, extension}` -> entity." The graph table is the source of truth for `lookup_entity(id).linked_concepts` across all Layer 1 entity types (the old in-memory `concept-loader.ts` map is gone).
 
 ## Body-link drift check
 
@@ -26,17 +26,8 @@ Loader pre-flight: any markdown link in a body that points at a concept slug (`[
 - **Atomic per-slug upsert.** All four writes (concepts, concept_entities, concept_concepts, concept_chunks) happen in one `db.begin(...)` transaction so a partial failure rolls back; the MCP never sees a half-rebuilt concept.
 - **Hash-skip on chunks.** When a note's body sha256 hasn't changed, the loader skips the DELETE+INSERT on `concept_chunks` so Phase 5's embeddings survive. Graph rows always rebuild (cheap; drift-proof).
 
-## What Phase 5 will add
+## Downstream of the loader
 
-- `embed-chunks.ts` worker that reads `concept_chunks WHERE embedding IS NULL OR embedding_stale = TRUE`, calls Voyage `voyage-4-large`, writes the vector back, clears the stale flag.
-- Per-call `embedding_api_log` row.
-- Batch sizing per Voyage's API rate limits.
-
-Phase 4 does NOT integrate embeddings -- the column is created NULL and embedding_stale defaults FALSE.
-
-## What Phase 6 will add
-
-- `search_concepts` MCP tool over RRF(tsv_score, vector_score) on `concept_chunks`.
-- Bidirectional graph reads: `lookup_entity` adds `linked_concepts: [...]` from `concept_entities`.
-- Reads concepts directly from Postgres (retiring `serve/mcp/src/concept-loader.ts`'s in-memory map).
-- `redirect_to_human` MCP tool seeded against `redirect_targets` (Phase 4 ships the table empty).
+- **Embedding:** `scripts/embed/embed-chunks.ts` reads `concept_chunks WHERE embedding IS NULL OR embedding_stale = TRUE`, calls Voyage `voyage-4-large`, writes the vector back and clears the flag; one `embedding_api_log` row per call. The sha256 is authoritative, the boolean informational (migration 019).
+- **Serving:** `search_concepts` fuses the lexical and vector lists with RRF and grades on closeness (`serve/mcp/src/grade.ts`); `get_concept_note` returns the full body; `lookup_entity` adds `linked_concepts` from `concept_entities`.
+- **`redirect_to_human`** is seeded from `db/seeds/redirect_targets.sql` via `scripts/seed/seed-redirect-targets.ts`.

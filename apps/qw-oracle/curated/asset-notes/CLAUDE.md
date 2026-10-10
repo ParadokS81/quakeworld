@@ -2,7 +2,7 @@
 
 Layer 3 engine-data synthesis -- hand-curated notes that bridge Layer 1 loader-site facts to L3 prose for the bounded set of QuakeWorld asset_types in `apps/qw-oracle/scripts/extractors/qw/seeds/qw-asset-types.yaml`. Sibling to `concept-notes/` under the broader Layer 3 layer (curated markdown knowledge with consistent retrieval contracts).
 
-Authoring is driven by the `asset-type-curate` user-global skill (`~/.claude/skills/asset-type-curate/`); investigation reports land at `../../docs/asset-curation/<slug>-investigation.md` and drafts land here. MCP exposure is deferred per `../../API_CONTRACTS.md` L3 expansion pattern -- notes exist as plain markdown for humans and Claude Code sessions to read directly until the bucket populates.
+Authoring is driven by the `asset-type-curate` project skill (`.claude/skills/asset-type-curate/` at the repo root); investigation reports land at `../../docs/asset-curation/<slug>-investigation.md` and drafts land here. MCP exposure is deferred per `../../API_CONTRACTS.md` L3 expansion pattern -- notes exist as plain markdown for humans and Claude Code sessions to read directly until the bucket populates.
 
 ## Documentation index
 
