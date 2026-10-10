@@ -12,7 +12,7 @@ description: Deploy any project to production. Covers MatchScheduler (Firebase),
 | matchscheduler | `firebase deploy --only <targets>` | https://matchscheduler-dev.web.app |
 | quad | `cd /mnt/user/appdata/quad && docker compose pull && docker compose up -d` | `cd /mnt/user/appdata/quad && docker compose logs --tail=20 quad` |
 | qw-stats | `cp` files into appdata + `docker build`/`run` | `curl https://qw-api.poker-affiliate.org/health` |
-| slipgate-app | `bun run tauri build` (Windows) / GitHub Actions | Launch the built .exe |
+| slipgate-app | `bun run tauri build` (Windows) | Launch the built .exe |
 
 ## MatchScheduler (Firebase)
 
@@ -101,11 +101,9 @@ For details: `apps/qw-stats/DEPLOYMENT.md`
 
 ## Slipgate App
 
-**Status: WSL-to-Windows dev workflow TBD**
+**Status: no wired Windows build machine since 2026-07.**
 
 A local build needs a Windows machine with its own checkout (`bun install && bun run tauri build` in `apps/slipgate-app`); the dev cockpit is Linux and cannot build it.
-
-CI: GitHub Actions builds all platforms on push to main.
 
 For details: `apps/slipgate-app/DEPLOYMENT.md`
 
