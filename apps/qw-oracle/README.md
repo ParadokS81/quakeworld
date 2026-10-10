@@ -4,49 +4,62 @@ The QuakeWorld Knowledge Service. A data foundation, two serving surfaces, and a
 
 ## The foundation
 
-Three data layers live inside this app:
+Three data layers live inside this app, all in one Postgres database (`qw_oracle`, pgvector + tsvector):
 
-- **Layer 1** (Postgres `qw_oracle.public.entities` + 15 `*_versions` tables + relation tables + the `qw` namespace) -- structured facts extracted from engine source. Engine entities (15 types: cvar / command / macro / cmdline_param / keyname / hud_element / ruleset / token_primitive / asset_category / flag_bit / cvar_alias / protocol_message / info_key / log_template / qc_builtin) live in a per-version arc model with per-field blame. Game-content facts (the `qw` namespace -- maps, gameplay rules) live in flat tables outside the version arc. Seven codebases loaded today: ezQuake (18 versions, v3.0 -> 3.6.9 + head), FTE (build-6698 with engine + ezhud plugin + asset bundle), QWCL (2.33 + head dual partition), MVDSV (head @`18d0362180`, 2026-04-07), KTX (head), QTV (1.16-dev -- the pipeline's Go front-end), QWFWD (1.40-dev) -- KTX onboarded by the 2026-05-04 onboarding arc, which also added the `match_event` entity type plus the gameplay-mechanics widening (`game_mode`, `mode_default`, `election_type`, `score_system`, `drop_item`, `loc_macro`, `teamplay_message`) and `gameplay_entity_defs.kind += 'monster'`. Per-namespace counts are queryable via `SELECT project, type, COUNT(*) FROM entities GROUP BY project, type` against the dev DB.
-- **Layer 2** (Postgres `qw_oracle.public.messages` + `sessions` + `session_search` + `session_references` + `message_labels` + `discord_channels` + `import_log` + `processing_log`) -- 747,392 Quake.World Discord messages (2016-04 -> 2026-10), 89,610 sessions, plus 40,943 reconstructed threads (the retrieval unit). tsvector + GIN lexical search via the `search_solved_issues` MCP tool. Discord-only by D9-revised of qw-oracle Arc 1; pre-2016 IRC content excluded. Layer 2 enrichment (segment / classify / summarise / session-summary embeddings) deferred to Arc 3.
-- **Layer 3** -- hand-authored concept notes at `curated/concept-notes/`. Ten notes shipped, plus README (entry template + 6 shapes + voice table), OPERATIONS (stewardship playbook), and _gap-report (contributor onboarding seed for upstream ezquake.com guide updates). Community curated layer (player-notes / clan-notes / tournament-notes) under `curated/<kind>-notes/` per the QWiki community-reference arc.
+- **Layer 1** -- structured facts extracted from engine source. Engine entities (16 types: cvar / command / macro / cmdline_param / ruleset / match_event / info_key / log_template / protocol_message / qc_builtin / cvar_alias, plus the internal-classifier types keyname / hud_element / token_primitive / flag_bit / asset_category) live in `entities` + one `<type>_versions` table each, a per-version arc model with per-field blame. Game-content facts (the `qw` namespace: maps, the gameplay catalog) live in flat tables outside the version arc. Seven codebases are loaded: ezQuake (every release v3.0 -> 3.6.9 plus head), FTE, QWCL, MVDSV, KTX, QTV and QWFWD. The coverage table is `OVERVIEW.md`'s domain inventory; per-namespace counts come from the database (`SELECT project, type, COUNT(*) FROM entities GROUP BY project, type`).
+- **Layer 2** -- the Quake.World Discord corpus (2016-04 onward, Discord-only; pre-2016 IRC is excluded by design). Raw messages, timestamp-grouped sessions, and topic-coherent reconstructed threads (`chat_threads`), which are the retrieval unit: embedded and FTS-indexed, searched hybrid (vector + lexical) by `search_solved_issues`. Kept current by a monthly harvest (`scripts/load-chat/HARVEST-RUNBOOK.md`). Sizes in `OVERVIEW.md`.
+- **Layer 3** -- curated markdown knowledge under `curated/`: hand-authored concept notes (`concept-notes/`, 45 notes today, served by `search_concepts` / `get_concept_note`), engine-asset notes (`asset-notes/`, 5 notes, not yet served), and the wiki-import profile notes (`player-notes/`, `clan-notes/`; storage shipped, MCP tools pending). Each bucket carries a `README.md` (entry template) and an `OPERATIONS.md` (stewardship playbook).
 
-For per-entity-type background see [`docs/entity-types.md`](docs/entity-types.md) (ezQuake-only today; pending refresh for FTE / QWCL / MVDSV / KTX / `qw`). For chronological ship history see [`docs/arc-history.md`](docs/arc-history.md). For the current data model see [`SCHEMA.md`](SCHEMA.md).
+For per-entity-type background see [`docs/entity-types.md`](docs/entity-types.md) (ezQuake-only; pending refresh for the other codebases). For chronological ship history see [`docs/arc-history.md`](docs/arc-history.md). For the data model see [`SCHEMA.md`](SCHEMA.md).
 
 ## Serving surfaces
 
 A consumer reaches the foundation via one of two paths:
 
-- **MCP** -- live queries for interactive clients. Server at `serve/mcp/`. Thirteen tools: `lookup_entity`, `search_entities`, `get_concept_note`, `search_concepts`, `search_solved_issues`, `lookup_map`, `search_maps`, `lookup_gameplay_entity`, `lookup_mechanic`, `search_gameplay_entities`, `search_mechanics`, `describe_mode`, `redirect_to_human`. Public deployment at `oracle.slipgate.me/mcp`.
-- **Snapshot distribution** -- consumer-tailored JSON snapshots pre-computed from the foundation by the `build-snapshot` CLI. Emitted directly into `apps/slipgate-app/src/lib/config/data/`. For clients that need the same facts repeatedly and want fast, predictable access (e.g. slipgate-app's ConfigViewer + map browser).
+- **MCP** -- live queries for interactive clients. Server at `serve/mcp/`, public at `https://oracle.slipgate.me/mcp` (Cloudflare Tunnel, rate-limited). Thirteen tools: `lookup_entity`, `search_entities`, `lookup_map`, `search_maps`, `lookup_mechanic`, `search_mechanics`, `lookup_gameplay_entity`, `search_gameplay_entities`, `describe_mode`, `search_solved_issues`, `search_concepts`, `get_concept_note`, `redirect_to_human`. The contract (response envelope, `match_quality` semantics, orientation blob) is `API_CONTRACTS.md`.
+- **Snapshot distribution** -- consumer-tailored JSON pre-computed from the foundation by the loader's `build-snapshot` / `build-docs-snapshot` subcommands, plus the oracle-web brain manifest (`scripts/build-brain-manifest.ts`). For clients that need the same facts repeatedly and want fast, predictable access.
 
 Both serve the same underlying facts; consumers pick the surface that fits their access pattern.
 
 ## Consumers
 
-- **Claude Code** (live) -- MCP. Primary consumer today; every coding session in the monorepo can query Layers 1, 2, and 3.
-- **slipgate-app** (live) -- consumes snapshots at `apps/slipgate-app/src/lib/config/data/` produced by Oracle's `build-snapshot` CLI. Today serves ezQuake (variables / commands / macros / cmdline_params / asset bundle), QWCL (variables), FTE (asset bundle), `qw` (maps + gameplay). MVDSV intentionally not snapshotted (server-side; slipgate is the client).
-- **quad chatbot mode** (future) -- MCP. Quad is a voice-recording Discord bot today; a chat-over-oracle mode is a future capability on top.
-- **New chatbot app** (future) -- MCP. Possibly separate from quad.
-- **slipgate web help surfaces** (future) -- snapshots. The web-services-family direction (assets.quake.world, maps.quake.world) will consume oracle snapshots for anything that maps to knowledge-layer facts.
+- **Claude Code, Claude.ai and Codex sessions** (live) -- MCP. The monorepo's own sessions plus outside callers (prod's `query_log` since 2026-08).
+- **slipgate-app** (live) -- snapshots at `apps/slipgate-app/src/lib/config/data/`: ezQuake (variables / commands / macros / cmdline params / asset bundle), FTE (variables + asset bundle), QWCL (variables), KTX (commands), `qw` (maps + gameplay). MVDSV, QTV and QWFWD are server-side and not snapshotted.
+- **oracle-web** (`apps/oracle-web/`, deploy pending) -- the brain manifest, served from `oracle.slipgate.me/snapshots/`.
+- **docs-web** (`apps/docs-web/`) -- per-codebase Layer 1 reference JSON from `build-docs-snapshot`.
+- **Chatbots** (future) -- MCP: a quad chat-over-oracle mode or a separate app.
 
-**Status:** Active development. Solo project for now, not public-facing.
+**Status:** Active development. Solo project; the MCP endpoint is public and has outside callers, everything else is workshop-only. Open work is the root `HANDOVER.md`.
+
+## Run it
+
+```bash
+cd apps/qw-oracle
+bun install                                   # never npm: package.json carries a workspace:* dep
+cp .env.example .env                          # DATABASE_URL points at the dev twin qw-oracle-postgres-dev (see CLAUDE.md's environment table)
+bun run typecheck                             # loader + db typecheck
+bun run mcp:dev:http                          # MCP server on :3000, the shape prod runs
+bun scripts/load-knowledge/index.ts --help    # the loader's subcommand catalog
+```
+
+Everything else -- extractors, Layer 2 and Layer 3 loaders, the quality grid, the eval gate -- is in `DEVELOPMENT.md`; shipping is `DEPLOYMENT.md`.
 
 ## Tech stack
 
-- **TypeScript + Bun** for every script (loader, embed, eval, calibrate, MCP server). The SQLite era ended with Arc 1 (`docs/superpowers/specs/2026-05-01-qw-oracle-database-architecture-design.md`); Bun is the canonical runtime per Arc 1 D2.
-- **PostgreSQL 16 + pgvector + tsvector** (image: `pgvector/pgvector:pg16`); single engine across Layer 1 / Layer 2 / Layer 3. Schema migrations applied by `db/migrate.ts` from `.sql` files in `db/migrations/`.
-- **postgres-js** for DB access; **Voyage v4 series** (`voyage-4-large` build / `voyage-4-lite` query) for embeddings; **@modelcontextprotocol/sdk** + **express** for the MCP server (Streamable HTTP transport behind Cloudflare Tunnel); **ulid** for extractor-run IDs; **js-yaml** for seed ingestion; **gray-matter** for concept-note frontmatter.
-- **Python 3 + libclang 18** for the engine-source extractors at `scripts/extractors/<project>/` (ezQuake / FTE / QWCL / MVDSV / KTX). Pure-stdlib Python for the `qw` namespace (BSP binary parsing). The `match_event` handler in `scripts/extractors/ktx/_handler_match_events.py` is the lone XSD-driven handler in the lineup (per spec Pass 5.6.c -- not libclang; standalone Visitor lifecycle stubs).
+- **TypeScript + Bun** for every script (loaders, embedding, eval, calibrate, MCP server). Bun is the canonical runtime per Arc 1 D2; the SQLite era ended with Arc 1 (`docs/superpowers/specs/2026-05-01-qw-oracle-database-architecture-design.md`).
+- **PostgreSQL 16 + pgvector + tsvector** (image `pgvector/pgvector:pg16`); single engine across all three layers. Migrations are `.sql` files in `db/migrations/`, applied by `db/migrate.ts`.
+- **postgres-js** for DB access; **Voyage v4 series** (`voyage-4-large` build / `voyage-4-lite` query) for embeddings; **@modelcontextprotocol/sdk** + **express** for the MCP server (Streamable HTTP behind Cloudflare Tunnel); **ulid** for extractor-run IDs; **js-yaml** for seed ingestion; **gray-matter** for concept-note frontmatter.
+- **Python 3 + libclang 18** for the C-codebase extractors at `scripts/extractors/<project>/` (ezQuake / FTE / QWCL / MVDSV / KTX / QWFWD); **Go** for the QTV extractor; pure-stdlib Python for the `qw` namespace (BSP binary parsing). The KTX `match_event` handler is the lone XSD-driven handler in the lineup.
 
 ## Learn more
 
-- `CLAUDE.md` -- always-on rules, where-to-find-things table, tooling conventions
+- `CLAUDE.md` -- always-on rules, environment table, documentation index, subsystem scopes
 - `VISION.md` -- why this project exists, the knowledge-service framing, the active-assistance answer shape
-- `OVERVIEW.md` -- current-state living map: what is loaded, what the pipeline does, code landmarks, open work
-- `SCHEMA.md` -- Layer 1 data model reference, one section per table, topically organized
+- `OVERVIEW.md` -- current-state living map: what is loaded, what the pipeline does, code landmarks
+- `SCHEMA.md` -- data model reference, one section per table, topically organized
+- `API_CONTRACTS.md` -- the MCP contract
 - [`docs/arc-history.md`](docs/arc-history.md) -- chronological ship log
-- [`docs/entity-types.md`](docs/entity-types.md) -- per-entity-type reference (ezQuake; pending refresh)
 - `scripts/extractors/EXTRACTOR-PLAYBOOK.md` -- porting playbook + registration pattern catalog
 - `scripts/extractors/VALIDATION-RUNBOOK.md` -- post-ship validation methodology
 
-This app is one of five in the [QuakeWorld monorepo workshop](../../README.md).
+This app is one of eight in the [QuakeWorld monorepo workshop](../../README.md).
