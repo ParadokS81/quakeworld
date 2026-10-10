@@ -92,7 +92,6 @@ One Firebase project, `matchscheduler-dev`, serves production (the name is histo
 ## True cruft
 
 - `context/analysis-past-slot-bug.md`, `context/debug-mobile-blank-screen.md` - resolved incidents kept as reference. Safe to read for context; do not treat as active plans.
-- `SETUP.md` and `test-architecture.md` at the app root - a scaffold-era setup sheet and a one-off refactor test plan, both superseded by `DEVELOPMENT.md`; the root `HANDOVER.md` carries their disposition.
 - `dev.sh` and `scripts/*.ps1` - WSL-era launch and port-forward helpers (root `HANDOVER.md`).
 
 ## What this doc intentionally does NOT cover
