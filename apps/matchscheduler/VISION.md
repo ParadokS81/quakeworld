@@ -23,7 +23,7 @@ The grid layout is immutable in the codebase. CLAUDE.md calls it the "sacred gri
 
 - **Firebase first, not last.** The choice to build on Firebase was pragmatic: solo developer, no DevOps budget, a community tool that needs to work rather than scale. Firestore's real-time listeners are the right fit for "two captains staring at each other's grid."
 - **Vanilla-JS-and-Alpine over a framework.** The scheduler was built before React/Solid/Svelte had consolidated. Alpine.js + direct Firestore listeners + the Revealing Module pattern keeps complexity low. Adding React now would be a rewrite, not a migration; when that rewrite happens, it happens in slipgate web.
-- **Tight integrations over generic abstractions.** The scheduler reads from qw-stats for H2H stats and from Quad's `voiceRecordings/` collection for demo/voice pairing. These integrations are narrow and purposeful. The cross-project contract lives in `/contracts/CROSS-PROJECT-SCHEMA.md` at monorepo root.
+- **Tight integrations over generic abstractions.** The scheduler reads from qw-stats for H2H stats and from Quad's `voiceRecordings/` collection for demo/voice pairing. These integrations are narrow and purposeful. The cross-project contract lives in `/contracts/SCHEMA.md` at monorepo root.
 - **Discord as social layer, not backend.** Discord is where humans argue about scheduling. The scheduler pushes embeds back into Discord but does not try to be a Discord bot. Quad handles the bot-shaped work.
 
 ## Graduation path

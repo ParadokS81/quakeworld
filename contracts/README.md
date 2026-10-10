@@ -1,6 +1,6 @@
 # Cross-project contracts
 
-This directory holds cross-project design specs and data contracts. Active work lives in `active/`; shipped work is archived in `completed/`. The monorepo-wide data contract (shared Firestore collections and Storage paths) lives in `CROSS-PROJECT-SCHEMA.md`.
+This directory holds cross-project design specs and data contracts. Active work lives in `active/`; shipped work is archived in `completed/`. The monorepo-wide data contract (shared Firestore collections and Storage paths) lives in `SCHEMA.md`.
 
 ## Active
 
@@ -20,7 +20,7 @@ This directory holds cross-project design specs and data contracts. Active work 
 
 ## Data contracts and investigations
 
-- **`CROSS-PROJECT-SCHEMA.md`** - authoritative Firestore collections and Firebase Storage paths shared across apps. The OVERVIEW.md "Shared Firestore collections" and "Shared Firebase Storage" tables are derived from this. Update here first when a shape changes.
+- **`SCHEMA.md`** - authoritative Firestore collections and Firebase Storage paths shared across apps. The OVERVIEW.md "Shared Firestore collections" and "Shared Firebase Storage" tables are derived from this. Update here first when a shape changes.
 - **`AUDIO-SYNC-INVESTIGATION.md`** - standalone investigation doc for an audio sync issue affecting voice replay. Not a contract per se; kept here because the investigation crosses quad and matchscheduler.
 
 ## Adding a new contract

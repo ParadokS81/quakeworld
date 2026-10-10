@@ -83,7 +83,7 @@ The public MCP endpoint is `https://oracle.slipgate.me/mcp` (Cloudflare Tunnel, 
 
 ## Shared persistence (Firestore + Storage)
 
-Firebase project `matchscheduler-dev`. Authoritative contract at `contracts/CROSS-PROJECT-SCHEMA.md` — when any shape changes, update that file AND the writer AND the reader in the same commit.
+Firebase project `matchscheduler-dev`. Authoritative contract at `contracts/SCHEMA.md` — when any shape changes, update that file AND the writer AND the reader in the same commit.
 
 | Path | Writer | Reader | Purpose |
 |---|---|---|---|
@@ -110,7 +110,7 @@ Cross-project design specs live in `contracts/`:
 
 - `contracts/active/` — work in progress
 - `contracts/completed/` — shipped specs, kept for history
-- `contracts/CROSS-PROJECT-SCHEMA.md` — authoritative Firestore + Storage data contract
+- `contracts/SCHEMA.md` — authoritative Firestore + Storage data contract
 - `contracts/AUDIO-SYNC-INVESTIGATION.md` — standalone investigation doc
 
 See `contracts/README.md` for the indexed list and one-line summaries.

@@ -30,7 +30,7 @@ Maintenance. Stable and in active use across ~40 teams / ~300 players in the 4on
 ### Data contracts
 
 - Firestore schema lives in `context/SCHEMA.md`. Authoritative document.
-- Cross-project contracts (shapes Quad and qw-stats depend on) live in `/contracts/CROSS-PROJECT-SCHEMA.md` at monorepo root. Any change to those shapes touches this file AND the writer/reader in the same commit.
+- Cross-project contracts (shapes Quad and qw-stats depend on) live in `/contracts/SCHEMA.md` at monorepo root. Any change to those shapes touches this file AND the writer/reader in the same commit.
 
 ## Integration points
 

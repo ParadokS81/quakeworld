@@ -413,4 +413,4 @@ quad disconnect-listener picks it up:
 - **No breaking changes.** The `/register` command behavior is strictly more permissive (allows what it previously rejected). Existing registrations are untouched.
 - **Firestore indexes:** May need a composite index for `guildId + status` if not already present (for `getRegistrationsForGuild` queries). Check existing indexes.
 - **SCHEMA.md** in MatchScheduler should be updated when C1 lands (new fields on botRegistrations).
-- **CROSS-PROJECT-SCHEMA.md** should be updated to note that `guildId` is no longer unique across active registrations.
+- **contracts/SCHEMA.md** should be updated to note that `guildId` is no longer unique across active registrations.

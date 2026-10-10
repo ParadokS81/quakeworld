@@ -3,7 +3,7 @@
 > Copy-paste prompts for each phase. Open the specified project folder, set the model/effort/thinking, paste the prompt.
 >
 > **Contract:** `UNIFIED-AUTO-RECORD-CONTRACT.md`
-> **Schema:** `CROSS-PROJECT-SCHEMA.md`, `MatchScheduler/context/SCHEMA.md`
+> **Schema:** `contracts/SCHEMA.md`, `MatchScheduler/context/SCHEMA.md`
 
 ---
 
