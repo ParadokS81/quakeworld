@@ -23,9 +23,9 @@ Identity resolution is Phase 0 of the roadmap. Until identity is solved well eno
 Two products, one data foundation.
 
 - **The ranking product (in development).** Per-player and per-team rankings, overall and per-map, across the full dataset and recent-form windows. Built on the composite rating, calibrated against the sniff test, cut by map (dm2 / dm3 / e1m2 / schloss / phantombase). The current deep-research is into how much of winning is actually predictable from player-level stats vs. how much is matchup-specific or team-chemistry-specific; RAPM (regularized adjusted plus-minus) and OpenSkill are on the research shortlist.
-- **The stats API (shipped).** A lightweight Express service running on ParadokS's Unraid server that serves head-to-head, form, per-map stats, and roster queries to MatchScheduler's match pages. Deployed via Docker, reached via Tailscale. Not glamorous; very useful; already doing real work in the community.
+- **The stats API (shipped).** A lightweight Express service running on ParadokS's Unraid server that serves head-to-head, form, opponents, per-map stats, and roster queries to MatchScheduler's match pages, and keeps itself current by polling QWHub every 15 minutes. Deployed via Docker, published through a Cloudflare tunnel. Not glamorous; very useful; already doing real work in the community.
 
-The data foundation is the same SQL: one `games` table (18,206 rows) and one `game_players` table (8 rows per game, ~146K rows). Both products read from it.
+The data foundation is the same SQL: one `games` table and one `game_players` table (8 rows per game); 18,206 games at the archive import, growing with every match played since. Both products read from it.
 
 ## Who it's for
 
@@ -36,14 +36,14 @@ The data foundation is the same SQL: one `games` table (18,206 rows) and one `ga
 
 ## Design intent
 
-- **Open dataset, closed API.** The raw 4on4 ktxstats archive ships in the GitHub Releases as `4on4_json.zip`. Anyone can clone the repo, spin up Postgres, import, and explore. The production API endpoints are closed only to the extent that the Unraid server is private; the data itself is public. This is a community scene, not a product.
+- **Open dataset, open API.** The raw 4on4 ktxstats archive ships in the GitHub Releases as `4on4_json.zip`. Anyone can clone the repo, spin up Postgres, import, and explore. The production API is public too: no auth, CORS open, read-only. This is a community scene, not a product.
 - **PostgreSQL, not SQLite, for production.** Early scripts used SQLite; full import was slow and joins were limited. The switch to Postgres 16 was driven by query complexity and the desire to use window functions and materialized views for the ranking pipeline.
 - **QWHub is the upstream.** vikpe maintains the ktxstats archive and the Supabase-backed match index that powers `hub.quakeworld.nu`. qw-stats is downstream: we pull from that archive and from the Supabase REST endpoint for keeping fresh. We do not own that data source.
-- **Docker + Tailscale for prod.** The API runs in a Docker container on ParadokS's Unraid box. Tailscale exposes the private IP to MatchScheduler's Cloud Functions for server-to-server calls. Zero cloud bill; zero public attack surface.
+- **Docker + Cloudflare tunnel for prod.** The API runs in a Docker container on ParadokS's Unraid box and is published at a public URL through an outbound Cloudflare tunnel; MatchScheduler's browser code calls it directly. Zero cloud bill, no inbound ports on the home router, and nothing to protect beyond a read-only view of public data.
 
 ## Non-goals
 
-- **Not a live score ticker.** QWHub already fills that niche with real-time match indexing. qw-stats batch-imports; it does not try to broadcast.
+- **Not a live score ticker.** QWHub already fills that niche with real-time match indexing. qw-stats polls QWHub in 15-minute batches; it does not stream or broadcast.
 - **Not a replacement for QWHub.** hub.quakeworld.nu is the canonical match archive and demo distribution point. qw-stats enriches it; it does not try to subsume it.
 - **Not a player-career tracker.** The dataset is 2022-present; older games are out of scope. A "Milton career stats 1998-2020" product would need a different archive and is explicitly not this project.
 - **Not a ranking authority.** When the ranking ships, it's a credible data-driven viewpoint, not a formal league system. Tournaments and leagues run on their own rules; qw-stats provides inputs.
