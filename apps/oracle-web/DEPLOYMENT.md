@@ -65,8 +65,8 @@ First-time project creation (already done 2026-08-06, kept for the record):
 ## Refreshing the numbers (no deploy involved)
 
 The site fetches the manifest at pageload with `Cache-Control: max-age=300`.
-To publish new numbers, re-emit and republish from the oracle -- the harvest
-runbook's closing step:
+To publish new numbers, re-emit and republish from the oracle -- the closing
+step of the harvest runbook (`apps/qw-oracle/scripts/load-chat/HARVEST-RUNBOOK.md`):
 
     cd /home/dev/projects/quakeworld/apps/qw-oracle && bun scripts/build-brain-manifest.ts --publish
 
