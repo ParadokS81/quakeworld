@@ -22,10 +22,8 @@ Discord is the social layer: match challenges, confirmations, and sealed-match e
 | Backend | Firebase (Firestore + Cloud Functions + Storage + Auth) |
 | Auth | Discord OAuth via Cloud Function `discordOAuthExchange` |
 | Hosting | Firebase Hosting |
-| Dev environment | Firebase Emulators (Firestore UI on :8080, Functions logs on :5001) |
+| Dev environment | Firebase Emulators as designed; on the cockpit none runs (no Java, ports unpublished), so changes are verified live after deploy (`DEVELOPMENT.md`) |
 | Layout | A fixed 3x3 grid using rem units only (the "sacred grid") |
-
-The emulator is always running during dev. Do not restart it.
 
 ## Who uses it
 

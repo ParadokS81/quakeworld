@@ -37,11 +37,7 @@ Two patterns are non-negotiable. Detailed rules with code examples load automati
 
 ## Firebase Emulator
 
-**The emulator is ALREADY RUNNING. Do not restart it.**
-- Firestore UI: http://localhost:8080
-- Functions logs: http://localhost:5001
-- Seed data: `npm run seed:quick` (or `npm run seed` for full with logos)
-- Dev details: `DEVELOPMENT.md` (fixed UIDs, direct writes, cockpit ports)
+**No emulator runs on the cockpit, and none can start here yet**: the Firestore emulator needs Java, which the container lacks, and the emulator ports are not published to the operator. Verify on the live site after a deploy (`DEPLOYMENT.md`). The emulator workflow, seeding (`npm run seed:quick`) and what would unblock it: `DEVELOPMENT.md`.
 
 ## Quick Context
 
@@ -63,7 +59,7 @@ Two patterns are non-negotiable. Detailed rules with code examples load automati
 ## Common AI Mistakes
 1. Creating middleware/subscription services -- use direct listeners
 2. Using pixel units -- use rem everywhere except borders
-3. Trying to start Firebase emulator -- it's already running
+3. Assuming a Firebase emulator is running -- there is none on the cockpit (see `DEVELOPMENT.md`)
 4. Over-engineering -- 300-person community app, not Google
 5. Modifying the sacred grid -- layout is fixed
 6. Editing main.css directly -- edit src/css/input.css

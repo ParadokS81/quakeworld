@@ -67,7 +67,7 @@ Open https://matchscheduler-dev.web.app and confirm the change is live.
 | Deploy rules | `firebase deploy --only firestore:rules` |
 | Deploy everything | `firebase deploy` |
 | View function logs | `firebase functions:log` |
-| Check emulator (dev) | http://localhost:8080 (Firestore), http://localhost:5001 (Functions) |
+| Local emulator | none on the cockpit; see `DEVELOPMENT.md` |
 
 ## Architecture Notes
 

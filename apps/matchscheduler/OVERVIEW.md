@@ -59,12 +59,7 @@ Discord OAuth is the primary login. Sealed-match embeds, challenge posts, and co
 
 ## Firebase emulator
 
-**Always running during dev. Do not restart it.**
-
-- Firestore UI: `http://localhost:8080`
-- Functions logs: `http://localhost:5001`
-- Seed with `npm run seed:quick` (or `npm run seed` for the full seed including team logos)
-- Dev dataset uses fixed UIDs - see `DEVELOPMENT.md`
+None runs on the cockpit: the Firestore emulator needs Java, which the container lacks, and the emulator ports are not published to the operator. Changes are verified on the live site after a deploy. The emulator workflow (seeding, fixed UIDs, direct writes) and what unblocks it are in `DEVELOPMENT.md`.
 
 ## Shared Firebase project
 
