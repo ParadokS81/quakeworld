@@ -43,6 +43,25 @@
 | `contracts/` | `contracts/CLAUDE.md` | Cross-app design specs and the shared Firestore/Storage data contract |
 | `archive/voice-analysis/` | `archive/voice-analysis/CLAUDE.md` | Archived pre-monorepo analyzer, reference only (its reusable knowledge moved to `packages/qw-knowledge/`) |
 
+## Excluded paths
+
+Orphan-walk exclusions for this scope (docs-check Phase 2 Step 2; scoped to orphan detection, so an indexed file that matches a pattern stays reachable through the index). Declared 2026-10-10 by the root docs-check seat under the operator's ruling of the same day: the 122 orchestrator-era dispatch files under `docs/superpowers/parking/` (the May/June 2026 handoff, resume, executor, prompt and ledger records of the pre-contract workflow) are chronicle, never classified or decommissioned one by one.
+
+| Path / pattern | Treatment |
+|---|---|
+| `docs/superpowers/parking/*-handoff*.md` | Excluded (orchestrator-era dispatch chronicle) |
+| `docs/superpowers/parking/*-handover*.md` | Excluded (orchestrator-era dispatch chronicle) |
+| `docs/superpowers/parking/*-resume*.md` | Excluded (orchestrator-era dispatch chronicle) |
+| `docs/superpowers/parking/*-executor*.md` | Excluded (orchestrator-era dispatch chronicle) |
+| `docs/superpowers/parking/*-prompt*.md` | Excluded (orchestrator-era dispatch chronicle) |
+| `docs/superpowers/parking/*-ledger*.md` | Excluded (orchestrator-era dispatch chronicle) |
+| `docs/superpowers/parking/*-orchestrator-*.md` | Excluded (orchestrator-era dispatch chronicle) |
+| `docs/superpowers/parking/*-planner-*.md` | Excluded (orchestrator-era dispatch chronicle) |
+| `docs/superpowers/parking/*-pass[0-9]*.md` | Excluded (orchestrator-era dispatch chronicle) |
+| `docs/superpowers/parking/*-slice-[0-9]*.md` | Excluded (orchestrator-era dispatch chronicle) |
+| `docs/superpowers/parking/*-worker*.md` | Excluded (orchestrator-era dispatch chronicle) |
+| `docs/superpowers/parking/*-fleet-*.md` | Excluded (orchestrator-era dispatch chronicle) |
+
 ## How We Work
 
 ### Planning First - Non-Negotiable
