@@ -11,10 +11,10 @@
 | Collection | Writer(s) | Reader(s) | Bridge between |
 |-----------|-----------|-----------|----------------|
 | `botRegistrations/{teamId}` | MatchScheduler CF (create/disconnect) + quad (activate/sync) | Both | Registration, guild members, channel config |
-| `voiceRecordings/{demoSha256}` | quad (upload) | MatchScheduler (UI + delete CF) | Voice replay pipeline |
+| `voiceRecordings/{demoSha256}_{teamId}` (bare `{demoSha256}` for unregistered sessions) | quad (upload) | MatchScheduler (UI + delete CF) | Voice replay pipeline |
 | `deletionRequests/{requestId}` | MatchScheduler CF (create) | quad (process) | Recording cleanup |
 | `notifications/{notificationId}` | MatchScheduler CF (create) | quad (deliver) | Challenge notifications |
-| `standin_requests/{requestId}` | MatchScheduler CF (create) | quad (DM flow) | Standin finder |
+| `standin_requests/{requestId}` | designed for MatchScheduler, no writer built | quad (DM flow) | Standin finder, unbuilt on the MatchScheduler side |
 | `standin_preferences/{discordUserId}` | quad (set) | quad + MatchScheduler | User opt-out/block |
 | `users/{userId}` | MatchScheduler CF (manage) | quad (roster resolution) | Player identity |
 | `teams/{teamId}` | MatchScheduler CF (manage) | quad (canvas rendering) | Team info + roster |

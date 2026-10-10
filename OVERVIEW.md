@@ -87,10 +87,10 @@ Firebase project `matchscheduler-dev`. Authoritative contract at `contracts/CROS
 
 | Path | Writer | Reader | Purpose |
 |---|---|---|---|
-| `voiceRecordings/{demoSha256}` (Firestore) | quad | matchscheduler, slipgate-app (planned) | Voice recording manifest keyed by demo SHA256 |
-| `standin_requests/{requestId}` (Firestore) | matchscheduler | quad | Standin request to Discord DM flow |
+| `voiceRecordings/{demoSha256}_{teamId}` (Firestore) | quad | matchscheduler, slipgate-app (planned) | Voice recording manifest keyed by demo SHA256 + team; bare `{demoSha256}` only for unregistered sessions |
+| `standin_requests/{requestId}` (Firestore) | designed for matchscheduler, no writer built | quad | Standin DM flow, unbuilt on the MatchScheduler side |
 | `standin_preferences/{discordUserId}` (Firestore) | quad | quad + matchscheduler | Opt-out and block settings for standin DMs |
-| `voice-recordings/{demoSha256}/{playerName}.ogg` (Storage) | quad | matchscheduler | Sliced per-speaker audio for web playback |
+| `voice-recordings/{teamId}/{demoSha256}/{discordUserId}.ogg` (Storage) | quad | matchscheduler | Sliced per-speaker audio for web playback; `{demoSha256}/{playerName}.ogg` only for unregistered sessions |
 | `team-logos/{teamId}/` (Storage) | matchscheduler | matchscheduler | Team logo uploads |
 
 ---
