@@ -1,18 +1,26 @@
 # QW Oracle Web
 
-**Status:** Active development.
+**Status:** Active development. Open work: the monorepo's root `HANDOVER.md` ("Oracle web direction" row).
 
-The public read-only front end for QW Oracle -- `oracle.quake.world` v1. A
+The public read-only front end for QW Oracle -- `oracle.quake.world` v1, served
+as a Cloudflare Pages preview until that domain lands. A
 SolidJS single-page site that fetches the live brain-manifest snapshot at
 pageload and renders it as a two-floor scene (`#brain` / `#machine-room`),
 with a build-time baked fallback so an unreachable oracle degrades to
 slightly-stale numbers, never an error. No auth, no forms, no backends beyond
 the one manifest fetch -- everything else on the page links out.
 
+**Start with `OVERVIEW.md` when working here -- parked-with-purpose items,
+design intent, code landmarks, integration boundaries.**
+
 ## Documentation index
 
 | When you need... | Read... |
 |---|---|
+| What this is, how to run it, where to go next | `README.md` |
+| Why it exists and what it is deliberately not | `VISION.md` |
+| What is load-bearing in the code right now | `OVERVIEW.md` |
+| Run, build, typecheck, a dev server the operator can open, runtime flags | `DEVELOPMENT.md` |
 | Deploy procedure (CF Pages, one-command redeploy) | `DEPLOYMENT.md` |
 | The arc that built this (phase docs, decisions ledger, findings) | `docs/superpowers/plans/2026-08-06-oracle-web-v1/` (root tree) |
 | The visual contract this site ports | `docs/superpowers/specs/2026-08-05-oracle-web-v1-mockup.html` (root tree) |
