@@ -6,7 +6,7 @@
 
 ## The eight apps
 
-Per-app docs are `apps/<name>/CLAUDE.md` and what it indexes. Six apps carry the full README / VISION / OVERVIEW quartet; oracle-web has CLAUDE + DEPLOYMENT only and docs-web only DEPLOYMENT (both routed in `HANDOVER.md`). slipgate-app's deep map is `apps/slipgate-app/docs/OVERVIEW.md`.
+Per-app docs are `apps/<name>/CLAUDE.md` and what it indexes. Seven apps carry the full README / VISION / OVERVIEW quartet; docs-web has only `DEPLOYMENT.md` (routed in `HANDOVER.md`). slipgate-app's deep map is `apps/slipgate-app/OVERVIEW.md` (code landmarks), with its Layer 2 tree indexed from `apps/slipgate-app/docs/CLAUDE.md`.
 
 - **matchscheduler** — *Maintenance, effective-legacy.* Firebase web app scheduling 4on4 matches. Will rebuild inside slipgate web.
 - **quad** — *Maintenance.* Discord bot recording per-speaker OGG/Opus + standin DM flow.
