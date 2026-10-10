@@ -2,7 +2,7 @@
 # Unraid stack: Postgres (pgvector) + MCP server + nginx (TLS terminated by
 # Cloudflare Tunnel; nginx is HTTP-only on 127.0.0.1:8080).
 #
-# Operator workflow (see deploy/README.md):
+# Operator workflow (see DEPLOYMENT.md at the app root):
 #   1. scp this file + nginx.conf + .env (operator-authored from .env.prod.example) to Unraid:
 #        /mnt/user/appdata/qw-oracle/
 #   2. ssh root@100.114.81.91

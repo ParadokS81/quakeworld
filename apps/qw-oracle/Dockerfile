@@ -66,7 +66,7 @@ COPY apps/qw-oracle/serve/mcp/package.json ./apps/qw-oracle/serve/mcp/package.js
 # corpus-build time (Phase 4 loader). Layer 1 / Layer 2 data is loaded into
 # Postgres by the operator running loaders from WSL against the prod
 # connection string over Tailscale (or via pg_dump | pg_restore from dev,
-# see deploy/README.md).
+# see DEPLOYMENT.md at the app root).
 COPY apps/qw-oracle/serve/mcp/src ./apps/qw-oracle/serve/mcp/src
 COPY apps/qw-oracle/shared ./apps/qw-oracle/shared
 COPY apps/qw-oracle/db ./apps/qw-oracle/db
