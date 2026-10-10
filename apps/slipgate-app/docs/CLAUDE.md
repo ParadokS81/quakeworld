@@ -10,7 +10,7 @@ Layer 2 reference + Layer 3 domain docs for the slipgate-app project. This is th
 | Discord OAuth flow as built (+ future GitHub OAuth idea) | `AUTH.md` |
 | ezQuake config parser architecture (binds, exec chains, macros, triggers) | `CFG-PARSER.md` |
 | Design system, OKLCH theming, UI rules | `DESIGN.md` |
-| Dev environment setup (WSL+Windows split, rsync hook, troubleshooting) | `DEVELOPMENT.md` |
+| Dev environment: what runs on the cockpit, the Windows build side, the sync hook, devtools invoke, troubleshooting | `DEVELOPMENT.md` |
 | How ezQuake computes resolution (the absent=default cvar pattern) | `EZQUAKE-RESOLUTION.md` |
 | Tech debt, cleanup priorities, known risks (2026-04-10 snapshot) | `HEALTH.md` |
 | EloShapes API reference for the peripheral database | `PERIPHERAL-SELECTOR.md` |

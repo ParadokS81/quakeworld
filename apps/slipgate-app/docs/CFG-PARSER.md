@@ -242,9 +242,11 @@ Command invocations are a first-class parsed category alongside cvars, aliases, 
 
 | Player | File | Characteristics |
 |--------|------|----------------|
-| ParadokS | `C:\Games\QuakeWorld\...\config.cfg` | Mouse1 rebind, quickfire GL/SSG/SG, weaponpreselect+weaponhide, slackers_tp.cfg reference |
-| Mazer | `C:\Users\Administrator\Downloads\mazer.cfg` | Doom2-era layout, Mouse2=forward, at1-8 system, self-contained |
+| ParadokS | on the operator's Windows machine (`C:\Games\QuakeWorld\...\config.cfg`), not reachable from the cockpit; ask for a copy | Mouse1 rebind, quickfire GL/SSG/SG, weaponpreselect+weaponhide, slackers_tp.cfg reference |
+| Mazer | on the operator's Windows machine (`mazer.cfg`), same | Doom2-era layout, Mouse2=forward, at1-8 system, self-contained |
 | BLooD_DoG | (shared in Discord) | Weapon binds in separate fire_ar.cfg, wreg system, Mouse3=forward |
+
+In the repo, and what `bun test` runs against: `assets/*.cfg` (bps, ibsen, peppe, phrenic, sae), `assets/weapon-fixtures/` (nine configs: `paradoks_hybrid`, `hangtime`, `killme_*`, `oldschool_hold`, `preselect_style`, `rocket_jump`, `vanilla`) and `assets/teamsays/` (eleven players' teamsay configs).
 
 ## Edge cases and limitations
 

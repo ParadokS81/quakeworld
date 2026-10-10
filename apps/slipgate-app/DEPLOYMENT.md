@@ -1,78 +1,40 @@
 # Slipgate App -- Deployment Reference
 
+> **Doc type: current** -- What a release of the desktop app is and where it can be built, as of 2026-10-10. The distribution story is not finalized: nothing is published for download yet.
+
 ## Infrastructure
 
 | Property | Value |
 |----------|-------|
-| Platform | Windows desktop (Tauri v2) |
-| Distribution | .exe installer / .msi |
-| CI/CD | GitHub Actions (builds Win/Mac/Linux on push to main) |
-| Source location | WSL monorepo (`apps/slipgate-app/`) |
-| Build mirror | `C:\Users\Administrator\projects\slipgate-app` (Rust/Tauri only) |
-| Build environment | Split: Vite in WSL, Cargo/Tauri on Windows |
+| Platform | Windows desktop (Tauri v2, WebView2) |
+| Artifacts | MSI + NSIS installers from `bun run tauri build` (`bundle.targets: "all"` in `tauri.conf.json`); portable `.zip` from `scripts/build-portable.sh` |
+| Version | `0.1.0`, held in `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` and `package.json` (three copies; bump together) |
+| CI/CD | none. The repo's `.github/workflows/` holds only quad's two Docker workflows |
+| Self-update | none. No `tauri-plugin-updater`; the "updater" inside the app manages ezQuake installs, not Slipgate |
+| Source of truth | this monorepo on the dev cockpit; remote `ParadokS81/quakeworld` on GitHub |
+| Build machine | a Windows machine with MSVC Build Tools, Rust (MSVC), Bun and WebView2; none is wired to the cockpit today |
 
-## Prerequisites
+## Release build
 
-- **WSL**: Bun (for Vite dev server), rsync
-- **Windows**: Rust via `rustup` (MSVC toolchain), Bun, Microsoft C++ Build Tools, WebView2
-
-See `docs/DEVELOPMENT.md` for full setup instructions.
-
-## Dev Workflow
-
-**One command from WSL:**
-```bash
-./apps/slipgate-app/scripts/slipgate-dev.sh
-```
-
-This script:
-1. Syncs `src-tauri/` from WSL -> Windows mirror via rsync
-2. Starts Vite in WSL (localhost:1420)
-3. Launches Tauri on Windows (loads from localhost:1420)
-
-Frontend changes (SolidJS) -> instant hot reload via Vite.
-Rust changes -> synced to Windows, Cargo rebuilds (~5-15s).
-
-### How it works
-
-```
-WSL (monorepo)                    Windows (build mirror)
-  src/ (SolidJS)                    src-tauri/ (synced via rsync)
-  vite.config.ts                    node_modules/ (Windows-native)
-  Vite on :1420 ─────────────────► Tauri WebView2 loads from :1420
-```
-
-Two separate node_modules installs -- WSL gets Linux-native binaries, Windows gets Windows-native binaries. They can't be shared (platform-specific native modules like rollup, esbuild).
-
-### Supporting files
-
-| File | Location | Purpose |
-|------|----------|---------|
-| `scripts/slipgate-dev.sh` | WSL monorepo | Main dev entry point |
-| `scripts/sync-rust.sh` | WSL monorepo | rsync src-tauri/ to Windows |
-| `dev-no-vite.cmd` | Windows mirror | Launches Tauri without starting Vite |
-| `tauri.dev.conf.json` | Windows mirror | Overrides beforeDevCommand to empty |
-
-## Deploy Workflow
-
-### Manual build (Windows terminal)
+On the Windows machine, in a clone of the monorepo (setup in `docs/DEVELOPMENT.md`, "The Windows side", including the `src-tauri/resources/` bundle copy the build needs):
 
 ```powershell
-cd C:\Users\Administrator\projects\slipgate-app
-bun run tauri build
+cd quakeworld\apps\slipgate-app
+bun install
+bun run tauri build          # -> src-tauri\target\release\bundle\{msi,nsis}\
+.\scripts\build-portable.sh  # bash (Git for Windows); -> src-tauri\target\release\slipgate-portable-0.1.0.zip
 ```
 
-The built binary is in `src-tauri/target/release/`.
+Run the frontend checks on the cockpit first (`bun test`, `bunx tsc --noEmit`, `bun run build`); only the Rust side needs Windows (`docs/DEVELOPMENT.md`).
 
-### CI build (GitHub Actions)
+The sequence above has not been run since the WSL workstation retired (2026-07). The earlier arrangement (Vite in WSL, Cargo on a Windows mirror synced by `scripts/sync-rust.sh`, launched by `scripts/slipgate-dev.sh` through `cmd.exe`) is gone; the scripts remain in the tree and `docs/DEVELOPMENT.md` says what each still does.
 
-Pushing to `main` triggers a matrix build across Windows, macOS, and Linux. See `.github/workflows/` for configuration.
+## What is not built
 
-## Architecture Notes
+- No installer or portable zip is published anywhere; building from source is the only path (README).
+- No code signing, no auto-update feed, no GitHub Release of Slipgate itself.
+- Non-Windows builds: Tauri would build on Linux (webkit2gtk) and macOS (WKWebView), but the hardware scan, the SetupAPI walk and the mailslot IPC are Windows-only with stub branches elsewhere (`docs/SYSTEM-SPECS.md`).
 
-Tauri v2 builds native desktop apps using the OS's own webview:
-- On Windows: builds .exe using MSVC toolchain + WebView2
-- On Linux: builds using system webkit2gtk
-- On macOS: builds using WKWebView
+## Architecture note
 
-The binary is ~5-10 MB with low memory usage compared to Electron.
+Tauri v2 builds a native binary around the OS webview (WebView2 on Windows), roughly 5-10 MB with low memory use next to Electron. Bundle targets and window settings live in `src-tauri/tauri.conf.json`.

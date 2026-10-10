@@ -11,7 +11,7 @@ The desktop app's frontend IS web tech (rendered in Tauri's OS webview). This me
 
 When infiniti finalizes the Harmonizer ramp and primary/secondary hues, both projects consume the same exported CSS variables. Change the theme once, it updates everywhere.
 
-Design system reference docs (in WSL): `\\wsl.localhost\Ubuntu\home\paradoks\projects\quake\slipgate\DESIGN-SYSTEM.md` and `COLOR-PALETTE.md`.
+Design system reference docs (`DESIGN-SYSTEM.md`, `COLOR-PALETTE.md`) lived on the retired WSL workstation in a local clone of vikpe's slipgate web repo. They are not in the monorepo's `research/repos/slipgate/` clone as of 2026-10-10; locating and re-pointing them is a HANDOVER Small followup.
 
 ---
 

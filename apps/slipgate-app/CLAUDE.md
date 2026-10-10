@@ -37,7 +37,7 @@
 | Auth | Discord OAuth -> MatchScheduler cloud function -> Firebase custom token |
 | Package manager | Bun |
 | Build | Vite |
-| Linting | Biome |
+| Linting | none wired (Biome intended; no `biome.json` or `lint` script yet). `bunx tsc --noEmit` is the type gate |
 
 **Platform coverage:** Windows-native only in practice. Non-Windows code paths exist as stubs but aren't supported.
 
@@ -52,12 +52,13 @@
 **Code conventions:**
 - **No hardcoded colors.** Use DaisyUI semantic classes (`btn-primary`, `bg-base-200`) or CSS custom properties (`var(--color-primary)`). Never hex/rgb in source.
 - **No hardcoded URLs in component code.** Constants at the top of `auth.ts`, `firebase.ts`, or dedicated config. Ready for future env config swap.
-- **Rust: follow rustfmt + clippy.** Frontend: Biome.
+- **Rust: follow rustfmt + clippy.** Frontend: no linter is wired; `bunx tsc --noEmit` must stay clean.
 - **User-facing strings in English.** No localization yet.
 
 **Dev workflow:**
-- **Rust sync hook is live.** The monorepo's `PostToolUse` hook auto-rsyncs `src-tauri/` to the Windows build mirror after every edit. No manual sync needed -- see `docs/DEVELOPMENT.md` for the details if something breaks.
-- **Commit to main.** Slipgate work happens in the main tree at `/home/paradoks/projects/quakeworld/` on branch `main`. Commit directly to `main` and push at natural checkpoints. Feature branches are for genuinely risky work only (big refactor, throwaway experiment) -- otherwise commit on `main`. The `src-tauri/` rsync hook hardcodes the main-tree path, so slipgate must stay in the main tree -- do not relocate to a worktree. See root `CLAUDE.md` Section  Git workflow for the full rules.
+- **Rust sync hook fires but only half-works.** The monorepo's `PostToolUse` hook runs `scripts/sync-rust.sh` after every edit under `src-tauri/`: it copies the two asset bundles into `src-tauri/resources/` (which `browse.rs` needs to compile) and then fails at the rsync to the retired Windows mirror. Expect one hook error line; it is harmless. The cockpit cannot build the Rust side at all; the Windows build path is in `docs/DEVELOPMENT.md`.
+- **Verify frontend work with `bunx tsc --noEmit`, not only `bun run build`.** Vite transpiles broken types without complaint; `tsc` is the gate, and a final reviewer must be told to run it (`docs/DEVELOPMENT.md`).
+- **Commit to main.** Slipgate work happens in the main tree at `/home/dev/projects/quakeworld/` on branch `main`. Commit directly to `main` and push at natural checkpoints. Feature branches are for genuinely risky work only (big refactor, throwaway experiment) -- otherwise commit on `main`. The `src-tauri/` rsync hook hardcodes the main-tree path, so slipgate must stay in the main tree -- do not relocate to a worktree. See root `CLAUDE.md` Section  Git workflow for the full rules.
 - **Planning-first workflow applies here.** See root `CLAUDE.md` for the full "How We Work" framework that applies across all apps in this monorepo -- I won't repeat it here.
 
 **Things to know about the code:**

@@ -34,9 +34,7 @@ This is a public repo as part of the [QuakeWorld monorepo workshop](../../README
 
 ## Building from source
 
-The split-process WSL + Windows workflow is non-trivial: source edits happen in WSL, Rust builds happen on Windows, a rsync hook plus shared localhost bridge them together. Full setup lives in `docs/DEVELOPMENT.md`.
-
-If you are on a machine that is not Windows + WSL2, the app may not build at all today.
+The frontend (SolidJS + Vite) builds and tests on any Linux box with Bun, including the dev cockpit the code lives on. The desktop app itself only builds on Windows: Tauri needs the MSVC toolchain and WebView2. Setup for both halves is in `docs/DEVELOPMENT.md`; release steps in `DEPLOYMENT.md`.
 
 ## Learn more
 

@@ -1,329 +1,165 @@
 # Development Environment -- Slipgate App
 
-> **Doc type: current** -- Describes the split-process WSL+Windows dev workflow as it actually runs. The rsync hook in the monorepo `.claude/settings.json` is real and working.
+> **Doc type: current** -- How the app is developed from the dev cockpit as of 2026-10-10, and what still needs a Windows machine. Replaces the WSL + Windows split-process description that stood here until the WSL workstation retired (2026-07).
 
-## How Dev Works (Split-Process Model)
+## Where the code runs
 
-Slipgate App uses a split-process workflow: **Vite runs in WSL** (where the source files live), and **Cargo/Tauri runs on Windows** (where the Windows toolchain lives). WSL2's localhost sharing bridges them -- the Tauri WebView2 window loads the frontend from WSL's Vite server.
+The source of truth is this monorepo checkout on the dev cockpit, a Linux container on the Unraid box (`/home/dev/projects/quakeworld/apps/slipgate-app`). Everything JavaScript-side runs there. The Rust/Tauri side cannot: a Tauri desktop build needs a Windows toolchain and WebView2, and the cockpit has neither, nor the GTK/WebKit libraries a Linux `cargo check` of the Tauri crate wants.
 
-```
-WSL (Ubuntu)                          Windows
-─────────────────────────────         ──────────────────────────────────
-apps/slipgate-app/  (git repo)        C:\Users\Administrator\projects\
-  src/              ◄── edit here       slipgate-app\  (build-only mirror)
-  src-tauri/  ──rsync──────────────►    src-tauri\  (synced from WSL)
-                                        node_modules\  (Windows copy)
-                                        target\        (Rust build cache)
-  scripts/
-    slipgate-dev.sh  ──launches──►    dev-no-vite.cmd
-                                        bun run tauri dev --config tauri.dev.conf.json
-         │
-         ▼
-  Vite dev server (localhost:1420)
-         │
-         │  WSL2 localhost sharing
-         ▼
-  WebView2 window (Windows)
-```
+| On the cockpit | Works? | Checked |
+|---|---|---|
+| `bun install` | yes | `node_modules/` present |
+| `bun test` | yes: 231 tests across 24 files | 2026-10-10 |
+| `bunx tsc --noEmit` | yes, clean | 2026-10-10 |
+| `bun run build` (Vite) | yes, ~20 s, one "chunk larger than 500 kB" warning | 2026-10-10 |
+| `bun run dev` (Vite dev server) | yes, see "Frontend-only development" | 2026-10-10 |
+| `cargo check` / `cargo build` in `src-tauri/` | no: `gtk+-3.0`, `webkit2gtk-4.1`, `javascriptcoregtk-4.1`, `libsoup-3.0` absent (`pkg-config --exists`) | 2026-10-10 |
+| `bun run tauri dev` / `bun run tauri build` | no: Windows only | |
 
-- **Frontend changes** (SolidJS/CSS): Hot reload via Vite, instant
-- **Rust changes**: rsync triggered by Claude Code hook -> Cargo recompiles (~5-15s) -> window refreshes
-- **Tauri config changes**: Require restarting the dev session
+Rust edits are written here and compiled elsewhere. Nothing in the repo wires that "elsewhere" today; see "The Windows side".
 
-The Windows copy is **not a git repo**. All git history lives in the WSL monorepo.
+## Frontend-only development
 
----
-
-## Prerequisites
-
-### WSL (Ubuntu)
-
-**Bun** -- JavaScript runtime and package manager (installed via npm):
-```bash
-npm install -g bun
-```
-
-**rsync** -- for syncing Rust source to Windows (usually pre-installed):
-```bash
-sudo apt install rsync
-```
-
-**Tauri Linux dev deps (optional, for rust-analyzer + `cargo check` in WSL):**
-```bash
-sudo apt install pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev libsoup-3.0-dev
-```
-
-These are only needed for static analysis in WSL. They do NOT enable building or running the app from Linux -- that still happens on Windows via the split-process workflow below. Without these, `cargo check` fails with `pkg-config` errors and rust-analyzer cannot index the Tauri crate.
-
-### Windows
-
-#### 1. Microsoft C++ Build Tools
-Required by Rust for compiling native code.
-
-- Download from: https://visualstudio.microsoft.com/visual-cpp-build-tools/
-- Select **"Desktop development with C++"** workload
-- This installs MSVC compiler, Windows SDK, and CMake
-
-#### 2. WebView2 Runtime
-Tauri uses Edge's WebView2 for rendering the frontend.
-
-- **Windows 10 (v1803+) and Windows 11:** Pre-installed. No action needed.
-- Verify: Search "WebView2" in Windows settings -> Apps
-
-#### 3. Rust
-```powershell
-winget install Rustlang.Rustup
-# Or download from: https://rustup.rs
-# Choose option 1 (default) -- installs the MSVC toolchain
-```
-
-After install, restart your terminal, then verify:
-```powershell
-rustc --version
-cargo --version
-```
-
-#### 4. Bun
-```powershell
-winget install Oven-sh.Bun
-# Or: powershell -c "irm bun.sh/install.ps1 | iex"
-```
-
----
-
-## One-Time Setup (Reference)
-
-These steps were done once to establish the split-process workflow. Documented here in case it ever needs to be rebuilt.
-
-**In Windows CMD/PowerShell:**
-```powershell
-# Create the Windows build mirror
-mkdir C:\Users\Administrator\projects\slipgate-app
-cd C:\Users\Administrator\projects\slipgate-app
-
-# Copy package.json and other JS config files from WSL (e.g. via Windows Explorer at \\wsl$\Ubuntu\...)
-# Then install Windows-native node_modules:
-bun install
-```
-
-**In WSL:**
-```bash
-# Initial Rust sync
-~/projects/quakeworld/apps/slipgate-app/scripts/sync-rust.sh
-```
-
-The batch file `dev-no-vite.cmd` lives in the Windows mirror at
-`C:\Users\Administrator\projects\slipgate-app\dev-no-vite.cmd`. It runs:
-```bat
-@echo off
-cd /d C:\Users\Administrator\projects\slipgate-app
-bun run tauri dev --config tauri.dev.conf.json
-```
-
-The `--config tauri.dev.conf.json` flag points to a dev-only config override that sets the `devUrl` to `http://localhost:1420` instead of running Vite internally.
-
-Note: CMD shows a UNC path warning when launched from WSL -- this is cosmetic, the `cd /d` handles it.
-
----
-
-## Daily Workflow
+For UI work that does not need Rust commands:
 
 ```bash
-# From WSL, in the monorepo root or the app directory:
-~/projects/quakeworld/apps/slipgate-app/scripts/slipgate-dev.sh
+cd /home/dev/projects/quakeworld/apps/slipgate-app
+bun run dev -- --host 0.0.0.0 --port 5173
 ```
 
-This script:
-1. Runs `sync-rust.sh` to push the current Rust source to Windows
-2. Starts `bun run dev` (Vite) in WSL, waits for localhost:1420
-3. Launches the Windows batch file via `cmd.exe` (foreground -- blocks until the Tauri window closes)
-4. On exit/Ctrl+C, kills the Vite process cleanly
+Then open `http://100.114.81.91:5173` from the operator's machine: the cockpit is reached over Tailscale, so a `localhost` URL is useless there. Vite's default port 1420 is not published from the cockpit; only 5173 and 5174 are, and both are shared with the traveldiary preview lanes, so pick whichever is free (5174 was serving that project's test pipeline on 2026-10-10). `--host` is required because `vite.config.ts` binds to localhost unless `TAURI_DEV_HOST` is set.
 
-Edit files normally in WSL. Frontend changes hot-reload instantly. Rust changes trigger auto-sync (see below) and Cargo recompiles on the Windows side.
+Calls to `invoke()` (Tauri commands) fail in a plain browser; guard with `window.__TAURI__` checks or mock for pure UI work. Hot reload works. `vite.config.ts` still polls the filesystem every 500 ms, a WSL-era setting for cross-filesystem watching; harmless here.
 
----
+## Verification before claiming frontend work done
 
-## How Rust Sync Works
-
-### Automatic (Claude Code hook)
-
-A `PostToolUse` hook in `.claude/settings.json` watches for edits to any file under `slipgate-app/src-tauri/` and runs `sync-rust.sh` automatically after each save. No manual steps needed when working with Claude Code.
-
-### Manual fallback
+`bun run build` transpiles even when types are wrong; it is not a type check. Run all three:
 
 ```bash
-~/projects/quakeworld/apps/slipgate-app/scripts/sync-rust.sh
-```
-
-This rsyncs `src-tauri/` from the WSL monorepo to the Windows mirror, excluding `target/` (the Windows Rust build cache stays on Windows).
-
----
-
-## Frontend-Only Development
-
-For UI work that doesn't need the Tauri window (no Rust commands, no system APIs):
-
-```bash
-cd ~/projects/quakeworld/apps/slipgate-app
-bun run dev
-```
-
-Opens at `http://localhost:1420` in any browser. Hot reload works. Faster iteration cycle -- no Windows involvement at all.
-
-Note: Calls to `invoke()` (Tauri commands) will fail in browser mode. Use mocks or guard with `window.__TAURI__` checks for pure UI work.
-
----
-
-## Other Commands
-
-```bash
-# Lint with Biome
-bun run lint
-
-# Run tests
+bun run build
+bunx tsc --noEmit
 bun test
 ```
 
-Release builds are handled by GitHub Actions (see CI/CD section below) -- no local release builds needed.
+A `WeaponBind = FiringPath` type-alias shim once let two runtime crashes (`wb.key.toUpperCase()` on an object that only has `trigger_key`) through four green Vite builds and their reviewers; `tsc` caught them (weapon classifier v2, 2026-04). Flag new `tsc` errors in the task's own files as blockers; pre-existing errors elsewhere are tracked separately. Baseline on 2026-10-10: zero errors. When a final review runs, ask it explicitly to run `tsc`; per-task reviewers trust the build.
 
----
+There is no linter wired: `CLAUDE.md` names Biome, but the app has no `biome.json`, no `lint` script and no Biome dependency (HANDOVER Small followups).
 
-## Project Structure
+## Calling a Tauri command from devtools
+
+`tauri.conf.json` does not set `app.withGlobalTauri`, so in a running app `window.__TAURI__.core.invoke(...)` is undefined in the devtools console, and Vite blocks a bare `await import("@tauri-apps/api/core")` there. To smoke a new command by hand, three options, cheapest first:
+
+1. Trust the proxy signals (Cargo clean, `bun test` green, the app boots after handler registration) for trivial commands, and let the next phase that consumes the output verify the value. Picked for `get_data_root` on 2026-04-26.
+2. Add a one-shot `invoke("<cmd>").then(console.log)` to `App.tsx`, reload (no rebuild in dev), read the output, revert in the same commit. About two minutes. Use when the return value is non-trivial.
+3. A dev-only Tauri config overlay with `withGlobalTauri: true`, passed as `bun run tauri dev --config <overlay>`. Never in the main config: that would expose `__TAURI__` in shipped builds to extensions and userscripts, which is why Tauri v2 ships it off. Worth it only if devtools smoke tests become routine.
+
+## The Rust side and the sync hook
+
+### What the hook does today
+
+The monorepo's `.claude/settings.json` has a `PostToolUse` hook: any Edit or Write under `slipgate-app/src-tauri/` runs `scripts/sync-rust.sh`. The script does two things:
+
+1. Copies `src/lib/config/data/ezquake-asset-bundle.json` and `fte-asset-bundle.json` into `src-tauri/resources/` (gitignored). `browse.rs` embeds them with `include_str!`, so **a fresh checkout does not compile until this copy has run**, on any machine.
+2. `rsync`s `src-tauri/` to the WSL-era Windows mirror at `/mnt/c/Users/$SLIPGATE_WIN_USER/projects/slipgate-app`.
+
+On the cockpit step 1 succeeds and step 2 fails: `rsync` is not installed and `/mnt/c` does not exist. Expect a hook error after every Rust edit; it is harmless, and the bundle copy before it is the one thing the hook still does here. Making the script skip the rsync when the mirror is absent is a HANDOVER row, not done yet. `scripts/slipgate-dev.sh` (start Vite, launch Tauri through `cmd.exe`) and `create-shortcut.ps1` are from the same era and do not run here.
+
+### The Windows side
+
+A Tauri build or `bun run tauri dev` needs a Windows machine with:
+
+- Microsoft C++ Build Tools ("Desktop development with C++" workload: MSVC, Windows SDK, CMake)
+- Rust via `rustup` (the default MSVC toolchain)
+- Bun
+- WebView2 runtime (pre-installed on Windows 10 1803+ and Windows 11)
+
+The repo no longer describes a wired path from the cockpit to such a machine. The former workflow (edit in WSL, rsync `src-tauri/` to a Windows mirror, Vite in WSL serving a Tauri window on Windows through WSL2 localhost sharing) ended when the WSL workstation retired in 2026-07; the operator's desktop is Linux. What is still true: the monorepo is on GitHub (`ParadokS81/quakeworld`), so a Windows machine can clone it and build in place:
+
+```powershell
+git clone git@github.com:ParadokS81/quakeworld.git
+cd quakeworld\apps\slipgate-app
+bun install
+# the include_str! prerequisite (sync-rust.sh step 1), by hand on Windows:
+mkdir src-tauri\resources
+copy src\lib\config\data\ezquake-asset-bundle.json src-tauri\resources\
+copy src\lib\config\data\fte-asset-bundle.json src-tauri\resources\
+bun run tauri dev      # or: bun run tauri build
+```
+
+This sequence has not been exercised since the workstation retired; it is the documented expectation, not a verified run (HANDOVER Small followups). The app's `restart` slash command drives Windows processes through `powershell.exe` and says so when invoked from the cockpit.
+
+## Project structure
 
 ```
 slipgate-app/
-├── src-tauri/              # Rust backend
+├── src-tauri/                # Rust backend (Tauri v2)
 │   ├── src/
-│   │   ├── main.rs         # Entry point
-│   │   ├── lib.rs          # Tauri app builder, command registration
-│   │   └── commands/       # Tauri command handlers
-│   ├── Cargo.toml          # Rust dependencies
-│   ├── tauri.conf.json     # Tauri configuration (window, tray, plugins)
-│   ├── tauri.dev.conf.json # Dev config override (devUrl -> WSL Vite server)
-│   ├── icons/              # App icons (all sizes)
-│   └── capabilities/       # Tauri v2 permission capabilities
-├── src/                    # SolidJS frontend
-│   ├── App.tsx
-│   ├── index.tsx           # Entry point
-│   └── styles/
+│   │   ├── main.rs           # entry point
+│   │   ├── lib.rs            # app builder, tray, generate_handler! command registration
+│   │   └── commands/         # 20 command modules (mod.rs lists them)
+│   ├── resources/            # gitignored; asset bundles copied in by sync-rust.sh (include_str!)
+│   ├── capabilities/         # Tauri v2 permissions (default.json)
+│   ├── icons/
+│   ├── Cargo.toml
+│   └── tauri.conf.json       # window, bundle targets, devUrl localhost:1420
+├── src/                      # SolidJS frontend
+│   ├── index.tsx, App.tsx    # entry + every signal (docs/STATE.md)
+│   ├── components/           # tabs, the ConfigViewer family, Browse, Matches, quake-dir UI
+│   ├── lib/
+│   │   ├── config/           # parser, loaders, converter, writers + data/ (oracle snapshots)
+│   │   ├── quake-dir/        # frontend half of Quake Dir Control (+ tests)
+│   │   └── simulator/        # Player State Simulator (pure TS, 8 modules + 8 test files)
+│   ├── data/                 # EloShapes mice / mousepads JSON
+│   ├── store.ts, auth.ts, firebase.ts, types.ts
+│   └── app.css
+├── assets/                   # test configs (bps, ibsen, peppe, phrenic, sae), weapon-fixtures/, teamsays/, images
 ├── scripts/
-│   ├── slipgate-dev.sh     # Startup script (WSL Vite + Windows Cargo)
-│   └── sync-rust.sh        # Rsync src-tauri/ to Windows mirror
-├── index.html              # Vite entry HTML
-├── package.json            # JS dependencies + scripts
-├── vite.config.ts          # Vite config with SolidJS plugin
-├── tsconfig.json           # TypeScript config
-└── biome.json              # Linter config
+│   ├── sync-rust.sh          # bundle copy + WSL-era rsync (above)
+│   ├── slipgate-dev.sh       # WSL-era launcher, inert here
+│   ├── build-portable.sh     # portable .zip from a release build
+│   └── pak-extract.py        # extract a Quake .pak to a directory
+├── create-shortcut.ps1       # WSL-era Windows desktop shortcut; hardcodes the old mirror path
+├── visual/sample-style/      # static HTML/CSS style sample
+└── index.html, vite.config.ts, tsconfig.json, package.json, bun.lock
 ```
 
----
+No `biome.json`. No `.github/workflows/` for this app: the repo's two workflows are quad's.
 
-## Tauri v2 Key Concepts
+## Tauri v2 key concepts
 
-### Commands (Rust <-> Frontend communication)
-Rust functions exposed to the frontend via `#[tauri::command]`:
+### Commands (Rust <-> frontend)
 
-```rust
-// src-tauri/src/commands/system.rs
-#[tauri::command]
-fn get_cpu_info() -> String {
-    "AMD Ryzen 7 5800X".to_string()
-}
-```
+Rust functions marked `#[tauri::command]`, registered in the `generate_handler![]` macro in `src-tauri/src/lib.rs` (40 entries on 2026-10-10), called from TypeScript as `invoke<T>("snake_case_name", args)`. A new module also needs a `pub mod` line in `src-tauri/src/commands/mod.rs`.
 
-```typescript
-// src/App.tsx
-import { invoke } from '@tauri-apps/api/core';
+### Plugins in use
 
-const cpuInfo = await invoke<string>('get_cpu_info');
-```
+`Cargo.toml` and `package.json` carry three Tauri plugins: `tauri-plugin-opener` (open URLs in the system browser; Discord OAuth), `tauri-plugin-dialog` (file pickers) and `tauri-plugin-store` (`profile.json` persistence). There is no updater, shell, notification or autostart plugin; the app does not update itself.
 
-### Plugins
-Tauri v2 uses a plugin system for extended functionality:
-- `tauri-plugin-store` -- Persistent key-value storage (for auth tokens)
-- `tauri-plugin-shell` -- Open URLs in browser (for OAuth)
-- `tauri-plugin-notification` -- Desktop notifications
-- `tauri-plugin-updater` -- Auto-update from GitHub Releases
-- `tauri-plugin-autostart` -- Start on login
+### Capabilities
 
-Plugins are added in `Cargo.toml` (Rust) and `package.json` (JS bindings).
-
-### Capabilities (Permissions)
-Tauri v2 uses a capability-based permission system. Each capability grants the frontend access to specific APIs. Defined in `src-tauri/capabilities/`.
-
----
-
-## GitHub Actions (CI/CD)
-
-Cross-platform builds are handled by `tauri-action`:
-
-- **Trigger:** Push to `main` or create a git tag
-- **Matrix:** Windows, Linux (Ubuntu), macOS (ARM + Intel)
-- **Output:** Binaries + installers uploaded to GitHub Releases
-- **Auto-updater:** Generates `latest.json` for the Tauri updater plugin
-
-Signing keys for the auto-updater are stored as GitHub Secrets:
-- `TAURI_SIGNING_PRIVATE_KEY`
-- `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`
-
----
+Tauri v2's permission system. `src-tauri/capabilities/default.json` grants the frontend its API access.
 
 ## Troubleshooting
 
-### Port 1420 already in use
-A previous Vite process may still be running:
-```bash
-lsof -i :1420
-kill <PID>
-```
+### Hook error after editing a Rust file
+`sync-rust.sh` failed at its rsync step (no `rsync`, no `/mnt/c`). Expected on the cockpit; the bundle copy before it still ran.
 
-### Vite not starting / exits immediately
-```bash
-cd ~/projects/quakeworld/apps/slipgate-app
-bun run dev
-```
-Run Vite directly to see the error. Common causes: missing `node_modules` (run `bun install`) or a syntax error in `vite.config.ts`.
+### `include_str!` cannot find `resources/...`
+Run `scripts/sync-rust.sh` (its first step does the copy) or copy the two bundles by hand; the folder is gitignored.
 
-### Cargo not connecting to Vite (blank or error window)
-- Confirm Vite is up: `curl http://localhost:1420` from WSL should return HTML
-- Check WSL2 localhost sharing is enabled (Windows Settings -> WSL -> "localhost forwarding")
-- Verify `tauri.dev.conf.json` has `"devUrl": "http://localhost:1420"`
+### The operator cannot open the dev server
+Port 1420 is not published from the cockpit. Restart Vite with `--host 0.0.0.0 --port 5173` (or 5174) and hand over the Tailscale address.
 
-### Rust changes not appearing after edit
-The Claude Code hook should run `sync-rust.sh` automatically. If it didn't:
-```bash
-~/projects/quakeworld/apps/slipgate-app/scripts/sync-rust.sh
-```
-Then the Windows Cargo process should detect the file change and recompile.
-
-### Stale processes after Ctrl+C
-If `slipgate-dev.sh` didn't clean up cleanly:
-```bash
-# Kill Vite in WSL
-lsof -i :1420 | grep LISTEN | awk '{print $2}' | xargs kill
-```
-The Windows Tauri process can be killed from Task Manager or by closing the window.
-
-### WebView2 not found
-Should be pre-installed on Windows 10/11. If missing:
-- Download from: https://developer.microsoft.com/en-us/microsoft-edge/webview2/
-- Install the "Evergreen Bootstrapper"
-
-### Rust compilation is slow
-First compile downloads and builds all dependencies. Subsequent builds use cache and are much faster. If consistently slow:
-- Check antivirus isn't scanning the `target\` directory -- add an exclusion for the project folder
-
----
+### Port already in use
+`ss` is not installed on the cockpit, so `ss -ltn | grep :<port>` says nothing even when the port is busy. Probe with `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:<port>/`: a 200 means something else is serving there. Stop only a Vite you started, by its pid.
 
 ## Building the portable artifact
 
-Slipgate ships in two modes detected at startup via an adjacent `data/portable.flag` marker file. The standard `bun run tauri build` produces only MSI + NSIS installers; the portable .zip is produced by a separate script.
+Slipgate ships in two modes detected at startup by an adjacent `data/portable.flag` (`data_root.rs`). `bun run tauri build` produces MSI + NSIS installers under `src-tauri/target/release/bundle/`; the portable zip is a separate step:
 
 ```bash
 bun run tauri build
 ./scripts/build-portable.sh
 ```
 
-The first command produces the standard installers under `src-tauri/target/release/bundle/`; the second packages a sibling `src-tauri/target/release/slipgate-portable-<version>.zip` containing the release exe plus an empty `data/portable.flag`. Extracting the zip anywhere yields a portable install whose data root is the adjacent `data/` directory; without the flag, the same exe falls back to `%APPDATA%/com.slipgate.app/` (Windows) or the platform equivalent.
-
-The script has to run on the same machine as the build (it reads from `target/release/`) -- in the split-process model, that means Windows. WSL can run the script if a Windows-built `.exe` has been rsync'd back, but in practice the build + zip happen together on Windows.
+The script packages `src-tauri/target/release/slipgate-portable-<version>.zip` containing the release exe plus an empty `data/portable.flag`. Extracted anywhere, the exe uses the adjacent `data/` as its data root; without the flag it falls back to `%APPDATA%/com.slipgate.app/`. It reads from `target/release/`, so it runs on the Windows build machine (bash via Git for Windows) and needs `zip` on PATH.
