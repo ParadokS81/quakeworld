@@ -34,7 +34,7 @@ The apps in one line each, with the lifecycle status word each app's own `CLAUDE
 - **matchscheduler** - Firebase web app, vanilla JS + Alpine.js + Tailwind. *Maintenance.* Will be rebuilt inside slipgate web.
 - **quad** - Discord voice recording bot, TypeScript + discord.js. *Maintenance.* Stable and integration-critical.
 - **qw-stats** - PostgreSQL stats API + ranking research, Express backend; every 4on4 game since 2022, self-synced from QWHub. *Paused.*
-- **slipgate-app** - Desktop companion, Tauri v2 + SolidJS + Rust. *Active.*
+- **slipgate-app** - Desktop companion, Tauri v2 + SolidJS + Rust. *Paused* - waiting on a Windows build path and the Browse+Manager UI brainstorm.
 - **qw-oracle** - QuakeWorld knowledge service (source-extracted engine facts, the Discord chat corpus, curated notes), TypeScript + Bun + Python (one Go extractor). *Active.* Sizes and ship history in `apps/qw-oracle/OVERVIEW.md` and its `docs/arc-history.md`.
 - **oracle-web** - SolidJS on Cloudflare Pages, the Oracle's read-only brain surface at oracle.quake.world. *Active.*
 - **docs-web** - VitePress on Cloudflare Pages, docs.quake.world. No `CLAUDE.md` or status line yet (HANDOVER); production waits on the zone owner's greenlight.

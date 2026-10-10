@@ -11,7 +11,7 @@ Per-app docs are `apps/<name>/CLAUDE.md` and what it indexes. Seven apps carry t
 - **matchscheduler** — *Maintenance, effective-legacy.* Firebase web app scheduling 4on4 matches. Will rebuild inside slipgate web.
 - **quad** — *Maintenance.* Discord bot recording per-speaker OGG/Opus + standin DM flow.
 - **qw-stats** — *Paused.* PostgreSQL 16 + Express API over every 4on4 game since 2022 (23,000+, self-synced from QWHub every 15 min, public via a Cloudflare tunnel); ranking product waits on identity-resolution Phase 0.
-- **slipgate-app** — *Active.* Tauri v2 + SolidJS + Rust desktop companion; Windows-native.
+- **slipgate-app** — *Paused — waiting on a Windows build path and the Browse+Manager UI brainstorm.* Tauri v2 + SolidJS + Rust desktop companion; Windows-native.
 - **qw-oracle** — *Active.* Three-layer knowledge service (Postgres + pgvector) served over MCP (`oracle.slipgate.me/mcp`) and by snapshot. Seven engine codebases loaded (ezQuake / FTE / QWCL / MVDSV / KTX / QTV / QWFWD) plus the `qw` game-content namespace. Sizes in `apps/qw-oracle/OVERVIEW.md`; ship history at `apps/qw-oracle/docs/arc-history.md`.
 - **oracle-web** — *Active.* SolidJS + Cloudflare Pages read-only brain surface for the Oracle (oracle.quake.world; the zone is vikpe's). State in `HANDOVER.md` (Oracle web direction).
 - **docs-web** — *no status line yet* (no `CLAUDE.md`; HANDOVER decision row). VitePress + Cloudflare Pages: docs.quake.world, the Layer 1 reference projected per codebase from the Oracle; preview deploy on the operator's account until the domain is greenlit (`apps/docs-web/DEPLOYMENT.md`).

@@ -1,6 +1,6 @@
 # Slipgate App - Desktop Companion for QuakeWorld
 
-**Status:** Active development. Tauri v2 system tray app that bridges the QuakeWorld game client, the user's computer, and (eventually) the Slipgate web hub. Windows-native in practice.
+**Status:** Paused -- waiting on a Windows build path and the Browse+Manager UI brainstorm. Tauri v2 system tray app that bridges the QuakeWorld game client, the user's computer, and (eventually) the Slipgate web hub. Windows-native in practice.
 
 ## Documentation index
 

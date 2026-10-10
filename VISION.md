@@ -79,7 +79,7 @@ This repo is explicitly NOT for a team. There is no CODE_OF_CONDUCT, no PR templ
 
 Not every app will live in this monorepo forever. The workshop framing is deliberate.
 
-- **slipgate-app** - candidate to graduate to vikpe's slipgate web repo eventually, as the desktop companion to the web hub. Currently Active.
+- **slipgate-app** - candidate to graduate to vikpe's slipgate web repo eventually, as the desktop companion to the web hub. Currently Paused, waiting on a Windows build path and the Browse+Manager UI brainstorm.
 - **quad** - candidate to graduate. Stable, integration-critical Discord bot with a clean boundary. Maintenance.
 - **matchscheduler** - will NOT graduate as-is. It will be rebuilt from scratch inside slipgate web in SolidJS. Effective-legacy today: still serving, but not evolving.
 - **qw-stats** - uncertain graduation. The production API deployed on Unraid is useful today; the ranking research half is stalled. Paused.
