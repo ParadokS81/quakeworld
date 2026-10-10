@@ -433,3 +433,9 @@ done
 - Lifting any handler logic to Tier 2 (family base classes). No second consumer exists yet for any project. Phase B preps for it; doesn't do it.
 - KTX. Tree-sitter, separate methodology, separate runbook.
 - Any change to schema, DB, or load-knowledge TypeScript. This arc is pure Python reorganization.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Settle the canonical extractor shape: ezQuake handlers moved to project-private files, extractor_lib reduced to Tier-1 infrastructure, three-tier doctrine documented; shipped 2026-04-28.
+- **Phase:** closed 2026-04-28 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words in the plan; apps/qw-oracle/docs/arc-history.md 2026-04-28 'Architecture consolidation'; no work-list row.

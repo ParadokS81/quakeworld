@@ -1910,3 +1910,9 @@ git commit -m "docs(handover): drain help-JSON-classification sidequests after A
 **Caching strategy:** The seed YAML is the durable cache. Future `classify-help-json.py` runs only process NEW unclassified entries (existing entries skipped). The git-log blame index is rebuilt fresh each run — pure-Python regex pass over `git log -p` completes in ~5-15s on ezquake-sized repos, so on-disk caching of the blame index would add complexity for negligible benefit. When upstream renames/retires something else, the new doc_only entry surfaces as a `--fail-on help-json-classification` review finding, gets classified via the same workflow, and lands in the seed. Total ongoing cost per upstream tag bump: ~10s of git-log parse + ~30 seconds of operator review per new mystery (typically 0-3 mysteries per bump).
 
 ---
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Turn the 194-entry ezQuake doc_only heap into a classified seed YAML with a blame index, a review gate and a PR-digest generator; shipped 2026-05-01 (Arc A, Tasks 1-8).
+- **Phase:** closed 2026-05-01 -- shipped
+- **Evidence:** last commit 2026-04-30 (plan fixes during execution); no close words in the plan; apps/qw-oracle/docs/arc-history.md 2026-05-01 'Help-JSON classification infrastructure (Arc A, Tasks 1-4)' and '(Tasks 5-8)'; HANDOVER's small-followup rows name the classifier script and its blame heuristic, not the plan.

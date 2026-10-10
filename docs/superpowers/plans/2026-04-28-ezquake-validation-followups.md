@@ -161,3 +161,9 @@ Plus the orchestrator-tracked drain-now items from the cross-extractor audit (D.
 - Phase 3: ~5 minutes.
 
 Total: ~2.5 hours.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Drain the ezQuake Mode B findings; Phase 1 (the 34% trailing-comment bug) shipped 2026-04-29 in the Zero-debt arc, Phases 2-3 (column rename, doc path) never landed and nobody wants them.
+- **Phase:** closed 2026-04-29 -- shipped
+- **Evidence:** last and only commit 2026-04-28 (the plan's landing); 'fix(qw-oracle): F-EZQ-01 trailing-comment look-ahead misattribution' 2026-04-29 and the arc-history Zero-debt entry; registration_file still names the column and OUT_OF_SCOPE.md:40 still cites the old path; no work-list row.

@@ -103,3 +103,9 @@ After both phases land, append to `HANDOVER.md`:
 
 > **2026-04-28 QWCL Mode B validation drain shipped.** F-QWCL-01 doc count refresh + F-QWCL-03 qwcl-keyed F1 probes added. Validation report at `docs/superpowers/reviews/2026-04-28-qwcl-validation.md`. Four HANDOVER items remain (F-QWCL-02/04/05/06).
 
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Drain two QWCL Mode B findings: the doc count refresh landed 2026-04-28, and the qwcl-keyed F1 probes were delivered the same day by the Phase 6 grid uplift; shipped.
+- **Phase:** closed 2026-04-28 -- shipped
+- **Evidence:** last and only commit 2026-04-28 (the plan's landing); 'synthesise three Mode B validations + drain F-QWCL-01' 2026-04-28; OUT_OF_SCOPE.md carries the 380-entity count and quality-grid.ts carries the qwcl floor and anchor probes; no work-list row.

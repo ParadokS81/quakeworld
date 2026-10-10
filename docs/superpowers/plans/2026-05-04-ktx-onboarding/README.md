@@ -169,3 +169,9 @@ If a phase drifts into one of these, that's a scope creep -- flag it.
 After all 9 phases ship and `arc-reviewer` runs the spec-vs-shipped walkthrough (per `arc-reviewer` skill), the arc is done. Layer 3 concept notes and the Layer 1 database design audit are follow-ons (separate arcs).
 
 The qw-event-log validation harness parking doc (`2026-04-XX-qw-event-log-cross-validation.md`) becomes unblocked at the schema level the moment Phase 6 ships -- match_event rows are the Layer 1 anchors it needs.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Onboard canonical KTX as the fifth Layer 1 codebase (four entity types, the gameplay-content surface, match events; migrations 009-011); all nine phases shipped, arc closed 2026-05-07.
+- **Phase:** closed 2026-05-07 -- shipped
+- **Evidence:** last substantive commit 2026-05-07 'KTX Phase 8 ship + ARC CLOSED'; the README's 'Where we are right now' reads 'ARC SHIPPED'; apps/qw-oracle/docs/arc-history.md 2026-05-05 'KTX Layer 1 Onboarding -- ARC SHIPPED (Phases 0-8 complete)'; HANDOVER rows name only its residual cleanups.

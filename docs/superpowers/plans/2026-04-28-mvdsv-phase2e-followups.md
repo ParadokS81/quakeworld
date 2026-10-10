@@ -397,3 +397,9 @@ cd apps/qw-oracle/serve/mcp && bun run scripts/verify-rewrite.ts
 - [ ] `apps/qw-oracle/scripts/extractors/EXTRACTOR-PLAYBOOK.md`: add a pattern note for "natural-key includes scope when an identifier carries multiple semantic surfaces" (info_key lesson).
 - [ ] `MEMORY.md` entry: amend `project_mvdsv_phase2e.md` with the v16 schema bump and the kind-taxonomy refinement; or add a new follow-up memory pointing to this plan.
 - [ ] `HANDOVER.md`: remove the open Phase 2e residuals; add the ezquake F2 deferral note.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Drain the residual findings of the MVDSV Phase 2e validation (equality probes, info_key scope suffix, protocol_message kinds, log_template call sites; schema v15 to v17); shipped 2026-04-28.
+- **Phase:** closed 2026-04-28 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words in the plan; apps/qw-oracle/docs/arc-history.md 2026-04-28 'Phase 2e MVDSV follow-up arc' (5 commits, schema v17); HANDOVER's Sidequest row holds only its gl_lightmode residual.

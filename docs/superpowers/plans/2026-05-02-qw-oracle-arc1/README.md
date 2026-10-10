@@ -81,3 +81,9 @@ If a phase drifts into one of these, that's a scope creep — flag it.
 - **Reviewing a drafted phase:** read the phase MD top-to-bottom, run the verification queries listed at the bottom, eyeball the file lists and SQL, sign off.
 - **A finding resolves but conflicts with a decision:** the decision wins; reject the finding with a one-line rationale in the phase MD's "Open questions" section. If the decision itself is wrong, amend `decisions.md` before re-running the phase draft.
 - **A new finding emerges during phase drafting:** append to `review-findings.md` with a sequential F-number and tag which phase resolves it.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** QW Oracle Arc 1: SQLite to Postgres 16 + pgvector, all three layers ported, hybrid retrieval, two new MCP tools, public deploy at oracle.slipgate.me; shipped 2026-05-03.
+- **Phase:** closed 2026-05-03 -- shipped
+- **Evidence:** last commit 2026-05-03 (post-arc cleanup); the README's own status line still reads 'Planning' with Phases 2-8 'approved', stale; apps/qw-oracle/docs/arc-history.md 2026-05-03 'Arc 1 SHIP -- Postgres + hybrid retrieval, public MCP live'; no work-list row.

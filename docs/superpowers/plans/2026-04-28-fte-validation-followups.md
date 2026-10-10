@@ -95,3 +95,9 @@ Today the regex is iterated over atomic token spellings (line 350-353), so unanc
 - Phase 3: ~5 minutes.
 
 Total: ~50 minutes. Best executed as a single PR after orchestrator's cross-project synthesis.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Drain three FTE Mode B findings; Phase 1 (unescape in the string helpers) landed 2026-04-28 via the Phase 6 lift, Phases 2-3 (path anchor, regex anchor) never landed and nobody wants them.
+- **Phase:** closed 2026-04-28 -- shipped
+- **Evidence:** last and only commit 2026-04-28 (the plan's landing); 'lift concat_string_literals + delete 5 FTE private copies' 2026-04-28 carries unescape_c_string; the 5-level parent arithmetic and the unanchored _RE_CVARGROUP_IDENT are still in the FTE handlers; no work-list row.

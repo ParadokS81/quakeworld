@@ -1109,3 +1109,9 @@ Session B (Plans 4 + 5) is the next focused session — fresh context recommende
 **No placeholders:** All "[paste from HANDOVER lines X-Y]" markers in Task 19 are explicit instructions about what to read and what to write — not "TBD". Subagent reads + pastes mechanically.
 
 **Type consistency:** Parking file naming convention (`YYYY-MM-DD-<topic>.md`) consistent across Tasks 16-17. arc-history.md prepend-on-top convention consistent in Task 18. HANDOVER docket structure consistent between Task 19's skeleton and Task 21's verification.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Docs redesign Plans 1-3: doctrine update, every OVERVIEW.md slimmed, HANDOVER migrated from a 1615-line hot-pot to a thin docket with bodies parked; shipped 2026-04-29.
+- **Phase:** closed 2026-04-29 -- shipped
+- **Evidence:** last and only commit 2026-04-29 (the plan's landing); no close words in the plan; the OVERVIEW slims, the parking bootstrap and 'migrate to docket shape per docs-redesign Plan 3' all landed 2026-04-29 and HANDOVER is the docket today; no work-list row.

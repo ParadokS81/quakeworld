@@ -766,3 +766,9 @@ Docs-system-redesign arc complete. The deferred memory-consolidation arc is the 
 **Self-modification race condition (spec line 357):** Honored by running Plan 4 in a fresh session. Task 1's prerequisite check verifies Session A landed before Plan 4 starts.
 
 **Type / wording consistency:** "Start with `OVERVIEW.md` when working in this project" appears uniformly across Tasks 8-12 (with project-context variants explicitly allowed per softened acceptance). The 5-category routing labels (drained inline / small followup / sidequest / ongoing arc / future arc / shipped retrospective) appear consistently in Task 3's skill content and Task 6's verification.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Docs redesign Plans 4-5: the docs-check skill rewritten into the two-phase auto-escalating shape and the 'Start with OVERVIEW.md' directive standardized across every CLAUDE.md; shipped 2026-04-29.
+- **Phase:** closed 2026-04-29 -- shipped
+- **Evidence:** last and only commit 2026-04-29 (the plan's landing); the plan's last step reads 'The whole 5-plan arc is shipped'; 'standardize OVERVIEW.md directive across CLAUDE.md fleet' landed 2026-04-29 and the user-global docs-check skill runs the two-phase shape; no work-list row.
