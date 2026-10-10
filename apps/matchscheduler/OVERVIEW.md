@@ -54,7 +54,7 @@ Discord OAuth is the primary login. Sealed-match embeds, challenge posts, and co
 - **`context/Pillar 1 - PRD.md` through `Pillar 4 - technology stack.md`** - original architecture specifications. Still authoritative where they describe the sacred grid, the scheduling model, or the tech stack rationale.
 - **`context/slices/`** - per-feature implementation slices. Most are historical; new slices land rarely now.
 - **`.claude/rules/`** - path-scoped rules that load automatically when you edit the matching file (e.g., cache+listener pattern, Firebase v11 import rules).
-- **`docs/DEV-SETUP.md`** - local emulator setup, fixed UIDs, direct writes, WSL networking.
+- **`DEVELOPMENT.md`** - run, build, test; the emulator workflow and why it does not run on the cockpit.
 - **`docs/multi-clan/`, `docs/mumble/`, `docs/auto-record/`, `docs/voice-replay/`** - feature-specific docs for the larger subsystems.
 
 ## Firebase emulator
@@ -64,7 +64,7 @@ Discord OAuth is the primary login. Sealed-match embeds, challenge posts, and co
 - Firestore UI: `http://localhost:8080`
 - Functions logs: `http://localhost:5001`
 - Seed with `npm run seed:quick` (or `npm run seed` for the full seed including team logos)
-- Dev dataset uses fixed UIDs - see `docs/DEV-SETUP.md`
+- Dev dataset uses fixed UIDs - see `DEVELOPMENT.md`
 
 ## Shared Firebase project
 
@@ -92,6 +92,6 @@ The `context/` folder has historical debug documents (`analysis-past-slot-bug.md
 - **File-by-file architecture** - `context/ARCHITECTURE-MAP.md`.
 - **Firestore field semantics** - `context/SCHEMA.md`.
 - **Why the grid is the grid** - `VISION.md`.
-- **Dev setup** - `docs/DEV-SETUP.md`.
+- **Dev setup** - `DEVELOPMENT.md`.
 - **Deploy flow** - `DEPLOYMENT.md`.
 - **CLAUDE rules** - `CLAUDE.md`.

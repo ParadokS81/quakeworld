@@ -17,7 +17,7 @@ Subsystem docs:
 - **Data Schema**: `context/SCHEMA.md` - Firestore document structures (ALWAYS check before writing backend code)
 - **Pillar Documents**: `context/Pillar*.md` - Architecture specifications
 - **Slice Specs**: `context/slices/` - Feature implementation details
-- **Dev Setup**: `docs/DEV-SETUP.md` - Local development with Firebase emulators
+- **Dev Setup**: `DEVELOPMENT.md` - run, build, test; why no emulator runs on the cockpit
 - **QWHub API**: `context/QWHUB-API-REFERENCE.md` - External API for match history, detailed stats, mapshots
 
 ## Critical Patterns
@@ -41,7 +41,7 @@ Two patterns are non-negotiable. Detailed rules with code examples load automati
 - Firestore UI: http://localhost:8080
 - Functions logs: http://localhost:5001
 - Seed data: `npm run seed:quick` (or `npm run seed` for full with logos)
-- Dev details: `docs/DEV-SETUP.md` (fixed UIDs, direct writes, WSL networking)
+- Dev details: `DEVELOPMENT.md` (fixed UIDs, direct writes, cockpit ports)
 
 ## Quick Context
 
