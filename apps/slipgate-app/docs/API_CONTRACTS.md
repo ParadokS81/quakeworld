@@ -2,7 +2,7 @@
 
 External services, IPC boundaries, and third-party integrations that slipgate-app depends on. Each entry documents: what the boundary is, who talks to it, the shape, and the auth model.
 
-For the full auth flow walkthrough, see `AUTH.md`. For config parsing internals, see `CFG-PARSER.md`. For the Tauri command table, see `OVERVIEW.md` (section "Tauri integration").
+For the full auth flow walkthrough, see `AUTH.md`. For config parsing internals, see `CFG-PARSER.md`. The Tauri command list is the `generate_handler![]` macro in `src-tauri/src/lib.rs` (40 entries on 2026-10-10); `OVERVIEW.md` no longer carries a copy.
 
 ## External HTTPS services
 
@@ -96,14 +96,14 @@ For the full auth flow walkthrough, see `AUTH.md`. For config parsing internals,
 
 ## Tauri IPC (frontend to Rust)
 
-The full command table lives in `OVERVIEW.md` under "Tauri integration - frontend -> backend" to avoid duplication. Two events plus the contracts to know:
+The command list is the `generate_handler![]` macro in `src-tauri/src/lib.rs`; each command's signature is its Rust definition in `src-tauri/src/commands/`. Two events plus the contracts to know:
 
 ### Events (Rust to frontend)
 
 | Event | Payload | Emitter | Listener |
 |---|---|---|---|
 | `config-changed` | `{ exe_path: string, config_name: string }` | `watcher.rs` (500ms debounce) | `App.tsx` (triggers config re-parse) |
-| `update-progress` | `{ stage: string, percent: number, message: string }` | `updater.rs` (during download) | `ClientsTab.tsx` (progress bar) |
+| `update-progress` | `{ stage: string, percent: number, message: string }` | `updater.rs` (during download) | `UpdatesPanel.tsx` (progress bar) |
 
 ## Local process boundaries
 
@@ -132,4 +132,4 @@ The full command table lives in `OVERVIEW.md` under "Tauri integration - fronten
 - **Full Discord OAuth walkthrough** - see `AUTH.md`
 - **Config parser internals** (how exec chains are followed, how binds are classified) - see `CFG-PARSER.md`
 - **Resolution computation** (the 3-layer absent=default model) - see `EZQUAKE-RESOLUTION.md`
-- **Tauri command signatures and return types** - see `OVERVIEW.md` command table
+- **Tauri command signatures and return types** - see `generate_handler![]` in `src-tauri/src/lib.rs` and each command's module

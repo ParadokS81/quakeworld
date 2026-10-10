@@ -34,17 +34,17 @@
 
 | Step | File | What |
 |---|---|---|
-| Open Discord URL | `src/auth.ts:22` -- `startDiscordAuth()` | Uses `@tauri-apps/plugin-opener` to launch the system browser |
-| Await callback | `src-tauri/src/commands/auth.rs:17` -- `await_oauth_callback` | Listens on `127.0.0.1:17420` for 300s, parses the `code` query param, returns `{ code, redirect_uri }` |
-| Exchange code | `src/auth.ts:37-50` | POST to `https://europe-west3-matchscheduler-dev.cloudfunctions.net/discordOAuthExchange` with `{ code, redirectUri }` |
-| Sign in | `src/firebase.ts:20` -- `signInWithDiscord(customToken)` | Firebase JS SDK `signInWithCustomToken` |
-| Auth state | `src/firebase.ts:31` -- `onAuthChange(callback)` | Subscribe to Firebase Auth state changes |
-| Trigger | `src/components/SettingsTab.tsx:90` | User-facing "Sign in with Discord" button |
+| Open Discord URL | `src/auth.ts` -- `startDiscordAuth()` | Uses `@tauri-apps/plugin-opener` to launch the system browser |
+| Await callback | `src-tauri/src/commands/auth.rs` -- `await_oauth_callback` | Listens on `127.0.0.1:17420` for 300s, parses the `code` query param, returns `{ code, redirect_uri }` |
+| Exchange code | `src/auth.ts` -- the `fetch(CLOUD_FUNCTION_URL, ...)` inside `startDiscordAuth()` | POST to `https://europe-west3-matchscheduler-dev.cloudfunctions.net/discordOAuthExchange` with `{ code, redirectUri }` |
+| Sign in | `src/firebase.ts` -- `signInWithDiscord(customToken)` | Firebase JS SDK `signInWithCustomToken` |
+| Auth state | `src/firebase.ts` -- `onAuthChange(callback)` | Subscribe to Firebase Auth state changes |
+| Trigger | `src/components/SettingsTab.tsx` | User-facing "Sign in with Discord" button |
 
 ### Constants (hardcoded today)
 
 ```typescript
-// src/auth.ts:6-8
+// src/auth.ts, top of file
 const DISCORD_CLIENT_ID = "1465332663152808031";
 const REDIRECT_URI      = "http://localhost:17420/callback";
 const CLOUD_FUNCTION_URL = "https://europe-west3-matchscheduler-dev.cloudfunctions.net/discordOAuthExchange";
@@ -61,7 +61,7 @@ The Discord client ID is the same one MatchScheduler web uses. The localhost red
 
 ### What the cloud function does
 
-Lives in `MatchScheduler/functions/` as `discordOAuthExchange` (region: `europe-west3`):
+Lives in `apps/matchscheduler/functions/` as `discordOAuthExchange` (region: `europe-west3`):
 1. Validates the incoming `code` + `redirectUri`
 2. Exchanges the code with Discord for an access token
 3. Fetches the Discord user profile (username, ID, avatar)

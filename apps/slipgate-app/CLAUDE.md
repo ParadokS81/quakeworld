@@ -24,7 +24,7 @@
 
 | Path | Why |
 |---|---|
-| `reference/` | Upstream source-code references (ezquake-source, ezquake-docs, ktx, mvdsv, qtv, qtv-go, qwfwd, unezquake) — research material, not authored docs |
+| `reference/` | Upstream source-code references (ezquake-source, ezquake-docs, ktx, mvdsv, qtv, qtv-go, qwfwd, unezquake) — research material, not authored docs. Gitignored and absent on the cockpit; the clones live at the repo root under `research/repos/` |
 
 ## Tech stack
 
@@ -41,7 +41,7 @@
 
 **Platform coverage:** Windows-native only in practice. Non-Windows code paths exist as stubs but aren't supported.
 
-**Sibling apps** in the monorepo (all integration is network-based, no filesystem coupling): `apps/matchscheduler/` (Firebase web), `apps/quad/` (Discord bot), `apps/qw-stats/` (Express + PostgreSQL), `apps/qw-oracle/` (SQLite knowledge base).
+**Sibling apps** in the monorepo (all integration is network-based, no filesystem coupling): `apps/matchscheduler/` (Firebase web), `apps/quad/` (Discord bot), `apps/qw-stats/` (Express + PostgreSQL), `apps/qw-oracle/` (Postgres knowledge base + MCP service; its `build-snapshot` CLI writes the JSON under `src/lib/config/data/`), and four more under `apps/` (root `OVERVIEW.md`).
 
 ## Always-on rules
 
@@ -62,8 +62,8 @@
 - **Planning-first workflow applies here.** See root `CLAUDE.md` for the full "How We Work" framework that applies across all apps in this monorepo -- I won't repeat it here.
 
 **Things to know about the code:**
-- `src-tauri/src/commands/ezquake.rs` is a 2,124-line monolith with a wide public surface. Adding a second client (FTE) will probably require splitting it. See `docs/HEALTH.md` for the full structural note.
-- The ConfigViewer subsystem (20+ components under `src/components/Config*`) is the biggest feature by far and the main active work area.
+- `src-tauri/src/commands/ezquake.rs` is a 2,600-line monolith (2026-10-10) with a wide public surface. Adding a second client (FTE) will probably require splitting it. See `docs/HEALTH.md` for the full structural note.
+- The ConfigViewer subsystem (14 `Config*.tsx` components plus `CvarRow`, `CvarTooltip`, `configMerger.ts` and `AliasChainResolver`, about 6,100 lines) is the biggest feature by far and was the main work area until the code went quiet in 2026-05.
 - `configMerger.ts` is pure -- no side effects, easy to reason about.
 - `src-tauri/src/commands/screenshot.rs` is marked POC -- active goal but fragile timing, not yet production.
 - Adding a new Rust command module requires a `pub mod` declaration in `src-tauri/src/commands/mod.rs` plus registration in the `tauri::generate_handler![]` macro in `src-tauri/src/lib.rs`.

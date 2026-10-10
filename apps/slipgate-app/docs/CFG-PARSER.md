@@ -169,7 +169,7 @@ Modifier cvars that change when the active weapon changes can be applied two way
 - `weapon_change_dispatch: Option<WeaponChangeDispatch>` - raw parse, consumed by the Config Viewer's "When {WEAPON} active" modifier block per weapon row.
 - `sensitivity_baseline: Option<f64>` - pulled from the else-branch's alias when it sets sensitivity. Supersedes the top-level `sensitivity` cvar as the baseline for the LG-vs-base comparison in the profile tooltip and the modifier block. When both top-level cvar and else-branch sens exist and disagree, the else-branch value wins because it's what actually runs for every non-specific weapon.
 
-**LG sensitivity detection** on `EzQuakeConfig.lg_sensitivity` runs both paths: the oldschool scan (lines ~1455 of `ezquake.rs`) finds `sensitivity N` in alias bodies that also reference `weapon 8` / `+fire 8`; the trigger-dispatch fallback (via `weapon_triggers`) catches Xantom-style configs where the LG sens lives inside `__lg_settings` dispatched by `f_weaponchange`. The two are complementary - oldschool covers inline injection, trigger-dispatch covers hidden dispatch.
+**LG sensitivity detection** on `EzQuakeConfig.lg_sensitivity` runs both paths: the oldschool scan (the `lg_sensitivity` block in `ezquake.rs`) finds `sensitivity N` in alias bodies that also reference `weapon 8` / `+fire 8`; the trigger-dispatch fallback (via `weapon_triggers`) catches Xantom-style configs where the LG sens lives inside `__lg_settings` dispatched by `f_weaponchange`. The two are complementary - oldschool covers inline injection, trigger-dispatch covers hidden dispatch.
 
 #### `+alias` / `-alias` pair rendering (frontend)
 
@@ -228,7 +228,7 @@ Command invocations are a first-class parsed category alongside cvars, aliases, 
 - Lines beginning with `+` or `-` (press/release action commands like `-moveup`, `+attack`)
 - Lines whose first token is in the hardcoded `stateful_commands` list: `floodprot`, `mapgroup`, `skygroup`, `filter`, `hud_recalculate`, `sb_sourcemark`, `sb_sourceunmarkall`, `unbind`, `unbindall`, `unaliasall`, `tp_pickup`, `tp_took`, `tp_point`
 
-**Known limitation:** the Rust parser's `stateful_commands` list is a tiny subset of the authoritative ezQuake commands database (which lives in `src/lib/config/data/ezquake-commands.json` with 443 live commands). Any command not in the Rust list gets misclassified as a cvar assignment. This is intentional -- plumbing the full database into Rust would require a larger refactor. False positives can be fixed by extending the list.
+**Known limitation:** the Rust parser's `stateful_commands` list is a tiny subset of the authoritative ezQuake commands database (which lives in `src/lib/config/data/ezquake-commands.json`: 624 `source_backed` commands in the 2026-05-26 oracle snapshot). Any command not in the Rust list gets misclassified as a cvar assignment. This is intentional -- plumbing the full database into Rust would require a larger refactor. False positives can be fixed by extending the list.
 
 **The TypeScript side has the authoritative database.** `configMerger.ts` `categorizeBinds` now rewrites bind detection to use `ezquakeCommandSet` and `ktxCommandSet` loaded from `src/lib/config/`. The hardcoded 65-command set was deleted. New bind categories: `"ktx"` (KTX server-mod commands), `"unresolved"` (not found in any source).
 

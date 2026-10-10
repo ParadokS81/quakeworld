@@ -132,6 +132,6 @@ The `config-changed` Tauri event (emitted by `watcher.rs` on 500ms debounce) tri
 
 | File | Role |
 |---|---|
-| `src/store.ts` (269 lines) | Persistence layer: types, defaults, migration, CRUD functions |
-| `src/App.tsx` (~236 lines) | Reactivity layer: all signals, mount logic, event listeners |
+| `src/store.ts` (540 lines, 2026-10-10) | Persistence layer: types, defaults, migration, CRUD functions |
+| `src/App.tsx` (~256 lines) | Reactivity layer: all signals, mount logic, event listeners |
 | `profile.json` (app local data dir) | On-disk store file, managed by tauri-plugin-store |

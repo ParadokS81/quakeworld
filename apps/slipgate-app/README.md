@@ -8,8 +8,8 @@ A Windows-first desktop companion for QuakeWorld players. Built as a Tauri v2 tr
 
 - **System scan** - hardware, monitor, peripherals, everything that shapes your gameplay (CPU, GPU, RAM, mouse, keyboard, audio devices). Works as a snapshot for your own reference and as opt-in data you can eventually share with the community.
 - **Profile** - your QW identity, your grip/aim style, your DPI and sens, your gear. All in one scoreboard-style page with keyboard and mouse visualization that reflects your real binds and movement keys.
-- **MyQuake / ConfigViewer** - visualize your ezQuake config with every cvar grouped by category, bind classification (weapon / teamsay / movement), alias chain expansion up to 8 levels deep, and side-by-side comparison against other configs.
-- **Clients** - ezQuake install management: version detection from the .exe, updater (stable + snapshot channels), launcher with IP input and spec mode.
+- **MyQuake / ConfigViewer** - visualize your ezQuake config with every cvar grouped by category, bind classification (weapon / teamsay / movement), alias chain expansion up to 8 levels deep, and side-by-side comparison against other configs. MyQuake also has a Browse lens over your quake dir and a Matches view that pairs each demo with its screenshots and logs.
+- **Clients** - ezQuake install management: version detection from the .exe, updater (stable + snapshot channels), and Quake Dir Control: a warehouse of client versions you can swap between. The launcher UI was dropped (Slipgate is not a game launcher); the Rust command remains.
 - **Tools** - QW-specific calculators: FPS alignment to the 77 Hz server tick, sensitivity recalculation across DPI changes, FOV recalculation across resolution changes.
 
 See `OVERVIEW.md` for the living map of features, code landmarks, parked-with-purpose items, and integration points. See `VISION.md` for what's on the drawing board and why.
@@ -47,4 +47,4 @@ The frontend (SolidJS + Vite) builds and tests on any Linux box with Bun, includ
 - `CLAUDE.md` - always-on rules for Claude sessions working in this app
 - `DEPLOYMENT.md` - deploy / release notes (TBD: distribution story not finalized)
 
-This app is one of five in the [QuakeWorld monorepo workshop](../../README.md) and may eventually graduate to vikpe's slipgate web repo as the desktop companion to the web hub.
+This app is one of eight in the [QuakeWorld monorepo workshop](../../README.md) and may eventually graduate to vikpe's slipgate web repo as the desktop companion to the web hub.

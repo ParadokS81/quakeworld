@@ -20,7 +20,7 @@ It does NOT yet do: match scheduling, desktop notifications, `qw://` protocol ha
 
 ## Map at a glance
 
-The app opens to a 6-tab vertical sidebar (`SideNav.tsx` — Schedule / Profile / Tools / Feed / MyQuake / Settings). Each tab lives in `src/components/<Name>Tab.tsx`. The richest tab is Profile (`ProfileTab.tsx`, ~870 lines); the biggest *subsystem* by far is the **ConfigViewer** under MyQuake → Domains → Configs (20+ components in `src/components/Config*.tsx` plus `CvarRow.tsx`, `CvarTooltip.tsx`, `configMerger.ts`, `AliasChainResolver.tsx`, ~3,000 lines total). The **Player State Simulator** at `src/lib/simulator/` (pure TS, 7 modules + 92 tests) backs the State view in the ConfigViewer's right rail and the Alias Chain Pretty View. Rust commands live under `src-tauri/src/commands/` (~5,200 lines across `system.rs` / `ezquake.rs` / `weapon_classifier.rs` / `weapon_triggers.rs` / `scanner.rs` / `archive.rs` / `updater.rs` / `locs.rs` / `watcher.rs` / `auth.rs` / `screenshot.rs` plus the `quake-dir` cluster: `data_root.rs`, `version_warehouse.rs`, `warehouse_reconcile.rs`, `version_swap.rs`, `client_fingerprint.rs`, `release_cache.rs`, `bulk_import.rs`). Profile data persists via `tauri-plugin-store` → `profile.json` (`store.ts`, see `STATE.md`). Discord OAuth lands at `localhost:17420` then exchanges for a Firebase custom token (`auth.ts` + `commands/auth.rs`).
+The app opens to a 6-tab vertical sidebar (`SideNav.tsx` — Schedule / Profile / Feed / Tools / My Quake / Settings; Feed wraps the client-updates panel). Each tab lives in `src/components/<Name>Tab.tsx`. The richest tab is Profile (`ProfileTab.tsx`, ~850 lines); the biggest *subsystem* by far is the **ConfigViewer** under MyQuake → Domains → Configs (14 `Config*.tsx` components plus `CvarRow.tsx`, `CvarTooltip.tsx`, `configMerger.ts`, `AliasChainResolver.tsx`, ~6,100 lines total). The **Player State Simulator** at `src/lib/simulator/` (pure TS, 8 modules + 8 test files; the app's whole `bun test` run is 231 tests across 24 files) backs the State view in the ConfigViewer's right rail and the Alias Chain Pretty View. Rust commands live under `src-tauri/src/commands/` (~11,900 lines across 20 modules: `system.rs` / `ezquake.rs` / `weapon_classifier.rs` / `weapon_triggers.rs` / `scanner.rs` / `archive.rs` / `updater.rs` / `locs.rs` / `watcher.rs` / `auth.rs` / `screenshot.rs` / `browse.rs` / `inventory_report.rs` plus the `quake-dir` cluster: `data_root.rs`, `version_warehouse.rs`, `warehouse_reconcile.rs`, `version_swap.rs`, `client_fingerprint.rs`, `release_cache.rs`, `bulk_import.rs`). Profile data persists via `tauri-plugin-store` → `profile.json` (`store.ts`, see `STATE.md`). Discord OAuth lands at `localhost:17420` then exchanges for a Firebase custom token (`auth.ts` + `commands/auth.rs`).
 
 ---
 
@@ -33,25 +33,27 @@ Things that exist in the codebase but aren't fully alive — kept for stated rea
 | Schedule tab | `ScheduleTab.tsx` | Placeholder (11 lines). Key future feature — ties to Slipgate web scheduler + desktop notifications + quick availability toggle. |
 | MyQuake → Browse mode (PCX/TGA/WAD preview) | `browse.rs`, `MyQuakeTab.tsx` | Browse mode is live for PNG/JPG. PCX, TGA, WAD preview deferred to Phase 2. |
 | MyQuake → Domains → Maps subtab | `MyQuakeTab.tsx` | Disabled placeholder. Future phase. |
-| MyQuake → Domains → Matches subtab | `MyQuakeTab.tsx` | Disabled placeholder. Demos + screenshots browser with stats. Future phase. |
+| MyQuake → Matches: stats cross-reference | `MatchesDomain.tsx` | The view is live (bundles each demo with its screenshots and logs from the Browse scan). Per-match stats and the QW Hub / qw-stats cross-reference (VISION "Match browser") are not built. |
 | MyQuake → Domains → Assets subtab | `MyQuakeTab.tsx` | Disabled placeholder. Textures, skins, sounds, paks browser. Future phase. |
 | Screenshot automation | `screenshot.rs` (Rust); UI surface dropped in Phase 3.5a | POC works end-to-end but has hardcoded Administrator path + fragile timings. Future home: Profile picture-generator (HANDOVER "Screenshot POC → Profile picture generator"). |
 | `equipment_history` field + `addEquipmentHistory()` | `store.ts` | Intentionally parked for future community gear-discussion feature — members can check in with each other about brand/model experience. |
 | `_dropped-clients-sections.tsx` (Input / Video / Launch / Screenshot POC code) | `src/components/_dropped-clients-sections.tsx` | Dropped from user-facing surface in Phase 3.5a; preserved for future arcs. The `launch_ezquake` and `capture_screenshot` Tauri commands stay callable from Rust. |
-| "View as Primary" for in-archive configs | `ConfigViewer.tsx:555-558` | Known limitation, warns on console. Needs full pak path in `ConfigEntry` to implement. |
+| "View as Primary" for in-archive configs | `handleViewAsPrimary` in `ConfigViewer.tsx` | Known limitation, warns on console. Needs full pak path in `ConfigEntry` to implement. |
 | Linux/macOS parity | `system.rs` non-Windows branches | Returns `None`/empty for GPU, display, audio, HID, DDR gen. Windows-only by design. |
 
 ---
 
 ## True cruft (safe to delete — confirmed with user)
 
+All five were still in the tree on 2026-10-10; the deletion is a HANDOVER Small followup (it needs a Windows cargo build to prove nothing else broke).
+
 | Item | Where | Reason |
 |---|---|---|
-| `greet` command | `lib.rs:9-12` | Tauri scaffolding leftover, unused. |
+| `greet` command | `lib.rs` | Tauri scaffolding leftover, unused. |
 | `TabNav.tsx` | `components/TabNav.tsx` | 29 lines, imported nowhere. User doesn't remember what it was for. |
 | `ConfigCategoryBar.tsx` | `components/ConfigCategoryBar.tsx` | 156 lines, imported nowhere. Pre-dates the current sidebar. |
-| `md-5` crate + `verify_md5` function | `Cargo.toml`, `updater.rs:468-485` | Function defined but never called — snapshot MD5 verification was written but never wired up. |
-| Debug `console.log` dump | `App.tsx:113-123` | Prints MOVEMENT/WEAPONS/LG_SENS on every config load. |
+| `md-5` crate + `verify_md5` function | `Cargo.toml`, `updater.rs` | Function defined but never called — snapshot MD5 verification was written but never wired up. |
+| Debug `console.log` dump | `App.tsx` (the MOVEMENT / WEAPON BINDS / LG SENSITIVITY block) | Prints MOVEMENT/WEAPONS/LG_SENS on every config load. |
 
 ---
 
@@ -71,7 +73,7 @@ Things that exist in the codebase but aren't fully alive — kept for stated rea
 
 ## Code landmarks — where to find things
 
-**"I want to change how configs are parsed"** → `src-tauri/src/commands/ezquake.rs` (the 2,124-line monolith — adding a second client will probably require splitting it; see HEALTH.md)
+**"I want to change how configs are parsed"** → `src-tauri/src/commands/ezquake.rs` (the 2,600-line monolith — adding a second client will probably require splitting it; see HEALTH.md)
 
 **"I want to change the config comparison UI"** → `src/components/ConfigViewer.tsx` for orchestration, `src/components/configMerger.ts` for the merge logic, individual `Config*Section.tsx` files for display
 
@@ -99,7 +101,7 @@ Things that exist in the codebase but aren't fully alive — kept for stated rea
 
 **"I want to change how the quake dir is scanned for Browse mode"** → `src-tauri/src/commands/browse.rs` (Rust scanner) + `MyQuakeTab.tsx` (Browse pane layout and filter lens)
 
-**"I want to change Quake Dir Control behavior"** → `src-tauri/src/commands/{data_root,version_warehouse,warehouse_reconcile,version_swap,client_fingerprint,release_cache,bulk_import}.rs`. Frontend mirror under `src/quake-dir/`. Architecture in `docs/QUAKE-DIR-CONTROL.md`.
+**"I want to change Quake Dir Control behavior"** → `src-tauri/src/commands/{data_root,version_warehouse,warehouse_reconcile,version_swap,client_fingerprint,release_cache,bulk_import}.rs`. Frontend mirror under `src/lib/quake-dir/`. Architecture in `docs/QUAKE-DIR-CONTROL.md`.
 
 **"I want to fix something on Discord auth"** → `src/auth.ts` (frontend flow) + `src-tauri/src/commands/auth.rs` (localhost listener)
 
@@ -142,4 +144,4 @@ All sibling integration is network-based — no filesystem coupling between mono
 
 ---
 
-*Last slimmed: 2026-04-30 per slipgate retrofit (collapsed two-OVERVIEW pattern, removed stale ROADMAP/FEATURES narrative). Prior slim 2026-04-29 per docs-system-redesign spec Plan 2 (apply litmus test; cut catalog narrative; keep parked-with-purpose attestation, cruft attestation, design intent, code landmarks, integration boundaries).*
+*Counts and code pointers re-verified 2026-10-10 (slipgate docs-check seat; line counts and the Matches row were the drift). Last slimmed: 2026-04-30 per slipgate retrofit (collapsed two-OVERVIEW pattern, removed stale ROADMAP/FEATURES narrative). Prior slim 2026-04-29 per docs-system-redesign spec Plan 2 (apply litmus test; cut catalog narrative; keep parked-with-purpose attestation, cruft attestation, design intent, code landmarks, integration boundaries).*

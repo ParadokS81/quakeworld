@@ -82,7 +82,7 @@ The original plan document suggested using `wgpu::Instance` to enumerate adapter
 - WMI gives us driver version + refresh rate in the same query batch
 - WMI is Windows-only, but so is the app
 
-Code reference: `src-tauri/src/commands/system.rs:137-189` for the GPU query chain.
+Code reference: the Windows `get_platform_specs()` in `src-tauri/src/commands/system.rs` (the `Win32_VideoController` query).
 
 ## USB HID peripherals -- why SetupAPI not WMI
 
@@ -95,7 +95,7 @@ Caveats:
 - Bus-reported name is the dongle/receiver name, not the exact model ("BenQ ZOWIE Gaming Mouse", not "EC2-C")
 - For exact model, users pick from the EloShapes-backed gear selector (see `PERIPHERAL-SELECTOR.md`)
 
-See `src-tauri/src/commands/system.rs:231-337` for the walk-up implementation, and `memory/reference_slipgate_tauri_windows.md` for the full list of gotchas.
+See `get_usb_hid_devices()` and `get_devnode_string_property()` in `src-tauri/src/commands/system.rs` for the walk-up. The WMI COM-init fix and the WebView2 resume reload are commented at their call sites (`system.rs`, `lib.rs`); a fuller Windows-API gotcha list still sits only in session memory, queued for the memory pass-2 drain (root HANDOVER).
 
 ## Refresh behavior
 
