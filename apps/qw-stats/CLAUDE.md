@@ -22,7 +22,6 @@ A data-driven ranking system for QuakeWorld 4on4 players and teams, built on QWH
 | Entity-resolution literature survey behind that pipeline | `ALIAS-RESOLUTION-RESEARCH.md` (Layer 3) |
 | Confirmed player identity clusters, the seed data for the alias tables | `IDENTITY-SEEDS.md` (Layer 3, curated) |
 | Statistical findings from the first 4-month sample (dated snapshot) | `ANALYSIS.md` |
-| Gemini CLI waypoint file | `GEMINI.md` |
 
 ## Subsystem scopes
 
