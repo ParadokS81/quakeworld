@@ -203,7 +203,7 @@ Players like `bliXem` (p100 armor control, but 46% win). Dominating item control
 
 ## Database Schema
 
-See `DATABASE-SCHEMA.md` for the full PostgreSQL schema and `.env.example` for the connection template.
+See `SCHEMA.md` for the full PostgreSQL schema and `.env.example` for the connection template.
 The legacy SQLite schema (`qw-stats/data/qw-stats.db`) is only used by old analysis scripts.
 
 ---

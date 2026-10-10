@@ -14,7 +14,7 @@ PostgreSQL 16 database storing every QuakeWorld 4on4 match since January 2022, s
 | Date range | Jan 2022 -- Feb 2026 |
 | Top maps | dm2, dm3, schloss, e1m2, phantombase |
 
-**Infrastructure:** Docker container on Unraid, exposed via Cloudflare tunnel at `https://qw-api.poker-affiliate.org`. The database itself lives in the shared `phoenix-postgres` container (`OVERVIEW.md`, Integration points). The API contract is `API-GUIDE.md`.
+**Infrastructure:** Docker container on Unraid, exposed via Cloudflare tunnel at `https://qw-api.poker-affiliate.org`. The database itself lives in the shared `phoenix-postgres` container (`OVERVIEW.md`, Integration points). The API contract is `API_CONTRACTS.md`.
 
 ---
 
@@ -219,7 +219,7 @@ Every game appears twice -- once from each team's perspective. Simplifies all do
 
 ## API Endpoints
 
-The Express server's contract lives in `API-GUIDE.md`, one owner. Two things it implies for the schema: every query endpoint filters to `is_clan_game = true`, and every team parameter is matched as an array of `_ascii` tags, so tag variants are folded at query time, never in the data.
+The Express server's contract lives in `API_CONTRACTS.md`, one owner. Two things it implies for the schema: every query endpoint filters to `is_clan_game = true`, and every team parameter is matched as an array of `_ascii` tags, so tag variants are folded at query time, never in the data.
 
 ---
 

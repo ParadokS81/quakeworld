@@ -13,8 +13,8 @@ A data-driven ranking system for QuakeWorld 4on4 players and teams, built on QWH
 | Elevator pitch, local setup, the commands a maintainer actually runs | `README.md` |
 | Why this exists, the sniff test, the identity-resolution blocker, non-goals | `VISION.md` |
 | Current map: what is live, code landmarks, parked items, integration boundaries | `OVERVIEW.md` |
-| Tables, columns, indexes, views, import filters (Layer 2, schema role) | `DATABASE-SCHEMA.md` |
-| Public API endpoints, parameters, response shapes (Layer 2, API-contracts role) | `API-GUIDE.md` |
+| Tables, columns, indexes, views, import filters (Layer 2, schema role) | `SCHEMA.md` |
+| Public API endpoints, parameters, response shapes (Layer 2, API-contracts role) | `API_CONTRACTS.md` |
 | Deploy to the Unraid box and verify | root `deploy` skill, section "QW Stats" (`.claude/skills/deploy/SKILL.md`); this app has no deployment doc of its own |
 | The plan: phase order, game-classification fix, domain knowledge, what worked | `ROADMAP.md` |
 | Ranking methodology research (HLTV, Glicko-2, TrueSkill, OpenSkill, RAPM) | `RESEARCH-RANKING.md` (Layer 3) |
@@ -30,7 +30,7 @@ None. `api/` and `scripts/` hold code only; the rows above are their documentati
 
 ## Working agreement
 
-- **Query by the decoded columns.** `team_a_ascii` / `team_b_ascii` / `team_ascii` and `player_name_normalized` are lowercase ASCII; the raw QW-encoded columns exist for display only. Lowercase every tag you pass in. Shapes: `DATABASE-SCHEMA.md`.
+- **Query by the decoded columns.** `team_a_ascii` / `team_b_ascii` / `team_ascii` and `player_name_normalized` are lowercase ASCII; the raw QW-encoded columns exist for display only. Lowercase every tag you pass in. Shapes: `SCHEMA.md`.
 - **The import filters define the dataset.** 4on4 team mode, 8 valid players, duration >= 600 s, `ping != 0`. `is_clan_game` separates clan matches from pickups; map filtering is yours at query time (dm2, dm3, e1m2, schloss, phantombase are the competitive five).
 - **Identity is unsolved.** One human may be many `player_name_normalized` values; two names in one game are always two people. Never merge names on string similarity alone. `IDENTITY-SEEDS.md` is the only confirmed ground truth.
 - **The production database is shared.** `quake_stats` lives inside the `phoenix-postgres` container, not in one of its own. Never stop that container as a phoenix chore, and never rotate the `phoenix` role's password without recreating the deployed `qw-stats-api` in the same step. Shape and locations: `OVERVIEW.md`, Integration points.

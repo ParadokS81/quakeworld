@@ -91,8 +91,8 @@ node scripts/compare-teams.js book oeks
 
 Just open the repo and start talking to Claude. `CLAUDE.md` indexes everything it needs:
 
-- Full database schema with all columns (`DATABASE-SCHEMA.md`)
-- The public API contract (`API-GUIDE.md`)
+- Full database schema with all columns (`SCHEMA.md`)
+- The public API contract (`API_CONTRACTS.md`)
 - Ranking methodology and weight research (`RESEARCH-RANKING.md`)
 - Domain knowledge (what makes a good QW player, map differences, etc.) (`ROADMAP.md`)
 - Identity resolution research and tools (`RESEARCH-IDENTITY.md`, `IDENTITY-SEEDS.md`)
@@ -114,8 +114,8 @@ Good first prompts:
 | [VISION.md](VISION.md) | Why this project exists, the sniff-test problem, the identity-resolution blocker, non-goals |
 | [OVERVIEW.md](OVERVIEW.md) | Current-state living map: what is loaded, what the API serves, research docs, code landmarks |
 | [CLAUDE.md](CLAUDE.md) | Working rules and the documentation index |
-| [DATABASE-SCHEMA.md](DATABASE-SCHEMA.md) | Tables, columns, indexes, views, import filters |
-| [API-GUIDE.md](API-GUIDE.md) | The public API: endpoints, parameters, response shapes |
+| [SCHEMA.md](SCHEMA.md) | Tables, columns, indexes, views, import filters |
+| [API_CONTRACTS.md](API_CONTRACTS.md) | The public API: endpoints, parameters, response shapes |
 | [ROADMAP.md](ROADMAP.md) | Project direction and phases |
 | [ANALYSIS.md](ANALYSIS.md) | Statistical findings from initial data exploration |
 | [RESEARCH-RANKING.md](RESEARCH-RANKING.md) | Ranking methodology research (Stats Composite, RAPM, OpenSkill) |
