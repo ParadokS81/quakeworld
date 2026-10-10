@@ -35,7 +35,7 @@
 | `apps/qw-stats/` | `apps/qw-stats/CLAUDE.md` | Express + PostgreSQL stats API |
 | `apps/qw-oracle/` | `apps/qw-oracle/CLAUDE.md` | Postgres knowledge base + MCP service (Layer 1 facts / Layer 2 chat corpus / Layer 3 concept notes) |
 | `apps/oracle-web/` | `apps/oracle-web/CLAUDE.md` | oracle.quake.world v1 -- the read-only brain surface (SolidJS, CF Pages) |
-| `apps/docs-web/` | `apps/docs-web/DEPLOYMENT.md` (no `CLAUDE.md` yet -- HANDOVER decision row) | docs.quake.world -- the Layer 1 reference projected per codebase (VitePress on CF Pages, preview deploy) |
+| `apps/docs-web/` | `apps/docs-web/CLAUDE.md` | docs.quake.world -- the Layer 1 reference projected per codebase (VitePress on CF Pages, preview deploy) |
 | `apps/qwiki-sandbox/` | `apps/qwiki-sandbox/CLAUDE.md` | wiki.slipgate.me -- the v1-beta MediaWiki substrate and its deploy stack |
 | `apps/slipgate-app/` | `apps/slipgate-app/CLAUDE.md` | Tauri v2 desktop companion |
 | `packages/qw-knowledge/` | `packages/qw-knowledge/CLAUDE.md` | Shared QW domain knowledge / weapon-scripts / terminology |

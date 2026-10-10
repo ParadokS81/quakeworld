@@ -6,7 +6,7 @@
 
 ## The eight apps
 
-Per-app docs are `apps/<name>/CLAUDE.md` and what it indexes. Seven apps carry the full README / VISION / OVERVIEW quartet; docs-web has only `DEPLOYMENT.md` (routed in `HANDOVER.md`). slipgate-app's deep map is `apps/slipgate-app/OVERVIEW.md` (code landmarks), with its Layer 2 tree indexed from `apps/slipgate-app/docs/CLAUDE.md`.
+Per-app docs are `apps/<name>/CLAUDE.md` and what it indexes. Seven apps carry the full README / VISION / OVERVIEW quartet; docs-web has `CLAUDE.md` + `DEPLOYMENT.md` only. slipgate-app's deep map is `apps/slipgate-app/OVERVIEW.md` (code landmarks), with its Layer 2 tree indexed from `apps/slipgate-app/docs/CLAUDE.md`.
 
 - **matchscheduler** — *Maintenance, effective-legacy.* Firebase web app scheduling 4on4 matches. Will rebuild inside slipgate web.
 - **quad** — *Maintenance.* Discord bot recording per-speaker OGG/Opus + standin DM flow.
@@ -14,7 +14,7 @@ Per-app docs are `apps/<name>/CLAUDE.md` and what it indexes. Seven apps carry t
 - **slipgate-app** — *Paused — waiting on a Windows build path and the Browse+Manager UI brainstorm.* Tauri v2 + SolidJS + Rust desktop companion; Windows-native.
 - **qw-oracle** — *Active.* Three-layer knowledge service (Postgres + pgvector) served over MCP (`oracle.slipgate.me/mcp`) and by snapshot. Seven engine codebases loaded (ezQuake / FTE / QWCL / MVDSV / KTX / QTV / QWFWD) plus the `qw` game-content namespace. Sizes in `apps/qw-oracle/OVERVIEW.md`; ship history at `apps/qw-oracle/docs/arc-history.md`.
 - **oracle-web** — *Active.* SolidJS + Cloudflare Pages read-only brain surface for the Oracle (oracle.quake.world; the zone is vikpe's). State in `HANDOVER.md` (Oracle web direction).
-- **docs-web** — *no status line yet* (no `CLAUDE.md`; HANDOVER decision row). VitePress + Cloudflare Pages: docs.quake.world, the Layer 1 reference projected per codebase from the Oracle; preview deploy on the operator's account until the domain is greenlit (`apps/docs-web/DEPLOYMENT.md`).
+- **docs-web** — *Paused — waiting on vikpe's DNS greenlight for docs.quake.world.* VitePress + Cloudflare Pages: docs.quake.world, the Layer 1 reference projected per codebase from the Oracle; preview deploy on the operator's account until the domain is greenlit (`apps/docs-web/DEPLOYMENT.md`).
 - **qwiki-sandbox** — *Maintenance.* The v1-beta MediaWiki substrate and deploy stack for wiki.slipgate.me (nginx + mediawiki-fpm + MariaDB on Unraid); the Modes curator tool (Phases 5-8) is unbuilt.
 
 ---
