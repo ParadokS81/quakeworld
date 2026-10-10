@@ -2,7 +2,7 @@
 
 ## What this is
 
-A workshop monorepo where five QuakeWorld community apps share Claude sessions, shared data schemas, and cross-project contracts. Not the final home - some apps will graduate to vikpe's slipgate web repo eventually, and the ones that stay workshop-only do so with purpose.
+A workshop monorepo where the QuakeWorld community apps (eight folders under `apps/` today; `OVERVIEW.md` maps them) share Claude sessions, data schemas, cross-project contracts and one knowledge service. Not the final home - some apps will graduate to vikpe's slipgate web repo eventually, and the ones that stay workshop-only do so with purpose.
 
 This file answers "why does this monorepo exist as a container?" - not "why does any individual app exist." Each app has its own `VISION.md` (or will, written lazily when Claude next works in that app).
 
@@ -26,11 +26,11 @@ None of this is load-bearing for daily work. It matters only if someone (a futur
 
 Five reasons, roughly in order of practical weight:
 
-- **Shared Firebase project.** `matchscheduler-dev` hosts Firestore collections and Storage paths that cross app boundaries (voiceRecordings, standin_requests, team-logos). Keeping writers and readers in one repo means the data contract has one source of truth, not five.
+- **Shared Firebase project.** `matchscheduler-dev` hosts Firestore collections and Storage paths that cross app boundaries (voiceRecordings, standin_requests, team-logos). Keeping writers and readers in one repo means the data contract has one source of truth, not one per app.
 - **Shared QW Hub consumption.** Multiple apps read from `hub.quakeworld.nu` (Supabase REST + ktxstats CDN). When the upstream changes shape, the fix lands in one repo and ripples where it needs to.
 - **Cross-project specs need a home.** `contracts/active/` and `contracts/completed/` hold the design docs for features that span two or more apps (auto-record, voice replay, standin flow). Those docs do not belong in any single app's tree.
-- **One working directory for Claude.** A Claude session can explore and edit all five apps from a single working directory. Cross-app refactors (renaming a shared Firestore field, updating a contract) happen in one branch with one mental model.
-- **Cheap context switching for the user.** Solo developer maintaining all five apps. Keeping everything in one place lowers the mental cost of jumping between them.
+- **One working directory for Claude.** A Claude session can explore and edit every app from a single working directory. Cross-app refactors (renaming a shared Firestore field, updating a contract) happen in one branch with one mental model.
+- **Cheap context switching for the user.** Solo developer maintaining every app. Keeping everything in one place lowers the mental cost of jumping between them.
 
 ## The emerging ecosystem
 
@@ -45,7 +45,7 @@ The monorepo started as "five apps sharing a workshop." What has emerged since i
 - **MCP** - live queries, interactive access. Used by Claude Code today; future chatbots.
 - **Snapshot distribution** - consumer-tailored JSON snapshots produced from the same foundation. Used by clients that need deterministic, pre-computed inputs (slipgate-app's ConfigViewer is the canonical case - it ships with a snapshot of the cvar facts its features need, not a live MCP dependency).
 
-The live consumers today are Claude Code (MCP) and slipgate-app (snapshot -- reading oracle-generated JSON in `apps/slipgate-app/src/lib/config/data/` produced by oracle's `build-snapshot` CLI). Future consumers are scoped below.
+The consumers in the tree today: Claude Code (MCP); slipgate-app (snapshot -- reading oracle-generated JSON in `apps/slipgate-app/src/lib/config/data/` produced by oracle's `build-snapshot` CLI); oracle-web (`apps/oracle-web/`, the read-only brain surface for oracle.quake.world, fed by the published brain manifest); and docs-web (`apps/docs-web/`, docs.quake.world, the Layer 1 reference projected per codebase). The further web services are scoped below.
 
 ### Web services family
 
@@ -79,18 +79,20 @@ This repo is explicitly NOT for a team. There is no CODE_OF_CONDUCT, no PR templ
 
 Not every app will live in this monorepo forever. The workshop framing is deliberate.
 
-- **slipgate-app** - candidate to graduate to vikpe's slipgate web repo eventually, as the desktop companion to the web hub. Currently Active; the majority of day-to-day work happens here.
+- **slipgate-app** - candidate to graduate to vikpe's slipgate web repo eventually, as the desktop companion to the web hub. Currently Active.
 - **quad** - candidate to graduate. Stable, integration-critical Discord bot with a clean boundary. Maintenance.
 - **matchscheduler** - will NOT graduate as-is. It will be rebuilt from scratch inside slipgate web in SolidJS. Effective-legacy today: still serving, but not evolving.
 - **qw-stats** - uncertain graduation. The production API deployed on Unraid is useful today; the ranking research half is stalled. Paused.
-- **qw-oracle** - workshop-only for the foreseeable future, but now the monorepo's structural center of gravity. The knowledge service consumed by Claude Code today (MCP) and soon by slipgate-app (snapshot distribution). Active; ezQuake Layer 1 fully loaded at head, historical backfill and second-engine ports ahead.
+- **qw-oracle** - workshop-only for the foreseeable future, but now the monorepo's structural center of gravity. The knowledge service consumed by Claude Code (MCP), slipgate-app (snapshots) and the two web surfaces below. Active; current state in `apps/qw-oracle/OVERVIEW.md` and `HANDOVER.md`.
+- **oracle-web** and **docs-web** - the community-facing web surfaces of the knowledge service. Both target domains on the `quake.world` zone, which vikpe owns, so their production homes land on his Cloudflare once greenlit; until then each deploys as a preview (`DEPLOYMENT.md` in each app).
+- **qwiki-sandbox** - the substrate and deploy stack for wiki.slipgate.me, the community wiki rebuilt fresh in 2026-05. Workshop-only: it is infrastructure and a curator tool, not a product that graduates.
 
 ## What this repo is NOT
 
 - Not a production monorepo in the "everyone clones this to build" sense. It is a solo-developer workshop. You can clone it; it will not necessarily build without substantial local setup.
 - Not the final home for graduated apps. When quad or slipgate-app moves to slipgate web, the authoritative copy lives there, not here.
 - Not a multi-contributor repo. No formal processes, no reviewer rotation, no release manager.
-- Not a historical archive. Git history starts at the 2026-03-29 migration commit. The pre-migration history of each app lives in `/home/paradoks/projects/quake/` as a dead archive, intentionally not imported.
+- Not a historical archive. Git history starts at the 2026-03-29 migration commit. The pre-migration history of each app lives on the retired WSL workstation (`/home/paradoks/projects/quake/`) as a dead archive, intentionally not imported.
 - Not a neutral or agnostic repo. It is deliberately shaped to be optimized for Claude's navigation first and for the user's mental model second.
 
 ## Values and philosophy
