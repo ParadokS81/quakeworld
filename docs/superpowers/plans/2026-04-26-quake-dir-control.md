@@ -2811,3 +2811,9 @@ Plan saved to `docs/superpowers/plans/2026-04-26-quake-dir-control.md`. Two exec
 2. **Inline execution** -- tasks executed in this session with checkpoints. Faster iteration, more context buildup.
 
 Phases ship independently. After Phase 0 you have a shared version-resolution lib. After Phase 1 you have working portable mode. After Phase 2 you have a content-addressed warehouse + reconcile. After Phase 3 you have the full multi-version UI with single-swap-path. After Phases 4+5 you have the diff viewer. Stop after any phase to assess.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Multi-version ezQuake management for slipgate (portable mode, content-addressed warehouse, swap UI); phases 0-3.5 shipped by 2026-04-28, diff-viewer phases 4-5 deferred by the Managed Mode pivot.
+- **Phase:** closed 2026-04-28 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); the 3.5a/3.5b plans record phases 0-3 shipped 2026-04-27 and 3.5a/3.5b by 2026-04-28; the Managed Mode parking doc (2026-04-28) defers the Phase 4/5 diff viewer until V1 ships; no work-list row names this plan (the pivot has its own Ongoing row).
