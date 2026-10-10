@@ -163,3 +163,9 @@ After all 7 phases ship and `arc-reviewer` runs the spec-vs-shipped walkthrough 
 - **Stage 3 snapshot probes** -- parked, revisit-on-trigger when slipgate-app's snapshot needs stabilize.
 
 The arc-reviewer pass runs in **fresh terminal** per `arc-reviewer` skill structural requirement (a terminal that ran any phase has anchored expectations and cannot deliver an honest spec-vs-shipped read). Reviewer reads parking doc + decisions + per-phase MDs + cross-phase memory captures cold; produces DELIVERED / DELIVERED-DIFFERENT / DEFERRED / MISSING walkthrough + Arc N+1 prep recommendations.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Lift KTX-grade extractor discipline (idempotency, reproducibility, parallel-vs-serial, per-migration probes, cert doc) to all five extractor projects; all seven phases shipped 2026-05-08.
+- **Phase:** closed 2026-05-08 -- shipped
+- **Evidence:** last commit 2026-05-08 'phase-7 ship-housekeeping -- ARC SHIPPED'; the README's 'Where we are right now' reads ARC SHIPPED with all seven phase SHAs; apps/qw-oracle/docs/arc-history.md 2026-05-08 'Extractor discipline catch-up -- ARC SHIPPED'; HANDOVER names only its F1 conftest residual.

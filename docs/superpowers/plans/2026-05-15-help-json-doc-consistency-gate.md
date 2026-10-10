@@ -508,3 +508,9 @@ git commit -m "qw-oracle(digest): refuse render when seed stale vs live DB doc_o
 **3. Type consistency:** `diffDriftSets` returns `{ghost, missing}` — used consistently in Task 2 test, core, and Task 4 run. `DocConsistencyResult` fields (`status`/`summary`/`ghostCount`/`missingCount`/`dbMismatchCount`) are stable across Tasks 2-4 and match the `--json` assertion. `seed_is_stale(db,seed)->(bool,list)` is identical in Task 5 test, helper, and Task 6 call site. AST container types (`vars`/`commands` = dict) verified 2026-05-15 and handled by the dict-or-list branch in `srcNames`/`src_names`.
 
 **Note on testing scope (project philosophy alignment):** Phase 0 is a measurement tool — verified by reconciliation against four known figures (manual verification), not a speculative unit test, per `CLAUDE.md` "Testing Philosophy". Phases 1-2 carry tests because the validation-gate layer's established convention is tested gates (`VALIDATION-GATES.md` §6; existing `findings-help-json-classifications.test.ts`). No speculative test infrastructure added.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** A DB-independent ground truth for help-JSON vs source drift, a post-walk gate and a digest staleness guard; written on the workstation 2026-05-15, stranded until the 2026-08-04 sweep, never executed.
+- **Phase:** unclear -- never executed (no doc-consistency-oracle.py, no gate in load-knowledge); HANDOVER's decision row on the help_variables.json mislabel still says it feeds this plan; the operator decides whether the gate is wanted
+- **Evidence:** last and only commit 2026-08-04 (the workstation-sweep merge that landed it); no close words; none of the plan's three artifacts exist in apps/qw-oracle/scripts; HANDOVER small-followup decision row 'ezQuake help_variables.json mis-lists commands as variables' names the plan as what the PR feeds.

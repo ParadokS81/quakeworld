@@ -106,3 +106,9 @@ This scaffold mirrors qw-oracle Arc 1's six-artifact shape (decisions / findings
 3. **Strong arc identification at top of every per-phase prompt** -- sibling-arc tell-tales listed so a misdirected drafter self-detects.
 
 Otherwise the section structure, drafter+sub-agent verification flow, and operator-review-at-phase-boundary rhythm match qw-oracle Arc 1.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** A fresh MediaWiki 1.43 substrate at wiki.slipgate.me with auth, groups and quality tags; Phases 1-4 shipped 2026-05-14 and live, the Modes vertical slice (Phases 5-8) unstarted and still wanted.
+- **Phase:** paused since 2026-05-14 -- qwiki-v1-beta Phases 5-8 (Modes vertical slice)
+- **Evidence:** last commit 2026-05-19 (a backup-verification fix); the README's own status reads Phases 1-3 shipped and Phase 4 pending, which HANDOVER itself calls stale; apps/qw-oracle/docs/arc-history.md 2026-05-14 'qwiki-v1-beta Phases 1-4 -- SHIPPED (Phases 5-8 unstarted)'; HANDOVER Future arcs row names Phases 5-8.

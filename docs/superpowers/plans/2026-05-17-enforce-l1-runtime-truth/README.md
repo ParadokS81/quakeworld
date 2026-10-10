@@ -224,3 +224,9 @@ deviation, do not silently proceed.
   block) before re-drafting.
 - **A new risk emerges during drafting:** append to `review-findings.md`
   with the next sequential F/R/W suffix and a phase tag.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Make ezQuake's Layer 1 tell the runtime truth both ways: call-graph reachability drops ghost cvars and commands, HUD_Register recovery adds 129 hidden commands; five phases shipped, closed 2026-05-20.
+- **Phase:** closed 2026-05-20 -- shipped
+- **Evidence:** last commit 2026-05-22 (a Phase-5 MD correction); the README's own status reads 'ARC SHIPPED 2026-05-20' with every phase row shipped; apps/qw-oracle/docs/arc-history.md 2026-05-17 'enforce-L1-runtime-truth -- SHIPPED' and its 2026-05-22 YELLOWs closure; no work-list row.

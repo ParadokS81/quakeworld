@@ -101,3 +101,9 @@ The split is structural, not just cosmetic. See `decisions.md` D16 (phase atomic
 If wave 2 (arc-orchestrator + arc-executor) is available when this arc executes, the orchestrator drives per-phase executor terminals using the phase MDs as input. If wave 2 is not yet shipped, the operator drives executor terminals manually using the executor handoff documented in each phase MD's recovery section.
 
 The orchestrator handoff lands at `docs/superpowers/parking/2026-05-04-qwiki-community-reference-orchestrator-handoff.md` once all phase MDs are approved.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** A community-reference layer in qw-oracle (players, clans, tournaments as Postgres rows plus curated notes); Phases 0-3 shipped 2026-05-05, Phase 4 paused at its pilot review, Phases 5-7 never started.
+- **Phase:** paused since 2026-05-06 -- QWiki community-reference (waiting on operator call; possible supersession by the qwiki-v1-beta pivot)
+- **Evidence:** last substantive commit 2026-05-06 'pause QWiki Phase 4 at T2 boundary'; the README's 'Where we are right now' reads Phases 0-3 SHIPPED, Phase 4 PAUSED; HANDOVER Ongoing arcs row 'QWiki community-reference' points at this README; the arc-history 2026-05-05 entry covers Phases 0-3.

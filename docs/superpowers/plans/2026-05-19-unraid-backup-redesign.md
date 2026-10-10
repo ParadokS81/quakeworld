@@ -569,3 +569,9 @@ git commit -m "infra(unraid-backup): Phase 7 -- cutover; retire weekly tar, recl
 ## Execution Handoff
 
 This is phased infrastructure with operator-only steps (Synology DSM, password manager, Discord, a deliberate Unraid reboot) and a multi-week parallel soak. It is not a code plan a subagent can grind start-to-finish; it is operator-paced with Claude executing the `[SSH]` steps and verifying.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Replace the weekly appdata tar with a borgmatic 3-2-1 system (nightly to the Synology, offsite pull, monitoring, restore drill, cutover); cutover done 2026-06-15, residuals closed 2026-08-04.
+- **Phase:** closed 2026-06-15 -- shipped
+- **Evidence:** last commit 2026-05-20 (Phase 0 monitoring); no close words in the plan; infra/unraid-backup/README.md reads 'Phase 6 restore drill PASSED 2026-06-12; Phase 7 cutover DONE 2026-06-15 -- 3-2-1 live, legacy tar retired' with residuals closed by the 2026-08-04 bundle; the calendar check is the only live pointer, no work-list row.

@@ -663,3 +663,9 @@ Plan complete and saved to `docs/superpowers/plans/2026-05-21-ktx-l1-format-unif
 **2. Inline Execution** — Execute tasks in this session via executing-plans, batch execution with operator checkpoints at every wave gate (Step 3.3, 5.2, 5.4, 5.6, 5.8, 8.1, 8.2). All inline, single conversation.
 
 Which approach?
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Rewrite all 607 in-scope KTX cvar and command Layer 1 descriptions to the D20 user-doc template by sub-agent fan-out; shipped 2026-05-21 in one session (D21 amendment, arc tag).
+- **Phase:** closed 2026-05-21 -- shipped
+- **Evidence:** last and only commit 2026-05-21 (the plan's landing); the plan's own D21 block reads 'Format-unify follow-up SHIPPED (2026-05-21 Session #10)'; apps/qw-oracle/docs/arc-history.md 2026-05-21 'KTX L1 format-unify -- SHIPPED'; no work-list row.

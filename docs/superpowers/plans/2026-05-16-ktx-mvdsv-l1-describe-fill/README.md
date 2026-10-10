@@ -248,3 +248,9 @@ deviation, do not silently proceed.
   block) before re-drafting.
 - **A new risk emerges during drafting:** append to `review-findings.md` with
   the next sequential F-suffix and a phase tag.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** A provenance-stamped Layer 1 description for every admin-configurable KTX and MVDSV knob; KTX side closed 2026-05-21 by format-unify, MVDSV 345/347 filled by 2026-06-02, Phase 6 pitch never drafted.
+- **Phase:** closed 2026-06-04 -- shipped
+- **Evidence:** last commit 2026-06-04 'quality grid fully green'; the README's own status is stale (reads 'PLAN COMPLETE 2026-05-17', Phases 3-5 'approved'); apps/qw-oracle/docs/arc-history.md 2026-05-17 (in execution), 2026-05-21 (KTX side closed) and 2026-06-02 (MVDSV NULL-fill milestone); HANDOVER's small-followup row names only the MVDSV findings backlog in this folder.

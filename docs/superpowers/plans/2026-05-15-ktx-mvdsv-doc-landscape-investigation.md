@@ -471,3 +471,9 @@ EOF
 **3. Type consistency:** File paths identical across all tasks (`docs/superpowers/parking/2026-05-15-ktx-mvdsv-doc-landscape/...`). Schema field names in `_report-template.md` (Coverage count / Format / Structure quality / Overlap-conflict / Extractability) match the Task 3 Step 6 verification grep strings and the Task 5 `coverage.ndjson` keys. Roster terms (domain values) consistent between Task 1 template, probe blocks, and Task 4/5.
 
 No gaps found; plan stands.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** A quantified evidence map of where KTX/MVDSV server documentation lives (six probes, coverage table, gap findings, verdict); complete 2026-05-15.
+- **Phase:** closed 2026-05-15 -- shipped
+- **Evidence:** last and only commit 2026-05-15 (the plan's landing); the parking folder it builds, docs/superpowers/parking/2026-05-15-ktx-mvdsv-doc-landscape/, carries all six probes and its README reads 'COMPLETE 2026-05-15'; no work-list row.

@@ -821,3 +821,9 @@ Arc closure: operator can run arc-reviewer skill in a fresh terminal for the spe
 - L1-GAP follow-up arc (next extractor-capability arc, parking doc seeded in Task 3.5)
 - gfx_comment SQL mining beyond per-slice usage (1,449 rows; corpus-mining-recipes.md covers ad-hoc usage)
 - Skins / Monster vs Skins / Gib seed split decision (Task 3.4 will surface during `player_skin` and `model_texture` slices; seed-patch inline if proposed)
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Ship the asset-type-curate skill and the asset-notes L3 bucket, validate on skybox, then fan out to 20 asset types; skill and bucket shipped 2026-05-13/14 with five notes, the 16-slug fan-out parked.
+- **Phase:** paused since 2026-05-14 -- Asset-type curate skill arc (waiting on an operator session to run the queued fan-out waves)
+- **Evidence:** last and only commit 2026-05-13 (the plan's landing); curated/asset-notes/ scaffolded 2026-05-13 and calibrated through 2026-05-14; HANDOVER Ongoing arcs row 'Asset-type curate skill arc' points at parking/2026-05-14-asset-type-phase-3-fanout.md, and a small-followup row names the plan's Task 3.6 re-walk sidecar.
