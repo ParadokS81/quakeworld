@@ -1,14 +1,17 @@
 # Deployment Guide
 
+Quad ships as a pre-built image and runs on the Unraid box as a three-service compose stack (`quad`, `mumble`, `acme`) from `/mnt/user/appdata/quad/`. Every command in this guide runs from the dev-cockpit container: that directory is mounted read-write at the same path, and `docker` / `docker compose` reach the host through `dev-deploy-proxy`, which allows the full verb set on quad's three containers and refuses everything else. There is no host SSH (fence since 2026-07-28). A `Forbidden` from the proxy is the fence, not a bug: write ops a letter.
+
 ## Infrastructure
 
 | | |
 |---|---|
 | **Host** | Unraid server, Tailscale `100.114.81.91` |
-| **SSH alias** | `unraid` (configured in `~/.ssh/config`) |
-| **SSH key** | `~/.ssh/id_rsa` |
+| **Access** | dev-cockpit: appdata mounted rw, docker through `dev-deploy-proxy`, no host root |
+| **Containers** | `quad-quad-1` (bot), `mumble-server` (voice server), `acme-sh` (cert sidecar) |
 | **Quad directory** | `/mnt/user/appdata/quad/` (compose + config + volumes, no source code) |
-| **Recordings** | `/mnt/user/appdata/quad/recordings/` (volume-mounted, survives restarts) |
+| **Recordings** | `/mnt/user/appdata/quad/recordings/` (bind-mounted, survives restarts) |
+| **Image** | `ghcr.io/paradoks81/quad:${QUAD_VERSION:-latest}`, built by GitHub Actions on top of `ghcr.io/paradoks81/quad-base` |
 | **Mumble player endpoint** | `mumble.slipgate.me:64738` (Cloudflare A record `DNS only` → home WAN IP, then router port-forward to Unraid LAN `192.168.1.205:64738`) |
 | **GPU** | None. Whisper transcription falls back to CPU automatically (`device="auto"` in `scripts/transcribe.py`). |
 | **CPU/RAM** | 24-core i7-13700, 62GB RAM. Compose limits the bot to 8 CPU / 8GB. |
@@ -21,94 +24,71 @@
 docker exec quad-quad-1 node -e 'fetch("http://localhost:3000/health").then(r=>r.text()).then(console.log)'
 ```
 
-If the response shows `"recording": { "active": true }` -- **STOP. Do not deploy.** A team is currently recording and deploying would interrupt their session. Port 3000 is not published, so the check runs inside the container.
+If the response shows `"recording": { "active": true }` -- **STOP. Do not deploy.** A team is currently recording and deploying would interrupt their session. Port 3000 is published on the host's loopback only, which the cockpit cannot reach, so the check runs inside the container.
 
 Wait for the recording to finish, then re-check before proceeding.
 
-**Automated enforcement:** a global Claude Code `PreToolUse` hook on the dev plane (dotfiles `claude/hooks/quad-recording-guard.sh`) runs this check before any Bash command that would stop or recreate the quad container. It blocks when a recording is live, and also when the container is running but its status cannot be read.
-
-### SSH Access
-
-```bash
-ssh unraid
-# Or explicitly:
-ssh -i ~/.ssh/id_rsa root@100.114.81.91
-```
-
-Tailscale must be active on the local machine.
+**Automated enforcement:** a global Claude Code `PreToolUse` hook on the dev plane (dotfiles `claude/hooks/quad-recording-guard.sh`) runs this check before any Bash command that would `up`, `down`, `restart`, `stop`, `kill`, `rm` or `create` on the quad stack (matched by the `appdata/quad` path or the `quad-quad-1` name). It blocks when a recording is live, and also when the container is running but its status cannot be read. If it blocks, ask the operator; do not work around it.
 
 ### Container Management
 
-Plain `docker compose`. Unraid is operator-controlled, no `qwvoice-ctl`-style wrapper. The legacy Xerial deployment used a sudo-restricted wrapper because the box was shared; on Unraid we are root.
+Plain `docker compose` from the stack directory, using the cockpit's own compose binary. The compose project is `quad`, so the bot container is `quad-quad-1`; `mumble` and `acme` carry fixed `container_name`s.
 
 | Action | Command |
 |---|---|
-| Start | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose up -d'` |
-| Pull latest image | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose pull'` |
-| Pull + restart (standard deploy) | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose pull && docker compose up -d'` |
-| Stop | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose down'` |
-| Restart (no rebuild) | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose restart'` |
-| Status | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose ps'` |
-| Live logs | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs -f'` |
-| Recent logs | `ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs --tail=100'` |
-| Clean dangling images | `ssh unraid 'docker image prune -f'` |
-| Edit `.env` on server | `ssh unraid 'nano /mnt/user/appdata/quad/.env'` |
+| Status | `cd /mnt/user/appdata/quad && docker compose ps` |
+| Pull + restart (standard deploy) | `cd /mnt/user/appdata/quad && docker compose pull && docker compose up -d` |
+| Restart one service (no pull) | `cd /mnt/user/appdata/quad && docker compose restart quad` |
+| Stop the stack | `cd /mnt/user/appdata/quad && docker compose down` |
+| Live logs | `cd /mnt/user/appdata/quad && docker compose logs -f quad` |
+| Recent logs | `cd /mnt/user/appdata/quad && docker compose logs --tail=100 quad` |
+| Edit `.env` | edit `/mnt/user/appdata/quad/.env` in place (mode 600); put a secret value in with `secret-drop env /mnt/user/appdata/quad/.env <KEY>`, never typed inline |
 
-### Compose plugin caveat
-
-Unraid does not ship `docker compose` by default. The plugin binary is installed at `/usr/local/lib/docker/cli-plugins/docker-compose`, which lives on tmpfs and **does not survive a host reboot**. After an Unraid reboot, the bot's containers will keep running (Docker manages them independently of the compose CLI), but you cannot run `docker compose` commands until the binary is re-installed. Two ways to handle:
-
-1. **Recommended:** install the **Compose Manager** plugin from Unraid Community Apps. Persists across reboots.
-2. **Stop-gap:** add a User Scripts entry that re-downloads the binary on boot:
-   ```bash
-   mkdir -p /usr/local/lib/docker/cli-plugins
-   curl -sSL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" \
-     -o /usr/local/lib/docker/cli-plugins/docker-compose
-   chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
-   ```
+A `mumble-server` restart drops every connected player and any Mumble recording in progress, so the safety check applies to it as much as to the bot.
 
 ## Deploy Workflow
 
 ### Standard Update (code changes)
 
-1. Commit and push to `main`. GitHub Actions builds the image automatically and pushes to `ghcr.io/paradoks81/quad`.
+1. Commit and push to `main`. GitHub Actions (`.github/workflows/quad-docker.yml`) builds the image on any push touching `apps/quad/` (markdown changes excluded) and pushes it to `ghcr.io/paradoks81/quad` tagged `latest` and `sha-<short sha>`.
 2. Wait for the workflow to finish:
    ```bash
    gh run list --workflow=quad-docker.yml --limit=1
    gh run watch --exit-status $(gh run list --workflow=quad-docker.yml --limit=1 --json databaseId --jq '.[0].databaseId')
    ```
-3. Deploy:
+3. Run the pre-deploy safety check above.
+4. Deploy:
    ```bash
-   ssh unraid 'cd /mnt/user/appdata/quad && docker compose pull && docker compose up -d'
+   cd /mnt/user/appdata/quad && docker compose pull && docker compose up -d
    ```
-4. Verify:
+5. Verify:
    ```bash
-   ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs --tail=20 quad'
-   ssh unraid 'curl -s http://localhost:3000/health'
+   cd /mnt/user/appdata/quad && docker compose logs --tail=20 quad
+   docker exec quad-quad-1 node -e 'fetch("http://localhost:3000/health").then(r=>r.text()).then(console.log)'
    ```
+   Expect `Registered 3 global command(s)` in the log, and the health response listing all seven modules with `"active": false`.
 
-Images are pre-built by GitHub Actions and pushed to `ghcr.io/paradoks81/quad`. Deploy pulls only changed layers (typically a few MB for code changes).
+Deploy pulls only changed layers (typically a few MB for code changes). GHCR pulls authenticate through `DOCKER_CONFIG=$HOME/.secrets/docker`, exported by the cockpit's shell init; never `docker login`.
 
-### Pre-flight if no recording is active
+### Pin or roll back
 
-```bash
-ssh unraid 'curl -s http://localhost:3000/health' | grep -oE '"active":[^,]*'
-# Expect: "active":false
-```
+`QUAD_VERSION` in `.env` selects the image tag (`latest` by default). To roll back, set it to the previous `sha-<short sha>` tag and run `docker compose pull && docker compose up -d quad`. Set it back to `latest` afterwards, or the next deploy silently stays pinned.
 
 ## File Layout on Unraid
 
 ```
 /mnt/user/appdata/quad/
-├── docker-compose.yml      compose definition (no GPU, CPU-tuned)
+├── docker-compose.yml      copy of apps/quad/docker-compose.yml (edit the repo file, then copy it here)
 ├── .env                    secrets + endpoint config (mode 600)
 ├── service-account.json    Firebase admin creds (mode 600)
 ├── recordings/             persistent recording output
 ├── models/                 Whisper model cache (downloads on first /process transcribe)
-└── mumble-data/            Mumble server state (sqlite + ini), owned by uid 10000:10000
+├── mumble-data/            Mumble server state (sqlite + ini), owned by uid 10000:10000
+├── mumble-certs/           Let's Encrypt cert + key for mumble.slipgate.me, written by the acme sidecar
+└── acme-data/              acme.sh state (account, cert archive, crontab) + the live copy of scripts/reload-mumble.sh
 ```
 
-The `mumble-data/` directory must remain owned by uid:gid `10000:10000` because the Mumble container runs as that user and needs read+write on `mumble-server.sqlite`. If you ever copy files into that dir as root, run `chown -R 10000:10000 /mnt/user/appdata/quad/mumble-data` afterward.
+`mumble-data/`, `mumble-certs/`, `acme-data/` and the session directories under `recordings/` are container-written and container-owned by design (`mumble-data/` must stay `10000:10000`, the Mumble container's user). A write the cockpit is denied anywhere in this tree is an ownership relic: write ops a letter naming the path; never chown or work around it.
 
 ## Architecture Notes
 
@@ -143,16 +123,18 @@ Heavy Python + audio dependencies pre-built into a separate base image (`ghcr.io
 
 ### Volumes
 
-| Mount | Purpose |
-|---|---|
-| `./recordings:/app/recordings` | Recording output. Persists across container restarts. |
-| `./service-account.json:/app/service-account.json:ro` | Firebase credentials. |
-| `./models:/root/.cache/huggingface/hub` | Whisper model cache. Downloads on first transcription. |
-| `./mumble-data:/data` (mumble service) | Mumble server state. |
+| Mount | Service | Purpose |
+|---|---|---|
+| `./recordings:/app/recordings` | quad | Recording output. Persists across container restarts. |
+| `./service-account.json:/app/service-account.json:ro` | quad | Firebase credentials. |
+| `./models:/root/.cache/huggingface/hub` | quad | Whisper model cache. Downloads on first transcription. |
+| `/mnt/cache/appdata/quad/mumble-data:/data` | mumble | Mumble server state. Bound through `/mnt/cache`, not `/mnt/user`: murmur's SQLite must not run over the shfs/FUSE layer (that corrupted Plex's DB on 2026-08-13). Same bytes, different mount route. |
+| `/mnt/cache/appdata/quad/mumble-certs:/certs:ro` | mumble | Let's Encrypt cert, written and chowned by the acme service. |
+| `./acme-data:/acme.sh`, `./mumble-certs:/certs`, `/var/run/docker.sock` | acme | acme.sh state, cert output, and the Docker socket its reload hook uses to restart `mumble-server`. |
 
 ### Environment
 
-Configured via `.env`. Not in git. See `.env.example` for the full set.
+Configured via `.env`. Not in git. See `.env.example` for the full set and `DEVELOPMENT.md` for what each module needs.
 
 Key vars:
 - `DISCORD_TOKEN` -- bot token (required)
@@ -162,7 +144,9 @@ Key vars:
 - `FIREBASE_SERVICE_ACCOUNT` -- path to service account JSON
 - `MUMBLE_PUBLIC_HOST` -- `mumble.slipgate.me`. **Must be set** -- the bot throws on activation if missing (see `src/modules/mumble/config-listener.ts`).
 - `MUMBLE_HOST` -- internal Docker service name (`mumble`) for the bot's ICE connection
-- `HEALTH_BIND` -- compose default is `127.0.0.1`. Override only if you need cross-host health probes.
+- `MUMBLE_ICE_SECRET`, `MUMBLE_SUPERUSER_PASSWORD`, `MUMBLE_SERVER_PASSWORD` -- consumed by the `mumble` service in compose as well as by the bot
+- `CF_Token`, `CF_Zone_ID` -- consumed by the `acme` service (see "Mumble TLS certificate")
+- `HEALTH_BIND` -- compose default is `127.0.0.1` on the host, which the cockpit cannot reach; hence the `docker exec` form of the health check. Override only if you need cross-host probes.
 
 ## Mumble player endpoint
 
@@ -184,9 +168,9 @@ mumble://...mumble.slipgate.me ----------> 78.70.76.77 (home WAN IP)
                                           mumble-server container
 ```
 
-The Cloudflare record is **A, "DNS only"** (grey cloud). Do not enable proxy -- Cloudflare's HTTP proxy breaks Mumble's TCP+UDP voice traffic. Home WAN IP is dynamic; if it ever changes, update the A record (check current with `ssh unraid 'curl -s4 ifconfig.me'`).
+The Cloudflare record is **A, "DNS only"** (grey cloud). Do not enable proxy -- Cloudflare's HTTP proxy breaks Mumble's TCP+UDP voice traffic. Home WAN IP is dynamic; if it ever changes, update the A record. The cockpit shares the home WAN, so `curl -s4 ifconfig.me` shows the current address and `getent hosts mumble.slipgate.me` what DNS says.
 
-Router admin GUI access procedure + credentials are kept in user-local memory, not in this repo (router admin password is not a public-repo artifact).
+Router admin GUI access procedure + credentials are held by the operator outside this repo (router admin password is not a repo artifact).
 
 ## Mumble TLS certificate
 
@@ -208,28 +192,30 @@ Pieces:
   so murmur reloads the cert.
 
 Caveat: that renewal restart goes through the Docker socket and so **bypasses
-the quad recording-safety hook**. Renewals fire at acme's nightly cron near
-the ARI window (~Jul 19 2026, then ~90-day cycle); match-recording collision
-is unlikely but possible. Backstops: Let's Encrypt emails the account address
-on near-expiry renewal failure; a `.claude/calendar-checks.txt` entry surfaces
-a renewal check at session start.
+the quad recording-safety hook**. Renewals fire at acme's nightly cron once the
+90-day cert enters its renewal window (roughly every 60 days); match-recording
+collision is unlikely but possible. Backstops: Let's Encrypt emails the account
+address on near-expiry renewal failure; a `.claude/calendar-checks.txt` entry
+surfaces a renewal check at session start.
 
 Disaster recovery / re-issue (host migration, lost `acme-data`, revoked token):
 
 ```bash
-# 1. ensure CF_Token + CF_Zone_ID are in /mnt/user/appdata/quad/.env
+# 1. ensure CF_Token + CF_Zone_ID are in /mnt/user/appdata/quad/.env (secret-drop env)
 # 2. restore the reload hook + bring up the sidecar
-scp apps/quad/scripts/reload-mumble.sh unraid:/mnt/user/appdata/quad/acme-data/reload-mumble.sh
-ssh unraid 'chmod +x /mnt/user/appdata/quad/acme-data/reload-mumble.sh && cd /mnt/user/appdata/quad && docker compose up -d acme'
+#    (acme-data/ is root-owned: if the copy is denied, letter to ops with the path)
+cp apps/quad/scripts/reload-mumble.sh /mnt/user/appdata/quad/acme-data/reload-mumble.sh
+chmod +x /mnt/user/appdata/quad/acme-data/reload-mumble.sh
+cd /mnt/user/appdata/quad && docker compose up -d acme
 # 3. register + issue (staging first to validate the pipeline, then prod)
-ssh unraid 'docker exec acme-sh acme.sh --register-account -m david.larsen.1981@gmail.com --server letsencrypt_test'
-ssh unraid 'docker exec acme-sh acme.sh --issue --dns dns_cf -d mumble.slipgate.me --server letsencrypt_test'
-ssh unraid 'docker exec acme-sh acme.sh --register-account -m david.larsen.1981@gmail.com --server letsencrypt'
-ssh unraid 'docker exec acme-sh acme.sh --issue --dns dns_cf -d mumble.slipgate.me --server letsencrypt --force'
+docker exec acme-sh acme.sh --register-account -m david.larsen.1981@gmail.com --server letsencrypt_test
+docker exec acme-sh acme.sh --issue --dns dns_cf -d mumble.slipgate.me --server letsencrypt_test
+docker exec acme-sh acme.sh --register-account -m david.larsen.1981@gmail.com --server letsencrypt
+docker exec acme-sh acme.sh --issue --dns dns_cf -d mumble.slipgate.me --server letsencrypt --force
 # 4. install + register the reload hook (runs it once: chown + mumble restart)
-ssh unraid 'docker exec acme-sh acme.sh --install-cert -d mumble.slipgate.me --ecc \
+docker exec acme-sh acme.sh --install-cert -d mumble.slipgate.me --ecc \
   --key-file /certs/privkey.pem --fullchain-file /certs/fullchain.pem \
-  --reloadcmd /acme.sh/reload-mumble.sh'
+  --reloadcmd /acme.sh/reload-mumble.sh
 ```
 
 Verify anytime (issuer must be "Let's Encrypt", subject/SAN
@@ -246,36 +232,30 @@ When `MUMBLE_PUBLIC_HOST` changes (e.g., after a host migration), already-active
 
 ```bash
 # Copy the script into the container
-scp apps/quad/scripts/migrate-mumble-server-address.mjs unraid:/tmp/migrate-mumble.mjs
-ssh unraid 'docker cp /tmp/migrate-mumble.mjs quad-quad-1:/app/migrate-mumble.mjs && rm /tmp/migrate-mumble.mjs'
+docker cp apps/quad/scripts/migrate-mumble-server-address.mjs quad-quad-1:/app/migrate-mumble.mjs
 
 # Dry run
-ssh unraid 'docker exec -w /app quad-quad-1 node /app/migrate-mumble.mjs'
+docker exec -w /app quad-quad-1 node /app/migrate-mumble.mjs
 
 # Apply
-ssh unraid 'docker exec -w /app quad-quad-1 node /app/migrate-mumble.mjs --apply'
+docker exec -w /app quad-quad-1 node /app/migrate-mumble.mjs --apply
 
 # Cleanup
-ssh unraid 'docker exec quad-quad-1 rm /app/migrate-mumble.mjs'
+docker exec quad-quad-1 rm /app/migrate-mumble.mjs
 ```
 
 The script reads `MUMBLE_PUBLIC_HOST` from the container's environment (already loaded via compose's `env_file`), so no extra args needed beyond `--apply`.
 
 ## Local Development
 
-Local development does NOT use Docker. Use the built-in skills:
-
-- **`/build`** -- Compile TypeScript (`npx tsc --noEmit`)
-- **`/dev`** -- Start the bot with ts-node ESM loader
-
-The bot runs directly on Node.js in WSL, loading `.env` from the project root.
+Local development does not use Docker. See `DEVELOPMENT.md` for the run and type-check commands; `.claude/commands/dev.md` says what a local `.env` may and may not point at.
 
 ## Troubleshooting
 
 ### Container won't start
 
 ```bash
-ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs quad'
+cd /mnt/user/appdata/quad && docker compose logs quad
 ```
 
 ### Bot is online but not responding to commands
@@ -285,8 +265,8 @@ Discord slash commands are registered globally and can take up to 1 hour to prop
 ### Recordings not appearing
 
 ```bash
-ssh unraid 'ls -la /mnt/user/appdata/quad/recordings/'
-ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs quad | grep -i record'
+ls -la /mnt/user/appdata/quad/recordings/
+cd /mnt/user/appdata/quad && docker compose logs quad | grep -i record
 ```
 
 ### Mumble server unreachable from outside
@@ -294,10 +274,11 @@ ssh unraid 'cd /mnt/user/appdata/quad && docker compose logs quad | grep -i reco
 Probe in three layers:
 
 ```bash
-# 1. DNS resolves to home WAN IP
-nc -zv mumble.slipgate.me 64738
-# 2. Container is listening
-ssh unraid 'ss -tulnp | grep 64738'
+# 1. DNS resolves to the home WAN IP, and the public port answers
+getent hosts mumble.slipgate.me; curl -s4 ifconfig.me
+timeout 5 bash -c 'echo > /dev/tcp/mumble.slipgate.me/64738' && echo "public port open"
+# 2. Container is listening (expect 0.0.0.0:64738->64738/tcp and /udp)
+cd /mnt/user/appdata/quad && docker compose ps mumble
 # 3. Router port-forward is alive
 # (if step 2 succeeds but step 1 fails: router rule changed or WAN IP changed)
 ```
@@ -307,17 +288,14 @@ ssh unraid 'ss -tulnp | grep 64738'
 CPU whisper with the `small` model is ~5-10x slower than the previous 4090 setup but should still complete a 30-min session in a few minutes. If it's painfully slow or OOMs, drop the model size:
 
 ```bash
-ssh unraid 'sed -i "s/^WHISPER_MODEL=.*/WHISPER_MODEL=base/" /mnt/user/appdata/quad/.env'
-ssh unraid 'cd /mnt/user/appdata/quad && docker compose restart quad'
+sed -i "s/^WHISPER_MODEL=.*/WHISPER_MODEL=base/" /mnt/user/appdata/quad/.env
+cd /mnt/user/appdata/quad && docker compose restart quad
 ```
 
 ### Disk space
 
 ```bash
-ssh unraid 'du -sh /mnt/user/appdata/quad/*'
-ssh unraid 'docker image prune -f'
+du -sh /mnt/user/appdata/quad/*
 ```
 
-### `docker compose` command not found after Unraid reboot
-
-The compose plugin is on tmpfs. Re-install (see "Compose plugin caveat" above) or set up the persistent solution.
+Pruning dangling images is a host-wide operation outside the dev lane; if old `quad` images pile up, ask ops by letter.
