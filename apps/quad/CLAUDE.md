@@ -1,8 +1,8 @@
 # Quad -- Discord Bot for QuakeWorld
 
-**Status:** Maintenance. Stable and in active use across 16 teams. New features land when needed, but the core is solid.
+**Status:** Maintenance. Stable and in use by the registered QuakeWorld 4on4 teams; new features land when needed, but the core is solid. Open work: the rows naming quad in the root `HANDOVER.md`.
 
-## Where to find things
+## Documentation index
 
 | When you need... | Read... |
 |---|---|
@@ -10,13 +10,20 @@
 | Why this exists, voice-to-demo pairing story, drawing board | `VISION.md` |
 | Living map of modules, code landmarks, integration points | `OVERVIEW.md` |
 | Local dev setup, commands, env vars, gotchas | `DEVELOPMENT.md` |
-| Production deployment (SSH, Docker, qwvoice-ctl) | `DEPLOYMENT.md` |
+| Production deployment (compose stack on Unraid through the deploy proxy, image pipeline, Mumble cert, troubleshooting) | `DEPLOYMENT.md` |
 | `join.slipgate.me` Discord-share URL Worker (source + dashboard deploy steps) | `cloudflare-worker/README.md` |
 | Firestore collections, session_metadata contract, Storage | `SCHEMA.md` |
 | External API boundaries (Discord, Hub, Firebase, Mumble, Claude) | `API_CONTRACTS.md` |
-| Implementation roadmap (phases, status) | `PLAN.md` |
+| The original build plan, Feb-Mar 2026 (historical; its phase markers were frozen when the modules shipped) | `PLAN.md` |
 | Scheduler module spec | `SCHEDULER-MODULE-BRIEF.md` |
 | Module-specific rules | `.claude/rules/` (loaded automatically by path) |
+
+## Subsystem scopes
+
+| Subfolder | Entry doc | What's there |
+|---|---|---|
+| `docs/` | `docs/CLAUDE.md` | Shipped phase plans, contract reference copies, research and incident records |
+| `src/modules/recording/` | `src/modules/recording/CLAUDE.md` | Discord recording module scope rules |
 
 Start with `OVERVIEW.md` when returning to the project after a break.
 

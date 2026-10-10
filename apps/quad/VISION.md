@@ -12,27 +12,27 @@ The core insight was: both MVD demos and voice recordings have UTC timestamps. I
 
 Quad is the bridge between voice and gameplay. It records per-speaker audio during matches, automatically detects which match was played by querying QW Hub, slices the recordings to match boundaries, and uploads them to a shared backend where the web demo player can stream voice alongside the game replay -- per track, perfectly synced.
 
-The result: you open a match on the MatchScheduler web app, hit play on the FTE web client demo viewer, and hear your team's comms overlaid on the action. Automatically. No manual steps after the initial `/record start`.
+The result: you open a match on the MatchScheduler web app, hit play on the FTE web client demo viewer, and hear your team's comms overlaid on the action. Automatically. No manual steps after `/record start`, and none at all for teams that turn auto-record on.
 
 Beyond recording, Quad serves as the community's Discord-side interface for match scheduling. QuakeWorld has lacked a proper community website for nearly a decade. Discord is where the community lives. The bot meets teams where they already are -- scheduling matches, showing availability, delivering notifications -- without requiring anyone to visit a separate site.
 
 ## Who it's for
 
-All QuakeWorld 4on4 teams. 16 teams are currently connected and using the bot. Any team can register their Discord server, link their team identity, and start recording. The scheduling, availability, and notification features work across all registered teams.
+All QuakeWorld 4on4 teams. Any team can register their Discord server, link their team identity, and start recording. The scheduling, availability, and notification features work across all registered teams.
 
 ## Design intent
 
 - **End-to-end control.** Own the full pipeline from microphone to playback. No third-party recording bots, no manual file juggling, no format conversions. Raw Opus frames go straight to disk as OGG, metadata is written alongside, and the processing pipeline takes it from there.
 - **Automatic match pairing.** The recording bot does not need to know what match you are playing. It records, queries the Hub API for matches in the same time window, and figures out the pairing through timestamp correlation and confidence scoring. Zero configuration per session.
 - **Per-speaker isolation.** One audio track per person, not a mixed-down single file. This enables per-player volume control in playback, selective muting, and future analysis of individual communication patterns. It also opens the door for adding non-player tracks like commentator audio.
-- **Self-hosted on real hardware.** Runs on a dedicated server with an RTX 4090 that the team has access to. Free, fast, no cloud restrictions, full control over the runtime. GPU transcription runs locally. When new features need compute, the headroom is there.
+- **Self-hosted on the operator's own hardware.** Runs on the operator's Unraid box (it started on a shared RTX 4090 server; the move dropped the GPU, so transcription now runs on CPU). Free, no cloud restrictions, full control over the runtime.
 - **Multi-clan from the start.** Not just for ]sr[ (Slackers). Any QW team can register their Discord server, link their team identity, and start recording. The bot runs as a single instance serving all guilds.
 
 ## What this is NOT
 
 - **Not a streaming tool.** It records for after-the-fact review, not live broadcast. Commentator tracks are a future possibility but the system is designed around post-match playback.
 - **Not a stats platform.** Match statistics live on QW Hub and qw-stats. Quad consumes stats (for analysis context) but does not compute or display them.
-- **Not a replacement for Discord or Mumble.** Teams use their existing voice setup. Quad joins as a listener, records, and leaves. It does not manage voice channels or route audio between platforms.
+- **Not a replacement for Discord or Mumble.** On Discord, teams use their existing voice setup: Quad joins as a listener, records, and leaves. On Mumble, Quad hosts the server and provisions one channel and the user accounts per registered team, but in those channels it is still only a listener. It never routes audio between platforms.
 
 ## On the drawing board
 

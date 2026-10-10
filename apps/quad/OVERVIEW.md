@@ -4,7 +4,7 @@
 
 Quad is a self-hosted Discord bot that records per-speaker voice comms during QuakeWorld matches, pairs them with match demos via UTC timestamp correlation, and uploads the result for synced playback on the MatchScheduler web app. It also serves as the community's Discord-side interface for match scheduling, availability, and standin coordination.
 
-**Lifecycle status:** Maintenance. 16 teams connected. Single instance serving all registered guilds. Stable; new features land when needed.
+**Lifecycle status:** Maintenance. Single instance serving all registered guilds. Stable; new features land when needed. Open work: the rows naming quad in the root `HANDOVER.md`.
 
 For why this project exists, see `VISION.md`. For local dev, see `DEVELOPMENT.md`. For production, see `DEPLOYMENT.md`.
 
@@ -12,11 +12,11 @@ For why this project exists, see `VISION.md`. For local dev, see `DEVELOPMENT.md
 
 ## Module map at a glance
 
-All modules live under `src/modules/<name>/`. Each is self-contained, follows the `BotModule` interface (`src/core/module.ts`), and communicates with siblings via Firestore — never direct imports. Module-specific rules auto-load via `.claude/rules/`.
+All modules live under `src/modules/<name>/`. Each is self-contained, follows the `BotModule` interface (`src/core/module.ts`), and communicates with siblings via Firestore — never direct imports. The one in-process seam is `src/shared/session-registry.ts`: the registry of live recording sessions that both recorders consult, so Discord and Mumble auto-record never double-record a team. Module-specific rules auto-load via `.claude/rules/`.
 
 | Module | What it does |
 |---|---|
-| **recording** | Joins voice channel, records per-speaker OGG/Opus, writes `session_metadata.json` |
+| **recording** | Joins voice channel, records per-speaker OGG/Opus, writes `session_metadata.json`; auto-starts when enough registered members join (per-team `autoRecord` setting on `botRegistrations`) |
 | **processing** | Two-stage pipeline (fast = pair-with-Hub-and-upload; slow = transcribe-and-analyze). Uses Python `faster-whisper` and Claude API |
 | **standin** | Firestore-driven standin coordination (DM delivery + button responses) |
 | **registration** | `/register` to link a Discord guild to a MatchScheduler team |
@@ -66,7 +66,7 @@ Raw recordings are gitignored — never commit audio files.
 
 ## Processing pipeline — what's where
 
-Two stages: **fast** (auto after recording, seconds) and **slow** (opt-in via `/process transcribe` or `/process analyze`, hours).
+Two stages: **fast** (auto after recording, seconds; `/process rerun` repeats it) and **slow** (opt-in via `/process transcribe` or `/process analyze`, hours). `/process status` reports where a session stands.
 
 Stage files live at `src/modules/processing/stages/`. Knowledge YAMLs (consumed by the analyzer) live at `src/modules/processing/knowledge/`. Pipeline orchestrator at `src/modules/processing/pipeline.ts`. Run `ls` against either dir for current stage / knowledge file inventory — those are the canonical lists.
 
@@ -111,7 +111,7 @@ See `API_CONTRACTS.md` for the boundary specification and `SCHEMA.md` for Firest
 | Change how voice is uploaded | `src/modules/processing/stages/voice-uploader.ts` |
 | Tune the match-pairing confidence | `src/modules/processing/stages/match-pairer.ts` |
 | Add an analyzer knowledge file | drop YAML at `src/modules/processing/knowledge/<area>/<name>.yaml` (analyzer auto-loads from there) |
-| Change Mumble auto-record triggers | `src/modules/mumble/auto-record.ts` |
+| Change auto-record triggers | `src/modules/recording/auto-record.ts` (Discord), `src/modules/mumble/auto-record.ts` (Mumble); both read the team's `autoRecord` setting from `botRegistrations` |
 | Change Discord availability grid rendering | `src/modules/availability/renderer.ts` (uses `@napi-rs/canvas` with Inter font) |
 | Add a new scheduler notification type | `src/modules/scheduler/embeds.ts` + `src/modules/scheduler/listener.ts` + see `SCHEDULER-MODULE-BRIEF.md` |
 | Run a one-off backfill or sample fetch | `scripts/` (run `ls scripts/` for current inventory) |
