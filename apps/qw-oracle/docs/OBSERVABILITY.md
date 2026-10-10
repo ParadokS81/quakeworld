@@ -5,7 +5,7 @@ Two Postgres tables back the entire observability surface:
 - `query_log` - one row per MCP tool call. Written by the dispatcher wrapper at `serve/mcp/src/query-log.ts`. Columns: `id`, `queried_at`, `tool`, `query_text`, `result_count`, `top_score`, `match_quality` (`strong | weak | none | NULL`), `latency_ms`, `error`, `consumer_hint`. For the three ranked tools `top_score` is the closeness the label was graded on (`meta.best_match_score`, cosine similarity 0..1) from 2026-10-02 on; rows before that hold the fused RRF score (concepts only; entities and threads logged NULL), so do not compare across the date. Only `query_text` is logged -- a caller's `type` / `project` / `limit` filters are not, so a logged miss can be unreproducible without them.
 - `embedding_api_log` - one row per Voyage API call. Written by the loader-side embed pipelines (Phase 5) and by the MCP query-side embedding step (Phase 5 / Phase 6). Columns: `id`, `called_at`, `source` (`'loader' | 'mcp-query'`), `model`, `input_tokens`, `latency_ms`, `error`.
 
-Open `psql` against the dev DB with `bun run db:psql`, or against any deployed instance with the equivalent connection. Every query below is copy-paste; no scripting, no extensions.
+Open `psql` against the dev twin with `docker exec -it qw-oracle-postgres-dev psql -U qworacle -d qw_oracle`, or against prod with `docker exec -it qw-oracle-postgres psql -U qworacle -d qw_oracle` (both dev-owned containers; `bun run db:psql` is the workstation-era compose path). Every query below is copy-paste; no scripting, no extensions.
 
 ## What failed retrieval recently?
 

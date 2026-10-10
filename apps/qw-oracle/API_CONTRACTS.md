@@ -1,6 +1,6 @@
 # qw-oracle API Contracts
 
-**Status:** Active. Test-only consumers (slipgate-app JSON snapshot pipeline; public MCP surface restricted to operator testing). This doc is the contract qw-oracle builds against and verifies against -- not a public SLA. When real external consumers materialize, the items in **Open drift** (last section) become breaking-change blockers to close before exposure.
+**Status:** Active. Consumers: the slipgate-app and docs-web snapshot pipelines, and the public MCP surface, which since 2026-08 has real callers beyond the operator (prod `query_log`: Claude.ai, Claude Code and Codex clients plus at least one outside consumer -- `DEPLOYMENT.md`). This doc is the contract qw-oracle builds against and verifies against -- not a public SLA. The items in **Open drift** (last section) are the contract gaps those callers can hit.
 
 ## Why this doc
 
@@ -166,7 +166,7 @@ L3 originally meant "concept notes." It is now correctly framed as **curated mar
 | Note type | Authoring directory | Storage | Tool surface | Status |
 |---|---|---|---|---|
 | concept-notes | `curated/concept-notes/` | `concepts` + `concept_chunks` (Voyage 4 hybrid) | `search_concepts`, `get_concept_note` | Live |
-| player-notes | `curated/player-notes/` | `community.players` + `community.player_clan_eras` + `community.tournament_results` | `search_profiles(type='player')`, `lookup_profile(type='player')`, `get_profile_note(type='player')`, `lookup_by_nick` | Storage shipped (Phase 2: 5,900 rows). Note files: 570 on disk, 571 has_note=true. MCP tools pending (Phase 6). |
+| player-notes | `curated/player-notes/` | `community.players` + `community.player_clan_eras` + `community.tournament_results` | `search_profiles(type='player')`, `lookup_profile(type='player')`, `get_profile_note(type='player')`, `lookup_by_nick` | Storage shipped (Phase 2: 5,900 rows). Note files: 571 on disk = 571 has_note=true (2026-10-10). MCP tools pending (Phase 6). |
 | clan-notes | `curated/clan-notes/` | `community.clans` + `community.player_clan_eras` | same tool surface (`type='clan'`) | Storage shipped (Phase 3: 822 rows). Note files: 350 on disk, 350 has_note=true. MCP tools pending (Phase 6). |
 | tournament-notes | `curated/tournament-notes/` | `community.tournaments` (Phase 1 placeholder; columns added Phase 4) + `community.tournament_results` | same tool surface (`type='tournament'`) | Phase 4 paused on LLM-extraction sidequest (QWiki tournaments are heterogeneous; deterministic parser unsuitable). Resuming as a Haiku scrape pass. |
 | asset-notes | `curated/asset-notes/` | TBD (`concepts` + `concept_chunks` with `type='asset'` discriminator likely) | TBD (`get_concept_note(type='asset')` + `search_concepts(type='asset')` likely; `lookup_asset_type` for richer envelope if proven) | Authoring in flight (asset-type-curate skill arc 2026-05-13): 5 notes on disk (charset, hud_element, map, player_skin, skybox), none loaded. MCP exposure deferred until bucket populated. |

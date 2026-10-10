@@ -4,9 +4,9 @@
 
 ## Goal
 
-Layer 1 is engine-source-derived facts (cvars, commands, macros, cmdline params, keynames, HUD elements, rulesets, token primitives, asset consumption, flag bits) extracted at every release of every engine, with per-field provenance. ezQuake first, then FTE, MVDSV, KTX. Each tag's snapshot must pass the grid.
+Layer 1 is engine-source-derived facts (cvars, commands, macros, cmdline params, keynames, HUD elements, rulesets, token primitives, asset consumption, flag bits, and the MVDSV/KTX-introduced server types) extracted at every release of every engine, with per-field provenance. All seven engine projects are loaded (ezQuake / FTE / QWCL / MVDSV / KTX / QTV / QWFWD; `OVERVIEW.md` domain inventory). Each tag's snapshot must pass the grid.
 
-Vision context: `apps/qw-oracle/VISION.md`. Schema: `scripts/load-knowledge/schema.ts`.
+Vision context: `apps/qw-oracle/VISION.md`. Schema: `SCHEMA.md` + `db/migrations/`.
 
 ## Validation loop
 
@@ -35,7 +35,7 @@ presence). The fix:
 1. **During the walk:** pass `--skip-prune` to every `extract-tag`
    invocation. The per-load prune is skipped; orphans accumulate during
    the walk. F1.cross_type_orphans WILL fail; treat as informational.
-2. **After all tags loaded:** run `npm run load-knowledge -- prune-cross-type-orphans --project <p>`.
+2. **After all tags loaded:** run `bun scripts/load-knowledge/index.ts prune-cross-type-orphans --project <p>`.
    The finalize sweeps all entity types project-wide, and the entity-level
    `source_state` now reflects the full picture so the prune correctly
    identifies permanent help-JSON mislabels (radar, password, etc.) vs.
@@ -45,13 +45,9 @@ presence). The fix:
 Single-tag loads (no walk) can omit `--skip-prune`; the per-load prune
 fires as before because there is no "later" tag to reveal source presence.
 
-## Status snapshot (2026-04-25, late session)
+## Status
 
-- ezQuake: 8 tags + head loaded clean (3.2.3 / 3.6.0 / 3.6.1 / 3.6.2 / 3.6.5 / 3.6.6 / 3.6.8 / 3.6.9 / head).
-- 5 regression probes PASS. 5 anomaly probes CLEAN. 1 informational (doc_only_crosstab at 201 doc_only entities).
-- Schema v9: per-version retirement transitions (`source_retired_at_version`) landed; entity biographies queryable via `source_state_transitions`.
-- Loader fixes shipped this session: cmdline manifest-fallback citation (params declared but not COM_CheckParm'd), case-fold dict-key merge (loadFragfile vs loadfragfile, HUD262_* family, -forceTextureReload), per-version retirement detection.
-- FTE / MVDSV / KTX: not started.
+The live coverage table is `OVERVIEW.md` (Layer 1 domain inventory). The ezQuake deep-time walk reached its v3.0 floor (17 tags + `head`); FTE, QWCL, MVDSV, KTX, QTV and QWFWD are loaded single-version (plus `head`). Open Layer 1 items are OVERVIEW's "Still open on Layer 1" list and the root `HANDOVER.md`.
 
 ## Cliffs ahead -- ezQuake deep-time walk (3.0 -> 3.6.0)
 
@@ -98,11 +94,11 @@ First port. Biggest structural risk: codebase layout differs (`engine/client/`, 
 ### MVDSV + KTX (Phase 2e)
 
 MVDSV: small port, 189 cvars, same `cvar_t` struct shape as ezQuake. Reuse Visitor handlers.
-KTX: tree-sitter-based. Use `py-tree-sitter` (NOT Node `tree-sitter@0.25`, which segfaults on WSL/Node 20).
+KTX: shipped 2026-05-06 on libclang like the rest (the tree-sitter framing was retired at the onboarding arc's Phase 0; tree-sitter stays reserved for dusty-ktx's `qcsrc/`).
 
-### QWFWD
+### QTV + QWFWD
 
-Not yet cloned to `research/repos/`. Add when scoping Phase 2e.
+Shipped 2026-06-06 (qtv-qwfwd-l1 arc) from vendored snapshots under `research/repos/` (no `.git`); QTV's extractor is Go (`qtv/extract.go`).
 
 ## Out of scope until specifically triggered
 
@@ -124,7 +120,7 @@ These are roadmapped but should not be pulled forward without an explicit blocke
 
 - Quality grid: `scripts/load-knowledge/quality-grid.ts`
 - Extract-tag CLI: `scripts/load-knowledge/extract-tag.ts` + `index.ts`
-- Schema: `scripts/load-knowledge/schema.ts`
+- Schema: `SCHEMA.md` + `db/migrations/`
 - Vision: `apps/qw-oracle/VISION.md`
 - Open todos / deferred items: `HANDOVER.md` (root)
 - Per-entity-type reference: `apps/qw-oracle/docs/entity-types.md`

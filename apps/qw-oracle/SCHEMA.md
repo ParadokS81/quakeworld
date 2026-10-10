@@ -11,7 +11,7 @@ Layer 2 (the chat corpus -- Discord-only) is out of scope for this doc; see `OVE
 ## Conventions
 
 - **PostgreSQL 16 + pgvector + tsvector** (image: `pgvector/pgvector:pg16`). Schema is defined by SQL files under `db/migrations/<NNN>_<name>.sql`, applied by `bun db/migrate.ts`. Migration filenames are sequential and append-only -- never edit an applied migration. Architecturally-significant changes additionally get a dated spec under root `docs/superpowers/specs/`. Schema state is tracked in the `schema_migrations` table (filename + applied_at), not in a single integer version counter -- the SQLite-era `SCHEMA_VERSION` model retired with Arc 1.
-- **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. FTE has only `build-6698`. QWCL has only `2.33` (single-commit repo; canonical label aliased to commit `bf4ac42`). MVDSV has only `head` (2026-01-04 snapshot, `f816d28`). KTX uses upstream tags (`1.46` is the latest stable as of 2025-09-14). `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx`, `qwcl`, `qwfwd`, `qtv` (CHECK-constrained; migration 020 added `qwfwd` and `qtv` as projects 6-7; all seven accepted post-migration). The `qw` namespace means "the game itself" -- content that exists outside any engine version arc. The `qw` tables (`maps`, `gameplay_sources`, `gameplay_entity_defs`, `gameplay_mechanics`) have no `project` column; `qw` appears only in the `Project` TS union.
+- **Versions** are strings, per-project convention. ezQuake uses upstream tags (`3.6.9`) plus synthetic `head`. FTE has `build-6698` plus a `head` row on the same commit. QWCL has `2.33` (single-commit repo; canonical label aliased to commit `bf4ac42`) plus `head` on the same commit. MVDSV and KTX are `head`-only (`18d03621`, 2026-04-07, and `67253dc9`). QTV and QWFWD carry their vendored snapshot labels (`1.16-dev`, `1.40-dev`) plus `head`. The live list: `SELECT project, version FROM versions ORDER BY project, ordinal`. `project` is one of `ezquake`, `fte`, `mvdsv`, `ktx`, `qwcl`, `qwfwd`, `qtv` (CHECK-constrained; migration 020 added `qwfwd` and `qtv` as projects 6-7; all seven accepted post-migration). The `qw` namespace means "the game itself" -- content that exists outside any engine version arc. The `qw` tables (`maps`, `gameplay_sources`, `gameplay_entity_defs`, `gameplay_mechanics`) have no `project` column; `qw` appears only in the `Project` TS union.
 - **Natural keys** are called out per table. All loader upserts go through `scripts/load-knowledge/natural-keys.ts`; that is the one place idempotent-insert logic lives. Postgres `INSERT ... ON CONFLICT ... DO UPDATE` is the canonical upsert shape.
 - **Canonical IDs** are `<project>:<type>:<name>`, lowercased for everything except `token_primitive` (case-sensitive -- `$B` blue LED vs `$b` glyph). MVDSV-introduced types carry compound name suffixes for cross-scope disambiguation: `info_key` uses `<bare>:<scope>` (e.g. `*z_ext:serverinfo`); `qc_builtin` uses `<bare>:<table_name>`. KTX commands extend the same convention with sub-namespace suffixes: `<name>:frogbot:std` and `<name>:frogbot:editor` for the bot-subcommand tables (per the KTX onboarding arc D7).
 - **JSONB columns receive JS values, not pre-stringified JSON** -- pass the JS array/object directly (or wrap with `tx.json(...)` for postgres-js type compliance); pre-stringifying stores a JSONB string scalar (the legacy SQLite-era TEXT bug). Probe `F1.jsonb_columns_not_strings` is the regression gate; KTX adds per-handler probes per the Phase 7 validation work.
@@ -47,7 +47,7 @@ One row per (project, version) pair loaded. The "have I seen this tag?" answer.
 | `version` | TEXT | Upstream tag string, or `head` |
 | `commit_sha` | TEXT | Resolved git SHA for the tag |
 | `tag_date` | TEXT nullable | ISO date of the tag |
-| `ordinal` | INTEGER | Monotone per-project ordering; drives diff "walk forward". Released tags use a semver-encoded number (3.6.1 -> 361, 3.6.6 -> 366). The `head` row uses sentinel `HEAD_ORDINAL = 999999` (exported from `schema.ts`) so it sorts after every release. CLI `--ordinal` is auto-defaulted to `HEAD_ORDINAL` when `--version=head`. |
+| `ordinal` | INTEGER | Monotone per-project ordering; drives diff "walk forward". Released tags use a semver-encoded number (3.6.1 -> 361, 3.6.6 -> 366). The `head` row uses sentinel `HEAD_ORDINAL = 999999` (exported from `scripts/load-knowledge/constants.ts`) so it sorts after every release. CLI `--ordinal` is auto-defaulted to `HEAD_ORDINAL` when `--version=head`. |
 | `parse_state` | TEXT CHECK | `ok` / `partial` -- extractor health for this version |
 | `notes` | TEXT nullable | Free-form extractor notes |
 | `extracted_at` | TEXT | ISO timestamp |
@@ -99,7 +99,7 @@ The shared identity table: one row per canonical engine feature across all its o
 
 **Consumed by:** every downstream query. Every `*_versions` row FK-references `entity_id`; every `source_overrides` row too.
 
-**CHECK widening history:** The `type` CHECK started at 4 values in v1 and has been widened four times (v1->v2, v2->v3, v4->v5, v11->v12) via full table-rebuild migrations. See `ENTITIES_V2_MIGRATION_SQL`, `ENTITIES_V3_MIGRATION_SQL`, `ENTITIES_V5_MIGRATION_SQL`, `ENTITIES_V12_MIGRATION_SQL` in `schema.ts`. Fresh DBs stamp the widest CHECK directly on the v1 CREATE -- the comment at the top of `SCHEMA_V1_SQL` documents why that is deliberate.
+**CHECK widening history:** The `type` CHECK started at 4 values in v1 and has been widened four times (v1->v2, v2->v3, v4->v5, v11->v12) via full table-rebuild migrations. Those SQLite-era rebuilds (`schema.ts`) retired with the Arc 1 port; `002_layer1_schema.sql` stamps the CHECK as it stood at the port, and every widening since is a `DROP CONSTRAINT` + `ADD CONSTRAINT` pair in its own `db/migrations/` file (009-011, 020).
 
 **Description-provenance family:** `description` + `description_origin` (migration 012) and the seven migration-014 columns (`description_anchor_version`, `description_rereview`, `description_provenance`, `description_verdict`, `description_confidence`, `description_reasoning`, `description_proposed`) together form one coherent description-provenance/staleness/decision-trail family. `description` is the owned Layer 1 text; `description_origin` records where it came from; migration 014 adds the D2/D4 staleness anchor + re-review flag, the D11 retained multi-source provenance (JSONB), and the D5-D8 decision trail (verdict / confidence / reasoning / proposed). The KTX/MVDSV describe-fill arc (spec `docs/superpowers/specs/2026-05-15-ktx-mvdsv-l1-describe-fill-design.md`) is the first writer of the 014 columns; FTE/QWCL are later arcs on the same pattern.
 
@@ -418,7 +418,7 @@ Indexes: `idx_sst_entity`, `idx_sst_run`.
 Key/value scratchpad for loader state. Schema v1.
 
 Expected keys:
-- `schema_version` -- current integer (matches `SCHEMA_VERSION` in `schema.ts`)
+- `schema_version` -- written from `SCHEMA_VERSION` in `scripts/load-knowledge/constants.ts`, frozen at 18 since the Postgres port; the applied-migration truth is `schema_migrations` (root HANDOVER carries the stale constant)
 - `extractor_version` -- last-run extractor version string (e.g., `clang-ezquake-cvars@1.0.0`)
 - `last_extraction_run_at` -- ISO timestamp
 - `last_enrichment_run_at` -- ISO timestamp
@@ -546,7 +546,7 @@ Phase 2e of the QW knowledge service rollout. Widens the `entities.type` CHECK f
 The four new types describe the server-side surface that MVDSV (the QuakeWorld dedicated server) exposes -- the wire protocol, the userinfo/serverinfo string-key namespace, the print/log channels that drive game-event broadcasting, and the QuakeC builtin function table that bridges engine code into the QC VM. Once MVDSV Layer 1 extraction lands, these tables become the foundation for two downstream consumers:
 
 - The upcoming **KTX cvars/commands arc (Phase 2e-KTX)** -- KTX is a QC mod hosted by MVDSV; KTX needs the protocol_message + qc_builtin tables to make sense of mod-side cvar registrations and event broadcasts.
-- The **qw_event_log validation oracle** -- the parser is currently frozen at `/home/paradoks/projects/qw-event-log-handoff/` (commit `2c584b4`). It carries an obit-string -> cause taxonomy and WeaponType enum that need to be cross-checked against engine source. Activates after KTX gameplay overrides ship; the validation harness joins the parser's enums against `protocol_message_versions` (svc/clc kinds) and `log_template_versions` (broadcast channel, obit format strings).
+- The **qw_event_log validation oracle** -- the parser was frozen at commit `2c584b4` in a WSL-era checkout (`qw-event-log-handoff`) that is gone from this box; its fate is the root HANDOVER qw_event_log row. It carries an obit-string -> cause taxonomy and WeaponType enum that need to be cross-checked against engine source. Activates after KTX gameplay overrides ship; the validation harness joins the parser's enums against `protocol_message_versions` (svc/clc kinds) and `log_template_versions` (broadcast channel, obit format strings).
 
 ### New entity types
 
@@ -901,7 +901,7 @@ Re-run idempotency: each `DROP CONSTRAINT` is wrapped in `IF EXISTS` so re-apply
 
 ### Cross-arc downstream consumers
 
-- The `qw_event_log` parser (`/home/paradoks/projects/qw-event-log-handoff/`) becomes unblocked at the schema level: its WeaponType + obit-string -> cause taxonomies cross-validate against `match_event_versions` (per-event schema) + `log_template_versions` filtered to `channel='logfile'` (per-call-site format strings).
+- The `qw_event_log` parser (`qw-event-log-handoff`, WSL-era checkout -- root HANDOVER) becomes unblocked at the schema level: its WeaponType + obit-string -> cause taxonomies cross-validate against `match_event_versions` (per-event schema) + `log_template_versions` filtered to `channel='logfile'` (per-call-site format strings).
 - Layer 3 concept-note candidates (parked at `docs/superpowers/parking/2026-05-04-ktx-layer3-concept-note-candidates.md`) consume KTX's first-class entity rows + gameplay_mechanics catalog + match_event entity table for the game-modes index, matchlog format, and mutators notes.
 
 ### Spec / plan
@@ -1102,7 +1102,7 @@ Provenance sibling for `category_inferred`. Format: `{model}|{prompt_version}`, 
 
 ## Related
 
-- Schema code: `scripts/load-knowledge/schema.ts`
+- Schema code: `db/migrations/<NNN>_*.sql`, applied by `db/migrate.ts`; runtime constants in `scripts/load-knowledge/constants.ts`
 - Per-table idempotent upserts: `scripts/load-knowledge/natural-keys.ts`
 - Per-type row-shape interfaces: `scripts/load-knowledge/types.ts`
 - Loader adapters (one per entity type): `scripts/load-knowledge/load-<type>.ts`

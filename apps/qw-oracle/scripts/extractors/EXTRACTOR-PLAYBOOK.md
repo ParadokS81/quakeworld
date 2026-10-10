@@ -71,10 +71,10 @@ See [Three-tier handler architecture](#three-tier-handler-architecture) below fo
     |       - isSourceBacked predicate (typically `entry.ast !== null`)
     |       - buildVersionRow + upsert
     |
-    +-- transitions.ts / natural-keys.ts / schema.ts / diff-versions.ts
+    +-- transitions.ts / natural-keys.ts / constants.ts / diff-versions.ts
         |
         v
-  apps/qw-oracle/data/knowledge.db   [SQLite, schema v18]
+  Postgres qw_oracle   [dev twin qw-oracle-postgres-dev; schema = db/migrations/]
 ```
 
 Key invariants:
@@ -724,7 +724,7 @@ finalize(all_rows, repo_root)                    -- once at end, merges help-JSO
 8. `finalize(all_rows, repo_root)`: dedup by canonical name, merge help-JSON, return `{groups, <type>s, _stats}`.
 9. Register in `extract-ezquake-unified.py::ALL_HANDLERS`.
 10. Add a loader adapter: `apps/qw-oracle/scripts/load-knowledge/load-<type>.ts` + entry in `ADAPTERS` dict in `load-version.ts`.
-11. Add the schema migration: per-type versions table + entity-type check constraint addition in `schema.ts`.
+11. Add the schema migration: a new `db/migrations/<NNN>_<name>.sql` with the per-type versions table + the `entities.type` CHECK widening; update `SCHEMA.md` alongside.
 
 ---
 
@@ -947,7 +947,7 @@ Stepwise checklist. Expect 1-3 days per engine depending on how many new registr
 ### 0. Prerequisites
 
 - Engine source cloned to `research/repos/<engine>-source/`.
-- `libclang` + `python3-clang` installed (see [reference_libclang_ezquake_extraction.md](../../..//home/paradoks/.claude/projects/-home-paradoks-projects-quakeworld/memory/reference_libclang_ezquake_extraction.md) for WSL setup).
+- `libclang` + `python3-clang` installed (`python3 -c 'import clang.cindex'` must succeed; on the cockpit it does as of 2026-10-10).
 - Engine has `help_*.json` files? If yes, note where they live relative to the source root. If no, you'll only have source-backed rows (no `doc_only` complement; help-JSON augments desc/remarks).
 - You can boot the engine somehow to produce `cvarlist` / `cmdlist` dumps for validation. If not, plan for lower-confidence initial ship.
 
@@ -1020,7 +1020,7 @@ For each handler:
 
 In `apps/qw-oracle/scripts/load-knowledge/`:
 - Copy `load-cvars.ts` -> `load-<engine>-cvars.ts` if field shape differs, or reuse if identical.
-- Add the engine to the project allowlist in `schema.ts` (`CHECK (project IN ('ezquake','fte','mvdsv','ktx'))` -- already includes the four; add more as needed).
+- Add the engine to the project CHECKs with a new migration (migration 020 is the template: it widened every project CHECK clause for qtv/qwfwd) and to the `Project` union in `scripts/load-knowledge/types.ts`.
 - The cross-type help-JSON orphan prune in `load-version.ts` is project-aware (scoped to the current project), so it'll handle the new engine automatically.
 
 ### 6. Run extraction + load
@@ -1035,7 +1035,7 @@ python3 apps/qw-oracle/scripts/extractors/<engine>/extract.py \
 Load per type into the DB:
 
 ```bash
-npm --prefix apps/qw-oracle run load-knowledge -- load-version \
+bun apps/qw-oracle/scripts/load-knowledge/index.ts load-version \
   --project <engine> --version head --type cvar \
   --json apps/qw-oracle/scripts/extractors/<engine>/output/<engine>-variables-ast.json \
   --commit <sha> --ordinal <n>

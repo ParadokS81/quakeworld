@@ -22,8 +22,7 @@ quake/
   run-server.sh    # launcher (tracked)
 ```
 
-Operator's source copy: `/mnt/c/Games/QuakeWorld/QuakeWorld/` (reachable from WSL).
-`id1/pak0.pak` + `id1/pak1.pak` are staged here already.
+The pak files come from the operator's own Quake install; nothing is staged on the cockpit as of 2026-10-10 (`quake/` holds only the tracked files).
 
 ## Run the mvdsv + KTX server
 
@@ -31,8 +30,9 @@ Operator's source copy: `/mnt/c/Games/QuakeWorld/QuakeWorld/` (reachable from WS
 ./run-server.sh [map] [/path/to/mvdsv]      # defaults: dm6, and ./mvdsv
 ```
 
-Then connect ezquake (Windows) to `<WSL eth0 IP>:27500` (find the IP with
-`ip -4 addr show eth0`). In-game: `botcmd enable; addbot; ready` for a bot match
+Then connect a client to this box on port 27500 -- from the operator's desktop that is
+the Tailscale address `100.114.81.91:27500`, which needs the port published in the
+cockpit's compose first (an ops letter; the user-global `CLAUDE.md` names the rule). In-game: `botcmd enable; addbot; ready` for a bot match
 (KTX auto-records to `ktx/demos/`), or just `pause` (matchless pause is enabled).
 rcon password is `test123` — the local config sets `sv_crypt_rcon 0` and raises
 `sv_rconlim` so scripted rcon works (`Rcon_Validate` consumes the bandwidth limit
