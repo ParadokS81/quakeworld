@@ -33,6 +33,7 @@
 | `apps/slipgate-app/` | `apps/slipgate-app/CLAUDE.md` | Tauri v2 desktop companion |
 | `packages/qw-knowledge/` | `packages/qw-knowledge/CLAUDE.md` | Shared QW domain knowledge / weapon-scripts / terminology |
 | `packages/qw-version-resolution/` | `packages/qw-version-resolution/CLAUDE.md` | Version arithmetic helpers (engine versions, builds, channels) |
+| `contracts/` | `contracts/CLAUDE.md` | Cross-app design specs and the shared Firestore/Storage data contract |
 
 ## How We Work
 
