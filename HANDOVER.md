@@ -8,13 +8,13 @@ own arcs chronicle in `apps/qw-oracle/docs/arc-history.md`).
 
 ## Ongoing arcs
 
-- **QWiki community-reference — Phase 4 LLM-extraction** — [plan](docs/superpowers/plans/2026-05-04-qwiki-community-reference/README.md) — paused, waiting on operator call (possible supersession by qwiki-v1-beta/qwiki-sandbox pivot).
-- **docs.quake.world Phase 5 production** — [resume handoff](docs/superpowers/parking/2026-06-11-docs-quake-world-orchestrator-resume-phase5.md) — paused, waiting on vikpe DNS greenlight.
-- **demand-driven L3 player-help concept authoring** — [plan](docs/superpowers/plans/2026-06-09-demand-driven-l3-concept-authoring/README.md) — paused, waiting on operator pickup (next note: rl/gl or textures).
-- **Oracle web direction (Arc A + Arc B)** — [direction doc](docs/superpowers/parking/2026-08-04-oracle-web-direction.md) · [oracle-web-v1 plan](docs/superpowers/plans/2026-08-06-oracle-web-v1/README.md) — executing.
-- **Asset-type curate skill arc — Phase 3 fan-out** — [parking](docs/superpowers/parking/2026-05-14-asset-type-phase-3-fanout.md) — paused, waiting on operator session to run queued fan-out waves.
-- **Slipgate Managed Mode pivot** — [parking](docs/superpowers/parking/2026-04-28-slipgate-managed-mode.md) — paused, waiting on Browse+Manager UI brainstorm (gating step).
-- **Layer 2 corpus reconstruction — Phase D (now: chat calibration set) + buckets-E** — [plan](docs/superpowers/plans/2026-06-06-layer2-corpus-reconstruction/README.md) — paused, waiting on operator pickup (Phase C shipped 2026-08-06; RRF grading replaced by closeness cut-offs 2026-10-02, so Phase D shrinks to labeling more chat questions; monthly harvest runbook continues on its own calendar cadence).
+- **QWiki community-reference** — [plan](docs/superpowers/plans/2026-05-04-qwiki-community-reference/README.md) — paused — waiting on operator call (possible supersession by the qwiki-v1-beta / qwiki-sandbox pivot).
+- **docs.quake.world (docs-web)** — [resume handoff](docs/superpowers/parking/2026-06-11-docs-quake-world-orchestrator-resume-phase5.md) — paused — waiting on vikpe's DNS greenlight.
+- **demand-driven L3 player-help concept authoring** — [plan](docs/superpowers/plans/2026-06-09-demand-driven-l3-concept-authoring/README.md) — paused — waiting on operator pickup.
+- **Oracle web direction (Arc A + Arc B)** — [direction doc](docs/superpowers/parking/2026-08-04-oracle-web-direction.md) · [oracle-web-v1 plan](docs/superpowers/plans/2026-08-06-oracle-web-v1/README.md) — paused — waiting on operator GO for the oracle-web-v1 deploy.
+- **Asset-type curate skill arc** — [parking](docs/superpowers/parking/2026-05-14-asset-type-phase-3-fanout.md) — paused — waiting on an operator session to run the queued fan-out waves.
+- **Slipgate Managed Mode pivot** — [parking](docs/superpowers/parking/2026-04-28-slipgate-managed-mode.md) — paused — waiting on the Browse+Manager UI brainstorm (gating step).
+- **Layer 2 corpus reconstruction** — [plan](docs/superpowers/plans/2026-06-06-layer2-corpus-reconstruction/README.md) — paused — waiting on operator pickup (the monthly harvest runs on its own calendar cadence).
 
 ## Future arcs
 
