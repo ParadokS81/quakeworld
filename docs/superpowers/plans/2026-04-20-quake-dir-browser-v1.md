@@ -3700,3 +3700,9 @@ git commit -m "docs(handover): resolve dir-browser vision item -- v1 plan writte
 **Scope check:** single implementation plan covers a single feature with clear component boundaries. No sub-decomposition needed.
 
 **Ambiguity check:** `mergedCvarsFromConfig` is the one soft spot -- Task 19 flags the engineer to verify `EzQuakeConfig.cvars` shape. All other interfaces are pinned in their originating task.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Browse mode inside MyQuake: a three-pane lens over the quake dir on a new Rust scanner fed by the asset-consumption bundle; shipped 2026-04-20 and grown through 2026-04-28.
+- **Phase:** closed 2026-04-20 -- shipped
+- **Evidence:** last commit 2026-04-30 (doctrine retrofit); no close words; browse.rs and the Browse* components landed 2026-04-20 and the plan's closing HANDOVER drain ('resolve dir-browser vision') was committed the same day; no work-list row.

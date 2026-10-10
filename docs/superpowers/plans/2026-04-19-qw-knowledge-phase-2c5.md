@@ -273,3 +273,9 @@ CREATE TABLE IF NOT EXISTS token_primitive_versions (
 ## Commit plan
 
 Commit per task (7 commits total). Push main at the end.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Extend ezQuake extraction to keynames, HUD elements, rulesets and $-code token primitives (schema v1 to v2); shipped 2026-04-19.
+- **Phase:** closed 2026-04-19 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words; 'Phase 2c.5 e2e - ezQuake complete across 8 types' landed 2026-04-19 and the arc-history 2026-04-18 entry counts 2c.5 among the shipped sub-phases; no work-list row.

@@ -589,3 +589,9 @@ Push at the end of Task 7. Drain HANDOVER's "Quake-dir browser vision + oracle p
 ## Scope reminder
 
 Phase 2c.6 scope is **ezQuake consumer-side only**. Nothing about MVDSV server, KTX server-mod, FTE engine, or mod-producer inventory (TF/CTF asset shipping lists). Those phases get their own specs and plans. The schema shape here is deliberately project-keyed (`project='ezquake'` on every relation row) so future phases add rows with their own project tag without schema changes.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Extract ezQuake's filesystem-consumption behaviour (asset categories, extensions, path rules, cvar bindings, loader sites) into five new tables; shipped 2026-04-20.
+- **Phase:** closed 2026-04-20 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words; 'Phase 2c.6 e2e -- ezQuake asset consumption model loaded' landed 2026-04-20 and the arc-history 2026-04-18 entry counts 2c.6 among the shipped sub-phases; no work-list row.

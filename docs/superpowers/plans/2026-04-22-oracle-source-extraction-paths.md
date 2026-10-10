@@ -1854,3 +1854,9 @@ These items are flagged in the frame spec and must not creep into this plan:
 - **No slipgate code changes.** Slipgate's bundle consumption is unchanged; it picks up new fields on its next bundle refresh.
 - **No backfill of historical ezQuake tags.** Fix head first; backfill rides on Phase 2f's general machinery.
 - **No pytest infrastructure.** Python verification uses hand-rolled drivers at `packages/qw-config/scripts/tests/*.py` invoked directly.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Three in-pass extraction capabilities on the ezQuake asset-loader extractor: parameterized paths, a reserved-subdirs catalog and asset-bundle coverage fill; shipped 2026-04-22.
+- **Phase:** closed 2026-04-22 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); the plan was retrofitted with Task 3.3 findings 2026-04-22; the parameterized-path fields and derive-reserved-subdirs both landed 2026-04-22 and live under qw-oracle's extractors today; no work-list row.

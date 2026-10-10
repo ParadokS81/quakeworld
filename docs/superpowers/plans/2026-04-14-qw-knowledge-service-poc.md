@@ -2828,3 +2828,9 @@ If any of the following feel tempting mid-execution, STOP and flag to the user i
 - Adding tests or test infrastructure.
 
 All of these are on the deferred roadmap and are answered during the dev-server presentation phase.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Three-layer QuakeWorld knowledge service POC (facts, chat claims, curated concepts) behind a local MCP server; shipped, validated the extraction path, and the full qw-oracle followed.
+- **Phase:** closed 2026-04-14 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words in the plan (its line-148 '## Status' is a CLAUDE.md template inside a code fence); apps/qw-oracle/docs/arc-history.md 2026-04-14 'Knowledge service POC': validated the libclang extraction path, full implementation followed; no work-list row.

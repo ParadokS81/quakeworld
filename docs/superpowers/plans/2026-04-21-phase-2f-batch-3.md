@@ -1471,3 +1471,9 @@ Expected: typecheck PASS, schema_version = '6'.
 - **Historical backfill across pre-Batch-2 loaded tags requires a re-load of all ruleset + hud_element + cvar entries for those tags so source_overrides is populated for them.** Task 13 Step 1-2 handles the 4 historical tags already loaded. If more tags get loaded later (Phase 2f historical walk proper), that walk will populate source_overrides as a side effect of load-version.
 - **Cvar call-site resolution is best-effort regex, not AST.** `&cvar_name` is the typical form but `&cvars[i]` or macro-expanded forms won't match. YAGNI for now -- the 4 visible call sites are the target.
 - **Diff pipeline change (Task 12) queries source_overrides inside the diff txn via a prepared statement.** This is one extra query per modification event. On a full historical walk, this could be ~10k modifications -> 10k extra queries. If performance becomes an issue, preload source_overrides for the entire to-version into a Map once per diff run.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Close the Phase 2f architectural gaps: CHECK widening, loader-site key stability, struct-shape extractor tolerance audit and per-field blame via source_overrides (schema v6); shipped 2026-04-21.
+- **Phase:** closed 2026-04-21 -- shipped
+- **Evidence:** last and only commit 2026-04-21, 'commit Batch 3 plan alongside shipped work'; its HANDOVER step says the historical backfill is unblocked since Batch 3 was the last prerequisite; no work-list row.

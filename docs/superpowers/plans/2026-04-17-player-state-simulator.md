@@ -3385,3 +3385,9 @@ Report any failure back to the implementer as targeted follow-ups referencing th
 
 **Regex convention reminder:** all code samples use `string.match(regex)` or `string.matchAll(regex)`, never `regex.exec(string)`, per root CLAUDE.md. Implementers must preserve this convention.
 
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** PlayerState model, ezQuake if-condition evaluator, SimulatorResolver for the pretty view and a State editor panel behind a Keyboard | State toggle; shipped 2026-04-17.
+- **Phase:** closed 2026-04-17 -- shipped
+- **Evidence:** last commit 2026-04-30 (doctrine retrofit); no close words; simulator scaffolding and the StatePanel scaffold landed 2026-04-17 (panel redesign 2026-04-19), src/lib/simulator holds the modules with their tests; no work-list row.

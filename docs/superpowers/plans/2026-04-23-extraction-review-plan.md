@@ -1831,3 +1831,9 @@ After implementation:
 - [ ] **No placeholders:** no "TBD" / "TODO" / "fill in later" / "handle edge cases" anywhere in this plan's tasks. All code steps show the actual code.
 - [ ] **Type consistency:** `Finding`, `Bucket`, `ReviewReport`, `ReviewCounts`, `makeFindingId`, `runReview`, `extractTag`, `ExtractTagOptions`, `ExtractTagResult` -- all named the same way in every task that references them. Imports use `.js` suffix per the existing project convention (NodeNext module resolution).
 - [ ] **Scope check:** plan covers one cohesive subsystem (review pipeline). No multi-subsystem bundling.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** The review and extract-tag CLI subcommands plus the extraction-review skill, so the historical backfill walks every finding through a closed disposition set; shipped 2026-04-23.
+- **Phase:** closed 2026-04-23 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words; apps/qw-oracle/docs/arc-history.md 2026-04-23 'Extraction-review skill + CLI'; the review dispatcher landed 2026-04-23 and .claude/skills/extraction-review/SKILL.md exists; no work-list row.

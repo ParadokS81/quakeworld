@@ -1452,3 +1452,9 @@ cd /home/paradoks/projects/quakeworld && git push origin main
 **Placeholder scan:** No `TBD`, no "handle edge cases", no "similar to Task N" shortcuts. Every code step contains the actual code. Observed-value placeholders (`<observed-entity-count>`, `<N>`, `<flag_bit-changes>`) in doc-update steps are intentional -- the executor fills them with real counts from the validation runs.
 
 **Execution note:** The extractor in Task 5 does not use libclang despite the `-clang.py` filename suffix. This is deliberate -- header-level `#define` lines are trivially regex-matchable and dragging libclang in would add fragility (header-only parsing is awkward with clang AST for a single TU). The suffix is kept for naming-parallel consistency with sibling extractors.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Close Phase 2f Batch 2 gaps: flag_bit entities for ezQuake bitmask families and diff coverage for the four asset relation tables (schema v5); shipped 2026-04-21.
+- **Phase:** closed 2026-04-21 -- shipped
+- **Evidence:** last and only commit 2026-04-21, 'commit Batch 2 plan alongside shipped work'; the plan's own memory-update step records 'Phase 2f Batch 2 shipped 2026-04-21'; no work-list row.

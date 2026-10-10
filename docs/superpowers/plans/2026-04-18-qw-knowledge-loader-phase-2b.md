@@ -2312,3 +2312,9 @@ Next phases (NOT in this plan):
 - **Phase 2f:** full historical backfill driven by `load-knowledge full`.
 - **Phase 2g:** MCP tool upgrades (`get_entity_history`, `version` param on `lookup_entity`).
 - **Phase 2h:** scheduled automation watching upstream tags.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** The TypeScript loader turning ezQuake extractor JSON into knowledge.db across two real versions (3.6.9 and head); shipped 2026-04-18 as the Layer 1 schema + loader.
+- **Phase:** closed 2026-04-18 -- shipped
+- **Evidence:** last commit 2026-04-18 (plan fixes during execution); the plan's success criteria are not ticked in-file; apps/qw-oracle/docs/arc-history.md 2026-04-18 'Knowledge-service Layer 1 schema + loader' names this plan; no work-list row.

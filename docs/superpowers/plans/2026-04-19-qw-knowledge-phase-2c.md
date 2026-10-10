@@ -214,3 +214,9 @@
 - Task 4 complete -> commit `refactor(qw-oracle): per-type loader modules for all entity types`
 - Task 5 complete -> commit `feat(qw-oracle): Phase 2c e2e - ezQuake fully loaded across 4 types`
 - Final: push main, drain Phase 2c-leading-bullet from HANDOVER (Phase 2d-2h remain).
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Port the ezQuake commands, macros and cmdline-param extractors to AST quality and generalize the loader to all four entity types; shipped 2026-04-19.
+- **Phase:** closed 2026-04-19 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words; 'Phase 2c e2e - ezQuake fully loaded across 4 types' landed 2026-04-19 and the arc-history 2026-04-18 entry counts 2c among the shipped sub-phases; no work-list row.
