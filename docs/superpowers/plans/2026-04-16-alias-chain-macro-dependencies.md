@@ -659,3 +659,9 @@ Load a second config. Expand a teamsay bind. Verify two-column macro dependencie
 ```bash
 git push origin main
 ```
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Show macro dependencies (variable names and resolved values) under expanded alias chains in every config viewer section; shipped 2026-04-16.
+- **Phase:** closed 2026-04-16 -- shipped
+- **Evidence:** last commit 2026-04-16 (the plan's own landing); no close words; 'add macro dependency collection and rendering to AliasChainResolver' landed 2026-04-16 and macroRefs is live; no work-list row.

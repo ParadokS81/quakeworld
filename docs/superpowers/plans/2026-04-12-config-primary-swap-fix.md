@@ -324,3 +324,9 @@ Launch the app and test:
 git add apps/slipgate-app/src/components/ConfigViewer.tsx
 git commit -m "fix(config-viewer): address issues found during verification"
 ```
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Make View as Primary replace all parsed config data so no stale values leak from the original config; shipped 2026-04-12 (configOverride signal, effectiveConfig memo).
+- **Phase:** closed 2026-04-12 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words; 'View as Primary now loads full EzQuakeConfig alongside chain' landed 2026-04-12 and effectiveConfig is live in ConfigViewer.tsx; no work-list row.

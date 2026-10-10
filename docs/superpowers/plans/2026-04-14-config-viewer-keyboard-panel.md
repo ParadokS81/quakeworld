@@ -1933,3 +1933,9 @@ Two execution options:
 2. **Inline Execution** -- Execute tasks in this session using executing-plans, batch execution with checkpoints for review. Faster but uses more of the main conversation context.
 
 **Which approach?**
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** A right-side keyboard panel in the ConfigViewer, stacked in compare mode, with click-to-pin linking to the bind rows; shipped 2026-04-14 and polished 2026-04-15.
+- **Phase:** closed 2026-04-14 -- shipped
+- **Evidence:** last commit 2026-04-30 (doctrine retrofit); no close words; ConfigKeyboardPanel was added and rendered in the Binds sections 2026-04-14, and the 2026-04-15 modular-keyboard brief records the three polish commits; no work-list row.

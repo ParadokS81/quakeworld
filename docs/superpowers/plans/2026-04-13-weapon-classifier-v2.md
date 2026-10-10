@@ -2703,3 +2703,9 @@ Optionally push the branch and prepare a PR.
 - SetupStyle metadata detection (explicitly cut from the spec during brainstorming).
 - Snapshot-file-based regression tests (`.expected.json`) - replaced by targeted assertions in Task 17 because snapshot drift is hard to manage without a review workflow; can be added later if needed.
 - Frontend visual polish beyond functional correctness - the WeaponBindViz and ConfigWeaponBindsSection changes render the new fields but don't restyle the surrounding UI.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Replace the weapon bind classifier with a causal-chain Rust module emitting firing paths per weapon (quickfire / manual-select / manual-hold) plus the weapon-scripts knowledge doc; shipped 2026-04-13.
+- **Phase:** closed 2026-04-13 -- shipped
+- **Evidence:** last commit 2026-04-13 (the plan's own landing); no close words; weapon_classifier.rs landed 2026-04-13 (scaffold through contested-key suppression the same day), the old analyze_weapon_binds is gone, packages/qw-knowledge/weapon-scripts exists; no work-list row.

@@ -111,3 +111,9 @@ Read these before brainstorming, in this order:
 - `--sg-kb-selected`, `--sg-kb-owner-you`, `--sg-kb-owner-them` are the semantic keyboard colors in `app.css` (commit `0088ed9`). Any new keyboard-related color should join them, not hardcode OKLCH.
 - The `docs/EZQUAKE-RESOLUTION.md` doc explains the absent=default cvar pattern that the config parser relies on - useful if any brainstorming question touches how binds get resolved.
 - `src-tauri/` changes auto-rsync to the Windows build mirror via a `PostToolUse` hook. This feature is mostly frontend so it shouldn't matter, but if the brainstorm lands on any Rust-side work, don't relocate slipgate to a worktree - the hook hardcodes the main-tree path.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Pre-brainstorm brief for the swappable right-hand keyboard module (nav / numpad / mouse); superseded the same day by the spec and the modular-keyboard-panel plan, which shipped 2026-04-16.
+- **Phase:** closed 2026-04-15 -- superseded by the 2026-04-15-modular-keyboard-panel plan
+- **Evidence:** last commit 2026-04-30 (doctrine retrofit); the brief's own header reads 'Brief only. No spec, no plan, no code'; the plan it asked for exists beside it and the feature's modules landed 2026-04-15/16; no work-list row.

@@ -638,3 +638,9 @@ Build from Windows terminal and test:
 git add apps/slipgate-app/src/components/
 git commit -m "fix(config-viewer): address issues from per-key layout + unresolved detection verification"
 ```
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** One row per key-weapon pair in the weapon binds section, plus detection of binds that reference undefined aliases or commands; shipped 2026-04-12.
+- **Phase:** closed 2026-04-12 -- shipped
+- **Evidence:** last commit 2026-04-29 (ASCII-rule sweep); no close words; 'add unresolved bind detection to categorizeBinds' landed 2026-04-12 and the unresolved category is in configMerger.ts; no work-list row.

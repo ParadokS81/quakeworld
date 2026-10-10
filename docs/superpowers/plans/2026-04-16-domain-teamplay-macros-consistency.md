@@ -388,3 +388,9 @@ Load a second config for comparison. Verify the three-column layout shows both c
 ```bash
 git push origin main
 ```
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Domains > Teamplay > Macros sourced from the database category like Settings > Macros, instead of only alias-chain-reachable ones; shipped 2026-04-16.
+- **Phase:** closed 2026-04-16 -- shipped
+- **Evidence:** last commit 2026-04-16 (the plan's own landing); no close words; the ConfigTeamplayMacros rewrite and its call-site update both landed 2026-04-16; no work-list row.

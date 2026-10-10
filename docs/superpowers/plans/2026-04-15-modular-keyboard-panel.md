@@ -1923,3 +1923,9 @@ At the end of Task 16, the modular keyboard panel feature is complete:
 - Both views persist their module independently in `ProfilePrefs`.
 - Numpad cells render ezQuake's 17 canonical numpad keys; mouse cells render 7 mouse inputs (Mouse1-5, MWheelUp, MWheelDown) plus a reserved Mouse6 slot.
 - No automated tests added; compile + build + full manual verification are the quality gates.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Swappable right-hand keyboard slot (nav + arrows / numpad / mouse) for ConfigViewer and Profile with auto-reveal on selection; shipped 2026-04-16.
+- **Phase:** closed 2026-04-16 -- shipped
+- **Evidence:** last commit 2026-04-30 (doctrine retrofit); the plan's Done section describes the finished feature; keyboardModules/ (nav, numpad, mouse) landed 2026-04-15 and 'update OVERVIEW for modular keyboard + resolve handover' on 2026-04-16; no work-list row.

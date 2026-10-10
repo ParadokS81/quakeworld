@@ -1758,3 +1758,9 @@ Run before handing off:
 2. **Placeholder scan** -- no TBDs, no "implement later". All tasks contain exact file paths and runnable code or exact diff locations.
 
 3. **Type consistency** -- `PrettySpan`, `SpanColor`, `SpanOrigin`, `BuildContext`, `BuildResult`, `RuntimeResolver`, `RuntimeResolution` used consistently across tasks. `buildSpanTree(input, ctx)` signature stable.
+
+## Status (backfilled 2026-10-10)
+
+- **Outcome:** Pretty-rendered alias chains (resolved colors, substituted variables, readable runtime tokens, active-branch dimming in Simulator mode) on top of the player-state simulator; shipped 2026-04-17.
+- **Phase:** closed 2026-04-17 -- shipped
+- **Evidence:** last commit 2026-04-30 (doctrine retrofit); no close words; prettyRender.ts, charCodeTable.ts and runtimeResolver.ts with their tests landed 2026-04-17, the alias_chain prefs and sg-span styles are live; no work-list row.
