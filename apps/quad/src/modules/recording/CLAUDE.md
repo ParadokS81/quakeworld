@@ -1,40 +1,24 @@
 # Recording Module
 
-Per-speaker voice recording from Discord voice channels. This is the first and currently only module in Quad.
-
-## Scope
-This module does ONE thing: capture per-user Opus audio from Discord and write it as OGG/Opus files to disk, along with a `session_metadata.json`. No transcription, no analysis, no API calls.
+Per-speaker voice recording from Discord voice channels: capture per-user Opus audio, write it as OGG/Opus files to disk, write `session_metadata.json` at the end. No transcription or analysis here (that is `../processing/`); the only outside call is a fire-and-forget `recordingSessions` write to Firestore so the MatchScheduler admin panel can see live sessions. The Mumble recorder is a separate module (`../mumble/`) that shares the `src/shared/session-registry.ts` seam with this one.
 
 ## Files
 - `index.ts` -- BotModule export (commands, events, lifecycle hooks)
-- `commands/record.ts` -- `/record start` and `/record stop` slash command handlers
-- `session.ts` -- `RecordingSession` class: manages one recording session (tracks, timing, output dir)
-- `track.ts` -- `UserTrack` class: per-user OGG stream pipeline (Opus -> OGG -> file)
-- `silence.ts` -- Silent Opus frame generation + caching
-- `metadata.ts` -- Writes `session_metadata.json` at end of session
+- `commands/record.ts` -- `/record start|stop|status|reset`; `start` routes to the Mumble recorder when asked
+- `auto-record.ts` -- starts a session when enough registered members join a channel, stops after a grace period (per-team `autoRecord` setting on `botRegistrations`)
+- `session.ts` -- `RecordingSession`: one session's tracks, timing, output dir
+- `track.ts` -- `UserTrack`: per-user OGG stream pipeline (Opus -> OGG -> file)
+- `silence.ts` -- silent Opus frame generation + caching
+- `metadata.ts` -- writes `session_metadata.json`
+- `firestore-tracker.ts` -- fire-and-forget `recordingSessions` writes; a Firestore outage never fails a recording
 
-## Key Patterns
-- `receiver.subscribe(userId, { end: { behavior: EndBehaviorType.Manual } })` -- one long-lived stream per user
-- `pipeline(opusStream, oggStream, fileStream)` -- Node.js stream pipeline, no buffering
-- Silent Opus frames inserted on a 20ms timer when no audio packet received
-- Late-joining users get silence prepended to align with recording start time
+## Rules in this scope
+- Never transcode, never buffer in memory, never fragment: one continuous OGG per speaker (the app `CLAUDE.md` non-negotiables).
+- Never modify `core/` from here; never import from other modules (the shared registry is not a module).
+- prism-media is `2.0.0-alpha.0` and must stay so: the OGG muxer exists only in v2. The recording flow, the muxer snippet and the fallbacks are in `.claude/rules/recording-module.md`, which loads automatically for files under this folder.
 
-## What NOT to do
-- Never transcode Opus to another codec
-- Never buffer audio in memory -- always stream to disk
-- Never create per-utterance files -- one continuous OGG per speaker
-- Never modify core/ files from this module
-- Never import from other modules (modules are independent)
+## Documentation index
+None beyond this file; the module's technical reference is `.claude/rules/recording-module.md` at the app root.
 
-## prism-media usage
-```typescript
-import prism from 'prism-media';
-// Use v1.3.5 API -- v2 alpha is broken
-const oggStream = new prism.opus.OggLogicalBitstream({
-  opusHead: new prism.opus.OpusHead({
-    channelCount: 2,
-    sampleRate: 48000,
-  }),
-  pageSizeControl: { maxPackets: 10 },
-});
-```
+## Subsystem scopes
+None.
