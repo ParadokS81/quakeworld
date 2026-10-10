@@ -17,7 +17,7 @@ Two shipped pieces and one unbuilt product. The data foundation (PostgreSQL) and
 - **Express server** in `api/server.js`, container `qw-stats-api` on the Unraid box, port 3100. Eight routes: `GET /health`, `GET /api/sync-status`, `POST /api/sync-now`, `GET /api/h2h`, `GET /api/form`, `GET /api/opponents`, `GET /api/maps`, `GET /api/roster`. Every team parameter accepts a comma-separated list of tags, which is how tag variants of one clan are folded together. Contract in `API_CONTRACTS.md`.
 - **Updater** in `api/updater.js`: on startup and every `UPDATE_INTERVAL` seconds (default 900) it asks QWHub's Supabase index for 4on4 games newer than the latest `played_at`, fetches each game's ktxstats file from `d.quake.world`, and inserts with `ON CONFLICT DO NOTHING` on `demo_sha256`. The same module runs by hand as `scripts/update-games.js`.
 - **Public on the internet** at `https://qw-api.poker-affiliate.org` through a Cloudflare tunnel (container `qw-stats-cloudflared`). No auth, CORS open, read-only apart from `POST /api/sync-now`, which only triggers a pull. MatchScheduler's browser code calls this URL directly.
-- **Docker image** from `api/Dockerfile` (copies `server.js` and `updater.js`). Deploy route: the root `deploy` skill, "QW Stats" section.
+- **Docker image** from `api/Dockerfile` (copies `server.js` and `updater.js`). How it ships: `DEPLOYMENT.md`.
 
 ### Research and analysis
 
@@ -129,7 +129,7 @@ qw-stats does not read from or write to the other monorepo apps. The MatchSchedu
 
 - **Database schema columns and types** - `SCHEMA.md` (the authoritative DDL is in `scripts/import-postgres.js`).
 - **API endpoint shapes in full** - `API_CONTRACTS.md`.
-- **Deployment to Unraid** - the root `deploy` skill, "QW Stats" section. There is no `DEPLOYMENT.md` in this checkout.
+- **Deployment to Unraid** - `DEPLOYMENT.md`.
 - **Why the sniff test is the integration test** - `VISION.md`.
 - **Methodology research depth** - `RESEARCH-RANKING.md`, `RESEARCH-IDENTITY.md`, `ALIAS-RESOLUTION-RESEARCH.md`.
 - **Project direction / phase order** - `ROADMAP.md`.

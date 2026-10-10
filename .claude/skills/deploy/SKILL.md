@@ -86,7 +86,7 @@ The build context is mounted at its host path, `/mnt/user/appdata/qw-stats-api`;
    ```bash
    cp apps/qw-stats/api/server.js /mnt/user/appdata/qw-stats-api/
    ```
-   If `package.json` changed, also copy `package.json`.
+   If `updater.js` or `package.json` changed, copy those too (the Dockerfile copies `server.js` and `updater.js`).
 2. Rebuild and restart the container:
    ```bash
    cd /mnt/user/appdata/qw-stats-api && docker build -t qw-stats-api . && docker stop qw-stats-api && docker rm qw-stats-api && docker run -d --name qw-stats-api --network phoenix-analytics_default -e PG_PASSWORD="$(grep '^POSTGRES_PASSWORD=' /mnt/user/appdata/phoenix-analytics/.env | cut -d= -f2-)" -p 100.114.81.91:3100:3100 --restart unless-stopped qw-stats-api
@@ -97,7 +97,7 @@ The build context is mounted at its host path, `/mnt/user/appdata/qw-stats-api`;
    curl https://qw-api.poker-affiliate.org/health
    ```
 
-For details: `apps/qw-stats/DEPLOYMENT.md` (gitignored -- contains credentials)
+For details: `apps/qw-stats/DEPLOYMENT.md`
 
 ## Slipgate App
 

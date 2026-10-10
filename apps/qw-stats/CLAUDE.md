@@ -15,7 +15,7 @@ A data-driven ranking system for QuakeWorld 4on4 players and teams, built on QWH
 | Current map: what is live, code landmarks, parked items, integration boundaries | `OVERVIEW.md` |
 | Tables, columns, indexes, views, import filters (Layer 2, schema role) | `SCHEMA.md` |
 | Public API endpoints, parameters, response shapes (Layer 2, API-contracts role) | `API_CONTRACTS.md` |
-| Deploy to the Unraid box and verify | root `deploy` skill, section "QW Stats" (`.claude/skills/deploy/SKILL.md`); this app has no deployment doc of its own |
+| Deploy to the Unraid box, verify, roll back (Layer 2) | `DEPLOYMENT.md` (the root `deploy` skill renders its sequence) |
 | The plan: phase order, game-classification fix, domain knowledge, what worked | `ROADMAP.md` |
 | Ranking methodology research (HLTV, Glicko-2, TrueSkill, OpenSkill, RAPM) | `RESEARCH-RANKING.md` (Layer 3) |
 | Alias-resolution research: signals, pipeline design, field notes | `RESEARCH-IDENTITY.md` (Layer 3) |
