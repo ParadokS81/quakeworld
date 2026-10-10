@@ -1,6 +1,6 @@
 # QuakeWorld Monorepo
 
-**Status:** Active development. Workshop monorepo hosting six QuakeWorld community apps. Solo-developer, Claude-assisted.
+**Status:** Active development. Workshop monorepo of QuakeWorld community apps (eight folders under `apps/`, each with its own status word in `OVERVIEW.md`); open work is `HANDOVER.md`. Solo-developer, Claude-assisted.
 
 ## Documentation index
 
@@ -12,12 +12,17 @@
 | Living map: integration diagram, per-app status, packages, contracts | `OVERVIEW.md` |
 | Cross-project specs index | `contracts/README.md` |
 | Deferred items from prior wrap-ups (todo state, not memory) | `HANDOVER.md` |
+| Repo-scope shipped-arc chronicle (qw-oracle's arcs chronicle in `apps/qw-oracle/docs/arc-history.md`) | `docs/arc-history.md` |
+| Design specs, implementation plans, pre-plans and arc body files (append-only chronicle; parking files are indexed from `HANDOVER.md`) | `docs/superpowers/{specs,plans,preplans,parking}/` (`parking/README.md` has the parking conventions) |
+| Unraid backup closeout and the dev-databases compose | `infra/` (`infra/unraid-backup/README.md`) |
+| Reference clones (gitignored) and the tracked design notes beside them (ktxstats parser spec, qw_event_log design) | `research/` (`research/repos/README.md`, `research/assets/PARSER-SPEC.md`, `research/QW-EVENT-LOG-DESIGN.md`) |
 | Standalone investigations / research papers (ecosystem-scope) | `docs/research/` |
 | Always-loaded mindset docs | `.claude/skills/philosophy/` (auto-imported below) |
 | The documentation constitution — why docs are shaped this way | harness-lab's `DOC-PHILOSOPHY.md` (canonical; no local copy in this repo) |
 | The development doctrine — environment, principles, iteration protocol | harness-lab's `DOCTRINE.md` (canonical; no local copy — skills render it, never own it) |
 | Session wrap-up ritual | `~/.claude/skills/docs-check/` (user-global skill) |
-| Deploy any project | `deploy` skill ("deploy" or `/deploy`) |
+| Deploy matchscheduler, quad, qw-stats or slipgate-app | `deploy` skill (`.claude/skills/deploy/`, "deploy" or `/deploy`); qw-oracle, oracle-web and docs-web deploy from their own `DEPLOYMENT.md`, qwiki-sandbox from `deploy/README.md` |
+| Project skills (oracle curation and extraction, KTX L1 rewrite, QWHub API, deploy) | `.claude/skills/<name>/SKILL.md` -- thirteen folders, loaded by name; only `philosophy/` is auto-imported |
 
 **Start with `OVERVIEW.md` when working in this monorepo — it's the load-bearing cross-app map (integration diagram, per-app status, packages, contracts).**
 
@@ -28,12 +33,15 @@
 | `apps/matchscheduler/` | `apps/matchscheduler/CLAUDE.md` | Match scheduler (Firebase web) |
 | `apps/quad/` | `apps/quad/CLAUDE.md` | Discord bot |
 | `apps/qw-stats/` | `apps/qw-stats/CLAUDE.md` | Express + PostgreSQL stats API |
-| `apps/qw-oracle/` | `apps/qw-oracle/CLAUDE.md` | SQLite knowledge base + MCP service (Layer 1 facts / Layer 2 chat corpus / Layer 3 concept notes) |
+| `apps/qw-oracle/` | `apps/qw-oracle/CLAUDE.md` | Postgres knowledge base + MCP service (Layer 1 facts / Layer 2 chat corpus / Layer 3 concept notes) |
 | `apps/oracle-web/` | `apps/oracle-web/CLAUDE.md` | oracle.quake.world v1 -- the read-only brain surface (SolidJS, CF Pages) |
+| `apps/docs-web/` | `apps/docs-web/DEPLOYMENT.md` (no `CLAUDE.md` yet -- HANDOVER decision row) | docs.quake.world -- the Layer 1 reference projected per codebase (VitePress on CF Pages, preview deploy) |
+| `apps/qwiki-sandbox/` | `apps/qwiki-sandbox/CLAUDE.md` | wiki.slipgate.me -- the v1-beta MediaWiki substrate and its deploy stack |
 | `apps/slipgate-app/` | `apps/slipgate-app/CLAUDE.md` | Tauri v2 desktop companion |
 | `packages/qw-knowledge/` | `packages/qw-knowledge/CLAUDE.md` | Shared QW domain knowledge / weapon-scripts / terminology |
 | `packages/qw-version-resolution/` | `packages/qw-version-resolution/CLAUDE.md` | Version arithmetic helpers (engine versions, builds, channels) |
 | `contracts/` | `contracts/CLAUDE.md` | Cross-app design specs and the shared Firestore/Storage data contract |
+| `archive/voice-analysis/` | `archive/voice-analysis/CLAUDE.md` | Archived pre-monorepo analyzer, reference only (its reusable knowledge moved to `packages/qw-knowledge/`) |
 
 ## How We Work
 
@@ -95,29 +103,23 @@ The user does not touch git. Claude runs all git operations silently -- no merge
 - Tag each arc ship: `git tag -a arc-<slug>-shipped -m "<one line>"`, pushed at the next checkpoint. Gives `git log` the landmark jump-points `arc-history.md` already carries narratively. One silent command at ship time, no ceremony.
 - Inside a worktree, cut a fresh feature branch only if the work is genuinely risky (big refactor, throwaway experiment). Otherwise commit directly on the worktree's own branch.
 
-**Superpowers skill overrides:**
-- `superpowers:finishing-a-development-branch` -- do NOT present 4-option merge menus. Just merge and push.
-- `superpowers:using-git-worktrees` -- skip the baseline-test + auto-setup ceremony. Create worktrees with a plain `git worktree add` when parallelism is actually needed.
-- `superpowers:executing-plans` and `superpowers:subagent-driven-development` worktree pre-steps -- do NOT create a fresh worktree per plan. Execute plans in the worktree you are already in.
-- Other superpowers skills (brainstorming, systematic-debugging, writing-plans, verification-before-completion, etc.) are fine -- keep using them.
+**Skill overrides:** any skill or plugin step that wants a merge menu, a baseline-test or auto-setup ceremony around `git worktree add`, or a fresh worktree per plan is overridden by the bullets above -- merge and push, add worktrees plainly, execute plans where you already are. (The superpowers plugin these rules were written against is no longer installed; the user-global `arc-design` / `arc-plan` / `arc-run` skills replaced it.)
 
 **Safety net:**
 - The `SessionStart` hook at `.claude/scripts/session-start-git-state.sh` prints worktree path, branch, drift vs main, and uncommitted count at every session open, plus a calendar-checks banner from `.claude/calendar-checks.txt` for any entry whose due date is today or earlier. Read the banner first. Loud drift warnings mean investigate, not proceed blindly; calendar-check entries mean act on them in this session or push the date in the txt file.
 - The `docs-check` skill's Step 9.5 runs the same 5 checks (plus stale branches and remote-main pull) at session wrap-up. Together SessionStart and docs-check bracket every session so drift gets caught at the start OR at the end, whichever comes first.
-- `src-tauri/` rsync constraint: `.claude/settings.json` has a `PostToolUse` hook that fires `apps/slipgate-app/scripts/sync-rust.sh` whenever `slipgate-app/src-tauri/` is edited, and the script hardcodes `$HOME/projects/quakeworld/apps/slipgate-app`. Slipgate work MUST stay in the main tree. Never relocate slipgate to a worktree without updating both the hook command and the sync script.
+- `src-tauri/` rsync constraint: `.claude/settings.json` has a `PostToolUse` hook that fires `apps/slipgate-app/scripts/sync-rust.sh` whenever `slipgate-app/src-tauri/` is edited, and the script hardcodes `$HOME/projects/quakeworld/apps/slipgate-app`. Slipgate work MUST stay in the main tree. Never relocate slipgate to a worktree without updating both the hook command and the sync script. The script's rsync target is still the WSL-era Windows mirror (`/mnt/c/Users/<user>/projects/slipgate-app`), which does not exist on the cockpit (HANDOVER, doc-sweep row).
 
 **Upstream PRs (outside this monorepo):**
 - For patches to upstream repos (ezquake-source / ktx / mvdsv / fte / anything outside this tree), follow Linux kernel coding-assistants conventions: AI must NOT add `Signed-off-by` -- the operator signs and certifies the DCO. Use `Assisted-by: Claude:<model-id>` for AI attribution instead of the internal `Co-Authored-By:` shape. Issues are exempt from DCO so an informal "Co-authored with Claude Code" footer is acceptable there; the discipline applies to PR commits. Reference: https://docs.kernel.org/process/coding-assistants.html.
 
-## WSL development environment
+## Development environment
 
-All projects except slipgate-app run in WSL Ubuntu.
+Every project runs from the dev-cockpit container on the Unraid box; the user-global `CLAUDE.md` owns the box rules (Tailscale addresses instead of localhost, docker through the deploy proxy, no host SSH, secrets via `secret-drop`). The WSL workstation this section used to describe was retired in 2026-07.
 
-- **slipgate-app**: Source lives in WSL monorepo, builds run from Windows terminal (Tauri needs Windows toolchain for native .exe)
-- **SSH keys**: WSL `~/.ssh/` - `id_rsa` (Unraid), `qwvoice_key` (Xerial)
-- **Tailscale**: Required for Unraid access (100.114.81.91)
-- **Firebase emulators**: matchscheduler dev on `localhost:5000`
-- **Reading Windows screenshots from WSL**: Windows paths like `C:\Users\Administrator\Downloads\foo.png` are reachable from WSL as `/mnt/c/Users/Administrator/Downloads/foo.png`. Use Read directly on that path -- do not claim the file is unreachable.
+- **slipgate-app** is the exception: its Tauri build needs the Windows toolchain, so builds run from a Windows terminal against a Windows mirror of `src-tauri/` (see the rsync constraint under Git workflow).
+- **Screenshots** from the operator land in `~/letterbox/images/`; the `shot` skill reads the newest one.
+- **Per-app run, build and test steps** live in each app's `DEVELOPMENT.md` or `README.md`, never here.
 
 ## Verification discipline
 
