@@ -16,8 +16,8 @@ Nothing in this folder is current guidance. The live documents are the app root'
 | Auto-record build plan: unified `/record` command | `auto-record/phase-U4-unified-record-command.md` |
 | Incident record: corrupt Opus packets in one guild's recordings (status as written 2026-02-25: open, DAVE passthrough suspected, mitigation deployed) | `incidents/2026-02-25-opus-corruption.md` |
 | Multi-clan: quad-side decisions from the Voice Replay contract (canonical: `contracts/completed/VOICE-REPLAY-CONTRACT.md`) | `multi-clan/CONTRACT.md` |
-| Multi-clan: Discord roster contract (byte-identical copy of `contracts/completed/DISCORD-ROSTER-CONTRACT.md`) | `multi-clan/DISCORD-ROSTER-CONTRACT.md` |
-| Multi-clan: recording management contract (byte-identical copy of `contracts/completed/RECORDING-MANAGEMENT-CONTRACT.md`) | `multi-clan/RECORDING-MANAGEMENT-CONTRACT.md` |
+| Multi-clan: Discord roster contract (canonical, repo root) | `contracts/completed/DISCORD-ROSTER-CONTRACT.md` |
+| Multi-clan: recording management contract (canonical, repo root) | `contracts/completed/RECORDING-MANAGEMENT-CONTRACT.md` |
 | Multi-clan build plan: `/register` completes a pending bot registration | `multi-clan/phase-1b-register-command.md` |
 | Multi-clan build plan: voice uploader refactor | `multi-clan/phase-2-uploader-refactor.md` |
 | Multi-clan build plan: name resolution + silent-track filtering | `multi-clan/phase-2b-pipeline-enhancements.md` |
