@@ -20,6 +20,8 @@ This document defines the authoritative data structures for all Firestore collec
 | `deletionRequests` | Auto-generated | Cross-system recording deletion coordination |
 | `weeklyStats` | `{weekId}` (YYYY-WW) | Weekly platform activity stats (admin-only) |
 | `recordingSessions` | Auto-generated | Voice recording session tracking (admin-only) |
+| `mumbleConfig` | `{teamId}` | Mumble channel config per team: created pending by `enableMumble`, activated by Quad. Shape: `contracts/completed/MUMBLE-INTEGRATION-CONTRACT.md` (copy in `docs/mumble/CONTRACT.md`) |
+| `feedback` | Auto-generated | User feedback with screenshot references, written by `submitFeedback`; read only by admins (`getFeedbackCount`, `scripts/read-feedback.js`) |
 
 ---
 
@@ -837,6 +839,10 @@ const docId = `${teamId}_${weekId}`;
 | `deletionRequests` | Team members (by teamId) | Cloud Function (create) + Admin SDK (quad status) |
 | `weeklyStats` | Admin only (custom claim) | Admin SDK only (Cloud Function) |
 | `recordingSessions` | Admin only (custom claim) | Admin SDK only (Quad bot) |
+| `mumbleConfig` | Authenticated users | Cloud Functions / Admin SDK only |
+| `feedback` | No client reads | Cloud Function only |
+
+`rosterEvents` has a rules block (public read, no client writes) but no code reads or writes it.
 
 ---
 
@@ -864,4 +870,5 @@ const docId = `${teamId}_${weekId}`;
 - **2026-02-22**: Added phantom user support: isPhantom + phantomCreatedBy on users, isPhantom + discordUserId on PlayerEntry (Discord Roster Management)
 - **2026-02-24**: Phase A1 -- removed users/{userId}/templates subcollection; replaced with single `template` flat field on user document. Cloud Functions: saveTemplate (overwrite) + clearTemplate (delete). Old functions deleteTemplate + renameTemplate removed.
 - **2026-02-28**: Phase M6 -- added `recordingSource` field to voiceRecordings (`'discord' | 'mumble'`). Absent = discord (backwards compat).
+- **2026-10-10**: Collections overview and rules summary gain `mumbleConfig` (Phase M3, live since 2026-02) and `feedback`, both in code and rules but unlisted here; `rosterEvents` noted as a rules-only block.
 - **2026-03-24**: Unified Auto-Record -- extended `botRegistrations.autoRecord` with `platform` ('both'|'discord'|'mumble'). Deprecated `mumbleConfig.autoRecord` boolean (quad reads from botRegistrations). minPlayers range: 2-4. `mode` field deprecated (removed from UI, not used by bot).
