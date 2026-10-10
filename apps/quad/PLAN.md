@@ -1,5 +1,7 @@
 # Quad -- Implementation Plan
 
+> **Historical.** Written in February 2026 while the recording bot and then the processing module were built. Everything below shipped before the move into the monorepo (2026-03-29); the processing plan's open-box markers were never ticked and are left as written. The current module map is `OVERVIEW.md`.
+
 > Read CLAUDE.md first for full context, architecture decisions, and non-negotiable rules.
 > This plan is ordered -- each phase builds on the previous one.
 

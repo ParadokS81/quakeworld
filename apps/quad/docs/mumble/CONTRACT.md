@@ -1,7 +1,7 @@
 # Mumble Integration -- Contract Reference (quad copy)
 
 > This is a reference copy. The canonical version lives at the orchestrator level:
-> `../../MUMBLE-INTEGRATION-CONTRACT.md`
+> `contracts/completed/MUMBLE-INTEGRATION-CONTRACT.md` (repository root; the pre-monorepo path was `../../MUMBLE-INTEGRATION-CONTRACT.md`)
 >
 > See that file for the full Firestore schema, onboarding flow, MatchScheduler UI,
 > and cross-project data flow.
