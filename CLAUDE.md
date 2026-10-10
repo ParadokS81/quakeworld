@@ -117,7 +117,7 @@ The user does not touch git. Claude runs all git operations silently -- no merge
 
 Every project runs from the dev-cockpit container on the Unraid box; the user-global `CLAUDE.md` owns the box rules (Tailscale addresses instead of localhost, docker through the deploy proxy, no host SSH, secrets via `secret-drop`). The WSL workstation this section used to describe was retired in 2026-07.
 
-- **slipgate-app** is the exception: its Tauri build needs the Windows toolchain, so builds run from a Windows terminal against a Windows mirror of `src-tauri/` (see the rsync constraint under Git workflow).
+- **slipgate-app** is the exception: its Tauri build needs the Windows toolchain, which the cockpit lacks. The frontend builds and tests here; the desktop build needs a Windows clone of the monorepo, and no machine is wired today (`apps/slipgate-app/docs/DEVELOPMENT.md`).
 - **Screenshots** from the operator land in `~/letterbox/images/`; the `shot` skill reads the newest one.
 - **Per-app run, build and test steps** live in each app's `DEVELOPMENT.md` or `README.md`, never here.
 
