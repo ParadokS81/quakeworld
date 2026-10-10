@@ -1,40 +1,45 @@
 # QWiki Sandbox -- Overview
 
-Living map of the v1-beta substrate + Modes mini-arc tooling. Updated as state changes during the arc.
+Living map of the v1-beta substrate and the Modes mini-arc tooling home.
 
-## Current arc
+## The arc
 
-**`docs/superpowers/plans/2026-05-12-qwiki-v1-beta/`** -- 8-phase arc, 4 substrate phases + 4 Modes-mini-arc phases. See that directory's `README.md` for the phase index and live status table.
+`docs/superpowers/plans/2026-05-12-qwiki-v1-beta/` -- eight phases: four substrate phases (shipped) and four Modes mini-arc phases (unstarted). Coarse status is the repo-root `HANDOVER.md` future-arc row; shipped history is `apps/qw-oracle/docs/arc-history.md` (the 2026-05-14 entry). The plan README's own status block stopped at Phase 3 and is chronicle, not status.
 
-Pre-pivot 6-phase plan (clone -> upgrade -> Citizen -> Page Forms -> EQL drain -> showcase) is superseded; preserved in `VISION.md` as ORIGINAL VISION appendix for historical context.
+The pre-pivot six-phase plan (clone -> upgrade -> Citizen -> Page Forms -> EQL drain -> showcase) is superseded; `VISION.md` keeps it as the ORIGINAL VISION appendix.
 
-## Substrate state
+## Substrate
 
-After Phase 4 ships: the substrate from Phase 3 (three-container nginx + mediawiki:1.43-fpm + mariadb:11.4 stack on Unraid + Citizen v3.16.0 + Page Forms + Semantic MediaWiki 6.0.x + PluggableAuth + OpenIDConnect + Discord OAuth + `wiki-contributor` / `wiki-curator` groups + namespace edit restrictions per D5) PLUS three additional small surfaces: three quality-tag categories (`Category:Needs review` / `Category:Stale` / `Category:Draft` per D18) with descriptions on each page documenting their trigger + curator action, a `Help:URL slug discipline` page documenting the D6 authoring rule for cutover URL preservation, and an end-to-end verification that the Layer 3 harvest path works (a wiki section authored at `Phase 4 harvest probe` was distilled to a concept-note at `apps/qw-oracle/curated/concept-notes/test-qwiki-harvest-probe.md`, ingested via the load-concepts pipeline, and confirmed retrievable through the oracle MCP `search_concepts` tool at `https://oracle.slipgate.me/mcp`). Auto-categorization on save lands in Phase 5 via page-type templates that include `[[Category:Needs review]]`; the slug-validation form hook also lands in Phase 5 alongside the Mode form. v1 beta substrate is complete; the vertical Modes mini-arc (Phases 5-8) is unblocked.
+- **Stack.** nginx 1.30-alpine + mediawiki:1.43-fpm + MariaDB 11.4 on Unraid (`deploy/docker-compose.prod.yml`), TLS at the Cloudflare edge via the shared tunnel (`slipgate-tunnel`, ops-owned), Citizen skin 3.16.0 as the default skin. MariaDB's datadir is bound via `/mnt/cache/appdata/qwiki-beta/mariadb-data` (same bytes as the `/mnt/user` path; MariaDB must not run over the shfs layer, 2026-08-14).
+- **Extensions.** Page Forms (REL1_43 checkout, overlay bind) + Semantic MediaWiki 6.0.1 (Composer, inside `mediawiki-html/`), plus the bundled ParserFunctions / Cite / CategoryTree / TemplateData (the F6 audit's LOAD list; the SKIP and DEFER lists are in `deploy/LocalSettings.php`). VisualEditor is deliberately not loaded (D2).
+- **Auth.** PluggableAuth + OpenIDConnect against Discord OAuth (manual endpoint config, `openid identify guilds.members.read` scopes; Discord is the only login path, local login is off). The `wiki-contributor` group is re-synced on every login from the user's `@wiki-beta` Discord role, read server-side by the wiki-owned `wiki.Quake.World` bot (`/guilds/<id>/members/<sub>` with the bot token; D4 amendment 2026-05-14, F9: the user's access token does not survive the OIDC flow). `wiki-curator` is assigned by hand via `Special:UserRights`. Anonymous read is public; anonymous edit is blocked.
+- **Namespace gates (D5).** `Form` / `Form_talk` / `Template` / `Template_talk` / `Category` / `Category_talk` need the custom `edit-curator-namespace` right (curators only) via `$wgNamespaceProtection`; `Main` / `Talk` / `File` / `File_talk` / `User` / `User_talk` are contributor-editable; `MediaWiki:` is sysop-only (MW default).
+- **Quality tags and discipline pages (D18, D6).** `Category:Needs review` / `Category:Stale` / `Category:Draft`, each documenting its trigger and curator action; `Help:URL slug discipline`; the `Phase 4 harvest probe` page. Wikitext bodies are in `deploy/seed-pages/`. Auto-categorization on save and the slug-validation form hook are Phase 5 work (page-type templates), not wired yet.
+- **Harvest path.** A wiki section distilled to `apps/qw-oracle/curated/concept-notes/test-qwiki-harvest-probe.md`, loaded by qw-oracle's load-concepts pipeline and retrievable through the oracle MCP `search_concepts` tool -- proven end-to-end in Phase 4.
 
-Auth: PluggableAuth + OpenIDConnect against Discord OAuth (manual endpoint config; `openid identify guilds.members.read` scopes). The `wiki-contributor` MW group is auto-assigned on every login based on the user's `@wiki-beta` Discord role membership -- re-checked via `/guilds/<DISCORD_GUILD_ID>/members/<sub>` with `Authorization: Bot <DISCORD_BOT_TOKEN>` (bot-mode per D4 Amendment 2026-05-14, F9 resolution; the wiki-owned `wiki.Quake.World` Discord bot reads role membership server-side rather than via the user's OAuth access token). `wiki-curator` is manually assigned by the operator via `Special:UserRights`. Anonymous read is public; anonymous edit blocked.
+## Modes mini-arc
 
-Namespace restrictions (D5): `Form` / `Form_talk` / `Template` / `Template_talk` / `Category` / `Category_talk` are `wiki-curator`-only (custom `edit-curator-namespace` right paired with `$wgNamespaceProtection`); `Main` / `Talk` / `File` / `File_talk` / `User` / `User_talk` are `wiki-contributor`-editable; `MediaWiki:` is sysop-only (MW default).
+Phases 5-8: the Mode page-type form, the curator tool (`scripts/curate-modes/`, brand-curator pattern per D20), the 27-mode triage and a second harvest verification. Nothing exists yet; the HANDOVER row is the status home.
 
-Phase 4 layers the quality-tag categories (`Needs review` / `Stale` / `Draft` per D18) + verifies the Layer 3 harvest path end-to-end against a test page.
+## Source artifacts (old wiki)
 
-## Modes mini-arc state
+- `dumps/qwiki.sql.gz` (87M, ~710M uncompressed; MariaDB 11.8.6 dump, 96 tables, binary charset) and `dumps/wiki-images.tar.gz` (6.4G, 50,150 files incl. 178 QW demos). Source of the per-domain extract queries.
+- Neither is on the cockpit. They last lived on the operator's retired WSL workstation, together with the `qwiki-analysis` MariaDB container that held the imported dump. A Modes pickup needs the dump re-staged first (into `qwiki-mariadb-dev` from `infra/dev-databases/`, for instance); the operator carries the data, there is no automated route.
+- Content analysis of the dump: `docs/research/2026-05-09-qwiki-content-analysis.md`.
 
-Phases 5-8 deliver Mode page-type form + curator tool + 27-mode triage + harvest verification. Status tracked in the arc README's phase index.
+## Operations
 
-## Source artifacts on operator's side
-
-- `dumps/qwiki.sql.gz` (87M -> ~710M uncompressed, MariaDB 11.8.6 dump, 96 tables; 94 InnoDB / 2 MyISAM, binary charset). Source of per-domain extract queries.
-- `dumps/wiki-images.tar.gz` (6.4G, 50,150 files incl 178 bonus QW demos). Per-domain image migration deferred; Modes may need a few screenshots.
-- Local `qwiki-analysis` MariaDB container (operator's WSL Docker) holds the imported dump for inventory queries. Kept alive through the Modes mini-arc.
+- **Deploy and maintenance** run from the dev-cockpit against the appdata tree and the deploy proxy: `deploy/README.md`.
+- **Backup.** `/mnt/user/appdata/qwiki-beta/` is in the nightly borgmatic run (the MariaDB datadir path plus a logical dump taken inside `qwiki-mariadb`): `infra/unraid-backup/README.md`. Borgmatic and restores are ops-plane; a restore is a letter to ops.
+- **Dev twin.** `qwiki-mariadb-dev` (MariaDB 11.4, a `qwiki_beta` database) from `infra/dev-databases/docker-compose.yml`.
 
 ## Key external dependencies
 
 - **bps** -- founder of QWiki, decision-maker for live-wiki cutover (future arc).
-- **ciscon** -- sysadmin of live wiki; source of the dumps.
+- **ciscon** -- sysadmin of the live wiki; source of the dumps.
 - **Hooraytio + alice** -- top live-wiki contributors; potential v1-beta invitees.
 - **Live wiki** at https://www.quakeworld.nu/wiki/ -- extraction source.
 
-## Decisions log
+## Decisions
 
-Cross-cutting decisions live in the arc's `decisions.md` (D1-D26, locked 2026-05-12; D2 amended 2026-05-13 to lock nginx + php-fpm + MariaDB composition + current-stable image versions). No project-internal decisions log; if a phase needs to deviate from a locked decision, the phase MD's "Deviation" section + operator review handles it (per D25).
+Cross-cutting decisions live in the arc's `decisions.md` (D1-D26, locked 2026-05-12; amendments dated 2026-05-13 and 2026-05-14 on D2, D3 and D4). No project-internal decisions log; a phase that must deviate adds a "Deviation" section to its phase MD for operator review (D25).

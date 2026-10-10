@@ -8,7 +8,7 @@ A **fresh-build successor wiki** for the QuakeWorld community, designed from day
 
 The successor wiki:
 
-1. Stands up as a clean MW 1.39 LTS install with Citizen skin + Page Forms + SMW from day 1 -- no legacy upgrade chain
+1. Stands up as a clean MediaWiki LTS install (1.43 at build, per D2's 2026-05-13 amendment) with Citizen skin + Page Forms + SMW from day 1 -- no legacy upgrade chain
 2. Has template architecture designed for an aggregation-layer pattern: top-level entity pages combine auto-populated structured data slots + manually-authored narrative slots + ecosystem-aware citation slots
 3. Selectively imports irreplaceable content from the existing wiki dump (substantial articles, Purity's columns, KTX mode pages, tournament season pages, file/image archive, the InfoboxComplete-tagged player set)
 4. Drops the long tail of the existing wiki -- player stubs, broken-link debris, legacy template architecture
@@ -39,6 +39,8 @@ Quake.world owns: tournament results / brackets / player achievements / team ros
 - SMW property model that supports `{{#ask}}` queries from the front page + category pages
 
 ## Success criteria
+
+Written 2026-05-09 as the design passes' deliverables; all six passes locked 2026-05-12 in the arc spec, and the substrate they describe is live. Current work is the repo-root `HANDOVER.md` row.
 
 - **Pass A delivers:** locked extraction policy + foundation scope. We know what to extract from the old wiki and what to drop.
 - **Pass B delivers:** namespace + template architecture. Each entity type has its home and its aggregation pattern.
