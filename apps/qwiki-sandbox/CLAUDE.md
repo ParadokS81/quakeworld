@@ -19,7 +19,7 @@
 |---|---|---|
 | `deploy/` | `deploy/README.md` | The prod stack as deployed: `docker-compose.prod.yml`, `nginx.conf`, `LocalSettings.php`, `composer.local.json`, `.env.prod.example`, the Phase 4 seed pages (`seed-pages/`) and the Phase 2 smoke-test form (`test-form/`) |
 
-`scripts/curate-modes/` (the Modes curator tool, Phase 6) does not exist yet; it gets its own `CLAUDE.md` and `AGENTS.md` when it is born.
+`scripts/curate-modes/` (the Modes curator tool, Phase 6) does not exist yet; it gets its own `CLAUDE.md` when it is born.
 
 ## Always-on rules
 

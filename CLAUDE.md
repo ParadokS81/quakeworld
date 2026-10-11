@@ -6,7 +6,6 @@
 
 | When you need... | Read... |
 |---|---|
-| Codex discovery adapter pointing to this canonical project index. | `AGENTS.md` |
 | Elevator pitch, what's in here | `README.md` |
 | Why this monorepo exists, workshop framing, graduation paths | `VISION.md` |
 | Living map: integration diagram, per-app status, packages, contracts | `OVERVIEW.md` |
