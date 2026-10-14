@@ -1,3 +1,11 @@
+# Oracle effectiveness eval
+
+- **Stage:** parked
+- **Idea:** a DeepSeek-run helpdesk simulation plus showcase captures measuring the oracle's effectiveness; designed, awaiting a fresh arc-plan from its D1-D11 spec
+- **Sparked by:** 2026-08-06; the lane `~/worktrees/quakeworld-eval` (branch `eval-oracle-sim`) carries the 2026-10-01 resume notes
+- **Spec:** 
+- **Plan:** 
+
 ---
 date: 2026-08-06
 type: parking (future arc, imminent)
@@ -17,7 +25,7 @@ related:
     100% fence-sonnet-v2)
 ---
 
-# Oracle effectiveness eval -- DeepSeek-run helpdesk simulation + showcase captures
+
 
 ## Why this is arc-shaped
 
@@ -132,3 +140,7 @@ hygiene.
 - Expose and document the MCP port on Unraid so the direct route is reachable.
 - Run a smoke test against the direct route before the bulk simulation run depends
   on it.
+
+## Notes
+
+- **2026-10-14, from the HANDOVER row** (quakeworld `## Future arcs`, deleted at the parked-arcs sitting; the doc was titled "Oracle effectiveness eval -- DeepSeek-run helpdesk simulation + showcase captures"): DeepSeek-run helpdesk simulation + showcase captures (the MCP Tailscale fold-in was withdrawn 2026-08-06) — trigger: operator-initiated, IMMINENT — docs/superpowers/parking/2026-08-06-oracle-eval-simulation.md (the lane copy carries the 2026-10-01 resume notes). Lane `~/worktrees/quakeworld-eval`, branch `eval-oracle-sim`; next: a fresh `arc-plan` from the D1-D11 spec.

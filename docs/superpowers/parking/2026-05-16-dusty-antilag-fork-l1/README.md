@@ -1,4 +1,10 @@
-# dusty-* antilag fork -- L1 onboarding (future arc)
+# dusty-* antilag fork L1 onboarding
+
+- **Stage:** parked
+- **Idea:** onboard the dusty-* antilag fork into Layer 1: a behavior and description fork whose entity surface is identical to mainline
+- **Sparked by:** a HANDOVER `## Future arcs` row (quakeworld); migrated at the parked-arcs sitting 2026-10-14
+- **Spec:** 
+- **Plan:** 
 
 **Captured:** 2026-05-16 during the KTX/MVDSV Layer-1 describe-fill
 arc-brainstormer, Pass 3.2 (drift/conflict policy). Operator already knows
@@ -64,3 +70,7 @@ first cheap probe of this arc, not a settled fact.
 - Memory: `project_extraction_pipeline_vision`, `feedback_exhaustive_mapping`,
   `project_qw_oracle_source_truth`.
 - `onboard-extractor` skill (fork-vs-port branch).
+
+## Notes
+
+- **2026-10-14, from the HANDOVER row** (quakeworld `## Future arcs`, deleted at the parked-arcs sitting; the doc was titled "dusty-* antilag fork -- L1 onboarding (future arc)"): behavior/description fork, entity surface identical to mainline — trigger: operator-initiated (backlog) — docs/superpowers/parking/2026-05-16-dusty-antilag-fork-l1.md.

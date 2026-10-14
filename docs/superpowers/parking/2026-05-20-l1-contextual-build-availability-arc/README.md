@@ -1,4 +1,10 @@
-# L1 contextual build-availability -- relevance at answer time
+# L1 contextual build-availability arc
+
+- **Stage:** parked
+- **Idea:** relevance at answer time: a build-agnostic Layer 1 against a build-specific question
+- **Sparked by:** a HANDOVER `## Future arcs` row (quakeworld); migrated at the parked-arcs sitting 2026-10-14
+- **Spec:** 
+- **Plan:** 
 
 **Status:** parked future arc-shaped work, surfaced during enforce-L1-runtime-truth Phase 5 slime review (2026-05-20). NOT yet brainstormed -- this is the capture, not a plan. Ready for arc-classifier when picked up.
 
@@ -100,3 +106,7 @@ That doesn't kill a future population-2 arc -- the broader 2788-cvar set was not
 - Touching ezQuake-source. The product is consumer-side relevance, not upstream code changes.
 - Cross-engine availability (ezQuake-MVDSV bundle, FTE forks) until ezQuake-only contextual is shipped.
 - Population-2 consumer-liveness as its own arc -- the adjacent finding above says don't justify it on this pool; justify it later from broader data or a specific product need.
+
+## Notes
+
+- **2026-10-14, from the HANDOVER row** (quakeworld `## Future arcs`, deleted at the parked-arcs sitting; the doc was titled "L1 contextual build-availability -- relevance at answer time"): relevance-at-answer-time framing (build-agnostic L1 vs build-specific question) — trigger: operator-initiated — docs/superpowers/parking/2026-05-20-l1-contextual-build-availability-arc.md.

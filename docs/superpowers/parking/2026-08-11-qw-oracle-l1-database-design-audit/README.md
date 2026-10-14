@@ -1,5 +1,11 @@
 # qw-oracle Layer 1 database design audit
 
+- **Stage:** parked
+- **Idea:** a design audit of the qw-oracle Layer 1 database: index coverage, storage shape, CHECK sprawl, pgvector tuning, dead columns
+- **Sparked by:** the KTX onboarding arc, 2026-05-05 (ready to run since)
+- **Spec:** 
+- **Plan:** 
+
 Extracted from quakeworld HANDOVER.md (pre-migration, line 73) at the chunk-6 W17 migration, 2026-08-11.
 
 Operator-flagged 2026-05-05 during KTX-onboarding Pass 5.4 -- schema has grown organically across v1-v18 + KTX-onboarding ahead.
@@ -16,3 +22,7 @@ Operator-flagged 2026-05-05 during KTX-onboarding Pass 5.4 -- schema has grown o
 **Outcome:** `docs/superpowers/specs/<date>-qw-oracle-db-audit.md` findings spec + actionable-items arc. Run AFTER KTX onboarding ships -- not folded into KTX execution.
 
 **Operator's framing:** "an audit to see if there are any rookie mistakes or obvious low hanging fruit to optimize, and what it means for the scripts that produce the databases."
+
+## Notes
+
+- **2026-10-14, from the HANDOVER row** (quakeworld `## Future arcs`, deleted at the parked-arcs sitting): index coverage / storage shape / CHECK sprawl / pgvector tuning / dead columns — trigger: MET (KTX onboarding shipped 2026-05-05), ready to run — docs/superpowers/parking/2026-08-11-qw-oracle-l1-database-design-audit.md.

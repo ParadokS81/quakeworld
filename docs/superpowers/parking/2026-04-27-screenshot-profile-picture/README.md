@@ -1,4 +1,10 @@
-# Screenshot POC -> Profile picture generator
+# Screenshot POC to Profile picture generator
+
+- **Stage:** parked
+- **Idea:** graduate the screenshot proof of concept into a profile-picture generator in Profile
+- **Sparked by:** a HANDOVER `## Future arcs` row (quakeworld); migrated at the parked-arcs sitting 2026-10-14
+- **Spec:** 
+- **Plan:** 
 
 **Added:** 2026-04-27 (evening -- surfaced when operator decided to drop the Screenshot POC section from the Clients-Domain surface during Phase 3.5a planning).
 **Status:** Future arc; not Phase 3.5a scope. Phase 3.5a removes the Screenshot POC section from the user-facing UI but leaves the `screenshot.rs` Rust command intact and callable. This entry captures the eventual graduation path.
@@ -42,3 +48,7 @@ Low for now. The screenshot POC works end-to-end on operator's box but isn't use
 - Reference: `apps/slipgate-app/docs/OVERVIEW.md` Section  Profile tab (the screenshot placeholder slots that this feature fills)
 
 ---
+
+## Notes
+
+- **2026-10-14, from the HANDOVER row** (quakeworld `## Future arcs`, deleted at the parked-arcs sitting; the doc was titled "Screenshot POC -> Profile picture generator"): graduate POC into Profile — trigger: operator-initiated — docs/superpowers/parking/2026-04-27-screenshot-profile-picture.md.

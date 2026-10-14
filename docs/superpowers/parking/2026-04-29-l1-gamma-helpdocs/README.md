@@ -1,4 +1,10 @@
-# L1-gamma: Engine helpdoc / data-file recognition (2026-04-29)
+# L1-gamma: Engine helpdoc / data-file recognition
+
+- **Stage:** parked
+- **Idea:** engine helpdoc and data-file recognition in Layer 1 (a Pass 3 carry-forward)
+- **Sparked by:** a HANDOVER `## Future arcs` row (quakeworld); migrated at the parked-arcs sitting 2026-10-14
+- **Spec:** 
+- **Plan:** 
 
 **Added:** 2026-04-29 (Pass 3 carry-forward from Slipgate Managed Mode brainstorm).
 **Pressure:** Medium. None of the four L1 expansion tracks gate Slipgate Managed Mode V1.
@@ -20,3 +26,7 @@ Path-pattern + extension rules in `path_rules` / `extensions` covering `<engine.
 **Source for scope and methodology:** `docs/superpowers/specs/2026-04-29-slipgate-managed-mode-pass3-ratifications.md` -- "Carry-forwards -- L1 expansion strategy."
 
 ---
+
+## Notes
+
+- **2026-10-14, from the HANDOVER row** (quakeworld `## Future arcs`, deleted at the parked-arcs sitting; the doc was titled "L1-gamma: Engine helpdoc / data-file recognition (2026-04-29)"): Pass 3 carry-forward — trigger: operator-initiated — docs/superpowers/parking/2026-04-29-l1-gamma-helpdocs.md.

@@ -83,3 +83,14 @@ If a phase drifts into one of these, that is scope creep -- flag it and stop.
 ## Why per-phase MDs (not one monolith)
 
 Same as the sibling arcs: (1) context-window discipline -- a monolith crowds the executor's working memory; per-phase MDs leave room for live source reads + sub-agent verification; (2) verification at boundaries -- each phase gets a dedicated sub-agent pass + operator review before the next starts, catching drift (a confabulation slipping the gate; a note authored by-engine instead of by-domain) mechanically instead of three notes later.
+
+## Authoring candidates parked here (2026-10-14)
+
+Rows moved from `HANDOVER.md` `## Future arcs` at the parked-arcs sitting (harness-lab decisions 2026-10-14): each is a concept note this arc would author when it resumes, not an arc of its own; the Layer 3 expansion row is its authoring frame.
+
+- **KTX admin/messaging L3 concept notes** — two L3 notes never authored (admin-and-user-management; qw-player-messaging) — trigger: operator-initiated — apps/qw-oracle/docs/reviews/2026-05-22-ktx-l1-catalog-findings.md#follow-up-work-surfaced.
+- **QTV/QWFWD concept-note authoring** — author master-server heartbeat + MVD-streaming/parse_delay notes (D9), defer qtv_password — trigger: pending operator greenlight — docs/superpowers/reviews/2026-06-06-qtv-qwfwd-l1-extraction-post-arc-analysis.md.
+- **Layer 3 multi-domain expansion + bucket framework** — 9-bucket player-as-system taxonomy, Arc 3 architecture — trigger: operator-initiated — docs/superpowers/parking/2026-05-03-layer3-multidomain-bucket-framework.md. Also carries the Phase 8 eval's q5/q8 leads (Windows HDR flicker; Linux sys_highpriority / CPU affinity), two rows of the same doc's candidate table, merged 2026-10-13.
+- **L3 concept note: death rules** — gate CLEARED 2026-08-04, ready for authoring — trigger: operator-initiated — docs/superpowers/parking/2026-04-29-layer3-death-rules-concept-note.md.
+- **frogbots.md concept note** — bots run under the hood in tot/LGC/practice, undocumented — trigger: operator-initiated — docs/superpowers/parking/2026-05-30-game-mode-hosting-reframe-and-bots-gap-handoff.md.
+- **Concept-note: map-selection-workflow** — hud-configuration.md shipped via a different arc (demand-driven-l3), this one remains unauthored — trigger: operator-initiated — docs/superpowers/parking/2026-05-14-concept-note-partners-authoring.md.

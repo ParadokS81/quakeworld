@@ -1,4 +1,10 @@
-# Promote methodology learnings to served admin/player concept notes
+# Promote methodology learnings to served concept notes
+
+- **Stage:** parked
+- **Idea:** promote the methodology learnings to served concept notes; dmm-flags and server-setup.md are served, the player-and-admin game-modes overview is still unwritten
+- **Sparked by:** a HANDOVER `## Future arcs` row (quakeworld); migrated at the parked-arcs sitting 2026-10-14
+- **Spec:** 
+- **Plan:** 
 
 **Parked:** 2026-05-29 (surfaced mid game-mode methodology-reconciliation).
 **Status:** future stream, waiting on trigger. Not blocking the game-mode note arc.
@@ -72,3 +78,7 @@ Either: (a) an admin-facing query stream emerges ("what should I run?", "how do 
 ## Relation to the live arc
 
 The game-mode **methodology reconciliation** (simplify internal docs to the experience-first flat structure) proceeds independently and is the *reason* this was surfaced: simplifying the internal docs is fine precisely because the user-facing relational/admin knowledge is meant to live in served notes (this stream), not in `_methodology/`. The reconciliation keeps the knowledge in the internal docs (as harvest source); it does not delete it.
+
+## Notes
+
+- **2026-10-14, from the HANDOVER row** (quakeworld `## Future arcs`, deleted at the parked-arcs sitting; the doc was titled "Promote methodology learnings to served admin/player concept notes"): dmm-flags + server-setup.md now served; player+admin game-modes overview still unwritten — trigger: admin-facing query stream or wiki restructuring — docs/superpowers/parking/2026-05-29-served-admin-knowledge-from-methodology.md.

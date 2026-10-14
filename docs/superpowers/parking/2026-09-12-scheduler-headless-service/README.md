@@ -1,5 +1,11 @@
 # Scheduler as a headless service
 
+- **Stage:** parked
+- **Idea:** rebuild matchscheduler as an API-first service with the standalone site, slipgate web, qwleague.com and quad as clients: Discord-ID identity, sites as tenants, player-owned availability stored once
+- **Sparked by:** raised 2026-09-12; locked the same day; the cheap first probe is a conversation with the qwleague author
+- **Spec:** 
+- **Plan:** 
+
 Parked 2026-09-12 (dev-scheduler session, late-night brainstorm after the sign-in fix). Future arc, operator-initiated.
 
 ## Why now
@@ -27,3 +33,7 @@ qwleague.com (SvelteKit, beta) appeared while the scheduler sat idle: ladder + t
 ## Next step
 
 Run arc-design on this doc in a fresh session. Cheap probe before any design pass: talk to the qwleague author.
+
+## Notes
+
+- **2026-10-14, from the HANDOVER row** (quakeworld `## Future arcs`, deleted at the parked-arcs sitting): rebuild matchscheduler as an API-first service with the standalone site, slipgate web, qwleague.com and quad as clients; locked 2026-09-12: Discord-ID identity, sites as tenants, player-owned availability stored once — trigger: operator-initiated; cheap first probe is a conversation with the qwleague author — docs/superpowers/parking/2026-09-12-scheduler-headless-service.md (raised 2026-09-12).

@@ -1,4 +1,10 @@
-# ezQuake contributor map -- arc capture
+# ezQuake contributor map
+
+- **Stage:** parked
+- **Idea:** a per-subsystem authorship and maintainer lookup for ezQuake, for routing pull requests
+- **Sparked by:** a HANDOVER `## Future arcs` row (quakeworld); migrated at the parked-arcs sitting 2026-10-14
+- **Spec:** 
+- **Plan:** 
 
 **Captured:** 2026-05-23 by arc-classifier mode S.
 **Status:** shelved (awaiting trigger).
@@ -42,3 +48,7 @@ A lookup doc that surfaces, per ezQuake subsystem, the top historical contributo
 - Memory: `reference_ezquake_dev_team.md` -- current team summary (starting anchor).
 - Source: `research/repos/ezquake-source/.git` -- the data source.
 - Adjacent: this commands PR (the trigger).
+
+## Notes
+
+- **2026-10-14, from the HANDOVER row** (quakeworld `## Future arcs`, deleted at the parked-arcs sitting; the doc was titled "ezQuake contributor map -- arc capture"): per-subsystem authorship/maintainer lookup for PR routing — trigger: next non-trivial routing question or operator-initiated — docs/superpowers/parking/2026-05-23-ezquake-contributor-map.md.

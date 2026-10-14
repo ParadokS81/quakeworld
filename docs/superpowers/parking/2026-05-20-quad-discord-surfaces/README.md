@@ -1,4 +1,10 @@
-# quad Discord-surface enhancements -- arc capture
+# quad Discord-surface enhancements
+
+- **Stage:** parked
+- **Idea:** quad's Discord surfaces: auto channel topic, auto-mirrored Discord Events, subscribable feeds
+- **Sparked by:** a HANDOVER `## Future arcs` row (quakeworld); migrated at the parked-arcs sitting 2026-10-14
+- **Spec:** 
+- **Plan:** 
 
 **Captured:** 2026-05-20 by arc-classifier mode S (sidequest).
 **Status:** shelved (awaiting trigger).
@@ -68,3 +74,7 @@ sticks. Symptom: the suppression log line appears with no matching clear line. L
 workaround: `/record start` clears suppression via the manual path. Fix shape: bound
 suppression by a timeout (~5 lines) in
 `apps/quad/src/modules/mumble/auto-record.ts:stopForTeam`.
+
+## Notes
+
+- **2026-10-14, from the HANDOVER row** (quakeworld `## Future arcs`, deleted at the parked-arcs sitting; the doc was titled "quad Discord-surface enhancements -- arc capture"): auto-channel-topic / auto-mirror Discord Events / subscribable feeds — trigger: after auto-record UX soaks one matchday cycle — docs/superpowers/parking/2026-05-20-quad-discord-surfaces.md.

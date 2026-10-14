@@ -1,4 +1,10 @@
-# Interactive HTML dashboard (deferred)
+# Interactive HTML dashboard
+
+- **Stage:** parked
+- **Idea:** an interactive HTML dashboard; shelved, its unshelve triggers in the doc
+- **Sparked by:** a HANDOVER `## Future arcs` row (quakeworld); migrated at the parked-arcs sitting 2026-10-14
+- **Spec:** 
+- **Plan:** 
 
 **Added:** 2026-04-22 late evening (during Pass 3 planning, after the design review surfaced conflicts between the original HTML dashboard plan and the monorepo doc philosophy).
 **Status:** Shelved, not killed. Pass 3 shipped as a GitHub-navigable markdown reshape of `apps/qw-oracle/docs/entity-types.md` instead of a standalone HTML dashboard.
@@ -39,3 +45,7 @@ Zero. Not blocking anything. Only revive if the triggers above actually fire, no
 
 - Pass 3 final shape: `docs/superpowers/specs/2026-04-22-knowledge-service-realignment-roadmap.md` Section  "Pass 3 -- GitHub-navigable per-entity doc + README refresh" (revised 2026-04-22 late evening to drop the dashboard deliverables).
 - Doc philosophy spec that drove the revision: `docs/superpowers/specs/2026-04-11-monorepo-doc-philosophy-design.md`.
+
+## Notes
+
+- **2026-10-14, from the HANDOVER row** (quakeworld `## Future arcs`, deleted at the parked-arcs sitting; the doc was titled "Interactive HTML dashboard (deferred)"): shelved with documented unshelve triggers — trigger: per doc — docs/superpowers/parking/2026-04-XX-interactive-html-dashboard.md.

@@ -154,3 +154,9 @@ Settings. Sizing: one focused brainstorm session, not a multi-pass affair. Prove
 surfaced during the arc-planner readiness check on 2026-05-12.
 
 ---
+
+## Note 2026-10-14: a doc step for the next Slipgate UI arc
+
+Moved from `HANDOVER.md` `## Future arcs` at the parked-arcs sitting (harness-lab decisions 2026-10-14): a doc step of the next Slipgate UI arc that surfaces version-arc badges, not an arc of its own.
+
+- **Slipgate SCHEMA.md for snapshot consumer interface** — document the snapshot's consumer contract so UI version-arc badges have a stable interface — trigger: next slipgate UI arc surfacing version-arc badges — docs/superpowers/parking/2026-04-26-slipgate-schemamd.md.

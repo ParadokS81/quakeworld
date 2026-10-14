@@ -1,5 +1,11 @@
 # Feed tab future content
 
+- **Stage:** parked
+- **Idea:** the feed tab's future content: tournaments, the dev landscape, GitHub monitoring, community announcements
+- **Sparked by:** a HANDOVER `## Future arcs` row (quakeworld); migrated at the parked-arcs sitting 2026-10-14
+- **Spec:** 
+- **Plan:** 
+
 **Added:** 2026-04-27 (evening -- surfaced when operator decided to extract the Updates section from the Clients tab into a new Feed tab during Phase 3.5a planning).
 **Status:** Future arcs; not Phase 3.5a scope. Phase 3.5a ships the Feed tab with only the extracted Updates section as initial content. This entry captures the operator's intended Feed scope so the framing isn't lost between 3.5a ship and the first Feed-content arc.
 **Verification first:** After 3.5a ships, `apps/slipgate-app/src/components/FeedTab.tsx` should exist and render only `<UpdatesPanel />`. No tournaments / dev landscape / GitHub monitoring surfaces.
@@ -33,3 +39,7 @@ Low. Phase 3.5a ships the empty Feed shell with Updates inside. Future content a
 - Memory: `project_slipgate_tier_ladder.md` (Feed is orthogonal to the four-tier ladder -- visible at all tiers since it's external content, not local writes)
 
 ---
+
+## Notes
+
+- **2026-10-14, from the HANDOVER row** (quakeworld `## Future arcs`, deleted at the parked-arcs sitting): tournaments / dev landscape / GitHub monitoring / community announcements — trigger: operator-initiated — docs/superpowers/parking/2026-04-27-feed-tab-content.md.

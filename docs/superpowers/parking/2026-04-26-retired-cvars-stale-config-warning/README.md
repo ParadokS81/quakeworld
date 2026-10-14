@@ -1,5 +1,11 @@
 # Retired cvars in snapshot + stale-config warning UX
 
+- **Stage:** parked
+- **Idea:** retired cvars kept in the snapshot, and a stale-config warning in the UI that reads them: coupled producer and consumer work
+- **Sparked by:** a HANDOVER `## Future arcs` row (quakeworld); migrated at the parked-arcs sitting 2026-10-14
+- **Spec:** 
+- **Plan:** 
+
 **Added:** 2026-04-26 (after build-snapshot CLI shipped 2026-04-25; default_history numeric-equality fix shipped 2026-04-26 commit `9917002`).
 **Updated:** 2026-04-26 evening -- Quake Dir Control plan Phase 4 (`docs/superpowers/plans/2026-04-26-quake-dir-control.md`) now covers the producer-side retired-entity emission (across all 4 entity types, not just cvars). Phase 5 covers the diff-viewer consumer; the "stale-config warning UX in ConfigViewer" piece is still its own arc and stays open here.
 **Status:** Producer change scoped + tiny, will land in Phase 4 of the Quake Dir Control plan; gated on consumer-side UX design for the ConfigViewer warning. Defer the UX half until the stale-warning feature is being designed in slipgate.
@@ -41,3 +47,7 @@ Low. Five cvars affected today; nobody has hit the use case in practice. Worth d
 - Sibling shipped fix: `default_history` numeric-equality (commit `9917002`, 2026-04-26) -- phantom transitions on cvars like `cl_bonusflash` no longer surface
 
 ---
+
+## Notes
+
+- **2026-10-14, from the HANDOVER row** (quakeworld `## Future arcs`, deleted at the parked-arcs sitting): coupled producer+consumer work — trigger: UX design unblocked — docs/superpowers/parking/2026-04-26-retired-cvars-stale-config-warning.md.
