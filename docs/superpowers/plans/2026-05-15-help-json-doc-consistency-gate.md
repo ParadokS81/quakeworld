@@ -512,5 +512,6 @@ git commit -m "qw-oracle(digest): refuse render when seed stale vs live DB doc_o
 ## Status (backfilled 2026-10-10)
 
 - **Outcome:** A DB-independent ground truth for help-JSON vs source drift, a post-walk gate and a digest staleness guard; written on the workstation 2026-05-15, stranded until the 2026-08-04 sweep, never executed.
-- **Phase:** unclear -- never executed (no doc-consistency-oracle.py, no gate in load-knowledge); HANDOVER's decision row on the help_variables.json mislabel still says it feeds this plan; the operator decides whether the gate is wanted
+- **Phase:** paused since 2026-08-04 -- never executed (no doc-consistency-oracle.py, no gate in load-knowledge); HANDOVER's decision row on the help_variables.json mislabel still says it feeds this plan. (Re-worded 2026-10-16 at the arc board sitting from "unclear", which the board cannot read as a stage.)
+- **Pause:** Paused since 2026-08-04, waiting on the operator's call whether the gate is still wanted
 - **Evidence:** last and only commit 2026-08-04 (the workstation-sweep merge that landed it); no close words; none of the plan's three artifacts exist in apps/qw-oracle/scripts; HANDOVER small-followup decision row 'ezQuake help_variables.json mis-lists commands as variables' names the plan as what the PR feeds.

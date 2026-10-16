@@ -13,7 +13,7 @@
 ## Status (W11, added 2026-08-11 at the chunk-6 HANDOVER migration)
 
 - **Outcome:** Phase A + B shipped; Phase C (full-corpus backfill) COMPLETE 2026-08-06 (35/35 batches, shipped to prod) -- not reflected in the Phase index below (still reads Phase C "drafted (verified)"); real progress is tracked at `apps/qw-oracle/scripts/load-chat/backfill-ledger.md` (last touch 2026-08-06) instead. Phase D and buckets-E remain genuinely pending.
-- **Phase:** Phase D (RRF threshold recalibration) -- stub, not detail-planned; its subject moved on 2026-10-02, when `match_quality` stopped grading on RRF scores and switched to closeness cut-offs (`apps/qw-oracle/serve/mcp/src/grade.ts`, calibrated by `eval/calibrate.ts`). What remains of Phase D is a larger labeled chat set for the `threads` cut-offs -- `apps/qw-oracle/API_CONTRACTS.md` Open drift 1. buckets-E is drafted+verified but not yet run.
+- **Phase:** paused since 2026-08-06 (Re-worded 2026-10-16 at the arc board sitting: the board could not read a stage from this line) -- Phase D (RRF threshold recalibration) -- stub, not detail-planned; its subject moved on 2026-10-02, when `match_quality` stopped grading on RRF scores and switched to closeness cut-offs (`apps/qw-oracle/serve/mcp/src/grade.ts`, calibrated by `eval/calibrate.ts`). What remains of Phase D is a larger labeled chat set for the `threads` cut-offs -- `apps/qw-oracle/API_CONTRACTS.md` Open drift 1. buckets-E is drafted+verified but not yet run.
 - **Next authorized action:** Operator pickup for the chat calibration set (Phase D's remainder) or buckets-E execution.
 - **Lane:** Main checkout (`/home/dev/projects/quakeworld`, branch `main`). No worktree noted.
 - **Last verification:** unverified at migration (2026-08-11). This README was last touched 2026-06-06 (`a6dbf2d6`); real shipped progress since then (Phase C) is confirmed via `apps/qw-oracle/docs/arc-history.md`'s 2026-08-06 entry, not this file.
@@ -21,7 +21,7 @@
 - **Decisions:** `decisions.md` -- 13 locked cross-cutting decisions (D9 amendment records the chunk-cap-sweep result + a version-agnostic-supersede amendment).
 - **Open findings:** `review-findings.md` -- 10 pre-registered risks.
 - **In-flight:** none.
-- **Pause:** Paused, waiting on operator pickup for Phase D -- per HANDOVER's own row (the monthly harvest runbook continues on its own calendar cadence independently of this pause).
+- **Pause:** The monthly harvest runbook continues on its own calendar cadence, independently of this pause. Per HANDOVER's own row: paused since 2026-08-06, waiting on someone to pick up Phase D or buckets-E
 
 ## Read in this order
 

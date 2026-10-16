@@ -13,6 +13,7 @@ mockup-of-record). **Parent:**
 
 - **Outcome:** Not yet shipped. Phases 1-2 SHIPPED 2026-08-06; Phase 3 code-complete, awaiting deploy GO + the boundary parity ritual.
 - **Phase:** 3 of 6 (Floor 1 -- brain port). T1-T9 shipped and orchestrator-verified; T10 (deploy) blocked on operator GO.
+- **For you:** press OK -- the deploy GO for Phase 3 (Floor 1, the brain port) to Cloudflare Pages, then the boundary parity ritual
 - **Next authorized action:** Run T10's deploy, then the fourteen-item visual-parity ritual; then Phase 4.
 - **Lane:** Main checkout (`/home/dev/projects/quakeworld`, branch `main`), per decisions P10.
 - **Last verification:** 2026-08-06 -- boundary probes A1/A2/A4/A5 GREEN (build+types clean, all ten copy locks incl. the draftstamp, mesh geometry byte-identical across two runs, zero fetch/URL-parsing in components+generators); A3 blocked on T10's deploy.
