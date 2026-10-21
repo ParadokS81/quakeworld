@@ -163,6 +163,7 @@ async function resolveVisibility(
  * @param guildId - Discord guild ID for registration lookup
  * @param sessionId - Recording session ULID (from session_metadata.json recording_id)
  * @param preResolvedRegistration - Pre-resolved registration from the pipeline (skips internal lookup if provided)
+ * @param keepExisting - Skip maps that already have a manifest (a late-match retry adds maps, never rewrites them)
  */
 export async function uploadVoiceRecordings(
   segments: SegmentMetadata[],
@@ -171,6 +172,7 @@ export async function uploadVoiceRecordings(
   source: string,
   sessionId: string,
   preResolvedRegistration?: BotRegistration | null,
+  keepExisting = false,
 ): Promise<UploadResult> {
   // Lazy-import Firebase — skip entirely if not configured
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -249,6 +251,21 @@ export async function uploadVoiceRecordings(
     }
 
     try {
+      const docId = effectiveTeamId
+        ? `${segment.demoSha256}_${effectiveTeamId}`
+        : segment.demoSha256;
+      const existing = await db.collection('voiceRecordings').doc(docId).get();
+      if (existing.exists && keepExisting) {
+        logger.info(`Voice upload: ${segment.map} already uploaded — keeping it`, { docId });
+        skipped++;
+        continue;
+      }
+      // A rerun replaces the audio and manifest, but visibility is the team's
+      // choice once the recording exists, so carry it over
+      const segmentVisibility = existing.exists
+        ? (existing.data()?.visibility ?? visibility)
+        : visibility;
+
       // Resolve player names for this segment
       const resolvedNames = await resolvePlayerNames(db, registration, segment.players);
 
@@ -335,7 +352,7 @@ export async function uploadVoiceRecordings(
         demoSha256: segment.demoSha256,
         teamId: effectiveTeamId,
         teamTag: effectiveTeamTag.toLowerCase(),
-        visibility,
+        visibility: segmentVisibility,
         source: 'firebase_storage',
         recordingSource: source === 'mumble' ? 'mumble' : 'discord',
         tracks,
@@ -357,9 +374,6 @@ export async function uploadVoiceRecordings(
           totalErrors: totalVerifyErrors,
         };
       }
-      const docId = effectiveTeamId
-        ? `${segment.demoSha256}_${effectiveTeamId}`
-        : segment.demoSha256;
       await db.collection('voiceRecordings').doc(docId).set(manifest);
 
       uploaded++;

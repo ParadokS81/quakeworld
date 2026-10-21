@@ -204,6 +204,81 @@ async function ensureDir(dirPath: string): Promise<string> {
   return dirPath;
 }
 
+interface SliceCandidate {
+  track: SessionTrack;
+  audioPath: string;
+  startSec: number;
+  endSec: number;
+}
+
+/**
+ * Group a segment's slice candidates by output player name.
+ */
+function groupByPlayer(
+  candidates: Array<SliceCandidate & { playerName: string }>,
+): Map<string, SliceCandidate[]> {
+  const groups = new Map<string, SliceCandidate[]>();
+  for (const { playerName, ...candidate } of candidates) {
+    const group = groups.get(playerName) ?? [];
+    group.push(candidate);
+    groups.set(playerName, group);
+  }
+  return groups;
+}
+
+/**
+ * Slice one player's audio for a segment into outPath.
+ *
+ * A player can own more than one track (a reconnect in a recording made before
+ * the Mumble recorder resumed tracks, or two clients under one name). Slicing
+ * them all to the same file in parallel clobbers it and every write fails, so
+ * each candidate gets its own temp file and the one with the most sound (highest
+ * mean volume) is kept. No mixing: that would mean transcoding.
+ */
+async function slicePlayer(
+  candidates: SliceCandidate[],
+  outPath: string,
+): Promise<{ track: SessionTrack; duration: number }> {
+  if (candidates.length === 1) {
+    const [only] = candidates;
+    const duration = await ffmpegSlice(only.audioPath, outPath, only.startSec, only.endSec);
+    return { track: only.track, duration };
+  }
+
+  const ext = extname(outPath);
+  const sliced = await Promise.all(candidates.map(async (c) => {
+    const tmpPath = `${outPath.slice(0, -ext.length)}.track${c.track.track_number}${ext}`;
+    try {
+      const duration = await ffmpegSlice(c.audioPath, tmpPath, c.startSec, c.endSec);
+      const { meanVolume } = await ffmpegVolumeDetect(tmpPath);
+      return { track: c.track, tmpPath, duration, meanVolume };
+    } catch (err) {
+      logger.warn(`Failed to slice track ${c.track.track_number} (${c.track.audio_file}): ${err}`);
+      await unlink(tmpPath).catch(() => {});
+      return null;
+    }
+  }));
+
+  const ok = sliced.filter((s): s is NonNullable<typeof s> => s !== null);
+  if (ok.length === 0) {
+    throw new Error(`all ${candidates.length} tracks failed to slice`);
+  }
+
+  ok.sort((a, b) => b.meanVolume - a.meanVolume);
+  const [best, ...rest] = ok;
+  await rename(best.tmpPath, outPath);
+  await Promise.all(rest.map((r) => unlink(r.tmpPath).catch(() => {})));
+
+  logger.info(
+    `Player has ${candidates.length} tracks — kept track ${best.track.track_number} (mean ${best.meanVolume}dB)`,
+    {
+      outPath,
+      dropped: rest.map((r) => ({ track: r.track.track_number, meanVolumeDb: r.meanVolume })),
+    },
+  );
+  return { track: best.track, duration: best.duration };
+}
+
 // ============================================================
 // Main splitting functions
 // ============================================================
@@ -248,7 +323,7 @@ export async function splitByTimestamps(
           maxVolumeDb: stats.maxVolume,
         });
         logger.info(
-          `Track ${track.discord_username} is silent (max: ${stats.maxVolume}dB), skipping`,
+          `Track ${track.track_number} (${track.audio_file}) is silent (max: ${stats.maxVolume}dB), skipping`,
         );
       }
     } catch (err) {
@@ -264,8 +339,7 @@ export async function splitByTimestamps(
     await ensureDir(join(outputDir, dirName, 'transcripts'));
     await ensureDir(join(outputDir, dirName, 'analysis'));
 
-    // Slice all tracks in parallel — each ffmpeg instance is independent
-    const sliceJobs: Array<Promise<SegmentPlayer | null>> = [];
+    const candidates: Array<SliceCandidate & { playerName: string }> = [];
 
     for (const track of session.tracks) {
       if (silentTracks.has(track.track_number)) continue;
@@ -275,7 +349,7 @@ export async function splitByTimestamps(
 
       if (trackDuration === undefined) {
         logger.warn(
-          `Skipping track ${track.track_number} (${track.discord_username}): no audio file`,
+          `Skipping track ${track.track_number} (${track.audio_file}): no audio file`,
         );
         continue;
       }
@@ -298,27 +372,31 @@ export async function splitByTimestamps(
       }
 
       const [startSec, endSec] = offsets;
-      const audioExt = extname(track.audio_file).replace('.', '');
-      const outPath = join(audioDir, `${playerName}.${audioExt}`);
-
-      sliceJobs.push(
-        ffmpegSlice(audioPath, outPath, startSec, endSec).then((actualDuration) => {
-          logger.info(
-            `Split ${track.discord_username}: ${startSec.toFixed(1)}s-${endSec.toFixed(1)}s (${actualDuration.toFixed(1)}s) -> ${playerName}.${audioExt}`,
-          );
-          return {
-            name: playerName,
-            discordUserId: track.discord_user_id,
-            discordUsername: track.discord_username,
-            audioFile: outPath,
-            duration: actualDuration,
-          };
-        }).catch((err) => {
-          logger.warn(`Failed to slice ${track.discord_username}: ${err}`);
-          return null;
-        }),
-      );
+      candidates.push({ playerName, track, audioPath, startSec, endSec });
     }
+
+    // Slice all players in parallel — each output file has exactly one writer
+    const sliceJobs = [...groupByPlayer(candidates)].map(([playerName, group]) => {
+      const audioExt = extname(group[0].track.audio_file).replace('.', '');
+      const outPath = join(audioDir, `${playerName}.${audioExt}`);
+      const { startSec, endSec } = group[0];
+
+      return slicePlayer(group, outPath).then(({ track, duration }): SegmentPlayer => {
+        logger.info(
+          `Split ${playerName}: ${startSec.toFixed(1)}s-${endSec.toFixed(1)}s (${duration.toFixed(1)}s) -> ${playerName}.${audioExt}`,
+        );
+        return {
+          name: playerName,
+          discordUserId: track.discord_user_id,
+          discordUsername: track.discord_username,
+          audioFile: outPath,
+          duration,
+        };
+      }).catch((err) => {
+        logger.warn(`Failed to slice ${playerName}: ${err}`);
+        return null;
+      });
+    });
 
     const players = (await Promise.all(sliceJobs)).filter(
       (p): p is SegmentPlayer => p !== null,
@@ -483,7 +561,7 @@ export async function extractIntermissions(
     const audioDir = await ensureDir(join(outputDir, dirName, 'audio'));
     await ensureDir(join(outputDir, dirName, 'transcripts'));
 
-    const sliceJobs: Array<Promise<SegmentPlayer | null>> = [];
+    const candidates: Array<SliceCandidate & { playerName: string }> = [];
 
     for (const track of session.tracks) {
       const audioPath = join(recordingDir, track.audio_file);
@@ -506,27 +584,30 @@ export async function extractIntermissions(
       }
 
       const [startSec, endSec] = offsets;
-      const audioExt = extname(track.audio_file).replace('.', '');
-      const outPath = join(audioDir, `${playerName}.${audioExt}`);
-
-      sliceJobs.push(
-        ffmpegSlice(audioPath, outPath, startSec, endSec).then((actualDuration) => {
-          logger.info(
-            `Intermission ${label}: ${playerName} ${startSec.toFixed(1)}s-${endSec.toFixed(1)}s (${actualDuration.toFixed(1)}s)`,
-          );
-          return {
-            name: playerName,
-            discordUserId: track.discord_user_id,
-            discordUsername: track.discord_username,
-            audioFile: outPath,
-            duration: actualDuration,
-          };
-        }).catch((err) => {
-          logger.warn(`Failed to slice intermission ${label} ${playerName}: ${err}`);
-          return null;
-        }),
-      );
+      candidates.push({ playerName, track, audioPath, startSec, endSec });
     }
+
+    const sliceJobs = [...groupByPlayer(candidates)].map(([playerName, group]) => {
+      const audioExt = extname(group[0].track.audio_file).replace('.', '');
+      const outPath = join(audioDir, `${playerName}.${audioExt}`);
+      const { startSec, endSec } = group[0];
+
+      return slicePlayer(group, outPath).then(({ track, duration }): SegmentPlayer => {
+        logger.info(
+          `Intermission ${label}: ${playerName} ${startSec.toFixed(1)}s-${endSec.toFixed(1)}s (${duration.toFixed(1)}s)`,
+        );
+        return {
+          name: playerName,
+          discordUserId: track.discord_user_id,
+          discordUsername: track.discord_username,
+          audioFile: outPath,
+          duration,
+        };
+      }).catch((err) => {
+        logger.warn(`Failed to slice intermission ${label} ${playerName}: ${err}`);
+        return null;
+      });
+    });
 
     const players = (await Promise.all(sliceJobs)).filter(
       (p): p is SegmentPlayer => p !== null,

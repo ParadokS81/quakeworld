@@ -269,6 +269,8 @@ ls -la /mnt/user/appdata/quad/recordings/
 cd /mnt/user/appdata/quad && docker compose logs quad | grep -i record
 ```
 
+**One map missing, usually the last.** The map was not on QW Hub yet when the bot looked it up (`Hub matches filtered` names how many it kept). The bot retries 5 and 15 minutes later (`Late-match retry` in the log); if the bot restarted in between, run `/process rerun <session_id>` in Discord once the match shows on hub.quakeworld.nu. Raw audio stays on disk, so a rerun always works.
+
 ### Mumble server unreachable from outside
 
 Probe in three layers:

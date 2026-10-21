@@ -149,6 +149,11 @@ export interface FastPipelineResult {
   summary: string;
 }
 
+export interface FastPipelineOptions {
+  /** Leave maps that are already uploaded untouched (the late-match retry only adds maps). */
+  keepExistingUploads?: boolean;
+}
+
 /**
  * Run the fast pipeline: hub query → match pairing → audio splitting.
  * Takes seconds. Safe to run automatically after recording stops.
@@ -156,6 +161,7 @@ export interface FastPipelineResult {
 export async function runFastPipeline(
   sessionDir: string,
   config: ProcessingConfig,
+  options: FastPipelineOptions = {},
 ): Promise<FastPipelineResult> {
   const session = await loadSessionMetadata(sessionDir);
   const sessionId = session.recording_id;
@@ -328,7 +334,9 @@ export async function runFastPipeline(
       try {
         const { uploadVoiceRecordings } = await import('./stages/voice-uploader.js');
         const guildId = session.guild?.id ?? '';
-        const uploadResult = await uploadVoiceRecordings(segments, teamTag, guildId, session.source, sessionId, registration);
+        const uploadResult = await uploadVoiceRecordings(
+          segments, teamTag, guildId, session.source, sessionId, registration, options.keepExistingUploads,
+        );
         if (uploadResult.uploaded > 0) {
           logger.info('Voice recordings uploaded to Firebase', { ...uploadResult });
 
@@ -363,6 +371,87 @@ export async function runFastPipeline(
   } finally {
     runningPipelines.delete(sessionId);
   }
+}
+
+// ============================================================
+// Auto pipeline: fast pipeline + late-match retry
+// ============================================================
+
+// The hub lists a match only once its server has uploaded the demo, which can
+// take minutes, while the fast pipeline runs seconds after the channel empties.
+// When a team leaves right after the last map, that map is not on the hub yet
+// (2026-10-21: dm2 ended 62s before the query and was missed). Retry at 5 and
+// 15 minutes after the first run.
+const LATE_MATCH_RETRY_DELAYS_MIN = [5, 10];
+
+/** An unmatched stretch at the end of a recording at least this long may hide a map. */
+const LATE_MATCH_MIN_TAIL_SEC = 10 * 60;
+
+/**
+ * Run the fast pipeline after a recording stops, then look at the hub again
+ * later if the end of the recording matched no map. Timers are best-effort:
+ * a bot restart drops them, and `/process rerun` still covers that case.
+ */
+export async function runAutoPipeline(
+  sessionDir: string,
+  config: ProcessingConfig,
+): Promise<FastPipelineResult> {
+  const result = await runFastPipeline(sessionDir, config);
+  await scheduleLateMatchRetry(sessionDir, config, result.pairings, 0);
+  return result;
+}
+
+async function scheduleLateMatchRetry(
+  sessionDir: string,
+  config: ProcessingConfig,
+  pairings: MatchPairing[],
+  attempt: number,
+): Promise<void> {
+  const session = await loadSessionMetadata(sessionDir);
+  const durationSec =
+    (new Date(session.recording_end_time).getTime() - new Date(session.recording_start_time).getTime()) / 1000;
+  const lastMatchEndSec = Math.max(0, ...pairings.map((p) => p.audioEndSeconds));
+  const tailSec = durationSec - lastMatchEndSec;
+
+  if (tailSec < LATE_MATCH_MIN_TAIL_SEC) return;
+
+  const sessionId = session.recording_id;
+  if (attempt >= LATE_MATCH_RETRY_DELAYS_MIN.length) {
+    logger.info('Late-match retry: no map found for the end of the recording, giving up', {
+      sessionId,
+      unmatchedTailMin: Math.round(tailSec / 60),
+    });
+    return;
+  }
+
+  const delayMin = LATE_MATCH_RETRY_DELAYS_MIN[attempt];
+  logger.info(`Late-match retry: end of recording matched no map, checking the hub again in ${delayMin} min`, {
+    sessionId,
+    unmatchedTailMin: Math.round(tailSec / 60),
+    attempt: attempt + 1,
+  });
+
+  const timer = setTimeout(() => {
+    runFastPipeline(sessionDir, config, { keepExistingUploads: true })
+      .then(async (result) => {
+        if (result.pairings.length > pairings.length) {
+          logger.info('Late-match retry found new maps', {
+            sessionId,
+            before: pairings.length,
+            after: result.pairings.length,
+          });
+        }
+        await scheduleLateMatchRetry(sessionDir, config, result.pairings, attempt + 1);
+      })
+      .catch((err) => {
+        logger.warn('Late-match retry failed', {
+          sessionId,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
+  }, delayMin * 60_000);
+  // Never hold the process open at shutdown for a best-effort retry
+  timer.unref();
 }
 
 // ============================================================

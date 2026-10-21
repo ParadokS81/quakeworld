@@ -37,7 +37,7 @@ The recording module is the bot's reason to exist; these invariants are load-bea
 - **One continuous file per speaker per session** — `EndBehaviorType.Manual`, never fragment.
 - **`selfDeaf: false, selfMute: true`** — bot hears but does not transmit.
 - **Late-join handling:** silent frames prepended from session start to user join time so per-speaker tracks align in time.
-- **Rejoin:** `reattach()` swaps the opus stream while the silence timer keeps running — no duplicate tracks, no drift.
+- **Rejoin:** `reattach()` swaps the opus stream while the silence timer keeps running — no duplicate tracks, no drift. The Mumble recorder does the same by speaker: Murmur gives a reconnecting user a new session ID, so `MumbleRecordingSession` keys tracks by registered user ID (name for anonymous users) and a rejoin resumes the speaker's track.
 - **Per-track error isolation:** a failed track is marked, others keep recording.
 - **Firestore writes are fire-and-forget** — Firestore outages must never fail a recording.
 - **`session_metadata.json` is the public contract** (schema at `docs/session_metadata_schema.json`). Schema changes require a version bump.
@@ -70,7 +70,8 @@ Two stages: **fast** (auto after recording, seconds; `/process rerun` repeats it
 
 Stage files live at `src/modules/processing/stages/`. Knowledge YAMLs (consumed by the analyzer) live at `src/modules/processing/knowledge/`. Pipeline orchestrator at `src/modules/processing/pipeline.ts`. Run `ls` against either dir for current stage / knowledge file inventory — those are the canonical lists.
 
-- **Fast pipeline** correlates recording timestamps with QW Hub matches, slices per-speaker audio to match boundaries via `ffmpeg` stream-copy, uploads to Firebase Storage with a Firestore manifest.
+- **Fast pipeline** correlates recording timestamps with QW Hub matches, slices per-speaker audio to match boundaries via `ffmpeg` stream-copy, uploads to Firebase Storage with a Firestore manifest. One output file per player per map: a player with several tracks keeps the one with the most sound. A rerun replaces a map's audio and manifest but keeps the team's visibility setting.
+- **Late-match retry.** The hub lists a match only after its server uploads the demo, which can take minutes, and the fast pipeline runs seconds after the channel empties. When the end of a recording (10+ min) matched no map, the auto path (`runAutoPipeline`) looks again 5 and 15 minutes later and uploads only maps that are new. A bot restart drops the pending retries; `/process rerun` covers that.
 - **Slow pipeline** transcribes via Python `faster-whisper` wrapper (re-segments by silence gaps), merges transcripts with ktxstats into a unified timeline, runs Claude API analysis using the knowledge YAMLs.
 
 ---

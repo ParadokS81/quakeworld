@@ -33,7 +33,7 @@ import { SessionMonitor } from './session-monitor.js';
 import { MumbleConfigListener } from './config-listener.js';
 import { AutoRecord } from './auto-record.js';
 import { type MumbleRecordingSession } from './mumble-session.js';
-import { runFastPipeline } from '../processing/pipeline.js';
+import { runAutoPipeline } from '../processing/pipeline.js';
 import { loadConfig } from '../../core/config.js';
 
 const mumbleManager = new MumbleManager();
@@ -135,7 +135,7 @@ export const mumbleModule: BotModule = {
 
           if (config.processing.processingAuto) {
             try {
-              await runFastPipeline(summary.outputDir, config.processing);
+              await runAutoPipeline(summary.outputDir, config.processing);
             } catch (err) {
               logger.error('Mumble processing pipeline failed', {
                 sessionId: summary.sessionId,

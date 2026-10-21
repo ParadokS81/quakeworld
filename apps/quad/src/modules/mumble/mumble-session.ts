@@ -5,7 +5,7 @@
  *   1. new MumbleRecordingSession(opts) — construct with channel + team info
  *   2. await session.init()             — create output directory
  *   3. session.start()                  — begin receiving voice (attach voice receiver)
- *   4. session.addUser(...)             — create a track for a new speaker
+ *   4. session.addUser(...)             — create a track for a new speaker (a rejoin resumes theirs)
  *   5. session.removeUser(sessionId)    — user left (track keeps running for silence pad)
  *   6. await session.stop()             — stop all tracks, write metadata, return summary
  *
@@ -45,7 +45,11 @@ export class MumbleRecordingSession {
   readonly teamTag: string;
   readonly teamName: string;
 
-  private tracks = new Map<number, MumbleTrack>();  // keyed by Mumble session ID
+  // One track per speaker for the whole session. Murmur hands out a new
+  // session ID on every reconnect, so tracks are keyed by speaker and the
+  // session-ID map only routes voice packets to the right track.
+  private tracks = new Map<string, MumbleTrack>();            // keyed by speakerKey()
+  private trackBySession = new Map<number, MumbleTrack>();    // keyed by Mumble session ID
   private nextTrackNumber = 1;
   private voiceReceiver: VoiceReceiver | null = null;
   private mumbleClient: MumbleClient | null = null;
@@ -118,7 +122,7 @@ export class MumbleRecordingSession {
     this.voiceReceiver = new VoiceReceiver();
     this.voiceReceiver.attach(mumbleClient, (packet) => {
       if (this.stopping) return;
-      const track = this.tracks.get(packet.senderSession);
+      const track = this.trackBySession.get(packet.senderSession);
       if (track && !track.isFailed) {
         track.writeOpusFrame(packet.opusData);
       }
@@ -133,6 +137,9 @@ export class MumbleRecordingSession {
   /**
    * Add a user who joined the channel (create their track).
    * Idempotent: if the user already has a track, returns it without creating a new one.
+   * A speaker who rejoins under a new Mumble session ID resumes their existing
+   * track: its silence timer kept running while they were away, so the file
+   * stays continuous and the processing pipeline sees one file per player.
    */
   addUser(
     mumbleSessionId: number,
@@ -141,8 +148,20 @@ export class MumbleRecordingSession {
     discordUserId?: string | null,
     discordUsername?: string | null,
   ): MumbleTrack {
-    const existing = this.tracks.get(mumbleSessionId);
+    const existing = this.trackBySession.get(mumbleSessionId);
     if (existing) return existing;
+
+    const key = speakerKey(username, mumbleUserId);
+    const previous = this.tracks.get(key);
+    if (previous) {
+      this.trackBySession.set(mumbleSessionId, previous);
+      logger.info(`Mumble track ${previous.trackNumber} resumed: ${username}`, {
+        mumbleSessionId,
+        firstMumbleSessionId: previous.sessionId,
+        sessionId: this.sessionId,
+      });
+      return previous;
+    }
 
     const trackNumber = this.nextTrackNumber++;
     const track = new MumbleTrack({
@@ -157,7 +176,8 @@ export class MumbleRecordingSession {
     });
 
     track.start();
-    this.tracks.set(mumbleSessionId, track);
+    this.tracks.set(key, track);
+    this.trackBySession.set(mumbleSessionId, track);
 
     logger.info(`Mumble track ${trackNumber} recording: ${username}`, {
       mumbleSessionId,
@@ -173,18 +193,19 @@ export class MumbleRecordingSession {
    * until stop() is called on the session.
    */
   removeUser(mumbleSessionId: number): void {
-    const track = this.tracks.get(mumbleSessionId);
+    const track = this.trackBySession.get(mumbleSessionId);
     if (track) {
       logger.info(`User left Mumble channel: ${track.username}`, {
         mumbleSessionId,
         sessionId: this.sessionId,
       });
     }
-    // We intentionally keep the track in the map — silence timer continues
+    // We intentionally keep the track in the maps — silence timer continues,
+    // and a later addUser for the same speaker resumes it
   }
 
   hasUser(mumbleSessionId: number): boolean {
-    return this.tracks.has(mumbleSessionId);
+    return this.trackBySession.has(mumbleSessionId);
   }
 
   getUserCount(): number {
@@ -233,7 +254,7 @@ export class MumbleRecordingSession {
       packetsReceived: receiverStats.packetsReceived,
       packetsParsed: receiverStats.packetsParsed,
       trackCount: this.tracks.size,
-      knownTrackKeys: Array.from(this.tracks.keys()),
+      knownTrackKeys: Array.from(this.trackBySession.keys()),
     });
 
     // Stop all tracks
@@ -280,4 +301,13 @@ export class MumbleRecordingSession {
       endTime,
     };
   }
+}
+
+/**
+ * Identify a speaker across reconnects. Registered users keep their Murmur
+ * user ID; anonymous users (ID 0) fall back to their name, which Murmur keeps
+ * unique among connected users.
+ */
+function speakerKey(username: string, mumbleUserId: number): string {
+  return mumbleUserId > 0 ? `id:${mumbleUserId}` : `name:${username.toLowerCase()}`;
 }

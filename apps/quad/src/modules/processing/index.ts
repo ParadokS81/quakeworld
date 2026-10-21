@@ -12,7 +12,7 @@ import { loadConfig } from '../../core/config.js';
 import { logger } from '../../core/logger.js';
 import { processCommand, handleProcessCommand } from './commands/process.js';
 import { onRecordingStop } from '../recording/commands/record.js';
-import { runFastPipeline } from './pipeline.js';
+import { runAutoPipeline } from './pipeline.js';
 import { startDeletionListener, stopDeletionListener } from './deletion-listener.js';
 
 export const processingModule: BotModule = {
@@ -31,7 +31,7 @@ export const processingModule: BotModule = {
       onRecordingStop((sessionDir: string, sessionId: string) => {
         logger.info('Auto-triggering fast pipeline after recording stop', { sessionId, sessionDir });
 
-        runFastPipeline(sessionDir, config.processing)
+        runAutoPipeline(sessionDir, config.processing)
           .then((result) => {
             logger.info('Auto fast pipeline complete', {
               sessionId,
