@@ -283,6 +283,13 @@ cd /mnt/user/appdata/quad && docker compose ps mumble
 # (if step 2 succeeds but step 1 fails: router rule changed or WAN IP changed)
 ```
 
+### Player rejected on a new PC ("Wrong certificate or password")
+
+Murmur pins exactly one client certificate per registered account; a password login overwrites it. Quad erases the one-time password from Firestore after the first connect, so a player on a new PC or a fresh install has no password to type, and the server log shows `Rejected connection ...: Wrong certificate or password for existing user`. (Murmur still holds the password; nobody knows it.) The pinned SHA-1 is `user_info` key 3 in `mumble-data/mumble-server.sqlite`; read it from a copy of the file.
+
+- **Old machine still around (preferred, no server change):** copy its certificate over. Export it with Mumble's Configure → Certificate Wizard and import it on the new machine with the same wizard. Both machines then share one identity. Mumble 1.5 on Windows also keeps the certificate in `%LOCALAPPDATA%\Mumble\Mumble\mumble_settings.json`, key `certificate` (base64 PKCS#12, empty password). Don't import `MumbleAutomaticCertificateBackup.p12` on the new machine: that is the new machine's own rejected certificate. Done for ParadokS's Linux PC on 2026-10-21.
+- **Old machine gone:** re-open the first-time link. Set a new password via ICE `updateRegistration`. Write the same password to `mumbleConfig/{teamId}.mumbleUsers.{uid}.tempPassword` with `certificatePinned: false`. MatchScheduler's Mumble tab then shows the first-time Connect button, and the session monitor re-pins on the next connect. Not yet run.
+
 ### Transcription is slow / fails
 
 CPU whisper with the `small` model is ~5-10x slower than the previous 4090 setup but should still complete a 30-min session in a few minutes. If it's painfully slow or OOMs, drop the model size:
